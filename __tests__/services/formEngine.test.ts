@@ -219,7 +219,7 @@ describe('FormEngine', () => {
 
     it('should calculate duration correctly', () => {
       const result = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
-      
+
       const durationField = result.sections[1].fields[1];
       expect(durationField.id).toBe('durationOfStay');
       expect(durationField.currentValue).toBe(7); // 7 days from July 15-22
@@ -228,7 +228,7 @@ describe('FormEngine', () => {
 
     it('should format address correctly', () => {
       const result = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
-      
+
       const addressField = result.sections[2].fields[1];
       expect(addressField.id).toBe('hotelAddress');
       expect(addressField.currentValue).toBe('3-7-1-2 Nishi-Shinjuku, Tokyo, Tokyo, 163-1055');
@@ -237,7 +237,7 @@ describe('FormEngine', () => {
 
     it('should mark fields needing user input', () => {
       const result = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
-      
+
       const purposeField = result.sections[1].fields[2];
       expect(purposeField.id).toBe('purposeOfVisit');
       expect(purposeField.needsUserInput).toBe(true);
@@ -258,7 +258,7 @@ describe('FormEngine', () => {
       };
 
       const result = generateFilledForm(mockProfile, mockTripLeg, mockSchema, existingData);
-      
+
       const purposeField = result.sections[1].fields[2];
       expect(purposeField.currentValue).toBe('business');
       expect(purposeField.source).toBe('user');
@@ -303,7 +303,7 @@ describe('FormEngine', () => {
       };
 
       const result = generateFilledForm(mockProfile, mockTripLeg, schemaWithMissingSource);
-      
+
       const field = result.sections[0].fields[0];
       expect(field.needsUserInput).toBe(true);
       expect(field.source).toBe('empty');
@@ -369,7 +369,7 @@ describe('FormEngine', () => {
 
       expect(countrySpecific).toHaveLength(2);
       expect(countrySpecific.map(f => f.id)).toEqual(['purposeOfVisit', 'currencyOver1M']);
-      
+
       countrySpecific.forEach(field => {
         expect(field.countrySpecific).toBe(true);
         expect(field.needsUserInput).toBe(true);
@@ -380,7 +380,7 @@ describe('FormEngine', () => {
   describe('exportFormData', () => {
     it('should export form data correctly', () => {
       const filledForm = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
-      
+
       // Fill in missing fields and mark as user-filled
       filledForm.sections[1].fields[2].currentValue = 'business';
       filledForm.sections[1].fields[2].source = 'user';
@@ -422,7 +422,7 @@ describe('FormEngine', () => {
       expect(progress.completedSections).toBe(2); // personal and accommodation sections are complete
 
       expect(progress.sectionProgress).toHaveLength(4);
-      
+
       const personalProgress = progress.sectionProgress[0];
       expect(personalProgress.sectionId).toBe('personal');
       expect(personalProgress.completed).toBe(3);

@@ -17,15 +17,15 @@ export function createFieldSchema(field: FormField): z.ZodSchema<unknown> {
     case 'text':
     case 'textarea':
       schema = z.string();
-      
+
       if (field.validation?.minLength) {
         schema = (schema as z.ZodString).min(field.validation.minLength);
       }
-      
+
       if (field.validation?.maxLength) {
         schema = (schema as z.ZodString).max(field.validation.maxLength);
       }
-      
+
       if (field.validation?.pattern) {
         schema = (schema as z.ZodString).regex(new RegExp(field.validation.pattern));
       }
@@ -33,11 +33,11 @@ export function createFieldSchema(field: FormField): z.ZodSchema<unknown> {
 
     case 'number':
       schema = z.number();
-      
+
       if (field.validation?.min !== undefined) {
         schema = (schema as z.ZodNumber).min(field.validation.min);
       }
-      
+
       if (field.validation?.max !== undefined) {
         schema = (schema as z.ZodNumber).max(field.validation.max);
       }
@@ -83,7 +83,7 @@ export function createFieldSchema(field: FormField): z.ZodSchema<unknown> {
  * Validates a single field value against its configuration.
  */
 export function validateField(
-  field: FormField, 
+  field: FormField,
   value: unknown
 ): { isValid: boolean; error?: string } {
   try {
@@ -92,14 +92,14 @@ export function validateField(
     return { isValid: true };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return { 
-        isValid: false, 
-        error: error.errors[0]?.message || 'Validation failed'
+      return {
+        isValid: false,
+        error: error.errors[0]?.message || 'Validation failed',
       };
     }
-    return { 
-      isValid: false, 
-      error: 'Unknown validation error'
+    return {
+      isValid: false,
+      error: 'Unknown validation error',
     };
   }
 }
@@ -116,7 +116,7 @@ export function validateFields(
   fields.forEach(field => {
     const value = values[field.id];
     const result = validateField(field, value);
-    
+
     if (!result.isValid && result.error) {
       errors[field.id] = result.error;
     }
@@ -189,7 +189,7 @@ export const TRAVEL_VALIDATORS = {
     const date = new Date(value);
     const now = new Date();
     const oneYearFromNow = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-    
+
     return date >= now && date <= oneYearFromNow;
   },
 
@@ -229,7 +229,7 @@ export function validateCountrySpecificRules(
       if (formData.currencyOver1M === true && !formData.currencyDeclarationForm) {
         errors.push('Currency declaration form required when carrying over ¥1,000,000');
       }
-      
+
       if (formData.meatProducts === true) {
         errors.push('All meat products are prohibited in Japan');
       }

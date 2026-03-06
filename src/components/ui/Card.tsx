@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, ViewProps } from 'react-native';
 
 export interface CardProps extends ViewProps {
