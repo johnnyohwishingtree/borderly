@@ -1,0 +1,33 @@
+diff --git a/package.json b/package.json
+index fabdfb47ee4d851caa2e2165bd6e448c9f6a10a0..934b3257ee08e77fd6a597307def251b4f742fc9 100644
+--- a/package.json
++++ b/package.json
+@@ -160,6 +160,28 @@
+       "javaPackageName": "com.swmansion.rnscreens"
+     },
+     "ios": {
++      "componentProvider": {
++        "RNSFullWindowOverlay": "RNSFullWindowOverlay",
++        "RNSModalScreen": "RNSModalScreen",
++        "RNSScreenContainer": "RNSScreenContainerView",
++        "RNSScreenContentWrapper": "RNSScreenContentWrapper",
++        "RNSScreenFooter": "RNSScreenFooter",
++        "RNSScreen": "RNSScreenView",
++        "RNSScreenNavigationContainer": "RNSScreenNavigationContainerView",
++        "RNSScreenStackHeaderConfig": "RNSScreenStackHeaderConfig",
++        "RNSScreenStackHeaderSubview": "RNSScreenStackHeaderSubview",
++        "RNSScreenStack": "RNSScreenStackView",
++        "RNSSearchBar": "RNSSearchBar",
++        "RNSStackScreen": "RNSStackScreenComponentView",
++        "RNSStackHost": "RNSStackHostComponentView",
++        "RNSTabsScreen": "RNSTabsScreenComponentView",
++        "RNSTabsHost": "RNSTabsHostComponentView",
++        "RNSTabsBottomAccessory": "RNSTabsBottomAccessoryComponentView",
++        "RNSTabsBottomAccessoryContent": "RNSTabsBottomAccessoryContentComponentView",
++        "RNSSplitViewHost": "RNSSplitViewHostComponentView",
++        "RNSSplitViewScreen": "RNSSplitViewScreenComponentView",
++        "RNSSafeAreaView": "RNSSafeAreaViewComponentView"
++      },
+       "components": {
+         "RNSFullWindowOverlay": {
+           "className": "RNSFullWindowOverlay"

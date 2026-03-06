@@ -8,11 +8,10 @@ require Pod::Executable.execute_command('node', ['-p',
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-# Enable use_frameworks for WatermelonDB compatibility
-use_frameworks! :linkage => :static
-
 target 'Borderly' do
-  config = use_native_modules!
+  config = use_native_modules!(
+    ['npx', 'react-native', 'config']
+  )
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -26,12 +25,10 @@ target 'Borderly' do
   end
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
     )
   end
 end
