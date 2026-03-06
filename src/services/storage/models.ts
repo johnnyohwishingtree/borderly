@@ -7,8 +7,8 @@ export class Trip extends Model {
 
   @field('name') name!: string;
   @field('status') status!: 'upcoming' | 'active' | 'completed';
-  @readonly @date('created_at') createdAt!: Date;
-  @readonly @date('updated_at') updatedAt!: Date;
+  @date('created_at') @readonly createdAt!: Date;
+  @date('updated_at') @readonly updatedAt!: Date;
 
   // Helper methods
   get createdAtISO(): string {
@@ -67,7 +67,7 @@ export class TripLeg extends Model {
   }
 
   setFormData(formData: Record<string, unknown> | undefined): void {
-    this.formDataString = formData ? JSON.stringify(formData) : undefined;
+    this.formDataString = formData ? JSON.stringify(formData) : '';
   }
 
   // Helper methods for dates
@@ -86,7 +86,7 @@ export class SavedQRCode extends Model {
   @field('leg_id') legId!: string;
   @field('type') type!: 'immigration' | 'customs' | 'health' | 'combined';
   @field('image_base64') imageBase64!: string;
-  @readonly @date('saved_at') savedAt!: Date;
+  @date('saved_at') @readonly savedAt!: Date;
   @field('label') label!: string;
 
   // Helper methods

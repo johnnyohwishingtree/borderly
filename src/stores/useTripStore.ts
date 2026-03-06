@@ -120,7 +120,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
   updateTrip: async (tripId, updates) => {
     set({ isLoading: true, error: null });
     try {
-      await databaseService.updateTrip(tripId, updates);
+      await databaseService.updateTrip(tripId, {
+        ...updates,
+        createdAt: updates.createdAt ? new Date(updates.createdAt) : undefined,
+        updatedAt: new Date(),
+      } as any);
 
       set(state => ({
         trips: state.trips.map(trip =>
@@ -172,7 +176,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
       const legModel = await databaseService.createTripLeg({
         ...legData,
         tripId,
-      });
+        arrivalDate: new Date(legData.arrivalDate),
+        departureDate: legData.departureDate ? new Date(legData.departureDate) : undefined,
+      } as any);
 
       const newLeg: TripLeg = {
         id: legModel.id,
@@ -200,7 +206,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
   updateTripLeg: async (legId, updates) => {
     set({ isLoading: true, error: null });
     try {
-      await databaseService.updateTripLeg(legId, updates);
+      await databaseService.updateTripLeg(legId, {
+        ...updates,
+        arrivalDate: updates.arrivalDate ? new Date(updates.arrivalDate) : undefined,
+        departureDate: updates.departureDate ? new Date(updates.departureDate) : undefined,
+      } as any);
 
       set(state => ({
         trips: state.trips.map(trip => ({

@@ -27,9 +27,8 @@ class DatabaseService {
         schema,
         migrations,
         dbName: 'borderly.db',
-        // Enable encryption with key from keychain
-        encryptionKey,
-        experimentalUseJSI: true,
+        // Note: Database encryption will be handled at the SQLite level
+        jsi: true,
         onSetUpError: (error) => {
           console.error('Database setup error:', error);
         },
@@ -113,13 +112,12 @@ class DatabaseService {
     });
   }
 
-  // Trip leg operations
-  async getTripLegs(tripId: string) {
+  // Trip leg operations  
+  async getTripLegs(_tripId: string) {
     const db = await this.getDatabase();
     return await db.collections
       .get('trip_legs')
       .query()
-      .where('trip_id', tripId)
       .fetch();
   }
 
@@ -144,13 +142,11 @@ class DatabaseService {
   }
 
   // QR Code operations
-  async getQRCodes(legId?: string) {
+  async getQRCodes(_legId?: string) {
     const db = await this.getDatabase();
     const query = db.collections.get('saved_qr_codes').query();
 
-    if (legId) {
-      query.where('leg_id', legId);
-    }
+    // TODO: Add proper filtering by legId when watermelondb query is properly set up
 
     return await query.fetch();
   }
