@@ -88,8 +88,8 @@ class DatabaseService {
       return await db.collections.get('trips').create((trip: any) => {
         trip.name = tripData.name || '';
         trip.status = tripData.status || 'upcoming';
-        trip.createdAt = new Date().toISOString();
-        trip.updatedAt = new Date().toISOString();
+        trip.createdAt = new Date();
+        trip.updatedAt = new Date();
       });
     });
   }
@@ -100,7 +100,7 @@ class DatabaseService {
       const trip = await db.collections.get('trips').find(tripId);
       return await trip.update((tripRecord: any) => {
         Object.assign(tripRecord, updates);
-        tripRecord.updatedAt = new Date().toISOString();
+        tripRecord.updatedAt = new Date();
       });
     });
   }
@@ -160,7 +160,7 @@ class DatabaseService {
     return await db.write(async () => {
       return await db.collections.get('saved_qr_codes').create((qr: any) => {
         Object.assign(qr, qrData);
-        qr.savedAt = qr.savedAt || new Date().toISOString();
+        qr.savedAt = qr.savedAt || new Date();
       });
     });
   }
