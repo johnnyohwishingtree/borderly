@@ -1,0 +1,286 @@
+{
+  "countryCode": "JPN",
+  "countryName": "Japan",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-06-01T00:00:00Z",
+  "portalUrl": "https://vjw-lp.digital.go.jp/en/",
+  "portalName": "Visit Japan Web",
+  "submission": {
+    "earliestBeforeArrival": "14d",
+    "latestBeforeArrival": "0h",
+    "recommended": "72h"
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "portalFieldName": "Last Name"
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Names (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "portalFieldName": "First Name / Middle Name"
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "arrivalDate",
+          "label": "Planned Arrival Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "helpText": "Enter only the numeric part, e.g., for NH0123 enter 0123"
+        },
+        {
+          "id": "airlineCode",
+          "label": "Airline Company",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.airlineCode",
+          "countrySpecific": false
+        },
+        {
+          "id": "departureCity",
+          "label": "City of Departure",
+          "type": "text",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "The city where your first flight departs (even if connecting)"
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_relatives", "label": "Visiting Relatives" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "durationOfStay",
+          "label": "Duration of Stay (days)",
+          "type": "number",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "Auto-calculated from arrival/departure dates",
+          "autoFillSource": "leg._calculatedDuration"
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation in Japan",
+      "fields": [
+        {
+          "id": "hotelName",
+          "label": "Hotel / Accommodation Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false
+        },
+        {
+          "id": "hotelAddress",
+          "label": "Address of Accommodation",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false
+        },
+        {
+          "id": "hotelPhone",
+          "label": "Phone Number of Accommodation",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false
+        }
+      ]
+    },
+    {
+      "id": "customs_declarations",
+      "title": "Customs Declarations",
+      "fields": [
+        {
+          "id": "carryingProhibitedItems",
+          "label": "Are you carrying any prohibited items? (drugs, firearms, etc.)",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
+          "countrySpecific": false
+        },
+        {
+          "id": "currencyOver1M",
+          "label": "Are you carrying cash/securities exceeding ¥1,000,000?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Japan-specific threshold. Equivalent to roughly $7,000 USD."
+        },
+        {
+          "id": "commercialGoods",
+          "label": "Are you carrying commercial goods or samples?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
+          "countrySpecific": false
+        },
+        {
+          "id": "meatProducts",
+          "label": "Are you carrying any meat products?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Japan strictly prohibits all meat products including sausage, ham, bacon, jerky."
+        },
+        {
+          "id": "plantProducts",
+          "label": "Are you carrying any plants, fruits, or vegetables?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Fresh fruits, vegetables, and plants are restricted."
+        },
+        {
+          "id": "itemsToDeclareDuty",
+          "label": "Are you carrying items exceeding duty-free allowances?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
+          "countrySpecific": false,
+          "helpText": "Duty-free: 3 bottles of alcohol (760ml each), 400 cigarettes, ¥200,000 worth of goods."
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Create Account on Visit Japan Web",
+      "description": "Go to the Visit Japan Web portal and create an account with your email address. You only need to do this once — your account works for all future trips to Japan.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use a personal email you'll have access to while traveling",
+        "The account creation is separate from the form — do this first"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Register Your Details",
+      "description": "Enter your passport information. The portal will ask you to scan your passport or enter details manually.",
+      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "gender"],
+      "tips": [
+        "Use EXACTLY the name shown on your passport",
+        "You only need to enter this once per passport"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Register Your Trip",
+      "description": "Click 'Register new planned entry/return' and enter your travel details.",
+      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "durationOfStay"],
+      "tips": [
+        "If connecting, enter the flight number of the plane landing in Japan",
+        "Departure city is where your FIRST flight departs"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Enter Accommodation",
+      "description": "Provide your hotel or accommodation details in Japan.",
+      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "tips": [
+        "If staying at multiple places, enter the first one",
+        "Hotel phone number is optional but helpful"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Complete Immigration & Customs Declaration",
+      "description": "Answer the customs declaration questions. For most tourists, the answer to all questions is 'No'.",
+      "fieldsOnThisScreen": ["carryingProhibitedItems", "currencyOver1M", "commercialGoods", "meatProducts", "plantProducts", "itemsToDeclareDuty"],
+      "tips": [
+        "Answer truthfully — false declarations can result in penalties",
+        "All meat products are banned — including beef jerky, salami, etc.",
+        "Prescription medications containing codeine or pseudoephedrine are prohibited"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Get Your QR Code",
+      "description": "After completing all sections, your QR code will be generated. Save it to this app's QR wallet or take a screenshot.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Screenshot the QR code so you can access it offline",
+        "You'll show this QR code at the e-Gate terminals after landing",
+        "The QR code is valid for the trip dates you specified"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,306 @@
+{
+  "countryCode": "MYS",
+  "countryName": "Malaysia",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-06-01T00:00:00Z",
+  "portalUrl": "https://imigresen-online.imi.gov.my/mdac/main",
+  "portalName": "Malaysia Digital Arrival Card (MDAC)",
+  "submission": {
+    "earliestBeforeArrival": "3d",
+    "latestBeforeArrival": "0h",
+    "recommended": "24h"
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "portalFieldName": "Family Name"
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Names (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "portalFieldName": "First Name"
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ]
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phoneNumber",
+          "countrySpecific": false
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "arrivalDate",
+          "label": "Arrival Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false
+        },
+        {
+          "id": "arrivalAirport",
+          "label": "Port of Entry",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "leg.arrivalAirport",
+          "countrySpecific": true,
+          "options": [
+            { "value": "KUL", "label": "Kuala Lumpur International Airport (KLIA)" },
+            { "value": "KUA", "label": "Kuala Lumpur International Airport 2 (KLIA2)" },
+            { "value": "PEN", "label": "Penang International Airport" },
+            { "value": "JHB", "label": "Johor Bahru Sultan Ismail Airport" },
+            { "value": "LGK", "label": "Langkawi International Airport" },
+            { "value": "KCH", "label": "Kuching Airport" },
+            { "value": "BKI", "label": "Kota Kinabalu International Airport" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism/Holiday" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_family", "label": "Visiting Family/Friends" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "conference", "label": "Conference/Meeting" },
+            { "value": "medical", "label": "Medical Treatment" },
+            { "value": "education", "label": "Education" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "durationOfStay",
+          "label": "Duration of Stay (days)",
+          "type": "number",
+          "required": true,
+          "countrySpecific": false,
+          "autoFillSource": "leg._calculatedDuration",
+          "validation": {
+            "min": 1,
+            "max": 90
+          },
+          "helpText": "Maximum 90 days for tourism"
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation in Malaysia",
+      "fields": [
+        {
+          "id": "hotelName",
+          "label": "Hotel / Accommodation Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false
+        },
+        {
+          "id": "hotelAddress",
+          "label": "Address of Accommodation",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false
+        },
+        {
+          "id": "hotelPhone",
+          "label": "Phone Number of Accommodation",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false
+        }
+      ]
+    },
+    {
+      "id": "health_declarations",
+      "title": "Health and Travel Declarations",
+      "fields": [
+        {
+          "id": "healthCondition",
+          "label": "Do you have any infectious diseases or health conditions?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Include recent illnesses, fever, cough, or any contagious conditions"
+        },
+        {
+          "id": "visitedHighRiskCountries",
+          "label": "Have you visited any high-risk countries in the past 14 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Countries with outbreaks of infectious diseases"
+        },
+        {
+          "id": "carryingCurrency",
+          "label": "Are you carrying currency exceeding RM10,000 (or equivalent)?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCurrency",
+          "countrySpecific": false,
+          "helpText": "Malaysian Ringgit 10,000 or foreign currency equivalent"
+        },
+        {
+          "id": "carryingProhibitedItems",
+          "label": "Are you carrying any prohibited or restricted items?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
+          "countrySpecific": false,
+          "helpText": "Drugs, weapons, endangered species products, etc."
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Access MDAC Portal",
+      "description": "Go to the Malaysia Digital Arrival Card website. No account creation is required - you can complete the form directly.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Have your passport and flight details ready",
+        "Complete this no more than 3 days before arrival"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Personal Information",
+      "description": "Fill in your passport details exactly as shown on your passport document.",
+      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "passportExpiry", "gender", "email", "phoneNumber"],
+      "tips": [
+        "Use the same name format as your passport",
+        "Ensure email is valid as you'll receive a confirmation",
+        "Include country code for phone number (e.g., +1 for US)"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Travel Details",
+      "description": "Provide your flight and travel information for entry into Malaysia.",
+      "fieldsOnThisScreen": ["arrivalDate", "arrivalAirport", "flightNumber", "purposeOfVisit", "durationOfStay"],
+      "tips": [
+        "Select the correct airport - KLIA and KLIA2 are different",
+        "Duration of stay affects your visa validity"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Accommodation Information",
+      "description": "Enter details of where you will be staying in Malaysia.",
+      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "tips": [
+        "If staying multiple places, provide the first accommodation",
+        "Full address including state and postal code is required"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Health and Declaration",
+      "description": "Answer health screening and customs declaration questions honestly.",
+      "fieldsOnThisScreen": ["healthCondition", "visitedHighRiskCountries", "carryingCurrency", "carryingProhibitedItems"],
+      "tips": [
+        "False declarations can result in serious legal consequences",
+        "If you have medical conditions, bring supporting documentation"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Submit and Save",
+      "description": "Review all information, submit the form, and save your confirmation details.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Take a screenshot of your submission confirmation",
+        "Check your email for the confirmation receipt",
+        "Present your confirmation at immigration upon arrival"
+      ]
+    }
+  ]
+}
