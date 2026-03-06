@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { TouchableOpacity } from 'react-native';
 
 import {
   MainTabParamList,
@@ -129,9 +130,20 @@ export default function MainTabNavigator() {
           backgroundColor: 'white',
           borderTopColor: '#e5e7eb',
           borderTopWidth: 1,
+          minHeight: 60, // Ensure adequate touch target height
+          paddingBottom: 8,
+          paddingTop: 8,
         },
         tabBarActiveTintColor: '#3b82f6',
         tabBarInactiveTintColor: '#6b7280',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginTop: 4,
+        },
+        tabBarItemStyle: {
+          minHeight: 44, // iOS Human Interface Guidelines minimum
+        },
       }}
     >
       <Tab.Screen
@@ -139,6 +151,14 @@ export default function MainTabNavigator() {
         component={TripNavigator}
         options={{
           tabBarLabel: 'Trips',
+          tabBarButton: (props: any) => (
+            <TouchableOpacity
+              {...props}
+              accessibilityLabel="Trips tab"
+              accessibilityHint="Navigate to trips and travel forms"
+              style={[props.style, { minHeight: 44 }]}
+            />
+          ),
           // TODO: Add tab bar icon
         }}
       />
@@ -147,6 +167,14 @@ export default function MainTabNavigator() {
         component={WalletNavigator}
         options={{
           tabBarLabel: 'Wallet',
+          tabBarButton: (props: any) => (
+            <TouchableOpacity
+              {...props}
+              accessibilityLabel="QR Wallet tab"
+              accessibilityHint="Navigate to saved QR codes and travel documents"
+              style={[props.style, { minHeight: 44 }]}
+            />
+          ),
           // TODO: Add tab bar icon
         }}
       />
@@ -155,6 +183,14 @@ export default function MainTabNavigator() {
         component={ProfileNavigator}
         options={{
           tabBarLabel: 'Profile',
+          tabBarButton: (props: any) => (
+            <TouchableOpacity
+              {...props}
+              accessibilityLabel="Profile tab"
+              accessibilityHint="Navigate to profile and passport information"
+              style={[props.style, { minHeight: 44 }]}
+            />
+          ),
           // TODO: Add tab bar icon
         }}
       />
@@ -163,6 +199,14 @@ export default function MainTabNavigator() {
         component={SettingsNavigator}
         options={{
           tabBarLabel: 'Settings',
+          tabBarButton: (props: any) => (
+            <TouchableOpacity
+              {...props}
+              accessibilityLabel="Settings tab"
+              accessibilityHint="Navigate to app settings and preferences"
+              style={[props.style, { minHeight: 44 }]}
+            />
+          ),
           // TODO: Add tab bar icon
         }}
       />

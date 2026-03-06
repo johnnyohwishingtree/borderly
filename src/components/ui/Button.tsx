@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { trigger, type HapticFeedbackTypes } from 'react-native-haptic-feedback';
 
 export interface ButtonProps {
   title: string;
@@ -9,6 +10,9 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  hapticType?: HapticFeedbackTypes;
 }
 
 export default function Button({
@@ -19,6 +23,9 @@ export default function Button({
   disabled = false,
   loading = false,
   fullWidth = false,
+  accessibilityLabel,
+  accessibilityHint,
+  hapticType = 'impactLight',
 }: ButtonProps) {
   const getButtonStyles = () => {
     const baseStyles = 'rounded-xl flex-row items-center justify-center transition-all duration-150';
@@ -59,14 +66,33 @@ export default function Button({
     return `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]}`;
   };
 
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      // Trigger haptic feedback
+      trigger(hapticType, {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false,
+      });
+      onPress();
+    }
+  };
+
   return (
     <Pressable
       className={getButtonStyles()}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{
+        disabled: disabled || loading,
+        busy: loading,
+      }}
       style={({ pressed }) => ({
         opacity: pressed && !disabled && !loading ? 0.85 : 1,
-        transform: [{ scale: pressed && !disabled && !loading ? 0.98 : 1 }],
+        transform: [{ scale: pressed && !disabled && !loading ? 0.96 : 1 }],
+        elevation: pressed && !disabled && !loading ? 2 : 0,
       })}
     >
       {loading ? (

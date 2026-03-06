@@ -169,6 +169,20 @@ jest.mock('@/services/storage/database', () => ({
   },
 }));
 
+// Mock react-native-haptic-feedback
+jest.mock('react-native-haptic-feedback', () => ({
+  trigger: jest.fn(),
+  HapticFeedbackTypes: {
+    impactLight: 'impactLight',
+    impactMedium: 'impactMedium',
+    impactHeavy: 'impactHeavy',
+    selection: 'selection',
+    notificationSuccess: 'notificationSuccess',
+    notificationWarning: 'notificationWarning',
+    notificationError: 'notificationError',
+  },
+}));
+
 // Mock the entire storage module to prevent model imports
 jest.mock('@/services/storage', () => ({
   keychainService: {

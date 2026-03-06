@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { trigger } from 'react-native-haptic-feedback';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
 import { Button, LoadingSpinner, EmptyState } from '../../components/ui';
@@ -20,6 +21,7 @@ export default function TripListScreen() {
   };
 
   const handleCreateTrip = () => {
+    trigger('impactLight', { enableVibrateFallback: true });
     (navigation as any).navigate('CreateTrip');
   };
 
@@ -121,8 +123,11 @@ export default function TripListScreen() {
           {trips.length > 0 && (
             <TouchableOpacity
               onPress={handleCreateTrip}
-              className="bg-blue-600 px-4 py-2 rounded-full"
+              className="bg-blue-600 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Add new trip"
+              accessibilityHint="Create a new travel itinerary"
             >
               <Text className="text-white font-semibold">+ Add Trip</Text>
             </TouchableOpacity>
@@ -142,6 +147,8 @@ export default function TripListScreen() {
           showsVerticalScrollIndicator={false}
           refreshing={isLoading}
           onRefresh={loadTrips}
+          accessibilityLabel="List of your trips"
+          accessibilityHint="Swipe down to refresh, tap on a trip to view details"
         />
       )}
 
@@ -151,6 +158,13 @@ export default function TripListScreen() {
           onPress={handleCreateTrip}
           className="absolute bottom-6 right-6 bg-blue-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Create new trip"
+          accessibilityHint="Add a new travel itinerary"
+          style={{
+            minHeight: 56, // Minimum 56x56 for floating action button
+            minWidth: 56,
+          }}
         >
           <Text className="text-white text-2xl font-light">+</Text>
         </TouchableOpacity>

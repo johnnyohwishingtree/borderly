@@ -8,6 +8,8 @@ export interface ProgressBarProps extends ViewProps {
   showPercentage?: boolean;
   label?: string;
   animated?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export default function ProgressBar({
@@ -18,6 +20,8 @@ export default function ProgressBar({
   label,
   animated = true,
   className,
+  accessibilityLabel,
+  accessibilityHint,
   ...viewProps
 }: ProgressBarProps) {
   // Clamp progress between 0 and 100
@@ -65,8 +69,21 @@ export default function ProgressBar({
     return `font-semibold text-gray-600 mt-1 ${sizeStyles[size]}`;
   };
 
+  const progressText = accessibilityLabel || `${label ? `${label}: ` : ''}${Math.round(clampedProgress)} percent complete`;
+
   return (
-    <View {...viewProps}>
+    <View 
+      {...viewProps}
+      accessibilityRole="progressbar"
+      accessibilityLabel={progressText}
+      accessibilityHint={accessibilityHint}
+      accessibilityValue={{
+        min: 0,
+        max: 100,
+        now: clampedProgress,
+        text: progressText,
+      }}
+    >
       {label && (
         <Text className={getLabelStyles()}>{label}</Text>
       )}
