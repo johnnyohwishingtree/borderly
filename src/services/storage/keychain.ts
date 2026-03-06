@@ -43,7 +43,7 @@ class KeychainServiceImpl implements KeychainService {
   async getProfile(): Promise<TravelerProfile | null> {
     try {
       const credentials = await Keychain.getInternetCredentials(PROFILE_KEY, this.keychainOptions);
-      
+
       if (!credentials || credentials === false) {
         return null;
       }
@@ -75,7 +75,7 @@ class KeychainServiceImpl implements KeychainService {
       for (let i = 0; i < 64; i++) {
         key += charset.charAt(Math.floor(Math.random() * charset.length));
       }
-      
+
       await Keychain.setInternetCredentials(
         ENCRYPTION_KEY,
         'borderly_encryption',
@@ -93,7 +93,7 @@ class KeychainServiceImpl implements KeychainService {
   async getEncryptionKey(): Promise<string | null> {
     try {
       const credentials = await Keychain.getInternetCredentials(ENCRYPTION_KEY, this.keychainOptions);
-      
+
       if (!credentials || credentials === false) {
         return null;
       }

@@ -1,3 +1,4 @@
+/* eslint-env jest */
 // Basic Jest setup for TypeScript unit tests
 
 // Mock react-native modules

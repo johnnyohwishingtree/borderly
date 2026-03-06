@@ -48,7 +48,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
     try {
       await databaseService.initialize();
       const tripModels = await databaseService.getTrips();
-      
+
       // Convert WatermelonDB models to plain objects
       const trips: Trip[] = tripModels.map(model => ({
         id: model.id,
@@ -82,9 +82,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
       set({ trips, isLoading: false });
     } catch (error) {
       console.error('Failed to load trips:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to load trips',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -93,7 +93,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const tripModel = await databaseService.createTrip(tripData);
-      
+
       const newTrip: Trip = {
         id: tripModel.id,
         name: tripData.name,
@@ -105,7 +105,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
       set(state => ({
         trips: [...state.trips, newTrip],
-        isLoading: false
+        isLoading: false,
       }));
 
       return newTrip;
@@ -121,7 +121,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await databaseService.updateTrip(tripId, updates);
-      
+
       set(state => ({
         trips: state.trips.map(trip =>
           trip.id === tripId
@@ -131,13 +131,13 @@ export const useTripStore = create<TripStore>((set, get) => ({
         currentTrip: state.currentTrip?.id === tripId
           ? { ...state.currentTrip, ...updates, updatedAt: new Date().toISOString() }
           : state.currentTrip,
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
       console.error('Failed to update trip:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to update trip',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -146,17 +146,17 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await databaseService.deleteTrip(tripId);
-      
+
       set(state => ({
         trips: state.trips.filter(trip => trip.id !== tripId),
         currentTrip: state.currentTrip?.id === tripId ? null : state.currentTrip,
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
       console.error('Failed to delete trip:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to delete trip',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -186,13 +186,13 @@ export const useTripStore = create<TripStore>((set, get) => ({
             ? { ...trip, legs: [...trip.legs, newLeg] }
             : trip
         ),
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
       console.error('Failed to add trip leg:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to add trip leg',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -201,21 +201,21 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       await databaseService.updateTripLeg(legId, updates);
-      
+
       set(state => ({
         trips: state.trips.map(trip => ({
           ...trip,
           legs: trip.legs.map(leg =>
             leg.id === legId ? { ...leg, ...updates } : leg
-          )
+          ),
         })),
-        isLoading: false
+        isLoading: false,
       }));
     } catch (error) {
       console.error('Failed to update trip leg:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to update trip leg',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -226,23 +226,23 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set(state => ({
       trips: state.trips.map(trip => ({
         ...trip,
-        legs: trip.legs.filter(leg => leg.id !== legId)
-      }))
+        legs: trip.legs.filter(leg => leg.id !== legId),
+      })),
     }));
   },
 
   reorderTripLegs: async (tripId, legIds) => {
     set(state => ({
       trips: state.trips.map(trip => {
-        if (trip.id !== tripId) return trip;
-        
+        if (trip.id !== tripId) {return trip;}
+
         const reorderedLegs = legIds.map((legId, index) => {
           const leg = trip.legs.find(l => l.id === legId);
           return leg ? { ...leg, order: index } : null;
         }).filter(Boolean) as TripLeg[];
-        
+
         return { ...trip, legs: reorderedLegs };
-      })
+      }),
     }));
   },
 
@@ -253,7 +253,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
         ...qrData,
         legId,
       });
-      
+
       // Reload trips to get updated QR codes
       await get().loadTrips();
     } catch (error) {
@@ -294,7 +294,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
     const trips = get().trips;
     for (const trip of trips) {
       const leg = trip.legs.find(l => l.id === legId);
-      if (leg) return leg;
+      if (leg) {return leg;}
     }
     return undefined;
   },

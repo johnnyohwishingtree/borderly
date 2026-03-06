@@ -30,7 +30,7 @@ interface AppStore {
 
   // Cache management
   clearCache: () => void;
-  
+
   // Error handling
   lastError: string | null;
   setError: (error: string | null) => void;
@@ -59,7 +59,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   updatePreference: <K extends keyof AppPreferences>(key: K, value: AppPreferences[K]) => {
     mmkvService.setPreference(key, value);
     set(state => ({
-      preferences: { ...state.preferences, [key]: value }
+      preferences: { ...state.preferences, [key]: value },
     }));
   },
 
@@ -83,7 +83,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   setFeatureFlag: (flag: string, value: boolean) => {
     mmkvService.setFeatureFlag(flag, value);
     set(state => ({
-      featureFlags: { ...state.featureFlags, [flag]: value }
+      featureFlags: { ...state.featureFlags, [flag]: value },
     }));
   },
 
@@ -92,11 +92,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // For MVP, we'll use local storage only
     const commonFlags = ['enableDebugMode', 'enableBetaFeatures', 'enableAdvancedSettings'];
     const featureFlags: Record<string, boolean> = {};
-    
+
     commonFlags.forEach(flag => {
       featureFlags[flag] = mmkvService.getFeatureFlag(flag);
     });
-    
+
     set({ featureFlags });
   },
 

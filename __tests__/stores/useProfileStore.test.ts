@@ -50,26 +50,26 @@ describe('useProfileStore', () => {
 
   it('should handle loading state', async () => {
     const store = useProfileStore.getState();
-    
+
     // Start loading
     const loadPromise = store.loadProfile();
-    
+
     // Should be loading immediately (sets loading: true synchronously)
     expect(useProfileStore.getState().isLoading).toBe(true);
-    
+
     // Wait for load to complete
     await loadPromise;
-    
+
     // Should be done loading
     expect(useProfileStore.getState().isLoading).toBe(false);
   });
 
   it('should save and load profile', async () => {
     const store = useProfileStore.getState();
-    
+
     // Save profile
     await store.saveProfile(mockProfile);
-    
+
     // Profile should be set in state
     const savedState = useProfileStore.getState();
     expect(savedState.profile).toMatchObject({
@@ -80,24 +80,24 @@ describe('useProfileStore', () => {
 
   it('should handle onboarding complete', () => {
     const store = useProfileStore.getState();
-    
+
     store.setOnboardingComplete(true);
     expect(useProfileStore.getState().isOnboardingComplete).toBe(true);
-    
+
     store.setOnboardingComplete(false);
     expect(useProfileStore.getState().isOnboardingComplete).toBe(false);
   });
 
   it('should update profile', async () => {
     const store = useProfileStore.getState();
-    
+
     // First save the profile
     await store.saveProfile(mockProfile);
-    
+
     // Update the profile
     const updates = { email: 'newemail@example.com' };
     await store.updateProfile(updates);
-    
+
     // Profile should be updated
     const updatedState = useProfileStore.getState();
     expect(updatedState.profile?.email).toBe('newemail@example.com');

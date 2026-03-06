@@ -17,7 +17,7 @@ class DatabaseService {
     try {
       // Get encryption key from keychain
       let encryptionKey = await keychainService.getEncryptionKey();
-      
+
       // Generate new encryption key if none exists
       if (!encryptionKey) {
         encryptionKey = await keychainService.generateEncryptionKey();
@@ -42,7 +42,7 @@ class DatabaseService {
 
       this.isInitialized = true;
       console.log('Database initialized successfully with encryption');
-      
+
       return this.database;
     } catch (error) {
       console.error('Failed to initialize database:', error);
@@ -98,9 +98,9 @@ class DatabaseService {
     const db = await this.getDatabase();
     return await db.write(async () => {
       const trip = await db.collections.get('trips').find(tripId);
-      return await trip.update((trip: any) => {
-        Object.assign(trip, updates);
-        trip.updatedAt = new Date().toISOString();
+      return await trip.update((tripRecord: any) => {
+        Object.assign(tripRecord, updates);
+        tripRecord.updatedAt = new Date().toISOString();
       });
     });
   }
@@ -137,8 +137,8 @@ class DatabaseService {
     const db = await this.getDatabase();
     return await db.write(async () => {
       const leg = await db.collections.get('trip_legs').find(legId);
-      return await leg.update((leg: any) => {
-        Object.assign(leg, updates);
+      return await leg.update((legRecord: any) => {
+        Object.assign(legRecord, updates);
       });
     });
   }
@@ -147,11 +147,11 @@ class DatabaseService {
   async getQRCodes(legId?: string) {
     const db = await this.getDatabase();
     const query = db.collections.get('saved_qr_codes').query();
-    
+
     if (legId) {
       query.where('leg_id', legId);
     }
-    
+
     return await query.fetch();
   }
 

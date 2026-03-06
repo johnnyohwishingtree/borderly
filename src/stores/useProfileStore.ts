@@ -5,20 +5,20 @@ import { keychainService, mmkvService } from '@/services/storage';
 interface ProfileStore {
   // New MVP profile interface
   profile: TravelerProfile | null;
-  
+
   // Legacy profile for backward compatibility
   legacyProfile: TravelProfile | null;
-  
+
   // Profile operations
   loadProfile: () => Promise<void>;
   saveProfile: (profile: TravelerProfile) => Promise<void>;
   updateProfile: (updates: Partial<TravelerProfile>) => Promise<void>;
   clearProfile: () => Promise<void>;
-  
+
   // Onboarding state
   isOnboardingComplete: boolean;
   setOnboardingComplete: (complete: boolean) => void;
-  
+
   // Loading state
   isLoading: boolean;
   error: string | null;
@@ -36,17 +36,17 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     try {
       const profile = await keychainService.getProfile();
       const isOnboardingComplete = mmkvService.getPreferences().onboardingComplete;
-      
-      set({ 
-        profile, 
+
+      set({
+        profile,
         isOnboardingComplete,
-        isLoading: false 
+        isLoading: false,
       });
     } catch (error) {
       console.error('Failed to load profile:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to load profile',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -61,16 +61,16 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       };
 
       await keychainService.storeProfile(profileWithTimestamps);
-      
-      set({ 
+
+      set({
         profile: profileWithTimestamps,
-        isLoading: false 
+        isLoading: false,
       });
     } catch (error) {
       console.error('Failed to save profile:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to save profile',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },
@@ -95,18 +95,18 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     try {
       await keychainService.deleteProfile();
       mmkvService.setPreference('onboardingComplete', false);
-      
-      set({ 
+
+      set({
         profile: null,
         legacyProfile: null,
         isOnboardingComplete: false,
-        isLoading: false 
+        isLoading: false,
       });
     } catch (error) {
       console.error('Failed to clear profile:', error);
-      set({ 
+      set({
         error: error instanceof Error ? error.message : 'Failed to clear profile',
-        isLoading: false 
+        isLoading: false,
       });
     }
   },

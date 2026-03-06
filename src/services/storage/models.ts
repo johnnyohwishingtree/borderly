@@ -1,6 +1,6 @@
 import { Model } from '@nozbe/watermelondb';
 import { field, date, readonly } from '@nozbe/watermelondb/decorators';
-import { Accommodation, SavedQRCode as SavedQRCodeType, Trip as TripType, TripLeg as TripLegType } from '@/types/trip';
+import { Accommodation } from '@/types/trip';
 
 export class Trip extends Model {
   static table = 'trips';
@@ -53,7 +53,7 @@ export class TripLeg extends Model {
   }
 
   get formData(): Record<string, unknown> | undefined {
-    if (!this.formDataString) return undefined;
+    if (!this.formDataString) {return undefined;}
     try {
       return JSON.parse(this.formDataString);
     } catch {
