@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile || pnpm install
           elif [ -f package.json ]; then
             pnpm install
           else
