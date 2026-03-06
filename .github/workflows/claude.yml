@@ -42,7 +42,14 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          elif [ -f package.json ]; then
+            pnpm install
+          else
+            echo "No package.json yet — skipping install"
+          fi
 
       - name: Run Claude Code
         id: claude
