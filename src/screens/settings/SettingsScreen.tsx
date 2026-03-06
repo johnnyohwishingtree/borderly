@@ -24,11 +24,24 @@ export default function SettingsScreen() {
     cacheSize: string;
   } | null>(null);
 
+  const checkBiometricAvailability = async () => {
+    setIsCheckingBiometric(true);
+    try {
+      const available = await keychainService.isAvailable();
+      setBiometricAvailable(available);
+    } catch (error) {
+      console.error('Failed to check biometric availability:', error);
+      setBiometricAvailable(false);
+    } finally {
+      setIsCheckingBiometric(false);
+    }
+  };
+
   useEffect(() => {
     loadPreferences();
     checkBiometricAvailability();
     loadStorageStats();
-  }, [loadPreferences, checkBiometricAvailability]);
+  }, [loadPreferences]);
 
   const loadStorageStats = async () => {
     // Mock storage stats - in real implementation, this would calculate actual storage usage
@@ -40,18 +53,6 @@ export default function SettingsScreen() {
     });
   };
 
-  const checkBiometricAvailability = async () => {
-    setIsCheckingBiometric(true);
-    try {
-      const available = await keychainService.isAvailable();
-      setBiometricAvailable(available);
-    } catch (_error) {
-      console.error('Failed to check biometric availability:', _error);
-      setBiometricAvailable(false);
-    } finally {
-      setIsCheckingBiometric(false);
-    }
-  };
 
   const themeOptions: SelectOption[] = [
     { label: 'Auto (System)', value: 'auto' },

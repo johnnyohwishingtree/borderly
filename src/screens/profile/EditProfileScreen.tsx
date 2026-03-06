@@ -122,7 +122,7 @@ export default function EditProfileScreen() {
       setHasUnsavedChanges(false);
       navigation.goBack();
       Alert.alert('Success', 'Profile updated successfully.');
-    } catch (_error) {
+    } catch {
       Alert.alert('Error', 'Failed to update profile. Please try again.');
     }
   };

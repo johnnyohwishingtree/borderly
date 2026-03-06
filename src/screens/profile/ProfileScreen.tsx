@@ -34,7 +34,7 @@ export default function ProfileScreen() {
         setSecureProfile(profile);
         setIsUnlocked(true);
       }
-    } catch (err) {
+    } catch {
       Alert.alert(
         'Authentication Failed',
         'Could not authenticate. Please try again.',
