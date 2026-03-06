@@ -37,8 +37,8 @@ export default function Select({
   };
 
   const getSelectStyles = () => {
-    const baseStyles = 'border rounded-lg px-4 py-3 flex-row justify-between items-center';
-    const errorStyles = error ? 'border-red-500' : 'border-gray-300';
+    const baseStyles = 'border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center transition-all duration-150 shadow-sm';
+    const errorStyles = error ? 'border-red-500 bg-red-50/30' : 'border-gray-200';
     const disabledStyles = disabled ? 'bg-gray-100 opacity-60' : 'bg-white';
 
     return `${baseStyles} ${errorStyles} ${disabledStyles}`;
@@ -54,7 +54,7 @@ export default function Select({
   return (
     <View testID={testID}>
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-1">
+        <Text className="text-sm font-semibold text-gray-700 mb-2">
           {label}
         </Text>
       )}
@@ -73,7 +73,7 @@ export default function Select({
       </Pressable>
 
       {error && (
-        <Text className="text-sm text-red-500 mt-1">
+        <Text className="text-sm text-red-600 mt-2 font-medium">
           {error}
         </Text>
       )}
@@ -88,9 +88,9 @@ export default function Select({
           className="flex-1 bg-black/50 justify-center items-center"
           onPress={() => setIsOpen(false)}
         >
-          <View className="bg-white rounded-lg mx-4 max-h-80 w-full max-w-sm">
-            <View className="p-4 border-b border-gray-200">
-              <Text className="text-lg font-medium text-gray-900">
+          <View className="bg-white rounded-2xl mx-4 max-h-80 w-full max-w-sm shadow-2xl shadow-gray-900/25">
+            <View className="p-4 border-b border-gray-100">
+              <Text className="text-lg font-semibold text-gray-900">
                 {label || 'Select an option'}
               </Text>
             </View>

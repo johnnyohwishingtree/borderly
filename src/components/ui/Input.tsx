@@ -21,9 +21,9 @@ export default function Input({
   const [isFocused, setIsFocused] = useState(false);
 
   const getInputStyles = () => {
-    const baseStyles = 'border rounded-lg px-3 py-3 text-base';
-    const errorStyles = error ? 'border-red-500' : 'border-gray-300';
-    const focusStyles = isFocused ? 'border-blue-500' : '';
+    const baseStyles = 'border-2 rounded-xl px-4 py-3.5 text-base bg-white transition-all duration-150';
+    const errorStyles = error ? 'border-red-500 bg-red-50/30' : 'border-gray-200';
+    const focusStyles = isFocused ? 'border-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50/10' : 'shadow-sm';
 
     return `${baseStyles} ${errorStyles} ${focusStyles} ${className || ''}`.trim();
   };
@@ -39,9 +39,9 @@ export default function Input({
   };
 
   return (
-    <View className="mb-4">
+    <View className="mb-5">
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-semibold text-gray-700 mb-2">
           {label}
           {required && <Text className="text-red-500"> *</Text>}
         </Text>
@@ -51,15 +51,16 @@ export default function Input({
         className={getInputStyles()}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        placeholderTextColor="#9CA3AF"
         {...textInputProps}
       />
 
       {error && (
-        <Text className="text-sm text-red-500 mt-1">{error}</Text>
+        <Text className="text-sm text-red-600 mt-2 font-medium">{error}</Text>
       )}
 
       {helperText && !error && (
-        <Text className="text-sm text-gray-500 mt-1">{helperText}</Text>
+        <Text className="text-sm text-gray-500 mt-2">{helperText}</Text>
       )}
     </View>
   );
