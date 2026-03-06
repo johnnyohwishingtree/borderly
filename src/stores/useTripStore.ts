@@ -122,7 +122,6 @@ export const useTripStore = create<TripStore>((set, get) => ({
     try {
       await databaseService.updateTrip(tripId, {
         ...updates,
-        createdAt: updates.createdAt ? new Date(updates.createdAt) : undefined,
         updatedAt: new Date(),
       } as any);
 

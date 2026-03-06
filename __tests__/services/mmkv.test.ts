@@ -67,6 +67,7 @@ describe('MMKVService', () => {
 
     it('should handle corrupted preferences JSON gracefully', () => {
       mockStorage.getString.mockReturnValue('invalid-json');
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       const prefs = mmkvService.getPreferences();
 
@@ -79,6 +80,7 @@ describe('MMKVService', () => {
         analyticsEnabled: false,
         crashReportingEnabled: false,
       });
+      consoleSpy.mockRestore();
     });
 
     it('should set individual preference', () => {

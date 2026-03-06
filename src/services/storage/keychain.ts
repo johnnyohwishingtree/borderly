@@ -67,10 +67,8 @@ class KeychainServiceImpl implements KeychainService {
     try {
       // Generate a cryptographically secure 256-bit key for WatermelonDB encryption
       const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
-      // Use Math.random as fallback - in production this should use proper crypto
-      for (let i = 0; i < keyBytes.length; i++) {
-        keyBytes[i] = Math.floor(Math.random() * 256);
-      }
+      // Use cryptographically secure random number generator
+      crypto.getRandomValues(keyBytes);
       
       // Convert to hex string for storage
       const key = Array.from(keyBytes)

@@ -77,7 +77,7 @@ describe('DatabaseService', () => {
         expect.objectContaining({
           encryptionKey: 'existing-key',
           dbName: 'borderly.db',
-          experimentalUseJSI: true,
+          jsi: true,
         })
       );
       expect(Database).toHaveBeenCalledWith(

@@ -67,7 +67,7 @@ export class TripLeg extends Model {
   }
 
   setFormData(formData: Record<string, unknown> | undefined): void {
-    this.formDataString = formData ? JSON.stringify(formData) : '';
+    this.formDataString = formData ? JSON.stringify(formData) : null;
   }
 
   // Helper methods for dates
