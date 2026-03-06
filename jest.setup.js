@@ -1,6 +1,15 @@
 /* eslint-env jest */
 // Basic Jest setup for TypeScript unit tests
 
+// Suppress console.error in tests unless explicitly testing error handling
+const originalError = console.error;
+beforeEach(() => {
+  console.error = jest.fn();
+});
+afterEach(() => {
+  console.error = originalError;
+});
+
 // Mock react-native modules
 jest.mock('react-native', () => ({
   Platform: { OS: 'ios' },
