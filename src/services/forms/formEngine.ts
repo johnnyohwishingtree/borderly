@@ -128,10 +128,12 @@ function processFormField(
 
   // Field needs user input - set appropriate default value
   const defaultValue = getDefaultValue(field);
+  const isEmpty = defaultValue === '' || defaultValue === null || defaultValue === undefined;
+  
   return {
     ...field,
     currentValue: defaultValue,
-    source: defaultValue !== null ? 'default' : 'empty',
+    source: isEmpty ? 'empty' : 'default',
     needsUserInput: true,
   };
 }
@@ -217,13 +219,7 @@ export function validateFormCompletion(form: FilledForm): {
   form.sections.forEach(section => {
     section.fields.forEach(field => {
       if (field.required && field.needsUserInput) {
-        const isEmpty = field.currentValue === '' || 
-                       field.currentValue === null || 
-                       field.currentValue === undefined;
-        
-        if (isEmpty) {
-          missingFields.push(field.id);
-        }
+        missingFields.push(field.id);
       }
     });
   });
@@ -260,7 +256,14 @@ export function exportFormData(form: FilledForm): Record<string, unknown> {
 
   form.sections.forEach(section => {
     section.fields.forEach(field => {
-      if (field.currentValue !== '' && field.currentValue !== null && field.currentValue !== undefined) {
+      // Only export fields that have meaningful values (not defaults for empty fields)
+      const hasValue = field.currentValue !== '' && 
+                      field.currentValue !== null && 
+                      field.currentValue !== undefined;
+      
+      const isAutoOrUserFilled = field.source === 'auto' || field.source === 'user';
+      
+      if (hasValue && isAutoOrUserFilled) {
         exportData[field.id] = field.currentValue;
       }
     });

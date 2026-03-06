@@ -25,6 +25,10 @@ export function resolveAutoFillPath(
   }
 
   // Handle dot-notation paths
+  if (path === '') {
+    return context;
+  }
+  
   const parts = path.split('.');
   let current: unknown = context;
 
