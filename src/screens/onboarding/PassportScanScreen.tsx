@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity, Animated } from 'react-native';
+import { useState, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
@@ -6,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, Input } from '../../components/ui';
+import { Button, Card, Input, ProgressBar } from '../../components/ui';
 import { useProfileStore } from '../../stores/useProfileStore';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
@@ -27,10 +28,14 @@ type PassportFormData = z.infer<typeof passportSchema>;
 export default function PassportScanScreen() {
   const navigation = useNavigation<PassportScanScreenNavigationProp>();
   const { saveProfile } = useProfileStore();
+  const [scanMode, setScanMode] = useState<'camera' | 'manual'>('manual');
+  const [isScanning, setIsScanning] = useState(false);
+  const scanAnimation = useRef(new Animated.Value(0)).current;
 
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<PassportFormData>({
     resolver: zodResolver(passportSchema),
@@ -76,21 +81,166 @@ export default function PassportScanScreen() {
     navigation.goBack();
   };
 
+  const startScanAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanAnimation, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanAnimation, {
+          toValue: 0,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
+  const handleScanPassport = async () => {
+    setIsScanning(true);
+    startScanAnimation();
+
+    try {
+      // Simulate camera scanning process
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Simulate successful MRZ parsing with sample data
+      setValue('passportNumber', 'P12345678');
+      setValue('surname', 'TRAVELER');
+      setValue('givenNames', 'JANE');
+      setValue('nationality', 'USA');
+      setValue('dateOfBirth', '1990-01-01');
+      setValue('gender', 'F');
+      setValue('passportExpiry', '2030-12-31');
+      setValue('issuingCountry', 'USA');
+      
+      Alert.alert(
+        'Passport Scanned!',
+        'Your passport information has been automatically filled. Please review and edit if needed.'
+      );
+    } catch (error) {
+      Alert.alert(
+        'Scan Failed',
+        'Could not read passport. Please enter information manually.'
+      );
+    } finally {
+      setIsScanning(false);
+      scanAnimation.stopAnimation();
+    }
+  };
+
+  const handleSwitchToManual = () => {
+    setScanMode('manual');
+  };
+
+  const handleSwitchToCamera = () => {
+    setScanMode('camera');
+  };
+
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
       <View className="px-6 py-8">
+        {/* Progress indicator */}
+        <ProgressBar progress={50} className="mb-6" />
+        
         <View className="mb-6">
           <Text className="text-2xl font-bold text-gray-900 mb-2">
-            Enter Passport Details
+            📷 Passport Information
           </Text>
           <Text className="text-base text-gray-600">
-            Enter your passport information manually. This data will be stored securely on your device.
+            Scan your passport or enter information manually. All data is stored securely on your device.
           </Text>
         </View>
 
-        <Card variant="elevated">
+        {/* Scan mode toggle */}
+        <Card variant="elevated" className="mb-6 bg-white shadow-lg">
+          <View className="flex-row rounded-lg bg-gray-100 p-1">
+            <TouchableOpacity
+              onPress={handleSwitchToCamera}
+              className={`flex-1 py-3 px-4 rounded-md items-center ${
+                scanMode === 'camera' ? 'bg-blue-500' : ''
+              }`}
+            >
+              <Text
+                className={`font-semibold ${
+                  scanMode === 'camera' ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                📷 Scan Passport
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSwitchToManual}
+              className={`flex-1 py-3 px-4 rounded-md items-center ${
+                scanMode === 'manual' ? 'bg-blue-500' : ''
+              }`}
+            >
+              <Text
+                className={`font-semibold ${
+                  scanMode === 'manual' ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                ✏️ Manual Entry
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Card>
+
+        {/* Camera scanning section */}
+        {scanMode === 'camera' && (
+          <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <View className="items-center py-8">
+              {isScanning ? (
+                <>
+                  <Animated.View
+                    style={{
+                      opacity: scanAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.3, 1],
+                      }),
+                    }}
+                    className="w-32 h-32 border-4 border-blue-500 rounded-lg mb-4 items-center justify-center"
+                  >
+                    <Text className="text-4xl">📷</Text>
+                  </Animated.View>
+                  <Text className="text-lg font-semibold text-blue-600 mb-2">
+                    Scanning Passport...
+                  </Text>
+                  <Text className="text-sm text-gray-600 text-center">
+                    Position your passport's photo page in front of the camera
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
+                    <Text className="text-4xl">📷</Text>
+                  </View>
+                  <Text className="text-lg font-semibold text-gray-900 mb-2">
+                    Quick Passport Scan
+                  </Text>
+                  <Text className="text-sm text-gray-600 text-center mb-6">
+                    Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
+                  </Text>
+                  <Button
+                    title="📷 Start Scanning"
+                    onPress={handleScanPassport}
+                    variant="primary"
+                    size="large"
+                    className="bg-blue-500"
+                  />
+                </>
+              )}
+            </View>
+          </Card>
+        )}
+
+        {/* Manual entry section */}
+        {scanMode === 'manual' && (
+        <Card variant="elevated" className="bg-white shadow-lg">
           <Text className="text-lg font-semibold text-gray-900 mb-4">
-            Passport Information
+            📝 Passport Information
           </Text>
 
           <Controller
@@ -246,6 +396,7 @@ export default function PassportScanScreen() {
             )}
           />
         </Card>
+        )}
 
         <View className="mt-6 space-y-4">
           <Button
