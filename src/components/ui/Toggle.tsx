@@ -1,4 +1,5 @@
-import { Pressable, Animated, useRef, useEffect } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { Pressable, Animated } from 'react-native';
 
 export interface ToggleProps {
   value: boolean;
