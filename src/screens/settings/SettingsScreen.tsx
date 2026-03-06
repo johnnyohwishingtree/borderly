@@ -28,7 +28,7 @@ export default function SettingsScreen() {
     loadPreferences();
     checkBiometricAvailability();
     loadStorageStats();
-  }, [loadPreferences]);
+  }, [loadPreferences, checkBiometricAvailability]);
 
   const loadStorageStats = async () => {
     // Mock storage stats - in real implementation, this would calculate actual storage usage
@@ -45,8 +45,8 @@ export default function SettingsScreen() {
     try {
       const available = await keychainService.isAvailable();
       setBiometricAvailable(available);
-    } catch (error) {
-      console.error('Failed to check biometric availability:', error);
+    } catch (_error) {
+      console.error('Failed to check biometric availability:', _error);
       setBiometricAvailable(false);
     } finally {
       setIsCheckingBiometric(false);
@@ -154,7 +154,7 @@ export default function SettingsScreen() {
                       await clearProfile();
                       resetPreferences();
                       Alert.alert('Data Deleted', 'All data has been deleted. Please restart the app.');
-                    } catch (error) {
+                    } catch (_error) {
                       Alert.alert('Error', 'Failed to delete data. Please try again.');
                     }
                   },

@@ -253,7 +253,7 @@ export default function ProfileScreen() {
                   <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">Issued by</Text>
                   <Text className="text-sm text-gray-900 mt-1">{profile.issuingCountry}</Text>
                 </View>
-              </div>
+              </View>
             </View>
           )}
         </Card>

@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Input, Select, SelectOption, StatusBadge, Divider, ProgressBar } from '@/components/ui';
+import { Button, Card, Input, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
 import { Address } from '@/types/profile';
 
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
@@ -68,7 +68,7 @@ export default function EditProfileScreen() {
 
   const validatePhoneNumber = (phone: string) => {
     if (!phone) {return '';}
-    const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+    const phoneRegex = /^\+?[\d\s\-()]+$/;
     return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';
   };
 
@@ -122,7 +122,7 @@ export default function EditProfileScreen() {
       setHasUnsavedChanges(false);
       navigation.goBack();
       Alert.alert('Success', 'Profile updated successfully.');
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to update profile. Please try again.');
     }
   };
