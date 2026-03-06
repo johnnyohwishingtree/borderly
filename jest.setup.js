@@ -1,14 +1,77 @@
 /* eslint-env jest */
+require('@testing-library/jest-native/extend-expect');
+
+// Configure RNTL host component names to avoid auto-detection issues
+const { configure } = require('@testing-library/react-native');
+configure({
+  hostComponentNames: {
+    text: 'Text',
+    textInput: 'TextInput',
+    switch: 'Switch',
+    scrollView: 'ScrollView',
+    modal: 'Modal',
+  },
+});
+
 // Basic Jest setup for TypeScript unit tests
 
+// Suppress console.error in tests unless explicitly testing error handling
+const originalError = console.error;
+beforeEach(() => {
+  console.error = jest.fn();
+});
+afterEach(() => {
+  console.error = originalError;
+});
+
 // Mock react-native modules
-jest.mock('react-native', () => ({
-  Platform: { OS: 'ios' },
-  NativeModules: {},
-}));
+jest.mock('react-native', () => {
+  const React = require('react');
+  const mockComponent = (name) => {
+    const Component = ({ children, ...props }) => React.createElement(name, props, children);
+    Component.displayName = name;
+    return Component;
+  };
+  return {
+    Platform: { OS: 'ios', select: (obj) => obj.ios },
+    NativeModules: {},
+    View: mockComponent('View'),
+    Text: mockComponent('Text'),
+    TouchableOpacity: mockComponent('TouchableOpacity'),
+    Pressable: mockComponent('Pressable'),
+    TextInput: mockComponent('TextInput'),
+    ScrollView: mockComponent('ScrollView'),
+    ActivityIndicator: mockComponent('ActivityIndicator'),
+    StatusBar: { setBarStyle: jest.fn(), setBackgroundColor: jest.fn() },
+    StyleSheet: {
+      create: (styles) => styles,
+      flatten: (style) => Object.assign({}, ...(Array.isArray(style) ? style : [style])),
+    },
+    Alert: {
+      alert: jest.fn(),
+    },
+  };
+});
+
+// Mock react-native-get-random-values
+jest.mock('react-native-get-random-values', () => {
+  // Polyfill crypto.getRandomValues for tests
+  Object.defineProperty(global, 'crypto', {
+    value: {
+      getRandomValues: (arr) => {
+        for (let i = 0; i < arr.length; i++) {
+          arr[i] = Math.floor(Math.random() * 256);
+        }
+        return arr;
+      },
+    },
+    writable: true,
+  });
+  return {};
+});
 
 // Mock react-native-keychain
-const KeychainMock = {
+jest.mock('react-native-keychain', () => ({
   setInternetCredentials: jest.fn().mockResolvedValue(true),
   getInternetCredentials: jest.fn().mockResolvedValue({ password: '{}' }),
   resetInternetCredentials: jest.fn().mockResolvedValue(true),
@@ -22,9 +85,7 @@ const KeychainMock = {
   ACCESSIBLE: {
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
   },
-};
-
-jest.mock('react-native-keychain', () => KeychainMock);
+}));
 
 // Mock react-native-mmkv
 jest.mock('react-native-mmkv', () => ({
@@ -81,6 +142,7 @@ jest.mock('@nozbe/watermelondb/Schema/migrations', () => ({
 jest.mock('@/services/storage/database', () => ({
   databaseService: {
     initialize: jest.fn().mockResolvedValue({}),
+    getDatabase: jest.fn().mockResolvedValue({}),
     getTrips: jest.fn().mockResolvedValue([]),
     createTrip: jest.fn().mockResolvedValue({ id: 'mock-trip-id' }),
     updateTrip: jest.fn().mockResolvedValue({}),
@@ -135,6 +197,7 @@ jest.mock('@/services/storage', () => ({
   },
   databaseService: {
     initialize: jest.fn().mockResolvedValue({}),
+    getDatabase: jest.fn().mockResolvedValue({}),
     getTrips: jest.fn().mockResolvedValue([]),
     createTrip: jest.fn().mockResolvedValue({ id: 'mock-trip-id' }),
     updateTrip: jest.fn().mockResolvedValue({}),
