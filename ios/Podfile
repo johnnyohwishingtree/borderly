@@ -11,12 +11,6 @@ prepare_react_native_project!
 # Enable use_frameworks for WatermelonDB compatibility
 use_frameworks! :linkage => :static
 
-linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
-  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
-  use_frameworks! :linkage => linkage.to_sym
-end
-
 target 'Borderly' do
   config = use_native_modules!
 
