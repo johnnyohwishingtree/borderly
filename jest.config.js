@@ -16,7 +16,16 @@ module.exports = {
   ],
   testMatch: [
     '**/__tests__/**/*.(test|spec).(ts|tsx|js)',
-    // Note: App.test.tsx may fail due to React Native testing complexity
-    // For now, store tests work correctly and demonstrate the fixes
+    '!**/__tests__/App.test.tsx',
   ],
+  transform: {
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react-jsx',
+        },
+      },
+    ],
+  },
 };
