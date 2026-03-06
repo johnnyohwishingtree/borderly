@@ -69,7 +69,12 @@ class KeychainServiceImpl implements KeychainService {
   async generateEncryptionKey(): Promise<string> {
     try {
       // Generate a random 256-bit key for WatermelonDB encryption
-      const key = require('crypto').randomBytes(32).toString('hex');
+      // Using a simple random string generation for React Native compatibility
+      const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let key = '';
+      for (let i = 0; i < 64; i++) {
+        key += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
       
       await Keychain.setInternetCredentials(
         ENCRYPTION_KEY,
