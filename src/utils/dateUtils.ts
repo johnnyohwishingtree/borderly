@@ -46,7 +46,7 @@ export function isPastDate(dateString: string): boolean {
 
   const date = new Date(dateString);
   const today = new Date();
-  today.setHours(23, 59, 59, 999); // End of today
+  today.setHours(0, 0, 0, 0); // Start of today
 
   return date < today;
 }
