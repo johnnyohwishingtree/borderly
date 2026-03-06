@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
 import MainTabNavigator from './MainTabNavigator';
+import { useProfileStore } from '../../stores/useProfileStore';
 
 // Import onboarding screens
 import {
@@ -31,8 +33,12 @@ function OnboardingNavigator() {
 }
 
 export default function RootNavigator() {
-  // TODO: Replace with actual auth/onboarding state from store
-  const hasCompletedOnboarding = false;
+  const { isOnboardingComplete, loadProfile } = useProfileStore();
+
+  useEffect(() => {
+    // Load profile and onboarding state on app start
+    loadProfile();
+  }, [loadProfile]);
 
   return (
     <NavigationContainer>
@@ -41,7 +47,7 @@ export default function RootNavigator() {
           headerShown: false,
         }}
       >
-        {hasCompletedOnboarding ? (
+        {isOnboardingComplete ? (
           <RootStack.Screen name="Main" component={MainTabNavigator} />
         ) : (
           <RootStack.Screen name="Onboarding" component={OnboardingNavigator} />
