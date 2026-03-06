@@ -16,6 +16,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 **/.xcode.env.local
+ios/Borderly.xcworkspace/xcuserdata/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
