@@ -1,12 +1,12 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { 
-  MainTabParamList, 
-  TripStackParamList, 
-  WalletStackParamList, 
+import {
+  MainTabParamList,
+  TripStackParamList,
+  WalletStackParamList,
   ProfileStackParamList,
-  SettingsStackParamList
+  SettingsStackParamList,
 } from './types';
 
 // Import screens
@@ -40,28 +40,28 @@ const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 function TripNavigator() {
   return (
     <TripStack.Navigator>
-      <TripStack.Screen 
-        name="TripList" 
+      <TripStack.Screen
+        name="TripList"
         component={TripListScreen}
         options={{ title: 'My Trips' }}
       />
-      <TripStack.Screen 
-        name="CreateTrip" 
+      <TripStack.Screen
+        name="CreateTrip"
         component={CreateTripScreen}
         options={{ title: 'Create Trip' }}
       />
-      <TripStack.Screen 
-        name="TripDetail" 
+      <TripStack.Screen
+        name="TripDetail"
         component={TripDetailScreen}
         options={{ title: 'Trip Details' }}
       />
-      <TripStack.Screen 
-        name="LegForm" 
+      <TripStack.Screen
+        name="LegForm"
         component={LegFormScreen}
         options={{ title: 'Travel Form' }}
       />
-      <TripStack.Screen 
-        name="SubmissionGuide" 
+      <TripStack.Screen
+        name="SubmissionGuide"
         component={SubmissionGuideScreen}
         options={{ title: 'Submission Guide' }}
       />
@@ -72,18 +72,18 @@ function TripNavigator() {
 function WalletNavigator() {
   return (
     <WalletStack.Navigator>
-      <WalletStack.Screen 
-        name="QRWallet" 
+      <WalletStack.Screen
+        name="QRWallet"
         component={QRWalletScreen}
         options={{ title: 'QR Wallet' }}
       />
-      <WalletStack.Screen 
-        name="QRDetail" 
+      <WalletStack.Screen
+        name="QRDetail"
         component={QRDetailScreen}
         options={{ title: 'QR Details' }}
       />
-      <WalletStack.Screen 
-        name="AddQR" 
+      <WalletStack.Screen
+        name="AddQR"
         component={AddQRScreen}
         options={{ title: 'Add QR Code' }}
       />
@@ -94,13 +94,13 @@ function WalletNavigator() {
 function ProfileNavigator() {
   return (
     <ProfileStack.Navigator>
-      <ProfileStack.Screen 
-        name="Profile" 
+      <ProfileStack.Screen
+        name="Profile"
         component={ProfileScreen}
         options={{ title: 'Profile' }}
       />
-      <ProfileStack.Screen 
-        name="EditProfile" 
+      <ProfileStack.Screen
+        name="EditProfile"
         component={EditProfileScreen}
         options={{ title: 'Edit Profile' }}
       />
@@ -111,8 +111,8 @@ function ProfileNavigator() {
 function SettingsNavigator() {
   return (
     <SettingsStack.Navigator>
-      <SettingsStack.Screen 
-        name="Settings" 
+      <SettingsStack.Screen
+        name="Settings"
         component={SettingsScreen}
         options={{ title: 'Settings' }}
       />
@@ -134,32 +134,32 @@ export default function MainTabNavigator() {
         tabBarInactiveTintColor: '#6b7280',
       }}
     >
-      <Tab.Screen 
-        name="Trips" 
+      <Tab.Screen
+        name="Trips"
         component={TripNavigator}
         options={{
           tabBarLabel: 'Trips',
           // TODO: Add tab bar icon
         }}
       />
-      <Tab.Screen 
-        name="Wallet" 
+      <Tab.Screen
+        name="Wallet"
         component={WalletNavigator}
         options={{
           tabBarLabel: 'Wallet',
           // TODO: Add tab bar icon
         }}
       />
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name="Profile"
         component={ProfileNavigator}
         options={{
           tabBarLabel: 'Profile',
           // TODO: Add tab bar icon
         }}
       />
-      <Tab.Screen 
-        name="Settings" 
+      <Tab.Screen
+        name="Settings"
         component={SettingsNavigator}
         options={{
           tabBarLabel: 'Settings',
