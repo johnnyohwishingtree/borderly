@@ -17,9 +17,9 @@ const passportSchema = z.object({
   surname: z.string().min(1, 'Surname is required'),
   givenNames: z.string().min(1, 'Given names are required'),
   nationality: z.string().min(3, 'Nationality is required').max(3, 'Use 3-letter country code'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
   gender: z.enum(['M', 'F', 'X']),
-  passportExpiry: z.string().min(1, 'Passport expiry date is required'),
+  passportExpiry: z.string().min(1, 'Passport expiry date is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
   issuingCountry: z.string().min(3, 'Issuing country is required').max(3, 'Use 3-letter country code'),
 });
 
@@ -40,10 +40,17 @@ export default function PassportScanScreen() {
     },
   });
 
+  const generateProfileId = () => {
+    // Create a more robust ID using timestamp + random characters
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 8);
+    return `profile_${timestamp}_${random}`;
+  };
+
   const onSubmit = async (data: PassportFormData) => {
     try {
       await saveProfile({
-        id: `profile_${Date.now()}`,
+        id: generateProfileId(),
         ...data,
         email: '',
         phoneNumber: '',

@@ -47,7 +47,7 @@ export default function BiometricSetupScreen() {
     }
   };
 
-  const handleSkip = async () => {
+  const handleSkip = () => {
     Alert.alert(
       'Skip Biometric Setup?',
       'Your profile will be saved, but without biometric protection. You can enable this later in settings.',
@@ -58,7 +58,7 @@ export default function BiometricSetupScreen() {
         },
         {
           text: 'Skip',
-          onPress: async () => {
+          onPress: () => {
             setOnboardingComplete(true);
             handleComplete();
           },

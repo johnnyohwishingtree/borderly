@@ -1,4 +1,5 @@
 import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { useState } from 'react';
 
 export interface InputProps extends TextInputProps {
   label?: string;
@@ -13,14 +14,28 @@ export default function Input({
   helperText,
   required,
   className,
+  onFocus,
+  onBlur,
   ...textInputProps
 }: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   const getInputStyles = () => {
     const baseStyles = 'border rounded-lg px-3 py-3 text-base';
     const errorStyles = error ? 'border-red-500' : 'border-gray-300';
-    const focusStyles = 'focus:border-blue-500';
+    const focusStyles = isFocused ? 'border-blue-500' : '';
     
     return `${baseStyles} ${errorStyles} ${focusStyles} ${className || ''}`.trim();
+  };
+
+  const handleFocus = (e: any) => {
+    setIsFocused(true);
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: any) => {
+    setIsFocused(false);
+    onBlur?.(e);
   };
   
   return (
@@ -34,6 +49,8 @@ export default function Input({
       
       <TextInput
         className={getInputStyles()}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         {...textInputProps}
       />
       
