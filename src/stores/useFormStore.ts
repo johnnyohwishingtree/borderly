@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FilledForm, generateFilledForm, updateFormData, validateFormCompletion } from '../services/forms/formEngine';
+import { FilledForm, FilledFormField, generateFilledForm, updateFormData, validateFormCompletion } from '../services/forms/formEngine';
 import { CountryFormSchema } from '../types/schema';
 import { TravelerProfile } from '../types/profile';
 import { TripLeg } from '../types/trip';
@@ -259,7 +259,7 @@ function findFieldInForm(form: FilledForm, fieldId: string) {
   return undefined;
 }
 
-function validateFieldValue(field: any, value: unknown): string | undefined {
+function validateFieldValue(field: FilledFormField, value: unknown): string | undefined {
   // Check if required field is empty
   if (field.required && (value === undefined || value === '' || value === null)) {
     return `${field.label} is required`;

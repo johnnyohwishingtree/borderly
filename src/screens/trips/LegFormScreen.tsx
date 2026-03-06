@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Button } from '../../components/ui';
 import { DynamicForm } from '../../components/forms';
 import { useFormStore } from '../../stores/useFormStore';
@@ -10,10 +11,11 @@ import { schemaRegistry } from '../../services/schemas/schemaRegistry';
 import { TripStackParamList } from '../../app/navigation/types';
 
 type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
+type LegFormScreenNavigationProp = StackNavigationProp<TripStackParamList, 'LegForm'>;
 
 export default function LegFormScreen() {
   const route = useRoute<LegFormScreenRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<LegFormScreenNavigationProp>();
   const { tripId, legId } = route.params || {};
 
   const { profile } = useProfileStore();
@@ -21,9 +23,11 @@ export default function LegFormScreen() {
   const {
     currentForm,
     formData,
+    errors,
     isValid,
     isLoading,
     generateForm,
+    updateField,
     getFormData,
     resetForm,
   } = useFormStore();
@@ -58,9 +62,8 @@ export default function LegFormScreen() {
     };
   }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation]);
 
-  const handleFormDataChange = (_newFormData: Record<string, unknown>) => {
-    // Form data is automatically updated in the store
-    // No additional action needed here
+  const handleFieldChange = (fieldId: string, value: unknown) => {
+    updateField(fieldId, value);
   };
 
   const handleSaveForm = async () => {
@@ -88,10 +91,12 @@ export default function LegFormScreen() {
       return;
     }
 
+    if (!leg) return;
+    
     setIsSubmitting(true);
     try {
       const formDataToSave = getFormData();
-      await updateTripLeg(leg!.id, {
+      await updateTripLeg(leg.id, {
         formData: formDataToSave,
         formStatus: 'ready',
       });
@@ -186,8 +191,9 @@ export default function LegFormScreen() {
       {/* Form Content */}
       <DynamicForm
         form={currentForm}
-        onFormDataChange={handleFormDataChange}
-        initialFormData={leg.formData || {}}
+        formData={formData}
+        onFieldChange={handleFieldChange}
+        errors={errors}
         showOnlyCountrySpecific={showOnlyCountrySpecific}
         collapsibleSections={true}
         showFormStats={!showOnlyCountrySpecific}
@@ -222,10 +228,10 @@ export default function LegFormScreen() {
               title="Open Submission Guide"
               onPress={() => {
                 // Navigate to submission guide screen
-                navigation.navigate('SubmissionGuide' as never, {
+                navigation.navigate('SubmissionGuide', {
                   tripId,
                   legId,
-                } as never);
+                });
               }}
               variant="secondary"
               size="medium"

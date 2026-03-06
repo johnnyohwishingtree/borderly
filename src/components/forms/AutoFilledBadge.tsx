@@ -39,18 +39,14 @@ export default function AutoFilledBadge({
     isAuto ? 'bg-green-500' : 'bg-blue-500',
   ].join(' ');
 
-  const getLabel = () => {
-    if (!showLabel) {return null;}
-
-    return isAuto ? 'Auto-filled' : 'User entered';
-  };
+  const label = isAuto ? 'Auto-filled' : 'User entered';
 
   return (
     <View className={containerClasses}>
       <View className={dotClasses} />
       {showLabel && (
         <Text className={textClasses}>
-          {getLabel()}
+          {label}
         </Text>
       )}
     </View>

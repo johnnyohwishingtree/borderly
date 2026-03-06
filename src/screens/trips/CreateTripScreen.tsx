@@ -79,14 +79,23 @@ export default function CreateTripScreen() {
   const updateLeg = (index: number, field: string, value: string) => {
     const newLegs = [...legs];
     const keys = field.split('.');
-    let current: any = newLegs[index];
+    let current: Record<string, any> = newLegs[index];
 
     for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+      if (typeof current[keys[i]] === 'object' && current[keys[i]] !== null) {
+        current = current[keys[i]];
+      } else {
+        // Handle case where intermediate path doesn't exist
+        console.warn(`Invalid field path: ${field}`);
+        return;
+      }
     }
 
-    current[keys[keys.length - 1]] = value;
-    setLegs(newLegs);
+    const lastKey = keys[keys.length - 1];
+    if (lastKey && typeof current === 'object' && current !== null) {
+      current[lastKey] = value;
+      setLegs(newLegs);
+    }
   };
 
   const validateTrip = (): boolean => {

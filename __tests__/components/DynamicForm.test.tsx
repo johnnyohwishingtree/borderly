@@ -11,7 +11,9 @@ jest.mock('../../src/stores/useFormStore', () => ({
 }));
 
 describe('DynamicForm', () => {
-  const mockOnFormDataChange = jest.fn();
+  const mockOnFieldChange = jest.fn();
+  const mockFormData = {};
+  const mockErrors = {};
 
   const createMockForm = (overrides?: Partial<FilledForm>): FilledForm => ({
     countryCode: 'JPN',
@@ -74,6 +76,7 @@ describe('DynamicForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockOnFieldChange.mockClear();
   });
 
   it('renders form correctly', () => {
@@ -82,7 +85,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
@@ -97,7 +102,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
         showFormStats={true}
       />
     );
@@ -116,7 +123,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
         showOnlyCountrySpecific={true}
       />
     );
@@ -125,16 +134,19 @@ describe('DynamicForm', () => {
     expect(screen.getByText('Purpose of Visit')).toBeTruthy();
 
     // Should not show auto-filled fields when in country-specific mode
-    // Note: This depends on the implementation of filtering logic
+    expect(screen.queryByText('Surname')).toBeNull();
+    expect(screen.queryByText('Given Names')).toBeNull();
   });
 
-  it('calls onFormDataChange when field values change', async () => {
+  it('calls onFieldChange when field values change', async () => {
     const mockForm = createMockForm();
 
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
@@ -145,7 +157,7 @@ describe('DynamicForm', () => {
     fireEvent.changeText(purposeField, 'tourism');
 
     await waitFor(() => {
-      expect(mockOnFormDataChange).toHaveBeenCalled();
+      expect(mockOnFieldChange).toHaveBeenCalledWith('purposeOfVisit', 'tourism');
     });
   });
 
@@ -178,12 +190,14 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={incompleteMockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
     // The validation summary should be shown for incomplete forms
-    // Note: The exact text depends on the validation logic implementation
+    expect(screen.getByText(/required fields need attention/i)).toBeTruthy();
   });
 
   it('handles empty form gracefully', () => {
@@ -201,7 +215,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={emptyForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
@@ -214,13 +230,16 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
         collapsibleSections={true}
       />
     );
 
     expect(screen.getByText('Personal Information')).toBeTruthy();
-    // The section should be collapsible - exact UI depends on implementation
+    // Section should be rendered with collapsible functionality
+    expect(screen.getByText('Personal Information')).toBeTruthy();
   });
 
   it('handles form data initialization correctly', () => {
@@ -230,13 +249,14 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
-        initialFormData={initialData}
+        formData={initialData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
     // Should initialize with the provided form data
-    expect(mockOnFormDataChange).toHaveBeenCalledWith(initialData);
+    // Component is now controlled, so no callback on initialization
   });
 
   it('displays auto-filled badges correctly', () => {
@@ -245,7 +265,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
@@ -259,7 +281,9 @@ describe('DynamicForm', () => {
     render(
       <DynamicForm
         form={mockForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
 
@@ -269,7 +293,9 @@ describe('DynamicForm', () => {
 });
 
 describe('DynamicForm Edge Cases', () => {
-  const mockOnFormDataChange = jest.fn();
+  const mockOnFieldChange = jest.fn();
+  const mockFormData = {};
+  const mockErrors = {};
 
   it('handles malformed form data gracefully', () => {
     const malformedForm = {
@@ -309,7 +335,9 @@ describe('DynamicForm Edge Cases', () => {
       render(
         <DynamicForm
           form={malformedForm}
-          onFormDataChange={mockOnFormDataChange}
+          formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
         />
       );
     }).not.toThrow();
@@ -349,7 +377,9 @@ describe('DynamicForm Edge Cases', () => {
     render(
       <DynamicForm
         form={largeForm}
-        onFormDataChange={mockOnFormDataChange}
+        formData={mockFormData}
+        onFieldChange={mockOnFieldChange}
+        errors={mockErrors}
       />
     );
     const endTime = Date.now();

@@ -6,8 +6,9 @@ import AutoFilledBadge from './AutoFilledBadge';
 
 interface DynamicFormProps {
   form: FilledForm;
-  onFormDataChange: (formData: Record<string, unknown>) => void;
-  initialFormData?: Record<string, unknown>;
+  formData: Record<string, unknown>;
+  onFieldChange: (fieldId: string, value: unknown) => void;
+  errors?: Record<string, string>;
   showOnlyCountrySpecific?: boolean;
   collapsibleSections?: boolean;
   showFormStats?: boolean;
@@ -15,34 +16,24 @@ interface DynamicFormProps {
 
 export default function DynamicForm({
   form,
-  onFormDataChange,
-  initialFormData = {},
+  formData,
+  onFieldChange,
+  errors = {},
   showOnlyCountrySpecific = false,
   collapsibleSections = false,
   showFormStats = true,
 }: DynamicFormProps) {
-  const [formData, setFormData] = useState<Record<string, unknown>>(initialFormData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [validationResult, setValidationResult] = useState(
     validateFormCompletion(form)
   );
 
-  // Update form data and validate when values change
+  // Update validation when form or data changes
   useEffect(() => {
-    onFormDataChange(formData);
     setValidationResult(validateFormCompletion(form));
-  }, [formData, form, onFormDataChange]);
+  }, [form, formData]);
 
   const handleValueChange = (fieldId: string, value: unknown) => {
-    const updatedData = updateFormData(formData, fieldId, value);
-    setFormData(updatedData);
-
-    // Clear error for this field if it has a value now
-    if (errors[fieldId] && value !== undefined && value !== '' && value !== null) {
-      const newErrors = { ...errors };
-      delete newErrors[fieldId];
-      setErrors(newErrors);
-    }
+    onFieldChange(fieldId, value);
   };
 
   const validateField = (fieldId: string, value: unknown): string | undefined => {
@@ -96,20 +87,21 @@ export default function DynamicForm({
   };
 
   const validateAllFields = () => {
-    const newErrors: Record<string, string> = {};
-
+    // Validation is now handled by the parent store
+    // This method is kept for backward compatibility but doesn't update local state
+    let hasErrors = false;
+    
     form.sections.forEach(section => {
       section.fields.forEach(field => {
         const value = formData[field.id] ?? field.currentValue;
         const error = validateField(field.id, value);
         if (error) {
-          newErrors[field.id] = error;
+          hasErrors = true;
         }
       });
     });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return !hasErrors;
   };
 
   const getSectionsToRender = () => {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 
 export interface SelectOption {
@@ -17,7 +17,7 @@ export interface SelectProps {
   testID?: string;
 }
 
-export default function Select({
+function Select({
   options,
   value,
   onValueChange,
@@ -120,3 +120,5 @@ export default function Select({
     </View>
   );
 }
+
+export default Select;
