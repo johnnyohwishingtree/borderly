@@ -36,7 +36,7 @@ React Native (bare workflow) | TypeScript | Zustand | WatermelonDB | NativeWind 
 
 ```bash
 # Clone and install dependencies
-git clone https://github.com/your-org/borderly.git
+git clone https://github.com/johnnyohwishingtree/borderly.git
 cd borderly
 pnpm install
 

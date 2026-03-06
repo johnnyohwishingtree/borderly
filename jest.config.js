@@ -11,7 +11,7 @@ module.exports = {
     }],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|react-navigation|@react-navigation|zustand)/)',
+    'node_modules/(?!(react-native|@react-native|react-navigation|@react-navigation|zustand|react-native-get-random-values)/)',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

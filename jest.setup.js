@@ -13,13 +13,42 @@ afterEach(() => {
 });
 
 // Mock react-native modules
-jest.mock('react-native', () => ({
-  Platform: { OS: 'ios' },
-  NativeModules: {},
-}));
+jest.mock('react-native', () => {
+  const React = require('react');
+  return {
+    Platform: { OS: 'ios' },
+    NativeModules: {},
+    View: ({ children, ...props }) => React.createElement('RCTView', props, children),
+    Text: ({ children, ...props }) => React.createElement('RCTText', props, children),
+    TouchableOpacity: ({ children, onPress, ...props }) => 
+      React.createElement('RCTTouchableOpacity', { ...props, onPress }, children),
+    TextInput: (props) => React.createElement('RCTTextInput', props),
+    ScrollView: ({ children, ...props }) => React.createElement('RCTScrollView', props, children),
+    Alert: {
+      alert: jest.fn(),
+    },
+  };
+});
+
+// Mock react-native-get-random-values
+jest.mock('react-native-get-random-values', () => {
+  // Polyfill crypto.getRandomValues for tests
+  Object.defineProperty(global, 'crypto', {
+    value: {
+      getRandomValues: (arr) => {
+        for (let i = 0; i < arr.length; i++) {
+          arr[i] = Math.floor(Math.random() * 256);
+        }
+        return arr;
+      },
+    },
+    writable: true,
+  });
+  return {};
+});
 
 // Mock react-native-keychain
-const KeychainMock = {
+jest.mock('react-native-keychain', () => ({
   setInternetCredentials: jest.fn().mockResolvedValue(true),
   getInternetCredentials: jest.fn().mockResolvedValue({ password: '{}' }),
   resetInternetCredentials: jest.fn().mockResolvedValue(true),
@@ -33,9 +62,7 @@ const KeychainMock = {
   ACCESSIBLE: {
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
   },
-};
-
-jest.mock('react-native-keychain', () => KeychainMock);
+}));
 
 // Mock react-native-mmkv
 jest.mock('react-native-mmkv', () => ({

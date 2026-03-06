@@ -233,21 +233,6 @@ describe('Storage Security Tests', () => {
       expect(preferences).toHaveProperty('analyticsEnabled');
     });
 
-    it('should never store passport data in MMKV', () => {
-      // Ensure no passport data leaks into non-encrypted storage
-      mmkvService.setString('test_passport_leak', mockProfile.passportNumber);
-      
-      // This should be a conscious decision - passport data should never
-      // be stored in MMKV even accidentally
-      const stored = mmkvService.getString('test_passport_leak');
-      
-      // In real implementation, this should be prevented
-      // For now, we just verify it doesn't happen accidentally
-      expect(stored).toBe(mockProfile.passportNumber);
-      
-      // Clean up the test data
-      mmkvService.delete('test_passport_leak');
-    });
   });
 
   describe('Error Handling and Security Fallbacks', () => {

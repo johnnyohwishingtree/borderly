@@ -1,5 +1,6 @@
 import Keychain from 'react-native-keychain';
 import { TravelerProfile } from '@/types/profile';
+import 'react-native-get-random-values';
 
 const PROFILE_KEY = 'borderly_traveler_profile';
 const ENCRYPTION_KEY = 'borderly_encryption_key';
@@ -68,13 +69,14 @@ class KeychainServiceImpl implements KeychainService {
 
   async generateEncryptionKey(): Promise<string> {
     try {
-      // Generate a random 256-bit key for WatermelonDB encryption
-      // Using a simple random string generation for React Native compatibility
-      const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let key = '';
-      for (let i = 0; i < 64; i++) {
-        key += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
+      // Generate a cryptographically secure 256-bit key for WatermelonDB encryption
+      const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
+      crypto.getRandomValues(keyBytes);
+      
+      // Convert to base64 string for storage
+      const key = Array.from(keyBytes)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
 
       await Keychain.setInternetCredentials(
         ENCRYPTION_KEY,

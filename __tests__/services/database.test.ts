@@ -114,6 +114,7 @@ describe('DatabaseService', () => {
 
       // Wait for async error handler
       await new Promise(resolve => setTimeout(resolve, 10));
+      expect(console.error).toHaveBeenCalledWith('Database setup error:', setupError);
     });
   });
 
