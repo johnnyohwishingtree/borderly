@@ -127,8 +127,8 @@ describe('Form Validators', () => {
 
   describe('validateField', () => {
     const textField: FormField = {
-      id: 'name',
-      label: 'Name',
+      id: 'description',
+      label: 'Description',
       type: 'text',
       required: true,
       countrySpecific: false,
@@ -218,8 +218,8 @@ describe('Form Validators', () => {
 
     it('should validate cross-field relationships', () => {
       const values = {
-        arrivalDate: '2025-07-01',
-        departureDate: '2025-07-10',
+        arrivalDate: '2026-07-01',
+        departureDate: '2026-07-10',
         dateOfBirth: '1990-01-01',
       };
 
@@ -231,8 +231,8 @@ describe('Form Validators', () => {
 
     it('should catch departure before arrival error', () => {
       const values = {
-        arrivalDate: '2025-07-10',
-        departureDate: '2025-07-01', // Before arrival
+        arrivalDate: '2026-07-10',
+        departureDate: '2026-07-01', // Before arrival
         dateOfBirth: '1990-01-01',
       };
 
@@ -244,8 +244,8 @@ describe('Form Validators', () => {
 
     it('should catch underage traveler error', () => {
       const values = {
-        arrivalDate: '2025-07-01',
-        departureDate: '2025-07-10',
+        arrivalDate: '2026-07-01',
+        departureDate: '2026-07-10',
         dateOfBirth: '2010-01-01', // Too young
       };
 

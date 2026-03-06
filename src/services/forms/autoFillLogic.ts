@@ -82,7 +82,7 @@ function tryStandardAutoFill(field: FormField, context: FormContext): AutoFillRe
       return {
         value,
         source: field.autoFillSource.startsWith('profile.') ? 'profile' : 
-                field.autoFillSource.startsWith('leg.') ? 'trip' : 'computed',
+                field.autoFillSource.startsWith('leg.') && !field.autoFillSource.includes('_calculated') ? 'trip' : 'computed',
         confidence: 0.95,
       };
     }
@@ -141,7 +141,7 @@ function trySmartAutoFill(
     return {
       value: getCommonStayDuration(countryCode),
       source: 'smart',
-      confidence: 0.6,
+      confidence: 0.75,
     };
   }
 
@@ -186,7 +186,7 @@ function trySmartAutoFill(
     const airlineCode = extractAirlineFromFlight(context.leg.flightNumber);
     if (airlineCode) {
       return {
-        value: field.id.includes('code') ? airlineCode : expandAirlineName(airlineCode),
+        value: fieldId.includes('code') ? airlineCode : expandAirlineName(airlineCode),
         source: 'smart',
         confidence: 0.9,
       };

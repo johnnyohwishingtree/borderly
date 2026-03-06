@@ -10,7 +10,7 @@ export const VALIDATION_PATTERNS = {
   // Passport patterns by issuing country/region
   passport: {
     default: /^[A-Z0-9]{6,9}$/,
-    US: /^[A-Z0-9]{9}$/,
+    US: /^[0-9]{9}$/,  // US passports are typically 9 digits only
     UK: /^[0-9]{9}$/,
     EU: /^[A-Z]{2}[A-Z0-9]{6,7}$/,
     asia: /^[A-Z]{1,2}[0-9]{7,8}$/,
@@ -115,6 +115,15 @@ export function validateEmail(email: string): { isValid: boolean; error?: string
   }
 
   if (!VALIDATION_PATTERNS.email.test(cleanEmail)) {
+    return { isValid: false, error: 'Invalid email address format' };
+  }
+
+  // Additional checks for common invalid patterns
+  if (cleanEmail.includes('..')) {
+    return { isValid: false, error: 'Email cannot contain consecutive dots' };
+  }
+
+  if (cleanEmail.startsWith('.') || cleanEmail.includes('@.')) {
     return { isValid: false, error: 'Invalid email address format' };
   }
 
@@ -279,6 +288,11 @@ export function validateTravelName(name: string): { isValid: boolean; error?: st
     return { isValid: false, error: 'Name is required' };
   }
 
+  // Check for invalid spacing BEFORE trimming
+  if (/\s{2,}/.test(name) || name.startsWith(' ') || name.endsWith(' ')) {
+    return { isValid: false, error: 'Name has invalid spacing' };
+  }
+
   const trimmedName = name.trim();
 
   if (trimmedName.length < 1) {
@@ -289,15 +303,10 @@ export function validateTravelName(name: string): { isValid: boolean; error?: st
     return { isValid: false, error: 'Name is too long (maximum 100 characters)' };
   }
 
-  // Allow letters, spaces, hyphens, apostrophes, periods
-  const namePattern = /^[a-zA-Z\s\-'\.]+$/;
+  // Allow letters (including accented), spaces, hyphens, apostrophes, periods
+  const namePattern = /^[a-zA-ZÀ-ÿ\s\-'\.]+$/;
   if (!namePattern.test(trimmedName)) {
     return { isValid: false, error: 'Name contains invalid characters' };
-  }
-
-  // Check for reasonable structure (no multiple consecutive spaces, etc.)
-  if (/\s{2,}/.test(trimmedName) || trimmedName.startsWith(' ') || trimmedName.endsWith(' ')) {
-    return { isValid: false, error: 'Name has invalid spacing' };
   }
 
   return { isValid: true };
@@ -401,7 +410,15 @@ export function validateCurrencyAmount(
     return { isValid: false, error: 'Currency amount cannot be negative' };
   }
 
-  if (numericAmount > 1000000) {
+  // Different maximum limits based on currency
+  let maxLimit = 1000000; // Default limit
+  if (currencyCode === 'JPY') {
+    maxLimit = 10000000; // Higher limit for Japanese Yen
+  } else if (currencyCode === 'KRW' || currencyCode === 'IDR') {
+    maxLimit = 50000000; // Higher limits for currencies with smaller denominations
+  }
+
+  if (numericAmount > maxLimit) {
     return { isValid: false, error: 'Currency amount exceeds maximum limit' };
   }
 
@@ -455,7 +472,7 @@ export function isRequired(value: unknown, fieldName = 'Field'): { isValid: bool
   }
 
   if (typeof value === 'string' && value.trim().length === 0) {
-    return { isValid: false, error: `${fieldName} cannot be empty` };
+    return { isValid: false, error: `${fieldName} is required` };
   }
 
   return { isValid: true };
