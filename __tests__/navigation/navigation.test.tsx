@@ -8,7 +8,7 @@ import { useProfileStore } from '@/stores/useProfileStore';
 // Mock RootNavigator since it doesn't exist yet
 const RootNavigator = () => {
   const { isOnboardingComplete, loadProfile } = useProfileStore();
-  
+
   React.useEffect(() => {
     if (loadProfile) {
       loadProfile();
@@ -18,8 +18,8 @@ const RootNavigator = () => {
   if (isOnboardingComplete) {
     return <View testID="main-tab-navigator"><Text>Main App</Text></View>;
   }
-  
-  return <View testID="onboarding-navigator"><Text>Onboarding</Text></View>;
+
+  return <View testID="welcome-screen"><Text>Onboarding</Text></View>;
 };
 
 // Mock the profile store
@@ -71,6 +71,10 @@ const mockProfileStore = {
 describe('Navigation Flow Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockProfileStore.isOnboardingComplete = false;
+    mockProfileStore.isLoading = false;
+    mockProfileStore.error = null;
+    mockProfileStore.profile = null;
     (useProfileStore as jest.Mock).mockReturnValue(mockProfileStore);
   });
 
@@ -83,7 +87,7 @@ describe('Navigation Flow Tests', () => {
 
     it('should show onboarding when onboarding not complete', async () => {
       mockProfileStore.isOnboardingComplete = false;
-      
+
       const { getByTestId } = render(<RootNavigator />);
 
       await waitFor(() => {
@@ -93,7 +97,7 @@ describe('Navigation Flow Tests', () => {
 
     it('should show main app when onboarding complete', async () => {
       mockProfileStore.isOnboardingComplete = true;
-      
+
       const { getByTestId } = render(<RootNavigator />);
 
       await waitFor(() => {
@@ -137,10 +141,10 @@ describe('Navigation Flow Tests', () => {
     });
 
     it('should not show headers in onboarding flow', () => {
-      const { container } = render(<RootNavigator />);
-      
+      const { root } = render(<RootNavigator />);
+
       // Should not have any navigation headers
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
       // This is more of a structural test - the actual header hiding
       // is handled by React Navigation's screenOptions
     });
@@ -172,10 +176,10 @@ describe('Navigation Flow Tests', () => {
       mockProfileStore.isLoading = true;
       mockProfileStore.isOnboardingComplete = false;
 
-      const { container } = render(<RootNavigator />);
+      const { root } = render(<RootNavigator />);
 
       // Should still render something while loading
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
       expect(mockProfileStore.loadProfile).toHaveBeenCalled();
     });
 
@@ -183,10 +187,10 @@ describe('Navigation Flow Tests', () => {
       mockProfileStore.error = 'Failed to load profile';
       mockProfileStore.isOnboardingComplete = false;
 
-      const { container } = render(<RootNavigator />);
+      const { root } = render(<RootNavigator />);
 
       // Should still render despite error
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 
@@ -222,18 +226,18 @@ describe('Navigation Flow Tests', () => {
   describe('Navigation Container Integration', () => {
     it('should wrap navigation in NavigationContainer', () => {
       // This test verifies the structural integration
-      const { container } = render(<RootNavigator />);
-      expect(container).toBeTruthy();
-      
+      const { root } = render(<RootNavigator />);
+      expect(root).toBeTruthy();
+
       // The actual NavigationContainer is mocked, but we verify
       // that the structure is set up correctly
     });
 
     it('should configure stack navigator with correct options', () => {
-      const { container } = render(<RootNavigator />);
-      
+      const { root } = render(<RootNavigator />);
+
       // Verify the component renders without errors
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 
@@ -268,11 +272,11 @@ describe('Navigation Flow Tests', () => {
 
   describe('Security Considerations', () => {
     it('should not expose sensitive data in navigation state', () => {
-      const { container } = render(<RootNavigator />);
-      
+      const { root } = render(<RootNavigator />);
+
       // Should not expose profile data or sensitive information
       // This is more of a structural test
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
 
     it('should protect main app routes when not authenticated', () => {
@@ -307,10 +311,10 @@ describe('Navigation Flow Tests', () => {
         error: undefined,
       });
 
-      const { container } = render(<RootNavigator />);
+      const { root } = render(<RootNavigator />);
 
       // Should handle undefined values gracefully
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
 
     it('should handle rapid state changes', () => {

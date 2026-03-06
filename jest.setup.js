@@ -1,6 +1,18 @@
 /* eslint-env jest */
 require('@testing-library/jest-native/extend-expect');
 
+// Configure RNTL host component names to avoid auto-detection issues
+const { configure } = require('@testing-library/react-native');
+configure({
+  hostComponentNames: {
+    text: 'Text',
+    textInput: 'TextInput',
+    switch: 'Switch',
+    scrollView: 'ScrollView',
+    modal: 'Modal',
+  },
+});
+
 // Basic Jest setup for TypeScript unit tests
 
 // Suppress console.error in tests unless explicitly testing error handling
@@ -15,15 +27,26 @@ afterEach(() => {
 // Mock react-native modules
 jest.mock('react-native', () => {
   const React = require('react');
+  const mockComponent = (name) => {
+    const Component = ({ children, ...props }) => React.createElement(name, props, children);
+    Component.displayName = name;
+    return Component;
+  };
   return {
-    Platform: { OS: 'ios' },
+    Platform: { OS: 'ios', select: (obj) => obj.ios },
     NativeModules: {},
-    View: ({ children, ...props }) => React.createElement('RCTView', props, children),
-    Text: ({ children, ...props }) => React.createElement('RCTText', props, children),
-    TouchableOpacity: ({ children, onPress, ...props }) => 
-      React.createElement('RCTTouchableOpacity', { ...props, onPress }, children),
-    TextInput: (props) => React.createElement('RCTTextInput', props),
-    ScrollView: ({ children, ...props }) => React.createElement('RCTScrollView', props, children),
+    View: mockComponent('View'),
+    Text: mockComponent('Text'),
+    TouchableOpacity: mockComponent('TouchableOpacity'),
+    Pressable: mockComponent('Pressable'),
+    TextInput: mockComponent('TextInput'),
+    ScrollView: mockComponent('ScrollView'),
+    ActivityIndicator: mockComponent('ActivityIndicator'),
+    StatusBar: { setBarStyle: jest.fn(), setBackgroundColor: jest.fn() },
+    StyleSheet: {
+      create: (styles) => styles,
+      flatten: (style) => Object.assign({}, ...(Array.isArray(style) ? style : [style])),
+    },
     Alert: {
       alert: jest.fn(),
     },

@@ -1,19 +1,36 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 
 // Mock the components since they don't exist yet
 const Button = ({ title, onPress, disabled, loading, variant, size, fullWidth, accessibilityLabel, accessibilityHint, ...props }: any) => (
-  <View testID={props.testID || 'button'}>
+  <TouchableOpacity
+    testID={props.testID || 'button'}
+    onPress={disabled || loading ? undefined : onPress}
+    accessibilityLabel={accessibilityLabel}
+    accessibilityHint={accessibilityHint}
+  >
+    {loading && <ActivityIndicator testID="activity-indicator" />}
     <Text>{title}</Text>
-  </View>
+  </TouchableOpacity>
 );
 
-const Input = ({ label, value, onChangeText, required, error, helperText, accessibilityLabel, accessibilityHint, ...props }: any) => (
+const Input = ({ label, value, onChangeText, required, error, helperText, accessibilityLabel, accessibilityHint, onBlur, ...props }: any) => (
   <View testID={props.testID || 'input'}>
-    {label && <Text>{label}{required && ' *'}</Text>}
+    {label && <Text>{label}</Text>}
+    {required && <Text>*</Text>}
+    <TextInput
+      value={value}
+      onChangeText={onChangeText}
+      onBlur={onBlur}
+      placeholder={props.placeholder}
+      maxLength={props.maxLength}
+      autoCapitalize={props.autoCapitalize}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+    />
     {error && <Text>{error}</Text>}
-    {helperText && <Text>{helperText}</Text>}
+    {!error && helperText && <Text>{helperText}</Text>}
   </View>
 );
 
@@ -28,17 +45,17 @@ describe('UI Components', () => {
     it('should render with default props', () => {
       const onPress = jest.fn();
       const { getByText } = render(<Button title="Test Button" onPress={onPress} />);
-      
+
       expect(getByText('Test Button')).toBeTruthy();
     });
 
     it('should call onPress when pressed', () => {
       const onPress = jest.fn();
       const { getByText } = render(<Button title="Test Button" onPress={onPress} />);
-      
+
       const button = getByText('Test Button');
       fireEvent.press(button);
-      
+
       expect(onPress).toHaveBeenCalledTimes(1);
     });
 
@@ -47,10 +64,10 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Button title="Test Button" onPress={onPress} disabled />
       );
-      
+
       const button = getByText('Test Button');
       fireEvent.press(button);
-      
+
       expect(onPress).not.toHaveBeenCalled();
     });
 
@@ -59,10 +76,10 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Button title="Test Button" onPress={onPress} loading />
       );
-      
+
       const button = getByText('Test Button');
       fireEvent.press(button);
-      
+
       expect(onPress).not.toHaveBeenCalled();
     });
 
@@ -71,7 +88,7 @@ describe('UI Components', () => {
       const { getByTestId } = render(
         <Button title="Test Button" onPress={onPress} loading />
       );
-      
+
       // ActivityIndicator should be present
       expect(() => getByTestId('activity-indicator')).not.toThrow();
     });
@@ -82,7 +99,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Primary" onPress={onPress} variant="primary" />
         );
-        
+
         expect(getByText('Primary')).toBeTruthy();
       });
 
@@ -91,7 +108,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Secondary" onPress={onPress} variant="secondary" />
         );
-        
+
         expect(getByText('Secondary')).toBeTruthy();
       });
 
@@ -100,7 +117,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Outline" onPress={onPress} variant="outline" />
         );
-        
+
         expect(getByText('Outline')).toBeTruthy();
       });
     });
@@ -111,7 +128,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Small" onPress={onPress} size="small" />
         );
-        
+
         expect(getByText('Small')).toBeTruthy();
       });
 
@@ -120,7 +137,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Medium" onPress={onPress} size="medium" />
         );
-        
+
         expect(getByText('Medium')).toBeTruthy();
       });
 
@@ -129,7 +146,7 @@ describe('UI Components', () => {
         const { getByText } = render(
           <Button title="Large" onPress={onPress} size="large" />
         );
-        
+
         expect(getByText('Large')).toBeTruthy();
       });
     });
@@ -139,7 +156,7 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Button title="Full Width" onPress={onPress} fullWidth />
       );
-      
+
       expect(getByText('Full Width')).toBeTruthy();
     });
   });
@@ -147,7 +164,7 @@ describe('UI Components', () => {
   describe('Input', () => {
     it('should render with default props', () => {
       const { getByDisplayValue } = render(<Input value="test" onChangeText={() => {}} />);
-      
+
       expect(getByDisplayValue('test')).toBeTruthy();
     });
 
@@ -155,7 +172,7 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Input label="Test Label" value="" onChangeText={() => {}} />
       );
-      
+
       expect(getByText('Test Label')).toBeTruthy();
     });
 
@@ -163,7 +180,7 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Input label="Required Field" value="" onChangeText={() => {}} required />
       );
-      
+
       expect(getByText('Required Field')).toBeTruthy();
       expect(getByText('*')).toBeTruthy();
     });
@@ -172,7 +189,7 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Input value="" onChangeText={() => {}} error="This is an error" />
       );
-      
+
       expect(getByText('This is an error')).toBeTruthy();
     });
 
@@ -180,7 +197,7 @@ describe('UI Components', () => {
       const { getByText } = render(
         <Input value="" onChangeText={() => {}} helperText="This is helper text" />
       );
-      
+
       expect(getByText('This is helper text')).toBeTruthy();
     });
 
@@ -193,7 +210,7 @@ describe('UI Components', () => {
           error="Error message"
         />
       );
-      
+
       expect(queryByText('Helper text')).toBeNull();
       expect(queryByText('Error message')).toBeTruthy();
     });
@@ -203,10 +220,10 @@ describe('UI Components', () => {
       const { getByDisplayValue } = render(
         <Input value="initial" onChangeText={onChangeText} />
       );
-      
+
       const input = getByDisplayValue('initial');
       fireEvent.changeText(input, 'new text');
-      
+
       expect(onChangeText).toHaveBeenCalledWith('new text');
     });
 
@@ -220,7 +237,7 @@ describe('UI Components', () => {
           autoCapitalize="characters"
         />
       );
-      
+
       expect(getByPlaceholderText('Enter text here')).toBeTruthy();
     });
 
@@ -229,10 +246,10 @@ describe('UI Components', () => {
       const { getByDisplayValue } = render(
         <Input value="test" onChangeText={() => {}} onBlur={onBlur} />
       );
-      
+
       const input = getByDisplayValue('test');
       fireEvent(input, 'blur');
-      
+
       expect(onBlur).toHaveBeenCalled();
     });
   });
@@ -244,7 +261,7 @@ describe('UI Components', () => {
           <Text>Card Content</Text>
         </Card>
       );
-      
+
       expect(getByText('Card Content')).toBeTruthy();
     });
 
@@ -254,7 +271,7 @@ describe('UI Components', () => {
           <Text>Default Card</Text>
         </Card>
       );
-      
+
       expect(getByText('Default Card')).toBeTruthy();
     });
 
@@ -264,7 +281,7 @@ describe('UI Components', () => {
           <Text>Elevated Card</Text>
         </Card>
       );
-      
+
       expect(getByText('Elevated Card')).toBeTruthy();
     });
 
@@ -274,7 +291,7 @@ describe('UI Components', () => {
           <Text>Outlined Card</Text>
         </Card>
       );
-      
+
       expect(getByText('Outlined Card')).toBeTruthy();
     });
 
@@ -284,7 +301,7 @@ describe('UI Components', () => {
           <Text>Custom Card</Text>
         </Card>
       );
-      
+
       expect(getByText('Custom Card')).toBeTruthy();
     });
   });
@@ -293,7 +310,7 @@ describe('UI Components', () => {
     it('should work together in a form', () => {
       const onPress = jest.fn();
       const onChangeText = jest.fn();
-      
+
       const { getByText, getByPlaceholderText } = render(
         <Card>
           <Input
@@ -306,15 +323,15 @@ describe('UI Components', () => {
           <Button title="Submit" onPress={onPress} />
         </Card>
       );
-      
+
       expect(getByText('Username')).toBeTruthy();
       expect(getByText('*')).toBeTruthy();
       expect(getByPlaceholderText('Enter username')).toBeTruthy();
       expect(getByText('Submit')).toBeTruthy();
-      
+
       const submitButton = getByText('Submit');
       fireEvent.press(submitButton);
-      
+
       expect(onPress).toHaveBeenCalled();
     });
 
@@ -331,7 +348,7 @@ describe('UI Components', () => {
           <Button title="Submit" onPress={() => {}} disabled />
         </Card>
       );
-      
+
       expect(getByText('Email')).toBeTruthy();
       expect(getByText('Please enter a valid email')).toBeTruthy();
       expect(getByText('Submit')).toBeTruthy();
@@ -349,7 +366,7 @@ describe('UI Components', () => {
           accessibilityHint="This button does something"
         />
       );
-      
+
       expect(getByText('Accessible Button')).toBeTruthy();
     });
 
@@ -363,7 +380,7 @@ describe('UI Components', () => {
           accessibilityHint="Enter your information here"
         />
       );
-      
+
       // Input should be accessible
       expect(getByDisplayValue('')).toBeTruthy();
     });
@@ -373,13 +390,13 @@ describe('UI Components', () => {
     it('should handle empty string title on Button', () => {
       const onPress = jest.fn();
       const { getByText } = render(<Button title="" onPress={onPress} />);
-      
+
       // Should render without crashing
       expect(() => getByText('')).not.toThrow();
     });
 
     it('should handle undefined values gracefully in Input', () => {
-      const { container } = render(
+      const { root } = render(
         <Input
           value={undefined as any}
           onChangeText={() => {}}
@@ -388,9 +405,9 @@ describe('UI Components', () => {
           helperText={undefined}
         />
       );
-      
+
       // Should render without crashing
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
 
     it('should handle complex children in Card', () => {
@@ -402,7 +419,7 @@ describe('UI Components', () => {
           </View>
         </Card>
       );
-      
+
       expect(getByText('Complex content')).toBeTruthy();
       expect(getByText('Nested button')).toBeTruthy();
     });

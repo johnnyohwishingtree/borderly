@@ -1,11 +1,34 @@
+// Unmock the modules that jest.setup.js globally mocks, so we can test the real implementation
+jest.unmock('@/services/storage/database');
+jest.unmock('@/services/storage');
+
 import { databaseService } from '@/services/storage/database';
 import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { keychainService } from '@/services/storage/keychain';
 
 // Mock the dependencies
-jest.mock('@nozbe/watermelondb');
-jest.mock('@nozbe/watermelondb/adapters/sqlite');
+jest.mock('@nozbe/watermelondb', () => ({
+  Database: jest.fn(),
+  Model: class MockModel {
+    static table = 'mock_table';
+  },
+  appSchema: jest.fn(),
+  tableSchema: jest.fn(),
+  field: () => (target: any, key: string) => {},
+  date: () => (target: any, key: string) => {},
+  readonly: () => (target: any, key: string) => {},
+}));
+jest.mock('@nozbe/watermelondb/decorators', () => ({
+  field: () => () => {},
+  date: () => () => {},
+  readonly: () => () => {},
+}));
+jest.mock('@nozbe/watermelondb/adapters/sqlite', () => jest.fn());
+jest.mock('@nozbe/watermelondb/Schema/migrations', () => ({
+  schemaMigrations: jest.fn(),
+  createTable: jest.fn(),
+}));
 jest.mock('@/services/storage/keychain');
 
 const mockDatabase = {
@@ -222,18 +245,24 @@ describe('DatabaseService', () => {
 
     it('should delete trip', async () => {
       const tripId = 'trip-id';
-      
+      const mockMarkAsDeleted = jest.fn().mockResolvedValue({});
+      mockDatabase.collections.get().find.mockResolvedValue({ markAsDeleted: mockMarkAsDeleted });
+
       await databaseService.deleteTrip(tripId);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('trips');
       expect(mockDatabase.collections.get().find).toHaveBeenCalledWith(tripId);
-      expect(mockDatabase.collections.get().find().markAsDeleted).toHaveBeenCalled();
+      expect(mockMarkAsDeleted).toHaveBeenCalled();
     });
   });
 
   describe('trip leg operations', () => {
     beforeEach(async () => {
+      mockDatabase.collections.get().find.mockResolvedValue({
+        update: jest.fn().mockResolvedValue({}),
+        markAsDeleted: jest.fn().mockResolvedValue({}),
+      });
       await databaseService.initialize();
     });
 
@@ -325,13 +354,15 @@ describe('DatabaseService', () => {
 
     it('should delete QR code', async () => {
       const qrId = 'qr-id';
-      
+      const mockMarkAsDeleted = jest.fn().mockResolvedValue({});
+      mockDatabase.collections.get().find.mockResolvedValue({ markAsDeleted: mockMarkAsDeleted });
+
       await databaseService.deleteQRCode(qrId);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('saved_qr_codes');
       expect(mockDatabase.collections.get().find).toHaveBeenCalledWith(qrId);
-      expect(mockDatabase.collections.get().find().markAsDeleted).toHaveBeenCalled();
+      expect(mockMarkAsDeleted).toHaveBeenCalled();
     });
   });
 
