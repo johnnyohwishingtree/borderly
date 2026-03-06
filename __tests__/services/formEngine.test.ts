@@ -485,4 +485,484 @@ describe('FormEngine', () => {
       expect(result.stats.completionPercentage).toBe(0);
     });
   });
+
+  describe('Additional Coverage Tests', () => {
+    describe('Field Type Validation', () => {
+      it('should handle all field types correctly', () => {
+        const complexSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'complex',
+              title: 'Complex Fields',
+              fields: [
+                {
+                  id: 'textField',
+                  label: 'Text Field',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.surname',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'textareaField',
+                  label: 'Textarea Field',
+                  type: 'textarea',
+                  required: true,
+                  autoFillSource: 'leg.accommodation.address._formatted',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'numberField',
+                  label: 'Number Field',
+                  type: 'number',
+                  required: true,
+                  autoFillSource: 'leg._calculatedDuration',
+                  countrySpecific: false,
+                  validation: {
+                    min: 1,
+                    max: 90,
+                  },
+                },
+                {
+                  id: 'dateField',
+                  label: 'Date Field',
+                  type: 'date',
+                  required: true,
+                  autoFillSource: 'profile.dateOfBirth',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'booleanField',
+                  label: 'Boolean Field',
+                  type: 'boolean',
+                  required: true,
+                  autoFillSource: 'profile.defaultDeclarations.carryingProhibitedItems',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'selectField',
+                  label: 'Select Field',
+                  type: 'select',
+                  required: true,
+                  countrySpecific: true,
+                  options: [
+                    { value: 'option1', label: 'Option 1' },
+                    { value: 'option2', label: 'Option 2' },
+                    { value: 'option3', label: 'Option 3' },
+                  ],
+                },
+              ],
+            },
+          ],
+        };
+
+        const result = generateFilledForm(mockProfile, mockTripLeg, complexSchema);
+
+        expect(result.sections).toHaveLength(1);
+        expect(result.sections[0].fields).toHaveLength(6);
+
+        const fields = result.sections[0].fields;
+
+        // Text field should be auto-filled
+        expect(fields[0].currentValue).toBe('JOHNSON');
+        expect(fields[0].source).toBe('auto');
+
+        // Textarea field should be auto-filled with formatted address
+        expect(fields[1].currentValue).toBe('3-7-1-2 Nishi-Shinjuku, Tokyo, Tokyo, 163-1055');
+        expect(fields[1].source).toBe('auto');
+
+        // Number field should be auto-filled with duration
+        expect(fields[2].currentValue).toBe(7);
+        expect(fields[2].source).toBe('auto');
+
+        // Date field should be auto-filled
+        expect(fields[3].currentValue).toBe('1990-04-08');
+        expect(fields[3].source).toBe('auto');
+
+        // Boolean field should be auto-filled
+        expect(fields[4].currentValue).toBe(false);
+        expect(fields[4].source).toBe('auto');
+
+        // Select field should use default (first option)
+        expect(fields[5].currentValue).toBe('option1');
+        expect(fields[5].source).toBe('default');
+        expect(fields[5].needsUserInput).toBe(true);
+      });
+
+      it('should handle invalid field values gracefully', () => {
+        const invalidAutoFillSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'invalid',
+              title: 'Invalid Auto-fill',
+              fields: [
+                {
+                  id: 'invalidDate',
+                  label: 'Invalid Date',
+                  type: 'date',
+                  required: true,
+                  autoFillSource: 'profile.surname', // Text value for date field
+                  countrySpecific: false,
+                },
+                {
+                  id: 'invalidNumber',
+                  label: 'Invalid Number',
+                  type: 'number',
+                  required: true,
+                  autoFillSource: 'profile.givenNames', // Text value for number field
+                  countrySpecific: false,
+                },
+                {
+                  id: 'emptyText',
+                  label: 'Empty Text',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.nonExistentField',
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const result = generateFilledForm(mockProfile, mockTripLeg, invalidAutoFillSchema);
+        const fields = result.sections[0].fields;
+
+        // Invalid date should need user input
+        expect(fields[0].needsUserInput).toBe(true);
+        expect(fields[0].source).toBe('empty');
+
+        // Invalid number should need user input
+        expect(fields[1].needsUserInput).toBe(true);
+        expect(fields[1].source).toBe('default'); // Number fields get default value (0)
+
+        // Empty text should need user input
+        expect(fields[2].needsUserInput).toBe(true);
+        expect(fields[2].source).toBe('empty');
+        expect(fields[2].currentValue).toBe('');
+      });
+    });
+
+    describe('Complex Auto-fill Scenarios', () => {
+      it('should handle nested object auto-fill paths', () => {
+        const nestedProfile = {
+          ...mockProfile,
+          homeAddress: {
+            line1: '123 Test Street',
+            line2: 'Apt 4B',
+            city: 'Test City',
+            state: 'Test State',
+            postalCode: '12345',
+            country: 'USA',
+          },
+        };
+
+        const nestedSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'nested',
+              title: 'Nested Fields',
+              fields: [
+                {
+                  id: 'addressLine1',
+                  label: 'Address Line 1',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.homeAddress.line1',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'addressCity',
+                  label: 'City',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.homeAddress.city',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'accommodationName',
+                  label: 'Accommodation',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'leg.accommodation.name',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'accommodationPhone',
+                  label: 'Phone',
+                  type: 'text',
+                  required: false,
+                  autoFillSource: 'leg.accommodation.phone',
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const result = generateFilledForm(nestedProfile, mockTripLeg, nestedSchema);
+        const fields = result.sections[0].fields;
+
+        expect(fields[0].currentValue).toBe('123 Test Street');
+        expect(fields[0].source).toBe('auto');
+
+        expect(fields[1].currentValue).toBe('Test City');
+        expect(fields[1].source).toBe('auto');
+
+        expect(fields[2].currentValue).toBe('Park Hyatt Tokyo');
+        expect(fields[2].source).toBe('auto');
+
+        expect(fields[3].currentValue).toBe('+81-3-5322-1234');
+        expect(fields[3].source).toBe('auto');
+      });
+
+      it('should handle computed field auto-fill sources', () => {
+        const computedSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'computed',
+              title: 'Computed Fields',
+              fields: [
+                {
+                  id: 'duration',
+                  label: 'Duration',
+                  type: 'number',
+                  required: true,
+                  autoFillSource: 'leg._calculatedDuration',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'formattedAddress',
+                  label: 'Address',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'leg.accommodation.address._formatted',
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const result = generateFilledForm(mockProfile, mockTripLeg, computedSchema);
+        const fields = result.sections[0].fields;
+
+        expect(fields[0].currentValue).toBe(7); // July 15-22 = 7 days
+        expect(fields[0].source).toBe('auto');
+
+        expect(fields[1].currentValue).toBe('3-7-1-2 Nishi-Shinjuku, Tokyo, Tokyo, 163-1055');
+        expect(fields[1].source).toBe('auto');
+      });
+    });
+
+    describe('Form Statistics Edge Cases', () => {
+      it('should handle form with no required fields', () => {
+        const optionalSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'optional',
+              title: 'Optional Fields',
+              fields: [
+                {
+                  id: 'optionalField1',
+                  label: 'Optional 1',
+                  type: 'text',
+                  required: false,
+                  autoFillSource: 'profile.surname',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'optionalField2',
+                  label: 'Optional 2',
+                  type: 'text',
+                  required: false,
+                  countrySpecific: true,
+                },
+              ],
+            },
+          ],
+        };
+
+        const result = generateFilledForm(mockProfile, mockTripLeg, optionalSchema);
+
+        expect(result.stats.totalFields).toBe(2);
+        expect(result.stats.autoFilled).toBe(1);
+        expect(result.stats.remaining).toBe(1);
+        expect(result.stats.completionPercentage).toBe(50);
+      });
+
+      it('should calculate completion percentage correctly with edge cases', () => {
+        // Test with 0 fields
+        const emptySchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [],
+        };
+
+        const emptyResult = generateFilledForm(mockProfile, mockTripLeg, emptySchema);
+        expect(emptyResult.stats.completionPercentage).toBe(0);
+
+        // Test with 100% completion
+        const fullAutoSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'full',
+              title: 'Fully Auto',
+              fields: [
+                {
+                  id: 'field1',
+                  label: 'Field 1',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.surname',
+                  countrySpecific: false,
+                },
+                {
+                  id: 'field2',
+                  label: 'Field 2',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.givenNames',
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const fullResult = generateFilledForm(mockProfile, mockTripLeg, fullAutoSchema);
+        expect(fullResult.stats.completionPercentage).toBe(100);
+      });
+    });
+
+    describe('Form Data Update Edge Cases', () => {
+      it('should handle updating with null and undefined values', () => {
+        const data = { existing: 'value' };
+
+        const withNull = updateFormData(data, 'nullField', null);
+        expect(withNull.nullField).toBe(null);
+
+        const withUndefined = updateFormData(data, 'undefinedField', undefined);
+        expect(withUndefined.undefinedField).toBe(undefined);
+
+        // Original data should not be mutated
+        expect(data).toEqual({ existing: 'value' });
+      });
+
+      it('should handle updating with complex objects', () => {
+        const data = { simple: 'value' };
+        const complexValue = {
+          nested: {
+            array: [1, 2, 3],
+            object: { key: 'value' },
+          },
+        };
+
+        const result = updateFormData(data, 'complex', complexValue);
+        expect(result.complex).toEqual(complexValue);
+        expect(result.simple).toBe('value');
+      });
+    });
+
+    describe('Country Specific Fields Edge Cases', () => {
+      it('should return empty array when no country-specific fields exist', () => {
+        const noCountrySchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'no-country',
+              title: 'No Country Specific',
+              fields: [
+                {
+                  id: 'field1',
+                  label: 'Field 1',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.surname',
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const form = generateFilledForm(mockProfile, mockTripLeg, noCountrySchema);
+        const countrySpecific = getCountrySpecificFields(form);
+
+        expect(countrySpecific).toHaveLength(0);
+      });
+
+      it('should return only fields that need user input', () => {
+        const mixedSchema: CountryFormSchema = {
+          ...mockSchema,
+          sections: [
+            {
+              id: 'mixed',
+              title: 'Mixed Fields',
+              fields: [
+                {
+                  id: 'autoCountryField',
+                  label: 'Auto Country Field',
+                  type: 'text',
+                  required: true,
+                  autoFillSource: 'profile.surname',
+                  countrySpecific: true,
+                },
+                {
+                  id: 'userCountryField',
+                  label: 'User Country Field',
+                  type: 'select',
+                  required: true,
+                  countrySpecific: true,
+                  options: [{ value: 'test', label: 'Test' }],
+                },
+                {
+                  id: 'normalField',
+                  label: 'Normal Field',
+                  type: 'text',
+                  required: true,
+                  countrySpecific: false,
+                },
+              ],
+            },
+          ],
+        };
+
+        const form = generateFilledForm(mockProfile, mockTripLeg, mixedSchema);
+        const countrySpecific = getCountrySpecificFields(form);
+
+        // Should only return the user country field (not auto-filled)
+        expect(countrySpecific).toHaveLength(1);
+        expect(countrySpecific[0].id).toBe('userCountryField');
+      });
+    });
+
+    describe('Form Export Edge Cases', () => {
+      it('should exclude fields with empty or falsy values appropriately', () => {
+        const form = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
+
+        // Manually set some fields to test export logic
+        form.sections[0].fields[0].currentValue = ''; // Empty string
+        form.sections[0].fields[0].source = 'user';
+
+        form.sections[0].fields[1].currentValue = null; // Null
+        form.sections[0].fields[1].source = 'user';
+
+        form.sections[0].fields[2].currentValue = false; // Boolean false
+        form.sections[0].fields[2].source = 'auto';
+
+        const exported = exportFormData(form);
+
+        // Should include valid false boolean but exclude empty string and null
+        expect(exported).not.toHaveProperty(form.sections[0].fields[0].id);
+        expect(exported).not.toHaveProperty(form.sections[0].fields[1].id);
+        expect(exported).toHaveProperty(form.sections[0].fields[2].id, false);
+      });
+    });
+  });
 });
