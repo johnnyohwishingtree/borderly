@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { useEffect } from 'react';
+import { View, Text, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, Input } from '../../components/ui';
+import { Button, Card } from '../../components/ui';
 import { useProfileStore } from '../../stores/useProfileStore';
 
 type ConfirmProfileScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'ConfirmProfile'>;

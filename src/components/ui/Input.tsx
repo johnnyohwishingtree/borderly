@@ -1,9 +1,8 @@
-import React from 'react';
 import { View, Text, TextInput, TextInputProps } from 'react-native';
 
 export interface InputProps extends TextInputProps {
   label?: string;
-  error?: string;
+  error?: string | undefined;
   helperText?: string;
   required?: boolean;
 }
