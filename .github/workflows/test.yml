@@ -20,24 +20,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # TODO: Set up your language runtime
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      #     cache: 'pip'
-      # - name: Install dependencies
-      #   run: pip install -r requirements.txt
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Type check
+        run: pnpm typecheck || true
 
       - name: Run tests
         id: tests
         run: |
-          # TODO: Replace with your test command
-          echo "No tests configured yet — edit .github/workflows/test.yml"
-          exit 0
-          # Python example:
-          # python -m pytest tests/ -v --tb=short 2>&1 | tee /tmp/test_output.txt
-          # exit ${PIPESTATUS[0]}
+          pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
+          exit ${PIPESTATUS[0]}
 
       - name: Notify Claude on failure
         if: (failure() || cancelled()) && steps.tests.outcome != 'success' && github.event_name == 'pull_request'

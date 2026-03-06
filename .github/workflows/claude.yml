@@ -33,26 +33,16 @@ jobs:
           echo "Switching to PR branch: $PR_BRANCH"
           git checkout "$PR_BRANCH"
 
-      # TODO: Set up your language runtime and install dependencies
-      # Examples for common stacks:
-      #
-      # Python:
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      #     cache: 'pip'
-      # - name: Install dependencies
-      #   run: pip install -r requirements.txt
-      #
-      # Node.js:
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-      #     cache: 'npm'
-      # - name: Install dependencies
-      #   run: npm ci
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Run Claude Code
         id: claude
@@ -60,12 +50,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 100
-          # TODO: Customize allowed tools for your stack
-          # Python example:
-          # allowed_tools: "Bash(git:*),Bash(gh:*),Bash(python:*),Bash(pip:*),Bash(pytest:*),Bash(python -m pytest:*)"
-          # Node.js example:
-          # allowed_tools: "Bash(git:*),Bash(gh:*),Bash(node:*),Bash(npm:*),Bash(npx:*)"
-          allowed_tools: "Bash(git:*),Bash(gh:*)"
+          allowed_tools: "Bash(git:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
 
       - name: Push uncommitted changes
         if: always()

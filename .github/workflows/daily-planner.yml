@@ -102,14 +102,19 @@ jobs:
           echo "context_file=/tmp/planner_context.txt" >> $GITHUB_OUTPUT
           cat /tmp/planner_context.txt
 
-      # TODO: Set up your language runtime and install dependencies
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.11'
-      #     cache: 'pip'
-      # - name: Install dependencies
-      #   run: pip install -r requirements.txt
+      - name: Set up Node.js
+        if: steps.gate.outputs.needed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        if: steps.gate.outputs.needed == 'true'
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        if: steps.gate.outputs.needed == 'true'
+        run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Run Claude Code planner
         if: steps.gate.outputs.needed == 'true'
@@ -118,16 +123,17 @@ jobs:
           mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
-          # TODO: Customize allowed tools for your stack
-          allowed_tools: "Bash(gh:*)"
+          allowed_tools: "Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
           direct_prompt: |
-            You are a technical product manager for this project. Your job is to
-            identify the single most impactful improvement to make next and create
-            a GitHub epic with stories that the autonomous pipeline can execute.
+            You are a technical product manager for Borderly, a universal travel
+            declaration app. Your job is to identify the single most impactful
+            improvement to make next and create a GitHub epic with stories that
+            the autonomous pipeline can execute.
 
             ## Step 1: Understand the project
 
-            Read CLAUDE.md for full project context.
+            Read CLAUDE.md for full project context. Also read docs/mvp-proposal.md
+            for the detailed technical spec, data models, and implementation guide.
 
             ## Step 2: Check what already exists
 
@@ -142,15 +148,40 @@ jobs:
 
             ## Step 3: Choose ONE improvement area
 
-            Pick the single most impactful improvement. Consider:
-            - New features
-            - Bug fixes and code quality
-            - Testing improvements
-            - Performance optimization
-            - Documentation
-            - Developer experience
+            Pick the single most impactful improvement. Follow the sprint order
+            from CLAUDE.md:
 
-            TODO: Customize these categories for your project in the workflow file.
+            **Sprint 1 — Foundation:**
+            - React Native project bootstrap with TypeScript
+            - Navigation structure (React Navigation)
+            - Storage layer (Keychain + MMKV + WatermelonDB)
+            - Onboarding flow (welcome, passport entry, profile confirm)
+            - Profile tab and Settings tab
+
+            **Sprint 2 — Core Form Engine:**
+            - Country schemas (JPN, MYS, SGP) as JSON
+            - Form Engine (generateFilledForm) and Field Mapper
+            - DynamicForm component
+            - Trip creation flow
+            - Leg Form Screen with auto-fill
+
+            **Sprint 3 — Submission Guide & QR Wallet:**
+            - Step-by-step portal walkthroughs
+            - CopyableField component
+            - QR capture/import/display
+            - MRZ camera scanning (ML Kit)
+            - Form status tracking
+
+            **Sprint 4 — Polish & Ship:**
+            - Error handling, empty/loading states
+            - Data export/delete
+            - Privacy policy screen
+            - App store assets, TestFlight build
+
+            **Cross-cutting:**
+            - Test coverage improvements
+            - Accessibility
+            - Performance optimization
 
             ## Step 4: Create the epic
 

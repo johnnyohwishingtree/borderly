@@ -1,22 +1,18 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# Node
+# React Native
 node_modules/
-package-lock.json
+ios/Pods/
+ios/build/
+android/build/
+android/app/build/
+android/.gradle/
+*.jsbundle
+
+# TypeScript
+*.tsbuildinfo
 
 # Testing
-.pytest_cache/
-.hypothesis/
-htmlcov/
-.coverage
-coverage.xml
-.nyc_output/
+coverage/
+.jest/
 
 # IDE
 .vscode/
@@ -31,9 +27,19 @@ Thumbs.db
 # Environment
 .env
 .env.local
-*.env
+.env.production
+
+# Metro
+.metro-health-check*
 
 # Generated
 *.tmp
 *.bak
 *.log
+*.hprof
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
