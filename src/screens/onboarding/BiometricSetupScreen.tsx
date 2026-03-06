@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, Alert, Platform } from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, ScrollView, Alert, Platform, Animated } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card } from '../../components/ui';
+import { Button, Card, ProgressBar } from '../../components/ui';
 import { useProfileStore } from '../../stores/useProfileStore';
 
 type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'BiometricSetup'>;
@@ -13,11 +13,30 @@ export default function BiometricSetupScreen() {
   const navigation = useNavigation<BiometricSetupScreenNavigationProp>();
   const { setOnboardingComplete } = useProfileStore();
   const [isEnabling, setIsEnabling] = useState(false);
+  const pulseAnimation = useRef(new Animated.Value(1)).current;
 
   const biometricType = Platform.OS === 'ios' ? 'Touch ID / Face ID' : 'Fingerprint / Face Unlock';
 
+  const startPulseAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
+
   const handleEnableBiometric = async () => {
     setIsEnabling(true);
+    startPulseAnimation();
     try {
       // In a real app, you would:
       // 1. Check if biometric authentication is available
@@ -44,6 +63,7 @@ export default function BiometricSetupScreen() {
       Alert.alert('Setup Failed', 'Could not enable biometric authentication. Please try again.');
     } finally {
       setIsEnabling(false);
+      pulseAnimation.stopAnimation();
     }
   };
 
@@ -90,74 +110,117 @@ export default function BiometricSetupScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gradient-to-b from-purple-50 to-white">
       <View className="px-6 py-8">
-        <View className="mb-8">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
+        {/* Progress indicator */}
+        <ProgressBar progress={100} className="mb-6" />
+        
+        <View className="mb-8 items-center">
+          <Animated.View
+            style={{
+              transform: [{ scale: isEnabling ? pulseAnimation : 1 }],
+            }}
+            className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full items-center justify-center mb-6 shadow-lg"
+          >
+            <Text className="text-4xl">
+              {Platform.OS === 'ios' ? '🔐' : '🔍'}
+            </Text>
+          </Animated.View>
+          <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">
             Secure Your Profile
           </Text>
-          <Text className="text-base text-gray-600">
+          <Text className="text-base text-gray-600 text-center">
             Enable biometric authentication to protect your passport data with an extra layer of security.
           </Text>
         </View>
 
-        <Card variant="elevated" className="mb-6">
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            {biometricType}
-          </Text>
-          <Text className="text-base text-gray-700 mb-4">
-            Use your device's biometric authentication to quickly and securely access your travel profile.
-          </Text>
+        <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
+          <View className="bg-gradient-to-r from-purple-500 to-purple-600 -m-6 mb-6 p-6 rounded-t-xl">
+            <View className="flex-row items-center mb-2">
+              <Text className="text-2xl mr-3">
+                {Platform.OS === 'ios' ? '🔐' : '🔍'}
+              </Text>
+              <Text className="text-xl font-bold text-white">
+                {biometricType}
+              </Text>
+            </View>
+            <Text className="text-purple-100">
+              Use your device's biometric authentication to quickly and securely access your travel profile.
+            </Text>
+          </View>
 
-          <View className="space-y-3">
+          <View className="space-y-4">
             <View className="flex-row items-center">
-              <View className="w-2 h-2 bg-green-600 rounded-full mr-3" />
-              <Text className="text-gray-700">Quick access to your profile</Text>
+              <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4">
+                <Text className="text-xl">⚡</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-gray-900 font-semibold">Quick Access</Text>
+                <Text className="text-gray-600 text-sm">Instant access to your profile</Text>
+              </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-2 h-2 bg-green-600 rounded-full mr-3" />
-              <Text className="text-gray-700">Additional security layer</Text>
+              <View className="w-12 h-12 bg-purple-100 rounded-lg items-center justify-center mr-4">
+                <Text className="text-xl">🛡️</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-gray-900 font-semibold">Additional Security</Text>
+                <Text className="text-gray-600 text-sm">Extra protection for your data</Text>
+              </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-2 h-2 bg-green-600 rounded-full mr-3" />
-              <Text className="text-gray-700">No passwords to remember</Text>
+              <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
+                <Text className="text-xl">🧠</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-gray-900 font-semibold">No Passwords</Text>
+                <Text className="text-gray-600 text-sm">Nothing to remember or forget</Text>
+              </View>
             </View>
           </View>
         </Card>
 
-        <Card variant="outlined" className="mb-8">
-          <Text className="text-base font-medium text-gray-900 mb-2">
-            Optional Setup
-          </Text>
-          <Text className="text-sm text-gray-600">
-            You can skip this step and enable biometric authentication later in the app settings.
-            Your profile will still be securely stored in your device's keychain.
-          </Text>
+        <Card variant="outlined" className="mb-8 border-2 border-yellow-200 bg-yellow-50/50">
+          <View className="flex-row items-start">
+            <Text className="text-2xl mr-3">💡</Text>
+            <View className="flex-1">
+              <Text className="text-lg font-semibold text-gray-900 mb-2">
+                Optional Setup
+              </Text>
+              <Text className="text-sm text-gray-700">
+                You can skip this step and enable biometric authentication later in the app settings.
+                Your profile will still be securely stored in your device's keychain.
+              </Text>
+            </View>
+          </View>
         </Card>
 
         <View className="space-y-4">
           <Button
-            title={`Enable ${biometricType}`}
+            title={isEnabling ? `Setting up ${biometricType}...` : `🔐 Enable ${biometricType}`}
             onPress={handleEnableBiometric}
             loading={isEnabling}
             size="large"
             fullWidth
+            className="bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg"
           />
 
           <Button
-            title="Skip for Now"
+            title="⏩ Skip for Now"
             onPress={handleSkip}
             variant="outline"
             size="large"
             fullWidth
+            className="border-2 border-gray-300"
           />
 
           <Button
-            title="Back"
+            title="🔙 Back"
             onPress={handleBack}
             variant="outline"
             size="medium"
             fullWidth
+            className="border-gray-200"
           />
         </View>
       </View>
