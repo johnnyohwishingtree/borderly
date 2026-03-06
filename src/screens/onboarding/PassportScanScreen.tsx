@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,9 +16,9 @@ const passportSchema = z.object({
   surname: z.string().min(1, 'Surname is required'),
   givenNames: z.string().min(1, 'Given names are required'),
   nationality: z.string().min(3, 'Nationality is required').max(3, 'Use 3-letter country code'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
   gender: z.enum(['M', 'F', 'X']),
-  passportExpiry: z.string().min(1, 'Passport expiry date is required'),
+  passportExpiry: z.string().min(1, 'Passport expiry date is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
   issuingCountry: z.string().min(3, 'Issuing country is required').max(3, 'Use 3-letter country code'),
 });
 
@@ -40,10 +39,18 @@ export default function PassportScanScreen() {
     },
   });
 
+  const generateProfileId = () => {
+    // Generate a secure UUID-like identifier using timestamp and multiple random sources
+    const timestamp = Date.now();
+    const randomPart1 = Math.random().toString(36).substring(2, 10);
+    const randomPart2 = Math.random().toString(36).substring(2, 10);
+    return `profile_${timestamp}_${randomPart1}_${randomPart2}`;
+  };
+
   const onSubmit = async (data: PassportFormData) => {
     try {
       await saveProfile({
-        id: `profile_${Date.now()}`,
+        id: generateProfileId(),
         ...data,
         email: '',
         phoneNumber: '',
