@@ -50,9 +50,9 @@ describe('Storage Security Tests', () => {
   describe('Keychain Security Requirements', () => {
     it('should use biometric authentication for profile access', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -66,9 +66,9 @@ describe('Storage Security Tests', () => {
 
     it('should use device-only access for profile storage', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -81,9 +81,9 @@ describe('Storage Security Tests', () => {
 
     it('should use appropriate authentication configuration', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -100,27 +100,27 @@ describe('Storage Security Tests', () => {
     it('should handle biometric authentication failures gracefully', async () => {
       const authError = new Error('User cancelled authentication');
       (Keychain.getInternetCredentials as jest.Mock).mockRejectedValue(authError);
-      
+
       const result = await keychainService.getProfile();
-      
+
       // Should return null instead of throwing, allowing graceful handling
       expect(result).toBeNull();
     });
 
     it('should verify biometry availability before storing', async () => {
       (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('TouchID');
-      
+
       const isAvailable = await keychainService.isAvailable();
-      
+
       expect(isAvailable).toBe(true);
       expect(Keychain.getSupportedBiometryType).toHaveBeenCalled();
     });
 
     it('should handle devices without biometric support', async () => {
       (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
-      
+
       const isAvailable = await keychainService.isAvailable();
-      
+
       expect(isAvailable).toBe(false);
     });
   });
@@ -128,9 +128,9 @@ describe('Storage Security Tests', () => {
   describe('Encryption Key Management', () => {
     it('should generate cryptographically secure encryption keys', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       const key = await keychainService.generateEncryptionKey();
-      
+
       expect(key).toBeDefined();
       expect(typeof key).toBe('string');
       expect(key.length).toBe(64); // 256-bit key in hex
@@ -139,9 +139,9 @@ describe('Storage Security Tests', () => {
 
     it('should store encryption key with same security as profile', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.generateEncryptionKey();
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         'borderly_encryption_key',
         'borderly_encryption',
@@ -155,19 +155,19 @@ describe('Storage Security Tests', () => {
 
     it('should not generate duplicate keys', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       const key1 = await keychainService.generateEncryptionKey();
       const key2 = await keychainService.generateEncryptionKey();
-      
+
       expect(key1).not.toBe(key2);
     });
 
     it('should handle encryption key retrieval failures', async () => {
       const error = new Error('Key access denied');
       (Keychain.getInternetCredentials as jest.Mock).mockRejectedValue(error);
-      
+
       const key = await keychainService.getEncryptionKey();
-      
+
       expect(key).toBeNull();
     });
   });
@@ -199,10 +199,10 @@ describe('Storage Security Tests', () => {
         'passportExpiry',
         'issuingCountry',
       ];
-      
+
       // Verify these fields are not stored in MMKV (non-sensitive storage)
       const preferences = mmkvService.getPreferences();
-      
+
       sensitiveFields.forEach(field => {
         expect(preferences).not.toHaveProperty(field);
       });
@@ -210,7 +210,7 @@ describe('Storage Security Tests', () => {
 
     it('should store non-sensitive preferences in MMKV', () => {
       const preferences = mmkvService.getPreferences();
-      
+
       // These should be in MMKV (non-encrypted storage)
       expect(preferences).toHaveProperty('theme');
       expect(preferences).toHaveProperty('language');
@@ -224,26 +224,26 @@ describe('Storage Security Tests', () => {
     it('should handle keychain errors without exposing sensitive data', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Keychain error details');
-      
+
       (Keychain.setInternetCredentials as jest.Mock).mockRejectedValue(error);
-      
+
       await expect(keychainService.storeProfile(mockProfile)).rejects.toThrow(
         'Failed to securely store profile data'
       );
-      
+
       // Verify error details are logged but not exposed
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to store profile in keychain:',
         error
       );
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle profile deletion errors securely', async () => {
       const error = new Error('Deletion failed');
       (Keychain.resetInternetCredentials as jest.Mock).mockRejectedValue(error);
-      
+
       await expect(keychainService.deleteProfile()).rejects.toThrow(
         'Failed to delete profile data'
       );
@@ -252,20 +252,20 @@ describe('Storage Security Tests', () => {
     it('should not leak encryption keys in error messages', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
       const error = new Error('Key generation failed');
-      
+
       (Keychain.setInternetCredentials as jest.Mock).mockRejectedValue(error);
-      
+
       await expect(keychainService.generateEncryptionKey()).rejects.toThrow(
         'Failed to generate encryption key'
       );
-      
+
       // Ensure no key material is exposed in logs
       const logCalls = consoleSpy.mock.calls;
       logCalls.forEach(call => {
         const message = call.join(' ');
         expect(message).not.toMatch(/[a-zA-Z0-9]{32,}/); // No long keys in logs
       });
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -273,9 +273,9 @@ describe('Storage Security Tests', () => {
   describe('Compliance with Security Requirements', () => {
     it('should meet WHEN_UNLOCKED_THIS_DEVICE_ONLY requirement', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -288,9 +288,9 @@ describe('Storage Security Tests', () => {
 
     it('should use current biometry set for access control', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -303,9 +303,9 @@ describe('Storage Security Tests', () => {
 
     it('should require biometric authentication type', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
@@ -320,9 +320,9 @@ describe('Storage Security Tests', () => {
   describe('Data Format Security', () => {
     it('should store profile as JSON string in keychain', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-      
+
       await keychainService.storeProfile(mockProfile);
-      
+
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         'borderly_traveler_profile',
         'borderly_user',
@@ -337,9 +337,9 @@ describe('Storage Security Tests', () => {
         username: 'borderly_user',
       };
       (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue(corruptedData);
-      
+
       const result = await keychainService.getProfile();
-      
+
       expect(result).toBeNull();
     });
 
@@ -349,9 +349,9 @@ describe('Storage Security Tests', () => {
         username: 'borderly_user',
       };
       (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue(validData);
-      
+
       const result = await keychainService.getProfile();
-      
+
       expect(result).toEqual(mockProfile);
     });
   });

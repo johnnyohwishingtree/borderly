@@ -24,7 +24,7 @@ export default function Input({
     const baseStyles = 'border rounded-lg px-3 py-3 text-base';
     const errorStyles = error ? 'border-red-500' : 'border-gray-300';
     const focusStyles = isFocused ? 'border-blue-500' : '';
-    
+
     return `${baseStyles} ${errorStyles} ${focusStyles} ${className || ''}`.trim();
   };
 
@@ -37,7 +37,7 @@ export default function Input({
     setIsFocused(false);
     onBlur?.(e);
   };
-  
+
   return (
     <View className="mb-4">
       {label && (
@@ -46,18 +46,18 @@ export default function Input({
           {required && <Text className="text-red-500"> *</Text>}
         </Text>
       )}
-      
+
       <TextInput
         className={getInputStyles()}
         onFocus={handleFocus}
         onBlur={handleBlur}
         {...textInputProps}
       />
-      
+
       {error && (
         <Text className="text-sm text-red-500 mt-1">{error}</Text>
       )}
-      
+
       {helperText && !error && (
         <Text className="text-sm text-gray-500 mt-1">{helperText}</Text>
       )}

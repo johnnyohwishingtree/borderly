@@ -1,0 +1,379 @@
+{
+  "countryCode": "SGP",
+  "countryName": "Singapore",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-06-01T00:00:00Z",
+  "portalUrl": "https://eservices.ica.gov.sg/sgarrivalcard",
+  "portalName": "SG Arrival Card",
+  "submission": {
+    "earliestBeforeArrival": "3d",
+    "latestBeforeArrival": "0h",
+    "recommended": "24h"
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "portalFieldName": "Family Name/Surname"
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Names (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "portalFieldName": "Given Name"
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ]
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Mobile Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phoneNumber",
+          "countrySpecific": false,
+          "helpText": "Include country code (e.g., +1 for US)"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "arrivalDate",
+          "label": "Arrival Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false
+        },
+        {
+          "id": "arrivalTime",
+          "label": "Estimated Arrival Time",
+          "type": "text",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "24-hour format (e.g., 14:30)"
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false
+        },
+        {
+          "id": "airlineCode",
+          "label": "Airline",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.airlineCode",
+          "countrySpecific": false
+        },
+        {
+          "id": "departureCity",
+          "label": "Last Departure City/Port",
+          "type": "text",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "City where you boarded your flight to Singapore"
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_friends", "label": "Visiting Friends/Relatives" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "conference", "label": "Conference/Exhibition" },
+            { "value": "medical", "label": "Medical Treatment" },
+            { "value": "education", "label": "Education" },
+            { "value": "employment", "label": "Employment" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "intendedLengthOfStay",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "autoFillSource": "leg._calculatedDuration",
+          "countrySpecific": false,
+          "validation": {
+            "min": 1,
+            "max": 90
+          },
+          "helpText": "Maximum stay period depends on your nationality"
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation Details",
+      "fields": [
+        {
+          "id": "accommodationType",
+          "label": "Type of Accommodation",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "hotel", "label": "Hotel" },
+            { "value": "hostel", "label": "Hostel" },
+            { "value": "serviced_apartment", "label": "Serviced Apartment" },
+            { "value": "private_residence", "label": "Private Residence" },
+            { "value": "friends_family", "label": "Staying with Friends/Family" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "accommodationName",
+          "label": "Name of Accommodation",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false
+        },
+        {
+          "id": "accommodationAddress",
+          "label": "Address",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Include postal code if known"
+        },
+        {
+          "id": "accommodationPhone",
+          "label": "Contact Number",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false
+        }
+      ]
+    },
+    {
+      "id": "health_declarations",
+      "title": "Health Declaration",
+      "fields": [
+        {
+          "id": "feverSymptoms",
+          "label": "Do you have fever, cough, breathing difficulties, or other flu-like symptoms?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true
+        },
+        {
+          "id": "infectiousDisease",
+          "label": "Do you have any infectious disease?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true
+        },
+        {
+          "id": "visitedOutbreakArea",
+          "label": "Have you visited any area with infectious disease outbreak in the past 14 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Areas with known outbreaks of communicable diseases"
+        },
+        {
+          "id": "contactWithInfected",
+          "label": "Have you been in close contact with anyone diagnosed with an infectious disease?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true
+        }
+      ]
+    },
+    {
+      "id": "customs_declarations",
+      "title": "Customs Declaration",
+      "fields": [
+        {
+          "id": "exceedsAllowance",
+          "label": "Are you carrying goods exceeding duty-free allowances?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
+          "countrySpecific": false,
+          "helpText": "Alcohol (1L wine + 1L spirits), tobacco (200 cigarettes), chocolate/confectionery (worth ≤S$150)"
+        },
+        {
+          "id": "carryingCash",
+          "label": "Are you carrying physical currency exceeding S$20,000?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCurrency",
+          "countrySpecific": false,
+          "helpText": "Singapore Dollars or foreign currency equivalent to S$20,000"
+        },
+        {
+          "id": "prohibitedGoods",
+          "label": "Are you carrying any prohibited or controlled goods?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
+          "countrySpecific": false,
+          "helpText": "Drugs, weapons, endangered species products, obscene materials, etc."
+        },
+        {
+          "id": "commercialGoods",
+          "label": "Are you carrying any commercial goods or items for sale?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
+          "countrySpecific": false
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Access SG Arrival Card",
+      "description": "Visit the SG Arrival Card website. This replaces the physical arrival card that was previously distributed on flights.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Submit this form up to 3 days before your arrival",
+        "No account registration required"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Personal Details",
+      "description": "Enter your personal information exactly as it appears on your passport.",
+      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "passportExpiry", "gender", "email", "phoneNumber"],
+      "tips": [
+        "Use the exact spelling from your passport",
+        "Passport must be valid for at least 6 months from entry date",
+        "Email will receive submission confirmation"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Travel Information",
+      "description": "Provide details about your flight and travel purpose.",
+      "fieldsOnThisScreen": ["arrivalDate", "arrivalTime", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "intendedLengthOfStay"],
+      "tips": [
+        "Check your boarding pass for correct flight details",
+        "If transiting, select 'Transit' as purpose of visit"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Accommodation Details",
+      "description": "Enter information about where you will be staying in Singapore.",
+      "fieldsOnThisScreen": ["accommodationType", "accommodationName", "accommodationAddress", "accommodationPhone"],
+      "tips": [
+        "If staying with friends/family, provide their address",
+        "Include postal code if you know it",
+        "Hotel confirmation emails usually have complete address details"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Health Declaration",
+      "description": "Complete the health screening questions required for entry.",
+      "fieldsOnThisScreen": ["feverSymptoms", "infectiousDisease", "visitedOutbreakArea", "contactWithInfected"],
+      "tips": [
+        "Answer honestly - false declarations are a serious offense",
+        "If you answer 'Yes' to any health question, you may need additional screening",
+        "Keep any medical documentation with you"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Customs Declaration",
+      "description": "Declare any goods that exceed duty-free allowances or are prohibited.",
+      "fieldsOnThisScreen": ["exceedsAllowance", "carryingCash", "prohibitedGoods", "commercialGoods"],
+      "tips": [
+        "Singapore has strict penalties for drug trafficking",
+        "Chewing gum is generally prohibited",
+        "If declaring goods, you may need to go through the red channel at customs"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Submit and Save Confirmation",
+      "description": "Review all information and submit your arrival card. Save your submission receipt.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Take a screenshot or print your submission confirmation",
+        "Present this at immigration counter upon arrival",
+        "Keep a copy on your phone for offline access"
+      ]
+    }
+  ]
+}

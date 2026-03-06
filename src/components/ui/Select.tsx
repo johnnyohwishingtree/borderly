@@ -40,14 +40,14 @@ export default function Select({
     const baseStyles = 'border rounded-lg px-4 py-3 flex-row justify-between items-center';
     const errorStyles = error ? 'border-red-500' : 'border-gray-300';
     const disabledStyles = disabled ? 'bg-gray-100 opacity-60' : 'bg-white';
-    
+
     return `${baseStyles} ${errorStyles} ${disabledStyles}`;
   };
 
   const getTextStyles = () => {
     const baseStyles = 'text-base';
     const valueStyles = selectedOption ? 'text-gray-900' : 'text-gray-500';
-    
+
     return `${baseStyles} ${valueStyles}`;
   };
 
@@ -58,7 +58,7 @@ export default function Select({
           {label}
         </Text>
       )}
-      
+
       <Pressable
         className={getSelectStyles()}
         onPress={() => !disabled && setIsOpen(true)}
@@ -94,7 +94,7 @@ export default function Select({
                 {label || 'Select an option'}
               </Text>
             </View>
-            
+
             <FlatList
               data={options}
               keyExtractor={item => item.value}
