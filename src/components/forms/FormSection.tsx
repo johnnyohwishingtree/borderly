@@ -44,7 +44,7 @@ export default function FormSection({
             </Text>
           )}
         </View>
-        
+
         {/* Progress indicator */}
         <View className="flex-row items-center">
           {hasErrors && (

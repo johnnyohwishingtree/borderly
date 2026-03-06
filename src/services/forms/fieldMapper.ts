@@ -19,7 +19,7 @@ export function resolveAutoFillPath(
   if (path === 'leg._calculatedDuration') {
     return calculateDuration(context.leg.arrivalDate, context.leg.departureDate);
   }
-  
+
   if (path === 'leg.accommodation.address._formatted') {
     return formatAddress(context.leg.accommodation.address);
   }
@@ -28,7 +28,7 @@ export function resolveAutoFillPath(
   if (path === '') {
     return context;
   }
-  
+
   const parts = path.split('.');
   let current: unknown = context;
 
@@ -36,11 +36,11 @@ export function resolveAutoFillPath(
     if (current === null || current === undefined) {
       return undefined;
     }
-    
+
     if (typeof current !== 'object') {
       return undefined;
     }
-    
+
     current = (current as Record<string, unknown>)[part];
   }
 
@@ -54,18 +54,18 @@ function calculateDuration(arrival: string, departure?: string): number | undefi
   if (!departure) {
     return undefined;
   }
-  
+
   try {
     const arrivalDate = new Date(arrival);
     const departureDate = new Date(departure);
-    
+
     if (isNaN(arrivalDate.getTime()) || isNaN(departureDate.getTime())) {
       return undefined;
     }
-    
+
     const diffTime = departureDate.getTime() - arrivalDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     // Return positive duration or undefined for invalid dates
     return diffDays > 0 ? diffDays : undefined;
   } catch {
@@ -80,15 +80,15 @@ function formatAddress(address?: Address): string | undefined {
   if (!address) {
     return undefined;
   }
-  
+
   const parts = [
     address.line1,
     address.line2,
     address.city,
     address.state,
-    address.postalCode
+    address.postalCode,
   ].filter(Boolean);
-  
+
   return parts.length > 0 ? parts.join(', ') : undefined;
 }
 
@@ -104,9 +104,9 @@ export function validateAutoFillPath(
     const result = resolveAutoFillPath(path, context);
     return { isValid: true };
   } catch (error) {
-    return { 
-      isValid: false, 
-      error: error instanceof Error ? error.message : 'Unknown error'
+    return {
+      isValid: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -117,21 +117,21 @@ export function validateAutoFillPath(
  */
 export function getAvailablePaths(obj: unknown, prefix = ''): string[] {
   const paths: string[] = [];
-  
+
   if (obj === null || obj === undefined || typeof obj !== 'object') {
     return paths;
   }
-  
+
   const target = obj as Record<string, unknown>;
-  
+
   for (const [key, value] of Object.entries(target)) {
     const currentPath = prefix ? `${prefix}.${key}` : key;
     paths.push(currentPath);
-    
+
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       paths.push(...getAvailablePaths(value, currentPath));
     }
   }
-  
+
   return paths;
 }

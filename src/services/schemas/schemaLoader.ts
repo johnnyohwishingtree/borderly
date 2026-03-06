@@ -80,23 +80,23 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
       required: field.required,
       countrySpecific: field.countrySpecific,
     };
-    
-    if (field.autoFillSource) cleaned.autoFillSource = field.autoFillSource;
-    if (field.options) cleaned.options = field.options;
-    if (field.validation) cleaned.validation = field.validation;
-    if (field.helpText) cleaned.helpText = field.helpText;
-    if (field.portalFieldName) cleaned.portalFieldName = field.portalFieldName;
-    if (field.portalScreenshot) cleaned.portalScreenshot = field.portalScreenshot;
-    
+
+    if (field.autoFillSource) {cleaned.autoFillSource = field.autoFillSource;}
+    if (field.options) {cleaned.options = field.options;}
+    if (field.validation) {cleaned.validation = field.validation;}
+    if (field.helpText) {cleaned.helpText = field.helpText;}
+    if (field.portalFieldName) {cleaned.portalFieldName = field.portalFieldName;}
+    if (field.portalScreenshot) {cleaned.portalScreenshot = field.portalScreenshot;}
+
     return cleaned;
   };
-  
+
   const cleanSection = (section: any) => ({
     id: section.id,
     title: section.title,
     fields: section.fields.map(cleanField),
   });
-  
+
   const cleanStep = (step: any) => {
     const cleaned: any = {
       order: step.order,
@@ -104,13 +104,13 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
       description: step.description,
       fieldsOnThisScreen: step.fieldsOnThisScreen,
     };
-    
-    if (step.screenshotAsset) cleaned.screenshotAsset = step.screenshotAsset;
-    if (step.tips) cleaned.tips = step.tips;
-    
+
+    if (step.screenshotAsset) {cleaned.screenshotAsset = step.screenshotAsset;}
+    if (step.tips) {cleaned.tips = step.tips;}
+
     return cleaned;
   };
-  
+
   return {
     countryCode: parsed.countryCode,
     countryName: parsed.countryName,

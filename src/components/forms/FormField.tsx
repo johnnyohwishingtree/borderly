@@ -109,7 +109,7 @@ export default function FormField({
     }
   };
 
-  const shouldShowBadge = showAutoFillBadge && 
+  const shouldShowBadge = showAutoFillBadge &&
                          (field.source === 'auto' || field.source === 'user');
 
   return (

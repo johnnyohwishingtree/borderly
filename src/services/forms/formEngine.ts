@@ -74,7 +74,7 @@ export function generateFilledForm(
     });
   });
 
-  const completionPercentage = totalFields > 0 
+  const completionPercentage = totalFields > 0
     ? Math.round(((autoFilled + userFilled) / totalFields) * 100)
     : 0;
 
@@ -84,12 +84,12 @@ export function generateFilledForm(
     portalName: schema.portalName,
     portalUrl: schema.portalUrl,
     sections,
-    stats: { 
-      totalFields, 
-      autoFilled, 
-      userFilled, 
-      remaining, 
-      completionPercentage 
+    stats: {
+      totalFields,
+      autoFilled,
+      userFilled,
+      remaining,
+      completionPercentage,
     },
   };
 }
@@ -129,7 +129,7 @@ function processFormField(
   // Field needs user input - set appropriate default value
   const defaultValue = getDefaultValue(field);
   const isEmpty = defaultValue === '' || defaultValue === null || defaultValue === undefined;
-  
+
   return {
     ...field,
     currentValue: defaultValue,
@@ -150,22 +150,22 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
     case 'text':
     case 'textarea':
       return typeof value === 'string' && value.trim().length > 0;
-    
+
     case 'number':
       return typeof value === 'number' && !isNaN(value);
-    
+
     case 'date':
       if (typeof value === 'string') {
         return !isNaN(Date.parse(value));
       }
       return value instanceof Date && !isNaN(value.getTime());
-    
+
     case 'boolean':
       return typeof value === 'boolean';
-    
+
     case 'select':
       return typeof value === 'string' && value.length > 0;
-    
+
     default:
       return false;
   }
@@ -178,13 +178,13 @@ function getDefaultValue(field: FormField): unknown {
   switch (field.type) {
     case 'boolean':
       return false;
-    
+
     case 'number':
       return field.validation?.min ?? 0;
-    
+
     case 'select':
       return field.options?.[0]?.value ?? '';
-    
+
     case 'text':
     case 'textarea':
     case 'date':
@@ -257,12 +257,12 @@ export function exportFormData(form: FilledForm): Record<string, unknown> {
   form.sections.forEach(section => {
     section.fields.forEach(field => {
       // Only export fields that have meaningful values (not defaults for empty fields)
-      const hasValue = field.currentValue !== '' && 
-                      field.currentValue !== null && 
+      const hasValue = field.currentValue !== '' &&
+                      field.currentValue !== null &&
                       field.currentValue !== undefined;
-      
+
       const isAutoOrUserFilled = field.source === 'auto' || field.source === 'user';
-      
+
       if (hasValue && isAutoOrUserFilled) {
         exportData[field.id] = field.currentValue;
       }
@@ -283,7 +283,7 @@ export function calculateFormProgress(form: FilledForm): {
   const sectionProgress = form.sections.map(section => {
     const total = section.fields.filter(f => f.required).length;
     const completed = section.fields.filter(f => f.required && !f.needsUserInput).length;
-    
+
     return {
       sectionId: section.id,
       completed,

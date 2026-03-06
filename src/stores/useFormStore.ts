@@ -11,7 +11,7 @@ interface FormStore {
   errors: Record<string, string>;
   isValid: boolean;
   isLoading: boolean;
-  
+
   // Form operations
   generateForm: (
     profile: TravelerProfile,
@@ -19,14 +19,14 @@ interface FormStore {
     schema: CountryFormSchema,
     existingData?: Record<string, unknown>
   ) => void;
-  
+
   updateField: (fieldId: string, value: unknown) => void;
   validateField: (fieldId: string) => string | undefined;
   validateForm: () => boolean;
   resetForm: () => void;
   clearErrors: () => void;
   setError: (fieldId: string, error: string) => void;
-  
+
   // Form data management
   getFormData: () => Record<string, unknown>;
   getFieldValue: (fieldId: string) => unknown;
@@ -36,7 +36,7 @@ interface FormStore {
     total: number;
     percentage: number;
   };
-  
+
   // Form state queries
   hasUnsavedChanges: () => boolean;
   getCountrySpecificFields: () => string[];
@@ -51,14 +51,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
   errors: {},
   isValid: false,
   isLoading: false,
-  
+
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
-    
+
     try {
       const form = generateFilledForm(profile, leg, schema, existingData);
       const validationResult = validateFormCompletion(form);
-      
+
       set({
         currentForm: form,
         formData: existingData,
@@ -77,14 +77,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
       });
     }
   },
-  
+
   updateField: (fieldId, value) => {
     const state = get();
-    if (!state.currentForm) return;
-    
+    if (!state.currentForm) {return;}
+
     const updatedData = updateFormData(state.formData, fieldId, value);
     const field = findFieldInForm(state.currentForm, fieldId);
-    
+
     // Clear existing error for this field if it's now valid
     let updatedErrors = { ...state.errors };
     if (field && value !== undefined && value !== '' && value !== null) {
@@ -95,35 +95,35 @@ export const useFormStore = create<FormStore>((set, get) => ({
         delete updatedErrors[fieldId];
       }
     }
-    
+
     // Re-validate form completion
     const validationResult = validateFormCompletion(state.currentForm);
     const isFormValid = validationResult.isComplete && Object.keys(updatedErrors).length === 0;
-    
+
     set({
       formData: updatedData,
       errors: updatedErrors,
       isValid: isFormValid,
     });
   },
-  
+
   validateField: (fieldId) => {
     const state = get();
-    if (!state.currentForm) return undefined;
-    
+    if (!state.currentForm) {return undefined;}
+
     const field = findFieldInForm(state.currentForm, fieldId);
-    if (!field) return undefined;
-    
+    if (!field) {return undefined;}
+
     const value = state.formData[fieldId] ?? field.currentValue;
     return validateFieldValue(field, value);
   },
-  
+
   validateForm: () => {
     const state = get();
-    if (!state.currentForm) return false;
-    
+    if (!state.currentForm) {return false;}
+
     const newErrors: Record<string, string> = {};
-    
+
     // Validate all fields
     state.currentForm.sections.forEach(section => {
       section.fields.forEach(field => {
@@ -134,18 +134,18 @@ export const useFormStore = create<FormStore>((set, get) => ({
         }
       });
     });
-    
+
     const validationResult = validateFormCompletion(state.currentForm);
     const isValid = validationResult.isComplete && Object.keys(newErrors).length === 0;
-    
+
     set({
       errors: newErrors,
       isValid,
     });
-    
+
     return isValid;
   },
-  
+
   resetForm: () => {
     set({
       currentForm: null,
@@ -155,47 +155,47 @@ export const useFormStore = create<FormStore>((set, get) => ({
       isLoading: false,
     });
   },
-  
+
   clearErrors: () => {
     set({ errors: {} });
   },
-  
+
   setError: (fieldId, error) => {
     set(state => ({
       errors: { ...state.errors, [fieldId]: error },
       isValid: false,
     }));
   },
-  
+
   getFormData: () => {
     return get().formData;
   },
-  
+
   getFieldValue: (fieldId) => {
     const state = get();
     if (state.formData[fieldId] !== undefined) {
       return state.formData[fieldId];
     }
-    
+
     if (state.currentForm) {
       const field = findFieldInForm(state.currentForm, fieldId);
       return field?.currentValue;
     }
-    
+
     return undefined;
   },
-  
+
   isFieldValid: (fieldId) => {
     const state = get();
     return !state.errors[fieldId];
   },
-  
+
   getFormProgress: () => {
     const state = get();
     if (!state.currentForm) {
       return { completed: 0, total: 0, percentage: 0 };
     }
-    
+
     const stats = state.currentForm.stats;
     return {
       completed: stats.autoFilled + stats.userFilled,
@@ -203,16 +203,16 @@ export const useFormStore = create<FormStore>((set, get) => ({
       percentage: stats.completionPercentage,
     };
   },
-  
+
   hasUnsavedChanges: () => {
     const state = get();
     return Object.keys(state.formData).length > 0;
   },
-  
+
   getCountrySpecificFields: () => {
     const state = get();
-    if (!state.currentForm) return [];
-    
+    if (!state.currentForm) {return [];}
+
     const countrySpecificFields: string[] = [];
     state.currentForm.sections.forEach(section => {
       section.fields.forEach(field => {
@@ -221,14 +221,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
         }
       });
     });
-    
+
     return countrySpecificFields;
   },
-  
+
   getRequiredFields: () => {
     const state = get();
-    if (!state.currentForm) return [];
-    
+    if (!state.currentForm) {return [];}
+
     const requiredFields: string[] = [];
     state.currentForm.sections.forEach(section => {
       section.fields.forEach(field => {
@@ -237,14 +237,14 @@ export const useFormStore = create<FormStore>((set, get) => ({
         }
       });
     });
-    
+
     return requiredFields;
   },
-  
+
   getMissingRequiredFields: () => {
     const state = get();
-    if (!state.currentForm) return [];
-    
+    if (!state.currentForm) {return [];}
+
     const validationResult = validateFormCompletion(state.currentForm);
     return validationResult.missingFields;
   },
@@ -254,7 +254,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
 function findFieldInForm(form: FilledForm, fieldId: string) {
   for (const section of form.sections) {
     const field = section.fields.find(f => f.id === fieldId);
-    if (field) return field;
+    if (field) {return field;}
   }
   return undefined;
 }
