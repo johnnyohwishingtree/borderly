@@ -24,3 +24,18 @@ export type TripStackParamList = {
   LegForm: { tripId: string; legId: string };
   SubmissionGuide: { tripId: string; legId: string };
 };
+
+export type WalletStackParamList = {
+  QRWallet: undefined;
+  QRDetail: { qrId: string };
+  AddQR: undefined;
+};
+
+export type ProfileStackParamList = {
+  Profile: undefined;
+  EditProfile: undefined;
+};
+
+export type SettingsStackParamList = {
+  Settings: undefined;
+};
