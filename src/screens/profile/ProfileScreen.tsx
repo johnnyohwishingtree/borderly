@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useAppStore } from '@/stores/useAppStore';
-import { Button, Card, StatusBadge, Divider, ProgressBar } from '@/components/ui';
+import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState } from '@/components/ui';
 import { TravelerProfile } from '@/types/profile';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
@@ -94,28 +94,43 @@ export default function ProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Loading profile...</Text>
+      <View className="flex-1 bg-gray-50">
+        <LoadingSpinner 
+          size="large" 
+          text="Loading your profile..." 
+          variant="spinner"
+        />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50 px-6">
-        <Text className="text-lg text-red-600 text-center mb-4">{error}</Text>
-        <Button title="Try Again" onPress={loadProfile} />
+      <View className="flex-1 bg-gray-50">
+        <EmptyState
+          icon={<Text className="text-4xl text-red-600">⚠️</Text>}
+          title="Unable to load profile"
+          description={error}
+          buttonProps={{
+            title: "Try Again",
+            onPress: loadProfile,
+            variant: "primary"
+          }}
+          variant="default"
+        />
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50 px-6">
-        <Text className="text-2xl font-bold text-gray-900 mb-2">No Profile Found</Text>
-        <Text className="text-base text-gray-600 text-center mb-6">
-          You need to complete onboarding to create your travel profile.
-        </Text>
+      <View className="flex-1 bg-gray-50">
+        <EmptyState
+          icon={<Text className="text-4xl">👤</Text>}
+          title="No Profile Found"
+          description="You need to complete onboarding to create your travel profile."
+          variant="illustration"
+        />
       </View>
     );
   }
