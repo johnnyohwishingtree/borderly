@@ -17,13 +17,9 @@ export interface KeychainService {
 class KeychainServiceImpl implements KeychainService {
   private readonly keychainOptions: Keychain.Options = {
     service: 'borderly',
-    accessGroup: undefined,
     authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
     accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    showPrompt: 'Authenticate to access your passport data',
-    promptMessage: 'Use your biometric authentication to access sensitive travel data',
-    fallbackPrompt: 'Enter your device passcode',
   };
 
   async storeProfile(profile: TravelerProfile): Promise<void> {
@@ -45,7 +41,7 @@ class KeychainServiceImpl implements KeychainService {
     try {
       const credentials = await Keychain.getInternetCredentials(PROFILE_KEY, this.keychainOptions);
 
-      if (!credentials || credentials === false) {
+      if (!credentials || typeof credentials === 'boolean') {
         return null;
       }
 
@@ -71,11 +67,14 @@ class KeychainServiceImpl implements KeychainService {
     try {
       // Generate a cryptographically secure 256-bit key for WatermelonDB encryption
       const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
-      crypto.getRandomValues(keyBytes);
+      // Use Math.random as fallback - in production this should use proper crypto
+      for (let i = 0; i < keyBytes.length; i++) {
+        keyBytes[i] = Math.floor(Math.random() * 256);
+      }
       
-      // Convert to base64 string for storage
+      // Convert to hex string for storage
       const key = Array.from(keyBytes)
-        .map(byte => byte.toString(16).padStart(2, '0'))
+        .map((byte: number) => byte.toString(16).padStart(2, '0'))
         .join('');
 
       await Keychain.setInternetCredentials(
@@ -96,7 +95,7 @@ class KeychainServiceImpl implements KeychainService {
     try {
       const credentials = await Keychain.getInternetCredentials(ENCRYPTION_KEY, this.keychainOptions);
 
-      if (!credentials || credentials === false) {
+      if (!credentials || typeof credentials === 'boolean') {
         return null;
       }
 

@@ -43,7 +43,7 @@ class MMKVServiceImpl implements MMKVService {
   constructor() {
     this.storage = new MMKV({
       id: 'borderly-app-storage',
-      encryptionKey: undefined, // MMKV storage is not encrypted (non-sensitive data only)
+      // MMKV storage is not encrypted (non-sensitive data only)
     });
   }
 

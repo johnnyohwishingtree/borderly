@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { Button, Card } from '@/components/ui';
 import { TravelerProfile } from '@/types/profile';
 
-type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
+type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { profile, loadProfile, isLoading, error } = useProfileStore();
-  const { preferences, isBiometricAvailable } = useAppStore();
+  const { preferences } = useAppStore();
   const [secureProfile, setSecureProfile] = useState<TravelerProfile | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
@@ -29,7 +29,7 @@ export default function ProfileScreen() {
     }
 
     try {
-      const biometricProfile = await useProfileStore.getState().loadProfile();
+      await useProfileStore.getState().loadProfile();
       if (profile) {
         setSecureProfile(profile);
         setIsUnlocked(true);
