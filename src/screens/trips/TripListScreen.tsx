@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
-import { Button } from '../../components/ui';
+import { Button, LoadingSpinner, EmptyState } from '../../components/ui';
 import { Trip } from '../../types/trip';
 
 export default function TripListScreen() {
@@ -32,40 +32,73 @@ export default function TripListScreen() {
   );
 
   const renderEmptyState = () => (
-    <View className="flex-1 justify-center items-center px-6">
-      <View className="items-center mb-8">
-        <Text className="text-6xl mb-4">✈️</Text>
-        <Text className="text-xl font-bold text-gray-900 mb-2 text-center">
-          No trips yet
-        </Text>
-        <Text className="text-base text-gray-600 text-center mb-6">
-          Create your first trip to start planning your travel declarations
-        </Text>
-        <Button
-          title="Create Your First Trip"
-          onPress={handleCreateTrip}
-          variant="primary"
-          size="large"
-        />
-      </View>
-    </View>
+    <EmptyState
+      icon={<Text className="text-4xl">✈️</Text>}
+      title="No trips yet"
+      description="Create your first trip to start planning your travel declarations"
+      buttonProps={{
+        title: "Create Your First Trip",
+        onPress: handleCreateTrip,
+        variant: "primary",
+        size: "large"
+      }}
+      variant="illustration"
+    />
   );
 
   const renderErrorState = () => (
-    <View className="flex-1 justify-center items-center px-6">
-      <Text className="text-xl font-bold text-red-600 mb-2">Error</Text>
-      <Text className="text-base text-gray-600 text-center mb-4">{error}</Text>
-      <Button
-        title="Try Again"
-        onPress={loadTrips}
-        variant="outline"
-      />
-    </View>
+    <EmptyState
+      icon={<Text className="text-4xl text-red-600">⚠️</Text>}
+      title="Something went wrong"
+      description={error || "Unable to load your trips. Please try again."}
+      buttonProps={{
+        title: "Try Again",
+        onPress: loadTrips,
+        variant: "outline"
+      }}
+      variant="default"
+    />
   );
+
+  if (isLoading && trips.length === 0) {
+    return (
+      <View className="flex-1 bg-gray-50">
+        {/* Header */}
+        <View className="bg-white px-4 py-6 border-b border-gray-100">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-2xl font-bold text-gray-900">Your Trips</Text>
+              <Text className="text-base text-gray-600 mt-1">
+                Loading your itineraries...
+              </Text>
+            </View>
+          </View>
+        </View>
+        
+        <LoadingSpinner 
+          size="large" 
+          text="Loading your trips..." 
+          variant="spinner"
+        />
+      </View>
+    );
+  }
 
   if (error) {
     return (
       <View className="flex-1 bg-gray-50">
+        {/* Header */}
+        <View className="bg-white px-4 py-6 border-b border-gray-100">
+          <View className="flex-row items-center justify-between">
+            <View>
+              <Text className="text-2xl font-bold text-gray-900">Your Trips</Text>
+              <Text className="text-base text-gray-600 mt-1">
+                Unable to load trips
+              </Text>
+            </View>
+          </View>
+        </View>
+        
         {renderErrorState()}
       </View>
     );
