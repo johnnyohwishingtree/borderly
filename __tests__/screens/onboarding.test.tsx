@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, Dimensions } from 'react-native';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -14,6 +14,17 @@ jest.mock('@react-navigation/native', () => ({
 jest.mock('@/stores/useProfileStore', () => ({
   useProfileStore: jest.fn(),
 }));
+
+// Mock Dimensions API
+jest.mock('react-native', () => {
+  const actual = jest.requireActual('react-native');
+  return {
+    ...actual,
+    Dimensions: {
+      get: jest.fn(() => ({ width: 375, height: 812 })),
+    },
+  };
+});
 
 jest.mock('@react-navigation/native-stack', () => ({
   createNativeStackNavigator: () => ({
@@ -58,6 +69,14 @@ jest.mock('@/components/ui', () => {
         </View>
       );
     },
+    ProgressBar: ({ progress, label }: any) => (
+      <View>
+        {label && <Text>{label}</Text>}
+        <View testID="progress-bar">
+          <Text>{progress}%</Text>
+        </View>
+      </View>
+    ),
   };
 });
 
@@ -81,19 +100,21 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should render welcome content correctly', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText('Welcome to Borderly')).toBeTruthy();
-      expect(getByText('Your universal travel declaration companion')).toBeTruthy();
-      expect(getByText('Fill Once, Travel Everywhere')).toBeTruthy();
-      expect(getByText('Passport data stays on your device')).toBeTruthy();
-      expect(getByText('No server stores your personal info')).toBeTruthy();
-      expect(getByText('Works offline and secure')).toBeTruthy();
+      expect(getByText('Welcome to')).toBeTruthy();
+      expect(getByText('Borderly')).toBeTruthy();
+      expect(getByText('Your universal travel declaration companion. Fill once, travel everywhere.')).toBeTruthy();
+      expect(getByText('✈️ Fill Once, Travel Everywhere')).toBeTruthy();
+      expect(getByText('Private & Secure')).toBeTruthy();
+      expect(getByText('Data stays on your device')).toBeTruthy();
+      expect(getByText('Works Offline')).toBeTruthy();
+      expect(getByText('Lightning Fast')).toBeTruthy();
       expect(getByText('Privacy First')).toBeTruthy();
     });
 
     it('should navigate to PassportScan when Get Started is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const getStartedButton = getByText('Get Started');
+      const getStartedButton = getByText('🚀 Get Started');
       fireEvent.press(getStartedButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
@@ -102,8 +123,8 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should display privacy information prominently', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText(/encrypted and stored only in your device's secure keychain/)).toBeTruthy();
-      expect(getByText(/never transmit your personal information/)).toBeTruthy();
+      expect(getByText('Privacy First')).toBeTruthy();
+      expect(getByText(/We never transmit your personal information to our servers/)).toBeTruthy();
     });
   });
 
@@ -111,9 +132,9 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should render passport form correctly', () => {
       const { getByText, getByPlaceholderText } = render(<PassportScanScreen />);
 
-      expect(getByText('Enter Passport Details')).toBeTruthy();
-      expect(getByText(/stored securely on your device/)).toBeTruthy();
-      expect(getByText('Passport Information')).toBeTruthy();
+      expect(getByText('📷 Passport Information')).toBeTruthy();
+      expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
+      expect(getByText('✏️ Manual Entry')).toBeTruthy();
 
       expect(getByPlaceholderText('Enter passport number')).toBeTruthy();
       expect(getByPlaceholderText('Enter surname')).toBeTruthy();
@@ -155,7 +176,7 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should start with Welcome and navigate to PassportScan', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      fireEvent.press(getByText('Get Started'));
+      fireEvent.press(getByText('🚀 Get Started'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 
@@ -173,14 +194,14 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should emphasize local storage in UI text', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText('Passport data stays on your device')).toBeTruthy();
-      expect(getByText('No server stores your personal info')).toBeTruthy();
+      expect(getByText('Private & Secure')).toBeTruthy();
+      expect(getByText('Data stays on your device')).toBeTruthy();
     });
 
     it('should mention secure storage in passport screen', () => {
       const { getByText } = render(<PassportScanScreen />);
 
-      expect(getByText(/stored securely on your device/)).toBeTruthy();
+      expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
     });
   });
 });
