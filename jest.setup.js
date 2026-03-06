@@ -1,4 +1,6 @@
 /* eslint-env jest */
+require('@testing-library/jest-native/extend-expect');
+
 // Basic Jest setup for TypeScript unit tests
 
 // Suppress console.error in tests unless explicitly testing error handling
@@ -90,6 +92,7 @@ jest.mock('@nozbe/watermelondb/Schema/migrations', () => ({
 jest.mock('@/services/storage/database', () => ({
   databaseService: {
     initialize: jest.fn().mockResolvedValue({}),
+    getDatabase: jest.fn().mockResolvedValue({}),
     getTrips: jest.fn().mockResolvedValue([]),
     createTrip: jest.fn().mockResolvedValue({ id: 'mock-trip-id' }),
     updateTrip: jest.fn().mockResolvedValue({}),
@@ -144,6 +147,7 @@ jest.mock('@/services/storage', () => ({
   },
   databaseService: {
     initialize: jest.fn().mockResolvedValue({}),
+    getDatabase: jest.fn().mockResolvedValue({}),
     getTrips: jest.fn().mockResolvedValue([]),
     createTrip: jest.fn().mockResolvedValue({ id: 'mock-trip-id' }),
     updateTrip: jest.fn().mockResolvedValue({}),
