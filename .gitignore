@@ -7,6 +7,31 @@ android/app/build/
 android/.gradle/
 *.jsbundle
 
+# Xcode
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+**/.xcode.env.local
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Android
+local.properties
+*.iml
+.cxx/
+*.keystore
+!debug.keystore
+
 # TypeScript
 *.tsbuildinfo
 
@@ -43,3 +68,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
+
+# Temporary React Native project
+BorderlyTemp/
