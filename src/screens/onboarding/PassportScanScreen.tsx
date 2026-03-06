@@ -65,7 +65,7 @@ export default function PassportScanScreen() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      
+
       navigation.navigate('ConfirmProfile');
     } catch (error) {
       Alert.alert('Error', 'Failed to save passport data. Please try again.');
@@ -255,7 +255,7 @@ export default function PassportScanScreen() {
             size="large"
             fullWidth
           />
-          
+
           <Button
             title="Back"
             onPress={handleBack}

@@ -71,7 +71,7 @@ class KeychainServiceImpl implements KeychainService {
       for (let i = 0; i < keyBytes.length; i++) {
         keyBytes[i] = Math.floor(Math.random() * 256);
       }
-      
+
       // Convert to hex string for storage
       const key = Array.from(keyBytes)
         .map((byte: number) => byte.toString(16).padStart(2, '0'))

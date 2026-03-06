@@ -23,13 +23,13 @@ export default function BiometricSetupScreen() {
       // 1. Check if biometric authentication is available
       // 2. Request biometric permission
       // 3. Set up biometric authentication
-      
+
       // For now, simulate the process
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000));
-      
+
       // Complete onboarding
       setOnboardingComplete(true);
-      
+
       Alert.alert(
         'Setup Complete!',
         'Your profile has been created and secured with biometric authentication.',
@@ -108,7 +108,7 @@ export default function BiometricSetupScreen() {
           <Text className="text-base text-gray-700 mb-4">
             Use your device's biometric authentication to quickly and securely access your travel profile.
           </Text>
-          
+
           <View className="space-y-3">
             <View className="flex-row items-center">
               <View className="w-2 h-2 bg-green-600 rounded-full mr-3" />
@@ -130,7 +130,7 @@ export default function BiometricSetupScreen() {
             Optional Setup
           </Text>
           <Text className="text-sm text-gray-600">
-            You can skip this step and enable biometric authentication later in the app settings. 
+            You can skip this step and enable biometric authentication later in the app settings.
             Your profile will still be securely stored in your device's keychain.
           </Text>
         </Card>
@@ -143,7 +143,7 @@ export default function BiometricSetupScreen() {
             size="large"
             fullWidth
           />
-          
+
           <Button
             title="Skip for Now"
             onPress={handleSkip}

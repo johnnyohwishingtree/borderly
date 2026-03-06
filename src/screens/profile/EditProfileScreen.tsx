@@ -60,13 +60,13 @@ export default function EditProfileScreen() {
   }, [profile]);
 
   const validateEmail = (email: string) => {
-    if (!email) return '';
+    if (!email) {return '';}
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email) ? '' : 'Please enter a valid email address';
   };
 
   const validatePhoneNumber = (phone: string) => {
-    if (!phone) return '';
+    if (!phone) {return '';}
     const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
     return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';
   };
@@ -76,12 +76,12 @@ export default function EditProfileScreen() {
 
     if (formData.email) {
       const emailError = validateEmail(formData.email);
-      if (emailError) newErrors.email = emailError;
+      if (emailError) {newErrors.email = emailError;}
     }
 
     if (formData.phoneNumber) {
       const phoneError = validatePhoneNumber(formData.phoneNumber);
-      if (phoneError) newErrors.phoneNumber = phoneError;
+      if (phoneError) {newErrors.phoneNumber = phoneError;}
     }
 
     if (formData.homeAddress.line1 && !formData.homeAddress.city) {
@@ -97,7 +97,7 @@ export default function EditProfileScreen() {
   };
 
   const handleSave = async () => {
-    if (!profile) return;
+    if (!profile) {return;}
 
     if (!validateForm()) {
       Alert.alert('Validation Error', 'Please correct the errors and try again.');

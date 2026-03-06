@@ -52,7 +52,7 @@ export default function ProfileScreen() {
   };
 
   const maskPassportNumber = (passportNumber: string) => {
-    if (passportNumber.length <= 4) return passportNumber;
+    if (passportNumber.length <= 4) {return passportNumber;}
     const visiblePart = passportNumber.slice(-4);
     const maskedPart = '*'.repeat(passportNumber.length - 4);
     return `${maskedPart}${visiblePart}`;

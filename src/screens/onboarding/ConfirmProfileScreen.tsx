@@ -111,7 +111,7 @@ export default function ConfirmProfileScreen() {
             Security Notice
           </Text>
           <Text className="text-sm text-gray-600">
-            This information is stored securely on your device using your device's keychain. 
+            This information is stored securely on your device using your device's keychain.
             It will never be transmitted to our servers and remains under your control.
           </Text>
         </Card>
@@ -123,7 +123,7 @@ export default function ConfirmProfileScreen() {
             size="large"
             fullWidth
           />
-          
+
           <Button
             title="Edit Information"
             onPress={handleEdit}

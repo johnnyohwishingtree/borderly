@@ -112,7 +112,7 @@ class DatabaseService {
     });
   }
 
-  // Trip leg operations  
+  // Trip leg operations
   async getTripLegs(_tripId: string) {
     const db = await this.getDatabase();
     return await db.collections

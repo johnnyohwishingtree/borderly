@@ -57,7 +57,7 @@ describe('DatabaseService', () => {
     // Reset the database service state
     (databaseService as any).database = null;
     (databaseService as any).isInitialized = false;
-    
+
     // Setup default mock implementations
     (Database as jest.Mock).mockImplementation(() => mockDatabase);
     (SQLiteAdapter as jest.Mock).mockImplementation(() => ({}));
@@ -106,7 +106,7 @@ describe('DatabaseService', () => {
     it('should return existing database if already initialized', async () => {
       // First initialization
       const db1 = await databaseService.initialize();
-      
+
       // Second call should return same instance
       const db2 = await databaseService.initialize();
 
@@ -126,7 +126,7 @@ describe('DatabaseService', () => {
     it('should handle database setup errors', async () => {
       const setupError = new Error('Setup error');
       const mockOnSetUpError = jest.fn();
-      
+
       (SQLiteAdapter as jest.Mock).mockImplementation((config) => {
         // Simulate setup error
         setTimeout(() => config.onSetUpError(setupError), 0);
@@ -157,7 +157,7 @@ describe('DatabaseService', () => {
       (databaseService as any).isInitialized = false;
 
       const db = await databaseService.getDatabase();
-      
+
       expect(db).toBe(mockDatabase);
       expect(mockKeychainService.getEncryptionKey).toHaveBeenCalled();
     });
@@ -171,7 +171,7 @@ describe('DatabaseService', () => {
 
     it('should handle reset when database is not initialized', async () => {
       (databaseService as any).database = null;
-      
+
       await databaseService.reset();
 
       // Should not throw error
@@ -204,7 +204,7 @@ describe('DatabaseService', () => {
     it('should create trip', async () => {
       const tripData = { name: 'Test Trip', status: 'upcoming' };
       const mockTrip = { id: 'new-trip-id', ...tripData };
-      
+
       mockDatabase.collections.get().create.mockImplementation((callback) => {
         const trip = { name: '', status: '', createdAt: null, updatedAt: null };
         callback(trip);
@@ -235,7 +235,7 @@ describe('DatabaseService', () => {
     it('should update trip', async () => {
       const tripId = 'trip-id';
       const updates = { name: 'Updated Trip' };
-      
+
       const result = await databaseService.updateTrip(tripId, updates);
 
       expect(mockDatabase.write).toHaveBeenCalled();
@@ -269,7 +269,7 @@ describe('DatabaseService', () => {
     it('should get trip legs for a trip', async () => {
       const tripId = 'trip-id';
       const mockLegs = [{ id: 'leg1' }, { id: 'leg2' }];
-      
+
       mockDatabase.collections.get().query().fetch.mockResolvedValue(mockLegs);
 
       const legs = await databaseService.getTripLegs(tripId);
@@ -282,7 +282,7 @@ describe('DatabaseService', () => {
 
     it('should create trip leg', async () => {
       const legData = { tripId: 'trip-id', destination: 'Japan' };
-      
+
       mockDatabase.collections.get().create.mockImplementation((callback) => {
         const leg = { formStatus: '' };
         callback(leg);
@@ -299,7 +299,7 @@ describe('DatabaseService', () => {
     it('should update trip leg', async () => {
       const legId = 'leg-id';
       const updates = { formStatus: 'completed' };
-      
+
       await databaseService.updateTripLeg(legId, updates);
 
       expect(mockDatabase.write).toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe('DatabaseService', () => {
     it('should get QR codes for specific leg', async () => {
       const legId = 'leg-id';
       const mockQRs = [{ id: 'qr1', legId }];
-      
+
       mockDatabase.collections.get().query().fetch.mockResolvedValue(mockQRs);
 
       const qrs = await databaseService.getQRCodes(legId);
@@ -340,7 +340,7 @@ describe('DatabaseService', () => {
 
     it('should save QR code', async () => {
       const qrData = { legId: 'leg-id', data: 'qr-data' };
-      
+
       mockDatabase.collections.get().create.mockImplementation((callback) => {
         const qr = { savedAt: null };
         callback(qr);
@@ -371,7 +371,7 @@ describe('DatabaseService', () => {
   describe('error handling', () => {
     it('should handle database operation errors gracefully', async () => {
       await databaseService.initialize();
-      
+
       const error = new Error('Database error');
       mockDatabase.collections.get().query().fetch.mockRejectedValue(error);
 

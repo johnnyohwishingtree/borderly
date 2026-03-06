@@ -33,7 +33,7 @@ export default function WelcomeScreen() {
           <Text className="text-base text-gray-700 mb-4">
             Store your travel profile securely on your device and auto-generate customs forms for any destination.
           </Text>
-          
+
           <View className="space-y-3">
             <View className="flex-row items-center">
               <View className="w-2 h-2 bg-blue-600 rounded-full mr-3" />
@@ -55,7 +55,7 @@ export default function WelcomeScreen() {
             Privacy First
           </Text>
           <Text className="text-sm text-gray-600">
-            Your passport data is encrypted and stored only in your device's secure keychain. 
+            Your passport data is encrypted and stored only in your device's secure keychain.
             We never transmit your personal information to our servers.
           </Text>
         </Card>
