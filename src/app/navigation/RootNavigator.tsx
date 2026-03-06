@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -31,7 +31,7 @@ function OnboardingNavigator() {
 
 export default function RootNavigator() {
   // TODO: Replace with actual auth/onboarding state from store
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [hasCompletedOnboarding] = useState(false);
 
   return (
     <NavigationContainer>
