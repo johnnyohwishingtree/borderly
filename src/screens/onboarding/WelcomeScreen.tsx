@@ -14,7 +14,7 @@ export default function WelcomeScreen() {
     navigation.navigate('PassportScan');
   };
 
-  const { height } = Dimensions.get('window');
+  const { height } = Dimensions?.get?.('window') ?? { height: 800 };
 
   return (
     <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
