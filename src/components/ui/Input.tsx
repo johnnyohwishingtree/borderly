@@ -28,12 +28,12 @@ export default function Input({
     return `${baseStyles} ${errorStyles} ${focusStyles} ${className || ''}`.trim();
   };
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: Parameters<NonNullable<TextInputProps['onFocus']>>[0]) => {
     setIsFocused(true);
     onFocus?.(e);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur = (e: Parameters<NonNullable<TextInputProps['onBlur']>>[0]) => {
     setIsFocused(false);
     onBlur?.(e);
   };

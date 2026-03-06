@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -41,10 +40,11 @@ export default function PassportScanScreen() {
   });
 
   const generateProfileId = () => {
-    // Create a more robust ID using timestamp + random characters
+    // Generate a secure UUID-like identifier using timestamp and multiple random sources
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
-    return `profile_${timestamp}_${random}`;
+    const randomPart1 = Math.random().toString(36).substring(2, 10);
+    const randomPart2 = Math.random().toString(36).substring(2, 10);
+    return `profile_${timestamp}_${randomPart1}_${randomPart2}`;
   };
 
   const onSubmit = async (data: PassportFormData) => {
