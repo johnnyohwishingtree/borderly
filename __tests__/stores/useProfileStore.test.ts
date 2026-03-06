@@ -38,30 +38,18 @@ describe('useProfileStore', () => {
   });
 
   it('should set and clear profile', () => {
-    const state = useProfileStore.getState();
-    
-    state.setProfile(mockProfile);
-    // Get fresh state after setting
-    const updatedState = useProfileStore.getState();
-    expect(updatedState.profile).toEqual(mockProfile);
-    
-    state.clearProfile();
-    // Get fresh state after clearing
-    const clearedState = useProfileStore.getState();
-    expect(clearedState.profile).toBe(null);
+    useProfileStore.getState().setProfile(mockProfile);
+    expect(useProfileStore.getState().profile).toEqual(mockProfile);
+
+    useProfileStore.getState().clearProfile();
+    expect(useProfileStore.getState().profile).toBe(null);
   });
 
   it('should toggle onboarding complete', () => {
-    const state = useProfileStore.getState();
-    
-    state.setOnboardingComplete(true);
-    // Get fresh state after setting
-    const updatedState = useProfileStore.getState();
-    expect(updatedState.isOnboardingComplete).toBe(true);
-    
-    state.setOnboardingComplete(false);
-    // Get fresh state after setting
-    const finalState = useProfileStore.getState();
-    expect(finalState.isOnboardingComplete).toBe(false);
+    useProfileStore.getState().setOnboardingComplete(true);
+    expect(useProfileStore.getState().isOnboardingComplete).toBe(true);
+
+    useProfileStore.getState().setOnboardingComplete(false);
+    expect(useProfileStore.getState().isOnboardingComplete).toBe(false);
   });
 });

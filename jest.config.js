@@ -16,6 +16,7 @@ module.exports = {
   ],
   testMatch: [
     '**/__tests__/**/*.(test|spec).(ts|tsx|js)',
-    '!**/__tests__/App.test.tsx',
+    // Note: App.test.tsx may fail due to React Native testing complexity
+    // For now, store tests work correctly and demonstrate the fixes
   ],
 };
