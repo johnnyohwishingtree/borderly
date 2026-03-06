@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button, Input, Card } from '../../components/ui';
 import { useTripStore } from '../../stores/useTripStore';
-import { Trip, TripLeg, Accommodation } from '../../types/trip';
+import { TripLeg, Accommodation } from '../../types/trip';
 import { Address } from '../../types/profile';
 
 interface TripFormData {
@@ -39,12 +39,12 @@ const COUNTRIES = [
 export default function CreateTripScreen() {
   const navigation = useNavigation();
   const { createTrip, addTripLeg } = useTripStore();
-  
+
   const [tripData, setTripData] = useState<TripFormData>({
     name: '',
     status: 'upcoming',
   });
-  
+
   const [legs, setLegs] = useState<LegFormData[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -80,11 +80,11 @@ export default function CreateTripScreen() {
     const newLegs = [...legs];
     const keys = field.split('.');
     let current: any = newLegs[index];
-    
+
     for (let i = 0; i < keys.length - 1; i++) {
       current = current[keys[i]];
     }
-    
+
     current[keys[keys.length - 1]] = value;
     setLegs(newLegs);
   };
@@ -93,11 +93,11 @@ export default function CreateTripScreen() {
     const newErrors: Record<string, string> = {};
 
     if (!tripData.name.trim()) {
-      newErrors['tripName'] = 'Trip name is required';
+      newErrors.tripName = 'Trip name is required';
     }
 
     if (legs.length === 0) {
-      newErrors['legs'] = 'At least one destination is required';
+      newErrors.legs = 'At least one destination is required';
     }
 
     legs.forEach((leg, index) => {
@@ -158,7 +158,7 @@ export default function CreateTripScreen() {
       }
 
       Alert.alert('Success', 'Trip created successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       Alert.alert('Error', 'Failed to create trip. Please try again.');
@@ -169,7 +169,7 @@ export default function CreateTripScreen() {
 
   const renderLegCard = (leg: LegFormData, index: number) => {
     const country = COUNTRIES.find(c => c.code === leg.destinationCountry);
-    
+
     return (
       <Card key={index} className="mb-4">
         <View className="p-4">
@@ -189,12 +189,12 @@ export default function CreateTripScreen() {
             <View>
               <Text className="text-sm font-medium text-gray-700 mb-1">Country</Text>
               <View className="flex-row space-x-2">
-                {COUNTRIES.map((country) => (
+                {COUNTRIES.map((countryOption) => (
                   <Button
-                    key={country.code}
-                    title={`${country.flag} ${country.name}`}
-                    onPress={() => updateLeg(index, 'destinationCountry', country.code)}
-                    variant={leg.destinationCountry === country.code ? 'primary' : 'outline'}
+                    key={countryOption.code}
+                    title={`${countryOption.flag} ${countryOption.name}`}
+                    onPress={() => updateLeg(index, 'destinationCountry', countryOption.code)}
+                    variant={leg.destinationCountry === countryOption.code ? 'primary' : 'outline'}
                     size="small"
                   />
                 ))}
@@ -261,7 +261,7 @@ export default function CreateTripScreen() {
 
             <View className="border-t border-gray-200 pt-4">
               <Text className="text-base font-semibold text-gray-900 mb-3">Accommodation</Text>
-              
+
               <View className="space-y-3">
                 <View>
                   <Text className="text-sm font-medium text-gray-700 mb-1">Hotel/Accommodation Name</Text>
@@ -331,7 +331,7 @@ export default function CreateTripScreen() {
         <Card className="mb-6">
           <View className="p-4">
             <Text className="text-lg font-semibold text-gray-900 mb-4">Trip Details</Text>
-            
+
             <View className="mb-4">
               <Text className="text-sm font-medium text-gray-700 mb-2">Trip Name</Text>
               <Input
@@ -357,7 +357,7 @@ export default function CreateTripScreen() {
               size="small"
             />
           </View>
-          
+
           {errors.legs && (
             <Text className="text-red-500 text-sm mb-3">{errors.legs}</Text>
           )}

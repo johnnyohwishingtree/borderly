@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Button } from '../../components/ui';
 import { DynamicForm } from '../../components/forms';
@@ -15,7 +15,7 @@ export default function LegFormScreen() {
   const route = useRoute<LegFormScreenRouteProp>();
   const navigation = useNavigation();
   const { tripId, legId } = route.params || {};
-  
+
   const { profile } = useProfileStore();
   const { getTripById, getLegById, updateTripLeg } = useTripStore();
   const {
@@ -27,45 +27,45 @@ export default function LegFormScreen() {
     getFormData,
     resetForm,
   } = useFormStore();
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(false);
-  
+
   const trip = getTripById(tripId);
   const leg = getLegById(legId);
-  
+
   useEffect(() => {
     if (!trip || !leg || !profile) {
       Alert.alert('Error', 'Trip, leg, or profile not found', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
       return;
     }
-    
+
     // Load the country schema and generate the form
     const schema = schemaRegistry.getSchema(leg.destinationCountry);
     if (!schema) {
       Alert.alert('Error', `Schema not found for ${leg.destinationCountry}`, [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
       return;
     }
-    
+
     generateForm(profile, leg, schema, leg.formData || {});
-    
+
     return () => {
       resetForm();
     };
   }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation]);
-  
-  const handleFormDataChange = (newFormData: Record<string, unknown>) => {
+
+  const handleFormDataChange = (_newFormData: Record<string, unknown>) => {
     // Form data is automatically updated in the store
     // No additional action needed here
   };
-  
+
   const handleSaveForm = async () => {
-    if (!leg || !currentForm) return;
-    
+    if (!leg || !currentForm) {return;}
+
     setIsSubmitting(true);
     try {
       const formDataToSave = getFormData();
@@ -73,7 +73,7 @@ export default function LegFormScreen() {
         formData: formDataToSave,
         formStatus: isValid ? 'ready' : 'in_progress',
       });
-      
+
       Alert.alert('Success', 'Form data saved successfully!');
     } catch (error) {
       Alert.alert('Error', 'Failed to save form data');
@@ -81,13 +81,13 @@ export default function LegFormScreen() {
       setIsSubmitting(false);
     }
   };
-  
+
   const handleMarkAsReady = async () => {
     if (!isValid) {
       Alert.alert('Validation Error', 'Please complete all required fields before marking as ready.');
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
       const formDataToSave = getFormData();
@@ -95,9 +95,9 @@ export default function LegFormScreen() {
         formData: formDataToSave,
         formStatus: 'ready',
       });
-      
+
       Alert.alert('Success', 'Form marked as ready for submission!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       Alert.alert('Error', 'Failed to update form status');
@@ -105,7 +105,7 @@ export default function LegFormScreen() {
       setIsSubmitting(false);
     }
   };
-  
+
   const getCountryFlag = (countryCode: string): string => {
     const flags: Record<string, string> = {
       'JPN': '🇯🇵',
@@ -114,7 +114,7 @@ export default function LegFormScreen() {
     };
     return flags[countryCode] || '🌍';
   };
-  
+
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -122,7 +122,7 @@ export default function LegFormScreen() {
       </View>
     );
   }
-  
+
   if (!currentForm || !leg || !trip) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
@@ -135,7 +135,7 @@ export default function LegFormScreen() {
       </View>
     );
   }
-  
+
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
@@ -149,7 +149,7 @@ export default function LegFormScreen() {
               {trip.name} • {currentForm.portalName}
             </Text>
           </View>
-          
+
           <View className="flex-row space-x-2">
             <Button
               title={showOnlyCountrySpecific ? 'Show All' : 'Smart Delta'}
@@ -159,17 +159,17 @@ export default function LegFormScreen() {
             />
           </View>
         </View>
-        
+
         {/* Form Status */}
         <View className="mt-3">
           <View className="flex-row items-center space-x-2">
-            <View 
+            <View
               className={`w-3 h-3 rounded-full ${
                 leg.formStatus === 'ready' ? 'bg-green-500' :
                 leg.formStatus === 'in_progress' ? 'bg-yellow-500' :
                 leg.formStatus === 'submitted' ? 'bg-blue-500' :
                 'bg-gray-300'
-              }`} 
+              }`}
             />
             <Text className="text-sm text-gray-600 capitalize">
               {leg.formStatus.replace('_', ' ')}
@@ -182,7 +182,7 @@ export default function LegFormScreen() {
           </View>
         </View>
       </View>
-      
+
       {/* Form Content */}
       <DynamicForm
         form={currentForm}
@@ -192,7 +192,7 @@ export default function LegFormScreen() {
         collapsibleSections={true}
         showFormStats={!showOnlyCountrySpecific}
       />
-      
+
       {/* Action Buttons */}
       <View className="bg-white border-t border-gray-200 px-4 py-3">
         <View className="flex-row space-x-3">
@@ -204,7 +204,7 @@ export default function LegFormScreen() {
             loading={isSubmitting}
             disabled={Object.keys(formData).length === 0}
           />
-          
+
           <Button
             title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
             onPress={handleMarkAsReady}
@@ -215,7 +215,7 @@ export default function LegFormScreen() {
             disabled={!isValid}
           />
         </View>
-        
+
         {isValid && (
           <View className="mt-2">
             <Button

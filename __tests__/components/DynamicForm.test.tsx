@@ -123,7 +123,7 @@ describe('DynamicForm', () => {
 
     // Should show the country-specific field
     expect(screen.getByText('Purpose of Visit')).toBeTruthy();
-    
+
     // Should not show auto-filled fields when in country-specific mode
     // Note: This depends on the implementation of filtering logic
   });
@@ -140,7 +140,7 @@ describe('DynamicForm', () => {
 
     // Find and interact with the purpose of visit field
     const purposeField = screen.getByDisplayValue('');
-    
+
     // Simulate changing the value
     fireEvent.changeText(purposeField, 'tourism');
 
@@ -166,8 +166,8 @@ describe('DynamicForm', () => {
       sections: [
         {
           ...mockForm.sections[0],
-          fields: mockForm.sections[0].fields.map(field => 
-            field.id === 'purposeOfVisit' 
+          fields: mockForm.sections[0].fields.map(field =>
+            field.id === 'purposeOfVisit'
               ? { ...field, needsUserInput: true, required: true }
               : field
           ),
@@ -324,7 +324,7 @@ describe('DynamicForm Edge Cases', () => {
       sections: Array(10).fill(null).map((_, sectionIndex) => ({
         id: `section-${sectionIndex}`,
         title: `Section ${sectionIndex + 1}`,
-        fields: Array(20).fill(null).map((_, fieldIndex) => ({
+        fields: Array(20).fill(null).map((_unused, fieldIndex) => ({
           id: `field-${sectionIndex}-${fieldIndex}`,
           label: `Field ${fieldIndex + 1}`,
           type: 'text' as const,

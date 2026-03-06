@@ -36,7 +36,7 @@ export default function DynamicForm({
   const handleValueChange = (fieldId: string, value: unknown) => {
     const updatedData = updateFormData(formData, fieldId, value);
     setFormData(updatedData);
-    
+
     // Clear error for this field if it has a value now
     if (errors[fieldId] && value !== undefined && value !== '' && value !== null) {
       const newErrors = { ...errors };
@@ -47,7 +47,7 @@ export default function DynamicForm({
 
   const validateField = (fieldId: string, value: unknown): string | undefined => {
     const field = findFieldById(fieldId);
-    if (!field) return undefined;
+    if (!field) {return undefined;}
 
     // Check if required field is empty
     if (field.required && (value === undefined || value === '' || value === null)) {
@@ -90,14 +90,14 @@ export default function DynamicForm({
   const findFieldById = (fieldId: string) => {
     for (const section of form.sections) {
       const field = section.fields.find(f => f.id === fieldId);
-      if (field) return field;
+      if (field) {return field;}
     }
     return undefined;
   };
 
   const validateAllFields = () => {
     const newErrors: Record<string, string> = {};
-    
+
     form.sections.forEach(section => {
       section.fields.forEach(field => {
         const value = formData[field.id] ?? field.currentValue;
@@ -121,7 +121,7 @@ export default function DynamicForm({
     return form.sections
       .map(section => ({
         ...section,
-        fields: section.fields.filter(field => 
+        fields: section.fields.filter(field =>
           field.countrySpecific || field.needsUserInput
         ),
       }))
@@ -129,7 +129,7 @@ export default function DynamicForm({
   };
 
   const renderFormStats = () => {
-    if (!showFormStats) return null;
+    if (!showFormStats) {return null;}
 
     const { stats } = form;
     const countrySpecificFields = getCountrySpecificFields(form);
@@ -139,12 +139,12 @@ export default function DynamicForm({
         <Text className="text-lg font-semibold text-gray-900 mb-3">
           Form Summary
         </Text>
-        
+
         <View className="flex-row justify-between mb-2">
           <Text className="text-gray-700">Total Fields:</Text>
           <Text className="font-medium">{stats.totalFields}</Text>
         </View>
-        
+
         <View className="flex-row justify-between mb-2">
           <View className="flex-row items-center">
             <AutoFilledBadge source="auto" size="small" showLabel={false} />
@@ -152,7 +152,7 @@ export default function DynamicForm({
           </View>
           <Text className="font-medium text-green-700">{stats.autoFilled}</Text>
         </View>
-        
+
         <View className="flex-row justify-between mb-2">
           <View className="flex-row items-center">
             <AutoFilledBadge source="user" size="small" showLabel={false} />
@@ -160,12 +160,12 @@ export default function DynamicForm({
           </View>
           <Text className="font-medium text-blue-700">{stats.userFilled}</Text>
         </View>
-        
+
         <View className="flex-row justify-between mb-3">
           <Text className="text-gray-700">Remaining:</Text>
           <Text className="font-medium text-orange-600">{stats.remaining}</Text>
         </View>
-        
+
         <View className="border-t border-gray-300 pt-3">
           <View className="flex-row justify-between">
             <Text className="font-semibold text-gray-900">Completion:</Text>
@@ -187,7 +187,7 @@ export default function DynamicForm({
   };
 
   const renderValidationSummary = () => {
-    if (validationResult.isComplete) return null;
+    if (validationResult.isComplete) {return null;}
 
     return (
       <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -211,7 +211,7 @@ export default function DynamicForm({
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       className="flex-1 bg-gray-50"
       showsVerticalScrollIndicator={false}
     >
@@ -244,7 +244,7 @@ export default function DynamicForm({
         ))}
 
         {/* Validate Button (for development/testing) */}
-        {__DEV__ && (
+        {process.env.NODE_ENV === 'development' && (
           <Pressable
             onPress={validateAllFields}
             className="mt-4 p-3 bg-blue-500 rounded-lg"
