@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button, Input, Card } from '../../components/ui';
+import { CountryFlag } from '../../components/trips';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripLeg, Accommodation } from '../../types/trip';
 import { Address } from '../../types/profile';
@@ -171,12 +172,19 @@ export default function CreateTripScreen() {
     const country = COUNTRIES.find(c => c.code === leg.destinationCountry);
 
     return (
-      <Card key={index} className="mb-4">
+      <Card key={index} className="mb-4" variant="outlined">
         <View className="p-4">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900">
-              {country ? `${country.flag} ${country.name}` : `Destination ${index + 1}`}
-            </Text>
+            <View className="flex-row items-center">
+              {leg.destinationCountry && (
+                <CountryFlag countryCode={leg.destinationCountry} size="medium" showName />
+              )}
+              {!leg.destinationCountry && (
+                <Text className="text-lg font-semibold text-gray-900">
+                  Destination {index + 1}
+                </Text>
+              )}
+            </View>
             <Button
               title="Remove"
               onPress={() => removeLeg(index)}
@@ -187,8 +195,8 @@ export default function CreateTripScreen() {
 
           <View className="space-y-3">
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-1">Country</Text>
-              <View className="flex-row space-x-2">
+              <Text className="text-sm font-medium text-gray-700 mb-2">Country</Text>
+              <View className="flex-row flex-wrap gap-2">
                 {COUNTRIES.map((countryOption) => (
                   <Button
                     key={countryOption.code}
@@ -321,75 +329,94 @@ export default function CreateTripScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="p-4">
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">Create New Trip</Text>
-          <Text className="text-base text-gray-600">Plan your multi-country journey</Text>
-        </View>
-
-        <Card className="mb-6">
-          <View className="p-4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">Trip Details</Text>
-
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">Trip Name</Text>
-              <Input
-                value={tripData.name}
-                onValueChange={(value) => setTripData(prev => ({ ...prev, name: value as string }))}
-                placeholder="e.g., Asia Summer 2025"
-                error={!!errors.tripName}
-              />
-              {errors.tripName && (
-                <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>
-              )}
-            </View>
-          </View>
-        </Card>
-
-        <View className="mb-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900">Destinations</Text>
-            <Button
-              title="Add Destination"
-              onPress={addLeg}
-              variant="primary"
-              size="small"
-            />
-          </View>
-
-          {errors.legs && (
-            <Text className="text-red-500 text-sm mb-3">{errors.legs}</Text>
-          )}
-
-          {legs.length === 0 ? (
-            <Card>
-              <View className="p-6 items-center">
-                <Text className="text-gray-500 text-center mb-4">No destinations added yet</Text>
-                <Button
-                  title="Add Your First Destination"
-                  onPress={addLeg}
-                  variant="outline"
-                />
-              </View>
-            </Card>
-          ) : (
-            legs.map(renderLegCard)
-          )}
-        </View>
-
-        <View className="pb-6">
-          <Button
-            title="Create Trip"
-            onPress={handleCreateTrip}
-            variant="primary"
-            size="large"
-            fullWidth
-            loading={isCreating}
-            disabled={legs.length === 0 || !tripData.name.trim()}
-          />
-        </View>
+    <View className="flex-1 bg-gray-50">
+      {/* Header */}
+      <View className="bg-white px-4 py-6 border-b border-gray-100">
+        <Text className="text-2xl font-bold text-gray-900 mb-2">Create New Trip</Text>
+        <Text className="text-base text-gray-600">Plan your multi-country journey</Text>
       </View>
-    </ScrollView>
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="p-4">
+
+          <Card className="mb-6" variant="outlined">
+            <View className="p-5">
+              <View className="flex-row items-center mb-4">
+                <Text className="text-4xl mr-3">✈️</Text>
+                <Text className="text-xl font-bold text-gray-900">Trip Details</Text>
+              </View>
+
+              <View>
+                <Text className="text-sm font-medium text-gray-700 mb-2">Trip Name</Text>
+                <Input
+                  value={tripData.name}
+                  onValueChange={(value) => setTripData(prev => ({ ...prev, name: value as string }))}
+                  placeholder="e.g., Asia Summer 2025"
+                  error={!!errors.tripName}
+                />
+                {errors.tripName && (
+                  <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>
+                )}
+              </View>
+            </View>
+          </Card>
+
+          <View className="mb-6">
+            <View className="flex-row items-center justify-between mb-4">
+              <View className="flex-row items-center">
+                <Text className="text-4xl mr-3">🗺️</Text>
+                <Text className="text-xl font-bold text-gray-900">Destinations</Text>
+              </View>
+              <Button
+                title="+ Add"
+                onPress={addLeg}
+                variant="primary"
+                size="small"
+              />
+            </View>
+
+            {errors.legs && (
+              <Text className="text-red-500 text-sm mb-3">{errors.legs}</Text>
+            )}
+
+            {legs.length === 0 ? (
+              <Card variant="outlined">
+                <View className="p-6 items-center">
+                  <Text className="text-6xl mb-4">🌏</Text>
+                  <Text className="text-lg font-semibold text-gray-900 mb-2">No destinations added yet</Text>
+                  <Text className="text-sm text-gray-600 text-center mb-4">
+                    Add your travel destinations to plan your customs declarations
+                  </Text>
+                  <Button
+                    title="Add Your First Destination"
+                    onPress={addLeg}
+                    variant="outline"
+                  />
+                </View>
+              </Card>
+            ) : (
+              legs.map(renderLegCard)
+            )}
+          </View>
+
+          <View className="pb-8">
+            <Button
+              title={isCreating ? 'Creating Trip...' : 'Create Trip'}
+              onPress={handleCreateTrip}
+              variant="primary"
+              size="large"
+              fullWidth
+              loading={isCreating}
+              disabled={legs.length === 0 || !tripData.name.trim()}
+            />
+            {(legs.length === 0 || !tripData.name.trim()) && (
+              <Text className="text-sm text-gray-500 text-center mt-2">
+                {!tripData.name.trim() ? 'Enter a trip name' : 'Add at least one destination'} to continue
+              </Text>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
