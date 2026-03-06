@@ -17,27 +17,48 @@ export default function WelcomeScreen() {
   const { height } = Dimensions?.get?.('window') ?? { height: 800 };
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
+    <ScrollView 
+      className="flex-1 bg-gradient-to-b from-blue-50 to-white"
+      accessibilityLabel="Welcome to Borderly screen"
+      accessibilityHint="Swipe up to read about features and get started"
+    >
       <View className="flex-1 px-6 pt-16 pb-12" style={{ minHeight: height * 0.9 }}>
         {/* Progress indicator */}
-        <ProgressBar progress={25} className="mb-8" />
+        <ProgressBar 
+          progress={25} 
+          className="mb-8" 
+          accessibilityLabel="Setup progress: Step 1 of 4"
+        />
         
         {/* Hero section */}
-        <View className="items-center mb-12">
+        <View className="items-center mb-12" accessibilityRole="header">
           {/* App icon placeholder - would be replaced with actual app icon */}
-          <View className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl items-center justify-center mb-6 shadow-lg">
+          <View 
+            className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
+            accessibilityLabel="Borderly app icon"
+            accessibilityRole="image"
+          >
             <View className="w-12 h-12 bg-white rounded-full items-center justify-center">
               <Text className="text-2xl font-bold text-blue-600">🌍</Text>
             </View>
           </View>
           
-          <Text className="text-4xl font-bold text-gray-900 text-center mb-3">
+          <Text 
+            className="text-4xl font-bold text-gray-900 text-center mb-3"
+            accessibilityRole="header"
+          >
             Welcome to
           </Text>
-          <Text className="text-4xl font-bold text-blue-600 text-center mb-4">
+          <Text 
+            className="text-4xl font-bold text-blue-600 text-center mb-4"
+            accessibilityRole="header"
+          >
             Borderly
           </Text>
-          <Text className="text-lg text-gray-600 text-center max-w-sm">
+          <Text 
+            className="text-lg text-gray-600 text-center max-w-sm"
+            accessibilityLabel="Your universal travel declaration companion. Fill once, travel everywhere."
+          >
             Your universal travel declaration companion. Fill once, travel everywhere.
           </Text>
         </View>
@@ -132,6 +153,9 @@ export default function WelcomeScreen() {
             size="large"
             fullWidth
             className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg"
+            accessibilityLabel="Get started with Borderly"
+            accessibilityHint="Navigate to passport scanning screen to begin setup"
+            hapticType="impactMedium"
           />
           <Text className="text-center text-sm text-gray-500">
             Takes less than 2 minutes to set up
