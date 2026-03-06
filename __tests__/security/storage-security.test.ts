@@ -79,7 +79,7 @@ describe('Storage Security Tests', () => {
       );
     });
 
-    it('should use appropriate prompts for user authentication', async () => {
+    it('should use appropriate authentication configuration', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
       
       await keychainService.storeProfile(mockProfile);
@@ -89,9 +89,10 @@ describe('Storage Security Tests', () => {
         expect.any(String),
         expect.any(String),
         expect.objectContaining({
-          showPrompt: 'Authenticate to access your passport data',
-          promptMessage: 'Use your biometric authentication to access sensitive travel data',
-          fallbackPrompt: 'Enter your device passcode',
+          authenticationType: 'AuthenticationWithBiometricsDevicePasscode',
+          accessControl: 'kSecAccessControlBiometryCurrentSet',
+          accessible: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
+          service: 'borderly',
         })
       );
     });

@@ -238,9 +238,6 @@ describe('KeychainService', () => {
           authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
           accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-          showPrompt: 'Authenticate to access your passport data',
-          promptMessage: 'Use your biometric authentication to access sensitive travel data',
-          fallbackPrompt: 'Enter your device passcode',
         })
       );
     });
