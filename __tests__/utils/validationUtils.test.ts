@@ -449,7 +449,7 @@ describe('Validation Utils', () => {
     });
 
     it('should reject amounts exceeding maximum', () => {
-      const result = validateCurrencyAmount(1000001);
+      const result = validateCurrencyAmount(10000001);
       expect(result.isValid).toBe(false);
       expect(result.error).toContain('maximum limit');
     });

@@ -6,7 +6,8 @@ import {
   isPastDate, 
   isValidTravelDate, 
   isValidPassportExpiry, 
-  isValidBirthDate 
+  isValidBirthDate,
+  calculateAge 
 } from '../../utils/dateUtils';
 import { 
   validatePassportNumber, 
@@ -512,8 +513,8 @@ export function validateFormWithCrossChecks(
   
   const birthDate = values.dateOfBirth as string;
   if (birthDate && arrivalDate) {
-    const age = new Date(arrivalDate).getFullYear() - new Date(birthDate).getFullYear();
-    if (age < 18) {
+    const age = calculateAge(birthDate, arrivalDate);
+    if (age === null || age < 18) {
       crossFieldErrors.push('Traveler must be at least 18 years old');
     }
   }

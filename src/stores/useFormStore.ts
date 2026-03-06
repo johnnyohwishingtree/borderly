@@ -16,6 +16,10 @@ interface FormStore {
   isValid: boolean;
   isLoading: boolean;
   autoFillOptions: AutoFillOptions;
+  
+  // Context for auto-fill
+  currentProfile: TravelerProfile | null;
+  currentLeg: TripLeg | null;
 
   // Form operations
   generateForm: (
@@ -88,6 +92,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
     enableFallbacks: true,
     confidenceThreshold: 0.7,
   },
+  currentProfile: null,
+  currentLeg: null,
 
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
@@ -124,6 +130,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
         crossFieldErrors: validationResult.crossFieldErrors,
         isValid: validationResult.isValid,
         isLoading: false,
+        currentProfile: profile,
+        currentLeg: leg,
       });
     } catch (error) {
       console.error('Failed to generate form:', error);
@@ -321,13 +329,25 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   getAutoFillSuggestion: (fieldId) => {
     const state = get();
-    if (!state.currentForm) return undefined;
+    if (!state.currentForm || !state.currentProfile || !state.currentLeg) {
+      return undefined;
+    }
 
     const field = findFieldInForm(state.currentForm, fieldId);
     if (!field) return undefined;
 
-    // This would need profile and leg context - simplified for now
-    return undefined;
+    try {
+      const result = intelligentAutoFill(
+        field,
+        { profile: state.currentProfile, leg: state.currentLeg },
+        state.autoFillOptions
+      );
+      
+      return result.confidence >= state.autoFillOptions.confidenceThreshold ? result.value : undefined;
+    } catch (error) {
+      console.warn('Auto-fill suggestion failed for field:', fieldId, error);
+      return undefined;
+    }
   },
 
   applyAutoFillSuggestion: (fieldId) => {
@@ -342,10 +362,30 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   batchAutoFillForm: () => {
     const state = get();
-    if (!state.currentForm) return;
+    if (!state.currentForm || !state.currentProfile || !state.currentLeg) return;
 
-    // This would need profile and leg context - could be stored in state
-    // For now, just a placeholder
+    try {
+      const allFields = state.currentForm.sections.flatMap(section => section.fields);
+      const autoFillResults = batchAutoFill(
+        allFields,
+        { profile: state.currentProfile, leg: state.currentLeg },
+        state.autoFillOptions
+      );
+
+      const updatedFormData = { ...state.formData };
+      Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+        if (result.confidence >= state.autoFillOptions.confidenceThreshold) {
+          updatedFormData[fieldId] = result.value;
+        }
+      });
+
+      set({ formData: updatedFormData });
+      
+      // Trigger validation after batch auto-fill
+      get().validateForm();
+    } catch (error) {
+      console.error('Batch auto-fill failed:', error);
+    }
   },
 
   // Enhanced validation methods

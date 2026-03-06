@@ -10,14 +10,14 @@ export const VALIDATION_PATTERNS = {
   // Passport patterns by issuing country/region
   passport: {
     default: /^[A-Z0-9]{6,9}$/,
-    US: /^[A-Z0-9]{9}$/,
+    US: /^[0-9]{9}$/,  // US passports are numeric
     UK: /^[0-9]{9}$/,
     EU: /^[A-Z]{2}[A-Z0-9]{6,7}$/,
     asia: /^[A-Z]{1,2}[0-9]{7,8}$/,
   },
 
   // Contact information
-  email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  email: /^[a-zA-Z0-9]([a-zA-Z0-9]*[._+%-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]([a-zA-Z0-9]*[.-]?[a-zA-Z0-9]+)*\.[a-zA-Z]{2,}$/,
   phone: {
     international: /^\+[1-9]\d{1,14}$/,
     us: /^(\+1)?[\s-]?\(?[0-9]{3}\)?[\s-]?[0-9]{3}[\s-]?[0-9]{4}$/,
@@ -279,6 +279,11 @@ export function validateTravelName(name: string): { isValid: boolean; error?: st
     return { isValid: false, error: 'Name is required' };
   }
 
+  // Check for invalid spacing before trimming
+  if (/^\s|\s$|\s{2,}/.test(name)) {
+    return { isValid: false, error: 'Name has invalid spacing' };
+  }
+
   const trimmedName = name.trim();
 
   if (trimmedName.length < 1) {
@@ -289,15 +294,10 @@ export function validateTravelName(name: string): { isValid: boolean; error?: st
     return { isValid: false, error: 'Name is too long (maximum 100 characters)' };
   }
 
-  // Allow letters, spaces, hyphens, apostrophes, periods
-  const namePattern = /^[a-zA-Z\s\-'\.]+$/;
+  // Allow letters (including accented), spaces, hyphens, apostrophes, periods
+  const namePattern = /^[\p{L}\s\-'\.]+$/u;
   if (!namePattern.test(trimmedName)) {
     return { isValid: false, error: 'Name contains invalid characters' };
-  }
-
-  // Check for reasonable structure (no multiple consecutive spaces, etc.)
-  if (/\s{2,}/.test(trimmedName) || trimmedName.startsWith(' ') || trimmedName.endsWith(' ')) {
-    return { isValid: false, error: 'Name has invalid spacing' };
   }
 
   return { isValid: true };
@@ -401,7 +401,7 @@ export function validateCurrencyAmount(
     return { isValid: false, error: 'Currency amount cannot be negative' };
   }
 
-  if (numericAmount > 1000000) {
+  if (numericAmount > 10000000) {  // Increased to 10M to allow for different currencies
     return { isValid: false, error: 'Currency amount exceeds maximum limit' };
   }
 
@@ -450,12 +450,9 @@ export function sanitizeFormInput(input: string): string {
  * Validates that a value is not empty/null/undefined.
  */
 export function isRequired(value: unknown, fieldName = 'Field'): { isValid: boolean; error?: string } {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || value === '' || 
+      (typeof value === 'string' && value.trim().length === 0)) {
     return { isValid: false, error: `${fieldName} is required` };
-  }
-
-  if (typeof value === 'string' && value.trim().length === 0) {
-    return { isValid: false, error: `${fieldName} cannot be empty` };
   }
 
   return { isValid: true };
