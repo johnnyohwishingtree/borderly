@@ -6,6 +6,9 @@ export { default as Select } from './Select';
 export { default as StatusBadge } from './StatusBadge';
 export { default as ProgressBar } from './ProgressBar';
 export { default as Divider } from './Divider';
+export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as EmptyState } from './EmptyState';
+export { default as ErrorBoundary, useErrorHandler } from './ErrorBoundary';
 
 export type { ButtonProps } from './Button';
 export type { InputProps } from './Input';
@@ -15,3 +18,6 @@ export type { SelectProps, SelectOption } from './Select';
 export type { StatusBadgeProps } from './StatusBadge';
 export type { ProgressBarProps } from './ProgressBar';
 export type { DividerProps } from './Divider';
+export type { LoadingSpinnerProps } from './LoadingSpinner';
+export type { EmptyStateProps } from './EmptyState';
+export type { ErrorBoundaryProps } from './ErrorBoundary';
