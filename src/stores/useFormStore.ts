@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { FilledForm, generateFilledForm, updateFormData, validateFormCompletion } from '../services/forms/formEngine';
+import { intelligentAutoFill, batchAutoFill, AutoFillOptions } from '../services/forms/autoFillLogic';
+import { validateFormWithCrossChecks, createRealTimeValidator } from '../services/forms/validators';
 import { CountryFormSchema } from '../types/schema';
 import { TravelerProfile } from '../types/profile';
 import { TripLeg } from '../types/trip';
@@ -9,8 +11,11 @@ interface FormStore {
   currentForm: FilledForm | null;
   formData: Record<string, unknown>;
   errors: Record<string, string>;
+  warnings: Record<string, string[]>;
+  crossFieldErrors: string[];
   isValid: boolean;
   isLoading: boolean;
+  autoFillOptions: AutoFillOptions;
 
   // Form operations
   generateForm: (
@@ -27,6 +32,13 @@ interface FormStore {
   clearErrors: () => void;
   setError: (fieldId: string, error: string) => void;
 
+  // Enhanced auto-fill operations
+  enableSmartAutoFill: (profile: TravelerProfile, leg: TripLeg) => void;
+  updateAutoFillOptions: (options: Partial<AutoFillOptions>) => void;
+  getAutoFillSuggestion: (fieldId: string) => unknown;
+  applyAutoFillSuggestion: (fieldId: string) => boolean;
+  batchAutoFillForm: () => void;
+
   // Form data management
   getFormData: () => Record<string, unknown>;
   getFieldValue: (fieldId: string) => unknown;
@@ -37,11 +49,29 @@ interface FormStore {
     percentage: number;
   };
 
+  // Enhanced validation
+  getFieldWarnings: (fieldId: string) => string[];
+  getCrossFieldErrors: () => string[];
+  getValidationSummary: () => {
+    hasErrors: boolean;
+    hasWarnings: boolean;
+    errorCount: number;
+    warningCount: number;
+  };
+
   // Form state queries
   hasUnsavedChanges: () => boolean;
   getCountrySpecificFields: () => string[];
   getRequiredFields: () => string[];
   getMissingRequiredFields: () => string[];
+  getAutoFillableFields: () => string[];
+  getFormCompletionDetails: () => {
+    totalFields: number;
+    completedFields: number;
+    autoFilledFields: number;
+    userFilledFields: number;
+    remainingFields: number;
+  };
 }
 
 export const useFormStore = create<FormStore>((set, get) => ({
@@ -49,21 +79,50 @@ export const useFormStore = create<FormStore>((set, get) => ({
   currentForm: null,
   formData: {},
   errors: {},
+  warnings: {},
+  crossFieldErrors: [],
   isValid: false,
   isLoading: false,
+  autoFillOptions: {
+    enableSmartDefaults: true,
+    enableFallbacks: true,
+    confidenceThreshold: 0.7,
+  },
 
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
 
     try {
+      const state = get();
       const form = generateFilledForm(profile, leg, schema, existingData);
-      const validationResult = validateFormCompletion(form);
+      
+      // Apply intelligent auto-fill if enabled
+      let enhancedFormData = { ...existingData };
+      if (state.autoFillOptions.enableSmartDefaults) {
+        const allFields = form.sections.flatMap(section => section.fields);
+        const autoFillResults = batchAutoFill(allFields, { profile, leg }, state.autoFillOptions);
+        
+        Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+          if (!enhancedFormData[fieldId] && result.value !== undefined) {
+            enhancedFormData[fieldId] = result.value;
+          }
+        });
+      }
+
+      // Validate with enhanced validation
+      const allFields = form.sections.flatMap(section => section.fields);
+      const validationResult = validateFormWithCrossChecks(allFields, enhancedFormData, {
+        countryCode: schema.countryCode,
+        profileData: profile,
+      });
 
       set({
         currentForm: form,
-        formData: existingData,
-        errors: {},
-        isValid: validationResult.isComplete,
+        formData: enhancedFormData,
+        errors: validationResult.errors,
+        warnings: validationResult.warnings,
+        crossFieldErrors: validationResult.crossFieldErrors,
+        isValid: validationResult.isValid,
         isLoading: false,
       });
     } catch (error) {
@@ -72,6 +131,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
         currentForm: null,
         formData: {},
         errors: {},
+        warnings: {},
+        crossFieldErrors: [],
         isValid: false,
         isLoading: false,
       });
@@ -83,27 +144,19 @@ export const useFormStore = create<FormStore>((set, get) => ({
     if (!state.currentForm) {return;}
 
     const updatedData = updateFormData(state.formData, fieldId, value);
-    const field = findFieldInForm(state.currentForm, fieldId);
-
-    // Clear existing error for this field if it's now valid
-    let updatedErrors = { ...state.errors };
-    if (field && value !== undefined && value !== '' && value !== null) {
-      const error = validateFieldValue(field, value);
-      if (error) {
-        updatedErrors[fieldId] = error;
-      } else {
-        delete updatedErrors[fieldId];
-      }
-    }
-
-    // Re-validate form completion
-    const validationResult = validateFormCompletion(state.currentForm);
-    const isFormValid = validationResult.isComplete && Object.keys(updatedErrors).length === 0;
+    
+    // Enhanced validation with cross-field checks
+    const allFields = state.currentForm.sections.flatMap(section => section.fields);
+    const validationResult = validateFormWithCrossChecks(allFields, updatedData, {
+      countryCode: state.currentForm.countryCode,
+    });
 
     set({
       formData: updatedData,
-      errors: updatedErrors,
-      isValid: isFormValid,
+      errors: validationResult.errors,
+      warnings: validationResult.warnings,
+      crossFieldErrors: validationResult.crossFieldErrors,
+      isValid: validationResult.isValid,
     });
   },
 
@@ -122,28 +175,19 @@ export const useFormStore = create<FormStore>((set, get) => ({
     const state = get();
     if (!state.currentForm) {return false;}
 
-    const newErrors: Record<string, string> = {};
-
-    // Validate all fields
-    state.currentForm.sections.forEach(section => {
-      section.fields.forEach(field => {
-        const value = state.formData[field.id] ?? field.currentValue;
-        const error = validateFieldValue(field, value);
-        if (error) {
-          newErrors[field.id] = error;
-        }
-      });
+    const allFields = state.currentForm.sections.flatMap(section => section.fields);
+    const validationResult = validateFormWithCrossChecks(allFields, state.formData, {
+      countryCode: state.currentForm.countryCode,
     });
-
-    const validationResult = validateFormCompletion(state.currentForm);
-    const isValid = validationResult.isComplete && Object.keys(newErrors).length === 0;
 
     set({
-      errors: newErrors,
-      isValid,
+      errors: validationResult.errors,
+      warnings: validationResult.warnings,
+      crossFieldErrors: validationResult.crossFieldErrors,
+      isValid: validationResult.isValid,
     });
 
-    return isValid;
+    return validationResult.isValid;
   },
 
   resetForm: () => {
@@ -151,13 +195,15 @@ export const useFormStore = create<FormStore>((set, get) => ({
       currentForm: null,
       formData: {},
       errors: {},
+      warnings: {},
+      crossFieldErrors: [],
       isValid: false,
       isLoading: false,
     });
   },
 
   clearErrors: () => {
-    set({ errors: {} });
+    set({ errors: {}, warnings: {}, crossFieldErrors: [] });
   },
 
   setError: (fieldId, error) => {
@@ -247,6 +293,124 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
     const validationResult = validateFormCompletion(state.currentForm);
     return validationResult.missingFields;
+  },
+
+  // Enhanced auto-fill operations
+  enableSmartAutoFill: (profile, leg) => {
+    const state = get();
+    if (!state.currentForm) return;
+
+    const allFields = state.currentForm.sections.flatMap(section => section.fields);
+    const autoFillResults = batchAutoFill(allFields, { profile, leg }, state.autoFillOptions);
+    
+    const updatedFormData = { ...state.formData };
+    Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+      if (result.confidence >= state.autoFillOptions.confidenceThreshold) {
+        updatedFormData[fieldId] = result.value;
+      }
+    });
+
+    set({ formData: updatedFormData });
+  },
+
+  updateAutoFillOptions: (options) => {
+    set(state => ({
+      autoFillOptions: { ...state.autoFillOptions, ...options }
+    }));
+  },
+
+  getAutoFillSuggestion: (fieldId) => {
+    const state = get();
+    if (!state.currentForm) return undefined;
+
+    const field = findFieldInForm(state.currentForm, fieldId);
+    if (!field) return undefined;
+
+    // This would need profile and leg context - simplified for now
+    return undefined;
+  },
+
+  applyAutoFillSuggestion: (fieldId) => {
+    const state = get();
+    const suggestion = state.getAutoFillSuggestion(fieldId);
+    if (suggestion !== undefined) {
+      state.updateField(fieldId, suggestion);
+      return true;
+    }
+    return false;
+  },
+
+  batchAutoFillForm: () => {
+    const state = get();
+    if (!state.currentForm) return;
+
+    // This would need profile and leg context - could be stored in state
+    // For now, just a placeholder
+  },
+
+  // Enhanced validation methods
+  getFieldWarnings: (fieldId) => {
+    const state = get();
+    return state.warnings[fieldId] || [];
+  },
+
+  getCrossFieldErrors: () => {
+    const state = get();
+    return state.crossFieldErrors;
+  },
+
+  getValidationSummary: () => {
+    const state = get();
+    const errorCount = Object.keys(state.errors).length;
+    const warningCount = Object.values(state.warnings).reduce((count, warnings) => count + warnings.length, 0);
+    const crossFieldErrorCount = state.crossFieldErrors.length;
+
+    return {
+      hasErrors: errorCount > 0 || crossFieldErrorCount > 0,
+      hasWarnings: warningCount > 0,
+      errorCount: errorCount + crossFieldErrorCount,
+      warningCount,
+    };
+  },
+
+  getAutoFillableFields: () => {
+    const state = get();
+    if (!state.currentForm) return [];
+
+    const autoFillableFields: string[] = [];
+    state.currentForm.sections.forEach(section => {
+      section.fields.forEach(field => {
+        if (field.autoFillSource || field.countrySpecific === false) {
+          autoFillableFields.push(field.id);
+        }
+      });
+    });
+
+    return autoFillableFields;
+  },
+
+  getFormCompletionDetails: () => {
+    const state = get();
+    if (!state.currentForm) {
+      return {
+        totalFields: 0,
+        completedFields: 0,
+        autoFilledFields: 0,
+        userFilledFields: 0,
+        remainingFields: 0,
+      };
+    }
+
+    const stats = state.currentForm.stats;
+    const completedFields = stats.autoFilled + stats.userFilled;
+
+    return {
+      totalFields: stats.totalFields,
+      completedFields,
+      autoFilledFields: stats.autoFilled,
+      userFilledFields: stats.userFilled,
+      remainingFields: stats.remaining,
+    };
   },
 }));
 
