@@ -42,6 +42,17 @@ jest.mock('react-native', () => {
     TextInput: mockComponent('TextInput'),
     ScrollView: mockComponent('ScrollView'),
     ActivityIndicator: mockComponent('ActivityIndicator'),
+    Modal: mockComponent('Modal'),
+    FlatList: mockComponent('FlatList'),
+    Animated: {
+      View: mockComponent('Animated.View'),
+      Value: jest.fn(() => ({
+        interpolate: jest.fn(() => 'interpolated'),
+      })),
+      timing: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+    },
     StatusBar: { setBarStyle: jest.fn(), setBackgroundColor: jest.fn() },
     StyleSheet: {
       create: (styles) => styles,
