@@ -5,7 +5,35 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Input, Select, SelectOption } from '@/components/ui';
-import { Address } from '@/types/profile';
+import { Address, TravelerProfile } from '@/types/profile';
+
+// Constants moved outside component scope for performance
+const countryOptions: SelectOption[] = [
+  { label: 'Select Country', value: '' },
+  { label: 'United States', value: 'USA' },
+  { label: 'Canada', value: 'CAN' },
+  { label: 'United Kingdom', value: 'GBR' },
+  { label: 'Australia', value: 'AUS' },
+  { label: 'Japan', value: 'JPN' },
+  { label: 'Singapore', value: 'SGP' },
+  { label: 'Malaysia', value: 'MYS' },
+  { label: 'Germany', value: 'DEU' },
+  { label: 'France', value: 'FRA' },
+  { label: 'Italy', value: 'ITA' },
+];
+
+// Validation functions moved outside component scope for performance
+const validateEmail = (email: string) => {
+  if (!email) return '';
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) ? '' : 'Please enter a valid email address';
+};
+
+const validatePhoneNumber = (phone: string) => {
+  if (!phone) return '';
+  const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+  return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';
+};
 
 type EditProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'EditProfile'>;
 
@@ -27,20 +55,6 @@ export default function EditProfileScreen() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const countryOptions: SelectOption[] = [
-    { label: 'Select Country', value: '' },
-    { label: 'United States', value: 'USA' },
-    { label: 'Canada', value: 'CAN' },
-    { label: 'United Kingdom', value: 'GBR' },
-    { label: 'Australia', value: 'AUS' },
-    { label: 'Japan', value: 'JPN' },
-    { label: 'Singapore', value: 'SGP' },
-    { label: 'Malaysia', value: 'MYS' },
-    { label: 'Germany', value: 'DEU' },
-    { label: 'France', value: 'FRA' },
-    { label: 'Italy', value: 'ITA' },
-  ];
-
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -59,17 +73,6 @@ export default function EditProfileScreen() {
     }
   }, [profile]);
 
-  const validateEmail = (email: string) => {
-    if (!email) return '';
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) ? '' : 'Please enter a valid email address';
-  };
-
-  const validatePhoneNumber = (phone: string) => {
-    if (!phone) return '';
-    const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
-    return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';
-  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -105,7 +108,7 @@ export default function EditProfileScreen() {
     }
 
     try {
-      const updates: any = {
+      const updates: Partial<TravelerProfile> = {
         email: formData.email || undefined,
         phoneNumber: formData.phoneNumber || undefined,
         occupation: formData.occupation || undefined,
@@ -118,8 +121,9 @@ export default function EditProfileScreen() {
       }
 
       await updateProfile(updates);
-      navigation.goBack();
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert('Success', 'Profile updated successfully.', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     } catch (error) {
       Alert.alert('Error', 'Failed to update profile. Please try again.');
     }

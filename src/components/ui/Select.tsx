@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, Modal, FlatList } from 'react-native';
 
 export interface SelectOption {
@@ -29,27 +29,27 @@ export default function Select({
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const selectedOption = options.find(option => option.value === value);
+  const selectedOption = useMemo(() => options.find(option => option.value === value), [options, value]);
 
-  const handleSelect = (selectedValue: string) => {
+  const handleSelect = useCallback((selectedValue: string) => {
     onValueChange(selectedValue);
     setIsOpen(false);
-  };
+  }, [onValueChange]);
 
-  const getSelectStyles = () => {
+  const selectStyles = useMemo(() => {
     const baseStyles = 'border rounded-lg px-4 py-3 flex-row justify-between items-center';
     const errorStyles = error ? 'border-red-500' : 'border-gray-300';
     const disabledStyles = disabled ? 'bg-gray-100 opacity-60' : 'bg-white';
     
     return `${baseStyles} ${errorStyles} ${disabledStyles}`;
-  };
+  }, [error, disabled]);
 
-  const getTextStyles = () => {
+  const textStyles = useMemo(() => {
     const baseStyles = 'text-base';
     const valueStyles = selectedOption ? 'text-gray-900' : 'text-gray-500';
     
     return `${baseStyles} ${valueStyles}`;
-  };
+  }, [selectedOption]);
 
   return (
     <View testID={testID}>
@@ -60,11 +60,11 @@ export default function Select({
       )}
       
       <Pressable
-        className={getSelectStyles()}
+        className={selectStyles}
         onPress={() => !disabled && setIsOpen(true)}
         disabled={disabled}
       >
-        <Text className={getTextStyles()}>
+        <Text className={textStyles}>
           {selectedOption?.label || placeholder}
         </Text>
         <Text className="text-gray-400 text-lg">
@@ -98,7 +98,7 @@ export default function Select({
             <FlatList
               data={options}
               keyExtractor={item => item.value}
-              renderItem={({ item }) => (
+              renderItem={useCallback(({ item }) => (
                 <Pressable
                   className={`p-4 border-b border-gray-100 ${
                     item.value === value ? 'bg-blue-50' : ''
@@ -111,7 +111,7 @@ export default function Select({
                     {item.label}
                   </Text>
                 </Pressable>
-              )}
+              ), [value, handleSelect])}
               style={{ maxHeight: 240 }}
             />
           </View>

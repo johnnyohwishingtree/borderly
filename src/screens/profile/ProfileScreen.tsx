@@ -8,12 +8,28 @@ import { useAppStore } from '@/stores/useAppStore';
 import { Button, Card } from '@/components/ui';
 import { TravelerProfile } from '@/types/profile';
 
+// Utility functions moved outside component scope for performance
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
+const maskPassportNumber = (passportNumber: string) => {
+  if (passportNumber.length <= 4) return passportNumber;
+  const visiblePart = passportNumber.slice(-4);
+  const maskedPart = '*'.repeat(passportNumber.length - 4);
+  return `${maskedPart}${visiblePart}`;
+};
+
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { profile, loadProfile, isLoading, error } = useProfileStore();
-  const { preferences, isBiometricAvailable } = useAppStore();
+  const { preferences } = useAppStore();
   const [secureProfile, setSecureProfile] = useState<TravelerProfile | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
@@ -29,10 +45,20 @@ export default function ProfileScreen() {
     }
 
     try {
-      const biometricProfile = await useProfileStore.getState().loadProfile();
-      if (profile) {
-        setSecureProfile(profile);
+      // Trigger biometric prompt through loadProfile and check the updated store state
+      await useProfileStore.getState().loadProfile();
+      const currentProfile = useProfileStore.getState().profile;
+      
+      if (currentProfile) {
+        setSecureProfile(currentProfile);
         setIsUnlocked(true);
+      } else {
+        // User cancelled biometric authentication
+        Alert.alert(
+          'Authentication Required',
+          'Biometric authentication is required to view sensitive passport information.',
+          [{ text: 'OK' }]
+        );
       }
     } catch (err) {
       Alert.alert(
@@ -43,20 +69,6 @@ export default function ProfileScreen() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const maskPassportNumber = (passportNumber: string) => {
-    if (passportNumber.length <= 4) return passportNumber;
-    const visiblePart = passportNumber.slice(-4);
-    const maskedPart = '*'.repeat(passportNumber.length - 4);
-    return `${maskedPart}${visiblePart}`;
-  };
 
   if (isLoading) {
     return (

@@ -1,9 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption } from '@/components/ui';
 import { keychainService } from '@/services/storage';
+
+// Constants moved outside component scope for performance
+const themeOptions: SelectOption[] = [
+  { label: 'Auto (System)', value: 'auto' },
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
+];
+
+const languageOptions: SelectOption[] = [
+  { label: 'English', value: 'en' },
+  { label: '日本語', value: 'ja' },
+  { label: 'Bahasa Malaysia', value: 'ms' },
+  { label: 'Deutsch', value: 'de' },
+  { label: 'Français', value: 'fr' },
+];
 
 export default function SettingsScreen() {
   const {
@@ -21,9 +36,9 @@ export default function SettingsScreen() {
   useEffect(() => {
     loadPreferences();
     checkBiometricAvailability();
-  }, [loadPreferences]);
+  }, [loadPreferences, checkBiometricAvailability]);
 
-  const checkBiometricAvailability = async () => {
+  const checkBiometricAvailability = useCallback(async () => {
     setIsCheckingBiometric(true);
     try {
       const available = await keychainService.isAvailable();
@@ -34,21 +49,8 @@ export default function SettingsScreen() {
     } finally {
       setIsCheckingBiometric(false);
     }
-  };
+  }, [setBiometricAvailable]);
 
-  const themeOptions: SelectOption[] = [
-    { label: 'Auto (System)', value: 'auto' },
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-  ];
-
-  const languageOptions: SelectOption[] = [
-    { label: 'English', value: 'en' },
-    { label: '日本語', value: 'ja' },
-    { label: 'Bahasa Malaysia', value: 'ms' },
-    { label: 'Deutsch', value: 'de' },
-    { label: 'Français', value: 'fr' },
-  ];
 
   const handleBiometricToggle = async (enabled: boolean) => {
     if (!isBiometricAvailable && enabled) {

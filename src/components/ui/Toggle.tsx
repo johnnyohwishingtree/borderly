@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { Pressable, Animated } from 'react-native';
 
 export interface ToggleProps {
@@ -26,19 +26,21 @@ export default function Toggle({
     }).start();
   }, [value, animatedValue]);
 
-  const getSizeStyles = () => {
+  const { sizeConfig, thumbOffset } = useMemo(() => {
+    let config;
     switch (size) {
       case 'small':
-        return { width: 44, height: 24, thumbSize: 20 };
+        config = { width: 44, height: 24, thumbSize: 20 };
+        break;
       case 'large':
-        return { width: 60, height: 32, thumbSize: 28 };
+        config = { width: 60, height: 32, thumbSize: 28 };
+        break;
       default:
-        return { width: 52, height: 28, thumbSize: 24 };
+        config = { width: 52, height: 28, thumbSize: 24 };
     }
-  };
-
-  const sizeConfig = getSizeStyles();
-  const thumbOffset = sizeConfig.width - sizeConfig.thumbSize - 2;
+    const offset = config.width - config.thumbSize - 2;
+    return { sizeConfig: config, thumbOffset: offset };
+  }, [size]);
 
   const trackStyle = {
     width: sizeConfig.width,
