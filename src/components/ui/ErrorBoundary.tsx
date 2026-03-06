@@ -83,7 +83,7 @@ export default class ErrorBoundary extends React.Component<
   }
 
   resetError = () => {
-    this.setState({ hasError: false, error: undefined });
+    this.setState({ hasError: false });
   };
 
   render() {
