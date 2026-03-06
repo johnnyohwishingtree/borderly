@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -6,10 +5,12 @@ import { RootStackParamList, OnboardingStackParamList } from './types';
 import MainTabNavigator from './MainTabNavigator';
 
 // Import onboarding screens
-import WelcomeScreen from '../../screens/onboarding/WelcomeScreen';
-import PassportScanScreen from '../../screens/onboarding/PassportScanScreen';
-import ConfirmProfileScreen from '../../screens/onboarding/ConfirmProfileScreen';
-import BiometricSetupScreen from '../../screens/onboarding/BiometricSetupScreen';
+import {
+  WelcomeScreen,
+  PassportScanScreen,
+  ConfirmProfileScreen,
+  BiometricSetupScreen,
+} from '../../screens/onboarding';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
@@ -31,7 +32,7 @@ function OnboardingNavigator() {
 
 export default function RootNavigator() {
   // TODO: Replace with actual auth/onboarding state from store
-  const [hasCompletedOnboarding] = useState(false);
+  const hasCompletedOnboarding = false;
 
   return (
     <NavigationContainer>

@@ -10,20 +10,26 @@ import {
 } from './types';
 
 // Import screens
-import TripListScreen from '../../screens/trips/TripListScreen';
-import CreateTripScreen from '../../screens/trips/CreateTripScreen';
-import TripDetailScreen from '../../screens/trips/TripDetailScreen';
-import LegFormScreen from '../../screens/trips/LegFormScreen';
-import SubmissionGuideScreen from '../../screens/trips/SubmissionGuideScreen';
+import {
+  TripListScreen,
+  CreateTripScreen,
+  TripDetailScreen,
+  LegFormScreen,
+  SubmissionGuideScreen,
+} from '../../screens/trips';
 
-import QRWalletScreen from '../../screens/wallet/QRWalletScreen';
-import QRDetailScreen from '../../screens/wallet/QRDetailScreen';
-import AddQRScreen from '../../screens/wallet/AddQRScreen';
+import {
+  QRWalletScreen,
+  QRDetailScreen,
+  AddQRScreen,
+} from '../../screens/wallet';
 
-import ProfileScreen from '../../screens/profile/ProfileScreen';
-import EditProfileScreen from '../../screens/profile/EditProfileScreen';
+import {
+  ProfileScreen,
+  EditProfileScreen,
+} from '../../screens/profile';
 
-import SettingsScreen from '../../screens/settings/SettingsScreen';
+import { SettingsScreen } from '../../screens/settings';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const TripStack = createNativeStackNavigator<TripStackParamList>();
