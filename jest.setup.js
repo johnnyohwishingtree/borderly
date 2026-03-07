@@ -71,6 +71,15 @@ jest.mock('react-native', () => {
     Touchable: {
       Mixin: {},
     },
+    Dimensions: {
+      get: jest.fn().mockReturnValue({ width: 375, height: 812 }),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    },
+    Vibration: {
+      vibrate: jest.fn(),
+      cancel: jest.fn(),
+    },
   };
 });
 
@@ -275,6 +284,22 @@ jest.mock('react-native-vector-icons/FontAwesome', () => {
   const mockIcon = ({ name, ...props }) => React.createElement('FontAwesomeIcon', { ...props, iconName: name });
   mockIcon.displayName = 'FontAwesomeIcon';
   return mockIcon;
+});
+
+// Mock react-native-camera
+jest.mock('react-native-camera', () => {
+  const React = require('react');
+  const RNCamera = ({ children, ...props }) => {
+    React.useEffect(() => {
+      if (props.onCameraReady) props.onCameraReady();
+    }, []);
+    return React.createElement('RNCamera', props, children);
+  };
+  RNCamera.Constants = {
+    Type: { back: 'back', front: 'front' },
+    FlashMode: { off: 'off', on: 'on', torch: 'torch', auto: 'auto' }
+  };
+  return { RNCamera };
 });
 
 // Mock our storage services to avoid import issues
