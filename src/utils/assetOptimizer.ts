@@ -1,4 +1,4 @@
-import { Image } from 'react-native';
+// Asset optimization utilities - no React Native imports for now
 
 /**
  * Asset loading with lazy initialization and caching
@@ -48,27 +48,10 @@ class AssetLoader {
   }
 
   private async loadFlagImage(countryCode: string): Promise<any> {
-    // Lazy load flag images based on country code
-    switch (countryCode.toUpperCase()) {
-      case 'JPN':
-        return import('../assets/flags/japan.png');
-      case 'MYS':
-        return import('../assets/flags/malaysia.png');
-      case 'SGP':
-        return import('../assets/flags/singapore.png');
-      case 'THA':
-        return import('../assets/flags/thailand.png');
-      case 'VNM':
-        return import('../assets/flags/vietnam.png');
-      case 'GBR':
-        return import('../assets/flags/uk.png');
-      case 'USA':
-        return import('../assets/flags/usa.png');
-      case 'CAN':
-        return import('../assets/flags/canada.png');
-      default:
-        return this.getDefaultFlag();
-    }
+    // Placeholder for future flag loading implementation
+    // For now, return default flag for all countries
+    console.log(`Loading flag for ${countryCode}`);
+    return this.getDefaultFlag();
   }
 
   private getDefaultFlag(): any {
@@ -87,26 +70,13 @@ class AssetLoader {
       return this.imageCache.get(cacheKey);
     }
 
-    try {
-      // Lazy load icons based on size and name
-      let iconModule;
-      switch (size) {
-        case 'small':
-          iconModule = await import(`../assets/icons/small/${iconName}.png`);
-          break;
-        case 'large':
-          iconModule = await import(`../assets/icons/large/${iconName}.png`);
-          break;
-        default:
-          iconModule = await import(`../assets/icons/medium/${iconName}.png`);
-      }
-      
-      this.imageCache.set(cacheKey, iconModule.default);
-      return iconModule.default;
-    } catch (error) {
-      console.warn(`Failed to load icon ${iconName}:`, error);
-      return null;
-    }
+    // Placeholder for future icon loading implementation
+    console.log(`Loading icon ${iconName} in size ${size}`);
+    
+    // Return placeholder icon
+    const placeholder = { uri: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI0Y5RkFGQiIgc3Ryb2tlPSIjRDFEOUQ5Ii8+PC9zdmc+' };
+    this.imageCache.set(cacheKey, placeholder);
+    return placeholder;
   }
 
   /**
@@ -143,33 +113,25 @@ class AssetLoader {
 }
 
 /**
- * Optimized image component that handles lazy loading and caching
+ * Image optimization configuration for better performance
  */
-export function OptimizedImage({ 
-  source, 
-  style, 
-  resizeMode = 'cover',
-  placeholder,
-  onLoad,
-  onError,
-  ...props 
-}: any) {
-  return (
-    <Image
-      source={source}
-      style={style}
-      resizeMode={resizeMode}
-      onLoad={onLoad}
-      onError={onError}
-      {...props}
-      // Optimize for memory usage
-      fadeDuration={150}
-      progressiveRenderingEnabled={true}
-      shouldRasterizeIOS={true}
-      renderToHardwareTextureAndroid={true}
-    />
-  );
-}
+export const ImageOptimizationConfig = {
+  // Default props for optimized images
+  defaultProps: {
+    fadeDuration: 150,
+    progressiveRenderingEnabled: true,
+    shouldRasterizeIOS: true,
+    renderToHardwareTextureAndroid: true,
+  },
+  
+  // Resize modes for different use cases
+  resizeModes: {
+    flag: 'cover' as const,
+    icon: 'contain' as const,
+    avatar: 'cover' as const,
+    screenshot: 'contain' as const,
+  },
+};
 
 /**
  * Utility functions for asset optimization
