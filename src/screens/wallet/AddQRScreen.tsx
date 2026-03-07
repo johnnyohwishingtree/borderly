@@ -44,6 +44,44 @@ export default function AddQRScreen() {
       const result = await QRCaptureService.captureFromCamera();
       
       if (result.success && result.imageUri && result.base64) {
+        // Validate the captured image
+        const validation = await QRCaptureService.validateQRCode(result.imageUri);
+        if (!validation.isValid) {
+          Alert.alert('Invalid Image', validation.error || 'The captured image is not valid');
+          return;
+        }
+
+        // Check image quality
+        const qualityCheck = QRCaptureService.validateImageQuality(result.base64);
+        if (!qualityCheck.isValid) {
+          Alert.alert('Image Quality Issue', qualityCheck.error || 'Image quality is not sufficient');
+          return;
+        }
+
+        // Show warnings if any
+        if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
+          Alert.alert(
+            'Image Quality Warning',
+            qualityCheck.warnings.join('\n') + '\n\nDo you want to continue?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { 
+                text: 'Continue', 
+                onPress: () => {
+                  setCapturedImage(result.imageUri!);
+                  setBase64Image(result.base64!);
+                  
+                  // Auto-generate a label based on current date
+                  const now = new Date();
+                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                  setFormData(prev => ({ ...prev, label: defaultLabel }));
+                }
+              },
+            ]
+          );
+          return;
+        }
+
         setCapturedImage(result.imageUri);
         setBase64Image(result.base64);
         
@@ -67,6 +105,44 @@ export default function AddQRScreen() {
       const result = await QRCaptureService.importFromLibrary();
       
       if (result.success && result.imageUri && result.base64) {
+        // Validate the imported image
+        const validation = await QRCaptureService.validateQRCode(result.imageUri);
+        if (!validation.isValid) {
+          Alert.alert('Invalid Image', validation.error || 'The selected image is not valid');
+          return;
+        }
+
+        // Check image quality
+        const qualityCheck = QRCaptureService.validateImageQuality(result.base64);
+        if (!qualityCheck.isValid) {
+          Alert.alert('Image Quality Issue', qualityCheck.error || 'Image quality is not sufficient');
+          return;
+        }
+
+        // Show warnings if any
+        if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
+          Alert.alert(
+            'Image Quality Warning',
+            qualityCheck.warnings.join('\n') + '\n\nDo you want to continue?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { 
+                text: 'Continue', 
+                onPress: () => {
+                  setCapturedImage(result.imageUri!);
+                  setBase64Image(result.base64!);
+                  
+                  // Auto-generate a label based on current date
+                  const now = new Date();
+                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                  setFormData(prev => ({ ...prev, label: defaultLabel }));
+                }
+              },
+            ]
+          );
+          return;
+        }
+
         setCapturedImage(result.imageUri);
         setBase64Image(result.base64);
         

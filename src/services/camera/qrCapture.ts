@@ -204,10 +204,79 @@ export class QRCaptureService {
    * Validate if an image contains a QR code
    * This is a basic implementation - can be enhanced with actual QR detection
    */
-  static async validateQRCode(imageUri: string): Promise<boolean> {
-    // For now, we'll assume the image is valid
-    // In a production app, you'd use ML Kit or similar to detect QR codes
-    return Promise.resolve(!!imageUri);
+  static async validateQRCode(imageUri: string): Promise<{ isValid: boolean; error?: string }> {
+    try {
+      if (!imageUri || typeof imageUri !== 'string') {
+        return { isValid: false, error: 'Invalid image URI' };
+      }
+
+      // Basic file extension and data URI validation
+      const isDataUri = imageUri.startsWith('data:image/');
+      const isFileUri = imageUri.startsWith('file://') || imageUri.startsWith('/');
+      
+      if (!isDataUri && !isFileUri) {
+        return { isValid: false, error: 'Unsupported image format' };
+      }
+
+      // Check if it's a base64 data URI
+      if (isDataUri) {
+        const base64Part = imageUri.split(',')[1];
+        if (!base64Part || base64Part.length < 100) {
+          return { isValid: false, error: 'Image appears to be too small or corrupted' };
+        }
+      }
+
+      // For now, we'll assume the image is valid if it passes basic checks
+      // In a production app, you'd use ML Kit or similar to detect QR codes
+      return { isValid: true };
+    } catch (error) {
+      return { 
+        isValid: false, 
+        error: error instanceof Error ? error.message : 'Unknown validation error' 
+      };
+    }
+  }
+
+  /**
+   * Validate QR code image size and quality
+   */
+  static validateImageQuality(base64Image: string): { isValid: boolean; error?: string; warnings?: string[] } {
+    try {
+      if (!base64Image || typeof base64Image !== 'string') {
+        return { isValid: false, error: 'No image data provided' };
+      }
+
+      const warnings: string[] = [];
+
+      // Estimate image size from base64 length
+      const imageSizeBytes = (base64Image.length * 3) / 4;
+      const imageSizeMB = imageSizeBytes / (1024 * 1024);
+
+      // Check if image is too large (> 10MB)
+      if (imageSizeMB > 10) {
+        return { isValid: false, error: 'Image is too large (max 10MB)' };
+      }
+
+      // Check if image might be too small
+      if (imageSizeMB < 0.01) {
+        warnings.push('Image might be too small for good QR code recognition');
+      }
+
+      // Check if image is very large (might be slow to process)
+      if (imageSizeMB > 5) {
+        warnings.push('Large image size may affect performance');
+      }
+
+      return { 
+        isValid: true, 
+        warnings: warnings.length > 0 ? warnings : undefined 
+      };
+    } catch (error) {
+      return { 
+        isValid: false, 
+        error: error instanceof Error ? error.message : 'Unknown quality check error' 
+      };
+    }
   }
 
   /**
@@ -215,7 +284,30 @@ export class QRCaptureService {
    */
   static generateTestQRCode(): string {
     // Generate a base64 encoded test QR code image
-    // This is a minimal QR code placeholder
+    // This is a minimal QR code placeholder - in production would be a real QR
     return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  }
+
+  /**
+   * Create a test QR code for development
+   */
+  static createTestQRCode(type: 'immigration' | 'customs' | 'health' | 'combined' = 'combined'): {
+    imageBase64: string;
+    label: string;
+    type: 'immigration' | 'customs' | 'health' | 'combined';
+  } {
+    const now = new Date();
+    const labels = {
+      immigration: `Immigration QR - ${now.toLocaleDateString()}`,
+      customs: `Customs Declaration - ${now.toLocaleDateString()}`,
+      health: `Health Check QR - ${now.toLocaleDateString()}`,
+      combined: `Travel QR Code - ${now.toLocaleDateString()}`,
+    };
+
+    return {
+      imageBase64: this.generateTestQRCode().split(',')[1] || '',
+      label: labels[type],
+      type,
+    };
   }
 }
