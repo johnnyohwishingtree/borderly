@@ -1,10 +1,14 @@
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { Button, Card, ProgressBar } from '../../components/ui';
+import CountryFlag from '../../components/trips/CountryFlag';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
@@ -40,7 +44,7 @@ export default function WelcomeScreen() {
             accessibilityRole="image"
           >
             <View className="w-12 h-12 bg-white rounded-full items-center justify-center">
-              <Text className="text-2xl font-bold text-blue-600">🌍</Text>
+              <MaterialIcons name="public" size={24} color="#2563eb" />
             </View>
           </View>
           
@@ -67,9 +71,12 @@ export default function WelcomeScreen() {
         {/* Features section */}
         <Card variant="elevated" className="mb-8 bg-white shadow-xl border-0">
           <View className="bg-gradient-to-r from-blue-500 to-blue-600 -m-6 mb-4 p-6 rounded-t-xl">
-            <Text className="text-xl font-bold text-white mb-2">
-              ✈️ Fill Once, Travel Everywhere
-            </Text>
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="airplane" size={20} color="white" style={{ marginRight: 8 }} />
+              <Text className="text-xl font-bold text-white">
+                Fill Once, Travel Everywhere
+              </Text>
+            </View>
             <Text className="text-blue-100">
               Store your travel profile securely and auto-generate customs forms for any destination.
             </Text>
@@ -78,7 +85,7 @@ export default function WelcomeScreen() {
           <View className="space-y-4 px-1">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mr-4">
-                <Text className="text-green-600 font-bold">🔒</Text>
+                <MaterialIcons name="lock" size={20} color="#16a34a" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Private & Secure</Text>
@@ -87,7 +94,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
-                <Text className="text-blue-600 font-bold">📱</Text>
+                <MaterialIcons name="smartphone" size={20} color="#2563eb" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Works Offline</Text>
@@ -96,7 +103,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-4">
-                <Text className="text-purple-600 font-bold">⚡</Text>
+                <MaterialIcons name="flash-on" size={20} color="#9333ea" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Lightning Fast</Text>
@@ -108,23 +115,26 @@ export default function WelcomeScreen() {
 
         {/* Countries supported section */}
         <Card variant="outlined" className="mb-8 border-2 border-blue-100 bg-blue-50/50">
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            🌏 Supported Countries
-          </Text>
+          <View className="flex-row items-center mb-3">
+            <MaterialIcons name="public" size={20} color="#374151" style={{ marginRight: 8 }} />
+            <Text className="text-lg font-semibold text-gray-900">
+              Supported Countries
+            </Text>
+          </View>
           <Text className="text-sm text-gray-600 mb-4">
             Currently supporting the Asia travel corridor with more countries coming soon:
           </Text>
           <View className="flex-row justify-around">
             <View className="items-center">
-              <Text className="text-2xl mb-1">🇯🇵</Text>
+              <CountryFlag countryCode="JPN" size="medium" className="mb-1" />
               <Text className="text-xs text-gray-600">Japan</Text>
             </View>
             <View className="items-center">
-              <Text className="text-2xl mb-1">🇲🇾</Text>
+              <CountryFlag countryCode="MYS" size="medium" className="mb-1" />
               <Text className="text-xs text-gray-600">Malaysia</Text>
             </View>
             <View className="items-center">
-              <Text className="text-2xl mb-1">🇸🇬</Text>
+              <CountryFlag countryCode="SGP" size="medium" className="mb-1" />
               <Text className="text-xs text-gray-600">Singapore</Text>
             </View>
           </View>
@@ -133,7 +143,7 @@ export default function WelcomeScreen() {
         {/* Privacy notice */}
         <Card variant="outlined" className="mb-8 border-green-200 bg-green-50/50">
           <View className="flex-row items-start">
-            <Text className="text-green-600 text-xl mr-3">🛡️</Text>
+            <MaterialIcons name="security" size={24} color="#16a34a" style={{ marginRight: 12 }} />
             <View className="flex-1">
               <Text className="text-base font-semibold text-gray-900 mb-2">
                 Privacy First
@@ -149,7 +159,7 @@ export default function WelcomeScreen() {
         {/* CTA section */}
         <View className="space-y-4 mt-auto">
           <Button
-            title="🚀 Get Started"
+            title="Get Started"
             onPress={handleContinue}
             size="large"
             fullWidth
