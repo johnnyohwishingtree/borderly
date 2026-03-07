@@ -20,7 +20,10 @@ jest.mock('react-native-haptic-feedback', () => ({
 
 // Mock validateScannedPassport
 jest.mock('../../../src/services/passport/mrzScanner', () => ({
-  validateScannedPassport: jest.fn()
+  validateScannedPassport: jest.fn().mockReturnValue({
+    isValid: true,
+    warnings: []
+  })
 }));
 
 describe('PassportPreview Component', () => {
@@ -52,13 +55,6 @@ describe('PassportPreview Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Alert.alert = jest.fn();
-
-    // Mock validation to return no warnings by default
-    const { validateScannedPassport } = require('../../../src/services/passport/mrzScanner');
-    validateScannedPassport.mockReturnValue({
-      isValid: true,
-      warnings: []
-    });
   });
 
   it('renders passport information correctly', () => {
