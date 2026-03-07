@@ -37,7 +37,7 @@ describe('MRZ Parser', () => {
       expect(result.profile!.nationality).toBe('UTO');
       expect(result.profile!.issuingCountry).toBe('UTO');
       expect(result.profile!.gender).toBe('F');
-      expect(result.profile!.dateOfBirth).toBe('2074-08-12');
+      expect(result.profile!.dateOfBirth).toBe('1974-08-12');
       expect(result.profile!.passportExpiry).toBe('2012-04-15');
     });
 
@@ -132,10 +132,9 @@ describe('MRZ Parser', () => {
       expect(cleanMRZText('P<UTO-DOE@#$')).toBe('P<UTODOE');
     });
 
-    it('should fix common OCR errors', () => {
-      expect(cleanMRZText('P<UTOODE')).toBe('P<UT00DE'); // O -> 0
-      expect(cleanMRZText('P<UTOIDE')).toBe('P<UT01DE'); // I -> 1
-      expect(cleanMRZText('P<UTOSDE')).toBe('P<UT05DE'); // S -> 5
+    it('should preserve valid characters and not alter names', () => {
+      expect(cleanMRZText('P<UTODOE')).toBe('P<UTODOE'); // Don't alter valid text
+      expect(cleanMRZText('P<UTOJANE')).toBe('P<UTOJANE'); // Don't convert letters to numbers in names
     });
 
     it('should remove spaces', () => {

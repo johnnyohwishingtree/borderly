@@ -60,11 +60,19 @@ export default function PassportScanScreen() {
   const saveProfileData = async (profileData: Partial<TravelerProfile>) => {
     setIsSubmitting(true);
     try {
-      await saveProfile({
+      // Ensure all required TravelerProfile fields are provided with defaults
+      const completeProfile: TravelerProfile = {
         id: generateProfileId(),
-        ...profileData,
-        email: '',
-        phoneNumber: '',
+        passportNumber: profileData.passportNumber || '',
+        surname: profileData.surname || '',
+        givenNames: profileData.givenNames || '',
+        nationality: profileData.nationality || '',
+        dateOfBirth: profileData.dateOfBirth || '',
+        gender: profileData.gender || 'X',
+        passportExpiry: profileData.passportExpiry || '',
+        issuingCountry: profileData.issuingCountry || '',
+        email: profileData.email || '',
+        phoneNumber: profileData.phoneNumber || '',
         defaultDeclarations: {
           hasItemsToDeclar: false,
           carryingCurrency: false,
@@ -75,7 +83,9 @@ export default function PassportScanScreen() {
         },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      } as TravelerProfile);
+      };
+
+      await saveProfile(completeProfile);
 
       navigation.navigate('ConfirmProfile');
     } catch (error) {

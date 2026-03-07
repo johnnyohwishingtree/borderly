@@ -28,6 +28,15 @@ interface MRZLines {
  */
 export function parseMRZ(line1: string, line2: string): MRZParseResult {
   try {
+    // Handle null/undefined inputs
+    if (!line1 || !line2) {
+      return {
+        success: false,
+        errors: ['Invalid MRZ input: lines cannot be null or empty.'],
+        confidence: 0
+      };
+    }
+
     // Validate format
     const validation = validateMRZFormat({ line1, line2 });
     if (!validation.isValid) {
@@ -188,10 +197,14 @@ function formatMRZDate(mrzDate: string): string {
   const month = mrzDate.substring(2, 4);
   const day = mrzDate.substring(4, 6);
 
-  // Handle century (assume current century for years < 30, previous for >= 30)
+  // Handle century using sliding window based on current year
   const currentYear = new Date().getFullYear();
   const currentCentury = Math.floor(currentYear / 100) * 100;
-  const fullYear = year < 30 ? currentCentury + year : currentCentury - 100 + year;
+  const pivotYear = currentYear % 100;
+  
+  // If year is more than ~20 years in the future, it's likely from previous century
+  // For example, in 2026: year 74 = 1974, year 10 = 2010
+  const fullYear = year > (pivotYear + 20) ? currentCentury - 100 + year : currentCentury + year;
 
   return `${fullYear}-${month}-${day}`;
 }
@@ -204,7 +217,8 @@ export function cleanMRZText(text: string): string {
   return text
     .toUpperCase()
     .replace(/\s+/g, '') // Remove spaces first
-    .replace(/[^A-Z0-9<]/g, ''); // Remove invalid chars
+    .replace(/[^A-Z0-9<]/g, '') // Remove invalid chars
+    .replace(/[|]/g, ''); // Remove common OCR artifacts like pipes
 }
 
 /**
