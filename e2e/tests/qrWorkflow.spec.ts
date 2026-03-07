@@ -1,9 +1,71 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('QR Workflow', () => {
-  test('QR capture and storage workflow', async ({ page }) => {
+test.describe('QR Code Workflow and Wallet', () => {
+  test.beforeEach(async ({ page }) => {
+    // Set up profile and completed forms for QR workflow tests
     await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem('borderly-onboarding-complete', 'true');
+      localStorage.setItem('borderly-profile', JSON.stringify({
+        firstName: 'Bob',
+        lastName: 'Wilson',
+        passportNumber: 'CA9876543',
+        nationality: 'CA',
+        dateOfBirth: '1990-07-20',
+        gender: 'M'
+      }));
+      
+      // Set up trip with completed forms
+      localStorage.setItem('borderly-trips', JSON.stringify([{
+        id: 'qr-test-trip',
+        name: 'QR Test Trip',
+        startDate: '2024-12-01',
+        endDate: '2024-12-15',
+        destinations: [
+          {
+            country: 'JPN',
+            arrivalDate: '2024-12-01',
+            departureDate: '2024-12-08'
+          }
+        ]
+      }]));
+      
+      // Mark form as completed
+      localStorage.setItem('borderly-form-japan-QR Test Trip', JSON.stringify({
+        status: 'completed',
+        data: {
+          firstName: 'Bob',
+          lastName: 'Wilson',
+          passportNumber: 'CA9876543',
+          purpose: 'Tourism',
+          accommodation: 'Tokyo Hotel'
+        }
+      }));
+    });
+    await page.reload();
+  });
 
+  test('navigates from completed form to submission guide', async ({ page }) => {
+    // Go to trip with completed form
+    await page.getByText('QR Test Trip').click();
+    await expect(page.getByTestId('japan-status-complete')).toBeVisible();
+
+    // Open submission guide
+    await page.getByText('View Submission Guide').click();
+
+    // Should show Visit Japan Web guide
+    await expect(page.getByText('Visit Japan Web Submission')).toBeVisible();
+    await expect(page.getByText('Step-by-step guide')).toBeVisible();
+    await expect(page.getByText('Step 1')).toBeVisible();
+    await expect(page.getByText('Go to Visit Japan Web')).toBeVisible();
+    
+    // Should show copyable fields
+    await expect(page.getByTestId('copy-field-name')).toBeVisible();
+    await expect(page.getByTestId('copy-field-passport')).toBeVisible();
+    await expect(page.getByTestId('copy-field-purpose')).toBeVisible();
+  });
+
+  test('QR capture and storage workflow', async ({ page }) => {
     // Navigate to QR Wallet from main tabs
     await page.getByText('QR Wallet').click();
 
@@ -66,6 +128,48 @@ test.describe('QR Workflow', () => {
     // Navigate back
     await page.getByText('Back').click();
     await expect(page.getByText('Your QR Codes')).toBeVisible();
+  });
+
+  test('copies field values to clipboard from submission guide', async ({ page }) => {
+    await page.getByText('QR Test Trip').click();
+    await page.getByText('View Submission Guide').click();
+
+    // Test copying name field
+    await page.getByTestId('copy-field-name').click();
+    await expect(page.getByText('Copied!')).toBeVisible();
+    
+    // Test copying passport number
+    await page.getByTestId('copy-field-passport').click();
+    await expect(page.getByText('Copied!')).toBeVisible();
+
+    // Copy indicators should disappear after timeout
+    await expect(page.getByText('Copied!')).not.toBeVisible();
+  });
+
+  test('captures QR code with camera', async ({ page }) => {
+    await page.getByText('QR Wallet').click();
+    await page.getByText('Add QR Code').click();
+
+    // Should show camera interface
+    await expect(page.getByTestId('camera-viewfinder')).toBeVisible();
+    await expect(page.getByText('Position QR code within frame')).toBeVisible();
+
+    // Mock QR code detection
+    await page.evaluate(() => {
+      const event = new CustomEvent('qr-code-detected', {
+        detail: {
+          data: 'VJW:XYZ789ABC123:2024-12-01:WILSON,BOB:CA9876543'
+        }
+      });
+      window.dispatchEvent(event);
+    });
+
+    // Should auto-fill form with detected data
+    const manualEntryButton = page.getByText('Enter Manually');
+    if (await manualEntryButton.isVisible()) {
+      await manualEntryButton.click();
+      await expect(page.getByDisplayValue('Visit Japan Web QR')).toBeVisible();
+    }
   });
 
   test('QR code offline access', async ({ page }) => {
