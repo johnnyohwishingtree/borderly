@@ -1,0 +1,86 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'ios/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Install CocoaPods
+        run: cd ios && pod install
+        env:
+          NO_FLIPPER: 1
+
+      - name: Get simulator
+        id: sim
+        run: |
+          DEVICE=$(xcrun simctl list devices available -j | \
+            python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in data['devices'].items():
+            if 'iOS' in runtime:
+              for d in devices:
+                if 'iPhone' in d['name'] and d['isAvailable']:
+                  print(d['udid'])
+                  sys.exit(0)
+          sys.exit(1)
+          ")
+          echo "udid=$DEVICE" >> $GITHUB_OUTPUT
+
+      - name: Build iOS app (Debug)
+        run: |
+          xcodebuild \
+            -workspace ios/Borderly.xcworkspace \
+            -scheme Borderly \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath ios/build \
+            build 2>&1 | xcbeautify --quiet || tail -30
+
+      - name: Package app binary
+        run: |
+          APP_PATH=$(find ios/build -name "*.app" -type d | head -1)
+          echo "Packaging: $APP_PATH"
+          cd "$(dirname "$APP_PATH")"
+          tar czf /tmp/Borderly.app.tar.gz "$(basename "$APP_PATH")"
+
+      - name: Upload app binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app-binary
+          path: /tmp/Borderly.app.tar.gz
+          retention-days: 30
+
+      - name: Cache app binary for E2E
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/Borderly.app.tar.gz
+          key: ios-app-${{ hashFiles('ios/Podfile.lock', 'package.json') }}

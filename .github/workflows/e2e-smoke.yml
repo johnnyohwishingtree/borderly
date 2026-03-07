@@ -29,24 +29,56 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile || pnpm install
 
-      - name: Cache Pods
-        uses: actions/cache@v4
+      - name: Try restoring cached app binary
+        id: app-cache
+        uses: actions/cache/restore@v4
         with:
-          path: ios/Pods
-          key: pods-${{ hashFiles('ios/Podfile.lock') }}
+          path: /tmp/Borderly.app.tar.gz
+          key: ios-app-${{ hashFiles('ios/Podfile.lock', 'package.json') }}
 
-      - name: Install CocoaPods
-        run: cd ios && pod install
+      - name: Build iOS app (cache miss)
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Cache miss — building from source"
+          cd ios && pod install
+          cd ..
+          DEVICE=$(xcrun simctl list devices available -j | \
+            python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in data['devices'].items():
+            if 'iOS' in runtime:
+              for d in devices:
+                if 'iPhone' in d['name'] and d['isAvailable']:
+                  print(d['udid'])
+                  sys.exit(0)
+          sys.exit(1)
+          ")
+          echo "SIMULATOR_UDID=$DEVICE" >> $GITHUB_ENV
+          xcrun simctl boot "$DEVICE" 2>/dev/null || true
+          xcodebuild \
+            -workspace ios/Borderly.xcworkspace \
+            -scheme Borderly \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "id=$DEVICE" \
+            -derivedDataPath ios/build \
+            build 2>&1 | xcbeautify --quiet || tail -30
+          APP_PATH=$(find ios/build -name "*.app" -type d | head -1)
+          cd "$(dirname "$APP_PATH")"
+          tar czf /tmp/Borderly.app.tar.gz "$(basename "$APP_PATH")"
         env:
           NO_FLIPPER: 1
 
-      - name: Cache Xcode DerivedData
-        uses: actions/cache@v4
+      - name: Save app binary to cache
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
         with:
-          path: ios/build
-          key: xcode-${{ hashFiles('ios/Podfile.lock', 'package.json') }}
+          path: /tmp/Borderly.app.tar.gz
+          key: ios-app-${{ hashFiles('ios/Podfile.lock', 'package.json') }}
 
       - name: Boot iOS simulator
+        if: steps.app-cache.outputs.cache-hit == 'true'
         run: |
           DEVICE=$(xcrun simctl list devices available -j | \
             python3 -c "
@@ -64,20 +96,11 @@ jobs:
           xcrun simctl boot "$DEVICE" 2>/dev/null || true
           echo "SIMULATOR_UDID=$DEVICE" >> $GITHUB_ENV
 
-      - name: Build iOS app (Debug)
+      - name: Install cached app on simulator
         run: |
-          xcodebuild \
-            -workspace ios/Borderly.xcworkspace \
-            -scheme Borderly \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -destination "id=$SIMULATOR_UDID" \
-            -derivedDataPath ios/build \
-            build 2>&1 | xcbeautify --quiet || tail -30
-
-      - name: Install app on simulator
-        run: |
-          APP_PATH=$(find ios/build -name "*.app" -type d | head -1)
+          cd /tmp
+          tar xzf Borderly.app.tar.gz
+          APP_PATH=$(find /tmp -maxdepth 1 -name "*.app" -type d | head -1)
           echo "Installing: $APP_PATH"
           xcrun simctl install "$SIMULATOR_UDID" "$APP_PATH"
 
@@ -86,10 +109,21 @@ jobs:
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
+      - name: Start Metro bundler
+        run: |
+          npx react-native start --reset-cache &
+          # Wait for Metro to be ready
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:8081/status | grep -q "packager-status:running"; then
+              echo "Metro is ready"
+              break
+            fi
+            sleep 2
+          done
+
       - name: Run smoke tests
         id: maestro
         run: |
-          mkdir -p /tmp/maestro-screenshots
           maestro test .maestro/app-smoke.yaml \
             --format junit \
             --output /tmp/maestro-results.xml \
@@ -111,17 +145,8 @@ jobs:
         with:
           name: maestro-screenshots
           path: |
-            /tmp/maestro-screenshots/
             /tmp/maestro-debug/
             /tmp/maestro-debug-onboarding/
-          retention-days: 7
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: maestro-results
-          path: /tmp/maestro-results*.xml
           retention-days: 7
 
       - name: Notify Claude on failure
@@ -132,13 +157,11 @@ jobs:
           PR_NUM=${{ github.event.pull_request.number }}
           BRANCH="${{ github.head_ref }}"
 
-          # Only auto-fix on claude/ branches
           if [[ "$BRANCH" != claude/* ]]; then
             echo "Not a claude/ branch — skipping"
             exit 0
           fi
 
-          # Limit fix attempts
           FIX_COUNT=$(gh pr view "$PR_NUM" --json comments \
             -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("E2E smoke tests are failing"))] | length' 2>/dev/null || echo "0")
 
