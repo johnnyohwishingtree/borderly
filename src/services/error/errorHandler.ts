@@ -97,7 +97,7 @@ export class ErrorHandler {
           return { recovered: true, recoveredViaFallback: true };
         } catch (fallbackError) {
           const fallbackAppError = createAppErrorFromError(fallbackError as Error);
-          logError(fallbackAppError, { ...context, action: 'fallback' });
+          logError(fallbackAppError, { ...context, action: 'fallback', timestamp: (context?.timestamp) || Date.now() });
         }
       }
 
@@ -137,8 +137,11 @@ export class ErrorHandler {
         logError(appError, {
           ...context,
           action: 'auto_recovery_success',
-          attempts: result.attempts,
-          duration: result.totalTime
+          timestamp: (context?.timestamp) || Date.now(),
+          errorInfo: {
+            attempts: result.attempts,
+            duration: result.totalTime
+          }
         });
         return { recovered: true, attempts: result.attempts };
       }
@@ -207,7 +210,7 @@ export class ErrorHandler {
    * Show user-friendly error feedback
    */
   private showUserErrorFeedback(appError: AppError, options?: ErrorRecoveryOptions): void {
-    const { retryConfig, enableRetry } = options || {};
+    const { enableRetry } = options || {};
     
     // Determine if retry should be offered
     const shouldShowRetry = enableRetry && appError.recoverable;
