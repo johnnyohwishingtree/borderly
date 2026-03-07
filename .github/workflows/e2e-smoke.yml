@@ -66,16 +66,10 @@ jobs:
           name: e2e-bundle
           path: e2e/dist/
       - name: Run chromium + QR tests
-        run: |
-          E2E_PROJECT=chromium npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_chromium.txt &
-          PID1=$!
-          E2E_PROJECT=qr-workflow npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_qr.txt &
-          PID2=$!
-          wait $PID1; R1=$?
-          wait $PID2; R2=$?
-          [ $R1 -eq 0 ] && [ $R2 -eq 0 ]
+        run: npx playwright test --reporter=line
         env:
           CI: true
+          E2E_PROJECT: chromium,qr-workflow
 
   # Performance tests (9 tests) — run in parallel with chromium
   test-performance:
@@ -135,16 +129,10 @@ jobs:
           name: e2e-bundle
           path: e2e/dist/
       - name: Run cross-browser smoke tests
-        run: |
-          E2E_PROJECT=firefox-smoke npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_firefox.txt &
-          PID1=$!
-          E2E_PROJECT=mobile-smoke npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_mobile.txt &
-          PID2=$!
-          wait $PID1; R1=$?
-          wait $PID2; R2=$?
-          [ $R1 -eq 0 ] && [ $R2 -eq 0 ]
+        run: npx playwright test --reporter=line
         env:
           CI: true
+          E2E_PROJECT: firefox-smoke,mobile-smoke
 
   # Notify Claude on failure (runs after all test jobs)
   notify:

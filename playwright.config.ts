@@ -11,8 +11,8 @@ const chromiumLaunchOptions = {
   ],
 };
 
-// CI can target a specific project via E2E_PROJECT env var
-const targetProject = process.env.E2E_PROJECT;
+// CI can target specific projects via E2E_PROJECT env var (comma-separated)
+const targetProjects = process.env.E2E_PROJECT?.split(',').filter(Boolean);
 
 const allProjects = [
   {
@@ -65,8 +65,8 @@ export default defineConfig({
     actionTimeout: 10000,
     navigationTimeout: 15000,
   },
-  projects: targetProject
-    ? allProjects.filter(p => p.name === targetProject)
+  projects: targetProjects?.length
+    ? allProjects.filter(p => targetProjects.includes(p.name))
     : allProjects,
   webServer: {
     // In CI with pre-built bundle, use a lightweight static server.

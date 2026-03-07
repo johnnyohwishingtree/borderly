@@ -84,7 +84,9 @@ export class PortalHealthChecker {
       const connectivityResult = await this.checkConnectivity(portalUrl);
       status.metadata.canConnect = connectivityResult.canConnect;
       status.metadata.sslValid = connectivityResult.sslValid;
-      status.metadata.httpStatus = connectivityResult.httpStatus;
+      if (connectivityResult.httpStatus !== undefined) {
+        status.metadata.httpStatus = connectivityResult.httpStatus;
+      }
       status.responseTime = Date.now() - startTime;
 
       if (!connectivityResult.canConnect) {
@@ -195,7 +197,6 @@ export class PortalHealthChecker {
       return {
         canConnect: false,
         sslValid: false,
-        httpStatus: undefined
       };
     }
   }
@@ -203,7 +204,7 @@ export class PortalHealthChecker {
   /**
    * Validates basic portal structure without submitting data
    */
-  private async validateBasicStructure(countryCode: string, url: string): Promise<boolean> {
+  private async validateBasicStructure(_countryCode: string, url: string): Promise<boolean> {
     try {
       // This is a defensive read-only check
       // We only check if the portal responds and has basic HTML structure

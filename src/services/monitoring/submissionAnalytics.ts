@@ -207,7 +207,7 @@ export class SubmissionAnalytics {
       portalPerformance: {
         responseTimeMs,
         portalStatus: status,
-        errorType
+        ...(errorType !== undefined ? { errorType } : {}),
       },
       userExperience: {
         retryAttempts: 0,
