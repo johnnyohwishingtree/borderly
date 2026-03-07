@@ -124,13 +124,15 @@ jobs:
         if: steps.next.outputs.found == 'true' && steps.safety.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          # Use 'claude' by default, or 'gemini' if configured in vars
+          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
         run: |
           NEXT=${{ steps.next.outputs.next_story }}
-          echo "Triggering story #$NEXT"
+          echo "Triggering story #$NEXT using @$AGENT"
 
           gh issue edit "$NEXT" --repo ${{ github.repository }} \
             --remove-label "pending" --add-label "in-progress" || true
 
           # TODO: Customize the test command in this trigger message
           gh issue comment "$NEXT" --repo ${{ github.repository }} \
-            --body "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently — after every 2-3 file changes, stage, commit, and push. Do NOT wait until the end. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
+            --body "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently — after every 2-3 file changes, stage, commit, and push. Do NOT wait until the end. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
