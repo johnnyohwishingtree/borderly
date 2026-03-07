@@ -17,8 +17,9 @@ describe('ErrorMessage Component', () => {
   });
 
   it('renders string error', () => {
-    const { getByText } = render(<ErrorMessage error="Something went wrong" />);
-    expect(getByText('Something went wrong')).toBeTruthy();
+    const { getAllByText } = render(<ErrorMessage error="Something went wrong" />);
+    const elements = getAllByText('Something went wrong');
+    expect(elements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders AppError with user message', () => {

@@ -371,7 +371,7 @@ export function hasAutomatedRecovery(errorCode: ErrorCode): boolean {
  */
 export function getHelpSearchTerms(errorCode: ErrorCode): string[] {
   const message = ENHANCED_ERROR_MESSAGES[errorCode];
-  return message.supportInfo?.searchTerms || [];
+  return message?.supportInfo?.searchTerms || [];
 }
 
 /**

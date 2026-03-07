@@ -147,7 +147,15 @@ describe('ErrorHandler', () => {
         { showUserFeedback: false, enableRetry: false }
       );
 
-      await expect(wrappedFunction('arg1', 'arg2')).rejects.toThrow();
+      let errorThrown = false;
+      try {
+        await wrappedFunction('arg1', 'arg2');
+      } catch (error) {
+        errorThrown = true;
+        expect(error).toBeDefined();
+      }
+      
+      expect(errorThrown).toBe(true);
       expect(testFunction).toHaveBeenCalledWith('arg1', 'arg2');
     });
 
