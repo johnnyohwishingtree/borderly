@@ -1,0 +1,180 @@
+/**
+ * PII Sanitizer - Removes or redacts personally identifiable information
+ * from logs, error reports, and analytics data to maintain privacy compliance.
+ */
+
+export interface SanitizationRule {
+  pattern: RegExp;
+  replacement: string;
+}
+
+// Common PII patterns to detect and redact
+const PII_PATTERNS: SanitizationRule[] = [
+  // Passport numbers (various formats)
+  { pattern: /\b[A-Z]{1,2}[0-9]{6,9}\b/g, replacement: '[PASSPORT]' },
+  
+  // Email addresses
+  { pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, replacement: '[EMAIL]' },
+  
+  // Phone numbers (international and domestic formats)
+  { pattern: /\b(\+?[1-9]{1}[0-9]{0,3}[-\s]?)?[(]?[0-9]{3}[)]?[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b/g, replacement: '[PHONE]' },
+  
+  // Credit card numbers
+  { pattern: /\b[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}\b/g, replacement: '[CARD]' },
+  
+  // Dates of birth (various formats)
+  { pattern: /\b(0[1-9]|1[0-2])[\/\-](0[1-9]|[12][0-9]|3[01])[\/\-](19|20)\d{2}\b/g, replacement: '[DOB]' },
+  { pattern: /\b(19|20)\d{2}[\/\-](0[1-9]|1[0-2])[\/\-](0[1-9]|[12][0-9]|3[01])\b/g, replacement: '[DOB]' },
+  
+  // Names (common patterns - conservative to avoid false positives)
+  { pattern: /\b[A-Z][a-z]+ [A-Z][a-z]+\b/g, replacement: '[NAME]' },
+  
+  // Addresses (basic patterns)
+  { pattern: /\b\d+\s+[A-Z][a-z]+\s+(Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Drive|Dr|Boulevard|Blvd)\b/gi, replacement: '[ADDRESS]' },
+];
+
+// Sensitive field names that should be redacted
+const SENSITIVE_FIELDS = new Set([
+  'password',
+  'token',
+  'key',
+  'secret',
+  'passport',
+  'ssn',
+  'social',
+  'dob',
+  'dateOfBirth',
+  'firstName',
+  'lastName',
+  'fullName',
+  'email',
+  'phone',
+  'address',
+  'creditCard',
+  'cardNumber',
+  'cvv',
+  'pin',
+]);
+
+export interface SanitizationOptions {
+  preserveStructure?: boolean;
+  customRules?: SanitizationRule[];
+  whitelistedFields?: string[];
+}
+
+/**
+ * Sanitizes a string by removing or redacting PII
+ */
+export function sanitizeString(
+  input: string,
+  options: SanitizationOptions = {}
+): string {
+  let sanitized = input;
+  
+  // Apply default PII patterns
+  for (const rule of PII_PATTERNS) {
+    sanitized = sanitized.replace(rule.pattern, rule.replacement);
+  }
+  
+  // Apply custom rules if provided
+  if (options.customRules) {
+    for (const rule of options.customRules) {
+      sanitized = sanitized.replace(rule.pattern, rule.replacement);
+    }
+  }
+  
+  return sanitized;
+}
+
+/**
+ * Sanitizes an object recursively, redacting sensitive fields and PII
+ */
+export function sanitizeObject(
+  obj: any,
+  options: SanitizationOptions = {}
+): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (typeof obj === 'string') {
+    return sanitizeString(obj, options);
+  }
+  
+  if (typeof obj === 'number' || typeof obj === 'boolean') {
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item, options));
+  }
+  
+  if (typeof obj === 'object') {
+    const sanitized: any = {};
+    
+    for (const [key, value] of Object.entries(obj)) {
+      const lowercaseKey = key.toLowerCase();
+      
+      // Check if field is whitelisted
+      if (options.whitelistedFields?.includes(key)) {
+        sanitized[key] = value;
+        continue;
+      }
+      
+      // Check if field name contains sensitive information
+      const isSensitiveField = SENSITIVE_FIELDS.has(lowercaseKey) ||
+        Array.from(SENSITIVE_FIELDS).some(field => lowercaseKey.includes(field));
+      
+      if (isSensitiveField) {
+        if (options.preserveStructure) {
+          sanitized[key] = '[REDACTED]';
+        }
+        // Otherwise omit the field entirely
+      } else {
+        sanitized[key] = sanitizeObject(value, options);
+      }
+    }
+    
+    return sanitized;
+  }
+  
+  return obj;
+}
+
+/**
+ * Sanitizes error objects for logging
+ */
+export function sanitizeError(error: Error, options: SanitizationOptions = {}): any {
+  return {
+    name: error.name,
+    message: sanitizeString(error.message, options),
+    stack: error.stack ? sanitizeString(error.stack, options) : undefined,
+    cause: error.cause ? sanitizeObject(error.cause, options) : undefined,
+  };
+}
+
+/**
+ * Sanitizes URL by removing query parameters that might contain PII
+ */
+export function sanitizeUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    // Remove query parameters and fragments
+    return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+  } catch {
+    // If URL parsing fails, sanitize as string
+    return sanitizeString(url);
+  }
+}
+
+/**
+ * Creates a sanitization function with preset options
+ */
+export function createSanitizer(options: SanitizationOptions) {
+  return {
+    string: (input: string) => sanitizeString(input, options),
+    object: (obj: any) => sanitizeObject(obj, options),
+    error: (error: Error) => sanitizeError(error, options),
+    url: (url: string) => sanitizeUrl(url),
+  };
+}
