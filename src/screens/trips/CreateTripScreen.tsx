@@ -199,7 +199,7 @@ export default function CreateTripScreen() {
                 {COUNTRIES.map((countryOption) => (
                   <Button
                     key={countryOption.code}
-                    title={`${countryOption.flag} ${countryOption.name}`}
+                    title={countryOption.name}
                     onPress={() => updateLeg(index, 'destinationCountry', countryOption.code)}
                     variant={leg.destinationCountry === countryOption.code ? 'primary' : 'outline'}
                     size="small"

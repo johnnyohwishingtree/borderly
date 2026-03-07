@@ -100,7 +100,7 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(getByText('Welcome to')).toBeTruthy();
       expect(getByText('Borderly')).toBeTruthy();
       expect(getByText('Your universal travel declaration companion. Fill once, travel everywhere.')).toBeTruthy();
-      expect(getByText('✈️ Fill Once, Travel Everywhere')).toBeTruthy();
+      expect(getByText('Fill Once, Travel Everywhere')).toBeTruthy();
       expect(getByText('Private & Secure')).toBeTruthy();
       expect(getByText('Data stays on your device')).toBeTruthy();
       expect(getByText('Works Offline')).toBeTruthy();
@@ -111,7 +111,7 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should navigate to PassportScan when Get Started is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const getStartedButton = getByText('🚀 Get Started');
+      const getStartedButton = getByText('Get Started');
       fireEvent.press(getStartedButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
@@ -134,14 +134,14 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(getByText('Quick Passport Scan')).toBeTruthy();
       expect(getByText('📷 Start Camera Scan')).toBeTruthy();
       expect(getByText('Manual Entry')).toBeTruthy();
-      expect(getByText('✏️ Enter Manually')).toBeTruthy();
+      expect(getByText('Enter Manually')).toBeTruthy();
     });
 
     it('should show manual form when manual entry is selected', () => {
       const { getByText, getByPlaceholderText } = render(<PassportScanScreen />);
       
       // Click manual entry to show the form
-      fireEvent.press(getByText('✏️ Enter Manually'));
+      fireEvent.press(getByText('Enter Manually'));
 
       expect(getByPlaceholderText('Enter passport number')).toBeTruthy();
       expect(getByPlaceholderText('Enter surname')).toBeTruthy();
@@ -152,7 +152,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const { getByText } = render(<PassportScanScreen />);
 
       // Click manual entry to show the form
-      fireEvent.press(getByText('✏️ Enter Manually'));
+      fireEvent.press(getByText('Enter Manually'));
 
       expect(getByText(/Gender/)).toBeTruthy();
       expect(getByText('Male')).toBeTruthy();
@@ -173,7 +173,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const { getByText } = render(<PassportScanScreen />);
 
       // Click manual entry to show the form
-      fireEvent.press(getByText('✏️ Enter Manually'));
+      fireEvent.press(getByText('Enter Manually'));
 
       const femaleButton = getByText('Female');
       fireEvent.press(femaleButton);
@@ -189,7 +189,7 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should start with Welcome and navigate to PassportScan', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      fireEvent.press(getByText('🚀 Get Started'));
+      fireEvent.press(getByText('Get Started'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 
