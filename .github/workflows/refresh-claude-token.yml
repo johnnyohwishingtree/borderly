@@ -15,7 +15,30 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Check for active Claude workflows
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # Check if any Claude Code workflows are currently running
+          ACTIVE=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "claude.yml" \
+            --status in_progress \
+            --json databaseId \
+            --jq 'length' 2>/dev/null || echo "0")
+
+          echo "Active Claude workflows: $ACTIVE"
+
+          if [ "$ACTIVE" -gt 0 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping refresh — Claude workflow(s) in progress"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Refresh OAuth token
+        if: steps.check.outputs.skip != 'true'
         env:
           REFRESH_TOKEN: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_PAT }}
