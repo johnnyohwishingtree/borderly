@@ -16,6 +16,43 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const fieldResolutionCache = new Map<string, { value: unknown; timestamp: number }>();
 const FIELD_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
+// Automatic cache cleanup intervals
+let formCacheCleanupInterval: ReturnType<typeof setInterval> | null = null;
+let fieldCacheCleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+/**
+ * Initializes automatic cache cleanup timers
+ */
+function initializeCacheCleanup(): void {
+  // Clean form cache every 5 minutes
+  if (!formCacheCleanupInterval) {
+    formCacheCleanupInterval = setInterval(clearExpiredFormCache, CACHE_TTL);
+  }
+  
+  // Clean field cache every 2 minutes
+  if (!fieldCacheCleanupInterval) {
+    fieldCacheCleanupInterval = setInterval(clearExpiredFieldCache, FIELD_CACHE_TTL);
+  }
+}
+
+/**
+ * Stops automatic cache cleanup timers
+ */
+function stopCacheCleanup(): void {
+  if (formCacheCleanupInterval) {
+    clearInterval(formCacheCleanupInterval);
+    formCacheCleanupInterval = null;
+  }
+  
+  if (fieldCacheCleanupInterval) {
+    clearInterval(fieldCacheCleanupInterval);
+    fieldCacheCleanupInterval = null;
+  }
+}
+
+// Initialize cleanup on module load
+initializeCacheCleanup();
+
 export interface FilledFormField extends FormField {
   currentValue: unknown;
   source: 'auto' | 'user' | 'default' | 'empty';
@@ -46,7 +83,8 @@ export interface FormStats {
 }
 
 /**
- * Generates a cache key for the form based on input parameters
+ * Generates a secure cache key for the form based on input parameters
+ * Uses unique identifiers and hashing to prevent cache collisions and PII leakage
  */
 function generateCacheKey(
   profile: TravelerProfile,
@@ -54,13 +92,36 @@ function generateCacheKey(
   schema: CountryFormSchema,
   existingFormData?: Record<string, unknown>
 ): string {
-  const profileId = profile.id || 'default';
-  const legId = leg.id || `${leg.destinationCountry}-${leg.arrivalDate}`;
-  const existingDataHash = existingFormData 
-    ? JSON.stringify(existingFormData)
-    : undefined;
+  // Use actual IDs or generate unique session-based identifiers
+  const profileId = profile.id || `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const legId = leg.id || `leg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  
+  // Safely hash existing data to prevent DoS and PII exposure
+  let existingDataHash = '';
+  if (existingFormData) {
+    const dataStr = JSON.stringify(existingFormData);
+    // Limit data size to prevent DoS attacks while allowing legitimate large forms
+    if (dataStr.length > 100000) { // 100KB limit
+      throw new Error('Existing form data too large for caching');
+    }
+    // Create simple hash instead of storing full JSON
+    existingDataHash = createSimpleHash(dataStr);
+  }
   
   return `${profileId}:${legId}:${schema.schemaVersion}${existingDataHash ? ':' + existingDataHash : ''}`;
+}
+
+/**
+ * Creates a simple hash of a string to avoid storing sensitive data in cache keys
+ */
+function createSimpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
 }
 
 /**
@@ -149,20 +210,31 @@ export function generateFilledForm(
 }
 
 /**
- * Generates a cache key for field resolution
+ * Generates a secure cache key for field resolution
  */
 function generateFieldCacheKey(
   field: FormField,
   context: FormContext,
   existingFormData?: Record<string, unknown>
 ): string {
-  const contextHash = JSON.stringify({
-    profileId: context.profile.id || 'default',
-    legId: context.leg.id || `${context.leg.destinationCountry}-${context.leg.arrivalDate}`,
+  // Use actual IDs or generate unique session-based identifiers
+  const profileId = context.profile.id || `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const legId = context.leg.id || `leg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  
+  const contextData = {
+    profileId,
+    legId,
     autoFillSource: field.autoFillSource,
     existingValue: existingFormData?.[field.id],
-  });
+  };
   
+  const contextStr = JSON.stringify(contextData);
+  // Limit size to prevent DoS attacks while allowing legitimate field data
+  if (contextStr.length > 25000) { // 25KB limit
+    throw new Error('Field context data too large for caching');
+  }
+  
+  const contextHash = createSimpleHash(contextStr);
   return `${field.id}:${contextHash}`;
 }
 
@@ -429,6 +501,9 @@ export function clearExpiredFieldCache(): void {
 export function clearAllCaches(): void {
   formCache.clear();
   fieldResolutionCache.clear();
+  // Re-initialize cleanup timers after clearing
+  stopCacheCleanup();
+  initializeCacheCleanup();
 }
 
 /**

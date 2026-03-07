@@ -5,6 +5,31 @@ import { CountryFormSchema } from '../../types/schema';
 const schemaCache = new Map<string, { schema: CountryFormSchema; timestamp: number }>();
 const SCHEMA_CACHE_TTL = 10 * 60 * 1000; // 10 minutes - schemas change infrequently
 
+// Automatic cache cleanup interval
+let schemaCacheCleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+/**
+ * Initializes automatic cache cleanup timer
+ */
+function initializeSchemaCacheCleanup(): void {
+  if (!schemaCacheCleanupInterval) {
+    schemaCacheCleanupInterval = setInterval(clearExpiredSchemaCache, SCHEMA_CACHE_TTL);
+  }
+}
+
+/**
+ * Stops automatic cache cleanup timer
+ */
+function stopSchemaCacheCleanup(): void {
+  if (schemaCacheCleanupInterval) {
+    clearInterval(schemaCacheCleanupInterval);
+    schemaCacheCleanupInterval = null;
+  }
+}
+
+// Initialize cleanup on module load
+initializeSchemaCacheCleanup();
+
 // Zod schema for validation
 const FormFieldSchema = z.object({
   id: z.string(),
@@ -129,11 +154,30 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
 }
 
 /**
- * Generates a cache key for schema validation based on content and country code
+ * Creates a simple hash of a string to avoid storing large data in cache keys
+ */
+function createSimpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/**
+ * Generates a secure cache key for schema validation based on content and country code
  */
 function generateSchemaCacheKey(schema: unknown, countryCode: string): string {
-  // Create a stable hash of the schema content
-  const schemaHash = JSON.stringify(schema);
+  // Safely hash schema content to prevent DoS attacks
+  const schemaStr = JSON.stringify(schema);
+  // Limit schema size to prevent DoS attacks while allowing legitimate schemas
+  if (schemaStr.length > 500000) { // 500KB limit for schemas
+    throw new Error('Schema too large for caching');
+  }
+  
+  const schemaHash = createSimpleHash(schemaStr);
   return `${countryCode}:${schemaHash}`;
 }
 
@@ -304,6 +348,9 @@ export function clearExpiredSchemaCache(): void {
  */
 export function clearSchemaCache(): void {
   schemaCache.clear();
+  // Re-initialize cleanup timer after clearing
+  stopSchemaCacheCleanup();
+  initializeSchemaCacheCleanup();
 }
 
 /**

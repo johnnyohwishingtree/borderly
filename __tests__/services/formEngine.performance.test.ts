@@ -259,7 +259,7 @@ describe('Form Engine Performance', () => {
       expect(result.sections).toHaveLength(3);
       expect(result.stats.totalFields).toBe(13);
       
-      console.log(`Cold cache generation time: ${duration.toFixed(2)}ms`);
+      // Cold cache generation completed
     });
 
     it('should generate a form much faster with warm cache', () => {
@@ -279,8 +279,7 @@ describe('Form Engine Performance', () => {
       expect(warmDuration).toBeLessThan(50); // Should be much faster with cache
       expect(result).toBeDefined();
       
-      console.log(`Cold cache: ${coldDuration.toFixed(2)}ms, Warm cache: ${warmDuration.toFixed(2)}ms`);
-      console.log(`Cache speedup: ${(coldDuration / warmDuration).toFixed(2)}x faster`);
+      // Cache speedup verification completed
     });
 
     it('should handle multiple form generations efficiently', () => {
@@ -297,14 +296,14 @@ describe('Form Engine Performance', () => {
       
       expect(avgDuration).toBeLessThan(10); // Average should be very fast due to caching
       
-      console.log(`${iterations} iterations: ${totalDuration.toFixed(2)}ms total, ${avgDuration.toFixed(2)}ms average`);
+      // Multiple iterations test completed
     });
 
     it('should efficiently handle different profiles with similar data', () => {
       const profiles = Array.from({ length: 10 }, (_, i) => ({
         ...mockProfile,
         id: `profile-${i}`,
-        firstName: `John${i}`,
+        givenNames: `John${i}`,
         passportNumber: `AB${i.toString().padStart(7, '0')}`,
       }));
 
@@ -324,7 +323,7 @@ describe('Form Engine Performance', () => {
         expect(result.stats.totalFields).toBe(13);
       });
       
-      console.log(`10 different profiles: ${totalDuration.toFixed(2)}ms total, ${avgDuration.toFixed(2)}ms average`);
+      // Different profiles test completed
     });
   });
 
@@ -340,7 +339,7 @@ describe('Form Engine Performance', () => {
       expect(afterStats.formCache.size).toBeGreaterThan(0);
       expect(afterStats.fieldCache.size).toBeGreaterThan(0);
       
-      console.log(`Cache sizes - Forms: ${afterStats.formCache.size}, Fields: ${afterStats.fieldCache.size}`);
+      // Cache population verified
     });
 
     it('should handle cache misses gracefully with different inputs', () => {
@@ -362,7 +361,7 @@ describe('Form Engine Performance', () => {
       
       expect(totalDuration).toBeLessThan(2000); // 4 generations should complete within 2s
       
-      console.log(`4 unique form combinations: ${totalDuration.toFixed(2)}ms`);
+      // Unique combinations test completed
     });
   });
 
@@ -381,7 +380,7 @@ describe('Form Engine Performance', () => {
       expect(stats.formCache.size).toBeLessThan(100);
       expect(stats.fieldCache.size).toBeLessThan(700);
       
-      console.log(`After 50 generations - Forms: ${stats.formCache.size}, Fields: ${stats.fieldCache.size}`);
+      // Memory management test completed
     });
   });
 
@@ -413,7 +412,7 @@ describe('Form Engine Performance', () => {
       expect(duration).toBeLessThan(1000); // Should handle large schemas under 1s
       expect(result.stats.totalFields).toBe(63); // 13 original + 50 additional
       
-      console.log(`Large schema (63 fields): ${duration.toFixed(2)}ms`);
+      // Large schema test completed
     });
 
     it('should handle forms with existing data efficiently', () => {
@@ -431,7 +430,7 @@ describe('Form Engine Performance', () => {
       expect(duration).toBeLessThan(500);
       expect(result.stats.userFilled).toBeGreaterThan(0);
       
-      console.log(`Form with existing data: ${duration.toFixed(2)}ms`);
+      // Existing data test completed
     });
   });
 });

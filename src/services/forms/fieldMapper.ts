@@ -10,20 +10,69 @@ export interface FormContext {
 const pathResolutionCache = new Map<string, { value: unknown; timestamp: number }>();
 const PATH_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
+// Automatic cache cleanup interval
+let pathCacheCleanupInterval: ReturnType<typeof setInterval> | null = null;
+
 /**
- * Generates a cache key for path resolution
+ * Initializes automatic cache cleanup timer
+ */
+function initializePathCacheCleanup(): void {
+  if (!pathCacheCleanupInterval) {
+    pathCacheCleanupInterval = setInterval(clearExpiredPathCache, PATH_CACHE_TTL);
+  }
+}
+
+/**
+ * Stops automatic cache cleanup timer
+ */
+function stopPathCacheCleanup(): void {
+  if (pathCacheCleanupInterval) {
+    clearInterval(pathCacheCleanupInterval);
+    pathCacheCleanupInterval = null;
+  }
+}
+
+// Initialize cleanup on module load
+initializePathCacheCleanup();
+
+/**
+ * Creates a simple hash of a string to avoid storing sensitive data in cache keys
+ */
+function createSimpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
+/**
+ * Generates a secure cache key for path resolution
  */
 function generatePathCacheKey(path: string, context: FormContext): string {
-  const contextHash = JSON.stringify({
-    profileId: context.profile.id || 'default',
-    legId: context.leg.id || `${context.leg.destinationCountry}-${context.leg.arrivalDate}`,
+  // Use actual IDs or generate unique session-based identifiers
+  const profileId = context.profile.id || `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const legId = context.leg.id || `leg-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  
+  const contextData = {
+    profileId,
+    legId,
     path,
     // Include relevant data for computed fields
     arrivalDate: context.leg.arrivalDate,
     departureDate: context.leg.departureDate,
     accommodationAddress: context.leg.accommodation?.address,
-  });
+  };
   
+  const contextStr = JSON.stringify(contextData);
+  // Limit size to prevent DoS attacks while allowing legitimate path data
+  if (contextStr.length > 25000) { // 25KB limit
+    throw new Error('Path context data too large for caching');
+  }
+  
+  const contextHash = createSimpleHash(contextStr);
   return `${path}:${contextHash}`;
 }
 
@@ -201,6 +250,9 @@ export function clearExpiredPathCache(): void {
  */
 export function clearPathCache(): void {
   pathResolutionCache.clear();
+  // Re-initialize cleanup timer after clearing
+  stopPathCacheCleanup();
+  initializePathCacheCleanup();
 }
 
 /**
