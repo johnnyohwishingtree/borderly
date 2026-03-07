@@ -10,9 +10,9 @@ import {
 } from '../../../src/services/passport/mrzParser';
 
 describe('MRZ Parser', () => {
-  // Valid test MRZ data (anonymized)
+  // Valid test MRZ data (anonymized) - TD3 format: exactly 44 chars per line
   const validMRZ = {
-    line1: 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+    line1: 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
     line2: 'L898902C36UTO7408122F1204159ZE184226B<<<<<10'
   };
 
@@ -47,7 +47,7 @@ describe('MRZ Parser', () => {
       expect(result.success).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.confidence).toBe(0);
-      expect(result.errors[0]).toContain('43 characters');
+      expect(result.errors[0]).toContain('44 characters');
     });
 
     it('should fail on non-passport document type', () => {
@@ -88,7 +88,7 @@ describe('MRZ Parser', () => {
 
     it('should parse names with multiple given names correctly', () => {
       const multiNameMRZ = {
-        line1: 'P<UTODOE<<JANE<MARIE<ANNE<<<<<<<<<<<<<<<<<<<<<',
+        line1: 'P<UTODOE<<JANE<MARIE<ANNE<<<<<<<<<<<<<<<<<<<',
         line2: 'L898902C36UTO7408122F1204159ZE184226B<<<<<10'
       };
       
@@ -146,7 +146,7 @@ describe('MRZ Parser', () => {
     it('should extract MRZ from OCR text', () => {
       const ocrText = `
         Some random text
-        P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         L898902C36UTO7408122F1204159ZE184226B<<<<<10
         More random text
       `;
@@ -154,7 +154,7 @@ describe('MRZ Parser', () => {
       const result = extractMRZFromText(ocrText);
       
       expect(result).toBeDefined();
-      expect(result!.line1).toBe('P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
+      expect(result!.line1).toBe('P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
       expect(result!.line2).toBe('L898902C36UTO7408122F1204159ZE184226B<<<<<10');
     });
 
@@ -199,7 +199,7 @@ describe('MRZ Parser', () => {
     it('should handle noisy OCR output', () => {
       const ocrText = `
         PASSPORT
-        |P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<|
+        |P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<|
         |L898902C36UTO7408122F1204159ZE184226B<<<<<10|
         UNITED STATES OF AMERICA
       `;

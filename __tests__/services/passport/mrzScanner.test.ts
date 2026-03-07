@@ -23,7 +23,7 @@ const createTextBlock = (value: string, components?: any[]) => ({
 
 describe('MRZ Scanner Service', () => {
   const validMRZText = `
-    P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     L898902C36UTO7408122F1204159ZE184226B<<<<<10
   `;
 
@@ -105,7 +105,7 @@ describe('MRZ Scanner Service', () => {
     it('should extract text from complex text block structure', () => {
       const textRecognition = createMockTextRecognition([
         createTextBlock('', [
-          { value: 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' },
+          { value: 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' },
           { value: 'L898902C36UTO7408122F1204159ZE184226B<<<<<10' }
         ])
       ]);
@@ -132,7 +132,9 @@ describe('MRZ Scanner Service', () => {
       const result1 = scanner.processFrame(textRecognition);
       const result2 = scanner.processFrame(textRecognition);
 
-      expect(result2.guidance).toContain('Scanning');
+      // During cooldown, should return the last successful scan result
+      expect(result2).toEqual(result1);
+      expect(result1.type).toBe('success');
     });
 
     it('should track scan attempts', () => {
@@ -242,9 +244,9 @@ describe('MRZ Scanner Service', () => {
 
       expect(validation.isValid).toBe(false);
       expect(validation.warnings.length).toBeGreaterThan(0);
-      expect(validation.warnings.some(w => w.includes('passport number'))).toBe(true);
-      expect(validation.warnings.some(w => w.includes('surname'))).toBe(true);
-      expect(validation.warnings.some(w => w.includes('given names'))).toBe(true);
+      expect(validation.warnings.some(w => w.includes('Passport number'))).toBe(true);
+      expect(validation.warnings.some(w => w.includes('Surname'))).toBe(true);
+      expect(validation.warnings.some(w => w.includes('Given names'))).toBe(true);
     });
 
     it('should detect expired passport', () => {

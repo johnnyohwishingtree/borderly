@@ -202,9 +202,10 @@ function formatMRZDate(mrzDate: string): string {
   const currentCentury = Math.floor(currentYear / 100) * 100;
   const pivotYear = currentYear % 100;
   
-  // If year is more than ~20 years in the future, it's likely from previous century
-  // For example, in 2026: year 74 = 1974, year 10 = 2010
-  const fullYear = year > (pivotYear + 20) ? currentCentury - 100 + year : currentCentury + year;
+  // If year is more than 20 years in the future, it's likely from previous century
+  // For example, in 2026: year 74 = 1974, year 10 = 2010, year 50 = 1950
+  // Better logic: if year >= 50, it's previous century; if year < 50, it's current century
+  const fullYear = year >= 50 ? currentCentury - 100 + year : currentCentury + year;
 
   return `${fullYear}-${month}-${day}`;
 }
