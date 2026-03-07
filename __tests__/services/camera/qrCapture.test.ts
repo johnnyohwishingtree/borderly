@@ -28,11 +28,11 @@ describe('QRCaptureService', () => {
     jest.clearAllMocks();
   });
 
-  describe('validateQRCode', () => {
+  describe('validateImageUri', () => {
     it('should validate a valid data URI', async () => {
       const validDataUri = 'data:image/png;base64,' + 'A'.repeat(200); // Longer base64 to pass validation
       
-      const result = await QRCaptureService.validateQRCode(validDataUri);
+      const result = await QRCaptureService.validateImageUri(validDataUri);
       
       expect(result.isValid).toBe(true);
       expect(result.error).toBeUndefined();
@@ -41,7 +41,7 @@ describe('QRCaptureService', () => {
     it('should validate a valid file URI', async () => {
       const validFileUri = 'file:///path/to/image.png';
       
-      const result = await QRCaptureService.validateQRCode(validFileUri);
+      const result = await QRCaptureService.validateImageUri(validFileUri);
       
       expect(result.isValid).toBe(true);
       expect(result.error).toBeUndefined();
@@ -50,15 +50,15 @@ describe('QRCaptureService', () => {
     it('should reject invalid URI format', async () => {
       const invalidUri = 'http://example.com/image.png';
       
-      const result = await QRCaptureService.validateQRCode(invalidUri);
+      const result = await QRCaptureService.validateImageUri(invalidUri);
       
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('Unsupported image format');
     });
 
     it('should reject empty or null URI', async () => {
-      const result1 = await QRCaptureService.validateQRCode('');
-      const result2 = await QRCaptureService.validateQRCode(null as any);
+      const result1 = await QRCaptureService.validateImageUri('');
+      const result2 = await QRCaptureService.validateImageUri(null as any);
       
       expect(result1.isValid).toBe(false);
       expect(result1.error).toBe('Invalid image URI');
@@ -69,7 +69,7 @@ describe('QRCaptureService', () => {
     it('should reject data URI with insufficient base64 data', async () => {
       const shortDataUri = 'data:image/png;base64,ABC';
       
-      const result = await QRCaptureService.validateQRCode(shortDataUri);
+      const result = await QRCaptureService.validateImageUri(shortDataUri);
       
       expect(result.isValid).toBe(false);
       expect(result.error).toBe('Image appears to be too small or corrupted');

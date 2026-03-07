@@ -166,45 +166,12 @@ export class QRCaptureService {
     }
   }
 
-  /**
-   * Show action sheet for QR capture options
-   */
-  static showQRCaptureOptions(): Promise<QRCaptureResult> {
-    return new Promise((resolve) => {
-      Alert.alert(
-        'Add QR Code',
-        'Choose how you want to add your QR code',
-        [
-          {
-            text: 'Take Photo',
-            onPress: async () => {
-              const result = await this.captureFromCamera();
-              resolve(result);
-            },
-          },
-          {
-            text: 'Choose from Library',
-            onPress: async () => {
-              const result = await this.importFromLibrary();
-              resolve(result);
-            },
-          },
-          {
-            text: 'Cancel',
-            style: 'cancel',
-            onPress: () => resolve({ success: false, error: 'Cancelled' }),
-          },
-        ],
-        { cancelable: true }
-      );
-    });
-  }
 
   /**
-   * Validate if an image contains a QR code
+   * Validate if an image URI is properly formatted
    * This is a basic implementation - can be enhanced with actual QR detection
    */
-  static async validateQRCode(imageUri: string): Promise<{ isValid: boolean; error?: string }> {
+  static async validateImageUri(imageUri: string): Promise<{ isValid: boolean; error?: string }> {
     try {
       if (!imageUri || typeof imageUri !== 'string') {
         return { isValid: false, error: 'Invalid image URI' };

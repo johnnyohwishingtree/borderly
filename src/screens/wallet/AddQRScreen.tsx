@@ -45,7 +45,7 @@ export default function AddQRScreen() {
       
       if (result.success && result.imageUri && result.base64) {
         // Validate the captured image
-        const validation = await QRCaptureService.validateQRCode(result.imageUri);
+        const validation = await QRCaptureService.validateImageUri(result.imageUri);
         if (!validation.isValid) {
           Alert.alert('Invalid Image', validation.error || 'The captured image is not valid');
           return;
@@ -106,7 +106,7 @@ export default function AddQRScreen() {
       
       if (result.success && result.imageUri && result.base64) {
         // Validate the imported image
-        const validation = await QRCaptureService.validateQRCode(result.imageUri);
+        const validation = await QRCaptureService.validateImageUri(result.imageUri);
         if (!validation.isValid) {
           Alert.alert('Invalid Image', validation.error || 'The selected image is not valid');
           return;
@@ -160,48 +160,6 @@ export default function AddQRScreen() {
     }
   };
 
-  const _handleCaptureOptions = async () => {
-    if (Platform.OS === 'ios') {
-      Alert.alert(
-        'Add QR Code',
-        'Choose how you want to add your QR code',
-        [
-          {
-            text: 'Take Photo',
-            onPress: handleCameraCapture,
-          },
-          {
-            text: 'Choose from Library',
-            onPress: handleLibraryImport,
-          },
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-        ]
-      );
-    } else {
-      // For Android, show a simple alert
-      Alert.alert(
-        'Add QR Code',
-        'Choose how you want to add your QR code',
-        [
-          {
-            text: 'Take Photo',
-            onPress: handleCameraCapture,
-          },
-          {
-            text: 'Choose from Library',
-            onPress: handleLibraryImport,
-          },
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-        ]
-      );
-    }
-  };
 
   const handleSaveQR = async () => {
     if (!capturedImage || !base64Image) {

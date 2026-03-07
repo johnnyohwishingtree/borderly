@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -8,8 +8,7 @@ import {
   StatusBar, 
   SafeAreaView,
   Dimensions,
-  Alert,
-  Platform
+  Alert
 } from 'react-native';
 import { SavedQRCode } from '../../services/storage/models';
 
@@ -21,43 +20,37 @@ interface QRFullScreenProps {
 }
 
 export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScreenProps) {
-  const [brightness, setBrightness] = useState<number>(0);
   const { width, height } = Dimensions.get('window');
   const qrSize = Math.min(width * 0.8, height * 0.6);
 
   useEffect(() => {
     if (visible) {
-      // Increase screen brightness for QR code display
-      // This would require a brightness control library in production
-      setBrightnessToMax();
-      
       // Hide status bar for full screen experience
-      StatusBar.setHidden(true, 'fade');
+      try {
+        StatusBar.setHidden(true, 'fade');
+      } catch (error) {
+        // Fallback for platforms that don't support StatusBar.setHidden
+        console.warn('StatusBar.setHidden not supported:', error);
+      }
     } else {
-      // Restore original brightness
-      restoreBrightness();
-      
       // Show status bar again
-      StatusBar.setHidden(false, 'fade');
+      try {
+        StatusBar.setHidden(false, 'fade');
+      } catch (error) {
+        console.warn('StatusBar.setHidden not supported:', error);
+      }
     }
 
     return () => {
       // Cleanup on component unmount
-      StatusBar.setHidden(false, 'fade');
-      restoreBrightness();
+      try {
+        StatusBar.setHidden(false, 'fade');
+      } catch (error) {
+        console.warn('StatusBar.setHidden not supported:', error);
+      }
     };
   }, [visible]);
 
-  const setBrightnessToMax = async () => {
-    // In a production app, you'd use a library like react-native-brightness
-    // For now, we'll just store the current brightness
-    setBrightness(1.0);
-  };
-
-  const restoreBrightness = async () => {
-    // Restore original brightness
-    setBrightness(0.5);
-  };
 
   const handleDeletePress = () => {
     if (!qrCode || !onDelete) return;
@@ -176,14 +169,6 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
             Saved {formatDate(qrCode.savedAt)}
           </Text>
 
-          {/* Brightness Indicator */}
-          <View className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-            <View className="bg-gray-800 bg-opacity-75 rounded-full px-4 py-2">
-              <Text className="text-white text-xs">
-                ☀️ Brightness maximized for scanning
-              </Text>
-            </View>
-          </View>
         </View>
 
         {/* Instructions */}
