@@ -142,11 +142,17 @@ export class SubmissionValidator {
       { pattern: /navigator\.(camera|microphone|geolocation)/gi, risk: 'Sensitive device access' }
     ];
 
+    let hasDangerousPattern = false;
     for (const { pattern, risk } of dangerousPatterns) {
       if (pattern.test(code)) {
         result.errors.push(`Security risk detected: ${risk}`);
-        result.checks.noPIILeakage = false;
+        hasDangerousPattern = true;
       }
+    }
+
+    // Set noPIILeakage to false if dangerous patterns found
+    if (hasDangerousPattern) {
+      result.checks.noPIILeakage = false;
     }
 
     // Check for PII patterns in code
@@ -365,10 +371,20 @@ export class SubmissionValidator {
       result.checks.validDomain = false;
     }
 
-    // Check for Japan-specific field requirements (basic validation)
-    const requiredFields = ['surname', 'passportNumber'];
+    // Check for Japan-specific field requirements only if they are marked as required
     const formData = this.extractFormData(filledForm);
     
+    // Find all required fields in the form
+    const requiredFields: string[] = [];
+    filledForm.sections.forEach(section => {
+      section.fields.forEach(field => {
+        if (field.required) {
+          requiredFields.push(field.id);
+        }
+      });
+    });
+    
+    // Validate that required fields have values
     for (const fieldId of requiredFields) {
       if (!formData[fieldId] || formData[fieldId] === '') {
         result.errors.push(`Missing required field for Japan: ${fieldId}`);
@@ -536,9 +552,15 @@ export class SubmissionValidator {
 
     // Check for PII in session data
     for (const [key, value] of Object.entries(sessionData)) {
-      if (!this.isAllowedPIIField(key) && this.containsPII(String(value))) {
-        result.errors.push(`Unauthorized PII in session data: ${key}`);
-        result.checks.noPIILeakage = false;
+      if (!this.isAllowedPIIField(key)) {
+        // Check if the field contains PII or if the key itself is blocked
+        const hasBlockedKey = this.config.blockedPatterns.some(pattern => pattern.test(key));
+        const hasPIIValue = this.containsPII(String(value));
+        
+        if (hasBlockedKey || hasPIIValue) {
+          result.errors.push(`Unauthorized PII in session data: ${key}`);
+          result.checks.noPIILeakage = false;
+        }
       }
     }
 

@@ -6,10 +6,60 @@ import { SubmissionEngine } from '@/services/submission/submissionEngine';
 import { TripLeg } from '@/types/trip';
 import { FilledForm } from '@/services/forms/formEngine';
 
-// Mock dependencies
-jest.mock('@/services/submission/webviewController');
-jest.mock('@/services/submission/automationScripts');
-jest.mock('@/utils/submissionValidator');
+// Mock WebViewController
+jest.mock('@/services/submission/webviewController', () => {
+  return {
+    WebViewController: jest.fn().mockImplementation(() => ({
+      initialize: jest.fn().mockResolvedValue(undefined),
+      navigateTo: jest.fn().mockResolvedValue(undefined),
+      executeScript: jest.fn().mockResolvedValue({ success: true })
+    }))
+  };
+});
+
+// Mock AutomationScriptRegistry
+jest.mock('@/services/submission/automationScripts', () => {
+  return {
+    AutomationScriptRegistry: jest.fn().mockImplementation(() => ({
+      getScript: jest.fn().mockImplementation((countryCode: string) => {
+        // Return a mock script for supported countries, null for unsupported
+        if (countryCode === 'JPN') {
+          return Promise.resolve({
+            countryCode: 'JPN',
+            portalName: 'Visit Japan Web',
+            portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+            version: '1.0.0',
+            steps: [],
+            fieldMappings: {},
+            prerequisites: {}
+          });
+        }
+        return Promise.resolve(null); // No script available for other countries
+      })
+    }))
+  };
+});
+
+// Mock SubmissionValidator
+const mockValidateSubmission = jest.fn().mockResolvedValue({
+  isValid: true,
+  warnings: [],
+  errors: [],
+  checks: {
+    noPIILeakage: true,
+    validDomain: true,
+    secureConnection: true,
+    dataWithinLimits: true
+  }
+});
+
+jest.mock('@/utils/submissionValidator', () => {
+  return {
+    SubmissionValidator: jest.fn().mockImplementation(() => ({
+      validateSubmission: mockValidateSubmission
+    }))
+  };
+});
 
 // Mock implementations
 import { AutomationScriptRegistry } from '@/services/submission/automationScripts';

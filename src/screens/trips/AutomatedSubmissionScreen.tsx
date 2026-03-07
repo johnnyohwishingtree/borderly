@@ -20,7 +20,6 @@ import {
 import { AutomatedSubmissionView } from '@/components/submission/AutomatedSubmissionView';
 import { Button, LoadingSpinner } from '@/components/ui';
 import { useTripStore } from '@/stores/useTripStore';
-import { TripStackParamList } from '@/types/navigation';
 
 // Mock route types since AutomatedSubmission may not be in navigation yet
 type AutomatedSubmissionScreenRouteProp = RouteProp<any, 'AutomatedSubmission'>;
@@ -39,7 +38,7 @@ export const AutomatedSubmissionScreen: React.FC<AutomatedSubmissionScreenProps>
   const { legId, filledForm } = (route.params || {}) as any;
   
   // Stores
-  const tripStore = useTripStore();
+  // const tripStore = useTripStore();
   
   // State
   const [submissionEngine] = useState(() => new SubmissionEngine({
@@ -111,23 +110,39 @@ export const AutomatedSubmissionScreen: React.FC<AutomatedSubmissionScreenProps>
    * Handle step completion
    */
   const handleStepComplete = useCallback((stepId: string, result: AutomationStepResult) => {
-    if (currentSession) {
-      // Update session with step result
-      if (result.success) {
-        currentSession.progress.completedSteps.push(stepId);
-      } else {
-        currentSession.progress.failedSteps.push(stepId);
-        currentSession.errors.push({
-          stepId,
-          error: result.error || 'Unknown error',
-          timestamp: new Date().toISOString(),
-          retryable: true
-        });
+    setCurrentSession(prevSession => {
+      if (!prevSession) {
+        return null;
       }
-      
-      setCurrentSession({ ...currentSession });
-    }
-  }, [currentSession]);
+
+      if (result.success) {
+        return {
+          ...prevSession,
+          progress: {
+            ...prevSession.progress,
+            completedSteps: [...prevSession.progress.completedSteps, stepId],
+          },
+        };
+      } else {
+        return {
+          ...prevSession,
+          progress: {
+            ...prevSession.progress,
+            failedSteps: [...prevSession.progress.failedSteps, stepId],
+          },
+          errors: [
+            ...prevSession.errors,
+            {
+              stepId,
+              error: result.error || 'Unknown error',
+              timestamp: new Date().toISOString(),
+              retryable: true
+            }
+          ],
+        };
+      }
+    });
+  }, []);
 
   /**
    * Handle submission errors
@@ -244,9 +259,9 @@ export const AutomatedSubmissionScreen: React.FC<AutomatedSubmissionScreenProps>
       headerLeft: () => (
         <Button
           title="Cancel"
-          variant="ghost"
+          variant="outline"
           onPress={handleCancel}
-          size="sm"
+          size="small"
         />
       )
     });
