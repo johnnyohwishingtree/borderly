@@ -108,10 +108,6 @@ export default function Input({
     !!textInputProps.editable === false
   );
 
-  // Build accessibility described by relationship
-  const describedByIds = [];
-  if (error) describedByIds.push(errorId);
-  if (helperText) describedByIds.push(helperTextId);
 
   return (
     <View className="mb-5">
@@ -147,7 +143,6 @@ export default function Input({
         accessibilityHint={accessibilityHint || helperText}
         accessibilityState={accessibilityState}
         accessibilityLabelledBy={label ? labelId : undefined}
-        accessibilityDescribedBy={describedByIds.length > 0 ? describedByIds.join(' ') : undefined}
         
         // Testing
         testID={testID}

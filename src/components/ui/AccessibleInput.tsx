@@ -157,7 +157,7 @@ export default function AccessibleInput({
     
     // Announce error when blurring if there's an error and it hasn't been announced
     if (error && announceErrors && !errorAnnouncedRef.current) {
-      ScreenReaderUtils.announce(`Error: ${error}`, { assertive: true });
+      ScreenReaderUtils.announce(`Error: ${error}`);
       errorAnnouncedRef.current = true;
     }
   };

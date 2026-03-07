@@ -11,16 +11,13 @@ export const ACCESSIBILITY_CONSTANTS = {
 // Screen reader utilities
 export class ScreenReaderUtils {
   /**
-   * Announces a message to screen readers
+   * Announces a message to screen readers (always polite)
+   * Note: React Native does not support assertive announcements via AccessibilityInfo
    */
-  static announce(message: string, options?: { assertive?: boolean; timeout?: number }) {
+  static announce(message: string, options?: { timeout?: number }) {
     if (!message?.trim()) return;
     
-    if (options?.assertive) {
-      AccessibilityInfo.announceForAccessibility(message);
-    } else {
-      AccessibilityInfo.announceForAccessibility(message);
-    }
+    AccessibilityInfo.announceForAccessibility(message);
       
     // Clear announcement after timeout to prevent memory issues
     if (options?.timeout) {

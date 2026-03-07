@@ -29,7 +29,6 @@ export interface SelectProps {
   // Enhanced accessibility props
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  accessibilityDescribedBy?: string;
   
   // High contrast support
   highContrastMode?: boolean;
@@ -55,7 +54,6 @@ export default function Select({
   required = false,
   accessibilityLabel,
   accessibilityHint,
-  accessibilityDescribedBy,
   highContrastMode = false,
   className,
   testID,
@@ -153,10 +151,6 @@ export default function Select({
     disabled
   );
 
-  // Build accessibility described by relationship
-  const describedByIds = [];
-  if (error) describedByIds.push(errorId);
-  if (accessibilityDescribedBy) describedByIds.push(accessibilityDescribedBy);
 
   const currentValueText = selectedOption 
     ? `Current selection: ${selectedOption.accessibilityLabel || selectedOption.label}`
@@ -199,7 +193,6 @@ export default function Select({
           expanded: isOpen,
         }}
         accessibilityLabelledBy={label ? labelId : undefined}
-        accessibilityDescribedBy={describedByIds.length > 0 ? describedByIds.join(' ') : undefined}
         
         // Enhanced accessibility
         importantForAccessibility="yes"
