@@ -209,9 +209,7 @@ describe('PassportPreview Component', () => {
 
   it('handles missing passport data gracefully', () => {
     const incompleteProfile = {
-      passportNumber: undefined,
       surname: '',
-      givenNames: undefined
     };
 
     const { getAllByText } = render(
@@ -266,7 +264,7 @@ describe('PassportPreview Component', () => {
   });
 
   it('hides rescan button when onRescan not provided', () => {
-    const propsWithoutRescan = { ...mockProps, onRescan: undefined };
+    const { onRescan, ...propsWithoutRescan } = mockProps;
     const { queryByText } = render(<PassportPreview {...propsWithoutRescan} />);
 
     expect(queryByText('Rescan')).toBeNull();

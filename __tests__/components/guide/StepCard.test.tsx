@@ -150,10 +150,7 @@ describe('StepCard', () => {
   });
 
   it('handles step without tips', () => {
-    const stepWithoutTips = {
-      ...mockStep,
-      tips: undefined,
-    };
+    const { tips, ...stepWithoutTips } = mockStep;
 
     const { queryByText } = render(
       <StepCard
