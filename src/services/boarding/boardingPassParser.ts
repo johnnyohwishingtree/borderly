@@ -270,7 +270,7 @@ export function createTripLegFromBoardingPass(
  */
 export function isBoardingPassSupported(parsedPass: ParsedBoardingPass): boolean {
   return parsedPass.destinationCountry ? 
-    isSupportedDestination(parsedPass.arrivalAirport) : false;
+    (SUPPORTED_COUNTRIES as readonly string[]).includes(parsedPass.destinationCountry) : false;
 }
 
 /**
