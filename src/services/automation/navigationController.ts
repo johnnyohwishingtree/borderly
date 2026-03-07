@@ -263,7 +263,7 @@ export class NavigationController {
 
         return {
           success: step.success,
-          error: step.error,
+          ...(step.error && { error: step.error }),
           data: {
             url: result.currentUrl,
             title: result.currentTitle,
@@ -375,7 +375,7 @@ export class NavigationController {
         error: `Flow execution error: ${(error as Error).message}`
       };
     } finally {
-      this.activeFlow = undefined;
+      this.activeFlow = null;
     }
   }
 
@@ -432,8 +432,8 @@ export class NavigationController {
 
       return {
         success: result.success,
-        error: result.error,
-        data: result.success ? { url: result.currentUrl } : undefined
+        ...(result.error && { error: result.error }),
+        ...(result.success && { data: { url: result.currentUrl } })
       };
 
     } catch (error) {
@@ -497,8 +497,8 @@ export class NavigationController {
 
       return {
         success: result.success,
-        error: result.error,
-        data: result.success ? { url: result.currentUrl } : undefined
+        ...(result.error && { error: result.error }),
+        ...(result.success && { data: { url: result.currentUrl } })
       };
 
     } catch (error) {

@@ -260,8 +260,8 @@ export class SubmissionEngine {
       });
 
       // Validate step result
-      if (step.validation) {
-        const isValid = await this.validateStepResult(step.validation, result);
+      if (_step.validation) {
+        const isValid = await this.validateStepResult(_step.validation, result);
         if (!isValid) {
           return {
             success: false,
@@ -271,8 +271,8 @@ export class SubmissionEngine {
       }
 
       // Wait if configured
-      if (step.timing?.waitAfter) {
-        await new Promise(resolve => setTimeout(() => resolve(undefined), step.timing.waitAfter));
+      if (_step.timing?.waitAfter) {
+        await new Promise(resolve => setTimeout(() => resolve(undefined), _step.timing.waitAfter));
       }
 
       return {

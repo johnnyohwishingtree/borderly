@@ -12,6 +12,13 @@ export { NavigationController } from './navigationController';
 export { ElementDetector } from './elementDetector';
 export { UploadHandler } from './uploadHandler';
 
+// Import classes for type annotations
+import { FormFiller } from './formFiller';
+import { DOMInteraction } from './domInteraction';
+import { NavigationController } from './navigationController';
+import { ElementDetector } from './elementDetector';
+import { UploadHandler } from './uploadHandler';
+
 // Portal detection utility
 import { PortalDetector } from '../../utils/portalDetection';
 

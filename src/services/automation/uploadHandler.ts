@@ -5,7 +5,7 @@
  * document scans, and form attachments with proper validation and error handling.
  */
 
-import { AutomationStepResult } from '@/types/submission';
+// AutomationStepResult import removed as it's not used in this file
 
 /**
  * File upload configuration
@@ -240,8 +240,8 @@ export class UploadHandler {
         uploadedSize: uploadResult.success ? processedFile.size : 0,
         uploadTime: Date.now() - startTime,
         serverResponse: uploadResult.serverResponse,
-        uploadUrl: uploadResult.uploadUrl,
-        error: uploadResult.error
+        ...(uploadResult.uploadUrl && { uploadUrl: uploadResult.uploadUrl }),
+        ...(uploadResult.error && { error: uploadResult.error })
       };
 
     } catch (error) {
@@ -368,7 +368,11 @@ export class UploadHandler {
    */
   getUploadProgress(uploadId?: string): UploadProgress | UploadProgress[] {
     if (uploadId) {
-      return this.activeUploads.get(uploadId) || null;
+      const progress = this.activeUploads.get(uploadId);
+      if (progress) {
+        return progress;
+      }
+      throw new Error(`Upload progress not found for ID: ${uploadId}`);
     }
     
     return Array.from(this.activeUploads.values());
@@ -482,9 +486,9 @@ export class UploadHandler {
 
     // Process images
     if (fileInfo.type.startsWith('image/') && this.config.resizeImages) {
-      const docType = documentType ? DOCUMENT_TYPES[documentType] : null;
-      const maxWidth = (docType && 'maxWidth' in docType ? docType.maxWidth : undefined) || this.config.maxImageWidth;
-      const maxHeight = (docType && 'maxHeight' in docType ? docType.maxHeight : undefined) || this.config.maxImageHeight;
+      const docType = documentType ? DOCUMENT_TYPES[documentType as keyof typeof DOCUMENT_TYPES] : null;
+      const maxWidth = (docType && 'maxWidth' in docType ? docType.maxWidth : this.config.maxImageWidth) || this.config.maxImageWidth;
+      const maxHeight = (docType && 'maxHeight' in docType ? docType.maxHeight : this.config.maxImageHeight) || this.config.maxImageHeight;
       
       if (fileInfo.metadata?.width && fileInfo.metadata?.height) {
         if (fileInfo.metadata.width > maxWidth || fileInfo.metadata.height > maxHeight) {
