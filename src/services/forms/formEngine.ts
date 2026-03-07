@@ -4,13 +4,6 @@ import { CountryFormSchema, FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
 
 // Cache for memoizing form generation results
-interface FormCacheKey {
-  profileId: string;
-  legId: string;
-  schemaVersion: string;
-  existingDataHash?: string;
-}
-
 interface FormCacheEntry {
   form: FilledForm;
   timestamp: number;
@@ -62,7 +55,7 @@ function generateCacheKey(
   existingFormData?: Record<string, unknown>
 ): string {
   const profileId = profile.id || 'default';
-  const legId = leg.id || `${leg.countryCode}-${leg.arrivalDate}`;
+  const legId = leg.id || `${leg.destinationCountry}-${leg.arrivalDate}`;
   const existingDataHash = existingFormData 
     ? JSON.stringify(existingFormData)
     : undefined;
@@ -165,7 +158,7 @@ function generateFieldCacheKey(
 ): string {
   const contextHash = JSON.stringify({
     profileId: context.profile.id || 'default',
-    legId: context.leg.id || `${context.leg.countryCode}-${context.leg.arrivalDate}`,
+    legId: context.leg.id || `${context.leg.destinationCountry}-${context.leg.arrivalDate}`,
     autoFillSource: field.autoFillSource,
     existingValue: existingFormData?.[field.id],
   });

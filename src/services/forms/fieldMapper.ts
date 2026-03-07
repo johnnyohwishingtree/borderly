@@ -16,7 +16,7 @@ const PATH_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 function generatePathCacheKey(path: string, context: FormContext): string {
   const contextHash = JSON.stringify({
     profileId: context.profile.id || 'default',
-    legId: context.leg.id || `${context.leg.countryCode}-${context.leg.arrivalDate}`,
+    legId: context.leg.id || `${context.leg.destinationCountry}-${context.leg.arrivalDate}`,
     path,
     // Include relevant data for computed fields
     arrivalDate: context.leg.arrivalDate,

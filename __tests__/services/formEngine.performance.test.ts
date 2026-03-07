@@ -1,4 +1,4 @@
-import { performance } from 'perf_hooks';
+// Use performance API (available in Node.js and browsers)
 import {
   generateFilledForm,
   clearAllCaches,
@@ -14,13 +14,13 @@ import { CountryFormSchema } from '../../src/types/schema';
 const mockProfile: TravelerProfile = {
   id: 'test-profile-123',
   passportNumber: 'AB1234567',
-  firstName: 'John',
-  lastName: 'Doe',
+  givenNames: 'John',
+  surname: 'Doe',
   dateOfBirth: '1990-01-01',
   nationality: 'US',
   gender: 'M',
-  passportExpiryDate: '2030-01-01',
-  passportIssuingCountry: 'US',
+  passportExpiry: '2030-01-01',
+  issuingCountry: 'US',
   homeAddress: {
     line1: '123 Main St',
     city: 'New York',
@@ -29,11 +29,15 @@ const mockProfile: TravelerProfile = {
     country: 'US',
   },
   email: 'john.doe@example.com',
-  phone: '+1234567890',
-  emergencyContact: {
-    name: 'Jane Doe',
-    relationship: 'Spouse',
-    phone: '+1234567891',
+  phoneNumber: '+1234567890',
+  occupation: 'Engineer',
+  defaultDeclarations: {
+    hasItemsToDeclar: false,
+    carryingCurrency: false,
+    carryingProhibitedItems: false,
+    visitedFarm: false,
+    hasCriminalRecord: false,
+    carryingCommercialGoods: false,
   },
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
@@ -41,7 +45,8 @@ const mockProfile: TravelerProfile = {
 
 const mockLeg: TripLeg = {
   id: 'test-leg-456',
-  countryCode: 'JPN',
+  tripId: 'test-trip-123',
+  destinationCountry: 'JPN',
   arrivalDate: '2024-06-01',
   departureDate: '2024-06-07',
   accommodation: {
@@ -55,7 +60,8 @@ const mockLeg: TripLeg = {
     },
     phone: '+81-3-1234-5678',
   },
-  purpose: 'Tourism',
+  formStatus: 'not_started',
+  order: 1,
 };
 
 const mockSchema: CountryFormSchema = {
@@ -80,7 +86,7 @@ const mockSchema: CountryFormSchema = {
           label: 'Family Name',
           type: 'text',
           required: true,
-          autoFillSource: 'profile.lastName',
+          autoFillSource: 'profile.surname',
           countrySpecific: false,
         },
         {
@@ -88,7 +94,7 @@ const mockSchema: CountryFormSchema = {
           label: 'Given Name',
           type: 'text',
           required: true,
-          autoFillSource: 'profile.firstName',
+          autoFillSource: 'profile.givenNames',
           countrySpecific: false,
         },
         {
@@ -365,7 +371,7 @@ describe('Form Engine Performance', () => {
       // Generate many forms to test cache growth
       for (let i = 0; i < 50; i++) {
         const profile = { ...mockProfile, id: `profile-${i}` };
-        const leg = { ...mockLeg, id: `leg-${i}`, arrivalDate: `2024-${(i % 12 + 1).toString().padStart(2, '0')}-01` };
+        const leg = { ...mockLeg, id: `leg-${i}`, tripId: `trip-${i}`, arrivalDate: `2024-${(i % 12 + 1).toString().padStart(2, '0')}-01` };
         generateFilledForm(profile, leg, mockSchema);
       }
 
