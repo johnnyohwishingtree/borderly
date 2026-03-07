@@ -241,8 +241,7 @@ export class ElementDetector {
     stabilityDuration: number = this.config.stabilityDelay,
     maxWaitTime: number = this.config.maxWaitTime
   ): Promise<AutomationStepResult> {
-    const startTime = Date.now();
-    const observerId = `stability_${selector}_${Date.now()}`;
+    // startTime and observerId tracked within the injected script
 
     const stabilityScript = `
       (function() {
@@ -470,7 +469,6 @@ export class ElementDetector {
    */
   getCacheStats(): { size: number; hitRate: number; oldestEntry?: number } {
     const now = Date.now();
-    let hits = 0;
     let oldestTimestamp = now;
 
     this.cache.forEach(entry => {

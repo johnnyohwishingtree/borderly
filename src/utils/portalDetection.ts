@@ -5,7 +5,6 @@
  * authentication requirements, and dynamic content patterns.
  */
 
-import { AutomationStepResult } from '@/types/submission';
 
 /**
  * Portal identification result
@@ -800,7 +799,7 @@ export class PortalDetector {
   private async analyzePortalChanges(
     previousSignature: string,
     currentSignature: string,
-    executeScript: (code: string) => Promise<any>
+    _executeScript: (code: string) => Promise<any>
   ): Promise<PortalChangeInfo> {
     try {
       const prev = JSON.parse(previousSignature);

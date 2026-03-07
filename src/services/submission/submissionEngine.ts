@@ -36,7 +36,7 @@ import { SubmissionValidator } from '@/utils/submissionValidator';
 /**
  * Default configuration for submission engine
  */
-const DEFAULT_CONFIG: SubmissionEngineConfig = {
+export const DEFAULT_CONFIG: SubmissionEngineConfig = {
   timeouts: {
     sessionMaxMs: 10 * 60 * 1000, // 10 minutes
     stepMaxMs: 30 * 1000, // 30 seconds
@@ -63,16 +63,13 @@ const DEFAULT_CONFIG: SubmissionEngineConfig = {
  * Main submission engine class
  */
 export class SubmissionEngine {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private config: SubmissionEngineConfig;
   private webviewController: WebViewController;
   private scriptRegistry: AutomationScriptRegistry;
   private validator: SubmissionValidator;
   private activeSessions: Map<string, SubmissionSession>;
   private metrics: SubmissionMetrics[];
 
-  constructor(config?: Partial<SubmissionEngineConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+  constructor(_config?: Partial<SubmissionEngineConfig>) {
     this.webviewController = new WebViewController();
     this.scriptRegistry = new AutomationScriptRegistry();
     this.validator = new SubmissionValidator();

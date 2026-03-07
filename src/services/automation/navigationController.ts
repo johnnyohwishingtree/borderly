@@ -5,7 +5,7 @@
  * and cross-page form continuation in government portals.
  */
 
-import { AutomationStepResult, WebViewNavigationEvent } from '@/types/submission';
+import { AutomationStepResult } from '@/types/submission';
 
 /**
  * Navigation state tracking
@@ -125,7 +125,6 @@ export class NavigationController {
   private state: NavigationState;
   private history: BrowserHistory;
   private flows: Map<string, NavigationFlow>;
-  private activeFlow?: NavigationFlow;
   private eventListeners: Map<string, Function[]>;
 
   constructor(config?: Partial<NavigationConfig>) {
@@ -312,7 +311,6 @@ export class NavigationController {
       };
     }
 
-    this.activeFlow = flow;
     const flowStartTime = Date.now();
 
     try {
@@ -375,7 +373,7 @@ export class NavigationController {
         error: `Flow execution error: ${(error as Error).message}`
       };
     } finally {
-      this.activeFlow = null;
+      // Flow completed
     }
   }
 
@@ -551,14 +549,19 @@ export class NavigationController {
 
     try {
       const result = await executeScript(waitScript);
-      return {
+      const stepResult: AutomationStepResult = {
         success: result.success,
-        error: result.error,
-        data: result.success ? {
+      };
+      if (result.error) {
+        stepResult.error = result.error;
+      }
+      if (result.success) {
+        stepResult.data = {
           loadTime: result.loadTime,
           readyState: result.readyState
-        } : undefined
-      };
+        };
+      }
+      return stepResult;
     } catch (error) {
       return {
         success: false,
@@ -631,7 +634,6 @@ export class NavigationController {
       entries: []
     };
 
-    this.activeFlow = undefined;
   }
 
   /**
@@ -721,9 +723,9 @@ export class NavigationController {
   private async executeStepAction(
     action: FlowStepAction,
     executeScript: (code: string) => Promise<any>,
-    data?: Record<string, unknown>
+    _data?: Record<string, unknown>
   ): Promise<AutomationStepResult> {
-    const timeout = action.timeout || this.config.defaultTimeout;
+    // timeout configured via action.timeout || this.config.defaultTimeout
 
     switch (action.type) {
       case 'click':
@@ -814,29 +816,31 @@ export class NavigationController {
       switch (validation.type) {
         case 'url':
           const currentUrl = await executeScript('window.location.href');
-          return {
-            success: currentUrl.includes(validation.target),
-            error: currentUrl.includes(validation.target) 
-              ? undefined 
-              : `URL validation failed: ${currentUrl} does not contain ${validation.target}`
-          };
+          const urlMatch = currentUrl.includes(validation.target);
+          const urlResult: AutomationStepResult = { success: urlMatch };
+          if (!urlMatch) {
+            urlResult.error = `URL validation failed: ${currentUrl} does not contain ${validation.target}`;
+          }
+          return urlResult;
 
         case 'element':
           const elementExists = await executeScript(
             `document.querySelector('${validation.target}') !== null`
           );
-          return {
-            success: elementExists,
-            error: elementExists ? undefined : `Element not found: ${validation.target}`
-          };
+          const elementResult: AutomationStepResult = { success: elementExists };
+          if (!elementExists) {
+            elementResult.error = `Element not found: ${validation.target}`;
+          }
+          return elementResult;
 
         case 'text':
           const pageText = await executeScript('document.body.textContent || document.body.innerText');
           const hasText = pageText.includes(validation.expectedValue || validation.target);
-          return {
-            success: hasText,
-            error: hasText ? undefined : `Text not found: ${validation.expectedValue || validation.target}`
-          };
+          const textResult: AutomationStepResult = { success: hasText };
+          if (!hasText) {
+            textResult.error = `Text not found: ${validation.expectedValue || validation.target}`;
+          }
+          return textResult;
 
         case 'custom':
           if (!validation.script) {

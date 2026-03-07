@@ -50,9 +50,9 @@ function TripNavigator() {
         name="TripList"
         options={{ title: 'My Trips' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <TripListScreen {...props} />
+            <TripListScreen />
           </Suspense>
         )}
       </TripStack.Screen>
@@ -60,9 +60,9 @@ function TripNavigator() {
         name="CreateTrip"
         options={{ title: 'Create Trip' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <CreateTripScreen {...props} />
+            <CreateTripScreen />
           </Suspense>
         )}
       </TripStack.Screen>
@@ -70,9 +70,9 @@ function TripNavigator() {
         name="TripDetail"
         options={{ title: 'Trip Details' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <TripDetailScreen {...props} />
+            <TripDetailScreen />
           </Suspense>
         )}
       </TripStack.Screen>
@@ -80,9 +80,9 @@ function TripNavigator() {
         name="LegForm"
         options={{ title: 'Travel Form' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <LegFormScreen {...props} />
+            <LegFormScreen />
           </Suspense>
         )}
       </TripStack.Screen>
@@ -90,9 +90,9 @@ function TripNavigator() {
         name="SubmissionGuide"
         options={{ title: 'Submission Guide' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <SubmissionGuideScreen {...props} />
+            <SubmissionGuideScreen />
           </Suspense>
         )}
       </TripStack.Screen>
@@ -107,9 +107,9 @@ function WalletNavigator() {
         name="QRWallet"
         options={{ title: 'QR Wallet' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <QRWalletScreen {...props} />
+            <QRWalletScreen />
           </Suspense>
         )}
       </WalletStack.Screen>
@@ -117,9 +117,9 @@ function WalletNavigator() {
         name="QRDetail"
         options={{ title: 'QR Details' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <QRDetailScreen {...props} />
+            <QRDetailScreen />
           </Suspense>
         )}
       </WalletStack.Screen>
@@ -127,9 +127,9 @@ function WalletNavigator() {
         name="AddQR"
         options={{ title: 'Add QR Code' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <AddQRScreen {...props} />
+            <AddQRScreen />
           </Suspense>
         )}
       </WalletStack.Screen>
@@ -144,9 +144,9 @@ function ProfileNavigator() {
         name="Profile"
         options={{ title: 'Profile' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <ProfileScreen {...props} />
+            <ProfileScreen />
           </Suspense>
         )}
       </ProfileStack.Screen>
@@ -154,9 +154,9 @@ function ProfileNavigator() {
         name="EditProfile"
         options={{ title: 'Edit Profile' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <EditProfileScreen {...props} />
+            <EditProfileScreen />
           </Suspense>
         )}
       </ProfileStack.Screen>
@@ -171,9 +171,9 @@ function SettingsNavigator() {
         name="Settings"
         options={{ title: 'Settings' }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <SettingsScreen {...props} />
+            <SettingsScreen />
           </Suspense>
         )}
       </SettingsStack.Screen>

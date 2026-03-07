@@ -30,6 +30,13 @@ declare global {
     };
   };
 
+  // Browser-like globals that may exist in some RN environments (e.g. React Native Web)
+  var navigator: {
+    hardwareConcurrency?: number;
+    deviceMemory?: number;
+    userAgent?: string;
+  } | undefined;
+
   // Node.js globals (for testing environment)
   const process: {
     memoryUsage?: () => {

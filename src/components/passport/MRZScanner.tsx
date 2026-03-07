@@ -12,7 +12,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
+
   Linking,
   Platform,
 } from 'react-native';

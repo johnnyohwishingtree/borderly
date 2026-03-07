@@ -149,7 +149,7 @@ export const DOCUMENT_TYPES = {
 export class UploadHandler {
   private config: UploadConfig;
   private activeUploads: Map<string, UploadProgress>;
-  private uploadQueue: FileInfo[];
+  // Upload queue managed by activeUploads map
 
   constructor(config?: Partial<UploadConfig>) {
     this.config = {
@@ -175,7 +175,7 @@ export class UploadHandler {
     };
 
     this.activeUploads = new Map();
-    this.uploadQueue = [];
+    // Upload queue initialized
   }
 
   /**
@@ -487,14 +487,14 @@ export class UploadHandler {
     // Process images
     if (fileInfo.type.startsWith('image/') && this.config.resizeImages) {
       const docType = documentType ? DOCUMENT_TYPES[documentType as keyof typeof DOCUMENT_TYPES] : null;
-      const maxWidth = (docType && 'maxWidth' in docType ? docType.maxWidth : this.config.maxImageWidth) || this.config.maxImageWidth;
-      const maxHeight = (docType && 'maxHeight' in docType ? docType.maxHeight : this.config.maxImageHeight) || this.config.maxImageHeight;
-      
+      const maxWidth: number = (docType && 'maxWidth' in docType ? docType.maxWidth as number : this.config.maxImageWidth) || this.config.maxImageWidth;
+      const maxHeight: number = (docType && 'maxHeight' in docType ? docType.maxHeight as number : this.config.maxImageHeight) || this.config.maxImageHeight;
+
       if (fileInfo.metadata?.width && fileInfo.metadata?.height) {
         if (fileInfo.metadata.width > maxWidth || fileInfo.metadata.height > maxHeight) {
           // Would integrate with image processing library in production
           console.log(`Resizing image from ${fileInfo.metadata.width}x${fileInfo.metadata.height} to fit ${maxWidth}x${maxHeight}`);
-          
+
           // Placeholder for image resizing
           // In production, would use canvas or image processing library
           processedFile.metadata = {
@@ -516,7 +516,7 @@ export class UploadHandler {
     fileInfo: FileInfo,
     target: UploadTarget,
     executeScript: (code: string) => Promise<any>,
-    uploadId: string,
+    _uploadId: string,
     progress: UploadProgress
   ): Promise<{ success: boolean; serverResponse?: any; uploadUrl?: string; error?: string }> {
     progress.status = 'uploading';
@@ -696,7 +696,7 @@ export class UploadHandler {
   /**
    * Generate script for button-click upload
    */
-  private generateButtonUploadScript(fileInfo: FileInfo, target: UploadTarget): string {
+  private generateButtonUploadScript(_fileInfo: FileInfo, target: UploadTarget): string {
     return `
       (function() {
         try {
