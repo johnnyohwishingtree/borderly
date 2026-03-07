@@ -9,6 +9,8 @@ export { default as Divider } from './Divider';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as EmptyState } from './EmptyState';
 export { default as ErrorBoundary, useErrorHandler } from './ErrorBoundary';
+export { default as ErrorMessage } from './ErrorMessage';
+export { useErrorMessage } from './ErrorMessage';
 
 export type { ButtonProps } from './Button';
 export type { InputProps } from './Input';
@@ -21,3 +23,4 @@ export type { DividerProps } from './Divider';
 export type { LoadingSpinnerProps } from './LoadingSpinner';
 export type { EmptyStateProps } from './EmptyState';
 export type { ErrorBoundaryProps } from './ErrorBoundary';
+export type { ErrorMessageProps } from './ErrorMessage';

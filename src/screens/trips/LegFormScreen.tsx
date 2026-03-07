@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Button } from '../../components/ui';
+import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
 import CountryFlag from '../../components/trips/CountryFlag';
 import { useFormStore } from '../../stores/useFormStore';
@@ -9,6 +10,8 @@ import { useProfileStore } from '../../stores/useProfileStore';
 import { useTripStore } from '../../stores/useTripStore';
 import { schemaRegistry } from '../../services/schemas/schemaRegistry';
 import { TripStackParamList } from '../../app/navigation/types';
+import { handleStorageError, handleValidationError } from '../../services/error/errorHandler';
+import { ERROR_CODES, createAppError } from '../../utils/errorHandling';
 
 type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
 
@@ -31,33 +34,52 @@ export default function LegFormScreen() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(false);
+  const { error: formError, showError: showFormError, clearError: clearFormError } = useErrorMessage();
+  const { error: loadError, showError: showLoadError, clearError: clearLoadError } = useErrorMessage();
+  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'markReady' } | null>(null);
 
   const trip = getTripById(tripId);
   const leg = getLegById(legId);
 
   useEffect(() => {
     if (!trip || !leg || !profile) {
-      Alert.alert('Error', 'Trip, leg, or profile not found', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      const error = createAppError(
+        ERROR_CODES.PARSING_ERROR,
+        'Trip, leg, or profile not found',
+        'Required data is missing. Please try navigating back and trying again.'
+      );
+      showLoadError(error);
       return;
     }
 
     // Load the country schema and generate the form
     const schema = schemaRegistry.getSchema(leg.destinationCountry);
     if (!schema) {
-      Alert.alert('Error', `Schema not found for ${leg.destinationCountry}`, [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      const error = createAppError(
+        ERROR_CODES.PARSING_ERROR,
+        `Schema not found for ${leg.destinationCountry}`,
+        `Form template for ${leg.destinationCountry} is not available. Please contact support.`
+      );
+      showLoadError(error);
       return;
     }
 
-    generateForm(profile, leg, schema, leg.formData || {});
+    try {
+      clearLoadError(); // Clear any previous load errors
+      generateForm(profile, leg, schema, leg.formData || {});
+    } catch (error) {
+      const appError = createAppError(
+        ERROR_CODES.PARSING_ERROR,
+        (error as Error).message,
+        'Failed to load the form. Please try again.'
+      );
+      showLoadError(appError);
+    }
 
     return () => {
       resetForm();
     };
-  }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation]);
+  }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation, showLoadError, clearLoadError]);
 
   const handleFormDataChange = (_newFormData: Record<string, unknown>) => {
     // Form data is automatically updated in the store
@@ -65,9 +87,11 @@ export default function LegFormScreen() {
   };
 
   const handleSaveForm = async () => {
-    if (!leg || !currentForm) {return;}
+    if (!leg || !currentForm) { return; }
 
     setIsSubmitting(true);
+    clearFormError(); // Clear any previous form errors
+    
     try {
       const formDataToSave = getFormData();
       await updateTripLeg(leg.id, {
@@ -75,9 +99,29 @@ export default function LegFormScreen() {
         formStatus: isValid ? 'ready' : 'in_progress',
       });
 
+      setLastFailedOperation(null); // Clear any failed operation
       Alert.alert('Success', 'Form data saved successfully!');
     } catch (error) {
-      Alert.alert('Error', 'Failed to save form data');
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'save' });
+      
+      const result = await handleStorageError(error as Error, {
+        screen: 'LegForm',
+        action: 'saveForm',
+        timestamp: Date.now()
+      }, {
+        showUserFeedback: false, // We'll show our own UI
+        enableRetry: true,
+        onRecoverySuccess: () => {
+          clearFormError();
+          setLastFailedOperation(null);
+          Alert.alert('Success', 'Form data saved successfully!');
+        }
+      });
+      
+      if (!result.recovered && result.error) {
+        showFormError(result.error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -85,11 +129,28 @@ export default function LegFormScreen() {
 
   const handleMarkAsReady = async () => {
     if (!isValid) {
-      Alert.alert('Validation Error', 'Please complete all required fields before marking as ready.');
+      const validationError = createAppError(
+        ERROR_CODES.VALIDATION_FAILED,
+        'Form validation failed',
+        'Please complete all required fields before marking as ready.'
+      );
+      
+      const result = await handleValidationError(new Error('Form validation failed'), {
+        screen: 'LegForm',
+        action: 'markAsReady',
+        timestamp: Date.now()
+      }, {
+        showUserFeedback: false, // We'll show our own UI
+        enableRetry: false
+      });
+      
+      showFormError(validationError);
       return;
     }
 
     setIsSubmitting(true);
+    clearFormError(); // Clear any previous form errors
+    
     try {
       const formDataToSave = getFormData();
       await updateTripLeg(leg!.id, {
@@ -97,11 +158,33 @@ export default function LegFormScreen() {
         formStatus: 'ready',
       });
 
+      setLastFailedOperation(null); // Clear any failed operation
       Alert.alert('Success', 'Form marked as ready for submission!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
-      Alert.alert('Error', 'Failed to update form status');
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'markReady' });
+      
+      const result = await handleStorageError(error as Error, {
+        screen: 'LegForm',
+        action: 'markAsReady',
+        timestamp: Date.now()
+      }, {
+        showUserFeedback: false, // We'll show our own UI
+        enableRetry: true,
+        onRecoverySuccess: () => {
+          clearFormError();
+          setLastFailedOperation(null);
+          Alert.alert('Success', 'Form marked as ready for submission!', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        }
+      });
+      
+      if (!result.recovered && result.error) {
+        showFormError(result.error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -116,14 +199,24 @@ export default function LegFormScreen() {
     );
   }
 
-  if (!currentForm || !leg || !trip) {
+  if (!currentForm || !leg || !trip || loadError) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-red-600 text-center">Unable to load form</Text>
-        <Button
-          title="Go Back"
-          onPress={() => navigation.goBack()}
-          variant="outline"
+      <View className="flex-1 bg-gray-50 px-6 py-8">
+        <ErrorMessage
+          error={loadError || 'Unable to load form'}
+          variant="fullscreen"
+          showRetry
+          onRetry={() => {
+            clearLoadError();
+            // Try to reload
+            if (profile && leg) {
+              const schema = schemaRegistry.getSchema(leg.destinationCountry);
+              if (schema) {
+                generateForm(profile, leg, schema, leg.formData || {});
+              }
+            }
+          }}
+          onDismiss={() => navigation.goBack()}
         />
       </View>
     );
@@ -177,6 +270,29 @@ export default function LegFormScreen() {
             )}
           </View>
         </View>
+      </View>
+
+      {/* Error Messages */}
+      <View className="px-4">
+        <ErrorMessage
+          error={formError}
+          variant="card"
+          showRetry
+          onRetry={async () => {
+            clearFormError();
+            // Retry the last failed operation
+            if (lastFailedOperation?.type === 'save') {
+              await handleSaveForm();
+            } else if (lastFailedOperation?.type === 'markReady') {
+              await handleMarkAsReady();
+            }
+          }}
+          onDismiss={() => {
+            clearFormError();
+            setLastFailedOperation(null);
+          }}
+          className="mt-4"
+        />
       </View>
 
       {/* Form Content */}

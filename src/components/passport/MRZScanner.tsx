@@ -27,6 +27,7 @@ export interface MRZScannerProps {
   onScanSuccess: (result: MRZParseResult) => void;
   onScanCancel: () => void;
   onManualEntry: () => void;
+  onScanError?: (error: Error) => void;
   lowPowerMode?: boolean; // Enable aggressive power saving
 }
 
@@ -34,6 +35,7 @@ export default function MRZScannerComponent({
   onScanSuccess,
   onScanCancel,
   onManualEntry,
+  onScanError,
   lowPowerMode = false,
 }: MRZScannerProps) {
   const cameraRef = useRef<RNCamera>(null);
@@ -114,31 +116,46 @@ export default function MRZScannerComponent({
   const handleTextRecognition = (textRecognition: TextRecognition) => {
     if (!isScanning || (scannerRef.current && typeof scannerRef.current.isDisposedState === 'function' && scannerRef.current.isDisposedState())) return;
 
-    const result = scannerRef.current.processFrame(textRecognition);
-    setScanResult(result);
+    try {
+      const result = scannerRef.current.processFrame(textRecognition);
+      setScanResult(result);
 
-    // Handle successful scan
-    if (result.type === 'success' && result.mrz) {
+      // Handle successful scan
+      if (result.type === 'success' && result.mrz) {
+        setIsScanning(false);
+        
+        // Haptic feedback for success
+        trigger(HapticFeedbackTypes.notificationSuccess, {
+          enableVibrateFallback: true,
+        });
+
+        // Small delay to show success state, then cleanup and callback
+        setTimeout(() => {
+          // Clear scan result to free memory before callback
+          setScanResult(null);
+          onScanSuccess(result.mrz!);
+        }, 500);
+      }
+      // Handle scan error results
+      else if (result.type === 'error') {
+        setIsScanning(false);
+        if (onScanError) {
+          const errorMessage = result.guidance || 'MRZ scanning failed';
+          onScanError(new Error(errorMessage));
+        }
+      }
+      // Provide haptic feedback for partial scans
+      else if (result.type === 'partial' && result.confidence > 0.5) {
+        trigger(HapticFeedbackTypes.impactLight, {
+          enableVibrateFallback: true,
+        });
+      }
+    } catch (error) {
       setIsScanning(false);
-      
-      // Haptic feedback for success
-      trigger(HapticFeedbackTypes.notificationSuccess, {
-        enableVibrateFallback: true,
-      });
-
-      // Small delay to show success state, then cleanup and callback
-      setTimeout(() => {
-        // Clear scan result to free memory before callback
-        setScanResult(null);
-        onScanSuccess(result.mrz!);
-      }, 500);
-    }
-    
-    // Provide haptic feedback for partial scans
-    else if (result.type === 'partial' && result.confidence > 0.5) {
-      trigger(HapticFeedbackTypes.impactLight, {
-        enableVibrateFallback: true,
-      });
+      if (onScanError) {
+        const errorObj = error instanceof Error ? error : new Error('Text recognition failed');
+        onScanError(errorObj);
+      }
     }
   };
 
@@ -170,6 +187,12 @@ export default function MRZScannerComponent({
       cameraTimeoutRef.current = null;
     }
     setCameraStatus('unavailable');
+    
+    // Call error handler if provided
+    if (onScanError) {
+      const errorObj = error instanceof Error ? error : new Error('Camera mount failed');
+      onScanError(errorObj);
+    }
   };
 
   // Sample MRZ for demo mode (ICAO standard test passport)
