@@ -1,6 +1,9 @@
 const React = require('react');
 
-const passthrough = (props) => React.createElement('div', null, props.children);
+const flexFill = { display: 'flex', flexGrow: 1, flexShrink: 1, flexBasis: '0%', flexDirection: 'column' };
+
+const passthrough = (props) => React.createElement('div', { style: flexFill }, props.children);
+const noop = (props) => React.createElement('div', null, props.children);
 
 module.exports = {
   enableScreens: () => {},
@@ -13,17 +16,17 @@ module.exports = {
   ScreenContainer: passthrough,
   ScreenStack: passthrough,
   ScreenStackItem: passthrough,
-  FullWindowOverlay: passthrough,
-  ScreenFooter: passthrough,
+  FullWindowOverlay: noop,
+  ScreenFooter: noop,
   ScreenContentWrapper: passthrough,
-  ScreenStackHeaderConfig: passthrough,
-  ScreenStackHeaderSubview: passthrough,
-  ScreenStackHeaderLeftView: passthrough,
-  ScreenStackHeaderCenterView: passthrough,
-  ScreenStackHeaderRightView: passthrough,
-  ScreenStackHeaderBackButtonImage: passthrough,
-  ScreenStackHeaderSearchBarView: passthrough,
-  SearchBar: passthrough,
+  ScreenStackHeaderConfig: noop,
+  ScreenStackHeaderSubview: noop,
+  ScreenStackHeaderLeftView: noop,
+  ScreenStackHeaderCenterView: noop,
+  ScreenStackHeaderRightView: noop,
+  ScreenStackHeaderBackButtonImage: noop,
+  ScreenStackHeaderSearchBarView: noop,
+  SearchBar: noop,
   isSearchBarAvailableForCurrentPlatform: false,
   executeNativeBackPress: () => {},
   useTransitionProgress: () => ({ progress: { value: 1 } }),
