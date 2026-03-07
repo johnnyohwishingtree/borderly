@@ -117,6 +117,7 @@ jest.mock('react-native-keychain', () => ({
   getInternetCredentials: jest.fn().mockResolvedValue({ password: '{}' }),
   resetInternetCredentials: jest.fn().mockResolvedValue(true),
   getSupportedBiometryType: jest.fn().mockResolvedValue('TouchID'),
+  getSecurityLevel: jest.fn().mockResolvedValue('SECURE_HARDWARE'),
   AUTHENTICATION_TYPE: {
     BIOMETRICS: 'AuthenticationWithBiometricsDevicePasscode',
   },
@@ -126,20 +127,52 @@ jest.mock('react-native-keychain', () => ({
   ACCESSIBLE: {
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
   },
+  BIOMETRY_TYPE: {
+    TOUCH_ID: 'TouchID',
+    FACE_ID: 'FaceID',
+    FINGERPRINT: 'Fingerprint',
+  },
+  SECURITY_LEVEL: {
+    SECURE_SOFTWARE: 'SECURE_SOFTWARE',
+    SECURE_HARDWARE: 'SECURE_HARDWARE',
+    ANY_HARDWARE: 'ANY_HARDWARE',
+    SOFTWARE: 'SOFTWARE',
+  },
+  STORAGE_TYPE: {
+    AES: 'AES',
+    RSA: 'RSA',
+  },
 }));
 
 // Mock react-native-mmkv
-jest.mock('react-native-mmkv', () => ({
-  MMKV: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    getString: jest.fn(),
-    getBoolean: jest.fn(),
-    getNumber: jest.fn(),
-    delete: jest.fn(),
-    getAllKeys: jest.fn().mockReturnValue([]),
-    clearAll: jest.fn(),
-  })),
-}));
+jest.mock('react-native-mmkv', () => {
+  return {
+    MMKV: jest.fn().mockImplementation(() => {
+      const storage = new Map();
+      return {
+        set: jest.fn((key, value) => {
+          storage.set(key, value);
+        }),
+        getString: jest.fn((key) => {
+          return storage.get(key) || undefined;
+        }),
+        getBoolean: jest.fn((key) => {
+          return storage.get(key) || undefined;
+        }),
+        getNumber: jest.fn((key) => {
+          return storage.get(key) || undefined;
+        }),
+        delete: jest.fn((key) => {
+          storage.delete(key);
+        }),
+        getAllKeys: jest.fn().mockReturnValue([]),
+        clearAll: jest.fn(() => {
+          storage.clear();
+        }),
+      };
+    }),
+  };
+});
 
 // Mock @react-native-clipboard/clipboard
 jest.mock('@react-native-clipboard/clipboard', () => ({
