@@ -1,10 +1,7 @@
 import { MMKV } from 'react-native-mmkv';
 import { 
   CountryFormSchema, 
-  SchemaRegistry, 
-  SchemaMigration, 
-  CountryPriority,
-  SchemaValidationResult 
+  SchemaRegistry
 } from '../../types/schema';
 import { schemaValidator } from './schemaValidator';
 import { schemaMigrator } from './schemaMigrator';
@@ -12,7 +9,7 @@ import { schemaMigrator } from './schemaMigrator';
 class SchemaManager {
   private storage: MMKV;
   private registry: SchemaRegistry | null = null;
-  private changeDetectionInterval: NodeJS.Timeout | null = null;
+  private changeDetectionInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     this.storage = new MMKV({ id: 'schema_storage' });

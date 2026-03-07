@@ -4,17 +4,32 @@ import { CountryFormSchema } from '../types/schema';
 import JPN from './JPN.json';
 import MYS from './MYS.json';
 import SGP from './SGP.json';
+import THA from './THA.json';
+import VNM from './VNM.json';
+import GBR from './GBR.json';
+import USA from './USA.json';
+import CAN from './CAN.json';
 
 // Type the imported schemas
 const japanSchema = JPN as CountryFormSchema;
 const malaysiaSchema = MYS as CountryFormSchema;
 const singaporeSchema = SGP as CountryFormSchema;
+const thailandSchema = THA as CountryFormSchema;
+const vietnamSchema = VNM as CountryFormSchema;
+const unitedKingdomSchema = GBR as CountryFormSchema;
+const unitedStatesSchema = USA as CountryFormSchema;
+const canadaSchema = CAN as CountryFormSchema;
 
 // Schema registry
 export const SCHEMAS = {
   JPN: japanSchema,
   MYS: malaysiaSchema,
   SGP: singaporeSchema,
+  THA: thailandSchema,
+  VNM: vietnamSchema,
+  GBR: unitedKingdomSchema,
+  USA: unitedStatesSchema,
+  CAN: canadaSchema,
 } as const;
 
 // Available country codes

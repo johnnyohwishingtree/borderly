@@ -5,10 +5,43 @@
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://imigresen-online.imi.gov.my/mdac/main",
   "portalName": "Malaysia Digital Arrival Card (MDAC)",
+  "metadata": {
+    "priority": 3,
+    "complexity": "medium",
+    "popularity": 80,
+    "lastVerified": "2025-06-01T00:00:00Z",
+    "supportedLanguages": ["en", "ms"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".mdac-form", ".arrival-form", "#submit-application"],
+    "changeThreshold": 15,
+    "fallbackActions": [
+      {
+        "trigger": "mdac_update",
+        "action": "notify",
+        "message": "Malaysia MDAC system has been updated. Please verify manually."
+      }
+    ]
+  },
   "submission": {
     "earliestBeforeArrival": "3d",
     "latestBeforeArrival": "0h",
     "recommended": "24h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "20m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport",
+        "required": true
+      }
+    ]
   },
   "sections": [
     {
