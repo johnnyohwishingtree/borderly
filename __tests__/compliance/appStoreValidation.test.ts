@@ -9,7 +9,6 @@ import {
   AppStoreComplianceValidator, 
   defaultComplianceValidator,
   complianceUtils,
-  type AppStoreComplianceCheck,
   type ComplianceReport 
 } from '../../src/utils/appStoreCompliance';
 
@@ -68,7 +67,6 @@ describe('AppStoreComplianceValidator', () => {
     });
 
     it('should return empty array for non-existent category', async () => {
-      // @ts-expect-error Testing invalid category
       const invalidChecks = await validator.validateCategory('invalid' as any);
       
       expect(invalidChecks).toHaveLength(0);
@@ -232,16 +230,16 @@ describe('complianceUtils', () => {
       const summary = complianceUtils.generateCISummary(mockReport);
 
       expect(summary).toContain('App Store Compliance Report');
-      expect(summary).toContain('Platform: ios');
-      expect(summary).toContain('Version: 1.0.0 (42)');
-      expect(summary).toContain('Passed: 1/3');
-      expect(summary).toContain('Failed: 1/3');
-      expect(summary).toContain('Warnings: 1/3');
+      expect(summary).toContain('**Platform:** ios');
+      expect(summary).toContain('**Version:** 1.0.0 (42)');
+      expect(summary).toContain('**Passed:** 1/3');
+      expect(summary).toContain('**Failed:** 1/3');
+      expect(summary).toContain('**Warnings:** 1/3');
       expect(summary).toContain('Critical Failures (Blocking)');
-      expect(summary).toContain('Test Fail: Test failed');
-      expect(summary).toContain('Fix: Fix the test');
+      expect(summary).toContain('**Test Fail:** Test failed');
+      expect(summary).toContain('*Fix:* Fix the test');
       expect(summary).toContain('Warnings (Recommended Fixes)');
-      expect(summary).toContain('Test Warning: Test warning');
+      expect(summary).toContain('**Test Warning:** Test warning');
     });
 
     it('should not show critical failures section when none exist', () => {
