@@ -5,8 +5,7 @@
 import { render, act, waitFor, fireEvent } from '@testing-library/react-native';
 import MRZScanner from '../../../src/components/passport/MRZScanner';
 
-// Track the onCameraReady callback so tests can control when it fires
-let capturedOnCameraReady: (() => void) | null = null;
+// Control whether the mock camera fires onCameraReady automatically
 let autoFireCameraReady = true;
 
 // Mock react-native-camera with controllable onCameraReady
@@ -14,7 +13,6 @@ jest.mock('react-native-camera', () => {
   const React = require('react');
   const RNCamera = ({ children, onCameraReady, ...props }: any) => {
     React.useEffect(() => {
-      capturedOnCameraReady = onCameraReady;
       if (autoFireCameraReady && onCameraReady) {
         onCameraReady();
       }
@@ -78,7 +76,6 @@ describe('MRZScanner Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    capturedOnCameraReady = null;
     autoFireCameraReady = true;
   });
 
