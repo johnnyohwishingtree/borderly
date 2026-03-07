@@ -1,4 +1,5 @@
-import { View, ActivityIndicator, Text } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, ActivityIndicator, Text, Pressable } from 'react-native';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large';
@@ -6,6 +7,10 @@ export interface LoadingSpinnerProps {
   text?: string;
   variant?: 'spinner' | 'skeleton' | 'overlay';
   fullScreen?: boolean;
+  timeout?: number; // Timeout in milliseconds
+  onTimeout?: () => void;
+  onCancel?: () => void;
+  cancelable?: boolean;
 }
 
 export default function LoadingSpinner({
@@ -14,7 +19,26 @@ export default function LoadingSpinner({
   text,
   variant = 'spinner',
   fullScreen = false,
+  timeout,
+  onTimeout,
+  onCancel,
+  cancelable = false,
 }: LoadingSpinnerProps) {
+  const [showTimeout, setShowTimeout] = useState(false);
+
+  useEffect(() => {
+    if (timeout && timeout > 0) {
+      const timer = setTimeout(() => {
+        setShowTimeout(true);
+        if (onTimeout) {
+          onTimeout();
+        }
+      }, timeout);
+
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [timeout, onTimeout]);
   const getSpinnerSize = () => {
     switch (size) {
       case 'small':
@@ -74,11 +98,31 @@ export default function LoadingSpinner({
       <ActivityIndicator
         size={getSpinnerSize()}
         color={getSpinnerColor()}
+        accessibilityLabel="Loading"
       />
       {text && (
         <Text className={getTextStyles()}>
           {text}
         </Text>
+      )}
+      
+      {showTimeout && (
+        <Text className="text-orange-600 text-sm mt-2 text-center">
+          This is taking longer than expected...
+        </Text>
+      )}
+      
+      {cancelable && onCancel && (
+        <Pressable
+          onPress={onCancel}
+          className="mt-4 py-2 px-4 bg-gray-100 rounded-lg"
+          accessibilityLabel="Cancel loading"
+          accessibilityHint="Cancel the current operation"
+        >
+          <Text className="text-gray-700 text-center font-medium">
+            Cancel
+          </Text>
+        </Pressable>
       )}
     </View>
   );

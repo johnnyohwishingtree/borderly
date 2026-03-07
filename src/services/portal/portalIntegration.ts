@@ -197,9 +197,9 @@ export class PortalIntegrationService {
       return {
         hasInternetConnection: canAccessHttps,
         canAccessHttps,
-        recommendedAction: canAccessHttps 
-          ? undefined 
-          : 'Please check your internet connection and try again.',
+        ...(canAccessHttps
+          ? {}
+          : { recommendedAction: 'Please check your internet connection and try again.' }),
       };
     } catch {
       return {

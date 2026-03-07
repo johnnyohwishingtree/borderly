@@ -1,4 +1,4 @@
-import { Trip, TripLeg, Accommodation } from '../../src/types/trip';
+import { Trip, TripLeg } from '../../src/types/trip';
 
 /**
  * Test fixture trips for comprehensive form engine testing.

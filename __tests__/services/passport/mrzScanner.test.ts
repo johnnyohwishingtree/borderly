@@ -32,11 +32,6 @@ describe('MRZ Scanner Service', () => {
     No passport data here
   `;
 
-  const partialMRZText = `
-    P<UTODOE<<JANE<<<
-    L898902C36UTO740
-  `;
-
   describe('processCameraText', () => {
     it('should detect no MRZ when text is too short', () => {
       const textRecognition = createMockTextRecognition([
@@ -180,7 +175,7 @@ describe('MRZ Scanner Service', () => {
       ]);
 
       scanner.processFrame(textRecognition);
-      const statsBefore = scanner.getStats();
+      scanner.getStats();
 
       scanner.reset();
       const statsAfter = scanner.getStats();
@@ -201,7 +196,7 @@ describe('MRZ Scanner Service', () => {
       scanner = new MRZScanner(config);
 
       const goodResult = scanner.processFrame(goodText);
-      const badResult = scanner.processFrame(badText);
+      scanner.processFrame(badText);
 
       const stats = scanner.getStats();
       expect(stats.lastScan).toEqual(goodResult);
@@ -300,10 +295,9 @@ describe('MRZ Scanner Service', () => {
     it('should handle missing profile gracefully', () => {
       const result = {
         success: false,
-        profile: undefined,
         errors: ['No data'],
         confidence: 0
-      };
+      } as any;
 
       const validation = validateScannedPassport(result);
 

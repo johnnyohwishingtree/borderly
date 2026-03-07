@@ -1,5 +1,6 @@
+// @ts-expect-error no type declarations
 import { launchCamera, launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
-import { PermissionsAndroid, Platform, Alert } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 export interface QRCaptureResult {
   success: boolean;
@@ -234,9 +235,9 @@ export class QRCaptureService {
         warnings.push('Large image size may affect performance');
       }
 
-      return { 
-        isValid: true, 
-        warnings: warnings.length > 0 ? warnings : undefined 
+      return {
+        isValid: true,
+        ...(warnings.length > 0 ? { warnings } : {}),
       };
     } catch (error) {
       return { 

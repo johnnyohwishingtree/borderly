@@ -18,6 +18,7 @@ jest.mock('react-native-image-picker', () => ({
   launchImageLibrary: jest.fn(),
 }));
 
+// @ts-expect-error no type declarations
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 const mockLaunchCamera = launchCamera as jest.MockedFunction<typeof launchCamera>;
@@ -135,7 +136,7 @@ describe('QRCaptureService', () => {
         ],
       };
 
-      mockLaunchCamera.mockImplementation((options, callback) => {
+      mockLaunchCamera.mockImplementation((_options: any, callback: any) => {
         callback(mockImageData as any);
       });
 
@@ -147,7 +148,7 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle user cancellation', async () => {
-      mockLaunchCamera.mockImplementation((options, callback) => {
+      mockLaunchCamera.mockImplementation((_options: any, callback: any) => {
         callback({ didCancel: true } as any);
       });
 
@@ -158,7 +159,7 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle camera errors', async () => {
-      mockLaunchCamera.mockImplementation((options, callback) => {
+      mockLaunchCamera.mockImplementation((_options: any, callback: any) => {
         callback({ errorMessage: 'Camera not available' } as any);
       });
 
@@ -169,7 +170,7 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle missing assets', async () => {
-      mockLaunchCamera.mockImplementation((options, callback) => {
+      mockLaunchCamera.mockImplementation((_options: any, callback: any) => {
         callback({ assets: [] } as any);
       });
 
@@ -191,7 +192,7 @@ describe('QRCaptureService', () => {
         ],
       };
 
-      mockLaunchImageLibrary.mockImplementation((options, callback) => {
+      mockLaunchImageLibrary.mockImplementation((_options: any, callback: any) => {
         callback(mockImageData as any);
       });
 
@@ -203,7 +204,7 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle user cancellation', async () => {
-      mockLaunchImageLibrary.mockImplementation((options, callback) => {
+      mockLaunchImageLibrary.mockImplementation((_options: any, callback: any) => {
         callback({ didCancel: true } as any);
       });
 
@@ -214,7 +215,7 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle import errors', async () => {
-      mockLaunchImageLibrary.mockImplementation((options, callback) => {
+      mockLaunchImageLibrary.mockImplementation((_options: any, callback: any) => {
         callback({ errorMessage: 'Library not available' } as any);
       });
 

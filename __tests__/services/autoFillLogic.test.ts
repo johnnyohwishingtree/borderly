@@ -468,10 +468,8 @@ describe('Auto-Fill Logic', () => {
       };
 
       // When no departure date, should use Japan-specific default
-      const legWithoutDeparture: TripLeg = {
-        ...mockTripLeg,
-        departureDate: undefined,
-      };
+      const { departureDate: _, ...legWithoutDepartureBase } = mockTripLeg;
+      const legWithoutDeparture = legWithoutDepartureBase as TripLeg;
 
       const result = intelligentAutoFill(
         durationField,
@@ -497,11 +495,8 @@ describe('Auto-Fill Logic', () => {
         countrySpecific: false,
       };
 
-      const legWithoutDeparture: TripLeg = {
-        ...mockTripLeg,
-        destinationCountry: 'SGP',
-        departureDate: undefined,
-      };
+      const { departureDate: _dep, ...legWithoutDepartureBase2 } = mockTripLeg;
+      const legWithoutDeparture = { ...legWithoutDepartureBase2, destinationCountry: 'SGP' } as TripLeg;
 
       const result = intelligentAutoFill(
         durationField,

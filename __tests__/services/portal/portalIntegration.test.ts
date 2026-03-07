@@ -83,7 +83,7 @@ describe('PortalIntegrationService', () => {
 
     it('successfully launches portal when URL is valid', async () => {
       mockLinking.canOpenURL.mockResolvedValue(true);
-      mockLinking.openURL.mockResolvedValue();
+      mockLinking.openURL.mockResolvedValue(undefined);
 
       const result = await PortalIntegrationService.launchPortal(mockSchema);
 
@@ -121,7 +121,7 @@ describe('PortalIntegrationService', () => {
 
     it('adds tracking parameters when provided', async () => {
       mockLinking.canOpenURL.mockResolvedValue(true);
-      mockLinking.openURL.mockResolvedValue();
+      mockLinking.openURL.mockResolvedValue(undefined);
 
       const trackingParams = { source: 'app', campaign: 'test' };
       await PortalIntegrationService.launchPortal(mockSchema, { trackingParams });

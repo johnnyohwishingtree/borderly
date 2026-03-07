@@ -216,8 +216,6 @@ export function isWithinSubmissionWindow(
     return false;
   }
 
-  const arrival = new Date(arrivalDate);
-  const current = new Date(currentDate);
   const daysUntilArrival = calculateDaysBetween(currentDate, arrivalDate);
 
   if (daysUntilArrival === null) {

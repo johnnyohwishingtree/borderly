@@ -1,7 +1,6 @@
 import {
   createFieldSchema,
   validateField,
-  validateFields,
   validateFieldEnhanced,
   validateFormWithCrossChecks,
   createRealTimeValidator,

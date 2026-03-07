@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { Clipboard } from '@react-native-clipboard/clipboard';
+// @ts-expect-error no type declarations
+import Clipboard from '@react-native-clipboard/clipboard';
+// @ts-expect-error no type declarations
 import { CheckIcon, DocumentDuplicateIcon } from 'react-native-heroicons/outline';
 
 export interface CopyableFieldProps {

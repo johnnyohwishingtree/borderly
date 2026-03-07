@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, Alert, TouchableOpacity, Animated } from 'react-native';
-import { useState, useRef } from 'react';
+import { View, Text, ScrollView, Alert } from 'react-native';
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
@@ -35,8 +35,6 @@ export default function PassportScanScreen() {
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
   const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const scanAnimation = useRef(new Animated.Value(0)).current;
-
   const {
     control,
     handleSubmit,
@@ -171,7 +169,7 @@ export default function PassportScanScreen() {
     return (
       <PassportPreview
         profile={scannedProfile}
-        scanResult={scanResult || undefined}
+        {...(scanResult ? { scanResult } : {})}
         onConfirm={handleConfirmScanned}
         onEdit={handleEditScanned}
         onRescan={handleRescan}

@@ -1,4 +1,4 @@
-import { TravelerProfile, Address, DeclarationDefaults } from '../../src/types/profile';
+import { TravelerProfile } from '../../src/types/profile';
 
 /**
  * Test fixture profiles for comprehensive form engine testing.

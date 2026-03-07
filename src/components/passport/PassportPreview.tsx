@@ -7,11 +7,11 @@
  * Security: Only displays data from secure storage, with clear indicators.
  */
 
-import React from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { type TravelerProfile } from '../../types/profile';
-import { validateScannedPassport, type MRZParseResult } from '../../services/passport/mrzScanner';
+import { validateScannedPassport } from '../../services/passport/mrzScanner';
+import { type MRZParseResult } from '../../services/passport/mrzParser';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import StatusBadge from '../ui/StatusBadge';
@@ -103,7 +103,7 @@ export default function PassportPreview({
   const expiryStatus = getExpiryStatus(profile.passportExpiry);
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="p-4">
+    <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ padding: 16 }}>
       {/* Header */}
       <View className="mb-6">
         <Text className="text-2xl font-bold text-gray-900 mb-2">

@@ -136,12 +136,10 @@ describe('FieldMapper', () => {
       });
 
       it('should handle missing departure date', () => {
+        const { departureDate: _, ...legWithoutDep } = mockTripLeg;
         const contextWithoutDeparture: FormContext = {
           ...mockContext,
-          leg: {
-            ...mockTripLeg,
-            departureDate: undefined,
-          },
+          leg: legWithoutDep as FormContext['leg'],
         };
 
         const duration = resolveAutoFillPath('leg._calculatedDuration', contextWithoutDeparture);
@@ -254,11 +252,9 @@ describe('FieldMapper', () => {
       });
 
       it('should handle null/undefined values in path', () => {
+        const { homeAddress: _ha, ...profileWithoutHome } = mockProfile;
         const contextWithNulls: FormContext = {
-          profile: {
-            ...mockProfile,
-            homeAddress: undefined,
-          },
+          profile: profileWithoutHome as FormContext['profile'],
           leg: {
             ...mockTripLeg,
             accommodation: undefined as any,

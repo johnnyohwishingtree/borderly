@@ -15,9 +15,9 @@ jest.mock('@nozbe/watermelondb', () => ({
   },
   appSchema: jest.fn(),
   tableSchema: jest.fn(),
-  field: () => (target: any, key: string) => {},
-  date: () => (target: any, key: string) => {},
-  readonly: () => (target: any, key: string) => {},
+  field: () => (_target: any, _key: string) => {},
+  date: () => (_target: any, _key: string) => {},
+  readonly: () => (_target: any, _key: string) => {},
 }));
 jest.mock('@nozbe/watermelondb/decorators', () => ({
   field: () => () => {},
@@ -59,8 +59,8 @@ describe('DatabaseService', () => {
     (databaseService as any).isInitialized = false;
 
     // Setup default mock implementations
-    (Database as jest.Mock).mockImplementation(() => mockDatabase);
-    (SQLiteAdapter as jest.Mock).mockImplementation(() => ({}));
+    (Database as unknown as jest.Mock).mockImplementation(() => mockDatabase);
+    (SQLiteAdapter as unknown as jest.Mock).mockImplementation(() => ({}));
     mockKeychainService.getEncryptionKey.mockResolvedValue('test-encryption-key');
     mockKeychainService.generateEncryptionKey.mockResolvedValue('new-encryption-key');
   });
@@ -125,9 +125,7 @@ describe('DatabaseService', () => {
 
     it('should handle database setup errors', async () => {
       const setupError = new Error('Setup error');
-      const mockOnSetUpError = jest.fn();
-
-      (SQLiteAdapter as jest.Mock).mockImplementation((config) => {
+      (SQLiteAdapter as unknown as jest.Mock).mockImplementation((config: any) => {
         // Simulate setup error
         setTimeout(() => config.onSetUpError(setupError), 0);
         return {};
@@ -136,7 +134,7 @@ describe('DatabaseService', () => {
       await databaseService.initialize();
 
       // Wait for async error handler
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve as any, 10));
       expect(console.error).toHaveBeenCalledWith('Database setup error:', setupError);
     });
   });
@@ -203,15 +201,14 @@ describe('DatabaseService', () => {
 
     it('should create trip', async () => {
       const tripData = { name: 'Test Trip', status: 'upcoming' };
-      const mockTrip = { id: 'new-trip-id', ...tripData };
 
-      mockDatabase.collections.get().create.mockImplementation((callback) => {
+      mockDatabase.collections.get().create.mockImplementation((callback: any) => {
         const trip = { name: '', status: '', createdAt: null, updatedAt: null };
         callback(trip);
         return Promise.resolve({ id: 'new-trip-id', ...trip });
       });
 
-      const result = await databaseService.createTrip(tripData);
+      const result = await databaseService.createTrip(tripData as any);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('trips');
@@ -219,7 +216,7 @@ describe('DatabaseService', () => {
     });
 
     it('should create trip with defaults', async () => {
-      mockDatabase.collections.get().create.mockImplementation((callback) => {
+      mockDatabase.collections.get().create.mockImplementation((callback: any) => {
         const trip = { name: '', status: '', createdAt: null, updatedAt: null };
         callback(trip);
         expect(trip.name).toBe('');
@@ -236,7 +233,7 @@ describe('DatabaseService', () => {
       const tripId = 'trip-id';
       const updates = { name: 'Updated Trip' };
 
-      const result = await databaseService.updateTrip(tripId, updates);
+      await databaseService.updateTrip(tripId, updates);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('trips');
@@ -283,14 +280,14 @@ describe('DatabaseService', () => {
     it('should create trip leg', async () => {
       const legData = { tripId: 'trip-id', destination: 'Japan' };
 
-      mockDatabase.collections.get().create.mockImplementation((callback) => {
+      mockDatabase.collections.get().create.mockImplementation((callback: any) => {
         const leg = { formStatus: '' };
         callback(leg);
         expect(leg.formStatus).toBe('not_started');
         return Promise.resolve({ id: 'new-leg-id', ...leg });
       });
 
-      await databaseService.createTripLeg(legData);
+      await databaseService.createTripLeg(legData as any);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('trip_legs');
@@ -300,7 +297,7 @@ describe('DatabaseService', () => {
       const legId = 'leg-id';
       const updates = { formStatus: 'completed' };
 
-      await databaseService.updateTripLeg(legId, updates);
+      await databaseService.updateTripLeg(legId, updates as any);
 
       expect(mockDatabase.write).toHaveBeenCalled();
       expect(mockDatabase.collections.get).toHaveBeenCalledWith('trip_legs');
@@ -341,7 +338,7 @@ describe('DatabaseService', () => {
     it('should save QR code', async () => {
       const qrData = { legId: 'leg-id', data: 'qr-data' };
 
-      mockDatabase.collections.get().create.mockImplementation((callback) => {
+      mockDatabase.collections.get().create.mockImplementation((callback: any) => {
         const qr = { savedAt: null };
         callback(qr);
         expect(qr.savedAt).toBeInstanceOf(Date);

@@ -7,19 +7,16 @@
  * Security: No image storage - immediate processing only.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Alert,
-  Vibration,
-  Dimensions,
-  Platform,
 } from 'react-native';
-import { RNCamera, TextRecognition } from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { MRZScanner, type ScanResult } from '../../services/passport/mrzScanner';
+import { MRZScanner, type ScanResult, type TextRecognition } from '../../services/passport/mrzScanner';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -29,8 +26,6 @@ export interface MRZScannerProps {
   onScanCancel: () => void;
   onManualEntry: () => void;
 }
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function MRZScannerComponent({
   onScanSuccess,
@@ -173,13 +168,9 @@ export default function MRZScannerComponent({
             : RNCamera.Constants.FlashMode.off
         }
         onTextRecognized={handleTextRecognition}
-        textRecognitionSettings={{
-          languageHints: ['en'],
-        }}
         captureAudio={false}
         onCameraReady={handleCameraReady}
         onMountError={handleMountError}
-        useNativeZoom={true}
       >
         {/* Overlay */}
         <View className="flex-1 relative">

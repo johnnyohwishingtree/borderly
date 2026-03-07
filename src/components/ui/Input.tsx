@@ -62,7 +62,6 @@ export default function Input({
         placeholderTextColor="#9CA3AF"
         accessibilityLabel={accessibilityLabel || label}
         accessibilityHint={accessibilityHint || helperText}
-        accessibilityInvalid={!!error}
         {...textInputProps}
       />
 

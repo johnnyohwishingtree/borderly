@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Button } from '../../components/ui';
@@ -222,10 +222,10 @@ export default function LegFormScreen() {
               title="Open Submission Guide"
               onPress={() => {
                 // Navigate to submission guide screen
-                navigation.navigate('SubmissionGuide' as never, {
+                (navigation as any).navigate('SubmissionGuide', {
                   tripId,
                   legId,
-                } as never);
+                });
               }}
               variant="secondary"
               size="medium"

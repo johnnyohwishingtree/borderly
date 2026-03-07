@@ -72,7 +72,7 @@ describe('Form Flow Integration Tests', () => {
       expect(formsGenerated).toHaveLength(3); // Japan, Malaysia, Singapore
 
       // Verify passport data is consistent across all forms
-      formsGenerated.forEach(({ countryCode, form }) => {
+      formsGenerated.forEach(({ form }) => {
         const passportField = form.sections
           .flatMap((s: any) => s.fields)
           .find((f: any) => f.id === 'passportNumber');
@@ -325,7 +325,7 @@ describe('Form Flow Integration Tests', () => {
 
   describe('Performance and Scale Testing', () => {
     it('should handle rapid form generation for multiple profiles', () => {
-      const startTime = performance.now();
+      const startTime = Date.now();
       const results: any[] = [];
 
       // Generate forms for all profiles with all countries
@@ -337,7 +337,7 @@ describe('Form Flow Integration Tests', () => {
         });
       });
 
-      const endTime = performance.now();
+      const endTime = Date.now();
       const duration = endTime - startTime;
 
       expect(results).toHaveLength(Object.keys(testProfiles).length * 3); // 6 profiles * 3 countries
@@ -365,9 +365,9 @@ describe('Form Flow Integration Tests', () => {
         });
       });
 
-      const startTime = performance.now();
+      const startTime = Date.now();
       const form = generateFilledForm(profile, leg, schema, formData);
-      const endTime = performance.now();
+      const endTime = Date.now();
 
       expect(form.stats.totalFields).toBeGreaterThan(0);
       expect(endTime - startTime).toBeLessThan(100); // Should handle large data quickly

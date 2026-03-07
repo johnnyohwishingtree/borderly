@@ -1,5 +1,5 @@
 import { TravelerProfile, Address } from '../types/profile';
-import { Trip, TripLeg } from '../types/trip';
+import { Trip } from '../types/trip';
 import { generateFilledForm } from '../services/forms/formEngine';
 import { CountryFormSchema } from '../types/schema';
 

@@ -70,13 +70,19 @@ export default function ProfileScreen() {
     ];
     
     const completed = requiredFields.filter(({ field }) => {
-      const value = profile[field as keyof typeof profile];
-      return value && (field === 'homeAddress' ? value.line1 && value.city && value.country : true);
+      if (field === 'homeAddress') {
+        const addr = profile.homeAddress;
+        return addr ? !!(addr.line1 && addr.city && addr.country) : false;
+      }
+      return !!profile[field as keyof typeof profile];
     });
-    
+
     const missing = requiredFields.filter(({ field }) => {
-      const value = profile[field as keyof typeof profile];
-      return !value || (field === 'homeAddress' && (!value.line1 || !value.city || !value.country));
+      if (field === 'homeAddress') {
+        const addr = profile.homeAddress;
+        return !addr || !addr.line1 || !addr.city || !addr.country;
+      }
+      return !profile[field as keyof typeof profile];
     });
     
     return {
@@ -174,7 +180,7 @@ export default function ProfileScreen() {
             </View>
             <ProgressBar 
               progress={getProfileCompleteness().percentage} 
-              height="small"
+              size="small"
               className="mb-2"
             />
             {getProfileCompleteness().missing.length > 0 && (

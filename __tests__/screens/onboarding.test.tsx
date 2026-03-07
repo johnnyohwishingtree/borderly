@@ -1,6 +1,4 @@
-import React from 'react';
-import { Alert, Dimensions } from 'react-native';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
 import WelcomeScreen from '@/screens/onboarding/WelcomeScreen';
@@ -43,7 +41,6 @@ jest.mock('@hookform/resolvers/zod', () => ({
 }));
 
 jest.mock('@/components/ui', () => {
-  const React = require('react');
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
     Button: ({ title, onPress, disabled, loading, ...props }: any) => (
@@ -52,7 +49,7 @@ jest.mock('@/components/ui', () => {
       </TouchableOpacity>
     ),
     Card: ({ children }: any) => <View>{children}</View>,
-    Input: ({ label, value, onChangeText, error, helperText, placeholder, required, onBlur, ...props }: any) => {
+    Input: ({ label, value, onChangeText, error, helperText, placeholder, required, onBlur }: any) => {
       const { TextInput } = require('react-native');
       return (
         <View>
@@ -92,8 +89,8 @@ const mockProfileStore = {
 describe('Onboarding Flow Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useNavigation as jest.Mock).mockReturnValue(mockNavigation);
-    (useProfileStore as jest.Mock).mockReturnValue(mockProfileStore);
+    (useNavigation as unknown as jest.Mock).mockReturnValue(mockNavigation);
+    (useProfileStore as unknown as jest.Mock).mockReturnValue(mockProfileStore);
   });
 
   describe('WelcomeScreen', () => {

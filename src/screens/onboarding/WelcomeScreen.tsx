@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
+import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { Button, Card, ProgressBar } from '../../components/ui';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
@@ -152,10 +153,9 @@ export default function WelcomeScreen() {
             onPress={handleContinue}
             size="large"
             fullWidth
-            className="bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg"
             accessibilityLabel="Get started with Borderly"
             accessibilityHint="Navigate to passport scanning screen to begin setup"
-            hapticType="impactMedium"
+            hapticType={HapticFeedbackTypes.impactMedium}
           />
           <Text className="text-center text-sm text-gray-500">
             Takes less than 2 minutes to set up

@@ -1,6 +1,6 @@
 import { TravelerProfile } from '../../types/profile';
 import { TripLeg } from '../../types/trip';
-import { CountryFormSchema, FormField, FormSection } from '../../types/schema';
+import { CountryFormSchema, FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
 
 export interface FilledFormField extends FormField {

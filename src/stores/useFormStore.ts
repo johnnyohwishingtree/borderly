@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { FilledForm, generateFilledForm, updateFormData, validateFormCompletion } from '../services/forms/formEngine';
-import { intelligentAutoFill, batchAutoFill, AutoFillOptions } from '../services/forms/autoFillLogic';
-import { validateFormWithCrossChecks, createRealTimeValidator } from '../services/forms/validators';
+import { batchAutoFill, AutoFillOptions } from '../services/forms/autoFillLogic';
+import { validateFormWithCrossChecks } from '../services/forms/validators';
 import { CountryFormSchema } from '../types/schema';
 import { TravelerProfile } from '../types/profile';
 import { TripLeg } from '../types/trip';

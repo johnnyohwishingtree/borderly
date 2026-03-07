@@ -202,26 +202,27 @@ export default function BiometricSetupScreen() {
             loading={isEnabling}
             size="large"
             fullWidth
-            className="bg-gradient-to-r from-purple-500 to-purple-600 shadow-lg"
           />
 
-          <Button
-            title="⏩ Skip for Now"
-            onPress={handleSkip}
-            variant="outline"
-            size="large"
-            fullWidth
-            className="border-2 border-gray-300"
-          />
+          <View className="border-2 border-gray-300 rounded-xl">
+            <Button
+              title="⏩ Skip for Now"
+              onPress={handleSkip}
+              variant="outline"
+              size="large"
+              fullWidth
+            />
+          </View>
 
-          <Button
-            title="🔙 Back"
-            onPress={handleBack}
-            variant="outline"
-            size="medium"
-            fullWidth
-            className="border-gray-200"
-          />
+          <View className="border-gray-200">
+            <Button
+              title="🔙 Back"
+              onPress={handleBack}
+              variant="outline"
+              size="medium"
+              fullWidth
+            />
+          </View>
         </View>
       </View>
     </ScrollView>

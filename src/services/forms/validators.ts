@@ -1,12 +1,10 @@
 import { z } from 'zod';
 import { FormField } from '../../types/schema';
-import { 
-  isValidISODate, 
-  isFutureDate, 
-  isPastDate, 
-  isValidTravelDate, 
-  isValidPassportExpiry, 
-  isValidBirthDate 
+import {
+  isValidISODate,
+  isValidTravelDate,
+  isValidPassportExpiry,
+  isValidBirthDate
 } from '../../utils/dateUtils';
 import { 
   validatePassportNumber, 
@@ -316,61 +314,63 @@ function createDateSchema(field: FormField): z.ZodSchema<unknown> {
  */
 function createTextSchema(field: FormField): z.ZodSchema<unknown> {
   const fieldId = field.id.toLowerCase();
-  let schema = z.string();
-  
-  // Apply field-specific validations
+  let baseSchema = z.string();
+
+  // Apply length validations first (these return ZodString)
+  if (field.validation?.minLength) {
+    baseSchema = baseSchema.min(field.validation.minLength);
+  }
+
+  if (field.validation?.maxLength) {
+    baseSchema = baseSchema.max(field.validation.maxLength);
+  }
+
+  // Apply pattern validation (returns ZodString)
+  if (field.validation?.pattern) {
+    baseSchema = baseSchema.regex(new RegExp(field.validation.pattern));
+  }
+
+  // Apply field-specific refinements last (these return ZodEffects)
+  let schema: z.ZodTypeAny = baseSchema;
+
   if (fieldId.includes('passport')) {
-    schema = schema.refine((val) => validatePassportNumber(val).isValid, {
+    schema = schema.refine((val: string) => validatePassportNumber(val).isValid, {
       message: 'Invalid passport number format',
     });
   } else if (fieldId.includes('email')) {
-    schema = schema.refine((val) => validateEmail(val).isValid, {
+    schema = schema.refine((val: string) => validateEmail(val).isValid, {
       message: 'Invalid email address',
     });
   } else if (fieldId.includes('phone')) {
-    schema = schema.refine((val) => validatePhoneNumber(val).isValid, {
+    schema = schema.refine((val: string) => validatePhoneNumber(val).isValid, {
       message: 'Invalid phone number format',
     });
   } else if (fieldId.includes('flight')) {
-    schema = schema.refine((val) => validateFlightNumber(val).isValid, {
+    schema = schema.refine((val: string) => validateFlightNumber(val).isValid, {
       message: 'Invalid flight number format',
     });
   } else if (fieldId.includes('airline')) {
-    schema = schema.refine((val) => validateAirlineCode(val).isValid, {
+    schema = schema.refine((val: string) => validateAirlineCode(val).isValid, {
       message: 'Invalid airline code format',
     });
   } else if (fieldId.includes('airport')) {
-    schema = schema.refine((val) => validateAirportCode(val).isValid, {
+    schema = schema.refine((val: string) => validateAirportCode(val).isValid, {
       message: 'Invalid airport code format',
     });
   } else if (fieldId.includes('country') && !fieldId.includes('name')) {
-    schema = schema.refine((val) => validateCountryCode(val).isValid, {
+    schema = schema.refine((val: string) => validateCountryCode(val).isValid, {
       message: 'Invalid country code format',
     });
   } else if (fieldId.includes('name') || fieldId.includes('surname') || fieldId.includes('given')) {
-    schema = schema.refine((val) => validateTravelName(val).isValid, {
+    schema = schema.refine((val: string) => validateTravelName(val).isValid, {
       message: 'Invalid name format',
     });
   } else if (fieldId.includes('occupation')) {
-    schema = schema.refine((val) => validateOccupation(val).isValid, {
+    schema = schema.refine((val: string) => validateOccupation(val).isValid, {
       message: 'Invalid occupation format',
     });
   }
-  
-  // Apply length validations
-  if (field.validation?.minLength) {
-    schema = schema.min(field.validation.minLength);
-  }
-  
-  if (field.validation?.maxLength) {
-    schema = schema.max(field.validation.maxLength);
-  }
-  
-  // Apply pattern validation
-  if (field.validation?.pattern) {
-    schema = schema.regex(new RegExp(field.validation.pattern));
-  }
-  
+
   return schema;
 }
 
@@ -394,13 +394,13 @@ export function validateFieldEnhanced(
       warnings.push(...contextualWarnings);
     }
     
-    return { isValid: true, warnings: warnings.length > 0 ? warnings : undefined };
+    return { isValid: true, ...(warnings.length > 0 ? { warnings } : {}) };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return {
         isValid: false,
         error: error.errors[0]?.message || 'Validation failed',
-        warnings: warnings.length > 0 ? warnings : undefined,
+        ...(warnings.length > 0 ? { warnings } : {}),
       };
     }
     return {
