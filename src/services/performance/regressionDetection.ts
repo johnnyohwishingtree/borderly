@@ -440,7 +440,7 @@ class RegressionDetectionService {
         threshold.confidenceLevel
       );
 
-      if (significance > threshold.confidenceLevel) {
+      if (significance < (1 - threshold.confidenceLevel)) {
         this.createRegression(
           metricName,
           category,

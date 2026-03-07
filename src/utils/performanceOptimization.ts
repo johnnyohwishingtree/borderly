@@ -332,32 +332,16 @@ export class PerformanceOptimizer {
       {
         id: 'memory_caching',
         name: 'Intelligent Memory Caching',
+        title: 'Implement smart caching for frequently accessed data',
         category: 'memory',
         priority: 'high',
         description: 'Implement smart caching for frequently accessed data to reduce memory pressure',
-        implementation: {
-          steps: [
-            'Identify frequently accessed data patterns',
-            'Implement LRU cache for schemas and form templates',
-            'Add cache invalidation logic',
-            'Monitor cache hit rates'
-          ],
-          codeChanges: [
-            'Add cache service to services/storage/',
-            'Modify schema loader to use caching',
-            'Update form engine to cache parsed forms'
-          ],
-          configChanges: [
-            'Configure cache size limits',
-            'Set cache TTL values',
-            'Add cache monitoring flags'
-          ],
-          testing: [
-            'Unit tests for cache logic',
-            'Performance tests comparing cached vs uncached',
-            'Memory usage tests'
-          ]
-        },
+        implementation: [
+          'Identify frequently accessed data patterns',
+          'Implement LRU cache for schemas and form templates',
+          'Add cache invalidation logic',
+          'Monitor cache hit rates'
+        ],
         expectedImpact: {
           performance: 35,
           userExperience: 'Faster form generation and smoother navigation',
@@ -385,31 +369,16 @@ export class PerformanceOptimizer {
       {
         id: 'lazy_loading',
         name: 'Component Lazy Loading',
+        title: 'Implement lazy loading for non-critical components',
         category: 'startup',
         priority: 'high',
         description: 'Implement lazy loading for non-critical components to improve app startup time',
-        implementation: {
-          steps: [
-            'Analyze component usage patterns',
-            'Identify components suitable for lazy loading',
-            'Implement React.lazy for target components',
-            'Add loading fallbacks'
-          ],
-          codeChanges: [
-            'Convert heavy screens to lazy components',
-            'Add React.Suspense wrappers',
-            'Implement loading placeholders'
-          ],
-          configChanges: [
-            'Update bundler configuration for code splitting',
-            'Configure chunk naming'
-          ],
-          testing: [
-            'Test loading behavior',
-            'Verify code splitting works correctly',
-            'Performance tests for startup time'
-          ]
-        },
+        implementation: [
+          'Analyze component usage patterns',
+          'Identify components suitable for lazy loading',
+          'Implement React.lazy for target components',
+          'Add loading fallbacks'
+        ],
         expectedImpact: {
           performance: 25,
           userExperience: 'Faster app startup and improved initial load time',
@@ -437,33 +406,16 @@ export class PerformanceOptimizer {
       {
         id: 'camera_optimization',
         name: 'Camera Performance Optimization',
+        title: 'Optimize camera operations for faster passport scanning',
         category: 'rendering',
         priority: 'critical',
         description: 'Optimize camera operations for faster passport scanning and better user experience',
-        implementation: {
-          steps: [
-            'Profile camera initialization',
-            'Optimize ML Kit processing pipeline',
-            'Implement frame rate throttling',
-            'Add preprocessing optimizations'
-          ],
-          codeChanges: [
-            'Update camera configuration',
-            'Optimize ML Kit text recognition',
-            'Implement frame throttling',
-            'Add camera permission caching'
-          ],
-          configChanges: [
-            'Adjust camera resolution settings',
-            'Configure ML Kit parameters',
-            'Set frame processing intervals'
-          ],
-          testing: [
-            'Camera performance tests',
-            'ML Kit accuracy tests',
-            'Battery usage monitoring'
-          ]
-        },
+        implementation: [
+          'Profile camera initialization',
+          'Optimize ML Kit processing pipeline',
+          'Implement frame rate throttling',
+          'Add preprocessing optimizations'
+        ],
         expectedImpact: {
           performance: 45,
           userExperience: 'Faster passport scanning with higher success rate',
@@ -491,32 +443,16 @@ export class PerformanceOptimizer {
       {
         id: 'database_optimization',
         name: 'Database Query Optimization',
+        title: 'Optimize database queries and implement result caching',
         category: 'storage',
         priority: 'medium',
         description: 'Optimize WatermelonDB queries and implement query result caching',
-        implementation: {
-          steps: [
-            'Analyze current query patterns',
-            'Add database indexes for common queries',
-            'Implement query result caching',
-            'Optimize database schema'
-          ],
-          codeChanges: [
-            'Add database indexes',
-            'Implement query caching layer',
-            'Optimize frequently used queries',
-            'Add query performance monitoring'
-          ],
-          configChanges: [
-            'Update database configuration',
-            'Configure cache settings'
-          ],
-          testing: [
-            'Database performance tests',
-            'Query timing analysis',
-            'Data integrity tests'
-          ]
-        },
+        implementation: [
+          'Analyze current query patterns',
+          'Add database indexes for common queries',
+          'Implement query result caching',
+          'Optimize database schema'
+        ],
         expectedImpact: {
           performance: 30,
           userExperience: 'Faster data loading and smoother app navigation',
@@ -594,10 +530,10 @@ export class PerformanceOptimizer {
         case 'memory':
           await this.executeMemoryOptimizations(strategy);
           break;
-        case 'render':
+        case 'rendering':
           await this.executeRenderOptimizations(strategy);
           break;
-        case 'database':
+        case 'storage':
           await this.executeDatabaseOptimizations(strategy);
           break;
         case 'network':
@@ -822,7 +758,7 @@ export class PerformanceOptimizer {
         const paintEntries = (performance as any).getEntriesByType('paint');
         if (paintEntries.length > 0) {
           metrics.first_paint = paintEntries[0].startTime;
-          const fcp = paintEntries.find(entry => entry.name === 'first-contentful-paint');
+          const fcp = paintEntries.find((entry: any) => entry.name === 'first-contentful-paint');
           if (fcp) {
             metrics.first_contentful_paint = fcp.startTime;
           }
@@ -988,8 +924,7 @@ export class PerformanceOptimizer {
 
 export const performanceOptimizer = new PerformanceOptimizer();
 
-// Export the class for testing
-export { PerformanceOptimizer };
+// Class is already exported above
 
 // Utility functions for performance optimization
 export function measureAsync<T>(
