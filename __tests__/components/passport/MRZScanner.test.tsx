@@ -113,9 +113,9 @@ describe('MRZScanner Component', () => {
       jest.advanceTimersByTime(10000);
     });
 
-    // Should show the error/permission denied screen
+    // Should show camera unavailable screen (timeout = hardware issue, not permission)
     await waitFor(() => {
-      expect(getByText('Camera Access Required')).toBeTruthy();
+      expect(getByText('Camera Not Available')).toBeTruthy();
     });
 
     // Manual entry button should be available

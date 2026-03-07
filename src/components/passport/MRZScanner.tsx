@@ -44,7 +44,7 @@ export default function MRZScannerComponent({
   const [isScanning, setIsScanning] = useState(true);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
-  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const [cameraStatus, setCameraStatus] = useState<'pending' | 'ready' | 'denied' | 'unavailable'>('pending');
   const [performanceMetrics, setPerformanceMetrics] = useState<{
     successRate: number;
     averageAttempts: number;
@@ -61,9 +61,9 @@ export default function MRZScannerComponent({
     // Reset scanner when component mounts
     scannerRef.current.reset();
 
-    // Timeout: if camera doesn't initialize within 10 seconds, show error
+    // Timeout: if camera doesn't initialize within 10 seconds, assume unavailable
     cameraTimeoutRef.current = setTimeout(() => {
-      setPermissionGranted(false);
+      setCameraStatus('unavailable');
     }, 10000);
 
     // Start performance monitoring
@@ -143,7 +143,7 @@ export default function MRZScannerComponent({
       clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = null;
     }
-    setPermissionGranted(true);
+    setCameraStatus('ready');
     setIsScanning(true);
   };
 
@@ -154,7 +154,7 @@ export default function MRZScannerComponent({
         clearTimeout(cameraTimeoutRef.current);
         cameraTimeoutRef.current = null;
       }
-      setPermissionGranted(false);
+      setCameraStatus('denied');
     }
   };
 
@@ -164,7 +164,7 @@ export default function MRZScannerComponent({
       clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = null;
     }
-    setPermissionGranted(false);
+    setCameraStatus('unavailable');
   };
 
   const toggleFlash = () => {
@@ -194,18 +194,20 @@ export default function MRZScannerComponent({
     return 'bg-red-500';
   };
 
-  // Show error state if no permission
-  if (permissionGranted === false) {
+  // Show error state if permission denied or camera unavailable
+  if (cameraStatus === 'denied' || cameraStatus === 'unavailable') {
+    const isDenied = cameraStatus === 'denied';
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
         <Text className="text-white text-xl font-bold mb-4 text-center">
-          Camera Access Required
+          {isDenied ? 'Camera Access Required' : 'Camera Not Available'}
         </Text>
         <Text className="text-gray-300 text-center mb-8 leading-6">
-          To scan your passport, we need camera permission. You can enable it in Settings,
-          or enter your passport information manually.
+          {isDenied
+            ? 'To scan your passport, we need camera permission. You can enable it in Settings, or enter your passport information manually.'
+            : 'Camera could not be started. This may happen on simulators or devices without a camera. Please enter your passport information manually.'}
         </Text>
-        {Platform.OS !== 'web' && (
+        {isDenied && Platform.OS !== 'web' && (
           <Button
             title="Open Settings"
             onPress={() => Linking.openSettings()}
@@ -213,7 +215,7 @@ export default function MRZScannerComponent({
             fullWidth
           />
         )}
-        <View className="mt-4 w-full">
+        <View className={isDenied ? 'mt-4 w-full' : 'w-full'}>
           <Button
             title="Enter Manually Instead"
             onPress={onManualEntry}
@@ -363,7 +365,7 @@ export default function MRZScannerComponent({
       </RNCamera>
       
       {/* Loading overlay — shown while camera initializes */}
-      {permissionGranted === null && (
+      {cameraStatus === 'pending' && (
         <View className="absolute inset-0 bg-black items-center justify-center">
           <LoadingSpinner />
           <Text className="text-white mt-4">Initializing camera...</Text>
