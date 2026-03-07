@@ -1,13 +1,83 @@
 import { Database } from '@nozbe/watermelondb';
+import { Q } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { schema } from './schema';
 import { migrations } from './migrations';
 import { Trip, TripLeg, SavedQRCode } from './models';
 import { keychainService } from './keychain';
 
+// Performance monitoring interface
+interface QueryPerformanceMetrics {
+  operation: string;
+  duration: number;
+  recordCount: number;
+  timestamp: Date;
+}
+
+// Pagination options
+export interface PaginationOptions {
+  limit: number;
+  offset: number;
+}
+
+// Trip query options
+export interface TripQueryOptions {
+  status?: 'upcoming' | 'active' | 'completed';
+  pagination?: PaginationOptions;
+  sortBy?: 'created_at' | 'updated_at' | 'name';
+  sortOrder?: 'asc' | 'desc';
+}
+
 class DatabaseService {
   private database: Database | null = null;
   private isInitialized = false;
+  private performanceMetrics: QueryPerformanceMetrics[] = [];
+  private maxMetricsHistory = 100; // Keep last 100 operations
+
+  private async measureQueryPerformance<T>(
+    operation: string,
+    queryFn: () => Promise<T>
+  ): Promise<{ result: T; metrics: QueryPerformanceMetrics }> {
+    const startTime = performance.now();
+    const result = await queryFn();
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+    
+    const metrics: QueryPerformanceMetrics = {
+      operation,
+      duration,
+      recordCount: Array.isArray(result) ? result.length : 1,
+      timestamp: new Date(),
+    };
+    
+    // Store metrics (keep only recent ones)
+    this.performanceMetrics.push(metrics);
+    if (this.performanceMetrics.length > this.maxMetricsHistory) {
+      this.performanceMetrics.shift();
+    }
+    
+    // Log slow queries (> 100ms)
+    if (duration > 100) {
+      console.warn(`Slow query detected: ${operation} took ${duration.toFixed(2)}ms`);
+    }
+    
+    return { result, metrics };
+  }
+
+  getPerformanceMetrics(): QueryPerformanceMetrics[] {
+    return [...this.performanceMetrics];
+  }
+
+  getAverageQueryTime(operation?: string): number {
+    const relevantMetrics = operation 
+      ? this.performanceMetrics.filter(m => m.operation.includes(operation))
+      : this.performanceMetrics;
+    
+    if (relevantMetrics.length === 0) return 0;
+    
+    const totalTime = relevantMetrics.reduce((sum, m) => sum + m.duration, 0);
+    return totalTime / relevantMetrics.length;
+  }
 
   async initialize(): Promise<Database> {
     if (this.database && this.isInitialized) {
@@ -75,10 +145,53 @@ class DatabaseService {
     }
   }
 
-  // Trip operations
-  async getTrips() {
+  // Trip operations with performance monitoring
+  async getTrips(options: TripQueryOptions = {}) {
     const db = await this.getDatabase();
-    return await db.collections.get('trips').query().fetch();
+    const { result } = await this.measureQueryPerformance(
+      `getTrips(status=${options.status}, limit=${options.pagination?.limit})`,
+      async () => {
+        let query = db.collections.get('trips').query();
+        
+        // Add status filter if specified
+        if (options.status) {
+          query = query.where('status', options.status);
+        }
+        
+        // Add sorting
+        const sortBy = options.sortBy || 'updated_at';
+        const sortOrder = options.sortOrder || 'desc';
+        query = query.sortBy(sortBy, sortOrder === 'desc' ? Q.desc : Q.asc);
+        
+        // Add pagination
+        if (options.pagination) {
+          query = query.skip(options.pagination.offset).take(options.pagination.limit);
+        }
+        
+        return await query.fetch();
+      }
+    );
+    
+    return result;
+  }
+
+  async getTripCount(status?: 'upcoming' | 'active' | 'completed'): Promise<number> {
+    const db = await this.getDatabase();
+    const { result } = await this.measureQueryPerformance(
+      `getTripCount(status=${status})`,
+      async () => {
+        let query = db.collections.get('trips').query();
+        
+        if (status) {
+          query = query.where('status', status);
+        }
+        
+        const trips = await query.fetch();
+        return trips.length;
+      }
+    );
+    
+    return result;
   }
 
   async createTrip(tripData: Partial<Trip>) {
@@ -112,13 +225,65 @@ class DatabaseService {
     });
   }
 
-  // Trip leg operations
-  async getTripLegs(_tripId: string) {
+  // Trip leg operations with optimized queries
+  async getTripLegs(tripId: string) {
     const db = await this.getDatabase();
-    return await db.collections
-      .get('trip_legs')
-      .query()
-      .fetch();
+    const { result } = await this.measureQueryPerformance(
+      `getTripLegs(tripId=${tripId})`,
+      async () => {
+        return await db.collections
+          .get('trip_legs')
+          .query(
+            Q.where('trip_id', tripId),
+            Q.sortBy('order', Q.asc)
+          )
+          .fetch();
+      }
+    );
+    
+    return result;
+  }
+
+  // Optimized method to load trips with their legs in a single batch
+  async getTripsWithLegs(options: TripQueryOptions = {}) {
+    const trips = await this.getTrips(options);
+    
+    if (trips.length === 0) {
+      return [];
+    }
+    
+    // Get all trip IDs for batch loading
+    const tripIds = trips.map(trip => trip.id);
+    
+    const db = await this.getDatabase();
+    const { result: allLegs } = await this.measureQueryPerformance(
+      `getTripsWithLegs.batchLoadLegs(tripCount=${trips.length})`,
+      async () => {
+        return await db.collections
+          .get('trip_legs')
+          .query(
+            Q.where('trip_id', Q.oneOf(tripIds)),
+            Q.sortBy('order', Q.asc)
+          )
+          .fetch();
+      }
+    );
+    
+    // Group legs by trip ID
+    const legsByTripId = new Map<string, any[]>();
+    allLegs.forEach(leg => {
+      const tripId = (leg as any).tripId;
+      if (!legsByTripId.has(tripId)) {
+        legsByTripId.set(tripId, []);
+      }
+      legsByTripId.get(tripId)!.push(leg);
+    });
+    
+    // Return trips with their legs attached
+    return trips.map(trip => ({
+      trip,
+      legs: legsByTripId.get(trip.id) || []
+    }));
   }
 
   async createTripLeg(legData: Partial<TripLeg>) {
@@ -141,14 +306,47 @@ class DatabaseService {
     });
   }
 
-  // QR Code operations
-  async getQRCodes(_legId?: string) {
+  // QR Code operations with proper filtering
+  async getQRCodes(legId?: string) {
     const db = await this.getDatabase();
-    const query = db.collections.get('saved_qr_codes').query();
+    const { result } = await this.measureQueryPerformance(
+      `getQRCodes(legId=${legId})`,
+      async () => {
+        let query = db.collections.get('saved_qr_codes').query();
+        
+        if (legId) {
+          query = query.where('leg_id', legId);
+        }
+        
+        // Sort by saved date (newest first)
+        query = query.sortBy('saved_at', Q.desc);
+        
+        return await query.fetch();
+      }
+    );
+    
+    return result;
+  }
 
-    // TODO: Add proper filtering by legId when watermelondb query is properly set up
-
-    return await query.fetch();
+  // Batch load QR codes for multiple legs
+  async getQRCodesForLegs(legIds: string[]) {
+    if (legIds.length === 0) return [];
+    
+    const db = await this.getDatabase();
+    const { result } = await this.measureQueryPerformance(
+      `getQRCodesForLegs(legCount=${legIds.length})`,
+      async () => {
+        return await db.collections
+          .get('saved_qr_codes')
+          .query(
+            Q.where('leg_id', Q.oneOf(legIds)),
+            Q.sortBy('saved_at', Q.desc)
+          )
+          .fetch();
+      }
+    );
+    
+    return result;
   }
 
   async saveQRCode(qrData: Partial<SavedQRCode>) {

@@ -1,3 +1,4 @@
+import React, { memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card, StatusBadge, ProgressBar } from '../ui';
 import { Trip } from '../../types/trip';
@@ -9,12 +10,12 @@ export interface TripCardProps {
   showProgress?: boolean;
 }
 
-export default function TripCard({ 
+const TripCard = memo<TripCardProps>(({ 
   trip, 
   onPress,
   showProgress = true 
-}: TripCardProps) {
-  const formatDate = (dateStr: string) => {
+}) => {
+  const formatDate = useMemo(() => (dateStr: string) => {
     try {
       return new Date(dateStr).toLocaleDateString('en-US', {
         month: 'short',
@@ -23,50 +24,61 @@ export default function TripCard({
     } catch {
       return dateStr;
     }
-  };
+  }, []);
 
-  const getTripProgress = () => {
-    if (trip.legs.length === 0) return { completed: 0, total: 0, percentage: 0 };
+  const tripMetrics = useMemo(() => {
+    const progress = (() => {
+      if (trip.legs.length === 0) return { completed: 0, total: 0, percentage: 0 };
+      
+      const completed = trip.legs.filter(leg => 
+        leg.formStatus === 'submitted' || leg.formStatus === 'ready'
+      ).length;
+      
+      const total = trip.legs.length;
+      const percentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      return { completed, total, percentage };
+    })();
+
+    const getStatusColor = (status: Trip['status']) => {
+      switch (status) {
+        case 'upcoming':
+          return 'info';
+        case 'active':
+          return 'success';
+        case 'completed':
+          return 'neutral';
+        default:
+          return 'neutral';
+      }
+    };
+
+    const getStatusText = (status: Trip['status']) => {
+      switch (status) {
+        case 'upcoming':
+          return 'Upcoming';
+        case 'active':
+          return 'Active';
+        case 'completed':
+          return 'Completed';
+        default:
+          return 'Unknown';
+      }
+    };
+
+    const firstLeg = trip.legs[0];
+    const lastLeg = trip.legs[trip.legs.length - 1];
     
-    const completed = trip.legs.filter(leg => 
-      leg.formStatus === 'submitted' || leg.formStatus === 'ready'
-    ).length;
-    
-    const total = trip.legs.length;
-    const percentage = total > 0 ? (completed / total) * 100 : 0;
-    
-    return { completed, total, percentage };
-  };
-
-  const getStatusColor = (status: Trip['status']) => {
-    switch (status) {
-      case 'upcoming':
-        return 'info';
-      case 'active':
-        return 'success';
-      case 'completed':
-        return 'neutral';
-      default:
-        return 'neutral';
-    }
-  };
-
-  const getStatusText = (status: Trip['status']) => {
-    switch (status) {
-      case 'upcoming':
-        return 'Upcoming';
-      case 'active':
-        return 'Active';
-      case 'completed':
-        return 'Completed';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  const progress = getTripProgress();
-  const firstLeg = trip.legs[0];
-  const lastLeg = trip.legs[trip.legs.length - 1];
+    return {
+      progress,
+      statusColor: getStatusColor(trip.status),
+      statusText: getStatusText(trip.status),
+      firstLeg,
+      lastLeg,
+    };
+  }, [trip.legs, trip.status]);
+  
+  const { progress, statusColor, statusText, firstLeg, lastLeg } = tripMetrics;
 
   const CardComponent = onPress ? TouchableOpacity : View;
 
@@ -83,27 +95,27 @@ export default function TripCard({
               <Text className="text-sm text-gray-600">
                 {trip.legs.length} destination{trip.legs.length > 1 ? 's' : ''}
                 {firstLeg && ` • ${formatDate(firstLeg.arrivalDate)}`}
-                {lastLeg && lastLeg.departureDate && ` - ${formatDate(lastLeg.departureDate)}`}
+                {lastLeg?.departureDate && ` - ${formatDate(lastLeg.departureDate)}`}
               </Text>
             </View>
             <StatusBadge 
-              status={getStatusColor(trip.status)}
-              text={getStatusText(trip.status)}
+              status={statusColor}
+              text={statusText}
               size="medium"
             />
           </View>
 
-          {/* Countries */}
+          {/* Countries - Optimized rendering for large leg lists */}
           {trip.legs.length > 0 && (
             <View className="mb-4">
               <View className="flex-row items-center space-x-1">
                 {trip.legs.slice(0, 4).map((leg, index) => (
-                  <View key={leg.id} className="flex-row items-center">
+                  <React.Fragment key={leg.id}>
                     <CountryFlag countryCode={leg.destinationCountry} size="small" />
                     {index < Math.min(trip.legs.length - 1, 3) && (
                       <Text className="mx-1 text-gray-400">→</Text>
                     )}
-                  </View>
+                  </React.Fragment>
                 ))}
                 {trip.legs.length > 4 && (
                   <Text className="ml-2 text-sm text-gray-500">
@@ -145,4 +157,8 @@ export default function TripCard({
       </Card>
     </CardComponent>
   );
-}
+});
+
+TripCard.displayName = 'TripCard';
+
+export default TripCard;
