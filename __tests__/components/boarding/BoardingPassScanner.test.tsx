@@ -18,9 +18,9 @@ jest.mock('react-native-camera', () => {
     // Store props for test access
     (globalThis as any).lastCameraProps = props;
     
-    // Trigger camera ready after mount
+    // Only trigger camera ready if test hasn't disabled it
     React.useEffect(() => {
-      if (props.onCameraReady) {
+      if (props.onCameraReady && !(globalThis as any).disableCameraReady) {
         setTimeout(() => props.onCameraReady(), 100);
       }
     }, [props.onCameraReady]);
@@ -100,6 +100,9 @@ describe('BoardingPassScanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
+    // Reset test flags
+    (globalThis as any).disableCameraReady = false;
+    
     // Mock RNCamera.Constants
     (RNCamera as any).Constants = {
       Type: { back: 'back' },
@@ -139,6 +142,9 @@ describe('BoardingPassScanner', () => {
 
     it('renders camera unavailable state', async () => {
       jest.useFakeTimers();
+      
+      // Disable camera ready callback to allow timeout
+      (globalThis as any).disableCameraReady = true;
       
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
