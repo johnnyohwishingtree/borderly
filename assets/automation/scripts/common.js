@@ -43,10 +43,11 @@
     waitForInteractable: function(selector, timeout = 30000) {
       return new Promise(function(resolve, reject) {
         const startTime = Date.now();
+        const self = this;
         
         function check() {
           const element = document.querySelector(selector);
-          if (element && this.isInteractable(element)) {
+          if (element && self.isInteractable(element)) {
             resolve(element);
           } else if (Date.now() - startTime > timeout) {
             reject(new Error('Element not interactable: ' + selector));
@@ -55,7 +56,7 @@
           }
         }
         
-        check.bind(this)();
+        check();
       }.bind(this));
     },
 
@@ -167,35 +168,36 @@
       
       try {
         // Ensure element is visible and focusable
-        this.DOM.scrollIntoView(element);
+        window.BorderlyAutomation.DOM.scrollIntoView(element);
         element.focus();
         
         // Wait a moment for focus events to process
+        const self = this;
         return new Promise(function(resolve) {
           setTimeout(function() {
             try {
               if (element.type === 'file') {
                 // File inputs require special handling
-                resolve(this.handleFileInput(element, value, options));
+                resolve(self.handleFileInput(element, value, options));
               } else if (element.tagName === 'SELECT') {
                 // Select dropdowns
-                resolve(this.fillSelectField(element, value, options));
+                resolve(self.fillSelectField(element, value, options));
               } else if (element.type === 'checkbox' || element.type === 'radio') {
                 // Checkboxes and radio buttons
-                resolve(this.fillCheckboxRadio(element, value, options));
+                resolve(self.fillCheckboxRadio(element, value, options));
               } else {
                 // Text inputs, textareas, etc.
-                resolve(this.fillTextField(element, value, options));
+                resolve(self.fillTextField(element, value, options));
               }
             } catch (e) {
               resolve(false);
             }
-          }.bind(this), options.delay || 100);
-        }.bind(this));
+          }, options.delay || 100);
+        });
       } catch (e) {
         return Promise.resolve(false);
       }
-    }.bind(window.BorderlyAutomation),
+    },
 
     /**
      * Fill text field with realistic typing

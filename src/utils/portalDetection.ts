@@ -513,15 +513,22 @@ export class PortalDetector {
         };
 
         // Check for login indicators
-        const loginElements = document.querySelectorAll(
-          'input[type="password"], ' +
-          'a[href*="login"], ' +
-          'button:contains("Login"), ' +
-          'button:contains("Sign In"), ' +
-          '.login-form, ' +
-          '#login-form, ' +
-          '.auth-form'
+        const passwordElements = document.querySelectorAll('input[type="password"]');
+        const loginLinks = document.querySelectorAll('a[href*="login"]');
+        const loginForms = document.querySelectorAll('.login-form, #login-form, .auth-form');
+        
+        // Check for login/signin buttons by text content
+        const allButtons = Array.from(document.querySelectorAll('button'));
+        const loginButtons = allButtons.filter(btn => 
+          /login|sign\s*in/i.test(btn.textContent || '')
         );
+        
+        const loginElements = [
+          ...passwordElements,
+          ...loginLinks,
+          ...loginForms,
+          ...loginButtons
+        ];
 
         if (loginElements.length > 0) {
           authInfo.required = true;

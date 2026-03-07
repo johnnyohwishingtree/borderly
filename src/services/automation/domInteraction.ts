@@ -101,7 +101,7 @@ export class DOMInteraction {
         const timeout = ${timeout};
         
         function checkElement() {
-          const element = document.querySelector('${this.escapeSelector(selector)}');
+          const element = document.querySelector(${JSON.stringify(selector)});
           
           if (!element) {
             return { found: false, visible: false, enabled: false };
@@ -295,7 +295,7 @@ export class DOMInteraction {
     const selectScript = `
       (function() {
         try {
-          const select = document.querySelector('${this.escapeSelector(selector)}');
+          const select = document.querySelector(${JSON.stringify(selector)});
           if (!select) {
             return { success: false, error: 'Select element not found' };
           }
@@ -376,7 +376,7 @@ export class DOMInteraction {
     const toggleScript = `
       (function() {
         try {
-          const element = document.querySelector('${this.escapeSelector(selector)}');
+          const element = document.querySelector(${JSON.stringify(selector)});
           if (!element) {
             return { success: false, error: 'Checkbox/radio element not found' };
           }
@@ -441,7 +441,7 @@ export class DOMInteraction {
           const timeout = ${timeout};
           
           function checkCondition() {
-            const element = document.querySelector('${this.escapeSelector(selector)}');
+            const element = document.querySelector(${JSON.stringify(selector)});
             
             switch ('${condition}') {
               case 'appear':
@@ -509,7 +509,7 @@ export class DOMInteraction {
     const extractScript = `
       (function() {
         try {
-          const element = document.querySelector('${this.escapeSelector(selector)}');
+          const element = document.querySelector(${JSON.stringify(selector)});
           if (!element) {
             return { success: false, error: 'Element not found for data extraction' };
           }
@@ -644,9 +644,9 @@ export class DOMInteraction {
     options: ElementInteractionOptions
   ): string {
     return `
-      (function() {
+      (async function() {
         try {
-          const element = document.querySelector('${this.escapeSelector(selector)}');
+          const element = document.querySelector(${JSON.stringify(selector)});
           if (!element) {
             return { success: false, error: 'Element not found' };
           }
@@ -656,7 +656,7 @@ export class DOMInteraction {
           const initialChecked = element.checked;
           
           ${options.scrollIntoView !== false ? `
-            element.scrollIntoView({ behavior: '${this.config.scrollBehavior}', block: 'center' });
+            element.scrollIntoView({ behavior: ${JSON.stringify(this.config.scrollBehavior)}, block: 'center' });
           ` : ''}
           
           // Wait a moment for scroll to complete
@@ -708,7 +708,7 @@ export class DOMInteraction {
     return `
       (function() {
         try {
-          const element = document.querySelector('${this.escapeSelector(selector)}');
+          const element = document.querySelector(${JSON.stringify(selector)});
           if (!element) {
             return { success: false, error: 'Element not found' };
           }
@@ -831,9 +831,9 @@ export class DOMInteraction {
   }
 
   /**
-   * Escape CSS selectors for safe injection
+   * Safely escape values for JavaScript injection - replaced with JSON.stringify usage
    */
-  private escapeSelector(selector: string): string {
-    return selector.replace(/'/g, "\\'").replace(/"/g, '\\"');
+  private escapeForScript(value: any): string {
+    return JSON.stringify(value);
   }
 }

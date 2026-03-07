@@ -291,23 +291,24 @@ export class FormFiller {
     mapping: PortalFieldMapping,
     strategy: FieldFillStrategy
   ): string {
+    const safeFieldId = fieldId.replace(/[^a-zA-Z0-9_]/g, '_'); // Sanitize field ID for variable name
     const fillMethod = strategy.fillMethod(
-      `'${mapping.selector}'`,
+      JSON.stringify(mapping.selector),
       JSON.stringify(value),
       mapping
     );
 
     return `
           try {
-            const element_${fieldId} = document.querySelector('${mapping.selector}');
-            if (element_${fieldId}) {
+            const element_${safeFieldId} = document.querySelector(${JSON.stringify(mapping.selector)});
+            if (element_${safeFieldId}) {
               ${fillMethod}
-              results.success['${fieldId}'] = true;
+              results.success[${JSON.stringify(fieldId)}] = true;
             } else {
-              results.failed['${fieldId}'] = 'Element not found';
+              results.failed[${JSON.stringify(fieldId)}] = 'Element not found';
             }
           } catch (error) {
-            results.failed['${fieldId}'] = error.message;
+            results.failed[${JSON.stringify(fieldId)}] = error.message;
           }
     `;
   }
@@ -387,13 +388,17 @@ export class FormFiller {
     this.fillStrategies.set('radio', {
       inputType: 'radio',
       fillMethod: (element, value, mapping) => `
-        const radioButtons = document.querySelectorAll('input[name="' + ${element}.replace(/.*\\[name="([^"]+)"\\].*/, '$1') + '"]');
-        radioButtons.forEach(radio => {
-          if (radio.value === ${value} || radio.value.toLowerCase() === ${value}.toLowerCase()) {
-            radio.checked = true;
-            radio.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        });
+        // Get the first radio button to extract the name attribute
+        const firstRadio = document.querySelector(${element});
+        if (firstRadio && firstRadio.name) {
+          const radioButtons = document.querySelectorAll('input[name="' + firstRadio.name + '"]');
+          radioButtons.forEach(radio => {
+            if (radio.value === ${value} || radio.value.toLowerCase() === ${value}.toLowerCase()) {
+              radio.checked = true;
+              radio.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
+        }
       `
     });
 

@@ -354,7 +354,7 @@ export class ElementUtils {
   static generateReadinessCheck(selector: string): string {
     return `
       (function() {
-        const element = document.querySelector('${selector.replace(/'/g, "\\'")}');
+        const element = document.querySelector(${JSON.stringify(selector)});
         if (!element) return { ready: false, reason: 'Element not found' };
         
         const rect = element.getBoundingClientRect();
@@ -386,7 +386,7 @@ export class ElementUtils {
     selector: string
   ): string {
     const baseScript = `
-      const element = document.querySelector('${selector.replace(/'/g, "\\'")}');
+      const element = document.querySelector(${JSON.stringify(selector)});
       if (!element) throw new Error('Element not found');
       
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });

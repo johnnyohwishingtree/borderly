@@ -596,8 +596,8 @@ export class UploadHandler {
             bytes[i] = binaryString.charCodeAt(i);
           }
           
-          const file = new File([bytes], '${fileInfo.name}', { 
-            type: '${fileInfo.type}',
+          const file = new File([bytes], ${JSON.stringify(fileInfo.name)}, { 
+            type: ${JSON.stringify(fileInfo.type)},
             lastModified: ${fileInfo.lastModified}
           });
           
@@ -650,8 +650,8 @@ export class UploadHandler {
             bytes[i] = binaryString.charCodeAt(i);
           }
           
-          const file = new File([bytes], '${fileInfo.name}', { 
-            type: '${fileInfo.type}',
+          const file = new File([bytes], ${JSON.stringify(fileInfo.name)}, { 
+            type: ${JSON.stringify(fileInfo.type)},
             lastModified: ${fileInfo.lastModified}
           });
           

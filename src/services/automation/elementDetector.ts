@@ -632,7 +632,7 @@ export class ElementDetector {
           ${criteria.textContent ? `
             const textMatch = ${criteria.textContent instanceof RegExp 
               ? `/${criteria.textContent.source}/${criteria.textContent.flags}.test(elementInfo.textContent)`
-              : `elementInfo.textContent.includes('${criteria.textContent}')`};
+              : `elementInfo.textContent.includes(${JSON.stringify(String(criteria.textContent))})`};
             if (!textMatch) {
               return {
                 success: false,
@@ -647,7 +647,7 @@ export class ElementDetector {
           ${criteria.valueContent ? `
             const valueMatch = ${criteria.valueContent instanceof RegExp
               ? `/${criteria.valueContent.source}/${criteria.valueContent.flags}.test(elementInfo.value || '')`
-              : `(elementInfo.value || '').includes('${criteria.valueContent}')`};
+              : `(elementInfo.value || '').includes(${JSON.stringify(String(criteria.valueContent))})`};
             if (!valueMatch) {
               return {
                 success: false,

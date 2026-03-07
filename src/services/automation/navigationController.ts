@@ -197,7 +197,7 @@ export class NavigationController {
           const previousTitle = document.title;
           
           try {
-            window.location.href = '${url}';
+            window.location.href = ${JSON.stringify(url)};
             
             // Wait for navigation to complete
             return new Promise((resolve) => {
