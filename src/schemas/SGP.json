@@ -5,10 +5,43 @@
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://eservices.ica.gov.sg/sgarrivalcard",
   "portalName": "SG Arrival Card",
+  "metadata": {
+    "priority": 2,
+    "complexity": "low",
+    "popularity": 85,
+    "lastVerified": "2025-06-01T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".sg-arrival-form", ".ica-form", "#submit-card"],
+    "changeThreshold": 10,
+    "fallbackActions": [
+      {
+        "trigger": "ica_system_update",
+        "action": "notify",
+        "message": "Singapore ICA system has been updated. Please verify manually."
+      }
+    ]
+  },
   "submission": {
     "earliestBeforeArrival": "3d",
     "latestBeforeArrival": "0h",
     "recommended": "24h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "multiStep": false,
+    "canSaveProgress": false,
+    "sessionTimeout": "15m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport",
+        "required": true
+      }
+    ]
   },
   "sections": [
     {

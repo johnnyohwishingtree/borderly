@@ -1,0 +1,467 @@
+{
+  "countryCode": "THA",
+  "countryName": "Thailand",
+  "schemaVersion": "2.0.0",
+  "lastUpdated": "2026-03-07T00:00:00Z",
+  "portalUrl": "https://tp.consular.go.th/",
+  "portalName": "Thailand Pass",
+  "metadata": {
+    "priority": 4,
+    "complexity": "medium",
+    "popularity": 90,
+    "lastVerified": "2026-03-07T00:00:00Z",
+    "supportedLanguages": ["en", "th"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": ["#main-form", ".form-section", ".submit-button"],
+    "changeThreshold": 15,
+    "fallbackActions": [
+      {
+        "trigger": "form_structure_changed",
+        "action": "notify",
+        "message": "Thailand Pass form structure has changed. Manual verification required."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "7d",
+    "latestBeforeArrival": "0h",
+    "recommended": "72h",
+    "processingTime": "24h"
+  },
+  "portalFlow": {
+    "requiresAccount": true,
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport with at least 6 months validity",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Accommodation booking confirmation",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "select",
+          "required": true,
+          "countrySpecific": false,
+          "autoFillSource": "profile.title",
+          "options": [
+            { "value": "Mr", "label": "Mr." },
+            { "value": "Mrs", "label": "Mrs." },
+            { "value": "Ms", "label": "Ms." },
+            { "value": "Dr", "label": "Dr." }
+          ],
+          "automation": {
+            "selector": "#title-select",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "firstName",
+          "label": "First Name (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#firstName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "lastName",
+          "label": "Last Name (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#lastName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#dateOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportExpiry",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "arrivalDate",
+          "label": "Planned Arrival Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#arrivalDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#flightNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "departureCountry",
+          "label": "Country of Departure",
+          "type": "text",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "The country where your flight to Thailand departs from",
+          "automation": {
+            "selector": "#departureCountry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "medical", "label": "Medical Treatment" },
+            { "value": "education", "label": "Education" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#purposeOfVisit",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "lengthOfStay",
+          "label": "Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "countrySpecific": false,
+          "autoFillSource": "leg._calculatedDuration",
+          "validation": {
+            "min": 1,
+            "max": 60
+          },
+          "automation": {
+            "selector": "#lengthOfStay",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation in Thailand",
+      "fields": [
+        {
+          "id": "accommodationType",
+          "label": "Type of Accommodation",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "hotel", "label": "Hotel" },
+            { "value": "resort", "label": "Resort" },
+            { "value": "hostel", "label": "Hostel" },
+            { "value": "guesthouse", "label": "Guesthouse" },
+            { "value": "apartment", "label": "Apartment/Condo" },
+            { "value": "friend_family", "label": "Friend/Family" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#accommodationType",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "hotelName",
+          "label": "Hotel/Accommodation Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "hotelAddress",
+          "label": "Address in Thailand",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "hotelPhone",
+          "label": "Hotel Phone Number",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelPhone",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Health and Vaccination",
+      "fields": [
+        {
+          "id": "vaccinationStatus",
+          "label": "COVID-19 Vaccination Status",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "fully_vaccinated", "label": "Fully Vaccinated (2+ doses)" },
+            { "value": "not_vaccinated", "label": "Not Vaccinated" },
+            { "value": "partially_vaccinated", "label": "Partially Vaccinated (1 dose)" }
+          ],
+          "helpText": "Thailand's requirements vary based on vaccination status",
+          "automation": {
+            "selector": "#vaccinationStatus",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "hasInsurance",
+          "label": "Do you have travel insurance covering COVID-19?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Required for unvaccinated travelers",
+          "automation": {
+            "selector": "#hasInsurance",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "emergencyContact",
+          "label": "Emergency Contact in Thailand",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Name and phone number of local contact or hotel",
+          "automation": {
+            "selector": "#emergencyContact",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Create Thailand Pass Account",
+      "description": "Visit the Thailand Pass website and create an account with your email address. Verify your email before proceeding.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use an email you'll have access to while traveling",
+        "Check your spam folder for the verification email"
+      ],
+      "automation": {
+        "url": "https://tp.consular.go.th/",
+        "actions": [
+          {
+            "type": "navigate",
+            "value": "https://tp.consular.go.th/",
+            "timeout": 5000
+          },
+          {
+            "type": "click",
+            "selector": "#register-btn",
+            "waitFor": "#registration-form"
+          }
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "title": "Start New Application",
+      "description": "Log in and click 'Apply for Thailand Pass' to start your application.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Choose the correct visa exemption/visa type for your nationality",
+        "Tourist applications are most common"
+      ],
+      "automation": {
+        "actions": [
+          {
+            "type": "click",
+            "selector": "#apply-new-btn",
+            "waitFor": ".application-form"
+          }
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "title": "Enter Personal Information",
+      "description": "Fill in your passport details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["title", "firstName", "lastName", "dateOfBirth", "nationality", "passportNumber", "passportExpiry"],
+      "tips": [
+        "Double-check spelling - it must match your passport exactly",
+        "Ensure your passport is valid for at least 6 months"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Travel Information",
+      "description": "Enter your flight details and travel purpose.",
+      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "departureCountry", "purposeOfVisit", "lengthOfStay"],
+      "tips": [
+        "Flight details can be updated later if they change",
+        "Make sure your arrival date matches your flight booking"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Accommodation Details",
+      "description": "Provide details of where you'll be staying in Thailand.",
+      "fieldsOnThisScreen": ["accommodationType", "hotelName", "hotelAddress", "hotelPhone"],
+      "tips": [
+        "If staying multiple places, enter your first accommodation",
+        "Hotel booking confirmation may be required"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Health and Insurance Information",
+      "description": "Declare your vaccination status and insurance coverage.",
+      "fieldsOnThisScreen": ["vaccinationStatus", "hasInsurance", "emergencyContact"],
+      "tips": [
+        "Vaccination certificates may need to be uploaded",
+        "Insurance must cover COVID-19 treatment",
+        "Emergency contact can be your hotel"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Upload Documents",
+      "description": "Upload required documents including passport photo page and vaccination certificate.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Documents should be clear, colored scans or photos",
+        "Vaccination certificate must be official",
+        "Passport photo should show personal details clearly"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Submit and Get QR Code",
+      "description": "Review all information, submit your application, and receive your Thailand Pass QR code.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Processing usually takes 24-72 hours",
+        "Save the QR code to your phone",
+        "Print a backup copy of the QR code",
+        "Check email regularly for updates"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://tp.consular.go.th/",
+    "testMode": true,
+    "successIndicators": [".confirmation-page", "#qr-code-display"],
+    "failureIndicators": [".error-message", ".form-error"],
+    "dataExtractionRules": [
+      {
+        "name": "confirmationNumber",
+        "selector": "#confirmation-number",
+        "required": true
+      },
+      {
+        "name": "qrCode",
+        "selector": "#qr-code img",
+        "attribute": "src",
+        "required": true
+      }
+    ]
+  }
+}

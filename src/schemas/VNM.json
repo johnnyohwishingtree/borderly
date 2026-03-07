@@ -1,0 +1,614 @@
+{
+  "countryCode": "VNM",
+  "countryName": "Vietnam",
+  "schemaVersion": "2.0.0",
+  "lastUpdated": "2026-03-07T00:00:00Z",
+  "portalUrl": "https://evisa.xuatnhapcanh.gov.vn/",
+  "portalName": "Vietnam e-Visa Portal",
+  "metadata": {
+    "priority": 7,
+    "complexity": "medium",
+    "popularity": 70,
+    "lastVerified": "2026-03-07T00:00:00Z",
+    "supportedLanguages": ["en", "vi"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".evisa-form", ".application-section", "#submit-application"],
+    "changeThreshold": 20,
+    "fallbackActions": [
+      {
+        "trigger": "form_layout_changed",
+        "action": "notify",
+        "message": "Vietnam e-Visa form layout has changed. Please verify manually."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "30d",
+    "latestBeforeArrival": "3d",
+    "recommended": "14d",
+    "processingTime": "72h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "20m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Passport valid for at least 6 months",
+        "required": true
+      },
+      {
+        "type": "payment",
+        "description": "Credit card for visa fee payment",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#surname",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name(s)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.middleNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#middleName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "givenName",
+          "label": "Given Name (First Name)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#givenName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#dateOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "placeOfBirth",
+          "label": "Place of Birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.placeOfBirth",
+          "countrySpecific": false,
+          "helpText": "City and country where you were born",
+          "automation": {
+            "selector": "#placeOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "religion",
+          "label": "Religion",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "buddhism", "label": "Buddhism" },
+            { "value": "christianity", "label": "Christianity" },
+            { "value": "islam", "label": "Islam" },
+            { "value": "hinduism", "label": "Hinduism" },
+            { "value": "judaism", "label": "Judaism" },
+            { "value": "other", "label": "Other" },
+            { "value": "none", "label": "None" }
+          ],
+          "automation": {
+            "selector": "#religion",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportType",
+          "label": "Passport Type",
+          "type": "select",
+          "required": true,
+          "countrySpecific": false,
+          "options": [
+            { "value": "ordinary", "label": "Ordinary" },
+            { "value": "diplomatic", "label": "Diplomatic" },
+            { "value": "official", "label": "Official" },
+            { "value": "service", "label": "Service" }
+          ],
+          "automation": {
+            "selector": "#passportType",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuedDate",
+          "label": "Passport Issue Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssuedDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportExpiry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuingAuthority",
+          "label": "Passport Issuing Authority",
+          "type": "text",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "e.g., Department of State, Passport Canada, etc.",
+          "automation": {
+            "selector": "#passportIssuingAuthority",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "work", "label": "Work" },
+            { "value": "study", "label": "Study" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "family_visit", "label": "Visiting Family" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#purposeOfVisit",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "entryDate",
+          "label": "Intended Date of Entry",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#entryDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "entryPort",
+          "label": "Port of Entry",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "SGN", "label": "Tan Son Nhat Airport (Ho Chi Minh City)" },
+            { "value": "HAN", "label": "Noi Bai Airport (Hanoi)" },
+            { "value": "DAD", "label": "Da Nang Airport" },
+            { "value": "CXR", "label": "Cam Ranh Airport (Nha Trang)" },
+            { "value": "PQC", "label": "Phu Quoc Airport" },
+            { "value": "land_border", "label": "Land Border Crossing" },
+            { "value": "other", "label": "Other" }
+          ],
+          "helpText": "Select the airport or border crossing where you'll enter Vietnam",
+          "automation": {
+            "selector": "#entryPort",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "stayDuration",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "autoFillSource": "leg._calculatedDuration",
+          "countrySpecific": false,
+          "validation": {
+            "min": 1,
+            "max": 30
+          },
+          "helpText": "Tourist e-visa allows up to 30 days",
+          "automation": {
+            "selector": "#stayDuration",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "previousVietnamVisit",
+          "label": "Have you visited Vietnam before?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#previousVietnamVisit",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation Information",
+      "fields": [
+        {
+          "id": "accommodationType",
+          "label": "Type of Accommodation",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "hotel", "label": "Hotel" },
+            { "value": "resort", "label": "Resort" },
+            { "value": "hostel", "label": "Hostel" },
+            { "value": "guesthouse", "label": "Guesthouse" },
+            { "value": "apartment", "label": "Private Apartment" },
+            { "value": "friend_family", "label": "Friend/Family Home" },
+            { "value": "cruise", "label": "Cruise Ship" }
+          ],
+          "automation": {
+            "selector": "#accommodationType",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "hotelName",
+          "label": "Hotel/Accommodation Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "hotelAddress",
+          "label": "Address in Vietnam",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "hotelPhone",
+          "label": "Hotel Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#hotelPhone",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "cityOfStay",
+          "label": "City/Province of Stay",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "hanoi", "label": "Hanoi" },
+            { "value": "ho_chi_minh", "label": "Ho Chi Minh City" },
+            { "value": "da_nang", "label": "Da Nang" },
+            { "value": "hoi_an", "label": "Hoi An" },
+            { "value": "nha_trang", "label": "Nha Trang" },
+            { "value": "phu_quoc", "label": "Phu Quoc" },
+            { "value": "ha_long", "label": "Ha Long" },
+            { "value": "hue", "label": "Hue" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#cityOfStay",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "homeAddress",
+          "label": "Permanent Address in Home Country",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "profile.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#homeAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phone",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#phoneNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactName",
+          "label": "Emergency Contact Name",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#emergencyContactName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactPhone",
+          "label": "Emergency Contact Phone",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#emergencyContactPhone",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Access Vietnam e-Visa Portal",
+      "description": "Go to the official Vietnam e-Visa website. No account registration is required.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use the official government website only",
+        "Avoid third-party visa services",
+        "The process can be completed in one session"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Start New Application",
+      "description": "Click 'Apply for e-Visa' and select your nationality from the dropdown.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Ensure your nationality is eligible for e-Visa",
+        "Check current visa exemption agreements",
+        "Have your documents ready before starting"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Enter Personal Information",
+      "description": "Fill in all personal details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["surname", "middleName", "givenName", "dateOfBirth", "placeOfBirth", "gender", "nationality", "religion"],
+      "tips": [
+        "Names must match passport exactly",
+        "Religion field is mandatory in Vietnam",
+        "Double-check spelling and dates"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Passport Details",
+      "description": "Enter all passport information from your passport's data page.",
+      "fieldsOnThisScreen": ["passportType", "passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingAuthority"],
+      "tips": [
+        "Passport must be valid for at least 6 months",
+        "Check passport number carefully",
+        "Include full issuing authority name"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Travel Information",
+      "description": "Provide details about your intended visit to Vietnam.",
+      "fieldsOnThisScreen": ["purposeOfVisit", "entryDate", "entryPort", "stayDuration", "previousVietnamVisit"],
+      "tips": [
+        "Entry date should match your flight",
+        "Select correct port of entry",
+        "Tourist e-visa is valid for 30 days maximum"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Accommodation Information",
+      "description": "Enter details of where you'll be staying in Vietnam.",
+      "fieldsOnThisScreen": ["accommodationType", "hotelName", "hotelAddress", "hotelPhone", "cityOfStay"],
+      "tips": [
+        "Hotel booking confirmation may be requested",
+        "Use full hotel name and address",
+        "Phone number should include country code"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Contact Information",
+      "description": "Provide your contact details and emergency contact information.",
+      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email", "emergencyContactName", "emergencyContactPhone"],
+      "tips": [
+        "Use email you check regularly",
+        "Include country code in phone numbers",
+        "Emergency contact should be in your home country"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Upload Documents",
+      "description": "Upload a clear photo of your passport's data page and your portrait photo.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Passport photo should be clear and readable",
+        "Portrait photo should meet passport photo standards",
+        "Files should be in JPEG format",
+        "Maximum file size is usually 1MB"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Review and Pay",
+      "description": "Review all information carefully, then proceed to payment of the visa fee.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Visa fee is approximately $25 USD",
+        "Payment by credit card only",
+        "Save your application reference number",
+        "Processing takes 2-3 business days"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Download Your e-Visa",
+      "description": "Once approved, download your e-Visa and print copies for travel.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Print multiple copies of your e-Visa",
+        "Save electronic copy on your phone",
+        "Check all details on the e-Visa are correct",
+        "Present at immigration upon arrival"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://evisa.xuatnhapcanh.gov.vn/",
+    "testMode": true,
+    "successIndicators": [".application-success", "#download-evisa"],
+    "failureIndicators": [".error-notification", ".form-validation-error"],
+    "dataExtractionRules": [
+      {
+        "name": "applicationNumber",
+        "selector": "#application-reference",
+        "required": true
+      },
+      {
+        "name": "eVisaLink",
+        "selector": "#evisa-download-link",
+        "attribute": "href",
+        "required": true
+      }
+    ]
+  }
+}

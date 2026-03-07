@@ -1,0 +1,660 @@
+{
+  "countryCode": "GBR",
+  "countryName": "United Kingdom",
+  "schemaVersion": "2.0.0",
+  "lastUpdated": "2026-03-07T00:00:00Z",
+  "portalUrl": "https://www.gov.uk/apply-electronic-travel-authorisation",
+  "portalName": "UK Electronic Travel Authorisation (ETA)",
+  "metadata": {
+    "priority": 6,
+    "complexity": "medium",
+    "popularity": 85,
+    "lastVerified": "2026-03-07T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "quarterly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".eta-application-form", ".form-section", "#submit-application"],
+    "changeThreshold": 10,
+    "fallbackActions": [
+      {
+        "trigger": "gov_uk_update",
+        "action": "notify",
+        "message": "UK ETA application form has been updated. Manual verification needed."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "30d",
+    "latestBeforeArrival": "0h",
+    "recommended": "72h",
+    "processingTime": "72h"
+  },
+  "portalFlow": {
+    "requiresAccount": true,
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "60m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport from eligible country",
+        "required": true
+      },
+      {
+        "type": "payment",
+        "description": "Credit or debit card for £10 application fee",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Details",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "select",
+          "required": false,
+          "countrySpecific": false,
+          "options": [
+            { "value": "Mr", "label": "Mr" },
+            { "value": "Mrs", "label": "Mrs" },
+            { "value": "Miss", "label": "Miss" },
+            { "value": "Ms", "label": "Ms" },
+            { "value": "Dr", "label": "Dr" },
+            { "value": "Prof", "label": "Professor" },
+            { "value": "Rev", "label": "Reverend" },
+            { "value": "Other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#title",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "givenNames",
+          "label": "Given names (first and middle names)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "helpText": "Enter all given names as shown on your passport",
+          "automation": {
+            "selector": "#given-names",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "familyName",
+          "label": "Family name (surname)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#family-name",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "otherNames",
+          "label": "Any other names you are known by",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "helpText": "Include maiden names, previous married names, etc.",
+          "automation": {
+            "selector": "#other-names",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#date-of-birth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "countryOfBirth",
+          "label": "Country of birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.countryOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#country-of-birth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Sex",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" },
+            { "value": "X", "label": "Unspecified" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportNumber",
+          "label": "Passport number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-number",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportCountryOfIssue",
+          "label": "Country that issued your passport",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportCountryOfIssue",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-country-issue",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssueDate",
+          "label": "Passport issue date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-issue-date",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiryDate",
+          "label": "Passport expiry date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-expiry-date",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "helpText": "You'll receive updates about your ETA at this address",
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "confirmEmail",
+          "label": "Confirm email address",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#confirm-email",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Phone number (optional)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.phone",
+          "countrySpecific": false,
+          "helpText": "Include country code, e.g. +1 555 123 4567",
+          "automation": {
+            "selector": "#phone-number",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "title": "Home Address",
+      "fields": [
+        {
+          "id": "addressLine1",
+          "label": "Address line 1",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.address.line1",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#address-line-1",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "addressLine2",
+          "label": "Address line 2 (optional)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.address.line2",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#address-line-2",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "city",
+          "label": "Town or city",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.address.city",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#city",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "county",
+          "label": "County, state or province (if applicable)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.address.state",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#county",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "postalCode",
+          "label": "Postal code or zip code (if applicable)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.address.postalCode",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#postal-code",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "country",
+          "label": "Country",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.address.country",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#country",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "employment",
+      "title": "Employment Information",
+      "fields": [
+        {
+          "id": "employmentStatus",
+          "label": "Employment status",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "employed", "label": "Employed" },
+            { "value": "self_employed", "label": "Self-employed" },
+            { "value": "unemployed", "label": "Unemployed" },
+            { "value": "retired", "label": "Retired" },
+            { "value": "student", "label": "Student" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#employment-status",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation (if employed)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#occupation",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "employerName",
+          "label": "Employer name (if employed)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.employerName",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#employer-name",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "arrivalDate",
+          "label": "Planned date of arrival in the UK",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "helpText": "This can be approximate - your ETA is valid for 2 years",
+          "automation": {
+            "selector": "#arrival-date",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "visitPurpose",
+          "label": "Main purpose of your visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_family", "label": "Visiting family or friends" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "study_short", "label": "Short-term study (up to 6 months)" },
+            { "value": "medical", "label": "Medical treatment" },
+            { "value": "other", "label": "Other permitted activity" }
+          ],
+          "automation": {
+            "selector": "#visit-purpose",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "ukAddress",
+          "label": "Address where you'll be staying in the UK",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Enter the full address including postcode",
+          "automation": {
+            "selector": "#uk-address",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security and Background Questions",
+      "fields": [
+        {
+          "id": "criminalRecord",
+          "label": "Have you ever been convicted of a criminal offence in any country?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#criminal-record",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "immigrationBreach",
+          "label": "Have you ever breached immigration laws in any country?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#immigration-breach",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "ukRefusal",
+          "label": "Have you ever been refused entry to or had to leave the UK?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#uk-refusal",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "terrorismAssociation",
+          "label": "Have you ever been associated with a terrorist organisation?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#terrorism-association",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Create GOV.UK Account",
+      "description": "You'll need a GOV.UK One Login account to apply for an ETA. Create one at gov.uk if you don't have one already.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use an email you check regularly",
+        "You'll need to verify your email address",
+        "Two-factor authentication is recommended"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Start ETA Application",
+      "description": "Go to the ETA application page and sign in with your GOV.UK One Login.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Make sure you're on the official gov.uk website",
+        "Have your passport ready",
+        "The application takes about 10 minutes"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Enter Personal Details",
+      "description": "Fill in your personal information exactly as it appears on your passport.",
+      "fieldsOnThisScreen": ["title", "givenNames", "familyName", "otherNames", "dateOfBirth", "countryOfBirth", "nationality", "gender"],
+      "tips": [
+        "Names must match your passport exactly",
+        "Include all given names as shown",
+        "Double-check dates are correct"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Passport Information",
+      "description": "Enter your passport details from the data page.",
+      "fieldsOnThisScreen": ["passportNumber", "passportCountryOfIssue", "passportIssueDate", "passportExpiryDate"],
+      "tips": [
+        "Your passport must be valid for the duration of your stay",
+        "Check passport number carefully",
+        "Ensure dates are in the correct format"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Contact Information",
+      "description": "Provide your email address and phone number for updates about your application.",
+      "fieldsOnThisScreen": ["email", "confirmEmail", "phoneNumber"],
+      "tips": [
+        "Use an email you check regularly",
+        "You'll receive your ETA approval by email",
+        "Phone number is optional but helpful"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Home Address",
+      "description": "Enter your current permanent address in your home country.",
+      "fieldsOnThisScreen": ["addressLine1", "addressLine2", "city", "county", "postalCode", "country"],
+      "tips": [
+        "Use your permanent address",
+        "Include postal or zip code if applicable",
+        "Make sure all fields are complete"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Employment Details",
+      "description": "Provide information about your current employment status and occupation.",
+      "fieldsOnThisScreen": ["employmentStatus", "occupation", "employerName"],
+      "tips": [
+        "Be accurate about your employment status",
+        "Students should select 'Student'",
+        "Retired persons should select 'Retired'"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Travel Information",
+      "description": "Enter details about your planned visit to the UK.",
+      "fieldsOnThisScreen": ["arrivalDate", "visitPurpose", "ukAddress"],
+      "tips": [
+        "Arrival date can be approximate",
+        "Your ETA is valid for 2 years once approved",
+        "Include full UK address with postcode"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Security Questions",
+      "description": "Answer the mandatory security and background questions truthfully.",
+      "fieldsOnThisScreen": ["criminalRecord", "immigrationBreach", "ukRefusal", "terrorismAssociation"],
+      "tips": [
+        "Answer all questions honestly",
+        "False information may result in refusal",
+        "Most travelers will answer 'No' to all questions"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Upload Photo",
+      "description": "Upload a digital passport-style photograph that meets UK requirements.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Photo must be taken within the last month",
+        "Plain light-colored background",
+        "No hats, sunglasses, or smiling",
+        "File size must be under 5MB"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Review and Pay",
+      "description": "Review all your information carefully, then pay the £10 application fee.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Check all information is correct before paying",
+        "Application fee is £10 (non-refundable)",
+        "You can pay by credit or debit card",
+        "Processing usually takes up to 3 working days"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Receive Your ETA",
+      "description": "Once approved, you'll receive your ETA by email. No physical document is needed.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Save your ETA email in multiple places",
+        "Your ETA is linked electronically to your passport",
+        "Valid for 2 years or until passport expires",
+        "Allows multiple visits of up to 6 months each"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://www.gov.uk/apply-electronic-travel-authorisation",
+    "testMode": true,
+    "successIndicators": [".application-complete", "#eta-approval"],
+    "failureIndicators": [".govuk-error-summary", ".form-error"],
+    "dataExtractionRules": [
+      {
+        "name": "applicationReference",
+        "selector": "#application-reference",
+        "required": true
+      },
+      {
+        "name": "etaNumber",
+        "selector": "#eta-number",
+        "required": true
+      }
+    ]
+  }
+}
