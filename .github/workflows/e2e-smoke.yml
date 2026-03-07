@@ -66,10 +66,6 @@ jobs:
           name: e2e-bundle
           path: e2e/dist/
       - name: Run chromium + QR tests
-        # NOTE: continue-on-error matches old e2e-web job behavior.
-        # tripCreation, completeUserFlow, and qrWorkflow have pre-existing failures.
-        # TODO: Fix those tests, then remove continue-on-error.
-        continue-on-error: true
         run: npx playwright test --reporter=line
         env:
           CI: true
@@ -102,9 +98,6 @@ jobs:
           name: e2e-bundle
           path: e2e/dist/
       - name: Run performance tests
-        # NOTE: Performance tests have pre-existing failures on CI.
-        # TODO: Fix those tests, then remove continue-on-error.
-        continue-on-error: true
         run: npx playwright test --reporter=line
         env:
           CI: true
