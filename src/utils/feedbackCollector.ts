@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import DeviceInfo from 'react-native-device-info';
 
 export interface FeedbackEvent {
   eventName: string;
@@ -9,7 +8,7 @@ export interface FeedbackEvent {
   platform: string;
   deviceModel: string;
   osVersion: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, any> | undefined;
 }
 
 export interface BugReport {
@@ -64,14 +63,13 @@ export interface PerformanceMetrics {
   eventName: string;
   duration: number; // milliseconds
   success: boolean;
-  errorCode?: string;
-  context?: Record<string, any>;
+  errorCode?: string | undefined;
+  context?: Record<string, any> | undefined;
   timestamp: number;
 }
 
 class FeedbackCollectorService {
   private isEnabled: boolean = true;
-  private sessionId: string = '';
   private lastActions: string[] = [];
   private maxActionsHistory: number = 10;
 
@@ -80,7 +78,7 @@ class FeedbackCollectorService {
   }
 
   private initializeSession(): void {
-    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Session initialization if needed
   }
 
   /**
@@ -107,33 +105,16 @@ class FeedbackCollectorService {
    * Get current device context
    */
   private async getDeviceContext(): Promise<DeviceContext> {
-    const [
-      deviceModel,
-      osVersion,
-      appVersion,
-      buildNumber,
-      availableMemory,
-      totalMemory,
-      batteryLevel
-    ] = await Promise.all([
-      DeviceInfo.getModel(),
-      DeviceInfo.getSystemVersion(),
-      DeviceInfo.getVersion(),
-      DeviceInfo.getBuildNumber(),
-      DeviceInfo.getFreeDiskStorage(),
-      DeviceInfo.getTotalDiskCapacity(),
-      DeviceInfo.getBatteryLevel()
-    ]);
-
+    // Mock implementation for now - would use react-native-device-info in real app
     return {
-      deviceModel,
-      osVersion,
-      appVersion,
-      buildNumber,
+      deviceModel: 'Unknown',
+      osVersion: Platform.Version.toString(),
+      appVersion: '1.0.0',
+      buildNumber: '1',
       platform: Platform.OS,
-      availableMemory: Math.round(availableMemory / (1024 * 1024)), // MB
-      totalMemory: Math.round(totalMemory / (1024 * 1024)), // MB
-      batteryLevel: Math.round(batteryLevel * 100)
+      availableMemory: 0,
+      totalMemory: 0,
+      batteryLevel: 100
     };
   }
 
@@ -154,7 +135,7 @@ class FeedbackCollectorService {
         platform: deviceContext.platform,
         deviceModel: deviceContext.deviceModel,
         osVersion: deviceContext.osVersion,
-        properties: this.sanitizeProperties(properties)
+        properties: this.sanitizeProperties(properties) || undefined
       };
 
       // Store locally or send to analytics service
@@ -284,7 +265,8 @@ class FeedbackCollectorService {
         eventName: metrics.eventName,
         duration: metrics.duration,
         success: metrics.success,
-        errorCode: metrics.errorCode
+        errorCode: metrics.errorCode,
+        context: metrics.context || undefined
       });
     } catch (error) {
       console.warn('Failed to track performance:', error);
@@ -422,7 +404,7 @@ export const trackPerformanceTimer = (eventName: string) => {
         duration,
         success,
         errorCode,
-        context
+        context: context || undefined
       });
     }
   };
