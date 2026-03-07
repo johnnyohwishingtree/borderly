@@ -129,10 +129,10 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should render passport scan method selection correctly', () => {
       const { getByText } = render(<PassportScanScreen />);
 
-      expect(getByText('📷 Passport Information')).toBeTruthy();
+      expect(getByText('Passport Information')).toBeTruthy();
       expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
       expect(getByText('Quick Passport Scan')).toBeTruthy();
-      expect(getByText('📷 Start Camera Scan')).toBeTruthy();
+      expect(getByText('Start Camera Scan')).toBeTruthy();
       expect(getByText('Manual Entry')).toBeTruthy();
       expect(getByText('Enter Manually')).toBeTruthy();
     });
