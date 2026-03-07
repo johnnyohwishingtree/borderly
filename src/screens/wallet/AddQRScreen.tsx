@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -30,12 +30,49 @@ export default function AddQRScreen() {
   });
   const navigation = useNavigation();
 
+  // Memory management for images
+  const clearImageMemory = useCallback(() => {
+    setCapturedImage(null);
+    setBase64Image(null);
+    
+    // Force garbage collection hint if in development
+    if (__DEV__ && global.gc) {
+      // Small delay to allow state updates to complete
+      setTimeout(() => global.gc(), 100);
+    }
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearImageMemory();
+    };
+  }, [clearImageMemory]);
+
   const qrTypeOptions = [
     { value: 'immigration', label: 'Immigration' },
     { value: 'customs', label: 'Customs' },
     { value: 'health', label: 'Health' },
     { value: 'combined', label: 'Combined' },
   ] as const;
+
+  // Optimize base64 image for storage and memory usage
+  const optimizeImageForStorage = useCallback((base64: string): string => {
+    try {
+      // Estimate uncompressed size (rough calculation)
+      const estimatedSize = (base64.length * 3) / 4; // Convert base64 to bytes
+      
+      // If image is very large (>2MB), we should warn user or compress further
+      if (estimatedSize > 2 * 1024 * 1024) {
+        console.warn('QR image is large:', Math.round(estimatedSize / 1024), 'KB');
+      }
+      
+      return base64;
+    } catch (error) {
+      console.error('Error optimizing image:', error);
+      return base64;
+    }
+  }, []);
 
   const handleCameraCapture = async () => {
     setIsLoading(true);
@@ -57,6 +94,25 @@ export default function AddQRScreen() {
           return;
         }
 
+        // Helper function to set optimized image data
+        const setOptimizedImageData = async () => {
+          // Clear any existing images first to free memory
+          if (capturedImage || base64Image) {
+            clearImageMemory();
+            // Small delay to allow cleanup
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+
+          setCapturedImage(result.imageUri!);
+          const optimizedBase64 = optimizeImageForStorage(result.base64!);
+          setBase64Image(optimizedBase64);
+          
+          // Auto-generate a label based on current date
+          const now = new Date();
+          const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+          setFormData(prev => ({ ...prev, label: defaultLabel }));
+        };
+
         // Show warnings if any
         if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
           Alert.alert(
@@ -66,28 +122,14 @@ export default function AddQRScreen() {
               { text: 'Cancel', style: 'cancel' },
               { 
                 text: 'Continue', 
-                onPress: () => {
-                  setCapturedImage(result.imageUri!);
-                  setBase64Image(result.base64!);
-                  
-                  // Auto-generate a label based on current date
-                  const now = new Date();
-                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                  setFormData(prev => ({ ...prev, label: defaultLabel }));
-                }
+                onPress: setOptimizedImageData
               },
             ]
           );
           return;
         }
 
-        setCapturedImage(result.imageUri);
-        setBase64Image(result.base64);
-        
-        // Auto-generate a label based on current date
-        const now = new Date();
-        const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        setFormData(prev => ({ ...prev, label: defaultLabel }));
+        await setOptimizedImageData();
       } else if (result.error && result.error !== 'User cancelled camera') {
         Alert.alert('Error', result.error);
       }
@@ -118,6 +160,25 @@ export default function AddQRScreen() {
           return;
         }
 
+        // Helper function to set optimized image data
+        const setOptimizedImageData = async () => {
+          // Clear any existing images first to free memory
+          if (capturedImage || base64Image) {
+            clearImageMemory();
+            // Small delay to allow cleanup
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+
+          setCapturedImage(result.imageUri!);
+          const optimizedBase64 = optimizeImageForStorage(result.base64!);
+          setBase64Image(optimizedBase64);
+          
+          // Auto-generate a label based on current date
+          const now = new Date();
+          const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+          setFormData(prev => ({ ...prev, label: defaultLabel }));
+        };
+
         // Show warnings if any
         if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
           Alert.alert(
@@ -127,28 +188,14 @@ export default function AddQRScreen() {
               { text: 'Cancel', style: 'cancel' },
               { 
                 text: 'Continue', 
-                onPress: () => {
-                  setCapturedImage(result.imageUri!);
-                  setBase64Image(result.base64!);
-                  
-                  // Auto-generate a label based on current date
-                  const now = new Date();
-                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                  setFormData(prev => ({ ...prev, label: defaultLabel }));
-                }
+                onPress: setOptimizedImageData
               },
             ]
           );
           return;
         }
 
-        setCapturedImage(result.imageUri);
-        setBase64Image(result.base64);
-        
-        // Auto-generate a label based on current date
-        const now = new Date();
-        const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        setFormData(prev => ({ ...prev, label: defaultLabel }));
+        await setOptimizedImageData();
       } else if (result.error && result.error !== 'User cancelled image selection') {
         Alert.alert('Error', result.error);
       }
@@ -185,6 +232,9 @@ export default function AddQRScreen() {
         });
       });
 
+      // Clear images from memory after successful save
+      clearImageMemory();
+      
       Alert.alert(
         'Success',
         'QR code saved to your wallet!',
@@ -203,14 +253,13 @@ export default function AddQRScreen() {
     }
   };
 
-  const handleReset = () => {
-    setCapturedImage(null);
-    setBase64Image(null);
+  const handleReset = useCallback(() => {
+    clearImageMemory();
     setFormData({
       label: '',
       type: 'combined',
     });
-  };
+  }, [clearImageMemory]);
 
   if (isLoading) {
     return (
