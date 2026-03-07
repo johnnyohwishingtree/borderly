@@ -3,6 +3,26 @@ import { TripLeg } from '../../types/trip';
 import { CountryFormSchema, FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
 
+// Cache for memoizing form generation results
+interface FormCacheKey {
+  profileId: string;
+  legId: string;
+  schemaVersion: string;
+  existingDataHash?: string;
+}
+
+interface FormCacheEntry {
+  form: FilledForm;
+  timestamp: number;
+}
+
+const formCache = new Map<string, FormCacheEntry>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Memoization cache for field resolution
+const fieldResolutionCache = new Map<string, { value: unknown; timestamp: number }>();
+const FIELD_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
 export interface FilledFormField extends FormField {
   currentValue: unknown;
   source: 'auto' | 'user' | 'default' | 'empty';
@@ -33,8 +53,34 @@ export interface FormStats {
 }
 
 /**
+ * Generates a cache key for the form based on input parameters
+ */
+function generateCacheKey(
+  profile: TravelerProfile,
+  leg: TripLeg,
+  schema: CountryFormSchema,
+  existingFormData?: Record<string, unknown>
+): string {
+  const profileId = profile.id || 'default';
+  const legId = leg.id || `${leg.countryCode}-${leg.arrivalDate}`;
+  const existingDataHash = existingFormData 
+    ? JSON.stringify(existingFormData)
+    : undefined;
+  
+  return `${profileId}:${legId}:${schema.schemaVersion}${existingDataHash ? ':' + existingDataHash : ''}`;
+}
+
+/**
+ * Checks if a cache entry is still valid
+ */
+function isCacheEntryValid(entry: FormCacheEntry): boolean {
+  return Date.now() - entry.timestamp < CACHE_TTL;
+}
+
+/**
  * Core form generation engine. Takes a traveler profile, trip leg, and country schema
  * to produce a filled form with auto-populated data and tracking of what needs user input.
+ * Uses memoization and caching for optimal performance.
  */
 export function generateFilledForm(
   profile: TravelerProfile,
@@ -42,6 +88,13 @@ export function generateFilledForm(
   schema: CountryFormSchema,
   existingFormData?: Record<string, unknown>
 ): FilledForm {
+  // Check cache first
+  const cacheKey = generateCacheKey(profile, leg, schema, existingFormData);
+  const cachedEntry = formCache.get(cacheKey);
+  
+  if (cachedEntry && isCacheEntryValid(cachedEntry)) {
+    return cachedEntry.form;
+  }
   const context: FormContext = { profile, leg };
   let autoFilled = 0;
   let userFilled = 0;
@@ -53,7 +106,7 @@ export function generateFilledForm(
     title: section.title,
     fields: section.fields.map(field => {
       totalFields++;
-      return processFormField(field, context, existingFormData);
+      return processFormFieldWithCache(field, context, existingFormData);
     }),
   }));
 
@@ -78,7 +131,7 @@ export function generateFilledForm(
     ? Math.round(((autoFilled + userFilled) / totalFields) * 100)
     : 0;
 
-  return {
+  const result = {
     countryCode: schema.countryCode,
     countryName: schema.countryName,
     portalName: schema.portalName,
@@ -92,6 +145,59 @@ export function generateFilledForm(
       completionPercentage,
     },
   };
+
+  // Cache the result
+  formCache.set(cacheKey, {
+    form: result,
+    timestamp: Date.now(),
+  });
+
+  return result;
+}
+
+/**
+ * Generates a cache key for field resolution
+ */
+function generateFieldCacheKey(
+  field: FormField,
+  context: FormContext,
+  existingFormData?: Record<string, unknown>
+): string {
+  const contextHash = JSON.stringify({
+    profileId: context.profile.id || 'default',
+    legId: context.leg.id || `${context.leg.countryCode}-${context.leg.arrivalDate}`,
+    autoFillSource: field.autoFillSource,
+    existingValue: existingFormData?.[field.id],
+  });
+  
+  return `${field.id}:${contextHash}`;
+}
+
+/**
+ * Processes a single form field with caching to determine its value and source.
+ */
+function processFormFieldWithCache(
+  field: FormField,
+  context: FormContext,
+  existingFormData?: Record<string, unknown>
+): FilledFormField {
+  // Check field resolution cache
+  const fieldCacheKey = generateFieldCacheKey(field, context, existingFormData);
+  const cachedField = fieldResolutionCache.get(fieldCacheKey);
+  
+  if (cachedField && Date.now() - cachedField.timestamp < FIELD_CACHE_TTL) {
+    return cachedField.value as FilledFormField;
+  }
+  
+  const result = processFormField(field, context, existingFormData);
+  
+  // Cache the result
+  fieldResolutionCache.set(fieldCacheKey, {
+    value: result,
+    timestamp: Date.now(),
+  });
+  
+  return result;
 }
 
 /**
@@ -297,5 +403,50 @@ export function calculateFormProgress(form: FilledForm): {
     totalSections: form.sections.length,
     completedSections,
     sectionProgress,
+  };
+}
+
+/**
+ * Clears expired entries from the form cache to prevent memory leaks
+ */
+export function clearExpiredFormCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of formCache.entries()) {
+    if (now - entry.timestamp >= CACHE_TTL) {
+      formCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Clears expired entries from the field resolution cache
+ */
+export function clearExpiredFieldCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of fieldResolutionCache.entries()) {
+    if (now - entry.timestamp >= FIELD_CACHE_TTL) {
+      fieldResolutionCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Clears all caches (useful for testing or when profile data changes significantly)
+ */
+export function clearAllCaches(): void {
+  formCache.clear();
+  fieldResolutionCache.clear();
+}
+
+/**
+ * Gets cache statistics for monitoring and debugging
+ */
+export function getCacheStats(): {
+  formCache: { size: number; hitRate?: number };
+  fieldCache: { size: number; hitRate?: number };
+} {
+  return {
+    formCache: { size: formCache.size },
+    fieldCache: { size: fieldResolutionCache.size },
   };
 }
