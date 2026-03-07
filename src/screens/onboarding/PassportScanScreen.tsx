@@ -8,7 +8,10 @@ import { z } from 'zod';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar } from '../../components/ui';
+import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
+import { type MRZParseResult } from '../../services/passport/mrzParser';
+import { type TravelerProfile } from '../../types/profile';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
 
@@ -28,15 +31,17 @@ type PassportFormData = z.infer<typeof passportSchema>;
 export default function PassportScanScreen() {
   const navigation = useNavigation<PassportScanScreenNavigationProp>();
   const { saveProfile } = useProfileStore();
-  const [scanMode, setScanMode] = useState<'camera' | 'manual'>('manual');
-  const [isScanning, setIsScanning] = useState(false);
+  const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
+  const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
+  const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const scanAnimation = useRef(new Animated.Value(0)).current;
 
   const {
     control,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<PassportFormData>({
     resolver: zodResolver(passportSchema),
     defaultValues: {
@@ -52,11 +57,12 @@ export default function PassportScanScreen() {
     return `profile_${timestamp}_${randomPart1}_${randomPart2}`;
   };
 
-  const onSubmit = async (data: PassportFormData) => {
+  const saveProfileData = async (profileData: Partial<TravelerProfile>) => {
+    setIsSubmitting(true);
     try {
       await saveProfile({
         id: generateProfileId(),
-        ...data,
+        ...profileData,
         email: '',
         phoneNumber: '',
         defaultDeclarations: {
@@ -69,75 +75,100 @@ export default function PassportScanScreen() {
         },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      });
+      } as TravelerProfile);
 
       navigation.navigate('ConfirmProfile');
     } catch (error) {
       Alert.alert('Error', 'Failed to save passport data. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const onSubmit = async (data: PassportFormData) => {
+    await saveProfileData(data);
   };
 
   const handleBack = () => {
-    navigation.goBack();
-  };
-
-  const startScanAnimation = () => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scanAnimation, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scanAnimation, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  };
-
-  const handleScanPassport = async () => {
-    setIsScanning(true);
-    startScanAnimation();
-
-    try {
-      // Simulate camera scanning process
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      // Simulate successful MRZ parsing with sample data
-      setValue('passportNumber', 'P12345678');
-      setValue('surname', 'TRAVELER');
-      setValue('givenNames', 'JANE');
-      setValue('nationality', 'USA');
-      setValue('dateOfBirth', '1990-01-01');
-      setValue('gender', 'F');
-      setValue('passportExpiry', '2030-12-31');
-      setValue('issuingCountry', 'USA');
-      
-      Alert.alert(
-        'Passport Scanned!',
-        'Your passport information has been automatically filled. Please review and edit if needed.'
-      );
-    } catch (error) {
-      Alert.alert(
-        'Scan Failed',
-        'Could not read passport. Please enter information manually.'
-      );
-    } finally {
-      setIsScanning(false);
-      scanAnimation.stopAnimation();
+    if (mode === 'method') {
+      navigation.goBack();
+    } else {
+      setMode('method');
+      setScanResult(null);
+      setScannedProfile(null);
     }
   };
 
-  const handleSwitchToManual = () => {
-    setScanMode('manual');
+  // Camera scanning handlers
+  const handleScanSuccess = (result: MRZParseResult) => {
+    setScanResult(result);
+    setScannedProfile(result.profile || null);
+    setMode('preview');
   };
 
-  const handleSwitchToCamera = () => {
-    setScanMode('camera');
+  const handleScanCancel = () => {
+    setMode('method');
   };
+
+  const handleManualEntry = () => {
+    setMode('manual');
+  };
+
+  const handleStartScanning = () => {
+    setMode('scanning');
+  };
+
+  // Preview handlers
+  const handleConfirmScanned = async () => {
+    if (scannedProfile) {
+      await saveProfileData(scannedProfile);
+    }
+  };
+
+  const handleEditScanned = () => {
+    // Pre-fill manual form with scanned data
+    if (scannedProfile) {
+      setValue('passportNumber', scannedProfile.passportNumber || '');
+      setValue('surname', scannedProfile.surname || '');
+      setValue('givenNames', scannedProfile.givenNames || '');
+      setValue('nationality', scannedProfile.nationality || '');
+      setValue('dateOfBirth', scannedProfile.dateOfBirth || '');
+      setValue('gender', scannedProfile.gender || 'M');
+      setValue('passportExpiry', scannedProfile.passportExpiry || '');
+      setValue('issuingCountry', scannedProfile.issuingCountry || '');
+    }
+    setMode('manual');
+  };
+
+  const handleRescan = () => {
+    setScanResult(null);
+    setScannedProfile(null);
+    setMode('scanning');
+  };
+
+  // Render different modes
+  if (mode === 'scanning') {
+    return (
+      <MRZScanner
+        onScanSuccess={handleScanSuccess}
+        onScanCancel={handleScanCancel}
+        onManualEntry={handleManualEntry}
+      />
+    );
+  }
+
+  if (mode === 'preview' && scannedProfile) {
+    return (
+      <PassportPreview
+        profile={scannedProfile}
+        scanResult={scanResult || undefined}
+        onConfirm={handleConfirmScanned}
+        onEdit={handleEditScanned}
+        onRescan={handleRescan}
+        isLoading={isSubmitting}
+      />
+    );
+  }
 
   return (
     <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
@@ -154,258 +185,223 @@ export default function PassportScanScreen() {
           </Text>
         </View>
 
-        {/* Scan mode toggle */}
-        <Card variant="elevated" className="mb-6 bg-white shadow-lg">
-          <View className="flex-row rounded-lg bg-gray-100 p-1">
-            <TouchableOpacity
-              onPress={handleSwitchToCamera}
-              className={`flex-1 py-3 px-4 rounded-md items-center ${
-                scanMode === 'camera' ? 'bg-blue-500' : ''
-              }`}
-            >
-              <Text
-                className={`font-semibold ${
-                  scanMode === 'camera' ? 'text-white' : 'text-gray-600'
-                }`}
-              >
-                📷 Scan Passport
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSwitchToManual}
-              className={`flex-1 py-3 px-4 rounded-md items-center ${
-                scanMode === 'manual' ? 'bg-blue-500' : ''
-              }`}
-            >
-              <Text
-                className={`font-semibold ${
-                  scanMode === 'manual' ? 'text-white' : 'text-gray-600'
-                }`}
-              >
-                ✏️ Manual Entry
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </Card>
+        {/* Method selection */}
+        {mode === 'method' && (
+          <>
+            <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+              <View className="items-center py-8">
+                <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
+                  <Text className="text-4xl">📷</Text>
+                </View>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                  Quick Passport Scan
+                </Text>
+                <Text className="text-sm text-gray-600 text-center mb-6">
+                  Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
+                </Text>
+                <Button
+                  title="📷 Start Camera Scan"
+                  onPress={handleStartScanning}
+                  variant="primary"
+                  size="large"
+                />
+              </View>
+            </Card>
 
-        {/* Camera scanning section */}
-        {scanMode === 'camera' && (
-          <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
-            <View className="items-center py-8">
-              {isScanning ? (
-                <>
-                  <Animated.View
-                    style={{
-                      opacity: scanAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.3, 1],
-                      }),
-                    }}
-                    className="w-32 h-32 border-4 border-blue-500 rounded-lg mb-4 items-center justify-center"
-                  >
-                    <Text className="text-4xl">📷</Text>
-                  </Animated.View>
-                  <Text className="text-lg font-semibold text-blue-600 mb-2">
-                    Scanning Passport...
-                  </Text>
-                  <Text className="text-sm text-gray-600 text-center">
-                    Position your passport's photo page in front of the camera
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
-                    <Text className="text-4xl">📷</Text>
-                  </View>
-                  <Text className="text-lg font-semibold text-gray-900 mb-2">
-                    Quick Passport Scan
-                  </Text>
-                  <Text className="text-sm text-gray-600 text-center mb-6">
-                    Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
-                  </Text>
-                  <Button
-                    title="📷 Start Scanning"
-                    onPress={handleScanPassport}
-                    variant="primary"
-                    size="large"
-                    className="bg-blue-500"
-                  />
-                </>
-              )}
-            </View>
-          </Card>
+            <Card variant="elevated" className="mb-6 bg-white shadow-lg">
+              <View className="items-center py-6">
+                <View className="w-20 h-20 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
+                  <Text className="text-2xl">✏️</Text>
+                </View>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                  Manual Entry
+                </Text>
+                <Text className="text-sm text-gray-600 text-center mb-4">
+                  Enter your passport information by hand if camera scanning isn't working
+                </Text>
+                <Button
+                  title="✏️ Enter Manually"
+                  onPress={handleManualEntry}
+                  variant="outline"
+                  size="medium"
+                />
+              </View>
+            </Card>
+          </>
         )}
 
         {/* Manual entry section */}
-        {scanMode === 'manual' && (
-        <Card variant="elevated" className="bg-white shadow-lg">
-          <Text className="text-lg font-semibold text-gray-900 mb-4">
-            📝 Passport Information
-          </Text>
+        {mode === 'manual' && (
+          <Card variant="elevated" className="bg-white shadow-lg">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              📝 Passport Information
+            </Text>
 
-          <Controller
-            control={control}
-            name="passportNumber"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Passport Number"
-                placeholder="Enter passport number"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.passportNumber?.message}
-                autoCapitalize="characters"
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="passportNumber"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Passport Number"
+                  placeholder="Enter passport number"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.passportNumber?.message}
+                  autoCapitalize="characters"
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="surname"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Surname (Family Name)"
-                placeholder="Enter surname"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.surname?.message}
-                autoCapitalize="words"
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="surname"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Surname (Family Name)"
+                  placeholder="Enter surname"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.surname?.message}
+                  autoCapitalize="words"
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="givenNames"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Given Names"
-                placeholder="Enter given names"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.givenNames?.message}
-                autoCapitalize="words"
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="givenNames"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Given Names"
+                  placeholder="Enter given names"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.givenNames?.message}
+                  autoCapitalize="words"
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="nationality"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Nationality"
-                placeholder="e.g., USA, CAN, GBR"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.nationality?.message}
-                autoCapitalize="characters"
-                helperText="Use 3-letter country code"
-                maxLength={3}
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="nationality"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Nationality"
+                  placeholder="e.g., USA, CAN, GBR"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.nationality?.message}
+                  autoCapitalize="characters"
+                  helperText="Use 3-letter country code"
+                  maxLength={3}
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="dateOfBirth"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Date of Birth"
-                placeholder="YYYY-MM-DD"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.dateOfBirth?.message}
-                helperText="Format: YYYY-MM-DD"
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="dateOfBirth"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Date of Birth"
+                  placeholder="YYYY-MM-DD"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.dateOfBirth?.message}
+                  helperText="Format: YYYY-MM-DD"
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="gender"
-            render={({ field: { onChange, value } }) => (
-              <View className="mb-4">
-                <Text className="text-sm font-medium text-gray-700 mb-2">
-                  Gender <Text className="text-red-500">*</Text>
-                </Text>
-                <View className="flex-row space-x-4">
-                  {[
-                    { value: 'M', label: 'Male' },
-                    { value: 'F', label: 'Female' },
-                    { value: 'X', label: 'Other' },
-                  ].map((option) => (
-                    <Button
-                      key={option.value}
-                      title={option.label}
-                      onPress={() => onChange(option.value)}
-                      variant={value === option.value ? 'primary' : 'outline'}
-                      size="small"
-                    />
-                  ))}
+            <Controller
+              control={control}
+              name="gender"
+              render={({ field: { onChange, value } }) => (
+                <View className="mb-4">
+                  <Text className="text-sm font-medium text-gray-700 mb-2">
+                    Gender <Text className="text-red-500">*</Text>
+                  </Text>
+                  <View className="flex-row space-x-4">
+                    {[
+                      { value: 'M', label: 'Male' },
+                      { value: 'F', label: 'Female' },
+                      { value: 'X', label: 'Other' },
+                    ].map((option) => (
+                      <Button
+                        key={option.value}
+                        title={option.label}
+                        onPress={() => onChange(option.value)}
+                        variant={value === option.value ? 'primary' : 'outline'}
+                        size="small"
+                      />
+                    ))}
+                  </View>
+                  {errors.gender && (
+                    <Text className="text-sm text-red-500 mt-1">{errors.gender.message}</Text>
+                  )}
                 </View>
-                {errors.gender && (
-                  <Text className="text-sm text-red-500 mt-1">{errors.gender.message}</Text>
-                )}
-              </View>
-            )}
-          />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="passportExpiry"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Passport Expiry Date"
-                placeholder="YYYY-MM-DD"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.passportExpiry?.message}
-                helperText="Format: YYYY-MM-DD"
-                required
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="passportExpiry"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Passport Expiry Date"
+                  placeholder="YYYY-MM-DD"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.passportExpiry?.message}
+                  helperText="Format: YYYY-MM-DD"
+                  required
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="issuingCountry"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Issuing Country"
-                placeholder="e.g., USA, CAN, GBR"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                error={errors.issuingCountry?.message}
-                autoCapitalize="characters"
-                helperText="Use 3-letter country code"
-                maxLength={3}
-                required
-              />
-            )}
-          />
-        </Card>
+            <Controller
+              control={control}
+              name="issuingCountry"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Issuing Country"
+                  placeholder="e.g., USA, CAN, GBR"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.issuingCountry?.message}
+                  autoCapitalize="characters"
+                  helperText="Use 3-letter country code"
+                  maxLength={3}
+                  required
+                />
+              )}
+            />
+          </Card>
         )}
 
         <View className="mt-6 space-y-4">
-          <Button
-            title="Continue"
-            onPress={handleSubmit(onSubmit)}
-            loading={isSubmitting}
-            size="large"
-            fullWidth
-          />
+          {mode === 'manual' && (
+            <Button
+              title="Continue"
+              onPress={handleSubmit(onSubmit)}
+              loading={isSubmitting}
+              size="large"
+              fullWidth
+            />
+          )}
 
           <Button
             title="Back"
