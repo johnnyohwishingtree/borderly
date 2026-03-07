@@ -21,7 +21,7 @@ describe('Biometric Security Validation', () => {
       username: 'test',
       password: 'test',
       service: 'test',
-      storage: 'AES'
+      storage: Keychain.STORAGE_TYPE.AES
     });
     mockKeychain.resetInternetCredentials.mockResolvedValue(void 0);
     
@@ -56,7 +56,10 @@ describe('Biometric Security Validation', () => {
     });
 
     it('should detect when biometrics are not enrolled', async () => {
-      mockKeychain.getSecurityLevel.mockResolvedValue(Keychain.SECURITY_LEVEL.SECURE_SOFTWARE);
+      // Use a security level that's not SECURE_HARDWARE or SECURE_SOFTWARE
+      // This makes checkBiometricEnrollment return false (not enrolled)
+      // but biometry is still supported (from default setup), triggering the warning
+      mockKeychain.getSecurityLevel.mockResolvedValue('ANY_HARDWARE' as any);
 
       const result = await keychainValidator.validateKeychainSecurity();
 
@@ -217,7 +220,7 @@ describe('Biometric Security Validation', () => {
   describe('Profile Storage Validation', () => {
     it('should validate clean profile storage', async () => {
       mockKeychainService.getProfile.mockResolvedValue({
-        id: 'test-id',
+        id: 'profile-12345678',
         passportNumber: 'AB1234567',
         surname: 'Smith',
         givenNames: 'John',
