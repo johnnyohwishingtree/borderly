@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { Clipboard } from '@react-native-clipboard/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { CheckIcon, DocumentDuplicateIcon } from 'react-native-heroicons/outline';
 
 export interface CopyableFieldProps {

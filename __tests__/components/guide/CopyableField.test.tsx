@@ -6,7 +6,8 @@ import CopyableField from '../../../src/components/guide/CopyableField';
 
 // Mock dependencies
 jest.mock('@react-native-clipboard/clipboard', () => ({
-  Clipboard: {
+  __esModule: true,
+  default: {
     setString: jest.fn(),
   },
 }));
