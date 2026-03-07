@@ -9,7 +9,6 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-// @ts-expect-error no type declarations
 import { ArrowLeftIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from 'react-native-heroicons/outline';
 import { 
   GuideProgress, 

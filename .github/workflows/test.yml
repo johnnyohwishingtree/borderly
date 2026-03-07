@@ -111,9 +111,9 @@ jobs:
           ${FAILURES}
           \`\`\`
 
-          Fix all of these failures. IMPORTANT: After making changes, you MUST run \`pnpm test\` and \`pnpm e2e\` locally to verify all tests pass BEFORE committing. Do NOT push code that still has failing tests. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
+          Fix all of these failures. IMPORTANT: After making changes, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
             gh pr comment "$PR_NUM" --body "$BODY"
           else
             gh pr comment "$PR_NUM" \
-              --body "@claude Tests are failing on this PR. Check the test output, fix all failures. IMPORTANT: After making changes, you MUST run \`pnpm test\` and \`pnpm e2e\` locally to verify all tests pass BEFORE committing. Do NOT push code that still has failing tests. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
+              --body "@claude Tests are failing on this PR. Check the test output, fix all failures. IMPORTANT: After making changes, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
           fi

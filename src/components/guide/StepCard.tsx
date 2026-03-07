@@ -1,7 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-// @ts-expect-error no type declarations
 import { CheckCircleIcon, InformationCircleIcon, LightBulbIcon } from 'react-native-heroicons/outline';
-// @ts-expect-error no type declarations
 import { CheckCircleIcon as CheckCircleIconSolid } from 'react-native-heroicons/solid';
 import { SubmissionStep } from '@/types/schema';
 import CopyableField from './CopyableField';
