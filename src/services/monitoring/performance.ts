@@ -46,7 +46,7 @@ export interface MemoryMetrics {
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
   private activeFlows: Map<string, UserFlowMetric> = new Map();
-  private memoryCheckInterval?: NodeJS.Timeout;
+  private memoryCheckInterval?: ReturnType<typeof setInterval>;
   private isEnabled: boolean = true;
   
   constructor() {
@@ -229,7 +229,7 @@ class PerformanceMonitor {
       {
         fieldCount,
         autoFillCount,
-        autoFillPercentage: (autoFillCount / fieldCount) * 100,
+        autoFillPercentage: fieldCount > 0 ? (autoFillCount / fieldCount) * 100 : 0,
       }
     );
   }

@@ -71,7 +71,7 @@ describe('Error Tracking Service', () => {
       expect(capturedError.context.userAction).toBe('submit_form');
       expect(capturedError.severity).toBe('high');
       expect(capturedError.tags.form).toBe('passport');
-      expect(capturedError.tags.email).toBe('user@example.com'); // Tags are not auto-sanitized
+      expect(capturedError.tags.email).toBe('[REDACTED]'); // Tags are now sanitized
     });
 
     it('should include device and app context', () => {
@@ -144,14 +144,13 @@ describe('Error Tracking Service', () => {
       expect(error.error.message).toContain('Network POST 500');
       expect(error.severity).toBe('high');
       expect(error.tags.type).toBe('network');
-      expect(error.tags.url).toBe('https://api.example.com/users?email=[EMAIL]');
+      expect(error.tags.url).toBe('https://api.example.com/users'); // URL query params removed
       expect(error.tags.statusCode).toBe('500');
     });
 
     it('should capture validation errors', () => {
       const errorId = captureValidationError(
         'email',
-        'invalid-email',
         'must_be_valid_email',
         'user_registration'
       );
@@ -185,7 +184,7 @@ describe('Error Tracking Service', () => {
       expect(breadcrumb.message).toBe('User clicked submit button');
       expect(breadcrumb.level).toBe('info');
       expect(breadcrumb.data?.buttonId).toBe('submit');
-      expect(breadcrumb.data?.email).toBe('[EMAIL]'); // Should be sanitized
+      expect(breadcrumb.data?.email).toBe('[REDACTED]'); // Should be sanitized
     });
 
     it('should limit breadcrumb count', () => {
@@ -222,7 +221,7 @@ describe('Error Tracking Service', () => {
       const exported = errorTracker.exportErrors();
       expect(exported.breadcrumbs).toHaveLength(1);
       expect(exported.breadcrumbs[0].type).toBe('user_action');
-      expect(exported.breadcrumbs[0].data?.formData?.email).toBe('[EMAIL]');
+      expect(exported.breadcrumbs[0].data?.formData?.email).toBe('[REDACTED]'); // Should be redacted in nested object
     });
 
     it('should sanitize navigation data', () => {

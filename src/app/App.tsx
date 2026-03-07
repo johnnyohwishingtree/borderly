@@ -10,9 +10,6 @@ function App(): React.JSX.Element {
   useEffect(() => {
     // Initialize monitoring services
     try {
-      // Record app startup time
-      const startTime = Date.now();
-      
       // Gather device information using built-in Platform APIs
       const deviceInfo = {
         platform: Platform.OS,
@@ -34,12 +31,12 @@ function App(): React.JSX.Element {
       // Initialize error tracking
       errorTracker.initialize(deviceInfo, appState);
 
-      // Record startup metrics
+      // Record startup metrics (placeholder values until native implementation)
       performanceMonitor.recordStartupMetrics({
-        appStartTime: Date.now() - startTime,
-        jsLoadTime: 0, // Would be measured from native side
-        splashScreenDuration: 0, // Would be measured from native side
-        timeToInteractive: Date.now() - startTime,
+        appStartTime: 0, // Requires native measurement from app launch
+        jsLoadTime: 0, // Requires native measurement
+        splashScreenDuration: 0, // Requires native measurement
+        timeToInteractive: 0, // Requires native measurement
       });
 
       // Track app state changes
@@ -60,6 +57,7 @@ function App(): React.JSX.Element {
     } catch (error) {
       // Silently fail if monitoring setup fails - don't break the app
       console.warn('Failed to initialize monitoring:', error);
+      return () => {}; // Return empty cleanup function
     }
   }, []);
 

@@ -11,7 +11,7 @@ export interface SanitizationRule {
 // Common PII patterns to detect and redact
 const PII_PATTERNS: SanitizationRule[] = [
   // Email addresses (first to avoid conflicts)
-  { pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, replacement: '[EMAIL]' },
+  { pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g, replacement: '[EMAIL]' },
   
   // Phone numbers (more specific patterns)
   { pattern: /(\+?1[-\s]?)?(\([0-9]{3}\)|[0-9]{3})[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b/g, replacement: '[PHONE]' },
@@ -44,15 +44,16 @@ const SENSITIVE_FIELDS = new Set([
   'ssn',
   'social',
   'dob',
-  'dateOfBirth',
-  'firstName',
-  'lastName',
-  'fullName',
+  'dateofbirth',
+  'firstname',
+  'lastname',
+  'fullname',
+  'name',
   'email',
   'phone',
   'address',
-  'creditCard',
-  'cardNumber',
+  'creditcard',
+  'cardnumber',
   'cvv',
   'pin',
 ]);
@@ -123,18 +124,22 @@ export function sanitizeObject(
       }
       
       // Check if field name contains sensitive information (case-insensitive)
-      const isSensitiveField = SENSITIVE_FIELDS.has(lowercaseKey) ||
-        Array.from(SENSITIVE_FIELDS).some(field => lowercaseKey.includes(field)) ||
-        // Check for common name patterns
-        ['firstname', 'lastname', 'fullname', 'name'].some(nameField => lowercaseKey.includes(nameField));
+      let isSensitiveField = SENSITIVE_FIELDS.has(lowercaseKey);
+      if (!isSensitiveField) {
+        // Check partial matches more efficiently
+        for (const field of SENSITIVE_FIELDS) {
+          if (lowercaseKey.includes(field)) {
+            isSensitiveField = true;
+            break;
+          }
+        }
+      }
       
       if (isSensitiveField) {
-        // For email fields specifically, sanitize the value instead of redacting  
-        if (lowercaseKey === 'email' && typeof value === 'string') {
-          sanitized[key] = sanitizeString(value, options);
-        } else {
+        if (options.preserveStructure) {
           sanitized[key] = '[REDACTED]';
         }
+        // If preserveStructure is false, omit the field entirely
       } else {
         sanitized[key] = sanitizeObject(value, options);
       }
@@ -170,8 +175,8 @@ export function sanitizeError(error: Error, options: SanitizationOptions = {}): 
 export function sanitizeUrl(url: string): string {
   try {
     const urlObj = new URL(url);
-    // Remove query parameters and fragments
-    return `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+    // Remove query parameters and fragments, then sanitize the path
+    return sanitizeString(`${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`);
   } catch {
     // If URL parsing fails, sanitize as string
     return sanitizeString(url);

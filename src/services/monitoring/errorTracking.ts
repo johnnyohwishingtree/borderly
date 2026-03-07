@@ -3,7 +3,7 @@
  * Captures and tracks application errors with PII sanitization
  */
 
-import { sanitizeError, sanitizeObject, sanitizeString } from '../../utils/piiSanitizer';
+import { sanitizeError, sanitizeObject, sanitizeString, sanitizeUrl } from '../../utils/piiSanitizer';
 
 export interface ErrorReport {
   id: string;
@@ -110,7 +110,7 @@ export class ErrorTracker {
    * Update app state
    */
   updateAppState(appState: Partial<AppState>): void {
-    this.appState = { ...this.appState, ...appState } as AppState;
+    this.appState = { ...(this.appState || {}), ...appState } as AppState;
   }
 
   /**
@@ -143,7 +143,7 @@ export class ErrorTracker {
         appState: this.appState,
       },
       breadcrumbs: [...this.breadcrumbs],
-      tags: context.tags || {},
+      tags: sanitizeObject(context.tags, { preserveStructure: true }) || {},
       fingerprint: this.generateFingerprint(error),
     };
 
@@ -186,7 +186,7 @@ export class ErrorTracker {
       severity: statusCode >= 500 ? 'high' : 'medium',
       tags: {
         type: 'network',
-        url: sanitizeString(url),
+        url: sanitizeUrl(url),
         method,
         statusCode: statusCode.toString(),
       },
@@ -198,7 +198,6 @@ export class ErrorTracker {
    */
   captureValidationError(
     field: string,
-    value: any,
     rule: string,
     context?: string
   ): string {
@@ -229,7 +228,7 @@ export class ErrorTracker {
       ...breadcrumb,
       timestamp: Date.now(),
       message: sanitizeString(breadcrumb.message),
-      data: breadcrumb.data ? sanitizeObject(breadcrumb.data) : undefined,
+      data: breadcrumb.data ? sanitizeObject(breadcrumb.data, { preserveStructure: true }) : undefined,
     };
 
     this.breadcrumbs.push(fullBreadcrumb);
@@ -265,7 +264,7 @@ export class ErrorTracker {
     this.addBreadcrumb({
       type: 'user_action',
       message: `User action: ${sanitizeString(action)}`,
-      data: data ? sanitizeObject(data) : undefined,
+      data: data, // Don't double-sanitize here, addBreadcrumb will handle it
       level: 'info',
     });
   }
