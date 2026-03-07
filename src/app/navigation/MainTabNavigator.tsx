@@ -1,6 +1,7 @@
+import { lazy, Suspense } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View, ActivityIndicator } from 'react-native';
 
 import {
   MainTabParamList,
@@ -10,27 +11,31 @@ import {
   SettingsStackParamList,
 } from './types';
 
-// Import screens
-import {
-  TripListScreen,
-  CreateTripScreen,
-  TripDetailScreen,
-  LegFormScreen,
-  SubmissionGuideScreen,
-} from '../../screens/trips';
+// Lazy load trip screens
+const TripListScreen = lazy(() => import('../../screens/trips/TripListScreen'));
+const CreateTripScreen = lazy(() => import('../../screens/trips/CreateTripScreen'));
+const TripDetailScreen = lazy(() => import('../../screens/trips/TripDetailScreen'));
+const LegFormScreen = lazy(() => import('../../screens/trips/LegFormScreen'));
+const SubmissionGuideScreen = lazy(() => import('../../screens/trips/SubmissionGuideScreen'));
 
-import {
-  QRWalletScreen,
-  QRDetailScreen,
-  AddQRScreen,
-} from '../../screens/wallet';
+// Lazy load wallet screens
+const QRWalletScreen = lazy(() => import('../../screens/wallet/QRWalletScreen'));
+const QRDetailScreen = lazy(() => import('../../screens/wallet/QRDetailScreen'));
+const AddQRScreen = lazy(() => import('../../screens/wallet/AddQRScreen'));
 
-import {
-  ProfileScreen,
-  EditProfileScreen,
-} from '../../screens/profile';
+// Lazy load profile screens
+const ProfileScreen = lazy(() => import('../../screens/profile/ProfileScreen'));
+const EditProfileScreen = lazy(() => import('../../screens/profile/EditProfileScreen'));
 
-import { SettingsScreen } from '../../screens/settings';
+// Lazy load settings screens
+const SettingsScreen = lazy(() => import('../../screens/settings/SettingsScreen'));
+
+// Loading component for lazy-loaded screens
+const ScreenLoader = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator size="large" color="#3b82f6" />
+  </View>
+);
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const TripStack = createNativeStackNavigator<TripStackParamList>();
@@ -43,29 +48,54 @@ function TripNavigator() {
     <TripStack.Navigator>
       <TripStack.Screen
         name="TripList"
-        component={TripListScreen}
         options={{ title: 'My Trips' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <TripListScreen {...props} />
+          </Suspense>
+        )}
+      </TripStack.Screen>
       <TripStack.Screen
         name="CreateTrip"
-        component={CreateTripScreen}
         options={{ title: 'Create Trip' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <CreateTripScreen {...props} />
+          </Suspense>
+        )}
+      </TripStack.Screen>
       <TripStack.Screen
         name="TripDetail"
-        component={TripDetailScreen}
         options={{ title: 'Trip Details' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <TripDetailScreen {...props} />
+          </Suspense>
+        )}
+      </TripStack.Screen>
       <TripStack.Screen
         name="LegForm"
-        component={LegFormScreen}
         options={{ title: 'Travel Form' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <LegFormScreen {...props} />
+          </Suspense>
+        )}
+      </TripStack.Screen>
       <TripStack.Screen
         name="SubmissionGuide"
-        component={SubmissionGuideScreen}
         options={{ title: 'Submission Guide' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <SubmissionGuideScreen {...props} />
+          </Suspense>
+        )}
+      </TripStack.Screen>
     </TripStack.Navigator>
   );
 }
@@ -75,19 +105,34 @@ function WalletNavigator() {
     <WalletStack.Navigator>
       <WalletStack.Screen
         name="QRWallet"
-        component={QRWalletScreen}
         options={{ title: 'QR Wallet' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <QRWalletScreen {...props} />
+          </Suspense>
+        )}
+      </WalletStack.Screen>
       <WalletStack.Screen
         name="QRDetail"
-        component={QRDetailScreen}
         options={{ title: 'QR Details' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <QRDetailScreen {...props} />
+          </Suspense>
+        )}
+      </WalletStack.Screen>
       <WalletStack.Screen
         name="AddQR"
-        component={AddQRScreen}
         options={{ title: 'Add QR Code' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <AddQRScreen {...props} />
+          </Suspense>
+        )}
+      </WalletStack.Screen>
     </WalletStack.Navigator>
   );
 }
@@ -97,14 +142,24 @@ function ProfileNavigator() {
     <ProfileStack.Navigator>
       <ProfileStack.Screen
         name="Profile"
-        component={ProfileScreen}
         options={{ title: 'Profile' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <ProfileScreen {...props} />
+          </Suspense>
+        )}
+      </ProfileStack.Screen>
       <ProfileStack.Screen
         name="EditProfile"
-        component={EditProfileScreen}
         options={{ title: 'Edit Profile' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <EditProfileScreen {...props} />
+          </Suspense>
+        )}
+      </ProfileStack.Screen>
     </ProfileStack.Navigator>
   );
 }
@@ -114,9 +169,14 @@ function SettingsNavigator() {
     <SettingsStack.Navigator>
       <SettingsStack.Screen
         name="Settings"
-        component={SettingsScreen}
         options={{ title: 'Settings' }}
-      />
+      >
+        {(props) => (
+          <Suspense fallback={<ScreenLoader />}>
+            <SettingsScreen {...props} />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
     </SettingsStack.Navigator>
   );
 }
