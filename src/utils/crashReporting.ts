@@ -40,7 +40,7 @@ export interface CrashReport {
 
 export interface CrashBreadcrumb {
   timestamp: number;
-  category: 'navigation' | 'user_action' | 'network' | 'state_change' | 'error';
+  category: 'navigation' | 'user_action' | 'network' | 'state_change' | 'error' | 'system';
   message: string;
   level: 'debug' | 'info' | 'warning' | 'error';
   data?: Record<string, any>;
@@ -78,9 +78,9 @@ class CrashReportingService {
   setup(): void {
     if (this.isSetup || !this.config.enabled) return;
 
-    // Capture JavaScript errors
+    // Capture JavaScript errors (browser/web environment)
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event) => {
+      window.addEventListener('error', (event: any) => {
         this.handleJavaScriptError(event.error, {
           filename: event.filename,
           lineno: event.lineno,
@@ -90,7 +90,7 @@ class CrashReportingService {
 
       // Capture unhandled promise rejections
       if (this.config.enablePromiseRejectionCapture) {
-        window.addEventListener('unhandledrejection', (event) => {
+        window.addEventListener('unhandledrejection', (event: any) => {
           this.handleUnhandledPromiseRejection(event.reason);
         });
       }
@@ -295,8 +295,8 @@ class CrashReportingService {
         platform: this.getPlatform(),
         osVersion: this.getOSVersion(),
         appVersion: this.getAppVersion(),
-        deviceModel: this.getDeviceModel(),
-        availableMemory: this.getAvailableMemory()
+        ...(this.getDeviceModel() ? { deviceModel: this.getDeviceModel() } : {}),
+        ...(this.getAvailableMemory() !== undefined ? { availableMemory: this.getAvailableMemory() } : {})
       },
       breadcrumbs: [...this.breadcrumbs],
       severity,
@@ -391,7 +391,7 @@ class CrashReportingService {
 
   private getNetworkStatus(): 'online' | 'offline' {
     // In a real app, this would use NetInfo
-    return typeof navigator !== 'undefined' && navigator.onLine ? 'online' : 'offline';
+    return typeof navigator !== 'undefined' && 'onLine' in navigator && navigator.onLine ? 'online' : 'offline';
   }
 
   private getPlatform(): 'ios' | 'android' {
@@ -405,12 +405,12 @@ class CrashReportingService {
   }
 
   private getAppVersion(): string {
-    return process.env.APP_VERSION || '1.0.0';
+    return (typeof process !== 'undefined' && process.env?.APP_VERSION) || '1.0.0';
   }
 
-  private getDeviceModel(): string {
+  private getDeviceModel(): string | undefined {
     // In a real app, this would use DeviceInfo
-    return 'Unknown';
+    return undefined;
   }
 
   private getAvailableMemory(): number | undefined {

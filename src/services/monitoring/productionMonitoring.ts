@@ -312,7 +312,7 @@ class ProductionMonitoringService {
 
   private getAppVersion(): string {
     // In a real app, this would come from package.json or build config
-    return process.env.APP_VERSION || '1.0.0';
+    return (typeof process !== 'undefined' && process.env?.APP_VERSION) || '1.0.0';
   }
 
   private getPlatform(): 'ios' | 'android' {
