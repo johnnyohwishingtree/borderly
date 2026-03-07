@@ -46,11 +46,26 @@ export default function MRZScannerComponent({
     return () => {
       // Cleanup on unmount
       setIsScanning(false);
+      
+      // Dispose scanner resources
+      if (scannerRef.current && typeof scannerRef.current.dispose === 'function') {
+        scannerRef.current.dispose();
+      }
+      
+      // Clear camera ref
+      if (cameraRef.current) {
+        // Stop camera recording if active
+        try {
+          cameraRef.current.pausePreview?.();
+        } catch (error) {
+          // Ignore cleanup errors
+        }
+      }
     };
   }, []);
 
   const handleTextRecognition = (textRecognition: TextRecognition) => {
-    if (!isScanning) return;
+    if (!isScanning || (scannerRef.current && typeof scannerRef.current.isDisposedState === 'function' && scannerRef.current.isDisposedState())) return;
 
     const result = scannerRef.current.processFrame(textRecognition);
     setScanResult(result);
@@ -64,8 +79,10 @@ export default function MRZScannerComponent({
         enableVibrateFallback: true,
       });
 
-      // Small delay to show success state
+      // Small delay to show success state, then cleanup and callback
       setTimeout(() => {
+        // Clear scan result to free memory before callback
+        setScanResult(null);
         onScanSuccess(result.mrz!);
       }, 500);
     }
