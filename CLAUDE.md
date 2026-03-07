@@ -196,19 +196,38 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 
 **When adding new screens:** Add a Playwright test in `e2e/tests/` that verifies the screen renders. If the screen uses a new native module, add a mock in `e2e/mocks/` and wire it up in `webpack.config.js`.
 
-## Implementation Sprints
+## Implementation Status
 
-### Sprint 1: Foundation
-Project bootstrap, navigation, storage layer (Keychain + MMKV + WatermelonDB), onboarding flow, profile CRUD.
+### ✅ Sprint 1: Foundation (Complete)
+- [x] Project bootstrap with React Native + TypeScript
+- [x] Navigation structure (React Navigation v7)
+- [x] Storage layer (Keychain + MMKV + WatermelonDB)
+- [x] Onboarding flow (Welcome → PassportScan → ConfirmProfile → BiometricSetup)
+- [x] Profile CRUD operations
+- [x] Secure encrypted storage implementation
 
-### Sprint 2: Core Form Engine
-Country schemas (JPN, MYS, SGP), Form Engine, Field Mapper, DynamicForm component, trip creation, Leg Form Screen.
+### ✅ Sprint 2: Core Form Engine (Complete)
+- [x] Country schemas (JPN, MYS, SGP) with full field definitions
+- [x] Form Engine with auto-fill logic and smart delta detection
+- [x] Field Mapper with dot-notation path resolution
+- [x] DynamicForm component with validation
+- [x] Trip creation and management
+- [x] Leg Form Screen with pre-filled data
 
-### Sprint 3: Submission Guide & QR Wallet
-Step-by-step portal walkthroughs, CopyableField, QR capture/import/display, MRZ camera scanning.
+### ✅ Sprint 3: Submission Guide & QR Wallet (Complete)
+- [x] Step-by-step portal walkthroughs with CopyableField component
+- [x] QR capture, import, and display functionality
+- [x] MRZ camera scanning with ML Kit integration
+- [x] Offline QR code wallet with search and organization
+- [x] Submission guide with government portal integration
 
-### Sprint 4: Polish & Ship
-Error handling, empty/loading states, data export/delete, privacy policy, app store assets, TestFlight build.
+### 🔄 Sprint 4: Testing & Documentation (In Progress)
+- [x] Comprehensive E2E test suite for user workflows
+- [x] Performance tests for form generation and camera operations
+- [x] Unit tests for all core services and components
+- [ ] User guide documentation
+- [ ] Implementation status documentation
+- [ ] Final polish and error handling improvements
 
 ## Skills Reference
 
