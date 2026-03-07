@@ -24,14 +24,28 @@ jobs:
           fetch-depth: 0
 
       - name: Switch to PR branch if applicable
-        if: github.event.issue.pull_request
+        if: github.event.issue.pull_request || github.event.pull_request
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          PR_NUM=${{ github.event.issue.number }}
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            PR_NUM=${{ github.event.pull_request.number }}
+          else
+            PR_NUM=${{ github.event.issue.number }}
+          fi
           PR_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
           echo "Switching to PR branch: $PR_BRANCH"
           git checkout "$PR_BRANCH"
+
+      - name: Create branch for new issue
+        if: github.event.issue && !github.event.issue.pull_request
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          BRANCH_NAME="gemini/issue-$ISSUE_NUM-$(date +%Y%m%d-%H%M)"
+          git checkout -b "$BRANCH_NAME"
+          echo "Created branch: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        id: branch
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -55,14 +69,14 @@ jobs:
         id: gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           # Extract everything after @gemini
           PROMPT=$(echo "${{ github.event.comment.body }}" | sed 's/.*@gemini//' | xargs)
           echo "Running Gemini with prompt: $PROMPT"
           
-          # Run gemini-cli in non-interactive mode
-          # Note: We use npx to ensure the latest version
-          npx -y @google/gemini-cli "$PROMPT"
+          # Run gemini-cli in headless mode
+          npx -y @google/gemini-cli --headless "$PROMPT"
 
       - name: Push uncommitted changes
         if: always()
