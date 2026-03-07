@@ -11,22 +11,40 @@ import { trigger } from 'react-native-haptic-feedback';
 import BoardingPassScanner from '../../../src/components/boarding/BoardingPassScanner';
 import * as boardingPassParser from '../../../src/services/boarding/boardingPassParser';
 
-// Mock dependencies
+// Mock dependencies  
 jest.mock('react-native-camera', () => {
   const React = require('react');
-  const { View } = require('react-native');
-  return {
-    RNCamera: jest.fn().mockImplementation((props) => {
-      // Store props for test access
-      (globalThis as any).lastCameraProps = props;
-      // Return a View that renders children to allow overlay components to render
-      return React.createElement(View, {}, props.children);
-    }),
+  const RNCamera = React.forwardRef((props: any, ref: any) => {
+    // Store props for test access
+    (globalThis as any).lastCameraProps = props;
+    
+    // Trigger camera ready after mount
+    React.useEffect(() => {
+      if (props.onCameraReady) {
+        setTimeout(() => props.onCameraReady(), 100);
+      }
+    }, [props.onCameraReady]);
+    
+    return React.createElement('RNCamera', props, props.children);
+  });
+  
+  RNCamera.Constants = {
+    Type: { back: 'back', front: 'front' },
+    FlashMode: { off: 'off', on: 'on', torch: 'torch', auto: 'auto' },
+    BarCodeType: {
+      pdf417: 'pdf417',
+      aztec: 'aztec', 
+      qr: 'qr',
+    },
   };
+  
+  return { RNCamera };
 });
 
 jest.mock('react-native-haptic-feedback');
-jest.mock('../../../src/services/boarding/boardingPassParser');
+jest.mock('../../../src/services/boarding/boardingPassParser', () => ({
+  parseBoardingPass: jest.fn(),
+}));
 
 // Mock UI components
 jest.mock('../../../src/components/ui/Button', () => {
@@ -287,16 +305,9 @@ describe('BoardingPassScanner', () => {
     it('handles cancel button press', async () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
-      // Setup camera ready state first so buttons are visible
-      const lastProps = (globalThis as any).lastCameraProps;
-      if (lastProps?.onCameraReady) {
-        act(() => {
-          lastProps.onCameraReady();
-        });
-      }
-
+      // Wait for camera to initialize
       await waitFor(() => {
-        expect(getByText('Cancel')).toBeTruthy();
+        expect(getByText('Scan the barcode on your boarding pass')).toBeTruthy();
       });
       
       const cancelButton = getByText('Cancel');
@@ -308,16 +319,9 @@ describe('BoardingPassScanner', () => {
     it('handles manual entry button press', async () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
-      // Setup camera ready state first so buttons are visible
-      const lastProps = (globalThis as any).lastCameraProps;
-      if (lastProps?.onCameraReady) {
-        act(() => {
-          lastProps.onCameraReady();
-        });
-      }
-
+      // Wait for camera to initialize
       await waitFor(() => {
-        expect(getByText('Manual')).toBeTruthy();
+        expect(getByText('Scan the barcode on your boarding pass')).toBeTruthy();
       });
       
       const manualButton = getByText('Manual');
@@ -327,15 +331,12 @@ describe('BoardingPassScanner', () => {
     });
 
     it('toggles flash mode', async () => {
-      const { getByLabelText } = render(<BoardingPassScanner {...defaultProps} />);
+      const { getByLabelText, getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
-      // Setup camera ready state first
-      const lastProps = (globalThis as any).lastCameraProps;
-      if (lastProps?.onCameraReady) {
-        act(() => {
-          lastProps.onCameraReady();
-        });
-      }
+      // Wait for camera to initialize
+      await waitFor(() => {
+        expect(getByText('Scan the barcode on your boarding pass')).toBeTruthy();
+      });
 
       await waitFor(() => {
         expect(getByLabelText('Turn flash on')).toBeTruthy();
@@ -346,6 +347,10 @@ describe('BoardingPassScanner', () => {
 
       // Verify haptic feedback
       expect(mockTrigger).toHaveBeenCalledWith(expect.stringContaining('impactLight'));
+      
+      // Verify flash mode was toggled by checking props
+      const lastProps = (globalThis as any).lastCameraProps;
+      expect(lastProps?.flashMode).toBe(2); // torch mode
     });
   });
 

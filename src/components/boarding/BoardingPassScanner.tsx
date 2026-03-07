@@ -22,6 +22,9 @@ import { type ParsedBoardingPass, type BCBPParseError } from '../../types/boardi
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
+// Sample BCBP for demo mode (moved outside component for performance)
+const DEMO_BCBP_DATA = 'M1JANE/DOE            EABC123 NRTHAN HK1Y009F001A0025 319>5180WW6319BHK              2A0025^164GQKL^099EW                         *30A2A5              09         N';
+
 export interface BoardingPassScannerProps {
   onScanSuccess: (result: ParsedBoardingPass) => void;
   onScanCancel: () => void;
@@ -52,6 +55,7 @@ export default function BoardingPassScanner({
   const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const scanCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onScanSuccessTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastScanTimeRef = useRef<number>(0);
 
   // Scan cooldown to prevent excessive processing
@@ -62,9 +66,12 @@ export default function BoardingPassScanner({
     cameraTimeoutRef.current = setTimeout(() => {
       setCameraStatus('unavailable');
     }, 10000);
+  }, []);
 
+  // Separate cleanup effect that runs only on unmount
+  useEffect(() => {
     return () => {
-      // Cleanup on unmount
+      // Cleanup on unmount - clear all timers
       if (cameraTimeoutRef.current) {
         clearTimeout(cameraTimeoutRef.current);
         cameraTimeoutRef.current = null;
@@ -77,6 +84,10 @@ export default function BoardingPassScanner({
         clearTimeout(scanCooldownRef.current);
         scanCooldownRef.current = null;
       }
+      if (onScanSuccessTimeoutRef.current) {
+        clearTimeout(onScanSuccessTimeoutRef.current);
+        onScanSuccessTimeoutRef.current = null;
+      }
       setIsScanning(false);
       
       // Clear camera ref and stop preview
@@ -88,7 +99,7 @@ export default function BoardingPassScanner({
         }
       }
     };
-  }, [lowPowerMode]);
+  }, []);
 
   const handleBarcodeDetected = ({ data, type }: { data: string; type: string }) => {
     if (!isScanning) return;
@@ -148,7 +159,7 @@ export default function BoardingPassScanner({
         });
 
         // Small delay to show success state, then callback
-        setTimeout(() => {
+        onScanSuccessTimeoutRef.current = setTimeout(() => {
           setScanResult(null);
           onScanSuccess(boardingPass);
         }, 500);
@@ -188,7 +199,7 @@ export default function BoardingPassScanner({
     }
   };
 
-  const handleMountError = (error: any) => {
+  const handleMountError = (error: unknown) => {
     console.error('Camera mount error:', error);
     if (cameraTimeoutRef.current) {
       clearTimeout(cameraTimeoutRef.current);
@@ -203,8 +214,6 @@ export default function BoardingPassScanner({
     }
   };
 
-  // Sample BCBP for demo mode
-  const DEMO_BCBP_DATA = 'M1JANE/DOE            EABC123 NRTHAN HK1Y009F001A0025 319>5180WW6319BHK              2A0025^164GQKL^099EW                         *30A2A5              09         N';
 
   const startDemoScan = () => {
     setCameraStatus('demo');
@@ -259,7 +268,7 @@ export default function BoardingPassScanner({
           });
 
           // Deliver result after showing success overlay
-          demoTimerRef.current = setTimeout(() => {
+          onScanSuccessTimeoutRef.current = setTimeout(() => {
             setScanResult(null);
             onScanSuccess(result);
           }, 800);
