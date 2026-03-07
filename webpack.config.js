@@ -92,6 +92,10 @@ module.exports = {
     ],
   },
   plugins: [
+    // React Native's __DEV__ global
+    new webpack.DefinePlugin({
+      __DEV__: JSON.stringify(true),
+    }),
     // Replace the entire storage barrel export to avoid WatermelonDB decorator compilation
     new webpack.NormalModuleReplacementPlugin(
       /src\/services\/storage\/index\.ts$/,
