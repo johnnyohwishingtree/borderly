@@ -13,6 +13,8 @@ import {
   Text,
   TouchableOpacity,
   Alert,
+  Linking,
+  Platform,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
@@ -145,18 +147,24 @@ export default function MRZScannerComponent({
     setIsScanning(true);
   };
 
+  const handleStatusChange = ({ cameraStatus }: { cameraStatus: string }) => {
+    if (cameraStatus === 'NOT_AUTHORIZED') {
+      // Permission denied — show error immediately instead of waiting for timeout
+      if (cameraTimeoutRef.current) {
+        clearTimeout(cameraTimeoutRef.current);
+        cameraTimeoutRef.current = null;
+      }
+      setPermissionGranted(false);
+    }
+  };
+
   const handleMountError = (error: any) => {
     console.error('Camera mount error:', error);
+    if (cameraTimeoutRef.current) {
+      clearTimeout(cameraTimeoutRef.current);
+      cameraTimeoutRef.current = null;
+    }
     setPermissionGranted(false);
-    
-    Alert.alert(
-      'Camera Error',
-      'Unable to access camera. Please check permissions and try again.',
-      [
-        { text: 'Manual Entry', onPress: onManualEntry },
-        { text: 'Retry', onPress: () => setPermissionGranted(null) },
-      ]
-    );
   };
 
   const toggleFlash = () => {
@@ -194,15 +202,25 @@ export default function MRZScannerComponent({
           Camera Access Required
         </Text>
         <Text className="text-gray-300 text-center mb-8 leading-6">
-          To scan your passport, we need camera permission. This allows us to read the
-          MRZ data from your passport without storing any images.
+          To scan your passport, we need camera permission. You can enable it in Settings,
+          or enter your passport information manually.
         </Text>
-        <Button
-          title="Enter Manually Instead"
-          onPress={onManualEntry}
-          variant="primary"
-          fullWidth
-        />
+        {Platform.OS !== 'web' && (
+          <Button
+            title="Open Settings"
+            onPress={() => Linking.openSettings()}
+            variant="outline"
+            fullWidth
+          />
+        )}
+        <View className="mt-4 w-full">
+          <Button
+            title="Enter Manually Instead"
+            onPress={onManualEntry}
+            variant="primary"
+            fullWidth
+          />
+        </View>
       </View>
     );
   }
@@ -223,6 +241,7 @@ export default function MRZScannerComponent({
         captureAudio={false}
         onCameraReady={handleCameraReady}
         onMountError={handleMountError}
+        onStatusChange={handleStatusChange}
         // Performance optimizations
         ratio={lowPowerMode ? "4:3" : "16:9"} // 4:3 uses less memory on low-end devices
         // Optimize preview for battery life

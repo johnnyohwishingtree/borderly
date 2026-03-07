@@ -9,6 +9,7 @@ const RNCamera = React.forwardRef((props, ref) => {
     onCameraReady,
     onMountError,
     onTextRecognized,
+    onStatusChange,
     // Strip RN-specific props that are invalid on HTML elements
     type,
     flashMode,
@@ -21,6 +22,7 @@ const RNCamera = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     // Simulate camera ready after a short delay
     const timer = setTimeout(() => {
+      if (onStatusChange) onStatusChange({ cameraStatus: 'READY' });
       if (onCameraReady) onCameraReady();
     }, 100);
     return () => clearTimeout(timer);
