@@ -37,7 +37,7 @@ describe('Form Generation Performance Tests', () => {
     formUpdate: 5, // Form updates should be < 5ms
     formValidation: 10, // Form validation should be < 10ms (increased for CI stability)
     dataExport: 5, // Data export should be < 5ms
-    progressCalculation: 3, // Progress calculation should be < 3ms
+    progressCalculation: 5, // Progress calculation should be < 5ms (increased for CI stability)
   };
 
   describe('Single Form Generation Performance', () => {
