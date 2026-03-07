@@ -38,7 +38,7 @@ export function ErrorMessage({
   // Extract error details
   const isAppError = typeof error === 'object' && error !== null;
   const errorMessage = isAppError ? error.userMessage : error;
-  const errorTitle = title || (isAppError ? 'Error' : 'Something went wrong');
+  const errorTitle = title || (isAppError ? 'Error' : 'Error');
   const isRecoverable = isAppError ? error.recoverable : true;
 
   // Size-based styling

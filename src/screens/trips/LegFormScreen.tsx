@@ -36,6 +36,7 @@ export default function LegFormScreen() {
   const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(false);
   const { error: formError, showError: showFormError, clearError: clearFormError } = useErrorMessage();
   const { error: loadError, showError: showLoadError, clearError: clearLoadError } = useErrorMessage();
+  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'markReady' } | null>(null);
 
   const trip = getTripById(tripId);
   const leg = getLegById(legId);
@@ -98,8 +99,12 @@ export default function LegFormScreen() {
         formStatus: isValid ? 'ready' : 'in_progress',
       });
 
+      setLastFailedOperation(null); // Clear any failed operation
       Alert.alert('Success', 'Form data saved successfully!');
     } catch (error) {
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'save' });
+      
       const result = await handleStorageError(error as Error, {
         screen: 'LegForm',
         action: 'saveForm',
@@ -109,6 +114,7 @@ export default function LegFormScreen() {
         enableRetry: true,
         onRecoverySuccess: () => {
           clearFormError();
+          setLastFailedOperation(null);
           Alert.alert('Success', 'Form data saved successfully!');
         }
       });
@@ -152,10 +158,14 @@ export default function LegFormScreen() {
         formStatus: 'ready',
       });
 
+      setLastFailedOperation(null); // Clear any failed operation
       Alert.alert('Success', 'Form marked as ready for submission!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'markReady' });
+      
       const result = await handleStorageError(error as Error, {
         screen: 'LegForm',
         action: 'markAsReady',
@@ -165,6 +175,7 @@ export default function LegFormScreen() {
         enableRetry: true,
         onRecoverySuccess: () => {
           clearFormError();
+          setLastFailedOperation(null);
           Alert.alert('Success', 'Form marked as ready for submission!', [
             { text: 'OK', onPress: () => navigation.goBack() },
           ]);
@@ -267,11 +278,19 @@ export default function LegFormScreen() {
           error={formError}
           variant="card"
           showRetry
-          onRetry={() => {
+          onRetry={async () => {
             clearFormError();
-            // Retry the last operation based on error type
+            // Retry the last failed operation
+            if (lastFailedOperation?.type === 'save') {
+              await handleSaveForm();
+            } else if (lastFailedOperation?.type === 'markReady') {
+              await handleMarkAsReady();
+            }
           }}
-          onDismiss={clearFormError}
+          onDismiss={() => {
+            clearFormError();
+            setLastFailedOperation(null);
+          }}
           className="mt-4"
         />
       </View>

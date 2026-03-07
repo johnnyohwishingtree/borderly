@@ -43,6 +43,7 @@ export default function PassportScanScreen() {
   const [showPerformanceHint, setShowPerformanceHint] = useState(false);
   const { error: storageError, showError: showStorageError, clearError: clearStorageError } = useErrorMessage();
   const { error: scanError, showError: showScanError, clearError: clearScanError } = useErrorMessage();
+  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'scan', data?: any } | null>(null);
   const {
     control,
     handleSubmit,
@@ -105,8 +106,12 @@ export default function PassportScanScreen() {
       };
 
       await saveProfile(completeProfile);
+      setLastFailedOperation(null); // Clear any failed operation
       navigation.navigate('ConfirmProfile');
     } catch (error) {
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'save', data: profileData });
+      
       const result = await handleStorageError(error as Error, {
         screen: 'PassportScan',
         action: 'saveProfile',
@@ -116,6 +121,7 @@ export default function PassportScanScreen() {
         enableRetry: true,
         onRecoverySuccess: () => {
           clearStorageError();
+          setLastFailedOperation(null);
           navigation.navigate('ConfirmProfile');
         }
       });
@@ -151,6 +157,9 @@ export default function PassportScanScreen() {
   };
 
   const handleScanError = async (error: Error) => {
+    // Store the failed operation for retry
+    setLastFailedOperation({ type: 'scan' });
+    
     const result = await handleCameraError(error, {
       screen: 'PassportScan',
       action: 'mrzScanning',
@@ -160,6 +169,7 @@ export default function PassportScanScreen() {
       enableRetry: true,
       onRecoverySuccess: () => {
         clearScanError();
+        setLastFailedOperation(null);
         setMode('scanning'); // Retry scanning
       },
       fallbackAction: () => {
@@ -262,9 +272,12 @@ export default function PassportScanScreen() {
           error={storageError}
           variant="card"
           showRetry
-          onRetry={() => {
+          onRetry={async () => {
             clearStorageError();
-            // Retry the last operation (would need to track this)
+            // Retry the last failed save operation
+            if (lastFailedOperation?.type === 'save' && lastFailedOperation.data) {
+              await saveProfileData(lastFailedOperation.data);
+            }
           }}
           onDismiss={clearStorageError}
           className="mb-4"
@@ -276,10 +289,12 @@ export default function PassportScanScreen() {
           showRetry
           onRetry={() => {
             clearScanError();
+            setLastFailedOperation(null);
             setMode('scanning'); // Retry scanning
           }}
           onDismiss={() => {
             clearScanError();
+            setLastFailedOperation(null);
             setMode('manual'); // Fall back to manual
           }}
           className="mb-4"

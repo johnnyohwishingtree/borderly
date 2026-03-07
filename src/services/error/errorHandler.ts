@@ -30,6 +30,7 @@ export interface ErrorRecoveryResult {
   recovered: boolean;
   error?: AppError;
   attempts?: number;
+  recoveredViaFallback?: boolean;
 }
 
 /**
@@ -68,8 +69,13 @@ export class ErrorHandler {
       ? createAppErrorFromError(error)
       : error;
 
-    // Log the error
-    logError(appError, context);
+    // Log the error (sanitized to avoid PII leakage)
+    const sanitizedError = {
+      ...appError,
+      message: appError.userMessage || 'An error occurred',
+      details: appError.code // Only log error code, not details that may contain PII
+    };
+    logError(sanitizedError as AppError, context);
 
     // Try automatic recovery if enabled and error is recoverable
     if (enableRetry && appError.recoverable) {
@@ -88,7 +94,7 @@ export class ErrorHandler {
       if (fallbackAction) {
         try {
           await fallbackAction();
-          return { recovered: true };
+          return { recovered: true, recoveredViaFallback: true };
         } catch (fallbackError) {
           const fallbackAppError = createAppErrorFromError(fallbackError as Error);
           logError(fallbackAppError, { ...context, action: 'fallback' });
@@ -158,28 +164,29 @@ export class ErrorHandler {
     appError: AppError,
     customConfig?: Partial<RetryConfig>
   ): RetryConfig {
-    if (customConfig) {
-      return { ...RETRY_CONFIGS.network, ...customConfig };
-    }
+    // First determine the correct base configuration based on error type
+    const baseConfig = (() => {
+      switch (appError.code) {
+        case ERROR_CODES.NETWORK_UNAVAILABLE:
+        case ERROR_CODES.REQUEST_TIMEOUT:
+        case ERROR_CODES.SERVER_ERROR:
+          return RETRY_CONFIGS.network;
+          
+        case ERROR_CODES.STORAGE_UNAVAILABLE:
+        case ERROR_CODES.KEYCHAIN_ACCESS_DENIED:
+          return RETRY_CONFIGS.storage;
+          
+        case ERROR_CODES.CAMERA_UNAVAILABLE:
+        case ERROR_CODES.MRZ_SCAN_FAILED:
+          return RETRY_CONFIGS.camera;
+          
+        default:
+          return RETRY_CONFIGS.quick;
+      }
+    })();
 
-    // Select config based on error type
-    switch (appError.code) {
-      case ERROR_CODES.NETWORK_UNAVAILABLE:
-      case ERROR_CODES.REQUEST_TIMEOUT:
-      case ERROR_CODES.SERVER_ERROR:
-        return RETRY_CONFIGS.network;
-        
-      case ERROR_CODES.STORAGE_UNAVAILABLE:
-      case ERROR_CODES.KEYCHAIN_ACCESS_DENIED:
-        return RETRY_CONFIGS.storage;
-        
-      case ERROR_CODES.CAMERA_UNAVAILABLE:
-      case ERROR_CODES.MRZ_SCAN_FAILED:
-        return RETRY_CONFIGS.camera;
-        
-      default:
-        return RETRY_CONFIGS.quick;
-    }
+    // Merge custom config with the appropriate base config
+    return customConfig ? { ...baseConfig, ...customConfig } : baseConfig;
   }
 
   /**
@@ -335,6 +342,11 @@ export class ErrorHandler {
 
   /**
    * Create a wrapped function with automatic error handling
+   * 
+   * WARNING: This wrapper should only be used for operations where recovery 
+   * implies the original action can be successfully retried. Do NOT use with 
+   * fallbackActions that change the application flow, as this will cause
+   * unexpected re-execution of the original function after the fallback.
    */
   withErrorHandling<T extends any[], R>(
     fn: (...args: T) => Promise<R>,
@@ -352,12 +364,12 @@ export class ErrorHandler {
 
         const result = await this.handleError(error as Error, fullContext, options);
         
-        if (result.recovered) {
-          // If recovered, try the operation again
+        if (result.recovered && !result.recoveredViaFallback) {
+          // Only retry if recovered through automatic mechanisms, not via fallback
           return await fn(...args);
         }
         
-        // Re-throw the error if not recovered
+        // Re-throw the error if not recovered or recovered via fallback
         throw result.error || error;
       }
     };
