@@ -26,11 +26,11 @@ export class MemoryProfiler {
   private maxSnapshots = 50;
   private isEnabled: boolean = __DEV__;
   private leakThreshold = 1024 * 1024 * 10; // 10MB growth threshold
-  private monitoringInterval: NodeJS.Timeout | null = null;
+  private monitoringInterval: number | null = null;
 
   constructor() {
     // Only enable in development or when explicitly enabled
-    if (this.isEnabled && global.performance?.memory) {
+    if (this.isEnabled && (globalThis as any).performance?.memory) {
       this.startPeriodicMonitoring();
     }
   }
@@ -43,9 +43,9 @@ export class MemoryProfiler {
 
     let snapshot: MemorySnapshot;
 
-    if (global.performance?.memory) {
+    if ((globalThis as any).performance?.memory) {
       // Web/development environment
-      const memory = global.performance.memory;
+      const memory = (globalThis as any).performance.memory;
       snapshot = {
         timestamp: Date.now(),
         heapUsed: memory.usedJSHeapSize,
@@ -86,8 +86,8 @@ export class MemoryProfiler {
   getCurrentMemoryUsage(): Partial<MemorySnapshot> | null {
     if (!this.isEnabled) return null;
 
-    if (global.performance?.memory) {
-      const memory = global.performance.memory;
+    if ((globalThis as any).performance?.memory) {
+      const memory = (globalThis as any).performance.memory;
       return {
         timestamp: Date.now(),
         heapUsed: memory.usedJSHeapSize,
@@ -245,8 +245,8 @@ export class MemoryProfiler {
    * Force garbage collection (if available)
    */
   forceGC(): boolean {
-    if (global.gc) {
-      global.gc();
+    if ((globalThis as any).gc) {
+      (globalThis as any).gc();
       return true;
     }
     return false;

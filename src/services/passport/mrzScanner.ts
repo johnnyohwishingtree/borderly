@@ -208,7 +208,15 @@ export class MRZScanner {
   /**
    * Get current scan statistics
    */
-  getStats(): { attempts: number; lastScan: ScanResult | null; memoryUsage: typeof this.memoryUsage } {
+  getStats(): { 
+    attempts: number; 
+    lastScan: ScanResult | null; 
+    memoryUsage: {
+      totalFramesProcessed: number;
+      lastMemoryCleanup: number;
+      maxRetainedScans: number;
+    } 
+  } {
     return {
       attempts: this.scanAttempts,
       lastScan: this.lastSuccessfulScan,
@@ -236,8 +244,8 @@ export class MRZScanner {
     this.memoryUsage.lastMemoryCleanup = Date.now();
     
     // Force garbage collection hint (if available in dev tools)
-    if (__DEV__ && global.gc) {
-      global.gc();
+    if (__DEV__ && (globalThis as any).gc) {
+      (globalThis as any).gc();
     }
   }
 

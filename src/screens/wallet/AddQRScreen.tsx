@@ -36,9 +36,9 @@ export default function AddQRScreen() {
     setBase64Image(null);
     
     // Force garbage collection hint if in development
-    if (__DEV__ && global.gc) {
+    if (__DEV__ && (globalThis as any).gc) {
       // Small delay to allow state updates to complete
-      setTimeout(() => global.gc(), 100);
+      setTimeout(() => (globalThis as any).gc && (globalThis as any).gc(), 100);
     }
   }, []);
 
@@ -100,7 +100,7 @@ export default function AddQRScreen() {
           if (capturedImage || base64Image) {
             clearImageMemory();
             // Small delay to allow cleanup
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise<void>(resolve => setTimeout(resolve, 50));
           }
 
           setCapturedImage(result.imageUri!);
@@ -166,7 +166,7 @@ export default function AddQRScreen() {
           if (capturedImage || base64Image) {
             clearImageMemory();
             // Small delay to allow cleanup
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise<void>(resolve => setTimeout(resolve, 50));
           }
 
           setCapturedImage(result.imageUri!);

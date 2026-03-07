@@ -82,7 +82,11 @@ interface FormStore {
 
   // Memory management operations
   performMemoryCleanup: () => void;
-  getMemoryUsage: () => typeof FormStore.prototype.memoryUsage;
+  getMemoryUsage: () => {
+    formDataSize: number;
+    lastCleanup: number;
+    maxRetainedForms: number;
+  };
   clearFormHistory: () => void;
   optimizeFormData: () => void;
 }
@@ -492,8 +496,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
     });
 
     // Force garbage collection in dev mode
-    if (__DEV__ && global.gc) {
-      global.gc();
+    if (__DEV__ && (globalThis as any).gc) {
+      (globalThis as any).gc();
     }
   },
 

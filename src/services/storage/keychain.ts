@@ -142,8 +142,8 @@ class KeychainServiceImpl implements KeychainService {
     this.sensitiveDataRefs = new WeakSet();
     
     // Force garbage collection in development
-    if (__DEV__ && global.gc) {
-      global.gc();
+    if (__DEV__ && (globalThis as any).gc) {
+      (globalThis as any).gc();
     }
   }
 
