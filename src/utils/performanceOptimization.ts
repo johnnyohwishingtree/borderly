@@ -5,7 +5,7 @@
  * enhancement utilities for production environments.
  */
 
-import { sanitizeObject } from './piiSanitizer';
+// import { sanitizeObject } from './piiSanitizer';
 import { performanceMonitor } from '../services/monitoring/performance';
 import { productionMonitoring } from '../services/monitoring/productionMonitoring';
 
@@ -79,7 +79,7 @@ class PerformanceOptimizer {
   private appliedOptimizations: OptimizationResult[] = [];
   private profiles: PerformanceProfile[] = [];
   private isEnabled: boolean = true;
-  private profilingActive: boolean = false;
+  // private profilingActive: boolean = false;
 
   constructor() {
     this.initializeStrategies();
@@ -101,7 +101,7 @@ class PerformanceOptimizer {
   startProfiling(sessionId: string): string {
     if (!this.isEnabled) return '';
 
-    this.profilingActive = true;
+    // this.profilingActive = true;
     const profileId = this.generateProfileId();
 
     productionMonitoring.recordEvent('system', 'profiling', {
@@ -134,7 +134,7 @@ class PerformanceOptimizer {
     };
 
     this.profiles.push(profile);
-    this.profilingActive = false;
+    // this.profilingActive = false;
 
     // Keep only last 50 profiles
     if (this.profiles.length > 50) {
@@ -594,12 +594,12 @@ class PerformanceOptimizer {
     // In a real implementation, this would execute the actual optimization steps
     // For now, we'll simulate the execution
     
-    const timer = performanceMonitor.startTiming(`optimization_${strategy.id}`);
+    // const timer = performanceMonitor.startTiming(`optimization_${strategy.id}`);
     
     // Simulate optimization work
     await this.delay(1000);
     
-    timer(); // Complete timing
+    // timer(); // Complete timing
     
     productionMonitoring.recordEvent('system', 'optimization_executed', {
       strategyId: strategy.id,
@@ -716,7 +716,7 @@ class PerformanceOptimizer {
     return { before, after, improvement };
   }
 
-  private assessCurrentEffectiveness(optimization: OptimizationResult): number {
+  private assessCurrentEffectiveness(_optimization: OptimizationResult): number {
     // In a real implementation, this would analyze current metrics vs. expected results
     // For now, return a simulated effectiveness score
     return 0.8 + Math.random() * 0.4; // 0.8 to 1.2 range
@@ -737,7 +737,7 @@ export const performanceOptimizer = new PerformanceOptimizer();
 export function measureAsync<T>(
   operation: () => Promise<T>,
   operationName: string,
-  category: string = 'general'
+  category: 'startup' | 'form' | 'camera' | 'navigation' | 'memory' | 'network' = 'startup'
 ): Promise<T> {
   return new Promise(async (resolve, reject) => {
     const startTime = performance.now();
@@ -759,7 +759,7 @@ export function measureAsync<T>(
 export function measureSync<T>(
   operation: () => T,
   operationName: string,
-  category: string = 'general'
+  category: 'startup' | 'form' | 'camera' | 'navigation' | 'memory' | 'network' = 'startup'
 ): T {
   const startTime = performance.now();
   
@@ -782,7 +782,7 @@ export function debounce<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout>;
   
-  return (...args: Parameters<T>) => {
+  return function (...args: Parameters<T>) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func.apply(this, args), delay);
   };
@@ -794,7 +794,7 @@ export function throttle<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   
-  return (...args: Parameters<T>) => {
+  return function (...args: Parameters<T>) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
