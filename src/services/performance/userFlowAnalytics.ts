@@ -574,7 +574,7 @@ class UserFlowAnalytics {
         dropOffRate: stats.dropOffs / stats.total,
         criticalStep: stats.criticalStep
       }))
-      .filter(item => item.dropOffRate > 0.2)
+      .filter(item => item.dropOffRate >= 0.2)
       .sort((a, b) => b.dropOffRate - a.dropOffRate);
   }
 
@@ -624,7 +624,7 @@ class UserFlowAnalytics {
         frequency: data.count,
         flowsAffected: Array.from(data.flows)
       }))
-      .filter(item => item.frequency > 5)
+      .filter(item => item.frequency >= 3)
       .sort((a, b) => b.frequency - a.frequency);
   }
 

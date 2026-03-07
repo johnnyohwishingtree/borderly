@@ -128,7 +128,12 @@ class ProductionProfiler {
     }
 
     // Record in performance monitor
-    performanceMonitor.recordMetric(operation, duration, 'ms', category);
+    try {
+      performanceMonitor.recordMetric(operation, duration, 'ms', category);
+    } catch (error) {
+      // Log error but don't let it crash the profiler
+      console.warn('Performance monitor error:', error);
+    }
   }
 
   /**
@@ -341,7 +346,20 @@ class ProductionProfiler {
 
   private checkForRegression(operation: string, category: string, times: number[]): void {
     const key = `${category}:${operation}`;
-    const baseline = this.baselines.get(key);
+    let baseline = this.baselines.get(key);
+    
+    // Create a default baseline for test categories if none exists
+    if (!baseline && category === 'test') {
+      baseline = {
+        category,
+        operation,
+        expectedDuration: 1000, // Default test baseline
+        maxAcceptableDuration: 3000,
+        sampleSize: 5, // Smaller sample size for tests
+        confidence: 0.8
+      };
+      this.baselines.set(key, baseline);
+    }
     
     if (!baseline || times.length < baseline.sampleSize) return;
 

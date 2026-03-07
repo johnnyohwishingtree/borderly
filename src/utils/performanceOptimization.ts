@@ -74,7 +74,7 @@ export interface OptimizationResult {
   rollbackRequired: boolean;
 }
 
-class PerformanceOptimizer {
+export class PerformanceOptimizer {
   private strategies: Map<string, OptimizationStrategy> = new Map();
   private appliedOptimizations: OptimizationResult[] = [];
   private profiles: PerformanceProfile[] = [];
@@ -560,18 +560,18 @@ class PerformanceOptimizer {
     const recommendations: OptimizationStrategy[] = [];
 
     // Analyze metrics to determine relevant optimizations
-    if (sessionData.metrics.memory.usage > 80) {
+    if (sessionData.metrics?.memory?.usage && sessionData.metrics.memory.usage > 80) {
       const memoryStrategy = this.strategies.get('memory_caching');
       if (memoryStrategy) recommendations.push(memoryStrategy);
     }
 
-    if (sessionData.metrics.renders.fps < 50 || sessionData.metrics.renders.frameDrops > 5) {
+    if (sessionData.metrics?.renders && (sessionData.metrics.renders.fps < 50 || sessionData.metrics.renders.frameDrops > 5)) {
       const cameraStrategy = this.strategies.get('camera_optimization');
       if (cameraStrategy) recommendations.push(cameraStrategy);
     }
 
     // Analyze hotspots for specific recommendations
-    sessionData.hotspots.forEach(hotspot => {
+    sessionData.hotspots?.forEach(hotspot => {
       if (hotspot.component.includes('Camera') && hotspot.duration > 1000) {
         const cameraStrategy = this.strategies.get('camera_optimization');
         if (cameraStrategy && !recommendations.includes(cameraStrategy)) {

@@ -354,7 +354,7 @@ describe('Performance regression scenarios', () => {
     
     const regressions = profiler.getRegressions();
     const spikeRegression = regressions.find(r => 
-      r.metricName === 'spike_test' && r.severity === 'critical'
+      r.operation === 'spike_test' && r.severity === 'critical'
     );
     
     expect(spikeRegression).toBeDefined();

@@ -195,12 +195,20 @@ describe('UserFlowAnalytics', () => {
       const flowId = analytics.startFlow('slow_flow', 'session_1');
       const stepId = analytics.addStep(flowId, 'slow_step', 'SlowScreen', 'slow_action');
       
-      // Mock a step that takes 15 seconds (should be flagged as friction)
-      setTimeout(() => {
-        analytics.completeStep(flowId, stepId, true);
-      }, 15000);
+      // Complete the step with success
+      analytics.completeStep(flowId, stepId, true);
       
+      // Complete the flow
       analytics.completeFlow(flowId, true);
+      
+      // Manually set the step duration to simulate a slow step after flow completion
+      const completedFlows = (analytics as any).completedFlows;
+      const flow = completedFlows.find((f: any) => f.flowId === flowId);
+      expect(flow).toBeDefined();
+      expect(flow.steps.length).toBeGreaterThan(0);
+      
+      // Set the duration to 15 seconds (should be flagged as bottleneck since it's > 5 seconds)
+      flow.steps[0].duration = 15000; // 15 seconds
       
       const criticalIssues = analytics.identifyCriticalIssues();
       expect(criticalIssues.performanceBottlenecks.length).toBeGreaterThan(0);

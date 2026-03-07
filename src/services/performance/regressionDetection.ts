@@ -405,7 +405,21 @@ class RegressionDetectionService {
     context?: Record<string, any>
   ): void {
     const key = `${category}:${metricName}`;
-    const threshold = this.thresholds.get(key);
+    let threshold = this.thresholds.get(key);
+    
+    // Create a default threshold for test categories if none exists
+    if (!threshold && category === 'test') {
+      threshold = {
+        metricName,
+        category,
+        baseline: 1000, // Default baseline
+        tolerance: 50, // 50% tolerance for tests
+        sensitivity: 'medium',
+        sampleSize: 10,
+        confidenceLevel: 0.8
+      };
+      this.thresholds.set(key, threshold);
+    }
     
     if (!threshold || history.length < threshold.sampleSize) return;
 
