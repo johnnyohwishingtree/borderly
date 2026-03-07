@@ -92,7 +92,7 @@ export default function AddQRScreen() {
       } else if (result.error && result.error !== 'User cancelled camera') {
         Alert.alert('Error', result.error);
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to capture image');
     } finally {
       setIsLoading(false);
@@ -153,14 +153,14 @@ export default function AddQRScreen() {
       } else if (result.error && result.error !== 'User cancelled image selection') {
         Alert.alert('Error', result.error);
       }
-    } catch (error) {
+    } catch (_error) {
       Alert.alert('Error', 'Failed to import image');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCaptureOptions = async () => {
+  const _handleCaptureOptions = async () => {
     if (Platform.OS === 'ios') {
       Alert.alert(
         'Add QR Code',
