@@ -30,6 +30,11 @@ const EditProfileScreen = lazy(() => import('../../screens/profile').then(m => (
 // Lazy load settings screens
 const SettingsScreen = lazy(() => import('../../screens/settings').then(m => ({ default: m.SettingsScreen })));
 
+// Lazy load support screens
+const FeedbackScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.FeedbackScreen })));
+const BugReportScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.BugReportScreen })));
+const HelpScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.HelpScreen })));
+
 // Loading component for lazy-loaded screens
 const ScreenLoader = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -174,6 +179,36 @@ function SettingsNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <SettingsScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="Feedback"
+        options={{ title: 'Send Feedback' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <FeedbackScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="BugReport"
+        options={{ title: 'Report Bug' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <BugReportScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="Help"
+        options={{ title: 'Help & Support' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <HelpScreen />
           </Suspense>
         )}
       </SettingsStack.Screen>
