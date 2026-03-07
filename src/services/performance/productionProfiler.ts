@@ -233,7 +233,7 @@ class ProductionProfiler {
     return {
       summary: {
         period: 'Last 7 days',
-        totalSessions: (summary?.counts && summary.counts['app_start_time']) || 0,
+        totalSessions: (summary?.counts && summary.counts.app_start_time) || 0,
         averagePerformance: this.calculateAveragePerformanceScore(),
         criticalIssues: regressions.filter(r => r.severity === 'critical').length
       },
@@ -491,16 +491,16 @@ class ProductionProfiler {
     const averages = summary?.averages || {};
     return {
       appStartTime: { 
-        average: averages['app_start_time'] || 3000, 
-        p95: (averages['app_start_time'] || 3000) * 1.5 
+        average: averages.app_start_time || 3000, 
+        p95: (averages.app_start_time || 3000) * 1.5 
       },
       formGeneration: { 
-        average: averages['form_generation'] || 1200, 
-        p95: (averages['form_generation'] || 1200) * 1.8 
+        average: averages.form_generation || 1200, 
+        p95: (averages.form_generation || 1200) * 1.8 
       },
       cameraOperations: { 
-        average: averages['camera_mrz_scan'] || 6000, 
-        p95: (averages['camera_mrz_scan'] || 6000) * 2.2 
+        average: averages.camera_mrz_scan || 6000, 
+        p95: (averages.camera_mrz_scan || 6000) * 2.2 
       },
       memoryUsage: { 
         average: 150, 

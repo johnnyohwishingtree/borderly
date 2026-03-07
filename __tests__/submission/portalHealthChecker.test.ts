@@ -264,7 +264,7 @@ describe('PortalHealthChecker', () => {
       await testChecker.checkPortalHealth('SGP', 'Test Portal 3', 'https://test3.com');
       
       // Copy all results to main healthChecker for the test
-      healthChecker['healthHistory'] = testChecker['healthHistory'];
+      healthChecker.healthHistory = testChecker.healthHistory;
     });
 
     it('should generate health summary', () => {
