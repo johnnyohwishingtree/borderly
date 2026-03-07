@@ -15,6 +15,9 @@ configure({
 
 // Basic Jest setup for TypeScript unit tests
 
+// Define global __DEV__ variable
+global.__DEV__ = false;
+
 // Suppress console.error in tests unless explicitly testing error handling
 const originalError = console.error;
 beforeEach(() => {
@@ -60,6 +63,13 @@ jest.mock('react-native', () => {
     },
     Alert: {
       alert: jest.fn(),
+    },
+    Linking: {
+      canOpenURL: jest.fn().mockResolvedValue(true),
+      openURL: jest.fn().mockResolvedValue(true),
+    },
+    Touchable: {
+      Mixin: {},
     },
   };
 });
@@ -110,6 +120,49 @@ jest.mock('react-native-mmkv', () => ({
     clearAll: jest.fn(),
   })),
 }));
+
+// Mock @react-native-clipboard/clipboard
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  Clipboard: {
+    setString: jest.fn().mockResolvedValue(undefined),
+    getString: jest.fn().mockResolvedValue(''),
+    hasString: jest.fn().mockResolvedValue(false),
+  },
+}));
+
+// Mock react-native-heroicons
+jest.mock('react-native-heroicons/outline', () => {
+  const React = require('react');
+  const mockIcon = (name) => {
+    const Icon = ({ ...props }) => React.createElement('MockIcon', { ...props, iconName: name });
+    Icon.displayName = name;
+    return Icon;
+  };
+  return {
+    CheckCircleIcon: mockIcon('CheckCircleIcon'),
+    InformationCircleIcon: mockIcon('InformationCircleIcon'),
+    LightBulbIcon: mockIcon('LightBulbIcon'),
+    CheckIcon: mockIcon('CheckIcon'),
+    DocumentDuplicateIcon: mockIcon('DocumentDuplicateIcon'),
+    ExclamationTriangleIcon: mockIcon('ExclamationTriangleIcon'),
+    ArrowTopRightOnSquareIcon: mockIcon('ArrowTopRightOnSquareIcon'),
+    ClockIcon: mockIcon('ClockIcon'),
+  };
+});
+
+jest.mock('react-native-heroicons/solid', () => {
+  const React = require('react');
+  const mockIcon = (name) => {
+    const Icon = ({ ...props }) => React.createElement('MockIcon', { ...props, iconName: name });
+    Icon.displayName = name;
+    return Icon;
+  };
+  return {
+    CheckIcon: mockIcon('CheckIcon'),
+    CheckCircleIcon: mockIcon('CheckCircleIcon'),
+    ChevronRightIcon: mockIcon('ChevronRightIcon'),
+  };
+});
 
 // Mock @nozbe/watermelondb
 jest.mock('@nozbe/watermelondb', () => ({
