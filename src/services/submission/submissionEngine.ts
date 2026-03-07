@@ -63,6 +63,7 @@ const DEFAULT_CONFIG: SubmissionEngineConfig = {
  * Main submission engine class
  */
 export class SubmissionEngine {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private config: SubmissionEngineConfig;
   private webviewController: WebViewController;
   private scriptRegistry: AutomationScriptRegistry;
@@ -173,7 +174,7 @@ export class SubmissionEngine {
               stepId: step.id,
               error: stepResult.error || 'Unknown error',
               timestamp: new Date().toISOString(),
-              screenshot: stepResult.screenshot || undefined,
+              ...(stepResult.screenshot && { screenshot: stepResult.screenshot }),
               retryable: true
             });
           }
@@ -242,25 +243,25 @@ export class SubmissionEngine {
    * Execute a single automation step
    */
   private async executeAutomationStep(
-    session: SubmissionSession,
-    step: any,
-    script: AutomationScript,
-    filledForm: FilledForm
+    _session: SubmissionSession,
+    _step: any,
+    _script: AutomationScript,
+    _filledForm: FilledForm
   ): Promise<AutomationStepResult> {
     try {
       // Prepare form data for this step
-      const stepData = this.prepareStepData(step, filledForm, script);
+      const stepData = this.prepareStepData(_step, _filledForm, _script);
       
       // Execute JavaScript in WebView
       const result = await this.webviewController.executeScript({
-        code: this.injectFormData(step.script, stepData),
-        timeout: step.timing.timeout,
+        code: this.injectFormData(_step.script, stepData),
+        timeout: _step.timing.timeout,
         expectsResult: true
       });
 
       // Validate step result
-      if (step.validation) {
-        const isValid = await this.validateStepResult(step.validation, result);
+      if (_step.validation) {
+        const isValid = await this.validateStepResult(_step.validation, result);
         if (!isValid) {
           return {
             success: false,
@@ -270,8 +271,8 @@ export class SubmissionEngine {
       }
 
       // Wait if configured
-      if (step.timing?.waitAfter) {
-        await new Promise(resolve => setTimeout(() => resolve(undefined), step.timing.waitAfter));
+      if (_step.timing?.waitAfter) {
+        await new Promise(resolve => setTimeout(() => resolve(undefined), _step.timing.waitAfter));
       }
 
       return {
@@ -292,7 +293,7 @@ export class SubmissionEngine {
    */
   private async executeManualSubmission(
     session: SubmissionSession,
-    filledForm: FilledForm
+    _filledForm: FilledForm
   ): Promise<SubmissionResult> {
     session.status = 'manual_fallback';
     
@@ -427,11 +428,11 @@ export class SubmissionEngine {
     return data;
   }
 
-  private prepareStepData(step: any, filledForm: FilledForm, script: AutomationScript): Record<string, unknown> {
+  private prepareStepData(_step: any, filledForm: FilledForm, script: AutomationScript): Record<string, unknown> {
     const data: Record<string, unknown> = {};
     
     // Map form fields to portal selectors
-    Object.entries(script.fieldMappings).forEach(([fieldId, mapping]) => {
+    Object.entries(script.fieldMappings).forEach(([fieldId, _mapping]) => {
       const formData = this.extractFormData(filledForm);
       if (formData[fieldId] !== undefined) {
         data[fieldId] = formData[fieldId];
@@ -456,13 +457,13 @@ export class SubmissionEngine {
     return injectedCode;
   }
 
-  private async validateStepResult(validation: any, result: any): Promise<boolean> {
+  private async validateStepResult(_validation: any, _result: any): Promise<boolean> {
     // Implementation for step validation
     // This would check expected URLs, text content, or element presence
     return true; // Simplified for now
   }
 
-  private async validateSubmissionComplete(session: SubmissionSession, script: AutomationScript): Promise<any> {
+  private async validateSubmissionComplete(_session: SubmissionSession, _script: AutomationScript): Promise<any> {
     // Implementation for final submission validation
     // This would check for confirmation pages, QR codes, etc.
     // For testing purposes, assume success if we got this far

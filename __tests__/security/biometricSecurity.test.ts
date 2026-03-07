@@ -21,7 +21,7 @@ describe('Biometric Security Validation', () => {
       username: 'test',
       password: 'test',
       service: 'test',
-      storage: Keychain.STORAGE_TYPE.AES
+      storage: Keychain.STORAGE_TYPE.AES_GCM
     });
     mockKeychain.resetInternetCredentials.mockResolvedValue(void 0);
     
