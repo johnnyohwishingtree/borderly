@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Alert, TextInput } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Button, Card, StatusBadge, Select, SelectOption } from '@/components/ui';
 import { useAppStore } from '@/stores/useAppStore';
+import { feedbackCollector, FeedbackData } from '@/services/support/feedbackCollector';
 
 interface FeedbackScreenProps {
   route?: RouteProp<any, any>;
@@ -11,7 +12,7 @@ interface FeedbackScreenProps {
 export default function FeedbackScreen({ route }: FeedbackScreenProps) {
   const navigation = useNavigation();
   const { preferences } = useAppStore();
-  const [feedbackType, setFeedbackType] = useState<string>('general');
+  const [feedbackType, setFeedbackType] = useState<FeedbackData['type']>('general');
   const [rating, setRating] = useState<number>(0);
   const [subject, setSubject] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -44,42 +45,35 @@ export default function FeedbackScreen({ route }: FeedbackScreenProps) {
     setIsSubmitting(true);
 
     try {
-      // In a real implementation, this would send feedback to a service
-      // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const feedbackData = {
+      const result = await feedbackCollector.submitFeedback({
         type: feedbackType,
         rating,
         subject: subject.trim(),
         message: message.trim(),
-        timestamp: new Date().toISOString(),
-        appVersion: '1.0.0',
-        language: preferences.language,
-        analytics: preferences.analyticsEnabled,
-      };
+      });
 
-      console.log('Feedback submitted:', feedbackData);
-
-      Alert.alert(
-        'Thank You!',
-        'Your feedback has been submitted successfully. We appreciate your input!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setFeedbackType('general');
-              setRating(0);
-              setSubject('');
-              setMessage('');
-              navigation.goBack();
+      if (result.success) {
+        Alert.alert(
+          'Thank You!',
+          'Your feedback has been submitted successfully. We appreciate your input!',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Reset form
+                setFeedbackType('general');
+                setRating(0);
+                setSubject('');
+                setMessage('');
+                navigation.goBack();
+              },
             },
-          },
-        ]
-      );
+          ]
+        );
+      } else {
+        throw new Error(result.error || 'Unknown error');
+      }
     } catch (error) {
-      console.error('Failed to submit feedback:', error);
       Alert.alert('Submission Failed', 'Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);

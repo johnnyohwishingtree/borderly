@@ -161,24 +161,27 @@ describe('BugReporter', () => {
 
   describe('getBugReportStats', () => {
     it('should calculate correct statistics', async () => {
+      const now = new Date('2024-01-01T12:00:00.000Z');
+      // Mock Date.now to return our fixed date for recentReportsCount calculation
+      jest.spyOn(Date, 'now').mockReturnValue(now.getTime());
       const storedReports = [
         {
           id: 'bug-1',
           severity: 'high',
           category: 'general',
-          timestamp: new Date().toISOString(),
+          timestamp: now.toISOString(),
         },
         {
           id: 'bug-2',
           severity: 'critical',
           category: 'passport-scan',
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(now.getTime() - 1000 * 60).toISOString(), // 1 minute ago
         },
         {
           id: 'bug-3',
           severity: 'low',
           category: 'general',
-          timestamp: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), // 40 days ago
+          timestamp: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), // 40 days ago
         },
       ];
 
@@ -194,6 +197,9 @@ describe('BugReporter', () => {
       expect(stats.categoryDistribution['passport-scan']).toBe(1);
       expect(stats.recentReportsCount).toBe(2); // Only 2 within last 30 days
       expect(stats.criticalReportsCount).toBe(1);
+      
+      // Cleanup the Date mock
+      jest.restoreAllMocks();
     });
   });
 });

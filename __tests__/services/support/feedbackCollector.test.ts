@@ -117,27 +117,30 @@ describe('FeedbackCollector', () => {
 
   describe('getFeedbackStats', () => {
     it('should calculate correct statistics', async () => {
+      const now = new Date('2024-01-01T12:00:00.000Z');
+      // Mock Date.now to return our fixed date for recentFeedbackCount calculation
+      jest.spyOn(Date, 'now').mockReturnValue(now.getTime());
       const storedFeedback = [
         {
           id: 'test-1',
           type: 'general',
           rating: 5,
           message: 'Great',
-          timestamp: new Date().toISOString(),
+          timestamp: now.toISOString(),
         },
         {
           id: 'test-2',
           type: 'feature',
           rating: 3,
           message: 'Okay',
-          timestamp: new Date().toISOString(),
+          timestamp: new Date(now.getTime() - 1000 * 60).toISOString(), // 1 minute ago
         },
         {
           id: 'test-3',
           type: 'general',
           rating: 4,
           message: 'Good',
-          timestamp: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), // 40 days ago
+          timestamp: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(), // 40 days ago
         },
       ];
 
@@ -153,6 +156,9 @@ describe('FeedbackCollector', () => {
       expect(stats.typeDistribution.general).toBe(2);
       expect(stats.typeDistribution.feature).toBe(1);
       expect(stats.recentFeedbackCount).toBe(2); // Only 2 within last 30 days
+      
+      // Cleanup the Date mock
+      jest.restoreAllMocks();
     });
   });
 });

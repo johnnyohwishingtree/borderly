@@ -302,7 +302,12 @@ class BugReporter {
   }
 
   private generateReportId(): string {
-    return `bug_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate a more robust ID using current timestamp and crypto-random string
+    const timestamp = Date.now().toString(36);
+    const randomPart = Array.from({ length: 12 }, () => 
+      Math.floor(Math.random() * 36).toString(36)
+    ).join('');
+    return `bug_${timestamp}_${randomPart}`;
   }
 
   private validateBugReport(report: BugReportData): boolean {

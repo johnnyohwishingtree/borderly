@@ -125,18 +125,11 @@ export default function HelpScreen({ route }: HelpScreenProps) {
       [
         {
           text: 'Send Feedback',
-          onPress: () => {
-            // Navigate to feedback screen
-            // This would be implemented with proper navigation
-            Alert.alert('Navigate to Feedback', 'This would open the feedback screen.');
-          },
+          onPress: () => navigation.navigate('Feedback'),
         },
         {
           text: 'Report Bug',
-          onPress: () => {
-            // Navigate to bug report screen
-            Alert.alert('Navigate to Bug Report', 'This would open the bug report screen.');
-          },
+          onPress: () => navigation.navigate('BugReport'),
         },
         {
           text: 'Email Support',

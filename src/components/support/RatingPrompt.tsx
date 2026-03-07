@@ -38,7 +38,7 @@ export default function RatingPrompt({
       const result = await feedbackCollector.submitFeedback({
         type: 'general',
         rating,
-        subject: `${trigger} rating - ${context}`.trim(),
+        subject: `${trigger} rating${context ? ` - ${context}` : ''}`,
         message: `User provided a ${rating}-star rating via ${trigger} prompt.${context ? ` Context: ${context}` : ''}`,
       });
 
@@ -69,15 +69,16 @@ export default function RatingPrompt({
   };
 
   const handleDetailedFeedbackRequest = () => {
-    setShowDetailedFeedback(false);
-    onClose();
     // In a real implementation, this would navigate to the detailed feedback screen
     Alert.alert(
       'Detailed Feedback',
       'This would open the detailed feedback screen where you can provide specific suggestions.',
-      [{ text: 'OK' }]
+      [{ text: 'OK', onPress: () => {
+        setShowDetailedFeedback(false);
+        onClose();
+        onFeedbackSubmitted?.();
+      }}]
     );
-    onFeedbackSubmitted?.();
   };
 
   const handleSkipDetailedFeedback = () => {

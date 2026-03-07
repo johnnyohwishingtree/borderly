@@ -5,6 +5,7 @@ import { Button, Card, StatusBadge, Select, SelectOption, Toggle } from '@/compo
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripStore } from '@/stores/useTripStore';
+import { bugReporter, BugReportData } from '@/services/support/bugReporter';
 
 interface BugReportScreenProps {
   route?: RouteProp<any, any>;
@@ -15,8 +16,8 @@ export default function BugReportScreen({ route }: BugReportScreenProps) {
   const { preferences } = useAppStore();
   const { profile } = useProfileStore();
   const { trips } = useTripStore();
-  const [severity, setSeverity] = useState<string>('medium');
-  const [category, setCategory] = useState<string>('general');
+  const [severity, setSeverity] = useState<BugReportData['severity']>('medium');
+  const [category, setCategory] = useState<BugReportData['category']>('general');
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [stepsToReproduce, setStepsToReproduce] = useState<string>('');
@@ -88,42 +89,37 @@ export default function BugReportScreen({ route }: BugReportScreenProps) {
     setIsSubmitting(true);
 
     try {
-      const bugReport = {
-        id: `bug-${Date.now()}`,
+      const result = await bugReporter.submitBugReport({
         title: title.trim(),
         description: description.trim(),
         stepsToReproduce: stepsToReproduce.trim(),
         severity,
         category,
-        timestamp: new Date().toISOString(),
-        diagnostics: includeDiagnostics ? diagnosticInfo : null,
-      };
+      }, includeDiagnostics);
 
-      // In a real implementation, this would send the bug report to a service
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      console.log('Bug report submitted:', bugReport);
-
-      Alert.alert(
-        'Bug Report Submitted',
-        `Thank you for reporting this ${severity} severity issue. We'll investigate and work on a fix.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setTitle('');
-              setDescription('');
-              setStepsToReproduce('');
-              setSeverity('medium');
-              setCategory('general');
-              navigation.goBack();
+      if (result.success) {
+        Alert.alert(
+          'Bug Report Submitted',
+          `Thank you for reporting this ${severity} severity issue. We'll investigate and work on a fix.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Reset form
+                setTitle('');
+                setDescription('');
+                setStepsToReproduce('');
+                setSeverity('medium');
+                setCategory('general');
+                navigation.goBack();
+              },
             },
-          },
-        ]
-      );
+          ]
+        );
+      } else {
+        throw new Error(result.error || 'Unknown error');
+      }
     } catch (error) {
-      console.error('Failed to submit bug report:', error);
       Alert.alert('Submission Failed', 'Failed to submit bug report. Please try again.');
     } finally {
       setIsSubmitting(false);

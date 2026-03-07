@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { mmkvService } from '@/services/storage';
 import { useAppStore } from '@/stores/useAppStore';
 
@@ -176,7 +177,12 @@ class FeedbackCollector {
   }
 
   private generateFeedbackId(): string {
-    return `feedback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate a more robust ID using current timestamp and crypto-random string
+    const timestamp = Date.now().toString(36);
+    const randomPart = Array.from({ length: 12 }, () => 
+      Math.floor(Math.random() * 36).toString(36)
+    ).join('');
+    return `feedback_${timestamp}_${randomPart}`;
   }
 
   private collectMetadata(): FeedbackData['metadata'] {
@@ -185,7 +191,7 @@ class FeedbackCollector {
     
     return {
       appVersion: '1.0.0', // This would come from app config
-      platform: process.env.NODE_ENV === 'test' ? 'test' : 'react-native',
+      platform: Platform.OS,
       language: preferences.language,
       analyticsEnabled: preferences.analyticsEnabled,
       userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
