@@ -1,0 +1,27 @@
+appId: org.reactjs.native.example.Borderly
+name: "Smoke Test - App launches and renders"
+---
+
+# Fresh launch
+- launchApp:
+    clearState: true
+
+# Verify the app launches without a red error screen
+- assertVisible: "Welcome to"
+- assertVisible: "Borderly"
+
+# Verify key sections rendered
+- assertVisible: "Private & Secure"
+- assertVisible: "Works Offline"
+- assertVisible: "Lightning Fast"
+
+# Verify countries section
+- assertVisible: "Japan"
+- assertVisible: "Malaysia"
+- assertVisible: "Singapore"
+
+# Verify the CTA button is visible
+- assertVisible: "Get started with Borderly"
+
+# Take a screenshot for CI artifacts
+- takeScreenshot: welcome-screen
