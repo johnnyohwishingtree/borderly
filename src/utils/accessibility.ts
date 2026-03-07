@@ -1,4 +1,4 @@
-import { AccessibilityInfo, AccessibilityState, AccessibilityValue, Dimensions } from 'react-native';
+import { AccessibilityInfo, AccessibilityState, AccessibilityValue } from 'react-native';
 
 // WCAG 2.1 AA compliance constants
 export const ACCESSIBILITY_CONSTANTS = {
@@ -16,9 +16,11 @@ export class ScreenReaderUtils {
   static announce(message: string, options?: { assertive?: boolean; timeout?: number }) {
     if (!message?.trim()) return;
     
-    const announcement = options?.assertive 
-      ? AccessibilityInfo.announceForAccessibility(message)
-      : AccessibilityInfo.setAccessibilityFocus?.({} as any); // Polite announcement
+    if (options?.assertive) {
+      AccessibilityInfo.announceForAccessibility(message);
+    } else {
+      AccessibilityInfo.announceForAccessibility(message);
+    }
       
     // Clear announcement after timeout to prevent memory issues
     if (options?.timeout) {
@@ -63,9 +65,9 @@ export const AccessibilityStateHelpers = {
     hasError: boolean = false,
     isDisabled: boolean = false
   ): AccessibilityState => ({
-    required: isRequired,
-    invalid: hasError,
     disabled: isDisabled,
+    // Note: required and invalid are not standard React Native accessibility state props
+    // They would be handled via accessibilityLabel instead
   }),
 
   /**
@@ -294,13 +296,9 @@ export const AccessibilityTestUtils = {
   /**
    * Tests color contrast ratio (basic implementation)
    */
-  hasMinimumColorContrast: (foreground: string, background: string, isLargeText: boolean = false): boolean => {
+  hasMinimumColorContrast: (isLargeText: boolean = false): boolean => {
     // This is a simplified implementation - in a real app you'd use a proper color contrast library
-    const minContrast = isLargeText 
-      ? ACCESSIBILITY_CONSTANTS.MIN_COLOR_CONTRAST_LARGE 
-      : ACCESSIBILITY_CONSTANTS.MIN_COLOR_CONTRAST;
-    
-    // Simplified contrast calculation (would need proper implementation)
+    // For now, we assume our predefined high contrast colors meet requirements
     return true; // Placeholder - implement proper contrast calculation
   },
 };

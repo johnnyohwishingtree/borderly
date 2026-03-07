@@ -5,7 +5,6 @@ import {
   AccessibilityStateHelpers,
   TouchTargetUtils,
   SemanticUtils,
-  HighContrastUtils,
   ACCESSIBILITY_CONSTANTS,
   ScreenReaderUtils,
 } from '../../utils/accessibility';
@@ -303,8 +302,6 @@ export default function AccessibleInput({
           accessibilityLabel={semanticInputLabel}
           accessibilityHint={accessibilityHint || helperText}
           accessibilityState={accessibilityState}
-          accessibilityLabelledBy={label ? labelId : undefined}
-          accessibilityDescribedBy={describedByIds.length > 0 ? describedByIds.join(' ') : undefined}
           
           // Enhanced input props
           keyboardType={getKeyboardType()}

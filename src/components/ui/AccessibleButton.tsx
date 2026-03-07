@@ -5,7 +5,6 @@ import {
   AccessibilityStateHelpers,
   TouchTargetUtils,
   SemanticUtils,
-  HighContrastUtils,
   ACCESSIBILITY_CONSTANTS,
 } from '../../utils/accessibility';
 
@@ -76,13 +75,6 @@ export default function AccessibleButton({
       small: 'px-4 py-2.5',
       medium: 'px-6 py-3.5', 
       large: 'px-8 py-4.5',
-    };
-
-    // Ensure minimum touch target height
-    const minHeights = {
-      small: ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET,
-      medium: ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET,
-      large: Math.max(52, ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET),
     };
 
     const variantStyles = highContrastMode ? {
@@ -211,7 +203,7 @@ export default function AccessibleButton({
           minWidth: touchTargetAdjustments.minWidth,
         },
         style,
-        ({ pressed }) => ({
+        ({ pressed }: { pressed: boolean }) => ({
           opacity: pressed && !disabled && !loading ? 0.85 : 1,
           transform: [{ scale: pressed && !disabled && !loading ? 0.96 : 1 }],
           elevation: pressed && !disabled && !loading ? 2 : 0,
