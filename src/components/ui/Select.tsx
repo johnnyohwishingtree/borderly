@@ -192,7 +192,7 @@ export default function Select({
           ...accessibilityState,
           expanded: isOpen,
         }}
-        accessibilityLabelledBy={label ? labelId : undefined}
+        // Note: accessibilityLabelledBy and accessibilityDescribedBy not supported in React Native
         
         // Enhanced accessibility
         importantForAccessibility="yes"
@@ -261,7 +261,7 @@ export default function Select({
             <FlatList
               data={options}
               keyExtractor={item => item.value}
-              renderItem={({ item, index }) => {
+              renderItem={({ item, index: _index }) => {
                 const isSelected = item.value === value;
                 const isDisabled = item.disabled || false;
                 

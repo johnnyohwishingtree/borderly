@@ -150,7 +150,7 @@ export default function Toggle({
       accessibilityLabel={semanticLabel}
       accessibilityHint={accessibilityHint}
       accessibilityState={accessibilityState}
-      accessibilityDescribedBy={accessibilityDescribedBy}
+      // Note: accessibilityDescribedBy not supported in React Native
       
       // Enhanced accessibility
       importantForAccessibility="yes"

@@ -58,8 +58,8 @@ export const AccessibilityStateHelpers = {
    * Creates accessibility state for form fields
    */
   createFormFieldState: (
-    isRequired: boolean = false,
-    hasError: boolean = false,
+    _isRequired: boolean = false,
+    _hasError: boolean = false,
     isDisabled: boolean = false
   ): AccessibilityState => ({
     disabled: isDisabled,
@@ -293,7 +293,7 @@ export const AccessibilityTestUtils = {
   /**
    * Tests color contrast ratio (basic implementation)
    */
-  hasMinimumColorContrast: (isLargeText: boolean = false): boolean => {
+  hasMinimumColorContrast: (_isLargeText: boolean = false): boolean => {
     // This is a simplified implementation - in a real app you'd use a proper color contrast library
     // For now, we assume our predefined high contrast colors meet requirements
     return true; // Placeholder - implement proper contrast calculation

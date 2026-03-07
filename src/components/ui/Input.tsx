@@ -142,7 +142,7 @@ export default function Input({
         accessibilityLabel={semanticLabel}
         accessibilityHint={accessibilityHint || helperText}
         accessibilityState={accessibilityState}
-        accessibilityLabelledBy={label ? labelId : undefined}
+        // Note: accessibilityLabelledBy and accessibilityDescribedBy not supported in React Native
         
         // Testing
         testID={testID}
