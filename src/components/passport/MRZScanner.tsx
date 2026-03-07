@@ -48,7 +48,7 @@ export default function MRZScannerComponent({
       setIsScanning(false);
       
       // Dispose scanner resources
-      if (scannerRef.current) {
+      if (scannerRef.current && typeof scannerRef.current.dispose === 'function') {
         scannerRef.current.dispose();
       }
       
@@ -65,7 +65,7 @@ export default function MRZScannerComponent({
   }, []);
 
   const handleTextRecognition = (textRecognition: TextRecognition) => {
-    if (!isScanning || scannerRef.current.isDisposedState()) return;
+    if (!isScanning || (scannerRef.current && typeof scannerRef.current.isDisposedState === 'function' && scannerRef.current.isDisposedState())) return;
 
     const result = scannerRef.current.processFrame(textRecognition);
     setScanResult(result);
