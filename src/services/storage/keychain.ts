@@ -114,12 +114,6 @@ class KeychainServiceImpl implements KeychainService {
 
       const key = credentials.password;
       
-      // Track access for cleanup scheduling
-      setTimeout(() => {
-        // Clear reference after use to help with garbage collection
-        this.clearSensitiveMemory();
-      }, 60000); // Clear after 1 minute
-
       return key;
     } catch (error) {
       console.error('Failed to retrieve encryption key:', error);
@@ -149,11 +143,11 @@ class KeychainServiceImpl implements KeychainService {
 
   async secureCleanup(): Promise<void> {
     try {
-      // Clear any cached credentials in the native keychain module
-      // This is a precautionary measure
-      await Keychain.resetGenericPassword({
-        service: 'borderly',
-      }).catch(() => {
+      // Clear internet credentials (where sensitive data is actually stored)
+      await Keychain.resetInternetCredentials({ service: PROFILE_KEY }).catch(() => {
+        // Ignore errors - may not exist
+      });
+      await Keychain.resetInternetCredentials({ service: ENCRYPTION_KEY }).catch(() => {
         // Ignore errors - may not exist
       });
       

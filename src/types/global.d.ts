@@ -18,17 +18,6 @@ declare global {
     };
   }
 
-  // Extend globalThis with our custom properties
-  var globalThis: GlobalThis & typeof globalThis & {
-    gc?: () => void;
-    performance?: {
-      memory?: {
-        usedJSHeapSize: number;
-        totalJSHeapSize: number;
-        jsHeapSizeLimit: number;
-      };
-    };
-  };
 
   // Node.js globals (for testing environment)
   const process: {

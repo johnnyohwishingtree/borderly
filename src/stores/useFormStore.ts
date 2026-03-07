@@ -452,18 +452,6 @@ export const useFormStore = create<FormStore>((set, get) => ({
   performMemoryCleanup: () => {
     const state = get();
     
-    // Clear non-essential data from form
-    const optimizedFormData = { ...state.formData };
-    
-    // Remove large text values that can be regenerated
-    Object.keys(optimizedFormData).forEach(key => {
-      const value = optimizedFormData[key];
-      if (typeof value === 'string' && value.length > 1000) {
-        // Keep only a shortened version for very long text
-        optimizedFormData[key] = value.substring(0, 100) + '...';
-      }
-    });
-
     // Clear old validation errors and warnings that may accumulate
     const cleanedErrors: Record<string, string> = {};
     const cleanedWarnings: Record<string, string[]> = {};
@@ -485,13 +473,11 @@ export const useFormStore = create<FormStore>((set, get) => ({
     }
 
     set({
-      formData: optimizedFormData,
       errors: cleanedErrors,
       warnings: cleanedWarnings,
       memoryUsage: {
         ...state.memoryUsage,
         lastCleanup: Date.now(),
-        formDataSize: JSON.stringify(optimizedFormData).length,
       },
     });
 

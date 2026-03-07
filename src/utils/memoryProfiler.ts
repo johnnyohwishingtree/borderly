@@ -5,6 +5,8 @@
  * Tracks memory usage patterns and identifies potential memory leaks.
  */
 
+import React from 'react';
+
 interface MemorySnapshot {
   timestamp: number;
   heapUsed: number;
@@ -362,5 +364,3 @@ export const MemoryMonitor = {
   detectLeaks: () => memoryProfiler.detectMemoryLeaks(),
 };
 
-// React import (will be available when this is imported in React components)
-declare const React: any;
