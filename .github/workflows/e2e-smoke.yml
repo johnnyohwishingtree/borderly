@@ -29,10 +29,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile || pnpm install
 
+      - name: Cache Pods
+        uses: actions/cache@v4
+        with:
+          path: ios/Pods
+          key: pods-${{ hashFiles('ios/Podfile.lock') }}
+
       - name: Install CocoaPods
         run: cd ios && pod install
         env:
           NO_FLIPPER: 1
+
+      - name: Cache Xcode DerivedData
+        uses: actions/cache@v4
+        with:
+          path: ios/build
+          key: xcode-${{ hashFiles('ios/Podfile.lock', 'package.json') }}
 
       - name: Boot iOS simulator
         run: |
@@ -52,16 +64,16 @@ jobs:
           xcrun simctl boot "$DEVICE" 2>/dev/null || true
           echo "SIMULATOR_UDID=$DEVICE" >> $GITHUB_ENV
 
-      - name: Build iOS app (Release)
+      - name: Build iOS app (Debug)
         run: |
           xcodebuild \
             -workspace ios/Borderly.xcworkspace \
             -scheme Borderly \
-            -configuration Release \
+            -configuration Debug \
             -sdk iphonesimulator \
             -destination "id=$SIMULATOR_UDID" \
             -derivedDataPath ios/build \
-            build 2>&1 | tail -20
+            build 2>&1 | xcbeautify --quiet || tail -30
 
       - name: Install app on simulator
         run: |
