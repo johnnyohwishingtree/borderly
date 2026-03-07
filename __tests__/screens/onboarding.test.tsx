@@ -1,4 +1,3 @@
-import React from 'react';
 import { Alert, Dimensions } from 'react-native';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';

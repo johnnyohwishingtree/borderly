@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react-native';
 import GuideProgress from '../../../src/components/guide/GuideProgress';
 

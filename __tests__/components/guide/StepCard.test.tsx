@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import StepCard from '../../../src/components/guide/StepCard';
 import { SubmissionStep } from '../../../src/types/schema';
@@ -151,7 +150,7 @@ describe('StepCard', () => {
   });
 
   it('handles step without tips', () => {
-    const stepWithoutTips: SubmissionStep = {
+    const stepWithoutTips = {
       ...mockStep,
       tips: undefined,
     };

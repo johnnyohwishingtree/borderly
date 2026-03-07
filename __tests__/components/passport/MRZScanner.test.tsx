@@ -2,7 +2,6 @@
  * Tests for MRZScanner Component
  */
 
-import React from 'react';
 import { render } from '@testing-library/react-native';
 import MRZScanner from '../../../src/components/passport/MRZScanner';
 

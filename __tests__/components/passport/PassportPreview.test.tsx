@@ -2,7 +2,6 @@
  * Tests for PassportPreview Component
  */
 
-import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import PassportPreview from '../../../src/components/passport/PassportPreview';

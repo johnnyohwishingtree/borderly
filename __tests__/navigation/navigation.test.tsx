@@ -1,7 +1,5 @@
-import React from 'react';
 import { View, Text } from 'react-native';
 import { render, waitFor } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native';
 
 import { useProfileStore } from '@/stores/useProfileStore';
 
