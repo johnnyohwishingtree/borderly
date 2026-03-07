@@ -153,7 +153,7 @@ describe('PortalIntegrationService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Timeout');
-    });
+    }, 20000);
   });
 
   describe('checkPortalAccessibility', () => {

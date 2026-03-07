@@ -61,7 +61,11 @@ export default function StepCard({
             </View>
             <View className="flex-1">
               <View className="flex-row items-center mb-1">
-                <Text className={`text-xs font-semibold uppercase tracking-wide mr-2 text-${statusColor}-600`}>
+                <Text className={{
+                  green: 'text-xs font-semibold uppercase tracking-wide mr-2 text-green-600',
+                  blue: 'text-xs font-semibold uppercase tracking-wide mr-2 text-blue-600',
+                  gray: 'text-xs font-semibold uppercase tracking-wide mr-2 text-gray-600',
+                }[statusColor]}>
                   Step {step.order}
                 </Text>
                 {isCompleted && (

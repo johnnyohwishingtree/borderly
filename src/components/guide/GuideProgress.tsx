@@ -138,7 +138,8 @@ export default function GuideProgress({
     );
   };
 
-  const completionPercentage = Math.round((completedSteps.length / totalSteps) * 100);
+  const uniqueCompleted = new Set(completedSteps).size;
+  const completionPercentage = totalSteps > 0 ? Math.round((uniqueCompleted / totalSteps) * 100) : 0;
 
   return (
     <View className="w-full">
@@ -160,7 +161,7 @@ export default function GuideProgress({
       </View>
 
       {/* Current Step Title */}
-      {stepTitles[currentStep - 1] && (
+      {showLabels && stepTitles[currentStep - 1] && (
         <View className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
           <Text className="text-sm font-medium text-blue-900 mb-1">
             Current Step:

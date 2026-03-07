@@ -25,7 +25,7 @@ describe('GuideProgress', () => {
       'Fifth Step'
     ];
 
-    const { getByText } = render(
+    const { getAllByText } = render(
       <GuideProgress 
         {...defaultProps} 
         stepTitles={stepTitles}
@@ -34,14 +34,14 @@ describe('GuideProgress', () => {
     );
 
     stepTitles.forEach(title => {
-      expect(getByText(title)).toBeTruthy();
+      expect(getAllByText(title).length).toBeGreaterThan(0);
     });
   });
 
   it('shows current step information', () => {
-    const stepTitles = ['Step 1', 'Step 2', 'Current Step', 'Step 4', 'Step 5'];
+    const stepTitles = ['Step 1', 'Step 2', 'Current Title', 'Step 4', 'Step 5'];
 
-    const { getByText } = render(
+    const { getByText, getAllByText } = render(
       <GuideProgress 
         {...defaultProps}
         stepTitles={stepTitles}
@@ -49,7 +49,8 @@ describe('GuideProgress', () => {
     );
 
     expect(getByText('Current Step:')).toBeTruthy();
-    expect(getByText('Current Step')).toBeTruthy();
+    // Use getAllByText since "Current Title" appears in both step label and current step info
+    expect(getAllByText('Current Title').length).toBeGreaterThan(0);
   });
 
   it('calculates completion percentage correctly', () => {
@@ -101,9 +102,9 @@ describe('GuideProgress', () => {
   });
 
   it('hides labels when showLabels is false', () => {
-    const stepTitles = ['Step 1', 'Step 2', 'Step 3', 'Step 4', 'Step 5'];
+    const stepTitles = ['Label One', 'Label Two', 'Label Three', 'Label Four', 'Label Five'];
 
-    const { queryByText } = render(
+    const { queryAllByText } = render(
       <GuideProgress 
         {...defaultProps}
         stepTitles={stepTitles}
@@ -111,9 +112,9 @@ describe('GuideProgress', () => {
       />
     );
 
-    // Labels should not be rendered
+    // Labels should not be rendered - check that none of the unique labels appear
     stepTitles.forEach(title => {
-      expect(queryByText(title)).toBeNull();
+      expect(queryAllByText(title)).toHaveLength(0);
     });
   });
 

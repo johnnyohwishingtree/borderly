@@ -33,7 +33,7 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('STEP 1')).toBeTruthy();
+    expect(getByText('Step 1')).toBeTruthy();
     expect(getByText('Test Step')).toBeTruthy();
     expect(getByText('This is a test step description')).toBeTruthy();
     expect(getByText('Current')).toBeTruthy();

@@ -99,17 +99,15 @@ describe('CopyableField', () => {
   it('copies value to clipboard when pressed', async () => {
     mockedClipboard.setString.mockResolvedValue();
 
-    const { getByText } = render(
+    const { getByLabelText } = render(
       <CopyableField
         label="Test Field"
         value="Test Value"
       />
     );
 
-    const copyButton = getByText('Copy').parent?.parent;
-    if (copyButton) {
-      fireEvent.press(copyButton);
-    }
+    const copyButton = getByLabelText('Copy Test Field: Test Value');
+    fireEvent.press(copyButton);
 
     await waitFor(() => {
       expect(mockedClipboard.setString).toHaveBeenCalledWith('Test Value');
@@ -119,17 +117,15 @@ describe('CopyableField', () => {
   it('shows "Copied!" feedback after successful copy', async () => {
     mockedClipboard.setString.mockResolvedValue();
 
-    const { getByText } = render(
+    const { getByLabelText, getByText } = render(
       <CopyableField
         label="Test Field"
         value="Test Value"
       />
     );
 
-    const copyButton = getByText('Copy').parent?.parent;
-    if (copyButton) {
-      fireEvent.press(copyButton);
-    }
+    const copyButton = getByLabelText('Copy Test Field: Test Value');
+    fireEvent.press(copyButton);
 
     await waitFor(() => {
       expect(getByText('Copied!')).toBeTruthy();
@@ -139,17 +135,15 @@ describe('CopyableField', () => {
   it('triggers haptic feedback on successful copy', async () => {
     mockedClipboard.setString.mockResolvedValue();
 
-    const { getByText } = render(
+    const { getByLabelText } = render(
       <CopyableField
         label="Test Field"
         value="Test Value"
       />
     );
 
-    const copyButton = getByText('Copy').parent?.parent;
-    if (copyButton) {
-      fireEvent.press(copyButton);
-    }
+    const copyButton = getByLabelText('Copy Test Field: Test Value');
+    fireEvent.press(copyButton);
 
     await waitFor(() => {
       expect(mockedTrigger).toHaveBeenCalledWith(
@@ -160,17 +154,15 @@ describe('CopyableField', () => {
   });
 
   it('shows alert when trying to copy empty value', () => {
-    const { getByText } = render(
+    const { getByLabelText } = render(
       <CopyableField
         label="Test Field"
         value=""
       />
     );
 
-    const copyButton = getByText('Copy').parent?.parent;
-    if (copyButton) {
-      fireEvent.press(copyButton);
-    }
+    const copyButton = getByLabelText('Copy Test Field: Not provided');
+    fireEvent.press(copyButton);
 
     expect(mockedAlert.alert).toHaveBeenCalledWith('Cannot Copy', 'No value to copy');
   });
@@ -178,17 +170,15 @@ describe('CopyableField', () => {
   it('shows alert when clipboard operation fails', async () => {
     mockedClipboard.setString.mockRejectedValue(new Error('Clipboard error'));
 
-    const { getByText } = render(
+    const { getByLabelText } = render(
       <CopyableField
         label="Test Field"
         value="Test Value"
       />
     );
 
-    const copyButton = getByText('Copy').parent?.parent;
-    if (copyButton) {
-      fireEvent.press(copyButton);
-    }
+    const copyButton = getByLabelText('Copy Test Field: Test Value');
+    fireEvent.press(copyButton);
 
     await waitFor(() => {
       expect(mockedAlert.alert).toHaveBeenCalledWith(
