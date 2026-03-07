@@ -12,10 +12,11 @@ export { NavigationController } from './navigationController';
 export { ElementDetector } from './elementDetector';
 export { UploadHandler } from './uploadHandler';
 
+// Portal detection utility
+import { PortalDetector } from '../../utils/portalDetection';
+
 // Re-export types for external use
 export type {
-  FormFillConfig,
-  FormFillResult,
   FileInfo,
   UploadTarget,
   UploadResult,

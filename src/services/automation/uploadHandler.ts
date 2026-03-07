@@ -449,10 +449,10 @@ export class UploadHandler {
     if (fileInfo.type.startsWith('image/') && documentType && DOCUMENT_TYPES[documentType]) {
       const docType = DOCUMENT_TYPES[documentType];
       if (fileInfo.metadata?.width && fileInfo.metadata?.height) {
-        if (docType.maxWidth && fileInfo.metadata.width > docType.maxWidth) {
+        if ('maxWidth' in docType && docType.maxWidth && fileInfo.metadata.width > docType.maxWidth) {
           validation.warnings.push(`Image width ${fileInfo.metadata.width}px exceeds recommended ${docType.maxWidth}px`);
         }
-        if (docType.maxHeight && fileInfo.metadata.height > docType.maxHeight) {
+        if ('maxHeight' in docType && docType.maxHeight && fileInfo.metadata.height > docType.maxHeight) {
           validation.warnings.push(`Image height ${fileInfo.metadata.height}px exceeds recommended ${docType.maxHeight}px`);
         }
         
@@ -483,8 +483,8 @@ export class UploadHandler {
     // Process images
     if (fileInfo.type.startsWith('image/') && this.config.resizeImages) {
       const docType = documentType ? DOCUMENT_TYPES[documentType] : null;
-      const maxWidth = docType?.maxWidth || this.config.maxImageWidth;
-      const maxHeight = docType?.maxHeight || this.config.maxImageHeight;
+      const maxWidth = (docType && 'maxWidth' in docType ? docType.maxWidth : undefined) || this.config.maxImageWidth;
+      const maxHeight = (docType && 'maxHeight' in docType ? docType.maxHeight : undefined) || this.config.maxImageHeight;
       
       if (fileInfo.metadata?.width && fileInfo.metadata?.height) {
         if (fileInfo.metadata.width > maxWidth || fileInfo.metadata.height > maxHeight) {

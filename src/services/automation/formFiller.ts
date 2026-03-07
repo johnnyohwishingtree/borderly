@@ -391,7 +391,7 @@ export class FormFiller {
         // Get the first radio button to extract the name attribute
         const firstRadio = document.querySelector(${element});
         if (firstRadio && firstRadio.name) {
-          const radioButtons = document.querySelectorAll('input[name="' + firstRadio.name + '"]');
+          const radioButtons = document.querySelectorAll('input[type="radio"][name="' + firstRadio.name + '"]');
           radioButtons.forEach(radio => {
             if (radio.value === ${value} || radio.value.toLowerCase() === ${value}.toLowerCase()) {
               radio.checked = true;
@@ -483,7 +483,7 @@ export class FormFiller {
       if (fieldsToRetry.length === 0) break;
 
       // Wait before retry (exponential backoff)
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      await new Promise<void>(resolve => setTimeout(resolve, 1000 * attempt));
 
       const retryFields = fieldsToRetry.filter(field => 
         fieldMappings[field.fieldId] && formData[field.fieldId] !== undefined
@@ -573,7 +573,7 @@ export class FormFiller {
       const result = await executeScript(validationScript);
       return {
         success: result.success,
-        error: result.success ? undefined : `Validation failed: expected ${result.expectedValue}, got ${result.actualValue}`
+        ...(result.success ? {} : { error: `Validation failed: expected ${result.expectedValue}, got ${result.actualValue}` })
       };
     } catch (error) {
       return {

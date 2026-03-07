@@ -436,15 +436,17 @@ export class ElementDetector {
       return {
         success: result.success,
         error: result.error,
-        data: result.success ? {
-          formReady: result.formReady,
-          formVisible: result.formVisible,
-          formEnabled: result.formEnabled,
-          hasLoadingIndicator: result.hasLoadingIndicator,
-          requiredFieldsReady: result.requiredFieldsReady,
-          fieldResults: result.fieldResults,
-          formAttributes: result.formAttributes
-        } : undefined
+        ...(result.success && {
+          data: {
+            formReady: result.formReady,
+            formVisible: result.formVisible,
+            formEnabled: result.formEnabled,
+            hasLoadingIndicator: result.hasLoadingIndicator,
+            requiredFieldsReady: result.requiredFieldsReady,
+            fieldResults: result.fieldResults,
+            formAttributes: result.formAttributes
+          }
+        })
       };
 
     } catch (error) {
@@ -480,7 +482,7 @@ export class ElementDetector {
     return {
       size: this.cache.size,
       hitRate: 0, // Would track this in a real implementation
-      oldestEntry: oldestTimestamp !== now ? now - oldestTimestamp : undefined
+      ...(oldestTimestamp !== now && { oldestEntry: now - oldestTimestamp })
     };
   }
 
@@ -531,7 +533,7 @@ export class ElementDetector {
       
       // Wait before next attempt
       if (Date.now() - startTime + delay < timeout) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(resolve, delay));
       }
     }
 
@@ -764,7 +766,7 @@ export class ElementDetector {
         };
       }
       
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise<void>(resolve => setTimeout(resolve, 100));
     }
 
     // Check cache again after polling completed

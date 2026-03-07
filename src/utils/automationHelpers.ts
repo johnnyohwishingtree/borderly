@@ -108,9 +108,10 @@ export class SelectorBuilder {
 
     // By name attribute
     if (fieldInfo.name) {
-      selectors.push(`input[name="${cssEscape(fieldInfo.name)}"]`);
-      selectors.push(`select[name="${cssEscape(fieldInfo.name)}"]`);
-      selectors.push(`textarea[name="${cssEscape(fieldInfo.name)}"]`);
+      const escapedName = fieldInfo.name.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      selectors.push(`input[name="${escapedName}"]`);
+      selectors.push(`select[name="${escapedName}"]`);
+      selectors.push(`textarea[name="${escapedName}"]`);
     }
 
     // By ID
