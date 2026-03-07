@@ -191,7 +191,7 @@ class DataLeakDetectorService {
 
   private async scanDatabaseForLeaks(leaks: DataLeak[]): Promise<void> {
     try {
-      const database = await databaseService.getDatabase();
+      await databaseService.getDatabase();
       
       // Check trips for PII that should be in keychain
       const trips = await databaseService.getTrips();
@@ -263,7 +263,7 @@ class DataLeakDetectorService {
   }
 
   private isFalsePositive(match: string, patternName: string): boolean {
-    const falsePositives = {
+    const falsePositives: Record<string, string[]> = {
       fullName: [
         'John Doe', 'Jane Smith', 'Test User', 'Demo User',
         'React Native', 'App Store', 'Google Play'
@@ -280,7 +280,7 @@ class DataLeakDetectorService {
     };
 
     const patterns = falsePositives[patternName] || [];
-    return patterns.some(fp => match.toLowerCase().includes(fp.toLowerCase()));
+    return patterns.some((fp: string) => match.toLowerCase().includes(fp.toLowerCase()));
   }
 
   private calculateConfidence(match: string, patternName: string): number {
@@ -329,7 +329,7 @@ class DataLeakDetectorService {
   }
 
   private getRemediationForPattern(patternName: string, location: string): string {
-    const remediations = {
+    const remediations: Record<string, string> = {
       passportNumber: 'Move to keychain with biometric protection',
       fullName: 'Store in keychain or remove if unnecessary',
       dateOfBirth: 'Store in keychain or anonymize',
@@ -454,7 +454,7 @@ class DataLeakDetectorService {
       const history: DataLeakDetectionResult[] = historyStr ? JSON.parse(historyStr) : [];
       
       // Store minimal history (without full leak details to save space)
-      const minimalResult = {
+      const minimalResult: Partial<DataLeakDetectionResult> & { leakTypes: string[] } = {
         leaksDetected: result.leaksDetected,
         leakCount: result.leakCount,
         riskLevel: result.riskLevel,
@@ -462,7 +462,7 @@ class DataLeakDetectorService {
         leakTypes: [...new Set(result.leaks.map(l => l.type))]
       };
 
-      history.unshift(minimalResult);
+      history.unshift(minimalResult as DataLeakDetectionResult);
       const truncatedHistory = history.slice(0, this.MAX_SCAN_HISTORY);
       
       this.auditMmkv.set(this.SCAN_HISTORY_KEY, JSON.stringify(truncatedHistory));

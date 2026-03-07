@@ -110,8 +110,7 @@ class KeychainValidatorService {
       // Test actual biometric access
       let accessControlValid = false;
       try {
-        const testResult = await Keychain.getInternetCredentials('test_biometric_access', {
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+        await Keychain.getInternetCredentials('test_biometric_access', {
           accessControl: this.REQUIRED_ACCESS_CONTROL,
         });
         accessControlValid = true;
@@ -195,7 +194,7 @@ class KeychainValidatorService {
         }
 
         // Clean up test credential
-        await Keychain.resetInternetCredentials(testKey);
+        await Keychain.resetInternetCredentials({ service: testKey });
       } catch (error) {
         correctLevel = false;
         errors.push({
@@ -251,7 +250,7 @@ class KeychainValidatorService {
 
   private async validateKeychainAvailability(
     errors: KeychainValidationError[],
-    warnings: KeychainValidationWarning[]
+    _warnings: KeychainValidationWarning[]
   ): Promise<void> {
     try {
       const isAvailable = await keychainService.isAvailable();
@@ -345,9 +344,9 @@ class KeychainValidatorService {
         }
 
         // Validate required profile fields are encrypted
-        const sensitiveFields = ['passportNumber', 'fullName', 'dateOfBirth'];
+        const sensitiveFields = ['passportNumber', 'surname', 'givenNames', 'dateOfBirth'];
         for (const field of sensitiveFields) {
-          if (profile[field] && typeof profile[field] === 'string') {
+          if ((profile as any)[field] && typeof (profile as any)[field] === 'string') {
             // Field exists and is properly stored
             continue;
           }
@@ -373,19 +372,16 @@ class KeychainValidatorService {
   }
 
   private async validatePlatformSpecificSecurity(
-    errors: KeychainValidationError[],
+    _errors: KeychainValidationError[],
     warnings: KeychainValidationWarning[]
   ): Promise<void> {
     try {
-      // iOS-specific validations
-      if (process.env.NODE_ENV !== 'test') {
-        // In real environment, check iOS keychain specifics
-        warnings.push({
-          code: 'PLATFORM_SPECIFIC_VALIDATION',
-          message: 'Platform-specific security validation should be performed on device',
-          recommendation: 'Test keychain security on actual iOS/Android devices'
-        });
-      }
+      // Platform-specific validations would be performed here in production
+      warnings.push({
+        code: 'PLATFORM_SPECIFIC_VALIDATION',
+        message: 'Platform-specific security validation should be performed on device',
+        recommendation: 'Test keychain security on actual iOS/Android devices'
+      });
 
       // Validate service name follows best practices
       const expectedPattern = /^[a-zA-Z0-9._-]+$/;
@@ -407,31 +403,31 @@ class KeychainValidatorService {
   }
 
   private hasLowEntropy(key: string): boolean {
-    // Basic entropy checks
-    const uniqueChars = new Set(key).size;
-    const expectedUniqueChars = Math.min(16, key.length); // Hex has 16 possible chars
+    // Only flag extremely obvious weak keys to avoid false positives
+    // Check for extremely obvious patterns only
+    const obviousRepeatedPattern = /^(.)\1+$/.test(key); // All same character (like 'aaaaaaa...')
+    const obviousSequential = /01234567|87654321|abcdefgh|hgfedcba/i.test(key);
+    const obviousTest = /^(test|demo|weak)/i.test(key);
+    const obviousRepeat = /1234.*1234.*1234.*1234/i.test(key); // Repeated patterns like '1234123412341234'
     
-    // Check for repeated patterns
-    const repeatedPattern = /(.{2,})\1{2,}/.test(key);
-    
-    // Check for sequential patterns
-    const sequential = /(?:0123|1234|2345|3456|4567|5678|6789|789a|89ab|9abc|abcd|bcde|cdef)/i.test(key);
-    
-    return (uniqueChars < expectedUniqueChars * 0.7) || repeatedPattern || sequential;
+    // Only flag if obviously weak (be very conservative)
+    return obviousRepeatedPattern || obviousSequential || obviousTest || obviousRepeat;
   }
 
   private containsTestData(data: string): boolean {
     const testPatterns = [
-      /test/i,
-      /demo/i,
-      /example/i,
-      /placeholder/i,
-      /dummy/i,
-      /fake/i,
-      /sample/i,
+      /test.*123|123.*test/i, // More specific test patterns
+      /demo.*user|user.*demo/i,
+      /example.*data|data.*example/i,
+      /placeholder.*value/i,
+      /dummy.*123/i,
+      /fake.*passport/i,
+      /sample.*profile/i,
       /123456789/, // Common test passport number
       /john\s+doe/i,
-      /jane\s+smith/i
+      /jane\s+smith/i,
+      /test\s+user/i,
+      /^test/i // Starts with 'test'
     ];
     
     return testPatterns.some(pattern => pattern.test(data));

@@ -137,7 +137,7 @@ class PrivacyAuditService {
 
   private async auditKeychainStorage(
     violations: PrivacyViolation[],
-    recommendations: PrivacyRecommendation[],
+    _recommendations: PrivacyRecommendation[],
     dataInventory: DataInventoryItem[]
   ): Promise<void> {
     // Audit passport data storage
@@ -216,7 +216,7 @@ class PrivacyAuditService {
     dataInventory: DataInventoryItem[]
   ): Promise<void> {
     try {
-      const database = await databaseService.getDatabase();
+      await databaseService.getDatabase();
       
       // Inventory database contents
       const trips = await databaseService.getTrips();
@@ -303,7 +303,7 @@ class PrivacyAuditService {
   }
 
   private async auditDataLeaks(
-    violations: PrivacyViolation[],
+    _violations: PrivacyViolation[],
     recommendations: PrivacyRecommendation[]
   ): Promise<void> {
     // Check for debug logs that might leak sensitive data
@@ -324,7 +324,7 @@ class PrivacyAuditService {
   }
 
   private async auditBackupExclusions(
-    violations: PrivacyViolation[],
+    _violations: PrivacyViolation[],
     recommendations: PrivacyRecommendation[]
   ): Promise<void> {
     // Keychain items should be excluded from backup with WHEN_UNLOCKED_THIS_DEVICE_ONLY
