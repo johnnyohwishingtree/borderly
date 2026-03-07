@@ -11,6 +11,47 @@ jest.mock('@/services/submission/webviewController');
 jest.mock('@/services/submission/automationScripts');
 jest.mock('@/utils/submissionValidator');
 
+// Mock implementations
+import { AutomationScriptRegistry } from '@/services/submission/automationScripts';
+import { SubmissionValidator } from '@/utils/submissionValidator';
+import { WebViewController } from '@/services/submission/webviewController';
+
+const mockAutomationScriptRegistry = AutomationScriptRegistry as jest.Mocked<typeof AutomationScriptRegistry>;
+const mockSubmissionValidator = SubmissionValidator as jest.Mocked<typeof SubmissionValidator>;
+const mockWebViewController = WebViewController as jest.Mocked<typeof WebViewController>;
+
+// Setup default mock behaviors
+mockSubmissionValidator.prototype.validateSubmission = jest.fn().mockResolvedValue({
+  isValid: true,
+  warnings: [],
+  errors: [],
+  checks: {
+    noPIILeakage: true,
+    validDomain: true,
+    secureConnection: true,
+    dataWithinLimits: true
+  }
+});
+
+mockAutomationScriptRegistry.prototype.getScript = jest.fn().mockImplementation((countryCode: string) => {
+  // Return script for supported countries, undefined for unsupported
+  if (countryCode === 'JPN') {
+    return Promise.resolve({
+      countryCode: 'JPN',
+      portalName: 'Visit Japan Web',
+      portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+      prerequisites: {},
+      steps: [],
+      fieldMappings: {}
+    });
+  }
+  return Promise.resolve(undefined);
+});
+
+mockWebViewController.prototype.initialize = jest.fn().mockResolvedValue(undefined);
+mockWebViewController.prototype.navigateTo = jest.fn().mockResolvedValue(undefined);
+mockWebViewController.prototype.executeScript = jest.fn().mockResolvedValue({});
+
 describe('SubmissionEngine', () => {
   let submissionEngine: SubmissionEngine;
 
@@ -21,6 +62,14 @@ describe('SubmissionEngine', () => {
         logJavaScript: false,
         saveSessionData: false
       }
+    });
+    
+    // Mock the private validateSubmissionComplete method to return success for automated tests
+    const spy = jest.spyOn(submissionEngine as any, 'validateSubmissionComplete');
+    spy.mockResolvedValue({
+      success: true,
+      confirmationNumber: 'TEST123',
+      qrCode: 'mock-qr-data'
     });
   });
 

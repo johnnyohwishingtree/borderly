@@ -264,7 +264,7 @@ export class WebViewController {
         return true;
       }
       
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 500));
     }
     
     return false;
@@ -587,7 +587,7 @@ export class WebViewController {
         // Continue waiting
       }
       
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 500));
     }
     
     throw new Error('Page load timeout');

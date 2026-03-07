@@ -172,7 +172,7 @@ export class SubmissionEngine {
               stepId: step.id,
               error: stepResult.error || 'Unknown error',
               timestamp: new Date().toISOString(),
-              screenshot: stepResult.screenshot,
+              screenshot: stepResult.screenshot || undefined,
               retryable: true
             });
           }
@@ -269,8 +269,8 @@ export class SubmissionEngine {
       }
 
       // Wait if configured
-      if (step.timing.waitAfter) {
-        await new Promise(resolve => setTimeout(resolve, step.timing.waitAfter));
+      if (step.timing?.waitAfter) {
+        await new Promise(resolve => setTimeout(() => resolve(undefined), step.timing.waitAfter));
       }
 
       return {

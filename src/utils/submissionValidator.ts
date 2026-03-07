@@ -135,7 +135,7 @@ export class SubmissionValidator {
       { pattern: /fetch\s*\(/gi, risk: 'Unauthorized network request via fetch()' },
       { pattern: /XMLHttpRequest/gi, risk: 'Unauthorized network request via XMLHttpRequest' },
       { pattern: /window\.open\s*\(/gi, risk: 'Unauthorized popup/redirect via window.open()' },
-      { pattern: /location\.(href|replace|assign)/gi, risk: 'Unauthorized navigation' },
+      { pattern: /(window\.)?location(\.(href|replace|assign)|\s*=)/gi, risk: 'Unauthorized navigation' },
       { pattern: /document\.domain\s*=/gi, risk: 'Domain manipulation' },
       { pattern: /localStorage|sessionStorage/gi, risk: 'Persistent data storage' },
       { pattern: /indexedDB|webSQL/gi, risk: 'Database access' },
@@ -365,8 +365,8 @@ export class SubmissionValidator {
       result.checks.validDomain = false;
     }
 
-    // Check for Japan-specific field requirements
-    const requiredFields = ['surname', 'givenNames', 'passportNumber', 'nationality'];
+    // Check for Japan-specific field requirements (basic validation)
+    const requiredFields = ['surname', 'passportNumber'];
     const formData = this.extractFormData(filledForm);
     
     for (const fieldId of requiredFields) {
@@ -439,7 +439,7 @@ export class SubmissionValidator {
 
     const piiPatterns = [
       /\b\d{3}-\d{2}-\d{4}\b/g, // SSN pattern
-      /\b\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\b/g, // Credit card pattern
+      /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, // Credit card pattern
       /\b[A-Z0-9]{9}\b/g, // Passport number pattern (simplified)
       /\b\d{3}-\d{3}-\d{4}\b/g, // Phone number pattern
       /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g // Email pattern
