@@ -23,9 +23,10 @@ export default defineConfig({
       name: 'chromium',
       testMatch: [
         'smoke.spec.ts',
-        'onboarding.spec.ts', 
+        'onboarding.spec.ts',
         'completeUserFlow.spec.ts',
-        'tripCreation.spec.ts'
+        'tripCreation.spec.ts',
+        'passportScanning.spec.ts'
       ],
       use: { 
         ...devices['Desktop Chrome'],

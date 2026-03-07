@@ -42,9 +42,17 @@ export default function MRZScannerComponent({
   useEffect(() => {
     // Reset scanner when component mounts
     scannerRef.current.reset();
-    
+
+    // Timeout: if camera doesn't initialize within 10 seconds, show error
+    const cameraTimeout = setTimeout(() => {
+      if (permissionGranted === null) {
+        setPermissionGranted(false);
+      }
+    }, 10000);
+
     return () => {
       // Cleanup on unmount
+      clearTimeout(cameraTimeout);
       setIsScanning(false);
     };
   }, []);
@@ -124,16 +132,6 @@ export default function MRZScannerComponent({
     return 'bg-red-500';
   };
 
-  // Show loading while checking permissions
-  if (permissionGranted === null) {
-    return (
-      <View className="flex-1 bg-black items-center justify-center">
-        <LoadingSpinner />
-        <Text className="text-white mt-4">Initializing camera...</Text>
-      </View>
-    );
-  }
-
   // Show error state if no permission
   if (permissionGranted === false) {
     return (
@@ -142,7 +140,7 @@ export default function MRZScannerComponent({
           Camera Access Required
         </Text>
         <Text className="text-gray-300 text-center mb-8 leading-6">
-          To scan your passport, we need camera permission. This allows us to read the 
+          To scan your passport, we need camera permission. This allows us to read the
           MRZ data from your passport without storing any images.
         </Text>
         <Button
@@ -157,7 +155,7 @@ export default function MRZScannerComponent({
 
   return (
     <View className="flex-1 bg-black">
-      {/* Camera View */}
+      {/* Camera View — mounts during loading (null) so onCameraReady can fire */}
       <RNCamera
         ref={cameraRef}
         className="flex-1"
@@ -276,6 +274,14 @@ export default function MRZScannerComponent({
         </View>
       </RNCamera>
       
+      {/* Loading overlay — shown while camera initializes */}
+      {permissionGranted === null && (
+        <View className="absolute inset-0 bg-black items-center justify-center">
+          <LoadingSpinner />
+          <Text className="text-white mt-4">Initializing camera...</Text>
+        </View>
+      )}
+
       {/* Success overlay */}
       {scanResult?.type === 'success' && (
         <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
