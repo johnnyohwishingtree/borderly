@@ -5,8 +5,23 @@
  * the automation engine for government portal interactions.
  */
 
-import { PortalFieldMapping, AutomationStepResult } from '@/types/submission';
-import { FilledForm } from '@/services/forms/formEngine';
+import type { PortalFieldMapping } from '@/types/submission';
+
+// Type declaration for CSS.escape
+declare global {
+  interface Window {
+    CSS?: {
+      escape(value: string): string;
+    };
+  }
+}
+
+// For non-browser environments
+interface CSS {
+  escape(value: string): string;
+}
+
+declare const CSS: CSS | undefined;
 
 /**
  * Selector building utilities
@@ -28,14 +43,14 @@ export class SelectorBuilder {
 
     // ID selector (highest priority)
     if (options.id) {
-      selectors.push(`#${CSS.escape(options.id)}`);
+      selectors.push(`#${this.escape(options.id)}`);
     }
 
     // Class selector
     if (options.className) {
       const classes = options.className.split(/\s+/).filter(c => c.trim());
       if (classes.length > 0) {
-        selectors.push(`.${classes.map(c => CSS.escape(c)).join('.')}`);
+        selectors.push(`.${classes.map(c => this.escape(c)).join('.')}`);
       }
     }
 
@@ -45,7 +60,7 @@ export class SelectorBuilder {
       
       if (options.attributes) {
         Object.entries(options.attributes).forEach(([key, value]) => {
-          tagSelector += `[${CSS.escape(key)}="${CSS.escape(value)}"]`;
+          tagSelector += `[${this.escape(key)}="${this.escape(value)}"]`;
         });
       }
       
@@ -54,7 +69,7 @@ export class SelectorBuilder {
 
     // Text content selector
     if (options.text) {
-      selectors.push(`*:contains("${CSS.escape(options.text)}")`);
+      selectors.push(`*:contains("${this.escape(options.text)}")`);
     }
 
     // Parent context
@@ -113,7 +128,13 @@ export class SelectorBuilder {
    * Escape CSS selector for safe injection
    */
   static escape(value: string): string {
-    return CSS.escape(value);
+    // Polyfill for CSS.escape if not available
+    if (typeof CSS !== 'undefined' && CSS.escape) {
+      return CSS.escape(value);
+    }
+    
+    // Manual escaping for special characters
+    return value.replace(/[!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~]/g, '\\$&');
   }
 }
 
@@ -576,7 +597,7 @@ export class ErrorHandling {
           }
           
           const delay = config.getDelay(attempt);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
         }
       }
       
@@ -706,19 +727,19 @@ export class PerformanceMonitor {
       ? [[operationName, this.metrics.get(operationName) || []]]
       : Array.from(this.metrics.entries());
     
-    operations.forEach(([name, timings]) => {
-      const completedTimings = timings.filter(t => t.duration !== null);
-      const successfulTimings = completedTimings.filter(t => t.success);
+    operations.forEach(([name, timings]: [string, any[]]) => {
+      const completedTimings = timings.filter((t: any) => t.duration !== null);
+      const successfulTimings = completedTimings.filter((t: any) => t.success);
       
       if (completedTimings.length > 0) {
-        const durations = completedTimings.map(t => t.duration);
-        durations.sort((a, b) => a - b);
+        const durations = completedTimings.map((t: any) => t.duration as number);
+        durations.sort((a: number, b: number) => a - b);
         
         stats[name] = {
           totalOperations: completedTimings.length,
           successfulOperations: successfulTimings.length,
           successRate: successfulTimings.length / completedTimings.length,
-          averageDuration: durations.reduce((sum, d) => sum + d, 0) / durations.length,
+          averageDuration: durations.reduce((sum: number, d: number) => sum + d, 0) / durations.length,
           medianDuration: durations[Math.floor(durations.length / 2)],
           minDuration: Math.min(...durations),
           maxDuration: Math.max(...durations),
@@ -778,7 +799,7 @@ export class AutomationPatterns {
       }
       
       // Wait before next check
-      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      await new Promise<void>(resolve => setTimeout(() => resolve(), pollInterval));
     }
     
     return {
@@ -869,7 +890,7 @@ export class AutomationPatterns {
       // Check if we're at the limit
       if (operations.length >= maxOperations) {
         const waitTime = timeWindow - (now - operations[0]);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), waitTime));
       }
       
       operations.push(now);

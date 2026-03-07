@@ -226,7 +226,7 @@ export class DOMInteraction {
         success: true,
         elementChanged: clickResult.elementChanged,
         pageChanged: pageChanged,
-        newUrl: pageChanged ? finalUrl : undefined
+        newUrl: pageChanged ? finalUrl : (undefined as string | undefined)
       };
 
     } catch (error) {
@@ -415,7 +415,7 @@ export class DOMInteraction {
         data: result.success ? {
           checked: result.checked,
           value: result.value
-        } : undefined
+        } : ({} as Record<string, unknown>)
       };
     } catch (error) {
       return {
@@ -487,7 +487,7 @@ export class DOMInteraction {
       return {
         success: result.success,
         error: result.error,
-        data: result.success ? { conditionMet: result.conditionMet } : undefined
+        data: result.success ? { conditionMet: result.conditionMet } : ({} as Record<string, unknown>)
       };
     } catch (error) {
       return {
@@ -554,7 +554,7 @@ export class DOMInteraction {
           extractedData: result.data,
           dataType: result.dataType,
           selector: result.selector
-        } : undefined
+        } : ({} as Record<string, unknown>)
       };
     } catch (error) {
       return {
