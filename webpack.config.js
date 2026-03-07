@@ -2,8 +2,11 @@
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
-  mode: 'development',
+module.exports = (env, argv) => {
+  const isDev = argv.mode === 'development';
+
+  return {
+    mode: 'development',
   devtool: false,
   entry: './e2e/web-entry.tsx',
   output: {
@@ -94,7 +97,7 @@ module.exports = {
   plugins: [
     // React Native's __DEV__ global
     new webpack.DefinePlugin({
-      __DEV__: JSON.stringify(true),
+      __DEV__: isDev,
     }),
     // Replace the entire storage barrel export to avoid WatermelonDB decorator compilation
     new webpack.NormalModuleReplacementPlugin(
@@ -107,4 +110,5 @@ module.exports = {
     port: 3000,
     hot: false,
   },
+  };
 };
