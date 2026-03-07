@@ -62,7 +62,7 @@ export interface ErrorTrackingOptions {
   beforeSend?: (report: ErrorReport) => ErrorReport | null;
 }
 
-class ErrorTracker {
+export class ErrorTracker {
   private errors: ErrorReport[] = [];
   private breadcrumbs: Breadcrumb[] = [];
   private deviceInfo?: DeviceInfo;
@@ -123,6 +123,7 @@ class ErrorTracker {
       flow?: string;
       userAction?: string;
       severity?: ErrorReport['severity'];
+      type?: ErrorReport['type'];
       tags?: Record<string, string>;
     } = {}
   ): string {
@@ -131,7 +132,7 @@ class ErrorTracker {
     const errorReport: ErrorReport = {
       id: this.generateErrorId(),
       timestamp: Date.now(),
-      type: 'javascript',
+      type: context.type || 'javascript',
       severity: context.severity || this.determineSeverity(error),
       error: sanitizeError(error),
       context: {
@@ -181,6 +182,7 @@ class ErrorTracker {
     networkError.name = 'NetworkError';
 
     return this.captureError(networkError, {
+      type: 'network',
       severity: statusCode >= 500 ? 'high' : 'medium',
       tags: {
         type: 'network',
@@ -206,6 +208,7 @@ class ErrorTracker {
     validationError.name = 'ValidationError';
 
     return this.captureError(validationError, {
+      type: 'validation',
       severity: 'low',
       tags: {
         type: 'validation',
@@ -365,7 +368,7 @@ class ErrorTracker {
     }
 
     // High severity errors
-    if (name.includes('network') || name.includes('timeout') || message.includes('crash')) {
+    if (name.includes('network') || name.includes('timeout') || message.includes('timeout') || message.includes('network') || message.includes('crash')) {
       return 'high';
     }
 

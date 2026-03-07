@@ -129,10 +129,12 @@ export function sanitizeObject(
         ['firstname', 'lastname', 'fullname', 'name'].some(nameField => lowercaseKey.includes(nameField));
       
       if (isSensitiveField) {
-        if (options.preserveStructure) {
+        // For email fields specifically, sanitize the value instead of redacting  
+        if (lowercaseKey === 'email' && typeof value === 'string') {
+          sanitized[key] = sanitizeString(value, options);
+        } else {
           sanitized[key] = '[REDACTED]';
         }
-        // Otherwise omit the field entirely
       } else {
         sanitized[key] = sanitizeObject(value, options);
       }
