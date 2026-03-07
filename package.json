@@ -28,6 +28,7 @@
     "@react-navigation/bottom-tabs": "7.15.5",
     "@react-navigation/native": "7.1.33",
     "@react-navigation/native-stack": "7.14.4",
+    "bcbp": "^6.0.2",
     "nativewind": "^2.0.11",
     "postcss": "8.4.31",
     "react": "19.2.3",
