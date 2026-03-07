@@ -7,13 +7,13 @@ import { RootStackParamList, OnboardingStackParamList } from './types';
 import { useProfileStore } from '../../stores/useProfileStore';
 
 // Lazy load navigators for better code splitting
-const MainTabNavigator = lazy(() => import('./MainTabNavigator'));
+const MainTabNavigator = lazy(() => import('./MainTabNavigator').then(m => ({ default: m.default })));
 
 // Lazy load onboarding screens
-const WelcomeScreen = lazy(() => import('../../screens/onboarding/WelcomeScreen'));
-const PassportScanScreen = lazy(() => import('../../screens/onboarding/PassportScanScreen'));
-const ConfirmProfileScreen = lazy(() => import('../../screens/onboarding/ConfirmProfileScreen'));
-const BiometricSetupScreen = lazy(() => import('../../screens/onboarding/BiometricSetupScreen'));
+const WelcomeScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.WelcomeScreen })));
+const PassportScanScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
+const ConfirmProfileScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
+const BiometricSetupScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
 
 // Loading component for lazy-loaded screens
 const ScreenLoader = () => (

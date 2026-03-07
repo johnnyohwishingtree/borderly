@@ -72,18 +72,33 @@ export function getSchemaByCountryCodeSync(countryCode: string): CountryFormSche
 }
 
 // Get schema metadata (without full schema details)
-export function getSchemaMetadata() {
-  return SUPPORTED_COUNTRIES.map(countryCode => {
-    const schema = SCHEMAS[countryCode];
-    return {
-      countryCode: schema.countryCode,
-      countryName: schema.countryName,
-      portalName: schema.portalName,
-      portalUrl: schema.portalUrl,
-      schemaVersion: schema.schemaVersion,
-      lastUpdated: schema.lastUpdated,
-    };
-  });
+export async function getSchemaMetadata() {
+  const metadata = [];
+  
+  for (const countryCode of SUPPORTED_COUNTRIES) {
+    const schema = await getSchemaByCountryCode(countryCode);
+    if (schema) {
+      metadata.push({
+        countryCode: schema.countryCode,
+        countryName: schema.countryName,
+        portalName: schema.portalName,
+        portalUrl: schema.portalUrl,
+        schemaVersion: schema.schemaVersion,
+        lastUpdated: schema.lastUpdated,
+      });
+    }
+  }
+  
+  return metadata;
 }
 
-export default SCHEMAS;
+// For backwards compatibility, export the schema getter functions as default
+export default {
+  getSchemaByCountryCode,
+  getAllSchemas,
+  preloadSchemas,
+  clearSchemaCache,
+  getSchemaByCountryCodeSync,
+  getSchemaMetadata,
+  SUPPORTED_COUNTRIES,
+};
