@@ -7,7 +7,7 @@
  * Security: No image storage - immediate processing only.
  */
 
-// Note: TextRecognition types handled by react-native-camera internally
+import type { TextRecognition } from 'react-native-camera';
 import { parseMRZ, extractMRZFromText, type MRZParseResult } from './mrzParser';
 
 export interface ScanResult {
