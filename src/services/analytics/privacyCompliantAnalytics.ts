@@ -203,16 +203,16 @@ class PrivacyCompliantAnalyticsService {
       });
     }
 
-    this.journeys.push(this.currentJourney);
+    const journeyToEnd = this.currentJourney;
+    this.journeys.push(journeyToEnd);
     this.currentJourney = null;
 
     // Track journey completion analytics
     this.trackUserAction('journey_completed', 'analytics', {
-      flowType: this.currentJourney?.flowType,
+      flowType: journeyToEnd.flowType,
       outcome,
-      duration: this.currentJourney ? 
-        this.currentJourney.endTime! - this.currentJourney.startTime : 0,
-      steps: this.currentJourney?.steps.length || 0
+      duration: journeyToEnd.endTime! - journeyToEnd.startTime,
+      steps: journeyToEnd.steps.length
     });
   }
 
@@ -284,7 +284,7 @@ class PrivacyCompliantAnalyticsService {
     flowType: string;
     averageDuration: number;
     completionRate: number;
-    abandonnmentPoints: Record<string, number>;
+    abandonmentPoints: Record<string, number>;
     commonPaths: string[][];
   }> {
     const flowGroups: Record<string, UserJourney[]> = {};
@@ -301,7 +301,7 @@ class PrivacyCompliantAnalyticsService {
       const averageDuration = journeys.reduce((sum, j) => 
         sum + ((j.endTime || Date.now()) - j.startTime), 0) / journeys.length;
       
-      const completionRate = completedJourneys.length / journeys.length;
+      const completionRate = journeys.length > 0 ? completedJourneys.length / journeys.length : 0;
       
       const abandonmentPoints: Record<string, number> = {};
       journeys
@@ -319,7 +319,7 @@ class PrivacyCompliantAnalyticsService {
         flowType,
         averageDuration,
         completionRate,
-        abandonnmentPoints: abandonmentPoints,
+        abandonmentPoints: abandonmentPoints,
         commonPaths
       };
     });

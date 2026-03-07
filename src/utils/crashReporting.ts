@@ -124,7 +124,9 @@ class CrashReportingService {
       tags
     );
 
-    this.sendCrashReport(report);
+    if (report) {
+      this.sendCrashReport(report);
+    }
   }
 
   /**
@@ -165,7 +167,7 @@ class CrashReportingService {
 
     // Maintain breadcrumb limit
     if (this.breadcrumbs.length > this.config.maxBreadcrumbs) {
-      this.breadcrumbs = this.breadcrumbs.slice(-this.config.maxBreadcrumbs);
+      this.breadcrumbs.shift();
     }
   }
 
@@ -252,7 +254,9 @@ class CrashReportingService {
       { auto_reported: 'true', error_type: 'javascript' }
     );
 
-    this.sendCrashReport(report);
+    if (report) {
+      this.sendCrashReport(report);
+    }
   }
 
   private handleUnhandledPromiseRejection(reason: any): void {
@@ -268,7 +272,9 @@ class CrashReportingService {
       { auto_reported: 'true', error_type: 'promise_rejection' }
     );
 
-    this.sendCrashReport(report);
+    if (report) {
+      this.sendCrashReport(report);
+    }
   }
 
   private createCrashReport(
@@ -277,7 +283,7 @@ class CrashReportingService {
     context?: Partial<CrashReport['context']>,
     severity: CrashReport['severity'] = 'medium',
     tags: Record<string, string> = {}
-  ): CrashReport {
+  ): CrashReport | null {
     const sanitizedError = sanitizeError(error);
     
     const report: CrashReport = {
@@ -307,7 +313,7 @@ class CrashReportingService {
     if (this.config.beforeSend) {
       const processedReport = this.config.beforeSend(report);
       if (!processedReport) {
-        return report; // beforeSend returned null, but we still return the original for logging
+        return null; // Drop the report
       }
       return processedReport;
     }
@@ -371,9 +377,8 @@ class CrashReportingService {
   }
 
   private sanitizeMessage(message: string): string {
-    // Simple sanitization for breadcrumb messages
-    return message.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '[EMAIL]')
-                 .replace(/(\+?1?[-\s]?\(?[0-9]{3}\)?[-\s]?[0-9]{3}[-\s]?[0-9]{4})/g, '[PHONE]');
+    // Use comprehensive PII sanitization
+    return sanitizeObject({ message }, { preserveStructure: true }).message as string;
   }
 
   private sanitizeTags(tags: Record<string, string>): Record<string, string> {

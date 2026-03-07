@@ -214,7 +214,7 @@ try {
   return result;
 } catch (error) {
   timer();
-  crashReporting.reportError(error, 'ocr_processing');
+  crashReporting.reportError(error as Error, 'ocr_processing');
   throw error;
 }
 ```

@@ -297,7 +297,7 @@ class ProductionMonitoringService {
   private maintainEventHistory(): void {
     // Keep only last 1000 events to prevent memory bloat
     if (this.events.length > 1000) {
-      this.events = this.events.slice(-1000);
+      this.events.splice(0, this.events.length - 1000);
     }
   }
 

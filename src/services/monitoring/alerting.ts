@@ -558,8 +558,12 @@ class AlertingService {
             break;
           
           case 'log':
-            const level = action.config.level || 'warn';
-            console[level as keyof Console](`Alert: ${alert.title} - ${alert.message}`);
+            const level = action.config.level;
+            if (level && ['log', 'warn', 'error', 'info', 'debug'].includes(level)) {
+              console[level as keyof Console](`Alert: ${alert.title} - ${alert.message}`);
+            } else {
+              console.warn(`Alert: ${alert.title} - ${alert.message}`);
+            }
             break;
           
           // Additional action types would be implemented here
@@ -584,7 +588,7 @@ class AlertingService {
 
   private maintainEventBuffer(): void {
     // Keep events for the maximum time window of any rule plus some buffer
-    const maxTimeWindow = Math.max(...this.rules.map(r => r.timeWindow));
+    const maxTimeWindow = this.rules.length > 0 ? Math.max(...this.rules.map(r => r.timeWindow)) : 0;
     const retentionMs = (maxTimeWindow + 30) * 60 * 1000; // 30 minute buffer
     const cutoff = Date.now() - retentionMs;
     
