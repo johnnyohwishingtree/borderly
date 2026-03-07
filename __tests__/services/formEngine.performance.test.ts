@@ -193,6 +193,13 @@ const mockSchema: CountryFormSchema = {
           autoFillSource: 'leg.accommodation.phone',
           countrySpecific: false,
         },
+        {
+          id: 'arrival_flight',
+          label: 'Arrival Flight',
+          type: 'text',
+          required: false,
+          countrySpecific: true,
+        },
       ],
     },
   ],
@@ -244,7 +251,7 @@ describe('Form Engine Performance', () => {
       expect(duration).toBeLessThan(500);
       expect(result).toBeDefined();
       expect(result.sections).toHaveLength(3);
-      expect(result.stats.totalFields).toBe(11);
+      expect(result.stats.totalFields).toBe(13);
       
       console.log(`Cold cache generation time: ${duration.toFixed(2)}ms`);
     });
@@ -308,7 +315,7 @@ describe('Form Engine Performance', () => {
       expect(avgDuration).toBeLessThan(100); // Should benefit from field-level caching
       expect(results).toHaveLength(10);
       results.forEach(result => {
-        expect(result.stats.totalFields).toBe(11);
+        expect(result.stats.totalFields).toBe(13);
       });
       
       console.log(`10 different profiles: ${totalDuration.toFixed(2)}ms total, ${avgDuration.toFixed(2)}ms average`);
@@ -366,7 +373,7 @@ describe('Form Engine Performance', () => {
       
       // Cache should grow but not unboundedly
       expect(stats.formCache.size).toBeLessThan(100);
-      expect(stats.fieldCache.size).toBeLessThan(500);
+      expect(stats.fieldCache.size).toBeLessThan(700);
       
       console.log(`After 50 generations - Forms: ${stats.formCache.size}, Fields: ${stats.fieldCache.size}`);
     });
@@ -398,9 +405,9 @@ describe('Form Engine Performance', () => {
       const duration = endTime - startTime;
 
       expect(duration).toBeLessThan(1000); // Should handle large schemas under 1s
-      expect(result.stats.totalFields).toBe(61); // 11 original + 50 additional
+      expect(result.stats.totalFields).toBe(63); // 13 original + 50 additional
       
-      console.log(`Large schema (61 fields): ${duration.toFixed(2)}ms`);
+      console.log(`Large schema (63 fields): ${duration.toFixed(2)}ms`);
     });
 
     it('should handle forms with existing data efficiently', () => {

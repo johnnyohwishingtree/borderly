@@ -5,8 +5,11 @@ import {
   getCountrySpecificFields,
   exportFormData,
   calculateFormProgress,
+  clearAllCaches,
   type FilledForm,
 } from '../../src/services/forms/formEngine';
+import { clearPathCache } from '../../src/services/forms/fieldMapper';
+import { clearSchemaCache } from '../../src/services/schemas/schemaLoader';
 import { TravelerProfile } from '../../src/types/profile';
 import { TripLeg } from '../../src/types/trip';
 import { CountryFormSchema } from '../../src/types/schema';
@@ -192,6 +195,12 @@ const mockSchema: CountryFormSchema = {
 };
 
 describe('FormEngine', () => {
+  beforeEach(() => {
+    // Clear all caches before each test to ensure isolation
+    clearAllCaches();
+    clearPathCache();
+    clearSchemaCache();
+  });
   describe('generateFilledForm', () => {
     it('should generate a filled form with auto-filled fields', () => {
       const result = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
@@ -804,9 +813,19 @@ describe('FormEngine', () => {
         const emptyResult = generateFilledForm(mockProfile, mockTripLeg, emptySchema);
         expect(emptyResult.stats.completionPercentage).toBe(0);
 
-        // Test with 100% completion
+        // Test with 100% completion - create a completely fresh schema to avoid caching issues
         const fullAutoSchema: CountryFormSchema = {
-          ...mockSchema,
+          countryCode: 'TEST',
+          countryName: 'Test Country',
+          schemaVersion: '1.0.1',
+          lastUpdated: '2025-06-01T00:00:00Z',
+          portalUrl: 'https://test.example.com/',
+          portalName: 'Test Portal',
+          submission: {
+            earliestBeforeArrival: '14d',
+            latestBeforeArrival: '0h',
+            recommended: '72h',
+          },
           sections: [
             {
               id: 'full',
@@ -831,6 +850,7 @@ describe('FormEngine', () => {
               ],
             },
           ],
+          submissionGuide: [],
         };
 
         const fullResult = generateFilledForm(mockProfile, mockTripLeg, fullAutoSchema);
