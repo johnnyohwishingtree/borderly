@@ -32,7 +32,17 @@ jobs:
         run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Type check
-        run: pnpm typecheck || true
+        run: pnpm typecheck
+
+      - name: Metro bundle check
+        run: |
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output /tmp/ios-bundle.js \
+            --assets-dest /tmp/ios-assets 2>&1 | tee /tmp/bundle_output.txt
+          exit ${PIPESTATUS[0]}
 
       - name: Run tests
         id: tests
@@ -41,7 +51,7 @@ jobs:
           exit ${PIPESTATUS[0]}
 
       - name: Notify Claude on failure
-        if: (failure() || cancelled()) && steps.tests.outcome != 'success' && github.event_name == 'pull_request'
+        if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -63,10 +73,19 @@ jobs:
             exit 0
           fi
 
-          # Extract failure summary if test output was captured
+          # Extract failure summary from test and bundle output
           FAILURES=""
           if [ -f /tmp/test_output.txt ]; then
-            FAILURES=$(grep -E '(FAILED |ERRORS |ERROR |assert |Error:)' /tmp/test_output.txt | tail -30 || echo "")
+            FAILURES=$(grep -E '(FAILED |ERRORS |ERROR |assert |Error:)' /tmp/test_output.txt | tail -20 || echo "")
+          fi
+          if [ -f /tmp/bundle_output.txt ]; then
+            BUNDLE_ERRORS=$(grep -E '(error:|Unable to resolve|Error:)' /tmp/bundle_output.txt | tail -10 || echo "")
+            if [ -n "$BUNDLE_ERRORS" ]; then
+              FAILURES="${FAILURES}
+
+          Metro bundle errors:
+          ${BUNDLE_ERRORS}"
+            fi
           fi
 
           if [ -n "$FAILURES" ]; then

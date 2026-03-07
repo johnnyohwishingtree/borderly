@@ -212,6 +212,12 @@ When working from a GitHub issue (via the Claude GitHub App):
 5. Ensure all tests pass before pushing (`pnpm test`)
 6. Run `/update-architecture` if code structure changed
 
+### Native Dependency Rules
+
+- **Never add a native dependency without verifying it resolves at bundle time.** After adding a package that includes native code (e.g., `react-native-haptic-feedback`), run `pnpm install` and verify the import works. On CI (ubuntu), the Metro bundle check will catch unresolved modules.
+- **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
+- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
+
 ### Git Commit Rules
 
 - **Never use `git add -A` or `git add .`** — always add specific files
