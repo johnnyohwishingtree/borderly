@@ -22,6 +22,7 @@ module.exports = {
       'react-native-keychain': path.resolve(__dirname, 'e2e/mocks/keychain.js'),
       'react-native-mmkv': path.resolve(__dirname, 'e2e/mocks/mmkv.js'),
       'react-native-camera': path.resolve(__dirname, 'e2e/mocks/camera.js'),
+      'react-native-image-picker': path.resolve(__dirname, 'e2e/mocks/image-picker.js'),
       'react-native-get-random-values': path.resolve(__dirname, 'e2e/mocks/random-values.js'),
       '@nozbe/watermelondb/decorators': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
