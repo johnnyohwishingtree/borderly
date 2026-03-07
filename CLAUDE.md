@@ -175,9 +175,11 @@ pnpm lint
 # Type check
 pnpm typecheck
 
-# E2E smoke tests (requires Maestro + iOS simulator running)
-maestro test .maestro/app-smoke.yaml
-maestro test .maestro/onboarding-flow.yaml
+# Run Web (preview, native modules are mocked)
+pnpm web
+
+# E2E smoke tests (Playwright + React Native Web)
+pnpm e2e
 ```
 
 ## Testing Strategy
@@ -188,11 +190,11 @@ The test pyramid has three layers. All run in CI on every PR.
 |-------|------|---------|-----------------|
 | **Unit tests** | Jest + RNTL | ubuntu (fast) | Logic bugs, component behavior |
 | **Bundle check** | Metro bundler | ubuntu (fast) | Missing modules, import errors |
-| **E2E smoke tests** | Maestro | macOS (simulator) | Runtime crashes, screens not rendering, navigation broken |
+| **E2E smoke tests** | Playwright + RN Web | ubuntu (fast) | Runtime crashes, screens not rendering, navigation broken |
 
-Unit tests mock all native modules, so they **cannot** catch missing dependencies or runtime crashes. The Metro bundle check catches unresolved imports. The E2E smoke tests catch everything else by actually launching the app in a simulator.
+Unit tests mock all native modules, so they **cannot** catch missing dependencies or runtime crashes. The Metro bundle check catches unresolved imports. The E2E smoke tests render the full app in Chromium via React Native Web and verify screens appear correctly.
 
-**When adding new screens:** Add a Maestro flow in `.maestro/` that navigates to and asserts the screen renders. Keep flows short and focused — they run on macOS runners which are slower and more expensive.
+**When adding new screens:** Add a Playwright test in `e2e/tests/` that verifies the screen renders. If the screen uses a new native module, add a mock in `e2e/mocks/` and wire it up in `webpack.config.js`.
 
 ## Implementation Sprints
 
@@ -229,7 +231,7 @@ When working from a GitHub issue (via the Claude GitHub App):
 4. Create a PR with `Closes #N` in the body (N = issue number)
 5. Ensure all tests pass before pushing (`pnpm test`)
 6. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
-7. If you added/modified screens, add or update a Maestro E2E flow in `.maestro/`
+7. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
 8. Run `/update-architecture` if code structure changed
 
 ### Native Dependency Rules

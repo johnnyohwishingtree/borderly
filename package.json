@@ -10,6 +10,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "typecheck": "tsc --noEmit",
+    "web": "npx webpack serve --config webpack.config.js --port 3000 --open",
     "e2e:build": "npx webpack --config webpack.config.js",
     "e2e:test": "npx playwright test",
     "e2e": "npx webpack --config webpack.config.js && npx playwright test"
