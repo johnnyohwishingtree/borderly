@@ -21,7 +21,7 @@ The existing test workflow provides comprehensive PR validation:
 #### Quality Checks
 - **TypeScript Check**: Validates type safety with baseline error tracking
 - **Metro Bundle Check**: Ensures React Native bundles compile correctly
-- **Unit Tests**: Jest test suite execution with forceExit
+- **Unit Tests**: Jest test suite execution
 - **Auto-fix**: Automatically comments on PRs with failures and retry logic
 
 ### 2. Release Workflow (`.github/workflows/release.yml`)
@@ -250,7 +250,7 @@ PLAY_SERVICE_ACCOUNT_KEY=service-account.json
 3. **Run Quality Checks**:
    ```bash
    pnpm typecheck
-   pnpm lint  
+   pnpm lint
    pnpm test
    pnpm e2e
    ```

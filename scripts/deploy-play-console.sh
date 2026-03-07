@@ -394,35 +394,35 @@ upload_to_play_console() {
 
     create_upload_script
 
-    # Build upload command
-    local upload_cmd="python3 /tmp/play_upload.py"
-    upload_cmd="$upload_cmd --service-key \"$SERVICE_ACCOUNT_KEY\""
-    upload_cmd="$upload_cmd --package-name \"$PACKAGE_NAME\""
-    upload_cmd="$upload_cmd --aab-path \"$AAB_PATH\""
-    upload_cmd="$upload_cmd --track \"$TRACK\""
+    # Build upload command using array for safety
+    local cmd_args=("python3" "/tmp/play_upload.py")
+    cmd_args+=("--service-key" "$SERVICE_ACCOUNT_KEY")
+    cmd_args+=("--package-name" "$PACKAGE_NAME")
+    cmd_args+=("--aab-path" "$AAB_PATH")
+    cmd_args+=("--track" "$TRACK")
 
     if [[ -n "$RELEASE_NAME" ]]; then
-        upload_cmd="$upload_cmd --release-name \"$RELEASE_NAME\""
+        cmd_args+=("--release-name" "$RELEASE_NAME")
     fi
 
     if [[ -n "$RELEASE_NOTES" ]]; then
-        upload_cmd="$upload_cmd --release-notes \"$RELEASE_NOTES\""
+        cmd_args+=("--release-notes" "$RELEASE_NOTES")
     fi
 
     if [[ -n "$VERSION_CODE" ]]; then
-        upload_cmd="$upload_cmd --version-code $VERSION_CODE"
+        cmd_args+=("--version-code" "$VERSION_CODE")
     fi
 
     if [[ -n "$ROLLOUT_PERCENTAGE" ]]; then
-        upload_cmd="$upload_cmd --rollout-percentage $ROLLOUT_PERCENTAGE"
+        cmd_args+=("--rollout-percentage" "$ROLLOUT_PERCENTAGE")
     fi
 
     if [[ -n "$MAPPING_FILE" ]]; then
-        upload_cmd="$upload_cmd --mapping-file \"$MAPPING_FILE\""
+        cmd_args+=("--mapping-file" "$MAPPING_FILE")
     fi
 
     log "Executing upload..."
-    eval "$upload_cmd" || error "Upload to Google Play Console failed"
+    "${cmd_args[@]}" || error "Upload to Google Play Console failed"
 
     success "Upload completed successfully!"
 }

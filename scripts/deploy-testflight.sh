@@ -172,24 +172,22 @@ check_dependencies() {
 upload_to_testflight() {
     log "Uploading to TestFlight..."
 
-    local upload_cmd=""
+    local cmd_args=("xcrun" "altool" "--upload-app" "--type" "ios")
     
     if [[ "$USE_APP_PASSWORD" == "true" ]]; then
         # Use App-Specific Password (simpler for CI)
-        upload_cmd="xcrun altool --upload-app --type ios"
-        upload_cmd="$upload_cmd --file \"$IPA_PATH\""
-        upload_cmd="$upload_cmd --username \"$APPLE_ID\""
-        upload_cmd="$upload_cmd --password \"$APPLE_APP_PASSWORD\""
+        cmd_args+=("--file" "$IPA_PATH")
+        cmd_args+=("--username" "$APPLE_ID")
+        cmd_args+=("--password" "@env:APPLE_APP_PASSWORD")
     else
         # Use API Key authentication
-        upload_cmd="xcrun altool --upload-app --type ios"
-        upload_cmd="$upload_cmd --file \"$IPA_PATH\""
-        upload_cmd="$upload_cmd --apiKey \"$API_KEY_ID\""
-        upload_cmd="$upload_cmd --apiIssuer \"$API_ISSUER_ID\""
+        cmd_args+=("--file" "$IPA_PATH")
+        cmd_args+=("--apiKey" "$API_KEY_ID")
+        cmd_args+=("--apiIssuer" "$API_ISSUER_ID")
     fi
 
     log "Executing upload command..."
-    eval "$upload_cmd" || error "Upload to TestFlight failed"
+    "${cmd_args[@]}" || error "Upload to TestFlight failed"
 
     success "Upload completed successfully!"
 }

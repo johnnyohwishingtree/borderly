@@ -134,7 +134,7 @@ check_dependencies() {
     fi
 
     if [[ "$PLATFORM" == "android" || "$PLATFORM" == "all" ]]; then
-        command -v ./android/gradlew >/dev/null 2>&1 || error "Android Gradle wrapper not found"
+        test -x "$PROJECT_ROOT/android/gradlew" || error "Android Gradle wrapper not found or not executable"
     fi
 
     success "Dependencies check passed"
@@ -273,12 +273,8 @@ build_android() {
     # Build release AAB
     log "Building Android release AAB..."
     if [[ -f app/release.keystore ]] && [[ -n "${ANDROID_KEYSTORE_PASSWORD:-}" ]]; then
-        # Build signed release
-        ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=app/release.keystore \
-            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+        # Build signed release (credentials read from environment variables by gradle.properties)
+        ./gradlew bundleRelease
         
         AAB_PATH="app/build/outputs/bundle/release/app-release.aab"
     else
