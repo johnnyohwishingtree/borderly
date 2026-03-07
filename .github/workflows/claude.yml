@@ -72,13 +72,27 @@ jobs:
           BRANCH=$(git branch --show-current)
           echo "Current branch: $BRANCH"
 
-          # Push any committed-but-unpushed changes
-          UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
-          if [ -n "$UNPUSHED" ]; then
-            echo "WARNING: Claude has unpushed commits:"
-            echo "$UNPUSHED"
-            git push origin HEAD
-            echo "Pushed committed-but-unpushed changes to $BRANCH"
+          # Check if remote branch exists
+          REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH" 2>/dev/null | wc -l | tr -d ' ')
+
+          if [ "$REMOTE_EXISTS" -eq 0 ]; then
+            # Branch is new — push it to create the remote branch
+            LOCAL_COMMITS=$(git log --oneline HEAD 2>/dev/null | head -5)
+            if [ -n "$LOCAL_COMMITS" ]; then
+              echo "WARNING: Branch $BRANCH does not exist on remote. Pushing new branch."
+              echo "$LOCAL_COMMITS"
+              git push -u origin HEAD
+              echo "Pushed new branch $BRANCH to remote"
+            fi
+          else
+            # Remote branch exists — push any committed-but-unpushed changes
+            UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
+            if [ -n "$UNPUSHED" ]; then
+              echo "WARNING: Claude has unpushed commits:"
+              echo "$UNPUSHED"
+              git push origin HEAD
+              echo "Pushed committed-but-unpushed changes to $BRANCH"
+            fi
           fi
 
           # Commit and push any uncommitted changes
