@@ -23,14 +23,14 @@ describe('WatermelonDB Schema and Migrations', () => {
     // Version 1 is always created from the schema definition, never via migration.
     const { migrations } = require('../../src/services/storage/migrations');
     expect(migrations).toBeDefined();
-    const migrationList = migrations.migrations || [];
+    const migrationList = migrations.sortedMigrations || migrations.migrations || [];
     const migrationVersions = migrationList.map((m: any) => m.toVersion);
     expect(migrationVersions).not.toContain(1);
   });
 
   it('migration versions should be sequential starting from 2', () => {
     const { migrations } = require('../../src/services/storage/migrations');
-    const migrationList = migrations.migrations || [];
+    const migrationList = migrations.sortedMigrations || migrations.migrations || [];
     const migrationVersions = migrationList
       .map((m: any) => m.toVersion)
       .sort((a: number, b: number) => a - b);
@@ -43,7 +43,8 @@ describe('WatermelonDB Schema and Migrations', () => {
   it('highest migration version should match schema version', () => {
     const { schema } = require('../../src/services/storage/schema');
     const { migrations } = require('../../src/services/storage/migrations');
-    const migrationList = migrations.migrations || [];
+    // Access the correct migrations array from WatermelonDB structure
+    const migrationList = migrations.sortedMigrations || migrations.migrations || [];
     const migrationVersions = migrationList.map((m: any) => m.toVersion);
 
     if (migrationVersions.length === 0) {
