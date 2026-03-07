@@ -88,7 +88,9 @@ describe('SubmissionTester', () => {
     });
 
     it('should measure processing time', async () => {
-      const result = await submissionTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
+      // Use a tester with network delay enabled to measure processing time
+      const delayTester = new SubmissionTester({ simulateNetworkDelay: true });
+      const result = await delayTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
 
       expect(result.processingTimeMs).toBeGreaterThan(0);
       expect(typeof result.processingTimeMs).toBe('number');
@@ -98,10 +100,98 @@ describe('SubmissionTester', () => {
       const malaysiaSchema = TestDataFactory.createSampleSchema({
         countryCode: 'MYS',
         countryName: 'Malaysia',
-        portalName: 'Malaysia Digital Arrival Card'
+        portalName: 'Malaysia Digital Arrival Card',
+        sections: [
+          {
+            id: 'personal',
+            title: 'Personal Information',
+            fields: [
+              {
+                id: 'fullName',
+                label: 'Full Name',
+                type: 'text',
+                required: true,
+                autoFillSource: 'passport.fullName'
+              },
+              {
+                id: 'passportNumber',
+                label: 'Passport Number',
+                type: 'text',
+                required: true,
+                autoFillSource: 'passport.documentNumber'
+              },
+              {
+                id: 'arrivalDate',
+                label: 'Arrival Date',
+                type: 'date',
+                required: true,
+                autoFillSource: 'trip.arrivalDate'
+              },
+              {
+                id: 'accommodationAddress',
+                label: 'Accommodation Address',
+                type: 'text',
+                required: true
+              }
+            ]
+          }
+        ]
       });
 
-      const result = await submissionTester.testSubmission(sampleLeg, sampleForm, malaysiaSchema);
+      // Create Malaysia-specific form with required fields
+      const malaysiaForm = TestDataFactory.createSampleFilledForm({
+        countryCode: 'MYS',
+        sections: [
+          {
+            id: 'personal',
+            title: 'Personal Information',
+            fields: [
+              {
+                id: 'fullName',
+                label: 'Full Name',
+                type: 'text',
+                required: true,
+                currentValue: 'John Doe',
+                source: 'auto',
+                needsUserInput: false,
+                countrySpecific: false
+              },
+              {
+                id: 'passportNumber',
+                label: 'Passport Number',
+                type: 'text',
+                required: true,
+                currentValue: 'A1234567',
+                source: 'auto',
+                needsUserInput: false,
+                countrySpecific: false
+              },
+              {
+                id: 'arrivalDate',
+                label: 'Arrival Date',
+                type: 'date',
+                required: true,
+                currentValue: '2026-06-10',
+                source: 'auto',
+                needsUserInput: false,
+                countrySpecific: false
+              },
+              {
+                id: 'accommodationAddress',
+                label: 'Accommodation Address',
+                type: 'text',
+                required: true,
+                currentValue: 'Test Hotel KL',
+                source: 'user',
+                needsUserInput: false,
+                countrySpecific: true
+              }
+            ]
+          }
+        ]
+      });
+
+      const result = await submissionTester.testSubmission(sampleLeg, malaysiaForm, malaysiaSchema);
 
       expect(result.success).toBe(true);
       expect(result.confirmationNumber).toContain('MYS');
@@ -168,7 +258,7 @@ describe('SubmissionTester', () => {
       const result = await submissionTester.testSubmission(sampleLeg, form, sampleSchema);
 
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings.some(w => w.includes('country-specific'))).toBe(true);
+      expect(result.warnings.some(w => w.includes('Country-specific'))).toBe(true);
     });
   });
 
@@ -230,7 +320,8 @@ describe('SubmissionTester', () => {
       await submissionTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
       
       const malaysiaLeg = TestDataFactory.createSampleTripLeg({ destinationCountry: 'MYS' });
-      await submissionTester.testSubmission(malaysiaLeg, sampleForm, sampleSchema);
+      const malaysiaSchema = TestDataFactory.createSampleSchema({ countryCode: 'MYS' });
+      await submissionTester.testSubmission(malaysiaLeg, sampleForm, malaysiaSchema);
 
       const summary = submissionTester.getTestSummary();
       expect(summary.totalTests).toBe(2);

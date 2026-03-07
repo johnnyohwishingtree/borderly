@@ -140,21 +140,24 @@ export class TestDataFactory {
               label: 'Surname',
               type: 'text',
               required: true,
-              autoFillSource: 'passport.surname'
+              autoFillSource: 'passport.surname',
+              countrySpecific: false
             },
             {
               id: 'givenName',
               label: 'Given Name',
               type: 'text',
               required: true,
-              autoFillSource: 'passport.givenName'
+              autoFillSource: 'passport.givenName',
+              countrySpecific: false
             },
             {
               id: 'passportNumber',
               label: 'Passport Number',
               type: 'text',
               required: true,
-              autoFillSource: 'passport.documentNumber'
+              autoFillSource: 'passport.documentNumber',
+              countrySpecific: false
             }
           ]
         }
@@ -445,7 +448,7 @@ export class TestEnvironment {
   static isTestEnvironment(): boolean {
     return process.env.NODE_ENV === 'test' || 
            process.env.JEST_WORKER_ID !== undefined ||
-           global.it !== undefined;
+           (globalThis as any).it !== undefined;
   }
 
   /**

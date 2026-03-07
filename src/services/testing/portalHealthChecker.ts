@@ -109,7 +109,7 @@ export class PortalHealthChecker {
       }
 
       // 3. HTTP status check
-      if (connectivityResult.httpStatus && connectivityResult.httpStatus >= 400) {
+      if (connectivityResult.httpStatus && (connectivityResult.httpStatus >= 400 || connectivityResult.httpStatus === 302)) {
         status.issues.push({
           type: 'http_error',
           severity: 'error',

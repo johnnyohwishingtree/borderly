@@ -603,6 +603,25 @@ export class SubmissionAnalytics {
   }
 
   /**
+   * Gets test summary for testing purposes
+   */
+  getTestSummary(): {
+    totalTests: number;
+    totalCountries: number;
+    avgSuccessRate: number;
+  } {
+    const allMetrics = Array.from(this.metrics.values()).flat();
+    const countries = this.getTrackedCountries();
+    const successfulTests = allMetrics.filter(m => m.status === 'success').length;
+    
+    return {
+      totalTests: allMetrics.length,
+      totalCountries: countries.length,
+      avgSuccessRate: allMetrics.length > 0 ? (successfulTests / allMetrics.length) * 100 : 0
+    };
+  }
+
+  /**
    * Clears analytics data for testing purposes
    */
   clearData(): void {

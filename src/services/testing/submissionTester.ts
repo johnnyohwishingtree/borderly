@@ -189,7 +189,7 @@ export class SubmissionTester {
         }
 
         // Test country-specific validation
-        if (field.countrySpecific && !field.currentValue) {
+        if (field.countrySpecific && (!field.currentValue || field.currentValue.trim() === '')) {
           warnings.push(`Country-specific field '${field.label}' may require manual input`);
         }
       }
@@ -236,6 +236,20 @@ export class SubmissionTester {
           } else {
             warnings.push(`Optional schema field '${schemaField.id}' not mapped`);
           }
+        }
+      });
+    });
+
+    // Check for form fields not in schema (reverse check for schema compatibility)
+    const schemaFieldIds = new Set();
+    schema.sections.forEach(section => {
+      section.fields.forEach(field => schemaFieldIds.add(field.id));
+    });
+
+    filledForm.sections.forEach(section => {
+      section.fields.forEach(field => {
+        if (!schemaFieldIds.has(field.id)) {
+          warnings.push(`Form field '${field.id}' not found in current schema - may indicate schema version mismatch`);
         }
       });
     });
