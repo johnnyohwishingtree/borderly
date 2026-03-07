@@ -40,7 +40,7 @@ const TripCard = memo<TripCardProps>(({
       return { completed, total, percentage };
     })();
 
-    const getStatusColor = (status: Trip['status']) => {
+    const getStatusColor = (status: Trip['status']): 'error' | 'success' | 'warning' | 'info' | 'neutral' => {
       switch (status) {
         case 'upcoming':
           return 'info';

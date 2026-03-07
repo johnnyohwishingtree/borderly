@@ -1,5 +1,4 @@
 import { Database } from '@nozbe/watermelondb';
-import { Q } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { schema } from './schema';
 import { migrations } from './migrations';
@@ -151,24 +150,38 @@ class DatabaseService {
     const { result } = await this.measureQueryPerformance(
       `getTrips(status=${options.status}, limit=${options.pagination?.limit})`,
       async () => {
-        let query = db.collections.get('trips').query();
+        // Start with basic query - WatermelonDB filtering is limited in this version
+        let trips = await db.collections.get('trips').query().fetch();
         
-        // Add status filter if specified
+        // Apply client-side filtering and sorting for compatibility
         if (options.status) {
-          query = query.where('status', options.status);
+          trips = trips.filter(trip => (trip as any).status === options.status);
         }
         
-        // Add sorting
+        // Sort by specified field
         const sortBy = options.sortBy || 'updated_at';
         const sortOrder = options.sortOrder || 'desc';
-        query = query.sortBy(sortBy, sortOrder === 'desc' ? Q.desc : Q.asc);
+        trips.sort((a, b) => {
+          const aVal = (a as any)[sortBy === 'updated_at' ? 'updatedAt' : sortBy === 'created_at' ? 'createdAt' : sortBy];
+          const bVal = (b as any)[sortBy === 'updated_at' ? 'updatedAt' : sortBy === 'created_at' ? 'createdAt' : sortBy];
+          
+          if (sortBy === 'updated_at' || sortBy === 'created_at') {
+            const aTime = new Date(aVal).getTime();
+            const bTime = new Date(bVal).getTime();
+            return sortOrder === 'desc' ? bTime - aTime : aTime - bTime;
+          } else {
+            return sortOrder === 'desc' ? bVal.localeCompare(aVal) : aVal.localeCompare(bVal);
+          }
+        });
         
-        // Add pagination
+        // Apply pagination
         if (options.pagination) {
-          query = query.skip(options.pagination.offset).take(options.pagination.limit);
+          const start = options.pagination.offset;
+          const end = start + options.pagination.limit;
+          trips = trips.slice(start, end);
         }
         
-        return await query.fetch();
+        return trips;
       }
     );
     
@@ -180,13 +193,12 @@ class DatabaseService {
     const { result } = await this.measureQueryPerformance(
       `getTripCount(status=${status})`,
       async () => {
-        let query = db.collections.get('trips').query();
+        let trips = await db.collections.get('trips').query().fetch();
         
         if (status) {
-          query = query.where('status', status);
+          trips = trips.filter(trip => (trip as any).status === status);
         }
         
-        const trips = await query.fetch();
         return trips.length;
       }
     );
@@ -231,13 +243,14 @@ class DatabaseService {
     const { result } = await this.measureQueryPerformance(
       `getTripLegs(tripId=${tripId})`,
       async () => {
-        return await db.collections
-          .get('trip_legs')
-          .query(
-            Q.where('trip_id', tripId),
-            Q.sortBy('order', Q.asc)
-          )
-          .fetch();
+        const allLegs = await db.collections.get('trip_legs').query().fetch();
+        
+        // Filter by trip ID and sort by order
+        const tripLegs = allLegs
+          .filter(leg => (leg as any).tripId === tripId)
+          .sort((a, b) => (a as any).order - (b as any).order);
+          
+        return tripLegs;
       }
     );
     
@@ -259,13 +272,14 @@ class DatabaseService {
     const { result: allLegs } = await this.measureQueryPerformance(
       `getTripsWithLegs.batchLoadLegs(tripCount=${trips.length})`,
       async () => {
-        return await db.collections
-          .get('trip_legs')
-          .query(
-            Q.where('trip_id', Q.oneOf(tripIds)),
-            Q.sortBy('order', Q.asc)
-          )
-          .fetch();
+        const allLegs = await db.collections.get('trip_legs').query().fetch();
+        
+        // Filter by trip IDs and sort by order
+        const filteredLegs = allLegs
+          .filter(leg => tripIds.includes((leg as any).tripId))
+          .sort((a, b) => (a as any).order - (b as any).order);
+          
+        return filteredLegs;
       }
     );
     
@@ -312,16 +326,20 @@ class DatabaseService {
     const { result } = await this.measureQueryPerformance(
       `getQRCodes(legId=${legId})`,
       async () => {
-        let query = db.collections.get('saved_qr_codes').query();
+        let qrCodes = await db.collections.get('saved_qr_codes').query().fetch();
         
         if (legId) {
-          query = query.where('leg_id', legId);
+          qrCodes = qrCodes.filter(qr => (qr as any).legId === legId);
         }
         
         // Sort by saved date (newest first)
-        query = query.sortBy('saved_at', Q.desc);
+        qrCodes.sort((a, b) => {
+          const aTime = new Date((a as any).savedAt).getTime();
+          const bTime = new Date((b as any).savedAt).getTime();
+          return bTime - aTime;
+        });
         
-        return await query.fetch();
+        return qrCodes;
       }
     );
     
@@ -336,13 +354,18 @@ class DatabaseService {
     const { result } = await this.measureQueryPerformance(
       `getQRCodesForLegs(legCount=${legIds.length})`,
       async () => {
-        return await db.collections
-          .get('saved_qr_codes')
-          .query(
-            Q.where('leg_id', Q.oneOf(legIds)),
-            Q.sortBy('saved_at', Q.desc)
-          )
-          .fetch();
+        const allQRCodes = await db.collections.get('saved_qr_codes').query().fetch();
+        
+        // Filter by leg IDs and sort by saved date (newest first)
+        const filteredQRCodes = allQRCodes
+          .filter(qr => legIds.includes((qr as any).legId))
+          .sort((a, b) => {
+            const aTime = new Date((a as any).savedAt).getTime();
+            const bTime = new Date((b as any).savedAt).getTime();
+            return bTime - aTime;
+          });
+          
+        return filteredQRCodes;
       }
     );
     

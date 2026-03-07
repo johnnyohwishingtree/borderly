@@ -184,7 +184,7 @@ export default function TripListScreen() {
           maxToRenderPerBatch={5}
           windowSize={10}
           removeClippedSubviews={true}
-          getItemLayout={(data, index) => ({
+          getItemLayout={(_, index) => ({
             length: 200, // Approximate height of TripCard
             offset: 200 * index,
             index,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Trip, TripLeg, SavedQRCode } from '@/types/trip';
-import { databaseService, PaginationOptions, TripQueryOptions } from '@/services/storage';
+import { databaseService, TripQueryOptions } from '@/services/storage';
 
 interface TripStore {
   // State
@@ -79,7 +79,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
       await databaseService.initialize();
       
       const queryOptions: TripQueryOptions = {
-        status,
+        ...(status && { status }), // Only include status if it's defined
         pagination: {
           limit: state.pageSize,
           offset: refresh ? 0 : 0 // Always start from 0 for initial load
