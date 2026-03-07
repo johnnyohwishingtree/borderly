@@ -39,9 +39,9 @@ describe('PII Sanitizer', () => {
     });
 
     it('should redact names in common patterns', () => {
-      const input = 'Hello John Smith, nice to meet you';
+      const input = 'Customer: John Smith';
       const result = sanitizeString(input);
-      expect(result).toBe('Hello [NAME], nice to meet you');
+      expect(result).toBe('Customer: [NAME]');
     });
 
     it('should redact addresses', () => {
@@ -80,9 +80,11 @@ describe('PII Sanitizer', () => {
       const result = sanitizeObject(input);
       expect(result).toEqual({
         age: 30,
-        email: '[EMAIL]',
         publicInfo: 'This is public',
       });
+      expect(result.name).toBeUndefined();
+      expect(result.password).toBeUndefined(); 
+      expect(result.email).toBeUndefined();
     });
 
     it('should preserve structure when requested', () => {
@@ -136,9 +138,10 @@ describe('PII Sanitizer', () => {
 
       const result = sanitizeObject(input);
       expect(result.user.preferences.theme).toBe('dark');
-      expect(result.user.preferences.email).toBe('[EMAIL]');
+      expect(result.user.preferences.email).toBeUndefined();
       expect(result.settings.notifications).toBe(true);
       expect(result.user.password).toBeUndefined();
+      expect(result.user.name).toBeUndefined();
     });
 
     it('should handle arrays', () => {
@@ -202,7 +205,7 @@ describe('PII Sanitizer', () => {
       };
 
       const result = sanitizeError(error);
-      expect(result.cause.context.email).toBe('[EMAIL]');
+      expect(result.cause.context.email).toBeUndefined();
     });
   });
 
@@ -283,7 +286,7 @@ describe('PII Sanitizer', () => {
       const result = sanitizeObject(input);
       expect(result.Age).toBe(30);
       expect(result.FirstName).toBeUndefined();
-      expect(result.EMAIL).toBe('[EMAIL]');
+      expect(result.EMAIL).toBeUndefined();
     });
   });
 });

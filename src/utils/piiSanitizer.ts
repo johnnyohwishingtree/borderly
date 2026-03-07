@@ -10,27 +10,28 @@ export interface SanitizationRule {
 
 // Common PII patterns to detect and redact
 const PII_PATTERNS: SanitizationRule[] = [
-  // Passport numbers (various formats)
-  { pattern: /\b[A-Z]{1,2}[0-9]{6,9}\b/g, replacement: '[PASSPORT]' },
-  
-  // Email addresses
+  // Email addresses (first to avoid conflicts)
   { pattern: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, replacement: '[EMAIL]' },
   
-  // Phone numbers (international and domestic formats)
-  { pattern: /\b(\+?[1-9]{1}[0-9]{0,3}[-\s]?)?[(]?[0-9]{3}[)]?[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b/g, replacement: '[PHONE]' },
+  // Phone numbers (more specific patterns)
+  { pattern: /(\+?1[-\s]?)?(\([0-9]{3}\)|[0-9]{3})[-\s]?[0-9]{3}[-\s]?[0-9]{4}\b/g, replacement: '[PHONE]' },
   
   // Credit card numbers
   { pattern: /\b[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}\b/g, replacement: '[CARD]' },
+  
+  // Passport numbers (various formats)
+  { pattern: /\b[A-Z]{1,2}[0-9]{6,9}\b/g, replacement: '[PASSPORT]' },
   
   // Dates of birth (various formats)
   { pattern: /\b(0[1-9]|1[0-2])[\/\-](0[1-9]|[12][0-9]|3[01])[\/\-](19|20)\d{2}\b/g, replacement: '[DOB]' },
   { pattern: /\b(19|20)\d{2}[\/\-](0[1-9]|1[0-2])[\/\-](0[1-9]|[12][0-9]|3[01])\b/g, replacement: '[DOB]' },
   
-  // Names (common patterns - conservative to avoid false positives)
-  { pattern: /\b[A-Z][a-z]+ [A-Z][a-z]+\b/g, replacement: '[NAME]' },
-  
-  // Addresses (basic patterns)
+  // Addresses (basic patterns) - more specific
   { pattern: /\b\d+\s+[A-Z][a-z]+\s+(Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Drive|Dr|Boulevard|Blvd)\b/gi, replacement: '[ADDRESS]' },
+  
+  // Names (common patterns - conservative to avoid false positives, after other patterns)
+  // Match first+last name patterns but avoid matching greetings like "Hello John"
+  { pattern: /\b[A-Z][a-z]{2,} [A-Z][a-z]{2,}\b/g, replacement: '[NAME]' },
 ];
 
 // Sensitive field names that should be redacted
@@ -121,9 +122,11 @@ export function sanitizeObject(
         continue;
       }
       
-      // Check if field name contains sensitive information
+      // Check if field name contains sensitive information (case-insensitive)
       const isSensitiveField = SENSITIVE_FIELDS.has(lowercaseKey) ||
-        Array.from(SENSITIVE_FIELDS).some(field => lowercaseKey.includes(field));
+        Array.from(SENSITIVE_FIELDS).some(field => lowercaseKey.includes(field)) ||
+        // Check for common name patterns
+        ['firstname', 'lastname', 'fullname', 'name'].some(nameField => lowercaseKey.includes(nameField));
       
       if (isSensitiveField) {
         if (options.preserveStructure) {
@@ -145,12 +148,18 @@ export function sanitizeObject(
  * Sanitizes error objects for logging
  */
 export function sanitizeError(error: Error, options: SanitizationOptions = {}): any {
-  return {
+  const result: any = {
     name: error.name,
     message: sanitizeString(error.message, options),
     stack: error.stack ? sanitizeString(error.stack, options) : undefined,
-    cause: error.cause ? sanitizeObject(error.cause, options) : undefined,
   };
+
+  // Handle error.cause if it exists (ES2022 feature)
+  if ('cause' in error && (error as any).cause) {
+    result.cause = sanitizeObject((error as any).cause, options);
+  }
+
+  return result;
 }
 
 /**

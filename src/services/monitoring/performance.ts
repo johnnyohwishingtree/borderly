@@ -80,12 +80,12 @@ class PerformanceMonitor {
 
     const metric: PerformanceMetric = {
       id: this.generateId(),
-      name,
+      name: sanitizeString(name),
       value,
       unit,
       category,
       timestamp: Date.now(),
-      metadata: metadata ? sanitizeObject(metadata) : undefined,
+      metadata: metadata ? sanitizeObject(metadata, { preserveStructure: false }) : undefined,
     };
 
     this.metrics.push(metric);
