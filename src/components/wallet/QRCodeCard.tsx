@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, Pressable } from 'react-native';
+import { View, Text, Image, Pressable } from 'react-native';
 import { Card } from '../ui';
 import { SavedQRCode } from '../../services/storage/models';
 

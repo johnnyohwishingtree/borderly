@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Card, Button, LoadingSpinner } from '../../components/ui';
 import { QRFullScreen } from '../../components/wallet';
 import { SavedQRCode } from '../../services/storage/models';
-import { database } from '../../services/storage';
+import { databaseService } from '../../services/storage';
 
 type QRDetailRouteParams = {
   QRDetail: {
@@ -37,7 +37,8 @@ export default function QRDetailScreen() {
   const loadQRCode = async () => {
     try {
       setIsLoading(true);
-      const qrCodesCollection = database.collections.get<SavedQRCode>('saved_qr_codes');
+      const db = await databaseService.getDatabase();
+      const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
       const foundQRCode = await qrCodesCollection.find(qrCodeId);
       setQrCode(foundQRCode);
     } catch (error) {
@@ -103,7 +104,8 @@ export default function QRDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await database.write(async () => {
+              const db = await databaseService.getDatabase();
+              await db.write(async () => {
                 await qrCode.destroyPermanently();
               });
               
@@ -299,7 +301,7 @@ export default function QRDetailScreen() {
               <Button
                 title="Delete QR Code"
                 onPress={handleDelete}
-                variant="danger"
+                variant="outline"
               />
             </View>
           </Card>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button, Input, Card } from '../../components/ui';
@@ -169,8 +169,6 @@ export default function CreateTripScreen() {
   };
 
   const renderLegCard = (leg: LegFormData, index: number) => {
-    const country = COUNTRIES.find(c => c.code === leg.destinationCountry);
-
     return (
       <Card key={index} className="mb-4" variant="outlined">
         <View className="p-4">
@@ -217,7 +215,7 @@ export default function CreateTripScreen() {
                 <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Date</Text>
                 <Input
                   value={leg.arrivalDate}
-                  onValueChange={(value) => updateLeg(index, 'arrivalDate', value as string)}
+                  onChangeText={(text) => updateLeg(index, 'arrivalDate', text)}
                   placeholder="YYYY-MM-DD"
                   keyboardType="default"
                 />
@@ -229,7 +227,7 @@ export default function CreateTripScreen() {
                 <Text className="text-sm font-medium text-gray-700 mb-1">Departure Date</Text>
                 <Input
                   value={leg.departureDate}
-                  onValueChange={(value) => updateLeg(index, 'departureDate', value as string)}
+                  onChangeText={(text) => updateLeg(index, 'departureDate', text)}
                   placeholder="YYYY-MM-DD"
                   keyboardType="default"
                 />
@@ -241,7 +239,7 @@ export default function CreateTripScreen() {
                 <Text className="text-sm font-medium text-gray-700 mb-1">Flight Number</Text>
                 <Input
                   value={leg.flightNumber}
-                  onValueChange={(value) => updateLeg(index, 'flightNumber', value as string)}
+                  onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
                   placeholder="e.g., NH123"
                   autoCapitalize="characters"
                 />
@@ -250,7 +248,7 @@ export default function CreateTripScreen() {
                 <Text className="text-sm font-medium text-gray-700 mb-1">Airline Code</Text>
                 <Input
                   value={leg.airlineCode}
-                  onValueChange={(value) => updateLeg(index, 'airlineCode', value as string)}
+                  onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
                   placeholder="e.g., NH"
                   autoCapitalize="characters"
                 />
@@ -261,7 +259,7 @@ export default function CreateTripScreen() {
               <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Airport</Text>
               <Input
                 value={leg.arrivalAirport}
-                onValueChange={(value) => updateLeg(index, 'arrivalAirport', value as string)}
+                onChangeText={(text) => updateLeg(index, 'arrivalAirport', text)}
                 placeholder="e.g., NRT"
                 autoCapitalize="characters"
               />
@@ -275,7 +273,7 @@ export default function CreateTripScreen() {
                   <Text className="text-sm font-medium text-gray-700 mb-1">Hotel/Accommodation Name</Text>
                   <Input
                     value={leg.accommodation.name}
-                    onValueChange={(value) => updateLeg(index, 'accommodation.name', value as string)}
+                    onChangeText={(text) => updateLeg(index, 'accommodation.name', text)}
                     placeholder="e.g., Park Hyatt Tokyo"
                   />
                   {errors[`leg${index}.accommodation`] && (
@@ -287,7 +285,7 @@ export default function CreateTripScreen() {
                   <Text className="text-sm font-medium text-gray-700 mb-1">Address</Text>
                   <Input
                     value={leg.accommodation.address.line1}
-                    onValueChange={(value) => updateLeg(index, 'accommodation.address.line1', value as string)}
+                    onChangeText={(text) => updateLeg(index, 'accommodation.address.line1', text)}
                     placeholder="Street address"
                   />
                 </View>
@@ -297,7 +295,7 @@ export default function CreateTripScreen() {
                     <Text className="text-sm font-medium text-gray-700 mb-1">City</Text>
                     <Input
                       value={leg.accommodation.address.city}
-                      onValueChange={(value) => updateLeg(index, 'accommodation.address.city', value as string)}
+                      onChangeText={(text) => updateLeg(index, 'accommodation.address.city', text)}
                       placeholder="City"
                     />
                   </View>
@@ -305,7 +303,7 @@ export default function CreateTripScreen() {
                     <Text className="text-sm font-medium text-gray-700 mb-1">Postal Code</Text>
                     <Input
                       value={leg.accommodation.address.postalCode}
-                      onValueChange={(value) => updateLeg(index, 'accommodation.address.postalCode', value as string)}
+                      onChangeText={(text) => updateLeg(index, 'accommodation.address.postalCode', text)}
                       placeholder="Postal code"
                     />
                   </View>
@@ -315,7 +313,7 @@ export default function CreateTripScreen() {
                   <Text className="text-sm font-medium text-gray-700 mb-1">Phone (Optional)</Text>
                   <Input
                     value={leg.accommodation.phone}
-                    onValueChange={(value) => updateLeg(index, 'accommodation.phone', value as string)}
+                    onChangeText={(text) => updateLeg(index, 'accommodation.phone', text)}
                     placeholder="Hotel phone number"
                     keyboardType="phone-pad"
                   />
@@ -350,9 +348,9 @@ export default function CreateTripScreen() {
                 <Text className="text-sm font-medium text-gray-700 mb-2">Trip Name</Text>
                 <Input
                   value={tripData.name}
-                  onValueChange={(value) => setTripData(prev => ({ ...prev, name: value as string }))}
+                  onChangeText={(text) => setTripData(prev => ({ ...prev, name: text }))}
                   placeholder="e.g., Asia Summer 2025"
-                  error={!!errors.tripName}
+                  error={errors.tripName}
                 />
                 {errors.tripName && (
                   <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>

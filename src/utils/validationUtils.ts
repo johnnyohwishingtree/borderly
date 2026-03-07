@@ -445,7 +445,7 @@ export function validateCurrencyAmount(
     }
   }
 
-  return { isValid: true, warning };
+  return { isValid: true, ...(warning ? { warning } : {}) };
 }
 
 /**

@@ -48,7 +48,7 @@ describe('Singapore (SGP) Schema', () => {
     expect(typeField).toBeDefined();
     expect(typeField!.countrySpecific).toBe(true);
 
-    const types = typeField!.options!.map(o => o.value);
+    const types = (typeField as any).options!.map((o: any) => o.value);
     expect(types).toContain('hotel');
     expect(types).toContain('friends_family');
     expect(types).toContain('serviced_apartment');
@@ -77,12 +77,12 @@ describe('Singapore (SGP) Schema', () => {
     const cashField = customsSection!.fields.find(f => f.id === 'carryingCash');
     expect(cashField).toBeDefined();
     expect(cashField!.label).toContain('S$20,000');
-    expect(cashField!.helpText).toContain('Singapore Dollars');
+    expect((cashField as any).helpText).toContain('Singapore Dollars');
 
     const allowanceField = customsSection!.fields.find(f => f.id === 'exceedsAllowance');
     expect(allowanceField).toBeDefined();
-    expect(allowanceField!.helpText).toContain('chocolate');
-    expect(allowanceField!.helpText).toContain('S$150');
+    expect((allowanceField as any).helpText).toContain('chocolate');
+    expect((allowanceField as any).helpText).toContain('S$150');
   });
 
   test('purpose of visit should have comprehensive options', () => {
@@ -92,7 +92,7 @@ describe('Singapore (SGP) Schema', () => {
     expect(purposeField).toBeDefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
-    const purposes = purposeField!.options!.map(o => o.value);
+    const purposes = (purposeField as any).options!.map((o: any) => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('employment');
     expect(purposes).toContain('conference');
@@ -127,9 +127,9 @@ describe('Singapore (SGP) Schema', () => {
     const lengthField = travelSection!.fields.find(f => f.id === 'intendedLengthOfStay');
 
     expect(lengthField).toBeDefined();
-    expect(lengthField!.validation).toBeDefined();
-    expect(lengthField!.validation!.min).toBe(1);
-    expect(lengthField!.validation!.max).toBe(90);
+    expect((lengthField as any).validation).toBeDefined();
+    expect((lengthField as any).validation!.min).toBe(1);
+    expect((lengthField as any).validation!.max).toBe(90);
   });
 
   test('should require passport expiry date', () => {
@@ -138,7 +138,7 @@ describe('Singapore (SGP) Schema', () => {
 
     expect(expiryField).toBeDefined();
     expect(expiryField!.required).toBe(true);
-    expect(expiryField!.autoFillSource).toBe('profile.passportExpiry');
+    expect((expiryField as any).autoFillSource).toBe('profile.passportExpiry');
   });
 
   test('should validate against schema structure', () => {
@@ -170,11 +170,11 @@ describe('Singapore (SGP) Schema', () => {
 
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
     expect(emailField.required).toBe(true);
-    expect(emailField.validation!.pattern).toContain('@');
+    expect((emailField as any).validation!.pattern).toContain('@');
 
     const phoneField = personalSection.fields.find(f => f.id === 'phoneNumber')!;
     expect(phoneField.required).toBe(true);
-    expect(phoneField.helpText).toContain('country code');
+    expect((phoneField as any).helpText).toContain('country code');
   });
 
   test('accommodation address should be textarea type', () => {
@@ -182,6 +182,6 @@ describe('Singapore (SGP) Schema', () => {
     const addressField = accommodationSection.fields.find(f => f.id === 'accommodationAddress')!;
 
     expect(addressField.type).toBe('textarea');
-    expect(addressField.helpText).toContain('postal code');
+    expect((addressField as any).helpText).toContain('postal code');
   });
 });

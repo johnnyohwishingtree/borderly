@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTripStore } from '../../stores/useTripStore';
@@ -15,7 +15,7 @@ export default function TripDetailScreen() {
   const route = useRoute();
   const { tripId } = route.params as RouteParams;
   
-  const { getTripById, deleteTrip, updateTrip, isLoading } = useTripStore();
+  const { getTripById, deleteTrip } = useTripStore();
   const [trip, setTrip] = useState<Trip | null>(null);
 
   useEffect(() => {
@@ -77,13 +77,13 @@ export default function TripDetailScreen() {
   const getStatusColor = (status: Trip['status']) => {
     switch (status) {
       case 'upcoming':
-        return 'blue';
+        return 'info';
       case 'active':
-        return 'green';
+        return 'success';
       case 'completed':
-        return 'gray';
+        return 'neutral';
       default:
-        return 'gray';
+        return 'neutral';
     }
   };
 
@@ -104,12 +104,13 @@ export default function TripDetailScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-gray-50">
         <Text className="text-lg text-gray-600">Trip not found</Text>
-        <Button
-          title="Go Back"
-          onPress={() => navigation.goBack()}
-          variant="outline"
-          className="mt-4"
-        />
+        <View className="mt-4">
+          <Button
+            title="Go Back"
+            onPress={() => navigation.goBack()}
+            variant="outline"
+          />
+        </View>
       </View>
     );
   }

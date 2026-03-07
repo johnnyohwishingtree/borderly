@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,11 @@ import {
   Alert,
   Image,
   TextInput,
-  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Card, Button, LoadingSpinner, Select } from '../../components/ui';
 import { QRCaptureService } from '../../services/camera/qrCapture';
-import { database } from '../../services/storage';
+import { databaseService } from '../../services/storage';
 import { SavedQRCode } from '../../services/storage/models';
 
 interface QRFormData {
@@ -174,10 +173,11 @@ export default function AddQRScreen() {
 
     setIsLoading(true);
     try {
-      await database.write(async () => {
-        const qrCodesCollection = database.collections.get<SavedQRCode>('saved_qr_codes');
-        
-        await qrCodesCollection.create((qrCode) => {
+      const db = await databaseService.getDatabase();
+      await db.write(async () => {
+        const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
+
+        await qrCodesCollection.create((qrCode: SavedQRCode) => {
           qrCode.legId = formData.legId || '';
           qrCode.type = formData.type;
           qrCode.imageBase64 = base64Image;
@@ -327,7 +327,7 @@ export default function AddQRScreen() {
                     onValueChange={(value) => 
                       setFormData(prev => ({ ...prev, type: value as SavedQRCode['type'] }))
                     }
-                    options={qrTypeOptions}
+                    options={[...qrTypeOptions]}
                     placeholder="Select QR code type"
                   />
                   <Text className="text-xs text-gray-500 mt-1">

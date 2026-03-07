@@ -1,5 +1,6 @@
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
+// @ts-expect-error no type declarations
 import Clipboard from '@react-native-clipboard/clipboard';
 import { trigger } from 'react-native-haptic-feedback';
 import CopyableField from '../../../src/components/guide/CopyableField';

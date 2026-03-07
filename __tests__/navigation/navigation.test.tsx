@@ -74,7 +74,7 @@ describe('Navigation Flow Tests', () => {
     mockProfileStore.isLoading = false;
     mockProfileStore.error = null;
     mockProfileStore.profile = null;
-    (useProfileStore as jest.Mock).mockReturnValue(mockProfileStore);
+    (useProfileStore as unknown as jest.Mock).mockReturnValue(mockProfileStore);
   });
 
   describe('RootNavigator', () => {
@@ -113,7 +113,7 @@ describe('Navigation Flow Tests', () => {
 
       // Update store to complete onboarding
       mockProfileStore.isOnboardingComplete = true;
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         ...mockProfileStore,
         isOnboardingComplete: true,
       });
@@ -183,7 +183,7 @@ describe('Navigation Flow Tests', () => {
     });
 
     it('should handle error state gracefully', () => {
-      mockProfileStore.error = 'Failed to load profile';
+      (mockProfileStore as any).error = 'Failed to load profile';
       mockProfileStore.isOnboardingComplete = false;
 
       const { root } = render(<RootNavigator />);
@@ -215,7 +215,7 @@ describe('Navigation Flow Tests', () => {
         loadProfile: undefined,
       };
 
-      (useProfileStore as jest.Mock).mockReturnValue(storeWithoutLoadProfile);
+      (useProfileStore as unknown as jest.Mock).mockReturnValue(storeWithoutLoadProfile);
 
       // Should not crash when loadProfile is undefined
       expect(() => render(<RootNavigator />)).not.toThrow();
@@ -256,7 +256,7 @@ describe('Navigation Flow Tests', () => {
 
       // Complete onboarding
       mockProfileStore.isOnboardingComplete = true;
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         ...mockProfileStore,
         isOnboardingComplete: true,
       });
@@ -289,7 +289,7 @@ describe('Navigation Flow Tests', () => {
     });
 
     it('should handle profile store errors without exposing sensitive info', () => {
-      mockProfileStore.error = 'Biometric authentication failed';
+      (mockProfileStore as any).error = 'Biometric authentication failed';
       mockProfileStore.isOnboardingComplete = false;
 
       const { queryByTestId } = render(<RootNavigator />);
@@ -302,7 +302,7 @@ describe('Navigation Flow Tests', () => {
 
   describe('Edge Cases', () => {
     it('should handle store returning undefined values', () => {
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         isOnboardingComplete: undefined,
         loadProfile: jest.fn(),
         profile: undefined,
@@ -322,7 +322,7 @@ describe('Navigation Flow Tests', () => {
       // Rapidly change onboarding status
       for (let i = 0; i < 5; i++) {
         mockProfileStore.isOnboardingComplete = i % 2 === 0;
-        (useProfileStore as jest.Mock).mockReturnValue({
+        (useProfileStore as unknown as jest.Mock).mockReturnValue({
           ...mockProfileStore,
         });
         rerender(<RootNavigator />);

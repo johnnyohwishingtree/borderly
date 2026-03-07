@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ActivityIndicator, Text, Pressable } from 'react-native';
 
 export interface LoadingSpinnerProps {
@@ -37,6 +37,7 @@ export default function LoadingSpinner({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [timeout, onTimeout]);
   const getSpinnerSize = () => {
     switch (size) {

@@ -20,6 +20,7 @@ export interface ErrorContext {
   action?: string;
   userId?: string;
   timestamp: number;
+  errorInfo?: Record<string, unknown>;
 }
 
 // Error types

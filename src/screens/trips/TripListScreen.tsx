@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { trigger } from 'react-native-haptic-feedback';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
-import { Button, LoadingSpinner, EmptyState } from '../../components/ui';
+import { LoadingSpinner, EmptyState } from '../../components/ui';
 import { Trip } from '../../types/trip';
 
 export default function TripListScreen() {

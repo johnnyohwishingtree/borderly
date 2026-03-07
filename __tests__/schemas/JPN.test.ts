@@ -63,7 +63,7 @@ describe('Japan (JPN) Schema', () => {
     expect(currencyField).toBeDefined();
     expect(currencyField!.countrySpecific).toBe(true);
     expect(currencyField!.label).toContain('¥1,000,000');
-    expect(currencyField!.helpText).toContain('Japan-specific threshold');
+    expect((currencyField as any).helpText).toContain('Japan-specific threshold');
   });
 
   test('should have meat products prohibition field', () => {
@@ -72,7 +72,7 @@ describe('Japan (JPN) Schema', () => {
 
     expect(meatField).toBeDefined();
     expect(meatField!.countrySpecific).toBe(true);
-    expect(meatField!.helpText).toContain('strictly prohibits all meat products');
+    expect((meatField as any).helpText).toContain('strictly prohibits all meat products');
   });
 
   test('should have complete submission guide', () => {

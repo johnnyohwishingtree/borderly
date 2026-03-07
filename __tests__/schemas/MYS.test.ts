@@ -47,9 +47,9 @@ describe('Malaysia (MYS) Schema', () => {
     const airportField = travelSection!.fields.find(f => f.id === 'arrivalAirport');
     expect(airportField).toBeDefined();
     expect(airportField!.countrySpecific).toBe(true);
-    expect(airportField!.options!.length).toBeGreaterThan(5);
+    expect((airportField as any).options!.length).toBeGreaterThan(5);
 
-    const airportCodes = airportField!.options!.map(o => o.value);
+    const airportCodes = (airportField as any).options!.map((o: any) => o.value);
     expect(airportCodes).toContain('KUL');
     expect(airportCodes).toContain('KUA');
     expect(airportCodes).toContain('PEN');
@@ -62,7 +62,7 @@ describe('Malaysia (MYS) Schema', () => {
     expect(purposeField).toBeDefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
-    const purposes = purposeField!.options!.map(o => o.value);
+    const purposes = (purposeField as any).options!.map((o: any) => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('visiting_family');
     expect(purposes).toContain('medical');
@@ -83,7 +83,7 @@ describe('Malaysia (MYS) Schema', () => {
 
     expect(currencyField).toBeDefined();
     expect(currencyField!.label).toContain('RM10,000');
-    expect(currencyField!.helpText).toContain('Malaysian Ringgit');
+    expect((currencyField as any).helpText).toContain('Malaysian Ringgit');
   });
 
   test('duration of stay should have validation limits', () => {
@@ -91,9 +91,9 @@ describe('Malaysia (MYS) Schema', () => {
     const durationField = travelSection!.fields.find(f => f.id === 'durationOfStay');
 
     expect(durationField).toBeDefined();
-    expect(durationField!.validation).toBeDefined();
-    expect(durationField!.validation!.min).toBe(1);
-    expect(durationField!.validation!.max).toBe(90);
+    expect((durationField as any).validation).toBeDefined();
+    expect((durationField as any).validation!.min).toBe(1);
+    expect((durationField as any).validation!.max).toBe(90);
   });
 
   test('should have complete submission guide', () => {
@@ -123,9 +123,9 @@ describe('Malaysia (MYS) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
 
-    expect(emailField.validation).toBeDefined();
-    expect(emailField.validation!.pattern).toBeDefined();
-    expect(emailField.validation!.pattern).toContain('@');
+    expect((emailField as any).validation).toBeDefined();
+    expect((emailField as any).validation!.pattern).toBeDefined();
+    expect((emailField as any).validation!.pattern).toContain('@');
   });
 
   test('should validate against schema structure', () => {

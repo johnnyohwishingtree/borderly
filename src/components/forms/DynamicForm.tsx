@@ -244,7 +244,7 @@ export default function DynamicForm({
         ))}
 
         {/* Validate Button (for development/testing) */}
-        {process.env.NODE_ENV === 'development' && (
+        {__DEV__ && (
           <Pressable
             onPress={validateAllFields}
             className="mt-4 p-3 bg-blue-500 rounded-lg"

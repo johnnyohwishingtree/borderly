@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,21 +9,18 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { 
-  ArrowLeftIcon, 
-  GlobeAltIcon, 
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  ClockIcon 
-} from 'react-native-heroicons/outline';
+// @ts-expect-error no type declarations
+import { ArrowLeftIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from 'react-native-heroicons/outline';
 import { 
   GuideProgress, 
   StepCard,
 } from '../../components/guide';
 import { Button, Card, StatusBadge } from '../../components/ui';
-import { useFormStore, useTripStore } from '../../stores';
+import { useTripStore } from '../../stores';
+import { useProfileStore } from '../../stores/useProfileStore';
 import { generateFilledForm } from '../../services/forms/formEngine';
-import { getSchemaForCountry } from '../../services/schemas/schemaRegistry';
+import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
+import type { SubmissionStep } from '../../types/schema';
 import { formatFieldValue } from '../../utils/fieldFormatters';
 
 type SubmissionGuideScreenProps = {
@@ -47,7 +44,7 @@ export default function SubmissionGuideScreen() {
 
   // Store hooks
   const { trips } = useTripStore();
-  const { profile } = useFormStore();
+  const { profile } = useProfileStore();
 
   // Find trip and leg
   const trip = trips.find(t => t.id === tripId);
@@ -57,7 +54,7 @@ export default function SubmissionGuideScreen() {
   const { schema, filledForm } = useMemo(() => {
     if (!leg || !profile) return { schema: null, filledForm: null };
 
-    const countrySchema = getSchemaForCountry(countryCode);
+    const countrySchema = getSchemaByCountryCode(countryCode);
     if (!countrySchema) return { schema: null, filledForm: null };
 
     const form = generateFilledForm(profile, leg, countrySchema, leg.formData);
@@ -76,7 +73,7 @@ export default function SubmissionGuideScreen() {
         data[field.id] = {
           label: field.label,
           value: formatFieldValue(field.currentValue, field.type),
-          portalFieldName: field.portalFieldName,
+          ...(field.portalFieldName !== undefined && { portalFieldName: field.portalFieldName }),
         };
       });
     });
@@ -142,6 +139,9 @@ export default function SubmissionGuideScreen() {
 
   const totalSteps = schema.submissionGuide.length;
   const completionStatus = getCompletionStatus();
+  const badgeStatus = completionStatus === 'complete' ? 'success' as const
+    : completionStatus === 'in_progress' ? 'info' as const
+    : 'neutral' as const;
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -159,8 +159,8 @@ export default function SubmissionGuideScreen() {
             </Text>
           </Pressable>
           
-          <StatusBadge 
-            status={completionStatus}
+          <StatusBadge
+            status={badgeStatus}
             text={
               completionStatus === 'complete' ? 'Complete' :
               completionStatus === 'in_progress' ? 'In Progress' :
@@ -244,7 +244,7 @@ export default function SubmissionGuideScreen() {
             totalSteps={totalSteps}
             currentStep={currentStep}
             completedSteps={completedSteps}
-            stepTitles={schema.submissionGuide.map(step => step.title)}
+            stepTitles={schema.submissionGuide.map((step: SubmissionStep) => step.title)}
             variant="horizontal"
             showLabels={false}
           />
@@ -275,7 +275,7 @@ export default function SubmissionGuideScreen() {
 
           {/* Submission Steps */}
           <View className="space-y-4">
-            {schema.submissionGuide.map((step) => (
+            {schema.submissionGuide.map((step: SubmissionStep) => (
               <StepCard
                 key={step.order}
                 step={step}
@@ -306,10 +306,10 @@ export default function SubmissionGuideScreen() {
                     title="Save QR Code"
                     onPress={() => {
                       // Navigate to QR capture/save screen
-                      navigation.navigate('AddQR', { 
-                        tripId, 
-                        legId, 
-                        countryCode: schema.countryCode 
+                      (navigation as any).navigate('AddQR', {
+                        tripId,
+                        legId,
+                        countryCode: schema.countryCode
                       });
                     }}
                     variant="primary"
@@ -318,7 +318,7 @@ export default function SubmissionGuideScreen() {
                   />
                   <Button
                     title="Back to Trip"
-                    onPress={() => navigation.navigate('TripDetail', { tripId })}
+                    onPress={() => (navigation as any).navigate('TripDetail', { tripId })}
                     variant="secondary"
                     size="medium"
                     fullWidth={false}

@@ -101,7 +101,7 @@ export function validateAutoFillPath(
   context: FormContext
 ): { isValid: boolean; error?: string } {
   try {
-    const result = resolveAutoFillPath(path, context);
+    resolveAutoFillPath(path, context);
     return { isValid: true };
   } catch (error) {
     return {

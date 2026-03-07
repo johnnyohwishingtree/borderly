@@ -193,7 +193,6 @@ export default function ConfirmProfileScreen() {
             onPress={handleContinue}
             size="large"
             fullWidth
-            className="bg-gradient-to-r from-green-500 to-green-600 shadow-lg"
           />
 
           <Button
@@ -202,7 +201,6 @@ export default function ConfirmProfileScreen() {
             variant="outline"
             size="large"
             fullWidth
-            className="border-2 border-gray-300"
           />
         </View>
       </View>

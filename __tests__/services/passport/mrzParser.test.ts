@@ -6,7 +6,6 @@ import {
   parseMRZ,
   cleanMRZText,
   extractMRZFromText,
-  type MRZParseResult
 } from '../../../src/services/passport/mrzParser';
 
 describe('MRZ Parser', () => {

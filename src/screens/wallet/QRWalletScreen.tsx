@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -14,7 +14,7 @@ import { EmptyState, Button, LoadingSpinner } from '../../components/ui';
 import { QRCodeCard, QRFullScreen } from '../../components/wallet';
 import { SavedQRCode } from '../../services/storage/models';
 import { useNavigation } from '@react-navigation/native';
-import { database } from '../../services/storage';
+import { databaseService } from '../../services/storage';
 
 export default function QRWalletScreen() {
   const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);
@@ -29,14 +29,15 @@ export default function QRWalletScreen() {
     try {
       if (showLoading) setIsLoading(true);
       
-      const qrCodesCollection = database.collections.get<SavedQRCode>('saved_qr_codes');
+      const db = await databaseService.getDatabase();
+      const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
       const allQRCodes = await qrCodesCollection
         .query()
         .fetch();
 
       // Sort by saved date, most recent first
       const sortedQRCodes = allQRCodes.sort(
-        (a, b) => b.savedAt.getTime() - a.savedAt.getTime()
+        (a: SavedQRCode, b: SavedQRCode) => b.savedAt.getTime() - a.savedAt.getTime()
       );
 
       setQrCodes(sortedQRCodes);
@@ -131,7 +132,8 @@ export default function QRWalletScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await database.write(async () => {
+              const db = await databaseService.getDatabase();
+              await db.write(async () => {
                 await qrCode.destroyPermanently();
               });
               

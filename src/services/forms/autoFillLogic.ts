@@ -4,11 +4,10 @@
  * profile data, trip information, and country-specific requirements.
  */
 
-import { TravelerProfile, Address } from '../../types/profile';
-import { TripLeg } from '../../types/trip';
+import { Address } from '../../types/profile';
 import { FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
-import { calculateStayDuration, isValidTravelDate, getTodayISO } from '../../utils/dateUtils';
+import { calculateStayDuration, isValidTravelDate } from '../../utils/dateUtils';
 
 export interface AutoFillResult {
   value: unknown;
@@ -316,7 +315,7 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
 /**
  * Smart purpose of visit prediction based on trip context.
  */
-function predictPurposeOfVisit(context: FormContext, countryCode?: string): string | null {
+function predictPurposeOfVisit(context: FormContext, _countryCode?: string): string | null {
   const leg = context.leg;
   
   // Simple heuristics based on trip characteristics

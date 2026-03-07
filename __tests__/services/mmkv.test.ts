@@ -16,7 +16,6 @@ jest.mock('react-native-mmkv', () => ({
 }));
 
 import { mmkvService } from '@/services/storage/mmkv';
-import { MMKV } from 'react-native-mmkv';
 
 describe('MMKVService', () => {
   beforeEach(() => {

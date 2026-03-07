@@ -437,10 +437,8 @@ describe('FormEngine', () => {
 
   describe('edge cases', () => {
     it('should handle trip leg without departure date', () => {
-      const legWithoutDeparture: TripLeg = {
-        ...mockTripLeg,
-        departureDate: undefined,
-      };
+      const { departureDate: _, ...legWithoutDepartureBase } = mockTripLeg;
+      const legWithoutDeparture = legWithoutDepartureBase as TripLeg;
 
       const result = generateFilledForm(mockProfile, legWithoutDeparture, mockSchema);
       const durationField = result.sections[1].fields[1];

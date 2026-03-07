@@ -157,15 +157,14 @@ describe('Form Generation Performance Tests', () => {
   });
 
   describe('Form Update Performance', () => {
-    let baseForm: any;
     let currentFormData: Record<string, unknown>;
 
     beforeEach(() => {
       const profile = testProfiles.usa;
       const leg = tripLegsByCountry.JPN[0];
       const schema = schemas.JPN;
-      
-      baseForm = generateFilledForm(profile, leg, schema);
+
+      generateFilledForm(profile, leg, schema);
       currentFormData = {};
     });
 
@@ -210,9 +209,6 @@ describe('Form Generation Performance Tests', () => {
     });
 
     it('should handle rapid form updates', () => {
-      const profile = testProfiles.business;
-      const leg = tripLegsByCountry.MYS[0];
-      const schema = schemas.MYS;
       const updateCount = 20;
 
       let formData: Record<string, unknown> = {};
@@ -263,13 +259,13 @@ describe('Form Generation Performance Tests', () => {
       const form = generateFilledForm(profile, leg, schema);
 
       const startTime = performance.now();
-      const validation = validateFormCompletion(form);
+      validateFormCompletion(form);
       const endTime = performance.now();
 
       const duration = endTime - startTime;
 
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.formValidation);
-      
+
       console.log(`Large form validation (${form.stats.totalFields} fields): ${duration.toFixed(2)}ms`);
     });
   });
@@ -386,8 +382,8 @@ describe('Form Generation Performance Tests', () => {
         // Allow garbage collection if needed
         if (i % 100 === 0) {
           // Force garbage collection if available (Node.js)
-          if (global.gc) {
-            global.gc();
+          if ((globalThis as any).gc) {
+            (globalThis as any).gc();
           }
         }
       }
@@ -414,7 +410,7 @@ describe('Form Generation Performance Tests', () => {
       });
       
       // 2. User fills out Japan form
-      let japanFormData = { purposeOfVisit: 'business', currencyOver1M: false };
+      let japanFormData: Record<string, unknown> = { purposeOfVisit: 'business', currencyOver1M: false };
       const japanSchema = schemas.JPN;
       const japanLeg = trip.legs[0];
       let updatedJapanForm = generateFilledForm(profile, japanLeg, japanSchema, japanFormData);
