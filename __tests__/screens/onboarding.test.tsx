@@ -129,20 +129,33 @@ describe('Onboarding Flow Integration Tests', () => {
   });
 
   describe('PassportScanScreen', () => {
-    it('should render passport form correctly', () => {
-      const { getByText, getByPlaceholderText } = render(<PassportScanScreen />);
+    it('should render passport scan method selection correctly', () => {
+      const { getByText } = render(<PassportScanScreen />);
 
       expect(getByText('📷 Passport Information')).toBeTruthy();
       expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
-      expect(getByText('✏️ Manual Entry')).toBeTruthy();
+      expect(getByText('Quick Passport Scan')).toBeTruthy();
+      expect(getByText('📷 Start Camera Scan')).toBeTruthy();
+      expect(getByText('Manual Entry')).toBeTruthy();
+      expect(getByText('✏️ Enter Manually')).toBeTruthy();
+    });
+
+    it('should show manual form when manual entry is selected', () => {
+      const { getByText, getByPlaceholderText } = render(<PassportScanScreen />);
+      
+      // Click manual entry to show the form
+      fireEvent.press(getByText('✏️ Enter Manually'));
 
       expect(getByPlaceholderText('Enter passport number')).toBeTruthy();
       expect(getByPlaceholderText('Enter surname')).toBeTruthy();
       expect(getByPlaceholderText('Enter given names')).toBeTruthy();
     });
 
-    it('should display gender options', () => {
+    it('should display gender options in manual form', () => {
       const { getByText } = render(<PassportScanScreen />);
+
+      // Click manual entry to show the form
+      fireEvent.press(getByText('✏️ Enter Manually'));
 
       expect(getByText(/Gender/)).toBeTruthy();
       expect(getByText('Male')).toBeTruthy();
@@ -159,8 +172,11 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(mockNavigation.goBack).toHaveBeenCalled();
     });
 
-    it('should handle gender selection', () => {
+    it('should handle gender selection in manual form', () => {
       const { getByText } = render(<PassportScanScreen />);
+
+      // Click manual entry to show the form
+      fireEvent.press(getByText('✏️ Enter Manually'));
 
       const femaleButton = getByText('Female');
       fireEvent.press(femaleButton);

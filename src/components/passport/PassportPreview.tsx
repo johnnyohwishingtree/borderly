@@ -65,6 +65,9 @@ export default function PassportPreview({
     
     try {
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Return raw string for invalid dates
+      }
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -135,7 +138,7 @@ export default function PassportPreview({
             <Text className="font-medium text-gray-900">Scan Quality</Text>
             <StatusBadge
               text={`${Math.round(scanResult.confidence * 100)}% Confident`}
-              variant={scanResult.confidence >= 0.8 ? 'success' : 
+              status={scanResult.confidence >= 0.8 ? 'success' : 
                       scanResult.confidence >= 0.6 ? 'warning' : 'error'}
             />
           </View>
@@ -191,7 +194,7 @@ export default function PassportPreview({
                   expiryStatus === 'valid' ? 'Valid' :
                   expiryStatus === 'warning' ? 'Expires Soon' : 'Expired'
                 }
-                variant={
+                status={
                   expiryStatus === 'valid' ? 'success' :
                   expiryStatus === 'warning' ? 'warning' : 'error'
                 }

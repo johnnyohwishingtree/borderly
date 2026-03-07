@@ -224,9 +224,11 @@ export function validateScannedPassport(result: MRZParseResult): {
     const expiryDate = new Date(profile.passportExpiry);
     const now = new Date();
     
+    const SIX_MONTHS_IN_MS = 180 * 24 * 60 * 60 * 1000;
+    
     if (expiryDate < now) {
       warnings.push('Passport appears to be expired');
-    } else if (expiryDate.getTime() - now.getTime() < 180 * 24 * 60 * 60 * 1000) {
+    } else if (expiryDate.getTime() - now.getTime() < SIX_MONTHS_IN_MS) {
       warnings.push('Passport expires within 6 months');
     }
   }
