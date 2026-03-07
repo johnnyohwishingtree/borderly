@@ -272,6 +272,8 @@ When you receive a comment like "@claude Tests are failing on this PR":
 ### Native Dependency Rules
 
 - **Never add a native dependency without also adding a web mock.** When you add a package that includes native code (e.g., `react-native-haptic-feedback`, `react-native-heroicons`), you MUST also: (1) create a mock in `e2e/mocks/`, (2) add an alias in `webpack.config.js`, and (3) verify `pnpm e2e` passes. Native modules install fine but **crash at runtime in the browser** — webpack won't catch this at build time.
+- **Never add a native dependency without linking it for iOS.** After adding a package with native code: (1) run `cd ios && pod install` to link the native module, (2) if the package requires fonts or assets (e.g., `react-native-vector-icons`), register them in `ios/Borderly/Info.plist` under `UIAppFonts`, (3) commit the updated `Podfile.lock` and `Info.plist`.
+- **Never bump `react` independently of `react-native`.** React Native pins a specific React version via `react-native-renderer`. Check `node_modules/react-native/package.json` peerDependencies to find the expected React version. Mismatches cause runtime crashes.
 - **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
 - **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
 
