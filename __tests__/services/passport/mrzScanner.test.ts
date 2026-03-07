@@ -149,7 +149,7 @@ describe('MRZ Scanner Service', () => {
       expect(stats.attempts).toBeGreaterThanOrEqual(1); // Account for adaptive frame skipping
     });
 
-    it.skip('should suggest manual entry after max attempts', () => {
+    it('should suggest manual entry after max attempts', () => {
       const textRecognition = createMockTextRecognition([
         createTextBlock(invalidMRZText)
       ]);
@@ -157,17 +157,33 @@ describe('MRZ Scanner Service', () => {
       const config = { 
         ...defaultScannerConfig, 
         scanCooldownMs: 0,
-        maxScanAttempts: 2  // Lower for faster test
+        maxScanAttempts: 3  // Fixed low value for predictable test
       };
       scanner = new MRZScanner(config, 'high'); // High performance tier for consistent behavior
 
+      // Mock both adaptive methods to return fixed values
+      const calculateAdaptiveMaxAttemptsSpy = jest.spyOn(scanner as any, 'calculateAdaptiveMaxAttempts');
+      calculateAdaptiveMaxAttemptsSpy.mockReturnValue(3);
+      
+      const calculateAdaptiveCooldownSpy = jest.spyOn(scanner as any, 'calculateAdaptiveCooldown');
+      calculateAdaptiveCooldownSpy.mockReturnValue(0);
+
       let result: ScanResult;
-      for (let i = 0; i < 10; i++) { // Many iterations to ensure we hit max attempts
+      // Process enough frames to reach max attempts
+      for (let i = 0; i < 5; i++) {
         result = scanner.processFrame(textRecognition);
+        
+        // If we get the manual entry guidance, break early
+        if (result.guidance.toLowerCase().includes('manual')) {
+          break;
+        }
       }
 
       // Check that we eventually get a guidance message about manual entry
       expect(result!.guidance.toLowerCase()).toContain('manual');
+      
+      calculateAdaptiveMaxAttemptsSpy.mockRestore();
+      calculateAdaptiveCooldownSpy.mockRestore();
     });
 
     it('should reset state correctly', () => {

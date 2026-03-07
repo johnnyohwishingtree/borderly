@@ -44,6 +44,12 @@ const DEFAULT_PROGRESSIVE_CONFIG: Required<ProgressiveLoadingConfig> = {
 
 /**
  * Compress base64 image with size and quality optimization
+ * 
+ * WARNING: This is a placeholder implementation for development.
+ * In production, use proper image processing libraries like:
+ * - react-native-image-resizer
+ * - expo-image-manipulator 
+ * - react-native-image-editor
  */
 export function compressBase64Image(
   base64: string,
@@ -65,32 +71,16 @@ export function compressBase64Image(
       const format = header.match(/data:image\/(\w+)/)?.[1] || 'jpeg';
       const originalSize = Math.round((data.length * 3) / 4);
       
-      // For React Native, we'll use a simplified compression approach
-      // In a real implementation, you would use native image processing libraries
-      let compressedBase64 = base64;
-      let quality = opts.quality;
-      
-      // Simple quality-based compression simulation
-      // In production, integrate with libraries like react-native-image-resizer
-      if (originalSize > opts.targetSize) {
-        quality = Math.max(0.3, quality * (opts.targetSize / originalSize));
-        
-        // Simulate compression by adjusting the base64 (simplified)
-        const targetLength = Math.floor(data.length * quality);
-        const compressedData = data.substring(0, targetLength) + 
-          '='.repeat(Math.max(0, 4 - (targetLength % 4)));
-        compressedBase64 = `data:image/${format};base64,${compressedData}`;
-      }
-      
-      const compressedSize = Math.round((compressedBase64.split(',')[1].length * 3) / 4);
-      const compressionRatio = originalSize > 0 ? compressedSize / originalSize : 1;
+      // PLACEHOLDER: Return original image since proper compression requires native libraries
+      // This prevents data corruption while maintaining the API contract
+      console.warn('[DEV] Using placeholder image compression. Integrate react-native-image-resizer for production.');
       
       resolve({
         success: true,
-        compressedBase64,
+        compressedBase64: base64, // Return original to prevent corruption
         originalSize,
-        compressedSize,
-        compressionRatio,
+        compressedSize: originalSize, // Same size since no compression
+        compressionRatio: 1, // No compression ratio
       });
     } catch (error) {
       resolve({
@@ -105,18 +95,21 @@ export function compressBase64Image(
 }
 
 /**
- * Analyze image quality for MRZ scanning and QR code reading
+ * Basic image validation and size analysis
+ * 
+ * WARNING: This is a simplified placeholder that only validates format and size.
+ * For production quality analysis, integrate computer vision libraries that can
+ * analyze actual brightness, contrast, sharpness, and other quality metrics.
  */
 export function analyzeImageQuality(base64: string): ImageQualityMetrics {
   try {
     const [, data] = base64.split(',');
     const estimatedSize = Math.round((data.length * 3) / 4);
     
-    // Basic quality heuristics (in production, use computer vision libraries)
     const warnings: string[] = [];
     let confidence = 0.8;
     
-    // Size checks
+    // Only perform basic size and format validation
     if (estimatedSize < 50 * 1024) { // Less than 50KB
       warnings.push('Image resolution may be too low for accurate scanning');
       confidence -= 0.3;
@@ -125,29 +118,15 @@ export function analyzeImageQuality(base64: string): ImageQualityMetrics {
       confidence -= 0.1;
     }
     
-    // Simulate brightness/contrast analysis
-    // In production, implement actual image analysis
-    const brightness = 0.6 + (Math.random() * 0.4); // Simulate 0.6-1.0
-    const contrast = 0.5 + (Math.random() * 0.5); // Simulate 0.5-1.0
-    
-    if (brightness < 0.3) {
-      warnings.push('Image appears too dark - try better lighting');
-      confidence -= 0.2;
-    } else if (brightness > 0.9) {
-      warnings.push('Image appears overexposed - reduce lighting');
-      confidence -= 0.1;
-    }
-    
-    if (contrast < 0.4) {
-      warnings.push('Low contrast detected - ensure clear text visibility');
-      confidence -= 0.2;
-    }
-    
     // Data format validation
     if (!data || data.length < 100) {
       warnings.push('Invalid or corrupted image data');
       confidence = 0;
     }
+    
+    // Return neutral values for brightness/contrast since we can't analyze them
+    const brightness = 0.5; // Neutral value
+    const contrast = 0.5; // Neutral value
     
     return {
       isValid: confidence > 0.3 && warnings.length === 0,
@@ -257,6 +236,9 @@ export class ImageProcessor {
   ): Promise<{
     success: boolean;
     processedBase64?: string;
+    originalSize: number;
+    compressedSize: number;
+    compressionRatio: number;
     memoryOptimized: boolean;
     error?: string;
   }> {
@@ -289,12 +271,18 @@ export class ImageProcessor {
       return {
         success: result.success,
         processedBase64: result.compressedBase64 || undefined,
+        originalSize: result.originalSize,
+        compressedSize: result.compressedSize,
+        compressionRatio: result.compressionRatio,
         memoryOptimized: true,
         error: result.error,
       };
     } catch (error) {
       return {
         success: false,
+        originalSize: 0,
+        compressedSize: 0,
+        compressionRatio: 1,
         memoryOptimized: false,
         error: error instanceof Error ? error.message : 'Processing failed',
       };
@@ -353,7 +341,7 @@ export function detectDevicePerformance(): {
 } {
   // Simple heuristic based on user agent and available APIs
   // In production, use more sophisticated device detection
-  const nav = typeof navigator !== 'undefined' ? navigator as any : null;
+  const nav = (typeof navigator !== 'undefined' ? navigator : null) as any;
   
   const isLowEnd = (() => {
     // Check for performance indicators

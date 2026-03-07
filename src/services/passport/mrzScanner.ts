@@ -517,7 +517,7 @@ export function createOptimizedMRZScanner(customConfig?: Partial<ScannerConfig>)
 function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
   try {
     // Check hardware concurrency (CPU cores) if available
-    const nav = typeof navigator !== 'undefined' ? navigator as any : null;
+    const nav = (typeof navigator !== 'undefined' ? navigator : null) as any;
     const hardwareConcurrency = nav?.hardwareConcurrency || 2;
     
     // Check device memory if available

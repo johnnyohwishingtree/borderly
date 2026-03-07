@@ -43,7 +43,13 @@ export default function MRZScannerComponent({
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
-  const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState<{
+    successRate: number;
+    averageAttempts: number;
+    avgProcessingTime: number;
+    framesSkipped: number;
+    deviceTier: string;
+  } | null>(null);
   
   // Performance monitoring for optimization feedback
   const performanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);

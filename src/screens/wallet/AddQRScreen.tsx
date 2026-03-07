@@ -20,6 +20,7 @@ import {
   validateImageForProcessing,
   detectDevicePerformance,
   ImageProcessor,
+  type ImageQualityMetrics,
 } from '../../utils/imageUtils';
 
 interface QRFormData {
@@ -38,8 +39,14 @@ export default function AddQRScreen() {
     mediumQuality?: string;
     fullQuality: string;
   } | null>(null);
-  const [imageQuality, setImageQuality] = useState<any>(null);
-  const [compressionInfo, setCompressionInfo] = useState<any>(null);
+  const [imageQuality, setImageQuality] = useState<ImageQualityMetrics | null>(null);
+  const [compressionInfo, setCompressionInfo] = useState<{
+    success: boolean;
+    originalSize: number;
+    compressedSize: number;
+    compressionRatio: number;
+    deviceOptimized?: boolean;
+  } | null>(null);
   const [formData, setFormData] = useState<QRFormData>({
     label: '',
     type: 'combined',
@@ -103,7 +110,14 @@ export default function AddQRScreen() {
         compressionResult = await compressBase64Image(base64, recommendedSettings);
       }
       
-      setCompressionInfo(compressionResult);
+      // Normalize compression result for UI display
+      setCompressionInfo({
+        success: compressionResult.success,
+        originalSize: compressionResult.originalSize,
+        compressedSize: compressionResult.compressedSize,
+        compressionRatio: compressionResult.compressionRatio,
+        deviceOptimized: 'memoryOptimized' in compressionResult ? compressionResult.memoryOptimized : false,
+      });
 
       // Generate progressive versions for better UX
       const finalBase64 = compressionResult.success 
