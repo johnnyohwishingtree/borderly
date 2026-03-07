@@ -288,7 +288,7 @@ export class ImageProcessor {
       
       return {
         success: result.success,
-        processedBase64: result.compressedBase64,
+        processedBase64: result.compressedBase64 || undefined,
         memoryOptimized: true,
         error: result.error,
       };
@@ -353,17 +353,19 @@ export function detectDevicePerformance(): {
 } {
   // Simple heuristic based on user agent and available APIs
   // In production, use more sophisticated device detection
+  const nav = typeof navigator !== 'undefined' ? navigator as any : null;
+  
   const isLowEnd = (() => {
     // Check for performance indicators
-    const hardwareConcurrency = (navigator as any)?.hardwareConcurrency || 1;
-    const deviceMemory = (navigator as any)?.deviceMemory || 1;
+    const hardwareConcurrency = nav?.hardwareConcurrency || 1;
+    const deviceMemory = nav?.deviceMemory || 1;
     
     return hardwareConcurrency <= 2 || deviceMemory <= 2;
   })();
   
   const isMediumEnd = (() => {
-    const hardwareConcurrency = (navigator as any)?.hardwareConcurrency || 4;
-    const deviceMemory = (navigator as any)?.deviceMemory || 4;
+    const hardwareConcurrency = nav?.hardwareConcurrency || 4;
+    const deviceMemory = nav?.deviceMemory || 4;
     
     return hardwareConcurrency <= 4 || deviceMemory <= 4;
   })();
@@ -447,7 +449,7 @@ export function validateImageForProcessing(base64: string): {
     
     return {
       isValid: errors.length === 0,
-      format,
+      format: format || undefined,
       size,
       errors,
       warnings,

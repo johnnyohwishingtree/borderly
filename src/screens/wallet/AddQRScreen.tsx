@@ -106,8 +106,12 @@ export default function AddQRScreen() {
       setCompressionInfo(compressionResult);
 
       // Generate progressive versions for better UX
+      const finalBase64 = compressionResult.success 
+        ? ((compressionResult as any).processedBase64 || (compressionResult as any).compressedBase64 || base64)
+        : base64;
+        
       const progressive = await generateProgressiveVersions(
-        compressionResult.compressedBase64 || base64,
+        finalBase64,
         { enableBlurPlaceholder: devicePerformance !== 'low' }
       );
       
@@ -115,7 +119,7 @@ export default function AddQRScreen() {
         setProgressiveImage(progressive);
       }
 
-      return compressionResult.compressedBase64 || base64;
+      return finalBase64;
     } catch (error) {
       console.error('Error processing image:', error);
       throw error;
@@ -421,14 +425,21 @@ export default function AddQRScreen() {
                     {compressionInfo && (
                       <View className="bg-blue-50 p-2 rounded">
                         <Text className="text-xs font-medium text-blue-800">
-                          Processing: {Math.round(compressionInfo.compressionRatio * 100)}% 
-                          ({compressionInfo.originalSize > 1024 * 1024 
-                            ? `${(compressionInfo.originalSize / (1024 * 1024)).toFixed(1)}MB` 
-                            : `${(compressionInfo.originalSize / 1024).toFixed(0)}KB`
-                          } → {compressionInfo.compressedSize > 1024 * 1024
-                            ? `${(compressionInfo.compressedSize / (1024 * 1024)).toFixed(1)}MB`
-                            : `${(compressionInfo.compressedSize / 1024).toFixed(0)}KB`
-                          })
+                          {compressionInfo.compressionRatio !== undefined 
+                            ? `Processing: ${Math.round(compressionInfo.compressionRatio * 100)}%`
+                            : 'Image optimized for device'
+                          }
+                          {compressionInfo.originalSize && compressionInfo.compressedSize && (
+                            <Text>
+                              {' '}({compressionInfo.originalSize > 1024 * 1024 
+                                ? `${(compressionInfo.originalSize / (1024 * 1024)).toFixed(1)}MB` 
+                                : `${(compressionInfo.originalSize / 1024).toFixed(0)}KB`
+                              } → {compressionInfo.compressedSize > 1024 * 1024
+                                ? `${(compressionInfo.compressedSize / (1024 * 1024)).toFixed(1)}MB`
+                                : `${(compressionInfo.compressedSize / 1024).toFixed(0)}KB`
+                              })
+                            </Text>
+                          )}
                         </Text>
                       </View>
                     )}

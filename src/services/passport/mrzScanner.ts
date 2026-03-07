@@ -178,7 +178,7 @@ export class MRZScanner {
   private adaptiveConfig: ScannerConfig;
   
   constructor(
-    private config: ScannerConfig = defaultScannerConfig,
+    config: ScannerConfig = defaultScannerConfig,
     private deviceTier: 'low' | 'medium' | 'high' = 'medium'
   ) {
     // Initialize adaptive configuration based on device performance
@@ -313,7 +313,9 @@ export class MRZScanner {
     this.memoryUsage = {
       totalFramesProcessed: 0,
       lastMemoryCleanup: 0,
-      maxRetainedScans: 0
+      maxRetainedScans: 0,
+      framesSkipped: 0,
+      avgProcessingTime: 0,
     };
   }
 
@@ -514,14 +516,15 @@ export function createOptimizedMRZScanner(customConfig?: Partial<ScannerConfig>)
  */
 function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
   try {
-    // Check hardware concurrency (CPU cores)
-    const hardwareConcurrency = (navigator as any)?.hardwareConcurrency || 2;
+    // Check hardware concurrency (CPU cores) if available
+    const nav = typeof navigator !== 'undefined' ? navigator as any : null;
+    const hardwareConcurrency = nav?.hardwareConcurrency || 2;
     
     // Check device memory if available
-    const deviceMemory = (navigator as any)?.deviceMemory || 2;
+    const deviceMemory = nav?.deviceMemory || 2;
     
-    // Check user agent for known low-end patterns
-    const userAgent = navigator.userAgent.toLowerCase();
+    // Check user agent for known low-end patterns if available
+    const userAgent = nav?.userAgent?.toLowerCase() || '';
     const isLowEndDevice = userAgent.includes('low-end') || 
       userAgent.includes('lite') || 
       userAgent.includes('go');

@@ -229,7 +229,6 @@ export default function PassportScanScreen() {
                   onPress={() => setShowPerformanceHint(false)}
                   variant="outline"
                   size="small"
-                  className="mt-2 self-start"
                 />
               </View>
             </View>

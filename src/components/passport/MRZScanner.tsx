@@ -46,7 +46,7 @@ export default function MRZScannerComponent({
   const [performanceMetrics, setPerformanceMetrics] = useState<any>(null);
   
   // Performance monitoring for optimization feedback
-  const performanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const performanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     // Reset scanner when component mounts
@@ -214,13 +214,8 @@ export default function MRZScannerComponent({
         onMountError={handleMountError}
         // Performance optimizations
         ratio={lowPowerMode ? "4:3" : "16:9"} // 4:3 uses less memory on low-end devices
-        textRecognitionSettings={{
-          textRecognitionMode: RNCamera.Constants.TextRecognition.Mode.accurate,
-        }}
         // Optimize preview for battery life
         autoFocusPointOfInterest={{ x: 0.5, y: 0.7 }} // Focus on MRZ area
-        notAuthorizedView={undefined} // Handle elsewhere
-        pendingAuthorizationView={undefined} // Handle elsewhere
       >
         {/* Overlay */}
         <View className="flex-1 relative">
