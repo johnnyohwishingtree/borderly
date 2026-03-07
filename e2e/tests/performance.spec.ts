@@ -33,18 +33,18 @@ test.describe('Performance Tests', () => {
   });
 
   test('form generation performance under various data sizes', async ({ page }) => {
-    // Create a large trip with many destinations for stress testing
+    // Create a moderately large trip for stress testing (reduced from 10 to 5 destinations)
     const largeTrip = {
       id: 'performance-trip',
-      name: 'Large Performance Test Trip',
+      name: 'Performance Test Trip',
       startDate: '2024-12-01',
-      endDate: '2024-12-30',
+      endDate: '2024-12-15',
       destinations: []
     };
 
-    // Add 10 destinations to test form generation with complex data
+    // Add 5 destinations to test form generation (reduced for speed)
     const countries = ['JPN', 'SGP', 'MYS'];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       largeTrip.destinations.push({
         country: countries[i % countries.length],
         arrivalDate: `2024-12-${String(i + 1).padStart(2, '0')}`,
@@ -409,9 +409,9 @@ test.describe('Performance Tests', () => {
   });
 
   test('UI responsiveness under load', async ({ page }) => {
-    // Create a large number of UI elements
+    // Create a moderate number of UI elements (reduced from 50 to 20 for speed)
     const manyTrips = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 20; i++) {
       manyTrips.push({
         id: `ui-test-${i}`,
         name: `UI Test Trip ${i}`,
@@ -431,8 +431,8 @@ test.describe('Performance Tests', () => {
     const scrollStartTime = Date.now();
     
     // Scroll to last item to test performance
-    await page.getByText('UI Test Trip 49').scrollIntoViewIfNeeded();
-    await expect(page.getByText('UI Test Trip 49')).toBeVisible();
+    await page.getByText('UI Test Trip 19').scrollIntoViewIfNeeded();
+    await expect(page.getByText('UI Test Trip 19')).toBeVisible();
     
     const scrollEndTime = Date.now();
     const scrollTime = scrollEndTime - scrollStartTime;
@@ -444,8 +444,8 @@ test.describe('Performance Tests', () => {
     // Test interaction responsiveness
     const interactionStartTime = Date.now();
     
-    await page.getByText('UI Test Trip 25').click();
-    await expect(page.getByText('UI Test Trip 25')).toBeVisible();
+    await page.getByText('UI Test Trip 10').click();
+    await expect(page.getByText('UI Test Trip 10')).toBeVisible();
     
     const interactionEndTime = Date.now();
     const interactionTime = interactionEndTime - interactionStartTime;

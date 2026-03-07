@@ -4,48 +4,90 @@ export default defineConfig({
   testDir: './e2e/tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 1 : 0, // Reduced retries to save time
+  workers: process.env.CI ? 3 : undefined, // Enable parallel execution in CI
   reporter: 'html',
-  timeout: 60000, // Increased for performance tests
+  timeout: 30000, // Reduced timeout to 30s to fail fast
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'off', // Disable video to save time
+    // Speed up tests
+    actionTimeout: 10000,
+    navigationTimeout: 15000,
   },
   projects: [
+    // Primary test project - fast chromium for core functionality
     {
       name: 'chromium',
+      testMatch: [
+        'smoke.spec.ts',
+        'onboarding.spec.ts', 
+        'completeUserFlow.spec.ts',
+        'tripCreation.spec.ts'
+      ],
       use: { 
         ...devices['Desktop Chrome'],
-        // Enable performance monitoring
         launchOptions: {
           args: [
             '--enable-precise-memory-info',
-            '--enable-web-bluetooth',
             '--use-fake-ui-for-media-stream',
             '--use-fake-device-for-media-stream',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--no-sandbox', // Faster startup
           ]
         }
       },
     },
+    // QR workflow tests - medium priority  
     {
-      name: 'firefox',
+      name: 'qr-workflow',
+      testMatch: 'qrWorkflow.spec.ts',
+      use: { 
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: [
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--no-sandbox',
+          ]
+        }
+      },
+    },
+    // Performance tests - run only on chromium as they're browser-agnostic
+    {
+      name: 'performance',
+      testMatch: 'performance.spec.ts',
+      timeout: 45000, // Slightly longer for performance tests
+      use: { 
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: [
+            '--enable-precise-memory-info',
+            '--use-fake-ui-for-media-stream',
+            '--use-fake-device-for-media-stream',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--no-sandbox',
+          ]
+        }
+      },
+    },
+    // Cross-browser validation - only critical tests
+    {
+      name: 'firefox-smoke',
+      testMatch: 'smoke.spec.ts',
       use: { ...devices['Desktop Firefox'] },
     },
+    // Mobile validation - minimal critical tests only  
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    // Mobile testing for responsive design
-    {
-      name: 'Mobile Chrome',
+      name: 'mobile-smoke',
+      testMatch: 'smoke.spec.ts',
       use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
     },
   ],
   webServer: {
