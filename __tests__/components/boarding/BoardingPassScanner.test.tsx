@@ -12,16 +12,43 @@ import BoardingPassScanner from '../../../src/components/boarding/BoardingPassSc
 import * as boardingPassParser from '../../../src/services/boarding/boardingPassParser';
 
 // Mock dependencies
-jest.mock('react-native-camera', () => ({
-  RNCamera: jest.fn().mockImplementation((props) => {
-    // Store props for test access
-    (global as any).lastCameraProps = props;
-    return null;
-  }),
-}));
+jest.mock('react-native-camera', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    RNCamera: jest.fn().mockImplementation((props) => {
+      // Store props for test access
+      (globalThis as any).lastCameraProps = props;
+      // Return a View that renders children to allow overlay components to render
+      return React.createElement(View, {}, props.children);
+    }),
+  };
+});
 
 jest.mock('react-native-haptic-feedback');
 jest.mock('../../../src/services/boarding/boardingPassParser');
+
+// Mock UI components
+jest.mock('../../../src/components/ui/Button', () => {
+  const React = require('react');
+  const { TouchableOpacity, Text } = require('react-native');
+  return jest.fn().mockImplementation(({ title, onPress, ...props }) => 
+    React.createElement(TouchableOpacity, { 
+      onPress,
+      accessibilityRole: 'button',
+      accessibilityLabel: title,
+      ...props
+    }, React.createElement(Text, {}, title))
+  );
+});
+
+jest.mock('../../../src/components/ui/LoadingSpinner', () => {
+  const React = require('react');
+  const { ActivityIndicator } = require('react-native');
+  return jest.fn().mockImplementation(() => 
+    React.createElement(ActivityIndicator, { accessibilityLabel: 'Loading' })
+  );
+});
 
 const mockTrigger = trigger as jest.MockedFunction<typeof trigger>;
 const mockParseBoardingPass = boardingPassParser.parseBoardingPass as jest.MockedFunction<typeof boardingPassParser.parseBoardingPass>;
@@ -78,7 +105,7 @@ describe('BoardingPassScanner', () => {
       const { getByText, queryByText } = render(<BoardingPassScanner {...defaultProps} />);
       
       // Simulate camera permission denied
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onStatusChange) {
         act(() => {
           lastProps.onStatusChange({ cameraStatus: 'NOT_AUTHORIZED' });
@@ -114,7 +141,7 @@ describe('BoardingPassScanner', () => {
       const { getByText, queryByText } = render(<BoardingPassScanner {...defaultProps} />);
       
       // Simulate camera ready
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onCameraReady) {
         act(() => {
           lastProps.onCameraReady();
@@ -135,7 +162,7 @@ describe('BoardingPassScanner', () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
       // Setup camera ready state
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onCameraReady) {
         act(() => {
           lastProps.onCameraReady();
@@ -171,7 +198,7 @@ describe('BoardingPassScanner', () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
       
       // Setup camera ready state
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onCameraReady) {
         act(() => {
           lastProps.onCameraReady();
@@ -229,19 +256,23 @@ describe('BoardingPassScanner', () => {
         jest.advanceTimersByTime(10000);
       });
 
+      await waitFor(() => {
+        expect(getByText('Try Demo Scan')).toBeTruthy();
+      });
+
       const demoButton = getByText('Try Demo Scan');
       fireEvent.press(demoButton);
 
-      // Advance through demo sequence
+      // Advance through demo sequence: 1.5s + 1s + 1s = 3.5s to reach success state
       act(() => {
-        jest.advanceTimersByTime(4500); // Complete demo sequence
+        jest.advanceTimersByTime(3500);
       });
 
       await waitFor(() => {
         expect(getByText('Scan Complete!')).toBeTruthy();
       });
 
-      // Complete demo with final callback
+      // Complete demo with final callback (additional 0.8s)
       act(() => {
         jest.advanceTimersByTime(800);
       });
@@ -253,8 +284,20 @@ describe('BoardingPassScanner', () => {
   });
 
   describe('User Interactions', () => {
-    it('handles cancel button press', () => {
+    it('handles cancel button press', async () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
+      
+      // Setup camera ready state first so buttons are visible
+      const lastProps = (globalThis as any).lastCameraProps;
+      if (lastProps?.onCameraReady) {
+        act(() => {
+          lastProps.onCameraReady();
+        });
+      }
+
+      await waitFor(() => {
+        expect(getByText('Cancel')).toBeTruthy();
+      });
       
       const cancelButton = getByText('Cancel');
       fireEvent.press(cancelButton);
@@ -262,8 +305,20 @@ describe('BoardingPassScanner', () => {
       expect(defaultProps.onScanCancel).toHaveBeenCalledTimes(1);
     });
 
-    it('handles manual entry button press', () => {
+    it('handles manual entry button press', async () => {
       const { getByText } = render(<BoardingPassScanner {...defaultProps} />);
+      
+      // Setup camera ready state first so buttons are visible
+      const lastProps = (globalThis as any).lastCameraProps;
+      if (lastProps?.onCameraReady) {
+        act(() => {
+          lastProps.onCameraReady();
+        });
+      }
+
+      await waitFor(() => {
+        expect(getByText('Manual')).toBeTruthy();
+      });
       
       const manualButton = getByText('Manual');
       fireEvent.press(manualButton);
@@ -275,12 +330,16 @@ describe('BoardingPassScanner', () => {
       const { getByLabelText } = render(<BoardingPassScanner {...defaultProps} />);
       
       // Setup camera ready state first
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onCameraReady) {
         act(() => {
           lastProps.onCameraReady();
         });
       }
+
+      await waitFor(() => {
+        expect(getByLabelText('Turn flash on')).toBeTruthy();
+      });
 
       const flashButton = getByLabelText('Turn flash on');
       fireEvent.press(flashButton);
@@ -294,7 +353,7 @@ describe('BoardingPassScanner', () => {
     it('handles camera mount errors', async () => {
       render(<BoardingPassScanner {...defaultProps} />);
       
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onMountError) {
         act(() => {
           lastProps.onMountError(new Error('Camera mount failed'));
@@ -318,7 +377,7 @@ describe('BoardingPassScanner', () => {
       render(<BoardingPassScanner {...defaultProps} />);
       
       // Setup camera ready state
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       if (lastProps?.onCameraReady) {
         act(() => {
           lastProps.onCameraReady();
@@ -347,7 +406,7 @@ describe('BoardingPassScanner', () => {
       render(<BoardingPassScanner {...defaultProps} lowPowerMode={true} />);
       
       // Verify camera ratio is set to 4:3 for low power mode
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       expect(lastProps?.ratio).toBe('4:3');
     });
 
@@ -355,14 +414,14 @@ describe('BoardingPassScanner', () => {
       render(<BoardingPassScanner {...defaultProps} lowPowerMode={false} />);
       
       // Verify camera ratio is set to 16:9 for normal mode
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       expect(lastProps?.ratio).toBe('16:9');
     });
 
     it('configures camera with correct barcode types', () => {
       render(<BoardingPassScanner {...defaultProps} />);
       
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       expect(lastProps?.barCodeTypes).toEqual([
         'pdf417',
         'aztec',
@@ -373,7 +432,7 @@ describe('BoardingPassScanner', () => {
     it('sets up camera with correct base properties', () => {
       render(<BoardingPassScanner {...defaultProps} />);
       
-      const lastProps = (global as any).lastCameraProps;
+      const lastProps = (globalThis as any).lastCameraProps;
       expect(lastProps?.type).toBe('back');
       expect(lastProps?.captureAudio).toBe(false);
       expect(lastProps?.autoFocusPointOfInterest).toEqual({ x: 0.5, y: 0.5 });
