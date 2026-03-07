@@ -55,7 +55,7 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@beta
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 100
           allowed_tools: "Bash(git:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
 
