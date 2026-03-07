@@ -117,8 +117,8 @@ describe('Japan (JPN) Schema', () => {
     }).not.toThrow();
   });
 
-  test('should be accessible via schema registry', () => {
-    const registrySchema = getSchemaByCountryCode('JPN');
+  test('should be accessible via schema registry', async () => {
+    const registrySchema = await getSchemaByCountryCode('JPN');
     expect(registrySchema).toBeDefined();
     expect(registrySchema?.countryCode).toBe('JPN');
   });

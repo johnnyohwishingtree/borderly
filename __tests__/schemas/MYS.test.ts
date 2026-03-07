@@ -135,8 +135,8 @@ describe('Malaysia (MYS) Schema', () => {
     }).not.toThrow();
   });
 
-  test('should be accessible via schema registry', () => {
-    const registrySchema = getSchemaByCountryCode('MYS');
+  test('should be accessible via schema registry', async () => {
+    const registrySchema = await getSchemaByCountryCode('MYS');
     expect(registrySchema).toBeDefined();
     expect(registrySchema?.countryCode).toBe('MYS');
   });

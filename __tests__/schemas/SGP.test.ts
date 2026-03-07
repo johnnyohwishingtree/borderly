@@ -148,8 +148,8 @@ describe('Singapore (SGP) Schema', () => {
     }).not.toThrow();
   });
 
-  test('should be accessible via schema registry', () => {
-    const registrySchema = getSchemaByCountryCode('SGP');
+  test('should be accessible via schema registry', async () => {
+    const registrySchema = await getSchemaByCountryCode('SGP');
     expect(registrySchema).toBeDefined();
     expect(registrySchema?.countryCode).toBe('SGP');
   });

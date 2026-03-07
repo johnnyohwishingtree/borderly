@@ -155,6 +155,15 @@ importers:
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
+      babel-plugin-react-remove-properties:
+        specifier: ^0.3.1
+        version: 0.3.1
+      babel-plugin-transform-imports:
+        specifier: ^2.0.0
+        version: 2.0.0
+      babel-plugin-transform-remove-console:
+        specifier: ^6.9.4
+        version: 6.9.4
       css-loader:
         specifier: ^7.1.4
         version: 7.1.4(webpack@5.105.4)
@@ -2293,6 +2302,9 @@ packages:
   babel-plugin-react-native-web@0.18.12:
     resolution: {integrity: sha512-4djr9G6fMdwQoD6LQ7hOKAm39+y12flWgovAqS1k5O8f42YQ3A1FFMyV5kKfetZuGhZO5BmNmOdRRZQ1TixtDw==}
 
+  babel-plugin-react-remove-properties@0.3.1:
+    resolution: {integrity: sha512-JQ0oEgC4P6TZxSqEaoPZdbgE2L38Kz7RgTgGcOUUR24Z19OiGhnhdXkXkwwsYyx6LOr/bMY5ljDADhxDr/JQug==}
+
   babel-plugin-syntax-hermes-parser@0.32.0:
     resolution: {integrity: sha512-m5HthL++AbyeEA2FcdwOLfVFvWYECOBObLHNqdR8ceY4TsEdn4LdX2oTvbB2QJSSElE2AWA/b2MXZ/PF/CqLZg==}
 
@@ -2301,6 +2313,12 @@ packages:
 
   babel-plugin-transform-flow-enums@0.0.2:
     resolution: {integrity: sha512-g4aaCrDDOsWjbm0PUUeVnkcVd6AKJsVc/MbnPhEotEpkeJQP6b8nzewohQi7+QS8UyPehOhGWn0nOwjvWpmMvQ==}
+
+  babel-plugin-transform-imports@2.0.0:
+    resolution: {integrity: sha512-65ewumYJ85QiXdcB/jmiU0y0jg6eL6CdnDqQAqQ8JMOKh1E52VPG3NJzbVKWcgovUR5GBH8IWpCXQ7I8Q3wjgw==}
+
+  babel-plugin-transform-remove-console@6.9.4:
+    resolution: {integrity: sha512-88blrUrMX3SPiGkT1GnvVY8E/7A+k6oj3MNvUtTIxJflFzXTw1bHkuJ/y039ouhFMp2prRn5cQGzokViYi1dsg==}
 
   babel-preset-current-node-syntax@1.2.0:
     resolution: {integrity: sha512-E/VlAEzRrsLEb2+dv8yp3bo4scof3l9nR4lrld+Iy5NyVqgVYUJnDAmunkhPMisRI32Qc4iRiz425d8vM++2fg==}
@@ -10193,6 +10211,8 @@ snapshots:
 
   babel-plugin-react-native-web@0.18.12: {}
 
+  babel-plugin-react-remove-properties@0.3.1: {}
+
   babel-plugin-syntax-hermes-parser@0.32.0:
     dependencies:
       hermes-parser: 0.32.0
@@ -10204,6 +10224,13 @@ snapshots:
       '@babel/plugin-syntax-flow': 7.28.6(@babel/core@7.29.0)
     transitivePeerDependencies:
       - '@babel/core'
+
+  babel-plugin-transform-imports@2.0.0:
+    dependencies:
+      '@babel/types': 7.29.0
+      is-valid-path: 0.1.1
+
+  babel-plugin-transform-remove-console@6.9.4: {}
 
   babel-preset-current-node-syntax@1.2.0(@babel/core@7.29.0):
     dependencies:
