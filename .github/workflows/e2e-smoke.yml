@@ -33,7 +33,8 @@ jobs:
         run: npx playwright install chromium
 
       - name: Build web bundle
-        run: npx webpack --config webpack.config.js
+        id: build
+        run: npx webpack --config webpack.config.js 2>&1 | tee /tmp/build_output.txt
 
       - name: Run E2E smoke tests
         id: e2e
@@ -57,22 +58,46 @@ jobs:
           FIX_COUNT=$(gh pr view "$PR_NUM" --json comments \
             -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("E2E smoke tests are failing"))] | length' 2>/dev/null || echo "0")
 
-          if [ "$FIX_COUNT" -ge 2 ]; then
+          if [ "$FIX_COUNT" -ge 3 ]; then
             echo "Already $FIX_COUNT fix attempts — needs human review"
             exit 0
           fi
 
+          # Collect errors from whichever step failed
           FAILURES=""
+          if [ -f /tmp/build_output.txt ]; then
+            BUILD_ERRORS=$(grep -E '(ERROR|Module parse failed|Module not found|Unexpected token|Cannot resolve)' /tmp/build_output.txt | tail -15 || echo "")
+            if [ -n "$BUILD_ERRORS" ]; then
+              FAILURES="WEBPACK BUILD ERRORS:
+          ${BUILD_ERRORS}"
+            fi
+          fi
           if [ -f /tmp/e2e_output.txt ]; then
-            FAILURES=$(grep -E '(FAILED|failed|Error|✘)' /tmp/e2e_output.txt | tail -20 || echo "")
+            E2E_ERRORS=$(grep -E '(FAILED|failed|Error|✘|expect\()' /tmp/e2e_output.txt | tail -15 || echo "")
+            if [ -n "$E2E_ERRORS" ]; then
+              FAILURES="${FAILURES}
+          E2E TEST ERRORS:
+          ${E2E_ERRORS}"
+            fi
           fi
 
-          BODY="@claude E2E smoke tests are failing on this PR. The app either crashes on launch or a screen fails to render correctly.
+          if [ -z "$FAILURES" ]; then
+            FAILURES="(No error details captured — check the workflow run logs)"
+          fi
+
+          BODY="@claude E2E smoke tests are failing on this PR. Here are the errors:
 
           \`\`\`
           ${FAILURES}
           \`\`\`
 
-          Fix the runtime errors. Make sure the app launches and all screens render without crashing. IMPORTANT: You MUST git add, git commit, and git push your changes before finishing. (Auto-fix attempt $((FIX_COUNT + 1))/2)"
+          Diagnose the root cause from the errors above and fix it. Common issues:
+          - **Module parse failed / Unexpected token**: A native module needs a web mock. Add an alias in \`webpack.config.js\` pointing to a mock in \`e2e/mocks/\`.
+          - **Module not found**: A dependency is missing or an import path is wrong.
+          - **E2E test failures**: A screen is crashing or not rendering correctly.
+
+          Check \`webpack.config.js\` for existing mock patterns. After fixing, verify by running: \`npx webpack --config webpack.config.js\`
+
+          IMPORTANT: You MUST git add, git commit, and git push your changes before finishing. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
           gh pr comment "$PR_NUM" --body "$BODY"
