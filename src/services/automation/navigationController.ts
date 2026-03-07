@@ -700,7 +700,7 @@ export class NavigationController {
     data?: Record<string, unknown>
   ): Promise<AutomationStepResult> {
     for (let attempt = 1; attempt <= this.config.retryAttempts; attempt++) {
-      await new Promise(resolve => setTimeout(resolve, this.config.navigationDelay * attempt));
+      await new Promise<void>(resolve => setTimeout(() => resolve(), this.config.navigationDelay * attempt));
       
       const result = await this.executeFlowStep(step, executeScript, data);
       if (result.success) {
@@ -741,7 +741,7 @@ export class NavigationController {
         return { success: true }; // Placeholder
 
       case 'wait':
-        await new Promise(resolve => setTimeout(resolve, action.value || 1000));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), action.value || 1000));
         return { success: true };
 
       case 'custom':

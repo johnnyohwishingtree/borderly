@@ -298,7 +298,7 @@ export class UploadHandler {
         
         // Small delay between sequential uploads
         if (file !== files[files.length - 1]) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
         }
       }
       

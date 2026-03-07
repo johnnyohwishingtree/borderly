@@ -246,7 +246,7 @@ export class ElementDetector {
 
     const stabilityScript = `
       (function() {
-        const selector = '${this.escapeSelector(selector)}';
+        const selector = ${JSON.stringify(selector)};
         const stabilityDuration = ${stabilityDuration};
         const maxWait = ${maxWaitTime};
         const startTime = Date.now();
@@ -436,7 +436,7 @@ export class ElementDetector {
       return {
         success: result.success,
         error: result.error,
-        ...(result.success && {
+        ...(!result.success ? {} : {
           data: {
             formReady: result.formReady,
             formVisible: result.formVisible,
@@ -482,7 +482,7 @@ export class ElementDetector {
     return {
       size: this.cache.size,
       hitRate: 0, // Would track this in a real implementation
-      ...(oldestTimestamp !== now && { oldestEntry: now - oldestTimestamp })
+      ...(oldestTimestamp !== now ? { oldestEntry: now - oldestTimestamp } : {})
     };
   }
 
@@ -533,7 +533,7 @@ export class ElementDetector {
       
       // Wait before next attempt
       if (Date.now() - startTime + delay < timeout) {
-        await new Promise<void>(resolve => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), delay));
       }
     }
 
@@ -766,7 +766,7 @@ export class ElementDetector {
         };
       }
       
-      await new Promise<void>(resolve => setTimeout(resolve, 100));
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 100));
     }
 
     // Check cache again after polling completed

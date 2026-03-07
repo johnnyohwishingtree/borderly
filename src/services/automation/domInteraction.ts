@@ -579,7 +579,7 @@ export class DOMInteraction {
       scrollScript = `
         (function() {
           try {
-            const element = document.querySelector('${this.escapeSelector(target)}');
+            const element = document.querySelector(${JSON.stringify(target)});
             if (!element) {
               return { success: false, error: 'Element not found for scrolling' };
             }
@@ -830,10 +830,4 @@ export class DOMInteraction {
     }
   }
 
-  /**
-   * Safely escape values for JavaScript injection - replaced with JSON.stringify usage
-   */
-  private escapeForScript(value: any): string {
-    return JSON.stringify(value);
-  }
 }

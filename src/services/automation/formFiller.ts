@@ -483,7 +483,7 @@ export class FormFiller {
       if (fieldsToRetry.length === 0) break;
 
       // Wait before retry (exponential backoff)
-      await new Promise<void>(resolve => setTimeout(resolve, 1000 * attempt));
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 1000 * attempt));
 
       const retryFields = fieldsToRetry.filter(field => 
         fieldMappings[field.fieldId] && formData[field.fieldId] !== undefined
