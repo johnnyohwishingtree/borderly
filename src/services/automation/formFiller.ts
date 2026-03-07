@@ -352,7 +352,7 @@ export class FormFiller {
     // Text input strategy
     this.fillStrategies.set('text', {
       inputType: 'text',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, value, _mapping) => `
         ${element}.value = ${value};
         ${element}.dispatchEvent(new Event('input', { bubbles: true }));
         ${element}.dispatchEvent(new Event('change', { bubbles: true }));
@@ -363,7 +363,7 @@ export class FormFiller {
     // Select dropdown strategy
     this.fillStrategies.set('select', {
       inputType: 'select',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, value, _mapping) => `
         // Try exact value match first
         ${element}.value = ${value};
         
@@ -387,7 +387,7 @@ export class FormFiller {
     // Radio button strategy
     this.fillStrategies.set('radio', {
       inputType: 'radio',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, value, _mapping) => `
         // Get the first radio button to extract the name attribute
         const firstRadio = document.querySelector(${element});
         if (firstRadio && firstRadio.name) {
@@ -405,7 +405,7 @@ export class FormFiller {
     // Checkbox strategy
     this.fillStrategies.set('checkbox', {
       inputType: 'checkbox',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, value, _mapping) => `
         ${element}.checked = Boolean(${value});
         ${element}.dispatchEvent(new Event('change', { bubbles: true }));
       `
@@ -414,7 +414,7 @@ export class FormFiller {
     // Date input strategy
     this.fillStrategies.set('date', {
       inputType: 'date',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, value, _mapping) => `
         ${element}.value = ${value};
         ${element}.dispatchEvent(new Event('input', { bubbles: true }));
         ${element}.dispatchEvent(new Event('change', { bubbles: true }));
@@ -425,7 +425,7 @@ export class FormFiller {
     // File input strategy (placeholder for upload handler integration)
     this.fillStrategies.set('file', {
       inputType: 'file',
-      fillMethod: (element, value, mapping) => `
+      fillMethod: (element, _value, _mapping) => `
         // File upload requires special handling through upload handler
         console.log('File upload for element:', ${element});
         // This will be handled by the UploadHandler

@@ -5,7 +5,6 @@
  * the automation engine for government portal interactions.
  */
 
-import type { PortalFieldMapping } from '@/types/submission';
 
 // Type declaration for CSS.escape
 declare global {
@@ -159,7 +158,7 @@ export class DataTransformer {
     date: string,
     fromFormat: string,
     toFormat: string,
-    locale?: string
+    _locale?: string
   ): string {
     try {
       // Parse the input date based on format
@@ -235,7 +234,7 @@ export class DataTransformer {
     // Find the mapping entry
     let mappingEntry: any = null;
     
-    for (const [key, mapping] of Object.entries(countryMappings)) {
+    for (const [_key, mapping] of Object.entries(countryMappings)) {
       if (mapping[fromFormat] === countryCode || 
           (fromFormat === 'NAME' && mapping.NAME.toLowerCase() === countryCode.toLowerCase())) {
         mappingEntry = mapping;
@@ -714,7 +713,7 @@ export class PerformanceMonitor {
   static endTiming(timingId: string, success: boolean = true): number {
     const endTime = performance.now();
     
-    for (const [operationName, timings] of this.metrics.entries()) {
+    for (const [_operationName, timings] of this.metrics.entries()) {
       const timing = timings.find(t => t.id === timingId);
       if (timing) {
         timing.endTime = endTime;
@@ -733,10 +732,10 @@ export class PerformanceMonitor {
   static getStats(operationName?: string): Record<string, any> {
     const stats: Record<string, any> = {};
     
-    const operations = operationName 
+    const operations: [string, any[]][] = operationName
       ? [[operationName, this.metrics.get(operationName) || []]]
       : Array.from(this.metrics.entries());
-    
+
     operations.forEach(([name, timings]: [string, any[]]) => {
       const completedTimings = timings.filter((t: any) => t.duration !== null);
       const successfulTimings = completedTimings.filter((t: any) => t.success);
