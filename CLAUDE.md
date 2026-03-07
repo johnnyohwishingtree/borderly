@@ -234,6 +234,17 @@ When working from a GitHub issue (via the Claude GitHub App):
 7. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
 8. Run `/update-architecture` if code structure changed
 
+### Auto-Fix Workflow (when responding to failing CI comments)
+
+When you receive a comment like "@claude Tests are failing on this PR":
+1. Read the error output in the comment carefully
+2. Diagnose the root cause — do NOT blindly change code
+3. Make the fix
+4. **Run `pnpm test` locally and verify ALL tests pass** — do not skip this step
+5. **Run `pnpm e2e` locally and verify E2E tests pass**
+6. Only after both pass: git add, git commit, and git push
+7. If tests still fail after your fix, debug further — do NOT push failing code hoping CI will pass
+
 ### Native Dependency Rules
 
 - **Never add a native dependency without verifying it resolves at bundle time.** After adding a package that includes native code (e.g., `react-native-haptic-feedback`), run `pnpm install` and verify the module resolves by building the app or running the Metro bundler. On CI (ubuntu), the Metro bundle check will catch unresolved modules.
