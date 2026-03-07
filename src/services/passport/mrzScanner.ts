@@ -7,7 +7,12 @@
  * Security: No image storage - immediate processing only.
  */
 
-import type { TextRecognition } from 'react-native-camera';
+import type { TrackedTextFeature } from 'react-native-camera';
+
+// Type for text recognition response from RNCamera
+export interface TextRecognition {
+  textBlocks: TrackedTextFeature[];
+}
 import { parseMRZ, extractMRZFromText, type MRZParseResult } from './mrzParser';
 
 export interface ScanResult {
@@ -253,7 +258,7 @@ export function validateScannedPassport(result: MRZParseResult): {
  */
 export function getScanningGuidance(
   textRecognition: TextRecognition,
-  hasFlash: boolean
+  _hasFlash: boolean
 ): string {
   const textCount = textRecognition.textBlocks?.length || 0;
   

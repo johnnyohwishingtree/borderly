@@ -8,7 +8,7 @@ import CopyableField from '../../../src/components/guide/CopyableField';
 jest.mock('@react-native-clipboard/clipboard', () => ({
   __esModule: true,
   default: {
-    setString: jest.fn(),
+    setString: jest.fn(() => Promise.resolve()),
   },
 }));
 
@@ -97,7 +97,6 @@ describe('CopyableField', () => {
   });
 
   it('copies value to clipboard when pressed', async () => {
-    mockedClipboard.setString.mockResolvedValue();
 
     const { getByLabelText } = render(
       <CopyableField
@@ -115,7 +114,6 @@ describe('CopyableField', () => {
   });
 
   it('shows "Copied!" feedback after successful copy', async () => {
-    mockedClipboard.setString.mockResolvedValue();
 
     const { getByLabelText, getByText } = render(
       <CopyableField
@@ -133,7 +131,6 @@ describe('CopyableField', () => {
   });
 
   it('triggers haptic feedback on successful copy', async () => {
-    mockedClipboard.setString.mockResolvedValue();
 
     const { getByLabelText } = render(
       <CopyableField
@@ -168,7 +165,7 @@ describe('CopyableField', () => {
   });
 
   it('shows alert when clipboard operation fails', async () => {
-    mockedClipboard.setString.mockRejectedValue(new Error('Clipboard error'));
+    mockedClipboard.setString.mockReset().mockRejectedValue(new Error('Clipboard error'));
 
     const { getByLabelText } = render(
       <CopyableField

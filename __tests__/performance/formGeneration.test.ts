@@ -1,4 +1,9 @@
-import { performance } from 'perf_hooks';
+// Mock performance API
+const performance = {
+  now: jest.fn(() => Date.now()),
+  mark: jest.fn(),
+  measure: jest.fn(),
+};
 import {
   generateFilledForm,
   updateFormData,

@@ -17,9 +17,9 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import { RNCamera, TextRecognition } from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { MRZScanner, type ScanResult } from '../../services/passport/mrzScanner';
+import { MRZScanner, type ScanResult, type TextRecognition } from '../../services/passport/mrzScanner';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';

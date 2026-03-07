@@ -18,6 +18,17 @@ configure({
 // Define global __DEV__ variable
 global.__DEV__ = false;
 
+// Mock performance API for tests
+global.performance = global.performance || {
+  now: jest.fn(() => Date.now()),
+  mark: jest.fn(),
+  measure: jest.fn(),
+  getEntriesByType: jest.fn(() => []),
+  getEntriesByName: jest.fn(() => []),
+  clearMarks: jest.fn(),
+  clearMeasures: jest.fn(),
+};
+
 // Suppress console.error in tests unless explicitly testing error handling
 const originalError = console.error;
 beforeEach(() => {

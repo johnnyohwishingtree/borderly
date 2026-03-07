@@ -129,13 +129,18 @@ export function createAppError(
 ): AppError {
   const errorInfo = ERROR_MESSAGES[code];
   
-  return {
+  const error: AppError = {
     code,
     message: errorInfo.message,
-    details,
     recoverable: errorInfo.recoverable,
     userMessage: overrideMessage || errorInfo.userMessage,
   };
+
+  if (details) {
+    error.details = details;
+  }
+
+  return error;
 }
 
 /**
@@ -143,8 +148,7 @@ export function createAppError(
  */
 export function createAppErrorFromError(
   error: Error,
-  fallbackCode: ErrorCode = ERROR_CODES.UNKNOWN_ERROR,
-  context?: ErrorContext
+  fallbackCode: ErrorCode = ERROR_CODES.UNKNOWN_ERROR
 ): AppError {
   // Check if it's a network error
   if (error.message.toLowerCase().includes('network')) {
@@ -247,7 +251,7 @@ export function handleError(
   
   // Convert Error to AppError if needed
   const appError = error instanceof Error 
-    ? createAppErrorFromError(error, fallbackErrorCode, context)
+    ? createAppErrorFromError(error, fallbackErrorCode)
     : error;
   
   // Log the error
@@ -273,11 +277,11 @@ export function withErrorHandling<T extends any[], R>(
     try {
       return await fn(...args);
     } catch (error) {
-      throw handleError(
-        error as Error,
-        context,
-        { showAlert: false, fallbackErrorCode }
-      );
+      const options: { showAlert: boolean; fallbackErrorCode?: ErrorCode } = { showAlert: false };
+      if (fallbackErrorCode) {
+        options.fallbackErrorCode = fallbackErrorCode;
+      }
+      throw handleError(error as Error, context, options);
     }
   };
 }

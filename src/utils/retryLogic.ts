@@ -32,7 +32,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 /**
  * Default function to determine if an error should trigger a retry
  */
-function defaultShouldRetry(error: Error, attempt: number): boolean {
+function defaultShouldRetry(error: Error, _attempt: number): boolean {
   const errorMessage = error.message.toLowerCase();
   
   // Retry for network-related errors
@@ -150,12 +150,17 @@ export async function retryAsync<T>(
     }
   }
   
-  return {
+  const result: RetryResult<T> = {
     success: false,
-    error: lastError,
     attempts: fullConfig.maxAttempts,
     totalTime: Date.now() - startTime,
   };
+
+  if (lastError) {
+    result.error = lastError;
+  }
+
+  return result;
 }
 
 /**
@@ -201,12 +206,17 @@ export function retry<T>(
     }
   }
   
-  return {
+  const syncResult: RetryResult<T> = {
     success: false,
-    error: lastError,
     attempts: fullConfig.maxAttempts,
     totalTime: Date.now() - startTime,
   };
+
+  if (lastError) {
+    syncResult.error = lastError;
+  }
+
+  return syncResult;
 }
 
 /**
