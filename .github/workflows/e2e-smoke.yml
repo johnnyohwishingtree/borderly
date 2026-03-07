@@ -1,0 +1,78 @@
+name: E2E Smoke Tests
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  e2e-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Build web bundle
+        run: npx webpack --config webpack.config.js
+
+      - name: Run E2E smoke tests
+        id: e2e
+        run: npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_output.txt
+        env:
+          CI: true
+
+      - name: Notify Claude on failure
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          PR_NUM=${{ github.event.pull_request.number }}
+          BRANCH="${{ github.head_ref }}"
+
+          if [[ "$BRANCH" != claude/* ]]; then
+            echo "Not a claude/ branch — skipping"
+            exit 0
+          fi
+
+          FIX_COUNT=$(gh pr view "$PR_NUM" --json comments \
+            -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("E2E smoke tests are failing"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$FIX_COUNT" -ge 2 ]; then
+            echo "Already $FIX_COUNT fix attempts — needs human review"
+            exit 0
+          fi
+
+          FAILURES=""
+          if [ -f /tmp/e2e_output.txt ]; then
+            FAILURES=$(grep -E '(FAILED|failed|Error|✘)' /tmp/e2e_output.txt | tail -20 || echo "")
+          fi
+
+          BODY="@claude E2E smoke tests are failing on this PR. The app either crashes on launch or a screen fails to render correctly.
+
+          \`\`\`
+          ${FAILURES}
+          \`\`\`
+
+          Fix the runtime errors. Make sure the app launches and all screens render without crashing. IMPORTANT: You MUST git add, git commit, and git push your changes before finishing. (Auto-fix attempt $((FIX_COUNT + 1))/2)"
+
+          gh pr comment "$PR_NUM" --body "$BODY"

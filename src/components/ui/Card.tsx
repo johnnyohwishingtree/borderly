@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, ViewProps, Pressable } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
 

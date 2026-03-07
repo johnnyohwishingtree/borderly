@@ -1,6 +1,5 @@
-import React from 'react';
 import { Pressable, Text, ActivityIndicator } from 'react-native';
-import { trigger, type HapticFeedbackTypes } from 'react-native-haptic-feedback';
+import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 
 export interface ButtonProps {
   title: string;
@@ -25,7 +24,7 @@ export default function Button({
   fullWidth = false,
   accessibilityLabel,
   accessibilityHint,
-  hapticType = 'impactLight',
+  hapticType = HapticFeedbackTypes.impactLight,
 }: ButtonProps) {
   const getButtonStyles = () => {
     const baseStyles = 'rounded-xl flex-row items-center justify-center transition-all duration-150';

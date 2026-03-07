@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FilledFormSection } from '../../services/forms/formEngine';
 import FormField from './FormField';
@@ -89,7 +89,7 @@ export default function FormSection({
 
     return (
       <View className="p-4 bg-white">
-        {section.fields.map((field, index) => (
+        {section.fields.map((field) => (
           <FormField
             key={field.id}
             field={field}

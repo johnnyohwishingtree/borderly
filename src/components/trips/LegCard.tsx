@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../ui';
 import { StatusBadge } from '../ui';
@@ -31,15 +30,15 @@ export default function LegCard({
   const getStatusColor = (status: TripLeg['formStatus']) => {
     switch (status) {
       case 'not_started':
-        return 'gray';
+        return 'neutral';
       case 'in_progress':
-        return 'yellow';
+        return 'warning';
       case 'ready':
-        return 'blue';
+        return 'info';
       case 'submitted':
-        return 'green';
+        return 'success';
       default:
-        return 'gray';
+        return 'neutral';
     }
   };
 

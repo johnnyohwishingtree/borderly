@@ -174,7 +174,25 @@ pnpm lint
 
 # Type check
 pnpm typecheck
+
+# E2E smoke tests (requires Maestro + iOS simulator running)
+maestro test .maestro/app-smoke.yaml
+maestro test .maestro/onboarding-flow.yaml
 ```
+
+## Testing Strategy
+
+The test pyramid has three layers. All run in CI on every PR.
+
+| Layer | Tool | Runs on | What it catches |
+|-------|------|---------|-----------------|
+| **Unit tests** | Jest + RNTL | ubuntu (fast) | Logic bugs, component behavior |
+| **Bundle check** | Metro bundler | ubuntu (fast) | Missing modules, import errors |
+| **E2E smoke tests** | Maestro | macOS (simulator) | Runtime crashes, screens not rendering, navigation broken |
+
+Unit tests mock all native modules, so they **cannot** catch missing dependencies or runtime crashes. The Metro bundle check catches unresolved imports. The E2E smoke tests catch everything else by actually launching the app in a simulator.
+
+**When adding new screens:** Add a Maestro flow in `.maestro/` that navigates to and asserts the screen renders. Keep flows short and focused — they run on macOS runners which are slower and more expensive.
 
 ## Implementation Sprints
 
@@ -210,7 +228,15 @@ When working from a GitHub issue (via the Claude GitHub App):
 3. Follow the skill referenced in the issue body
 4. Create a PR with `Closes #N` in the body (N = issue number)
 5. Ensure all tests pass before pushing (`pnpm test`)
-6. Run `/update-architecture` if code structure changed
+6. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
+7. If you added/modified screens, add or update a Maestro E2E flow in `.maestro/`
+8. Run `/update-architecture` if code structure changed
+
+### Native Dependency Rules
+
+- **Never add a native dependency without verifying it resolves at bundle time.** After adding a package that includes native code (e.g., `react-native-haptic-feedback`), run `pnpm install` and verify the module resolves by building the app or running the Metro bundler. On CI (ubuntu), the Metro bundle check will catch unresolved modules.
+- **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
+- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
 
 ### Git Commit Rules
 

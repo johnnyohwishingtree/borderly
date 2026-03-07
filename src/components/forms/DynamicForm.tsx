@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { FilledForm, updateFormData, validateFormCompletion, getCountrySpecificFields } from '../../services/forms/formEngine';
 import FormSection from './FormSection';

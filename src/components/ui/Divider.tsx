@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, ViewProps } from 'react-native';
 
 export interface DividerProps extends ViewProps {
@@ -80,17 +79,6 @@ export default function Divider({
     return 'text-sm font-medium text-gray-500 px-3 bg-white';
   };
 
-  const getTextPositionStyles = () => {
-    if (orientation === 'vertical') return '';
-    
-    const positions = {
-      left: 'justify-start',
-      center: 'justify-center',
-      right: 'justify-end',
-    };
-    
-    return positions[textPosition];
-  };
 
   if (text && orientation === 'horizontal') {
     return (

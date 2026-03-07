@@ -1,4 +1,4 @@
-import Keychain from 'react-native-keychain';
+import * as Keychain from 'react-native-keychain';
 import { TravelerProfile } from '@/types/profile';
 import 'react-native-get-random-values';
 
@@ -56,7 +56,7 @@ class KeychainServiceImpl implements KeychainService {
 
   async deleteProfile(): Promise<void> {
     try {
-      await Keychain.resetInternetCredentials(PROFILE_KEY);
+      await Keychain.resetInternetCredentials({ service: PROFILE_KEY });
     } catch (error) {
       console.error('Failed to delete profile from keychain:', error);
       throw new Error('Failed to delete profile data');

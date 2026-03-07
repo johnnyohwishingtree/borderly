@@ -9,7 +9,10 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "e2e:build": "npx webpack --config webpack.config.js",
+    "e2e:test": "npx playwright test",
+    "e2e": "npx webpack --config webpack.config.js && npx playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -19,7 +22,8 @@
     "@react-navigation/native": "7.1.33",
     "@react-navigation/native-stack": "7.14.4",
     "nativewind": "^2.0.11",
-    "react": "19.2.3",
+    "postcss": "8.4.31",
+    "react": "19.2.4",
     "react-hook-form": "^7.53.2",
     "react-native": "0.84.1",
     "react-native-camera": "^4.2.1",
@@ -39,6 +43,8 @@
     "@babel/plugin-proposal-decorators": "^7.29.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
+    "@expo/webpack-config": "^19.0.1",
+    "@playwright/test": "^1.58.2",
     "@react-native-community/cli": "^20.1.2",
     "@react-native/babel-preset": "0.84.1",
     "@react-native/eslint-config": "0.84.1",
@@ -49,14 +55,20 @@
     "@types/jest": "^29.5.0",
     "@types/react": "^19.2.14",
     "@types/react-test-renderer": "^18.0.0",
+    "babel-loader": "^10.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^8.19.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "2.8.8",
+    "react-dom": "^19.2.4",
+    "react-native-web": "^0.21.2",
     "react-test-renderer": "19.2.4",
-    "tailwindcss": "^3.4.16",
-    "ts-jest": "^29.3.0"
+    "tailwindcss": "^3.3.1",
+    "ts-jest": "^29.3.0",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
   },
   "engines": {
     "node": ">=18"

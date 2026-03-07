@@ -1,0 +1,29 @@
+appId: org.reactjs.native.example.Borderly
+name: "Onboarding - Navigate through onboarding screens"
+---
+
+# Fresh launch
+- launchApp:
+    clearState: true
+
+# Start on Welcome screen
+- assertVisible: "Welcome to"
+- assertVisible: "Borderly"
+
+# Scroll to and tap Get Started
+- scrollUntilVisible:
+    element: "Get started with Borderly"
+    direction: DOWN
+    timeout: 10000
+- tapOn: "Get started with Borderly"
+
+# Verify PassportScan screen loaded by checking form fields
+- extendedWaitUntil:
+    visible: "Passport Number"
+    timeout: 10000
+
+- assertVisible: "Surname (Family Name)"
+- assertVisible: "Given Names"
+- assertVisible: "Date of Birth"
+
+- takeScreenshot: passport-scan-screen

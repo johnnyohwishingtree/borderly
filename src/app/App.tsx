@@ -1,5 +1,3 @@
-// import './global.css'; // Temporarily disabled for build testing
-
 import React from 'react';
 import { StatusBar } from 'react-native';
 
