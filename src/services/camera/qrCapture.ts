@@ -1,4 +1,3 @@
-// @ts-expect-error no type declarations
 import { launchCamera, launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
 import { PermissionsAndroid, Platform } from 'react-native';
 
@@ -96,8 +95,8 @@ export class QRCaptureService {
 
             resolve({
               success: true,
-              imageUri: asset.uri,
-              base64: asset.base64,
+              imageUri: asset.uri || '',
+              base64: asset.base64 || '',
             });
           }
         );
@@ -153,8 +152,8 @@ export class QRCaptureService {
 
             resolve({
               success: true,
-              imageUri: asset.uri,
-              base64: asset.base64,
+              imageUri: asset.uri || '',
+              base64: asset.base64 || '',
             });
           }
         );

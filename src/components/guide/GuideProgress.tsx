@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-// @ts-expect-error no type declarations
 import { CheckIcon } from 'react-native-heroicons/solid';
-// @ts-expect-error no type declarations
 import { ClockIcon } from 'react-native-heroicons/outline';
 
 export interface GuideProgressProps {

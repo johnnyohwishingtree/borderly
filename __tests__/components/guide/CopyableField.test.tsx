@@ -1,6 +1,5 @@
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
-// @ts-expect-error no type declarations
 import Clipboard from '@react-native-clipboard/clipboard';
 import { trigger } from 'react-native-haptic-feedback';
 import CopyableField from '../../../src/components/guide/CopyableField';
@@ -166,7 +165,7 @@ describe('CopyableField', () => {
   });
 
   it('shows alert when clipboard operation fails', async () => {
-    mockedClipboard.setString.mockReset().mockRejectedValue(new Error('Clipboard error'));
+    (mockedClipboard.setString.mockReset() as any).mockRejectedValue(new Error('Clipboard error'));
 
     const { getByLabelText } = render(
       <CopyableField
