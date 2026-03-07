@@ -23,6 +23,15 @@ interface CSS {
 
 declare const CSS: CSS | undefined;
 
+// Fallback for CSS.escape when not available
+const cssEscape = (value: string): string => {
+  if (typeof CSS !== 'undefined' && CSS?.escape) {
+    return CSS.escape(value);
+  }
+  // Simple CSS escape fallback for server/test environments
+  return value.replace(/[!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~]/g, '\\$&');
+};
+
 /**
  * Selector building utilities
  */
@@ -99,26 +108,26 @@ export class SelectorBuilder {
 
     // By name attribute
     if (fieldInfo.name) {
-      selectors.push(`input[name="${CSS.escape(fieldInfo.name)}"]`);
-      selectors.push(`select[name="${CSS.escape(fieldInfo.name)}"]`);
-      selectors.push(`textarea[name="${CSS.escape(fieldInfo.name)}"]`);
+      selectors.push(`input[name="${cssEscape(fieldInfo.name)}"]`);
+      selectors.push(`select[name="${cssEscape(fieldInfo.name)}"]`);
+      selectors.push(`textarea[name="${cssEscape(fieldInfo.name)}"]`);
     }
 
     // By ID
     if (fieldInfo.id) {
-      selectors.push(`#${CSS.escape(fieldInfo.id)}`);
+      selectors.push(`#${cssEscape(fieldInfo.id)}`);
     }
 
     // By associated label
     if (fieldInfo.label) {
-      selectors.push(`label:contains("${CSS.escape(fieldInfo.label)}") input`);
-      selectors.push(`label:contains("${CSS.escape(fieldInfo.label)}") select`);
-      selectors.push(`label:contains("${CSS.escape(fieldInfo.label)}") textarea`);
+      selectors.push(`label:contains("${cssEscape(fieldInfo.label)}") input`);
+      selectors.push(`label:contains("${cssEscape(fieldInfo.label)}") select`);
+      selectors.push(`label:contains("${cssEscape(fieldInfo.label)}") textarea`);
     }
 
     // By type and placeholder
     if (fieldInfo.type && fieldInfo.placeholder) {
-      selectors.push(`input[type="${fieldInfo.type}"][placeholder*="${CSS.escape(fieldInfo.placeholder)}"]`);
+      selectors.push(`input[type="${fieldInfo.type}"][placeholder*="${cssEscape(fieldInfo.placeholder)}"]`);
     }
 
     return selectors.join(', ');

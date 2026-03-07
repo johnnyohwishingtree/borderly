@@ -78,10 +78,29 @@ const mockSchema: CountryFormSchema = {
   lastUpdated: '2025-06-01T00:00:00Z',
   portalUrl: 'https://vjw-lp.digital.go.jp/en/',
   portalName: 'Visit Japan Web',
+  metadata: {
+    priority: 1,
+    complexity: 'medium',
+    popularity: 85,
+    lastVerified: '2025-06-01T00:00:00Z',
+    supportedLanguages: ['en', 'ja'],
+    implementationStatus: 'complete',
+    maintenanceFrequency: 'monthly',
+  },
+  changeDetection: {
+    monitoredSelectors: ['form', 'input[type="text"]'],
+    changeThreshold: 0.2,
+    fallbackActions: [{ trigger: 'form_changed', action: 'notify', message: 'Form structure changed' }],
+  },
   submission: {
     earliestBeforeArrival: '14d',
     latestBeforeArrival: '0h',
     recommended: '72h',
+  },
+  portalFlow: {
+    requiresAccount: false,
+    multiStep: true,
+    canSaveProgress: true,
   },
   sections: [
     {
@@ -821,10 +840,29 @@ describe('FormEngine', () => {
           lastUpdated: '2025-06-01T00:00:00Z',
           portalUrl: 'https://test.example.com/',
           portalName: 'Test Portal',
+          metadata: {
+            priority: 1,
+            complexity: 'low',
+            popularity: 50,
+            lastVerified: '2025-06-01T00:00:00Z',
+            supportedLanguages: ['en'],
+            implementationStatus: 'complete',
+            maintenanceFrequency: 'monthly',
+          },
+          changeDetection: {
+            monitoredSelectors: ['form'],
+            changeThreshold: 0.2,
+            fallbackActions: [{ trigger: 'test', action: 'notify' }],
+          },
           submission: {
             earliestBeforeArrival: '14d',
             latestBeforeArrival: '0h',
             recommended: '72h',
+          },
+          portalFlow: {
+            requiresAccount: false,
+            multiStep: false,
+            canSaveProgress: false,
           },
           sections: [
             {

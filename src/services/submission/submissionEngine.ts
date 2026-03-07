@@ -63,6 +63,7 @@ const DEFAULT_CONFIG: SubmissionEngineConfig = {
  * Main submission engine class
  */
 export class SubmissionEngine {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private config: SubmissionEngineConfig;
   private webviewController: WebViewController;
   private scriptRegistry: AutomationScriptRegistry;
@@ -173,7 +174,7 @@ export class SubmissionEngine {
               stepId: step.id,
               error: stepResult.error || 'Unknown error',
               timestamp: new Date().toISOString(),
-              screenshot: stepResult.screenshot || undefined,
+              ...(stepResult.screenshot && { screenshot: stepResult.screenshot }),
               retryable: true
             });
           }

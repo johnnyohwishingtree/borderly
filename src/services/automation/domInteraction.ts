@@ -226,7 +226,7 @@ export class DOMInteraction {
         success: true,
         elementChanged: clickResult.elementChanged,
         pageChanged: pageChanged,
-        newUrl: pageChanged ? finalUrl : (undefined as string | undefined)
+        ...(pageChanged && { newUrl: finalUrl })
       };
 
     } catch (error) {
@@ -620,11 +620,13 @@ export class DOMInteraction {
       return {
         success: result.success,
         error: result.error,
-        data: result.success ? {
-          scrolledTo: result.scrolledTo,
-          x: result.x,
-          y: result.y
-        } : undefined
+        ...(result.success && {
+          data: {
+            scrolledTo: result.scrolledTo,
+            x: result.x,
+            y: result.y
+          }
+        })
       };
     } catch (error) {
       return {
@@ -824,7 +826,7 @@ export class DOMInteraction {
       await executeScript(stabilityScript);
     } catch {
       // If stability check fails, just wait a bit
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 1000));
     }
   }
 

@@ -71,10 +71,29 @@ const mockSchema: CountryFormSchema = {
   lastUpdated: '2024-01-01',
   portalUrl: 'https://www.vjw.digital.go.jp/',
   portalName: 'Visit Japan Web',
+  metadata: {
+    priority: 1,
+    complexity: 'medium',
+    popularity: 90,
+    lastVerified: '2024-01-01T00:00:00Z',
+    supportedLanguages: ['en', 'ja'],
+    implementationStatus: 'complete',
+    maintenanceFrequency: 'monthly',
+  },
+  changeDetection: {
+    monitoredSelectors: ['form', '.form-field'],
+    changeThreshold: 0.2,
+    fallbackActions: [{ trigger: 'form_changed', action: 'notify', message: 'Form changed' }],
+  },
   submission: {
     earliestBeforeArrival: '24 hours',
     latestBeforeArrival: '1 hour',
     recommended: '72 hours',
+  },
+  portalFlow: {
+    requiresAccount: true,
+    multiStep: true,
+    canSaveProgress: true,
   },
   sections: [
     {

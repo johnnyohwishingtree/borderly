@@ -19,7 +19,6 @@ import {
 } from '@/services/submission/submissionEngine';
 import { AutomatedSubmissionView } from '@/components/submission/AutomatedSubmissionView';
 import { Button, LoadingSpinner } from '@/components/ui';
-import { useTripStore } from '@/stores/useTripStore';
 
 // Mock route types since AutomatedSubmission may not be in navigation yet
 type AutomatedSubmissionScreenRouteProp = RouteProp<any, 'AutomatedSubmission'>;

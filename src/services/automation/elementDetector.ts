@@ -77,7 +77,7 @@ export interface ElementInfo {
   isVisible: boolean;
   isEnabled: boolean;
   isClickable: boolean;
-  computedStyle: Partial<CSSStyleDeclaration>;
+  computedStyle: Record<string, string>;
   parentInfo?: {
     tagName: string;
     id?: string;
