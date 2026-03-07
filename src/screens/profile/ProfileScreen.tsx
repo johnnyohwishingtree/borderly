@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -114,7 +115,7 @@ export default function ProfileScreen() {
     return (
       <View className="flex-1 bg-gray-50">
         <EmptyState
-          icon={<Text className="text-4xl text-red-600">⚠️</Text>}
+          icon={<MaterialIcons name="warning" size={32} color="#dc2626" />}
           title="Unable to load profile"
           description={error}
           buttonProps={{
@@ -214,7 +215,7 @@ export default function ProfileScreen() {
             </View>
             {isPassportExpiringSoon(profile.passportExpiry) && (
               <View className="flex-row items-center">
-                <Text className="text-xs text-orange-600 mr-1">⚠️</Text>
+                <MaterialIcons name="warning" size={12} color="#ea580c" style={{ marginRight: 4 }} />
                 <Text className="text-xs text-orange-600">Expiring Soon</Text>
               </View>
             )}
@@ -265,7 +266,10 @@ export default function ProfileScreen() {
                       {formatDate(profile.passportExpiry)}
                     </Text>
                     {isPassportExpiringSoon(profile.passportExpiry) && (
-                      <Text className="text-xs text-orange-600">⚠️ Expiring Soon</Text>
+                      <View className="flex-row items-center">
+                        <MaterialIcons name="warning" size={12} color="#ea580c" style={{ marginRight: 4 }} />
+                        <Text className="text-xs text-orange-600">Expiring Soon</Text>
+                      </View>
                     )}
                   </View>
                 </View>
@@ -375,7 +379,7 @@ export default function ProfileScreen() {
           
           {/* Security Notice */}
           <View className="flex-row items-start">
-            <Text className="text-lg mr-2">🔒</Text>
+            <MaterialIcons name="lock" size={18} color="#374151" style={{ marginRight: 8 }} />
             <View className="flex-1">
               <Text className="text-sm font-medium text-gray-900">Local-First Security</Text>
               <Text className="text-xs text-gray-600 mt-1">

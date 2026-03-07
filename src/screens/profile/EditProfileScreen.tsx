@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -333,7 +334,7 @@ export default function EditProfileScreen() {
         {/* Passport Information Notice */}
         <Card>
           <View className="flex-row items-center mb-3">
-            <Text className="text-lg">🔒</Text>
+            <MaterialIcons name="lock" size={18} color="#374151" />
             <Text className="text-lg font-semibold text-gray-900 ml-2">
               Passport Information
             </Text>
@@ -350,7 +351,10 @@ export default function EditProfileScreen() {
           </Text>
           
           <View className="bg-amber-50 p-3 rounded-lg">
-            <Text className="text-xs font-medium text-amber-800">⚠️ Need to update passport info?</Text>
+            <View className="flex-row items-center">
+              <MaterialIcons name="warning" size={12} color="#d97706" style={{ marginRight: 4 }} />
+              <Text className="text-xs font-medium text-amber-800">Need to update passport info?</Text>
+            </View>
             <Text className="text-xs text-amber-700 mt-1">
               Contact support if your passport details have changed or if you need to rescan your passport.
             </Text>
@@ -361,7 +365,10 @@ export default function EditProfileScreen() {
         <View className="pt-6">
           {hasUnsavedChanges && (
             <View className="bg-yellow-50 p-3 rounded-lg mb-4">
-              <Text className="text-xs font-medium text-yellow-800">⚠️ Unsaved Changes</Text>
+              <View className="flex-row items-center">
+                <MaterialIcons name="warning" size={12} color="#d97706" style={{ marginRight: 4 }} />
+                <Text className="text-xs font-medium text-yellow-800">Unsaved Changes</Text>
+              </View>
               <Text className="text-xs text-yellow-700 mt-1">
                 You have unsaved changes. Make sure to save before leaving this screen.
               </Text>

@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar } from '../../components/ui';
@@ -185,9 +186,12 @@ export default function PassportScanScreen() {
         <ProgressBar progress={50} className="mb-6" />
         
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
-            📷 Passport Information
-          </Text>
+          <View className="flex-row items-center mb-2">
+            <MaterialIcons name="camera-alt" size={24} color="#111827" style={{ marginRight: 8 }} />
+            <Text className="text-2xl font-bold text-gray-900">
+              Passport Information
+            </Text>
+          </View>
           <Text className="text-base text-gray-600">
             Scan your passport or enter information manually. All data is stored securely on your device.
           </Text>
@@ -208,7 +212,7 @@ export default function PassportScanScreen() {
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
                 </Text>
                 <Button
-                  title="📷 Start Camera Scan"
+                  title="Start Camera Scan"
                   onPress={handleStartScanning}
                   variant="primary"
                   size="large"
@@ -228,7 +232,7 @@ export default function PassportScanScreen() {
                   Enter your passport information by hand if camera scanning isn't working
                 </Text>
                 <Button
-                  title="✏️ Enter Manually"
+                  title="Enter Manually"
                   onPress={handleManualEntry}
                   variant="outline"
                   size="medium"
@@ -241,9 +245,12 @@ export default function PassportScanScreen() {
         {/* Manual entry section */}
         {mode === 'manual' && (
           <Card variant="elevated" className="bg-white shadow-lg">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">
-              📝 Passport Information
-            </Text>
+            <View className="flex-row items-center mb-4">
+              <MaterialIcons name="edit" size={20} color="#111827" style={{ marginRight: 8 }} />
+              <Text className="text-lg font-semibold text-gray-900">
+                Passport Information
+              </Text>
+            </View>
 
             <Controller
               control={control}

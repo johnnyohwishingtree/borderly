@@ -116,9 +116,9 @@ export default function LegCard({
   );
 }
 
-// Re-export the country flags constant for use in other components
+// Country names mapping for display
 const COUNTRY_FLAGS = {
-  JPN: { flag: '🇯🇵', name: 'Japan' },
-  MYS: { flag: '🇲🇾', name: 'Malaysia' },
-  SGP: { flag: '🇸🇬', name: 'Singapore' },
+  JPN: { name: 'Japan' },
+  MYS: { name: 'Malaysia' },
+  SGP: { name: 'Singapore' },
 } as const;

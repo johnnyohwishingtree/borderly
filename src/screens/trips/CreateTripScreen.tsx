@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Button, Input, Card } from '../../components/ui';
 import { CountryFlag } from '../../components/trips';
 import { useTripStore } from '../../stores/useTripStore';
@@ -32,9 +33,9 @@ interface LegFormData {
 }
 
 const COUNTRIES = [
-  { code: 'JPN', name: 'Japan', flag: '🇯🇵' },
-  { code: 'MYS', name: 'Malaysia', flag: '🇲🇾' },
-  { code: 'SGP', name: 'Singapore', flag: '🇸🇬' },
+  { code: 'JPN', name: 'Japan' },
+  { code: 'MYS', name: 'Malaysia' },
+  { code: 'SGP', name: 'Singapore' },
 ];
 
 export default function CreateTripScreen() {
@@ -198,7 +199,7 @@ export default function CreateTripScreen() {
                 {COUNTRIES.map((countryOption) => (
                   <Button
                     key={countryOption.code}
-                    title={`${countryOption.flag} ${countryOption.name}`}
+                    title={countryOption.name}
                     onPress={() => updateLeg(index, 'destinationCountry', countryOption.code)}
                     variant={leg.destinationCountry === countryOption.code ? 'primary' : 'outline'}
                     size="small"
@@ -340,7 +341,7 @@ export default function CreateTripScreen() {
           <Card className="mb-6" variant="outlined">
             <View className="p-5">
               <View className="flex-row items-center mb-4">
-                <Text className="text-4xl mr-3">✈️</Text>
+                <MaterialIcons name="flight" size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900">Trip Details</Text>
               </View>
 
@@ -362,7 +363,7 @@ export default function CreateTripScreen() {
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center">
-                <Text className="text-4xl mr-3">🗺️</Text>
+                <MaterialIcons name="place" size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900">Destinations</Text>
               </View>
               <Button
@@ -380,7 +381,7 @@ export default function CreateTripScreen() {
             {legs.length === 0 ? (
               <Card variant="outlined">
                 <View className="p-6 items-center">
-                  <Text className="text-6xl mb-4">🌏</Text>
+                  <MaterialIcons name="public" size={64} color="#9ca3af" style={{ marginBottom: 16 }} />
                   <Text className="text-lg font-semibold text-gray-900 mb-2">No destinations added yet</Text>
                   <Text className="text-sm text-gray-600 text-center mb-4">
                     Add your travel destinations to plan your customs declarations

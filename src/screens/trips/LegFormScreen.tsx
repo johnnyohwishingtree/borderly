@@ -3,6 +3,7 @@ import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Button } from '../../components/ui';
 import { DynamicForm } from '../../components/forms';
+import CountryFlag from '../../components/trips/CountryFlag';
 import { useFormStore } from '../../stores/useFormStore';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { useTripStore } from '../../stores/useTripStore';
@@ -106,14 +107,6 @@ export default function LegFormScreen() {
     }
   };
 
-  const getCountryFlag = (countryCode: string): string => {
-    const flags: Record<string, string> = {
-      'JPN': '🇯🇵',
-      'MYS': '🇲🇾',
-      'SGP': '🇸🇬',
-    };
-    return flags[countryCode] || '🌍';
-  };
 
   if (isLoading) {
     return (
@@ -142,9 +135,12 @@ export default function LegFormScreen() {
       <View className="bg-white border-b border-gray-200 px-4 py-3">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-gray-900">
-              {getCountryFlag(leg.destinationCountry)} {currentForm.countryName}
-            </Text>
+            <View className="flex-row items-center">
+              <CountryFlag countryCode={leg.destinationCountry} size="small" className="mr-2" />
+              <Text className="text-lg font-semibold text-gray-900">
+                {currentForm.countryName}
+              </Text>
+            </View>
             <Text className="text-sm text-gray-600">
               {trip.name} • {currentForm.portalName}
             </Text>
