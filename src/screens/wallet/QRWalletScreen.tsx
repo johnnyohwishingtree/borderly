@@ -1,36 +1,222 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
-import { EmptyState } from '../../components/ui';
+import React, { useState, useCallback } from 'react';
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  TouchableOpacity, 
+  RefreshControl, 
+  Alert,
+  ActionSheetIOS,
+  Platform
+} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { EmptyState, Button, LoadingSpinner } from '../../components/ui';
+import { QRCodeCard, QRFullScreen } from '../../components/wallet';
+import { SavedQRCode } from '../../services/storage/models';
+import { useNavigation } from '@react-navigation/native';
+import { database } from '../../services/storage';
 
 export default function QRWalletScreen() {
-  const [qrCodes, setQrCodes] = useState<any[]>([]);
+  const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedQR, setSelectedQR] = useState<SavedQRCode | null>(null);
+  const [fullScreenVisible, setFullScreenVisible] = useState(false);
+  const navigation = useNavigation();
 
-  useEffect(() => {
-    // Simulate loading QR codes
-    setTimeout(() => {
-      setQrCodes([]); // Empty for now - will be populated when QR functionality is implemented
+  // Load QR codes from database
+  const loadQRCodes = async (showLoading = false) => {
+    try {
+      if (showLoading) setIsLoading(true);
+      
+      const qrCodesCollection = database.collections.get<SavedQRCode>('saved_qr_codes');
+      const allQRCodes = await qrCodesCollection
+        .query()
+        .fetch();
+
+      // Sort by saved date, most recent first
+      const sortedQRCodes = allQRCodes.sort(
+        (a, b) => b.savedAt.getTime() - a.savedAt.getTime()
+      );
+
+      setQrCodes(sortedQRCodes);
+    } catch (error) {
+      console.error('Error loading QR codes:', error);
+      Alert.alert('Error', 'Failed to load QR codes. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Load QR codes when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadQRCodes(true);
+    }, [])
+  );
+
+  // Pull to refresh
+  const onRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    loadQRCodes();
   }, []);
 
-  if (qrCodes.length === 0) {
+  // Handle QR code press (show full screen)
+  const handleQRPress = (qrCode: SavedQRCode) => {
+    setSelectedQR(qrCode);
+    setFullScreenVisible(true);
+  };
+
+  // Handle QR code long press (show options)
+  const handleQRLongPress = (qrCode: SavedQRCode) => {
+    const options = ['View Full Screen', 'Delete', 'Cancel'];
+    const destructiveButtonIndex = 1;
+    const cancelButtonIndex = 2;
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options,
+          destructiveButtonIndex,
+          cancelButtonIndex,
+          title: qrCode.label,
+        },
+        (buttonIndex) => {
+          switch (buttonIndex) {
+            case 0:
+              handleQRPress(qrCode);
+              break;
+            case 1:
+              handleDeleteQR(qrCode);
+              break;
+          }
+        }
+      );
+    } else {
+      Alert.alert(
+        qrCode.label,
+        'Choose an action',
+        [
+          {
+            text: 'View Full Screen',
+            onPress: () => handleQRPress(qrCode),
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => handleDeleteQR(qrCode),
+          },
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+        ]
+      );
+    }
+  };
+
+  // Handle QR code deletion
+  const handleDeleteQR = async (qrCode: SavedQRCode) => {
+    Alert.alert(
+      'Delete QR Code',
+      `Are you sure you want to delete "${qrCode.label}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await database.write(async () => {
+                await qrCode.destroyPermanently();
+              });
+              
+              // Reload QR codes
+              await loadQRCodes();
+              
+              Alert.alert('Success', 'QR code deleted successfully');
+            } catch (error) {
+              console.error('Error deleting QR code:', error);
+              Alert.alert('Error', 'Failed to delete QR code. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Navigate to Add QR screen
+  const handleAddQR = () => {
+    navigation.navigate('AddQR' as never);
+  };
+
+  if (isLoading) {
     return (
       <View className="flex-1 bg-gray-50">
         {/* Header */}
         <View className="bg-white px-4 py-6 border-b border-gray-100">
           <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
           <Text className="text-base text-gray-600 mt-1">
-            Your saved entry codes
+            Loading your saved codes...
           </Text>
         </View>
 
-        <EmptyState
-          icon={<Text className="text-4xl">📱</Text>}
-          title="No QR codes saved"
-          description="Complete trip submissions to collect QR codes for faster border crossings"
-          variant="illustration"
-        />
+        <View className="flex-1 items-center justify-center">
+          <LoadingSpinner />
+        </View>
+      </View>
+    );
+  }
+
+  if (qrCodes.length === 0) {
+    return (
+      <View className="flex-1 bg-gray-50">
+        {/* Header */}
+        <View className="bg-white px-4 py-6 border-b border-gray-100">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
+              <Text className="text-base text-gray-600 mt-1">
+                Your saved entry codes
+              </Text>
+            </View>
+            
+            <TouchableOpacity
+              onPress={handleAddQR}
+              className="bg-blue-600 rounded-full p-2"
+            >
+              <Text className="text-white text-xl font-bold">+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <ScrollView
+          className="flex-1"
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+          }
+        >
+          <View className="flex-1 px-4">
+            <EmptyState
+              icon={<Text className="text-4xl">📱</Text>}
+              title="No QR codes saved"
+              description="Add QR codes from your travel submissions for quick access at border crossings"
+              variant="illustration"
+            />
+            
+            <View className="mt-6">
+              <Button
+                title="Add QR Code"
+                onPress={handleAddQR}
+                variant="primary"
+              />
+            </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -39,13 +225,55 @@ export default function QRWalletScreen() {
     <View className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 py-6 border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
-        <Text className="text-base text-gray-600 mt-1">
-          {qrCodes.length} saved code{qrCodes.length !== 1 ? 's' : ''}
-        </Text>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
+            <Text className="text-base text-gray-600 mt-1">
+              {qrCodes.length} saved code{qrCodes.length !== 1 ? 's' : ''}
+            </Text>
+          </View>
+          
+          <TouchableOpacity
+            onPress={handleAddQR}
+            className="bg-blue-600 rounded-full p-2"
+          >
+            <Text className="text-white text-xl font-bold">+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* QR Code list will be implemented here */}
+      {/* QR Code List */}
+      <ScrollView
+        className="flex-1 px-4"
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View className="py-4">
+          {qrCodes.map((qrCode) => (
+            <QRCodeCard
+              key={qrCode.id}
+              qrCode={qrCode}
+              onPress={handleQRPress}
+              onLongPress={handleQRLongPress}
+            />
+          ))}
+        </View>
+
+        {/* Bottom spacing */}
+        <View className="h-20" />
+      </ScrollView>
+
+      {/* Full Screen QR Display */}
+      <QRFullScreen
+        qrCode={selectedQR}
+        visible={fullScreenVisible}
+        onClose={() => {
+          setFullScreenVisible(false);
+          setSelectedQR(null);
+        }}
+        onDelete={handleDeleteQR}
+      />
     </View>
   );
 }

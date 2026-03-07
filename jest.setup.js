@@ -202,6 +202,81 @@ jest.mock('@nozbe/watermelondb/Schema/migrations', () => ({
   createTable: jest.fn(),
 }));
 
+// Mock react-native-image-picker
+jest.mock('react-native-image-picker', () => ({
+  launchCamera: jest.fn((options, callback) => {
+    // Mock successful image capture
+    callback({
+      didCancel: false,
+      errorMessage: null,
+      assets: [{
+        uri: 'file://mock-image.jpg',
+        base64: 'mockBase64String',
+        width: 1000,
+        height: 1000,
+        fileSize: 50000,
+      }],
+    });
+  }),
+  launchImageLibrary: jest.fn((options, callback) => {
+    // Mock successful image selection
+    callback({
+      didCancel: false,
+      errorMessage: null,
+      assets: [{
+        uri: 'file://mock-image.jpg',
+        base64: 'mockBase64String',
+        width: 1000,
+        height: 1000,
+        fileSize: 50000,
+      }],
+    });
+  }),
+  MediaType: {
+    photo: 'photo',
+    video: 'video',
+    mixed: 'mixed',
+  },
+}));
+
+// Mock react-native-qrcode-scanner
+jest.mock('react-native-qrcode-scanner', () => {
+  const React = require('react');
+  const mockComponent = ({ children, ...props }) => React.createElement('QRCodeScanner', props, children);
+  mockComponent.displayName = 'QRCodeScanner';
+  return mockComponent;
+});
+
+// Mock react-native-qrcode-svg
+jest.mock('react-native-qrcode-svg', () => {
+  const React = require('react');
+  const mockComponent = ({ children, ...props }) => React.createElement('QRCodeSVG', props, children);
+  mockComponent.displayName = 'QRCodeSVG';
+  return mockComponent;
+});
+
+// Mock react-native-vector-icons
+jest.mock('react-native-vector-icons/MaterialIcons', () => {
+  const React = require('react');
+  const mockIcon = ({ name, ...props }) => React.createElement('MaterialIcon', { ...props, iconName: name });
+  mockIcon.displayName = 'MaterialIcon';
+  return mockIcon;
+});
+
+jest.mock('react-native-vector-icons/Ionicons', () => {
+  const React = require('react');
+  const mockIcon = ({ name, ...props }) => React.createElement('Ionicon', { ...props, iconName: name });
+  mockIcon.displayName = 'Ionicon';
+  return mockIcon;
+});
+
+jest.mock('react-native-vector-icons/FontAwesome', () => {
+  const React = require('react');
+  const mockIcon = ({ name, ...props }) => React.createElement('FontAwesomeIcon', { ...props, iconName: name });
+  mockIcon.displayName = 'FontAwesomeIcon';
+  return mockIcon;
+});
+
 // Mock our storage services to avoid import issues
 jest.mock('@/services/storage/database', () => ({
   databaseService: {
