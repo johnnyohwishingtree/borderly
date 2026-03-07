@@ -247,7 +247,7 @@ When you receive a comment like "@claude Tests are failing on this PR":
 
 ### Native Dependency Rules
 
-- **Never add a native dependency without verifying it resolves at bundle time.** After adding a package that includes native code (e.g., `react-native-haptic-feedback`), run `pnpm install` and verify the module resolves by building the app or running the Metro bundler. On CI (ubuntu), the Metro bundle check will catch unresolved modules.
+- **Never add a native dependency without also adding a web mock.** When you add a package that includes native code (e.g., `react-native-haptic-feedback`, `react-native-heroicons`), you MUST also: (1) create a mock in `e2e/mocks/`, (2) add an alias in `webpack.config.js`, and (3) verify `pnpm e2e` passes. Native modules install fine but **crash at runtime in the browser** — webpack won't catch this at build time.
 - **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
 - **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
 
