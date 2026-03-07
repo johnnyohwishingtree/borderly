@@ -8,7 +8,8 @@ import { z } from 'zod';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, Input, ProgressBar, ErrorMessage, useErrorMessage } from '../../components/ui';
+import { Button, Card, Input, ProgressBar } from '../../components/ui';
+import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';

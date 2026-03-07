@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import { Button, ErrorMessage, useErrorMessage } from '../../components/ui';
+import { Button } from '../../components/ui';
+import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
 import CountryFlag from '../../components/trips/CountryFlag';
 import { useFormStore } from '../../stores/useFormStore';
