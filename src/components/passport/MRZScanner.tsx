@@ -53,16 +53,15 @@ export default function MRZScannerComponent({
   
   // Performance monitoring for optimization feedback
   const performanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Reset scanner when component mounts
     scannerRef.current.reset();
 
     // Timeout: if camera doesn't initialize within 10 seconds, show error
-    const cameraTimeout = setTimeout(() => {
-      if (permissionGranted === null) {
-        setPermissionGranted(false);
-      }
+    cameraTimeoutRef.current = setTimeout(() => {
+      setPermissionGranted(false);
     }, 10000);
 
     // Start performance monitoring
@@ -77,7 +76,10 @@ export default function MRZScannerComponent({
 
     return () => {
       // Cleanup on unmount
-      clearTimeout(cameraTimeout);
+      if (cameraTimeoutRef.current) {
+        clearTimeout(cameraTimeoutRef.current);
+        cameraTimeoutRef.current = null;
+      }
       setIsScanning(false);
       
       // Clear performance timer
@@ -134,6 +136,11 @@ export default function MRZScannerComponent({
   };
 
   const handleCameraReady = () => {
+    // Cancel the initialization timeout — camera is ready
+    if (cameraTimeoutRef.current) {
+      clearTimeout(cameraTimeoutRef.current);
+      cameraTimeoutRef.current = null;
+    }
     setPermissionGranted(true);
     setIsScanning(true);
   };
