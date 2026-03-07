@@ -14,7 +14,34 @@ jest.mock('../../../src/services/passport/mrzScanner', () => ({
       guidance: 'Initializing scanner...'
     }),
     reset: jest.fn(),
-    getStats: jest.fn(() => ({ attempts: 0, lastScan: null }))
+    dispose: jest.fn(),
+    isDisposedState: jest.fn(() => false),
+    getStats: jest.fn(() => ({ attempts: 0, lastScan: null })),
+    getPerformanceMetrics: jest.fn(() => ({
+      successRate: 0,
+      averageAttempts: 0,
+      avgProcessingTime: 0,
+      framesSkipped: 0,
+      deviceTier: 'medium',
+    }))
+  })),
+  createOptimizedMRZScanner: jest.fn().mockImplementation(() => ({
+    processFrame: jest.fn().mockReturnValue({
+      type: 'no_mrz',
+      confidence: 0,
+      guidance: 'Initializing scanner...'
+    }),
+    reset: jest.fn(),
+    dispose: jest.fn(),
+    isDisposedState: jest.fn(() => false),
+    getStats: jest.fn(() => ({ attempts: 0, lastScan: null })),
+    getPerformanceMetrics: jest.fn(() => ({
+      successRate: 0,
+      averageAttempts: 0,
+      avgProcessingTime: 0,
+      framesSkipped: 0,
+      deviceTier: 'medium',
+    }))
   }))
 }));
 
