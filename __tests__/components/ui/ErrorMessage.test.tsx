@@ -1,4 +1,4 @@
-import React from 'react';
+// React imported for JSX
 import { Text, Pressable } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { ErrorMessage, useErrorMessage } from '../../../src/components/ui/ErrorMessage';
