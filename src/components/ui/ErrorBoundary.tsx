@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Button from './Button';
+import { createAppError, logError, ERROR_CODES } from '../../utils/errorHandling';
 
 export interface ErrorBoundaryState {
   hasError: boolean;
@@ -73,8 +74,17 @@ export default class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error to crash reporting service in production
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Convert to AppError and log with proper context
+    const appError = createAppError(ERROR_CODES.UNKNOWN_ERROR, error.message);
+    logError(appError, {
+      screen: 'ErrorBoundary',
+      action: 'componentDidCatch',
+      timestamp: Date.now(),
+      errorInfo: {
+        componentStack: errorInfo.componentStack,
+        errorBoundary: this.constructor.name,
+      },
+    });
     
     // Call the optional onError callback
     if (this.props.onError) {
