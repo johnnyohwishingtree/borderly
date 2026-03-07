@@ -596,8 +596,140 @@ class RegressionDetectionService {
     const tStat = Math.abs(mean1 - mean2) / 
       (pooledStd * Math.sqrt(1 / sample1.length + 1 / sample2.length));
 
-    // Simplified significance calculation
-    return Math.min(0.99, tStat / 3); // Approximate p-value conversion
+    // Calculate degrees of freedom
+    const df = sample1.length + sample2.length - 2;
+    
+    // Proper t-distribution p-value calculation
+    return this.calculateTDistributionPValue(tStat, df);
+  }
+
+  private calculateTDistributionPValue(tStat: number, df: number): number {
+    // Approximate p-value calculation for t-distribution using series expansion
+    // This provides a much better approximation than the previous simplified method
+    
+    if (df <= 0) return 0.5;
+    if (tStat < 0) tStat = -tStat;
+    
+    // For large degrees of freedom (>30), approximate with normal distribution
+    if (df >= 30) {
+      return this.normalCDF(-tStat) * 2; // Two-tailed test
+    }
+    
+    // For smaller df, use Student's t-distribution approximation
+    // Using continued fraction approximation for incomplete beta function
+    const x = df / (df + tStat * tStat);
+    const a = df / 2;
+    const b = 0.5;
+    
+    // Incomplete beta function approximation
+    let betaIncomplete;
+    if (x === 0) {
+      betaIncomplete = 0;
+    } else if (x === 1) {
+      betaIncomplete = 1;
+    } else {
+      // Series expansion for incomplete beta function
+      betaIncomplete = this.betaIncompleteApprox(x, a, b);
+    }
+    
+    return betaIncomplete; // This gives us the p-value directly
+  }
+
+  private normalCDF(x: number): number {
+    // Standard normal cumulative distribution function approximation
+    // Abramowitz and Stegun approximation
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x);
+    
+    const a1 = 0.254829592;
+    const a2 = -0.284496736;
+    const a3 = 1.421413741;
+    const a4 = -1.453152027;
+    const a5 = 1.061405429;
+    const p = 0.3275911;
+    
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    
+    return 0.5 * (1.0 + sign * y);
+  }
+
+  private betaIncompleteApprox(x: number, a: number, b: number): number {
+    // Simplified incomplete beta function for our use case
+    // Using continued fraction method
+    const EPSILON = 1e-12;
+    const maxIterations = 100;
+    
+    if (x >= 1) return 1;
+    if (x <= 0) return 0;
+    
+    // Use symmetry if needed
+    let flip = false;
+    if (x > (a + 1) / (a + b + 2)) {
+      flip = true;
+      const temp = a;
+      a = b;
+      b = temp;
+      x = 1 - x;
+    }
+    
+    // Continued fraction calculation
+    let c = 1;
+    let d = 1 - (a + b) * x / (a + 1);
+    if (Math.abs(d) < EPSILON) d = EPSILON;
+    d = 1 / d;
+    let h = d;
+    
+    for (let m = 1; m <= maxIterations; m++) {
+      const m2 = 2 * m;
+      const aa = m * (b - m) * x / ((a + m2 - 1) * (a + m2));
+      d = 1 + aa * d;
+      if (Math.abs(d) < EPSILON) d = EPSILON;
+      c = 1 + aa / c;
+      if (Math.abs(c) < EPSILON) c = EPSILON;
+      d = 1 / d;
+      h *= d * c;
+      
+      const aa2 = -(a + m) * (a + b + m) * x / ((a + m2) * (a + m2 + 1));
+      d = 1 + aa2 * d;
+      if (Math.abs(d) < EPSILON) d = EPSILON;
+      c = 1 + aa2 / c;
+      if (Math.abs(c) < EPSILON) c = EPSILON;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      
+      if (Math.abs(del - 1) < EPSILON) break;
+    }
+    
+    let result = Math.exp(a * Math.log(x) + b * Math.log(1 - x) - this.logBeta(a, b)) * h / a;
+    return flip ? 1 - result : result;
+  }
+
+  private logBeta(a: number, b: number): number {
+    // Log beta function approximation
+    return this.logGamma(a) + this.logGamma(b) - this.logGamma(a + b);
+  }
+
+  private logGamma(x: number): number {
+    // Stirling's approximation for log gamma function
+    if (x < 12) {
+      let product = 1;
+      while (x < 12) {
+        product *= x;
+        x += 1;
+      }
+      return Math.log(product) + this.logGamma(x);
+    }
+    
+    const c0 = 0.083333333333333333;
+    const c1 = -0.002777777777777778;
+    const c3 = 0.007936507936507937;
+    const c5 = -0.005952380952380952;
+    
+    const z = 1 / (x * x);
+    return (x - 0.5) * Math.log(x) - x + 0.5 * Math.log(2 * Math.PI) + 
+           z * (c0 + z * (c1 + z * (c3 + z * c5)));
   }
 
   private calculateSeverity(

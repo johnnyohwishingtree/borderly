@@ -195,7 +195,9 @@ describe('UserFlowAnalytics', () => {
       const flowId = analytics.startFlow('slow_flow', 'session_1');
       const stepId = analytics.addStep(flowId, 'slow_step', 'SlowScreen', 'slow_action');
       
-      // Complete the step with success
+      // Mock a step that takes 15 seconds (should be flagged as friction)
+      // Simulate slow step without actual timeout
+      (analytics as any).updateStepDuration(stepId, 15000);
       analytics.completeStep(flowId, stepId, true);
       
       // Complete the flow

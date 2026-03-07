@@ -634,32 +634,199 @@ class UserFlowAnalytics {
   }
 
   private analyzeCommonPaths(flows: UserFlow[]): any[] {
-    // Simplified implementation
-    return [
-      { path: 'welcome -> passport_scan -> confirm_profile', frequency: 85, successRate: 78 },
-      { path: 'trip_list -> create_trip -> add_country', frequency: 92, successRate: 89 }
-    ];
+    if (flows.length === 0) return [];
+
+    // Extract paths from flows and count frequency
+    const pathCounts = new Map<string, { count: number; successful: number }>();
+    
+    flows.forEach(flow => {
+      if (flow.steps.length > 0) {
+        const path = flow.steps.map(s => s.name).join(' -> ');
+        const current = pathCounts.get(path) || { count: 0, successful: 0 };
+        current.count++;
+        if (flow.success) {
+          current.successful++;
+        }
+        pathCounts.set(path, current);
+      }
+    });
+
+    // Convert to results and sort by frequency
+    const results = Array.from(pathCounts.entries()).map(([path, stats]) => ({
+      path,
+      frequency: stats.count,
+      successRate: Math.round((stats.successful / stats.count) * 100),
+      absoluteCount: stats.count,
+      relativeFrequency: Math.round((stats.count / flows.length) * 100)
+    }));
+
+    return results
+      .sort((a, b) => b.frequency - a.frequency)
+      .slice(0, 10); // Top 10 most common paths
   }
 
   private analyzeRetryPatterns(flows: UserFlow[]): any[] {
-    return [
-      { step: 'passport_scan', avgRetries: 2.3, successAfterRetry: 87 },
-      { step: 'biometric_setup', avgRetries: 1.1, successAfterRetry: 95 }
-    ];
+    if (flows.length === 0) return [];
+
+    const stepRetries = new Map<string, { attempts: number[]; successes: number }>();
+    
+    flows.forEach(flow => {
+      // Track retry patterns by looking for repeated step names in sequence
+      const stepCounts = new Map<string, number>();
+      
+      flow.steps.forEach((step, index) => {
+        stepCounts.set(step.name, (stepCounts.get(step.name) || 0) + 1);
+        
+        // If this step name appeared before, it's likely a retry
+        if (stepCounts.get(step.name)! > 1) {
+          const current = stepRetries.get(step.name) || { attempts: [], successes: 0 };
+          current.attempts.push(stepCounts.get(step.name)!);
+          if (step.success) {
+            current.successes++;
+          }
+          stepRetries.set(step.name, current);
+        }
+      });
+    });
+
+    const results = Array.from(stepRetries.entries()).map(([stepName, data]) => {
+      const avgRetries = data.attempts.length > 0 ? 
+        data.attempts.reduce((sum, count) => sum + count, 0) / data.attempts.length : 0;
+      const successAfterRetry = data.attempts.length > 0 ? 
+        Math.round((data.successes / data.attempts.length) * 100) : 0;
+      
+      return {
+        step: stepName,
+        avgRetries: Math.round(avgRetries * 10) / 10,
+        successAfterRetry,
+        totalRetryInstances: data.attempts.length,
+        maxRetries: data.attempts.length > 0 ? Math.max(...data.attempts) : 0
+      };
+    });
+
+    return results
+      .filter(r => r.avgRetries > 1) // Only include steps with actual retries
+      .sort((a, b) => b.avgRetries - a.avgRetries);
   }
 
   private analyzeTimeSpent(flows: UserFlow[]): any[] {
-    return [
-      { step: 'confirm_profile', avgTime: 45000, userSatisfaction: 72 },
-      { step: 'form_completion', avgTime: 120000, userSatisfaction: 84 }
-    ];
+    if (flows.length === 0) return [];
+
+    const stepTimes = new Map<string, number[]>();
+    
+    flows.forEach(flow => {
+      flow.steps.forEach(step => {
+        if (!stepTimes.has(step.name)) {
+          stepTimes.set(step.name, []);
+        }
+        stepTimes.get(step.name)!.push(step.duration);
+      });
+    });
+
+    const results = Array.from(stepTimes.entries()).map(([stepName, durations]) => {
+      durations.sort((a, b) => a - b);
+      const avgTime = durations.reduce((sum, d) => sum + d, 0) / durations.length;
+      const medianTime = durations[Math.floor(durations.length / 2)];
+      const p95Time = durations[Math.floor(durations.length * 0.95)];
+      
+      // Estimate user satisfaction based on time thresholds
+      // Lower times generally correlate with higher satisfaction
+      let userSatisfaction = 100;
+      if (avgTime > 60000) userSatisfaction -= 30; // > 1 minute
+      if (avgTime > 30000) userSatisfaction -= 20; // > 30 seconds
+      if (avgTime > 10000) userSatisfaction -= 15; // > 10 seconds
+      if (avgTime > 5000) userSatisfaction -= 10;  // > 5 seconds
+      
+      return {
+        step: stepName,
+        avgTime: Math.round(avgTime),
+        medianTime: Math.round(medianTime),
+        p95Time: Math.round(p95Time),
+        userSatisfaction: Math.max(0, Math.min(100, userSatisfaction)),
+        sampleSize: durations.length,
+        timeVariance: this.calculateVariance(durations)
+      };
+    });
+
+    return results.sort((a, b) => b.avgTime - a.avgTime);
   }
 
   private analyzeDeviceCorrelation(flows: UserFlow[]): any[] {
-    return [
-      { metric: 'low_memory_device', correlation: -0.3 },
-      { metric: 'slow_network', correlation: -0.5 }
-    ];
+    if (flows.length === 0) return [];
+
+    // Analyze correlation between device characteristics and performance
+    const deviceMetrics = new Map<string, { performances: number[]; deviceTypes: string[] }>();
+    
+    flows.forEach(flow => {
+      const avgStepDuration = flow.steps.length > 0 ? 
+        flow.steps.reduce((sum, s) => sum + s.duration, 0) / flow.steps.length : 0;
+      
+      // Simulate device correlation analysis
+      // In a real implementation, this would come from actual device info
+      const deviceInfo = this.inferDeviceCharacteristics(avgStepDuration, flow);
+      
+      Object.entries(deviceInfo).forEach(([metric, value]) => {
+        if (!deviceMetrics.has(metric)) {
+          deviceMetrics.set(metric, { performances: [], deviceTypes: [] });
+        }
+        const data = deviceMetrics.get(metric)!;
+        data.performances.push(avgStepDuration);
+        data.deviceTypes.push(String(value));
+      });
+    });
+
+    const correlations = Array.from(deviceMetrics.entries()).map(([metric, data]) => {
+      const correlation = this.calculateCorrelation(
+        data.performances,
+        data.deviceTypes.map(t => t === 'true' || t === 'slow' ? 1 : 0)
+      );
+      
+      return {
+        metric,
+        correlation: Math.round(correlation * 100) / 100,
+        sampleSize: data.performances.length,
+        averagePerformanceImpact: Math.round(
+          data.performances.reduce((sum, p) => sum + p, 0) / data.performances.length
+        )
+      };
+    });
+
+    return correlations
+      .filter(c => Math.abs(c.correlation) > 0.1) // Only significant correlations
+      .sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation));
+  }
+
+  private calculateVariance(numbers: number[]): number {
+    if (numbers.length === 0) return 0;
+    const mean = numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
+    const squaredDiffs = numbers.map(n => Math.pow(n - mean, 2));
+    return squaredDiffs.reduce((sum, d) => sum + d, 0) / numbers.length;
+  }
+
+  private inferDeviceCharacteristics(avgDuration: number, flow: any): Record<string, any> {
+    // Simulate device characteristic inference based on performance patterns
+    return {
+      low_memory_device: avgDuration > 8000,
+      slow_network: flow.steps.some((s: any) => s.name.includes('network') && s.duration > 5000),
+      old_device: avgDuration > 12000,
+      poor_camera_performance: flow.steps.some((s: any) => s.name.includes('camera') && s.duration > 10000)
+    };
+  }
+
+  private calculateCorrelation(x: number[], y: number[]): number {
+    if (x.length !== y.length || x.length === 0) return 0;
+    
+    const n = x.length;
+    const sumX = x.reduce((sum, val) => sum + val, 0);
+    const sumY = y.reduce((sum, val) => sum + val, 0);
+    const sumXY = x.reduce((sum, val, i) => sum + val * y[i], 0);
+    const sumX2 = x.reduce((sum, val) => sum + val * val, 0);
+    const sumY2 = y.reduce((sum, val) => sum + val * val, 0);
+    
+    const numerator = n * sumXY - sumX * sumY;
+    const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+    
+    return denominator === 0 ? 0 : numerator / denominator;
   }
 
   private calculateErrorRate(flows: UserFlow[]): number {
@@ -683,6 +850,32 @@ class UserFlowAnalytics {
       const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
       this.completedFlows = this.completedFlows.filter(f => f.startTime > oneWeekAgo);
     }, 24 * 60 * 60 * 1000); // Daily cleanup
+  }
+
+  /**
+   * Update step duration for testing purposes
+   * @private - For testing only
+   */
+  private updateStepDuration(stepId: string, duration: number): void {
+    // Find step in active flows
+    for (const flow of this.activeFlows.values()) {
+      const step = flow.steps.find(s => s.id === stepId);
+      if (step) {
+        step.duration = duration;
+        step.endTime = step.startTime + duration;
+        break;
+      }
+    }
+    
+    // Also check completed flows
+    for (const flow of this.completedFlows) {
+      const step = flow.steps.find(s => s.id === stepId);
+      if (step) {
+        step.duration = duration;
+        step.endTime = step.startTime + duration;
+        break;
+      }
+    }
   }
 
   /**

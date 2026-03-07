@@ -127,12 +127,12 @@ class ProductionProfiler {
       this.checkForRegression(operation, category, times);
     }
 
-    // Record in performance monitor
+    // Record in performance monitor (with error handling)
     try {
       performanceMonitor.recordMetric(operation, duration, 'ms', category);
     } catch (error) {
-      // Log error but don't let it crash the profiler
-      console.warn('Performance monitor error:', error);
+      console.warn('Performance monitor error (non-critical):', error);
+      // Don't propagate monitor errors as they're not critical for profiler operation
     }
   }
 
@@ -313,35 +313,167 @@ class ProductionProfiler {
   }
 
   private collectMetrics(): ProfilerMetrics | null {
+    try {
+      const timestamp = Date.now();
+      
+      // Collect real metrics from performance monitor and native sources
+      const performanceSummary = performanceMonitor.getPerformanceSummary();
+      const memoryMetrics = this.getMemoryMetrics();
+      const renderMetrics = this.getRenderMetrics();
+      const networkMetrics = this.getNetworkMetrics(performanceSummary.metrics);
+      
+      return {
+        cpu: {
+          usage: this.getCPUUsage(),
+          timestamp
+        },
+        memory: memoryMetrics,
+        render: renderMetrics,
+        network: networkMetrics
+      };
+    } catch (error) {
+      console.error('Error collecting profiler metrics:', error);
+      return null;
+    }
+  }
+
+  private getCPUUsage(): number {
+    // In React Native, CPU usage is not directly available through JS
+    // We approximate it using JavaScript execution time patterns
+    const start = performance.now();
+    let iterations = 0;
+    const maxTime = 1; // 1ms budget for measurement
+
+    // Perform a standardized computation to measure JS thread responsiveness
+    while (performance.now() - start < maxTime) {
+      Math.random();
+      iterations++;
+    }
+
+    // Normalize based on expected performance (higher iterations = lower CPU load)
+    // Typical baseline: ~100,000 iterations per ms on modern devices
+    const baselineIterations = 100000;
+    const efficiency = Math.min(iterations / baselineIterations, 1);
+    return Math.max(0, (1 - efficiency) * 100);
+  }
+
+  private getMemoryMetrics(): ProfilerMetrics['memory'] {
     const timestamp = Date.now();
     
-    // In a real React Native app, these would come from native modules
-    // For now, we'll use placeholder values
-    return {
-      cpu: {
-        usage: Math.random() * 100, // Placeholder
-        timestamp
-      },
-      memory: {
-        used: Math.random() * 1024 * 1024 * 1024, // Placeholder
-        total: 2 * 1024 * 1024 * 1024, // Placeholder
-        percentage: Math.random() * 100,
-        timestamp
-      },
-      render: {
-        frameDrops: Math.floor(Math.random() * 10),
-        averageFPS: 58 + Math.random() * 4,
-        slowFrames: Math.floor(Math.random() * 5),
-        timestamp
-      },
-      network: {
-        requestCount: Math.floor(Math.random() * 10),
-        totalBytes: Math.random() * 1024 * 1024,
-        averageLatency: 100 + Math.random() * 400,
-        errors: Math.floor(Math.random() * 3),
-        timestamp
+    // Use performance.measureUserAgentSpecificMemory if available (Chrome/Edge)
+    if ('measureUserAgentSpecificMemory' in performance) {
+      try {
+        // Note: This is async, so we'll use stored values
+        const storedMemory = this.getStoredMemoryMetrics();
+        if (storedMemory) {
+          return storedMemory;
+        }
+      } catch (error) {
+        // Fallback to estimation
       }
+    }
+
+    // Estimate memory usage based on performance degradation
+    // and collected metrics history
+    const metrics = performanceMonitor.getPerformanceSummary('memory');
+    let estimatedUsage = 512 * 1024 * 1024; // 512MB baseline
+    let total = 2 * 1024 * 1024 * 1024; // 2GB typical mobile
+
+    if (metrics.averages.memory_usage) {
+      const percentage = metrics.averages.memory_usage;
+      estimatedUsage = (total * percentage) / 100;
+    }
+
+    return {
+      used: estimatedUsage,
+      total,
+      percentage: (estimatedUsage / total) * 100,
+      timestamp
     };
+  }
+
+  private getRenderMetrics(): ProfilerMetrics['render'] {
+    const timestamp = Date.now();
+    
+    // Track frame drops using React Native's performance observer if available
+    // or estimate based on animation performance
+    let frameDrops = 0;
+    let averageFPS = 60;
+    let slowFrames = 0;
+
+    // Get navigation timing data to estimate render performance
+    if (typeof performance !== 'undefined' && performance.getEntries) {
+      const renderEntries = performance.getEntries().filter(entry => 
+        entry.entryType === 'measure' && entry.name.includes('render')
+      );
+
+      if (renderEntries.length > 0) {
+        const recentEntries = renderEntries.slice(-10);
+        const avgDuration = recentEntries.reduce((sum, entry) => sum + entry.duration, 0) / recentEntries.length;
+        
+        // Estimate FPS based on render duration (16.67ms = 60fps)
+        averageFPS = Math.min(60, 1000 / (avgDuration + 16.67));
+        frameDrops = recentEntries.filter(entry => entry.duration > 16.67).length;
+        slowFrames = recentEntries.filter(entry => entry.duration > 33.33).length;
+      }
+    }
+
+    return {
+      frameDrops,
+      averageFPS,
+      slowFrames,
+      timestamp
+    };
+  }
+
+  private getNetworkMetrics(metrics: any[]): ProfilerMetrics['network'] {
+    const timestamp = Date.now();
+    const networkMetrics = metrics.filter(m => m.category === 'network');
+    
+    // Aggregate network performance data
+    let requestCount = 0;
+    let totalBytes = 0;
+    let totalLatency = 0;
+    let errors = 0;
+
+    // Use Resource Timing API if available
+    if (typeof performance !== 'undefined' && performance.getEntriesByType) {
+      const resourceEntries = performance.getEntriesByType('resource');
+      const recentEntries = resourceEntries.slice(-50); // Last 50 requests
+
+      requestCount = recentEntries.length;
+      totalLatency = recentEntries.reduce((sum, entry) => sum + entry.duration, 0);
+      
+      // Estimate data transfer (not available in all browsers)
+      totalBytes = recentEntries.reduce((sum, entry) => {
+        return sum + (entry.transferSize || 0);
+      }, 0);
+
+      // Count failed requests (status indicators not available in Resource Timing)
+      // We'll estimate errors based on very slow requests
+      errors = recentEntries.filter(entry => entry.duration > 5000).length;
+    }
+
+    // Fallback to performance monitor data
+    if (requestCount === 0 && networkMetrics.length > 0) {
+      requestCount = networkMetrics.length;
+      totalLatency = networkMetrics.reduce((sum, m) => sum + m.value, 0);
+      errors = networkMetrics.filter(m => m.metadata?.error).length;
+    }
+
+    return {
+      requestCount,
+      totalBytes,
+      averageLatency: requestCount > 0 ? totalLatency / requestCount : 0,
+      errors,
+      timestamp
+    };
+  }
+
+  private getStoredMemoryMetrics(): ProfilerMetrics['memory'] | null {
+    // This would integrate with a native module or stored measurements
+    // For now, return null to use estimation fallback
+    return null;
   }
 
   private checkForRegression(operation: string, category: string, times: number[]): void {
@@ -406,27 +538,128 @@ class ProductionProfiler {
   }
 
   private identifyCriticalPaths(flowSummary: any): any[] {
-    // Analyze flow performance data to identify critical user paths
-    // This would process real flow data from performanceMonitor
-    return [
-      {
-        flow: 'onboarding',
-        averageDuration: 45000,
-        dropOffRate: 0.15,
-        bottlenecks: [
-          { step: 'passport_scan', duration: 8000, impact: 'High user frustration with camera setup' },
-          { step: 'biometric_setup', duration: 5000, impact: 'Technical complexity confusion' }
-        ]
-      },
-      {
-        flow: 'form_completion',
-        averageDuration: 25000,
-        dropOffRate: 0.08,
-        bottlenecks: [
-          { step: 'form_generation', duration: 2000, impact: 'Perceived slowness in form loading' }
-        ]
+    try {
+      // Analyze real flow performance data to identify critical user paths
+      const exportedMetrics = performanceMonitor.exportMetrics();
+      const userFlowMetrics = exportedMetrics.activeFlows;
+      const criticalPaths: any[] = [];
+
+      // Group flows by name and analyze performance
+      const flowsByName = new Map<string, any[]>();
+      userFlowMetrics.forEach(flow => {
+        if (!flowsByName.has(flow.flowName)) {
+          flowsByName.set(flow.flowName, []);
+        }
+        flowsByName.get(flow.flowName)!.push(flow);
+      });
+
+      // Analyze each flow type
+      flowsByName.forEach((flows, flowName) => {
+        const completedFlows = flows.filter(f => f.duration !== undefined);
+        if (completedFlows.length === 0) return;
+
+        const totalDuration = completedFlows.reduce((sum, f) => sum + f.duration!, 0);
+        const averageDuration = totalDuration / completedFlows.length;
+        const dropOffRate = (flows.length - completedFlows.length) / flows.length;
+        
+        // Identify bottlenecks by analyzing step performance
+        const bottlenecks = this.analyzeFlowBottlenecks(flows);
+        
+        // Consider critical if:
+        // 1. High drop-off rate (>10%)
+        // 2. Long average duration (>30s)
+        // 3. Contains slow steps (>5s)
+        const isCritical = dropOffRate > 0.1 || 
+                          averageDuration > 30000 || 
+                          bottlenecks.some(b => b.duration > 5000);
+
+        if (isCritical) {
+          criticalPaths.push({
+            flow: flowName,
+            averageDuration,
+            dropOffRate,
+            bottlenecks,
+            sampleSize: flows.length,
+            successRate: completedFlows.length / flows.length
+          });
+        }
+      });
+
+      // Sort by criticality (drop-off rate + duration impact)
+      criticalPaths.sort((a, b) => {
+        const scoreA = a.dropOffRate * 100 + (a.averageDuration / 1000);
+        const scoreB = b.dropOffRate * 100 + (b.averageDuration / 1000);
+        return scoreB - scoreA;
+      });
+
+      return criticalPaths;
+    } catch (error) {
+      console.error('Error identifying critical paths:', error);
+      // Return empty array rather than hardcoded data on error
+      return [];
+    }
+  }
+
+  private analyzeFlowBottlenecks(flows: any[]): any[] {
+    const stepPerformance = new Map<string, number[]>();
+    
+    // Aggregate step durations across all flows
+    flows.forEach(flow => {
+      if (flow.steps) {
+        flow.steps.forEach((step: any) => {
+          if (!stepPerformance.has(step.stepName)) {
+            stepPerformance.set(step.stepName, []);
+          }
+          stepPerformance.get(step.stepName)!.push(step.duration);
+        });
       }
-    ];
+    });
+
+    const bottlenecks: any[] = [];
+    
+    // Identify steps with poor performance
+    stepPerformance.forEach((durations, stepName) => {
+      const averageDuration = durations.reduce((sum, d) => sum + d, 0) / durations.length;
+      const maxDuration = Math.max(...durations);
+      
+      // Consider a bottleneck if:
+      // 1. Average duration > 3 seconds
+      // 2. Has high variance (max > 2x average)
+      // 3. Consistently slow across samples
+      if (averageDuration > 3000 || maxDuration > averageDuration * 2) {
+        let impact = 'Performance degradation';
+        
+        // Categorize impact based on step type and duration
+        if (stepName.includes('camera') || stepName.includes('scan')) {
+          impact = averageDuration > 8000 ? 
+            'High user frustration with camera operations' :
+            'Moderate camera performance issues';
+        } else if (stepName.includes('form')) {
+          impact = averageDuration > 3000 ? 
+            'Perceived slowness in form operations' :
+            'Minor form performance impact';
+        } else if (stepName.includes('biometric') || stepName.includes('auth')) {
+          impact = 'Authentication complexity and delays';
+        }
+        
+        bottlenecks.push({
+          step: stepName,
+          duration: averageDuration,
+          maxDuration,
+          sampleSize: durations.length,
+          impact
+        });
+      }
+    });
+    
+    // Sort bottlenecks by severity (duration and frequency)
+    bottlenecks.sort((a, b) => {
+      const severityA = a.duration * (a.sampleSize / flows.length);
+      const severityB = b.duration * (b.sampleSize / flows.length);
+      return severityB - severityA;
+    });
+    
+    return bottlenecks.slice(0, 5); // Return top 5 bottlenecks
   }
 
   private generateOptimizationRecommendations(criticalPaths: any[]): void {
