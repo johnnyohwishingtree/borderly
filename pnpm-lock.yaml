@@ -152,6 +152,9 @@ importers:
       babel-plugin-module-resolver:
         specifier: ^5.0.2
         version: 5.0.2
+      css-loader:
+        specifier: ^7.1.4
+        version: 7.1.4(webpack@5.105.4)
       eslint:
         specifier: ^8.19.0
         version: 8.57.1
@@ -161,6 +164,9 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.7.0
         version: 29.7.0
+      postcss-loader:
+        specifier: ^8.2.1
+        version: 8.2.1(postcss@8.4.31)(typescript@5.9.3)(webpack@5.105.4)
       prettier:
         specifier: 2.8.8
         version: 2.8.8
@@ -173,6 +179,9 @@ importers:
       react-test-renderer:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
+      style-loader:
+        specifier: ^4.0.0
+        version: 4.0.0(webpack@5.105.4)
       tailwindcss:
         specifier: ^3.3.1
         version: 3.3.1(postcss@8.4.31)
@@ -2748,6 +2757,18 @@ packages:
       webpack:
         optional: true
 
+  css-loader@7.1.4:
+    resolution: {integrity: sha512-vv3J9tlOl04WjiMvHQI/9tmIrCxVrj6PFbHemBB1iihpeRbi/I4h033eoFIhwxBBqLhI0KYFS7yvynBFhIZfTw==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
+      webpack: ^5.27.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
+        optional: true
+
   css-mediaquery@0.1.2:
     resolution: {integrity: sha512-COtn4EROW5dBGlE/4PiKnh6rZpAPxDeFLaEEwt4i10jpDMFt2EhQGS79QmmrO+iKCHv0PU/HrOWEhijFd1x99Q==}
 
@@ -4353,6 +4374,10 @@ packages:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
     hasBin: true
 
+  jiti@2.6.1:
+    resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
+    hasBin: true
+
   joi@17.13.3:
     resolution: {integrity: sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==}
 
@@ -5316,6 +5341,19 @@ packages:
       postcss:
         optional: true
       ts-node:
+        optional: true
+
+  postcss-loader@8.2.1:
+    resolution: {integrity: sha512-k98jtRzthjj3f76MYTs9JTpRqV1RaaMhEU0Lpw9OTmQZQdppg4B30VZ74BojuBHt3F4KyubHJoXCMUeM8Bqeow==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
+      postcss: ^7.0.0 || ^8.0.1
+      webpack: ^5.0.0
+    peerDependenciesMeta:
+      '@rspack/core':
+        optional: true
+      webpack:
         optional: true
 
   postcss-merge-longhand@5.1.7:
@@ -6306,6 +6344,12 @@ packages:
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
+
+  style-loader@4.0.0:
+    resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      webpack: ^5.27.0
 
   stylehacks@5.1.1:
     resolution: {integrity: sha512-sBpcd5Hx7G6seo7b1LkpttvTz7ikD0LlH5RmdcBNb6fFR0Fl7LQwHDFr300q4cwUqi+IYrFGmsIHieMBfnN/Bw==}
@@ -10720,6 +10764,19 @@ snapshots:
     optionalDependencies:
       webpack: 5.105.4(webpack-cli@6.0.1)
 
+  css-loader@7.1.4(webpack@5.105.4):
+    dependencies:
+      icss-utils: 5.1.0(postcss@8.5.8)
+      postcss: 8.5.8
+      postcss-modules-extract-imports: 3.1.0(postcss@8.5.8)
+      postcss-modules-local-by-default: 4.2.0(postcss@8.5.8)
+      postcss-modules-scope: 3.2.1(postcss@8.5.8)
+      postcss-modules-values: 4.0.0(postcss@8.5.8)
+      postcss-value-parser: 4.2.0
+      semver: 7.7.4
+    optionalDependencies:
+      webpack: 5.105.4(webpack-cli@6.0.1)
+
   css-mediaquery@0.1.2: {}
 
   css-minimizer-webpack-plugin@3.4.1(webpack@5.105.4):
@@ -12715,6 +12772,8 @@ snapshots:
 
   jiti@1.21.7: {}
 
+  jiti@2.6.1: {}
+
   joi@17.13.3:
     dependencies:
       '@hapi/hoek': 9.3.0
@@ -13788,6 +13847,17 @@ snapshots:
       yaml: 1.10.2
     optionalDependencies:
       postcss: 8.4.31
+
+  postcss-loader@8.2.1(postcss@8.4.31)(typescript@5.9.3)(webpack@5.105.4):
+    dependencies:
+      cosmiconfig: 9.0.1(typescript@5.9.3)
+      jiti: 2.6.1
+      postcss: 8.4.31
+      semver: 7.7.4
+    optionalDependencies:
+      webpack: 5.105.4(webpack-cli@6.0.1)
+    transitivePeerDependencies:
+      - typescript
 
   postcss-merge-longhand@5.1.7(postcss@8.4.31):
     dependencies:
@@ -14888,6 +14958,10 @@ snapshots:
   structured-headers@0.4.1: {}
 
   style-loader@3.3.4(webpack@5.105.4):
+    dependencies:
+      webpack: 5.105.4(webpack-cli@6.0.1)
+
+  style-loader@4.0.0(webpack@5.105.4):
     dependencies:
       webpack: 5.105.4(webpack-cli@6.0.1)
 

@@ -74,6 +74,10 @@ module.exports = {
         resolve: { fullySpecified: false },
       },
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
+      },
+      {
         test: /\.(png|jpg|gif|svg)$/,
         type: 'asset/resource',
       },
