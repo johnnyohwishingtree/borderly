@@ -15,7 +15,7 @@ export interface KeychainService {
 }
 
 class KeychainServiceImpl implements KeychainService {
-  private readonly keychainOptions: Keychain.Options = {
+  private readonly keychainOptions = {
     service: 'borderly',
     authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,

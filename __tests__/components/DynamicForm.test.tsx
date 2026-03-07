@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { DynamicForm } from '../../src/components/forms';
 import { FilledForm, FilledFormSection, FilledFormField } from '../../src/services/forms/formEngine';
