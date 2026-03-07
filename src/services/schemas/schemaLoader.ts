@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { CountryFormSchema } from '../../types/schema';
 
+// Schema parsing cache to avoid re-validation
+const schemaCache = new Map<string, { schema: CountryFormSchema; timestamp: number }>();
+const SCHEMA_CACHE_TTL = 10 * 60 * 1000; // 10 minutes - schemas change infrequently
+
 // Zod schema for validation
 const FormFieldSchema = z.object({
   id: z.string(),
@@ -125,12 +129,37 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
 }
 
 /**
- * Validates a country form schema against the expected structure
+ * Generates a cache key for schema validation based on content and country code
+ */
+function generateSchemaCacheKey(schema: unknown, countryCode: string): string {
+  // Create a stable hash of the schema content
+  const schemaHash = JSON.stringify(schema);
+  return `${countryCode}:${schemaHash}`;
+}
+
+/**
+ * Validates a country form schema against the expected structure with caching
  */
 export function validateSchema(schema: unknown, countryCode: string): CountryFormSchema {
+  // Check cache first
+  const cacheKey = generateSchemaCacheKey(schema, countryCode);
+  const cached = schemaCache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < SCHEMA_CACHE_TTL) {
+    return cached.schema;
+  }
+  
   try {
     const parsed = CountryFormSchemaValidator.parse(schema);
-    return convertToStrictSchema(parsed);
+    const result = convertToStrictSchema(parsed);
+    
+    // Cache the validated schema
+    schemaCache.set(cacheKey, {
+      schema: result,
+      timestamp: Date.now(),
+    });
+    
+    return result;
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new SchemaValidationError(
@@ -152,12 +181,15 @@ export function loadSchema(schemaData: unknown, countryCode: string): CountryFor
 
 /**
  * Validates all fields in a schema have unique IDs within their sections
+ * Uses optimized Set operations for better performance
  */
 export function validateFieldIds(schema: CountryFormSchema): boolean {
   const allFieldIds = new Set<string>();
+  let totalFields = 0;
 
   for (const section of schema.sections) {
     for (const field of section.fields) {
+      totalFields++;
       if (allFieldIds.has(field.id)) {
         throw new SchemaValidationError(
           `Duplicate field ID '${field.id}' found in schema for ${schema.countryCode}`,
@@ -169,19 +201,35 @@ export function validateFieldIds(schema: CountryFormSchema): boolean {
     }
   }
 
+  // Verify Set size matches field count for data integrity
+  if (allFieldIds.size !== totalFields) {
+    throw new SchemaValidationError(
+      `Field ID validation failed: expected ${totalFields} unique IDs, found ${allFieldIds.size}`,
+      schema.countryCode,
+      new z.ZodError([])
+    );
+  }
+
   return true;
 }
 
 /**
  * Validates that submission guide references valid field IDs
+ * Optimized to reuse field ID set when called after validateFieldIds
  */
-export function validateSubmissionGuideFields(schema: CountryFormSchema): boolean {
-  const allFieldIds = new Set<string>();
-
-  // Collect all field IDs
-  for (const section of schema.sections) {
-    for (const field of section.fields) {
-      allFieldIds.add(field.id);
+export function validateSubmissionGuideFields(
+  schema: CountryFormSchema, 
+  knownFieldIds?: Set<string>
+): boolean {
+  let allFieldIds = knownFieldIds;
+  
+  if (!allFieldIds) {
+    // Collect all field IDs if not provided
+    allFieldIds = new Set<string>();
+    for (const section of schema.sections) {
+      for (const field of section.fields) {
+        allFieldIds.add(field.id);
+      }
     }
   }
 
@@ -203,9 +251,64 @@ export function validateSubmissionGuideFields(schema: CountryFormSchema): boolea
 
 /**
  * Performs comprehensive validation of a schema
+ * Optimized to reuse field ID collection for better performance
  */
 export function validateSchemaCompletely(schema: CountryFormSchema): boolean {
-  validateFieldIds(schema);
-  validateSubmissionGuideFields(schema);
+  // Collect field IDs once and reuse for both validations
+  const allFieldIds = new Set<string>();
+  let totalFields = 0;
+
+  for (const section of schema.sections) {
+    for (const field of section.fields) {
+      totalFields++;
+      if (allFieldIds.has(field.id)) {
+        throw new SchemaValidationError(
+          `Duplicate field ID '${field.id}' found in schema for ${schema.countryCode}`,
+          schema.countryCode,
+          new z.ZodError([])
+        );
+      }
+      allFieldIds.add(field.id);
+    }
+  }
+
+  // Verify Set size matches field count
+  if (allFieldIds.size !== totalFields) {
+    throw new SchemaValidationError(
+      `Field ID validation failed: expected ${totalFields} unique IDs, found ${allFieldIds.size}`,
+      schema.countryCode,
+      new z.ZodError([])
+    );
+  }
+
+  // Validate submission guide with the already-collected field IDs
+  validateSubmissionGuideFields(schema, allFieldIds);
+  
   return true;
+}
+
+/**
+ * Clears expired entries from the schema cache
+ */
+export function clearExpiredSchemaCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of schemaCache.entries()) {
+    if (now - entry.timestamp >= SCHEMA_CACHE_TTL) {
+      schemaCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Clears all schema cache entries
+ */
+export function clearSchemaCache(): void {
+  schemaCache.clear();
+}
+
+/**
+ * Gets schema cache statistics
+ */
+export function getSchemaCacheStats(): { size: number } {
+  return { size: schemaCache.size };
 }
