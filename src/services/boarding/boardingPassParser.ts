@@ -12,7 +12,7 @@ import {
   ParsedMultiLegBoardingPass, 
   BCBPParseError 
 } from '../../types/boarding';
-import { getCountryFromAirport, isSupportedDestination } from './airportLookup';
+import { getCountryFromAirport, isSupportedDestination, SUPPORTED_COUNTRIES } from './airportLookup';
 
 /**
  * Parse BCBP barcode data into structured boarding pass information
@@ -26,7 +26,7 @@ export function parseBoardingPass(
     const year = referenceYear || new Date().getFullYear();
     
     // Decode the BCBP barcode
-    const bcbpData: BCBPData = decode(rawBarcode, year);
+    const bcbpData = decode(rawBarcode, year);
     
     // Validate we have passenger data
     if (!bcbpData.passengers || bcbpData.passengers.length === 0) {
@@ -80,7 +80,7 @@ export function parseBoardingPass(
     const destinationCountry = getCountryFromAirport(arrivalAirport);
 
     // Check if destination is supported
-    if (destinationCountry && !isSupportedDestination(arrivalAirport)) {
+    if (destinationCountry && !(SUPPORTED_COUNTRIES as readonly string[]).includes(destinationCountry)) {
       console.warn(`Destination airport ${arrivalAirport} (${destinationCountry}) is not in supported countries`);
     }
 
@@ -117,7 +117,7 @@ export function parseMultiLegBoardingPass(
 ): ParsedMultiLegBoardingPass | BCBPParseError {
   try {
     const year = referenceYear || new Date().getFullYear();
-    const bcbpData: BCBPData = decode(rawBarcode, year);
+    const bcbpData = decode(rawBarcode, year);
     
     if (!bcbpData.passengers || bcbpData.passengers.length === 0) {
       return {
@@ -158,6 +158,11 @@ export function parseMultiLegBoardingPass(
       const departureAirport = passenger.fromCity.toUpperCase();
       const arrivalAirport = passenger.toCity.toUpperCase();
       const destinationCountry = getCountryFromAirport(arrivalAirport);
+
+      // Check if destination is supported
+      if (destinationCountry && !(SUPPORTED_COUNTRIES as readonly string[]).includes(destinationCountry)) {
+        console.warn(`Destination airport ${arrivalAirport} (${destinationCountry}) is not in supported countries for leg ${legs.length + 1}`);
+      }
 
       const leg: ParsedBoardingPass = {
         passengerName: passenger.passengerName || commonPassengerName,

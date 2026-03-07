@@ -66,7 +66,7 @@ export interface ParsedMultiLegBoardingPass {
 }
 
 export interface BCBPParseError {
-  code: 'INVALID_FORMAT' | 'UNSUPPORTED_AIRPORT' | 'PARSE_ERROR' | 'MISSING_FIELDS';
+  code: 'PARSE_ERROR' | 'MISSING_FIELDS';
   message: string;
   originalData?: string;
 }

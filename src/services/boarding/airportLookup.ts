@@ -288,7 +288,8 @@ export function getAirportsByCountry(countryCode: string): AirportInfo[] {
  * Get all supported destination airports
  */
 export function getSupportedDestinationAirports(): AirportInfo[] {
-  return SUPPORTED_COUNTRIES.flatMap(country => 
-    getAirportsByCountry(country)
+  const supportedCountriesSet = new Set<string>(SUPPORTED_COUNTRIES);
+  return Object.values(AIRPORT_DATABASE).filter(airport =>
+    supportedCountriesSet.has(airport.country)
   );
 }

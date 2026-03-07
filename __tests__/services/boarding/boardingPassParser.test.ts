@@ -117,6 +117,8 @@ describe('Boarding Pass Parser Service', () => {
     });
 
     it('should handle boarding pass to unsupported destination', () => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
       const unsupportedData = {
         ...mockSingleLegData,
         passengers: [{
@@ -138,6 +140,9 @@ describe('Boarding Pass Parser Service', () => {
         airlineCode: 'KE',
         flightNumber: 'KE0001',
       }));
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Destination airport ICN (KOR) is not in supported countries');
+      consoleWarnSpy.mockRestore();
     });
 
     it('should handle unknown destination airport', () => {
