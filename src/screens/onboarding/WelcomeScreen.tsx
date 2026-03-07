@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { Button, Card, ProgressBar } from '../../components/ui';
+import { Button, Card, ProgressBar, HelpHint, Tooltip } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
@@ -15,6 +15,10 @@ export default function WelcomeScreen() {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
 
   const handleContinue = () => {
+    navigation.navigate('Tutorial');
+  };
+
+  const handleSkipToSetup = () => {
     navigation.navigate('PassportScan');
   };
 
@@ -144,9 +148,17 @@ export default function WelcomeScreen() {
           <View className="flex-row items-start">
             <MaterialIcons name="security" size={24} color="#16a34a" style={{ marginRight: 12 }} />
             <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-900 mb-2">
-                Privacy First
-              </Text>
+              <View className="flex-row items-center mb-2">
+                <Text className="text-base font-semibold text-gray-900 mr-2">
+                  Privacy First
+                </Text>
+                <Tooltip 
+                  content="Your data is encrypted using your device's secure keychain (the same technology used by banking apps) and never transmitted to any servers."
+                  trigger="tap"
+                >
+                  <MaterialIcons name="help-outline" size={16} color="#16a34a" />
+                </Tooltip>
+              </View>
               <Text className="text-sm text-gray-600">
                 Your passport data is encrypted and stored only in your device's secure keychain.
                 We never transmit your personal information to our servers.
@@ -155,19 +167,37 @@ export default function WelcomeScreen() {
           </View>
         </Card>
 
+        {/* Quick help hint for advanced users */}
+        <HelpHint
+          title="Already familiar with travel declaration apps?"
+          content="You can skip the tutorial and jump straight to setup, or continue for a quick overview of Borderly's unique features."
+          variant="tip"
+          dismissible
+          className="mb-6"
+        />
+
         {/* CTA section */}
         <View className="space-y-4 mt-auto">
           <Button
-            title="Get Started"
+            title="Start Tutorial"
             onPress={handleContinue}
             size="large"
             fullWidth
-            accessibilityLabel="Get started with Borderly"
-            accessibilityHint="Navigate to passport scanning screen to begin setup"
+            accessibilityLabel="Start the Borderly tutorial"
+            accessibilityHint="Navigate to tutorial screen to learn about features"
             hapticType={HapticFeedbackTypes.impactMedium}
           />
+          <Button
+            title="Skip to Setup"
+            onPress={handleSkipToSetup}
+            variant="outline"
+            size="large"
+            fullWidth
+            accessibilityLabel="Skip tutorial and go to setup"
+            accessibilityHint="Navigate directly to passport scanning screen"
+          />
           <Text className="text-center text-sm text-gray-500">
-            Takes less than 2 minutes to set up
+            Tutorial takes 2 minutes • Setup takes less than 1 minute
           </Text>
         </View>
       </View>

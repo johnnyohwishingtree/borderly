@@ -11,6 +11,7 @@ const MainTabNavigator = lazy(() => import('./MainTabNavigator').then(m => ({ de
 
 // Lazy load onboarding screens
 const WelcomeScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.WelcomeScreen })));
+const TutorialScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.TutorialScreen })));
 const PassportScanScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
 const ConfirmProfileScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
 const BiometricSetupScreen = lazy(() => import('../../screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
@@ -45,6 +46,18 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <WelcomeScreen />
+          </Suspense>
+        )}
+      </OnboardingStack.Screen>
+      <OnboardingStack.Screen
+        name="Tutorial"
+        options={{
+          animation: 'slide_from_right',
+        }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <TutorialScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, Input, ProgressBar } from '../../components/ui';
+import { Button, Card, Input, ProgressBar, HelpHint, Tooltip } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
@@ -258,9 +258,15 @@ export default function PassportScanScreen() {
         <View className="mb-6">
           <View className="flex-row items-center mb-2">
             <MaterialIcons name="camera-alt" size={24} color="#111827" style={{ marginRight: 8 }} />
-            <Text className="text-2xl font-bold text-gray-900">
+            <Text className="text-2xl font-bold text-gray-900 mr-2">
               Passport Information
             </Text>
+            <Tooltip 
+              content="We'll scan the MRZ (Machine Readable Zone) - the two lines of text at the bottom of your passport photo page. This contains all the key information we need."
+              trigger="tap"
+            >
+              <MaterialIcons name="help-outline" size={20} color="#6b7280" />
+            </Tooltip>
           </View>
           <Text className="text-base text-gray-600">
             Scan your passport or enter information manually. All data is stored securely on your device.
@@ -326,14 +332,31 @@ export default function PassportScanScreen() {
         {/* Method selection */}
         {mode === 'method' && (
           <>
+            {/* Helpful guidance for first-time users */}
+            <HelpHint
+              title="First time scanning a passport?"
+              content="The MRZ is the two lines of text/numbers at the bottom of your passport photo page. Make sure you have good lighting and hold your passport flat."
+              variant="tip"
+              dismissible
+              className="mb-6"
+            />
+
             <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
               <View className="items-center py-8">
                 <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
                   <Text className="text-4xl">📷</Text>
                 </View>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
-                </Text>
+                <View className="flex-row items-center mb-2">
+                  <Text className="text-lg font-semibold text-gray-900 mr-2">
+                    {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
+                  </Text>
+                  <Tooltip 
+                    content="Scanning uses your camera to read the MRZ automatically. This is faster and more accurate than manual entry."
+                    trigger="tap"
+                  >
+                    <MaterialIcons name="info-outline" size={16} color="#6b7280" />
+                  </Tooltip>
+                </View>
                 <Text className="text-sm text-gray-600 text-center mb-6">
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
                   {devicePerformance === 'low' && '\n\n⚡ Optimized for your device performance'}

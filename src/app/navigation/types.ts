@@ -12,6 +12,7 @@ export type MainTabParamList = {
 
 export type OnboardingStackParamList = {
   Welcome: undefined;
+  Tutorial: undefined;
   PassportScan: undefined;
   ConfirmProfile: undefined;
   BiometricSetup: undefined;
