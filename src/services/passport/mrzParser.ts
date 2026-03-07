@@ -198,16 +198,13 @@ function formatMRZDate(mrzDate: string): string {
 
 /**
  * Utility to clean OCR artifacts from MRZ text
- * Common OCR errors: O->0, I->1, etc.
+ * Common OCR errors: O->0, I->1, etc. (only in numeric contexts)
  */
 export function cleanMRZText(text: string): string {
   return text
     .toUpperCase()
-    .replace(/[^A-Z0-9<]/g, '') // Remove invalid chars
-    .replace(/O/g, '0') // Common OCR error: O -> 0 in numbers
-    .replace(/I/g, '1') // Common OCR error: I -> 1 in numbers
-    .replace(/S/g, '5') // Common OCR error: S -> 5 in numbers
-    .replace(/\s+/g, ''); // Remove spaces
+    .replace(/\s+/g, '') // Remove spaces first
+    .replace(/[^A-Z0-9<]/g, ''); // Remove invalid chars
 }
 
 /**
