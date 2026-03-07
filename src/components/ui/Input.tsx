@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, TextInputProps } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
 
@@ -62,7 +62,6 @@ export default function Input({
         placeholderTextColor="#9CA3AF"
         accessibilityLabel={accessibilityLabel || label}
         accessibilityHint={accessibilityHint || helperText}
-        accessibilityRequired={required}
         accessibilityInvalid={!!error}
         {...textInputProps}
       />

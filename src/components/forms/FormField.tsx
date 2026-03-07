@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { Input, Select, Toggle } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
@@ -31,11 +30,11 @@ export default function FormField({
 
   const renderInput = () => {
     const inputProps = {
-      value: fieldValue,
+      value: String(fieldValue || ''),
       onValueChange: handleValueChange,
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
-      error: hasError,
+      ...(hasError && error ? { error } : {}),
     };
 
     switch (field.type) {
@@ -84,7 +83,7 @@ export default function FormField({
             options={field.options}
             placeholder={`Select ${field.label}`}
             disabled={inputProps.disabled}
-            error={hasError}
+            {...(hasError && error ? { error } : {})}
           />
         );
 
@@ -94,7 +93,6 @@ export default function FormField({
             value={fieldValue as boolean}
             onValueChange={handleValueChange}
             disabled={inputProps.disabled}
-            label={field.label}
           />
         );
 

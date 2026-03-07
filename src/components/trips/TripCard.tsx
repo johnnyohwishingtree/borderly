@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card, StatusBadge, ProgressBar } from '../ui';
 import { Trip } from '../../types/trip';
@@ -42,13 +41,13 @@ export default function TripCard({
   const getStatusColor = (status: Trip['status']) => {
     switch (status) {
       case 'upcoming':
-        return 'blue';
+        return 'info';
       case 'active':
-        return 'green';
+        return 'success';
       case 'completed':
-        return 'gray';
+        return 'neutral';
       default:
-        return 'gray';
+        return 'neutral';
     }
   };
 
@@ -128,7 +127,7 @@ export default function TripCard({
               </View>
               <ProgressBar 
                 progress={progress.percentage} 
-                height="small"
+                size="small"
                 color="blue"
               />
             </View>
