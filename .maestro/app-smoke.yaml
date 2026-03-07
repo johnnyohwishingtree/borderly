@@ -10,17 +10,27 @@ name: "Smoke Test - App launches and renders"
 - assertVisible: "Welcome to"
 - assertVisible: "Borderly"
 
-# Verify key sections rendered
+# Verify feature card rendered
 - assertVisible: "Private & Secure"
 - assertVisible: "Works Offline"
 - assertVisible: "Lightning Fast"
 
-# Verify countries section
+# Scroll to countries section
+- scrollUntilVisible:
+    element: "Japan"
+    direction: DOWN
+    timeout: 10000
+
 - assertVisible: "Japan"
 - assertVisible: "Malaysia"
 - assertVisible: "Singapore"
 
-# Verify the CTA button is visible
+# Scroll to CTA
+- scrollUntilVisible:
+    element: "Get started with Borderly"
+    direction: DOWN
+    timeout: 10000
+
 - assertVisible: "Get started with Borderly"
 
 # Take a screenshot for CI artifacts
