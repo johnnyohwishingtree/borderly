@@ -243,22 +243,31 @@ Available skills (invoke with `/<skill-name>`):
 
 ## Autonomous Workflow
 
-When working from a GitHub issue (via the Claude GitHub App):
+When working from a GitHub issue (via the Claude or Gemini GitHub App):
 1. Read this file first for project context
 2. Read `docs/mvp-proposal.md` for detailed specs, data models, and implementation code
 3. Follow the skill referenced in the issue body
-4. Create a PR with `Closes #N` in the body (N = issue number)
-5. **Before pushing, verify ALL checks pass:**
+4. **Agent Choice**: Use `@claude` for Anthropic's Claude Code or `@gemini` for Google's Gemini CLI. Both are compatible with the project's skills and conventions.
+5. Create a PR with `Closes #N` in the body (N = issue number)
+6. **Before pushing, verify ALL checks pass:**
    - `pnpm typecheck` — must pass with zero errors
    - `pnpm test` — all unit tests must pass
    - `pnpm e2e` — all E2E tests must pass
-6. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
-7. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
-8. Run `/update-architecture` if code structure changed
+7. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
+8. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
+9. Run `/update-architecture` if code structure changed
+
+### Dual-Model Support
+
+This project supports both **Claude** and **Gemini** as autonomous agents.
+- **Trigger**: `@claude` or `@gemini` in issue/PR comments.
+- **Skill Compatibility**: Both agents share the same skills in `.claude/skills/`.
+- **Handoff**: If one agent hits a usage limit or fails, you can switch to the other by commenting on the same issue.
+- **Story Pipeline**: The `orchestrate.yml` pipeline uses the `PREFERRED_AGENT` repository variable (default: `claude`) to decide which agent to trigger for the next story.
 
 ### Auto-Fix Workflow (when responding to failing CI comments)
 
-When you receive a comment like "@claude Tests are failing on this PR":
+When you receive a comment like "@claude Tests are failing on this PR" (or "@gemini"):
 1. Read the error output in the comment carefully
 2. Diagnose the root cause — do NOT blindly change code
 3. Make the fix
