@@ -143,7 +143,6 @@ test.describe('QR Code Workflow and Wallet', () => {
     await expect(page.getByText('Copied!')).toBeVisible();
 
     // Copy indicators should disappear after timeout
-    await page.waitForTimeout(2000);
     await expect(page.getByText('Copied!')).not.toBeVisible();
   });
 
