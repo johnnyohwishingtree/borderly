@@ -9,11 +9,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar } from '../../components/ui';
+import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import { type TravelerProfile } from '../../types/profile';
 import { detectDevicePerformance } from '../../utils/imageUtils';
+import { handleStorageError, handleValidationError, handleCameraError } from '../../services/error/errorHandler';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
 
@@ -39,6 +41,9 @@ export default function PassportScanScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
   const [showPerformanceHint, setShowPerformanceHint] = useState(false);
+  const { error: storageError, showError: showStorageError, clearError: clearStorageError } = useErrorMessage();
+  const { error: scanError, showError: showScanError, clearError: clearScanError } = useErrorMessage();
+  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'scan', data?: any } | null>(null);
   const {
     control,
     handleSubmit,
@@ -72,6 +77,8 @@ export default function PassportScanScreen() {
 
   const saveProfileData = async (profileData: Partial<TravelerProfile>) => {
     setIsSubmitting(true);
+    clearStorageError(); // Clear any previous storage errors
+    
     try {
       // Ensure all required TravelerProfile fields are provided with defaults
       const completeProfile: TravelerProfile = {
@@ -99,10 +106,29 @@ export default function PassportScanScreen() {
       };
 
       await saveProfile(completeProfile);
-
+      setLastFailedOperation(null); // Clear any failed operation
       navigation.navigate('ConfirmProfile');
     } catch (error) {
-      Alert.alert('Error', 'Failed to save passport data. Please try again.');
+      // Store the failed operation for retry
+      setLastFailedOperation({ type: 'save', data: profileData });
+      
+      const result = await handleStorageError(error as Error, {
+        screen: 'PassportScan',
+        action: 'saveProfile',
+        timestamp: Date.now()
+      }, {
+        showUserFeedback: false, // We'll show our own UI
+        enableRetry: true,
+        onRecoverySuccess: () => {
+          clearStorageError();
+          setLastFailedOperation(null);
+          navigation.navigate('ConfirmProfile');
+        }
+      });
+      
+      if (!result.recovered && result.error) {
+        showStorageError(result.error);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -124,12 +150,40 @@ export default function PassportScanScreen() {
 
   // Camera scanning handlers
   const handleScanSuccess = (result: MRZParseResult) => {
+    clearScanError(); // Clear any previous scan errors
     setScanResult(result);
     setScannedProfile(result.profile || null);
     setMode('preview');
   };
 
+  const handleScanError = async (error: Error) => {
+    // Store the failed operation for retry
+    setLastFailedOperation({ type: 'scan' });
+    
+    const result = await handleCameraError(error, {
+      screen: 'PassportScan',
+      action: 'mrzScanning',
+      timestamp: Date.now()
+    }, {
+      showUserFeedback: false, // We'll show our own UI
+      enableRetry: true,
+      onRecoverySuccess: () => {
+        clearScanError();
+        setLastFailedOperation(null);
+        setMode('scanning'); // Retry scanning
+      },
+      fallbackAction: () => {
+        setMode('manual'); // Fall back to manual entry
+      }
+    });
+    
+    if (!result.recovered && result.error) {
+      showScanError(result.error);
+    }
+  };
+
   const handleScanCancel = () => {
+    clearScanError();
     setMode('method');
   };
 
@@ -176,6 +230,7 @@ export default function PassportScanScreen() {
         onScanSuccess={handleScanSuccess}
         onScanCancel={handleScanCancel}
         onManualEntry={handleManualEntry}
+        onScanError={handleScanError}
         lowPowerMode={devicePerformance === 'low'}
       />
     );
@@ -211,6 +266,39 @@ export default function PassportScanScreen() {
             Scan your passport or enter information manually. All data is stored securely on your device.
           </Text>
         </View>
+
+        {/* Error Messages */}
+        <ErrorMessage
+          error={storageError}
+          variant="card"
+          showRetry
+          onRetry={async () => {
+            clearStorageError();
+            // Retry the last failed save operation
+            if (lastFailedOperation?.type === 'save' && lastFailedOperation.data) {
+              await saveProfileData(lastFailedOperation.data);
+            }
+          }}
+          onDismiss={clearStorageError}
+          className="mb-4"
+        />
+
+        <ErrorMessage
+          error={scanError}
+          variant="card"
+          showRetry
+          onRetry={() => {
+            clearScanError();
+            setLastFailedOperation(null);
+            setMode('scanning'); // Retry scanning
+          }}
+          onDismiss={() => {
+            clearScanError();
+            setLastFailedOperation(null);
+            setMode('manual'); // Fall back to manual
+          }}
+          className="mb-4"
+        />
 
         {/* Performance hint for low-end devices */}
         {showPerformanceHint && (

@@ -249,7 +249,7 @@ When working from a GitHub issue (via the Claude GitHub App):
 3. Follow the skill referenced in the issue body
 4. Create a PR with `Closes #N` in the body (N = issue number)
 5. **Before pushing, verify ALL checks pass:**
-   - `pnpm typecheck` — must not introduce new TypeScript errors (baseline: 76)
+   - `pnpm typecheck` — must pass with zero errors
    - `pnpm test` — all unit tests must pass
    - `pnpm e2e` — all E2E tests must pass
 6. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
@@ -263,7 +263,7 @@ When you receive a comment like "@claude Tests are failing on this PR":
 2. Diagnose the root cause — do NOT blindly change code
 3. Make the fix
 4. **Run ALL of the following and verify they pass before committing:**
-   - `pnpm typecheck` — must not introduce new TypeScript errors (baseline: 76)
+   - `pnpm typecheck` — must pass with zero errors
    - `pnpm test` — all unit tests must pass
    - `pnpm e2e` — all E2E tests must pass
 5. Only after ALL three pass: git add, git commit, and git push

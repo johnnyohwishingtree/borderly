@@ -42,45 +42,45 @@ function OnboardingNavigator() {
           animation: 'fade',
         }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <WelcomeScreen {...props} />
+            <WelcomeScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
-      <OnboardingStack.Screen 
-        name="PassportScan" 
+      <OnboardingStack.Screen
+        name="PassportScan"
         options={{
           animation: 'slide_from_right',
         }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <PassportScanScreen {...props} />
+            <PassportScanScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
-      <OnboardingStack.Screen 
-        name="ConfirmProfile" 
+      <OnboardingStack.Screen
+        name="ConfirmProfile"
         options={{
           animation: 'slide_from_right',
         }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <ConfirmProfileScreen {...props} />
+            <ConfirmProfileScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
-      <OnboardingStack.Screen 
-        name="BiometricSetup" 
+      <OnboardingStack.Screen
+        name="BiometricSetup"
         options={{
           animation: 'slide_from_right',
         }}
       >
-        {(props) => (
+        {() => (
           <Suspense fallback={<ScreenLoader />}>
-            <BiometricSetupScreen {...props} />
+            <BiometricSetupScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
@@ -111,9 +111,9 @@ export default function RootNavigator() {
               animation: 'fade',
             }}
           >
-            {(props) => (
+            {() => (
               <Suspense fallback={<ScreenLoader />}>
-                <MainTabNavigator {...props} />
+                <MainTabNavigator />
               </Suspense>
             )}
           </RootStack.Screen>

@@ -85,7 +85,7 @@ export class AutomationScriptRegistry {
   /**
    * Load script dynamically (for future OTA updates)
    */
-  private async loadScript(countryCode: string): Promise<AutomationScript | null> {
+  private async loadScript(_countryCode: string): Promise<AutomationScript | null> {
     // In future versions, this would fetch scripts from a CDN
     // For now, return null for unsupported countries
     return null;
@@ -350,6 +350,115 @@ export class AutomationScriptRegistry {
         critical: true
       },
       {
+        id: 'detect_captcha',
+        name: 'Detect CAPTCHA',
+        description: 'Check for CAPTCHA challenges that require manual intervention',
+        script: `
+          // Check for various CAPTCHA types
+          const captchaIndicators = [
+            '.g-recaptcha', '#g-recaptcha', 'iframe[src*="recaptcha"]', // Google reCAPTCHA
+            '.h-captcha', 'iframe[src*="hcaptcha"]', // hCaptcha
+            'img[src*="captcha"]', 'img[alt*="captcha"]', '.captcha img', // Image CAPTCHA
+            'input[name*="captcha"]', 'input[placeholder*="captcha"]' // Text CAPTCHA
+          ];
+          
+          let captchaFound = false;
+          let captchaType = 'none';
+          let captchaSelector = '';
+          
+          for (const selector of captchaIndicators) {
+            const element = document.querySelector(selector);
+            if (element && element.offsetParent !== null) {
+              captchaFound = true;
+              captchaSelector = selector;
+              
+              if (selector.includes('recaptcha')) {
+                captchaType = 'recaptcha';
+              } else if (selector.includes('hcaptcha')) {
+                captchaType = 'hcaptcha';
+              } else if (selector.includes('img')) {
+                captchaType = 'image';
+              } else if (selector.includes('input')) {
+                captchaType = 'text';
+              }
+              break;
+            }
+          }
+          
+          return {
+            success: true,
+            captchaFound: captchaFound,
+            captchaType: captchaType,
+            captchaSelector: captchaSelector,
+            requiresManualIntervention: captchaFound
+          };
+        `,
+        timing: {
+          timeout: 5000,
+          waitAfter: 1000
+        },
+        critical: false
+      },
+      {
+        id: 'handle_errors',
+        name: 'Handle Form Errors',
+        description: 'Detect and handle form validation errors',
+        script: `
+          // Look for error messages
+          const errorSelectors = [
+            '.error', '.error-message', '.field-error',
+            '.invalid', '.validation-error', '.form-error',
+            '[aria-invalid="true"]', '.has-error',
+            '.alert-danger', '.alert-error'
+          ];
+          
+          const errors = [];
+          let hasBlockingErrors = false;
+          
+          for (const selector of errorSelectors) {
+            const errorElements = document.querySelectorAll(selector);
+            errorElements.forEach(el => {
+              if (el.offsetParent !== null && el.textContent.trim()) {
+                const errorText = el.textContent.trim();
+                errors.push({
+                  selector: selector,
+                  text: errorText,
+                  element: el.tagName
+                });
+                
+                // Check if this is a blocking error
+                const blockingKeywords = ['required', 'invalid', 'error', 'failed', 'missing'];
+                if (blockingKeywords.some(keyword => errorText.toLowerCase().includes(keyword))) {
+                  hasBlockingErrors = true;
+                }
+              }
+            });
+          }
+          
+          // Check for disabled submit buttons (another error indicator)
+          const submitButtons = document.querySelectorAll('input[type="submit"], button[type="submit"]');
+          let submitDisabled = false;
+          submitButtons.forEach(btn => {
+            if (btn.disabled) {
+              submitDisabled = true;
+            }
+          });
+          
+          return {
+            success: true,
+            errorsFound: errors.length > 0,
+            errors: errors,
+            hasBlockingErrors: hasBlockingErrors || submitDisabled,
+            submitDisabled: submitDisabled
+          };
+        `,
+        timing: {
+          timeout: 5000,
+          waitAfter: 500
+        },
+        critical: false
+      },
+      {
         id: 'capture_confirmation',
         name: 'Capture Confirmation',
         description: 'Extract confirmation number and QR code',
@@ -549,7 +658,7 @@ export class AutomationScriptUtils {
     return value ? trueValue : falseValue;
   }
 
-  private static transformCustom(value: any, config: any): any {
+  private static transformCustom(value: any, _config: any): any {
     // Custom transformation logic would go here
     return value;
   }

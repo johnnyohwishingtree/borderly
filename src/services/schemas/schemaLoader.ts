@@ -122,7 +122,10 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
     lastUpdated: parsed.lastUpdated,
     portalUrl: parsed.portalUrl,
     portalName: parsed.portalName,
+    metadata: parsed.metadata,
+    changeDetection: parsed.changeDetection,
     submission: parsed.submission,
+    portalFlow: parsed.portalFlow,
     sections: parsed.sections.map(cleanSection),
     submissionGuide: parsed.submissionGuide.map(cleanStep),
   };

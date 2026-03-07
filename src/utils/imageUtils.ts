@@ -29,13 +29,6 @@ export interface ProgressiveLoadingConfig {
   enableBlurPlaceholder?: boolean;
 }
 
-const DEFAULT_COMPRESSION_OPTIONS: Required<ImageCompressionOptions> = {
-  maxWidth: 1024,
-  maxHeight: 1024,
-  quality: 0.8,
-  targetSize: 1024 * 1024, // 1MB
-};
-
 const DEFAULT_PROGRESSIVE_CONFIG: Required<ProgressiveLoadingConfig> = {
   lowQualityRatio: 0.1,
   mediumQualityRatio: 0.5,
@@ -53,7 +46,7 @@ const DEFAULT_PROGRESSIVE_CONFIG: Required<ProgressiveLoadingConfig> = {
  */
 export function compressBase64Image(
   base64: string,
-  options: ImageCompressionOptions = {}
+  _options: ImageCompressionOptions = {}
 ): Promise<{
   success: boolean;
   compressedBase64?: string;
@@ -64,11 +57,8 @@ export function compressBase64Image(
 }> {
   return new Promise((resolve) => {
     try {
-      const opts = { ...DEFAULT_COMPRESSION_OPTIONS, ...options };
-      
       // Extract format and data from base64
-      const [header, data] = base64.split(',');
-      const format = header.match(/data:image\/(\w+)/)?.[1] || 'jpeg';
+      const [, data] = base64.split(',');
       const originalSize = Math.round((data.length * 3) / 4);
       
       // PLACEHOLDER: Return original image since proper compression requires native libraries
@@ -268,15 +258,28 @@ export class ImageProcessor {
         this.performMemoryCleanup();
       }
       
-      return {
+      const processResult: {
+        success: boolean;
+        processedBase64?: string;
+        originalSize: number;
+        compressedSize: number;
+        compressionRatio: number;
+        memoryOptimized: boolean;
+        error?: string;
+      } = {
         success: result.success,
-        processedBase64: result.compressedBase64 || undefined,
         originalSize: result.originalSize,
         compressedSize: result.compressedSize,
         compressionRatio: result.compressionRatio,
         memoryOptimized: true,
-        error: result.error,
       };
+      if (result.compressedBase64) {
+        processResult.processedBase64 = result.compressedBase64;
+      }
+      if (result.error) {
+        processResult.error = result.error;
+      }
+      return processResult;
     } catch (error) {
       return {
         success: false,
@@ -435,13 +438,22 @@ export function validateImageForProcessing(base64: string): {
       errors.push('Invalid or corrupted image data');
     }
     
-    return {
+    const validationResult: {
+      isValid: boolean;
+      format?: string;
+      size: number;
+      errors: string[];
+      warnings: string[];
+    } = {
       isValid: errors.length === 0,
-      format: format || undefined,
       size,
       errors,
       warnings,
     };
+    if (format) {
+      validationResult.format = format;
+    }
+    return validationResult;
   } catch (error) {
     return {
       isValid: false,
