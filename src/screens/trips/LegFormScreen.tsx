@@ -135,7 +135,7 @@ export default function LegFormScreen() {
         'Please complete all required fields before marking as ready.'
       );
       
-      const result = await handleValidationError(new Error('Form validation failed'), {
+      await handleValidationError(new Error('Form validation failed'), {
         screen: 'LegForm',
         action: 'markAsReady',
         timestamp: Date.now()

@@ -77,7 +77,7 @@ export class ErrorTracker {
       enableNetworkTracking: options.enableNetworkTracking ?? true,
       enableNavigationTracking: options.enableNavigationTracking ?? true,
       enableUserActionTracking: options.enableUserActionTracking ?? true,
-      beforeSend: options.beforeSend,
+      beforeSend: options.beforeSend || ((report) => report),
     };
 
     if (this.options.enableAutoCapture) {
@@ -136,11 +136,11 @@ export class ErrorTracker {
       severity: context.severity || this.determineSeverity(error),
       error: sanitizeError(error),
       context: {
-        screen: context.screen ? sanitizeString(context.screen) : undefined,
-        flow: context.flow ? sanitizeString(context.flow) : undefined,
-        userAction: context.userAction ? sanitizeString(context.userAction) : undefined,
-        deviceInfo: this.deviceInfo,
-        appState: this.appState,
+        ...(context.screen && { screen: sanitizeString(context.screen) }),
+        ...(context.flow && { flow: sanitizeString(context.flow) }),
+        ...(context.userAction && { userAction: sanitizeString(context.userAction) }),
+        ...(this.deviceInfo && { deviceInfo: this.deviceInfo }),
+        ...(this.appState && { appState: this.appState }),
       },
       breadcrumbs: [...this.breadcrumbs],
       tags: sanitizeObject(context.tags, { preserveStructure: true }) || {},
@@ -264,7 +264,7 @@ export class ErrorTracker {
     this.addBreadcrumb({
       type: 'user_action',
       message: `User action: ${sanitizeString(action)}`,
-      data: data, // Don't double-sanitize here, addBreadcrumb will handle it
+      ...(data && { data }),
       level: 'info',
     });
   }
@@ -339,9 +339,9 @@ export class ErrorTracker {
       });
     }
 
-    // Unhandled promise rejections
-    if (typeof process !== 'undefined' && process.on) {
-      process.on('unhandledRejection', (reason: any) => {
+    // Unhandled promise rejections  
+    if (typeof process !== 'undefined' && 'on' in process && typeof (process as any).on === 'function') {
+      (process as any).on('unhandledRejection', (reason: any) => {
         const error = reason instanceof Error 
           ? reason 
           : new Error(`Unhandled promise rejection: ${String(reason)}`);
@@ -385,7 +385,14 @@ export class ErrorTracker {
    */
   private generateFingerprint(error: Error): string {
     const key = `${error.name}_${error.message}_${error.stack?.split('\n')[0] || ''}`;
-    return btoa(key).replace(/=/g, '').substring(0, 16);
+    // Simple hash-like fingerprint for error grouping
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      const char = key.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(36).substring(0, 16);
   }
 
   /**

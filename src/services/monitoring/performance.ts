@@ -46,7 +46,7 @@ export interface MemoryMetrics {
 class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
   private activeFlows: Map<string, UserFlowMetric> = new Map();
-  private memoryCheckInterval?: ReturnType<typeof setInterval>;
+  private memoryCheckInterval: ReturnType<typeof setInterval> | null = null;
   private isEnabled: boolean = true;
   
   constructor() {
@@ -60,7 +60,7 @@ class PerformanceMonitor {
     this.isEnabled = enabled;
     if (!enabled && this.memoryCheckInterval) {
       clearInterval(this.memoryCheckInterval);
-      this.memoryCheckInterval = undefined;
+      this.memoryCheckInterval = null;
     } else if (enabled && !this.memoryCheckInterval) {
       this.startMemoryMonitoring();
     }
