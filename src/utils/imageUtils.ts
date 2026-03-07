@@ -286,12 +286,22 @@ export class ImageProcessor {
         this.performMemoryCleanup();
       }
       
-      return {
+      const response: {
+        success: boolean;
+        processedBase64?: string;
+        memoryOptimized: boolean;
+        error?: string;
+      } = {
         success: result.success,
-        processedBase64: result.compressedBase64 || undefined,
         memoryOptimized: true,
-        error: result.error,
       };
+      if (result.compressedBase64) {
+        response.processedBase64 = result.compressedBase64;
+      }
+      if (result.error) {
+        response.error = result.error;
+      }
+      return response;
     } catch (error) {
       return {
         success: false,
@@ -353,7 +363,13 @@ export function detectDevicePerformance(): {
 } {
   // Simple heuristic based on user agent and available APIs
   // In production, use more sophisticated device detection
-  const nav = typeof navigator !== 'undefined' ? navigator as any : null;
+  const nav = (() => {
+    try {
+      return typeof navigator !== 'undefined' ? (navigator as any) : null;
+    } catch {
+      return null;
+    }
+  })();
   
   const isLowEnd = (() => {
     // Check for performance indicators
@@ -447,13 +463,22 @@ export function validateImageForProcessing(base64: string): {
       errors.push('Invalid or corrupted image data');
     }
     
-    return {
+    const result: {
+      isValid: boolean;
+      format?: string;
+      size: number;
+      errors: string[];
+      warnings: string[];
+    } = {
       isValid: errors.length === 0,
-      format: format || undefined,
       size,
       errors,
       warnings,
     };
+    if (format) {
+      result.format = format;
+    }
+    return result;
   } catch (error) {
     return {
       isValid: false,

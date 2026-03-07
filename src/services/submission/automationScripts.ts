@@ -85,7 +85,7 @@ export class AutomationScriptRegistry {
   /**
    * Load script dynamically (for future OTA updates)
    */
-  private async loadScript(countryCode: string): Promise<AutomationScript | null> {
+  private async loadScript(_countryCode: string): Promise<AutomationScript | null> {
     // In future versions, this would fetch scripts from a CDN
     // For now, return null for unsupported countries
     return null;
@@ -549,7 +549,7 @@ export class AutomationScriptUtils {
     return value ? trueValue : falseValue;
   }
 
-  private static transformCustom(value: any, config: any): any {
+  private static transformCustom(value: any, _config: any): any {
     // Custom transformation logic would go here
     return value;
   }

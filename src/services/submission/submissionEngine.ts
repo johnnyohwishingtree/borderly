@@ -36,42 +36,42 @@ import { SubmissionValidator } from '@/utils/submissionValidator';
 /**
  * Default configuration for submission engine
  */
-const DEFAULT_CONFIG: SubmissionEngineConfig = {
-  timeouts: {
-    sessionMaxMs: 10 * 60 * 1000, // 10 minutes
-    stepMaxMs: 30 * 1000, // 30 seconds
-    pageLoadMaxMs: 15 * 1000, // 15 seconds
-  },
-  retries: {
-    maxAttempts: 3,
-    delayMs: 1000,
-    backoffMultiplier: 2,
-  },
-  security: {
-    validateSSL: true,
-    allowedDomains: [],
-    maxDataSize: 1024 * 1024, // 1MB
-  },
-  debug: {
-    captureScreenshots: false,
-    logJavaScript: false,
-    saveSessionData: false,
-  },
-};
+// const DEFAULT_CONFIG: SubmissionEngineConfig = {
+//   timeouts: {
+//     sessionMaxMs: 10 * 60 * 1000, // 10 minutes
+//     stepMaxMs: 30 * 1000, // 30 seconds
+//     pageLoadMaxMs: 15 * 1000, // 15 seconds
+//   },
+//   retries: {
+//     maxAttempts: 3,
+//     delayMs: 1000,
+//     backoffMultiplier: 2,
+//   },
+//   security: {
+//     validateSSL: true,
+//     allowedDomains: [],
+//     maxDataSize: 1024 * 1024, // 1MB
+//   },
+//   debug: {
+//     captureScreenshots: false,
+//     logJavaScript: false,
+//     saveSessionData: false,
+//   },
+// };
 
 /**
  * Main submission engine class
  */
 export class SubmissionEngine {
-  private config: SubmissionEngineConfig;
+  // private config: SubmissionEngineConfig;
   private webviewController: WebViewController;
   private scriptRegistry: AutomationScriptRegistry;
   private validator: SubmissionValidator;
   private activeSessions: Map<string, SubmissionSession>;
   private metrics: SubmissionMetrics[];
 
-  constructor(config?: Partial<SubmissionEngineConfig>) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+  constructor(_config?: Partial<SubmissionEngineConfig>) {
+    // this.config = { ...DEFAULT_CONFIG, ...config };
     this.webviewController = new WebViewController();
     this.scriptRegistry = new AutomationScriptRegistry();
     this.validator = new SubmissionValidator();
@@ -169,13 +169,16 @@ export class SubmissionEngine {
             }
             
             // Non-critical step failed, continue with warning
-            session.errors.push({
+            const errorEntry: SubmissionError = {
               stepId: step.id,
               error: stepResult.error || 'Unknown error',
               timestamp: new Date().toISOString(),
-              screenshot: stepResult.screenshot || undefined,
               retryable: true
-            });
+            };
+            if (stepResult.screenshot) {
+              errorEntry.screenshot = stepResult.screenshot;
+            }
+            session.errors.push(errorEntry);
           }
 
           // Update progress
@@ -242,7 +245,7 @@ export class SubmissionEngine {
    * Execute a single automation step
    */
   private async executeAutomationStep(
-    session: SubmissionSession,
+    _session: SubmissionSession,
     step: any,
     script: AutomationScript,
     filledForm: FilledForm
@@ -292,7 +295,7 @@ export class SubmissionEngine {
    */
   private async executeManualSubmission(
     session: SubmissionSession,
-    filledForm: FilledForm
+    _filledForm: FilledForm
   ): Promise<SubmissionResult> {
     session.status = 'manual_fallback';
     
@@ -427,11 +430,11 @@ export class SubmissionEngine {
     return data;
   }
 
-  private prepareStepData(step: any, filledForm: FilledForm, script: AutomationScript): Record<string, unknown> {
+  private prepareStepData(_step: any, filledForm: FilledForm, script: AutomationScript): Record<string, unknown> {
     const data: Record<string, unknown> = {};
     
     // Map form fields to portal selectors
-    Object.entries(script.fieldMappings).forEach(([fieldId, mapping]) => {
+    Object.entries(script.fieldMappings).forEach(([fieldId, _mapping]) => {
       const formData = this.extractFormData(filledForm);
       if (formData[fieldId] !== undefined) {
         data[fieldId] = formData[fieldId];
@@ -456,13 +459,13 @@ export class SubmissionEngine {
     return injectedCode;
   }
 
-  private async validateStepResult(validation: any, result: any): Promise<boolean> {
+  private async validateStepResult(_validation: any, _result: any): Promise<boolean> {
     // Implementation for step validation
     // This would check expected URLs, text content, or element presence
     return true; // Simplified for now
   }
 
-  private async validateSubmissionComplete(session: SubmissionSession, script: AutomationScript): Promise<any> {
+  private async validateSubmissionComplete(_session: SubmissionSession, _script: AutomationScript): Promise<any> {
     // Implementation for final submission validation
     // This would check for confirmation pages, QR codes, etc.
     // For testing purposes, assume success if we got this far

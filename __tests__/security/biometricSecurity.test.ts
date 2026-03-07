@@ -20,9 +20,8 @@ describe('Biometric Security Validation', () => {
     mockKeychain.getInternetCredentials.mockResolvedValue({
       username: 'test',
       password: 'test',
-      service: 'test',
-      storage: Keychain.STORAGE_TYPE.AES
-    });
+      service: 'test'
+    } as any);
     mockKeychain.resetInternetCredentials.mockResolvedValue(void 0);
     
     mockKeychainService.isAvailable.mockResolvedValue(true);

@@ -40,6 +40,13 @@ declare global {
       arrayBuffers: number;
     };
   };
+
+  // Browser navigator API (for device detection)
+  const navigator: {
+    hardwareConcurrency?: number;
+    deviceMemory?: number;
+    userAgent?: string;
+  } | undefined;
 }
 
 export {};

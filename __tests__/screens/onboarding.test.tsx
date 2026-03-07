@@ -131,7 +131,7 @@ describe('Onboarding Flow Integration Tests', () => {
 
       expect(getByText('Passport Information')).toBeTruthy();
       expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
-      expect(getByText('Quick Passport Scan')).toBeTruthy();
+      expect(getByText('Optimized Passport Scan')).toBeTruthy();
       expect(getByText('Start Camera Scan')).toBeTruthy();
       expect(getByText('Manual Entry')).toBeTruthy();
       expect(getByText('Enter Manually')).toBeTruthy();

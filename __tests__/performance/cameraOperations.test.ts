@@ -254,9 +254,10 @@ describe('Camera Operations Performance Tests', () => {
       const detectionResult = await mockQrCapture.detectQR(mockImageData);
       
       if (detectionResult.success && detectionResult.data) {
-        const isValid = mockQrCapture.validateQRFormat(detectionResult.data);
+        // const isValid = mockQrCapture.validateQRFormat(detectionResult.data);
         const metadata = mockQrCapture.extractQRMetadata(detectionResult.data);
-        const savedResult = await mockQrCapture.saveQRCode(detectionResult.data, metadata);
+        // const savedResult = await mockQrCapture.saveQRCode(detectionResult.data, metadata);
+        await mockQrCapture.saveQRCode(detectionResult.data, metadata);
       }
       
       const endTime = performance.now();
@@ -359,7 +360,8 @@ describe('Camera Operations Performance Tests', () => {
       for (const testImage of testImages) {
         const startTime = performance.now();
         
-        const text = await mockMrzParser.performOCR(testImage.data);
+        // const text = await mockMrzParser.performOCR(testImage.data);
+        await mockMrzParser.performOCR(testImage.data);
         
         const endTime = performance.now();
         const duration = endTime - startTime;
@@ -450,7 +452,8 @@ describe('Camera Operations Performance Tests', () => {
       
       const imageData = new Uint8Array(1024 * 768); // Mock camera image
       const preprocessed = mockMrzParser.preprocessImage(imageData);
-      const text = await mockMrzParser.performOCR(preprocessed);
+      // const text = await mockMrzParser.performOCR(preprocessed);
+      await mockMrzParser.performOCR(preprocessed);
       
       // Simulate detected MRZ lines from OCR
       const mrzLines = [
@@ -480,7 +483,8 @@ describe('Camera Operations Performance Tests', () => {
       const qrResult = await mockQrCapture.detectQR(enhanced);
       
       if (qrResult.success && qrResult.data) {
-        const isValid = mockQrCapture.validateQRFormat(qrResult.data);
+        // const isValid = mockQrCapture.validateQRFormat(qrResult.data);
+        mockQrCapture.validateQRFormat(qrResult.data);
         await mockQrCapture.saveQRCode(qrResult.data);
       }
       
@@ -508,14 +512,16 @@ describe('Camera Operations Performance Tests', () => {
     });
 
     it('should handle memory management during continuous scanning', async () => {
-      const camera = await mockMrzParser.initializeCamera();
+      // const camera = await mockMrzParser.initializeCamera();
+      await mockMrzParser.initializeCamera();
       const iterations = 100;
       
       const startTime = performance.now();
       
       for (let i = 0; i < iterations; i++) {
         const imageData = new Uint8Array(512 * 384); // Smaller images for stress test
-        const processed = mockMrzParser.preprocessImage(imageData);
+        // const processed = mockMrzParser.preprocessImage(imageData);
+        mockMrzParser.preprocessImage(imageData);
         
         // Simulate garbage collection every 10 iterations
         if (i % 10 === 0 && (globalThis as any).gc) {

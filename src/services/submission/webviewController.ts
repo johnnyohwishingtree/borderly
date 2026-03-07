@@ -612,26 +612,26 @@ export class WebViewController {
     // In a real implementation, this would return a React Native WebView instance
     // For now, we'll return a mock implementation
     return {
-      loadUrl: async (url: string) => { /* Mock implementation */ },
-      executeJavaScript: async (code: string) => { /* Mock implementation */ },
+      loadUrl: async (_url: string) => { /* Mock implementation */ },
+      executeJavaScript: async (_code: string) => { /* Mock implementation */ },
       goBack: async () => { /* Mock implementation */ },
       goForward: async () => { /* Mock implementation */ },
       reload: async () => { /* Mock implementation */ },
       clearCache: async () => { /* Mock implementation */ },
       clearCookies: async () => { /* Mock implementation */ },
-      setUserAgent: async (userAgent: string) => { /* Mock implementation */ },
-      addEventListener: (event: string, callback: (data: any) => void) => { /* Mock implementation */ },
-      removeEventListener: (event: string, callback: (data: any) => void) => { /* Mock implementation */ }
+      setUserAgent: async (_userAgent: string) => { /* Mock implementation */ },
+      addEventListener: (_event: string, _callback: (data: any) => void) => { /* Mock implementation */ },
+      removeEventListener: (_event: string, _callback: (data: any) => void) => { /* Mock implementation */ }
     };
   }
 
-  private notifyNavigationListeners(event: WebViewNavigationEvent): void {
-    this.navigationListeners.forEach(callback => {
-      try {
-        callback(event);
-      } catch (error) {
-        console.warn('Navigation listener error:', error);
-      }
-    });
-  }
+  // private notifyNavigationListeners(event: WebViewNavigationEvent): void {
+  //   this.navigationListeners.forEach(callback => {
+  //     try {
+  //       callback(event);
+  //     } catch (error) {
+  //       console.warn('Navigation listener error:', error);
+  //     }
+  //   });
+  // }
 }
