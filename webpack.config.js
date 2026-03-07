@@ -3,11 +3,13 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = (env, argv) => {
-  const isDev = argv.mode === 'development';
+  // argv.mode may not be set when mode is only in the config object; default to true
+  // since this webpack config is only used for E2E smoke tests in development
+  const isDev = !argv.mode || argv.mode === 'development';
 
   return {
     mode: 'development',
-  devtool: false,
+  devtool: isDev ? 'eval-source-map' : false,
   entry: './e2e/web-entry.tsx',
   output: {
     path: path.resolve(__dirname, 'e2e/dist'),

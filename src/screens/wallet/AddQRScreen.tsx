@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,15 @@ import { Card, Button, LoadingSpinner, Select } from '../../components/ui';
 import { QRCaptureService } from '../../services/camera/qrCapture';
 import { databaseService } from '../../services/storage';
 import { SavedQRCode } from '../../services/storage/models';
+import {
+  compressBase64Image,
+  analyzeImageQuality,
+  generateProgressiveVersions,
+  validateImageForProcessing,
+  detectDevicePerformance,
+  ImageProcessor,
+  type ImageQualityMetrics,
+} from '../../utils/imageUtils';
 
 interface QRFormData {
   label: string;
@@ -24,11 +33,51 @@ export default function AddQRScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [progressiveImage, setProgressiveImage] = useState<{
+    placeholder?: string;
+    lowQuality?: string;
+    mediumQuality?: string;
+    fullQuality: string;
+  } | null>(null);
+  const [imageQuality, setImageQuality] = useState<ImageQualityMetrics | null>(null);
+  const [compressionInfo, setCompressionInfo] = useState<{
+    success: boolean;
+    originalSize: number;
+    compressedSize: number;
+    compressionRatio: number;
+    deviceOptimized?: boolean;
+  } | null>(null);
   const [formData, setFormData] = useState<QRFormData>({
     label: '',
     type: 'combined',
   });
+  const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
   const navigation = useNavigation();
+
+  // Memory management for images with enhanced cleanup
+  const clearImageMemory = useCallback(() => {
+    setCapturedImage(null);
+    setBase64Image(null);
+    setProgressiveImage(null);
+    setImageQuality(null);
+    setCompressionInfo(null);
+    
+    // Force garbage collection hint if in development
+    if (__DEV__ && (globalThis as any).gc) {
+      // Small delay to allow state updates to complete
+      setTimeout(() => (globalThis as any).gc && (globalThis as any).gc(), 100);
+    }
+  }, []);
+
+  // Detect device performance and cleanup on unmount
+  useEffect(() => {
+    const { tier } = detectDevicePerformance();
+    setDevicePerformance(tier);
+    
+    return () => {
+      clearImageMemory();
+    };
+  }, [clearImageMemory]);
 
   const qrTypeOptions = [
     { value: 'immigration', label: 'Immigration' },
@@ -36,6 +85,60 @@ export default function AddQRScreen() {
     { value: 'health', label: 'Health' },
     { value: 'combined', label: 'Combined' },
   ] as const;
+
+  // Comprehensive image processing for QR codes
+  const processImageForStorage = useCallback(async (base64: string) => {
+    try {
+      // Validate image first
+      const validation = validateImageForProcessing(base64);
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(', '));
+      }
+
+      // Analyze quality
+      const quality = analyzeImageQuality(base64);
+      setImageQuality(quality);
+
+      // Get device-appropriate compression settings
+      const { recommendedSettings } = detectDevicePerformance();
+      
+      // Compress for storage with device-appropriate settings
+      let compressionResult;
+      if (devicePerformance === 'low') {
+        compressionResult = await ImageProcessor.processForLowEndDevice(base64, recommendedSettings);
+      } else {
+        compressionResult = await compressBase64Image(base64, recommendedSettings);
+      }
+      
+      // Normalize compression result for UI display
+      setCompressionInfo({
+        success: compressionResult.success,
+        originalSize: compressionResult.originalSize,
+        compressedSize: compressionResult.compressedSize,
+        compressionRatio: compressionResult.compressionRatio,
+        deviceOptimized: 'memoryOptimized' in compressionResult ? compressionResult.memoryOptimized : false,
+      });
+
+      // Generate progressive versions for better UX
+      const finalBase64 = compressionResult.success 
+        ? ((compressionResult as any).processedBase64 || (compressionResult as any).compressedBase64 || base64)
+        : base64;
+        
+      const progressive = await generateProgressiveVersions(
+        finalBase64,
+        { enableBlurPlaceholder: devicePerformance !== 'low' }
+      );
+      
+      if (progressive.success) {
+        setProgressiveImage(progressive);
+      }
+
+      return finalBase64;
+    } catch (error) {
+      console.error('Error processing image:', error);
+      throw error;
+    }
+  }, [devicePerformance]);
 
   const handleCameraCapture = async () => {
     setIsLoading(true);
@@ -57,6 +160,33 @@ export default function AddQRScreen() {
           return;
         }
 
+        // Enhanced image processing function
+        const setOptimizedImageData = async () => {
+          try {
+            // Clear any existing images first to free memory
+            if (capturedImage || base64Image) {
+              clearImageMemory();
+              // Small delay to allow cleanup
+              await new Promise<void>(resolve => setTimeout(resolve, 50));
+            }
+
+            setCapturedImage(result.imageUri!);
+            
+            // Process image with comprehensive optimization
+            const optimizedBase64 = await processImageForStorage(result.base64!);
+            setBase64Image(optimizedBase64);
+            
+            // Auto-generate a label based on current date
+            const now = new Date();
+            const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            setFormData(prev => ({ ...prev, label: defaultLabel }));
+          } catch (error) {
+            console.error('Error processing captured image:', error);
+            Alert.alert('Processing Error', 'Failed to process the captured image. Please try again.');
+            return;
+          }
+        };
+
         // Show warnings if any
         if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
           Alert.alert(
@@ -66,28 +196,14 @@ export default function AddQRScreen() {
               { text: 'Cancel', style: 'cancel' },
               { 
                 text: 'Continue', 
-                onPress: () => {
-                  setCapturedImage(result.imageUri!);
-                  setBase64Image(result.base64!);
-                  
-                  // Auto-generate a label based on current date
-                  const now = new Date();
-                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                  setFormData(prev => ({ ...prev, label: defaultLabel }));
-                }
+                onPress: setOptimizedImageData
               },
             ]
           );
           return;
         }
 
-        setCapturedImage(result.imageUri);
-        setBase64Image(result.base64);
-        
-        // Auto-generate a label based on current date
-        const now = new Date();
-        const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        setFormData(prev => ({ ...prev, label: defaultLabel }));
+        await setOptimizedImageData();
       } else if (result.error && result.error !== 'User cancelled camera') {
         Alert.alert('Error', result.error);
       }
@@ -118,6 +234,33 @@ export default function AddQRScreen() {
           return;
         }
 
+        // Enhanced image processing function
+        const setOptimizedImageData = async () => {
+          try {
+            // Clear any existing images first to free memory
+            if (capturedImage || base64Image) {
+              clearImageMemory();
+              // Small delay to allow cleanup
+              await new Promise<void>(resolve => setTimeout(resolve, 50));
+            }
+
+            setCapturedImage(result.imageUri!);
+            
+            // Process image with comprehensive optimization
+            const optimizedBase64 = await processImageForStorage(result.base64!);
+            setBase64Image(optimizedBase64);
+            
+            // Auto-generate a label based on current date
+            const now = new Date();
+            const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            setFormData(prev => ({ ...prev, label: defaultLabel }));
+          } catch (error) {
+            console.error('Error processing captured image:', error);
+            Alert.alert('Processing Error', 'Failed to process the captured image. Please try again.');
+            return;
+          }
+        };
+
         // Show warnings if any
         if (qualityCheck.warnings && qualityCheck.warnings.length > 0) {
           Alert.alert(
@@ -127,28 +270,14 @@ export default function AddQRScreen() {
               { text: 'Cancel', style: 'cancel' },
               { 
                 text: 'Continue', 
-                onPress: () => {
-                  setCapturedImage(result.imageUri!);
-                  setBase64Image(result.base64!);
-                  
-                  // Auto-generate a label based on current date
-                  const now = new Date();
-                  const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                  setFormData(prev => ({ ...prev, label: defaultLabel }));
-                }
+                onPress: setOptimizedImageData
               },
             ]
           );
           return;
         }
 
-        setCapturedImage(result.imageUri);
-        setBase64Image(result.base64);
-        
-        // Auto-generate a label based on current date
-        const now = new Date();
-        const defaultLabel = `QR Code - ${now.toLocaleDateString()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        setFormData(prev => ({ ...prev, label: defaultLabel }));
+        await setOptimizedImageData();
       } else if (result.error && result.error !== 'User cancelled image selection') {
         Alert.alert('Error', result.error);
       }
@@ -185,6 +314,9 @@ export default function AddQRScreen() {
         });
       });
 
+      // Clear images from memory after successful save
+      clearImageMemory();
+      
       Alert.alert(
         'Success',
         'QR code saved to your wallet!',
@@ -203,14 +335,13 @@ export default function AddQRScreen() {
     }
   };
 
-  const handleReset = () => {
-    setCapturedImage(null);
-    setBase64Image(null);
+  const handleReset = useCallback(() => {
+    clearImageMemory();
     setFormData({
       label: '',
       type: 'combined',
     });
-  };
+  }, [clearImageMemory]);
 
   if (isLoading) {
     return (
@@ -279,7 +410,9 @@ export default function AddQRScreen() {
 
                 <View className="items-center mb-4">
                   <Image
-                    source={{ uri: capturedImage }}
+                    source={{ 
+                      uri: progressiveImage?.mediumQuality || progressiveImage?.lowQuality || capturedImage 
+                    }}
                     className="w-40 h-40 rounded-lg"
                     resizeMode="contain"
                   />
@@ -288,6 +421,52 @@ export default function AddQRScreen() {
                 <Text className="text-sm text-gray-500 text-center">
                   QR code image captured successfully
                 </Text>
+                
+                {/* Image quality info */}
+                {imageQuality && (
+                  <View className="mt-3 space-y-2">
+                    {imageQuality.warnings.length > 0 && (
+                      <View className="bg-yellow-50 p-2 rounded">
+                        <Text className="text-xs font-medium text-yellow-800">Quality Notes:</Text>
+                        {imageQuality.warnings.map((warning: string, index: number) => (
+                          <Text key={index} className="text-xs text-yellow-700">
+                            • {warning}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                    
+                    {compressionInfo && (
+                      <View className="bg-blue-50 p-2 rounded">
+                        <Text className="text-xs font-medium text-blue-800">
+                          {compressionInfo.compressionRatio !== undefined 
+                            ? `Processing: ${Math.round(compressionInfo.compressionRatio * 100)}%`
+                            : 'Image optimized for device'
+                          }
+                          {compressionInfo.originalSize && compressionInfo.compressedSize && (
+                            <Text>
+                              {' '}({compressionInfo.originalSize > 1024 * 1024 
+                                ? `${(compressionInfo.originalSize / (1024 * 1024)).toFixed(1)}MB` 
+                                : `${(compressionInfo.originalSize / 1024).toFixed(0)}KB`
+                              } → {compressionInfo.compressedSize > 1024 * 1024
+                                ? `${(compressionInfo.compressedSize / (1024 * 1024)).toFixed(1)}MB`
+                                : `${(compressionInfo.compressedSize / 1024).toFixed(0)}KB`
+                              })
+                            </Text>
+                          )}
+                        </Text>
+                      </View>
+                    )}
+                    
+                    {devicePerformance === 'low' && (
+                      <View className="bg-green-50 p-2 rounded">
+                        <Text className="text-xs font-medium text-green-800">
+                          ⚡ Device-optimized processing applied
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
               </View>
             </Card>
           )}

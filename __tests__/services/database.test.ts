@@ -265,7 +265,10 @@ describe('DatabaseService', () => {
 
     it('should get trip legs for a trip', async () => {
       const tripId = 'trip-id';
-      const mockLegs = [{ id: 'leg1' }, { id: 'leg2' }];
+      const mockLegs = [
+        { id: 'leg1', tripId: tripId, order: 1 }, 
+        { id: 'leg2', tripId: tripId, order: 2 }
+      ];
 
       mockDatabase.collections.get().query().fetch.mockResolvedValue(mockLegs);
 

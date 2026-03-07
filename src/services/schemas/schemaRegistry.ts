@@ -1,6 +1,6 @@
 import { CountryFormSchema } from '../../types/schema';
-import { SCHEMAS, SUPPORTED_COUNTRIES } from '../../schemas';
-import { validateSchemaCompletely, loadSchema } from './schemaLoader';
+import { SUPPORTED_COUNTRIES, getSchemaByCountryCode as loadSchemaByCode } from '../../schemas';
+import { validateSchemaCompletely } from './schemaLoader';
 
 export interface SchemaMetadata {
   countryCode: string;
@@ -38,13 +38,13 @@ export class SchemaRegistry {
     try {
       // Load and validate all bundled schemas
       for (const countryCode of SUPPORTED_COUNTRIES) {
-        const schemaData = SCHEMAS[countryCode];
-        const validatedSchema = loadSchema(schemaData, countryCode);
-
-        // Perform comprehensive validation
-        validateSchemaCompletely(validatedSchema);
-
-        this.schemas.set(countryCode, validatedSchema);
+        const validatedSchema = await loadSchemaByCode(countryCode);
+        
+        if (validatedSchema) {
+          // Perform comprehensive validation
+          validateSchemaCompletely(validatedSchema);
+          this.schemas.set(countryCode, validatedSchema);
+        }
       }
 
       this.initialized = true;

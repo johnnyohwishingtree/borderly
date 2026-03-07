@@ -5,10 +5,43 @@
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://vjw-lp.digital.go.jp/en/",
   "portalName": "Visit Japan Web",
+  "metadata": {
+    "priority": 1,
+    "complexity": "low",
+    "popularity": 95,
+    "lastVerified": "2025-06-01T00:00:00Z",
+    "supportedLanguages": ["en", "ja"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".vjw-form", ".form-section", "#submit-btn"],
+    "changeThreshold": 10,
+    "fallbackActions": [
+      {
+        "trigger": "form_structure_changed",
+        "action": "notify",
+        "message": "Visit Japan Web form structure has changed. Manual verification required."
+      }
+    ]
+  },
   "submission": {
     "earliestBeforeArrival": "14d",
     "latestBeforeArrival": "0h",
     "recommended": "72h"
+  },
+  "portalFlow": {
+    "requiresAccount": true,
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport",
+        "required": true
+      }
+    ]
   },
   "sections": [
     {

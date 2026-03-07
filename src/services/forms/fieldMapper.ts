@@ -6,12 +6,60 @@ export interface FormContext {
   leg: TripLeg;
 }
 
+// Memoization cache for path resolution
+const pathResolutionCache = new Map<string, { value: unknown; timestamp: number }>();
+const PATH_CACHE_TTL = 2 * 60 * 1000; // 2 minutes
+
+/**
+ * Generates a cache key for path resolution
+ */
+function generatePathCacheKey(path: string, context: FormContext): string {
+  const contextHash = JSON.stringify({
+    profileId: context.profile.id || 'default',
+    legId: context.leg.id || `${context.leg.destinationCountry}-${context.leg.arrivalDate}`,
+    path,
+    // Include relevant data for computed fields
+    arrivalDate: context.leg.arrivalDate,
+    departureDate: context.leg.departureDate,
+    accommodationAddress: context.leg.accommodation?.address,
+  });
+  
+  return `${path}:${contextHash}`;
+}
+
 /**
  * Resolves auto-fill source paths to actual values from profile and trip data.
  * Supports dot notation (e.g., "profile.passportNumber", "leg.accommodation.address.line1")
  * and computed fields (e.g., "leg._calculatedDuration", "leg.accommodation.address._formatted").
+ * Uses memoization for optimal performance.
  */
 export function resolveAutoFillPath(
+  path: string,
+  context: FormContext
+): unknown {
+  // Check cache first
+  const cacheKey = generatePathCacheKey(path, context);
+  const cached = pathResolutionCache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < PATH_CACHE_TTL) {
+    return cached.value;
+  }
+  
+  const result = resolveAutoFillPathUncached(path, context);
+  
+  // Cache the result
+  pathResolutionCache.set(cacheKey, {
+    value: result,
+    timestamp: Date.now(),
+  });
+  
+  return result;
+}
+
+/**
+ * Internal function that performs the actual path resolution without caching
+ */
+function resolveAutoFillPathUncached(
   path: string,
   context: FormContext
 ): unknown {
@@ -134,4 +182,30 @@ export function getAvailablePaths(obj: unknown, prefix = ''): string[] {
   }
 
   return paths;
+}
+
+/**
+ * Clears expired entries from the path resolution cache
+ */
+export function clearExpiredPathCache(): void {
+  const now = Date.now();
+  for (const [key, entry] of pathResolutionCache.entries()) {
+    if (now - entry.timestamp >= PATH_CACHE_TTL) {
+      pathResolutionCache.delete(key);
+    }
+  }
+}
+
+/**
+ * Clears all path resolution cache entries
+ */
+export function clearPathCache(): void {
+  pathResolutionCache.clear();
+}
+
+/**
+ * Gets path resolution cache statistics
+ */
+export function getPathCacheStats(): { size: number } {
+  return { size: pathResolutionCache.size };
 }

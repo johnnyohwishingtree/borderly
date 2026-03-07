@@ -3,3 +3,4 @@ export { default as CreateTripScreen } from './CreateTripScreen';
 export { default as TripDetailScreen } from './TripDetailScreen';
 export { default as LegFormScreen } from './LegFormScreen';
 export { default as SubmissionGuideScreen } from './SubmissionGuideScreen';
+export { default as AutomatedSubmissionScreen } from './AutomatedSubmissionScreen';

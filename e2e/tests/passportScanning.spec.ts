@@ -91,10 +91,8 @@ test.describe('Passport Scanning Flow', () => {
     // Wait for camera to initialize
     await expect(page.getByText('Position passport MRZ in frame')).toBeVisible({ timeout: 5000 });
 
-    // No fatal errors should have occurred
-    const fatalErrors = errors.filter(
-      e => !e.includes('Warning:') && !e.includes('cannot be a child of')
-    );
-    expect(fatalErrors).toEqual([]);
+    // No uncaught JavaScript errors should have occurred
+    // (pageerror only fires for uncaught exceptions, not React dev warnings)
+    expect(errors).toEqual([]);
   });
 });

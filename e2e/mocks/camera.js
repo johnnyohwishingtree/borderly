@@ -28,6 +28,7 @@ const RNCamera = React.forwardRef((props, ref) => {
 
   return React.createElement('div', {
     'data-testid': 'camera-view',
+    className,
     style: { flex: 1, backgroundColor: '#000' },
   }, children);
 });

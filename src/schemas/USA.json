@@ -1,0 +1,755 @@
+{
+  "countryCode": "USA",
+  "countryName": "United States",
+  "schemaVersion": "2.0.0",
+  "lastUpdated": "2026-03-07T00:00:00Z",
+  "portalUrl": "https://esta.cbp.dhs.gov/",
+  "portalName": "Electronic System for Travel Authorization (ESTA)",
+  "metadata": {
+    "priority": 5,
+    "complexity": "high",
+    "popularity": 95,
+    "lastVerified": "2026-03-07T00:00:00Z",
+    "supportedLanguages": ["en", "es", "fr", "de", "it", "pt", "ja", "ko"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".esta-form", ".application-section", "#submit-esta"],
+    "changeThreshold": 5,
+    "fallbackActions": [
+      {
+        "trigger": "cbp_system_update",
+        "action": "disable",
+        "message": "ESTA system has been updated. Automation temporarily disabled."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "730d",
+    "latestBeforeArrival": "72h",
+    "recommended": "14d",
+    "processingTime": "72h",
+    "blackoutPeriods": [
+      {
+        "start": "2026-07-04T00:00:00Z",
+        "end": "2026-07-06T23:59:59Z",
+        "reason": "Independence Day holiday - extended processing times"
+      }
+    ]
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "7d",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport from VWP country",
+        "required": true
+      },
+      {
+        "type": "payment",
+        "description": "Credit card for $21 authorization fee",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "applicant",
+      "title": "Applicant Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (Family Name)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "helpText": "Enter exactly as shown in passport",
+          "automation": {
+            "selector": "#surname",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "firstName",
+          "label": "First (Given) Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#firstName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name(s)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.middleNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#middleName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "aliases",
+          "label": "Have you ever used other names?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Including maiden names, previous married names, etc.",
+          "automation": {
+            "selector": "#aliases",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#dateOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "cityOfBirth",
+          "label": "City of Birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.cityOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#cityOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "countryOfBirth",
+          "label": "Country of Birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.countryOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#countryOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportCountry",
+          "label": "Country that issued passport",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportCountryOfIssue",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportCountry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssueDate",
+          "label": "Passport Issue Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssueDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpirationDate",
+          "label": "Passport Expiration Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportExpirationDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "issuingAuthority",
+          "label": "Passport Issuing Authority",
+          "type": "text",
+          "required": false,
+          "countrySpecific": false,
+          "helpText": "Optional - name of issuing government office",
+          "automation": {
+            "selector": "#issuingAuthority",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "homeAddress",
+          "label": "Home Address",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "profile.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#homeAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "homePhone",
+          "label": "Home Phone Number",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.phone",
+          "countrySpecific": false,
+          "helpText": "Include country code",
+          "automation": {
+            "selector": "#homePhone",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "workPhone",
+          "label": "Work Phone Number",
+          "type": "text",
+          "required": false,
+          "countrySpecific": false,
+          "helpText": "Include country code",
+          "automation": {
+            "selector": "#workPhone",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "employment",
+      "title": "Employment Information",
+      "fields": [
+        {
+          "id": "employer",
+          "label": "Current or Most Recent Employer",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.employerName",
+          "countrySpecific": false,
+          "helpText": "Enter 'UNEMPLOYED' if not applicable",
+          "automation": {
+            "selector": "#employer",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "employerAddress",
+          "label": "Employer Address",
+          "type": "textarea",
+          "required": true,
+          "countrySpecific": false,
+          "helpText": "Enter 'UNKNOWN' if unemployed",
+          "automation": {
+            "selector": "#employerAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "employerPhone",
+          "label": "Employer Phone Number",
+          "type": "text",
+          "required": false,
+          "countrySpecific": false,
+          "helpText": "Include country code",
+          "automation": {
+            "selector": "#employerPhone",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "jobTitle",
+          "label": "Job Title/Position",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#jobTitle",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "emergency",
+      "title": "Emergency Contact",
+      "fields": [
+        {
+          "id": "emergencyContactName",
+          "label": "Emergency Contact Name",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#emergencyContactName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactPhone",
+          "label": "Emergency Contact Phone",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Include country code",
+          "automation": {
+            "selector": "#emergencyContactPhone",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactEmail",
+          "label": "Emergency Contact Email",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#emergencyContactEmail",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfTravel",
+          "label": "Purpose of Travel",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "business", "label": "Business" },
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "transit", "label": "Transit" }
+          ],
+          "automation": {
+            "selector": "#purposeOfTravel",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "addressInUS",
+          "label": "Address in the United States",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Hotel name and address, or contact address",
+          "automation": {
+            "selector": "#addressInUS",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "contactPersonUS",
+          "label": "Contact Person in the US",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "helpText": "Name of person or organization",
+          "automation": {
+            "selector": "#contactPersonUS",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "contactPhoneUS",
+          "label": "Contact Phone in the US",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#contactPhoneUS",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility",
+      "title": "Eligibility Questions",
+      "fields": [
+        {
+          "id": "mentalDisorder",
+          "label": "Do you have a mental or physical disorder that poses a threat to yourself or others?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#mentalDisorder",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "drugConviction",
+          "label": "Have you ever been arrested or convicted for a crime involving drugs?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#drugConviction",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "childAbduction",
+          "label": "Have you ever been arrested or convicted for a crime involving moral turpitude or child abduction?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#childAbduction",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "crimeConviction",
+          "label": "Have you ever been convicted of multiple crimes?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#crimeConviction",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "controlledSubstance",
+          "label": "Have you ever trafficked in controlled substances, or knowingly assisted or colluded in trafficking?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#controlledSubstance",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "prostitution",
+          "label": "Have you ever engaged in prostitution or procuring prostitutes?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#prostitution",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "moneyLaundering",
+          "label": "Have you ever been involved in money laundering?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#moneyLaundering",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "humanTrafficking",
+          "label": "Have you ever committed or conspired to commit human trafficking?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#humanTrafficking",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "terrorism",
+          "label": "Have you ever been involved in terrorist activities, espionage, or sabotage?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#terrorism",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "genocide",
+          "label": "Have you ever committed genocide, torture, or extrajudicial killings?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#genocide",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "childSoldier",
+          "label": "Have you ever recruited or used child soldiers?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#childSoldier",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "religiousFreedom",
+          "label": "While serving as a government official, have you ever violated religious freedoms?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#religiousFreedom",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "visaRefusal",
+          "label": "Have you ever been refused a US visa or entry into the US?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#visaRefusal",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Access Official ESTA Website",
+      "description": "Go to the official US Customs and Border Protection ESTA website. Beware of unofficial sites that charge additional fees.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Only use esta.cbp.dhs.gov - the official site",
+        "Avoid third-party sites that charge extra fees",
+        "The official fee is $21 per application"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Start New Application",
+      "description": "Click 'New Application' and then 'Individual Application' to begin your ESTA application.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Choose your preferred language",
+        "You have 7 days to complete the application",
+        "Keep your confirmation number safe"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Enter Applicant Information",
+      "description": "Fill in your personal details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["surname", "firstName", "middleName", "aliases", "dateOfBirth", "cityOfBirth", "countryOfBirth", "gender"],
+      "tips": [
+        "Names must match passport exactly",
+        "Include all given names from passport",
+        "Be honest about aliases and other names used"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Passport Information",
+      "description": "Enter all passport details from your passport's information page.",
+      "fieldsOnThisScreen": ["passportNumber", "passportCountry", "passportIssueDate", "passportExpirationDate", "issuingAuthority"],
+      "tips": [
+        "Passport must be e-passport with chip",
+        "Must be valid for duration of stay",
+        "Double-check passport number"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Contact Information",
+      "description": "Provide your current contact information.",
+      "fieldsOnThisScreen": ["homeAddress", "homePhone", "workPhone", "email"],
+      "tips": [
+        "Use email you check regularly",
+        "Include country codes for phone numbers",
+        "Address should be your permanent residence"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Employment Information",
+      "description": "Enter your current or most recent employment details.",
+      "fieldsOnThisScreen": ["employer", "employerAddress", "employerPhone", "jobTitle"],
+      "tips": [
+        "If unemployed, enter 'UNEMPLOYED'",
+        "Students can enter school name",
+        "Retired persons should enter last employer"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Emergency Contact",
+      "description": "Provide emergency contact information for someone not traveling with you.",
+      "fieldsOnThisScreen": ["emergencyContactName", "emergencyContactPhone", "emergencyContactEmail"],
+      "tips": [
+        "Should be someone in your home country",
+        "Cannot be someone traveling with you",
+        "Include full international phone number"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Travel Information",
+      "description": "Enter details about your planned travel to the United States.",
+      "fieldsOnThisScreen": ["purposeOfTravel", "addressInUS", "contactPersonUS", "contactPhoneUS"],
+      "tips": [
+        "Purpose affects your permitted activities",
+        "Hotel name and address is acceptable",
+        "Contact person can be hotel or tour operator"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Eligibility Questions",
+      "description": "Answer all security and eligibility questions truthfully. Most travelers will answer 'No' to all questions.",
+      "fieldsOnThisScreen": ["mentalDisorder", "drugConviction", "childAbduction", "crimeConviction", "controlledSubstance", "prostitution", "moneyLaundering", "humanTrafficking", "terrorism", "genocide", "childSoldier", "religiousFreedom", "visaRefusal"],
+      "tips": [
+        "Answer honestly - false answers are grounds for denial",
+        "Most legitimate travelers answer 'No' to all",
+        "If you answer 'Yes', you may need a visa instead",
+        "Review each question carefully"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Review Application",
+      "description": "Carefully review all information for accuracy before submitting.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Check all names match passport exactly",
+        "Verify all dates are correct",
+        "Ensure contact information is current",
+        "You cannot edit after submission"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Submit and Pay",
+      "description": "Submit your application and pay the $21 fee by credit card.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Payment is required for processing",
+        "Fee is $21 regardless of approval/denial",
+        "Save your confirmation number",
+        "Processing usually takes minutes to hours"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Check Status and Approval",
+      "description": "Check your application status using your confirmation number. Print or save your approval.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Approved ESTA is valid for 2 years",
+        "Allows multiple entries up to 90 days each",
+        "No physical document needed",
+        "Airlines and CBP access electronically"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://esta.cbp.dhs.gov/",
+    "testMode": true,
+    "successIndicators": [".authorization-approved", "#esta-approval"],
+    "failureIndicators": [".authorization-denied", ".validation-error"],
+    "dataExtractionRules": [
+      {
+        "name": "applicationNumber",
+        "selector": "#application-number",
+        "required": true
+      },
+      {
+        "name": "authorizationNumber",
+        "selector": "#authorization-number",
+        "required": true
+      }
+    ]
+  }
+}

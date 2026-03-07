@@ -9,10 +9,18 @@ import { Trip } from '../../types/trip';
 
 export default function TripListScreen() {
   const navigation = useNavigation();
-  const { trips, isLoading, error, loadTrips } = useTripStore();
+  const { 
+    trips, 
+    isLoading, 
+    isLoadingMore, 
+    error, 
+    hasMoreTrips, 
+    loadTrips, 
+    loadMoreTrips 
+  } = useTripStore();
 
   useEffect(() => {
-    loadTrips();
+    loadTrips({ refresh: true });
   }, []);
 
   const handleTripPress = (trip: Trip) => {
@@ -145,10 +153,42 @@ export default function TripListScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
-          refreshing={isLoading}
-          onRefresh={loadTrips}
+          refreshing={isLoading && trips.length === 0}
+          onRefresh={() => loadTrips({ refresh: true })}
+          onEndReached={() => {
+            if (hasMoreTrips && !isLoadingMore) {
+              loadMoreTrips();
+            }
+          }}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={() => {
+            if (isLoadingMore) {
+              return (
+                <View className="py-4 items-center">
+                  <LoadingSpinner size="small" text="Loading more trips..." variant="spinner" />
+                </View>
+              );
+            }
+            if (!hasMoreTrips && trips.length > 0) {
+              return (
+                <View className="py-4 items-center">
+                  <Text className="text-gray-500 text-sm">No more trips to show</Text>
+                </View>
+              );
+            }
+            return null;
+          }}
           accessibilityLabel="List of your trips"
-          accessibilityHint="Swipe down to refresh, tap on a trip to view details"
+          accessibilityHint="Swipe down to refresh, scroll to bottom to load more trips"
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          windowSize={10}
+          removeClippedSubviews={true}
+          getItemLayout={(_, index) => ({
+            length: 200, // Approximate height of TripCard
+            offset: 200 * index,
+            index,
+          })}
         />
       )}
 

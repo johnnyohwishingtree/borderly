@@ -1,0 +1,659 @@
+{
+  "countryCode": "CAN",
+  "countryName": "Canada",
+  "schemaVersion": "2.0.0",
+  "lastUpdated": "2026-03-07T00:00:00Z",
+  "portalUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
+  "portalName": "Electronic Travel Authorization (eTA)",
+  "metadata": {
+    "priority": 8,
+    "complexity": "medium",
+    "popularity": 75,
+    "lastVerified": "2026-03-07T00:00:00Z",
+    "supportedLanguages": ["en", "fr"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "quarterly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".eta-form", ".form-group", "#submit-eta"],
+    "changeThreshold": 10,
+    "fallbackActions": [
+      {
+        "trigger": "ircc_system_change",
+        "action": "notify",
+        "message": "Canada eTA system has been updated. Please verify manually."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "730d",
+    "latestBeforeArrival": "0h",
+    "recommended": "72h",
+    "processingTime": "24h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "20m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport from visa-exempt country",
+        "required": true
+      },
+      {
+        "type": "payment",
+        "description": "Credit card for CAD $7 application fee",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (family name)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "helpText": "Enter exactly as shown on passport",
+          "automation": {
+            "selector": "#surname",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "givenNames",
+          "label": "Given name(s) (first and middle names)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#given-names",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "previousNames",
+          "label": "Have you used any other names?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Including maiden names, previous married names, etc.",
+          "automation": {
+            "selector": "#previous-names",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#date-of-birth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "countryOfBirth",
+          "label": "Country/territory of birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.countryOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#country-of-birth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Sex",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" },
+            { "value": "X", "label": "Another gender" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "maritalStatus",
+          "label": "Marital status",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "single", "label": "Single/Never married" },
+            { "value": "married", "label": "Married" },
+            { "value": "divorced", "label": "Divorced" },
+            { "value": "widowed", "label": "Widowed" },
+            { "value": "separated", "label": "Legally separated" },
+            { "value": "common_law", "label": "Common-law" },
+            { "value": "annulled", "label": "Annulled marriage" }
+          ],
+          "automation": {
+            "selector": "#marital-status",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nationality",
+      "title": "Nationality and Citizenship",
+      "fields": [
+        {
+          "id": "nationality",
+          "label": "Country/territory of nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dualCitizenship",
+          "label": "Are you a citizen or national of any other country/territory?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#dual-citizenship",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "immigrationStatus",
+          "label": "What is your current immigration status?",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "citizen", "label": "Citizen" },
+            { "value": "permanent_resident", "label": "Permanent resident" },
+            { "value": "refugee", "label": "Refugee" },
+            { "value": "other", "label": "Other" }
+          ],
+          "helpText": "In your country of nationality",
+          "automation": {
+            "selector": "#immigration-status",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportNumber",
+          "label": "Passport number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-number",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportCountry",
+          "label": "Country/territory that issued the passport",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportCountryOfIssue",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-country",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssueDate",
+          "label": "Date passport was issued",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-issue-date",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiryDate",
+          "label": "Date passport expires",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passport-expiry-date",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "helpText": "You'll receive your eTA confirmation at this address",
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "confirmEmail",
+          "label": "Re-enter email address",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#confirm-email",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "title": "Address Information",
+      "fields": [
+        {
+          "id": "homeAddress",
+          "label": "Home address",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "profile.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Your current permanent address",
+          "automation": {
+            "selector": "#home-address",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "homeCountry",
+          "label": "Country/territory of residence",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.address.country",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#home-country",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "employment",
+      "title": "Employment Information",
+      "fields": [
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": false,
+          "helpText": "Your current job title or 'Student', 'Retired', etc.",
+          "automation": {
+            "selector": "#occupation",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "employerName",
+          "label": "Name of employer or school (if applicable)",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.employerName",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#employer-name",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfVisit",
+          "label": "Why do you want to come to Canada?",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism/recreation" },
+            { "value": "visit_family", "label": "Visit family or friends" },
+            { "value": "business", "label": "Business" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#purpose-of-visit",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "fundingSource",
+          "label": "How will you support yourself in Canada?",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "personal_funds", "label": "My own funds" },
+            { "value": "family_friends", "label": "Funds from family or friends in Canada" },
+            { "value": "family_home", "label": "Funds from family or friends in my home country" },
+            { "value": "organization", "label": "Funds from an organization or government" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#funding-source",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "background",
+      "title": "Background Information",
+      "fields": [
+        {
+          "id": "criminalOffence",
+          "label": "Have you ever committed, been arrested for, been charged with or convicted of any criminal offence in any country/territory?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#criminal-offence",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "immigrationOffence",
+          "label": "Have you ever been refused a visa or permit, or been ordered to leave Canada or any other country/territory?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#immigration-offence",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "medicalCondition",
+          "label": "Do you have any medical conditions that require medical attention or hospitalization?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#medical-condition",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "tuberculosis",
+          "label": "Have you ever been diagnosed with tuberculosis or have you ever been in close contact with someone with tuberculosis?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#tuberculosis",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "governmentPosition",
+          "label": "Have you ever held a government position in any country/territory?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#government-position",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "militaryService",
+          "label": "Have you ever served in any military or armed forces, or been associated with an armed group?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#military-service",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "warCrimes",
+          "label": "Have you ever been associated with war crimes, crimes against humanity or genocide?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#war-crimes",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Check if You Need an eTA",
+      "description": "Confirm that you need an eTA. Citizens of visa-exempt countries need an eTA to fly to or transit through Canada.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "US citizens don't need an eTA",
+        "Canadian citizens should not apply",
+        "Check the official list of visa-exempt countries"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Access the Official eTA Website",
+      "description": "Go to the official Government of Canada eTA application website.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Only use canada.ca - the official government site",
+        "Avoid third-party sites that charge extra fees",
+        "The official fee is CAD $7"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Start Your Application",
+      "description": "Click 'Apply for an eTA' and begin filling out the online form.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Have your passport ready",
+        "Application usually takes 5-10 minutes",
+        "Complete in one session - cannot save progress"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Enter Personal Information",
+      "description": "Fill in your personal details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["surname", "givenNames", "previousNames", "dateOfBirth", "countryOfBirth", "gender", "maritalStatus"],
+      "tips": [
+        "Names must match passport exactly",
+        "Include all names from passport",
+        "Select appropriate marital status"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Nationality and Citizenship",
+      "description": "Provide information about your nationality and citizenship status.",
+      "fieldsOnThisScreen": ["nationality", "dualCitizenship", "immigrationStatus"],
+      "tips": [
+        "Answer honestly about dual citizenship",
+        "Immigration status refers to your home country",
+        "Most applicants are citizens of their home country"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Passport Information",
+      "description": "Enter your passport details from the passport information page.",
+      "fieldsOnThisScreen": ["passportNumber", "passportCountry", "passportIssueDate", "passportExpiryDate"],
+      "tips": [
+        "Passport must be valid for your travel",
+        "Double-check passport number",
+        "Ensure dates are correct"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Contact Information",
+      "description": "Provide your email address where you'll receive your eTA confirmation.",
+      "fieldsOnThisScreen": ["email", "confirmEmail"],
+      "tips": [
+        "Use an email you check regularly",
+        "You'll receive confirmation within minutes",
+        "Keep confirmation email for your records"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Address Information",
+      "description": "Enter your current home address.",
+      "fieldsOnThisScreen": ["homeAddress", "homeCountry"],
+      "tips": [
+        "Use your permanent address",
+        "Include postal/zip code if applicable",
+        "Address should match passport if shown"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Employment Information",
+      "description": "Provide details about your current occupation and employer.",
+      "fieldsOnThisScreen": ["occupation", "employerName"],
+      "tips": [
+        "Students should enter 'Student'",
+        "Retired persons should enter 'Retired'",
+        "Include school name if student"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Travel Information",
+      "description": "Indicate your purpose for visiting Canada and how you'll support yourself.",
+      "fieldsOnThisScreen": ["purposeOfVisit", "fundingSource"],
+      "tips": [
+        "Choose the main purpose of your visit",
+        "Be honest about funding sources",
+        "Most tourists select 'my own funds'"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "Background Questions",
+      "description": "Answer all background and security questions truthfully. Most travelers will answer 'No' to all questions.",
+      "fieldsOnThisScreen": ["criminalOffence", "immigrationOffence", "medicalCondition", "tuberculosis", "governmentPosition", "militaryService", "warCrimes"],
+      "tips": [
+        "Answer honestly - false answers can result in serious consequences",
+        "Most legitimate travelers answer 'No' to all questions",
+        "If you answer 'Yes' to any question, you may need to apply for a visa"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "Review and Submit",
+      "description": "Review all your information carefully before submitting your application.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Check all information is accurate",
+        "Names must match passport exactly",
+        "You cannot edit after submission"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "Pay Application Fee",
+      "description": "Pay the CAD $7 application fee using a credit card.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Fee is CAD $7 regardless of approval",
+        "Major credit cards accepted",
+        "Payment processes immediately"
+      ]
+    },
+    {
+      "order": 14,
+      "title": "Receive Your eTA",
+      "description": "Most eTAs are approved within minutes. You'll receive confirmation by email.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "eTA is electronically linked to your passport",
+        "Valid for 5 years or until passport expires",
+        "No physical document needed",
+        "Airlines can access eTA status electronically"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
+    "testMode": true,
+    "successIndicators": [".eta-approved", "#confirmation-number"],
+    "failureIndicators": [".application-error", ".form-validation-error"],
+    "dataExtractionRules": [
+      {
+        "name": "etaNumber",
+        "selector": "#eta-number",
+        "required": true
+      },
+      {
+        "name": "confirmationEmail",
+        "selector": "#confirmation-email",
+        "required": false
+      }
+    ]
+  }
+}

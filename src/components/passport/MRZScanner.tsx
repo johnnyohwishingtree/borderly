@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { MRZScanner, type ScanResult, type TextRecognition } from '../../services/passport/mrzScanner';
+import { createOptimizedMRZScanner, type ScanResult, type TextRecognition } from '../../services/passport/mrzScanner';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -25,19 +25,34 @@ export interface MRZScannerProps {
   onScanSuccess: (result: MRZParseResult) => void;
   onScanCancel: () => void;
   onManualEntry: () => void;
+  lowPowerMode?: boolean; // Enable aggressive power saving
 }
 
 export default function MRZScannerComponent({
   onScanSuccess,
   onScanCancel,
   onManualEntry,
+  lowPowerMode = false,
 }: MRZScannerProps) {
   const cameraRef = useRef<RNCamera>(null);
-  const scannerRef = useRef(new MRZScanner());
+  const scannerRef = useRef(createOptimizedMRZScanner(lowPowerMode ? {
+    scanCooldownMs: 1000, // Longer cooldown in low power mode
+    maxScanAttempts: 8,
+  } : undefined));
   const [isScanning, setIsScanning] = useState(true);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState<{
+    successRate: number;
+    averageAttempts: number;
+    avgProcessingTime: number;
+    framesSkipped: number;
+    deviceTier: string;
+  } | null>(null);
+  
+  // Performance monitoring for optimization feedback
+  const performanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     // Reset scanner when component mounts
@@ -50,15 +65,45 @@ export default function MRZScannerComponent({
       }
     }, 10000);
 
+    // Start performance monitoring
+    if (!lowPowerMode) {
+      performanceTimerRef.current = setInterval(() => {
+        if (scannerRef.current && typeof scannerRef.current.getPerformanceMetrics === 'function') {
+          const metrics = scannerRef.current.getPerformanceMetrics();
+          setPerformanceMetrics(metrics);
+        }
+      }, 2000);
+    }
+
     return () => {
       // Cleanup on unmount
       clearTimeout(cameraTimeout);
       setIsScanning(false);
+      
+      // Clear performance timer
+      if (performanceTimerRef.current) {
+        clearInterval(performanceTimerRef.current);
+        performanceTimerRef.current = null;
+      }
+      
+      // Dispose scanner resources
+      if (scannerRef.current && typeof scannerRef.current.dispose === 'function') {
+        scannerRef.current.dispose();
+      }
+      
+      // Clear camera ref and stop preview
+      if (cameraRef.current) {
+        try {
+          cameraRef.current.pausePreview?.();
+        } catch (error) {
+          // Ignore cleanup errors
+        }
+      }
     };
-  }, []);
+  }, [lowPowerMode]);
 
   const handleTextRecognition = (textRecognition: TextRecognition) => {
-    if (!isScanning) return;
+    if (!isScanning || (scannerRef.current && typeof scannerRef.current.isDisposedState === 'function' && scannerRef.current.isDisposedState())) return;
 
     const result = scannerRef.current.processFrame(textRecognition);
     setScanResult(result);
@@ -72,8 +117,10 @@ export default function MRZScannerComponent({
         enableVibrateFallback: true,
       });
 
-      // Small delay to show success state
+      // Small delay to show success state, then cleanup and callback
       setTimeout(() => {
+        // Clear scan result to free memory before callback
+        setScanResult(null);
         onScanSuccess(result.mrz!);
       }, 500);
     }
@@ -169,6 +216,10 @@ export default function MRZScannerComponent({
         captureAudio={false}
         onCameraReady={handleCameraReady}
         onMountError={handleMountError}
+        // Performance optimizations
+        ratio={lowPowerMode ? "4:3" : "16:9"} // 4:3 uses less memory on low-end devices
+        // Optimize preview for battery life
+        autoFocusPointOfInterest={{ x: 0.5, y: 0.7 }} // Focus on MRZ area
       >
         {/* Overlay */}
         <View className="flex-1 relative">
@@ -239,6 +290,17 @@ export default function MRZScannerComponent({
                 <Text className="text-center text-xs text-gray-400 mt-1">
                   Confidence: {Math.round(scanResult.confidence * 100)}%
                 </Text>
+              )}
+              
+              {/* Performance info (dev mode only) */}
+              {__DEV__ && performanceMetrics && !lowPowerMode && (
+                <View className="mt-2 px-2 py-1 bg-black/60 rounded">
+                  <Text className="text-xs text-gray-300 text-center">
+                    Success: {Math.round(performanceMetrics.successRate * 100)}% | 
+                    Tier: {performanceMetrics.deviceTier} | 
+                    Skipped: {performanceMetrics.framesSkipped}
+                  </Text>
+                </View>
               )}
             </View>
             
