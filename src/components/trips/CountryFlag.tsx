@@ -72,7 +72,7 @@ export default function CountryFlag({
           </View>
         );
       case 'MYS':
-        // Malaysia: Red and white stripes
+        // Malaysia: 14 alternating red and white stripes (simplified with 7 visible)
         return (
           <View
             style={{
@@ -86,6 +86,11 @@ export default function CountryFlag({
           >
             <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
             <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
+            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
+            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
+            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
+            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
+            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
           </View>
         );
       case 'SGP':

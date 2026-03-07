@@ -39,9 +39,4 @@ module.exports = {
   createIconSet,
 };
 
-// Also support individual imports
-module.exports.MaterialIcons = MaterialIcons;
-module.exports.Ionicons = Ionicons;
-module.exports.Feather = Feather;
-module.exports.FontAwesome = FontAwesome;
-module.exports.Entypo = Entypo;
+// Individual imports are already supported through the module.exports object above
