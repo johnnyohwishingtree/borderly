@@ -354,7 +354,7 @@ export function getContextualHelp(
  * Check if an error has automated recovery options
  */
 export function hasAutomatedRecovery(errorCode: ErrorCode): boolean {
-  const automatedRecoveryErrors = [
+  const automatedRecoveryErrors: ErrorCode[] = [
     ERROR_CODES.NETWORK_UNAVAILABLE,
     ERROR_CODES.REQUEST_TIMEOUT,
     ERROR_CODES.SERVER_ERROR,
