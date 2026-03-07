@@ -34,6 +34,25 @@ export const defaultScannerConfig: ScannerConfig = {
   scanCooldownMs: 500
 };
 
+// Performance-optimized configurations for different device tiers
+export const performanceConfigs = {
+  low: {
+    minConfidence: 0.6,
+    maxScanAttempts: 15,
+    scanCooldownMs: 800,
+  },
+  medium: {
+    minConfidence: 0.7,
+    maxScanAttempts: 12,
+    scanCooldownMs: 600,
+  },
+  high: {
+    minConfidence: 0.8,
+    maxScanAttempts: 8,
+    scanCooldownMs: 300,
+  },
+};
+
 /**
  * Process text recognition result from camera
  */
@@ -102,25 +121,34 @@ export function processCameraText(
 }
 
 /**
- * Extract raw text from camera text recognition result
+ * Extract raw text from camera text recognition result with optimizations
  */
 function extractRawText(textRecognition: TextRecognition): string {
-  if (!textRecognition.textBlocks) {
+  if (!textRecognition.textBlocks || textRecognition.textBlocks.length === 0) {
     return '';
   }
 
-  // Combine all text blocks, preserving line structure
+  // Pre-allocate array for better performance
   const textLines: string[] = [];
   
-  for (const block of textRecognition.textBlocks) {
-    if (block.components) {
-      for (const component of block.components) {
-        if (component.value) {
-          textLines.push(component.value);
+  // Optimized text extraction with early termination for performance
+  for (let i = 0; i < textRecognition.textBlocks.length && i < 50; i++) {
+    const block = textRecognition.textBlocks[i];
+    
+    if (block.components && block.components.length > 0) {
+      for (let j = 0; j < block.components.length && j < 10; j++) {
+        const component = block.components[j];
+        if (component.value && component.value.trim().length > 0) {
+          textLines.push(component.value.trim());
         }
       }
-    } else if (block.value) {
-      textLines.push(block.value);
+    } else if (block.value && block.value.trim().length > 0) {
+      textLines.push(block.value.trim());
+    }
+    
+    // Early termination if we have enough text (likely found MRZ area)
+    if (textLines.length > 20) {
+      break;
     }
   }
 
@@ -128,7 +156,7 @@ function extractRawText(textRecognition: TextRecognition): string {
 }
 
 /**
- * Scanner state management for continuous scanning
+ * Scanner state management for continuous scanning with performance optimizations
  */
 export class MRZScanner {
   private lastScanTime = 0;
@@ -138,13 +166,30 @@ export class MRZScanner {
   private memoryUsage = {
     totalFramesProcessed: 0,
     lastMemoryCleanup: Date.now(),
-    maxRetainedScans: 5
+    maxRetainedScans: 5,
+    framesSkipped: 0,
+    avgProcessingTime: 0,
   };
+  private performanceMetrics = {
+    successRate: 0,
+    averageAttempts: 0,
+    recentScans: [] as number[],
+  };
+  private adaptiveConfig: ScannerConfig;
   
-  constructor(private config: ScannerConfig = defaultScannerConfig) {}
+  constructor(
+    private config: ScannerConfig = defaultScannerConfig,
+    private deviceTier: 'low' | 'medium' | 'high' = 'medium'
+  ) {
+    // Initialize adaptive configuration based on device performance
+    this.adaptiveConfig = {
+      ...config,
+      ...performanceConfigs[deviceTier],
+    };
+  }
 
   /**
-   * Process a new camera frame
+   * Process a new camera frame with adaptive performance optimization
    */
   processFrame(textRecognition: TextRecognition): ScanResult {
     if (this.isDisposed) {
@@ -152,9 +197,12 @@ export class MRZScanner {
     }
 
     const now = Date.now();
+    const frameStart = performance.now();
     
-    // Enforce cooldown
-    if (now - this.lastScanTime < this.config.scanCooldownMs) {
+    // Adaptive cooldown based on device performance and scan success rate
+    const adaptiveCooldown = this.calculateAdaptiveCooldown();
+    if (now - this.lastScanTime < adaptiveCooldown) {
+      this.memoryUsage.framesSkipped++;
       return this.lastSuccessfulScan || {
         type: 'no_mrz',
         confidence: 0,
@@ -166,23 +214,26 @@ export class MRZScanner {
     this.scanAttempts++;
     this.memoryUsage.totalFramesProcessed++;
     
-    // Periodic memory cleanup
-    if (now - this.memoryUsage.lastMemoryCleanup > 30000) { // Every 30 seconds
+    // Periodic memory cleanup with adaptive frequency
+    const cleanupInterval = this.deviceTier === 'low' ? 15000 : 30000;
+    if (now - this.memoryUsage.lastMemoryCleanup > cleanupInterval) {
       this.performMemoryCleanup();
     }
     
-    const result = processCameraText(textRecognition, this.config);
+    const result = processCameraText(textRecognition, this.adaptiveConfig);
+    
+    // Track performance metrics
+    const frameTime = performance.now() - frameStart;
+    this.updatePerformanceMetrics(result, frameTime);
     
     // Update state
     if (result.type === 'success' || result.type === 'partial') {
       this.lastSuccessfulScan = result;
     }
     
-    // Suggest manual entry after max attempts
-    if (
-      this.scanAttempts >= this.config.maxScanAttempts &&
-      result.type !== 'success'
-    ) {
+    // Adaptive max attempts based on success rate
+    const maxAttempts = this.calculateAdaptiveMaxAttempts();
+    if (this.scanAttempts >= maxAttempts && result.type !== 'success') {
       return {
         ...result,
         guidance: 'Scan taking too long. Try manual entry instead'
@@ -272,6 +323,88 @@ export class MRZScanner {
   isDisposedState(): boolean {
     return this.isDisposed;
   }
+
+  /**
+   * Calculate adaptive cooldown based on device performance and scan success rate
+   */
+  private calculateAdaptiveCooldown(): number {
+    const baseCooldown = this.adaptiveConfig.scanCooldownMs;
+    
+    // Increase cooldown on low-end devices or low success rate
+    if (this.deviceTier === 'low') {
+      return baseCooldown * 1.5;
+    }
+    
+    // Reduce cooldown if we have high success rate
+    if (this.performanceMetrics.successRate > 0.7) {
+      return baseCooldown * 0.8;
+    }
+    
+    return baseCooldown;
+  }
+
+  /**
+   * Calculate adaptive max attempts based on success rate
+   */
+  private calculateAdaptiveMaxAttempts(): number {
+    const baseAttempts = this.adaptiveConfig.maxScanAttempts;
+    
+    // Give more attempts on low-end devices
+    if (this.deviceTier === 'low') {
+      return Math.min(baseAttempts * 1.5, 20);
+    }
+    
+    // Reduce attempts if consistently failing
+    if (this.performanceMetrics.successRate < 0.3 && this.scanAttempts > 5) {
+      return Math.max(baseAttempts * 0.7, 5);
+    }
+    
+    return baseAttempts;
+  }
+
+  /**
+   * Update performance metrics for adaptive optimization
+   */
+  private updatePerformanceMetrics(result: ScanResult, processingTime: number): void {
+    // Update processing time average
+    this.memoryUsage.avgProcessingTime = 
+      (this.memoryUsage.avgProcessingTime * 0.9) + (processingTime * 0.1);
+    
+    // Track recent scans for success rate calculation
+    this.performanceMetrics.recentScans.push(result.type === 'success' ? 1 : 0);
+    
+    // Keep only last 20 scans for rolling average
+    if (this.performanceMetrics.recentScans.length > 20) {
+      this.performanceMetrics.recentScans.shift();
+    }
+    
+    // Calculate success rate
+    const recentSuccesses = this.performanceMetrics.recentScans.reduce((a, b) => a + b, 0);
+    this.performanceMetrics.successRate = recentSuccesses / this.performanceMetrics.recentScans.length;
+    
+    // Calculate average attempts (simple approximation)
+    this.performanceMetrics.averageAttempts = 
+      (this.performanceMetrics.averageAttempts * 0.9) + (this.scanAttempts * 0.1);
+  }
+
+  /**
+   * Get current performance metrics
+   */
+  getPerformanceMetrics(): {
+    successRate: number;
+    averageAttempts: number;
+    avgProcessingTime: number;
+    framesSkipped: number;
+    deviceTier: string;
+  } {
+    return {
+      successRate: this.performanceMetrics.successRate,
+      averageAttempts: this.performanceMetrics.averageAttempts,
+      avgProcessingTime: this.memoryUsage.avgProcessingTime,
+      framesSkipped: this.memoryUsage.framesSkipped,
+      deviceTier: this.deviceTier,
+    };
+  }
 }
 
 /**
@@ -357,4 +490,52 @@ export function getScanningGuidance(
   
   // Medium amount - probably in good position
   return 'Hold steady. Scanning MRZ...';
+}
+
+/**
+ * Create an optimized MRZ scanner based on device performance
+ */
+export function createOptimizedMRZScanner(customConfig?: Partial<ScannerConfig>): MRZScanner {
+  // Detect device performance tier
+  const deviceTier = detectDevicePerformanceTier();
+  
+  // Merge custom config with performance-optimized defaults
+  const config = {
+    ...defaultScannerConfig,
+    ...performanceConfigs[deviceTier],
+    ...customConfig,
+  };
+  
+  return new MRZScanner(config, deviceTier);
+}
+
+/**
+ * Simple device performance tier detection
+ */
+function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
+  try {
+    // Check hardware concurrency (CPU cores)
+    const hardwareConcurrency = (navigator as any)?.hardwareConcurrency || 2;
+    
+    // Check device memory if available
+    const deviceMemory = (navigator as any)?.deviceMemory || 2;
+    
+    // Check user agent for known low-end patterns
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isLowEndDevice = userAgent.includes('low-end') || 
+      userAgent.includes('lite') || 
+      userAgent.includes('go');
+    
+    // Performance heuristics
+    if (isLowEndDevice || hardwareConcurrency <= 2 || deviceMemory <= 2) {
+      return 'low';
+    } else if (hardwareConcurrency <= 4 || deviceMemory <= 4) {
+      return 'medium';
+    } else {
+      return 'high';
+    }
+  } catch (error) {
+    // Default to medium if detection fails
+    return 'medium';
+  }
 }
