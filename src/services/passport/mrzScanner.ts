@@ -134,6 +134,12 @@ export class MRZScanner {
   private lastScanTime = 0;
   private scanAttempts = 0;
   private lastSuccessfulScan: ScanResult | null = null;
+  private isDisposed = false;
+  private memoryUsage = {
+    totalFramesProcessed: 0,
+    lastMemoryCleanup: Date.now(),
+    maxRetainedScans: 5
+  };
   
   constructor(private config: ScannerConfig = defaultScannerConfig) {}
 
@@ -141,6 +147,10 @@ export class MRZScanner {
    * Process a new camera frame
    */
   processFrame(textRecognition: TextRecognition): ScanResult {
+    if (this.isDisposed) {
+      throw new Error('Scanner has been disposed');
+    }
+
     const now = Date.now();
     
     // Enforce cooldown
@@ -154,6 +164,12 @@ export class MRZScanner {
     
     this.lastScanTime = now;
     this.scanAttempts++;
+    this.memoryUsage.totalFramesProcessed++;
+    
+    // Periodic memory cleanup
+    if (now - this.memoryUsage.lastMemoryCleanup > 30000) { // Every 30 seconds
+      this.performMemoryCleanup();
+    }
     
     const result = processCameraText(textRecognition, this.config);
     
@@ -180,19 +196,73 @@ export class MRZScanner {
    * Reset scanner state
    */
   reset(): void {
+    if (this.isDisposed) return;
+    
     this.lastScanTime = 0;
     this.scanAttempts = 0;
     this.lastSuccessfulScan = null;
+    this.memoryUsage.totalFramesProcessed = 0;
+    this.memoryUsage.lastMemoryCleanup = Date.now();
   }
 
   /**
    * Get current scan statistics
    */
-  getStats(): { attempts: number; lastScan: ScanResult | null } {
+  getStats(): { attempts: number; lastScan: ScanResult | null; memoryUsage: typeof this.memoryUsage } {
     return {
       attempts: this.scanAttempts,
-      lastScan: this.lastSuccessfulScan
+      lastScan: this.lastSuccessfulScan,
+      memoryUsage: { ...this.memoryUsage }
     };
+  }
+
+  /**
+   * Perform memory cleanup
+   */
+  private performMemoryCleanup(): void {
+    if (this.isDisposed) return;
+    
+    // Clear old scan results to prevent memory accumulation
+    if (this.lastSuccessfulScan) {
+      // Keep only essential data, clear heavy objects
+      this.lastSuccessfulScan = {
+        type: this.lastSuccessfulScan.type,
+        confidence: this.lastSuccessfulScan.confidence,
+        guidance: this.lastSuccessfulScan.guidance,
+        // Don't keep the full MRZ result to reduce memory usage
+      };
+    }
+    
+    this.memoryUsage.lastMemoryCleanup = Date.now();
+    
+    // Force garbage collection hint (if available in dev tools)
+    if (__DEV__ && global.gc) {
+      global.gc();
+    }
+  }
+
+  /**
+   * Dispose of scanner resources
+   */
+  dispose(): void {
+    if (this.isDisposed) return;
+    
+    this.isDisposed = true;
+    this.lastSuccessfulScan = null;
+    this.lastScanTime = 0;
+    this.scanAttempts = 0;
+    this.memoryUsage = {
+      totalFramesProcessed: 0,
+      lastMemoryCleanup: 0,
+      maxRetainedScans: 0
+    };
+  }
+
+  /**
+   * Check if scanner is disposed
+   */
+  isDisposedState(): boolean {
+    return this.isDisposed;
   }
 }
 
