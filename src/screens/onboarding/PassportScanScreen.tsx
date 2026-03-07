@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
@@ -13,6 +13,7 @@ import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import { type TravelerProfile } from '../../types/profile';
+import { detectDevicePerformance } from '../../utils/imageUtils';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
 
@@ -36,6 +37,8 @@ export default function PassportScanScreen() {
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
   const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
+  const [showPerformanceHint, setShowPerformanceHint] = useState(false);
   const {
     control,
     handleSubmit,
@@ -47,6 +50,17 @@ export default function PassportScanScreen() {
       gender: 'M',
     },
   });
+
+  // Detect device performance on mount
+  useEffect(() => {
+    const { tier } = detectDevicePerformance();
+    setDevicePerformance(tier);
+    
+    // Show hint for low-end devices
+    if (tier === 'low') {
+      setShowPerformanceHint(true);
+    }
+  }, []);
 
   const generateProfileId = () => {
     // Generate a secure UUID-like identifier using timestamp and multiple random sources
@@ -162,6 +176,7 @@ export default function PassportScanScreen() {
         onScanSuccess={handleScanSuccess}
         onScanCancel={handleScanCancel}
         onManualEntry={handleManualEntry}
+        lowPowerMode={devicePerformance === 'low'}
       />
     );
   }
@@ -197,6 +212,30 @@ export default function PassportScanScreen() {
           </Text>
         </View>
 
+        {/* Performance hint for low-end devices */}
+        {showPerformanceHint && (
+          <Card variant="elevated" className="mb-4 bg-orange-50 border border-orange-200">
+            <View className="flex-row items-start space-x-3 p-4">
+              <Text className="text-orange-600 text-lg">⚡</Text>
+              <View className="flex-1">
+                <Text className="text-sm font-medium text-orange-800 mb-1">
+                  Performance Optimization Enabled
+                </Text>
+                <Text className="text-xs text-orange-700">
+                  Scanning has been optimized for your device. The process may take slightly longer for better accuracy.
+                </Text>
+                <Button
+                  title="Dismiss"
+                  onPress={() => setShowPerformanceHint(false)}
+                  variant="outline"
+                  size="small"
+                  className="mt-2 self-start"
+                />
+              </View>
+            </View>
+          </Card>
+        )}
+
         {/* Method selection */}
         {mode === 'method' && (
           <>
@@ -206,10 +245,11 @@ export default function PassportScanScreen() {
                   <Text className="text-4xl">📷</Text>
                 </View>
                 <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  Quick Passport Scan
+                  {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
                 </Text>
                 <Text className="text-sm text-gray-600 text-center mb-6">
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
+                  {devicePerformance === 'low' && '\n\n⚡ Optimized for your device performance'}
                 </Text>
                 <Button
                   title="Start Camera Scan"
