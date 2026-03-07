@@ -16,6 +16,13 @@ interface FormStore {
   isValid: boolean;
   isLoading: boolean;
   autoFillOptions: AutoFillOptions;
+  
+  // Memory management
+  memoryUsage: {
+    formDataSize: number;
+    lastCleanup: number;
+    maxRetainedForms: number;
+  };
 
   // Form operations
   generateForm: (
@@ -72,6 +79,12 @@ interface FormStore {
     userFilledFields: number;
     remainingFields: number;
   };
+
+  // Memory management operations
+  performMemoryCleanup: () => void;
+  getMemoryUsage: () => typeof FormStore.prototype.memoryUsage;
+  clearFormHistory: () => void;
+  optimizeFormData: () => void;
 }
 
 export const useFormStore = create<FormStore>((set, get) => ({
@@ -88,12 +101,23 @@ export const useFormStore = create<FormStore>((set, get) => ({
     enableFallbacks: true,
     confidenceThreshold: 0.7,
   },
+  memoryUsage: {
+    formDataSize: 0,
+    lastCleanup: Date.now(),
+    maxRetainedForms: 3,
+  },
 
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
 
     try {
       const state = get();
+      
+      // Perform memory cleanup if needed before generating new form
+      if (Date.now() - state.memoryUsage.lastCleanup > 300000) { // 5 minutes
+        state.performMemoryCleanup();
+      }
+
       const form = generateFilledForm(profile, leg, schema, existingData);
       
       // Apply intelligent auto-fill if enabled
@@ -116,6 +140,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
         profileData: profile,
       });
 
+      // Calculate memory usage
+      const formDataSize = JSON.stringify(enhancedFormData).length;
+
       set({
         currentForm: form,
         formData: enhancedFormData,
@@ -124,6 +151,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
         crossFieldErrors: validationResult.crossFieldErrors,
         isValid: validationResult.isValid,
         isLoading: false,
+        memoryUsage: {
+          ...state.memoryUsage,
+          formDataSize,
+        },
       });
     } catch (error) {
       console.error('Failed to generate form:', error);
@@ -411,6 +442,106 @@ export const useFormStore = create<FormStore>((set, get) => ({
       userFilledFields: stats.userFilled,
       remainingFields: stats.remaining,
     };
+  },
+
+  // Memory management operations
+  performMemoryCleanup: () => {
+    const state = get();
+    
+    // Clear non-essential data from form
+    const optimizedFormData = { ...state.formData };
+    
+    // Remove large text values that can be regenerated
+    Object.keys(optimizedFormData).forEach(key => {
+      const value = optimizedFormData[key];
+      if (typeof value === 'string' && value.length > 1000) {
+        // Keep only a shortened version for very long text
+        optimizedFormData[key] = value.substring(0, 100) + '...';
+      }
+    });
+
+    // Clear old validation errors and warnings that may accumulate
+    const cleanedErrors: Record<string, string> = {};
+    const cleanedWarnings: Record<string, string[]> = {};
+
+    // Only keep errors/warnings for fields that still exist in current form
+    if (state.currentForm) {
+      const allFieldIds = state.currentForm.sections.flatMap(section => 
+        section.fields.map(field => field.id)
+      );
+      
+      allFieldIds.forEach(fieldId => {
+        if (state.errors[fieldId]) {
+          cleanedErrors[fieldId] = state.errors[fieldId];
+        }
+        if (state.warnings[fieldId]) {
+          cleanedWarnings[fieldId] = state.warnings[fieldId];
+        }
+      });
+    }
+
+    set({
+      formData: optimizedFormData,
+      errors: cleanedErrors,
+      warnings: cleanedWarnings,
+      memoryUsage: {
+        ...state.memoryUsage,
+        lastCleanup: Date.now(),
+        formDataSize: JSON.stringify(optimizedFormData).length,
+      },
+    });
+
+    // Force garbage collection in dev mode
+    if (__DEV__ && global.gc) {
+      global.gc();
+    }
+  },
+
+  getMemoryUsage: () => {
+    const state = get();
+    return { ...state.memoryUsage };
+  },
+
+  clearFormHistory: () => {
+    set({
+      currentForm: null,
+      formData: {},
+      errors: {},
+      warnings: {},
+      crossFieldErrors: [],
+      isValid: false,
+      memoryUsage: {
+        formDataSize: 0,
+        lastCleanup: Date.now(),
+        maxRetainedForms: 3,
+      },
+    });
+  },
+
+  optimizeFormData: () => {
+    const state = get();
+    if (!state.currentForm || Object.keys(state.formData).length === 0) {
+      return;
+    }
+
+    // Remove undefined/null values
+    const optimizedData: Record<string, unknown> = {};
+    Object.entries(state.formData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        optimizedData[key] = value;
+      }
+    });
+
+    // Update memory usage tracking
+    const newSize = JSON.stringify(optimizedData).length;
+
+    set({
+      formData: optimizedData,
+      memoryUsage: {
+        ...state.memoryUsage,
+        formDataSize: newSize,
+      },
+    });
   },
 }));
 

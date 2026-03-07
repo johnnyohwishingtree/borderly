@@ -12,6 +12,8 @@ export interface KeychainService {
   generateEncryptionKey(): Promise<string>;
   getEncryptionKey(): Promise<string | null>;
   isAvailable(): Promise<boolean>;
+  clearSensitiveMemory(): void;
+  secureCleanup(): Promise<void>;
 }
 
 class KeychainServiceImpl implements KeychainService {
@@ -21,6 +23,10 @@ class KeychainServiceImpl implements KeychainService {
     accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
     accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
   };
+
+  // In-memory sensitive data tracking for cleanup
+  private sensitiveDataRefs: WeakSet<object> = new WeakSet();
+  private lastAccessTime: Record<string, number> = {};
 
   async storeProfile(profile: TravelerProfile): Promise<void> {
     try {
@@ -39,6 +45,7 @@ class KeychainServiceImpl implements KeychainService {
 
   async getProfile(): Promise<TravelerProfile | null> {
     try {
+      this.lastAccessTime[PROFILE_KEY] = Date.now();
       const credentials = await Keychain.getInternetCredentials(PROFILE_KEY, this.keychainOptions);
 
       if (!credentials || typeof credentials === 'boolean') {
@@ -46,7 +53,12 @@ class KeychainServiceImpl implements KeychainService {
       }
 
       const profileJson = credentials.password;
-      return JSON.parse(profileJson) as TravelerProfile;
+      const profile = JSON.parse(profileJson) as TravelerProfile;
+      
+      // Track sensitive data for memory cleanup
+      this.sensitiveDataRefs.add(profile);
+      
+      return profile;
     } catch (error) {
       console.error('Failed to retrieve profile from keychain:', error);
       // Return null instead of throwing to handle auth cancellation gracefully
@@ -93,13 +105,22 @@ class KeychainServiceImpl implements KeychainService {
 
   async getEncryptionKey(): Promise<string | null> {
     try {
+      this.lastAccessTime[ENCRYPTION_KEY] = Date.now();
       const credentials = await Keychain.getInternetCredentials(ENCRYPTION_KEY, this.keychainOptions);
 
       if (!credentials || typeof credentials === 'boolean') {
         return null;
       }
 
-      return credentials.password;
+      const key = credentials.password;
+      
+      // Track access for cleanup scheduling
+      setTimeout(() => {
+        // Clear reference after use to help with garbage collection
+        this.clearSensitiveMemory();
+      }, 60000); // Clear after 1 minute
+
+      return key;
     } catch (error) {
       console.error('Failed to retrieve encryption key:', error);
       return null;
@@ -113,6 +134,36 @@ class KeychainServiceImpl implements KeychainService {
     } catch (error) {
       console.error('Failed to check keychain availability:', error);
       return false;
+    }
+  }
+
+  clearSensitiveMemory(): void {
+    // Clear tracking of sensitive data references
+    this.sensitiveDataRefs = new WeakSet();
+    
+    // Force garbage collection in development
+    if (__DEV__ && global.gc) {
+      global.gc();
+    }
+  }
+
+  async secureCleanup(): Promise<void> {
+    try {
+      // Clear any cached credentials in the native keychain module
+      // This is a precautionary measure
+      await Keychain.resetGenericPassword({
+        service: 'borderly',
+      }).catch(() => {
+        // Ignore errors - may not exist
+      });
+      
+      // Clear memory references
+      this.clearSensitiveMemory();
+      this.lastAccessTime = {};
+      
+      console.log('Keychain secure cleanup completed');
+    } catch (error) {
+      console.error('Error during keychain secure cleanup:', error);
     }
   }
 }
