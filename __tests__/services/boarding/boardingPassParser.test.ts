@@ -25,30 +25,32 @@ describe('Boarding Pass Parser Service', () => {
 
   describe('parseBoardingPass', () => {
     const mockSingleLegData = {
-      passengers: [{
+      data: {
         passengerName: 'DOE/JOHN',
-        fromCity: 'LAX',
-        toCity: 'NRT',
-        operatingCarrierDesignator: 'JL',
-        flightNumber: 'JL062',
-        dateOfFlight: '123', // Julian day
-        compartmentCode: 'Y',
-        seatNumber: '12A',
-        checkInSequenceNumber: '001',
-        passengerStatus: '',
-        airlineNumericCode: '131',
-        documentFormSerialNumber: 'ABC123',
-        selecteeIndicator: '',
-        internationalDocumentationVerification: '',
-        marketingCarrierDesignator: 'JL',
-        frequentFlyerAirlineDesignator: '',
-        frequentFlyerNumber: '',
-        idAdIndicator: '',
-        freeBaggageAllowance: '',
-        fastTrack: '',
-      }],
-      formatCode: 'M',
-      numberOfPassengers: 1,
+        legs: [{
+          passengerName: 'DOE/JOHN',
+          departureAirport: 'LAX',
+          arrivalAirport: 'NRT',
+          operatingCarrierDesignator: 'JL',
+          flightNumber: 'JL062',
+          flightDate: '2024-05-02T00:00:00.000Z',
+          compartmentCode: 'Y',
+          seatNumber: '12A',
+          checkInSequenceNumber: '001',
+          passengerStatus: '',
+          // Legacy fields for compatibility
+          fromCity: 'LAX',
+          toCity: 'NRT',
+          dateOfFlight: '123', // Julian day
+          airlineNumericCode: '131',
+          documentFormSerialNumber: 'ABC123',
+          marketingCarrierDesignator: 'JL',
+        }]
+      },
+      meta: {
+        formatCode: 'M',
+        numberOfLegs: 1,
+      },
     };
 
     it('should successfully parse a valid boarding pass to Japan', () => {
@@ -73,12 +75,15 @@ describe('Boarding Pass Parser Service', () => {
     it('should successfully parse boarding pass to Malaysia', () => {
       const malaysiaData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          toCity: 'KUL',
-          operatingCarrierDesignator: 'MH',
-          flightNumber: 'MH0002',
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            toCity: 'KUL',
+            operatingCarrierDesignator: 'MH',
+            flightNumber: 'MH0002',
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(malaysiaData);
@@ -96,12 +101,15 @@ describe('Boarding Pass Parser Service', () => {
     it('should successfully parse boarding pass to Singapore', () => {
       const singaporeData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          toCity: 'SIN',
-          operatingCarrierDesignator: 'SQ',
-          flightNumber: 'SQ0012',
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            toCity: 'SIN',
+            operatingCarrierDesignator: 'SQ',
+            flightNumber: 'SQ0012',
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(singaporeData);
@@ -121,12 +129,15 @@ describe('Boarding Pass Parser Service', () => {
 
       const unsupportedData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          toCity: 'ICN', // Korea - not supported
-          operatingCarrierDesignator: 'KE',
-          flightNumber: 'KE0001',
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            toCity: 'ICN', // Korea - not supported
+            operatingCarrierDesignator: 'KE',
+            flightNumber: 'KE0001',
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(unsupportedData);
@@ -148,10 +159,13 @@ describe('Boarding Pass Parser Service', () => {
     it('should handle unknown destination airport', () => {
       const unknownAirportData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          toCity: 'XXX', // Unknown airport
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            toCity: 'XXX', // Unknown airport
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(unknownAirportData);
@@ -167,11 +181,14 @@ describe('Boarding Pass Parser Service', () => {
     it('should use marketing carrier when operating carrier is missing', () => {
       const noOperatingCarrierData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          operatingCarrierDesignator: '',
-          marketingCarrierDesignator: 'JL',
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            operatingCarrierDesignator: '',
+            marketingCarrierDesignator: 'JL',
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(noOperatingCarrierData);
@@ -194,9 +211,14 @@ describe('Boarding Pass Parser Service', () => {
 
     it('should return error for empty passenger data', () => {
       mockDecode.mockReturnValue({
-        passengers: [],
-        formatCode: 'M',
-        numberOfPassengers: 0,
+        data: {
+          passengerName: '',
+          legs: [],
+        },
+        meta: {
+          formatCode: 'M',
+          numberOfLegs: 0,
+        },
       });
 
       const result = parseBoardingPass('M1DOE/JOHN...');
@@ -210,15 +232,20 @@ describe('Boarding Pass Parser Service', () => {
 
     it('should return error for missing required fields', () => {
       const incompleteData = {
-        passengers: [{
+        data: {
           passengerName: 'DOE/JOHN',
-          fromCity: '', // Missing
-          toCity: 'NRT',
-          flightNumber: 'JL062',
-          dateOfFlight: '123',
-        }],
-        formatCode: 'M',
-        numberOfPassengers: 1,
+          legs: [{
+            passengerName: 'DOE/JOHN',
+            fromCity: '', // Missing
+            toCity: 'NRT',
+            flightNumber: 'JL062',
+            dateOfFlight: '123',
+          }],
+        },
+        meta: {
+          formatCode: 'M',
+          numberOfLegs: 1,
+        },
       };
       
       mockDecode.mockReturnValue(incompleteData);
@@ -234,17 +261,22 @@ describe('Boarding Pass Parser Service', () => {
 
     it('should return error for missing airline code', () => {
       const noAirlineData = {
-        passengers: [{
+        data: {
           passengerName: 'DOE/JOHN',
-          fromCity: 'LAX',
-          toCity: 'NRT',
-          operatingCarrierDesignator: '',
-          marketingCarrierDesignator: '',
-          flightNumber: 'JL062',
-          dateOfFlight: '123',
-        }],
-        formatCode: 'M',
-        numberOfPassengers: 1,
+          legs: [{
+            passengerName: 'DOE/JOHN',
+            fromCity: 'LAX',
+            toCity: 'NRT',
+            operatingCarrierDesignator: '',
+            marketingCarrierDesignator: '',
+            flightNumber: 'JL062',
+            dateOfFlight: '123',
+          }],
+        },
+        meta: {
+          formatCode: 'M',
+          numberOfLegs: 1,
+        },
       };
       
       mockDecode.mockReturnValue(noAirlineData);
@@ -261,10 +293,14 @@ describe('Boarding Pass Parser Service', () => {
     it('should return error for invalid Julian date', () => {
       const invalidDateData = {
         ...mockSingleLegData,
-        passengers: [{
-          ...mockSingleLegData.passengers[0],
-          dateOfFlight: '999', // Invalid Julian day
-        }],
+        data: {
+          ...mockSingleLegData.data,
+          legs: [{
+            ...mockSingleLegData.data.legs[0],
+            flightDate: undefined, // Remove ISO date
+            dateOfFlight: '999', // Invalid Julian day
+          }],
+        },
       };
       
       mockDecode.mockReturnValue(invalidDateData);
@@ -295,30 +331,43 @@ describe('Boarding Pass Parser Service', () => {
 
   describe('parseMultiLegBoardingPass', () => {
     const mockMultiLegData = {
-      passengers: [
-        {
-          passengerName: 'DOE/JOHN',
-          fromCity: 'LAX',
-          toCity: 'ICN',
-          operatingCarrierDesignator: 'KE',
-          flightNumber: 'KE0017',
-          dateOfFlight: '123',
-          compartmentCode: 'Y',
-          seatNumber: '12A',
-        },
-        {
-          passengerName: 'DOE/JOHN',
-          fromCity: 'ICN',
-          toCity: 'NRT',
-          operatingCarrierDesignator: 'JL',
-          flightNumber: 'JL0958',
-          dateOfFlight: '124',
-          compartmentCode: 'Y',
-          seatNumber: '14C',
-        },
-      ],
-      formatCode: 'M',
-      numberOfPassengers: 2,
+      data: {
+        passengerName: 'DOE/JOHN',
+        legs: [
+          {
+            passengerName: 'DOE/JOHN',
+            departureAirport: 'LAX',
+            arrivalAirport: 'ICN',
+            operatingCarrierDesignator: 'KE',
+            flightNumber: 'KE0017',
+            flightDate: '2024-05-02T00:00:00.000Z',
+            compartmentCode: 'Y',
+            seatNumber: '12A',
+            // Legacy fields for compatibility
+            fromCity: 'LAX',
+            toCity: 'ICN',
+            dateOfFlight: '123',
+          },
+          {
+            passengerName: 'DOE/JOHN',
+            departureAirport: 'ICN',
+            arrivalAirport: 'NRT',
+            operatingCarrierDesignator: 'JL',
+            flightNumber: 'JL0958',
+            flightDate: '2024-05-03T00:00:00.000Z',
+            compartmentCode: 'Y',
+            seatNumber: '14C',
+            // Legacy fields for compatibility
+            fromCity: 'ICN',
+            toCity: 'NRT',
+            dateOfFlight: '124',
+          },
+        ],
+      },
+      meta: {
+        formatCode: 'M',
+        numberOfLegs: 2,
+      },
     };
 
     it('should parse multi-leg boarding pass successfully', () => {
@@ -350,15 +399,21 @@ describe('Boarding Pass Parser Service', () => {
 
     it('should skip legs with missing data', () => {
       const dataWithBadLeg = {
-        passengers: [
-          mockMultiLegData.passengers[0],
-          {
-            ...mockMultiLegData.passengers[1],
-            fromCity: '', // Missing departure
-          },
-        ],
-        formatCode: 'M',
-        numberOfPassengers: 2,
+        data: {
+          passengerName: 'DOE/JOHN',
+          legs: [
+            mockMultiLegData.data.legs[0],
+            {
+              ...mockMultiLegData.data.legs[1],
+              departureAirport: '', // Missing departure  
+              fromCity: '', // Missing departure
+            },
+          ],
+        },
+        meta: {
+          formatCode: 'M',
+          numberOfLegs: 2,
+        },
       };
       
       mockDecode.mockReturnValue(dataWithBadLeg);
@@ -379,16 +434,23 @@ describe('Boarding Pass Parser Service', () => {
 
     it('should return error when no valid legs found', () => {
       const noValidLegsData = {
-        passengers: [
-          {
-            passengerName: 'DOE/JOHN',
-            fromCity: '', // Missing
-            toCity: 'NRT',
-            flightNumber: 'JL062',
-          },
-        ],
-        formatCode: 'M',
-        numberOfPassengers: 1,
+        data: {
+          passengerName: 'DOE/JOHN',
+          legs: [
+            {
+              passengerName: 'DOE/JOHN',
+              departureAirport: '', // Missing
+              arrivalAirport: 'NRT',
+              fromCity: '', // Missing
+              toCity: 'NRT',
+              flightNumber: 'JL062',
+            },
+          ],
+        },
+        meta: {
+          formatCode: 'M',
+          numberOfLegs: 1,
+        },
       };
       
       mockDecode.mockReturnValue(noValidLegsData);

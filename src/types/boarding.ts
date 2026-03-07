@@ -5,32 +5,54 @@
  */
 
 export interface BCBPPassengerData {
-  passengerName: string;
-  fromCity: string;
-  toCity: string;
+  operatingCarrierPNR?: string;
+  departureAirport: string;
+  arrivalAirport: string;
   operatingCarrierDesignator: string; // IATA 2-letter airline code
   flightNumber: string;
-  dateOfFlight: string; // Julian day format (DDD)
-  compartmentCode: string; // Class of service
-  seatNumber: string;
-  checkInSequenceNumber: string;
-  passengerStatus: string;
-  airlineNumericCode: string;
-  documentFormSerialNumber: string;
-  selecteeIndicator: string;
-  internationalDocumentationVerification: string;
-  marketingCarrierDesignator: string;
-  frequentFlyerAirlineDesignator: string;
-  frequentFlyerNumber: string;
-  idAdIndicator: string;
-  freeBaggageAllowance: string;
-  fastTrack: string;
+  flightDate: string; // ISO date format
+  compartmentCode?: string; // Class of service
+  seatNumber?: string;
+  checkInSequenceNumber?: string;
+  passengerStatus?: string;
+  
+  // Legacy aliases for compatibility
+  fromCity?: string;
+  toCity?: string;
+  dateOfFlight?: string; // Julian day format (DDD)
+  airlineNumericCode?: string;
+  documentFormSerialNumber?: string;
+  selecteeIndicator?: string;
+  internationalDocumentationVerification?: string;
+  marketingCarrierDesignator?: string;
+  frequentFlyerAirlineDesignator?: string;
+  frequentFlyerNumber?: string;
+  idAdIndicator?: string;
+  freeBaggageAllowance?: string;
+  fastTrack?: string;
+  passengerName?: string;
 }
 
 export interface BCBPData {
-  passengers: BCBPPassengerData[];
-  formatCode: string;
-  numberOfPassengers: number;
+  data: {
+    passengerName?: string;
+    legs: BCBPPassengerData[];
+    passengerDescription?: string;
+    checkInSource?: string;
+    boardingPassIssuanceSource?: string;
+    issuanceDate?: string;
+    documentType?: string;
+    boardingPassIssuerDesignator?: string;
+    baggageTagNumber?: string;
+    firstBaggageTagNumber?: string;
+    secondBaggageTagNumber?: string;
+    securityDataType?: string;
+    securityData?: string;
+  };
+  meta: {
+    formatCode: string;
+    numberOfLegs: number;
+  };
 }
 
 export interface ParsedBoardingPass {

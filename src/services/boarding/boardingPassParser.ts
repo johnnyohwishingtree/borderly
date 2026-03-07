@@ -7,12 +7,11 @@
 
 import { decode } from 'bcbp';
 import { 
-  BCBPData, 
   ParsedBoardingPass, 
   ParsedMultiLegBoardingPass, 
   BCBPParseError 
 } from '../../types/boarding';
-import { getCountryFromAirport, isSupportedDestination, SUPPORTED_COUNTRIES } from './airportLookup';
+import { getCountryFromAirport, SUPPORTED_COUNTRIES } from './airportLookup';
 
 /**
  * Parse BCBP barcode data into structured boarding pass information
@@ -26,10 +25,10 @@ export function parseBoardingPass(
     const year = referenceYear || new Date().getFullYear();
     
     // Decode the BCBP barcode
-    const bcbpData = decode(rawBarcode, year);
+    const bcbpData = decode(rawBarcode, year) as any;
     
     // Validate we have passenger data
-    if (!bcbpData.passengers || bcbpData.passengers.length === 0) {
+    if (!bcbpData.data?.legs || bcbpData.data.legs.length === 0) {
       return {
         code: 'MISSING_FIELDS',
         message: 'No passenger data found in boarding pass',
@@ -37,11 +36,14 @@ export function parseBoardingPass(
       };
     }
 
-    // Parse the first passenger's data
-    const passenger = bcbpData.passengers[0];
+    // Parse the first leg's data
+    const passenger = bcbpData.data.legs[0];
     
-    // Validate required fields
-    if (!passenger.fromCity || !passenger.toCity || !passenger.flightNumber) {
+    // Validate required fields (check both new and legacy formats)
+    const fromCity = passenger.fromCity || passenger.departureAirport;
+    const toCity = passenger.toCity || passenger.arrivalAirport;
+    
+    if (!fromCity || !toCity || !passenger.flightNumber) {
       return {
         code: 'MISSING_FIELDS',
         message: 'Missing required flight information (departure/arrival airports or flight number)',
@@ -49,14 +51,22 @@ export function parseBoardingPass(
       };
     }
 
-    // Convert Julian date to ISO format
+    // Convert date to ISO format (handle both new ISO format and legacy Julian format)
     let flightDate: string;
     try {
-      flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
+      if (passenger.flightDate) {
+        // New format: already ISO date
+        flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
+      } else if (passenger.dateOfFlight) {
+        // Legacy format: Julian day
+        flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
+      } else {
+        throw new Error('No flight date found');
+      }
     } catch (error) {
       return {
         code: 'PARSE_ERROR',
-        message: `Invalid flight date format: ${passenger.dateOfFlight}`,
+        message: `Invalid flight date format: ${passenger.flightDate || passenger.dateOfFlight}`,
         originalData: rawBarcode,
       };
     }
@@ -73,8 +83,8 @@ export function parseBoardingPass(
     }
 
     // Parse airport codes
-    const departureAirport = passenger.fromCity.toUpperCase();
-    const arrivalAirport = passenger.toCity.toUpperCase();
+    const departureAirport = fromCity.toUpperCase();
+    const arrivalAirport = toCity.toUpperCase();
 
     // Get destination country from arrival airport
     const destinationCountry = getCountryFromAirport(arrivalAirport);
@@ -85,7 +95,7 @@ export function parseBoardingPass(
     }
 
     const parsedPass: ParsedBoardingPass = {
-      passengerName: passenger.passengerName || '',
+      passengerName: bcbpData.data.passengerName || passenger.passengerName || '',
       airlineCode,
       flightNumber: passenger.flightNumber,
       departureAirport,
@@ -117,9 +127,9 @@ export function parseMultiLegBoardingPass(
 ): ParsedMultiLegBoardingPass | BCBPParseError {
   try {
     const year = referenceYear || new Date().getFullYear();
-    const bcbpData = decode(rawBarcode, year);
+    const bcbpData = decode(rawBarcode, year) as any;
     
-    if (!bcbpData.passengers || bcbpData.passengers.length === 0) {
+    if (!bcbpData.data?.legs || bcbpData.data.legs.length === 0) {
       return {
         code: 'MISSING_FIELDS',
         message: 'No passenger data found in boarding pass',
@@ -128,23 +138,30 @@ export function parseMultiLegBoardingPass(
     }
 
     const legs: ParsedBoardingPass[] = [];
-    let commonPassengerName = '';
+    const commonPassengerName = bcbpData.data.passengerName || bcbpData.data.legs[0]?.passengerName || '';
 
-    // Parse each passenger (leg) in the boarding pass
-    for (const passenger of bcbpData.passengers) {
-      // Set common passenger name from first leg
-      if (!commonPassengerName) {
-        commonPassengerName = passenger.passengerName || '';
-      }
+    // Parse each leg in the boarding pass
+    for (const passenger of bcbpData.data.legs) {
 
-      // Skip legs with missing critical data
-      if (!passenger.fromCity || !passenger.toCity || !passenger.flightNumber) {
+      // Skip legs with missing critical data (check both new and legacy formats)
+      const fromCity = passenger.fromCity || passenger.departureAirport;
+      const toCity = passenger.toCity || passenger.arrivalAirport;
+      
+      if (!fromCity || !toCity || !passenger.flightNumber) {
         continue;
       }
 
       let flightDate: string;
       try {
-        flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
+        if (passenger.flightDate) {
+          // New format: already ISO date
+          flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
+        } else if (passenger.dateOfFlight) {
+          // Legacy format: Julian day
+          flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
+        } else {
+          throw new Error('No flight date found');
+        }
       } catch (error) {
         // Skip legs with invalid dates
         continue;
@@ -155,8 +172,8 @@ export function parseMultiLegBoardingPass(
         continue;
       }
 
-      const departureAirport = passenger.fromCity.toUpperCase();
-      const arrivalAirport = passenger.toCity.toUpperCase();
+      const departureAirport = fromCity.toUpperCase();
+      const arrivalAirport = toCity.toUpperCase();
       const destinationCountry = getCountryFromAirport(arrivalAirport);
 
       // Check if destination is supported
@@ -165,7 +182,7 @@ export function parseMultiLegBoardingPass(
       }
 
       const leg: ParsedBoardingPass = {
-        passengerName: passenger.passengerName || commonPassengerName,
+        passengerName: commonPassengerName || passenger.passengerName || '',
         airlineCode,
         flightNumber: passenger.flightNumber,
         departureAirport,
