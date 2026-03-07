@@ -12,7 +12,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-
   Linking,
   Platform,
 } from 'react-native';
