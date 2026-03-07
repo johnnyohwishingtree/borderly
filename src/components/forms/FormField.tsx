@@ -83,6 +83,7 @@ export default function FormField({
             options={field.options}
             placeholder={`Select ${field.label}`}
             disabled={inputProps.disabled}
+            testID={`select-${field.id}`}
             {...(hasError && error ? { error } : {})}
           />
         );

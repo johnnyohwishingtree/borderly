@@ -124,7 +124,7 @@ describe('DynamicForm', () => {
     expect(screen.getByText('⚠️ Country-specific requirement')).toBeTruthy();
     
     // Should show the select button for Purpose of Visit
-    expect(screen.getByText('Select Purpose of Visit')).toBeTruthy();
+    expect(screen.getByTestId('select-purposeOfVisit')).toBeTruthy();
   });
 
   it('calls onFormDataChange when field values change', async () => {
@@ -137,8 +137,8 @@ describe('DynamicForm', () => {
       />
     );
 
-    // Find and interact with the purpose of visit select component
-    const selectButton = screen.getByText('Select Purpose of Visit');
+    // Find and interact with the purpose of visit select component  
+    const selectButton = screen.getByTestId('select-purposeOfVisit');
     fireEvent.press(selectButton);
 
     await waitFor(() => {
