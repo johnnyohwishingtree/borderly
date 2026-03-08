@@ -1,5 +1,4 @@
 // Enhanced accessible components
-export { default as AccessibleButton, PrimaryButton, SecondaryButton, OutlineButton, GhostButton } from './AccessibleButton';
 export { default as AccessibleInput, EmailInput, PasswordInput, PhoneInput, NumericInput, SearchInput } from './AccessibleInput';
 
 // Standard components (now enhanced with accessibility)
@@ -26,7 +25,6 @@ export { default as AnimatedCard } from './AnimatedCard';
 export { HapticFeedback, HAPTIC_PATTERNS, triggerHaptic } from './HapticFeedback';
 
 // Enhanced accessible component types
-export type { AccessibleButtonProps } from './AccessibleButton';
 export type { AccessibleInputProps } from './AccessibleInput';
 
 // Standard component types
