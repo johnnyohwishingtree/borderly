@@ -318,12 +318,7 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
 function predictPurposeOfVisit(context: FormContext, _countryCode?: string): string | null {
   const leg = context.leg;
   
-  // Simple heuristics based on trip characteristics
-  if (leg.accommodation?.name?.toLowerCase().includes('hotel')) {
-    return 'tourism';
-  }
-  
-  // If stay is very short (1-2 days), might be transit or business
+  // Duration checks take priority over accommodation type
   const duration = calculateStayDuration(leg.arrivalDate, leg.departureDate);
   if (duration && duration <= 2) {
     return 'transit';
@@ -332,6 +327,11 @@ function predictPurposeOfVisit(context: FormContext, _countryCode?: string): str
   // If staying longer than 30 days, might be visiting relatives
   if (duration && duration > 30) {
     return 'visiting_relatives';
+  }
+  
+  // Simple heuristics based on trip characteristics
+  if (leg.accommodation?.name?.toLowerCase().includes('hotel')) {
+    return 'tourism';
   }
   
   // Default to tourism for most cases
@@ -408,23 +408,26 @@ function getSmartDeclarationDefault(field: FormField, context: FormContext): boo
   // Use profile default declarations if available
   const defaults = profile.defaultDeclarations;
 
-  if (fieldId.includes('prohibited') || fieldId.includes('drugs') || fieldId.includes('weapons')) {
-    return defaults.carryingProhibitedItems;
-  }
-  if (fieldId.includes('currency') || fieldId.includes('cash') || fieldId.includes('money')) {
-    return defaults.carryingCurrency;
-  }
-  if (fieldId.includes('commercial') || fieldId.includes('business') || fieldId.includes('goods')) {
-    return defaults.carryingCommercialGoods;
-  }
-  if (fieldId.includes('farm') || fieldId.includes('agriculture')) {
-    return defaults.visitedFarm;
-  }
-  if (fieldId.includes('criminal') || fieldId.includes('conviction')) {
-    return defaults.hasCriminalRecord;
-  }
-  if (fieldId.includes('declare') || fieldId.includes('duty')) {
-    return defaults.hasItemsToDeclar;
+  // Safely handle missing defaults
+  if (defaults) {
+    if (fieldId.includes('prohibited') || fieldId.includes('drugs') || fieldId.includes('weapons')) {
+      return defaults.carryingProhibitedItems;
+    }
+    if (fieldId.includes('currency') || fieldId.includes('cash') || fieldId.includes('money')) {
+      return defaults.carryingCurrency;
+    }
+    if (fieldId.includes('commercial') || fieldId.includes('business') || fieldId.includes('goods')) {
+      return defaults.carryingCommercialGoods;
+    }
+    if (fieldId.includes('farm') || fieldId.includes('agriculture')) {
+      return defaults.visitedFarm;
+    }
+    if (fieldId.includes('criminal') || fieldId.includes('conviction')) {
+      return defaults.hasCriminalRecord;
+    }
+    if (fieldId.includes('declare') || fieldId.includes('duty')) {
+      return defaults.hasItemsToDeclar;
+    }
   }
 
   return null;
