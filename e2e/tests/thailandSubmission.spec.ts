@@ -161,10 +161,10 @@ test.describe('Thailand Submission Workflow', () => {
     await page.getByTestId('thailand-leg-card').click();
     await page.getByTestId('fill-form-button').click();
     
-    // Check that key profile fields have auto-filled badges
-    await expect(page.locator('[data-testid="field-firstName"] [data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.locator('[data-testid="field-lastName"] [data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.locator('[data-testid="field-passportNumber"] [data-testid="auto-filled-badge"]')).toBeVisible();
+    // Check that specific key fields expected to be auto-filled have the badge
+    await expect(page.getByTestId('field-firstName').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+    await expect(page.getByTestId('field-lastName').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+    await expect(page.getByTestId('field-passportNumber').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
     
     // Check that Thailand-specific fields are marked as requiring input
     await expect(page.getByTestId('field-purposeOfVisit')).toHaveAttribute('data-country-specific', 'true');
