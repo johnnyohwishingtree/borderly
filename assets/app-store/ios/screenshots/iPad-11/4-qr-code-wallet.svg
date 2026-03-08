@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1668" height="2388" viewBox="0 0 1668 2388" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C2D12"/>
+      <stop offset="100%" stop-color="#7C2D12CC"/>
+    </linearGradient>
+    <radialGradient id="phoneGlow" cx="0.5" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.05"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1668" height="2388" fill="url(#screenGrad)"/>
+  <rect width="1668" height="2388" fill="url(#phoneGlow)"/>
+  
+  <!-- Status bar (for phones) -->
+  
+  
+  <!-- Main content area -->
+  <g transform="translate(200, 200)">
+    <!-- App icon placeholder -->
+    <rect x="534" y="100" width="200" height="200" rx="50" fill="#FFFFFF" opacity="0.95"/>
+    <rect x="544" y="110" width="180" height="180" rx="40" fill="#7C2D12" opacity="0.8"/>
+    
+    <!-- Main title -->
+    <text x="634" y="400" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Display, Arial" font-size="72" font-weight="700">QR Code Wallet</text>
+    
+    <!-- Subtitle -->
+    <text x="634" y="480" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="36" font-weight="500" opacity="0.9">Store submission QR codes offline</text>
+    
+    <!-- Description -->
+    <text x="634" y="580" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="28" font-weight="400" opacity="0.7">Keep all your travel QR codes organized and accessible</text>
+    
+    <!-- Feature highlights -->
+    <g transform="translate(334, 700)">
+      <circle cx="0" cy="0" r="15" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="8" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="24" font-weight="500" opacity="0.8">Secure & Private</text>
+      
+      <circle cx="0" cy="80" r="15" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="88" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="24" font-weight="500" opacity="0.8">Offline First</text>
+      
+      <circle cx="0" cy="160" r="15" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="168" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="24" font-weight="500" opacity="0.8">Multi-Country</text>
+    </g>
+  </g>
+  
+  <!-- Footer branding -->
+  <text x="834" y="2288" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Display, Arial" font-size="32" font-weight="600" opacity="0.6">Borderly</text>
+</svg>

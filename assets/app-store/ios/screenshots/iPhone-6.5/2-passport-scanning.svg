@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1242" height="2688" viewBox="0 0 1242 2688" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#059669CC"/>
+    </linearGradient>
+    <radialGradient id="phoneGlow" cx="0.5" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.05"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1242" height="2688" fill="url(#screenGrad)"/>
+  <rect width="1242" height="2688" fill="url(#phoneGlow)"/>
+  
+  <!-- Status bar (for phones) -->
+  
+  <g fill="#FFFFFF" opacity="0.9">
+    <text x="60" y="60" font-family="SF Pro Text, Arial" font-size="32" font-weight="600">9:41</text>
+    <circle cx="1162" r="8" cy="45" fill="#10B981"/>
+    <rect x="1122" y="38" width="25" height="14" rx="3" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="1127" y="42" width="15" height="6" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Main content area -->
+  <g transform="translate(80, 160)">
+    <!-- App icon placeholder -->
+    <rect x="441" y="100" width="120" height="120" rx="25" fill="#FFFFFF" opacity="0.95"/>
+    <rect x="451" y="110" width="100" height="100" rx="20" fill="#059669" opacity="0.8"/>
+    
+    <!-- Main title -->
+    <text x="541" y="320" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Display, Arial" font-size="48" font-weight="700">Passport Scanning</text>
+    
+    <!-- Subtitle -->
+    <text x="541" y="380" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="24" font-weight="500" opacity="0.9">Scan your passport with the camera</text>
+    
+    <!-- Description -->
+    <text x="541" y="460" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="18" font-weight="400" opacity="0.7">Uses MRZ (Machine Readable Zone) technology for accurate data capture</text>
+    
+    <!-- Feature highlights -->
+    <g transform="translate(341, 560)">
+      <circle cx="0" cy="0" r="10" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="8" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="16" font-weight="500" opacity="0.8">Secure & Private</text>
+      
+      <circle cx="0" cy="50" r="10" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="58" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="16" font-weight="500" opacity="0.8">Offline First</text>
+      
+      <circle cx="0" cy="100" r="10" fill="#FFFFFF" opacity="0.9"/>
+      <text x="40" y="108" fill="#FFFFFF" font-family="SF Pro Text, Arial" font-size="16" font-weight="500" opacity="0.8">Multi-Country</text>
+    </g>
+  </g>
+  
+  <!-- Footer branding -->
+  <text x="621" y="2628" text-anchor="middle" fill="#FFFFFF" font-family="SF Pro Display, Arial" font-size="20" font-weight="600" opacity="0.6">Borderly</text>
+</svg>
