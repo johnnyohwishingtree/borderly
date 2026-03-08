@@ -8,7 +8,7 @@ interface FeedbackScreenProps {
   route?: RouteProp<any, any>;
 }
 
-export default function FeedbackScreen({ route }: FeedbackScreenProps) {
+export default function FeedbackScreen({ route: _route }: FeedbackScreenProps) {
   const navigation = useNavigation();
   const { preferences } = useAppStore();
   const [feedbackType, setFeedbackType] = useState<string>('general');
@@ -46,7 +46,7 @@ export default function FeedbackScreen({ route }: FeedbackScreenProps) {
     try {
       // In a real implementation, this would send feedback to a service
       // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 1000));
 
       const feedbackData = {
         type: feedbackType,
@@ -141,7 +141,6 @@ export default function FeedbackScreen({ route }: FeedbackScreenProps) {
                   onPress={() => handleRatingPress(star)}
                   variant={rating >= star ? "primary" : "outline"}
                   size="small"
-                  className={`w-12 h-12 ${rating >= star ? 'bg-yellow-400 border-yellow-500' : ''}`}
                 />
               ))}
             </View>

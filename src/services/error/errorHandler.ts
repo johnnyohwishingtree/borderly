@@ -138,10 +138,7 @@ export class ErrorHandler {
           ...context,
           action: 'auto_recovery_success',
           timestamp: (context?.timestamp) || Date.now(),
-          errorInfo: {
-            attempts: result.attempts,
-            duration: result.totalTime
-          }
+          errorInfo: { attempts: result.attempts, duration: result.totalTime },
         });
         return { recovered: true, attempts: result.attempts };
       }

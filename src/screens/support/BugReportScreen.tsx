@@ -10,7 +10,7 @@ interface BugReportScreenProps {
   route?: RouteProp<any, any>;
 }
 
-export default function BugReportScreen({ route }: BugReportScreenProps) {
+export default function BugReportScreen({ route: _route }: BugReportScreenProps) {
   const navigation = useNavigation();
   const { preferences } = useAppStore();
   const { profile } = useProfileStore();
@@ -100,7 +100,7 @@ export default function BugReportScreen({ route }: BugReportScreenProps) {
       };
 
       // In a real implementation, this would send the bug report to a service
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 1500));
 
       console.log('Bug report submitted:', bugReport);
 

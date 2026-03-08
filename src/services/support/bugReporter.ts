@@ -60,11 +60,12 @@ class BugReporter {
     includeDiagnostics: boolean = true
   ): Promise<BugReportSubmissionResult> {
     try {
+      const diagnostics = includeDiagnostics ? await this.collectDiagnosticInfo() : undefined;
       const bugReport: BugReportData = {
         ...reportData,
         id: this.generateReportId(),
         timestamp: new Date().toISOString(),
-        diagnostics: includeDiagnostics ? await this.collectDiagnosticInfo() : undefined,
+        ...(diagnostics !== undefined ? { diagnostics } : {}),
       };
 
       // Validate bug report data
@@ -380,18 +381,16 @@ class BugReporter {
     }
   }
 
-  /**
-   * Future: Send bug report to remote service
-   */
-  private async sendToServer(report: BugReportData): Promise<void> {
-    // This would be implemented when a backend service is available
-    // For MVP, we only store locally
-    console.log('Would send bug report to server:', { 
-      id: report.id, 
-      severity: report.severity, 
-      category: report.category 
-    });
-  }
+  // Future: Send bug report to remote service
+  // private async sendToServer(report: BugReportData): Promise<void> {
+  //   // This would be implemented when a backend service is available
+  //   // For MVP, we only store locally
+  //   console.log('Would send bug report to server:', {
+  //     id: report.id,
+  //     severity: report.severity,
+  //     category: report.category
+  //   });
+  // }
 }
 
 export const bugReporter = new BugReporter();

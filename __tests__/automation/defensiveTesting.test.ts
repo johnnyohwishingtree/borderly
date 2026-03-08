@@ -11,6 +11,7 @@ import { SubmissionAnalytics } from '@/services/monitoring/submissionAnalytics';
 import { TestDataFactory, TestAssertions, TestEnvironment } from '@/utils/testHelpers';
 
 // Mock fetch for testing
+declare var global: any;
 const mockFetch = jest.fn();
 (global as any).fetch = mockFetch;
 
@@ -167,7 +168,7 @@ describe('Defensive Automation Testing', () => {
       portalMonitor.startMonitoring();
       
       // Wait for initial check
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise<void>(resolve => setTimeout(resolve, 100));
       
       const status = portalMonitor.getMonitoringStatus();
       expect(status.isRunning).toBe(true);
@@ -322,7 +323,7 @@ describe('Defensive Automation Testing', () => {
 
       // Step 2: Portal health check
       portalMonitor.startMonitoring();
-      await new Promise(resolve => setTimeout(resolve, 100)); // Wait for check
+      await new Promise<void>(resolve => setTimeout(resolve, 100)); // Wait for check
       
       const monitoringStatus = portalMonitor.getMonitoringStatus();
       expect(monitoringStatus.isRunning).toBe(true);
@@ -332,7 +333,7 @@ describe('Defensive Automation Testing', () => {
         schema.countryCode,
         true, // success
         2000, // 2 second duration
-        form.stats,
+        form.stats as any,
         []
       );
 
@@ -360,7 +361,7 @@ describe('Defensive Automation Testing', () => {
           countryCode,
           complianceResult.isCompliant,
           Math.random() * 5000 + 1000, // Random duration 1-6 seconds
-          form.stats
+          form.stats as any
         );
 
         return { countryCode, compliant: complianceResult.isCompliant };
@@ -418,7 +419,7 @@ describe('Defensive Automation Testing', () => {
       mockFetch.mockRejectedValue(new Error('Network completely unavailable'));
 
       portalMonitor.startMonitoring();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise<void>(resolve => setTimeout(resolve, 100));
 
       const status = portalMonitor.getMonitoringStatus();
       const alerts = portalMonitor.getAllActiveAlerts();
@@ -464,7 +465,7 @@ describe('Defensive Automation Testing', () => {
       const startTime = Date.now();
       
       // Simulate high volume of tests
-      const testPromises = Array.from({ length: 50 }, async (_, i) => {
+      const testPromises = Array.from({ length: 50 }, async (_) => {
         const form = TestDataFactory.createSampleFilledForm();
         const leg = TestDataFactory.createSampleTripLeg();
         const schema = TestDataFactory.createSampleSchema();
@@ -490,7 +491,7 @@ describe('Defensive Automation Testing', () => {
           'JPN',
           Math.random() > 0.2,
           Math.random() * 5000,
-          TestDataFactory.createSampleFilledForm().stats
+          TestDataFactory.createSampleFilledForm().stats as any
         );
       }
 

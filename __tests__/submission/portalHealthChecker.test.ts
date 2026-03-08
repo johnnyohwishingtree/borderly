@@ -5,15 +5,16 @@
  */
 
 import { PortalHealthChecker } from '@/services/testing/portalHealthChecker';
-import { TestDataFactory, TestEnvironment } from '@/utils/testHelpers';
+import { TestEnvironment } from '@/utils/testHelpers';
 
 // Mock fetch for testing
+declare var global: any;
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
 describe('PortalHealthChecker', () => {
   let healthChecker: PortalHealthChecker;
-  let networkSim: ReturnType<typeof TestEnvironment.simulateNetwork>;
+  let networkSim: ReturnType<typeof TestEnvironment.simulateNetwork> | undefined;
 
   beforeEach(() => {
     healthChecker = new PortalHealthChecker({
@@ -264,7 +265,7 @@ describe('PortalHealthChecker', () => {
       await testChecker.checkPortalHealth('SGP', 'Test Portal 3', 'https://test3.com');
       
       // Copy all results to main healthChecker for the test
-      healthChecker['healthHistory'] = testChecker['healthHistory'];
+      (healthChecker as any)['healthHistory'] = testChecker['healthHistory'];
     });
 
     it('should generate health summary', () => {

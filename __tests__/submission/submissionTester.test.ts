@@ -5,7 +5,7 @@
  */
 
 import { SubmissionTester } from '@/services/testing/submissionTester';
-import { TestDataFactory, TestAssertions, MockGenerators } from '@/utils/testHelpers';
+import { TestDataFactory } from '@/utils/testHelpers';
 import { FilledForm } from '@/services/forms/formEngine';
 import { TripLeg } from '@/types/trip';
 import { CountryFormSchema } from '@/types/schema';
@@ -111,27 +111,31 @@ describe('SubmissionTester', () => {
                 label: 'Full Name',
                 type: 'text',
                 required: true,
-                autoFillSource: 'passport.fullName'
+                autoFillSource: 'passport.fullName',
+                countrySpecific: false
               },
               {
                 id: 'passportNumber',
                 label: 'Passport Number',
                 type: 'text',
                 required: true,
-                autoFillSource: 'passport.documentNumber'
+                autoFillSource: 'passport.documentNumber',
+                countrySpecific: false
               },
               {
                 id: 'arrivalDate',
                 label: 'Arrival Date',
                 type: 'date',
                 required: true,
-                autoFillSource: 'trip.arrivalDate'
+                autoFillSource: 'trip.arrivalDate',
+                countrySpecific: false
               },
               {
                 id: 'accommodationAddress',
                 label: 'Accommodation Address',
                 type: 'text',
-                required: true
+                required: true,
+                countrySpecific: true
               }
             ]
           }
@@ -227,7 +231,7 @@ describe('SubmissionTester', () => {
       form.sections[0].fields.push({
         id: 'email',
         label: 'Email',
-        type: 'email',
+        type: 'email' as any,
         required: true,
         currentValue: 'invalid-email',
         validation: { pattern: 'email' },
@@ -269,7 +273,8 @@ describe('SubmissionTester', () => {
         id: 'missingRequiredField',
         label: 'Missing Required Field',
         type: 'text',
-        required: true
+        required: true,
+        countrySpecific: true
       });
 
       const result = await submissionTester.testSubmission(sampleLeg, sampleForm, schema);
@@ -285,7 +290,8 @@ describe('SubmissionTester', () => {
         id: 'missingOptionalField',
         label: 'Missing Optional Field',
         type: 'text',
-        required: false
+        required: false,
+        countrySpecific: false
       });
 
       const result = await submissionTester.testSubmission(sampleLeg, sampleForm, schema);

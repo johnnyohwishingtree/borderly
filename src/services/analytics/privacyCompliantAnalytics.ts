@@ -96,12 +96,13 @@ class PrivacyCompliantAnalyticsService {
     
     // Add to current journey if active
     if (this.currentJourney) {
+      const duration = this.currentJourney.steps.length > 0 ?
+        Date.now() - this.currentJourney.steps[this.currentJourney.steps.length - 1].timestamp :
+        undefined;
       this.currentJourney.steps.push({
         screen: screenName,
         timestamp: Date.now(),
-        duration: this.currentJourney.steps.length > 0 ? 
-          Date.now() - this.currentJourney.steps[this.currentJourney.steps.length - 1].timestamp : 
-          undefined
+        ...(duration !== undefined ? { duration } : {}),
       });
     }
   }
@@ -203,16 +204,16 @@ class PrivacyCompliantAnalyticsService {
       });
     }
 
-    this.journeys.push(this.currentJourney);
+    // Track journey completion analytics before clearing
+    const completedJourney = this.currentJourney;
+    this.journeys.push(completedJourney);
     this.currentJourney = null;
 
-    // Track journey completion analytics
     this.trackUserAction('journey_completed', 'analytics', {
-      flowType: this.currentJourney?.flowType,
+      flowType: completedJourney.flowType,
       outcome,
-      duration: this.currentJourney ? 
-        this.currentJourney.endTime! - this.currentJourney.startTime : 0,
-      steps: this.currentJourney?.steps.length || 0
+      duration: completedJourney.endTime! - completedJourney.startTime,
+      steps: completedJourney.steps.length
     });
   }
 
@@ -368,7 +369,7 @@ class PrivacyCompliantAnalyticsService {
     return {
       eventCount: this.events.length,
       journeyCount: this.journeys.length,
-      oldestEvent,
+      ...(oldestEvent !== undefined ? { oldestEvent } : {}),
       dataSize: JSON.stringify({ events: this.events, journeys: this.journeys }).length
     };
   }

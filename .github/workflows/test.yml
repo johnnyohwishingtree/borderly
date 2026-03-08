@@ -32,24 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Type check
-        id: typecheck
-        continue-on-error: true
-        run: pnpm typecheck
-
-      - name: Fail if new type errors introduced
-        run: |
-          # Count type errors — fail only if this PR introduced new ones
-          # TODO: Remove continue-on-error above once pre-existing TS errors are fixed
-          pnpm typecheck 2>&1 | tee /tmp/typecheck_output.txt || true
-          ERRORS=$(grep -c "^src/\|error TS" /tmp/typecheck_output.txt || echo "0")
-          echo "TypeScript errors: $ERRORS"
-          # Known pre-existing error count as of this PR
-          BASELINE=76
-          if [ "$ERRORS" -gt "$BASELINE" ]; then
-            echo "::error::New TypeScript errors introduced ($ERRORS > baseline $BASELINE)"
-            exit 1
-          fi
-          echo "No new TypeScript errors (at or below baseline of $BASELINE)"
+        run: pnpm typecheck 2>&1 | tee /tmp/typecheck_output.txt
 
       - name: Metro bundle check
         run: |

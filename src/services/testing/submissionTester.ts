@@ -68,7 +68,7 @@ export class SubmissionTester {
    * Performs a complete mock submission test
    */
   async testSubmission(
-    leg: TripLeg,
+    _leg: TripLeg,
     filledForm: FilledForm,
     schema: CountryFormSchema
   ): Promise<MockSubmissionResult> {
@@ -153,8 +153,8 @@ export class SubmissionTester {
    * Tests field validation against schema rules
    */
   private async testFieldValidation(
-    filledForm: FilledForm, 
-    schema: CountryFormSchema
+    filledForm: FilledForm,
+    _schema: CountryFormSchema
   ): Promise<{
     passed: boolean;
     errors: SubmissionError[];
@@ -166,7 +166,7 @@ export class SubmissionTester {
     for (const section of filledForm.sections) {
       for (const field of section.fields) {
         // Test required field validation
-        if (field.required && (!field.currentValue || field.currentValue.trim() === '')) {
+        if (field.required && (!field.currentValue || String(field.currentValue).trim() === '')) {
           errors.push({
             fieldId: field.id,
             errorType: 'required_missing',
@@ -177,19 +177,22 @@ export class SubmissionTester {
 
         // Test field format validation
         if (field.currentValue && field.validation) {
-          const formatValid = this.validateFieldFormat(field.currentValue, field.validation);
+          const formatValid = this.validateFieldFormat(String(field.currentValue), field.validation);
           if (!formatValid.isValid) {
-            errors.push({
+            const errorEntry: SubmissionError = {
               fieldId: field.id,
               errorType: 'invalid_format',
               message: `Invalid format for '${field.label}': ${formatValid.message}`,
-              suggestion: formatValid.suggestion
-            });
+            };
+            if (formatValid.suggestion) {
+              errorEntry.suggestion = formatValid.suggestion;
+            }
+            errors.push(errorEntry);
           }
         }
 
         // Test country-specific validation
-        if (field.countrySpecific && (!field.currentValue || field.currentValue.trim() === '')) {
+        if (field.countrySpecific && (!field.currentValue || String(field.currentValue).trim() === '')) {
           warnings.push(`Country-specific field '${field.label}' may require manual input`);
         }
       }
@@ -321,14 +324,17 @@ export class SubmissionTester {
     for (const section of filledForm.sections) {
       for (const field of section.fields) {
         if (field.currentValue) {
-          const formatTest = this.testSpecificFormat(field.id, field.currentValue, field.type);
+          const formatTest = this.testSpecificFormat(field.id, String(field.currentValue), field.type);
           if (!formatTest.valid) {
-            errors.push({
+            const errorEntry: SubmissionError = {
               fieldId: field.id,
               errorType: 'invalid_format',
               message: formatTest.message,
-              suggestion: formatTest.suggestion
-            });
+            };
+            if (formatTest.suggestion) {
+              errorEntry.suggestion = formatTest.suggestion;
+            }
+            errors.push(errorEntry);
           } else if (formatTest.warning) {
             warnings.push(formatTest.warning);
           }
@@ -377,29 +383,37 @@ export class SubmissionTester {
   /**
    * Tests specific field formats
    */
-  private testSpecificFormat(fieldId: string, value: string, type: string): {
+  private testSpecificFormat(_fieldId: string, value: string, type: string): {
     valid: boolean;
     message: string;
     suggestion?: string;
     warning?: string;
   } {
     switch (type) {
-      case 'email':
+      case 'email': {
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        return {
+        const emailResult: { valid: boolean; message: string; suggestion?: string } = {
           valid: emailValid,
           message: emailValid ? 'Valid email format' : 'Invalid email format',
-          suggestion: emailValid ? undefined : 'Please enter a valid email address'
         };
-      
-      case 'date':
+        if (!emailValid) {
+          emailResult.suggestion = 'Please enter a valid email address';
+        }
+        return emailResult;
+      }
+
+      case 'date': {
         const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(value);
-        return {
+        const dateResult: { valid: boolean; message: string; suggestion?: string } = {
           valid: dateValid,
           message: dateValid ? 'Valid date format' : 'Invalid date format',
-          suggestion: dateValid ? undefined : 'Please use YYYY-MM-DD format'
         };
-      
+        if (!dateValid) {
+          dateResult.suggestion = 'Please use YYYY-MM-DD format';
+        }
+        return dateResult;
+      }
+
       default:
         return {
           valid: true,
@@ -431,7 +445,7 @@ export class SubmissionTester {
    */
   private async simulateProcessingDelay(): Promise<void> {
     const delay = Math.floor(Math.random() * 2000) + 500; // 500ms - 2.5s
-    await new Promise(resolve => setTimeout(resolve, delay));
+    await new Promise<void>(resolve => setTimeout(resolve, delay));
   }
 
   /**
