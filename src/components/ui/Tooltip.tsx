@@ -70,7 +70,7 @@ export default function Tooltip({
       icon: 'error',
       iconColor: '#ffffff',
     },
-  };
+  } as const;
 
   const style = variantStyles[variant];
 
@@ -193,7 +193,7 @@ export default function Tooltip({
                 <View className="flex-row items-start">
                   {showIcon && (
                     <MaterialIcons
-                      name={style.icon as any}
+                      name={style.icon}
                       size={16}
                       color={style.iconColor}
                       style={{ marginRight: 6, marginTop: 1 }}

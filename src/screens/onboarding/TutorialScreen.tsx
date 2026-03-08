@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -10,18 +10,8 @@ import CountryFlag from '../../components/trips/CountryFlag';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
 
-interface TutorialStep {
-  id: number;
-  title: string;
-  subtitle: string;
-  content: string;
-  icon: string;
-  iconColor: string;
-  bgGradient: string;
-  illustration?: React.ReactNode;
-}
 
-const tutorialSteps: TutorialStep[] = [
+const tutorialSteps = [
   {
     id: 1,
     title: 'Scan Your Passport',
@@ -133,7 +123,7 @@ const tutorialSteps: TutorialStep[] = [
 export default function TutorialScreen() {
   const navigation = useNavigation<TutorialScreenNavigationProp>();
   const [currentStep, setCurrentStep] = useState(0);
-  const { height } = Dimensions.get('window');
+  const { height } = useWindowDimensions();
 
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {

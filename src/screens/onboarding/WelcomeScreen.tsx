@@ -23,6 +23,9 @@ export default function WelcomeScreen() {
   };
 
   const { height } = Dimensions?.get?.('window') ?? { height: 800 };
+  
+  // Color constant for consistency with text-gray-500
+  const GRAY_500 = '#6b7280';
 
   return (
     <ScrollView 
@@ -186,7 +189,7 @@ export default function WelcomeScreen() {
               variant="info"
               placement="top"
             >
-              <MaterialIcons name="help-outline" size={20} color="#6b7280" />
+              <MaterialIcons name="help-outline" size={20} color={GRAY_500} />
             </Tooltip>
           </View>
           

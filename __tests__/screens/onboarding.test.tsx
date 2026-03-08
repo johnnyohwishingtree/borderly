@@ -75,20 +75,23 @@ jest.mock('@/components/ui', () => {
       </View>
     ),
     Tooltip: ({ children, content }: any) => (
-      <View>
+      <View testID="tooltip">
         {children}
         <Text>{content}</Text>
       </View>
     ),
     HelpHint: ({ title, content }: any) => (
-      <View>
+      <View testID="help-hint">
         {title && <Text>{title}</Text>}
         <Text>{content}</Text>
       </View>
     ),
-    ProgressIndicator: ({ progress }: any) => (
+    ProgressIndicator: ({ current, total, steps }: any) => (
       <View testID="progress-indicator">
-        <Text>{progress || 0}%</Text>
+        <Text>{current} of {total}</Text>
+        {steps && steps.map((step: any, index: number) => (
+          <Text key={index}>{step.title}</Text>
+        ))}
       </View>
     ),
   };

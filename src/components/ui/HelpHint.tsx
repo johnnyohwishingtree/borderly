@@ -49,7 +49,7 @@ export default function HelpHint({
       titleColor: 'text-green-900',
       contentColor: 'text-green-800',
     },
-  };
+  } as const;
 
   const sizeStyles = {
     small: {
@@ -83,7 +83,7 @@ export default function HelpHint({
     >
       <View className="flex-row items-start">
         <MaterialIcons
-          name={variantStyle.icon as any}
+          name={variantStyle.icon}
           size={sizeStyle.iconSize}
           color={variantStyle.iconColor}
           style={{ marginRight: 12, marginTop: 2 }}

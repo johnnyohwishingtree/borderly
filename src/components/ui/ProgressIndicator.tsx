@@ -60,29 +60,31 @@ export default function ProgressIndicator({
           border: 'border-green-500',
           text: 'text-white',
           icon: 'check',
-        };
+        } as const;
       case 'current':
         return {
           bg: 'bg-blue-500',
           border: 'border-blue-500',
           text: 'text-white',
           icon: null,
-        };
+        } as const;
       case 'upcoming':
-        return {
-          bg: 'bg-gray-200',
-          border: 'border-gray-300',
-          text: 'text-gray-600',
-          icon: null,
-        };
       default:
         return {
           bg: 'bg-gray-200',
           border: 'border-gray-300',
           text: 'text-gray-600',
           icon: null,
-        };
+        } as const;
     }
+  };
+
+  const getVerticalConnectorStyles = (sizeStyle: typeof sizeStyles[keyof typeof sizeStyles]) => {
+    const topOffset = sizeStyle.circle === 'w-6 h-6' ? 'top-8' : sizeStyle.circle === 'w-8 h-8' ? 'top-10' : 'top-12';
+    const leftOffset = sizeStyle.circle === 'w-6 h-6' ? 'left-3' : sizeStyle.circle === 'w-8 h-8' ? 'left-4' : 'left-5';
+    const height = sizeStyle.circle === 'w-6 h-6' ? 'h-4' : sizeStyle.circle === 'w-8 h-8' ? 'h-6' : 'h-8';
+    
+    return `${topOffset} ${leftOffset} w-0.5 ${height}`;
   };
 
   if (variant === 'dots') {
@@ -131,7 +133,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  <MaterialIcons name={styles.icon as any} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                  <MaterialIcons name={styles.icon} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}
@@ -146,7 +148,7 @@ export default function ProgressIndicator({
               )}
               
               {index < totalSteps - 1 && (
-                <View className="absolute top-10 left-4 w-0.5 h-6 bg-gray-300" />
+                <View className={`absolute ${getVerticalConnectorStyles(sizeStyle)} bg-gray-300`} />
               )}
             </View>
           );
@@ -177,7 +179,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  <MaterialIcons name={styles.icon as any} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                  <MaterialIcons name={styles.icon} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}
