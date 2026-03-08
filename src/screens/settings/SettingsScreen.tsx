@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
 import { keychainService } from '@/services/storage';
+import type { SettingsStackParamList } from '@/app/navigation/types';
+
+type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
 
 export default function SettingsScreen() {
+  const navigation = useNavigation<SettingsScreenNavigationProp>();
   const {
     preferences,
     updatePreference,
@@ -515,15 +521,22 @@ export default function SettingsScreen() {
             </Text>
             <View className="space-y-2">
               <Button
-                title="📚 View Documentation"
-                onPress={() => Alert.alert('Documentation', 'Documentation will open in a future update.')}
+                title="📚 Help & FAQ"
+                onPress={() => navigation.navigate('Help')}
                 variant="outline"
                 size="small"
                 fullWidth
               />
               <Button
-                title="📬 Contact Support"
-                onPress={() => Alert.alert('Support', 'Support contact will be available in a future update.')}
+                title="💬 Send Feedback"
+                onPress={() => navigation.navigate('Feedback')}
+                variant="outline"
+                size="small"
+                fullWidth
+              />
+              <Button
+                title="🐛 Report Bug"
+                onPress={() => navigation.navigate('BugReport')}
                 variant="outline"
                 size="small"
                 fullWidth

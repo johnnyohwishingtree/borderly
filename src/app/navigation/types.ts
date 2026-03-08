@@ -38,4 +38,7 @@ export type ProfileStackParamList = {
 
 export type SettingsStackParamList = {
   Settings: undefined;
+  Feedback: undefined;
+  BugReport: undefined;
+  Help: undefined;
 };

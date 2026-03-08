@@ -9,7 +9,8 @@ on:
 jobs:
   gemini:
     if: |
-      contains(github.event.comment.body, '@gemini') &&
+      (contains(github.event.comment.body, '@gemini ') || endsWith(github.event.comment.body, '@gemini')) &&
+      !contains(github.event.comment.body, '@gemini-code-assist') &&
       (github.event.issue != null || github.event.pull_request != null)
     runs-on: ubuntu-latest
     permissions:
@@ -24,14 +25,28 @@ jobs:
           fetch-depth: 0
 
       - name: Switch to PR branch if applicable
-        if: github.event.issue.pull_request
+        if: github.event.issue.pull_request || github.event.pull_request
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          PR_NUM=${{ github.event.issue.number }}
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            PR_NUM=${{ github.event.pull_request.number }}
+          else
+            PR_NUM=${{ github.event.issue.number }}
+          fi
           PR_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
           echo "Switching to PR branch: $PR_BRANCH"
           git checkout "$PR_BRANCH"
+
+      - name: Create branch for new issue
+        if: github.event.issue && !github.event.issue.pull_request
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          BRANCH_NAME="gemini/issue-$ISSUE_NUM-$(date +%Y%m%d-%H%M)"
+          git checkout -b "$BRANCH_NAME"
+          echo "Created branch: $BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        id: branch
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -55,14 +70,30 @@ jobs:
         id: gemini
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
         run: |
-          # Extract everything after @gemini
-          PROMPT=$(echo "${{ github.event.comment.body }}" | sed 's/.*@gemini//' | xargs)
-          echo "Running Gemini with prompt: $PROMPT"
+          # Save comment body to a file to avoid shell expansion issues
+          echo "$COMMENT_BODY" > comment.txt
           
-          # Run gemini-cli in non-interactive mode
-          # Note: We use npx to ensure the latest version
-          npx -y @google/gemini-cli "$PROMPT"
+          # Extract the part after @gemini
+          # This handles multi-line prompts safely
+          PROMPT=$(sed -n 's/.*@gemini //p' comment.txt || sed -n 's/.*@gemini//p' comment.txt | head -n 1)
+          
+          if [ -z "$PROMPT" ]; then
+            # If nothing after @gemini, check if the comment IS just @gemini
+            if grep -q "@gemini" comment.txt; then
+              PROMPT="Follow the instructions in the issue/PR description."
+            else
+              echo "No prompt found after @gemini"
+              exit 0
+            fi
+          fi
+          
+          echo "Running Gemini with extracted prompt: $PROMPT"
+          
+          # Run gemini-cli in headless mode
+          npx -y @google/gemini-cli --headless "$PROMPT"
 
       - name: Push uncommitted changes
         if: always()
