@@ -37,6 +37,8 @@ export default function WelcomeScreen() {
     <ScrollView 
       className="flex-1 bg-gray-50"
       contentContainerStyle={{ minHeight: height }}
+      accessibilityLabel="Welcome screen content"
+      accessibilityHint="Scroll to see features and get started with Borderly"
     >
       <View className="flex-1 px-6 pt-16 pb-12">
         {/* Progress indicator */}

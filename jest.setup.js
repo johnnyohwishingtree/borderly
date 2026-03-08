@@ -13,6 +13,116 @@ configure({
   },
 });
 
+// Mock react-native-css-interop
+jest.mock('react-native-css-interop', () => {
+  return {
+    cssInterop: jest.fn(),
+  };
+});
+
+// Mock lucide-react-native
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  const mockIcon = (name) => {
+    const Icon = ({ ...props }) => React.createElement('LucideIcon', { ...props, iconName: name });
+    Icon.displayName = name;
+    return Icon;
+  };
+  return {
+    Globe: mockIcon('Globe'),
+    Plane: mockIcon('Plane'),
+    Lock: mockIcon('Lock'),
+    Smartphone: mockIcon('Smartphone'),
+    Zap: mockIcon('Zap'),
+    ShieldCheck: mockIcon('ShieldCheck'),
+    HelpCircle: mockIcon('HelpCircle'),
+    ChevronRight: mockIcon('ChevronRight'),
+    ArrowRight: mockIcon('ArrowRight'),
+    Check: mockIcon('Check'),
+    X: mockIcon('X'),
+    Plus: mockIcon('Plus'),
+    Minus: mockIcon('Minus'),
+  };
+});
+
+// Mock @gluestack-ui/nativewind
+jest.mock('@gluestack-ui/nativewind', () => {
+  return {};
+});
+
+// Mock @gluestack-style/react  
+jest.mock('@gluestack-style/react', () => {
+  return {
+    createStyle: jest.fn(),
+    styled: jest.fn(),
+  };
+});
+
+// Mock react-native-reanimated
+jest.mock('react-native-reanimated', () => {
+  const React = require('react');
+  const mockComponent = (name) => {
+    const Component = ({ children, ...props }) => React.createElement(name, props, children);
+    Component.displayName = name;
+    return Component;
+  };
+  return {
+    default: {
+      View: mockComponent('Animated.View'),
+      Text: mockComponent('Animated.Text'),
+      ScrollView: mockComponent('Animated.ScrollView'),
+      createAnimatedComponent: jest.fn((component) => component),
+    },
+    Easing: {
+      linear: jest.fn(),
+      ease: jest.fn(),
+      quad: jest.fn(),
+      cubic: jest.fn(),
+    },
+    runOnJS: jest.fn((fn) => fn),
+    useSharedValue: jest.fn(() => ({ value: 0 })),
+    useAnimatedStyle: jest.fn(() => ({})),
+    withTiming: jest.fn((value) => value),
+    withSpring: jest.fn((value) => value),
+    withSequence: jest.fn((value) => value),
+    interpolate: jest.fn(() => 0),
+  };
+});
+
+// Mock react-native-svg
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const mockComponent = (name) => {
+    const Component = ({ children, ...props }) => React.createElement(name, props, children);
+    Component.displayName = name;
+    return Component;
+  };
+  return {
+    Svg: mockComponent('Svg'),
+    Circle: mockComponent('Circle'),
+    Ellipse: mockComponent('Ellipse'),
+    G: mockComponent('G'),
+    Text: mockComponent('SvgText'),
+    TSpan: mockComponent('TSpan'),
+    TextPath: mockComponent('TextPath'),
+    Path: mockComponent('Path'),
+    Polygon: mockComponent('Polygon'),
+    Polyline: mockComponent('Polyline'),
+    Line: mockComponent('Line'),
+    Rect: mockComponent('Rect'),
+    Use: mockComponent('Use'),
+    Image: mockComponent('SvgImage'),
+    Symbol: mockComponent('Symbol'),
+    Defs: mockComponent('Defs'),
+    LinearGradient: mockComponent('LinearGradient'),
+    RadialGradient: mockComponent('RadialGradient'),
+    Stop: mockComponent('Stop'),
+    ClipPath: mockComponent('ClipPath'),
+    Pattern: mockComponent('Pattern'),
+    Mask: mockComponent('Mask'),
+  };
+});
+
 // Basic Jest setup for TypeScript unit tests
 
 // Define global __DEV__ variable

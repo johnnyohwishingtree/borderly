@@ -3,13 +3,13 @@ import { cssInterop } from 'react-native-css-interop';
 
 interface IconProps {
   as: LucideIcon;
-  size?: number | string;
+  size?: number;
   color?: string;
   className?: string;
   style?: any;
 }
 
-const Icon = ({ as: IconComponent, size = 24, color = 'currentColor', className = '', style }: IconProps) => {
+const Icon = ({ as: IconComponent, size = 24, color = '#000', className = '', style }: IconProps) => {
   return <IconComponent size={size} color={color} className={className} style={style} />;
 };
 
