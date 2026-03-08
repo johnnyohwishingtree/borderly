@@ -1,0 +1,143 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-08T00:00:00Z",
+  "description": "Canada eTA submission guide screenshot metadata",
+  "screenshots": [
+    {
+      "filename": "01-eligibility-check.png",
+      "title": "Canada eTA Eligibility Checker",
+      "description": "Initial eligibility verification page",
+      "stepNumber": 1,
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta/eligibility.html",
+      "keyElements": ["nationality-dropdown", "eligibility-button"],
+      "notes": "Users select their nationality to check eTA requirements"
+    },
+    {
+      "filename": "02-start-application.png",
+      "title": "Start eTA Application",
+      "description": "Application start page with instructions",
+      "stepNumber": 2,
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta/apply-online.html",
+      "keyElements": ["start-application-button", "instructions-panel"],
+      "notes": "Users click 'Start Application' to begin the process"
+    },
+    {
+      "filename": "03-personal-info.png",
+      "title": "Personal Information Form",
+      "description": "Personal details entry screen",
+      "stepNumber": 4,
+      "keyElements": ["given-names", "surname", "date-of-birth", "gender", "marital-status"],
+      "notes": "Information must match passport exactly"
+    },
+    {
+      "filename": "04-nationality-citizenship.png",
+      "title": "Nationality and Citizenship",
+      "description": "Citizenship and nationality questions",
+      "stepNumber": 5,
+      "keyElements": ["nationality", "dual-citizenship", "immigration-status"],
+      "notes": "Dual citizenship questions are mandatory"
+    },
+    {
+      "filename": "05-passport-info.png",
+      "title": "Passport Information",
+      "description": "Passport details entry form",
+      "stepNumber": 6,
+      "keyElements": ["passport-number", "passport-country", "issue-date", "expiry-date"],
+      "notes": "Passport must be valid for entire stay"
+    },
+    {
+      "filename": "06-contact-info.png",
+      "title": "Contact Information",
+      "description": "Email address and confirmation",
+      "stepNumber": 7,
+      "keyElements": ["email-address", "confirm-email"],
+      "notes": "eTA confirmation will be sent to this email"
+    },
+    {
+      "filename": "07-address-info.png",
+      "title": "Address Information",
+      "description": "Home address and residence details",
+      "stepNumber": 8,
+      "keyElements": ["home-address", "home-country"],
+      "notes": "Current permanent address required"
+    },
+    {
+      "filename": "08-employment-info.png",
+      "title": "Employment Information",
+      "description": "Occupation and employer details",
+      "stepNumber": 9,
+      "keyElements": ["occupation", "employer-name"],
+      "notes": "Students should enter 'Student', retirees 'Retired'"
+    },
+    {
+      "filename": "09-travel-info.png",
+      "title": "Travel Information",
+      "description": "Purpose of visit and funding details",
+      "stepNumber": 10,
+      "keyElements": ["purpose-of-visit", "funding-source"],
+      "notes": "Be honest about travel purpose and funding"
+    },
+    {
+      "filename": "10-background-questions.png",
+      "title": "Background Questions",
+      "description": "Health and security background questions",
+      "stepNumber": 11,
+      "keyElements": ["criminal-offence", "immigration-offence", "medical-condition"],
+      "notes": "Most travelers answer 'No' to all questions"
+    },
+    {
+      "filename": "11-review-submit.png",
+      "title": "Review and Submit",
+      "description": "Application review and final submission",
+      "stepNumber": 12,
+      "keyElements": ["accuracy-confirmation", "submit-button"],
+      "notes": "Carefully review all information before submitting"
+    },
+    {
+      "filename": "12-payment.png",
+      "title": "Payment Processing",
+      "description": "Credit card payment for CAD $7 fee",
+      "stepNumber": 13,
+      "keyElements": ["payment-form", "credit-card-fields"],
+      "notes": "Fee is required regardless of approval or denial"
+    },
+    {
+      "filename": "13-eta-confirmation.png",
+      "title": "eTA Confirmation",
+      "description": "eTA approval and confirmation details",
+      "stepNumber": 14,
+      "keyElements": ["eta-number", "approval-status", "validity-dates"],
+      "notes": "eTA is electronically linked to passport - no physical document needed"
+    }
+  ],
+  "tips": [
+    "Have passport ready before starting",
+    "Complete application in one session - cannot save progress",
+    "Most applications are approved within minutes",
+    "eTA is valid for 5 years or until passport expires",
+    "Multiple entries allowed - up to 6 months each visit",
+    "Only use canada.ca - avoid third-party sites with extra fees"
+  ],
+  "commonIssues": [
+    {
+      "issue": "Application timeout",
+      "solution": "Complete form quickly in one session"
+    },
+    {
+      "issue": "Passport information errors",
+      "solution": "Double-check all passport details match exactly"
+    },
+    {
+      "issue": "Email not received",
+      "solution": "Check spam folder, ensure email address is correct"
+    },
+    {
+      "issue": "Payment declined",
+      "solution": "Try different credit card or contact bank"
+    },
+    {
+      "issue": "Citizenship questions",
+      "solution": "Answer all citizenship questions honestly and completely"
+    }
+  ]
+}
