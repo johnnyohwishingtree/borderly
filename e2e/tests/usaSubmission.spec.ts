@@ -288,22 +288,31 @@ test.describe('USA ESTA Portal Health', () => {
   });
 
   test('should detect ESTA portal maintenance periods', async ({ page }) => {
+    // Mock health check API to simulate maintenance scenario
+    await page.route('**/api/portal/health/USA', (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'maintenance',
+          message: 'ESTA system maintenance',
+          estimatedDuration: '2-4 hours',
+          nextCheck: new Date(Date.now() + 3600000).toISOString()
+        })
+      });
+    });
+
     await page.goto('/settings');
     await page.getByTestId('portal-health-check').click();
     
     // Wait for health check
     await page.waitForSelector('[data-testid="health-check-results"]', { timeout: 10000 });
     
-    // If portal shows maintenance, verify appropriate messaging
+    // Verify maintenance messaging is displayed
     const maintenanceNotice = page.getByTestId('usa-maintenance-notice');
-    
-    // This may or may not be visible depending on actual portal status
-    const isMaintenanceVisible = await maintenanceNotice.isVisible().catch(() => false);
-    
-    if (isMaintenanceVisible) {
-      await expect(maintenanceNotice).toContainText('ESTA system maintenance');
-      await expect(page.getByText('Please try again later')).toBeVisible();
-    }
+    await expect(maintenanceNotice).toBeVisible();
+    await expect(maintenanceNotice).toContainText('ESTA system maintenance');
+    await expect(page.getByText('Please try again later')).toBeVisible();
   });
 });
 

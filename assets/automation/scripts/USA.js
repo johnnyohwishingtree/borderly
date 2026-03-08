@@ -72,31 +72,33 @@
           let result = false;
           let lastError = null;
           
-          for (let attempt = 1; attempt <= maxRetries && !result; attempt++) {
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
             try {
               result = await this.handleStep(currentStep, formData, options);
-              if (!result && attempt < maxRetries) {
-                if (debug) {
-                  window.BorderlyAutomation.Debug.logStep('Step failed, retrying', false, {
-                    step: currentStep,
-                    attempt: attempt,
-                    willRetry: true
-                  });
-                }
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
+              if (result) {
+                break; // Success, exit loop
+              }
+              if (debug) {
+                window.BorderlyAutomation.Debug.logStep('Step failed, retrying', false, {
+                  step: currentStep,
+                  attempt: attempt,
+                  willRetry: attempt < maxRetries
+                });
               }
             } catch (error) {
               lastError = error;
-              if (attempt < maxRetries) {
-                if (debug) {
-                  window.BorderlyAutomation.Debug.logStep('Step error, retrying', false, {
-                    step: currentStep,
-                    attempt: attempt,
-                    error: error.message
-                  });
-                }
-                await new Promise(resolve => setTimeout(resolve, retryDelay));
+              if (debug) {
+                window.BorderlyAutomation.Debug.logStep('Step error, retrying', false, {
+                  step: currentStep,
+                  attempt: attempt,
+                  error: error.message,
+                  willRetry: attempt < maxRetries
+                });
               }
+            }
+
+            if (attempt < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
             }
           }
 
@@ -856,64 +858,12 @@
       return date instanceof Date && !isNaN(date);
     },
 
-    /**
-     * Enhanced error handling for ESTA steps
-     */
-    handleStepWithErrorRecovery: function(step, formData, options = {}) {
-      return new Promise(async function(resolve) {
-        const maxRetries = 2;
-        let lastError = null;
-        
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            // Wait for any loading indicators to disappear
-            await this.waitForPageStable();
-            
-            const result = await this.handleStep(step, formData, options);
-            
-            if (result || attempt === maxRetries) {
-              resolve(result);
-              return;
-            }
-            
-            // If failed and not last attempt, wait and retry
-            if (options.debug) {
-              window.BorderlyAutomation.Debug.logStep(`Step ${step} failed, retrying`, false, {
-                attempt: attempt,
-                maxRetries: maxRetries
-              });
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-          } catch (error) {
-            lastError = error;
-            
-            if (attempt === maxRetries) {
-              if (options.debug) {
-                window.BorderlyAutomation.Debug.logStep(`Step ${step} failed permanently`, false, {
-                  error: error.message,
-                  attempt: attempt
-                });
-              }
-              resolve(false);
-              return;
-            }
-            
-            // Wait before retry
-            await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-        }
-        
-        resolve(false);
-      }.bind(this));
-    },
 
     /**
      * Waits for page to be stable (no loading indicators)
      */
     waitForPageStable: function(timeout = 10000) {
-      return new Promise(function(resolve) {
+      return new Promise(function(resolve, reject) {
         const startTime = Date.now();
         
         function check() {
@@ -926,7 +876,7 @@
           if (isStable) {
             resolve(true);
           } else if (Date.now() - startTime > timeout) {
-            resolve(false); // Timeout, but don't reject
+            reject(new Error('Timeout waiting for page to be stable'));
           } else {
             setTimeout(check, 200);
           }
