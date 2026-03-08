@@ -1,12 +1,19 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Button, Input, Card } from '../../components/ui';
 import { CountryFlag } from '../../components/trips';
+import { AutoFilledBadge } from '../../components/forms';
+import { BoardingPassScanner } from '../../components/boarding';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripLeg, Accommodation } from '../../types/trip';
 import { Address } from '../../types/profile';
+import { ParsedBoardingPass } from '../../types/boarding';
+import { 
+  isBoardingPassSupported, 
+  getUnsupportedDestinationMessage
+} from '../../services/boarding/boardingPassParser';
 
 interface TripFormData {
   name: string;
@@ -30,6 +37,13 @@ interface LegFormData {
     };
     phone: string;
   };
+  autoFilledFields?: {
+    destinationCountry?: 'auto';
+    arrivalDate?: 'auto';
+    flightNumber?: 'auto';
+    airlineCode?: 'auto';
+    arrivalAirport?: 'auto';
+  };
 }
 
 const COUNTRIES = [
@@ -37,6 +51,18 @@ const COUNTRIES = [
   { code: 'MYS', name: 'Malaysia' },
   { code: 'SGP', name: 'Singapore' },
 ];
+
+const COUNTRY_NAMES = COUNTRIES.reduce((acc, country) => {
+  acc[country.code] = country.name;
+  return acc;
+}, {} as Record<string, string>);
+
+const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
+  <View className="flex-row items-center justify-between mb-2">
+    <Text className="text-sm font-medium text-gray-700">{label}</Text>
+    {autoFilled && <AutoFilledBadge source="auto" size="small" />}
+  </View>
+);
 
 export default function CreateTripScreen() {
   const navigation = useNavigation();
@@ -50,6 +76,7 @@ export default function CreateTripScreen() {
   const [legs, setLegs] = useState<LegFormData[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showScanner, setShowScanner] = useState(false);
 
   const addLeg = () => {
     const newLeg: LegFormData = {
@@ -88,7 +115,97 @@ export default function CreateTripScreen() {
     }
 
     current[keys[keys.length - 1]] = value;
+    
+    // Clear auto-filled flag when user manually edits a field
+    const autoFilledFields = newLegs[index].autoFilledFields;
+    if (autoFilledFields) {
+      const fieldKey = field as keyof typeof autoFilledFields;
+      if (fieldKey in autoFilledFields) {
+        delete autoFilledFields[fieldKey];
+      }
+    }
+    
     setLegs(newLegs);
+  };
+
+  const handleScanSuccess = (parsedPass: ParsedBoardingPass) => {
+    setShowScanner(false);
+    
+    // Check if destination is supported
+    if (!isBoardingPassSupported(parsedPass)) {
+      const message = getUnsupportedDestinationMessage(parsedPass);
+      Alert.alert(
+        'Destination Not Supported',
+        `${message}\n\nYou can still add this destination manually.`,
+        [
+          { text: 'Add Manually', onPress: addLeg },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    // Create new leg with auto-filled data
+    const newLeg: LegFormData = {
+      destinationCountry: parsedPass.destinationCountry || '',
+      arrivalDate: parsedPass.flightDate,
+      departureDate: '',
+      flightNumber: parsedPass.flightNumber,
+      airlineCode: parsedPass.airlineCode,
+      arrivalAirport: parsedPass.arrivalAirport,
+      accommodation: {
+        name: '',
+        address: {
+          line1: '',
+          city: '',
+          country: parsedPass.destinationCountry || '',
+          postalCode: '',
+        },
+        phone: '',
+      },
+      autoFilledFields: {
+        destinationCountry: 'auto',
+        arrivalDate: 'auto',
+        flightNumber: 'auto',
+        airlineCode: 'auto',
+        arrivalAirport: 'auto',
+      },
+    };
+
+    setLegs([...legs, newLeg]);
+    
+    // Auto-suggest trip name if this is the first leg
+    if (legs.length === 0 && !tripData.name) {
+      const suggestedName = generateTripName([newLeg]);
+      setTripData(prev => ({ ...prev, name: suggestedName }));
+    }
+  };
+
+  const handleScanCancel = () => {
+    setShowScanner(false);
+  };
+
+  const handleManualEntry = () => {
+    setShowScanner(false);
+    addLeg();
+  };
+
+  const generateTripName = (tripLegs: LegFormData[]): string => {
+    if (tripLegs.length === 0) return '';
+    
+    const destinations = tripLegs
+      .map(leg => COUNTRY_NAMES[leg.destinationCountry])
+      .filter(Boolean);
+    
+    if (destinations.length === 0) return '';
+    
+    if (destinations.length === 1) {
+      return `Trip to ${destinations[0]}`;
+    } else if (destinations.length === 2) {
+      return `${destinations[0]} & ${destinations[1]}`;
+    } else {
+      return `Multi-Country Trip`;
+    }
   };
 
   const validateTrip = (): boolean => {
@@ -194,7 +311,7 @@ export default function CreateTripScreen() {
 
           <View className="space-y-3">
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-2">Country</Text>
+              <FieldHeader label="Country" autoFilled={!!leg.autoFilledFields?.destinationCountry} />
               <View className="flex-row flex-wrap gap-2">
                 {COUNTRIES.map((countryOption) => (
                   <Button
@@ -213,7 +330,7 @@ export default function CreateTripScreen() {
 
             <View className="flex-row space-x-3">
               <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Date</Text>
+                <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
                 <Input
                   value={leg.arrivalDate}
                   onChangeText={(text) => updateLeg(index, 'arrivalDate', text)}
@@ -237,7 +354,7 @@ export default function CreateTripScreen() {
 
             <View className="flex-row space-x-3">
               <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Flight Number</Text>
+                <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
                 <Input
                   value={leg.flightNumber}
                   onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
@@ -246,7 +363,7 @@ export default function CreateTripScreen() {
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 mb-1">Airline Code</Text>
+                <FieldHeader label="Airline Code" autoFilled={!!leg.autoFilledFields?.airlineCode} />
                 <Input
                   value={leg.airlineCode}
                   onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
@@ -257,7 +374,7 @@ export default function CreateTripScreen() {
             </View>
 
             <View>
-              <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Airport</Text>
+              <FieldHeader label="Arrival Airport" autoFilled={!!leg.autoFilledFields?.arrivalAirport} />
               <Input
                 value={leg.arrivalAirport}
                 onChangeText={(text) => updateLeg(index, 'arrivalAirport', text)}
@@ -366,12 +483,20 @@ export default function CreateTripScreen() {
                 <MaterialIcons name="place" size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900">Destinations</Text>
               </View>
-              <Button
-                title="+ Add"
-                onPress={addLeg}
-                variant="primary"
-                size="small"
-              />
+              <View className="flex-row space-x-2">
+                <Button
+                  title="📷 Scan"
+                  onPress={() => setShowScanner(true)}
+                  variant="outline"
+                  size="small"
+                />
+                <Button
+                  title="+ Add"
+                  onPress={addLeg}
+                  variant="primary"
+                  size="small"
+                />
+              </View>
             </View>
 
             {errors.legs && (
@@ -386,11 +511,18 @@ export default function CreateTripScreen() {
                   <Text className="text-sm text-gray-600 text-center mb-4">
                     Add your travel destinations to plan your customs declarations
                   </Text>
-                  <Button
-                    title="Add Your First Destination"
-                    onPress={addLeg}
-                    variant="outline"
-                  />
+                  <View className="flex-row space-x-3">
+                    <Button
+                      title="📷 Scan Boarding Pass"
+                      onPress={() => setShowScanner(true)}
+                      variant="primary"
+                    />
+                    <Button
+                      title="Add Manually"
+                      onPress={addLeg}
+                      variant="outline"
+                    />
+                  </View>
                 </View>
               </Card>
             ) : (
@@ -416,6 +548,19 @@ export default function CreateTripScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Boarding Pass Scanner Modal */}
+      <Modal
+        visible={showScanner}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <BoardingPassScanner
+          onScanSuccess={handleScanSuccess}
+          onScanCancel={handleScanCancel}
+          onManualEntry={handleManualEntry}
+        />
+      </Modal>
     </View>
   );
 }

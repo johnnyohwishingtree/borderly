@@ -69,7 +69,7 @@ test.describe('Performance Tests', () => {
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
     const startTime = Date.now();
-    await page.getByRole('button', { name: 'Add Your First Destination' }).click();
+    await page.getByRole('button', { name: 'Add Manually' }).click();
     await expect(page.getByText('No destinations added yet')).not.toBeVisible();
     const addTime = Date.now() - startTime;
 
@@ -92,7 +92,7 @@ test.describe('Performance Tests', () => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
     await page.getByPlaceholder('e.g., Asia Summer 2025').fill('Memory Test Trip');
-    await page.getByRole('button', { name: 'Add Your First Destination' }).click();
+    await page.getByRole('button', { name: 'Add Manually' }).click();
 
     const finalMemory = await page.evaluate(() => {
       return (performance as any).memory ? (performance as any).memory.usedJSHeapSize : 0;
