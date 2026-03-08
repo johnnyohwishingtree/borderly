@@ -17,7 +17,8 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { parseBoardingPass, type ParsedBoardingPass, type BCBPParseError } from '../../services/boarding/boardingPassParser';
+import { parseBoardingPass } from '../../services/boarding/boardingPassParser';
+import type { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 

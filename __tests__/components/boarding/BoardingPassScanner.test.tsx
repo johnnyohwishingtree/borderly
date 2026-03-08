@@ -28,6 +28,10 @@ jest.mock('react-native-camera', () => {
 });
 
 // Mock boarding pass parser service
+jest.mock('../../../src/services/boarding/boardingPassParser', () => ({
+  parseBoardingPass: jest.fn(),
+}));
+
 const mockParsedPass = {
   passengerName: 'DESMARAIS/LUC',
   airlineCode: 'AC',
@@ -46,10 +50,6 @@ const mockParseError = {
   message: 'Failed to parse boarding pass',
   originalData: 'invalid_data',
 };
-
-jest.mock('../../../src/services/boarding/boardingPassParser', () => ({
-  parseBoardingPass: jest.fn().mockReturnValue(mockParsedPass),
-}));
 
 describe('BoardingPassScanner Component', () => {
   const mockProps = {
@@ -149,14 +149,12 @@ describe('BoardingPassScanner Component', () => {
   });
 
   it('handles successful barcode scan', () => {
-    const { getByTestId } = render(<BoardingPassScanner {...mockProps} />);
-    
-    // Find the camera component (mocked)
-    const camera = getByTestId ? undefined : null; // Camera doesn't have testID in mock
+    const component = render(<BoardingPassScanner {...mockProps} />);
     
     // Simulate a successful barcode read
     // We'll test this through the component's internal logic since we can't directly trigger onBarCodeRead
     expect(mockProps.onScanSuccess).not.toHaveBeenCalled();
+    expect(component).toBeTruthy();
   });
 
   it('handles parse error gracefully', () => {
