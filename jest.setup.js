@@ -184,6 +184,49 @@ jest.mock('@react-native-clipboard/clipboard', () => ({
   },
 }));
 
+// Mock @react-native-async-storage/async-storage
+jest.mock('@react-native-async-storage/async-storage', () => {
+  const storage = new Map();
+  return {
+    default: {
+      getItem: jest.fn((key) => {
+        return Promise.resolve(storage.get(key) || null);
+      }),
+      setItem: jest.fn((key, value) => {
+        storage.set(key, value);
+        return Promise.resolve();
+      }),
+      removeItem: jest.fn((key) => {
+        storage.delete(key);
+        return Promise.resolve();
+      }),
+      clear: jest.fn(() => {
+        storage.clear();
+        return Promise.resolve();
+      }),
+      getAllKeys: jest.fn(() => {
+        return Promise.resolve([...storage.keys()]);
+      }),
+      multiGet: jest.fn((keys) => {
+        const result = keys.map(key => [key, storage.get(key) || null]);
+        return Promise.resolve(result);
+      }),
+      multiSet: jest.fn((keyValuePairs) => {
+        keyValuePairs.forEach(([key, value]) => {
+          storage.set(key, value);
+        });
+        return Promise.resolve();
+      }),
+      multiRemove: jest.fn((keys) => {
+        keys.forEach(key => {
+          storage.delete(key);
+        });
+        return Promise.resolve();
+      }),
+    },
+  };
+});
+
 // Mock react-native-heroicons
 jest.mock('react-native-heroicons/outline', () => {
   const React = require('react');
