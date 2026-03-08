@@ -6,15 +6,20 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import { Button, Card, ProgressBar } from '../../components/ui';
+import { Button, Card, ProgressBar, Tooltip } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
+import { colors } from '../../utils/colors';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen() {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
 
-  const handleContinue = () => {
+  const handleTutorial = () => {
+    navigation.navigate('Tutorial');
+  };
+
+  const handleSkipTutorial = () => {
     navigation.navigate('PassportScan');
   };
 
@@ -158,16 +163,36 @@ export default function WelcomeScreen() {
         {/* CTA section */}
         <View className="space-y-4 mt-auto">
           <Button
-            title="Get Started"
-            onPress={handleContinue}
+            title="Take Quick Tutorial"
+            onPress={handleTutorial}
             size="large"
             fullWidth
-            accessibilityLabel="Get started with Borderly"
-            accessibilityHint="Navigate to passport scanning screen to begin setup"
+            accessibilityLabel="Take quick tutorial"
+            accessibilityHint="Learn how to use Borderly with a guided walkthrough"
             hapticType={HapticFeedbackTypes.impactMedium}
           />
+          
+          <View className="flex-row items-center justify-center space-x-2">
+            <Button
+              title="Skip Tutorial"
+              onPress={handleSkipTutorial}
+              variant="outline"
+              size="medium"
+              accessibilityLabel="Skip tutorial"
+              accessibilityHint="Skip the tutorial and go directly to setup"
+            />
+            <Tooltip
+              content="First time using Borderly? We recommend taking the quick tutorial to learn all features."
+              trigger="tap"
+              variant="info"
+              placement="top"
+            >
+              <MaterialIcons name="help-outline" size={20} color={colors.gray[500]} />
+            </Tooltip>
+          </View>
+          
           <Text className="text-center text-sm text-gray-500">
-            Takes less than 2 minutes to set up
+            Tutorial takes less than 1 minute • Setup takes 2 minutes
           </Text>
         </View>
       </View>

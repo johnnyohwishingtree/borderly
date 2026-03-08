@@ -14,8 +14,9 @@ test.describe('Complete User Flow', () => {
     await expect(page.getByText('Works Offline')).toBeVisible();
     await expect(page.getByText('Lightning Fast')).toBeVisible();
 
-    // CTA button
-    await expect(page.getByLabel('Get started with Borderly')).toBeVisible();
+    // CTA buttons
+    await expect(page.getByRole('button', { name: 'Take quick tutorial' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Skip tutorial' })).toBeVisible();
   });
 
   test('welcome screen shows supported countries', async ({ page }) => {
@@ -30,7 +31,7 @@ test.describe('Complete User Flow', () => {
   test('get started navigates to passport information screen', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByLabel('Get started with Borderly').click();
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Passport scan screen shows method selection
     await expect(page.getByText('Quick Passport Scan')).toBeVisible();
@@ -41,7 +42,7 @@ test.describe('Complete User Flow', () => {
   test('can navigate to manual entry from passport screen', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByLabel('Get started with Borderly').click();
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText('Quick Passport Scan')).toBeVisible();
 
     // Click "Enter Manually" button
@@ -56,7 +57,7 @@ test.describe('Complete User Flow', () => {
   test('manual entry form has required field indicators', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByLabel('Get started with Borderly').click();
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText('Quick Passport Scan')).toBeVisible();
 
     await page.getByRole('button', { name: 'Enter Manually' }).click();
@@ -102,7 +103,7 @@ test.describe('Complete User Flow', () => {
   test('can navigate back from passport screen to welcome', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByLabel('Get started with Borderly').click();
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText('Quick Passport Scan')).toBeVisible();
 
     // Go back

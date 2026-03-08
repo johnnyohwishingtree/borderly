@@ -74,6 +74,23 @@ jest.mock('@/components/ui', () => {
         </View>
       </View>
     ),
+    Tooltip: ({ children, content }: any) => (
+      <View>
+        {children}
+        {content && <Text testID="tooltip-content">{content}</Text>}
+      </View>
+    ),
+    HelpHint: ({ title, content }: any) => (
+      <View testID="help-hint">
+        {title && <Text>{title}</Text>}
+        {content && <Text>{content}</Text>}
+      </View>
+    ),
+    ProgressIndicator: ({ steps, currentStep }: any) => (
+      <View testID="progress-indicator">
+        <Text>{currentStep} of {steps?.length || 0}</Text>
+      </View>
+    ),
   };
 });
 
@@ -108,13 +125,22 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(getByText('Privacy First')).toBeTruthy();
     });
 
-    it('should navigate to PassportScan when Get Started is pressed', () => {
+    it('should navigate to PassportScan when Skip Tutorial is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const getStartedButton = getByText('Get Started');
-      fireEvent.press(getStartedButton);
+      const skipButton = getByText('Skip Tutorial');
+      fireEvent.press(skipButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
+    });
+
+    it('should navigate to Tutorial when Take Quick Tutorial is pressed', () => {
+      const { getByText } = render(<WelcomeScreen />);
+
+      const tutorialButton = getByText('Take Quick Tutorial');
+      fireEvent.press(tutorialButton);
+
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('Tutorial');
     });
 
     it('should display privacy information prominently', () => {
@@ -186,10 +212,10 @@ describe('Onboarding Flow Integration Tests', () => {
   });
 
   describe('Onboarding Flow Integration', () => {
-    it('should start with Welcome and navigate to PassportScan', () => {
+    it('should start with Welcome and navigate to PassportScan via Skip Tutorial', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      fireEvent.press(getByText('Get Started'));
+      fireEvent.press(getByText('Skip Tutorial'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 

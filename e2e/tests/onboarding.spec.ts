@@ -6,12 +6,14 @@ test.describe('Onboarding Flow', () => {
 
     // Welcome screen loads
     await expect(page.getByText('Welcome to')).toBeVisible();
-    await expect(page.getByText('Borderly')).toBeVisible();
+    await expect(page.getByText('Borderly').first()).toBeVisible();
 
-    // CTA button is present and enabled
-    const button = page.getByLabel('Get started with Borderly');
-    await button.scrollIntoViewIfNeeded();
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
+    // Tutorial and skip buttons are present and enabled
+    const tutorialButton = page.getByRole('button', { name: 'Take quick tutorial' });
+    const skipButton = page.getByRole('button', { name: 'Skip tutorial' });
+    await expect(tutorialButton).toBeVisible();
+    await expect(tutorialButton).toBeEnabled();
+    await expect(skipButton).toBeVisible();
+    await expect(skipButton).toBeEnabled();
   });
 });
