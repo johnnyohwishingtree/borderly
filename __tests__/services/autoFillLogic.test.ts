@@ -530,7 +530,16 @@ describe('Auto-Fill Logic', () => {
     it('should handle missing accommodation data', () => {
       const legWithoutAccommodation = {
         ...mockTripLeg,
-        accommodation: undefined,
+        accommodation: {
+          name: '',
+          address: {
+            line1: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: ''
+          }
+        },
       };
 
       const field: FormField = {
@@ -794,10 +803,7 @@ describe('Auto-Fill Logic', () => {
     });
 
     it('should handle missing flight number gracefully', () => {
-      const legWithoutFlight = {
-        ...mockTripLeg,
-        flightNumber: undefined,
-      };
+      const { flightNumber, ...legWithoutFlight } = mockTripLeg;
 
       const field: FormField = {
         id: 'airlineCode',

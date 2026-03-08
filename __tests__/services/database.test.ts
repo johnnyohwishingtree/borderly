@@ -7,6 +7,8 @@ import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { keychainService } from '@/services/storage/keychain';
 
+declare const global: any;
+
 // Mock the dependencies
 jest.mock('@nozbe/watermelondb', () => ({
   Database: jest.fn(),
@@ -432,9 +434,9 @@ describe('DatabaseService', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
       
       // Mock a slow query
-      const originalPerf = global.performance.now;
+      const originalPerf = (global as any).performance.now;
       let callCount = 0;
-      global.performance.now = jest.fn(() => {
+      (global as any).performance.now = jest.fn(() => {
         return callCount++ === 0 ? 0 : 150; // 150ms duration
       });
 
@@ -447,7 +449,7 @@ describe('DatabaseService', () => {
         expect.stringContaining('Slow query detected')
       );
 
-      global.performance.now = originalPerf;
+      (global as any).performance.now = originalPerf;
       consoleSpy.mockRestore();
     });
   });
@@ -500,9 +502,9 @@ describe('DatabaseService', () => {
         sortOrder: 'asc' 
       });
 
-      expect(sortedTrips[0].name).toBe('Alpha Trip');
-      expect(sortedTrips[1].name).toBe('Beta Trip');
-      expect(sortedTrips[2].name).toBe('Charlie Trip');
+      expect((sortedTrips[0] as any).name).toBe('Alpha Trip');
+      expect((sortedTrips[1] as any).name).toBe('Beta Trip');
+      expect((sortedTrips[2] as any).name).toBe('Charlie Trip');
     });
 
     it('should apply pagination', async () => {

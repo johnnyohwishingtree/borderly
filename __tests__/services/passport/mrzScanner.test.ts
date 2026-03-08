@@ -623,7 +623,7 @@ describe('MRZ Scanner Service', () => {
         dateOfBirth: '1990-01-01',
         passportExpiry: '2030-12-31',
         nationality: 'USA',
-        gender: 'F',
+        gender: 'F' as const,
         issuingCountry: 'USA'
       };
 
@@ -646,7 +646,10 @@ describe('MRZ Scanner Service', () => {
         surname: 'DOE',
         givenNames: 'JANE',
         dateOfBirth: '1990-01-01',
-        passportExpiry: '2090-01-01' // Too far in future
+        passportExpiry: '2090-01-01', // Too far in future
+        nationality: 'USA',
+        gender: 'F' as const,
+        issuingCountry: 'USA'
       };
 
       const result = {

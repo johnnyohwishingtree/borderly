@@ -3,6 +3,8 @@ import { schemaValidator } from '../../src/services/schemas/schemaValidator';
 import { schemaMigrator } from '../../src/services/schemas/schemaMigrator';
 import { CountryFormSchema, SchemaRegistry } from '../../src/types/schema';
 
+declare const global: any;
+
 // Mock dependencies
 jest.mock('react-native-mmkv');
 jest.mock('../../src/services/schemas/schemaValidator');
@@ -21,47 +23,107 @@ MMKV.mockImplementation(() => mockMMKV);
 const mockJPNSchema: CountryFormSchema = {
   countryCode: 'JPN',
   countryName: 'Japan',
-  formName: 'Visit Japan Web',
+  portalName: 'Visit Japan Web',
+  portalUrl: 'https://www.visitjapan.gov.jp',
   schemaVersion: '1.0.0',
+  lastUpdated: '2023-12-01T00:00:00Z',
   sections: [],
+  submissionGuide: [],
   metadata: {
-    implementationStatus: 'stable',
+    implementationStatus: 'complete',
     lastVerified: '2023-12-01T00:00:00Z',
     priority: 1,
     maintenanceFrequency: 'monthly',
+    complexity: 'medium',
+    popularity: 85,
+    supportedLanguages: ['en', 'ja'],
   },
   changeDetection: {
-    portalUrl: 'https://www.visitjapan.gov.jp',
+    monitoredSelectors: ['.form-container', '#submit-button'],
+    changeThreshold: 10,
     fallbackActions: [],
     lastChangeDetected: '2023-12-01T00:00:00Z',
+  },
+  submission: {
+    earliestBeforeArrival: '14d',
+    latestBeforeArrival: '0h',
+    recommended: '72h',
+  },
+  portalFlow: {
+    requiresAccount: true,
+    multiStep: true,
+    canSaveProgress: true,
+    sessionTimeout: '30m',
   },
 };
 
 const mockMYSSchema: CountryFormSchema = {
   countryCode: 'MYS',
   countryName: 'Malaysia',
-  formName: 'Malaysia Digital Arrival Card',
+  portalName: 'Malaysia Digital Arrival Card',
+  portalUrl: 'https://mdac.malaysia.gov.my',
   schemaVersion: '1.0.0',
+  lastUpdated: '2023-12-01T00:00:00Z',
   sections: [],
+  submissionGuide: [],
   metadata: {
-    implementationStatus: 'stable',
+    implementationStatus: 'complete',
     lastVerified: '2023-12-01T00:00:00Z',
     priority: 2,
     maintenanceFrequency: 'quarterly',
+    complexity: 'low',
+    popularity: 70,
+    supportedLanguages: ['en', 'ms'],
+  },
+  changeDetection: {
+    monitoredSelectors: ['.form-section', '#next-button'],
+    changeThreshold: 15,
+    fallbackActions: [],
+  },
+  submission: {
+    earliestBeforeArrival: '3d',
+    latestBeforeArrival: '0h',
+    recommended: '24h',
+  },
+  portalFlow: {
+    requiresAccount: false,
+    multiStep: false,
+    canSaveProgress: false,
   },
 };
 
 const mockSGPSchema: CountryFormSchema = {
   countryCode: 'SGP',
   countryName: 'Singapore',
-  formName: 'SG Arrival Card',
+  portalName: 'SG Arrival Card',
+  portalUrl: 'https://eservices.ica.gov.sg/sgarrivalcard',
   schemaVersion: '1.0.0',
+  lastUpdated: '2023-12-01T00:00:00Z',
   sections: [],
+  submissionGuide: [],
   metadata: {
-    implementationStatus: 'stable',
+    implementationStatus: 'complete',
     lastVerified: '2023-12-01T00:00:00Z',
     priority: 3,
     maintenanceFrequency: 'weekly',
+    complexity: 'high',
+    popularity: 90,
+    supportedLanguages: ['en'],
+  },
+  changeDetection: {
+    monitoredSelectors: ['.main-form', '#submit-btn'],
+    changeThreshold: 5,
+    fallbackActions: [],
+  },
+  submission: {
+    earliestBeforeArrival: '1d',
+    latestBeforeArrival: '0h',
+    recommended: '2h',
+  },
+  portalFlow: {
+    requiresAccount: false,
+    multiStep: true,
+    canSaveProgress: true,
   },
 };
 
@@ -86,9 +148,10 @@ describe('SchemaManager', () => {
     mockSchemaValidator.validateSchema.mockResolvedValue({
       valid: true,
       errors: [],
+      warnings: [],
     });
     mockSchemaMigrator.applyMigrations.mockImplementation(
-      async (current, target) => target
+      async (_current, target) => target
     );
   });
 
@@ -236,9 +299,36 @@ describe('SchemaManager', () => {
       const newSchema: CountryFormSchema = {
         countryCode: 'THA',
         countryName: 'Thailand',
-        formName: 'Thailand Pass',
+        portalName: 'Thailand Pass',
+        portalUrl: 'https://thailandpass.gov.th',
         schemaVersion: '1.0.0',
+        lastUpdated: '2023-12-01T00:00:00Z',
         sections: [],
+        submissionGuide: [],
+        metadata: {
+          implementationStatus: 'planned',
+          lastVerified: '2023-12-01T00:00:00Z',
+          priority: 4,
+          maintenanceFrequency: 'monthly',
+          complexity: 'medium',
+          popularity: 60,
+          supportedLanguages: ['en', 'th'],
+        },
+        changeDetection: {
+          monitoredSelectors: ['.form-container'],
+          changeThreshold: 10,
+          fallbackActions: [],
+        },
+        submission: {
+          earliestBeforeArrival: '7d',
+          latestBeforeArrival: '0h',
+          recommended: '48h',
+        },
+        portalFlow: {
+          requiresAccount: true,
+          multiStep: true,
+          canSaveProgress: true,
+        },
       };
 
       await schemaManager.updateSchema('THA', newSchema);
@@ -254,7 +344,8 @@ describe('SchemaManager', () => {
       const invalidSchema = { ...mockJPNSchema };
       mockSchemaValidator.validateSchema.mockResolvedValue({
         valid: false,
-        errors: [{ message: 'Invalid field', path: 'test' }],
+        errors: [{ message: 'Invalid field', path: 'test', severity: 'error' }],
+        warnings: [],
       });
 
       await expect(
@@ -389,7 +480,7 @@ describe('SchemaManager', () => {
 
     it('should return false for schema without metadata', () => {
       const schemaWithoutMetadata = { ...mockJPNSchema };
-      delete schemaWithoutMetadata.metadata;
+      (schemaWithoutMetadata as any).metadata = undefined;
 
       (schemaManager as any).registry.schemas.JPN = schemaWithoutMetadata;
 
@@ -415,7 +506,9 @@ describe('SchemaManager', () => {
 
     it('should handle schemas without priority metadata', () => {
       const schemaWithoutPriority = { ...mockJPNSchema };
-      delete schemaWithoutPriority.metadata?.priority;
+      if (schemaWithoutPriority.metadata) {
+        (schemaWithoutPriority.metadata as any).priority = undefined;
+      }
 
       (schemaManager as any).registry.schemas.JPN = schemaWithoutPriority;
 
@@ -467,7 +560,7 @@ describe('SchemaManager', () => {
 
     it('should handle schema without change detection config', async () => {
       const schemaWithoutChangeDetection = { ...mockMYSSchema };
-      delete schemaWithoutChangeDetection.changeDetection;
+      (schemaWithoutChangeDetection as any).changeDetection = undefined;
 
       (schemaManager as any).registry.schemas.MYS = schemaWithoutChangeDetection;
 
@@ -483,7 +576,7 @@ describe('SchemaManager', () => {
     });
 
     it('should start and stop change detection monitoring', async () => {
-      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const clearIntervalSpy = jest.spyOn(global as any, 'clearInterval');
       
       schemaManager.stopChangeDetection();
       expect(clearIntervalSpy).toHaveBeenCalled();
@@ -571,7 +664,8 @@ describe('SchemaManager', () => {
 
       mockSchemaValidator.validateSchema.mockResolvedValue({
         valid: false,
-        errors: [{ message: 'Invalid schema', path: 'test' }],
+        errors: [{ message: 'Invalid schema', path: 'test', severity: 'error' }],
+        warnings: [],
       });
 
       await expect(schemaManager.importSchemas(invalidRegistry)).rejects.toThrow(
