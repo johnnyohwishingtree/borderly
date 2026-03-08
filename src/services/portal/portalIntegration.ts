@@ -165,6 +165,36 @@ export class PortalIntegrationService {
           ],
         },
       },
+      'GBR': {
+        name: 'UK Electronic Travel Authorisation (ETA)',
+        url: 'https://www.gov.uk/apply-electronic-travel-authorisation',
+        countryCode: 'GBR',
+        features: {
+          supportsDeepLinks: false,
+          supportsAutoFill: true,
+          requiresManualEntry: true,
+        },
+        guidelines: {
+          recommendedBrowser: ['Safari', 'Chrome', 'Edge'],
+          preparationTips: [
+            'Create GOV.UK One Login account first',
+            'Have passport valid for entire stay ready',
+            'Prepare UK accommodation address with postcode',
+            'Know your employment status and occupation',
+            'Have a digital passport-style photo (taken within last month)',
+            'Credit or debit card for £10 application fee',
+            'Submit at least 72 hours before travel',
+          ],
+          commonIssues: [
+            'Processing usually takes up to 3 working days',
+            'Account creation requires email verification',
+            'Photo must meet UK passport standards (plain background, no smiling)',
+            'ETA is valid for 2 years or until passport expires',
+            'Multiple visits allowed - up to 6 months each',
+            'Background questions must be answered truthfully',
+          ],
+        },
+      },
     };
 
     return portalMap[countryCode] || null;
@@ -433,6 +463,11 @@ export class PortalIntegrationService {
         preparationMinutes: 5,
         submissionMinutes: 18,
         factors: ['No account needed', 'Multiple document sections', 'Passport and portrait photo uploads', 'Emergency contact details', 'Payment processing']
+      },
+      'GBR': {
+        preparationMinutes: 8,
+        submissionMinutes: 15,
+        factors: ['GOV.UK One Login account creation', 'Photo preparation', 'UK address details', 'Security questions', 'Payment processing']
       }
     };
 
