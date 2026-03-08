@@ -110,6 +110,32 @@ export class PortalIntegrationService {
           ],
         },
       },
+      'THA': {
+        name: 'Thailand Pass',
+        url: 'https://tp.consular.go.th/',
+        countryCode: 'THA',
+        features: {
+          supportsDeepLinks: false,
+          supportsAutoFill: true,
+          requiresManualEntry: true,
+        },
+        guidelines: {
+          recommendedBrowser: ['Safari', 'Chrome', 'Edge'],
+          preparationTips: [
+            'Create account and verify email first',
+            'Have accommodation booking confirmation ready',
+            'Prepare vaccination certificates if applicable',
+            'Know your flight details and emergency contact',
+            'Submit at least 72 hours before departure',
+          ],
+          commonIssues: [
+            'Processing usually takes 24-72 hours',
+            'Document uploads must be clear, colored scans',
+            'Account verification email may go to spam folder',
+            'QR code generation can take several hours',
+          ],
+        },
+      },
     };
 
     return portalMap[countryCode] || null;
@@ -368,6 +394,11 @@ export class PortalIntegrationService {
         preparationMinutes: 2,
         submissionMinutes: 8,
         factors: ['Travel history entry', 'Accommodation details', 'Quick processing']
+      },
+      'THA': {
+        preparationMinutes: 8,
+        submissionMinutes: 20,
+        factors: ['Account creation and verification', 'Vaccination documents', 'Document uploads', 'Multi-step form process']
       }
     };
 
