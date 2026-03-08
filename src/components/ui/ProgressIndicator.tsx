@@ -148,7 +148,14 @@ export default function ProgressIndicator({
               )}
               
               {index < totalSteps - 1 && (
-                <View className={`absolute ${getVerticalConnectorStyles(sizeStyle)} bg-gray-300`} />
+                <View 
+                  className={`absolute w-0.5 bg-gray-300`}
+                  style={{
+                    top: size === 'large' ? 40 : size === 'medium' ? 32 : 24,
+                    left: size === 'large' ? 20 : size === 'medium' ? 16 : 12,
+                    height: size === 'large' ? 24 : size === 'medium' ? 20 : 16,
+                  }}
+                />
               )}
             </View>
           );

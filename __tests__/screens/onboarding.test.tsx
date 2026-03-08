@@ -75,23 +75,20 @@ jest.mock('@/components/ui', () => {
       </View>
     ),
     Tooltip: ({ children, content }: any) => (
-      <View testID="tooltip">
+      <View>
         {children}
-        <Text>{content}</Text>
+        {content && <Text testID="tooltip-content">{content}</Text>}
       </View>
     ),
     HelpHint: ({ title, content }: any) => (
       <View testID="help-hint">
         {title && <Text>{title}</Text>}
-        <Text>{content}</Text>
+        {content && <Text>{content}</Text>}
       </View>
     ),
-    ProgressIndicator: ({ current, total, steps }: any) => (
+    ProgressIndicator: ({ steps, currentStep }: any) => (
       <View testID="progress-indicator">
-        <Text>{current} of {total}</Text>
-        {steps && steps.map((step: any, index: number) => (
-          <Text key={index}>{step.title}</Text>
-        ))}
+        <Text>{currentStep} of {steps?.length || 0}</Text>
       </View>
     ),
   };
@@ -128,15 +125,6 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(getByText('Privacy First')).toBeTruthy();
     });
 
-    it('should navigate to Tutorial when Take Quick Tutorial is pressed', () => {
-      const { getByText } = render(<WelcomeScreen />);
-
-      const tutorialButton = getByText('Take Quick Tutorial');
-      fireEvent.press(tutorialButton);
-
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Tutorial');
-    });
-
     it('should navigate to PassportScan when Skip Tutorial is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
@@ -144,6 +132,15 @@ describe('Onboarding Flow Integration Tests', () => {
       fireEvent.press(skipButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
+    });
+
+    it('should navigate to Tutorial when Take Quick Tutorial is pressed', () => {
+      const { getByText } = render(<WelcomeScreen />);
+
+      const tutorialButton = getByText('Take Quick Tutorial');
+      fireEvent.press(tutorialButton);
+
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('Tutorial');
     });
 
     it('should display privacy information prominently', () => {

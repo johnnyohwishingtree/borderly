@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -118,7 +118,7 @@ const tutorialSteps = [
       </View>
     ),
   },
-];
+] as const;
 
 export default function TutorialScreen() {
   const navigation = useNavigation<TutorialScreenNavigationProp>();
@@ -176,7 +176,7 @@ export default function TutorialScreen() {
             className="w-20 h-20 rounded-full items-center justify-center mb-8"
             style={{ backgroundColor: step.iconColor + '20' }}
           >
-            <MaterialIcons name={step.icon as any} size={40} color={step.iconColor} />
+            <MaterialIcons name={step.icon} size={40} color={step.iconColor} />
           </View>
 
           {/* Illustration */}

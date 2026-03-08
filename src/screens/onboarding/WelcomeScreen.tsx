@@ -8,6 +8,7 @@ import { OnboardingStackParamList } from '../../app/navigation/types';
 import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { Button, Card, ProgressBar, Tooltip } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
+import { colors } from '../../utils/colors';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
@@ -189,7 +190,7 @@ export default function WelcomeScreen() {
               variant="info"
               placement="top"
             >
-              <MaterialIcons name="help-outline" size={20} color={GRAY_500} />
+              <MaterialIcons name="help-outline" size={20} color={colors.gray[500]} />
             </Tooltip>
           </View>
           
