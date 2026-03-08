@@ -1,4 +1,21 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+/**
+ * Helper function to navigate to Canada form
+ */
+async function navigateToCanadaForm(page: Page) {
+  await page.click('[data-testid="create-trip-button"]');
+  await page.click('[data-testid="add-destination-button"]');
+  await page.click('[data-testid="country-CAN"]');
+  
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  
+  await page.fill('[data-testid="departure-date"]', tomorrowStr);
+  await page.click('[data-testid="create-trip-submit"]');
+  await page.click('[data-testid="canada-leg-button"]');
+}
 
 /**
  * E2E Tests for Canada eTA Submission Workflow
@@ -17,29 +34,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should complete Canada eTA submission workflow', async ({ page }) => {
-    // Step 1: Navigate to trip creation
-    await page.click('[data-testid="create-trip-button"]');
-    
-    // Step 2: Add Canada as destination
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    // Verify Canada is selected
-    await expect(page.locator('[data-testid="selected-country-CAN"]')).toBeVisible();
-    
-    // Step 3: Set trip dates
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    
-    // Step 4: Create trip
-    await page.click('[data-testid="create-trip-submit"]');
-    
-    // Step 5: Navigate to Canada leg form
-    await expect(page.locator('[data-testid="trip-created"]')).toBeVisible();
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Step 6: Verify form is generated
     await expect(page.locator('[data-testid="country-form-CAN"]')).toBeVisible();
@@ -76,18 +72,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should show Canada-specific validation messages', async ({ page }) => {
-    // Navigate to Canada form
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Clear required field and try to submit
     await page.fill('[data-testid="field-email"] input', '');
@@ -104,18 +90,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should display Canada portal health status', async ({ page }) => {
-    // Navigate to Canada portal info
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     await page.click('[data-testid="open-submission-guide"]');
     
     // Check portal status indicator
@@ -128,18 +104,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should support QR code workflow for Canada eTA', async ({ page }) => {
-    // Complete form submission first
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Navigate to QR code section
     await page.click('[data-testid="qr-wallet-tab"]');
@@ -161,18 +127,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should show correct automation status for Canada', async ({ page }) => {
-    // Navigate to Canada form
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Check automation indicator
     const automationStatus = page.locator('[data-testid="automation-status-CAN"]');
@@ -192,17 +148,8 @@ test.describe('Canada eTA Submission', () => {
       route.abort('failed')
     );
     
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Should show offline indicator
     await expect(page.locator('[data-testid="portal-offline-CAN"]')).toBeVisible();
@@ -213,18 +160,8 @@ test.describe('Canada eTA Submission', () => {
   });
 
   test('should validate Canada eTA schema completeness', async ({ page }) => {
-    // Navigate to Canada form
-    await page.click('[data-testid="create-trip-button"]');
-    await page.click('[data-testid="add-destination-button"]');
-    await page.click('[data-testid="country-CAN"]');
-    
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    
-    await page.fill('[data-testid="departure-date"]', tomorrowStr);
-    await page.click('[data-testid="create-trip-submit"]');
-    await page.click('[data-testid="canada-leg-button"]');
+    // Navigate to Canada form using helper
+    await navigateToCanadaForm(page);
     
     // Verify all required Canada eTA sections are present
     await expect(page.locator('[data-testid="section-personal"]')).toBeVisible();

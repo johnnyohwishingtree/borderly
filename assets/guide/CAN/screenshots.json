@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-08T00:00:00Z",
+  "lastUpdated": "2026-03-07T00:00:00Z",
   "description": "Canada eTA submission guide screenshot metadata",
   "screenshots": [
     {
@@ -22,7 +22,16 @@
       "notes": "Users click 'Start Application' to begin the process"
     },
     {
-      "filename": "03-personal-info.png",
+      "filename": "03-application-form.png",
+      "title": "eTA Application Form Start",
+      "description": "Initial application form page with instructions",
+      "stepNumber": 3,
+      "url": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta/apply.html",
+      "keyElements": ["form-start", "instructions", "privacy-notice"],
+      "notes": "Read instructions carefully before proceeding"
+    },
+    {
+      "filename": "04-personal-info.png",
       "title": "Personal Information Form",
       "description": "Personal details entry screen",
       "stepNumber": 4,
@@ -108,36 +117,6 @@
       "stepNumber": 14,
       "keyElements": ["eta-number", "approval-status", "validity-dates"],
       "notes": "eTA is electronically linked to passport - no physical document needed"
-    }
-  ],
-  "tips": [
-    "Have passport ready before starting",
-    "Complete application in one session - cannot save progress",
-    "Most applications are approved within minutes",
-    "eTA is valid for 5 years or until passport expires",
-    "Multiple entries allowed - up to 6 months each visit",
-    "Only use canada.ca - avoid third-party sites with extra fees"
-  ],
-  "commonIssues": [
-    {
-      "issue": "Application timeout",
-      "solution": "Complete form quickly in one session"
-    },
-    {
-      "issue": "Passport information errors",
-      "solution": "Double-check all passport details match exactly"
-    },
-    {
-      "issue": "Email not received",
-      "solution": "Check spam folder, ensure email address is correct"
-    },
-    {
-      "issue": "Payment declined",
-      "solution": "Try different credit card or contact bank"
-    },
-    {
-      "issue": "Citizenship questions",
-      "solution": "Answer all citizenship questions honestly and completely"
     }
   ]
 }
