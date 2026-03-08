@@ -1,9 +1,8 @@
-import React from 'react';
-import { View } from 'react-native';
+import { View, DimensionValue } from 'react-native';
 
 export interface SkeletonProps {
-  width?: string | number;
-  height?: string | number;
+  width?: DimensionValue;
+  height?: DimensionValue;
   variant?: 'text' | 'circular' | 'rectangular';
   className?: string;
 }
@@ -28,8 +27,8 @@ export function SkeletonLine({
 
   const getSkeletonStyle = () => {
     return {
-      width: typeof width === 'string' ? width : width,
-      height: typeof height === 'string' ? height : height,
+      width,
+      height,
     };
   };
 

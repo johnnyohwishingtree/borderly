@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, ActivityIndicator, Text, Pressable } from 'react-native';
 
 export interface LoadingIndicatorProps {
@@ -111,9 +111,6 @@ export default function LoadingIndicator({
           <View
             key={index}
             className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"
-            style={{
-              animationDelay: `${index * 200}ms`,
-            }}
           />
         ))}
       </View>
@@ -124,8 +121,7 @@ export default function LoadingIndicator({
     return (
       <View className="relative">
         <View className="w-12 h-12 bg-blue-100 rounded-full animate-pulse" />
-        <View className="absolute inset-0 w-12 h-12 bg-blue-200 rounded-full animate-pulse" 
-              style={{ animationDelay: '500ms' }} />
+        <View className="absolute inset-0 w-12 h-12 bg-blue-200 rounded-full animate-pulse" />
         <View className="absolute inset-2 w-8 h-8 bg-blue-600 rounded-full" />
       </View>
     );
