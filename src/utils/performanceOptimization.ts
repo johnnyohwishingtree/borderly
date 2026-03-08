@@ -310,7 +310,7 @@ class PerformanceOptimization {
           after: afterMetrics,
           improvement: {},
         },
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: sanitizePII(error instanceof Error ? error.message : 'Unknown error'),
         executionTime: Date.now() - startTime,
       };
       
@@ -384,7 +384,7 @@ class PerformanceOptimization {
         executionTime,
         memoryDelta: 0,
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: sanitizePII(error instanceof Error ? error.message : 'Unknown error'),
         timestamp: Date.now(),
       });
       
@@ -428,7 +428,7 @@ class PerformanceOptimization {
         executionTime,
         memoryDelta: 0,
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: sanitizePII(error instanceof Error ? error.message : 'Unknown error'),
         timestamp: Date.now(),
       });
       
