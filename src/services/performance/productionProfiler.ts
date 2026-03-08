@@ -497,13 +497,25 @@ class ProductionProfiler {
   }
 
   private getMetricTrend(values: number[]): PerformanceBenchmark['trend'] {
-    if (values.length < 2) return 'stable';
-    
-    const recentAvg = values.slice(-3).reduce((a, b) => a + b, 0) / 3;
-    const olderAvg = values.slice(0, -3).reduce((a, b) => a + b, 0) / (values.length - 3);
-    
-    if (Math.abs(recentAvg - olderAvg) / olderAvg < 0.05) return 'stable';
-    
+    if (values.length < 4) {
+      return 'stable';
+    }
+
+    const recentValues = values.slice(-3);
+    const olderValues = values.slice(0, values.length - 3);
+
+    const recentAvg = recentValues.reduce((a, b) => a + b, 0) / recentValues.length;
+    const olderAvg = olderValues.reduce((a, b) => a + b, 0) / olderValues.length;
+
+    if (olderAvg === 0) {
+      return recentAvg > 0 ? 'declining' : 'stable';
+    }
+
+    const relativeChange = (recentAvg - olderAvg) / olderAvg;
+    if (Math.abs(relativeChange) < 0.05) {
+      return 'stable';
+    }
+
     return recentAvg < olderAvg ? 'improving' : 'declining';
   }
 
@@ -602,7 +614,7 @@ class ProductionProfiler {
     
     // Log sanitized error for debugging
     console.error(`Performance error in ${operation}:`, {
-      message: error.message,
+      message: sanitizePII(error.message),
       executionTime,
       timestamp: Date.now(),
     });

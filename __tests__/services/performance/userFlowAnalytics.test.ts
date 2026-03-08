@@ -402,15 +402,12 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should handle storage errors gracefully', () => {
-      // Mock storage that throws errors  
-      const _mockStorage = {
-        set: jest.fn().mockImplementation(() => {
-          throw new Error('Storage error');
-        }),
-        getString: jest.fn(() => null),
-        delete: jest.fn(),
-        getAllKeys: jest.fn(() => []),
-      };
+      // Mock the MMKV storage to throw errors
+      const { MMKV } = require('react-native-mmkv');
+      const mockInstance = new MMKV();
+      jest.spyOn(mockInstance, 'set').mockImplementation(() => {
+        throw new Error('Storage error');
+      });
       
       // Should not throw when storage fails
       expect(() => {

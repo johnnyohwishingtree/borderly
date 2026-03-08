@@ -412,6 +412,9 @@ class RegressionDetection {
     const historicalData = this.getHistoricalData(model.metric);
     historicalData.push(newValue);
     
+    // Store the updated historical data
+    this.storeHistoricalData(model.metric, historicalData);
+    
     // Update statistical analysis
     model.baseline = this.calculateStatistics(historicalData);
     model.dataPoints = historicalData.length;
@@ -428,7 +431,7 @@ class RegressionDetection {
     if (historicalData.length > 10) {
       const recent = historicalData.slice(-10);
       const predicted = recent.map(() => model.baseline.mean);
-      model.accuracy = 1 - (this.calculateMeanAbsoluteError(recent, predicted) / model.baseline.mean);
+      model.accuracy = model.baseline.mean !== 0 ? 1 - (this.calculateMeanAbsoluteError(recent, predicted) / model.baseline.mean) : 1;
     }
     
     // Store updated model
@@ -498,11 +501,12 @@ class RegressionDetection {
     const sumXX = x.reduce((acc, xi) => acc + xi * xi, 0);
     
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const mean = sumY / n;
     
-    if (Math.abs(slope) < 0.01) return { trend: 'stable', trendStrength: 0 };
+    if (Math.abs(slope) < 0.01 || mean === 0) return { trend: 'stable', trendStrength: 0 };
     
     const trend = slope > 0 ? 'declining' : 'improving'; // For performance metrics, negative slope is improving
-    const trendStrength = Math.min(1, Math.abs(slope) / (sumY / n * 0.1)); // Normalize by 10% of mean
+    const trendStrength = Math.min(1, Math.abs(slope) / (mean * 0.1)); // Normalize by 10% of mean
     
     return { trend, trendStrength };
   }
@@ -524,12 +528,10 @@ class RegressionDetection {
 
     const baseline = model.baseline;
     const expectedValue = baseline.mean;
-    // threshold used for validation (2 standard deviations)
-    const _threshold = baseline.standardDeviation * 2;
     
     // Calculate deviation percentage
     const absoluteDeviation = Math.abs(currentValue - expectedValue);
-    const deviationPercentage = (absoluteDeviation / expectedValue) * 100;
+    const deviationPercentage = expectedValue !== 0 ? (absoluteDeviation / expectedValue) * 100 : (absoluteDeviation > 0 ? Infinity : 0);
     
     // Check if this is a significant regression
     const isRegression = this.isSignificantRegression(

@@ -130,8 +130,8 @@ describe('RegressionDetection', () => {
         crashRate: 0.001,
       };
       
-      // Feed baseline data for all metrics
-      for (let i = 0; i < 60; i++) {
+      // Feed baseline data for all metrics (ensure we have enough for all thresholds)
+      for (let i = 0; i < 120; i++) {
         regressionDetection.analyzeMetrics(testMetrics);
       }
       
@@ -208,11 +208,11 @@ describe('RegressionDetection', () => {
       // Feed known data pattern
       const values = [100, 200, 300, 400, 500];
       values.forEach(value => {
-        regressionDetection.analyzeMetric('testMetric' as keyof PerformanceMetrics, value);
+        regressionDetection.analyzeMetric('mrzScanTime', value);
       });
       
       const models = regressionDetection.getModels();
-      const testModel = models.find(m => m.metric === ('testMetric' as any));
+      const testModel = models.find(m => m.metric === 'mrzScanTime');
       
       if (testModel) {
         expect(testModel.baseline.mean).toBeCloseTo(300, 0); // Mean of 100-500
@@ -224,17 +224,17 @@ describe('RegressionDetection', () => {
     it('should detect trends in data', () => {
       // Create increasing trend
       for (let i = 0; i < 50; i++) {
-        regressionDetection.analyzeMetric('increasingMetric' as keyof PerformanceMetrics, 1000 + i * 10);
+        regressionDetection.analyzeMetric('formGenerationTime', 1000 + i * 10);
       }
       
       // Create decreasing trend  
       for (let i = 0; i < 50; i++) {
-        regressionDetection.analyzeMetric('decreasingMetric' as keyof PerformanceMetrics, 2000 - i * 10);
+        regressionDetection.analyzeMetric('autoFillSuccessRate', 2000 - i * 10);
       }
       
       const models = regressionDetection.getModels();
-      const increasingModel = models.find(m => m.metric === 'increasingMetric');
-      const decreasingModel = models.find(m => m.metric === 'decreasingMetric');
+      const increasingModel = models.find(m => m.metric === 'formGenerationTime');
+      const decreasingModel = models.find(m => m.metric === 'autoFillSuccessRate');
       
       if (increasingModel) {
         expect(increasingModel.baseline.trend).toBe('declining'); // For performance metrics, increasing is declining

@@ -75,7 +75,7 @@ export interface UserBehaviorPattern {
 
 export interface OptimizationInsight {
   id: string;
-  type: 'friction_point' | 'conversion_opportunity' | 'user_preference' | 'performance_issue';
+  type: 'friction_point' | 'conversion_opportunity' | 'user_preference' | 'performance_issue' | 'behavior_pattern';
   priority: 'high' | 'medium' | 'low';
   title: string;
   description: string;
@@ -288,6 +288,10 @@ class UserFlowAnalytics {
     const sessions = this.getAllStoredSessions();
     const patterns: UserBehaviorPattern[] = [];
 
+    if (sessions.length === 0 && this.actionBuffer.length === 0) {
+      return patterns;
+    }
+
     // Pattern 1: Frequent abandonment at specific screens
     const abandonmentCounts: Record<string, number> = {};
     sessions.forEach(session => {
@@ -297,11 +301,12 @@ class UserFlowAnalytics {
     });
 
     Object.entries(abandonmentCounts).forEach(([screen, count]) => {
+      const frequency = sessions.length > 0 ? count / sessions.length : 0;
       if (count > sessions.length * 0.1) { // More than 10% abandon at this screen
         patterns.push({
           id: `abandonment-${screen}`,
           pattern: `High abandonment rate at ${screen}`,
-          frequency: count / sessions.length,
+          frequency,
           impact: 'negative',
           recommendations: [
             `Investigate UX issues on ${screen} screen`,
@@ -319,7 +324,7 @@ class UserFlowAnalytics {
       patterns.push({
         id: 'successful-completion',
         pattern: 'Users who complete onboarding tend to create trips immediately',
-        frequency: successfulFlows.length / sessions.length,
+        frequency: sessions.length > 0 ? successfulFlows.length / sessions.length : 0,
         impact: 'positive',
         recommendations: [
           'Promote trip creation after successful onboarding',
@@ -334,7 +339,7 @@ class UserFlowAnalytics {
       a.metadata?.platform === 'ios' || a.metadata?.platform === 'android'
     );
     
-    if (mobileActions.length > this.actionBuffer.length * 0.8) {
+    if (this.actionBuffer.length > 0 && mobileActions.length > this.actionBuffer.length * 0.8) {
       patterns.push({
         id: 'mobile-dominant',
         pattern: 'Majority of users access the app on mobile devices',
@@ -356,7 +361,7 @@ class UserFlowAnalytics {
    */
   generateOptimizationInsights(): OptimizationInsight[] {
     const analytics = this.getAllFlowAnalytics();
-    const _patterns = this.detectBehaviorPatterns();
+    const patterns = this.detectBehaviorPatterns();
     const insights: OptimizationInsight[] = [];
 
     // Friction point insights
@@ -399,6 +404,23 @@ class UserFlowAnalytics {
             'Add progress indicators to show completion status',
             'Implement save/resume functionality for longer flows',
           ],
+        });
+      }
+    });
+
+    // Add insights from behavior patterns
+    patterns.forEach(pattern => {
+      if (pattern.impact === 'negative') {
+        insights.push({
+          id: pattern.id,
+          type: 'behavior_pattern',
+          priority: 'medium',
+          title: `Behavioral pattern: ${pattern.pattern}`,
+          description: `Pattern detected in ${Math.round(pattern.frequency * 100)}% of sessions`,
+          affectedFlow: 'general',
+          affectedUsers: 0,
+          potentialImpact: 'Addressing this pattern could improve user experience',
+          actionItems: pattern.recommendations,
         });
       }
     });
@@ -493,7 +515,7 @@ class UserFlowAnalytics {
       summary: {
         totalSessions: allSessions.length,
         averageSessionDuration,
-        overallCompletionRate: completedSessions.length / allSessions.length,
+        overallCompletionRate: allSessions.length > 0 ? completedSessions.length / allSessions.length : 0,
       },
     };
   }
