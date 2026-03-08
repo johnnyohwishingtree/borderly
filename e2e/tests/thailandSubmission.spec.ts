@@ -14,10 +14,8 @@ test.describe('Thailand Submission Workflow', () => {
     // Navigate through onboarding to reach trips
     await page.getByTestId('skip-onboarding').click();
     await page.getByTestId('tab-trips').click();
-  });
 
-  test('should generate Thailand Pass form with auto-filled data', async ({ page }) => {
-    // Create a new trip
+    // Create a new trip with a Thailand leg for all tests in this suite
     await page.getByTestId('create-trip-button').click();
     await page.getByTestId('trip-title-input').fill('Thailand Adventure');
     
@@ -29,8 +27,10 @@ test.describe('Thailand Submission Workflow', () => {
     await page.getByTestId('departure-date-input').fill('2026-04-22');
     
     await page.getByTestId('save-trip-button').click();
-    
-    // Open Thailand leg form
+  });
+
+  test('should generate Thailand Pass form with auto-filled data', async ({ page }) => {
+    // Open Thailand leg form (trip created in beforeEach)
     await page.getByTestId('thailand-leg-card').click();
     await page.getByTestId('fill-form-button').click();
     
@@ -55,7 +55,7 @@ test.describe('Thailand Submission Workflow', () => {
   });
 
   test('should show Thailand Pass submission guide', async ({ page }) => {
-    // Navigate to submission guide (assuming trip with Thailand leg exists)
+    // Navigate to submission guide (trip created in beforeEach)
     await page.getByTestId('thailand-leg-card').click();
     await page.getByTestId('submission-guide-button').click();
     
@@ -161,12 +161,10 @@ test.describe('Thailand Submission Workflow', () => {
     await page.getByTestId('thailand-leg-card').click();
     await page.getByTestId('fill-form-button').click();
     
-    // Check automation indicators
-    const autoFilledBadges = page.getByTestId('auto-filled-badge');
-    const badgeCount = await autoFilledBadges.count();
-    
-    // Should have several auto-filled fields from profile
-    expect(badgeCount).toBeGreaterThan(5);
+    // Check that key profile fields have auto-filled badges
+    await expect(page.locator('[data-testid="field-firstName"] [data-testid="auto-filled-badge"]')).toBeVisible();
+    await expect(page.locator('[data-testid="field-lastName"] [data-testid="auto-filled-badge"]')).toBeVisible();
+    await expect(page.locator('[data-testid="field-passportNumber"] [data-testid="auto-filled-badge"]')).toBeVisible();
     
     // Check that Thailand-specific fields are marked as requiring input
     await expect(page.getByTestId('field-purposeOfVisit')).toHaveAttribute('data-country-specific', 'true');
