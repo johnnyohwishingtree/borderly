@@ -152,9 +152,17 @@ jobs:
           ${FAILURES}
           \`\`\`
 
-          Fix these errors. Run \`pnpm typecheck && pnpm test\` to verify BEFORE pushing. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
+          Fix these errors. Run ALL checks before pushing:
+          1. \`pnpm typecheck\` — must exit 0
+          2. \`pnpm test\` — must exit 0
+          3. \`npx webpack --config webpack.config.js\` — must exit 0
+          Do NOT push until all three pass. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
                   else
-                    COMMENT_BODY="@claude CI is still failing on this PR (no new commits in ${COMMIT_AGO}m). Run \`pnpm typecheck && pnpm test\`, fix all failures, verify they pass, then push. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
+                    COMMENT_BODY="@claude CI is still failing on this PR (no new commits in ${COMMIT_AGO}m). Run these checks, fix all failures, verify they pass, then push:
+          1. \`pnpm typecheck\`
+          2. \`pnpm test\`
+          3. \`npx webpack --config webpack.config.js\`
+          (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
                   fi
                   gh pr comment "$PR_NUM" --repo "$REPO" --body "$COMMENT_BODY" 2>/dev/null || true
                 else
