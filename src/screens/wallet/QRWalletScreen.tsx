@@ -8,7 +8,7 @@ import {
   Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { EmptyState, Button, LoadingSpinner, SkeletonList, PullToRefreshScrollView } from '../../components/ui';
+import { EmptyState, Button, SkeletonList, PullToRefreshScrollView } from '../../components/ui';
 import { QRCodeCard, QRFullScreen } from '../../components/wallet';
 import { SavedQRCode } from '../../services/storage/models';
 import { useNavigation } from '@react-navigation/native';

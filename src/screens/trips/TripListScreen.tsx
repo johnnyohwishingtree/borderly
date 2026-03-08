@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { trigger } from 'react-native-haptic-feedback';
 import { useTripStore } from '../../stores/useTripStore';
@@ -154,7 +154,7 @@ export default function TripListScreen() {
         <PullToRefreshFlatList
           data={trips}
           renderItem={renderTripCard}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item: Trip) => item.id}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
           refreshing={isLoading && trips.length > 0}
@@ -188,7 +188,7 @@ export default function TripListScreen() {
           maxToRenderPerBatch={5}
           windowSize={10}
           removeClippedSubviews={true}
-          getItemLayout={(_, index) => ({
+          getItemLayout={(_: any, index: number) => ({
             length: 200, // Approximate height of TripCard
             offset: 200 * index,
             index,
