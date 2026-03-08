@@ -23,8 +23,13 @@ test.describe('UK ETA Submission Workflow', () => {
     await page.getByTestId('add-leg-button').click();
     await page.getByTestId('country-select').click();
     await page.getByRole('option', { name: 'United Kingdom' }).click();
-    await page.getByTestId('arrival-date-input').fill('2026-05-10');
-    await page.getByTestId('departure-date-input').fill('2026-05-17');
+    // Use dynamic dates to prevent future test failures
+    const arrivalDate = new Date();
+    arrivalDate.setFullYear(arrivalDate.getFullYear() + 1);
+    const departureDate = new Date(arrivalDate);
+    departureDate.setDate(departureDate.getDate() + 7);
+    await page.getByTestId('arrival-date-input').fill(arrivalDate.toISOString().split('T')[0]);
+    await page.getByTestId('departure-date-input').fill(departureDate.toISOString().split('T')[0]);
     
     await page.getByTestId('save-trip-button').click();
   });
@@ -45,10 +50,10 @@ test.describe('UK ETA Submission Workflow', () => {
     
     // Check auto-filled fields (assuming profile is set up)
     const givenNamesField = page.getByTestId('field-givenNames');
-    await expect(givenNamesField).toHaveValue(/^[A-Za-z\s]+$/);
+    await expect(givenNamesField).toHaveValue(/^[A-Za-z\s'-]+$/);
     
     const familyNameField = page.getByTestId('field-familyName');
-    await expect(familyNameField).toHaveValue(/^[A-Za-z]+$/);
+    await expect(familyNameField).toHaveValue(/^[A-Za-z'-]+$/);
     
     const passportNumberField = page.getByTestId('field-passportNumber');
     await expect(passportNumberField).toHaveValue(/^[A-Z0-9]{6,9}$/);
