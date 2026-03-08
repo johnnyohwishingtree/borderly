@@ -105,6 +105,13 @@ jobs:
           echo "WARNING: Claude left uncommitted changes:"
           echo "$CHANGES"
 
+          # Verify typecheck passes before auto-pushing Claude's leftovers
+          if ! pnpm typecheck 2>&1; then
+            echo "ERROR: Uncommitted changes fail typecheck — NOT auto-pushing broken code"
+            echo "These changes will be lost. Claude should have run typecheck before committing."
+            exit 0
+          fi
+
           git add -u
           git diff --cached --stat
           if [ -z "$(git diff --cached --name-only)" ]; then
