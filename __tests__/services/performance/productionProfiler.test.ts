@@ -6,13 +6,22 @@ import { productionProfiler } from '../../../src/services/performance/production
 
 declare const global: any;
 
+// Create a persistent storage mock
+const mockStorage = new Map<string, string>();
+
 // Mock MMKV
 jest.mock('react-native-mmkv', () => ({
   MMKV: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    getString: jest.fn(),
-    delete: jest.fn(),
-    getAllKeys: jest.fn(() => []),
+    set: jest.fn().mockImplementation((key: string, value: string) => {
+      mockStorage.set(key, value);
+    }),
+    getString: jest.fn().mockImplementation((key: string) => {
+      return mockStorage.get(key);
+    }),
+    delete: jest.fn().mockImplementation((key: string) => {
+      mockStorage.delete(key);
+    }),
+    getAllKeys: jest.fn(() => Array.from(mockStorage.keys())),
   })),
 }));
 
@@ -26,6 +35,10 @@ describe('ProductionProfiler', () => {
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useFakeTimers();
+    // Clear the mock storage between tests
+    mockStorage.clear();
+    // Reset the profiler instance
+    (productionProfiler as any).resetForTesting();
   });
 
   afterEach(() => {
@@ -70,13 +83,25 @@ describe('ProductionProfiler', () => {
     it('should measure async operation execution time', async () => {
       const mockOperation = jest.fn().mockResolvedValue('result');
       
-      const result = await productionProfiler.measureAsync('form-generation', mockOperation);
+      // Mock Date.now to simulate time passage
+      let currentTime = 1000;
+      jest.spyOn(Date, 'now').mockImplementation(() => currentTime);
+      
+      const resultPromise = productionProfiler.measureAsync('form-generation', mockOperation);
+      
+      // Advance time by 100ms
+      currentTime = 1100;
+      
+      const result = await resultPromise;
       
       expect(result).toBe('result');
       expect(mockOperation).toHaveBeenCalled();
       
       const metrics = productionProfiler.getCurrentMetrics();
       expect(metrics.formGenerationTime).toBeGreaterThan(0);
+      
+      // Restore Date.now
+      jest.restoreAllMocks();
     });
 
     it('should handle errors in async operations', async () => {
@@ -93,10 +118,22 @@ describe('ProductionProfiler', () => {
     it('should map operations to correct metrics', async () => {
       const mockOperation = jest.fn().mockResolvedValue('result');
       
-      await productionProfiler.measureAsync('app-start', mockOperation);
+      // Mock Date.now to simulate time passage
+      let currentTime = 2000;
+      jest.spyOn(Date, 'now').mockImplementation(() => currentTime);
+      
+      const resultPromise = productionProfiler.measureAsync('app-start', mockOperation);
+      
+      // Advance time by 50ms
+      currentTime = 2050;
+      
+      await resultPromise;
       
       const metrics = productionProfiler.getCurrentMetrics();
       expect(metrics.appStartTime).toBeGreaterThan(0);
+      
+      // Restore Date.now
+      jest.restoreAllMocks();
     });
   });
 
@@ -137,7 +174,7 @@ describe('ProductionProfiler', () => {
         expect.objectContaining({
           metric: 'appStartTime',
           current: 2000,
-          status: 'good',
+          status: 'excellent', // 2000 <= 3000 * 0.7 (2100), so this should be excellent
         })
       );
       
@@ -310,13 +347,13 @@ describe('ProductionProfiler', () => {
   describe('data cleanup', () => {
     it('should clean up old historical data', () => {
       // Mock storage with old data
-      const mockStorage = {
+      const localMockStorage = {
         set: jest.fn(),
         getString: jest.fn(),
         delete: jest.fn(),
         getAllKeys: jest.fn(() => [
-          'metrics-2023-01-01',
-          'metrics-2023-12-01',
+          'metrics-2023-01-01', // Old - should be deleted
+          'metrics-2026-03-01', // Recent - should be kept (less than 30 days ago)
           'current-metrics',
           'performance-alerts'
         ]),
@@ -324,13 +361,13 @@ describe('ProductionProfiler', () => {
       
       // @ts-ignore - Access private method for testing
       const profiler = new (productionProfiler.constructor as any)();
-      profiler.storage = mockStorage;
+      profiler.storage = localMockStorage;
       
       // Trigger cleanup
       profiler.cleanupOldData();
       
-      expect(mockStorage.delete).toHaveBeenCalledWith('metrics-2023-01-01');
-      expect(mockStorage.delete).not.toHaveBeenCalledWith('metrics-2023-12-01');
+      expect(localMockStorage.delete).toHaveBeenCalledWith('metrics-2023-01-01');
+      expect(localMockStorage.delete).not.toHaveBeenCalledWith('metrics-2026-03-01');
     });
   });
 

@@ -648,6 +648,19 @@ class ProductionProfiler {
     const recentErrors = errors.slice(-100);
     this.storage.set(key, JSON.stringify(recentErrors));
   }
+
+  /**
+   * Reset all stored data (for testing)
+   */
+  resetForTesting(): void {
+    // Clear all storage keys
+    const allKeys = this.storage.getAllKeys();
+    allKeys.forEach(key => this.storage.delete(key));
+    
+    // Reset internal state
+    this.metricsBuffer = [];
+    this.alertListeners = [];
+  }
 }
 
 export const productionProfiler = new ProductionProfiler();
