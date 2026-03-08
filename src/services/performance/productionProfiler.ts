@@ -100,7 +100,6 @@ class ProductionProfiler {
   constructor() {
     this.storage = new MMKV({
       id: 'performance-profiler',
-      encryptionKey: undefined, // Performance data is not sensitive
     });
     
     this.startPerformanceTracking();
@@ -129,7 +128,7 @@ class ProductionProfiler {
     const currentMetrics = this.getCurrentMetrics();
     
     // Update current metrics
-    currentMetrics[metric] = value as any;
+    (currentMetrics as any)[metric] = value;
     
     // Store in buffer
     this.metricsBuffer.push({
@@ -411,7 +410,7 @@ class ProductionProfiler {
     // Use native memory tracking APIs if available
     try {
       // @ts-ignore - Platform-specific memory APIs
-      if (global.performance?.memory) {
+      if (typeof global !== 'undefined' && global.performance?.memory) {
         const memory = global.performance.memory;
         this.recordMetric('memoryUsage', memory.usedJSHeapSize);
       }

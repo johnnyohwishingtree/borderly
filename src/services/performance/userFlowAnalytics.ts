@@ -145,7 +145,6 @@ class UserFlowAnalytics {
   constructor() {
     this.storage = new MMKV({
       id: 'user-flow-analytics',
-      encryptionKey: undefined, // Analytics data is sanitized and not sensitive
     });
     
     this.startNewSession();
@@ -198,8 +197,8 @@ class UserFlowAnalytics {
       timestamp: Date.now(),
       screen,
       action,
-      duration,
-      metadata: metadata ? sanitizePII(metadata) : undefined,
+      ...(duration !== undefined && { duration }),
+      ...(metadata !== undefined && { metadata: sanitizePII(metadata) }),
     };
 
     this.currentSession!.actions.push(userAction);

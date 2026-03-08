@@ -273,7 +273,7 @@ describe('PerformanceOptimization', () => {
       // Mock a strategy that would fail
       const mockStrategy = jest.spyOn(performanceOptimization, 'executeStrategy').mockRejectedValueOnce(new Error('Mock error'));
       
-      const results = await performanceOptimization.executeAutomizedOptimizations(mockMetrics, mockAlerts);
+      const results = await performanceOptimization.executeAutomatedOptimizations(mockMetrics, mockAlerts);
       
       // Should continue despite failures
       expect(Array.isArray(results)).toBe(true);

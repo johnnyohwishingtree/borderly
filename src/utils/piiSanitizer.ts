@@ -194,3 +194,10 @@ export function createSanitizer(options: SanitizationOptions) {
     url: (url: string) => sanitizeUrl(url),
   };
 }
+
+/**
+ * Default sanitization function for general PII removal
+ */
+export function sanitizePII(data: any): any {
+  return sanitizeObject(data, { preserveStructure: true });
+}

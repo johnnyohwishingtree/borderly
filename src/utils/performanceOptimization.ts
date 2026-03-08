@@ -214,7 +214,6 @@ class PerformanceOptimization {
   constructor() {
     this.storage = new MMKV({
       id: 'performance-optimization',
-      encryptionKey: undefined, // Optimization data is not sensitive
     });
     
     this.loadStrategies();
@@ -277,7 +276,7 @@ class PerformanceOptimization {
       await this.executeStrategyImplementation(strategy);
       
       // Wait a moment for changes to take effect
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise<void>(resolve => setTimeout(resolve, 1000));
       
       // Capture after metrics
       afterMetrics = await this.captureMetrics(strategy.targetMetrics);
@@ -338,7 +337,7 @@ class PerformanceOptimization {
         results.push(result);
         
         // Brief pause between optimizations
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise<void>(resolve => setTimeout(resolve, 500));
       } catch (error) {
         console.error(`Failed to execute automated optimization ${recommendation.strategy.id}:`, error);
       }
@@ -737,13 +736,13 @@ class PerformanceOptimization {
       // Simulate metric capture
       switch (metric) {
         case 'memoryUsage':
-          metrics[metric] = this.getCurrentMemoryUsage();
+          (metrics as any)[metric] = this.getCurrentMemoryUsage();
           break;
         case 'appStartTime':
-          metrics[metric] = Math.random() * 3000 + 1000; // 1-4s
+          (metrics as any)[metric] = Math.random() * 3000 + 1000; // 1-4s
           break;
         default:
-          metrics[metric] = Math.random() * 1000; // Random value for demo
+          (metrics as any)[metric] = Math.random() * 1000; // Random value for demo
       }
     });
     
@@ -777,7 +776,7 @@ class PerformanceOptimization {
   private getCurrentMemoryUsage(): number {
     try {
       // @ts-ignore - Platform-specific memory APIs
-      if (global.performance?.memory) {
+      if (typeof global !== 'undefined' && global.performance?.memory) {
         return global.performance.memory.usedJSHeapSize;
       }
     } catch (error) {

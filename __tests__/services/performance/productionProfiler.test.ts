@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { productionProfiler, PerformanceMetrics } from '../../../src/services/performance/productionProfiler';
+import { productionProfiler } from '../../../src/services/performance/productionProfiler';
 
 // Mock MMKV
 jest.mock('react-native-mmkv', () => ({
@@ -262,25 +262,24 @@ describe('ProductionProfiler', () => {
         const current = recommendations[i];
         const next = recommendations[i + 1];
         
-        const currentScore = this.getPriorityScore(current.priority) + this.getImpactScore(current.impact);
-        const nextScore = this.getPriorityScore(next.priority) + this.getImpactScore(next.impact);
+        const currentScore = getPriorityScore(current.priority) + getImpactScore(current.impact);
+        const nextScore = getPriorityScore(next.priority) + getImpactScore(next.impact);
         
         expect(currentScore).toBeGreaterThanOrEqual(nextScore);
       }
     });
-
-    // Helper method for priority scoring
-    getPriorityScore(priority: string): number {
-      const scores = { high: 3, medium: 2, low: 1 };
-      return scores[priority as keyof typeof scores] || 0;
-    }
-
-    // Helper method for impact scoring
-    getImpactScore(impact: string): number {
-      const scores = { high: 3, medium: 2, low: 1 };
-      return scores[impact as keyof typeof scores] || 0;
-    }
   });
+
+  // Helper functions for scoring
+  function getPriorityScore(priority: string): number {
+    const scores = { high: 3, medium: 2, low: 1 };
+    return scores[priority as keyof typeof scores] || 0;
+  }
+
+  function getImpactScore(impact: string): number {
+    const scores = { high: 3, medium: 2, low: 1 };
+    return scores[impact as keyof typeof scores] || 0;
+  }
 
   describe('memory tracking', () => {
     it('should track memory usage when available', () => {

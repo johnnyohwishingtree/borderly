@@ -202,7 +202,6 @@ class RegressionDetection {
   constructor() {
     this.storage = new MMKV({
       id: 'regression-detection',
-      encryptionKey: undefined, // Regression data is not sensitive
     });
     
     this.thresholds = { ...DEFAULT_THRESHOLDS };
