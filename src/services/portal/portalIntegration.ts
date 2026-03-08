@@ -136,6 +136,35 @@ export class PortalIntegrationService {
           ],
         },
       },
+      'VNM': {
+        name: 'Vietnam e-Visa Portal',
+        url: 'https://evisa.xuatnhapcanh.gov.vn/',
+        countryCode: 'VNM',
+        features: {
+          supportsDeepLinks: false,
+          supportsAutoFill: true,
+          requiresManualEntry: true,
+        },
+        guidelines: {
+          recommendedBrowser: ['Safari', 'Chrome', 'Edge'],
+          preparationTips: [
+            'No account registration required - single session process',
+            'Have passport valid for at least 6 months ready',
+            'Prepare accommodation booking details and contact info',
+            'Know your intended entry port and travel dates',
+            'Submit 3-30 days before intended arrival',
+            'Have credit card ready for visa fee (~$25 USD)',
+          ],
+          commonIssues: [
+            'Processing takes 2-3 business days',
+            'Religion field is mandatory (required by Vietnamese law)',
+            'Passport and portrait photos must be clear and in JPEG format',
+            'Visa fee payment by credit card only',
+            'Emergency contact information is required',
+            'Download and print e-visa upon approval',
+          ],
+        },
+      },
     };
 
     return portalMap[countryCode] || null;
@@ -399,6 +428,11 @@ export class PortalIntegrationService {
         preparationMinutes: 8,
         submissionMinutes: 20,
         factors: ['Account creation and verification', 'Vaccination documents', 'Document uploads', 'Multi-step form process']
+      },
+      'VNM': {
+        preparationMinutes: 5,
+        submissionMinutes: 18,
+        factors: ['No account needed', 'Multiple document sections', 'Passport and portrait photo uploads', 'Emergency contact details', 'Payment processing']
       }
     };
 
