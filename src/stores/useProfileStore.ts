@@ -1,13 +1,11 @@
 import { create } from 'zustand';
-import { TravelerProfile, TravelProfile } from '@/types/profile';
+import { TravelerProfile } from '@/types/profile';
 import { keychainService, mmkvService } from '@/services/storage';
 
 interface ProfileStore {
   // New MVP profile interface
   profile: TravelerProfile | null;
 
-  // Legacy profile for backward compatibility
-  legacyProfile: TravelProfile | null;
 
   // Profile operations
   loadProfile: () => Promise<void>;
@@ -26,7 +24,6 @@ interface ProfileStore {
 
 export const useProfileStore = create<ProfileStore>((set, get) => ({
   profile: null,
-  legacyProfile: null,
   isOnboardingComplete: false,
   isLoading: false,
   error: null,
@@ -98,7 +95,6 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
       set({
         profile: null,
-        legacyProfile: null,
         isOnboardingComplete: false,
         isLoading: false,
       });
