@@ -3,7 +3,6 @@ import {
   View, 
   Text, 
   Modal, 
-  TouchableOpacity, 
   TouchableWithoutFeedback,
   Pressable,
   LayoutChangeEvent,
@@ -77,7 +76,7 @@ export default function Tooltip({
 
   const measureChild = () => {
     if (childRef.current) {
-      childRef.current.measure((x, y, width, height, pageX, pageY) => {
+      childRef.current.measure((_x, _y, width, height, pageX, pageY) => {
         setChildPosition({ x: pageX, y: pageY, width, height });
         setVisible(true);
       });
@@ -110,7 +109,6 @@ export default function Tooltip({
     if (placement === 'auto') {
       const spaceAbove = childPosition.y;
       const spaceBelow = screenHeight - (childPosition.y + childPosition.height);
-      const spaceLeft = childPosition.x;
       const spaceRight = screenWidth - (childPosition.x + childPosition.width);
 
       if (spaceAbove >= tooltipSize.height + arrowSize + padding) {

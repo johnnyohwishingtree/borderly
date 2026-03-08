@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -172,7 +172,7 @@ export default function TutorialScreen() {
           <Button
             title="Skip"
             onPress={handleSkip}
-            variant="ghost"
+            variant="outline"
             size="small"
             accessibilityLabel="Skip tutorial"
             accessibilityHint="Skip the tutorial and go directly to passport scanning"
@@ -217,7 +217,6 @@ export default function TutorialScreen() {
             onPress={handlePrevious}
             variant="outline"
             size="large"
-            className="flex-1"
             disabled={currentStep === 0}
             accessibilityLabel="Previous step"
             accessibilityHint="Go to the previous tutorial step"
@@ -227,7 +226,6 @@ export default function TutorialScreen() {
             onPress={handleNext}
             variant="primary"
             size="large"
-            className="flex-1"
             accessibilityLabel={currentStep === tutorialSteps.length - 1 ? 'Get started' : 'Next step'}
             accessibilityHint={
               currentStep === tutorialSteps.length - 1 
