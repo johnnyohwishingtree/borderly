@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Type check
-        run: pnpm typecheck 2>&1 | tee /tmp/typecheck_output.txt
+        run: pnpm typecheck
 
       - name: Metro bundle check
         run: |
@@ -66,63 +66,26 @@ jobs:
 
           # Limit fix attempts to 3
           FIX_COUNT=$(gh pr view "$PR_NUM" --json comments \
-            -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("Tests are failing"))] | length' 2>/dev/null || echo "0")
+            -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("CI is failing"))] | length' 2>/dev/null || echo "0")
 
           if [ "$FIX_COUNT" -ge 3 ]; then
             echo "Already $FIX_COUNT fix attempts — needs human review"
             exit 0
           fi
 
-          # Extract failure summary from all check outputs
-          FAILURES=""
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          # TypeScript errors
-          if [ -f /tmp/typecheck_output.txt ]; then
-            TS_ERRORS=$(grep "error TS" /tmp/typecheck_output.txt | head -15 || echo "")
-            if [ -n "$TS_ERRORS" ]; then
-              TS_COUNT=$(echo "$TS_ERRORS" | wc -l | tr -d ' ')
-              FAILURES="TYPECHECK ERRORS ($TS_COUNT shown):
-          ${TS_ERRORS}"
-            fi
-          fi
+          # Identify which steps failed
+          FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
+            -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
 
-          # Test failures
-          if [ -f /tmp/test_output.txt ]; then
-            TEST_ERRORS=$(grep -E '(FAIL __tests|● .+|Expected:|Received:)' /tmp/test_output.txt | head -20 || echo "")
-            if [ -n "$TEST_ERRORS" ]; then
-              FAILURES="${FAILURES}
+          BODY="@claude CI is failing on this PR.
 
-          TEST FAILURES:
-          ${TEST_ERRORS}"
-            fi
-          fi
+          **Failed steps:** ${FAILED_STEPS}
+          **Run URL:** ${RUN_URL}
 
-          # Metro bundle errors
-          if [ -f /tmp/bundle_output.txt ]; then
-            BUNDLE_ERRORS=$(grep -E '(error:|Unable to resolve|Error:)' /tmp/bundle_output.txt | tail -10 || echo "")
-            if [ -n "$BUNDLE_ERRORS" ]; then
-              FAILURES="${FAILURES}
+          Use \`gh run view ${{ github.run_id }} --log-failed\` to see the full error output from the failed steps. Diagnose the root cause and fix it.
 
-          METRO BUNDLE ERRORS:
-          ${BUNDLE_ERRORS}"
-            fi
-          fi
-
-          if [ -z "$FAILURES" ]; then
-            FAILURES="(No error details captured — check the workflow run logs)"
-          fi
-
-          BODY="@claude CI is failing on this PR. Here are the errors:
-
-          \`\`\`
-          ${FAILURES}
-          \`\`\`
-
-          Diagnose the root cause from the errors above and fix it. Common patterns:
-          - **error TS2341 (private property)**: Test is accessing a private method — use a public API or cast to \`any\` for testing.
-          - **error TS2322/TS2345 (type mismatch)**: Test object is missing required properties — add them or use \`Partial<T>\`.
-          - **FAIL __tests/**: Jest test assertion failure — check expected vs received values.
-
-          IMPORTANT: After fixing, run \`pnpm typecheck && pnpm test\` to verify BEFORE pushing. Do NOT push code that still fails. Then git add, commit, and push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
+          IMPORTANT: After fixing, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
           gh pr comment "$PR_NUM" --body "$BODY"
