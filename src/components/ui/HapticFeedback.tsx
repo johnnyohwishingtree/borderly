@@ -58,22 +58,21 @@ export const triggerHaptic = (
 ): void => {
   const hapticType = typeof pattern === 'string' && pattern in HAPTIC_PATTERNS 
     ? HAPTIC_PATTERNS[pattern as keyof typeof HAPTIC_PATTERNS]
-    : pattern;
+    : pattern as HapticFeedbackTypes;
   
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   
+  const triggerOptions = {
+    enableVibrateFallback: mergedOptions.enableVibrateFallback!,
+    ignoreAndroidSystemSettings: mergedOptions.ignoreAndroidSystemSettings!,
+  };
+
   if (mergedOptions.delay && mergedOptions.delay > 0) {
     setTimeout(() => {
-      trigger(hapticType, {
-        enableVibrateFallback: mergedOptions.enableVibrateFallback,
-        ignoreAndroidSystemSettings: mergedOptions.ignoreAndroidSystemSettings,
-      });
+      trigger(hapticType, triggerOptions);
     }, mergedOptions.delay);
   } else {
-    trigger(hapticType, {
-      enableVibrateFallback: mergedOptions.enableVibrateFallback,
-      ignoreAndroidSystemSettings: mergedOptions.ignoreAndroidSystemSettings,
-    });
+    trigger(hapticType, triggerOptions);
   }
 };
 

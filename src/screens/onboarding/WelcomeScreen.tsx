@@ -5,7 +5,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { Button, Card, ProgressBar, Tooltip } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
 import { colors } from '../../utils/colors';
@@ -169,7 +168,6 @@ export default function WelcomeScreen() {
             fullWidth
             accessibilityLabel="Take quick tutorial"
             accessibilityHint="Learn how to use Borderly with a guided walkthrough"
-            hapticType={HapticFeedbackTypes.impactMedium}
           />
           
           <View className="flex-row items-center justify-center space-x-2">

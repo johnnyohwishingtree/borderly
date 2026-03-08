@@ -18,8 +18,8 @@ export interface AnimatedCardProps extends Omit<ViewProps, 'style'> {
   entranceDelay?: number;
   onPress?: () => void;
   onLongPress?: () => void;
-  // onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
-  // swipeEnabled?: boolean;
+  onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
+  swipeEnabled?: boolean;
   disabled?: boolean;
   loading?: boolean;
   accessibilityLabel?: string;
@@ -41,8 +41,8 @@ export default function AnimatedCard({
   children,
   onPress,
   onLongPress,
-  // onSwipe,
-  // swipeEnabled = false,
+  onSwipe,
+  swipeEnabled = false,
   disabled = false,
   loading = false,
   accessibilityLabel,
@@ -53,6 +53,7 @@ export default function AnimatedCard({
   testID,
   ...viewProps
 }: AnimatedCardProps) {
+  const [, setIsVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(animationType === 'scale' ? 0.95 : 1)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const translateYAnim = useRef(new Animated.Value(animationType === 'slide' ? 20 : 0)).current;
@@ -115,7 +116,7 @@ export default function AnimatedCard({
     }
   });
 
-  const getCardStyles = (pressed = false) => {
+  const getCardStyles = () => {
     const baseStyles = highContrastMode 
       ? 'bg-white border-2 border-black' 
       : 'bg-white';
@@ -195,7 +196,7 @@ export default function AnimatedCard({
     }
   };
 
-  const handleSwipeGesture = (event: PanGestureHandlerGestureEvent) => {
+  const handleSwipeGesture = (event: any) => {
     if (!swipeEnabled || !onSwipe || disabled || loading) return;
 
     const { translationX, translationY } = event.nativeEvent;
@@ -236,18 +237,9 @@ export default function AnimatedCard({
     ],
   };
 
-  const CardComponent = swipeEnabled ? PanGestureHandler : View;
+  const CardComponent = swipeEnabled ? View : View;
   const cardProps = swipeEnabled ? {
-    onGestureEvent: handleSwipeGesture,
-    onHandlerStateChange: (event: any) => {
-      if (event.nativeEvent.state === GestureState.END) {
-        // Reset position after swipe
-        Animated.spring(translateXAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      }
-    },
+    onTouchStart: handleSwipeGesture,
   } : {};
 
   const content = (

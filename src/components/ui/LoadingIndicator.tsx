@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, ActivityIndicator, Text, Pressable, Animated } from 'react-native';
 import { LOADING_ANIMATIONS, ANIMATION_DURATION } from '../../utils/animations';
-import { ANIMATION_PRESETS } from '../../styles/animations';
 
 export interface LoadingIndicatorProps {
   size?: 'small' | 'medium' | 'large';
@@ -35,7 +34,6 @@ export default function LoadingIndicator({
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(0.95)).current;
-  const rotationAnim = useRef(new Animated.Value(0)).current;
   const dotAnims = [
     useRef(new Animated.Value(0.5)).current,
     useRef(new Animated.Value(0.5)).current,
