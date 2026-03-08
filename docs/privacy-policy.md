@@ -5,9 +5,9 @@
 
 ## Overview
 
-Borderly is a privacy-first travel application designed to help you fill out customs and immigration forms for multiple countries. This privacy policy explains how we collect, use, and protect your personal information.
+Borderly is a privacy-first, local-first travel application designed to help you fill out customs and immigration forms for multiple countries. This privacy policy explains how we collect, use, and protect your personal information.
 
-**Key Privacy Principle:** Your passport and personal data never leaves your device and is never transmitted to our servers.
+**Key Privacy Principle:** Your passport and personal data never leaves your device and is never transmitted to our servers. Our local-first architecture ensures complete data sovereignty.
 
 ## Information We Collect
 
