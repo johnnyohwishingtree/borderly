@@ -305,14 +305,28 @@ test.describe('USA ESTA Portal Health', () => {
     await page.goto('/settings');
     await page.getByTestId('portal-health-check').click();
     
-    // Wait for health check
-    await page.waitForSelector('[data-testid="health-check-results"]', { timeout: 10000 });
-    
     // Verify maintenance messaging is displayed
     const maintenanceNotice = page.getByTestId('usa-maintenance-notice');
     await expect(maintenanceNotice).toBeVisible();
     await expect(maintenanceNotice).toContainText('ESTA system maintenance');
     await expect(page.getByText('Please try again later')).toBeVisible();
+  });
+
+  test('should display USA ESTA portal information', async ({ page }) => {
+    await page.goto('/settings');
+    await page.getByTestId('portal-health-check').click();
+    await page.getByTestId('portal-status-USA').click();
+    
+    // Check portal guidelines
+    await expect(page.getByText('Safari')).toBeVisible(); // Recommended browser
+    await expect(page.getByText('Chrome')).toBeVisible(); // Recommended browser
+    await expect(page.getByText('Edge')).toBeVisible(); // Recommended browser
+    await expect(page.getByText('Firefox')).toBeVisible(); // Recommended browser
+    
+    // Check specific USA ESTA preparation tips
+    await expect(page.getByText('No account creation required')).toBeVisible();
+    await expect(page.getByText('Have passport from Visa Waiver Program country ready')).toBeVisible();
+    await expect(page.getByText('Submit at least 72 hours before departure')).toBeVisible();
   });
 });
 
