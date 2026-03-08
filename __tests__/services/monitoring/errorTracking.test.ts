@@ -29,8 +29,8 @@ describe('Error Tracking Service', () => {
     errorTracker.clear();
     errorTracker.setEnabled(true);
     // Initialize without adding a breadcrumb by manually setting the state
-    errorTracker['deviceInfo'] = mockDeviceInfo;
-    errorTracker['appState'] = mockAppState;
+    errorTracker.deviceInfo = mockDeviceInfo;
+    errorTracker.appState = mockAppState;
   });
 
   describe('error capture', () => {
