@@ -18,6 +18,7 @@ import {
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { parseBoardingPass } from '../../services/boarding/boardingPassParser';
+import { importBoardingPassFromImage, getImageImportErrorMessage } from '../../services/boarding/boardingPassImageImport';
 import type { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
@@ -27,6 +28,7 @@ export interface BoardingPassScannerProps {
   onScanCancel: () => void;
   onManualEntry: () => void;
   onScanError?: (error: Error) => void;
+  onImageImport?: () => void; // Optional callback for when image import is triggered
   lowPowerMode?: boolean; // Enable aggressive power saving
 }
 
@@ -43,6 +45,7 @@ export default function BoardingPassScanner({
   onScanCancel,
   onManualEntry,
   onScanError,
+  onImageImport,
   lowPowerMode = false,
 }: BoardingPassScannerProps) {
   const cameraRef = useRef<RNCamera>(null);
@@ -51,6 +54,7 @@ export default function BoardingPassScanner({
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [cameraStatus, setCameraStatus] = useState<'pending' | 'ready' | 'denied' | 'unavailable' | 'demo'>('pending');
+  const [isImporting, setIsImporting] = useState(false);
   const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -278,6 +282,82 @@ export default function BoardingPassScanner({
     }, 1500);
   };
 
+  const handleImageImport = async () => {
+    setIsImporting(true);
+    
+    try {
+      // Trigger callback if provided (for analytics/tracking)
+      if (onImageImport) {
+        onImageImport();
+      }
+
+      const result = await importBoardingPassFromImage();
+      
+      if (result.success && result.boardingPass) {
+        // Success! Use the same flow as camera scan success
+        setIsScanning(false);
+        setScanResult({
+          type: 'success',
+          confidence: 1.0,
+          guidance: 'Import complete!',
+          boardingPass: result.boardingPass,
+        });
+        
+        // Haptic feedback for success
+        trigger(HapticFeedbackTypes.notificationSuccess, {
+          enableVibrateFallback: true,
+        });
+
+        // Small delay to show success state, then callback
+        setTimeout(() => {
+          setScanResult(null);
+          setIsImporting(false);
+          onScanSuccess(result.boardingPass!);
+        }, 500);
+      } else {
+        // Show error message
+        const errorMessage = result.error || getImageImportErrorMessage(result.errorCode);
+        setScanResult({
+          type: 'error',
+          confidence: 0,
+          guidance: errorMessage,
+          error: errorMessage,
+        });
+        
+        // Clear error after 4 seconds and resume scanning
+        setTimeout(() => {
+          setScanResult({
+            type: 'no_barcode',
+            confidence: 0,
+            guidance: 'Scan the barcode on your boarding pass',
+          });
+          setIsImporting(false);
+        }, 4000);
+      }
+    } catch (error) {
+      const errorMessage = 'Failed to import image';
+      setScanResult({
+        type: 'error',
+        confidence: 0,
+        guidance: errorMessage,
+        error: errorMessage,
+      });
+      
+      setTimeout(() => {
+        setScanResult({
+          type: 'no_barcode',
+          confidence: 0,
+          guidance: 'Scan the barcode on your boarding pass',
+        });
+        setIsImporting(false);
+      }, 4000);
+      
+      if (onScanError) {
+        onScanError(error instanceof Error ? error : new Error(errorMessage));
+      }
+    }
+  };
+
   const toggleFlash = () => {
     setFlashMode(prev => prev === 'off' ? 'on' : 'off');
     trigger(HapticFeedbackTypes.impactLight);
@@ -338,10 +418,20 @@ export default function BoardingPassScanner({
         )}
         <View className="mt-4 w-full">
           <Button
+            title="Import from Photo"
+            onPress={handleImageImport}
+            variant="outline"
+            fullWidth
+            disabled={isImporting}
+          />
+        </View>
+        <View className="mt-4 w-full">
+          <Button
             title="Enter Manually Instead"
             onPress={onManualEntry}
             variant={isDenied ? 'primary' : 'outline'}
             fullWidth
+            disabled={isImporting}
           />
         </View>
       </View>
@@ -413,9 +503,9 @@ export default function BoardingPassScanner({
         {/* Guidance text */}
         <View className="px-6 py-4">
           <Text className={`text-center text-sm font-medium ${getGuidanceColor(scanResult)}`}>
-            {scanResult?.guidance || 'Initializing scanner...'}
+            {isImporting ? 'Importing from photo...' : scanResult?.guidance || 'Initializing scanner...'}
           </Text>
-          {scanResult?.confidence !== undefined && scanResult.confidence > 0 && (
+          {!isImporting && scanResult?.confidence !== undefined && scanResult.confidence > 0 && (
             <Text className="text-center text-xs text-gray-400 mt-1">
               Confidence: {Math.round(scanResult.confidence * 100)}%
             </Text>
@@ -429,27 +519,45 @@ export default function BoardingPassScanner({
             onPress={onScanCancel}
             variant="outline"
             size="medium"
+            disabled={isImporting}
           />
 
-          {cameraStatus !== 'demo' && (
+          <View className="flex-row space-x-3">
+            {cameraStatus !== 'demo' && (
+              <TouchableOpacity
+                onPress={toggleFlash}
+                disabled={isImporting}
+                className={`w-12 h-12 rounded-full items-center justify-center ${
+                  flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
+                } ${isImporting ? 'opacity-50' : ''}`}
+                accessibilityLabel={`Turn flash ${flashMode === 'on' ? 'off' : 'on'}`}
+              >
+                <Text className="text-white font-bold text-lg">
+                  {flashMode === 'on' ? '💡' : '🔦'}
+                </Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
-              onPress={toggleFlash}
-              className={`w-12 h-12 rounded-full items-center justify-center ${
-                flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
+              onPress={handleImageImport}
+              disabled={isImporting}
+              className={`w-12 h-12 rounded-full items-center justify-center bg-blue-600 ${
+                isImporting ? 'opacity-50' : ''
               }`}
-              accessibilityLabel={`Turn flash ${flashMode === 'on' ? 'off' : 'on'}`}
+              accessibilityLabel="Import from photo"
             >
               <Text className="text-white font-bold text-lg">
-                {flashMode === 'on' ? '💡' : '🔦'}
+                {isImporting ? '⏳' : '📷'}
               </Text>
             </TouchableOpacity>
-          )}
+          </View>
 
           <Button
             title="Manual"
             onPress={onManualEntry}
             variant="outline"
             size="medium"
+            disabled={isImporting}
           />
         </View>
       </View>
