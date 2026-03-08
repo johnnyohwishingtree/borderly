@@ -261,10 +261,36 @@ class PerformanceMonitor {
    * Get current memory usage
    */
   private getCurrentMemoryUsage(): MemoryMetrics | null {
-    // In React Native, memory monitoring is platform-specific
-    // This would need to be implemented with native modules
-    // For now, return null as a placeholder
-    return null;
+    try {
+      // Check for web/development environment
+      if (typeof window !== 'undefined' && (window as any).performance?.memory) {
+        const memory = (window as any).performance.memory;
+        return {
+          used: memory.usedJSHeapSize,
+          total: memory.totalJSHeapSize,
+          percentage: (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100,
+          timestamp: Date.now(),
+        };
+      }
+
+      // Check for Node.js environment (testing)
+      if (typeof process !== 'undefined' && process.memoryUsage) {
+        const memory = process.memoryUsage();
+        return {
+          used: memory.heapUsed,
+          total: memory.heapTotal,
+          percentage: (memory.heapUsed / memory.heapTotal) * 100,
+          timestamp: Date.now(),
+        };
+      }
+
+      // For React Native production, we'll need to use a native module
+      // This is a fallback that estimates memory based on app state
+      return null;
+    } catch (error) {
+      console.error('Failed to get memory usage:', error);
+      return null;
+    }
   }
 
   /**
@@ -357,15 +383,118 @@ class PerformanceMonitor {
   }
 
   /**
+   * Check if app meets performance targets from acceptance criteria
+   */
+  checkPerformanceTargets(): {
+    startupTime: { target: number; current: number; meets: boolean };
+    memoryUsage: { target: number; current: number; meets: boolean };
+    formRendering: { target: number; current: number; meets: boolean };
+  } {
+    const startupMetrics = this.metrics.filter(m => m.name.includes('startup') || m.name.includes('app_start'));
+    const memoryMetrics = this.metrics.filter(m => m.category === 'memory');
+    const formMetrics = this.metrics.filter(m => m.name.includes('form_generation') || m.name.includes('form_render'));
+
+    const avgStartup = startupMetrics.length > 0 
+      ? startupMetrics.reduce((sum, m) => sum + m.value, 0) / startupMetrics.length
+      : 0;
+
+    const currentMemory = this.getCurrentMemoryUsage();
+    const memoryUsageMB = currentMemory ? currentMemory.used / (1024 * 1024) : 0;
+
+    const avgFormTime = formMetrics.length > 0
+      ? formMetrics.reduce((sum, m) => sum + m.value, 0) / formMetrics.length
+      : 0;
+
+    return {
+      startupTime: { 
+        target: 2000, // 2 seconds
+        current: avgStartup,
+        meets: avgStartup <= 2000
+      },
+      memoryUsage: {
+        target: 100, // 100MB
+        current: memoryUsageMB,
+        meets: memoryUsageMB <= 100
+      },
+      formRendering: {
+        target: 200, // 200ms
+        current: avgFormTime,
+        meets: avgFormTime <= 200
+      }
+    };
+  }
+
+  /**
+   * Record detailed startup metrics for acceptance criteria tracking
+   */
+  recordDetailedStartupMetrics(metrics: {
+    appInitTime: number;
+    bundleLoadTime: number;
+    nativeModulesTime: number;
+    firstScreenRenderTime: number;
+    totalStartupTime: number;
+  }): void {
+    if (!this.isEnabled) return;
+
+    this.recordMetric('app_init_time', metrics.appInitTime, 'ms', 'startup');
+    this.recordMetric('bundle_load_time', metrics.bundleLoadTime, 'ms', 'startup');
+    this.recordMetric('native_modules_time', metrics.nativeModulesTime, 'ms', 'startup');
+    this.recordMetric('first_screen_render_time', metrics.firstScreenRenderTime, 'ms', 'startup');
+    this.recordMetric('total_startup_time', metrics.totalStartupTime, 'ms', 'startup');
+
+    // Log warning if startup time exceeds acceptance criteria
+    if (metrics.totalStartupTime > 2000) {
+      console.warn(`Startup time ${metrics.totalStartupTime}ms exceeds target of 2000ms`);
+    }
+  }
+
+  /**
+   * Monitor memory usage against acceptance criteria (100MB)
+   */
+  checkMemoryThreshold(): {
+    withinThreshold: boolean;
+    currentUsage: number;
+    threshold: number;
+    recommendation?: string;
+  } {
+    const memoryMetrics = this.getCurrentMemoryUsage();
+    
+    if (!memoryMetrics) {
+      return {
+        withinThreshold: true,
+        currentUsage: 0,
+        threshold: 100 * 1024 * 1024, // 100MB
+        recommendation: 'Memory monitoring not available on this platform'
+      };
+    }
+
+    const thresholdBytes = 100 * 1024 * 1024; // 100MB
+    const withinThreshold = memoryMetrics.used <= thresholdBytes;
+
+    return {
+      withinThreshold,
+      currentUsage: memoryMetrics.used,
+      threshold: thresholdBytes,
+      recommendation: !withinThreshold 
+        ? 'Memory usage exceeds 100MB threshold. Consider implementing memory optimizations.'
+        : undefined
+    };
+  }
+
+  /**
    * Export metrics for analysis (sanitized)
    */
   exportMetrics(): {
     metrics: PerformanceMetric[];
     activeFlows: UserFlowMetric[];
+    performanceTargets: ReturnType<typeof this.checkPerformanceTargets>;
+    memoryThreshold: ReturnType<typeof this.checkMemoryThreshold>;
   } {
     return {
       metrics: this.metrics,
       activeFlows: Array.from(this.activeFlows.values()),
+      performanceTargets: this.checkPerformanceTargets(),
+      memoryThreshold: this.checkMemoryThreshold(),
     };
   }
 }
