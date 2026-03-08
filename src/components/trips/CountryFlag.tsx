@@ -1,5 +1,5 @@
 import { View, Text, ViewProps } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { cssInterop } from 'react-native-css-interop';
 
 export interface CountryFlagProps extends ViewProps {
   countryCode: string;
@@ -8,9 +8,9 @@ export interface CountryFlagProps extends ViewProps {
 }
 
 const COUNTRY_FLAGS = {
-  JPN: { name: 'Japan', colors: ['#FFFFFF', '#E60012'] }, // White and red
-  MYS: { name: 'Malaysia', colors: ['#CE1126', '#FFFFFF', '#010E96', '#FFCC00'] }, // Red, white, blue, yellow  
-  SGP: { name: 'Singapore', colors: ['#EE2436', '#FFFFFF'] }, // Red and white
+  JPN: { name: 'Japan', colors: ['#FFFFFF', '#E60012'] },
+  MYS: { name: 'Malaysia', colors: ['#CE1126', '#FFFFFF', '#010E96', '#FFCC00'] },
+  SGP: { name: 'Singapore', colors: ['#EE2436', '#FFFFFF'] },
 } as const;
 
 export default function CountryFlag({
@@ -25,7 +25,9 @@ export default function CountryFlag({
   if (!country) {
     return (
       <View className={`flex-row items-center ${className || ''}`} {...viewProps}>
-        <MaterialIcons name="flag" size={24} color="#666" />
+        <View className="w-8 h-5 bg-gray-200 rounded justify-center items-center">
+          <Text className="text-[8px] text-gray-500">??</Text>
+        </View>
         {showName && (
           <Text className="ml-2 text-sm font-medium text-gray-700">
             Unknown
@@ -43,90 +45,95 @@ export default function CountryFlag({
 
   const flagSize = sizeMap[size];
 
-  // Create simple flag representation with country colors
   const renderFlag = () => {
     switch (countryCode) {
       case 'JPN':
-        // Japan: White background with red circle
         return (
           <View
             style={{
               width: flagSize.width,
               height: flagSize.height,
-              backgroundColor: country.colors[0],
+              backgroundColor: '#FFF',
               borderWidth: 1,
-              borderColor: '#ddd',
+              borderColor: '#E5E7EB',
               borderRadius: 2,
               justifyContent: 'center',
               alignItems: 'center',
+              overflow: 'hidden',
             }}
           >
             <View
               style={{
-                width: flagSize.width * 0.6,
-                height: flagSize.width * 0.6,
-                backgroundColor: country.colors[1],
-                borderRadius: flagSize.width * 0.3,
+                width: flagSize.height * 0.6,
+                height: flagSize.height * 0.6,
+                backgroundColor: '#E60012',
+                borderRadius: flagSize.height * 0.3,
               }}
             />
           </View>
         );
       case 'MYS':
-        // Malaysia: 14 alternating red and white stripes (simplified with 7 visible)
         return (
           <View
             style={{
               width: flagSize.width,
               height: flagSize.height,
               borderWidth: 1,
-              borderColor: '#ddd',
+              borderColor: '#E5E7EB',
               borderRadius: 2,
-              flexDirection: 'column',
+              overflow: 'hidden',
+              backgroundColor: '#FFF',
             }}
           >
-            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
+            {/* 14 alternating stripes */}
+            {[...Array(14)].map((_, i) => (
+              <View 
+                key={i} 
+                style={{ 
+                  height: flagSize.height / 14, 
+                  backgroundColor: i % 2 === 0 ? '#CE1126' : '#FFFFFF' 
+                }} 
+              />
+            ))}
+            {/* Blue canton */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.5,
+                height: (flagSize.height / 14) * 8,
+                backgroundColor: '#010E96',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              {/* Simplified yellow crescent and star */}
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFCC00' }} />
+            </View>
           </View>
         );
       case 'SGP':
-        // Singapore: Red and white horizontal stripes
         return (
           <View
             style={{
               width: flagSize.width,
               height: flagSize.height,
               borderWidth: 1,
-              borderColor: '#ddd',
+              borderColor: '#E5E7EB',
               borderRadius: 2,
-              flexDirection: 'column',
+              overflow: 'hidden',
             }}
           >
-            <View style={{ flex: 1, backgroundColor: country.colors[0] }} />
-            <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
+            <View style={{ flex: 1, backgroundColor: '#EE2436', justifyContent: 'center' }}>
+               {/* Simplified white crescent and 5 stars */}
+               <View style={{ marginLeft: 2, width: 4, height: 4, borderRadius: 2, backgroundColor: '#FFF' }} />
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
           </View>
         );
       default:
-        return (
-          <View
-            style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              backgroundColor: '#f3f4f6',
-              borderWidth: 1,
-              borderColor: '#ddd',
-              borderRadius: 2,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <MaterialIcons name="flag" size={flagSize.width * 0.6} color="#666" />
-          </View>
-        );
+        return null;
     }
   };
 
@@ -141,3 +148,5 @@ export default function CountryFlag({
     </View>
   );
 }
+
+cssInterop(CountryFlag, { className: 'style' });

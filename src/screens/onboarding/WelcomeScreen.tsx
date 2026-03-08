@@ -1,13 +1,22 @@
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { ScrollView, View, Text, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { 
+  Globe, 
+  Plane, 
+  Lock, 
+  Smartphone, 
+  Zap, 
+  ShieldCheck, 
+  HelpCircle 
+} from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, ProgressBar, Tooltip } from '../../components/ui';
+import { Button } from '../../components/ui/gluestack/button';
+import { Card } from '../../components/ui/gluestack/card';
+import { Icon } from '../../components/ui/gluestack/icon';
+import { ProgressBar } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
-import { colors } from '../../utils/colors';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
@@ -22,60 +31,44 @@ export default function WelcomeScreen() {
     navigation.navigate('PassportScan');
   };
 
-  const { height } = Dimensions?.get?.('window') ?? { height: 800 };
+  const { height } = Dimensions.get('window');
 
   return (
     <ScrollView 
-      className="flex-1 bg-gradient-to-b from-blue-50 to-white"
-      accessibilityLabel="Welcome to Borderly screen"
-      accessibilityHint="Swipe up to read about features and get started"
+      className="flex-1 bg-gray-50"
+      contentContainerStyle={{ minHeight: height }}
     >
-      <View className="flex-1 px-6 pt-16 pb-12" style={{ minHeight: height * 0.9 }}>
+      <View className="flex-1 px-6 pt-16 pb-12">
         {/* Progress indicator */}
         <ProgressBar 
           progress={25} 
           className="mb-8" 
-          accessibilityLabel="Setup progress: Step 1 of 4"
         />
         
         {/* Hero section */}
-        <View className="items-center mb-12" accessibilityRole="header">
-          {/* App icon placeholder - would be replaced with actual app icon */}
+        <View className="items-center mb-12">
           <View 
-            className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
-            accessibilityLabel="Borderly app icon"
-            accessibilityRole="image"
+            className="w-24 h-24 bg-primary-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center">
-              <MaterialIcons name="public" size={24} color="#2563eb" />
-            </View>
+            <Icon as={Globe} size={40} color="white" />
           </View>
           
-          <Text 
-            className="text-4xl font-bold text-gray-900 text-center mb-3"
-            accessibilityRole="header"
-          >
+          <Text className="text-4xl font-bold text-gray-900 text-center mb-2">
             Welcome to
           </Text>
-          <Text 
-            className="text-4xl font-bold text-blue-600 text-center mb-4"
-            accessibilityRole="header"
-          >
+          <Text className="text-4xl font-bold text-primary-600 text-center mb-4">
             Borderly
           </Text>
-          <Text 
-            className="text-lg text-gray-600 text-center max-w-sm"
-            accessibilityLabel="Your universal travel declaration companion. Fill once, travel everywhere."
-          >
+          <Text className="text-lg text-gray-600 text-center max-w-sm">
             Your universal travel declaration companion. Fill once, travel everywhere.
           </Text>
         </View>
 
         {/* Features section */}
-        <Card variant="elevated" className="mb-8 bg-white shadow-xl border-0">
-          <View className="bg-gradient-to-r from-blue-500 to-blue-600 -m-6 mb-4 p-6 rounded-t-xl">
+        <Card variant="elevated" className="mb-8 p-0 overflow-hidden">
+          <View className="bg-primary-600 p-6">
             <View className="flex-row items-center mb-2">
-              <Ionicons name="airplane" size={20} color="white" style={{ marginRight: 8 }} />
+              <Icon as={Plane} size={20} color="white" className="mr-2" />
               <Text className="text-xl font-bold text-white">
                 Fill Once, Travel Everywhere
               </Text>
@@ -85,30 +78,30 @@ export default function WelcomeScreen() {
             </Text>
           </View>
 
-          <View className="space-y-4 px-1">
+          <View className="p-6 space-y-6">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mr-4">
-                <MaterialIcons name="lock" size={20} color="#16a34a" />
+                <Icon as={Lock} size={20} color="#16a34a" />
               </View>
-              <View className="flex-1">
+              <View>
                 <Text className="text-gray-900 font-semibold">Private & Secure</Text>
                 <Text className="text-gray-600 text-sm">Data stays on your device</Text>
               </View>
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
-                <MaterialIcons name="smartphone" size={20} color="#2563eb" />
+                <Icon as={Smartphone} size={20} color="#2563eb" />
               </View>
-              <View className="flex-1">
+              <View>
                 <Text className="text-gray-900 font-semibold">Works Offline</Text>
                 <Text className="text-gray-600 text-sm">No internet required</Text>
               </View>
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-4">
-                <MaterialIcons name="flash-on" size={20} color="#9333ea" />
+                <Icon as={Zap} size={20} color="#9333ea" />
               </View>
-              <View className="flex-1">
+              <View>
                 <Text className="text-gray-900 font-semibold">Lightning Fast</Text>
                 <Text className="text-gray-600 text-sm">Fill forms in seconds</Text>
               </View>
@@ -117,81 +110,63 @@ export default function WelcomeScreen() {
         </Card>
 
         {/* Countries supported section */}
-        <Card variant="outlined" className="mb-8 border-2 border-blue-100 bg-blue-50/50">
-          <View className="flex-row items-center mb-3">
-            <MaterialIcons name="public" size={20} color="#374151" style={{ marginRight: 8 }} />
+        <Card variant="outlined" className="mb-8 bg-blue-50/30 border-blue-100">
+          <View className="flex-row items-center mb-4">
+            <Icon as={Globe} size={20} color="#374151" className="mr-2" />
             <Text className="text-lg font-semibold text-gray-900">
               Supported Countries
             </Text>
           </View>
-          <Text className="text-sm text-gray-600 mb-4">
-            Currently supporting the Asia travel corridor with more countries coming soon:
-          </Text>
           <View className="flex-row justify-around">
             <View className="items-center">
-              <CountryFlag countryCode="JPN" size="medium" className="mb-1" />
+              <CountryFlag countryCode="JPN" size="medium" className="mb-2" />
               <Text className="text-xs text-gray-600">Japan</Text>
             </View>
             <View className="items-center">
-              <CountryFlag countryCode="MYS" size="medium" className="mb-1" />
+              <CountryFlag countryCode="MYS" size="medium" className="mb-2" />
               <Text className="text-xs text-gray-600">Malaysia</Text>
             </View>
             <View className="items-center">
-              <CountryFlag countryCode="SGP" size="medium" className="mb-1" />
+              <CountryFlag countryCode="SGP" size="medium" className="mb-2" />
               <Text className="text-xs text-gray-600">Singapore</Text>
             </View>
           </View>
         </Card>
 
         {/* Privacy notice */}
-        <Card variant="outlined" className="mb-8 border-green-200 bg-green-50/50">
+        <Card variant="outlined" className="mb-8 border-green-200 bg-green-50/30">
           <View className="flex-row items-start">
-            <MaterialIcons name="security" size={24} color="#16a34a" style={{ marginRight: 12 }} />
+            <Icon as={ShieldCheck} size={24} color="#16a34a" className="mr-3" />
             <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-900 mb-2">
+              <Text className="text-base font-semibold text-gray-900 mb-1">
                 Privacy First
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 leading-5">
                 Your passport data is encrypted and stored only in your device's secure keychain.
-                We never transmit your personal information to our servers.
               </Text>
             </View>
           </View>
         </Card>
 
         {/* CTA section */}
-        <View className="space-y-4 mt-auto">
+        <View className="mt-auto pt-4">
           <Button
             title="Take Quick Tutorial"
             onPress={handleTutorial}
-            size="large"
-            fullWidth
-            accessibilityLabel="Take quick tutorial"
-            accessibilityHint="Learn how to use Borderly with a guided walkthrough"
+            size="lg"
+            className="mb-4"
           />
           
-          <View className="flex-row items-center justify-center space-x-2">
+          <View className="flex-row items-center justify-center">
             <Button
               title="Skip Tutorial"
               onPress={handleSkipTutorial}
               variant="outline"
-              size="medium"
-              accessibilityLabel="Skip tutorial"
-              accessibilityHint="Skip the tutorial and go directly to setup"
+              size="md"
+              className="border-0"
             />
-            <Tooltip
-              content="First time using Borderly? We recommend taking the quick tutorial to learn all features."
-              trigger="tap"
-              variant="info"
-              placement="top"
-            >
-              <MaterialIcons name="help-outline" size={20} color={colors.gray[500]} />
-            </Tooltip>
+            <Icon as={HelpCircle} size={18} color="#9ca3af" className="ml-1" />
           </View>
-          
-          <Text className="text-center text-sm text-gray-500">
-            Tutorial takes less than 1 minute • Setup takes 2 minutes
-          </Text>
         </View>
       </View>
     </ScrollView>
