@@ -19,10 +19,11 @@ test.describe('UK ETA Submission Workflow', () => {
     await page.getByTestId('create-trip-button').click();
     await page.getByTestId('trip-title-input').fill('London Business Trip');
     
-    // Add UK leg
+    // Add UK leg with dynamic dates
     await page.getByTestId('add-leg-button').click();
     await page.getByTestId('country-select').click();
     await page.getByRole('option', { name: 'United Kingdom' }).click();
+    
     // Use dynamic dates to prevent future test failures
     const arrivalDate = new Date();
     arrivalDate.setFullYear(arrivalDate.getFullYear() + 1);
@@ -96,66 +97,78 @@ test.describe('UK ETA Submission Workflow', () => {
     await expect(page.getByText('https://www.gov.uk/apply-electronic-travel-authorisation')).toBeVisible();
   });
 
-  test('should handle UK ETA-specific form validation', async ({ page }) => {
-    // Navigate to form
-    await page.getByTestId('uk-leg-card').click();
-    await page.getByTestId('fill-form-button').click();
-    
-    // Test title selection
-    const titleField = page.getByTestId('field-title');
-    await titleField.click();
-    await page.getByRole('option', { name: 'Mr' }).click();
-    await expect(titleField).toHaveValue('Mr');
-    
-    // Test employment status selection
-    const employmentField = page.getByTestId('field-employmentStatus');
-    await employmentField.click();
-    await page.getByRole('option', { name: 'Employed' }).click();
-    await expect(employmentField).toHaveValue('employed');
-    
-    // Test visit purpose selection
-    const visitPurposeField = page.getByTestId('field-visitPurpose');
-    await visitPurposeField.click();
-    await page.getByRole('option', { name: 'Tourism' }).click();
-    await expect(visitPurposeField).toHaveValue('tourism');
-    
-    // Test UK address validation (should require full address with postcode)
-    const ukAddressField = page.getByTestId('field-ukAddress');
-    await ukAddressField.fill('123 London Street, London'); // Missing postcode
-    await page.getByTestId('validate-form-button').click();
-    await expect(page.getByText('UK address should include postcode')).toBeVisible();
-    
-    // Fix validation error
-    await ukAddressField.fill('123 London Street, London, SW1A 1AA');
-    await page.getByTestId('validate-form-button').click();
-    await expect(page.getByText('Form validation passed')).toBeVisible();
-  });
 
-  test('should handle security questions correctly', async ({ page }) => {
-    // Navigate to form
-    await page.getByTestId('uk-leg-card').click();
-    await page.getByTestId('fill-form-button').click();
-    
-    // Test security questions - most users should answer 'No'
-    const criminalRecordField = page.getByTestId('field-criminalRecord');
-    await criminalRecordField.click();
-    await page.getByRole('radio', { name: 'No' }).click();
-    await expect(criminalRecordField.locator('input[value="false"]')).toBeChecked();
-    
-    const immigrationBreachField = page.getByTestId('field-immigrationBreach');
-    await immigrationBreachField.click();
-    await page.getByRole('radio', { name: 'No' }).click();
-    await expect(immigrationBreachField.locator('input[value="false"]')).toBeChecked();
-    
-    const ukRefusalField = page.getByTestId('field-ukRefusal');
-    await ukRefusalField.click();
-    await page.getByRole('radio', { name: 'No' }).click();
-    await expect(ukRefusalField.locator('input[value="false"]')).toBeChecked();
-    
-    const terrorismField = page.getByTestId('field-terrorismAssociation');
-    await terrorismField.click();
-    await page.getByRole('radio', { name: 'No' }).click();
-    await expect(terrorismField.locator('input[value="false"]')).toBeChecked();
+  test.describe('on the UK ETA form', () => {
+    test.beforeEach(async ({ page }) => {
+      // Navigate to form
+      await page.getByTestId('uk-leg-card').click();
+      await page.getByTestId('fill-form-button').click();
+    });
+
+    test('should handle UK ETA-specific form validation', async ({ page }) => {
+      // Test title selection
+      const titleField = page.getByTestId('field-title');
+      await titleField.click();
+      await page.getByRole('option', { name: 'Mr' }).click();
+      await expect(titleField).toHaveValue('Mr');
+      
+      // Test employment status selection
+      const employmentField = page.getByTestId('field-employmentStatus');
+      await employmentField.click();
+      await page.getByRole('option', { name: 'Employed' }).click();
+      await expect(employmentField).toHaveValue('employed');
+      
+      // Test visit purpose selection
+      const visitPurposeField = page.getByTestId('field-visitPurpose');
+      await visitPurposeField.click();
+      await page.getByRole('option', { name: 'Tourism' }).click();
+      await expect(visitPurposeField).toHaveValue('tourism');
+      
+      // Test UK address validation (should require full address with postcode)
+      const ukAddressField = page.getByTestId('field-ukAddress');
+      await ukAddressField.fill('123 London Street, London'); // Missing postcode
+      await page.getByTestId('validate-form-button').click();
+      await expect(page.getByText('UK address should include postcode')).toBeVisible();
+      
+      // Fix validation error
+      await ukAddressField.fill('123 London Street, London, SW1A 1AA');
+      await page.getByTestId('validate-form-button').click();
+      await expect(page.getByText('Form validation passed')).toBeVisible();
+    });
+
+    test('should handle security questions correctly', async ({ page }) => {
+      // Test security questions - most users should answer 'No'
+      const securityQuestionTestIds = [
+        'field-criminalRecord',
+        'field-immigrationBreach',
+        'field-ukRefusal',
+        'field-terrorismAssociation',
+      ];
+
+      for (const testId of securityQuestionTestIds) {
+        const questionLocator = page.getByTestId(testId);
+        await questionLocator.getByRole('radio', { name: 'No' }).click();
+        await expect(questionLocator.locator('input[value="false"]')).toBeChecked();
+      }
+    });
+
+    test('should test automation readiness for UK ETA', async ({ page }) => {
+      // Check that specific key fields expected to be auto-filled have the badge
+      await expect(page.getByTestId('field-givenNames').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+      await expect(page.getByTestId('field-familyName').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+      await expect(page.getByTestId('field-passportNumber').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+      await expect(page.getByTestId('field-dateOfBirth').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+      await expect(page.getByTestId('field-nationality').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
+      
+      // Check that UK-specific fields are marked as requiring input
+      await expect(page.getByTestId('field-title')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-otherNames')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-confirmEmail')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-employmentStatus')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-visitPurpose')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-ukAddress')).toHaveAttribute('data-country-specific', 'true');
+      await expect(page.getByTestId('field-criminalRecord')).toHaveAttribute('data-country-specific', 'true');
+    });
   });
 
   test('should display UK ETA preparation checklist', async ({ page }) => {
@@ -213,26 +226,6 @@ test.describe('UK ETA Submission Workflow', () => {
     await expect(page.getByText('Background questions must be answered truthfully')).toBeVisible();
   });
 
-  test('should test automation readiness for UK ETA', async ({ page }) => {
-    await page.getByTestId('uk-leg-card').click();
-    await page.getByTestId('fill-form-button').click();
-    
-    // Check that specific key fields expected to be auto-filled have the badge
-    await expect(page.getByTestId('field-givenNames').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.getByTestId('field-familyName').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.getByTestId('field-passportNumber').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.getByTestId('field-dateOfBirth').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
-    await expect(page.getByTestId('field-nationality').locator('[data-testid="auto-filled-badge"]')).toBeVisible();
-    
-    // Check that UK-specific fields are marked as requiring input
-    await expect(page.getByTestId('field-title')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-otherNames')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-confirmEmail')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-employmentStatus')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-visitPurpose')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-ukAddress')).toHaveAttribute('data-country-specific', 'true');
-    await expect(page.getByTestId('field-criminalRecord')).toHaveAttribute('data-country-specific', 'true');
-  });
 });
 
 test.describe('UK ETA Portal Health', () => {
