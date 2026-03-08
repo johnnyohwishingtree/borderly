@@ -263,13 +263,20 @@ class PerformanceOptimization {
   async executeStrategy(strategyId: string): Promise<OptimizationResult> {
     const strategy = this.strategies.get(strategyId);
     if (!strategy) {
-      throw new Error(`Strategy ${strategyId} not found`);
+      return {
+        strategyId,
+        timestamp: Date.now(),
+        success: false,
+        metricsImpact: { before: {}, after: {}, improvement: {} },
+        executionTime: 0,
+        error: `Strategy ${strategyId} not found`,
+      };
     }
 
     const startTime = Date.now();
     let beforeMetrics: Partial<PerformanceMetrics> = {};
     let afterMetrics: Partial<PerformanceMetrics> = {};
-    
+
     try {
       // Capture before metrics
       beforeMetrics = await this.captureMetrics(strategy.targetMetrics);
@@ -492,6 +499,8 @@ class PerformanceOptimization {
       executionCount: number;
     }>;
   } {
+    // Reload from storage to get the latest persisted history
+    this.loadOptimizationHistory();
     const results = this.optimizationHistory;
     const successfulResults = results.filter(r => r.success);
     
@@ -568,9 +577,13 @@ class PerformanceOptimization {
   }
 
   private loadOptimizationHistory(): void {
-    const history = this.storage.getString('optimization-history');
-    if (history) {
-      this.optimizationHistory = JSON.parse(history);
+    try {
+      const history = this.storage.getString('optimization-history');
+      if (history) {
+        this.optimizationHistory = JSON.parse(history);
+      }
+    } catch {
+      this.optimizationHistory = [];
     }
   }
 
