@@ -288,12 +288,24 @@ When you receive a comment like "@claude Tests are failing on this PR" (or "@gem
 - **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
 - **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
 
+### TypeScript: Check Types Continuously
+
+- **Run `pnpm typecheck` after writing or modifying every `.ts`/`.tsx` file.** Do NOT wait until you're "done" — check immediately after each file so you catch errors while the code is fresh.
+- If typecheck fails, fix the errors before moving to the next file.
+- Common mistakes to avoid:
+  - Declaring variables you don't use (TS6133) — delete them or use them
+  - Assigning `string | undefined` to a `string` field — add a fallback or make the type optional
+  - Import conflicts — don't re-import names that are already in scope
+  - Using type arguments on untyped functions (TS2347) — add proper type annotations
+- **Never commit code that fails `pnpm typecheck`.** This is a hard rule.
+
 ### Git Commit Rules
 
 - **Never use `git add -A` or `git add .`** — always add specific files
 - **Check `git status` before committing** to verify only intended files are staged
 - **Never commit generated files** (`node_modules/`, `ios/Pods/`, `android/build/`, etc.)
+- **Run `pnpm typecheck` before every commit.** If it fails, fix the errors first.
 
 ### Push Early, Push Often
 
-Commit and push after every 2-3 file changes. Do not wait until the end of a session.
+Commit and push after every 2-3 file changes. Do not wait until the end of a session. While pushing often is encouraged, it's critical that every commit passes `pnpm typecheck` first.
