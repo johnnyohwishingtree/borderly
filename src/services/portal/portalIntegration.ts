@@ -226,6 +226,37 @@ export class PortalIntegrationService {
           ],
         },
       },
+      'CAN': {
+        name: 'Electronic Travel Authorization (eTA)',
+        url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html',
+        countryCode: 'CAN',
+        features: {
+          supportsDeepLinks: false,
+          supportsAutoFill: true,
+          requiresManualEntry: true,
+        },
+        guidelines: {
+          recommendedBrowser: ['Safari', 'Chrome', 'Edge'],
+          preparationTips: [
+            'No account creation required - single session process',
+            'Have passport from visa-exempt country ready',
+            'Prepare email address for confirmation',
+            'Know your employment and travel details',
+            'Submit at least 72 hours before departure (recommended)',
+            'Have credit card ready for CAD $7 application fee',
+            'eTA is valid for 5 years or until passport expires',
+          ],
+          commonIssues: [
+            'Processing usually takes minutes, can take up to 72 hours',
+            'US citizens do not need an eTA',
+            'Canadian citizens should not apply for eTA',
+            'Application fee is required regardless of approval or denial',
+            'Multiple entries allowed - up to 6 months each visit',
+            'Background questions must be answered truthfully',
+            'eTA is electronically linked to passport - no physical document',
+          ],
+        },
+      },
     };
 
     return portalMap[countryCode] || null;
@@ -504,6 +535,11 @@ export class PortalIntegrationService {
         preparationMinutes: 10,
         submissionMinutes: 25,
         factors: ['Multi-step ESTA process', 'Detailed eligibility questionnaire', 'Employment and emergency contact information', 'Travel details and US contact person', 'Payment processing ($21 fee)']
+      },
+      'CAN': {
+        preparationMinutes: 5,
+        submissionMinutes: 12,
+        factors: ['No account needed', 'Personal and passport information', 'Background security questions', 'Travel purpose and funding details', 'Payment processing (CAD $7 fee)']
       }
     };
 

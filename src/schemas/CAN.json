@@ -11,7 +11,7 @@
     "popularity": 75,
     "lastVerified": "2026-03-07T00:00:00Z",
     "supportedLanguages": ["en", "fr"],
-    "implementationStatus": "planned",
+    "implementationStatus": "active",
     "maintenanceFrequency": "quarterly"
   },
   "changeDetection": {
@@ -637,10 +637,10 @@
     }
   ],
   "automation": {
-    "enabled": false,
+    "enabled": true,
     "version": "1.0.0",
     "entryUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
-    "testMode": true,
+    "testMode": false,
     "successIndicators": [".eta-approved", "#confirmation-number"],
     "failureIndicators": [".application-error", ".form-validation-error"],
     "dataExtractionRules": [
