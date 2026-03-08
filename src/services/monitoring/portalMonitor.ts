@@ -460,7 +460,7 @@ export class PortalMonitor {
       { code: 'THA', name: 'Thailand Pass', url: 'https://tp.consular.go.th/' },
       { code: 'VNM', name: 'Vietnam eVisa', url: 'https://evisa.xuatnhapcanh.gov.vn/' },
       { code: 'USA', name: 'ESTA', url: 'https://esta.cbp.dhs.gov/' },
-      { code: 'GBR', name: 'UK eVisa', url: 'https://www.gov.uk/apply-to-come-to-the-uk' },
+      { code: 'GBR', name: 'UK Electronic Travel Authorisation', url: 'https://www.gov.uk/apply-electronic-travel-authorisation' },
       { code: 'CAN', name: 'eTA', url: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html' }
     ];
 
