@@ -5,10 +5,14 @@ import {
   TouchableOpacity, 
   Alert,
   ActionSheetIOS,
-  Platform
+  Platform,
+  ScrollView,
+  RefreshControl
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { EmptyState, Button, SkeletonList, PullToRefreshScrollView } from '../../components/ui';
+import { EmptyState, Button } from '../../components/ui';
+import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
+import { HapticFeedback } from '../../components/ui/HapticFeedback';
 import { QRCodeCard, QRFullScreen } from '../../components/wallet';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { SavedQRCode } from '../../services/storage/models';
@@ -17,16 +21,25 @@ import { databaseService } from '../../services/storage';
 
 export default function QRWalletScreen() {
   const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedQR, setSelectedQR] = useState<SavedQRCode | null>(null);
   const [fullScreenVisible, setFullScreenVisible] = useState(false);
   const navigation = useNavigation();
+  
+  const {
+    state,
+    error,
+    setLoading,
+    setLoadingError,
+    setLoadingSuccess,
+    reset,
+    retry
+  } = useLoadingState();
 
   // Load QR codes from database
   const loadQRCodes = async (showLoading = false) => {
     try {
-      if (showLoading) setIsLoading(true);
+      if (showLoading) setLoading();
       
       const db = await databaseService.getDatabase();
       const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
@@ -40,11 +53,11 @@ export default function QRWalletScreen() {
       );
 
       setQrCodes(sortedQRCodes);
+      setLoadingSuccess();
     } catch (error) {
       console.error('Error loading QR codes:', error);
-      Alert.alert('Error', 'Failed to load QR codes. Please try again.');
+      setLoadingError(error instanceof Error ? error.message : 'Failed to load QR codes');
     } finally {
-      setIsLoading(false);
       setIsRefreshing(false);
     }
   };
@@ -58,12 +71,20 @@ export default function QRWalletScreen() {
 
   // Pull to refresh
   const onRefresh = useCallback(() => {
+    HapticFeedback.refresh();
     setIsRefreshing(true);
+    reset();
     loadQRCodes();
-  }, []);
+  }, [reset]);
+  
+  const handleRetry = useCallback(() => {
+    retry();
+    loadQRCodes(true);
+  }, [retry]);
 
   // Handle QR code press (show full screen)
   const handleQRPress = (qrCode: SavedQRCode) => {
+    HapticFeedback.card();
     setSelectedQR(qrCode);
     setFullScreenVisible(true);
   };
@@ -152,30 +173,33 @@ export default function QRWalletScreen() {
 
   // Navigate to Add QR screen
   const handleAddQR = () => {
+    HapticFeedback.button('medium');
     navigation.navigate('AddQR' as never);
   };
 
-  if (isLoading) {
+  // Handle loading and error states
+  if (state === 'loading' && qrCodes.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50">
-        {/* Header */}
-        <View className="bg-white px-4 py-6 border-b border-gray-100">
-          <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
-          <Text className="text-base text-gray-600 mt-1">
-            Loading your saved codes...
-          </Text>
-        </View>
+      <LoadingStates
+        state="loading"
+        variant="dots"
+        size="medium"
+        text="Loading your QR codes..."
+        fullScreen={true}
+      />
+    );
+  }
 
-        {/* Skeleton Loading */}
-        <View className="flex-1 px-4 pt-4">
-          <SkeletonList 
-            itemCount={4}
-            lines={3}
-            spacing="normal"
-            className="space-y-3"
-          />
-        </View>
-      </View>
+  if (state === 'error' || error) {
+    return (
+      <LoadingStates
+        state="error"
+        fullScreen={true}
+        errorMessage={error || 'Failed to load QR codes'}
+        onRetry={handleRetry}
+        showRetryButton={true}
+        retryButtonText="Reload QR Codes"
+      />
     );
   }
 
@@ -201,12 +225,16 @@ export default function QRWalletScreen() {
           </View>
         </View>
 
-        <PullToRefreshScrollView
+        <ScrollView
           className="flex-1"
-          refreshing={isRefreshing} 
-          onRefresh={onRefresh}
-          hapticFeedback={true}
-          title="Refreshing codes..."
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              tintColor="#3b82f6"
+              colors={['#3b82f6']}
+            />
+          }
         >
           <View className="flex-1 px-4">
             <EmptyState
@@ -224,7 +252,7 @@ export default function QRWalletScreen() {
               />
             </View>
           </View>
-        </PullToRefreshScrollView>
+        </ScrollView>
       </View>
     );
   }
@@ -256,12 +284,16 @@ export default function QRWalletScreen() {
       </View>
 
       {/* QR Code List */}
-      <PullToRefreshScrollView
+      <ScrollView
         className="flex-1 px-4"
-        refreshing={isRefreshing} 
-        onRefresh={onRefresh}
-        hapticFeedback={true}
-        title="Refreshing codes..."
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor="#3b82f6"
+            colors={['#3b82f6']}
+          />
+        }
       >
         <View className="py-4">
           {qrCodes.map((qrCode) => (
@@ -276,7 +308,7 @@ export default function QRWalletScreen() {
 
         {/* Bottom spacing */}
         <View className="h-20" />
-      </PullToRefreshScrollView>
+      </ScrollView>
 
       {/* Full Screen QR Display */}
       <QRFullScreen
