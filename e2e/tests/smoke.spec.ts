@@ -18,8 +18,9 @@ test.describe('App Smoke Test', () => {
     await expect(page.getByText('Malaysia')).toBeVisible();
     await expect(page.getByText('Singapore')).toBeVisible();
 
-    // CTA button renders
-    await expect(page.getByLabel('Get started with Borderly')).toBeVisible();
+    // CTA buttons render
+    await expect(page.getByLabel('Take quick tutorial')).toBeVisible();
+    await expect(page.getByLabel('Skip tutorial')).toBeVisible();
   });
 
   test('no console errors on load', async ({ page }) => {

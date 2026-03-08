@@ -27,6 +27,9 @@ export default function ProgressIndicator({
       text: 'text-xs',
       spacing: 'space-x-2',
       verticalSpacing: 'space-y-2',
+      connectorTop: 'top-8',
+      connectorLeft: 'left-3',
+      connectorHeight: 'h-4',
     },
     medium: {
       circle: 'w-8 h-8',
@@ -34,6 +37,9 @@ export default function ProgressIndicator({
       text: 'text-sm',
       spacing: 'space-x-3',
       verticalSpacing: 'space-y-3',
+      connectorTop: 'top-10',
+      connectorLeft: 'left-4',
+      connectorHeight: 'h-6',
     },
     large: {
       circle: 'w-10 h-10',
@@ -41,6 +47,9 @@ export default function ProgressIndicator({
       text: 'text-base',
       spacing: 'space-x-4',
       verticalSpacing: 'space-y-4',
+      connectorTop: 'top-12',
+      connectorLeft: 'left-5',
+      connectorHeight: 'h-8',
     },
   };
 

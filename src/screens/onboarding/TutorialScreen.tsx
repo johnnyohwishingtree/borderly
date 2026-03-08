@@ -10,7 +10,6 @@ import CountryFlag from '../../components/trips/CountryFlag';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
 
-
 const tutorialSteps = [
   {
     id: 1,
