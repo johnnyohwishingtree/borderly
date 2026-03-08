@@ -67,10 +67,13 @@ module.exports = (env, argv) => {
           },
         },
       },
-      // react-native-web needs babel for JSX
+      // react-native-web and react-native-css-interop need babel for JSX
       {
         test: /\.[tj]sx?$/,
-        include: /node_modules\/react-native-web/,
+        include: [
+          /node_modules\/react-native-web/,
+          /node_modules\/react-native-css-interop/,
+        ],
         use: {
           loader: 'babel-loader',
           options: {
