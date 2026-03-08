@@ -2,15 +2,13 @@ import { useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
-  ScrollView, 
   TouchableOpacity, 
-  RefreshControl, 
   Alert,
   ActionSheetIOS,
   Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { EmptyState, Button, LoadingSpinner } from '../../components/ui';
+import { EmptyState, Button, LoadingSpinner, SkeletonList, PullToRefreshScrollView } from '../../components/ui';
 import { QRCodeCard, QRFullScreen } from '../../components/wallet';
 import { SavedQRCode } from '../../services/storage/models';
 import { useNavigation } from '@react-navigation/native';
@@ -167,8 +165,14 @@ export default function QRWalletScreen() {
           </Text>
         </View>
 
-        <View className="flex-1 items-center justify-center">
-          <LoadingSpinner />
+        {/* Skeleton Loading */}
+        <View className="flex-1 px-4 pt-4">
+          <SkeletonList 
+            itemCount={4}
+            lines={3}
+            spacing="normal"
+            className="space-y-3"
+          />
         </View>
       </View>
     );
@@ -196,11 +200,12 @@ export default function QRWalletScreen() {
           </View>
         </View>
 
-        <ScrollView
+        <PullToRefreshScrollView
           className="flex-1"
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-          }
+          refreshing={isRefreshing} 
+          onRefresh={onRefresh}
+          hapticFeedback={true}
+          title="Refreshing codes..."
         >
           <View className="flex-1 px-4">
             <EmptyState
@@ -218,7 +223,7 @@ export default function QRWalletScreen() {
               />
             </View>
           </View>
-        </ScrollView>
+        </PullToRefreshScrollView>
       </View>
     );
   }
@@ -245,11 +250,12 @@ export default function QRWalletScreen() {
       </View>
 
       {/* QR Code List */}
-      <ScrollView
+      <PullToRefreshScrollView
         className="flex-1 px-4"
-        refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-        }
+        refreshing={isRefreshing} 
+        onRefresh={onRefresh}
+        hapticFeedback={true}
+        title="Refreshing codes..."
       >
         <View className="py-4">
           {qrCodes.map((qrCode) => (
@@ -264,7 +270,7 @@ export default function QRWalletScreen() {
 
         {/* Bottom spacing */}
         <View className="h-20" />
-      </ScrollView>
+      </PullToRefreshScrollView>
 
       {/* Full Screen QR Display */}
       <QRFullScreen

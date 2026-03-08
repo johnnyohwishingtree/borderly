@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { trigger } from 'react-native-haptic-feedback';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
-import { LoadingSpinner, EmptyState } from '../../components/ui';
+import { LoadingSpinner, EmptyState, SkeletonList, PullToRefreshFlatList } from '../../components/ui';
 import { Trip } from '../../types/trip';
 
 export default function TripListScreen() {
@@ -85,11 +85,15 @@ export default function TripListScreen() {
           </View>
         </View>
         
-        <LoadingSpinner 
-          size="large" 
-          text="Loading your trips..." 
-          variant="spinner"
-        />
+        {/* Skeleton Loading */}
+        <View className="flex-1 px-4 pt-4">
+          <SkeletonList 
+            itemCount={3}
+            lines={4}
+            spacing="normal"
+            className="space-y-4"
+          />
+        </View>
       </View>
     );
   }
@@ -147,13 +151,13 @@ export default function TripListScreen() {
       {trips.length === 0 ? (
         renderEmptyState()
       ) : (
-        <FlatList
+        <PullToRefreshFlatList
           data={trips}
           renderItem={renderTripCard}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
-          refreshing={isLoading && trips.length === 0}
+          refreshing={isLoading && trips.length > 0}
           onRefresh={() => loadTrips({ refresh: true })}
           onEndReached={() => {
             if (hasMoreTrips && !isLoadingMore) {
@@ -189,6 +193,8 @@ export default function TripListScreen() {
             offset: 200 * index,
             index,
           })}
+          hapticFeedback={true}
+          title="Refreshing trips..."
         />
       )}
 
