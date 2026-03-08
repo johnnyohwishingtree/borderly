@@ -450,6 +450,132 @@ describe('Auto-Fill Logic', () => {
 
       expect(result).toBeDefined(); // Should not crash
     });
+
+    it('should handle null and undefined values correctly', () => {
+      const field: FormField = {
+        id: 'nullField',
+        label: 'Null Field',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'profile.nonExistentField',
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+      expect(result).toBeNull();
+    });
+
+    it('should handle empty string values correctly', () => {
+      const profileWithEmptyValues = {
+        ...mockProfile,
+        givenNames: '',
+      };
+
+      const field: FormField = {
+        id: 'givenNames',
+        label: 'Given Names',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'profile.givenNames',
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: profileWithEmptyValues, leg: mockTripLeg },
+        defaultOptions
+      );
+
+      // Should fall back to other methods or return null
+      expect(result).toBeDefined();
+    });
+
+    it('should handle invalid date values', () => {
+      const field: FormField = {
+        id: 'invalidDate',
+        label: 'Invalid Date',
+        type: 'date',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const legWithInvalidDate = {
+        ...mockTripLeg,
+        arrivalDate: 'invalid-date',
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: legWithInvalidDate },
+        defaultOptions
+      );
+
+      expect(result).toBeDefined(); // Should not crash
+    });
+
+    it('should handle malformed auto-fill source paths', () => {
+      const field: FormField = {
+        id: 'malformedPath',
+        label: 'Malformed Path',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'profile..surname', // Double dots
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+      expect(result).toBeDefined(); // Should not crash
+    });
+
+    it('should handle missing accommodation data', () => {
+      const legWithoutAccommodation = {
+        ...mockTripLeg,
+        accommodation: undefined,
+      };
+
+      const field: FormField = {
+        id: 'purposeOfVisit',
+        label: 'Purpose of Visit',
+        type: 'select',
+        required: true,
+        countrySpecific: true,
+        options: [
+          { value: 'tourism', label: 'Tourism' },
+          { value: 'business', label: 'Business' },
+        ],
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: legWithoutAccommodation },
+        defaultOptions
+      );
+
+      expect(result).not.toBeNull();
+    });
+
+    it('should handle missing default declarations', () => {
+      const profileWithoutDeclarations = {
+        ...mockProfile,
+        defaultDeclarations: undefined,
+      } as any;
+
+      const field: FormField = {
+        id: 'carryingProhibitedItems',
+        label: 'Carrying Prohibited Items',
+        type: 'boolean',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: profileWithoutDeclarations, leg: mockTripLeg },
+        defaultOptions
+      );
+
+      expect(result).toBeDefined(); // Should not crash
+    });
   });
 
   describe('Country-specific behavior', () => {
@@ -558,6 +684,262 @@ describe('Auto-Fill Logic', () => {
       if (result) {
         expect(result.confidence).toBeGreaterThanOrEqual(0.95);
       }
+    });
+  });
+
+  describe('Additional smart auto-fill scenarios', () => {
+    it('should handle gender field mapping', () => {
+      const field: FormField = {
+        id: 'gender',
+        label: 'Gender',
+        type: 'select',
+        required: true,
+        countrySpecific: false,
+        options: [
+          { value: 'M', label: 'Male' },
+          { value: 'F', label: 'Female' },
+        ],
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('M');
+      expect(result!.source).toBe('smart');
+    });
+
+    it('should handle contact field fallbacks', () => {
+      const emailField: FormField = {
+        id: 'contactEmail',
+        label: 'Contact Email',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(emailField, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('john.johnson@example.com');
+      expect(result!.source).toBe('profile');
+    });
+
+    it('should handle phone number fallbacks', () => {
+      const phoneField: FormField = {
+        id: 'phoneNumber',
+        label: 'Phone Number',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(phoneField, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('+1-555-123-4567');
+      expect(result!.source).toBe('profile');
+    });
+
+    it('should handle airport field extraction', () => {
+      const airportField: FormField = {
+        id: 'arrivalAirport',
+        label: 'Arrival Airport',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'leg.arrivalAirport',
+      };
+
+      const result = intelligentAutoFill(airportField, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('NRT');
+      expect(result!.source).toBe('trip');
+    });
+
+    it('should handle different field types correctly', () => {
+      const numberField: FormField = {
+        id: 'daysOfStay',
+        label: 'Days of Stay',
+        type: 'number',
+        required: true,
+        countrySpecific: false,
+        validation: { min: 1 },
+      };
+
+      const result = intelligentAutoFill(numberField, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(typeof result!.value).toBe('number');
+    });
+
+    it('should handle select fields without matching options', () => {
+      const field: FormField = {
+        id: 'purposeOfVisit',
+        label: 'Purpose of Visit',
+        type: 'select',
+        required: true,
+        countrySpecific: true,
+        options: [
+          { value: 'work', label: 'Work' },
+          { value: 'study', label: 'Study' },
+        ],
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      // Should fall back to first option
+      expect(result!.value).toBe('work');
+    });
+
+    it('should handle missing flight number gracefully', () => {
+      const legWithoutFlight = {
+        ...mockTripLeg,
+        flightNumber: undefined,
+      };
+
+      const field: FormField = {
+        id: 'airlineCode',
+        label: 'Airline Code',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: legWithoutFlight },
+        defaultOptions
+      );
+
+      // Should not crash, might return null or default
+      expect(result).toBeDefined();
+    });
+
+    it('should handle transit duration detection', () => {
+      const shortStayLeg = {
+        ...mockTripLeg,
+        arrivalDate: '2025-07-15',
+        departureDate: '2025-07-16', // 1 day stay
+      };
+
+      const field: FormField = {
+        id: 'purposeOfVisit',
+        label: 'Purpose of Visit',
+        type: 'select',
+        required: true,
+        countrySpecific: true,
+        options: [
+          { value: 'tourism', label: 'Tourism' },
+          { value: 'transit', label: 'Transit' },
+        ],
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: shortStayLeg },
+        defaultOptions
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('transit');
+    });
+
+    it('should handle long stay duration for visiting relatives', () => {
+      const longStayLeg = {
+        ...mockTripLeg,
+        arrivalDate: '2025-07-15',
+        departureDate: '2025-09-15', // 62 days stay
+      };
+
+      const field: FormField = {
+        id: 'purposeOfVisit',
+        label: 'Purpose of Visit',
+        type: 'select',
+        required: true,
+        countrySpecific: true,
+        options: [
+          { value: 'tourism', label: 'Tourism' },
+          { value: 'visiting_relatives', label: 'Visiting Relatives' },
+        ],
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: longStayLeg },
+        defaultOptions
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('visiting_relatives');
+    });
+
+    it('should handle disabled options correctly', () => {
+      const disabledOptions: AutoFillOptions = {
+        enableSmartDefaults: false,
+        enableFallbacks: false,
+        confidenceThreshold: 0.7,
+        countryCode: 'JPN',
+      };
+
+      const field: FormField = {
+        id: 'unknownField',
+        label: 'Unknown Field',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, disabledOptions);
+
+      // With all options disabled, should only try autoFillSource and default
+      expect(result).toBeDefined();
+    });
+
+    it('should handle address formatting for different countries', () => {
+      const ukOptions: AutoFillOptions = {
+        ...defaultOptions,
+        countryCode: 'GBR',
+      };
+
+      const field: FormField = {
+        id: 'homeAddress',
+        label: 'Home Address',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, ukOptions);
+
+      expect(result).not.toBeNull();
+      expect(typeof result!.value).toBe('string');
+      expect((result!.value as string).length).toBeGreaterThan(0);
+    });
+
+    it('should handle airline name expansion', () => {
+      const flightWithBA = {
+        ...mockTripLeg,
+        flightNumber: 'BA456',
+      };
+
+      const field: FormField = {
+        id: 'airlineName',
+        label: 'Airline Name',
+        type: 'text',
+        required: true,
+        countrySpecific: false,
+      };
+
+      const result = intelligentAutoFill(
+        field,
+        { profile: mockProfile, leg: flightWithBA },
+        defaultOptions
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('British Airways');
     });
   });
 });
