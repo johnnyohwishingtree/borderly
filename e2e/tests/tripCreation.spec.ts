@@ -47,8 +47,8 @@ test.describe('Trip Creation and Management', () => {
     await expect(page.getByRole('button', { name: '📷 Scan Boarding Pass' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
 
-    // Top-level destination buttons
-    await expect(page.getByRole('button', { name: '📷 Scan' })).toBeVisible();
+    // Top-level destination buttons in header
+    await expect(page.getByRole('button', { name: '📷 Scan' }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: '+ Add' })).toBeVisible();
 
     // Create button
