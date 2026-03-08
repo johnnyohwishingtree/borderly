@@ -25,22 +25,20 @@ export default function TripListScreen() {
     setLoading,
     setLoadingError,
     setLoadingSuccess,
-    reset,
-    retry
   } = useLoadingState();
 
+  const fetchTrips = async () => {
+    setLoading();
+    try {
+      await loadTrips({ refresh: true });
+      setLoadingSuccess();
+    } catch (err) {
+      setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      setLoading();
-      try {
-        await loadTrips({ refresh: true });
-        setLoadingSuccess();
-      } catch (err) {
-        setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
-      }
-    };
-    
-    loadData();
+    fetchTrips();
   }, []);
 
   const handleTripPress = (trip: Trip) => {
@@ -55,23 +53,7 @@ export default function TripListScreen() {
 
   const handleRefresh = async () => {
     HapticFeedback.refresh();
-    reset();
-    const loadData = async () => {
-      setLoading();
-      try {
-        await loadTrips({ refresh: true });
-        setLoadingSuccess();
-      } catch (err) {
-        setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
-      }
-    };
-    
-    await loadData();
-  };
-
-  const handleRetry = () => {
-    retry();
-    handleRefresh();
+    await fetchTrips();
   };
 
   const renderTripCard = ({ item }: { item: Trip }) => (
@@ -119,7 +101,7 @@ export default function TripListScreen() {
         state="error"
         fullScreen={true}
         errorMessage={error || 'Failed to load trips'}
-        onRetry={handleRetry}
+        onRetry={handleRefresh}
         showRetryButton={true}
         retryButtonText="Reload Trips"
       />

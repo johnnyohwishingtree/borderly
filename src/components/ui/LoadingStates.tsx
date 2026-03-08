@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import LoadingIndicator, { LoadingIndicatorProps } from './LoadingIndicator';
 import { HapticFeedback } from './HapticFeedback';
 import { ScreenReaderUtils } from '../../utils/accessibility';
@@ -159,109 +159,6 @@ export default function LoadingStates({
   return null;
 }
 
-// Predefined loading state patterns for common use cases
-export const LoadingPatterns = {
-  /**
-   * Standard data fetching pattern
-   */
-  DataFetch: (props: Omit<LoadingStateProps, 'variant' | 'size'>) => (
-    <LoadingStates 
-      {...props}
-      variant="spinner"
-      size="medium"
-      text="Loading data..."
-    />
-  ),
-
-  /**
-   * Form submission pattern with progress
-   */
-  FormSubmission: (props: Omit<LoadingStateProps, 'variant' | 'showProgress'>) => (
-    <LoadingStates
-      {...props}
-      variant="spinner" 
-      size="medium"
-      text="Submitting form..."
-      showProgress={true}
-    />
-  ),
-
-  /**
-   * File upload pattern with progress
-   */
-  FileUpload: (props: Omit<LoadingStateProps, 'variant' | 'showProgress' | 'cancelable'>) => (
-    <LoadingStates
-      {...props}
-      variant="pulse"
-      size="large"
-      text="Uploading file..."
-      showProgress={true}
-      cancelable={true}
-    />
-  ),
-
-  /**
-   * Image processing pattern
-   */
-  ImageProcessing: (props: Omit<LoadingStateProps, 'variant'>) => (
-    <LoadingStates
-      {...props}
-      variant="pulse"
-      size="large"
-      text="Processing image..."
-    />
-  ),
-
-  /**
-   * Camera scanning pattern
-   */
-  CameraScanning: (props: Omit<LoadingStateProps, 'variant' | 'size'>) => (
-    <LoadingStates
-      {...props}
-      variant="dots"
-      size="large"
-      text="Scanning..."
-    />
-  ),
-
-  /**
-   * Navigation transition pattern
-   */
-  Navigation: (props: Omit<LoadingStateProps, 'variant' | 'size' | 'fullScreen'>) => (
-    <LoadingStates
-      {...props}
-      variant="spinner"
-      size="small"
-      fullScreen={false}
-    />
-  ),
-
-  /**
-   * API call pattern with timeout
-   */
-  APICall: (props: Omit<LoadingStateProps, 'variant' | 'timeout'>) => (
-    <LoadingStates
-      {...props}
-      variant="spinner"
-      size="medium"
-      timeout={10000}
-      text="Connecting to server..."
-    />
-  ),
-
-  /**
-   * Full screen overlay for critical operations
-   */
-  CriticalOperation: (props: Omit<LoadingStateProps, 'fullScreen' | 'cancelable'>) => (
-    <LoadingStates
-      {...props}
-      fullScreen={true}
-      cancelable={false}
-      size="large"
-    />
-  )
-} as const;
-
 // Hook for managing loading states
 export function useLoadingState(initialState: LoadingStateProps['state'] = 'idle') {
   const [state, setState] = React.useState<LoadingStateProps['state']>(initialState);
@@ -317,5 +214,3 @@ export function useLoadingState(initialState: LoadingStateProps['state'] = 'idle
   };
 }
 
-// Missing import fix
-import { TouchableOpacity } from 'react-native';
