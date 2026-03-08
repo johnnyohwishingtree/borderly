@@ -1,5 +1,5 @@
 import { Pressable, Text, ActivityIndicator } from 'react-native';
-import { HapticFeedback, HAPTIC_PATTERNS } from './HapticFeedback';
+import { HapticFeedback } from './HapticFeedback';
 import { 
   TouchTargetUtils, 
   ACCESSIBILITY_CONSTANTS,
@@ -18,7 +18,6 @@ export interface ButtonProps {
   accessibilityHint?: string;
   accessibilityRole?: 'button' | 'link' | 'tab';
   highContrastMode?: boolean;
-  hapticType?: keyof typeof HAPTIC_PATTERNS;
   testID?: string;
 }
 
@@ -34,7 +33,6 @@ export default function Button({
   accessibilityHint,
   accessibilityRole = 'button',
   highContrastMode = false,
-  hapticType = 'light',
   testID,
 }: ButtonProps) {
   const getButtonStyles = () => {

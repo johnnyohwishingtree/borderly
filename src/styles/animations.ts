@@ -126,7 +126,8 @@ export const getEntranceAnimation = (
   preset: keyof typeof ANIMATION_PRESETS,
   index?: number
 ): string => {
-  const baseAnimation = ANIMATION_PRESETS[preset]?.entrance || '';
+  const presetConfig = ANIMATION_PRESETS[preset];
+  const baseAnimation = (presetConfig && 'entrance' in presetConfig) ? presetConfig.entrance : '';
   const staggerDelay = index !== undefined ? getStaggerDelay(index) : '';
   return combineAnimations(baseAnimation, staggerDelay);
 };
