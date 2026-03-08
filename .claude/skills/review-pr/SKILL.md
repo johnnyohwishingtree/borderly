@@ -24,9 +24,11 @@ Perform a comprehensive code review of a Pull Request, including static analysis
     - Identify specific lines or blocks needing improvement.
     - Formulate constructive feedback.
 5. **Post Review**:
-    - Use `gh pr review --comment -b "SUMMARY"` for a general review.
+    - Write the summary to a temporary file for security: `echo "$SUMMARY" > /tmp/review_summary.txt`
+    - Use `gh pr review --comment -F /tmp/review_summary.txt` for a general review.
     - Use `gh pr review --approve` if the PR is perfect.
-    - Use `gh pr review --request-changes -b "SUMMARY"` if there are blockers.
+    - Use `gh pr review --request-changes -F /tmp/review_summary.txt` if there are blockers.
+    - Clean up: `rm /tmp/review_summary.txt`
 
 ## Review Guidelines
 
