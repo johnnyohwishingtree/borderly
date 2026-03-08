@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { Button } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
+import { ContextualHelp, HelpContent } from '../../components/help';
 import CountryFlag from '../../components/trips/CountryFlag';
 import { useFormStore } from '../../stores/useFormStore';
 import { useProfileStore } from '../../stores/useProfileStore';
@@ -240,6 +241,11 @@ export default function LegFormScreen() {
           </View>
 
           <View className="flex-row space-x-2">
+            <ContextualHelp 
+              content={HelpContent.autoFill}
+              variant="icon"
+              size="small"
+            />
             <Button
               title={showOnlyCountrySpecific ? 'Show All' : 'Smart Delta'}
               onPress={() => setShowOnlyCountrySpecific(!showOnlyCountrySpecific)}

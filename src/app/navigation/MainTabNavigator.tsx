@@ -35,6 +35,10 @@ const FeedbackScreen = lazy(() => import('../../screens/support').then(m => ({ d
 const BugReportScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.BugReportScreen })));
 const HelpScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.HelpScreen })));
 
+// Lazy load help screens
+const FAQScreen = lazy(() => import('../../screens/help').then(m => ({ default: m.FAQScreen })));
+const TroubleshootingScreen = lazy(() => import('../../screens/help').then(m => ({ default: m.TroubleshootingScreen })));
+
 // Loading component for lazy-loaded screens
 const ScreenLoader = () => (
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -209,6 +213,26 @@ function SettingsNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <HelpScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="FAQ"
+        options={{ title: 'Frequently Asked Questions' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <FAQScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="Troubleshooting"
+        options={{ title: 'Troubleshooting Guide' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <TroubleshootingScreen />
           </Suspense>
         )}
       </SettingsStack.Screen>

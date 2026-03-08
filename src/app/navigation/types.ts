@@ -42,4 +42,6 @@ export type SettingsStackParamList = {
   Feedback: undefined;
   BugReport: undefined;
   Help: undefined;
+  FAQ: { highlightId?: string } | undefined;
+  Troubleshooting: { highlightId?: string } | undefined;
 };

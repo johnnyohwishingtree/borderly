@@ -5,6 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Button, Input, Card } from '../../components/ui';
 import { CountryFlag } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
+import { ContextualHelp, HelpContent } from '../../components/help';
 import { BoardingPassScanner } from '../../components/boarding';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripLeg, Accommodation } from '../../types/trip';
@@ -448,7 +449,14 @@ export default function CreateTripScreen() {
     <View className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white px-4 py-6 border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900 mb-2">Create New Trip</Text>
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="text-2xl font-bold text-gray-900 flex-1">Create New Trip</Text>
+          <ContextualHelp 
+            content={HelpContent.tripManagement}
+            variant="icon"
+            size="medium"
+          />
+        </View>
         <Text className="text-base text-gray-600">Plan your multi-country journey</Text>
       </View>
 

@@ -9,7 +9,8 @@
 5. [Submission Workflows by Country](#submission-workflows-by-country)
 6. [Managing QR Codes](#managing-qr-codes)
 7. [Security and Privacy](#security-and-privacy)
-8. [Troubleshooting](#troubleshooting)
+8. [In-App Help System](#in-app-help-system)
+9. [Troubleshooting](#troubleshooting)
 
 ## Getting Started
 
@@ -267,6 +268,99 @@ The QR Wallet stores all your submission confirmations:
 1. Go to **Settings > Privacy**
 2. Tap **"Delete All Data"**
 3. Confirm to permanently remove all data
+
+## In-App Help System
+
+Borderly includes a comprehensive help system to assist you with any questions or issues.
+
+### Accessing Help
+
+**Main Help Center:**
+1. Go to **Settings** tab
+2. Tap **"Help & Support"**
+3. Browse categories or search for specific topics
+
+### Help Features
+
+#### 🔍 Smart Search
+- Universal search across all help content
+- Finds relevant answers from FAQs, guides, and troubleshooting
+- Fuzzy matching recognizes similar terms and common misspellings
+- Results ranked by relevance
+
+**Using Search:**
+1. Tap **"Search All Help Topics"** on Help screen
+2. Type keywords describing your question or issue
+3. Browse categorized results with relevance scores
+4. Tap any result to view detailed information
+
+#### ❓ Frequently Asked Questions (FAQ)
+- Searchable database of common questions
+- Organized by category (Passport, Security, Forms, etc.)
+- Expandable answers with related tags
+- Quick category filtering
+
+**FAQ Categories:**
+- **Passport & Scanning**: MRZ reading, manual entry, data editing
+- **Security & Privacy**: Data protection, biometric authentication, encryption
+- **Trips & Countries**: Creating trips, supported destinations, requirements
+- **Forms & Submission**: Auto-fill, government portals, Smart Delta feature
+- **QR Codes**: Saving, organizing, airport usage
+- **Performance**: App speed, cache management, troubleshooting
+
+#### 🔧 Troubleshooting Guide
+- Step-by-step solutions for common problems
+- Organized by issue severity (Low, Medium, High, Critical)
+- Detailed symptoms and multiple solution approaches
+- System diagnostics information for support requests
+
+**Issue Categories:**
+- **Passport Scanning**: Camera problems, text recognition, data accuracy
+- **App Performance**: Crashes, slow loading, memory issues  
+- **Forms & Auto-fill**: Data not filling, validation errors, manual entry
+- **QR Codes**: Scanning problems, camera permissions, saving issues
+- **Security & Biometrics**: Face ID/Touch ID failures, authentication problems
+- **Government Portals**: Submission errors, validation issues, portal access
+- **Data & Sync**: Missing information, profile problems, backup issues
+- **Network Issues**: Connectivity problems, portal loading, offline usage
+
+#### 💡 Contextual Help
+Throughout the app, look for help icons (?) that provide relevant assistance:
+
+- **Passport Scanning Screen**: Tips for better MRZ recognition
+- **Form Screens**: Explanation of auto-fill and Smart Delta
+- **QR Wallet**: Instructions for saving and using QR codes
+- **Trip Creation**: Guidance on adding destinations and dates
+- **Submission Guide**: Step-by-step portal instructions
+
+**Using Contextual Help:**
+1. Look for help icons (?) next to complex features
+2. Tap the icon to see context-specific guidance
+3. View tips, explanations, and related help links
+4. Access video tutorials where available
+
+### Getting Additional Support
+
+If the help system doesn't resolve your issue:
+
+1. **Send Feedback**: Report app improvement suggestions
+2. **Bug Reports**: Report technical problems with system details
+3. **Email Support**: Direct contact for complex issues
+4. **Emergency Travel**: Contact embassy for urgent travel problems
+
+**Support Guidelines:**
+- Never include passport numbers or personal data in support requests
+- Include app version, device model, and steps to reproduce issues
+- Take screenshots without personal information when helpful
+- Be specific about error messages or unexpected behavior
+
+### Help System Tips
+
+- **Bookmark Frequently Needed Topics**: Take screenshots of important help sections
+- **Use Multiple Search Terms**: Try different keywords if first search doesn't help
+- **Browse Categories**: Sometimes browsing reveals related helpful information
+- **Check Recent Searches**: The search system remembers your recent queries
+- **Context Matters**: Use contextual help buttons for screen-specific assistance
 
 ## Troubleshooting
 

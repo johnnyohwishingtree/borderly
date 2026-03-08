@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Alert, Linking } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Button, Card, StatusBadge } from '@/components/ui';
+import { SearchableHelp } from '@/components/help';
 
 interface HelpScreenProps {
   route?: RouteProp<any, any>;
@@ -16,10 +17,11 @@ interface FAQItem {
 }
 
 export default function HelpScreen({ route: _route }: HelpScreenProps) {
-  useNavigation();
+  const navigation = useNavigation();
   const [searchTerm, _setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
+  const [isSearchVisible, setIsSearchVisible] = useState<boolean>(false);
 
   const faqData: FAQItem[] = [
     {
@@ -126,16 +128,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         {
           text: 'Send Feedback',
           onPress: () => {
-            // Navigate to feedback screen
-            // This would be implemented with proper navigation
-            Alert.alert('Navigate to Feedback', 'This would open the feedback screen.');
+            (navigation as any).navigate('Feedback');
           },
         },
         {
           text: 'Report Bug',
           onPress: () => {
-            // Navigate to bug report screen
-            Alert.alert('Navigate to Bug Report', 'This would open the bug report screen.');
+            (navigation as any).navigate('BugReport');
           },
         },
         {
@@ -147,6 +146,24 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         { text: 'Cancel', style: 'cancel' },
       ]
     );
+  };
+
+  const handleSearchNavigate = (type: string, id: string) => {
+    if (type === 'faq') {
+      // Navigate to FAQ screen with specific item
+      (navigation as any).navigate('FAQ', { highlightId: id });
+    } else if (type === 'troubleshooting') {
+      // Navigate to troubleshooting screen with specific item
+      (navigation as any).navigate('Troubleshooting', { highlightId: id });
+    }
+  };
+
+  const handleNavigateToFAQ = () => {
+    (navigation as any).navigate('FAQ');
+  };
+
+  const handleNavigateToTroubleshooting = () => {
+    (navigation as any).navigate('Troubleshooting');
   };
 
   const handleOpenDocumentation = () => {
@@ -166,26 +183,60 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           <Text className="text-base text-gray-600">Find answers and get assistance</Text>
         </View>
 
-        {/* Quick Actions */}
+        {/* Search Help */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Get Help</Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Search Help</Text>
+          <Text className="text-sm text-gray-600 mb-4">
+            Find answers quickly with our comprehensive search
+          </Text>
+          <Button
+            title="🔍 Search All Help Topics"
+            onPress={() => setIsSearchVisible(true)}
+            variant="primary"
+            fullWidth
+          />
+        </Card>
+
+        {/* Help Categories */}
+        <Card>
+          <Text className="text-lg font-semibold text-gray-900 mb-4">Help Categories</Text>
           
           <View className="space-y-3">
+            <Button
+              title="❓ Frequently Asked Questions"
+              onPress={handleNavigateToFAQ}
+              variant="outline"
+              fullWidth
+            />
+            <Button
+              title="🔧 Troubleshooting Guide"
+              onPress={handleNavigateToTroubleshooting}
+              variant="outline"
+              fullWidth
+            />
             <Button
               title="📚 User Guide"
               onPress={handleOpenDocumentation}
               variant="outline"
               fullWidth
             />
+          </View>
+        </Card>
+
+        {/* Contact & Support */}
+        <Card>
+          <Text className="text-lg font-semibold text-gray-900 mb-4">Contact & Support</Text>
+          
+          <View className="space-y-3">
             <Button
               title="💬 Send Feedback"
-              onPress={() => Alert.alert('Navigate to Feedback', 'This would open the feedback screen.')}
+              onPress={() => (navigation as any).navigate('Feedback')}
               variant="outline"
               fullWidth
             />
             <Button
               title="🐛 Report Bug"
-              onPress={() => Alert.alert('Navigate to Bug Report', 'This would open the bug report screen.')}
+              onPress={() => (navigation as any).navigate('BugReport')}
               variant="outline"
               fullWidth
             />
@@ -323,6 +374,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         {/* Bottom spacing */}
         <View className="h-8" />
       </View>
+      
+      {/* Searchable Help Modal */}
+      <SearchableHelp
+        isVisible={isSearchVisible}
+        onClose={() => setIsSearchVisible(false)}
+        onNavigate={handleSearchNavigate}
+      />
     </ScrollView>
   );
 }
