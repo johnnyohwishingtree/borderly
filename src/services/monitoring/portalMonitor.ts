@@ -67,7 +67,7 @@ export interface AutoResponse {
 export class PortalMonitor {
   private readonly config: MonitoringConfig;
   private isMonitoring: boolean = false;
-  private monitoringInterval?: NodeJS.Timeout;
+  private monitoringInterval: ReturnType<typeof setInterval> | undefined;
   private readonly alerts: Map<string, PortalAlert[]> = new Map();
   private readonly autoResponses: Map<string, AutoResponse[]> = new Map();
   private readonly portals: Map<string, { name: string; url: string }> = new Map();
@@ -229,7 +229,7 @@ export class PortalMonitor {
         type: 'availability',
         message: `Portal is ${status}`,
         metadata: {
-          httpStatus: healthStatus.metadata.httpStatus,
+          ...(healthStatus.metadata.httpStatus !== undefined ? { httpStatus: healthStatus.metadata.httpStatus } : {}),
           impact: 'Users cannot submit forms'
         }
       });
@@ -531,18 +531,20 @@ export class PortalMonitor {
     const healthSummary = portalHealthChecker.getHealthSummary();
     const activeAlerts = this.getAllActiveAlerts().length;
 
-    return {
+    const result: MonitoringStatus = {
       isRunning: this.isMonitoring,
-      lastCheckAt: undefined, // Would track actual last check time
-      nextCheckAt: this.isMonitoring 
-        ? new Date(Date.now() + this.config.checkIntervalMinutes * 60 * 1000).toISOString()
-        : undefined,
       monitoredPortals: this.portals.size,
       activeAlerts,
       healthyPortals: healthSummary.healthy,
       degradedPortals: healthSummary.degraded,
       offlinePortals: healthSummary.offline
     };
+
+    if (this.isMonitoring) {
+      result.nextCheckAt = new Date(Date.now() + this.config.checkIntervalMinutes * 60 * 1000).toISOString();
+    }
+
+    return result;
   }
 
   /**

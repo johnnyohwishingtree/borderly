@@ -128,8 +128,33 @@ export class TestDataFactory {
       countryName: 'Japan',
       portalName: 'Visit Japan Web',
       portalUrl: 'https://vjw-lp.digital.go.jp/en/',
-      version: '1.0.0',
+      schemaVersion: '1.0.0',
       lastUpdated: '2026-01-01',
+      metadata: {
+        priority: 1,
+        complexity: 'medium',
+        popularity: 90,
+        lastVerified: '2026-01-01',
+        supportedLanguages: ['en', 'ja'],
+        implementationStatus: 'complete',
+        maintenanceFrequency: 'monthly',
+      },
+      changeDetection: {
+        monitoredSelectors: [],
+        changeThreshold: 20,
+        fallbackActions: [],
+      },
+      submission: {
+        earliestBeforeArrival: '14d',
+        latestBeforeArrival: '0h',
+        recommended: '72h',
+      },
+      portalFlow: {
+        requiresAccount: true,
+        multiStep: true,
+        canSaveProgress: true,
+      },
+      submissionGuide: [],
       sections: [
         {
           id: 'personal',
@@ -268,7 +293,7 @@ export class TestDataFactory {
     form.sections[0].fields.push({
       id: 'email',
       label: 'Email Address',
-      type: 'email',
+      type: 'text',
       required: true,
       currentValue: 'invalid-email', // Invalid email format
       source: 'user',
@@ -296,7 +321,7 @@ export class TestAssertions {
 
     const hasRequiredFields = form.sections.every(section =>
       section.fields.every(field => 
-        !field.required || (field.currentValue && field.currentValue.trim() !== '')
+        !field.required || (field.currentValue && String(field.currentValue).trim() !== '')
       )
     );
 
@@ -446,8 +471,9 @@ export class TestEnvironment {
    * Checks if running in test environment
    */
   static isTestEnvironment(): boolean {
-    return process.env.NODE_ENV === 'test' || 
-           process.env.JEST_WORKER_ID !== undefined ||
+    const proc = (globalThis as any).process;
+    return (proc?.env?.NODE_ENV === 'test') ||
+           (proc?.env?.JEST_WORKER_ID !== undefined) ||
            (globalThis as any).it !== undefined;
   }
 
@@ -501,12 +527,12 @@ export class TestEnvironment {
     let currentTime = mockDate.getTime();
 
     // Mock Date constructor and Date.now()
-    global.Date = class extends Date {
+    (globalThis as any).Date = class extends Date {
       constructor(...args: any[]) {
         if (args.length === 0) {
           super(currentTime);
         } else {
-          super(...args);
+          super(...(args as [any]));
         }
       }
 
@@ -517,7 +543,7 @@ export class TestEnvironment {
 
     return {
       restore: () => {
-        global.Date = originalDate;
+        (globalThis as any).Date = originalDate;
       },
       advanceTime: (ms: number) => {
         currentTime += ms;
@@ -538,14 +564,14 @@ export class TestEnvironment {
   } {
     const { delay = 100, failureRate = 0, timeoutRate = 0 } = options;
     const requestLog: Array<{ url: string; method: string; success: boolean }> = [];
-    const originalFetch = global.fetch;
+    const originalFetch = (globalThis as any).fetch;
 
-    global.fetch = async (url: any, options: any = {}) => {
-      const method = options.method || 'GET';
-      
+    (globalThis as any).fetch = async (url: any, fetchOptions: any = {}) => {
+      const method = fetchOptions.method || 'GET';
+
       // Simulate network delay
       if (delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise<void>(resolve => setTimeout(resolve, delay));
       }
 
       // Simulate timeout
@@ -568,7 +594,7 @@ export class TestEnvironment {
 
     return {
       restore: () => {
-        global.fetch = originalFetch;
+        (globalThis as any).fetch = originalFetch;
       },
       getRequestLog: () => [...requestLog]
     };

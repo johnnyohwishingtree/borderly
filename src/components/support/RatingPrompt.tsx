@@ -172,12 +172,7 @@ export default function RatingPrompt({
                       key={star}
                       title={getRatingEmoji(star)}
                       onPress={() => handleRatingPress(star)}
-                      variant="ghost"
-                      className={`w-12 h-12 border-2 ${
-                        rating >= star 
-                          ? 'border-yellow-400 bg-yellow-50' 
-                          : 'border-gray-200 bg-white'
-                      }`}
+                      variant={rating >= star ? "primary" : "outline"}
                       disabled={isSubmitting}
                     />
                   ))}

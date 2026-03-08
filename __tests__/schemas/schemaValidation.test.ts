@@ -8,8 +8,8 @@
 import { ComplianceValidator } from '@/services/testing/complianceValidator';
 import { SubmissionTester } from '@/services/testing/submissionTester';
 import { TestDataFactory, ValidationHelpers } from '@/utils/testHelpers';
-import { CountryFormSchema } from '@/types/schema';
-import { FilledForm } from '@/services/forms/formEngine';
+
+
 
 describe('Schema Validation Testing', () => {
   let complianceValidator: ComplianceValidator;
@@ -78,8 +78,9 @@ describe('Schema Validation Testing', () => {
           fields: country.requiredFields.map(fieldId => ({
             id: fieldId,
             label: fieldId.charAt(0).toUpperCase() + fieldId.slice(1),
-            type: 'text',
-            required: true
+            type: 'text' as const,
+            required: true,
+            countrySpecific: false
           }))
         }];
 
@@ -138,7 +139,8 @@ describe('Schema Validation Testing', () => {
         id: 'emergencyContact',
         label: 'Emergency Contact',
         type: 'text',
-        required: true
+        required: true,
+        countrySpecific: true
       });
 
       const result = await submissionTester.testSubmission(leg, form, schema);
@@ -174,7 +176,8 @@ describe('Schema Validation Testing', () => {
         id: 'middleName',
         label: 'Middle Name',
         type: 'text',
-        required: false
+        required: false,
+        countrySpecific: false
       });
 
       const result = await submissionTester.testSubmission(leg, form, schema);
@@ -186,42 +189,40 @@ describe('Schema Validation Testing', () => {
 
   describe('Country-Specific Schema Validation', () => {
     it('should validate Japan-specific requirements', async () => {
-      const jpnSchema: CountryFormSchema = {
+      const jpnSchema = TestDataFactory.createSampleSchema({
         countryCode: 'JPN',
         countryName: 'Japan',
         portalName: 'Visit Japan Web',
         portalUrl: 'https://vjw-lp.digital.go.jp/en/',
-        version: '1.0.0',
-        lastUpdated: '2026-01-01',
         sections: [
           {
             id: 'personal',
             title: 'Personal Information',
             fields: [
-              { id: 'surname', label: 'Surname', type: 'text', required: true },
-              { id: 'givenName', label: 'Given Name', type: 'text', required: true },
-              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true },
+              { id: 'surname', label: 'Surname', type: 'text', required: true, countrySpecific: false },
+              { id: 'givenName', label: 'Given Name', type: 'text', required: true, countrySpecific: false },
+              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true, countrySpecific: false },
             ]
           },
           {
             id: 'travel',
             title: 'Travel Information',
             fields: [
-              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true },
-              { id: 'departureDate', label: 'Departure Date', type: 'date', required: false },
-              { id: 'purposeOfVisit', label: 'Purpose of Visit', type: 'select', required: true },
+              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true, countrySpecific: false },
+              { id: 'departureDate', label: 'Departure Date', type: 'date', required: false, countrySpecific: false },
+              { id: 'purposeOfVisit', label: 'Purpose of Visit', type: 'select', required: true, countrySpecific: true },
             ]
           },
           {
             id: 'accommodation',
             title: 'Accommodation',
             fields: [
-              { id: 'accommodationName', label: 'Hotel Name', type: 'text', required: true },
-              { id: 'accommodationAddress', label: 'Hotel Address', type: 'text', required: true },
+              { id: 'accommodationName', label: 'Hotel Name', type: 'text', required: true, countrySpecific: true },
+              { id: 'accommodationAddress', label: 'Hotel Address', type: 'text', required: true, countrySpecific: true },
             ]
           }
         ]
-      };
+      });
 
       const form = TestDataFactory.createSampleFilledForm({ countryCode: 'JPN' });
       const leg = TestDataFactory.createSampleTripLeg({ destinationCountry: 'JPN' });
@@ -234,33 +235,31 @@ describe('Schema Validation Testing', () => {
     });
 
     it('should validate Malaysia-specific requirements', async () => {
-      const mysSchema: CountryFormSchema = {
+      const mysSchema = TestDataFactory.createSampleSchema({
         countryCode: 'MYS',
         countryName: 'Malaysia',
         portalName: 'Malaysia Digital Arrival Card',
         portalUrl: 'https://imigresen-online.imi.gov.my/mdac/main',
-        version: '1.0.0',
-        lastUpdated: '2026-01-01',
         sections: [
           {
             id: 'personal',
             title: 'Personal Information',
             fields: [
-              { id: 'fullName', label: 'Full Name', type: 'text', required: true },
-              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true },
-              { id: 'nationality', label: 'Nationality', type: 'text', required: true },
+              { id: 'fullName', label: 'Full Name', type: 'text', required: true, countrySpecific: false },
+              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true, countrySpecific: false },
+              { id: 'nationality', label: 'Nationality', type: 'text', required: true, countrySpecific: false },
             ]
           },
           {
             id: 'travel',
             title: 'Travel Information',
             fields: [
-              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true },
-              { id: 'flightNumber', label: 'Flight Number', type: 'text', required: true },
+              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true, countrySpecific: false },
+              { id: 'flightNumber', label: 'Flight Number', type: 'text', required: true, countrySpecific: true },
             ]
           }
         ]
-      };
+      });
 
       const form = TestDataFactory.createSampleFilledForm({ countryCode: 'MYS' });
       const leg = TestDataFactory.createSampleTripLeg({ destinationCountry: 'MYS' });
@@ -275,33 +274,31 @@ describe('Schema Validation Testing', () => {
     });
 
     it('should validate Singapore-specific requirements', async () => {
-      const sgpSchema: CountryFormSchema = {
+      const sgpSchema = TestDataFactory.createSampleSchema({
         countryCode: 'SGP',
         countryName: 'Singapore',
         portalName: 'SG Arrival Card',
         portalUrl: 'https://eservices.ica.gov.sg/sgarrivalcard/',
-        version: '1.0.0',
-        lastUpdated: '2026-01-01',
         sections: [
           {
             id: 'personal',
             title: 'Personal Information',
             fields: [
-              { id: 'surname', label: 'Surname', type: 'text', required: true },
-              { id: 'givenName', label: 'Given Name', type: 'text', required: true },
-              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true },
+              { id: 'surname', label: 'Surname', type: 'text', required: true, countrySpecific: false },
+              { id: 'givenName', label: 'Given Name', type: 'text', required: true, countrySpecific: false },
+              { id: 'passportNumber', label: 'Passport Number', type: 'text', required: true, countrySpecific: false },
             ]
           },
           {
             id: 'travel',
             title: 'Travel Information',
             fields: [
-              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true },
-              { id: 'lengthOfStay', label: 'Length of Stay (days)', type: 'number', required: true },
+              { id: 'arrivalDate', label: 'Arrival Date', type: 'date', required: true, countrySpecific: false },
+              { id: 'lengthOfStay', label: 'Length of Stay (days)', type: 'number', required: true, countrySpecific: true },
             ]
           }
         ]
-      };
+      });
 
       const form = TestDataFactory.createSampleFilledForm({ countryCode: 'SGP' });
       const leg = TestDataFactory.createSampleTripLeg({ destinationCountry: 'SGP' });
@@ -314,11 +311,11 @@ describe('Schema Validation Testing', () => {
 
   describe('Schema Evolution and Versioning', () => {
     it('should handle schema version compatibility', () => {
-      const v1Schema = TestDataFactory.createSampleSchema({ version: '1.0.0' });
-      const v2Schema = TestDataFactory.createSampleSchema({ version: '2.0.0' });
+      const v1Schema = TestDataFactory.createSampleSchema({ schemaVersion: '1.0.0' });
+      const v2Schema = TestDataFactory.createSampleSchema({ schemaVersion: '2.0.0' });
 
-      expect(v1Schema.version).toBe('1.0.0');
-      expect(v2Schema.version).toBe('2.0.0');
+      expect(v1Schema.schemaVersion).toBe('1.0.0');
+      expect(v2Schema.schemaVersion).toBe('2.0.0');
 
       // Both should have valid basic structure
       [v1Schema, v2Schema].forEach(schema => {
@@ -388,7 +385,7 @@ describe('Schema Validation Testing', () => {
       form.sections[0].fields.push({
         id: 'email',
         label: 'Email Address',
-        type: 'email',
+        type: 'email' as any,
         required: true,
         currentValue: 'valid@example.com',
         source: 'user',
@@ -452,7 +449,8 @@ describe('Schema Validation Testing', () => {
         id: 'bankAccount',
         label: 'Bank Account Number',
         type: 'text',
-        required: false
+        required: false,
+        countrySpecific: false
       });
 
       const result = await complianceValidator.validateCompliance(

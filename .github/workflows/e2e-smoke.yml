@@ -12,40 +12,138 @@ permissions:
   pull-requests: write
 
 jobs:
-  e2e-web:
+  # Shared webpack build — cached and reused by all test jobs
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 5
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install pnpm
         run: npm install -g pnpm
-
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install dependencies
         run: pnpm install --frozen-lockfile || pnpm install
+      - name: Build webpack bundle
+        run: npx webpack --config webpack.config.js
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+          retention-days: 1
 
+  # Core chromium tests (24 tests) + QR workflow (7 tests)
+  test-chromium:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
       - name: Install Playwright Chromium
         run: npx playwright install chromium
-
-      - name: Build web bundle
-        id: build
-        run: npx webpack --config webpack.config.js 2>&1 | tee /tmp/build_output.txt
-
-      - name: Run E2E smoke tests
-        id: e2e
-        run: npx playwright test --reporter=line 2>&1 | tee /tmp/e2e_output.txt
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+      - name: Run chromium + QR tests
+        run: npx playwright test --reporter=line
         env:
           CI: true
+          E2E_PROJECT: chromium,qr-workflow
 
+  # Performance tests (9 tests) — run in parallel with chromium
+  test-performance:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+      - name: Run performance tests
+        run: npx playwright test --reporter=line
+        env:
+          CI: true
+          E2E_PROJECT: performance
+
+  # Cross-browser smoke (firefox + mobile) — run in parallel
+  test-cross-browser:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install pnpm
+        run: npm install -g pnpm
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+      - name: Install Playwright browsers
+        run: npx playwright install chromium firefox
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+      - name: Run cross-browser smoke tests
+        run: npx playwright test --reporter=line
+        env:
+          CI: true
+          E2E_PROJECT: firefox-smoke,mobile-smoke
+
+  # Notify Claude on failure (runs after all test jobs)
+  notify:
+    needs: [test-chromium, test-performance, test-cross-browser]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
       - name: Notify Claude on failure
-        if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -65,41 +163,13 @@ jobs:
             exit 0
           fi
 
-          # Collect errors from whichever step failed
-          FAILURES=""
-          if [ -f /tmp/build_output.txt ]; then
-            BUILD_ERRORS=$(grep -E '(ERROR|Module parse failed|Module not found|Unexpected token|Cannot resolve)' /tmp/build_output.txt | tail -15 || echo "")
-            if [ -n "$BUILD_ERRORS" ]; then
-              FAILURES="WEBPACK BUILD ERRORS:
-          ${BUILD_ERRORS}"
-            fi
-          fi
-          if [ -f /tmp/e2e_output.txt ]; then
-            E2E_ERRORS=$(grep -E '(FAILED|failed|Error|✘|expect\()' /tmp/e2e_output.txt | tail -15 || echo "")
-            if [ -n "$E2E_ERRORS" ]; then
-              FAILURES="${FAILURES}
-          E2E TEST ERRORS:
-          ${E2E_ERRORS}"
-            fi
-          fi
+          BODY="@claude E2E smoke tests are failing on this PR. Check the workflow run logs for details.
 
-          if [ -z "$FAILURES" ]; then
-            FAILURES="(No error details captured — check the workflow run logs)"
-          fi
+          Diagnose the root cause and fix it. Common issues:
+          - **Module parse failed / Unexpected token**: A native module needs a web mock in \`e2e/mocks/\` + alias in \`webpack.config.js\`.
+          - **Module not found**: Missing dependency or wrong import path.
+          - **E2E test failures**: Screen crashing or not rendering correctly.
 
-          BODY="@claude E2E smoke tests are failing on this PR. Here are the errors:
-
-          \`\`\`
-          ${FAILURES}
-          \`\`\`
-
-          Diagnose the root cause from the errors above and fix it. Common issues:
-          - **Module parse failed / Unexpected token**: A native module needs a web mock. Add an alias in \`webpack.config.js\` pointing to a mock in \`e2e/mocks/\`.
-          - **Module not found**: A dependency is missing or an import path is wrong.
-          - **E2E test failures**: A screen is crashing or not rendering correctly.
-
-          Check \`webpack.config.js\` for existing mock patterns. After fixing, verify by running: \`npx webpack --config webpack.config.js\`
-
-          IMPORTANT: After making changes, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
+          IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
           gh pr comment "$PR_NUM" --body "$BODY"

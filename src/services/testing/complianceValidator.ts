@@ -245,7 +245,7 @@ export class ComplianceValidator {
   /**
    * Checks CCPA compliance
    */
-  private checkCCPACompliance(filledForm: FilledForm): {
+  private checkCCPACompliance(_filledForm: FilledForm): {
     checks: ComplianceCheck[];
     violations: ComplianceViolation[];
   } {
@@ -285,7 +285,7 @@ export class ComplianceValidator {
   /**
    * Checks PIPEDA compliance
    */
-  private checkPIPEDACompliance(filledForm: FilledForm, leg: TripLeg): {
+  private checkPIPEDACompliance(_filledForm: FilledForm, leg: TripLeg): {
     checks: ComplianceCheck[];
     violations: ComplianceViolation[];
   } {
@@ -365,13 +365,16 @@ export class ComplianceValidator {
     });
 
     if (piiCheck.detected) {
-      violations.push({
+      const violation: ComplianceViolation = {
         severity: 'high',
         category: 'data_protection',
         message: 'Potential PII leakage detected',
-        fieldId: piiCheck.fieldId,
         remediation: 'Review data handling and storage practices'
-      });
+      };
+      if (piiCheck.fieldId) {
+        violation.fieldId = piiCheck.fieldId;
+      }
+      violations.push(violation);
     }
 
     // Secure transmission
@@ -390,7 +393,7 @@ export class ComplianceValidator {
    * Performs terms of service compliance checks
    */
   private async performTermsComplianceChecks(
-    schema: CountryFormSchema,
+    _schema: CountryFormSchema,
     operationType: 'test' | 'monitoring' | 'validation'
   ): Promise<{
     checks: ComplianceCheck[];
@@ -437,7 +440,7 @@ export class ComplianceValidator {
    * Performs regional law compliance checks
    */
   private async performRegionalComplianceChecks(
-    schema: CountryFormSchema,
+    _schema: CountryFormSchema,
     leg: TripLeg
   ): Promise<{
     checks: ComplianceCheck[];
@@ -557,7 +560,7 @@ export class ComplianceValidator {
       for (const field of section.fields) {
         if (field.currentValue) {
           for (const { pattern, type } of piiPatterns) {
-            if (pattern.test(field.currentValue)) {
+            if (pattern.test(String(field.currentValue))) {
               return {
                 detected: true,
                 details: `${type} detected in field ${field.id}`,
