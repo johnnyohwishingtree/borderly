@@ -24,9 +24,6 @@ export default function WelcomeScreen() {
   };
 
   const { height } = Dimensions?.get?.('window') ?? { height: 800 };
-  
-  // Color constant for consistency with text-gray-500
-  const GRAY_500 = '#6b7280';
 
   return (
     <ScrollView 

@@ -79,13 +79,6 @@ export default function ProgressIndicator({
     }
   };
 
-  const getVerticalConnectorStyles = (sizeStyle: typeof sizeStyles[keyof typeof sizeStyles]) => {
-    const topOffset = sizeStyle.circle === 'w-6 h-6' ? 'top-8' : sizeStyle.circle === 'w-8 h-8' ? 'top-10' : 'top-12';
-    const leftOffset = sizeStyle.circle === 'w-6 h-6' ? 'left-3' : sizeStyle.circle === 'w-8 h-8' ? 'left-4' : 'left-5';
-    const height = sizeStyle.circle === 'w-6 h-6' ? 'h-4' : sizeStyle.circle === 'w-8 h-8' ? 'h-6' : 'h-8';
-    
-    return `${topOffset} ${leftOffset} w-0.5 ${height}`;
-  };
 
   if (variant === 'dots') {
     return (
