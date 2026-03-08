@@ -169,22 +169,22 @@ describe('Airport Lookup Service', () => {
   describe('Airport Database Validation', () => {
     it('should have all required supported destination airports', () => {
       // Japan airports
-      expect(AIRPORT_DATABASE['NRT']).toBeDefined();
-      expect(AIRPORT_DATABASE['HND']).toBeDefined();
-      expect(AIRPORT_DATABASE['KIX']).toBeDefined();
-      expect(AIRPORT_DATABASE['FUK']).toBeDefined();
-      expect(AIRPORT_DATABASE['CTS']).toBeDefined();
-      expect(AIRPORT_DATABASE['ITM']).toBeDefined();
+      expect(AIRPORT_DATABASE.NRT).toBeDefined();
+      expect(AIRPORT_DATABASE.HND).toBeDefined();
+      expect(AIRPORT_DATABASE.KIX).toBeDefined();
+      expect(AIRPORT_DATABASE.FUK).toBeDefined();
+      expect(AIRPORT_DATABASE.CTS).toBeDefined();
+      expect(AIRPORT_DATABASE.ITM).toBeDefined();
 
       // Malaysia airports
-      expect(AIRPORT_DATABASE['KUL']).toBeDefined();
-      expect(AIRPORT_DATABASE['PEN']).toBeDefined();
-      expect(AIRPORT_DATABASE['BKI']).toBeDefined();
-      expect(AIRPORT_DATABASE['KCH']).toBeDefined();
-      expect(AIRPORT_DATABASE['LGK']).toBeDefined();
+      expect(AIRPORT_DATABASE.KUL).toBeDefined();
+      expect(AIRPORT_DATABASE.PEN).toBeDefined();
+      expect(AIRPORT_DATABASE.BKI).toBeDefined();
+      expect(AIRPORT_DATABASE.KCH).toBeDefined();
+      expect(AIRPORT_DATABASE.LGK).toBeDefined();
 
       // Singapore airports
-      expect(AIRPORT_DATABASE['SIN']).toBeDefined();
+      expect(AIRPORT_DATABASE.SIN).toBeDefined();
     });
 
     it('should have valid airport data structure', () => {
