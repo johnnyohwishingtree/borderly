@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import LoadingStates from '@/components/ui/LoadingStates';
 
 import {
   MainTabParamList,
@@ -39,11 +41,15 @@ const HelpScreen = lazy(() => import('@/screens/support').then(m => ({ default: 
 const FAQScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.FAQScreen })));
 const TroubleshootingScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.TroubleshootingScreen })));
 
-// Loading component for lazy-loaded screens
+// Enhanced loading component for lazy-loaded screens
 const ScreenLoader = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <ActivityIndicator size="large" color="#3b82f6" />
-  </View>
+  <LoadingStates
+    state="loading"
+    variant="spinner"
+    size="medium"
+    text="Loading..."
+    fullScreen={false}
+  />
 );
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -54,7 +60,18 @@ const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function TripNavigator() {
   return (
-    <TripStack.Navigator>
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="Failed to load trip screens. Please try again."
+          onRetry={resetError}
+          showRetryButton={true}
+        />
+      )}
+    >
+      <TripStack.Navigator>
       <TripStack.Screen
         name="TripList"
         options={{ title: 'My Trips' }}
@@ -106,12 +123,24 @@ function TripNavigator() {
         )}
       </TripStack.Screen>
     </TripStack.Navigator>
+    </ErrorBoundary>
   );
 }
 
 function WalletNavigator() {
   return (
-    <WalletStack.Navigator>
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="Failed to load wallet screens. Please try again."
+          onRetry={resetError}
+          showRetryButton={true}
+        />
+      )}
+    >
+      <WalletStack.Navigator>
       <WalletStack.Screen
         name="QRWallet"
         options={{ title: 'QR Wallet' }}
@@ -143,12 +172,24 @@ function WalletNavigator() {
         )}
       </WalletStack.Screen>
     </WalletStack.Navigator>
+    </ErrorBoundary>
   );
 }
 
 function ProfileNavigator() {
   return (
-    <ProfileStack.Navigator>
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="Failed to load profile screens. Please try again."
+          onRetry={resetError}
+          showRetryButton={true}
+        />
+      )}
+    >
+      <ProfileStack.Navigator>
       <ProfileStack.Screen
         name="Profile"
         options={{ title: 'Profile' }}
@@ -170,12 +211,24 @@ function ProfileNavigator() {
         )}
       </ProfileStack.Screen>
     </ProfileStack.Navigator>
+    </ErrorBoundary>
   );
 }
 
 function SettingsNavigator() {
   return (
-    <SettingsStack.Navigator>
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="Failed to load settings screens. Please try again."
+          onRetry={resetError}
+          showRetryButton={true}
+        />
+      )}
+    >
+      <SettingsStack.Navigator>
       <SettingsStack.Screen
         name="Settings"
         options={{ title: 'Settings' }}
@@ -237,6 +290,7 @@ function SettingsNavigator() {
         )}
       </SettingsStack.Screen>
     </SettingsStack.Navigator>
+    </ErrorBoundary>
   );
 }
 

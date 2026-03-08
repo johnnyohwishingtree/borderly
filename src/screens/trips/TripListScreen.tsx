@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { trigger } from 'react-native-haptic-feedback';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
-import { LoadingSpinner, EmptyState, SkeletonList, PullToRefreshFlatList } from '../../components/ui';
+import { EmptyState } from '../../components/ui';
+import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
+import { HapticFeedback } from '../../components/ui/HapticFeedback';
 import { Trip } from '../../types/trip';
 
 export default function TripListScreen() {
@@ -18,19 +19,59 @@ export default function TripListScreen() {
     loadTrips, 
     loadMoreTrips 
   } = useTripStore();
+  
+  const {
+    state,
+    setLoading,
+    setLoadingError,
+    setLoadingSuccess,
+    reset,
+    retry
+  } = useLoadingState();
 
   useEffect(() => {
-    loadTrips({ refresh: true });
+    const loadData = async () => {
+      setLoading();
+      try {
+        await loadTrips({ refresh: true });
+        setLoadingSuccess();
+      } catch (err) {
+        setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
+      }
+    };
+    
+    loadData();
   }, []);
 
   const handleTripPress = (trip: Trip) => {
-    // Navigate to trip detail screen
+    HapticFeedback.navigation();
     (navigation as any).navigate('TripDetail', { tripId: trip.id });
   };
 
   const handleCreateTrip = () => {
-    trigger('impactLight', { enableVibrateFallback: true });
+    HapticFeedback.button('large');
     (navigation as any).navigate('CreateTrip');
+  };
+
+  const handleRefresh = async () => {
+    HapticFeedback.refresh();
+    reset();
+    const loadData = async () => {
+      setLoading();
+      try {
+        await loadTrips({ refresh: true });
+        setLoadingSuccess();
+      } catch (err) {
+        setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
+      }
+    };
+    
+    await loadData();
+  };
+
+  const handleRetry = () => {
+    retry();
+    handleRefresh();
   };
 
   const renderTripCard = ({ item }: { item: Trip }) => (
@@ -56,67 +97,35 @@ export default function TripListScreen() {
     />
   );
 
-  const renderErrorState = () => (
-    <EmptyState
-      icon={<Text className="text-4xl text-red-600">⚠️</Text>}
-      title="Something went wrong"
-      description={error || "Unable to load your trips. Please try again."}
-      buttonProps={{
-        title: "Try Again",
-        onPress: loadTrips,
-        variant: "outline"
-      }}
-      variant="default"
-    />
-  );
 
-  if (isLoading && trips.length === 0) {
+  // Handle loading states
+  if (state === 'loading' && trips.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50">
-        {/* Header */}
-        <View className="bg-white px-4 py-6 border-b border-gray-100">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-2xl font-bold text-gray-900">Your Trips</Text>
-              <Text className="text-base text-gray-600 mt-1">
-                Loading your itineraries...
-              </Text>
-            </View>
-          </View>
-        </View>
-        
-        {/* Skeleton Loading */}
-        <View className="flex-1 px-4 pt-4">
-          <SkeletonList 
-            itemCount={3}
-            lines={4}
-            spacing="normal"
-            className="space-y-4"
-          />
-        </View>
-      </View>
+      <LoadingStates
+        state="loading"
+        variant="spinner"
+        size="medium"
+        text="Loading your trips..."
+        fullScreen={true}
+        onCancel={() => reset()}
+        cancelable={true}
+      />
     );
   }
 
-  if (error) {
+  if (state === 'error' || error) {
     return (
-      <View className="flex-1 bg-gray-50">
-        {/* Header */}
-        <View className="bg-white px-4 py-6 border-b border-gray-100">
-          <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-2xl font-bold text-gray-900">Your Trips</Text>
-              <Text className="text-base text-gray-600 mt-1">
-                Unable to load trips
-              </Text>
-            </View>
-          </View>
-        </View>
-        
-        {renderErrorState()}
-      </View>
+      <LoadingStates
+        state="error"
+        fullScreen={true}
+        errorMessage={error || 'Failed to load trips'}
+        onRetry={handleRetry}
+        showRetryButton={true}
+        retryButtonText="Reload Trips"
+      />
     );
   }
+
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -151,14 +160,20 @@ export default function TripListScreen() {
       {trips.length === 0 ? (
         renderEmptyState()
       ) : (
-        <PullToRefreshFlatList
+        <FlatList
           data={trips}
           renderItem={renderTripCard}
           keyExtractor={(item: Trip) => item.id}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
-          refreshing={isLoading && trips.length > 0}
-          onRefresh={() => loadTrips({ refresh: true })}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading && trips.length > 0}
+              onRefresh={handleRefresh}
+              tintColor="#3b82f6"
+              colors={['#3b82f6']}
+            />
+          }
           onEndReached={() => {
             if (hasMoreTrips && !isLoadingMore) {
               loadMoreTrips();
@@ -168,9 +183,13 @@ export default function TripListScreen() {
           ListFooterComponent={() => {
             if (isLoadingMore) {
               return (
-                <View className="py-4 items-center">
-                  <LoadingSpinner size="small" text="Loading more trips..." variant="spinner" />
-                </View>
+                <LoadingStates
+                  state="loading"
+                  variant="dots"
+                  size="small"
+                  text="Loading more trips..."
+                  fullScreen={false}
+                />
               );
             }
             if (!hasMoreTrips && trips.length > 0) {
@@ -193,8 +212,6 @@ export default function TripListScreen() {
             offset: 200 * index,
             index,
           })}
-          hapticFeedback={true}
-          title="Refreshing trips..."
         />
       )}
 

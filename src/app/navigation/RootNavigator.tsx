@@ -1,11 +1,12 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ActivityIndicator, View } from 'react-native';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { CONTEXT_TRANSITIONS, STANDARD_TRANSITIONS } from '@/navigation/transitions';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import LoadingStates from '@/components/ui/LoadingStates';
 
 // Lazy load navigators for better code splitting
 const MainTabNavigator = lazy(() => import('./MainTabNavigator').then(m => ({ default: m.default })));
@@ -17,11 +18,15 @@ const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => (
 const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
 const BiometricSetupScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
 
-// Loading component for lazy-loaded screens
+// Enhanced loading component for lazy-loaded screens
 const ScreenLoader = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <ActivityIndicator size="large" color="#3b82f6" />
-  </View>
+  <LoadingStates
+    state="loading"
+    variant="spinner"
+    size="medium"
+    text="Loading screen..."
+    fullScreen={true}
+  />
 );
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -29,12 +34,23 @@ const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 
 function OnboardingNavigator() {
   return (
-    <OnboardingStack.Navigator
-      screenOptions={{
-        ...CONTEXT_TRANSITIONS.onboarding,
-        animationTypeForReplace: 'push',
-      }}
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="Failed to load onboarding flow. Please restart the app or contact support."
+          onRetry={resetError}
+          showRetryButton={true}
+        />
+      )}
     >
+      <OnboardingStack.Navigator
+        screenOptions={{
+          ...CONTEXT_TRANSITIONS.onboarding,
+          animationTypeForReplace: 'push',
+        }}
+      >
       <OnboardingStack.Screen 
         name="Welcome" 
         options={{
@@ -96,6 +112,7 @@ function OnboardingNavigator() {
         )}
       </OnboardingStack.Screen>
     </OnboardingStack.Navigator>
+    </ErrorBoundary>
   );
 }
 
@@ -108,12 +125,24 @@ export default function RootNavigator() {
   }, [loadProfile]);
 
   return (
-    <NavigationContainer>
-      <RootStack.Navigator
-        screenOptions={{
-          ...STANDARD_TRANSITIONS.fade,
-        }}
-      >
+    <ErrorBoundary
+      fallback={({ resetError }) => (
+        <LoadingStates
+          state="error"
+          fullScreen={true}
+          errorMessage="The app encountered an unexpected error. Please restart the app or contact support if the problem persists."
+          onRetry={resetError}
+          showRetryButton={true}
+          retryButtonText="Restart"
+        />
+      )}
+    >
+      <NavigationContainer>
+        <RootStack.Navigator
+          screenOptions={{
+            ...STANDARD_TRANSITIONS.fade,
+          }}
+        >
         {isOnboardingComplete ? (
           <RootStack.Screen 
             name="Main" 
@@ -138,5 +167,6 @@ export default function RootNavigator() {
         )}
       </RootStack.Navigator>
     </NavigationContainer>
+    </ErrorBoundary>
   );
 }
