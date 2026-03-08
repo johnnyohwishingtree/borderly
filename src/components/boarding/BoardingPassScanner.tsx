@@ -7,7 +7,7 @@
  * Security: No image storage - immediate processing only.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -60,6 +60,29 @@ export default function BoardingPassScanner({
 
   // Scan cooldown to prevent excessive processing
   const scanCooldownMs = lowPowerMode ? 1000 : 500;
+
+  // Helper function to handle import errors consistently
+  const showImportError = useCallback((errorMessage: string, error?: Error) => {
+    setScanResult({
+      type: 'error',
+      confidence: 0,
+      guidance: errorMessage,
+      error: errorMessage,
+    });
+    
+    setTimeout(() => {
+      setScanResult({
+        type: 'no_barcode',
+        confidence: 0,
+        guidance: 'Scan the barcode on your boarding pass',
+      });
+      setIsImporting(false);
+    }, 4000);
+
+    if (error && onScanError) {
+      onScanError(error);
+    }
+  }, [onScanError]);
 
   useEffect(() => {
     // Timeout: if camera doesn't initialize within 10 seconds, assume unavailable
@@ -317,44 +340,12 @@ export default function BoardingPassScanner({
       } else {
         // Show error message
         const errorMessage = result.error || getImageImportErrorMessage(result.errorCode);
-        setScanResult({
-          type: 'error',
-          confidence: 0,
-          guidance: errorMessage,
-          error: errorMessage,
-        });
-        
-        // Clear error after 4 seconds and resume scanning
-        setTimeout(() => {
-          setScanResult({
-            type: 'no_barcode',
-            confidence: 0,
-            guidance: 'Scan the barcode on your boarding pass',
-          });
-          setIsImporting(false);
-        }, 4000);
+        showImportError(errorMessage);
       }
     } catch (error) {
       const errorMessage = 'Failed to import image';
-      setScanResult({
-        type: 'error',
-        confidence: 0,
-        guidance: errorMessage,
-        error: errorMessage,
-      });
-      
-      setTimeout(() => {
-        setScanResult({
-          type: 'no_barcode',
-          confidence: 0,
-          guidance: 'Scan the barcode on your boarding pass',
-        });
-        setIsImporting(false);
-      }, 4000);
-      
-      if (onScanError) {
-        onScanError(error instanceof Error ? error : new Error(errorMessage));
-      }
+      const errorObj = error instanceof Error ? error : new Error(errorMessage);
+      showImportError(errorMessage, errorObj);
     }
   };
 

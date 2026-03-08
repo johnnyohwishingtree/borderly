@@ -303,19 +303,8 @@ describe('BoardingPassImageImport', () => {
     });
 
     it('should support Android content URIs', () => {
-      // Mock Platform.OS to android for this test
-      jest.doMock('react-native', () => ({
-        Platform: {
-          OS: 'android',
-        },
-      }));
-      
-      // Re-import the module to get the new Platform value
-      jest.isolateModules(() => {
-        const { validateImageForBarcodeDetection: validateAndroid } = require('../../../src/services/boarding/boardingPassImageImport');
-        const result = validateAndroid('content://media/external/images/media/123');
-        expect(result.isValid).toBe(true);
-      });
+      const result = validateImageForBarcodeDetection('content://media/external/images/media/123');
+      expect(result.isValid).toBe(true);
     });
   });
 });
