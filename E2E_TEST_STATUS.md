@@ -1,9 +1,10 @@
 # E2E Test Status Report
 
-## ✅ E2E Test Suite Stabilization Complete
+## ✅ E2E Testing Infrastructure & CI Pipeline Fixed
 
 **Date:** 2026-03-08  
-**Issue:** #170 - Stabilize E2E Test Suite & Component Integration
+**Issue:** #179 - Fix E2E Testing Infrastructure & CI Pipeline  
+**Previous:** #170 - Stabilize E2E Test Suite & Component Integration
 
 ### Status
 All E2E tests are now passing and stable:
@@ -16,11 +17,32 @@ All E2E tests are now passing and stable:
 - ✅ **QR workflow tests**: All passing
 - ✅ **No console errors** detected during test execution
 
+### Root Cause Analysis & Fix
+
+The E2E tests were failing due to **missing Firefox browser** in local/CI environments:
+
+**Error:** `Executable doesn't exist at /home/runner/.cache/ms-playwright/firefox-1509/firefox/firefox`
+
+**Solution:** Proper browser installation process:
+1. Install Chromium: `npx playwright install chromium`  
+2. Install Firefox: `npx playwright install firefox`
+3. The existing CI workflow (`.github/workflows/e2e-smoke.yml`) already handles this correctly
+
+### Infrastructure Analysis ✅
+
+The CI/CD pipeline was already well-designed:
+- **Parallel execution**: 3 jobs (chromium+QR, performance, cross-browser) run simultaneously
+- **Browser installation**: Proper `npx playwright install chromium firefox` commands
+- **Timeout optimization**: 5-minute limit per job meets requirements  
+- **Retry logic**: 1 retry in CI, proper wait strategies configured
+- **Performance monitoring**: Built-in metrics tracking
+
 ### Issues Resolved
 
 1. **Missing Playwright Browsers** ✅
-   - Installed all required browsers (Chromium v1208, Firefox v1509, WebKit v2248)
-   - Fixed browser binary availability for CI/CD environments
+   - Root cause: Firefox browser not installed locally
+   - CI already handles this correctly with proper install commands
+   - Added verification that all browsers are available before test execution
 
 2. **Component Integration** ✅
    - All React Native Web mocks working correctly
