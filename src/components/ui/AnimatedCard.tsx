@@ -5,11 +5,6 @@ import {
   Pressable, 
   Animated
 } from 'react-native';
-import { 
-  PanGestureHandler, 
-  PanGestureHandlerGestureEvent, 
-  State as GestureState 
-} from 'react-native-gesture-handler';
 import { HapticFeedback } from './HapticFeedback';
 import { TouchTargetUtils, ACCESSIBILITY_CONSTANTS } from '../../utils/accessibility';
 import { ANIMATION_PRESETS, combineAnimations } from '../../styles/animations';
@@ -200,33 +195,6 @@ export default function AnimatedCard({
     }
   };
 
-  const handleSwipeGesture = (event: PanGestureHandlerGestureEvent) => {
-    if (!swipeEnabled || !onSwipe || disabled || loading) return;
-
-    const { translationX, translationY } = event.nativeEvent;
-    const threshold = 50;
-
-    if (Math.abs(translationX) > Math.abs(translationY)) {
-      // Horizontal swipe
-      if (translationX > threshold) {
-        onSwipe('right');
-        HapticFeedback.navigation();
-      } else if (translationX < -threshold) {
-        onSwipe('left');
-        HapticFeedback.navigation();
-      }
-    } else {
-      // Vertical swipe
-      if (translationY > threshold) {
-        onSwipe('down');
-        HapticFeedback.navigation();
-      } else if (translationY < -threshold) {
-        onSwipe('up');
-        HapticFeedback.navigation();
-      }
-    }
-  };
-
   const animatedStyle = {
     opacity: opacityAnim,
     transform: [
@@ -240,20 +208,6 @@ export default function AnimatedCard({
       },
     ],
   };
-
-  const CardComponent = swipeEnabled ? PanGestureHandler : View;
-  const cardProps = swipeEnabled ? {
-    onGestureEvent: handleSwipeGesture,
-    onHandlerStateChange: (event: any) => {
-      if (event.nativeEvent.state === GestureState.END) {
-        // Reset position after swipe
-        Animated.spring(translateXAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      }
-    },
-  } : {};
 
   const content = (
     <Animated.View style={animatedStyle}>
@@ -270,7 +224,7 @@ export default function AnimatedCard({
     </Animated.View>
   );
 
-  if (onPress && !swipeEnabled) {
+  if (onPress) {
     return (
       <Pressable
         onPress={handlePress}
@@ -289,28 +243,6 @@ export default function AnimatedCard({
       >
         {content}
       </Pressable>
-    );
-  }
-
-  if (swipeEnabled) {
-    return (
-      <CardComponent {...cardProps}>
-        <Pressable
-          onPress={handlePress}
-          onLongPress={handleLongPress}
-          disabled={disabled || loading}
-          accessibilityRole={accessibilityRole}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityHint={accessibilityHint}
-          accessibilityState={accessibilityState}
-          accessible={true}
-          style={({ pressed }) => ({
-            opacity: pressed && !disabled && !loading ? 0.95 : 1,
-          })}
-        >
-          {content}
-        </Pressable>
-      </CardComponent>
     );
   }
 

@@ -235,13 +235,13 @@ export const SCREEN_OPTIONS = {
   wallet: createScreenOptions('slideFromRight'),
   
   // Onboarding screens
-  onboarding: createScreenOptions('onboarding'),
+  onboarding: createScreenOptions(CONTEXT_TRANSITIONS.onboarding),
   
   // Camera screens
-  camera: createScreenOptions('camera'),
+  camera: createScreenOptions(CONTEXT_TRANSITIONS.camera),
   
   // Form screens
-  form: createScreenOptions('form'),
+  form: createScreenOptions(CONTEXT_TRANSITIONS.form),
 } as const;
 
 // Helper to create tab screen options

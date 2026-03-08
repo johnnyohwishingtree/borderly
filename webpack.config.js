@@ -29,6 +29,7 @@ module.exports = (env, argv) => {
       'react-native-camera': path.resolve(__dirname, 'e2e/mocks/camera.js'),
       'react-native-image-picker': path.resolve(__dirname, 'e2e/mocks/image-picker.js'),
       '@react-native-clipboard/clipboard': path.resolve(__dirname, 'e2e/mocks/clipboard.js'),
+      '@react-native-async-storage/async-storage': path.resolve(__dirname, 'e2e/mocks/async-storage.js'),
       'react-native-heroicons/outline': path.resolve(__dirname, 'e2e/mocks/heroicons.js'),
       'react-native-heroicons/solid': path.resolve(__dirname, 'e2e/mocks/heroicons.js'),
       'react-native-vector-icons/MaterialIcons': path.resolve(__dirname, 'e2e/mocks/vector-icons.js'),
