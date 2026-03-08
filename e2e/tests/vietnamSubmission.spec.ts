@@ -6,16 +6,40 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { PORTAL_URLS } from '../../src/constants/portalUrls';
 
 test.describe('Vietnam e-Visa Submission Workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     
+    // Set up a test profile with known values for auto-fill testing
+    await page.evaluate(() => {
+      localStorage.setItem('borderly-onboarding-complete', 'true');
+      localStorage.setItem('borderly-profile', JSON.stringify({
+        firstName: 'Alice',
+        lastName: 'Johnson',
+        passportNumber: 'US1234567',
+        nationality: 'US',
+        dateOfBirth: '1985-03-15',
+        gender: 'F',
+        expirationDate: '2030-03-15'
+      }));
+    });
+    await page.reload();
+    
     // Navigate through onboarding to reach trips
     await page.getByTestId('skip-onboarding').click();
     await page.getByTestId('tab-trips').click();
 
-    // Create a new trip with a Vietnam leg for all tests in this suite
+    // Create a new trip with a Vietnam leg using dynamic dates
+    const arrivalDate = new Date();
+    arrivalDate.setFullYear(arrivalDate.getFullYear() + 2);
+    arrivalDate.setMonth(4); // May
+    arrivalDate.setDate(10);
+    
+    const departureDate = new Date(arrivalDate);
+    departureDate.setDate(20);
+    
     await page.getByTestId('create-trip-button').click();
     await page.getByTestId('trip-title-input').fill('Vietnam Discovery');
     
@@ -23,8 +47,8 @@ test.describe('Vietnam e-Visa Submission Workflow', () => {
     await page.getByTestId('add-leg-button').click();
     await page.getByTestId('country-select').click();
     await page.getByRole('option', { name: 'Vietnam' }).click();
-    await page.getByTestId('arrival-date-input').fill('2026-05-10');
-    await page.getByTestId('departure-date-input').fill('2026-05-20');
+    await page.getByTestId('arrival-date-input').fill(arrivalDate.toISOString().split('T')[0]);
+    await page.getByTestId('departure-date-input').fill(departureDate.toISOString().split('T')[0]);
     
     await page.getByTestId('save-trip-button').click();
   });
@@ -41,12 +65,12 @@ test.describe('Vietnam e-Visa Submission Workflow', () => {
     await expect(page.getByText('Accommodation Information')).toBeVisible();
     await expect(page.getByText('Contact Information')).toBeVisible();
     
-    // Check auto-filled fields (assuming profile is set up)
+    // Check auto-filled fields with exact values from test profile
     const surnameField = page.getByTestId('field-surname');
-    await expect(surnameField).toHaveValue(/^[A-Za-z]+$/);
+    await expect(surnameField).toHaveValue('Johnson');
     
     const givenNameField = page.getByTestId('field-givenName');
-    await expect(givenNameField).toHaveValue(/^[A-Za-z]+$/);
+    await expect(givenNameField).toHaveValue('Alice');
     
     // Check Vietnam-specific fields are present
     await expect(page.getByTestId('field-religion')).toBeVisible();
@@ -78,8 +102,8 @@ test.describe('Vietnam e-Visa Submission Workflow', () => {
     await expect(launchPortalButton).toBeVisible();
     await expect(launchPortalButton).toContainText('Open Vietnam e-Visa Portal');
     
-    // Check portal URL is correct
-    await expect(page.getByText('https://evisa.xuatnhapcanh.gov.vn/')).toBeVisible();
+    // Check portal URL is correct (using shared constant)
+    await expect(page.getByText(PORTAL_URLS.VIETNAM)).toBeVisible();
   });
 
   test('should handle Vietnam-specific form validation', async ({ page }) => {
@@ -233,8 +257,8 @@ test.describe('Vietnam e-Visa Portal Health', () => {
     await page.goto('/settings');
     await page.getByTestId('portal-health-check').click();
     
-    // Wait for health check to complete
-    await page.waitForSelector('[data-testid="health-check-results"]', { timeout: 10000 });
+    // Wait for health check to complete using web-first assertion
+    await expect(page.getByTestId('health-check-results')).toBeVisible({ timeout: 10000 });
     
     // Check Vietnam e-Visa status
     const vietnamStatus = page.getByTestId('portal-status-VNM');

@@ -1,5 +1,6 @@
 import { Linking, Alert } from 'react-native';
 import { CountryFormSchema } from '../../types/schema';
+import { PORTAL_URLS } from '../../constants/portalUrls';
 
 export interface PortalInfo {
   name: string;
@@ -40,7 +41,7 @@ export class PortalIntegrationService {
     const portalMap: Record<string, PortalInfo> = {
       'JPN': {
         name: 'Visit Japan Web',
-        url: 'https://vjw-lp.digital.go.jp/en/',
+        url: PORTAL_URLS.JAPAN,
         countryCode: 'JPN',
         features: {
           supportsDeepLinks: false,
@@ -64,7 +65,7 @@ export class PortalIntegrationService {
       },
       'MYS': {
         name: 'Malaysia Digital Arrival Card (MDAC)',
-        url: 'https://imigresen-online.imi.gov.my/mdac/main',
+        url: PORTAL_URLS.MALAYSIA,
         countryCode: 'MYS',
         features: {
           supportsDeepLinks: false,
@@ -88,7 +89,7 @@ export class PortalIntegrationService {
       },
       'SGP': {
         name: 'SG Arrival Card',
-        url: 'https://eservices.ica.gov.sg/sgarrivalcard/',
+        url: PORTAL_URLS.SINGAPORE,
         countryCode: 'SGP',
         features: {
           supportsDeepLinks: false,
@@ -112,7 +113,7 @@ export class PortalIntegrationService {
       },
       'THA': {
         name: 'Thailand Pass',
-        url: 'https://tp.consular.go.th/',
+        url: PORTAL_URLS.THAILAND,
         countryCode: 'THA',
         features: {
           supportsDeepLinks: false,
@@ -138,7 +139,7 @@ export class PortalIntegrationService {
       },
       'VNM': {
         name: 'Vietnam e-Visa Portal',
-        url: 'https://evisa.xuatnhapcanh.gov.vn/',
+        url: PORTAL_URLS.VIETNAM,
         countryCode: 'VNM',
         features: {
           supportsDeepLinks: false,
