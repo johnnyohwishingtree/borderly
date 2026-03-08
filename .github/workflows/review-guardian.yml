@@ -1,6 +1,12 @@
 name: Review Guardian
 
 on:
+  # Trigger when CI workflows complete on a PR
+  workflow_run:
+    workflows: ["Tests", "E2E Smoke Tests"]
+    types: [completed]
+
+  # Also trigger when Gemini posts a failure comment
   issue_comment:
     types: [created]
 
@@ -10,21 +16,103 @@ permissions:
   pull-requests: write
 
 jobs:
-  guardian:
-    # Trigger if Gemini Code Assist posts its "unable to generate" failure message
+  # Fallback when Gemini posts "unable to generate" message
+  gemini-failed:
     if: |
+      github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
       contains(github.event.comment.body, 'Gemini is unable to generate a summary for this pull request')
     runs-on: ubuntu-latest
     steps:
-      - name: Auto-trigger review from preferred agent
+      - name: Request fallback review
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          # Use PREFERRED_AGENT if set, otherwise default to gemini for reviews
-          AGENT: ${{ vars.PREFERRED_AGENT || 'gemini' }}
+          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
         run: |
           PR_NUM=${{ github.event.issue.number }}
-          echo "Gemini Code Assist failed on PR #$PR_NUM. Triggering @$AGENT for fallback review."
-          
-          gh issue comment "$PR_NUM" --repo ${{ github.repository }} \
-            --body "@$AGENT Gemini Code Assist failed to summarize/review this PR. Please perform a comprehensive code review using the /review-pr skill. Analyze the diff, check for regressions, and post a formal review. This is an automated fallback."
+          echo "Gemini Code Assist failed on PR #$PR_NUM. Requesting @$AGENT review."
+
+          gh pr comment "$PR_NUM" --repo ${{ github.repository }} \
+            --body "@$AGENT Gemini Code Assist failed to review this PR. Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback."
+
+  # Check for missing reviews after CI passes
+  ensure-review:
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check if PR has a review
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Get the PR number from the workflow run
+          # workflow_run doesn't directly give us PR number, so we find it from the branch
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          echo "CI passed for branch: $BRANCH"
+
+          # Only care about claude/ branches (autonomous PRs)
+          if [[ "$BRANCH" != claude/* ]]; then
+            echo "Not a claude/ branch — skipping review check"
+            exit 0
+          fi
+
+          PR_NUM=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
+            --json number -q '.[0].number' 2>/dev/null || echo "")
+
+          if [ -z "$PR_NUM" ]; then
+            echo "No open PR found for branch $BRANCH"
+            exit 0
+          fi
+
+          echo "Checking reviews on PR #$PR_NUM"
+
+          # Check for any reviews (approved, changes_requested, or commented)
+          REVIEW_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+            -q '.reviews | length' 2>/dev/null || echo "0")
+
+          # Also check for bot review comments (Gemini/Copilot sometimes comment without formal review)
+          BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
+
+          TOTAL_REVIEWS=$((REVIEW_COUNT + BOT_COMMENTS))
+          echo "Reviews: $REVIEW_COUNT formal, $BOT_COMMENTS bot comments = $TOTAL_REVIEWS total"
+
+          if [ "$TOTAL_REVIEWS" -gt 0 ]; then
+            echo "PR #$PR_NUM has reviews — no action needed"
+            exit 0
+          fi
+
+          # Check if we already requested a fallback review
+          EXISTING_REQUEST=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.body | contains("Please perform a comprehensive code review"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$EXISTING_REQUEST" -gt 0 ]; then
+            echo "Already requested a fallback review — waiting for it"
+            exit 0
+          fi
+
+          # Wait a bit — Gemini might just be slow
+          echo "No reviews found. Waiting 60s for Gemini..."
+          sleep 60
+
+          # Re-check after waiting
+          REVIEW_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+            -q '.reviews | length' 2>/dev/null || echo "0")
+          BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
+
+          TOTAL_REVIEWS=$((REVIEW_COUNT + BOT_COMMENTS))
+
+          if [ "$TOTAL_REVIEWS" -gt 0 ]; then
+            echo "Review arrived during wait — no action needed"
+            exit 0
+          fi
+
+          echo "Still no reviews after waiting. Requesting @$AGENT fallback review."
+          gh pr comment "$PR_NUM" --repo "$REPO" \
+            --body "@$AGENT No code review was posted on this PR (the usual reviewer may be at quota). Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback."
