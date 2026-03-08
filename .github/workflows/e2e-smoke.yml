@@ -163,9 +163,18 @@ jobs:
             exit 0
           fi
 
-          BODY="@claude E2E smoke tests are failing on this PR. Check the workflow run logs for details.
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-          Diagnose the root cause and fix it. Common issues:
+          # Identify which jobs failed
+          FAILED_JOBS=$(gh run view ${{ github.run_id }} --json jobs \
+            -q '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
+
+          BODY="@claude E2E smoke tests are failing on this PR.
+
+          **Failed jobs:** ${FAILED_JOBS}
+          **Run URL:** ${RUN_URL}
+
+          Use \`gh run view ${{ github.run_id }} --log-failed\` to see the full error output. Diagnose the root cause and fix it. Common issues:
           - **Module parse failed / Unexpected token**: A native module needs a web mock in \`e2e/mocks/\` + alias in \`webpack.config.js\`.
           - **Module not found**: Missing dependency or wrong import path.
           - **E2E test failures**: Screen crashing or not rendering correctly.

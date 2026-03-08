@@ -122,54 +122,36 @@ jobs:
                   -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("failing"))] | length' 2>/dev/null || echo "0")
 
                 if [ "$PR_FIX_COUNT" -lt "$MAX_RETRIES" ]; then
-                  # Extract actual error lines from the failed run logs
                   RUN_ID=$(gh run list --repo "$REPO" --branch "$PR_BRANCH" --workflow test.yml \
                     --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null || echo "")
-                  FAILURES=""
-                  if [ -n "$RUN_ID" ]; then
-                    # Get TypeScript errors
-                    TS_ERRORS=$(gh run view "$RUN_ID" --repo "$REPO" --log 2>/dev/null \
-                      | grep "error TS" | sed 's/^[^\t]*\t[^\t]*\t//' | head -10 || echo "")
-                    # Get test failures
-                    TEST_ERRORS=$(gh run view "$RUN_ID" --repo "$REPO" --log 2>/dev/null \
-                      | grep -E "FAIL __tests" | sed 's/^[^\t]*\t[^\t]*\t//' | head -10 || echo "")
-                    if [ -n "$TS_ERRORS" ]; then
-                      FAILURES="TypeScript errors:
-          ${TS_ERRORS}"
-                    fi
-                    if [ -n "$TEST_ERRORS" ]; then
-                      FAILURES="${FAILURES}
-          Test failures:
-          ${TEST_ERRORS}"
-                    fi
-                  fi
+
+                  # Also check e2e workflow for failures
+                  E2E_RUN_ID=$(gh run list --repo "$REPO" --branch "$PR_BRANCH" --workflow e2e-smoke.yml \
+                    --limit 1 --json databaseId,conclusion -q '[.[] | select(.conclusion == "failure")] | .[0].databaseId' 2>/dev/null || echo "")
 
                   echo "  Re-triggering fix (attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
-                  if [ -n "$FAILURES" ]; then
-                    COMMENT_BODY="@claude CI is still failing on this PR (no new commits in ${COMMIT_AGO}m). Here are the errors:
 
-          \`\`\`
-          ${FAILURES}
-          \`\`\`
-
-          Fix these errors. Run \`pnpm typecheck && pnpm test\` to verify BEFORE pushing. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
-                  else
-                    COMMENT_BODY="@claude CI is still failing on this PR (no new commits in ${COMMIT_AGO}m). Run \`pnpm typecheck && pnpm test\`, fix all failures, verify they pass, then push. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
+                  RUN_URLS=""
+                  if [ -n "$RUN_ID" ]; then
+                    RUN_URLS="- Tests: https://github.com/$REPO/actions/runs/$RUN_ID — use \`gh run view $RUN_ID --log-failed\` to see errors"
                   fi
+                  if [ -n "$E2E_RUN_ID" ]; then
+                    RUN_URLS="${RUN_URLS}
+          - E2E: https://github.com/$REPO/actions/runs/$E2E_RUN_ID — use \`gh run view $E2E_RUN_ID --log-failed\` to see errors"
+                  fi
+
+                  COMMENT_BODY="@claude CI is still failing on this PR and no new commits in ${COMMIT_AGO}m.
+
+          **Failed runs:**
+          ${RUN_URLS}
+
+          Use \`gh run view <run_id> --log-failed\` to see the full error output from failed steps. Diagnose the root cause and fix all failures.
+
+          IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Then git add, git commit, and git push. (Watcher fix attempt $((PR_FIX_COUNT + 1))/$MAX_RETRIES)"
+
                   gh pr comment "$PR_NUM" --repo "$REPO" --body "$COMMENT_BODY" 2>/dev/null || true
                 else
-                  echo "  ALERT: $PR_FIX_COUNT fix attempts on PR — closing PR and resetting story"
-                  # Close the failed PR and reset the story so pipeline can retry fresh
-                  gh pr close "$PR_NUM" --repo "$REPO" \
-                    --comment "Closing after $PR_FIX_COUNT failed fix attempts. The pipeline will retry this story with a fresh branch." \
-                    2>/dev/null || true
-                  # Delete the branch
-                  gh api "repos/$REPO/git/refs/heads/$PR_BRANCH" --method DELETE 2>/dev/null || true
-                  # Reset story to pending so it gets picked up again
-                  if [ -n "$ISSUE_NUM" ]; then
-                    gh issue edit "$ISSUE_NUM" --repo "$REPO" \
-                      --remove-label "in-progress" --add-label "pending" 2>/dev/null || true
-                  fi
+                  echo "  ALERT: $PR_FIX_COUNT fix attempts on PR — needs human review"
                 fi
               fi
             else
