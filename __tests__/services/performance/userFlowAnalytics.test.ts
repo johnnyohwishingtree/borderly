@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { userFlowAnalytics, UserSession, UserAction } from '../../../src/services/performance/userFlowAnalytics';
+import { userFlowAnalytics, UserSession } from '../../../src/services/performance/userFlowAnalytics';
 
 // Mock MMKV
 jest.mock('react-native-mmkv', () => ({
@@ -402,7 +402,8 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should handle storage errors gracefully', () => {
-      const mockStorage = {
+      // Mock storage that throws errors  
+      const _mockStorage = {
         set: jest.fn().mockImplementation(() => {
           throw new Error('Storage error');
         }),

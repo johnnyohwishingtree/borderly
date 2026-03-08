@@ -2,7 +2,9 @@
  * @jest-environment node
  */
 
-import { performanceOptimization, OptimizationStrategy, OptimizationResult } from '../../src/utils/performanceOptimization';
+import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization';
+
+declare const global: any;
 import type { PerformanceMetrics } from '../../src/services/performance/productionProfiler';
 import type { RegressionAlert } from '../../src/services/performance/regressionDetection';
 
@@ -201,7 +203,7 @@ describe('PerformanceOptimization', () => {
     });
 
     it('should measure execution time', async () => {
-      const startTime = Date.now();
+      Date.now();
       const result = await performanceOptimization.executeStrategy('memory-cleanup');
       
       expect(result.executionTime).toBeGreaterThan(0);
@@ -321,7 +323,7 @@ describe('PerformanceOptimization', () => {
 
       it('should calculate execution time', async () => {
         const slowOperation = jest.fn().mockImplementation(() => 
-          new Promise(resolve => setTimeout(resolve, 100))
+          new Promise<void>(resolve => setTimeout(() => resolve(), 100))
         );
         
         jest.useRealTimers();
@@ -338,7 +340,7 @@ describe('PerformanceOptimization', () => {
       it('should measure memory delta', async () => {
         // Mock memory API
         const mockMemory = { usedJSHeapSize: 50 * 1024 * 1024 };
-        (global as any).performance = { memory: mockMemory };
+        global.performance = { memory: mockMemory };
         
         const result = await performanceOptimization.measureAsync('memory-test', async () => {
           mockMemory.usedJSHeapSize += 10 * 1024 * 1024; // Simulate memory increase
@@ -347,7 +349,7 @@ describe('PerformanceOptimization', () => {
         
         expect(result).toBe('result');
         
-        delete (global as any).performance;
+        delete global.performance;
       });
     });
 

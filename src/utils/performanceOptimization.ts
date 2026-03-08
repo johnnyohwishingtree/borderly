@@ -5,11 +5,13 @@
  * for improving app performance based on real-world usage data.
  */
 
-import { Alert } from 'react-native';
+// Alert import available but not used in current implementation
 import { MMKV } from 'react-native-mmkv';
 import { sanitizePII } from './piiSanitizer';
 import type { PerformanceMetrics } from '../services/performance/productionProfiler';
 import type { RegressionAlert } from '../services/performance/regressionDetection';
+
+declare const global: any;
 
 export interface OptimizationStrategy {
   id: string;

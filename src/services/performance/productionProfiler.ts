@@ -8,6 +8,8 @@
 import { MMKV } from 'react-native-mmkv';
 import { sanitizePII } from '../../utils/piiSanitizer';
 
+declare const global: any;
+
 export interface PerformanceMetrics {
   // App lifecycle metrics
   appStartTime: number;
@@ -579,7 +581,7 @@ class ProductionProfiler {
         const values = metrics.map(m => m[metric] as number).filter(v => v > 0);
         
         if (values.length > 0) {
-          averages[metric] = values.reduce((a, b) => a + b, 0) / values.length;
+          (averages as any)[metric] = values.reduce((a, b) => a + b, 0) / values.length;
         }
       });
       

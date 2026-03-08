@@ -524,7 +524,8 @@ class RegressionDetection {
 
     const baseline = model.baseline;
     const expectedValue = baseline.mean;
-    const threshold = baseline.standardDeviation * 2; // 2 standard deviations
+    // threshold used for validation (2 standard deviations)
+    const _threshold = baseline.standardDeviation * 2;
     
     // Calculate deviation percentage
     const absoluteDeviation = Math.abs(currentValue - expectedValue);
@@ -596,8 +597,8 @@ class RegressionDetection {
 
   private generateRegressionMessage(
     metric: keyof PerformanceMetrics,
-    current: number,
-    expected: number,
+    _current: number,
+    _expected: number,
     deviation: number,
     severity: 'warning' | 'critical'
   ): string {
@@ -613,7 +614,7 @@ class RegressionDetection {
 
   private generateRecommendation(
     metric: keyof PerformanceMetrics,
-    regression: { severity: 'warning' | 'critical'; deviation: number }
+    _regression: { severity: 'warning' | 'critical'; deviation: number }
   ): string {
     const recommendations: Record<keyof PerformanceMetrics, string> = {
       appStartTime: 'Investigate app initialization, consider lazy loading non-critical components',
@@ -637,7 +638,7 @@ class RegressionDetection {
     return recommendations[metric] || 'Monitor the metric closely and investigate potential causes';
   }
 
-  private estimateAffectedUsers(metric: keyof PerformanceMetrics, deviation: number): number {
+  private estimateAffectedUsers(_metric: keyof PerformanceMetrics, deviation: number): number {
     // Simplified estimation based on deviation severity
     const baseUsers = 100; // Assume base user population
     
@@ -718,7 +719,7 @@ class RegressionDetection {
     });
   }
 
-  private generateReportRecommendations(alerts: RegressionAlert[], models: RegressionModel[]): string[] {
+  private generateReportRecommendations(alerts: RegressionAlert[], _models: RegressionModel[]): string[] {
     const recommendations: string[] = [];
     
     // High-level recommendations based on alert patterns

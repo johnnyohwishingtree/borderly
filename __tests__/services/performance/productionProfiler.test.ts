@@ -4,6 +4,8 @@
 
 import { productionProfiler } from '../../../src/services/performance/productionProfiler';
 
+declare const global: any;
+
 // Mock MMKV
 jest.mock('react-native-mmkv', () => ({
   MMKV: jest.fn().mockImplementation(() => ({
@@ -289,7 +291,7 @@ describe('ProductionProfiler', () => {
         totalJSHeapSize: 100 * 1024 * 1024,
       };
       
-      // @ts-ignore
+      // @ts-ignore - Mock global performance for testing
       global.performance = { memory: mockMemory };
       
       // Trigger memory tracking
@@ -301,7 +303,7 @@ describe('ProductionProfiler', () => {
       expect(typeof metrics.memoryUsage).toBe('number');
       
       // Cleanup
-      delete (global as any).performance;
+      delete global.performance;
     });
   });
 
@@ -334,7 +336,8 @@ describe('ProductionProfiler', () => {
 
   describe('error handling', () => {
     it('should handle storage errors gracefully', () => {
-      const mockStorage = {
+      // Mock storage that throws errors 
+      const _mockStorage = {
         set: jest.fn().mockImplementation(() => {
           throw new Error('Storage error');
         }),

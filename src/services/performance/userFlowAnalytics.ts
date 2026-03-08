@@ -356,7 +356,7 @@ class UserFlowAnalytics {
    */
   generateOptimizationInsights(): OptimizationInsight[] {
     const analytics = this.getAllFlowAnalytics();
-    const patterns = this.detectBehaviorPatterns();
+    const _patterns = this.detectBehaviorPatterns();
     const insights: OptimizationInsight[] = [];
 
     // Friction point insights
@@ -567,7 +567,7 @@ class UserFlowAnalytics {
   }> {
     const dropoffPoints: Array<{ step: string; dropoffRate: number; userCount: number }> = [];
     
-    flow.steps.forEach((step, index) => {
+    flow.steps.forEach((step, _index) => {
       const usersReachedStep = sessions.filter(session =>
         session.actions.some(action => action.screen === step.screen)
       ).length;
@@ -659,7 +659,7 @@ class UserFlowAnalytics {
     const funnelData: Array<{ step: string; userCount: number; conversionRate: number }> = [];
     let previousUserCount = sessions.length;
     
-    flow.steps.forEach((step, index) => {
+    flow.steps.forEach((step, _index) => {
       const usersCompletedStep = sessions.filter(session =>
         session.actions.some(action => 
           action.screen === step.screen && action.action === step.action

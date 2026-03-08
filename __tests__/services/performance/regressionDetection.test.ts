@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { regressionDetection, RegressionAlert } from '../../../src/services/performance/regressionDetection';
+import { regressionDetection } from '../../../src/services/performance/regressionDetection';
 import type { PerformanceMetrics } from '../../../src/services/performance/productionProfiler';
 
 // Mock MMKV
@@ -208,11 +208,11 @@ describe('RegressionDetection', () => {
       // Feed known data pattern
       const values = [100, 200, 300, 400, 500];
       values.forEach(value => {
-        regressionDetection.analyzeMetric('testMetric' as any, value);
+        regressionDetection.analyzeMetric('testMetric' as keyof PerformanceMetrics, value);
       });
       
       const models = regressionDetection.getModels();
-      const testModel = models.find(m => m.metric === 'testMetric');
+      const testModel = models.find(m => m.metric === ('testMetric' as any));
       
       if (testModel) {
         expect(testModel.baseline.mean).toBeCloseTo(300, 0); // Mean of 100-500
@@ -224,12 +224,12 @@ describe('RegressionDetection', () => {
     it('should detect trends in data', () => {
       // Create increasing trend
       for (let i = 0; i < 50; i++) {
-        regressionDetection.analyzeMetric('increasingMetric' as any, 1000 + i * 10);
+        regressionDetection.analyzeMetric('increasingMetric' as keyof PerformanceMetrics, 1000 + i * 10);
       }
       
       // Create decreasing trend  
       for (let i = 0; i < 50; i++) {
-        regressionDetection.analyzeMetric('decreasingMetric' as any, 2000 - i * 10);
+        regressionDetection.analyzeMetric('decreasingMetric' as keyof PerformanceMetrics, 2000 - i * 10);
       }
       
       const models = regressionDetection.getModels();
@@ -387,7 +387,7 @@ describe('RegressionDetection', () => {
       }
       
       // Should require more data points now (75 vs default 100)
-      const alert = regressionDetection.analyzeMetric('formGenerationTime', 400);
+      regressionDetection.analyzeMetric('formGenerationTime', 400);
       
       // With updated thresholds, this might trigger differently
       expect(true).toBe(true); // Thresholds were updated
@@ -425,17 +425,17 @@ describe('RegressionDetection', () => {
     });
 
     it('should return null for insufficient data', () => {
-      const prediction = regressionDetection.predictPerformance('newMetric' as any, 1);
+      const prediction = regressionDetection.predictPerformance('newMetric' as keyof PerformanceMetrics, 1);
       expect(prediction).toBeNull();
     });
 
     it('should handle stable trends', () => {
       // Create stable data
       for (let i = 0; i < 100; i++) {
-        regressionDetection.analyzeMetric('stableMetric' as any, 1000 + Math.random() * 10);
+        regressionDetection.analyzeMetric('stableMetric' as keyof PerformanceMetrics, 1000 + Math.random() * 10);
       }
       
-      const prediction = regressionDetection.predictPerformance('stableMetric' as any, 24);
+      const prediction = regressionDetection.predictPerformance('stableMetric' as keyof PerformanceMetrics, 24);
       
       if (prediction) {
         expect(typeof prediction).toBe('number');
@@ -485,39 +485,41 @@ describe('RegressionDetection', () => {
   describe('edge cases', () => {
     it('should handle zero and negative values', () => {
       expect(() => {
-        regressionDetection.analyzeMetric('testMetric' as any, 0);
-        regressionDetection.analyzeMetric('testMetric' as any, -100);
+        regressionDetection.analyzeMetric('testMetric' as keyof PerformanceMetrics, 0);
+        regressionDetection.analyzeMetric('testMetric' as keyof PerformanceMetrics, -100);
       }).not.toThrow();
     });
 
     it('should handle very large values', () => {
       expect(() => {
-        regressionDetection.analyzeMetric('testMetric' as any, Number.MAX_SAFE_INTEGER);
+        regressionDetection.analyzeMetric('testMetric' as keyof PerformanceMetrics, Number.MAX_SAFE_INTEGER);
       }).not.toThrow();
     });
 
     it('should handle rapid consecutive updates', () => {
       expect(() => {
         for (let i = 0; i < 1000; i++) {
-          regressionDetection.analyzeMetric('rapidMetric' as any, Math.random() * 1000);
+          regressionDetection.analyzeMetric('rapidMetric' as keyof PerformanceMetrics, Math.random() * 1000);
         }
       }).not.toThrow();
     });
 
     it('should handle model updates during analysis', () => {
       // Simulate concurrent model updates
-      const promises = [];
+      const promises: Promise<void>[] = [];
       for (let i = 0; i < 10; i++) {
         promises.push(
           Promise.resolve().then(() => {
             for (let j = 0; j < 50; j++) {
-              regressionDetection.analyzeMetric('concurrentMetric' as any, Math.random() * 1000);
+              regressionDetection.analyzeMetric('concurrentMetric' as keyof PerformanceMetrics, Math.random() * 1000);
             }
           })
         );
       }
       
-      expect(() => Promise.all(promises)).not.toThrow();
+      return Promise.all(promises).then(() => {
+        expect(true).toBe(true); // No errors during concurrent access
+      });
     });
   });
 });
