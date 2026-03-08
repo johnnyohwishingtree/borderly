@@ -6,6 +6,7 @@
  * and <100MB memory usage.
  */
 
+import * as React from 'react';
 import { MMKV } from 'react-native-mmkv';
 import { performanceMonitor } from '../services/monitoring/performance';
 import type { ImageCompressionOptions } from './imageUtils';
@@ -42,7 +43,7 @@ export interface LazyLoadingConfig {
   maxConcurrentLoads: number;
 }
 
-const DEFAULT_LAZY_CONFIG: LazyLoadingConfig = {
+const _DEFAULT_LAZY_CONFIG: LazyLoadingConfig = {
   preloadDistance: 200,
   placeholderQuality: 0.1,
   enableProgressiveLoading: true,
@@ -100,14 +101,29 @@ class ImageOptimizationManager {
         this.updateAccessLog(cacheKey);
         this.stats.cacheHits++;
         
-        return {
+        const result: {
+          success: boolean;
+          optimized?: string;
+          thumbnail?: string;
+          fromCache: boolean;
+          loadTime: number;
+          memoryUsage: number;
+          error?: string;
+        } = {
           success: true,
-          optimized: cached.optimizedBase64,
-          thumbnail: cached.thumbnailBase64,
           fromCache: true,
           loadTime: Date.now() - startTime,
           memoryUsage: cached.metadata.optimizedSize,
         };
+
+        if (cached.optimizedBase64) {
+          result.optimized = cached.optimizedBase64;
+        }
+        if (cached.thumbnailBase64) {
+          result.thumbnail = cached.thumbnailBase64;
+        }
+
+        return result;
       }
 
       // Check disk cache
@@ -117,14 +133,29 @@ class ImageOptimizationManager {
         this.updateAccessLog(cacheKey);
         this.stats.cacheHits++;
         
-        return {
+        const result: {
+          success: boolean;
+          optimized?: string;
+          thumbnail?: string;
+          fromCache: boolean;
+          loadTime: number;
+          memoryUsage: number;
+          error?: string;
+        } = {
           success: true,
-          optimized: diskCached.optimizedBase64,
-          thumbnail: diskCached.thumbnailBase64,
           fromCache: true,
           loadTime: Date.now() - startTime,
           memoryUsage: diskCached.metadata.optimizedSize,
         };
+
+        if (diskCached.optimizedBase64) {
+          result.optimized = diskCached.optimizedBase64;
+        }
+        if (diskCached.thumbnailBase64) {
+          result.thumbnail = diskCached.thumbnailBase64;
+        }
+
+        return result;
       }
 
       // Prevent duplicate loading
@@ -149,8 +180,8 @@ class ImageOptimizationManager {
             originalSize: optimized.originalSize,
             optimizedSize: optimized.optimizedSize,
             compressionRatio: optimized.compressionRatio,
-            width: optimized.width,
-            height: optimized.height,
+            ...(optimized.width !== undefined && { width: optimized.width }),
+            ...(optimized.height !== undefined && { height: optimized.height }),
             format: optimized.format,
             lastAccessed: Date.now(),
             accessCount: 1,
@@ -165,23 +196,51 @@ class ImageOptimizationManager {
         // Cleanup if memory usage is getting high
         await this.checkMemoryUsage();
 
-        return {
+        const result: {
+          success: boolean;
+          optimized?: string;
+          thumbnail?: string;
+          fromCache: boolean;
+          loadTime: number;
+          memoryUsage: number;
+          error?: string;
+        } = {
           success: true,
-          optimized: cachedImage.optimizedBase64,
-          thumbnail: cachedImage.thumbnailBase64,
           fromCache: false,
           loadTime: Date.now() - startTime,
           memoryUsage: cachedImage.metadata.optimizedSize,
         };
+
+        if (cachedImage.optimizedBase64) {
+          result.optimized = cachedImage.optimizedBase64;
+        }
+        if (cachedImage.thumbnailBase64) {
+          result.thumbnail = cachedImage.thumbnailBase64;
+        }
+
+        return result;
       }
 
-      return {
+      const result: {
+        success: boolean;
+        optimized?: string;
+        thumbnail?: string;
+        fromCache: boolean;
+        loadTime: number;
+        memoryUsage: number;
+        error?: string;
+      } = {
         success: false,
         fromCache: false,
         loadTime: Date.now() - startTime,
         memoryUsage: 0,
-        error: optimized.error,
       };
+
+      if (optimized.error) {
+        result.error = optimized.error;
+      }
+
+      return result;
 
     } catch (error) {
       return {
@@ -266,7 +325,7 @@ class ImageOptimizationManager {
         .sort(([, a], [, b]) => b.metadata.accessCount - a.metadata.accessCount);
       
       const toKeep = sortedByAccess.slice(0, options.keepMostAccessed).map(([key]) => key);
-      this.memoryCache.forEach((image, key) => {
+      this.memoryCache.forEach((_image, key) => {
         if (!toKeep.includes(key) && !imagesToClear.includes(key)) {
           imagesToClear.push(key);
         }
@@ -324,7 +383,14 @@ class ImageOptimizationManager {
 
   private generateCacheKey(uri: string, options: ImageCompressionOptions): string {
     const optionsHash = JSON.stringify(options);
-    return `${uri}_${btoa(optionsHash).slice(0, 10)}`;
+    // Simple hash function since btoa may not be available
+    let hash = 0;
+    for (let i = 0; i < optionsHash.length; i++) {
+      const char = optionsHash.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return `${uri}_${Math.abs(hash).toString(36).slice(0, 10)}`;
   }
 
   private loadFromDiskCache(key: string): CachedImage | null {
@@ -344,7 +410,7 @@ class ImageOptimizationManager {
     }
   }
 
-  private async processImage(uri: string, options: ImageCompressionOptions): Promise<{
+  private async processImage(_uri: string, options: ImageCompressionOptions): Promise<{
     success: boolean;
     base64?: string;
     thumbnail?: string;
@@ -366,12 +432,20 @@ class ImageOptimizationManager {
       const originalSize = 1024 * 1024; // 1MB
       const optimizedSize = originalSize * 0.6; // 60% of original
       
-      return {
+      const result: {
+        success: boolean;
+        base64?: string;
+        thumbnail?: string;
+        originalSize: number;
+        optimizedSize: number;
+        compressionRatio: number;
+        width?: number;
+        height?: number;
+        format: string;
+        error?: string;
+      } = {
         success: true,
         base64: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD...', // Mock
-        thumbnail: options.generateThumbnail 
-          ? 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD...' // Mock thumbnail
-          : undefined,
         originalSize,
         optimizedSize,
         compressionRatio: originalSize / optimizedSize,
@@ -379,6 +453,12 @@ class ImageOptimizationManager {
         height: 1080,
         format: 'jpeg',
       };
+
+      if ((options as any).generateThumbnail) {
+        result.thumbnail = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAAAAAAAD...'; // Mock thumbnail
+      }
+
+      return result;
     } catch (error) {
       return {
         success: false,
@@ -528,7 +608,7 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
     let isCancelled = false;
     
     const loadImage = async () => {
-      setImageData(prev => ({ ...prev, loading: true, error: undefined }));
+      setImageData((prev: typeof imageData) => ({ ...prev, loading: true, error: undefined }));
       
       try {
         const result = await imageOptimization.optimizeImage(uri, {
@@ -550,7 +630,7 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
         }
       } catch (error) {
         if (!isCancelled) {
-          setImageData(prev => ({
+          setImageData((prev: typeof imageData) => ({
             ...prev,
             loading: false,
             error: error instanceof Error ? error.message : 'Load failed',

@@ -3,6 +3,20 @@
  * Tracks key performance metrics for user flows while maintaining privacy compliance
  */
 
+// Type declaration for window in non-browser environments
+declare global {
+  interface Window {
+    performance?: {
+      memory?: {
+        usedJSHeapSize: number;
+        totalJSHeapSize: number;
+        jsHeapSizeLimit: number;
+      };
+    };
+  }
+  var window: Window | undefined;
+}
+
 import { sanitizeObject, sanitizeString } from '../../utils/piiSanitizer';
 
 export interface PerformanceMetric {
@@ -391,7 +405,7 @@ class PerformanceMonitor {
     formRendering: { target: number; current: number; meets: boolean };
   } {
     const startupMetrics = this.metrics.filter(m => m.name.includes('startup') || m.name.includes('app_start'));
-    const memoryMetrics = this.metrics.filter(m => m.category === 'memory');
+    const _memoryMetrics = this.metrics.filter(m => m.category === 'memory');
     const formMetrics = this.metrics.filter(m => m.name.includes('form_generation') || m.name.includes('form_render'));
 
     const avgStartup = startupMetrics.length > 0 
@@ -471,14 +485,22 @@ class PerformanceMonitor {
     const thresholdBytes = 100 * 1024 * 1024; // 100MB
     const withinThreshold = memoryMetrics.used <= thresholdBytes;
 
-    return {
+    const result: {
+      withinThreshold: boolean;
+      currentUsage: number;
+      threshold: number;
+      recommendation?: string;
+    } = {
       withinThreshold,
       currentUsage: memoryMetrics.used,
       threshold: thresholdBytes,
-      recommendation: !withinThreshold 
-        ? 'Memory usage exceeds 100MB threshold. Consider implementing memory optimizations.'
-        : undefined
     };
+
+    if (!withinThreshold) {
+      result.recommendation = 'Memory usage exceeds 100MB threshold. Consider implementing memory optimizations.';
+    }
+
+    return result;
   }
 
   /**
@@ -487,8 +509,8 @@ class PerformanceMonitor {
   exportMetrics(): {
     metrics: PerformanceMetric[];
     activeFlows: UserFlowMetric[];
-    performanceTargets: ReturnType<typeof this.checkPerformanceTargets>;
-    memoryThreshold: ReturnType<typeof this.checkMemoryThreshold>;
+    performanceTargets: ReturnType<PerformanceMonitor['checkPerformanceTargets']>;
+    memoryThreshold: ReturnType<PerformanceMonitor['checkMemoryThreshold']>;
   } {
     return {
       metrics: this.metrics,

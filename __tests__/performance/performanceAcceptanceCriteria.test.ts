@@ -436,17 +436,15 @@ describe('Performance Acceptance Criteria', () => {
         {
           id: 'memory-alert-1',
           metric: 'memoryUsage' as any,
-          severity: 'high' as const,
-          threshold: 100 * 1024 * 1024,
+          severity: 'critical' as const,
           currentValue: 120 * 1024 * 1024,
           timestamp: Date.now(),
-          description: 'Memory usage exceeds threshold',
           message: 'Memory usage is too high',
           expectedValue: 100 * 1024 * 1024,
           deviation: 20,
           confidence: 0.9,
-          impact: 'high' as const,
-          regressionType: 'sudden' as const,
+          trend: 'declining' as const,
+          recommendation: 'Consider implementing memory optimization strategies',
         },
       ];
 

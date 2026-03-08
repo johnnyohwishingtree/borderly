@@ -7,6 +7,20 @@
  * against the acceptance criteria of staying below 100MB.
  */
 
+// Type declaration for window in non-browser environments
+declare global {
+  interface Window {
+    performance?: {
+      memory?: {
+        usedJSHeapSize: number;
+        totalJSHeapSize: number;
+        jsHeapSizeLimit: number;
+      };
+    };
+  }
+  var window: Window | undefined;
+}
+
 import { performanceMonitor } from './performance';
 import { memoryProfiler } from '../../utils/memoryProfiler';
 
@@ -68,7 +82,7 @@ class MemoryLeakDetectionService {
   private timers: Map<string, number> = new Map();
   private networkRequests: Map<string, number> = new Map();
   private isMonitoring = false;
-  private monitoringInterval?: number;
+  private monitoringInterval: number | undefined;
 
   constructor(config: Partial<LeakDetectionConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -108,7 +122,7 @@ class MemoryLeakDetectionService {
   /**
    * Track component lifecycle for memory leaks
    */
-  trackComponentMount(componentName: string, instance?: any): string {
+  trackComponentMount(componentName: string, _instance?: any): string {
     const trackerId = `${componentName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const currentMemory = this.getCurrentMemoryUsage();
 
@@ -636,13 +650,13 @@ class MemoryLeakDetectionService {
     if (__DEV__) {
       // Monitor for common leak patterns in development
       const originalSetTimeout = globalThis.setTimeout;
-      const originalSetInterval = globalThis.setInterval;
+      const _originalSetInterval = globalThis.setInterval;
       const originalClearTimeout = globalThis.clearTimeout;
-      const originalClearInterval = globalThis.clearInterval;
+      const _originalClearInterval = globalThis.clearInterval;
 
       let timerIdCounter = 0;
 
-      globalThis.setTimeout = (...args) => {
+      globalThis.setTimeout = (...args: any[]) => {
         const timerId = `timeout_${++timerIdCounter}`;
         this.trackTimer(timerId, 'create');
         
