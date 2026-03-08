@@ -7,7 +7,6 @@
 
 import { launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
 import { Platform } from 'react-native';
-import { RNCamera } from 'react-native-camera';
 import { parseBoardingPass } from './boardingPassParser';
 import type { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
 
@@ -166,7 +165,7 @@ async function selectImageFromLibrary(): Promise<{
  * react-native-camera's barcode detection on static images or
  * a dedicated ML Kit image processing library
  */
-async function detectBarcodeInImage(imageUri: string): Promise<BarcodeDetectionResult> {
+async function detectBarcodeInImage(_imageUri: string): Promise<BarcodeDetectionResult> {
   try {
     // Note: This is a placeholder implementation
     // In a real app, you would use ML Kit's static image barcode detection
