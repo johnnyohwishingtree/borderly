@@ -47,9 +47,12 @@ test.describe('Trip Creation and Management', () => {
     await expect(page.getByRole('button', { name: '📷 Scan Boarding Pass' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
 
-    // Top-level destination buttons
-    await expect(page.getByRole('button', { name: '📷 Scan' })).toBeVisible();
+    // Top-level destination buttons (these are the small buttons in the header)
+    // We'll look for buttons that are siblings of each other (both small header buttons)
     await expect(page.getByRole('button', { name: '+ Add' })).toBeVisible();
+    // For the scan button, we'll use the fact that it's the one NOT in the empty state card
+    const scanButtons = page.getByRole('button', { name: '📷 Scan' });
+    await expect(scanButtons.first()).toBeVisible(); // The header scan button appears first
 
     // Create button
     await expect(page.getByRole('button', { name: 'Create Trip' })).toBeVisible();
@@ -85,9 +88,9 @@ test.describe('Trip Creation and Management', () => {
     await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
     await expect(page.getByText('Supports PDF417, Aztec, and QR codes')).toBeVisible();
 
-    // Should have cancel and manual entry options
+    // Should have cancel and manual entry options (use more specific selectors)
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Manual' })).toBeVisible();
+    await expect(page.getByTestId('camera-view').getByRole('button', { name: 'Manual' })).toBeVisible();
   });
 
   test.describe('when boarding pass scanner is open', () => {
@@ -105,8 +108,8 @@ test.describe('Trip Creation and Management', () => {
     });
 
     test('manual option adds destination', async ({ page }) => {
-      // Manual entry should add a destination and return to form
-      await page.getByRole('button', { name: 'Manual' }).click();
+      // Manual entry should add a destination and return to form (use specific selector)
+      await page.getByTestId('camera-view').getByRole('button', { name: 'Manual' }).click();
       await expect(page.getByText('Create New Trip')).toBeVisible();
       await expect(page.getByText('No destinations added yet')).not.toBeVisible();
     });

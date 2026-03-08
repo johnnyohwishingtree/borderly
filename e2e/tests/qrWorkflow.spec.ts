@@ -52,7 +52,7 @@ test.describe('QR Code Workflow and Wallet', () => {
     // Destination section
     await expect(page.getByText('Destinations', { exact: true })).toBeVisible();
     await expect(page.getByText('No destinations added yet')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Add Your First Destination' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
   });
 
   test('can fill trip name and add destination', async ({ page }) => {
@@ -65,7 +65,7 @@ test.describe('QR Code Workflow and Wallet', () => {
     await expect(nameInput).toHaveValue('QR Test Trip');
 
     // Add destination
-    await page.getByRole('button', { name: 'Add Your First Destination' }).click();
+    await page.getByRole('button', { name: 'Add Manually' }).click();
     await expect(page.getByText('No destinations added yet')).not.toBeVisible();
   });
 });
