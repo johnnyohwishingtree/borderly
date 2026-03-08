@@ -25,6 +25,7 @@ export default function TripListScreen() {
     setLoading,
     setLoadingError,
     setLoadingSuccess,
+    reset,
   } = useLoadingState();
 
   const fetchTrips = async () => {
