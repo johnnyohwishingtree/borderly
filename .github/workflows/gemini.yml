@@ -9,8 +9,8 @@ on:
 jobs:
   gemini:
     if: |
-      (contains(github.event.comment.body, '@gemini ') || endsWith(github.event.comment.body, '@gemini')) &&
-      !contains(github.event.comment.body, '@gemini-code-assist') &&
+      (contains(github.event.comment.body, '@gemini') || contains(github.event.comment.body, '@gemini-code-assist')) &&
+      !contains(github.event.comment.body, 'Gemini is unable to generate a summary') &&
       (github.event.issue != null || github.event.pull_request != null)
     runs-on: ubuntu-latest
     permissions:
@@ -76,9 +76,9 @@ jobs:
           # Save comment body to a file to avoid shell expansion issues
           echo "$COMMENT_BODY" > comment.txt
           
-          # Extract the part after @gemini
-          # This handles multi-line prompts safely
-          PROMPT=$(sed -n 's/.*@gemini //p' comment.txt || sed -n 's/.*@gemini//p' comment.txt | head -n 1)
+          # Extract the part after the mention
+          # Handles both @gemini and @gemini-code-assist
+          PROMPT=$(sed -n 's/.*@gemini-code-assist //p' comment.txt || sed -n 's/.*@gemini //p' comment.txt || sed -n 's/.*@gemini//p' comment.txt | head -n 1)
           
           if [ -z "$PROMPT" ]; then
             # If nothing after @gemini, check if the comment IS just @gemini
