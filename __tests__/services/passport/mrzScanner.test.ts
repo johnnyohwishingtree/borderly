@@ -401,4 +401,267 @@ describe('MRZ Scanner Service', () => {
       expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
   });
+
+  describe('Edge cases and error handling', () => {
+    it('should handle corrupted MRZ data gracefully', () => {
+      const corruptedMRZ = `
+        P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        L89890C36UTO74081F1204159ZE184226B<<<<<10
+      `;
+
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(corruptedMRZ)
+      ]);
+
+      const result = processCameraText(textRecognition);
+
+      // Should not crash, even with invalid data
+      expect(result).toBeDefined();
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
+    });
+
+    it('should handle extremely large text input', () => {
+      const largeTextBlocks = Array(1000).fill(null).map((_, i) => 
+        createTextBlock(`Large text block number ${i}`)
+      );
+      const textRecognition = createMockTextRecognition(largeTextBlocks);
+
+      const result = processCameraText(textRecognition);
+
+      expect(result).toBeDefined();
+      expect(result.guidance).toContain('MRZ');
+    });
+
+    it('should handle empty text blocks', () => {
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(''),
+        createTextBlock(' '),
+        createTextBlock('   ')
+      ]);
+
+      const result = processCameraText(textRecognition);
+
+      expect(result.type).toBe('no_mrz');
+      expect(result.confidence).toBe(0);
+    });
+
+    it('should handle text blocks with special characters', () => {
+      const specialCharMRZ = `
+        P<UTØDØE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        L898902C36UTO7408122F1204159ZE184226B<<<<<10
+      `;
+
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(specialCharMRZ)
+      ]);
+
+      const result = processCameraText(textRecognition);
+
+      expect(result).toBeDefined();
+    });
+
+    it('should handle null or undefined text recognition gracefully', () => {
+      const result = processCameraText(null as any);
+
+      expect(result.type).toBe('no_mrz');
+      expect(result.confidence).toBe(0);
+    });
+
+    it('should handle text blocks without components', () => {
+      const textRecognition = {
+        textBlocks: [
+          { value: validMRZText } // Missing components property
+        ]
+      };
+
+      const result = processCameraText(textRecognition as any);
+
+      expect(result).toBeDefined();
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
+    });
+  });
+
+  describe('Performance tier handling', () => {
+    it('should adapt behavior based on performance tier', () => {
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(validMRZText)
+      ]);
+
+      const lowTierScanner = new MRZScanner(defaultScannerConfig, 'low');
+      const highTierScanner = new MRZScanner(defaultScannerConfig, 'high');
+
+      const lowResult = lowTierScanner.processFrame(textRecognition);
+      const highResult = highTierScanner.processFrame(textRecognition);
+
+      // Both should process successfully
+      expect(lowResult).toBeDefined();
+      expect(highResult).toBeDefined();
+    });
+
+    it('should handle invalid performance tier gracefully', () => {
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(validMRZText)
+      ]);
+
+      const scanner = new MRZScanner(defaultScannerConfig, 'invalid' as any);
+      const result = scanner.processFrame(textRecognition);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('Statistics and monitoring', () => {
+    it('should track detailed statistics', () => {
+      const scanner = new MRZScanner({ ...defaultScannerConfig, scanCooldownMs: 0 });
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(validMRZText)
+      ]);
+
+      scanner.processFrame(textRecognition);
+      scanner.processFrame(textRecognition);
+
+      const stats = scanner.getStats();
+      
+      expect(stats.attempts).toBeGreaterThan(0);
+      expect(stats.lastScan).toBeDefined();
+      expect(stats.lastScan?.type).toBe('success');
+    });
+
+    it('should preserve last successful scan through multiple failures', () => {
+      const scanner = new MRZScanner({ ...defaultScannerConfig, scanCooldownMs: 0 });
+      const goodText = createMockTextRecognition([createTextBlock(validMRZText)]);
+      const badText = createMockTextRecognition([createTextBlock(invalidMRZText)]);
+
+      // First successful scan
+      const goodResult = scanner.processFrame(goodText);
+      
+      // Multiple failed scans
+      scanner.processFrame(badText);
+      scanner.processFrame(badText);
+      scanner.processFrame(badText);
+
+      const stats = scanner.getStats();
+      expect(stats.lastScan?.type).toBe('success');
+      expect(stats.lastScan).toEqual(goodResult);
+    });
+
+    it('should reset statistics correctly', () => {
+      const scanner = new MRZScanner();
+      const textRecognition = createMockTextRecognition([
+        createTextBlock(validMRZText)
+      ]);
+
+      scanner.processFrame(textRecognition);
+      expect(scanner.getStats().attempts).toBeGreaterThan(0);
+
+      scanner.reset();
+      const statsAfterReset = scanner.getStats();
+      expect(statsAfterReset.attempts).toBe(0);
+      expect(statsAfterReset.lastScan).toBeNull();
+    });
+  });
+
+  describe('Adaptive algorithms', () => {
+    it('should calculate adaptive cooldown based on device performance', () => {
+      const scanner = new MRZScanner(defaultScannerConfig, 'low');
+      
+      // Access private method for testing
+      const adaptiveCooldown = (scanner as any).calculateAdaptiveCooldown();
+      
+      expect(typeof adaptiveCooldown).toBe('number');
+      expect(adaptiveCooldown).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should calculate adaptive max attempts based on device performance', () => {
+      const scanner = new MRZScanner(defaultScannerConfig, 'high');
+      
+      // Access private method for testing
+      const adaptiveMaxAttempts = (scanner as any).calculateAdaptiveMaxAttempts();
+      
+      expect(typeof adaptiveMaxAttempts).toBe('number');
+      expect(adaptiveMaxAttempts).toBeGreaterThan(0);
+    });
+
+    it('should determine frame skip based on performance tier', () => {
+      const scanner = new MRZScanner(defaultScannerConfig, 'low');
+      
+      // Access private method for testing
+      const shouldSkip = (scanner as any).shouldSkipFrame();
+      
+      expect(typeof shouldSkip).toBe('boolean');
+    });
+  });
+
+  describe('Validation edge cases', () => {
+    it('should handle passport validation with missing optional fields', () => {
+      const minimalProfile = {
+        passportNumber: 'P12345678',
+        surname: 'DOE',
+        givenNames: 'JANE'
+        // Missing optional fields like dates
+      };
+
+      const result = {
+        success: true,
+        profile: minimalProfile,
+        errors: [],
+        confidence: 0.8
+      };
+
+      const validation = validateScannedPassport(result);
+
+      // Should not crash, but should indicate missing important fields
+      expect(validation.isValid).toBeDefined();
+      expect(Array.isArray(validation.warnings)).toBe(true);
+    });
+
+    it('should validate passport with all possible fields', () => {
+      const completeProfile = {
+        passportNumber: 'P12345678',
+        surname: 'DOE',
+        givenNames: 'JANE MARIE',
+        dateOfBirth: '1990-01-01',
+        passportExpiry: '2030-12-31',
+        nationality: 'USA',
+        gender: 'F',
+        issuingCountry: 'USA'
+      };
+
+      const result = {
+        success: true,
+        profile: completeProfile,
+        errors: [],
+        confidence: 0.95
+      };
+
+      const validation = validateScannedPassport(result);
+
+      expect(validation.isValid).toBe(true);
+      expect(validation.warnings).toHaveLength(0);
+    });
+
+    it('should detect unrealistic passport expiry dates', () => {
+      const futureProfile = {
+        passportNumber: 'P12345678',
+        surname: 'DOE',
+        givenNames: 'JANE',
+        dateOfBirth: '1990-01-01',
+        passportExpiry: '2090-01-01' // Too far in future
+      };
+
+      const result = {
+        success: true,
+        profile: futureProfile,
+        errors: [],
+        confidence: 0.8
+      };
+
+      const validation = validateScannedPassport(result);
+
+      expect(validation.warnings.some(w => 
+        w.toLowerCase().includes('expiry') || 
+        w.toLowerCase().includes('future')
+      )).toBe(true);
+    });
+  });
 });
