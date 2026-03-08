@@ -195,6 +195,37 @@ export class PortalIntegrationService {
           ],
         },
       },
+      'USA': {
+        name: 'Electronic System for Travel Authorization (ESTA)',
+        url: 'https://esta.cbp.dhs.gov/',
+        countryCode: 'USA',
+        features: {
+          supportsDeepLinks: false,
+          supportsAutoFill: true,
+          requiresManualEntry: true,
+        },
+        guidelines: {
+          recommendedBrowser: ['Safari', 'Chrome', 'Edge', 'Firefox'],
+          preparationTips: [
+            'No account creation required - single session process',
+            'Have passport from Visa Waiver Program country ready',
+            'Prepare employment and emergency contact information',
+            'Know your US accommodation address or contact person',
+            'Submit at least 72 hours before departure (recommended)',
+            'Have credit card ready for $21 authorization fee',
+            'ESTA is valid for 2 years or until passport expires',
+          ],
+          commonIssues: [
+            'Processing usually takes minutes to hours, can take up to 72 hours',
+            'Eligibility questions must be answered truthfully - false answers can result in permanent visa denial',
+            'Payment is required regardless of approval or denial',
+            'Multiple entries allowed - up to 90 days each visit',
+            'Contact person in US can be hotel or tour operator',
+            'Beware of unofficial sites charging additional fees - only use esta.cbp.dhs.gov',
+            'ESTA approval does not guarantee entry - final decision at port of entry',
+          ],
+        },
+      },
     };
 
     return portalMap[countryCode] || null;
@@ -468,6 +499,11 @@ export class PortalIntegrationService {
         preparationMinutes: 8,
         submissionMinutes: 15,
         factors: ['GOV.UK One Login account creation', 'Photo preparation', 'UK address details', 'Security questions', 'Payment processing']
+      },
+      'USA': {
+        preparationMinutes: 10,
+        submissionMinutes: 25,
+        factors: ['Multi-step ESTA process', 'Detailed eligibility questionnaire', 'Employment and emergency contact information', 'Travel details and US contact person', 'Payment processing ($21 fee)']
       }
     };
 
