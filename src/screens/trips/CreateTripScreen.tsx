@@ -9,11 +9,10 @@ import { BoardingPassScanner } from '../../components/boarding';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripLeg, Accommodation } from '../../types/trip';
 import { Address } from '../../types/profile';
-import { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
+import { ParsedBoardingPass } from '../../types/boarding';
 import { 
   isBoardingPassSupported, 
-  getUnsupportedDestinationMessage,
-  createTripLegFromBoardingPass 
+  getUnsupportedDestinationMessage
 } from '../../services/boarding/boardingPassParser';
 
 interface TripFormData {
