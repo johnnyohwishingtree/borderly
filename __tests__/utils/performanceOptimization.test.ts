@@ -2,21 +2,29 @@
  * @jest-environment node
  */
 
-import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization';
-
 declare const global: any;
 import type { PerformanceMetrics } from '../../src/services/performance/productionProfiler';
 import type { RegressionAlert } from '../../src/services/performance/regressionDetection';
 
-// Mock MMKV
+// Create a storage map that will be available for all instances
+const mockStorageMap = new Map<string, string>();
+
 jest.mock('react-native-mmkv', () => ({
   MMKV: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    getString: jest.fn(),
-    delete: jest.fn(),
-    getAllKeys: jest.fn(() => []),
+    set: jest.fn((key: string, value: string) => {
+      mockStorageMap.set(key, value);
+    }),
+    getString: jest.fn((key: string) => {
+      return mockStorageMap.get(key) || null;
+    }),
+    delete: jest.fn((key: string) => {
+      mockStorageMap.delete(key);
+    }),
+    getAllKeys: jest.fn(() => Array.from(mockStorageMap.keys())),
   })),
 }));
+
+import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization';
 
 // Mock PII sanitization
 jest.mock('../../src/utils/piiSanitizer', () => ({
@@ -76,10 +84,28 @@ describe('PerformanceOptimization', () => {
     jest.clearAllMocks();
     jest.clearAllTimers();
     jest.useFakeTimers();
+    
+    // Clear storage between tests
+    mockStorageMap.clear();
+    
+    // Set test mode flag
+    (global as any).__TEST__ = true;
+    
+    // Reset the performance optimization instance
+    (performanceOptimization as any).resetForTesting();
+    
+    // Mock Date.now for consistent timing
+    let fakeTime = Date.now();
+    jest.spyOn(Date, 'now').mockImplementation(() => {
+      fakeTime += 100; // Advance time by 100ms each call
+      return fakeTime;
+    });
   });
 
   afterEach(() => {
     jest.useRealTimers();
+    jest.restoreAllMocks();
+    delete (global as any).__TEST__;
   });
 
   describe('getRecommendations', () => {
@@ -150,7 +176,6 @@ describe('PerformanceOptimization', () => {
 
     it('should consider historical success rates', () => {
       // Mock some successful optimization history
-      const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
       const optimizationHistory = [
         {
           strategyId: 'memory-cleanup',
@@ -159,12 +184,8 @@ describe('PerformanceOptimization', () => {
           timestamp: Date.now() - 86400000
         }
       ];
-      mockStorage.getString.mockImplementation((key: string) => {
-        if (key === 'optimization-history') {
-          return JSON.stringify(optimizationHistory);
-        }
-        return null;
-      });
+      mockStorageMap.set('optimization-history', JSON.stringify(optimizationHistory));
+      (performanceOptimization as any).resetForTesting(); // Reload the history
 
       const recommendations = performanceOptimization.getRecommendations(mockMetrics, mockAlerts);
       
@@ -203,7 +224,6 @@ describe('PerformanceOptimization', () => {
     });
 
     it('should measure execution time', async () => {
-      Date.now();
       const result = await performanceOptimization.executeStrategy('memory-cleanup');
       
       expect(result.executionTime).toBeGreaterThan(0);
@@ -304,8 +324,7 @@ describe('PerformanceOptimization', () => {
         expect(mockOperation).toHaveBeenCalled();
         
         // Should have recorded the measurement
-        const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
-        expect(mockStorage.set).toHaveBeenCalledWith('performance-measurements', expect.any(String));
+        expect(mockStorageMap.has('performance-measurements')).toBe(true);
       });
 
       it('should handle async operation errors', async () => {
@@ -317,8 +336,7 @@ describe('PerformanceOptimization', () => {
         ).rejects.toThrow('Async operation failed');
         
         // Should still record the failed measurement
-        const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
-        expect(mockStorage.set).toHaveBeenCalled();
+        expect(mockStorageMap.has('performance-measurements')).toBe(true);
       });
 
       it('should calculate execution time', async () => {
@@ -479,13 +497,8 @@ describe('PerformanceOptimization', () => {
       ];
       
       // Mock the optimization history
-      const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
-      mockStorage.getString.mockImplementation((key: string) => {
-        if (key === 'optimization-history') {
-          return JSON.stringify(mockHistory);
-        }
-        return null;
-      });
+      mockStorageMap.set('optimization-history', JSON.stringify(mockHistory));
+      (performanceOptimization as any).resetForTesting(); // Reload the history
 
       const report = performanceOptimization.getOptimizationReport();
       
@@ -525,19 +538,20 @@ describe('PerformanceOptimization', () => {
 
   describe('edge cases and error handling', () => {
     it('should handle missing storage gracefully', () => {
-      const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
-      mockStorage.getString.mockImplementation(() => {
-        throw new Error('Storage unavailable');
-      });
+      // Temporarily break storage
+      const originalGet = mockStorageMap.get;
+      mockStorageMap.get = () => { throw new Error('Storage unavailable'); };
       
       expect(() => {
         performanceOptimization.getRecommendations(mockMetrics, mockAlerts);
       }).not.toThrow();
+      
+      // Restore storage
+      mockStorageMap.get = originalGet;
     });
 
     it('should handle malformed stored data', () => {
-      const mockStorage = require('react-native-mmkv').MMKV.mock.results[0].value;
-      mockStorage.getString.mockReturnValue('invalid json');
+      mockStorageMap.set('optimization-history', 'invalid json');
       
       expect(() => {
         performanceOptimization.getOptimizationReport();

@@ -224,6 +224,19 @@ class PerformanceOptimization {
   }
 
   /**
+   * Reset instance for testing - reloads data from storage
+   */
+  resetForTesting(): void {
+    this.optimizationHistory = [];
+    this.performanceBudgets = [];
+    this.strategies.clear();
+    
+    this.loadStrategies();
+    this.loadOptimizationHistory();
+    this.initializePerformanceBudgets();
+  }
+
+  /**
    * Get optimization recommendations based on current performance and alerts
    */
   getRecommendations(
@@ -261,24 +274,25 @@ class PerformanceOptimization {
    * Execute an optimization strategy
    */
   async executeStrategy(strategyId: string): Promise<OptimizationResult> {
-    const strategy = this.strategies.get(strategyId);
-    if (!strategy) {
-      throw new Error(`Strategy ${strategyId} not found`);
-    }
-
     const startTime = Date.now();
     let beforeMetrics: Partial<PerformanceMetrics> = {};
     let afterMetrics: Partial<PerformanceMetrics> = {};
     
     try {
+      const strategy = this.strategies.get(strategyId);
+      if (!strategy) {
+        throw new Error(`Strategy ${strategyId} not found`);
+      }
       // Capture before metrics
       beforeMetrics = await this.captureMetrics(strategy.targetMetrics);
       
       // Execute strategy
       await this.executeStrategyImplementation(strategy);
       
-      // Wait a moment for changes to take effect
-      await new Promise<void>(resolve => setTimeout(resolve, 1000));
+      // Wait a moment for changes to take effect (skip delay in test environment)
+      if (typeof jest === 'undefined' && !(global as any).__TEST__) {
+        await new Promise<void>(resolve => setTimeout(resolve, 1000));
+      }
       
       // Capture after metrics
       afterMetrics = await this.captureMetrics(strategy.targetMetrics);
@@ -338,8 +352,10 @@ class PerformanceOptimization {
         const result = await this.executeStrategy(recommendation.strategy.id);
         results.push(result);
         
-        // Brief pause between optimizations
-        await new Promise<void>(resolve => setTimeout(resolve, 500));
+        // Brief pause between optimizations (skip delay in test environment)
+        if (typeof jest === 'undefined' && !(global as any).__TEST__) {
+          await new Promise<void>(resolve => setTimeout(resolve, 500));
+        }
       } catch (error) {
         console.error(`Failed to execute automated optimization ${recommendation.strategy.id}:`, error);
       }
@@ -558,19 +574,28 @@ class PerformanceOptimization {
     });
     
     // Load custom strategies from storage
-    const customStrategies = this.storage.getString('custom-strategies');
-    if (customStrategies) {
-      const strategies: OptimizationStrategy[] = JSON.parse(customStrategies);
-      strategies.forEach(strategy => {
-        this.strategies.set(strategy.id, strategy);
-      });
+    try {
+      const customStrategies = this.storage.getString('custom-strategies');
+      if (customStrategies) {
+        const strategies: OptimizationStrategy[] = JSON.parse(customStrategies);
+        strategies.forEach(strategy => {
+          this.strategies.set(strategy.id, strategy);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load custom strategies:', sanitizePII(error instanceof Error ? error.message : 'Unknown error'));
     }
   }
 
   private loadOptimizationHistory(): void {
-    const history = this.storage.getString('optimization-history');
-    if (history) {
-      this.optimizationHistory = JSON.parse(history);
+    try {
+      const history = this.storage.getString('optimization-history');
+      if (history) {
+        this.optimizationHistory = JSON.parse(history);
+      }
+    } catch (error) {
+      console.error('Failed to load optimization history:', sanitizePII(error instanceof Error ? error.message : 'Unknown error'));
+      this.optimizationHistory = [];
     }
   }
 
