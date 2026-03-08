@@ -1,0 +1,30 @@
+name: Review Guardian
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  guardian:
+    # Trigger if Gemini Code Assist posts its "unable to generate" failure message
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, 'Gemini is unable to generate a summary for this pull request')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-trigger review from preferred agent
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          # Use PREFERRED_AGENT if set, otherwise default to gemini for reviews
+          AGENT: ${{ vars.PREFERRED_AGENT || 'gemini' }}
+        run: |
+          PR_NUM=${{ github.event.issue.number }}
+          echo "Gemini Code Assist failed on PR #$PR_NUM. Triggering @$AGENT for fallback review."
+          
+          gh issue comment "$PR_NUM" --repo ${{ github.repository }} \
+            --body "@$AGENT Gemini Code Assist failed to summarize/review this PR. Please perform a comprehensive code review using the /review-pr skill. Analyze the diff, check for regressions, and post a formal review. This is an automated fallback."
