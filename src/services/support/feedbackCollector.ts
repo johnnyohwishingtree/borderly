@@ -108,7 +108,7 @@ class FeedbackCollector {
 
         // Calculate rating distribution
         feedback.forEach(f => {
-          stats.ratingDistribution[f.rating]++;
+          (stats.ratingDistribution as Record<number, number>)[f.rating]++;
         });
 
         // Calculate type distribution
@@ -183,12 +183,13 @@ class FeedbackCollector {
     // Get app preferences - using direct access to avoid circular imports
     const preferences = useAppStore.getState().preferences;
     
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
     return {
       appVersion: '1.0.0', // This would come from app config
-      platform: process.env.NODE_ENV === 'test' ? 'test' : 'react-native',
+      platform: (typeof process !== 'undefined' && 'env' in process && (process as any).env?.NODE_ENV === 'test') ? 'test' : 'react-native',
       language: preferences.language,
       analyticsEnabled: preferences.analyticsEnabled,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      ...(userAgent !== undefined ? { userAgent } : {}),
     };
   }
 
@@ -243,18 +244,16 @@ class FeedbackCollector {
     }
   }
 
-  /**
-   * Future: Send feedback to remote service
-   */
-  private async sendToServer(feedback: FeedbackData): Promise<void> {
-    // This would be implemented when a backend service is available
-    // For MVP, we only store locally
-    console.log('Would send feedback to server:', { 
-      id: feedback.id, 
-      type: feedback.type, 
-      rating: feedback.rating 
-    });
-  }
+  // Future: Send feedback to remote service
+  // private async sendToServer(feedback: FeedbackData): Promise<void> {
+  //   // This would be implemented when a backend service is available
+  //   // For MVP, we only store locally
+  //   console.log('Would send feedback to server:', {
+  //     id: feedback.id,
+  //     type: feedback.type,
+  //     rating: feedback.rating
+  //   });
+  // }
 }
 
 export const feedbackCollector = new FeedbackCollector();

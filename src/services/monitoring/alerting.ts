@@ -388,9 +388,10 @@ class AlertingService {
     // Rule statistics
     this.rules.forEach(rule => {
       const triggeredCount = this.alerts.filter(a => a.ruleId === rule.id).length;
+      const lastTriggered = this.ruleLastTriggered.get(rule.id);
       stats.ruleStats[rule.id] = {
         triggered: triggeredCount,
-        lastTriggered: this.ruleLastTriggered.get(rule.id)
+        ...(lastTriggered !== undefined ? { lastTriggered } : {})
       };
     });
 
@@ -476,9 +477,9 @@ class AlertingService {
   }
 
   private evaluateCustomCondition(
-    condition: AlertCondition, 
-    event: MonitoringEvent, 
-    windowEvents: MonitoringEvent[]
+    _condition: AlertCondition,
+    _event: MonitoringEvent,
+    _windowEvents: MonitoringEvent[]
   ): boolean {
     // Placeholder for custom condition evaluation
     // This would be implemented based on specific requirements
@@ -504,7 +505,7 @@ class AlertingService {
     return path.split('.').reduce((current, key) => current?.[key], obj);
   }
 
-  private getRelatedEvents(rule: AlertRule, triggerEvent: MonitoringEvent): MonitoringEvent[] {
+  private getRelatedEvents(rule: AlertRule, _triggerEvent: MonitoringEvent): MonitoringEvent[] {
     const windowStart = Date.now() - (rule.timeWindow * 60 * 1000);
     return this.eventBuffer.filter(event => {
       if (event.timestamp < windowStart) return false;
@@ -520,7 +521,7 @@ class AlertingService {
 
   private generateAlertMessage(
     rule: AlertRule, 
-    triggerEvent: MonitoringEvent, 
+    _triggerEvent: MonitoringEvent,
     relatedEvents: MonitoringEvent[]
   ): string {
     const { condition, timeWindow } = rule;
@@ -558,8 +559,8 @@ class AlertingService {
             break;
           
           case 'log':
-            const level = action.config.level || 'warn';
-            console[level as keyof Console](`Alert: ${alert.title} - ${alert.message}`);
+            const level = (action.config.level || 'warn') as 'log' | 'warn' | 'error' | 'info';
+            console[level](`Alert: ${alert.title} - ${alert.message}`);
             break;
           
           // Additional action types would be implemented here

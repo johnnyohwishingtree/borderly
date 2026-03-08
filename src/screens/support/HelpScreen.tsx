@@ -15,9 +15,9 @@ interface FAQItem {
   tags: string[];
 }
 
-export default function HelpScreen({ route }: HelpScreenProps) {
-  const navigation = useNavigation();
-  const [searchTerm, setSearchTerm] = useState<string>('');
+export default function HelpScreen({ route: _route }: HelpScreenProps) {
+  useNavigation();
+  const [searchTerm, _setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [expandedFAQ, setExpandedFAQ] = useState<string | null>(null);
 
@@ -242,14 +242,13 @@ export default function HelpScreen({ route }: HelpScreenProps) {
             </View>
           ) : (
             <View className="space-y-3">
-              {filteredFAQs.map((faq, index) => (
+              {filteredFAQs.map((faq, _index) => (
                 <View key={faq.id} className="border border-gray-200 rounded-lg overflow-hidden">
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
-                    variant="ghost"
+                    variant="outline"
                     fullWidth
-                    className="text-left justify-start p-4 bg-white"
                   />
                   
                   {expandedFAQ === faq.id && (

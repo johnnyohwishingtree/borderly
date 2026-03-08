@@ -79,8 +79,9 @@ class CrashReportingService {
     if (this.isSetup || !this.config.enabled) return;
 
     // Capture JavaScript errors (browser/web environment)
-    if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event: any) => {
+    const _window = typeof globalThis !== 'undefined' ? (globalThis as any).window : undefined;
+    if (_window) {
+      _window.addEventListener('error', (event: any) => {
         this.handleJavaScriptError(event.error, {
           filename: event.filename,
           lineno: event.lineno,
@@ -90,7 +91,7 @@ class CrashReportingService {
 
       // Capture unhandled promise rejections
       if (this.config.enablePromiseRejectionCapture) {
-        window.addEventListener('unhandledrejection', (event: any) => {
+        _window.addEventListener('unhandledrejection', (event: any) => {
           this.handleUnhandledPromiseRejection(event.reason);
         });
       }
@@ -289,15 +290,20 @@ class CrashReportingService {
         screen: 'unknown',
         appState: this.getAppState(),
         networkStatus: this.getNetworkStatus(),
-        ...context
+        ...(context ? Object.fromEntries(Object.entries(context).filter(([_, v]) => v !== undefined)) : {}),
       },
-      device: {
-        platform: this.getPlatform(),
-        osVersion: this.getOSVersion(),
-        appVersion: this.getAppVersion(),
-        ...(this.getDeviceModel() ? { deviceModel: this.getDeviceModel() } : {}),
-        ...(this.getAvailableMemory() !== undefined ? { availableMemory: this.getAvailableMemory() } : {})
-      },
+      device: (() => {
+        const base: CrashReport['device'] = {
+          platform: this.getPlatform(),
+          osVersion: this.getOSVersion(),
+          appVersion: this.getAppVersion(),
+        };
+        const model = this.getDeviceModel();
+        if (model !== undefined) base.deviceModel = model;
+        const mem = this.getAvailableMemory();
+        if (mem !== undefined) base.availableMemory = mem;
+        return base;
+      })(),
       breadcrumbs: [...this.breadcrumbs],
       severity,
       tags: this.sanitizeTags(tags)
@@ -405,7 +411,7 @@ class CrashReportingService {
   }
 
   private getAppVersion(): string {
-    return (typeof process !== 'undefined' && process.env?.APP_VERSION) || '1.0.0';
+    return (typeof process !== 'undefined' && 'env' in process && (process as any).env?.APP_VERSION) || '1.0.0';
   }
 
   private getDeviceModel(): string | undefined {
@@ -423,7 +429,7 @@ class CrashReportingService {
 export const crashReporting = new CrashReportingService();
 
 // Auto-setup in production
-if (process.env.NODE_ENV === 'production') {
+if (typeof process !== 'undefined' && 'env' in process && (process as any).env.NODE_ENV === 'production') {
   crashReporting.setup();
 }
 
