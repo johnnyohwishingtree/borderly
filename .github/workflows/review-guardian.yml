@@ -54,13 +54,6 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
-          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
-
-          # Only for autonomous claude/ branches
-          if [[ "$PR_BRANCH" != claude/* ]]; then
-            echo "Not a claude/ branch — skipping"
-            exit 0
-          fi
 
           # Check if there's already an APPROVED review
           HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
@@ -103,12 +96,6 @@ jobs:
           # workflow_run doesn't directly give us PR number, so we find it from the branch
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           echo "CI passed for branch: $BRANCH"
-
-          # Only care about claude/ branches (autonomous PRs)
-          if [[ "$BRANCH" != claude/* ]]; then
-            echo "Not a claude/ branch — skipping review check"
-            exit 0
-          fi
 
           PR_NUM=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
             --json number -q '.[0].number' 2>/dev/null || echo "")
