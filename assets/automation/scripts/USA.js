@@ -25,16 +25,39 @@
         try {
           const debug = options.debug || false;
           const testMode = options.testMode || false;
+          const maxRetries = options.maxRetries || 3;
+          const retryDelay = options.retryDelay || 2000;
           
           if (debug) {
             window.BorderlyAutomation.Debug.logStep('USA ESTA automation started', true, {
               url: window.location.href,
-              testMode: testMode
+              testMode: testMode,
+              maxRetries: maxRetries
             });
           }
 
-          // Wait for page to be ready
-          await window.BorderlyAutomation.Page.waitForReady();
+          // Validate form data before starting
+          const validationResult = this.validateFormData(formData);
+          if (!validationResult.valid) {
+            reject({
+              error: 'Invalid form data',
+              details: validationResult.errors,
+              step: 'validation'
+            });
+            return;
+          }
+
+          // Wait for page to be ready with retry logic
+          let pageReady = false;
+          for (let i = 0; i < maxRetries && !pageReady; i++) {
+            try {
+              await window.BorderlyAutomation.Page.waitForReady();
+              pageReady = true;
+            } catch (error) {
+              if (i === maxRetries - 1) throw error;
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
+          }
           
           // Detect current step and proceed accordingly
           const currentStep = await this.detectCurrentStep();
@@ -45,16 +68,59 @@
             });
           }
 
-          const result = await this.handleStep(currentStep, formData, options);
+          // Handle step with retry logic
+          let result = false;
+          let lastError = null;
+          
+          for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+              result = await this.handleStep(currentStep, formData, options);
+              if (result) {
+                break; // Success, exit loop
+              }
+              if (debug) {
+                window.BorderlyAutomation.Debug.logStep('Step failed, retrying', false, {
+                  step: currentStep,
+                  attempt: attempt,
+                  willRetry: attempt < maxRetries
+                });
+              }
+            } catch (error) {
+              lastError = error;
+              if (debug) {
+                window.BorderlyAutomation.Debug.logStep('Step error, retrying', false, {
+                  step: currentStep,
+                  attempt: attempt,
+                  error: error.message,
+                  willRetry: attempt < maxRetries
+                });
+              }
+            }
+
+            if (attempt < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
+          }
+
+          if (!result && lastError) {
+            throw lastError;
+          }
           
           resolve({
             success: result,
             step: currentStep,
-            nextAction: result ? 'proceed' : 'manual_intervention_required'
+            nextAction: result ? 'proceed' : 'manual_intervention_required',
+            metadata: {
+              url: window.location.href,
+              timestamp: new Date().toISOString()
+            }
           });
           
         } catch (error) {
-          const context = window.BorderlyAutomation.Error.captureContext(error);
+          const context = window.BorderlyAutomation.Error.captureContext(error, {
+            step: 'automation',
+            formDataPresent: !!formData
+          });
           reject(context);
         }
       }.bind(this));
@@ -736,6 +802,87 @@
         } catch (error) {
           resolve(false);
         }
+      });
+    },
+
+    /**
+     * Validates form data before automation
+     */
+    validateFormData: function(formData) {
+      const errors = [];
+      const required = [
+        'surname',
+        'givenNames', 
+        'dateOfBirth',
+        'passportNumber',
+        'passportCountry',
+        'passportExpiry'
+      ];
+      
+      if (!formData) {
+        return { valid: false, errors: ['Form data is required'] };
+      }
+      
+      required.forEach(field => {
+        const value = this.getNestedValue(formData, field);
+        if (!value || value.trim() === '') {
+          errors.push(`Missing required field: ${field}`);
+        }
+      });
+      
+      // Validate date of birth format
+      const dob = this.getNestedValue(formData, 'dateOfBirth');
+      if (dob && !this.isValidDate(dob)) {
+        errors.push('Invalid date of birth format');
+      }
+      
+      // Validate passport expiry
+      const expiry = this.getNestedValue(formData, 'passportExpiry');
+      if (expiry && !this.isValidDate(expiry)) {
+        errors.push('Invalid passport expiry format');
+      } else if (expiry && new Date(expiry) <= new Date()) {
+        errors.push('Passport has expired');
+      }
+      
+      return {
+        valid: errors.length === 0,
+        errors: errors
+      };
+    },
+
+    /**
+     * Validates date format
+     */
+    isValidDate: function(dateString) {
+      const date = new Date(dateString);
+      return date instanceof Date && !isNaN(date);
+    },
+
+
+    /**
+     * Waits for page to be stable (no loading indicators)
+     */
+    waitForPageStable: function(timeout = 10000) {
+      return new Promise(function(resolve, reject) {
+        const startTime = Date.now();
+        
+        function check() {
+          const loadingElements = document.querySelectorAll(
+            '.loading, .spinner, [aria-busy="true"], .progress-indicator, .esta-loading'
+          );
+          
+          const isStable = loadingElements.length === 0 && document.readyState === 'complete';
+          
+          if (isStable) {
+            resolve(true);
+          } else if (Date.now() - startTime > timeout) {
+            reject(new Error('Timeout waiting for page to be stable'));
+          } else {
+            setTimeout(check, 200);
+          }
+        }
+        
+        check();
       });
     },
 
