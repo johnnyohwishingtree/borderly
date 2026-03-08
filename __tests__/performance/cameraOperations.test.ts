@@ -255,8 +255,10 @@ describe('Camera Operations Performance Tests', () => {
       
       if (detectionResult.success && detectionResult.data) {
         const _isValid = mockQrCapture.validateQRFormat(detectionResult.data);
+        void _isValid; // Intentionally unused for performance testing
         const metadata = mockQrCapture.extractQRMetadata(detectionResult.data);
         const _savedResult = await mockQrCapture.saveQRCode(detectionResult.data, metadata);
+        void _savedResult; // Intentionally unused for performance testing
       }
       
       const endTime = performance.now();
@@ -360,6 +362,7 @@ describe('Camera Operations Performance Tests', () => {
         const startTime = performance.now();
         
         const _text = await mockMrzParser.performOCR(testImage.data);
+        void _text; // Intentionally unused for performance testing
         
         const endTime = performance.now();
         const duration = endTime - startTime;
@@ -451,6 +454,7 @@ describe('Camera Operations Performance Tests', () => {
       const imageData = new Uint8Array(1024 * 768); // Mock camera image
       const preprocessed = mockMrzParser.preprocessImage(imageData);
       const _text = await mockMrzParser.performOCR(preprocessed);
+      void _text; // Intentionally unused for performance testing
       
       // Simulate detected MRZ lines from OCR
       const mrzLines = [
@@ -481,6 +485,7 @@ describe('Camera Operations Performance Tests', () => {
       
       if (qrResult.success && qrResult.data) {
         const _isValid = mockQrCapture.validateQRFormat(qrResult.data);
+        void _isValid; // Intentionally unused for performance testing
         await mockQrCapture.saveQRCode(qrResult.data);
       }
       
@@ -516,6 +521,7 @@ describe('Camera Operations Performance Tests', () => {
       for (let i = 0; i < iterations; i++) {
         const imageData = new Uint8Array(512 * 384); // Smaller images for stress test
         const _processed = mockMrzParser.preprocessImage(imageData);
+        void _processed; // Intentionally unused for performance testing
         
         // Simulate garbage collection every 10 iterations
         if (i % 10 === 0 && (globalThis as any).gc) {

@@ -377,7 +377,7 @@ describe('Performance regression scenarios', () => {
     }
     
     const regressions = profiler.getRegressions();
-    const stableRegressions = regressions.filter(r => r.metricName === 'stable_operation');
+    const stableRegressions = regressions.filter(r => r.operation === 'stable_operation');
     
     // Should not detect regression for temporary anomaly
     expect(stableRegressions.length).toBe(0);

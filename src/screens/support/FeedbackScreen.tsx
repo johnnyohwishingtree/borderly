@@ -46,7 +46,7 @@ export default function FeedbackScreen({ route }: FeedbackScreenProps) {
     try {
       // In a real implementation, this would send feedback to a service
       // For now, we'll simulate the submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 1000));
 
       const feedbackData = {
         type: feedbackType,

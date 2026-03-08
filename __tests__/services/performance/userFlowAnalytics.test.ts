@@ -192,7 +192,7 @@ describe('UserFlowAnalytics', () => {
   describe('friction point identification', () => {
     it('should identify high duration friction points', () => {
       // Create flows with slow steps
-      const flowId = analytics.startFlow('slow_flow', 'session_1');
+      const flowId = analytics.startFlow('onboarding', 'session_1');
       const stepId = analytics.addStep(flowId, 'slow_step', 'SlowScreen', 'slow_action');
       
       // Mock a step that takes 15 seconds (should be flagged as friction)
@@ -219,7 +219,7 @@ describe('UserFlowAnalytics', () => {
     it('should identify high error rate friction points', () => {
       // Create multiple flows with failures
       for (let i = 0; i < 5; i++) {
-        const flowId = analytics.startFlow('error_prone_flow', `session_${i}`);
+        const flowId = analytics.startFlow('form_completion', `session_${i}`);
         const stepId = analytics.addStep(flowId, 'error_step', 'ErrorScreen', 'error_action');
         analytics.completeStep(flowId, stepId, false, 'common_error');
         analytics.completeFlow(flowId, false, 'error_step');
@@ -232,7 +232,7 @@ describe('UserFlowAnalytics', () => {
     it('should identify high drop-off flows', () => {
       // Create flows with high drop-off rates
       for (let i = 0; i < 10; i++) {
-        const flowId = analytics.startFlow('drop_off_flow', `session_${i}`);
+        const flowId = analytics.startFlow('trip_creation', `session_${i}`);
         const stepId = analytics.addStep(flowId, 'drop_off_step', 'DropOffScreen', 'action');
         
         if (i < 3) {
@@ -298,7 +298,7 @@ describe('UserFlowAnalytics', () => {
     it('should handle memory management for large datasets', () => {
       // Create many flows to test memory management
       for (let i = 0; i < 200; i++) {
-        const flowId = analytics.startFlow('memory_test', `session_${i}`);
+        const flowId = analytics.startFlow('qr_management', `session_${i}`);
         analytics.completeFlow(flowId, true);
       }
       
@@ -318,7 +318,7 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should sanitize step metadata', () => {
-      const flowId = analytics.startFlow('test_flow', 'session');
+      const flowId = analytics.startFlow('profile_edit', 'session');
       
       const stepId = analytics.addStep(
         flowId,
@@ -337,7 +337,7 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should sanitize error messages', () => {
-      const flowId = analytics.startFlow('test_flow', 'session');
+      const flowId = analytics.startFlow('profile_edit', 'session');
       const stepId = analytics.addStep(flowId, 'error_step', 'ErrorScreen', 'action');
       
       analytics.completeStep(
@@ -371,7 +371,7 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should handle invalid step IDs gracefully', () => {
-      const flowId = analytics.startFlow('test_flow', 'session');
+      const flowId = analytics.startFlow('profile_edit', 'session');
       
       expect(() => {
         analytics.completeStep(flowId, 'invalid_step_id', true);
@@ -379,7 +379,7 @@ describe('UserFlowAnalytics', () => {
     });
 
     it('should handle malformed metadata gracefully', () => {
-      const flowId = analytics.startFlow('test_flow', 'session');
+      const flowId = analytics.startFlow('profile_edit', 'session');
       
       expect(() => {
         analytics.addStep(flowId, 'step', 'Screen', 'action', {

@@ -512,7 +512,7 @@ describe('Performance Measurement Utilities', () => {
   describe('measureAsync', () => {
     it('should measure async operation duration', async () => {
       const slowOperation = async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(() => resolve(undefined), 100));
         return 'result';
       };
       

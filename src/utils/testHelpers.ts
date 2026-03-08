@@ -501,7 +501,7 @@ export class TestEnvironment {
     let currentTime = mockDate.getTime();
 
     // Mock Date constructor and Date.now()
-    global.Date = class extends Date {
+    (globalThis as any).Date = class extends Date {
       constructor(...args: any[]) {
         if (args.length === 0) {
           super(currentTime);
@@ -517,7 +517,7 @@ export class TestEnvironment {
 
     return {
       restore: () => {
-        global.Date = originalDate;
+        (globalThis as any).Date = originalDate;
       },
       advanceTime: (ms: number) => {
         currentTime += ms;
@@ -538,9 +538,9 @@ export class TestEnvironment {
   } {
     const { delay = 100, failureRate = 0, timeoutRate = 0 } = options;
     const requestLog: Array<{ url: string; method: string; success: boolean }> = [];
-    const originalFetch = global.fetch;
+    const originalFetch = (globalThis as any).fetch;
 
-    global.fetch = async (url: any, options: any = {}) => {
+    (globalThis as any).fetch = async (url: any, options: any = {}) => {
       const method = options.method || 'GET';
       
       // Simulate network delay
@@ -568,7 +568,7 @@ export class TestEnvironment {
 
     return {
       restore: () => {
-        global.fetch = originalFetch;
+        (globalThis as any).fetch = originalFetch;
       },
       getRequestLog: () => [...requestLog]
     };

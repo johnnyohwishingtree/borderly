@@ -9,7 +9,7 @@ import { TestDataFactory, TestEnvironment } from '@/utils/testHelpers';
 
 // Mock fetch for testing
 const mockFetch = jest.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch;
 
 describe('PortalHealthChecker', () => {
   let healthChecker: PortalHealthChecker;
