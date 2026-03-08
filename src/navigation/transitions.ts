@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import { StackNavigationOptions } from '@react-navigation/stack';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { NAVIGATION_ANIMATIONS, ANIMATION_DURATION } from '../utils/animations';
 
@@ -149,15 +148,23 @@ export const TAB_TRANSITIONS = {
 
 // Platform-specific optimizations
 export const getPlatformTransition = (
-  transition: keyof typeof STANDARD_TRANSITIONS | NativeStackNavigationOptions,
+  transition: keyof typeof STANDARD_TRANSITIONS | keyof typeof CONTEXT_TRANSITIONS | NativeStackNavigationOptions,
   options?: {
     reducedMotion?: boolean;
     highPerformance?: boolean;
   }
 ): NativeStackNavigationOptions => {
-  const baseTransition = typeof transition === 'string' 
-    ? STANDARD_TRANSITIONS[transition]
-    : transition;
+  let baseTransition: NativeStackNavigationOptions;
+  
+  if (typeof transition === 'string') {
+    if (transition in STANDARD_TRANSITIONS) {
+      baseTransition = STANDARD_TRANSITIONS[transition as keyof typeof STANDARD_TRANSITIONS];
+    } else {
+      baseTransition = CONTEXT_TRANSITIONS[transition as keyof typeof CONTEXT_TRANSITIONS];
+    }
+  } else {
+    baseTransition = transition;
+  }
 
   // Handle reduced motion preference
   if (options?.reducedMotion) {
@@ -196,7 +203,7 @@ export const getPlatformTransition = (
 
 // Helper to create consistent screen options
 export const createScreenOptions = (
-  transition: keyof typeof STANDARD_TRANSITIONS | NativeStackNavigationOptions,
+  transition: keyof typeof STANDARD_TRANSITIONS | keyof typeof CONTEXT_TRANSITIONS | NativeStackNavigationOptions,
   overrides?: Partial<NativeStackNavigationOptions>
 ): NativeStackNavigationOptions => ({
   ...getPlatformTransition(transition),

@@ -1,10 +1,15 @@
-import { useState, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { 
   View, 
   ViewProps, 
   Pressable, 
   Animated
 } from 'react-native';
+import { 
+  PanGestureHandler, 
+  PanGestureHandlerGestureEvent, 
+  State as GestureState 
+} from 'react-native-gesture-handler';
 import { HapticFeedback } from './HapticFeedback';
 import { TouchTargetUtils, ACCESSIBILITY_CONSTANTS } from '../../utils/accessibility';
 import { ANIMATION_PRESETS, combineAnimations } from '../../styles/animations';
@@ -18,8 +23,8 @@ export interface AnimatedCardProps extends Omit<ViewProps, 'style'> {
   entranceDelay?: number;
   onPress?: () => void;
   onLongPress?: () => void;
-  // onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
-  // swipeEnabled?: boolean;
+  onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
+  swipeEnabled?: boolean;
   disabled?: boolean;
   loading?: boolean;
   accessibilityLabel?: string;
@@ -41,8 +46,8 @@ export default function AnimatedCard({
   children,
   onPress,
   onLongPress,
-  // onSwipe,
-  // swipeEnabled = false,
+  onSwipe,
+  swipeEnabled = false,
   disabled = false,
   loading = false,
   accessibilityLabel,
@@ -60,7 +65,7 @@ export default function AnimatedCard({
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   // Entrance animation
-  useState(() => {
+  useEffect(() => {
     const delay = entranceDelay;
     
     if (animationType !== 'none') {
@@ -104,18 +109,18 @@ export default function AnimatedCard({
         );
       }
 
-      setTimeout(() => {
-        Animated.parallel(animations).start(() => {
-          setIsVisible(true);
-        });
+      const timer = setTimeout(() => {
+        Animated.parallel(animations).start();
       }, delay);
+
+      return () => clearTimeout(timer);
     } else {
       opacityAnim.setValue(1);
-      setIsVisible(true);
     }
-  });
+    return undefined;
+  }, [animationType, entranceDelay, opacityAnim, scaleAnim, translateYAnim]);
 
-  const getCardStyles = (pressed = false) => {
+  const getCardStyles = () => {
     const baseStyles = highContrastMode 
       ? 'bg-white border-2 border-black' 
       : 'bg-white';
