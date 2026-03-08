@@ -1,5 +1,5 @@
 import { View, ViewProps, Pressable } from 'react-native';
-import { trigger } from 'react-native-haptic-feedback';
+import { HapticFeedback } from './HapticFeedback';
 import { TouchTargetUtils, ACCESSIBILITY_CONSTANTS } from '../../utils/accessibility';
 
 export interface CardProps extends ViewProps {
@@ -69,7 +69,7 @@ export default function Card({
 
   const handlePress = () => {
     if (onPress) {
-      trigger('impactLight', { enableVibrateFallback: true });
+      HapticFeedback.card();
       onPress();
     }
   };

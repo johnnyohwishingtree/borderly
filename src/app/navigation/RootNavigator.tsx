@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
 import { useProfileStore } from '../../stores/useProfileStore';
+import { CONTEXT_TRANSITIONS, STANDARD_TRANSITIONS } from '../../navigation/transitions';
 
 // Lazy load navigators for better code splitting
 const MainTabNavigator = lazy(() => import('./MainTabNavigator').then(m => ({ default: m.default })));
@@ -30,17 +31,14 @@ function OnboardingNavigator() {
   return (
     <OnboardingStack.Navigator
       screenOptions={{
-        headerShown: false,
-        animation: 'slide_from_right',
+        ...CONTEXT_TRANSITIONS.onboarding,
         animationTypeForReplace: 'push',
-        gestureEnabled: true,
-        gestureDirection: 'horizontal',
       }}
     >
       <OnboardingStack.Screen 
         name="Welcome" 
         options={{
-          animation: 'fade',
+          ...STANDARD_TRANSITIONS.fade,
         }}
       >
         {() => (
@@ -52,7 +50,7 @@ function OnboardingNavigator() {
       <OnboardingStack.Screen
         name="Tutorial"
         options={{
-          animation: 'slide_from_right',
+          ...STANDARD_TRANSITIONS.slideFromRight,
         }}
       >
         {() => (
@@ -64,7 +62,7 @@ function OnboardingNavigator() {
       <OnboardingStack.Screen
         name="PassportScan"
         options={{
-          animation: 'slide_from_right',
+          ...CONTEXT_TRANSITIONS.camera,
         }}
       >
         {() => (
@@ -76,7 +74,7 @@ function OnboardingNavigator() {
       <OnboardingStack.Screen
         name="ConfirmProfile"
         options={{
-          animation: 'slide_from_right',
+          ...STANDARD_TRANSITIONS.slideFromRight,
         }}
       >
         {() => (
@@ -88,7 +86,7 @@ function OnboardingNavigator() {
       <OnboardingStack.Screen
         name="BiometricSetup"
         options={{
-          animation: 'slide_from_right',
+          ...STANDARD_TRANSITIONS.slideFromRight,
         }}
       >
         {() => (
@@ -113,15 +111,14 @@ export default function RootNavigator() {
     <NavigationContainer>
       <RootStack.Navigator
         screenOptions={{
-          headerShown: false,
-          animation: 'fade',
+          ...STANDARD_TRANSITIONS.fade,
         }}
       >
         {isOnboardingComplete ? (
           <RootStack.Screen 
             name="Main" 
             options={{
-              animation: 'fade',
+              ...STANDARD_TRANSITIONS.fade,
             }}
           >
             {() => (
@@ -135,7 +132,7 @@ export default function RootNavigator() {
             name="Onboarding" 
             component={OnboardingNavigator}
             options={{
-              animation: 'fade',
+              ...STANDARD_TRANSITIONS.fade,
             }}
           />
         )}

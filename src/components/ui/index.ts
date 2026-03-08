@@ -22,6 +22,8 @@ export { useErrorMessage } from './ErrorMessage';
 export { default as Tooltip } from './Tooltip';
 export { default as HelpHint } from './HelpHint';
 export { default as ProgressIndicator } from './ProgressIndicator';
+export { default as AnimatedCard } from './AnimatedCard';
+export { HapticFeedback, HAPTIC_PATTERNS, triggerHaptic } from './HapticFeedback';
 
 // Enhanced accessible component types
 export type { AccessibleButtonProps } from './AccessibleButton';
@@ -43,3 +45,4 @@ export type { SkeletonProps, SkeletonCardProps, SkeletonListProps } from './Skel
 export type { PullToRefreshScrollViewProps, PullToRefreshFlatListProps } from './PullToRefresh';
 export type { ErrorBoundaryProps } from './ErrorBoundary';
 export type { ErrorMessageProps } from './ErrorMessage';
+export type { AnimatedCardProps } from './AnimatedCard';

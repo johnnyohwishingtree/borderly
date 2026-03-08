@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { View, ActivityIndicator, Text, Pressable } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, ActivityIndicator, Text, Pressable, Animated } from 'react-native';
+import { LOADING_ANIMATIONS, ANIMATION_DURATION } from '../../utils/animations';
+import { ANIMATION_PRESETS } from '../../styles/animations';
 
 export interface LoadingIndicatorProps {
   size?: 'small' | 'medium' | 'large';
@@ -29,8 +31,72 @@ export default function LoadingIndicator({
   progress = 0,
 }: LoadingIndicatorProps) {
   const [showTimeout, setShowTimeout] = useState(false);
+  
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(0.95)).current;
+  const rotationAnim = useRef(new Animated.Value(0)).current;
+  const dotAnims = [
+    useRef(new Animated.Value(0.5)).current,
+    useRef(new Animated.Value(0.5)).current,
+    useRef(new Animated.Value(0.5)).current,
+  ];
 
   useEffect(() => {
+    // Fade in animation
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: ANIMATION_DURATION.normal,
+      useNativeDriver: true,
+    }).start();
+
+    // Pulse animation for pulse variant
+    if (variant === 'pulse') {
+      const pulseAnimation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.05,
+            duration: LOADING_ANIMATIONS.pulse.duration / 2,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 0.95,
+            duration: LOADING_ANIMATIONS.pulse.duration / 2,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulseAnimation.start();
+      return () => pulseAnimation.stop();
+    }
+
+    // Dots animation for dots variant
+    if (variant === 'dots') {
+      const createDotAnimation = (animValue: Animated.Value, delay: number) =>
+        Animated.loop(
+          Animated.sequence([
+            Animated.delay(delay),
+            Animated.timing(animValue, {
+              toValue: 1,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+            Animated.timing(animValue, {
+              toValue: 0.5,
+              duration: 300,
+              useNativeDriver: true,
+            }),
+          ])
+        );
+
+      const animations = dotAnims.map((anim, index) => 
+        createDotAnimation(anim, index * 200)
+      );
+      
+      animations.forEach(anim => anim.start());
+      return () => animations.forEach(anim => anim.stop());
+    }
+
     if (timeout && timeout > 0) {
       const timer = setTimeout(() => {
         setShowTimeout(true);
@@ -42,7 +108,7 @@ export default function LoadingIndicator({
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [timeout, onTimeout]);
+  }, [timeout, onTimeout, variant, fadeAnim, pulseAnim, dotAnims]);
 
   const getSpinnerSize = () => {
     switch (size) {
@@ -106,11 +172,15 @@ export default function LoadingIndicator({
 
   const renderDotsIndicator = () => {
     return (
-      <View className="flex-row items-center space-x-1">
-        {[0, 1, 2].map((index) => (
-          <View
+      <View className="flex-row items-center justify-center" style={{ gap: 8 }}>
+        {dotAnims.map((dotAnim, index) => (
+          <Animated.View
             key={index}
-            className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"
+            className="w-3 h-3 bg-blue-600 rounded-full"
+            style={{
+              opacity: dotAnim,
+              transform: [{ scale: dotAnim }],
+            }}
           />
         ))}
       </View>
@@ -119,11 +189,22 @@ export default function LoadingIndicator({
 
   const renderPulseIndicator = () => {
     return (
-      <View className="relative">
-        <View className="w-12 h-12 bg-blue-100 rounded-full animate-pulse" />
-        <View className="absolute inset-0 w-12 h-12 bg-blue-200 rounded-full animate-pulse" />
-        <View className="absolute inset-2 w-8 h-8 bg-blue-600 rounded-full" />
-      </View>
+      <Animated.View 
+        className="relative w-12 h-12"
+        style={{
+          transform: [{ scale: pulseAnim }],
+        }}
+      >
+        <Animated.View 
+          className="absolute w-12 h-12 bg-blue-100 rounded-full"
+          style={{ opacity: 0.6 }}
+        />
+        <Animated.View 
+          className="absolute inset-1 w-10 h-10 bg-blue-200 rounded-full"
+          style={{ opacity: 0.8 }}
+        />
+        <View className="absolute inset-3 w-6 h-6 bg-blue-600 rounded-full" />
+      </Animated.View>
     );
   };
 
@@ -146,7 +227,10 @@ export default function LoadingIndicator({
   };
 
   return (
-    <View className={getContainerStyles()}>
+    <Animated.View 
+      className={getContainerStyles()}
+      style={{ opacity: fadeAnim }}
+    >
       {renderLoadingIndicator()}
       
       {text && (
@@ -175,6 +259,6 @@ export default function LoadingIndicator({
           </Text>
         </Pressable>
       )}
-    </View>
+    </Animated.View>
   );
 }

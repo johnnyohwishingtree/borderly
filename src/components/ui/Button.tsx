@@ -1,5 +1,5 @@
 import { Pressable, Text, ActivityIndicator } from 'react-native';
-import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
+import { HapticFeedback, HAPTIC_PATTERNS } from './HapticFeedback';
 import { 
   TouchTargetUtils, 
   ACCESSIBILITY_CONSTANTS,
@@ -18,7 +18,7 @@ export interface ButtonProps {
   accessibilityHint?: string;
   accessibilityRole?: 'button' | 'link' | 'tab';
   highContrastMode?: boolean;
-  hapticType?: HapticFeedbackTypes;
+  hapticType?: keyof typeof HAPTIC_PATTERNS;
   testID?: string;
 }
 
@@ -34,7 +34,7 @@ export default function Button({
   accessibilityHint,
   accessibilityRole = 'button',
   highContrastMode = false,
-  hapticType = HapticFeedbackTypes.impactLight,
+  hapticType = 'light',
   testID,
 }: ButtonProps) {
   const getButtonStyles = () => {
@@ -87,11 +87,14 @@ export default function Button({
 
   const handlePress = () => {
     if (!disabled && !loading) {
-      // Trigger haptic feedback
-      trigger(hapticType, {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false,
-      });
+      // Trigger haptic feedback based on button size
+      if (size === 'large') {
+        HapticFeedback.button('large');
+      } else if (size === 'medium') {
+        HapticFeedback.button('medium');
+      } else {
+        HapticFeedback.button('small');
+      }
       onPress();
     }
   };
