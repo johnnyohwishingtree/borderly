@@ -3,10 +3,7 @@ import {
   View, 
   ViewProps, 
   Pressable, 
-  Animated, 
-  PanGestureHandler,
-  State as GestureState,
-  PanGestureHandlerGestureEvent
+  Animated
 } from 'react-native';
 import { HapticFeedback } from './HapticFeedback';
 import { TouchTargetUtils, ACCESSIBILITY_CONSTANTS } from '../../utils/accessibility';
@@ -21,8 +18,8 @@ export interface AnimatedCardProps extends Omit<ViewProps, 'style'> {
   entranceDelay?: number;
   onPress?: () => void;
   onLongPress?: () => void;
-  onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
-  swipeEnabled?: boolean;
+  // onSwipe?: (direction: 'left' | 'right' | 'up' | 'down') => void;
+  // swipeEnabled?: boolean;
   disabled?: boolean;
   loading?: boolean;
   accessibilityLabel?: string;
@@ -44,8 +41,8 @@ export default function AnimatedCard({
   children,
   onPress,
   onLongPress,
-  onSwipe,
-  swipeEnabled = false,
+  // onSwipe,
+  // swipeEnabled = false,
   disabled = false,
   loading = false,
   accessibilityLabel,
@@ -56,7 +53,6 @@ export default function AnimatedCard({
   testID,
   ...viewProps
 }: AnimatedCardProps) {
-  const [isVisible, setIsVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(animationType === 'scale' ? 0.95 : 1)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const translateYAnim = useRef(new Animated.Value(animationType === 'slide' ? 20 : 0)).current;
