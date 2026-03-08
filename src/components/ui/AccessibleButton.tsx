@@ -5,7 +5,7 @@ import {
   AccessibilityStateHelpers,
   TouchTargetUtils,
   SemanticUtils,
-} from '../../utils/accessibility';
+} from '@/utils/accessibility';
 
 export interface AccessibleButtonProps {
   title: string;

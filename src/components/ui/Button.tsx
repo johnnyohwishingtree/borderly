@@ -4,7 +4,7 @@ import {
   TouchTargetUtils, 
   ACCESSIBILITY_CONSTANTS,
   AccessibilityStateHelpers 
-} from '../../utils/accessibility';
+} from '@/utils/accessibility';
 
 export interface ButtonProps {
   title: string;

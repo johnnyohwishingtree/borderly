@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { StatusBar, Platform, AppState as RNAppState } from 'react-native';
 
 import RootNavigator from './navigation/RootNavigator';
-import { ErrorBoundary } from '../components/ui';
-import { performanceMonitor } from '../services/monitoring/performance';
-import { errorTracker } from '../services/monitoring/errorTracking';
+import { ErrorBoundary } from '@/components/ui';
+import { performanceMonitor } from '@/services/monitoring/performance';
+import { errorTracker } from '@/services/monitoring/errorTracking';
 
 function App(): React.JSX.Element {
   useEffect(() => {

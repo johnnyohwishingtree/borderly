@@ -12,32 +12,32 @@ import {
 } from './types';
 
 // Lazy load trip screens
-const TripListScreen = lazy(() => import('../../screens/trips').then(m => ({ default: m.TripListScreen })));
-const CreateTripScreen = lazy(() => import('../../screens/trips').then(m => ({ default: m.CreateTripScreen })));
-const TripDetailScreen = lazy(() => import('../../screens/trips').then(m => ({ default: m.TripDetailScreen })));
-const LegFormScreen = lazy(() => import('../../screens/trips').then(m => ({ default: m.LegFormScreen })));
-const SubmissionGuideScreen = lazy(() => import('../../screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
+const TripListScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripListScreen })));
+const CreateTripScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.CreateTripScreen })));
+const TripDetailScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripDetailScreen })));
+const LegFormScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.LegFormScreen })));
+const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
 
 // Lazy load wallet screens
-const QRWalletScreen = lazy(() => import('../../screens/wallet').then(m => ({ default: m.QRWalletScreen })));
-const QRDetailScreen = lazy(() => import('../../screens/wallet').then(m => ({ default: m.QRDetailScreen })));
-const AddQRScreen = lazy(() => import('../../screens/wallet').then(m => ({ default: m.AddQRScreen })));
+const QRWalletScreen = lazy(() => import('@/screens/wallet').then(m => ({ default: m.QRWalletScreen })));
+const QRDetailScreen = lazy(() => import('@/screens/wallet').then(m => ({ default: m.QRDetailScreen })));
+const AddQRScreen = lazy(() => import('@/screens/wallet').then(m => ({ default: m.AddQRScreen })));
 
 // Lazy load profile screens
-const ProfileScreen = lazy(() => import('../../screens/profile').then(m => ({ default: m.ProfileScreen })));
-const EditProfileScreen = lazy(() => import('../../screens/profile').then(m => ({ default: m.EditProfileScreen })));
+const ProfileScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.ProfileScreen })));
+const EditProfileScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.EditProfileScreen })));
 
 // Lazy load settings screens
-const SettingsScreen = lazy(() => import('../../screens/settings').then(m => ({ default: m.SettingsScreen })));
+const SettingsScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.SettingsScreen })));
 
 // Lazy load support screens
-const FeedbackScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.FeedbackScreen })));
-const BugReportScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.BugReportScreen })));
-const HelpScreen = lazy(() => import('../../screens/support').then(m => ({ default: m.HelpScreen })));
+const FeedbackScreen = lazy(() => import('@/screens/support').then(m => ({ default: m.FeedbackScreen })));
+const BugReportScreen = lazy(() => import('@/screens/support').then(m => ({ default: m.BugReportScreen })));
+const HelpScreen = lazy(() => import('@/screens/support').then(m => ({ default: m.HelpScreen })));
 
 // Lazy load help screens
-const FAQScreen = lazy(() => import('../../screens/help').then(m => ({ default: m.FAQScreen })));
-const TroubleshootingScreen = lazy(() => import('../../screens/help').then(m => ({ default: m.TroubleshootingScreen })));
+const FAQScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.FAQScreen })));
+const TroubleshootingScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.TroubleshootingScreen })));
 
 // Loading component for lazy-loaded screens
 const ScreenLoader = () => (
