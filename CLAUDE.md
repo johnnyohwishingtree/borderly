@@ -232,6 +232,7 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 ## Skills Reference
 
 Available skills (invoke with `/<skill-name>`):
+- `/review-pr` — Perform a comprehensive code review of a PR
 - `/epic-planner` — Break a goal into Epic + Story GitHub Issues
 - `/plan-feature` — Plan and implement a new feature
 - `/test-suite` — Find and fix test coverage gaps
@@ -263,6 +264,7 @@ This project supports both **Claude** and **Gemini** as autonomous agents.
 - **Trigger**: `@claude` or `@gemini` in issue/PR comments.
 - **Skill Compatibility**: Both agents share the same skills in `.claude/skills/`.
 - **Handoff**: If one agent hits a usage limit or fails, you can switch to the other by commenting on the same issue.
+- **Review Guardian**: An automated system monitors for "Gemini Code Assist" failures. If the standard app fails to summarize or review a PR, it automatically triggers `@gemini` (or the preferred agent) to perform a fallback review.
 - **Story Pipeline**: The `orchestrate.yml` pipeline uses the `PREFERRED_AGENT` repository variable (default: `claude`) to decide which agent to trigger for the next story.
 
 ### Auto-Fix Workflow (when responding to failing CI comments)

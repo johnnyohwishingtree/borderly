@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { 
   View, 
   ViewProps, 
@@ -53,7 +53,6 @@ export default function AnimatedCard({
   testID,
   ...viewProps
 }: AnimatedCardProps) {
-  const [, setIsVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(animationType === 'scale' ? 0.95 : 1)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const translateYAnim = useRef(new Animated.Value(animationType === 'slide' ? 20 : 0)).current;
@@ -61,7 +60,7 @@ export default function AnimatedCard({
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   // Entrance animation
-  useState(() => {
+  useEffect(() => {
     const delay = entranceDelay;
     
     if (animationType !== 'none') {
@@ -105,16 +104,16 @@ export default function AnimatedCard({
         );
       }
 
-      setTimeout(() => {
-        Animated.parallel(animations).start(() => {
-          setIsVisible(true);
-        });
+      const timer = setTimeout(() => {
+        Animated.parallel(animations).start();
       }, delay);
+
+      return () => clearTimeout(timer);
     } else {
       opacityAnim.setValue(1);
-      setIsVisible(true);
     }
-  });
+    return undefined;
+  }, [animationType, entranceDelay, opacityAnim, scaleAnim, translateYAnim]);
 
   const getCardStyles = () => {
     const baseStyles = highContrastMode 
@@ -196,33 +195,6 @@ export default function AnimatedCard({
     }
   };
 
-  const handleSwipeGesture = (event: any) => {
-    if (!swipeEnabled || !onSwipe || disabled || loading) return;
-
-    const { translationX, translationY } = event.nativeEvent;
-    const threshold = 50;
-
-    if (Math.abs(translationX) > Math.abs(translationY)) {
-      // Horizontal swipe
-      if (translationX > threshold) {
-        onSwipe('right');
-        HapticFeedback.navigation();
-      } else if (translationX < -threshold) {
-        onSwipe('left');
-        HapticFeedback.navigation();
-      }
-    } else {
-      // Vertical swipe
-      if (translationY > threshold) {
-        onSwipe('down');
-        HapticFeedback.navigation();
-      } else if (translationY < -threshold) {
-        onSwipe('up');
-        HapticFeedback.navigation();
-      }
-    }
-  };
-
   const animatedStyle = {
     opacity: opacityAnim,
     transform: [
@@ -236,11 +208,6 @@ export default function AnimatedCard({
       },
     ],
   };
-
-  const CardComponent = swipeEnabled ? View : View;
-  const cardProps = swipeEnabled ? {
-    onTouchStart: handleSwipeGesture,
-  } : {};
 
   const content = (
     <Animated.View style={animatedStyle}>
@@ -257,7 +224,7 @@ export default function AnimatedCard({
     </Animated.View>
   );
 
-  if (onPress && !swipeEnabled) {
+  if (onPress) {
     return (
       <Pressable
         onPress={handlePress}
@@ -276,28 +243,6 @@ export default function AnimatedCard({
       >
         {content}
       </Pressable>
-    );
-  }
-
-  if (swipeEnabled) {
-    return (
-      <CardComponent {...cardProps}>
-        <Pressable
-          onPress={handlePress}
-          onLongPress={handleLongPress}
-          disabled={disabled || loading}
-          accessibilityRole={accessibilityRole}
-          accessibilityLabel={accessibilityLabel}
-          accessibilityHint={accessibilityHint}
-          accessibilityState={accessibilityState}
-          accessible={true}
-          style={({ pressed }) => ({
-            opacity: pressed && !disabled && !loading ? 0.95 : 1,
-          })}
-        >
-          {content}
-        </Pressable>
-      </CardComponent>
     );
   }
 

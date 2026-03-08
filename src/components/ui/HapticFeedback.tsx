@@ -43,7 +43,7 @@ export interface HapticOptions {
   delay?: number;
 }
 
-const DEFAULT_OPTIONS: HapticOptions = {
+const DEFAULT_OPTIONS: Required<HapticOptions> = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
   delay: 0,
@@ -56,17 +56,17 @@ export const triggerHaptic = (
   pattern: keyof typeof HAPTIC_PATTERNS | HapticFeedbackTypes,
   options: HapticOptions = {}
 ): void => {
-  const hapticType = typeof pattern === 'string' && pattern in HAPTIC_PATTERNS 
+  const hapticType = (typeof pattern === 'string' && pattern in HAPTIC_PATTERNS)
     ? HAPTIC_PATTERNS[pattern as keyof typeof HAPTIC_PATTERNS]
     : pattern as HapticFeedbackTypes;
   
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   
   const triggerOptions = {
-    enableVibrateFallback: mergedOptions.enableVibrateFallback!,
-    ignoreAndroidSystemSettings: mergedOptions.ignoreAndroidSystemSettings!,
+    enableVibrateFallback: mergedOptions.enableVibrateFallback,
+    ignoreAndroidSystemSettings: mergedOptions.ignoreAndroidSystemSettings,
   };
-
+  
   if (mergedOptions.delay && mergedOptions.delay > 0) {
     setTimeout(() => {
       trigger(hapticType, triggerOptions);
@@ -152,8 +152,8 @@ export const HapticFeedback = {
   },
   
   // Modal open/close feedback
-  modal: (isOpening: boolean) => {
-    triggerHaptic(isOpening ? 'light' : 'light');
+  modal: (_isOpening: boolean) => {
+    triggerHaptic('light');
   },
   
   // Navigation feedback
