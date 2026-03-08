@@ -24,9 +24,8 @@ The E2E tests were failing due to **missing Firefox browser** in local/CI enviro
 **Error:** `Executable doesn't exist at /home/runner/.cache/ms-playwright/firefox-1509/firefox/firefox`
 
 **Solution:** Proper browser installation process:
-1. Install Chromium: `npx playwright install chromium`  
-2. Install Firefox: `npx playwright install firefox`
-3. The existing CI workflow (`.github/workflows/e2e-smoke.yml`) already handles this correctly
+1. Install required browsers: `npx playwright install chromium firefox`
+2. The existing CI workflow (`.github/workflows/e2e-smoke.yml`) already handles this correctly
 
 ### Infrastructure Analysis ✅
 
