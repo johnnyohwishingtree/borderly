@@ -37,7 +37,7 @@ export default function Toggle({
   disabled = false,
   accessibilityLabel,
   accessibilityHint,
-  accessibilityDescribedBy,
+  accessibilityDescribedBy: _accessibilityDescribedBy,
   onLabel = 'On',
   offLabel = 'Off',
   highContrastMode = false,
