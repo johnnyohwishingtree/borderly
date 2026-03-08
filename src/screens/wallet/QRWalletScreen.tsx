@@ -10,6 +10,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { EmptyState, Button, SkeletonList, PullToRefreshScrollView } from '../../components/ui';
 import { QRCodeCard, QRFullScreen } from '../../components/wallet';
+import { ContextualHelp, HelpContent } from '../../components/help';
 import { SavedQRCode } from '../../services/storage/models';
 import { useNavigation } from '@react-navigation/native';
 import { databaseService } from '../../services/storage';
@@ -239,6 +240,11 @@ export default function QRWalletScreen() {
               {qrCodes.length} saved code{qrCodes.length !== 1 ? 's' : ''}
             </Text>
           </View>
+          <ContextualHelp 
+            content={HelpContent.qrWallet}
+            variant="icon"
+            size="medium"
+          />
           
           <TouchableOpacity
             onPress={handleAddQR}

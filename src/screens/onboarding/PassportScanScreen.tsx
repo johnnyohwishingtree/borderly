@@ -11,6 +11,7 @@ import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar, HelpHint } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
+import { ContextualHelp, HelpContent } from '../../components/help';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import { type TravelerProfile } from '../../types/profile';
@@ -256,11 +257,18 @@ export default function PassportScanScreen() {
         <ProgressBar progress={50} className="mb-6" />
         
         <View className="mb-6">
-          <View className="flex-row items-center mb-2">
-            <MaterialIcons name="camera-alt" size={24} color="#111827" style={{ marginRight: 8 }} />
-            <Text className="text-2xl font-bold text-gray-900">
-              Passport Information
-            </Text>
+          <View className="flex-row items-center justify-between mb-2">
+            <View className="flex-row items-center flex-1">
+              <MaterialIcons name="camera-alt" size={24} color="#111827" style={{ marginRight: 8 }} />
+              <Text className="text-2xl font-bold text-gray-900">
+                Passport Information
+              </Text>
+            </View>
+            <ContextualHelp 
+              content={HelpContent.passportScanning}
+              variant="icon"
+              size="medium"
+            />
           </View>
           <Text className="text-base text-gray-600 mb-4">
             Scan your passport or enter information manually. All data is stored securely on your device.
