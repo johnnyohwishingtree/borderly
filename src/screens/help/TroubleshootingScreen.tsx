@@ -290,13 +290,14 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
                 accessibilityHint="Type keywords to search for solutions to common problems"
               />
               {searchTerm.length > 0 && (
-                <Button
-                  title="Clear"
-                  onPress={clearSearch}
-                  variant="outline"
-                  size="small"
-                  className="absolute right-2 top-2"
-                />
+                <View className="absolute right-2 top-2">
+                  <Button
+                    title="Clear"
+                    onPress={clearSearch}
+                    variant="outline"
+                    size="small"
+                  />
+                </View>
               )}
             </View>
             

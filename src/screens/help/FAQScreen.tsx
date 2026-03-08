@@ -185,13 +185,14 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                 accessibilityHint="Type keywords to search frequently asked questions"
               />
               {searchTerm.length > 0 && (
-                <Button
-                  title="Clear"
-                  onPress={clearSearch}
-                  variant="outline"
-                  size="small"
-                  className="absolute right-2 top-2"
-                />
+                <View className="absolute right-2 top-2">
+                  <Button
+                    title="Clear"
+                    onPress={clearSearch}
+                    variant="outline"
+                    size="small"
+                  />
+                </View>
               )}
             </View>
             
@@ -260,14 +261,13 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
             </View>
           ) : (
             <View className="space-y-3">
-              {filteredFAQs.map((faq, index) => (
+              {filteredFAQs.map((faq) => (
                 <View key={faq.id} className="border border-gray-200 rounded-lg overflow-hidden">
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
                     variant="outline"
                     fullWidth
-                    className="text-left"
                   />
                   
                   {expandedFAQ === faq.id && (

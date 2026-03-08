@@ -128,13 +128,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         {
           text: 'Send Feedback',
           onPress: () => {
-            navigation.navigate('Feedback' as never);
+            (navigation as any).navigate('Feedback');
           },
         },
         {
           text: 'Report Bug',
           onPress: () => {
-            navigation.navigate('BugReport' as never);
+            (navigation as any).navigate('BugReport');
           },
         },
         {
@@ -151,19 +151,19 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
   const handleSearchNavigate = (type: string, id: string) => {
     if (type === 'faq') {
       // Navigate to FAQ screen with specific item
-      navigation.navigate('FAQ' as never, { highlightId: id } as never);
+      (navigation as any).navigate('FAQ', { highlightId: id });
     } else if (type === 'troubleshooting') {
       // Navigate to troubleshooting screen with specific item
-      navigation.navigate('Troubleshooting' as never, { highlightId: id } as never);
+      (navigation as any).navigate('Troubleshooting', { highlightId: id });
     }
   };
 
   const handleNavigateToFAQ = () => {
-    navigation.navigate('FAQ' as never);
+    (navigation as any).navigate('FAQ');
   };
 
   const handleNavigateToTroubleshooting = () => {
-    navigation.navigate('Troubleshooting' as never);
+    (navigation as any).navigate('Troubleshooting');
   };
 
   const handleOpenDocumentation = () => {
@@ -230,13 +230,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           <View className="space-y-3">
             <Button
               title="💬 Send Feedback"
-              onPress={() => navigation.navigate('Feedback' as never)}
+              onPress={() => (navigation as any).navigate('Feedback')}
               variant="outline"
               fullWidth
             />
             <Button
               title="🐛 Report Bug"
-              onPress={() => navigation.navigate('BugReport' as never)}
+              onPress={() => (navigation as any).navigate('BugReport')}
               variant="outline"
               fullWidth
             />

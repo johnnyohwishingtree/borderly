@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Button, Card } from '@/components/ui';
+import { Button } from '@/components/ui';
 
 interface HelpContent {
   title: string;
@@ -15,7 +15,6 @@ interface HelpContent {
 
 interface ContextualHelpProps {
   content: HelpContent;
-  position?: 'top' | 'bottom' | 'left' | 'right';
   variant?: 'icon' | 'text' | 'minimal';
   size?: 'small' | 'medium' | 'large';
   className?: string;
@@ -23,7 +22,6 @@ interface ContextualHelpProps {
 
 export default function ContextualHelp({
   content,
-  position = 'bottom',
   variant = 'icon',
   size = 'medium',
   className = '',
