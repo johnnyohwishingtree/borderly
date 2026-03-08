@@ -308,4 +308,4 @@ When you receive a comment like "@claude Tests are failing on this PR" (or "@gem
 
 ### Push Early, Push Often
 
-Commit and push after every 2-3 file changes. Do not wait until the end of a session. But **always run `pnpm typecheck` before each commit** — never push code with type errors.
+Commit and push after every 2-3 file changes. Do not wait until the end of a session. While pushing often is encouraged, it's critical that every commit passes `pnpm typecheck` first.
