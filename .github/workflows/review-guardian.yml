@@ -6,9 +6,13 @@ on:
     workflows: ["Tests", "E2E Smoke Tests"]
     types: [completed]
 
-  # Also trigger when Gemini posts a failure comment
+  # Trigger when Gemini posts a failure comment
   issue_comment:
     types: [created]
+
+  # Trigger when a review is submitted (to detect non-approving reviews)
+  pull_request_review:
+    types: [submitted]
 
 permissions:
   contents: read
@@ -34,6 +38,51 @@ jobs:
 
           gh pr comment "$PR_NUM" --repo ${{ github.repository }} \
             --body "@$AGENT Gemini Code Assist failed to review this PR. Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback."
+
+  # When a bot reviewer posts a COMMENTED review (not APPROVED), request Claude to approve
+  request-approval:
+    if: |
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'commented' &&
+      contains(fromJSON('["gemini-code-assist[bot]", "copilot[bot]"]'), github.event.review.user.login)
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request approving review from Claude
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ github.event.pull_request.number }}
+          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+
+          # Only for autonomous claude/ branches
+          if [[ "$PR_BRANCH" != claude/* ]]; then
+            echo "Not a claude/ branch — skipping"
+            exit 0
+          fi
+
+          # Check if there's already an APPROVED review
+          HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+
+          if [ "$HAS_APPROVAL" -gt 0 ]; then
+            echo "PR #$PR_NUM already has an approval — no action needed"
+            exit 0
+          fi
+
+          # Check if we already requested an approving review
+          EXISTING=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.body | contains("approve this PR if"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "Already requested an approving review — skipping"
+            exit 0
+          fi
+
+          echo "Gemini reviewed PR #$PR_NUM but didn't approve. Requesting Claude approval."
+          gh pr comment "$PR_NUM" --repo "$REPO" \
+            --body "@claude Gemini Code Assist has reviewed this PR (see above). Please review the diff yourself and approve this PR if the code looks good, or request changes if you find issues. Use \`gh pr review $PR_NUM --approve\` or \`gh pr review $PR_NUM --request-changes --body \"reason\"\`."
 
   # Check for missing reviews after CI passes
   ensure-review:
@@ -71,19 +120,19 @@ jobs:
 
           echo "Checking reviews on PR #$PR_NUM"
 
-          # Check for any reviews (approved, changes_requested, or commented)
-          REVIEW_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+          # Check for any reviews at all (approved, commented, changes_requested)
+          ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
             -q '.reviews | length' 2>/dev/null || echo "0")
 
           # Also check for bot review comments (Gemini/Copilot sometimes comment without formal review)
           BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
             -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
 
-          TOTAL_REVIEWS=$((REVIEW_COUNT + BOT_COMMENTS))
-          echo "Reviews: $REVIEW_COUNT formal, $BOT_COMMENTS bot comments = $TOTAL_REVIEWS total"
+          TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
+          echo "Reviews: $ANY_REVIEWS formal, $BOT_COMMENTS bot comments = $TOTAL total"
 
-          if [ "$TOTAL_REVIEWS" -gt 0 ]; then
-            echo "PR #$PR_NUM has reviews — no action needed"
+          if [ "$TOTAL" -gt 0 ]; then
+            echo "PR #$PR_NUM has reviews — the request-approval job will handle getting an APPROVED review"
             exit 0
           fi
 
@@ -101,15 +150,15 @@ jobs:
           sleep 60
 
           # Re-check after waiting
-          REVIEW_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+          ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
             -q '.reviews | length' 2>/dev/null || echo "0")
           BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
             -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
 
-          TOTAL_REVIEWS=$((REVIEW_COUNT + BOT_COMMENTS))
+          TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
 
-          if [ "$TOTAL_REVIEWS" -gt 0 ]; then
-            echo "Review arrived during wait — no action needed"
+          if [ "$TOTAL" -gt 0 ]; then
+            echo "Review arrived during wait — request-approval job will handle approval"
             exit 0
           fi
 
