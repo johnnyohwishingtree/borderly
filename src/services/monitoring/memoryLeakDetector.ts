@@ -701,4 +701,14 @@ export function withMemoryLeakDetection<P extends object>(
 }
 
 // React import (will be available when this is imported in React components)
-declare const React: any;
+let React: any;
+try {
+  React = require('react');
+} catch {
+  // Mock React for testing environments
+  React = {
+    useEffect: () => {},
+    ComponentType: {} as any,
+    createElement: () => null,
+  };
+}

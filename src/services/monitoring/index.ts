@@ -75,6 +75,7 @@ export class MonitoringManager {
     } = options;
 
     if (enablePerformanceMonitoring) {
+      const { performanceMonitor } = await import('./performance');
       performanceMonitor.setEnabled(true);
     }
 
@@ -96,6 +97,7 @@ export class MonitoringManager {
     overallHealth: 'excellent' | 'good' | 'warning' | 'critical';
     recommendations: string[];
   }> {
+    const { performanceMonitor } = await import('./performance');
     const performance = performanceMonitor.checkPerformanceTargets();
     const memoryHealth = memoryLeakDetector.getLeakReport();
     const memoryThreshold = performanceMonitor.checkMemoryThreshold();
@@ -170,6 +172,7 @@ export class MonitoringManager {
     }
 
     // Force garbage collection if memory is high
+    const { performanceMonitor } = await import('./performance');
     const memoryCheck = performanceMonitor.checkMemoryThreshold();
     if (!memoryCheck.withinThreshold) {
       const gcResult = memoryLeakDetector.forceGarbageCollection();
@@ -207,12 +210,14 @@ export class MonitoringManager {
         const meetsTarget = totalTime <= 2000; // 2s acceptance criteria
 
         // Record detailed startup metrics
-        performanceMonitor.recordDetailedStartupMetrics({
-          appInitTime: phases.init || 0,
-          bundleLoadTime: phases.bundle || 0,
-          nativeModulesTime: phases.native || 0,
-          firstScreenRenderTime: phases.firstRender || 0,
-          totalStartupTime: totalTime,
+        import('./performance').then(({ performanceMonitor }) => {
+          performanceMonitor.recordDetailedStartupMetrics({
+            appInitTime: phases.init || 0,
+            bundleLoadTime: phases.bundle || 0,
+            nativeModulesTime: phases.native || 0,
+            firstScreenRenderTime: phases.firstRender || 0,
+            totalStartupTime: totalTime,
+          });
         });
 
         return { totalTime, meetsTarget };
@@ -227,7 +232,9 @@ export class MonitoringManager {
     if (!this.isInitialized) return;
 
     memoryLeakDetector.stop();
-    performanceMonitor.setEnabled(false);
+    import('./performance').then(({ performanceMonitor }) => {
+      performanceMonitor.setEnabled(false);
+    });
 
     this.isInitialized = false;
     console.log('Monitoring system shut down');

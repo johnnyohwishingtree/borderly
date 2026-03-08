@@ -570,4 +570,16 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
 }
 
 // React import (will be available when this is imported in React components)
-declare const React: any;
+let React: any;
+try {
+  React = require('react');
+} catch {
+  // Mock React for testing environments
+  React = {
+    useState: (initial: any) => [initial, () => {}],
+    useEffect: () => {},
+    useMemo: (fn: any) => fn(),
+    createElement: () => null,
+    memo: (component: any) => component,
+  };
+}
