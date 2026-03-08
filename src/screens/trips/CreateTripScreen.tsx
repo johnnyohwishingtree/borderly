@@ -52,6 +52,18 @@ const COUNTRIES = [
   { code: 'SGP', name: 'Singapore' },
 ];
 
+const COUNTRY_NAMES = COUNTRIES.reduce((acc, country) => {
+  acc[country.code] = country.name;
+  return acc;
+}, {} as Record<string, string>);
+
+const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
+  <View className="flex-row items-center justify-between mb-2">
+    <Text className="text-sm font-medium text-gray-700">{label}</Text>
+    {autoFilled && <AutoFilledBadge source="auto" size="small" />}
+  </View>
+);
+
 export default function CreateTripScreen() {
   const navigation = useNavigation();
   const { createTrip, addTripLeg } = useTripStore();
@@ -105,8 +117,12 @@ export default function CreateTripScreen() {
     current[keys[keys.length - 1]] = value;
     
     // Clear auto-filled flag when user manually edits a field
-    if (newLegs[index].autoFilledFields && newLegs[index].autoFilledFields![field as keyof NonNullable<LegFormData['autoFilledFields']>]) {
-      delete newLegs[index].autoFilledFields![field as keyof NonNullable<LegFormData['autoFilledFields']>];
+    const autoFilledFields = newLegs[index].autoFilledFields;
+    if (autoFilledFields) {
+      const fieldKey = field as keyof typeof autoFilledFields;
+      if (fieldKey in autoFilledFields) {
+        delete autoFilledFields[fieldKey];
+      }
     }
     
     setLegs(newLegs);
@@ -177,13 +193,8 @@ export default function CreateTripScreen() {
   const generateTripName = (tripLegs: LegFormData[]): string => {
     if (tripLegs.length === 0) return '';
     
-    const countryNames = COUNTRIES.reduce((acc, country) => {
-      acc[country.code] = country.name;
-      return acc;
-    }, {} as Record<string, string>);
-    
     const destinations = tripLegs
-      .map(leg => countryNames[leg.destinationCountry])
+      .map(leg => COUNTRY_NAMES[leg.destinationCountry])
       .filter(Boolean);
     
     if (destinations.length === 0) return '';
@@ -300,12 +311,7 @@ export default function CreateTripScreen() {
 
           <View className="space-y-3">
             <View>
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-sm font-medium text-gray-700">Country</Text>
-                {leg.autoFilledFields?.destinationCountry && (
-                  <AutoFilledBadge source="auto" size="small" />
-                )}
-              </View>
+              <FieldHeader label="Country" autoFilled={!!leg.autoFilledFields?.destinationCountry} />
               <View className="flex-row flex-wrap gap-2">
                 {COUNTRIES.map((countryOption) => (
                   <Button
@@ -324,12 +330,7 @@ export default function CreateTripScreen() {
 
             <View className="flex-row space-x-3">
               <View className="flex-1">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-sm font-medium text-gray-700">Arrival Date</Text>
-                  {leg.autoFilledFields?.arrivalDate && (
-                    <AutoFilledBadge source="auto" size="small" />
-                  )}
-                </View>
+                <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
                 <Input
                   value={leg.arrivalDate}
                   onChangeText={(text) => updateLeg(index, 'arrivalDate', text)}
@@ -353,12 +354,7 @@ export default function CreateTripScreen() {
 
             <View className="flex-row space-x-3">
               <View className="flex-1">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-sm font-medium text-gray-700">Flight Number</Text>
-                  {leg.autoFilledFields?.flightNumber && (
-                    <AutoFilledBadge source="auto" size="small" />
-                  )}
-                </View>
+                <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
                 <Input
                   value={leg.flightNumber}
                   onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
@@ -367,12 +363,7 @@ export default function CreateTripScreen() {
                 />
               </View>
               <View className="flex-1">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-sm font-medium text-gray-700">Airline Code</Text>
-                  {leg.autoFilledFields?.airlineCode && (
-                    <AutoFilledBadge source="auto" size="small" />
-                  )}
-                </View>
+                <FieldHeader label="Airline Code" autoFilled={!!leg.autoFilledFields?.airlineCode} />
                 <Input
                   value={leg.airlineCode}
                   onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
@@ -383,12 +374,7 @@ export default function CreateTripScreen() {
             </View>
 
             <View>
-              <View className="flex-row items-center justify-between mb-1">
-                <Text className="text-sm font-medium text-gray-700">Arrival Airport</Text>
-                {leg.autoFilledFields?.arrivalAirport && (
-                  <AutoFilledBadge source="auto" size="small" />
-                )}
-              </View>
+              <FieldHeader label="Arrival Airport" autoFilled={!!leg.autoFilledFields?.arrivalAirport} />
               <Input
                 value={leg.arrivalAirport}
                 onChangeText={(text) => updateLeg(index, 'arrivalAirport', text)}

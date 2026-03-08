@@ -90,30 +90,26 @@ test.describe('Trip Creation and Management', () => {
     await expect(page.getByRole('button', { name: 'Manual' })).toBeVisible();
   });
 
-  test('boarding pass scan cancel returns to form', async ({ page }) => {
-    await page.getByRole('button', { name: 'Create Your First Trip' }).click();
-    await page.getByRole('button', { name: '📷 Scan Boarding Pass' }).click();
-    
-    // Wait for scanner to open
-    await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
-    
-    // Cancel should return to trip creation
-    await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.getByText('Create New Trip')).toBeVisible();
-    await expect(page.getByText('No destinations added yet')).toBeVisible();
-  });
+  test.describe('when boarding pass scanner is open', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.getByRole('button', { name: 'Create Your First Trip' }).click();
+      await page.getByRole('button', { name: '📷 Scan Boarding Pass' }).click();
+      await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
+    });
 
-  test('boarding pass scan manual option adds destination', async ({ page }) => {
-    await page.getByRole('button', { name: 'Create Your First Trip' }).click();
-    await page.getByRole('button', { name: '📷 Scan Boarding Pass' }).click();
-    
-    // Wait for scanner to open
-    await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
-    
-    // Manual entry should add a destination and return to form
-    await page.getByRole('button', { name: 'Manual' }).click();
-    await expect(page.getByText('Create New Trip')).toBeVisible();
-    await expect(page.getByText('No destinations added yet')).not.toBeVisible();
+    test('cancel returns to form', async ({ page }) => {
+      // Cancel should return to trip creation
+      await page.getByRole('button', { name: 'Cancel' }).click();
+      await expect(page.getByText('Create New Trip')).toBeVisible();
+      await expect(page.getByText('No destinations added yet')).toBeVisible();
+    });
+
+    test('manual option adds destination', async ({ page }) => {
+      // Manual entry should add a destination and return to form
+      await page.getByRole('button', { name: 'Manual' }).click();
+      await expect(page.getByText('Create New Trip')).toBeVisible();
+      await expect(page.getByText('No destinations added yet')).not.toBeVisible();
+    });
   });
 
   test('tab bar shows all navigation options', async ({ page }) => {
