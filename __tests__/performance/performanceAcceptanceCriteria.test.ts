@@ -17,8 +17,8 @@ import { performanceOptimization } from '../../src/utils/performanceOptimization
 // Mock timer functions for testing
 const mockSetTimeout = jest.fn();
 const mockClearTimeout = jest.fn();
-global.setTimeout = mockSetTimeout;
-global.clearTimeout = mockClearTimeout;
+(globalThis as any).setTimeout = mockSetTimeout;
+(globalThis as any).clearTimeout = mockClearTimeout;
 
 describe('Performance Acceptance Criteria', () => {
   beforeEach(() => {
@@ -441,6 +441,12 @@ describe('Performance Acceptance Criteria', () => {
           currentValue: 120 * 1024 * 1024,
           timestamp: Date.now(),
           description: 'Memory usage exceeds threshold',
+          message: 'Memory usage is too high',
+          expectedValue: 100 * 1024 * 1024,
+          deviation: 20,
+          confidence: 0.9,
+          impact: 'high' as const,
+          regressionType: 'sudden' as const,
         },
       ];
 
@@ -462,7 +468,7 @@ describe('Performance Acceptance Criteria', () => {
         formGenerationTime: 180, // Good
       } as any;
 
-      const mockAlerts = []; // No alerts for good performance
+      const mockAlerts: any[] = []; // No alerts for good performance
 
       const results = await performanceOptimization.executeAutomatedOptimizations(mockMetrics, mockAlerts);
       

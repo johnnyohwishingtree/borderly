@@ -66,12 +66,6 @@ export class MonitoringManager {
     const {
       enablePerformanceMonitoring = true,
       enableMemoryLeakDetection = true,
-      enableRegressionDetection = true,
-      performanceTargets = {
-        maxStartupTime: 2000, // 2s from acceptance criteria
-        maxMemoryUsage: 100 * 1024 * 1024, // 100MB from acceptance criteria
-        maxFormRenderTime: 200, // 200ms from acceptance criteria
-      }
     } = options;
 
     if (enablePerformanceMonitoring) {
@@ -80,6 +74,7 @@ export class MonitoringManager {
     }
 
     if (enableMemoryLeakDetection) {
+      const { memoryLeakDetector } = await import('./memoryLeakDetector');
       memoryLeakDetector.start();
     }
 
@@ -98,6 +93,7 @@ export class MonitoringManager {
     recommendations: string[];
   }> {
     const { performanceMonitor } = await import('./performance');
+    const { memoryLeakDetector } = await import('./memoryLeakDetector');
     const performance = performanceMonitor.checkPerformanceTargets();
     const memoryHealth = memoryLeakDetector.getLeakReport();
     const memoryThreshold = performanceMonitor.checkMemoryThreshold();
@@ -165,6 +161,7 @@ export class MonitoringManager {
     const results: any[] = [];
 
     // Auto-fix memory leaks
+    const { memoryLeakDetector } = await import('./memoryLeakDetector');
     const leakFixResults = await memoryLeakDetector.autoFixLeaks();
     if (leakFixResults.attempted > 0) {
       performed.push('memory_leak_fixes');
@@ -231,7 +228,9 @@ export class MonitoringManager {
   shutdown(): void {
     if (!this.isInitialized) return;
 
-    memoryLeakDetector.stop();
+    import('./memoryLeakDetector').then(({ memoryLeakDetector }) => {
+      memoryLeakDetector.stop();
+    });
     import('./performance').then(({ performanceMonitor }) => {
       performanceMonitor.setEnabled(false);
     });
