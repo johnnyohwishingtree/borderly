@@ -74,6 +74,23 @@ jest.mock('@/components/ui', () => {
         </View>
       </View>
     ),
+    Tooltip: ({ children, content }: any) => (
+      <View>
+        {children}
+        <Text>{content}</Text>
+      </View>
+    ),
+    HelpHint: ({ title, content }: any) => (
+      <View>
+        {title && <Text>{title}</Text>}
+        <Text>{content}</Text>
+      </View>
+    ),
+    ProgressIndicator: ({ progress }: any) => (
+      <View testID="progress-indicator">
+        <Text>{progress || 0}%</Text>
+      </View>
+    ),
   };
 });
 
@@ -108,11 +125,20 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(getByText('Privacy First')).toBeTruthy();
     });
 
-    it('should navigate to PassportScan when Get Started is pressed', () => {
+    it('should navigate to Tutorial when Take Quick Tutorial is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const getStartedButton = getByText('Get Started');
-      fireEvent.press(getStartedButton);
+      const tutorialButton = getByText('Take Quick Tutorial');
+      fireEvent.press(tutorialButton);
+
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('Tutorial');
+    });
+
+    it('should navigate to PassportScan when Skip Tutorial is pressed', () => {
+      const { getByText } = render(<WelcomeScreen />);
+
+      const skipButton = getByText('Skip Tutorial');
+      fireEvent.press(skipButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
@@ -186,10 +212,10 @@ describe('Onboarding Flow Integration Tests', () => {
   });
 
   describe('Onboarding Flow Integration', () => {
-    it('should start with Welcome and navigate to PassportScan', () => {
+    it('should start with Welcome and navigate to PassportScan via Skip Tutorial', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      fireEvent.press(getByText('Get Started'));
+      fireEvent.press(getByText('Skip Tutorial'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 
