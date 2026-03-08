@@ -16,6 +16,9 @@ export { default as EmptyState } from './EmptyState';
 export { default as ErrorBoundary, useErrorHandler } from './ErrorBoundary';
 export { default as ErrorMessage } from './ErrorMessage';
 export { useErrorMessage } from './ErrorMessage';
+export { default as Tooltip } from './Tooltip';
+export { default as HelpHint } from './HelpHint';
+export { default as ProgressIndicator } from './ProgressIndicator';
 
 // Enhanced accessible component types
 export type { AccessibleButtonProps } from './AccessibleButton';

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, Input, ProgressBar } from '../../components/ui';
+import { Button, Card, Input, ProgressBar, HelpHint } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { useProfileStore } from '../../stores/useProfileStore';
@@ -262,9 +262,17 @@ export default function PassportScanScreen() {
               Passport Information
             </Text>
           </View>
-          <Text className="text-base text-gray-600">
+          <Text className="text-base text-gray-600 mb-4">
             Scan your passport or enter information manually. All data is stored securely on your device.
           </Text>
+          
+          <HelpHint
+            title="Scanning Tips"
+            content="For best results, ensure good lighting and hold your passport flat. The camera will automatically detect the MRZ (Machine Readable Zone) at the bottom of your passport photo page."
+            variant="tip"
+            size="small"
+            className="mb-4"
+          />
         </View>
 
         {/* Error Messages */}
@@ -334,10 +342,17 @@ export default function PassportScanScreen() {
                 <Text className="text-lg font-semibold text-gray-900 mb-2">
                   {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
                 </Text>
-                <Text className="text-sm text-gray-600 text-center mb-6">
+                <Text className="text-sm text-gray-600 text-center mb-4">
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
                   {devicePerformance === 'low' && '\n\n⚡ Optimized for your device performance'}
                 </Text>
+                
+                <HelpHint
+                  content="Look for the two lines of text at the bottom of your passport photo page. This is the MRZ that contains your passport information."
+                  variant="info"
+                  size="small"
+                  className="mb-4"
+                />
                 <Button
                   title="Start Camera Scan"
                   onPress={handleStartScanning}
@@ -358,6 +373,13 @@ export default function PassportScanScreen() {
                 <Text className="text-sm text-gray-600 text-center mb-4">
                   Enter your passport information by hand if camera scanning isn't working
                 </Text>
+                
+                <HelpHint
+                  content="You can find this information on your passport photo page. Make sure to enter dates in YYYY-MM-DD format and country codes as 3 letters (e.g., USA, GBR, JPN)."
+                  variant="tip"
+                  size="small"
+                  className="mb-4"
+                />
                 <Button
                   title="Enter Manually"
                   onPress={handleManualEntry}
