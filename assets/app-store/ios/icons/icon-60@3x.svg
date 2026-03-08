@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="180" height="180" fill="url(#bg)" rx="31.640625"/>
+  
+  <!-- Passport -->
+  <g transform="scale(0.17578125)">
+    <rect x="200" y="280" width="280" height="380" rx="12" fill="#059669"/>
+    <rect x="208" y="288" width="264" height="364" rx="8" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.3"/>
+    <text x="340" y="360" text-anchor="middle" fill="#FFFFFF" font-family="Arial" font-size="20" font-weight="bold" opacity="0.9">PASSPORT</text>
+    <circle cx="340" cy="430" r="45" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+    <rect x="220" y="600" width="240" height="4" rx="2" fill="#FFFFFF" opacity="0.4"/>
+    <rect x="220" y="610" width="240" height="4" rx="2" fill="#FFFFFF" opacity="0.4"/>
+  </g>
+  
+  <!-- Arrow -->
+  <g transform="scale(0.17578125) translate(520, 380)">
+    <path d="M0 20 L80 20 L65 10 M80 20 L65 30" stroke="#FFFFFF" stroke-width="1.0546875" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Phone -->
+  <g transform="scale(0.17578125)">
+    <rect x="620" y="240" width="180" height="320" rx="25" fill="#1F2937"/>
+    <rect x="628" y="248" width="164" height="304" rx="20" fill="#111827"/>
+    <rect x="636" y="280" width="148" height="240" rx="12" fill="#FFFFFF" opacity="0.9"/>
+    
+    <!-- QR pattern -->
+    <rect x="656" y="300" width="24" height="24" fill="#1F2937"/>
+    <rect x="660" y="304" width="16" height="16" fill="#FFFFFF"/>
+    <rect x="664" y="308" width="8" height="8" fill="#1F2937"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="90" y="162" text-anchor="middle" fill="#FFFFFF" font-family="Arial" font-size="8.4375" font-weight="700">Borderly</text>
+</svg>

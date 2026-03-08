@@ -1,0 +1,142 @@
+{
+  "app": {
+    "name": "Borderly",
+    "subtitle": "Universal Travel Declaration",
+    "bundleId": "com.borderly.app",
+    "sku": "borderly-ios-app",
+    "primaryLanguage": "en-US"
+  },
+  "appInformation": {
+    "category": "Travel",
+    "secondaryCategory": "Utilities",
+    "contentRights": "Does not use third-party content"
+  },
+  "pricingAndAvailability": {
+    "price": "Free",
+    "availability": "All countries",
+    "appStoreDistribution": true
+  },
+  "appStoreInformation": {
+    "description": "Borderly simplifies international travel by auto-generating customs and immigration forms for multiple countries. Fill out your passport information once, and let Borderly create the required forms for Japan, Malaysia, and Singapore.\n\n🛂 KEY FEATURES\n\n• Passport Scanning: Use your camera to scan passport MRZ (Machine Readable Zone) for instant data capture\n• Smart Forms: Auto-generate country-specific customs and immigration forms\n• Multi-Country Support: Japan (Visit Japan Web), Malaysia (MDAC), Singapore (SG Arrival Card)\n• QR Code Wallet: Store submission QR codes offline for easy airport access\n• Step-by-Step Guides: Follow detailed instructions for each government portal\n• Privacy First: All data stays on your device - no servers, no tracking\n\n🔐 PRIVACY & SECURITY\n\n• Zero-Server Architecture: Your passport data never leaves your device\n• Biometric Protection: Face ID/Touch ID required for sensitive data access\n• Encrypted Storage: Military-grade encryption for all stored information\n• No Tracking: No analytics, no data collection, no third-party services\n• Offline First: Works completely offline after initial setup\n\n🌍 SUPPORTED COUNTRIES\n\n• Japan: Visit Japan Web integration with QR code generation\n• Malaysia: MDAC (Malaysia Digital Arrival Card) form preparation\n• Singapore: SG Arrival Card auto-completion\n• More countries coming soon based on user feedback\n\n✈️ HOW IT WORKS\n\n1. Scan your passport with the built-in MRZ reader\n2. Create a trip with your destination countries\n3. Review auto-filled forms with smart field detection\n4. Follow step-by-step guides to submit forms to government portals\n5. Store received QR codes in the offline wallet\n\n🎯 PERFECT FOR\n\n• Business travelers visiting multiple Asian countries\n• Tourists exploring Japan, Malaysia, and Singapore\n• Frequent travelers tired of re-entering the same information\n• Privacy-conscious travelers who want to keep data local\n• Anyone who wants to streamline customs and immigration processes\n\nBorderly transforms the tedious process of filling out government forms into a simple, one-time setup. Whether you're visiting Tokyo, Kuala Lumpur, or Singapore, Borderly ensures you have the right forms ready when you need them.\n\nDownload Borderly and experience stress-free international travel with privacy-first technology.",
+    "keywords": "travel, passport, customs, immigration, japan, malaysia, singapore, forms, QR code, MRZ, scanner, privacy, offline, international travel, visit japan web, mdac, sg arrival card",
+    "supportURL": "https://borderly.app/support",
+    "marketingURL": "https://borderly.app",
+    "privacyPolicyURL": "https://borderly.app/privacy"
+  },
+  "appReviewInformation": {
+    "contact": {
+      "firstName": "Borderly",
+      "lastName": "Support",
+      "phone": "+1-555-123-4567",
+      "email": "appstore@borderly.app"
+    },
+    "demoAccount": {
+      "required": false,
+      "notes": "No demo account required. App works with passport scanning and form generation without server authentication."
+    },
+    "notes": "This app helps international travelers fill out customs and immigration forms for Japan, Malaysia, and Singapore. Key testing points:\n\n1. Passport Scanning: Use device camera to scan passport MRZ (Machine Readable Zone). Any valid passport will work for testing the OCR functionality.\n\n2. Form Generation: Create a trip to Japan, Malaysia, or Singapore to see auto-filled government forms. The app demonstrates how traveler data is mapped to country-specific requirements.\n\n3. QR Code Wallet: After form generation, users can simulate receiving QR codes and storing them offline.\n\n4. Privacy Features: All data is stored locally using iOS Keychain. No network calls are made except when users manually submit forms to official government portals.\n\n5. Government Portal Integration: The app provides step-by-step guides for official portals like Visit Japan Web, Malaysia MDAC, and Singapore SG Arrival Card.\n\nPermissions:\n• Camera: Required for passport MRZ scanning\n• Face ID/Touch ID: Required for secure data access\n• No network permissions for personal data\n\nThe app is designed for travelers 16+ who possess passports. All personal data remains on-device with zero-server architecture for maximum privacy.\n\nContact for questions: appstore@borderly.app"
+  },
+  "versionReleaseInformation": {
+    "version": "1.0.0",
+    "buildNumber": "1",
+    "whatsNewInThisVersion": "Welcome to Borderly!\n\n• Passport MRZ scanning with camera\n• Auto-generated forms for Japan, Malaysia, and Singapore\n• Offline QR code wallet for travel documents\n• Step-by-step government portal guides\n• Privacy-first architecture with local-only data storage\n• Biometric security for sensitive information\n\nStart your stress-free international travel experience today!",
+    "releaseType": "manual"
+  },
+  "exportCompliance": {
+    "usesEncryption": true,
+    "encryptionType": "Standard encryption only",
+    "exemptionCode": "No exemption required",
+    "notes": "App uses only standard encryption provided by iOS APIs (Keychain, SQLite encryption). No custom encryption algorithms."
+  },
+  "contentRating": {
+    "rating": "4+",
+    "contentDescriptors": [],
+    "ratingJustification": "This app is designed for international travelers and contains no objectionable content. Suitable for all ages but primarily useful for travelers 16+ who possess passports."
+  },
+  "screenshots": {
+    "iPhone67": {
+      "required": true,
+      "count": 5,
+      "description": "iPhone 14 Pro Max screenshots (1290x2796)"
+    },
+    "iPhone65": {
+      "required": false,
+      "count": 5,
+      "description": "iPhone 11 Pro Max screenshots (1242x2688)"
+    },
+    "iPhone55": {
+      "required": false,
+      "count": 5,
+      "description": "iPhone 8 Plus screenshots (1242x2208)"
+    },
+    "iPad129": {
+      "required": false,
+      "count": 5,
+      "description": "iPad Pro 12.9\" screenshots (2048x2732)"
+    },
+    "iPad11": {
+      "required": false,
+      "count": 5,
+      "description": "iPad Pro 11\" screenshots (1668x2388)"
+    }
+  },
+  "appIcon": {
+    "required": true,
+    "size": "1024x1024",
+    "format": "PNG",
+    "notes": "High-quality app icon representing travel, passport scanning, and border crossing themes"
+  },
+  "buildSettings": {
+    "deploymentTarget": "iOS 14.0",
+    "supportedDevices": ["iPhone", "iPad"],
+    "supportedOrientations": ["Portrait"],
+    "backgroundModes": [],
+    "capabilities": [
+      "Camera",
+      "Face ID",
+      "Touch ID",
+      "Keychain"
+    ]
+  },
+  "localizations": {
+    "primary": "en-US",
+    "planned": [
+      "ja-JP",
+      "zh-CN", 
+      "ms-MY"
+    ],
+    "notes": "Initial release supports English only. Future updates will add Japanese, Chinese, and Malay based on target countries."
+  },
+  "testing": {
+    "testflightGroups": [
+      "Internal Testing",
+      "Beta Testers",
+      "Travel Community"
+    ],
+    "testingNotes": "Focus testing on passport scanning accuracy, form generation for different passport types, and government portal navigation flows."
+  },
+  "marketing": {
+    "targetAudience": [
+      "Business travelers",
+      "International tourists",
+      "Frequent flyers",
+      "Privacy-conscious users",
+      "Asia travel corridor users"
+    ],
+    "uniqueSellingPoints": [
+      "Zero-server privacy architecture",
+      "Multi-country form support",
+      "Passport MRZ scanning",
+      "Offline QR code wallet",
+      "Government portal integration"
+    ],
+    "competitorDifferentiation": "Unlike other travel apps, Borderly focuses specifically on customs/immigration forms with absolute privacy - no data ever leaves your device."
+  },
+  "support": {
+    "website": "https://borderly.app",
+    "email": "support@borderly.app",
+    "faq": "https://borderly.app/faq",
+    "troubleshooting": "https://borderly.app/help",
+    "feedback": "https://borderly.app/feedback"
+  }
+}
