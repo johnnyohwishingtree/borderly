@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Type check
-        run: pnpm typecheck
+        run: pnpm typecheck 2>&1 | tee /tmp/typecheck_output.txt
 
       - name: Metro bundle check
         run: |
@@ -73,31 +73,56 @@ jobs:
             exit 0
           fi
 
-          # Extract failure summary from test and bundle output
+          # Extract failure summary from all check outputs
           FAILURES=""
-          if [ -f /tmp/test_output.txt ]; then
-            FAILURES=$(grep -E '(FAILED |ERRORS |ERROR |assert |Error:)' /tmp/test_output.txt | tail -20 || echo "")
+
+          # TypeScript errors
+          if [ -f /tmp/typecheck_output.txt ]; then
+            TS_ERRORS=$(grep "error TS" /tmp/typecheck_output.txt | head -15 || echo "")
+            if [ -n "$TS_ERRORS" ]; then
+              TS_COUNT=$(echo "$TS_ERRORS" | wc -l | tr -d ' ')
+              FAILURES="TYPECHECK ERRORS ($TS_COUNT shown):
+          ${TS_ERRORS}"
+            fi
           fi
+
+          # Test failures
+          if [ -f /tmp/test_output.txt ]; then
+            TEST_ERRORS=$(grep -E '(FAIL __tests|● .+|Expected:|Received:)' /tmp/test_output.txt | head -20 || echo "")
+            if [ -n "$TEST_ERRORS" ]; then
+              FAILURES="${FAILURES}
+
+          TEST FAILURES:
+          ${TEST_ERRORS}"
+            fi
+          fi
+
+          # Metro bundle errors
           if [ -f /tmp/bundle_output.txt ]; then
             BUNDLE_ERRORS=$(grep -E '(error:|Unable to resolve|Error:)' /tmp/bundle_output.txt | tail -10 || echo "")
             if [ -n "$BUNDLE_ERRORS" ]; then
               FAILURES="${FAILURES}
 
-          Metro bundle errors:
+          METRO BUNDLE ERRORS:
           ${BUNDLE_ERRORS}"
             fi
           fi
 
-          if [ -n "$FAILURES" ]; then
-            BODY="@claude Tests are failing on this PR. Here are the failures:
+          if [ -z "$FAILURES" ]; then
+            FAILURES="(No error details captured — check the workflow run logs)"
+          fi
+
+          BODY="@claude CI is failing on this PR. Here are the errors:
 
           \`\`\`
           ${FAILURES}
           \`\`\`
 
-          Fix all of these failures. IMPORTANT: After making changes, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
-            gh pr comment "$PR_NUM" --body "$BODY"
-          else
-            gh pr comment "$PR_NUM" \
-              --body "@claude Tests are failing on this PR. Check the test output, fix all failures. IMPORTANT: After making changes, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
-          fi
+          Diagnose the root cause from the errors above and fix it. Common patterns:
+          - **error TS2341 (private property)**: Test is accessing a private method — use a public API or cast to \`any\` for testing.
+          - **error TS2322/TS2345 (type mismatch)**: Test object is missing required properties — add them or use \`Partial<T>\`.
+          - **FAIL __tests/**: Jest test assertion failure — check expected vs received values.
+
+          IMPORTANT: After fixing, run \`pnpm typecheck && pnpm test\` to verify BEFORE pushing. Do NOT push code that still fails. Then git add, commit, and push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
+
+          gh pr comment "$PR_NUM" --body "$BODY"
