@@ -70,7 +70,7 @@ describe('ProgressBar Component', () => {
   });
 
   it('should handle different sizes', () => {
-    const { rerender, container } = render(
+    const { rerender, UNSAFE_root } = render(
       <ProgressBar {...defaultProps} size="small" />
     );
     
@@ -172,7 +172,7 @@ describe('ProgressBar Component', () => {
   });
 
   it('should handle animated progress changes', () => {
-    const { rerender, container } = render(
+    const { rerender, UNSAFE_root } = render(
       <ProgressBar {...defaultProps} progress={20} animated />
     );
     
@@ -266,7 +266,7 @@ describe('ProgressBar Component', () => {
 
   describe('Performance', () => {
     it('should handle rapid progress updates', () => {
-      const { rerender, container } = render(
+      const { rerender, UNSAFE_root } = render(
         <ProgressBar {...defaultProps} progress={10} />
       );
       

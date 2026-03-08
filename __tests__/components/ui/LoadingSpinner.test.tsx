@@ -116,7 +116,7 @@ describe('LoadingSpinner Component', () => {
     });
 
     it('should handle rapid prop changes', () => {
-      const { rerender, getByTestId } = render(
+      const { rerender, getByLabelText } = render(
         <LoadingSpinner size="small" color="#FF0000" />
       );
       
