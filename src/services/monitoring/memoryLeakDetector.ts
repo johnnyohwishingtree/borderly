@@ -650,9 +650,7 @@ class MemoryLeakDetectionService {
     if (__DEV__) {
       // Monitor for common leak patterns in development
       const originalSetTimeout = globalThis.setTimeout;
-      const _originalSetInterval = globalThis.setInterval;
       const originalClearTimeout = globalThis.clearTimeout;
-      const _originalClearInterval = globalThis.clearInterval;
 
       let timerIdCounter = 0;
 

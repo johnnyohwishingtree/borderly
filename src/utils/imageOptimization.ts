@@ -6,7 +6,7 @@
  * and <100MB memory usage.
  */
 
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { MMKV } from 'react-native-mmkv';
 import { performanceMonitor } from '../services/monitoring/performance';
 import type { ImageCompressionOptions } from './imageUtils';
@@ -43,12 +43,6 @@ export interface LazyLoadingConfig {
   maxConcurrentLoads: number;
 }
 
-const _DEFAULT_LAZY_CONFIG: LazyLoadingConfig = {
-  preloadDistance: 200,
-  placeholderQuality: 0.1,
-  enableProgressiveLoading: true,
-  maxConcurrentLoads: 3,
-};
 
 class ImageOptimizationManager {
   private cache: MMKV;
@@ -174,8 +168,8 @@ class ImageOptimizationManager {
         const cachedImage: CachedImage = {
           id: cacheKey,
           originalUri: uri,
-          optimizedBase64: optimized.base64,
-          thumbnailBase64: optimized.thumbnail,
+          ...(optimized.base64 && { optimizedBase64: optimized.base64 }),
+          ...(optimized.thumbnail && { thumbnailBase64: optimized.thumbnail }),
           metadata: {
             originalSize: optimized.originalSize,
             optimizedSize: optimized.optimizedSize,
@@ -426,7 +420,7 @@ class ImageOptimizationManager {
     // For now, simulate the processing
     try {
       // Simulate image processing delay
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise<void>(resolve => setTimeout(resolve, 50));
       
       // Mock processed image data
       const originalSize = 1024 * 1024; // 1MB
@@ -589,7 +583,7 @@ export const imageOptimization = new ImageOptimizationManager();
  * React hook for optimized image loading
  */
 export function useOptimizedImage(uri: string, options: ImageCompressionOptions = {}) {
-  const [imageData, setImageData] = React.useState<{
+  const [imageData, setImageData] = useState<{
     loaded: boolean;
     optimized?: string;
     thumbnail?: string;
@@ -604,11 +598,17 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
     loadTime: 0,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isCancelled = false;
     
     const loadImage = async () => {
-      setImageData((prev: typeof imageData) => ({ ...prev, loading: true, error: undefined }));
+      setImageData((prev: typeof imageData) => {
+        const next: typeof imageData = { ...prev, loading: true };
+        if (prev.error !== undefined) {
+          delete next.error;
+        }
+        return next;
+      });
       
       try {
         const result = await imageOptimization.optimizeImage(uri, {
@@ -618,15 +618,22 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
         });
 
         if (!isCancelled) {
-          setImageData({
+          const nextState: typeof imageData = {
             loaded: result.success,
-            optimized: result.optimized,
-            thumbnail: result.thumbnail,
             loading: false,
-            error: result.error,
             fromCache: result.fromCache,
             loadTime: result.loadTime,
-          });
+          };
+          if (result.optimized) {
+            nextState.optimized = result.optimized;
+          }
+          if (result.thumbnail) {
+            nextState.thumbnail = result.thumbnail;
+          }
+          if (result.error) {
+            nextState.error = result.error;
+          }
+          setImageData(nextState);
         }
       } catch (error) {
         if (!isCancelled) {
@@ -649,17 +656,3 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
   return imageData;
 }
 
-// React import (will be available when this is imported in React components)
-let React: any;
-try {
-  React = require('react');
-} catch {
-  // Mock React for testing environments
-  React = {
-    useState: (initial: any) => [initial, () => {}],
-    useEffect: () => {},
-    useMemo: (fn: any) => fn(),
-    createElement: () => null,
-    memo: (component: any) => component,
-  };
-}

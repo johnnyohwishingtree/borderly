@@ -405,7 +405,6 @@ class PerformanceMonitor {
     formRendering: { target: number; current: number; meets: boolean };
   } {
     const startupMetrics = this.metrics.filter(m => m.name.includes('startup') || m.name.includes('app_start'));
-    const _memoryMetrics = this.metrics.filter(m => m.category === 'memory');
     const formMetrics = this.metrics.filter(m => m.name.includes('form_generation') || m.name.includes('form_render'));
 
     const avgStartup = startupMetrics.length > 0 
