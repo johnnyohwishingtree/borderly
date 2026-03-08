@@ -183,11 +183,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
         return trip;
       });
       
-      set(state => ({
-        trips: [...state.trips, ...newTrips],
+      set(currentState => ({
+        trips: [...currentState.trips, ...newTrips],
         isLoadingMore: false,
-        currentPage: state.currentPage + 1,
-        hasMoreTrips: (state.trips.length + newTrips.length) < state.totalTrips
+        currentPage: currentState.currentPage + 1,
+        hasMoreTrips: (currentState.trips.length + newTrips.length) < currentState.totalTrips
       }));
     } catch (error) {
       console.error('Failed to load more trips:', error);
