@@ -60,67 +60,160 @@ jobs:
           # Allow all git commands EXCEPT push — push happens only after verification
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
 
-      # --- Verification gate: typecheck ---
-      - name: Verify typecheck
-        id: verify-typecheck
+      # ============================================================
+      # Verify + fix loop: typecheck (up to 3 attempts)
+      # ============================================================
+      - name: 'Typecheck: verify (round 1)'
+        id: tc1
         if: always()
         run: |
           pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          if pnpm typecheck 2>&1 | tee /tmp/typecheck-output.txt; then
-            echo "pass=true" >> $GITHUB_OUTPUT
-          else
-            echo "pass=false" >> $GITHUB_OUTPUT
-          fi
+          pnpm typecheck 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
 
-      - name: Fix typecheck errors
-        if: always() && steps.verify-typecheck.outputs.pass == 'false'
+      - name: 'Typecheck: fix (round 1)'
+        if: always() && steps.tc1.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
           direct_prompt: |
-            CRITICAL: Your previous changes have typecheck errors that MUST be fixed.
+            CRITICAL: Your code has typecheck errors (fix attempt 1/3).
 
-            Run `pnpm typecheck` to see every error. Fix ALL of them — do not skip any.
-            Do NOT use `any` types to suppress errors. Fix the actual root cause.
+            Run `pnpm typecheck` to see every error. Fix ALL of them.
+            Do NOT use `any` types to suppress errors — fix the root cause.
+            After fixing, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
 
-            After fixing, run `pnpm typecheck` again and confirm ZERO errors before committing.
+      - name: 'Typecheck: verify (round 2)'
+        id: tc2
+        if: always() && steps.tc1.outputs.pass == 'false'
+        run: |
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+          pnpm typecheck 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
 
-      # --- Verification gate: tests ---
-      - name: Verify tests
-        id: verify-tests
+      - name: 'Typecheck: fix (round 2)'
+        if: always() && steps.tc2.outputs.pass == 'false'
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          max_turns: 30
+          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          direct_prompt: |
+            CRITICAL: Your code STILL has typecheck errors (fix attempt 2/3).
+
+            The previous fix attempt did not resolve all errors.
+            Run `pnpm typecheck`, read EVERY error carefully, and fix them ALL.
+            Do NOT use `any` types. Do NOT leave unused variables or imports.
+            After fixing, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
+
+      - name: 'Typecheck: verify (round 3)'
+        id: tc3
+        if: always() && steps.tc2.outputs.pass == 'false'
+        run: |
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+          pnpm typecheck 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
+
+      - name: 'Typecheck: fix (round 3)'
+        if: always() && steps.tc3.outputs.pass == 'false'
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          max_turns: 30
+          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          direct_prompt: |
+            CRITICAL: Your code STILL has typecheck errors (fix attempt 3/3 — LAST CHANCE).
+
+            This is the final attempt. If these errors are not fixed, the code will NOT be pushed.
+            Run `pnpm typecheck`, fix EVERY error. Check the component interfaces and make sure
+            your test files match the actual props. Remove unused imports and variables.
+            After fixing, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
+
+      # ============================================================
+      # Verify + fix loop: tests (up to 3 attempts)
+      # Only runs if typecheck is passing
+      # ============================================================
+      - name: 'Tests: verify (round 1)'
+        id: test1
         if: always()
         run: |
           pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          if pnpm typecheck 2>&1; then
-            echo "typecheck=true" >> $GITHUB_OUTPUT
-          else
-            echo "typecheck=false" >> $GITHUB_OUTPUT
+          if ! pnpm typecheck 2>&1; then
+            echo "typecheck still failing — skipping test verification"
             echo "pass=false" >> $GITHUB_OUTPUT
+            echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          if pnpm test 2>&1 | tee /tmp/test-output.txt; then
-            echo "pass=true" >> $GITHUB_OUTPUT
-          else
-            echo "pass=false" >> $GITHUB_OUTPUT
-          fi
+          pnpm test 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
 
-      - name: Fix test failures
-        if: always() && steps.verify-tests.outputs.typecheck == 'true' && steps.verify-tests.outputs.pass == 'false'
+      - name: 'Tests: fix (round 1)'
+        if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
           direct_prompt: |
-            CRITICAL: Your previous changes have test failures that MUST be fixed.
+            CRITICAL: Your code has test failures (fix attempt 1/3).
 
             Run `pnpm test` to see every failure. Fix ALL of them.
-            After fixing, run BOTH `pnpm typecheck` and `pnpm test` to confirm
-            ZERO errors before committing.
+            After fixing, run BOTH `pnpm typecheck` and `pnpm test` to confirm ZERO errors,
+            then git add and git commit.
 
-      # --- Final gate: nothing ships without passing ---
+      - name: 'Tests: verify (round 2)'
+        id: test2
+        if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
+        run: |
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+          if ! pnpm typecheck 2>&1; then
+            echo "pass=false" >> $GITHUB_OUTPUT
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          pnpm test 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
+
+      - name: 'Tests: fix (round 2)'
+        if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          max_turns: 30
+          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          direct_prompt: |
+            CRITICAL: Your code STILL has test failures (fix attempt 2/3).
+
+            Run `pnpm test` to see every failure. Fix ALL of them.
+            After fixing, run BOTH `pnpm typecheck` and `pnpm test` to confirm ZERO errors,
+            then git add and git commit.
+
+      - name: 'Tests: verify (round 3)'
+        id: test3
+        if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
+        run: |
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+          if ! pnpm typecheck 2>&1; then
+            echo "pass=false" >> $GITHUB_OUTPUT
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          pnpm test 2>&1 && echo "pass=true" >> $GITHUB_OUTPUT || echo "pass=false" >> $GITHUB_OUTPUT
+
+      - name: 'Tests: fix (round 3)'
+        if: always() && steps.test3.outputs.pass == 'false' && steps.test3.outputs.skip != 'true'
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          max_turns: 30
+          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          direct_prompt: |
+            CRITICAL: Your code STILL has test failures (fix attempt 3/3 — LAST CHANCE).
+
+            This is the final attempt. If not fixed, the code will NOT be pushed.
+            Run `pnpm test`, fix EVERY failure. Then run BOTH `pnpm typecheck` and `pnpm test`
+            to confirm ZERO errors, then git add and git commit.
+
+      # ============================================================
+      # Final gate — nothing ships without passing
+      # ============================================================
       - name: Final verification
         id: final-verify
         if: always()
@@ -141,12 +234,14 @@ jobs:
 
           echo "pass=$PASS" >> $GITHUB_OUTPUT
           if [ "$PASS" = "false" ]; then
-            echo "ERROR: Code still fails after fix attempt — will NOT push"
+            echo "ERROR: Code still fails after 3 fix attempts — will NOT push"
           else
             echo "All checks pass — safe to push"
           fi
 
-      # --- Only push/PR if verification passed ---
+      # ============================================================
+      # Post-verification: push, PR, merge (only if checks pass)
+      # ============================================================
       - name: Push verified changes
         if: always() && steps.final-verify.outputs.pass == 'true'
         env:
