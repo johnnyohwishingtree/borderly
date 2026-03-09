@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SUPPORTED_COUNTRY_NAMES } from '../../src/constants/countries';
 
 test.describe('Complete User Flow', () => {
   test('welcome screen shows onboarding for new users', async ({ page }) => {
@@ -23,9 +24,10 @@ test.describe('Complete User Flow', () => {
     await page.goto('/');
 
     await expect(page.getByText('Supported Countries')).toBeVisible();
-    await expect(page.getByText('Japan').first()).toBeVisible();
-    await expect(page.getByText('Malaysia').first()).toBeVisible();
-    await expect(page.getByText('Singapore').first()).toBeVisible();
+    
+    for (const countryName of SUPPORTED_COUNTRY_NAMES) {
+      await expect(page.getByText(countryName).first()).toBeVisible();
+    }
   });
 
   test('get started navigates to passport information screen', async ({ page }) => {

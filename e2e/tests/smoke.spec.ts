@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SUPPORTED_COUNTRY_NAMES } from '../../src/constants/countries';
 
 test.describe('App Smoke Test', () => {
   test('app launches and renders welcome screen', async ({ page }) => {
@@ -14,9 +15,9 @@ test.describe('App Smoke Test', () => {
     await expect(page.getByText('Lightning Fast')).toBeVisible();
 
     // Supported countries render
-    await expect(page.getByText('Japan')).toBeVisible();
-    await expect(page.getByText('Malaysia')).toBeVisible();
-    await expect(page.getByText('Singapore')).toBeVisible();
+    for (const countryName of SUPPORTED_COUNTRY_NAMES) {
+      await expect(page.getByText(countryName)).toBeVisible();
+    }
 
     // CTA buttons render
     await expect(page.getByLabel('Take quick tutorial')).toBeVisible();
