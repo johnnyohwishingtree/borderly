@@ -358,6 +358,36 @@ export default function ProfileScreen() {
           )}
         </Card>
 
+        {/* Family Management */}
+        <Card>
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-lg font-semibold text-gray-900">
+              Family Members
+            </Text>
+            <Button
+              title="Manage"
+              onPress={() => navigation.navigate('FamilyManagement')}
+              variant="outline"
+              size="small"
+            />
+          </View>
+
+          <View className="bg-gray-50 p-4 rounded-lg">
+            <View className="flex-row items-center justify-center py-2">
+              <Text className="text-sm text-gray-600 text-center">
+                Add and manage family member profiles for easier travel form completion
+              </Text>
+            </View>
+            <Button
+              title="Add Family Member"
+              onPress={() => navigation.navigate('FamilyManagement')}
+              variant="primary"
+              size="medium"
+              fullWidth
+            />
+          </View>
+        </Card>
+
         {/* Profile Metadata */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">

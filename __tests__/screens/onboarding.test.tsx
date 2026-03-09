@@ -7,6 +7,8 @@ import PassportScanScreen from '@/screens/onboarding/PassportScanScreen';
 // Mock dependencies
 jest.mock('@react-navigation/native', () => ({
   useNavigation: jest.fn(),
+  useRoute: jest.fn(() => ({ params: {} })),
+  RouteProp: {},
 }));
 
 jest.mock('@/stores/useProfileStore', () => ({

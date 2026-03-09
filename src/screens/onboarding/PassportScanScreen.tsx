@@ -1,6 +1,6 @@
 import { View, Text, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +35,11 @@ type PassportFormData = z.infer<typeof passportSchema>;
 
 export default function PassportScanScreen() {
   const navigation = useNavigation<PassportScanScreenNavigationProp>();
+  const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
   const { saveProfile } = useProfileStore();
+  
+  const familyMode = route.params?.familyMode || false;
+  const relationship = route.params?.relationship || 'self';
   const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
   const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
@@ -94,6 +98,7 @@ export default function PassportScanScreen() {
         issuingCountry: profileData.issuingCountry || '',
         email: profileData.email || '',
         phoneNumber: profileData.phoneNumber || '',
+        relationship: familyMode ? relationship as any : 'self',
         defaultDeclarations: {
           hasItemsToDeclar: false,
           carryingCurrency: false,
@@ -108,7 +113,13 @@ export default function PassportScanScreen() {
 
       await saveProfile(completeProfile);
       setLastFailedOperation(null); // Clear any failed operation
-      navigation.navigate('ConfirmProfile');
+      
+      if (familyMode) {
+        // Navigate back to family management
+        navigation.navigate('FamilyManagement' as any);
+      } else {
+        navigation.navigate('ConfirmProfile');
+      }
     } catch (error) {
       // Store the failed operation for retry
       setLastFailedOperation({ type: 'save', data: profileData });
@@ -123,7 +134,11 @@ export default function PassportScanScreen() {
         onRecoverySuccess: () => {
           clearStorageError();
           setLastFailedOperation(null);
-          navigation.navigate('ConfirmProfile');
+          if (familyMode) {
+            navigation.navigate('FamilyManagement' as any);
+          } else {
+            navigation.navigate('ConfirmProfile');
+          }
         }
       });
       
@@ -261,7 +276,7 @@ export default function PassportScanScreen() {
             <View className="flex-row items-center flex-1">
               <Camera size={24} color="#111827" style={{ marginRight: 8 }} />
               <Text className="text-2xl font-bold text-gray-900">
-                Passport Information
+                {familyMode ? 'Add Family Member' : 'Passport Information'}
               </Text>
             </View>
             <ContextualHelp 
@@ -271,7 +286,13 @@ export default function PassportScanScreen() {
             />
           </View>
           <Text className="text-base text-gray-600 mb-4">
-            Scan your passport or enter information manually. All data is stored securely on your device.
+            {familyMode 
+              ? `Scan the ${relationship === 'spouse' ? "spouse's" : 
+                           relationship === 'child' ? "child's" : 
+                           relationship === 'parent' ? "parent's" : 
+                           "family member's"} passport or enter information manually. All data is stored securely on your device.`
+              : 'Scan your passport or enter information manually. All data is stored securely on your device.'
+            }
           </Text>
           
           <HelpHint
