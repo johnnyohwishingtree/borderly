@@ -81,7 +81,7 @@ class KeychainServiceImpl implements KeychainService {
 
   private async deleteFromKeychain(key: string): Promise<void> {
     try {
-      await Keychain.resetInternetCredentials({ service: key });
+      await Keychain.resetInternetCredentials({ server: key });
     } catch (error) {
       console.error(`Failed to delete from keychain (${key}):`, error);
       throw new Error(`Failed to delete keychain data for ${key}`);
@@ -128,7 +128,7 @@ class KeychainServiceImpl implements KeychainService {
 
   async deleteProfile(): Promise<void> {
     try {
-      await Keychain.resetInternetCredentials({ service: LEGACY_PROFILE_KEY });
+      await Keychain.resetInternetCredentials({ server: LEGACY_PROFILE_KEY });
     } catch (error) {
       console.error('Failed to delete profile from keychain:', error);
       throw new Error('Failed to delete profile data');
@@ -139,10 +139,7 @@ class KeychainServiceImpl implements KeychainService {
     try {
       // Generate a cryptographically secure 256-bit key for WatermelonDB encryption
       const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
-      // Use Math.random as fallback - in production this should use proper crypto
-      for (let i = 0; i < keyBytes.length; i++) {
-        keyBytes[i] = Math.floor(Math.random() * 256);
-      }
+      crypto.getRandomValues(keyBytes);
 
       // Convert to hex string for storage
       const key = Array.from(keyBytes)
@@ -332,9 +329,7 @@ class KeychainServiceImpl implements KeychainService {
     try {
       // Generate a cryptographically secure 256-bit key for this profile
       const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
-      for (let i = 0; i < keyBytes.length; i++) {
-        keyBytes[i] = Math.floor(Math.random() * 256);
-      }
+      crypto.getRandomValues(keyBytes);
 
       // Convert to hex string for storage
       const key = Array.from(keyBytes)

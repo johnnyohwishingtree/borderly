@@ -123,7 +123,7 @@ describe('KeychainService', () => {
       await keychainService.deleteProfile();
 
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith(
-        { service: 'borderly_traveler_profile' }
+        { server: 'borderly_traveler_profile' }
       );
     });
 
