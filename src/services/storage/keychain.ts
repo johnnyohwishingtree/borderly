@@ -43,11 +43,37 @@ class KeychainServiceImpl implements KeychainService {
   private sensitiveDataRefs: WeakSet<object> = new WeakSet();
   private lastAccessTime: Record<string, number> = {};
 
-  private get keychainSetOptions(): Keychain.SetOptions {
-    return {
+  private async getKeychainSetOptions(): Promise<Keychain.SetOptions> {
+    const baseOptions: Keychain.SetOptions = {
       service: 'borderly',
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
     };
+
+    try {
+      // Check if biometrics are available and enrolled
+      const biometryType = await Keychain.getSupportedBiometryType();
+      const canUseAuth = await Keychain.canImplyAuthentication({
+        authenticationType: Keychain.AUTHENTICATION_TYPE.DEVICE_PASSCODE_OR_BIOMETRICS
+      });
+
+      if (biometryType && canUseAuth) {
+        // Use biometric authentication when available
+        return {
+          ...baseOptions,
+          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET_OR_DEVICE_PASSCODE,
+        };
+      } else {
+        // Fall back to device passcode only
+        return {
+          ...baseOptions,
+          accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+        };
+      }
+    } catch (error) {
+      console.warn('Failed to check biometric availability, using basic security:', error);
+      // Fall back to basic security if checks fail
+      return baseOptions;
+    }
   }
 
   private get keychainGetOptions(): Keychain.GetOptions {
@@ -66,7 +92,8 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   private async storeInKeychain(key: string, username: string, data: string): Promise<void> {
-    await Keychain.setInternetCredentials(key, username, data, this.keychainSetOptions);
+    const options = await this.getKeychainSetOptions();
+    await Keychain.setInternetCredentials(key, username, data, options);
   }
 
   private async getFromKeychain(key: string): Promise<string | null> {
@@ -177,8 +204,22 @@ class KeychainServiceImpl implements KeychainService {
 
   async isAvailable(): Promise<boolean> {
     try {
-      // Keychain is available on iOS/Android regardless of biometric enrollment
-      return true;
+      // Check if keychain is available by testing basic functionality
+      const testKey = 'borderly_availability_test';
+      const testData = 'test';
+      
+      // Try to store and retrieve a test value
+      await Keychain.setInternetCredentials(testKey, 'test', testData, {
+        service: 'borderly',
+        accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+      
+      const retrieved = await Keychain.getInternetCredentials(testKey, this.keychainGetOptions);
+      
+      // Clean up test data
+      await Keychain.resetInternetCredentials({ server: testKey }).catch(() => {});
+      
+      return !!(retrieved && typeof retrieved !== 'boolean' && retrieved.password === testData);
     } catch (error) {
       console.error('Failed to check keychain availability:', error);
       return false;

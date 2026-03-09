@@ -196,31 +196,44 @@ describe('KeychainService', () => {
   });
 
   describe('isAvailable', () => {
-    it('should return true when biometry is supported', async () => {
-      (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('TouchID');
+    it('should return true when keychain functionality works', async () => {
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({ 
+        password: 'test', 
+        username: 'test' 
+      });
+      (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       const result = await keychainService.isAvailable();
 
       expect(result).toBe(true);
+      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
+        'borderly_availability_test',
+        'test',
+        'test',
+        expect.objectContaining({
+          service: 'borderly',
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        })
+      );
     });
 
-    it('should return true even when biometry is not supported', async () => {
-      (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
+    it('should return false when keychain operations fail', async () => {
+      const error = new Error('Keychain unavailable');
+      (Keychain.setInternetCredentials as jest.Mock).mockRejectedValue(error);
 
       const result = await keychainService.isAvailable();
 
-      // Keychain is available regardless of biometric enrollment
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
-    it('should return true even when biometry check fails', async () => {
-      const error = new Error('Check failed');
-      (Keychain.getSupportedBiometryType as jest.Mock).mockRejectedValue(error);
+    it('should return false when keychain returns invalid data', async () => {
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue(false);
 
       const result = await keychainService.isAvailable();
 
-      // Keychain is available regardless of biometric check errors
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
   });
 

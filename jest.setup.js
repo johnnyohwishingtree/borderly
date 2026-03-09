@@ -121,10 +121,13 @@ jest.mock('react-native-keychain', () => ({
   canImplyAuthentication: jest.fn().mockResolvedValue(true),
   getSecurityLevel: jest.fn().mockResolvedValue('SECURE_HARDWARE'),
   AUTHENTICATION_TYPE: {
-    BIOMETRICS: 'AuthenticationWithBiometricsDevicePasscode',
+    BIOMETRICS: 'AuthenticationWithBiometrics',
+    DEVICE_PASSCODE_OR_BIOMETRICS: 'AuthenticationWithBiometricsDevicePasscode',
   },
   ACCESS_CONTROL: {
     BIOMETRY_CURRENT_SET: 'kSecAccessControlBiometryCurrentSet',
+    BIOMETRY_CURRENT_SET_OR_DEVICE_PASSCODE: 'kSecAccessControlBiometryCurrentSetOrDevicePasscode',
+    DEVICE_PASSCODE: 'kSecAccessControlDevicePasscode',
   },
   ACCESSIBLE: {
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
