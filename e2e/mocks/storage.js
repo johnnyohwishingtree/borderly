@@ -20,6 +20,7 @@ function getInjectedState() {
 const memoryStore = {};
 
 const keychainService = {
+  // Legacy single-profile methods (for backward compatibility)
   storeProfile: (profile) => {
     memoryStore.__profile__ = profile;
     return Promise.resolve();
@@ -32,9 +33,65 @@ const keychainService = {
     delete memoryStore.__profile__;
     return Promise.resolve();
   },
+
+  // New multi-profile methods
+  storeProfileById: (profileId, profile) => {
+    if (!memoryStore.__profiles__) memoryStore.__profiles__ = {};
+    memoryStore.__profiles__[profileId] = profile;
+    return Promise.resolve();
+  },
+  getProfileById: (profileId) => {
+    const injected = getInjectedState();
+    const profiles = memoryStore.__profiles__ || {};
+    return Promise.resolve(profiles[profileId] || (injected.profiles && injected.profiles[profileId]) || null);
+  },
+  deleteProfileById: (profileId) => {
+    if (memoryStore.__profiles__) {
+      delete memoryStore.__profiles__[profileId];
+    }
+    if (memoryStore.__profileKeys__) {
+      delete memoryStore.__profileKeys__[profileId];
+    }
+    return Promise.resolve();
+  },
+  getAllProfileIds: () => {
+    const profiles = memoryStore.__profiles__ || {};
+    return Promise.resolve(Object.keys(profiles));
+  },
+  profileExists: (profileId) => {
+    const profiles = memoryStore.__profiles__ || {};
+    return Promise.resolve(profileId in profiles);
+  },
+
+  // Migration support
+  migrateLegacyProfile: () => {
+    // For E2E tests, we'll simulate no legacy profile to migrate
+    return Promise.resolve(null);
+  },
+
+  // Encryption key management
   generateEncryptionKey: () => Promise.resolve('mock-key'),
+  generateProfileEncryptionKey: (profileId) => {
+    if (!memoryStore.__profileKeys__) memoryStore.__profileKeys__ = {};
+    memoryStore.__profileKeys__[profileId] = `mock-key-${profileId}`;
+    return Promise.resolve(`mock-key-${profileId}`);
+  },
   getEncryptionKey: () => Promise.resolve('mock-key'),
+  getProfileEncryptionKey: (profileId) => {
+    const keys = memoryStore.__profileKeys__ || {};
+    return Promise.resolve(keys[profileId] || `mock-key-${profileId}`);
+  },
+  deleteProfileEncryptionKey: (profileId) => {
+    if (memoryStore.__profileKeys__) {
+      delete memoryStore.__profileKeys__[profileId];
+    }
+    return Promise.resolve();
+  },
+
+  // System utilities
   isAvailable: () => Promise.resolve(false),
+  clearSensitiveMemory: () => {},
+  secureCleanup: () => Promise.resolve(),
 };
 
 const mmkvService = {

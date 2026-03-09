@@ -70,17 +70,28 @@ const mockProfile: TravelerProfile = {
 };
 
 describe('useProfileStore', () => {
+  // Create a mock profile storage
+  const mockProfileStorage = new Map<string, TravelerProfile>();
+  
   beforeEach(async () => {
     // Reset all mocks
     jest.clearAllMocks();
+    mockProfileStorage.clear();
     
     // Setup default mock returns
     mockMmkvService.getString.mockReturnValue(undefined);
     mockMmkvService.getPreferences.mockReturnValue({ onboardingComplete: false } as any);
     mockKeychainService.migrateLegacyProfile.mockResolvedValue(null);
-    mockKeychainService.storeProfileById.mockResolvedValue();
-    mockKeychainService.getProfileById.mockResolvedValue(null);
     mockKeychainService.generateProfileEncryptionKey.mockResolvedValue('mock-encryption-key');
+    
+    // Setup intelligent mocks for profile storage
+    mockKeychainService.storeProfileById.mockImplementation(async (profileId, profile) => {
+      mockProfileStorage.set(profileId, profile);
+    });
+    
+    mockKeychainService.getProfileById.mockImplementation(async (profileId) => {
+      return mockProfileStorage.get(profileId) || null;
+    });
     
     // Reset store state manually
     useProfileStore.setState({
