@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { CircleAlert } from 'lucide-react-native';
 import Button from './Button';
 import { AppError } from '../../utils/errorHandling';
 
@@ -95,17 +95,17 @@ export function ErrorMessage({
     if (variant === 'fullscreen') {
       return (
         <View className={getIconStyles()}>
-          <MaterialIcons name="error" size={32} color="#DC2626" />
+          <CircleAlert size={32} color="#DC2626" />
         </View>
       );
     }
     return (
-      <MaterialIcons 
-        name="error-outline" 
-        size={variant === 'inline' ? 20 : 24} 
-        color="#DC2626" 
-        style={{ marginRight: 8 }}
-      />
+      <View style={{ marginRight: 8 }}>
+        <CircleAlert
+          size={variant === 'inline' ? 20 : 24}
+          color="#DC2626"
+        />
+      </View>
     );
   };
 

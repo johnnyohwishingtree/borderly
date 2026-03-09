@@ -10,6 +10,7 @@ import {
   RefreshControl
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Smartphone } from 'lucide-react-native';
 import { EmptyState, Button } from '../../components/ui';
 import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
 import { HapticFeedback } from '../../components/ui/HapticFeedback';
@@ -238,7 +239,7 @@ export default function QRWalletScreen() {
         >
           <View className="flex-1 px-4">
             <EmptyState
-              icon={<Text className="text-4xl">📱</Text>}
+              icon={<Smartphone size={40} color="#6b7280" />}
               title="No QR codes saved"
               description="Add QR codes from your travel submissions for quick access at border crossings"
               variant="illustration"

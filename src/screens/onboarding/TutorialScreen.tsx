@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Camera, ArrowRight, Check, Pencil, Sparkles, ClipboardCheck, Wallet, PlaneTakeoff } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, ProgressIndicator, Card } from '../../components/ui';
@@ -16,7 +16,7 @@ const tutorialSteps = [
     title: 'Scan Your Passport',
     subtitle: 'Quick & Secure Setup',
     content: 'Use your phone camera to scan the Machine Readable Zone (MRZ) on your passport. This automatically fills in all your travel information securely.',
-    icon: 'camera-alt',
+    icon: Camera,
     iconColor: '#2563eb',
     bgGradient: 'from-blue-50 to-indigo-50',
     illustration: (
@@ -25,7 +25,7 @@ const tutorialSteps = [
           <Text className="text-xs text-gray-600 text-center">P&lt;USASMITH&lt;&lt;JOHN&lt;&lt;&lt;&lt;</Text>
           <Text className="text-xs text-gray-600 text-center">123456789&lt;1USA9501012M3010315</Text>
         </View>
-        <MaterialIcons name="camera-alt" size={24} color="#2563eb" style={{ marginTop: 8 }} />
+        <Camera size={24} color="#2563eb" style={{ marginTop: 8 }} />
       </View>
     ),
   },
@@ -34,15 +34,15 @@ const tutorialSteps = [
     title: 'Create Your Trips',
     subtitle: 'Multi-Country Itineraries',
     content: 'Add destinations to your trip itinerary. Borderly supports Japan, Malaysia, and Singapore with more countries coming soon.',
-    icon: 'flight-takeoff',
+    icon: PlaneTakeoff,
     iconColor: '#16a34a',
     bgGradient: 'from-green-50 to-emerald-50',
     illustration: (
       <View className="flex-row items-center justify-center space-x-4">
         <CountryFlag countryCode="JPN" size="large" />
-        <MaterialIcons name="arrow-forward" size={20} color="#6b7280" />
+        <ArrowRight size={20} color="#6b7280" />
         <CountryFlag countryCode="MYS" size="large" />
-        <MaterialIcons name="arrow-forward" size={20} color="#6b7280" />
+        <ArrowRight size={20} color="#6b7280" />
         <CountryFlag countryCode="SGP" size="large" />
       </View>
     ),
@@ -52,21 +52,21 @@ const tutorialSteps = [
     title: 'Auto-Fill Forms',
     subtitle: 'Smart Data Mapping',
     content: 'Your profile information automatically fills country-specific declaration forms. Only answer unique questions for each destination.',
-    icon: 'auto-awesome',
+    icon: Sparkles,
     iconColor: '#9333ea',
     bgGradient: 'from-purple-50 to-violet-50',
     illustration: (
       <View className="space-y-2">
         <View className="flex-row items-center bg-green-100 rounded p-2">
-          <MaterialIcons name="check" size={16} color="#16a34a" />
-          <Text className="ml-2 text-xs text-green-800">Name: John Smith ✓</Text>
+          <Check size={16} color="#16a34a" />
+          <Text className="ml-2 text-xs text-green-800">Name: John Smith</Text>
         </View>
         <View className="flex-row items-center bg-green-100 rounded p-2">
-          <MaterialIcons name="check" size={16} color="#16a34a" />
-          <Text className="ml-2 text-xs text-green-800">Passport: 123456789 ✓</Text>
+          <Check size={16} color="#16a34a" />
+          <Text className="ml-2 text-xs text-green-800">Passport: 123456789</Text>
         </View>
         <View className="flex-row items-center bg-blue-100 rounded p-2">
-          <MaterialIcons name="edit" size={16} color="#2563eb" />
+          <Pencil size={16} color="#2563eb" />
           <Text className="ml-2 text-xs text-blue-800">Purpose of visit: ?</Text>
         </View>
       </View>
@@ -77,7 +77,7 @@ const tutorialSteps = [
     title: 'Guided Submission',
     subtitle: 'Step-by-Step Help',
     content: 'Follow our step-by-step guides to submit forms on government portals. Copy pre-filled data and get QR codes for entry.',
-    icon: 'assignment-turned-in',
+    icon: ClipboardCheck,
     iconColor: '#ea580c',
     bgGradient: 'from-orange-50 to-amber-50',
     illustration: (
@@ -100,7 +100,7 @@ const tutorialSteps = [
     title: 'Your QR Wallet',
     subtitle: 'Offline Access',
     content: 'Store all your submission QR codes in your digital wallet. Access them offline at immigration checkpoints.',
-    icon: 'account-balance-wallet',
+    icon: Wallet,
     iconColor: '#dc2626',
     bgGradient: 'from-red-50 to-pink-50',
     illustration: (
@@ -175,7 +175,7 @@ export default function TutorialScreen() {
             className="w-20 h-20 rounded-full items-center justify-center mb-8"
             style={{ backgroundColor: step.iconColor + '20' }}
           >
-            <MaterialIcons name={step.icon} size={40} color={step.iconColor} />
+            <step.icon size={40} color={step.iconColor} />
           </View>
 
           {/* Illustration */}

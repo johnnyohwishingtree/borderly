@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { CheckIcon, DocumentDuplicateIcon } from 'react-native-heroicons/outline';
+import { Check, Copy } from 'lucide-react-native';
 
 export interface CopyableFieldProps {
   label: string;
@@ -95,14 +95,14 @@ export default function CopyableField({
         <View className="flex-row items-center">
           {copied ? (
             <>
-              <CheckIcon size={20} color="#10B981" />
+              <Check size={20} color="#10B981" />
               <Text className="text-sm font-medium text-green-600 ml-2">
                 Copied!
               </Text>
             </>
           ) : (
             <>
-              <DocumentDuplicateIcon size={20} color="#6B7280" />
+              <Copy size={20} color="#6B7280" />
               <Text className="text-sm font-medium text-gray-600 ml-2">
                 Copy
               </Text>

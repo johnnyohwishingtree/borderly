@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Plane } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
 import { TripCard } from '../../components/trips';
 import { EmptyState } from '../../components/ui';
@@ -67,7 +68,7 @@ export default function TripListScreen() {
 
   const renderEmptyState = () => (
     <EmptyState
-      icon={<Text className="text-4xl">✈️</Text>}
+      icon={<Plane size={40} color="#6b7280" />}
       title="No trips yet"
       description="Create your first trip to start planning your travel declarations"
       buttonProps={{

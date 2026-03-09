@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Alert, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Plane, MapPin, Globe } from 'lucide-react-native';
 import { Button, Input, Card } from '../../components/ui';
 import { CountryFlag } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
@@ -466,7 +466,7 @@ export default function CreateTripScreen() {
           <Card className="mb-6" variant="outlined">
             <View className="p-5">
               <View className="flex-row items-center mb-4">
-                <MaterialIcons name="flight" size={32} color="#374151" style={{ marginRight: 12 }} />
+                <Plane size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900">Trip Details</Text>
               </View>
 
@@ -488,12 +488,12 @@ export default function CreateTripScreen() {
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center">
-                <MaterialIcons name="place" size={32} color="#374151" style={{ marginRight: 12 }} />
+                <MapPin size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900">Destinations</Text>
               </View>
               <View className="flex-row space-x-2">
                 <Button
-                  title="📷 Scan"
+                  title="Scan"
                   onPress={() => setShowScanner(true)}
                   variant="outline"
                   size="small"
@@ -514,14 +514,14 @@ export default function CreateTripScreen() {
             {legs.length === 0 ? (
               <Card variant="outlined">
                 <View className="p-6 items-center">
-                  <MaterialIcons name="public" size={64} color="#9ca3af" style={{ marginBottom: 16 }} />
+                  <Globe size={64} color="#9ca3af" style={{ marginBottom: 16 }} />
                   <Text className="text-lg font-semibold text-gray-900 mb-2">No destinations added yet</Text>
                   <Text className="text-sm text-gray-600 text-center mb-4">
                     Add your travel destinations to plan your customs declarations
                   </Text>
                   <View className="flex-row space-x-3">
                     <Button
-                      title="📷 Scan Boarding Pass"
+                      title="Scan Boarding Pass"
                       onPress={() => setShowScanner(true)}
                       variant="primary"
                     />

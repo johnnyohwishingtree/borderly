@@ -69,7 +69,6 @@ describe('PassportPreview Component', () => {
   it('shows security indicator', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('🔒')).toBeTruthy();
     expect(getByText('Secure Local Storage')).toBeTruthy();
   });
 

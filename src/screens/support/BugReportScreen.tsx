@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Alert, TextInput, Platform } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { Lock } from 'lucide-react-native';
 import { Button, Card, StatusBadge, Select, SelectOption, Toggle } from '@/components/ui';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -297,8 +298,8 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         <Card>
           <View className="bg-orange-50 p-4 rounded-lg">
             <View className="flex-row items-center mb-2">
-              <Text className="text-lg mr-2">🔒</Text>
-              <Text className="text-base font-semibold text-orange-900">Privacy & Security</Text>
+              <Lock size={20} color="#7c2d12" />
+              <Text className="text-base font-semibold text-orange-900 ml-2">Privacy & Security</Text>
             </View>
             <Text className="text-sm text-orange-800 mb-2">
               Bug reports help us fix issues while protecting your privacy.

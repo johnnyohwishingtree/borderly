@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Camera, Pencil, Zap } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar, HelpHint } from '../../components/ui';
@@ -259,7 +259,7 @@ export default function PassportScanScreen() {
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-row items-center flex-1">
-              <MaterialIcons name="camera-alt" size={24} color="#111827" style={{ marginRight: 8 }} />
+              <Camera size={24} color="#111827" style={{ marginRight: 8 }} />
               <Text className="text-2xl font-bold text-gray-900">
                 Passport Information
               </Text>
@@ -320,7 +320,7 @@ export default function PassportScanScreen() {
         {showPerformanceHint && (
           <Card variant="elevated" className="mb-4 bg-orange-50 border border-orange-200">
             <View className="flex-row items-start space-x-3 p-4">
-              <Text className="text-orange-600 text-lg">⚡</Text>
+              <Zap size={20} color="#ea580c" />
               <View className="flex-1">
                 <Text className="text-sm font-medium text-orange-800 mb-1">
                   Performance Optimization Enabled
@@ -345,7 +345,7 @@ export default function PassportScanScreen() {
             <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
               <View className="items-center py-8">
                 <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
-                  <Text className="text-4xl">📷</Text>
+                  <Camera size={40} color="#374151" />
                 </View>
                 <Text className="text-lg font-semibold text-gray-900 mb-2">
                   {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
@@ -373,7 +373,7 @@ export default function PassportScanScreen() {
             <Card variant="elevated" className="mb-6 bg-white shadow-lg">
               <View className="items-center py-6">
                 <View className="w-20 h-20 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
-                  <Text className="text-2xl">✏️</Text>
+                  <Pencil size={28} color="#374151" />
                 </View>
                 <Text className="text-lg font-semibold text-gray-900 mb-2">
                   Manual Entry
@@ -403,7 +403,7 @@ export default function PassportScanScreen() {
         {mode === 'manual' && (
           <Card variant="elevated" className="bg-white shadow-lg">
             <View className="flex-row items-center mb-4">
-              <MaterialIcons name="edit" size={20} color="#111827" style={{ marginRight: 8 }} />
+              <Pencil size={20} color="#111827" style={{ marginRight: 8 }} />
               <Text className="text-lg font-semibold text-gray-900">
                 Passport Information
               </Text>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { CircleHelp, X } from 'lucide-react-native';
 import { Button } from '@/components/ui';
 
 interface HelpContent {
@@ -64,8 +64,7 @@ export default function ContextualHelp({
             accessibilityLabel="Get help"
             accessibilityHint={`Learn more about ${content.title}`}
           >
-            <MaterialIcons
-              name="help-outline"
+            <CircleHelp
               size={config.iconSize}
               color="#2563eb"
             />
@@ -83,8 +82,7 @@ export default function ContextualHelp({
             accessibilityLabel="Get help"
             accessibilityHint={`Learn more about ${content.title}`}
           >
-            <MaterialIcons
-              name="help-outline"
+            <CircleHelp
               size={config.iconSize}
               color="#6b7280"
             />
@@ -105,8 +103,7 @@ export default function ContextualHelp({
             accessibilityLabel="Get help"
             accessibilityHint={`Learn more about ${content.title}`}
           >
-            <MaterialIcons
-              name="help-outline"
+            <CircleHelp
               size={config.iconSize}
               color="#2563eb"
             />
@@ -137,12 +134,9 @@ export default function ContextualHelp({
               {/* Header */}
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center flex-1">
-                  <MaterialIcons
-                    name="help-outline"
-                    size={24}
-                    color="#2563eb"
-                    style={{ marginRight: 8 }}
-                  />
+                  <View style={{ marginRight: 8 }}>
+                    <CircleHelp size={24} color="#2563eb" />
+                  </View>
                   <Text className="text-lg font-semibold text-gray-900 flex-1">
                     {content.title}
                   </Text>
@@ -153,8 +147,7 @@ export default function ContextualHelp({
                   accessibilityRole="button"
                   accessibilityLabel="Close help"
                 >
-                  <MaterialIcons
-                    name="close"
+                  <X
                     size={20}
                     color="#6b7280"
                   />

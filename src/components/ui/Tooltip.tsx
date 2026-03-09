@@ -8,7 +8,7 @@ import {
   LayoutChangeEvent,
   Dimensions
 } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Info, TriangleAlert, CircleAlert } from 'lucide-react-native';
 
 interface TooltipProps {
   children: React.ReactNode;
@@ -49,25 +49,25 @@ export default function Tooltip({
     default: {
       bg: 'bg-gray-800',
       text: 'text-white',
-      icon: 'info',
+      icon: Info,
       iconColor: '#ffffff',
     },
     info: {
       bg: 'bg-blue-600',
       text: 'text-white',
-      icon: 'info',
+      icon: Info,
       iconColor: '#ffffff',
     },
     warning: {
       bg: 'bg-yellow-500',
       text: 'text-gray-900',
-      icon: 'warning',
+      icon: TriangleAlert,
       iconColor: '#1f2937',
     },
     error: {
       bg: 'bg-red-600',
       text: 'text-white',
-      icon: 'error',
+      icon: CircleAlert,
       iconColor: '#ffffff',
     },
   } as const;
@@ -192,12 +192,9 @@ export default function Tooltip({
               >
                 <View className="flex-row items-start">
                   {showIcon && (
-                    <MaterialIcons
-                      name={style.icon}
-                      size={16}
-                      color={style.iconColor}
-                      style={{ marginRight: 6, marginTop: 1 }}
-                    />
+                    <View style={{ marginRight: 6, marginTop: 1 }}>
+                      {React.createElement(style.icon, { size: 16, color: style.iconColor })}
+                    </View>
                   )}
                   <Text className={`text-sm ${style.text} flex-1`}>
                     {content}

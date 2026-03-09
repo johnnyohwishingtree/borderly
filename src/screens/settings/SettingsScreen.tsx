@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Lock, Unlock } from 'lucide-react-native';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
@@ -202,7 +203,7 @@ export default function SettingsScreen() {
                     <Text className="text-base font-medium text-gray-900 mr-2">
                       Biometric Authentication
                     </Text>
-                    <Text className="text-lg">{preferences.biometricEnabled ? '🔒' : '🔓'}</Text>
+                    {preferences.biometricEnabled ? <Lock size={20} color="#374151" /> : <Unlock size={20} color="#374151" />}
                   </View>
                   <Text className="text-sm text-gray-600">
                     Require biometric authentication to view passport data
@@ -239,8 +240,8 @@ export default function SettingsScreen() {
             
             <View className="bg-blue-50 p-4 rounded-lg">
               <View className="flex-row items-center mb-2">
-                <Text className="text-lg mr-2">🔒</Text>
-                <Text className="text-base font-semibold text-blue-900">Local-First Privacy</Text>
+                <Lock size={20} color="#1e3a5f" />
+                <Text className="text-base font-semibold text-blue-900 ml-2">Local-First Privacy</Text>
               </View>
               <Text className="text-sm text-blue-800 mb-2">
                 Your data never leaves this device unless you explicitly share it.
@@ -387,7 +388,7 @@ export default function SettingsScreen() {
           <View className="space-y-3">
             <View>
               <Button
-                title="📤 Export Data"
+                title="Export Data"
                 onPress={handleExportData}
                 variant="outline"
                 fullWidth
@@ -399,7 +400,7 @@ export default function SettingsScreen() {
 
             <View>
               <Button
-                title="🧽 Clear Cache ({storageStats?.cacheSize})"
+                title="Clear Cache ({storageStats?.cacheSize})"
                 onPress={handleClearCache}
                 variant="outline"
                 fullWidth
@@ -413,7 +414,7 @@ export default function SettingsScreen() {
 
             <View>
               <Button
-                title="🗑️ Delete All Data"
+                title="Delete All Data"
                 onPress={handleDeleteAllData}
                 variant="outline"
                 fullWidth
@@ -476,7 +477,7 @@ export default function SettingsScreen() {
             <View className="flex-row space-x-3">
               <View className="flex-1">
                 <Button
-                  title="🔄 Refresh"
+                  title="Refresh"
                   onPress={() => {
                     loadPreferences();
                     loadStorageStats();
@@ -488,7 +489,7 @@ export default function SettingsScreen() {
               </View>
               <View className="flex-1">
                 <Button
-                  title="⚙️ Reset"
+                  title="Reset"
                   onPress={() => {
                     Alert.alert(
                       'Reset Settings',
@@ -521,21 +522,21 @@ export default function SettingsScreen() {
             </Text>
             <View className="space-y-2">
               <Button
-                title="📚 Help & FAQ"
+                title="Help & FAQ"
                 onPress={() => navigation.navigate('Help')}
                 variant="outline"
                 size="small"
                 fullWidth
               />
               <Button
-                title="💬 Send Feedback"
+                title="Send Feedback"
                 onPress={() => navigation.navigate('Feedback')}
                 variant="outline"
                 size="small"
                 fullWidth
               />
               <Button
-                title="🐛 Report Bug"
+                title="Report Bug"
                 onPress={() => navigation.navigate('BugReport')}
                 variant="outline"
                 size="small"

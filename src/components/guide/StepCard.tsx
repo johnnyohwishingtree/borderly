@@ -1,6 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { CheckCircleIcon, InformationCircleIcon, LightBulbIcon } from 'react-native-heroicons/outline';
-import { CheckCircleIcon as CheckCircleIconSolid } from 'react-native-heroicons/solid';
+import { CircleCheck, Info, Lightbulb } from 'lucide-react-native';
 import { SubmissionStep } from '@/types/schema';
 import CopyableField from './CopyableField';
 
@@ -29,12 +28,12 @@ export default function StepCard({
 
   const getStatusIcon = () => {
     if (isCompleted) {
-      return <CheckCircleIconSolid size={24} color="#10B981" />;
+      return <CircleCheck size={24} color="#10B981" />;
     }
     if (isCurrent) {
-      return <CheckCircleIcon size={24} color="#3B82F6" />;
+      return <CircleCheck size={24} color="#3B82F6" />;
     }
-    return <CheckCircleIcon size={24} color="#9CA3AF" />;
+    return <CircleCheck size={24} color="#9CA3AF" />;
   };
 
   const getCardStyles = () => {
@@ -95,7 +94,9 @@ export default function StepCard({
         <View className="p-4">
           {/* Description */}
           <View className="flex-row items-start mb-4">
-            <InformationCircleIcon size={20} color="#6B7280" style={{ marginTop: 2, marginRight: 8 }} />
+            <View style={{ marginTop: 2, marginRight: 8 }}>
+              <Info size={20} color="#6B7280" />
+            </View>
             <Text className="flex-1 text-base text-gray-700 leading-6">
               {step.description}
             </Text>
@@ -129,7 +130,7 @@ export default function StepCard({
           {step.tips && step.tips.length > 0 && (
             <View className="mb-4">
               <View className="flex-row items-center mb-3">
-                <LightBulbIcon size={18} color="#F59E0B" />
+                <Lightbulb size={18} color="#F59E0B" />
                 <Text className="text-sm font-semibold text-gray-900 ml-2">
                   Tips & Reminders:
                 </Text>
@@ -159,7 +160,7 @@ export default function StepCard({
                     opacity: pressed ? 0.8 : 1,
                   })}
                 >
-                  <CheckCircleIcon size={18} color="white" />
+                  <CircleCheck size={18} color="white" />
                   <Text className="text-white font-semibold ml-2">
                     Mark as Complete
                   </Text>
