@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Alert, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Plane, MapPin, Globe } from 'lucide-react-native';
 import { Button, Input, Card } from '../../components/ui';
-import { CountryFlag } from '../../components/trips';
+import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { BoardingPassScanner } from '../../components/boarding';
 import { useTripStore } from '../../stores/useTripStore';
+import { useProfileStore } from '../../stores/useProfileStore';
 import { TripLeg, Accommodation } from '../../types/trip';
-import { Address } from '../../types/profile';
+import { Address, FamilyMember } from '../../types/profile';
 import { ParsedBoardingPass } from '../../types/boarding';
 import { 
   isBoardingPassSupported, 
@@ -38,6 +39,7 @@ interface LegFormData {
     };
     phone: string;
   };
+  assignedTravelers: string[]; // Array of traveler profile IDs
   autoFilledFields?: {
     destinationCountry?: 'auto';
     arrivalDate?: 'auto';
@@ -59,6 +61,7 @@ const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolea
 export default function CreateTripScreen() {
   const navigation = useNavigation();
   const { createTrip, addTripLeg } = useTripStore();
+  const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
 
   const [tripData, setTripData] = useState<TripFormData>({
     name: '',
@@ -69,6 +72,26 @@ export default function CreateTripScreen() {
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showScanner, setShowScanner] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+
+  // Load family members on component mount
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        await loadFamilyProfiles();
+        const profiles = await getAllProfiles();
+        const members: FamilyMember[] = Array.from(profiles.values()).map(profile => ({
+          ...profile,
+          relationship: profile.relationship || 'self',
+        }));
+        setFamilyMembers(members);
+      } catch (error) {
+        console.error('Failed to load family profiles:', error);
+      }
+    };
+    
+    loadProfiles();
+  }, [getAllProfiles, loadFamilyProfiles]);
 
   const addLeg = () => {
     const newLeg: LegFormData = {
@@ -88,6 +111,7 @@ export default function CreateTripScreen() {
         },
         phone: '',
       },
+      assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [], // Default to primary traveler if available
     };
     setLegs([...legs, newLeg]);
   };
@@ -118,6 +142,23 @@ export default function CreateTripScreen() {
     }
     
     setLegs(newLegs);
+  };
+
+  const updateLegTravelers = (index: number, travelerIds: string[]) => {
+    const newLegs = [...legs];
+    newLegs[index].assignedTravelers = travelerIds;
+    setLegs(newLegs);
+  };
+
+  const handleTravelerToggle = (legIndex: number, travelerId: string) => {
+    const leg = legs[legIndex];
+    const isCurrentlySelected = leg.assignedTravelers.includes(travelerId);
+    
+    if (isCurrentlySelected) {
+      updateLegTravelers(legIndex, leg.assignedTravelers.filter(id => id !== travelerId));
+    } else {
+      updateLegTravelers(legIndex, [...leg.assignedTravelers, travelerId]);
+    }
   };
 
   const handleScanSuccess = (parsedPass: ParsedBoardingPass) => {
@@ -155,6 +196,7 @@ export default function CreateTripScreen() {
         },
         phone: '',
       },
+      assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [], // Default to primary traveler if available
       autoFilledFields: {
         destinationCountry: 'auto',
         arrivalDate: 'auto',
@@ -221,6 +263,9 @@ export default function CreateTripScreen() {
       if (!leg.accommodation.name) {
         newErrors[`leg${index}.accommodation`] = 'Accommodation name is required';
       }
+      if (leg.assignedTravelers.length === 0) {
+        newErrors[`leg${index}.travelers`] = 'At least one traveler must be selected';
+      }
     });
 
     setErrors(newErrors);
@@ -265,6 +310,12 @@ export default function CreateTripScreen() {
           } as Accommodation,
           formStatus: 'not_started',
           order: i,
+          assignedTravelers: leg.assignedTravelers,
+          travelerFormsData: leg.assignedTravelers.map(travelerId => ({
+            travelerId,
+            formData: {},
+            formStatus: 'not_started' as const,
+          })),
         } as Omit<TripLeg, 'id' | 'tripId'>);
       }
 
@@ -374,6 +425,24 @@ export default function CreateTripScreen() {
                 autoCapitalize="characters"
               />
             </View>
+
+            {/* Traveler Selection */}
+            {familyMembers.length > 0 && (
+              <View className="border-t border-gray-200 pt-4">
+                <TravelerSelector
+                  travelers={familyMembers}
+                  selectedTravelerIds={leg.assignedTravelers}
+                  onToggleTraveler={(travelerId) => handleTravelerToggle(index, travelerId)}
+                  title="Who is traveling to this destination?"
+                  subtitle="Select which family members will visit this country."
+                  showCompact={true}
+                  minSelection={1}
+                />
+                {errors[`leg${index}.travelers`] && (
+                  <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.travelers`]}</Text>
+                )}
+              </View>
+            )}
 
             <View className="border-t border-gray-200 pt-4">
               <Text className="text-base font-semibold text-gray-900 mb-3">Accommodation</Text>

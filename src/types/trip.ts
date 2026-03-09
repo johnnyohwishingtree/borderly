@@ -10,10 +10,19 @@ export interface Accommodation {
 export interface SavedQRCode {
   id: string;
   legId: string;
+  travelerId?: string; // Optional: which traveler this QR belongs to
   type: 'immigration' | 'customs' | 'health' | 'combined';
   imageBase64: string; // Stored locally
   savedAt: string;
   label: string; // e.g., "Visit Japan Web - Customs QR"
+}
+
+// Multi-traveler form data structure
+export interface TravelerFormData {
+  travelerId: string;
+  formData: Record<string, unknown>;
+  formStatus: 'not_started' | 'in_progress' | 'ready' | 'submitted';
+  qrCodes?: SavedQRCode[];
 }
 
 export interface TripLeg {
@@ -27,9 +36,12 @@ export interface TripLeg {
   arrivalAirport?: string; // IATA 3-letter code
   accommodation: Accommodation;
   formStatus: 'not_started' | 'in_progress' | 'ready' | 'submitted';
-  formData?: Record<string, unknown>; // Country-specific form answers
+  formData?: Record<string, unknown>; // Legacy: Country-specific form answers for single traveler
   qrCodes?: SavedQRCode[];
   order: number; // Leg ordering within trip
+  // Multi-traveler support
+  assignedTravelers?: string[]; // Array of traveler profile IDs assigned to this leg
+  travelerFormsData?: TravelerFormData[]; // Form data per assigned traveler
 }
 
 export interface Trip {

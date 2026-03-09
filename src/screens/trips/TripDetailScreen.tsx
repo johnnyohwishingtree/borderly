@@ -3,9 +3,11 @@ import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Upload, ClipboardList, Trash2 } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
+import { useProfileStore } from '../../stores/useProfileStore';
 import { LegCard } from '../../components/trips';
 import { Button, StatusBadge } from '../../components/ui';
 import { Trip, TripLeg } from '../../types/trip';
+import { FamilyMember } from '../../types/profile';
 
 interface RouteParams {
   tripId: string;
@@ -17,12 +19,33 @@ export default function TripDetailScreen() {
   const { tripId } = route.params as RouteParams;
   
   const { getTripById, deleteTrip } = useTripStore();
+  const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
   const [trip, setTrip] = useState<Trip | null>(null);
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
 
   useEffect(() => {
     const foundTrip = getTripById(tripId);
     setTrip(foundTrip || null);
   }, [tripId, getTripById]);
+
+  // Load family members for traveler details
+  useEffect(() => {
+    const loadProfiles = async () => {
+      try {
+        await loadFamilyProfiles();
+        const profiles = await getAllProfiles();
+        const members: FamilyMember[] = Array.from(profiles.values()).map(profile => ({
+          ...profile,
+          relationship: profile.relationship || 'self',
+        }));
+        setFamilyMembers(members);
+      } catch (error) {
+        console.error('Failed to load family profiles:', error);
+      }
+    };
+    
+    loadProfiles();
+  }, [getAllProfiles, loadFamilyProfiles]);
 
   const handleLegPress = (leg: TripLeg) => {
     // Navigate to leg form screen
@@ -205,6 +228,8 @@ export default function TripDetailScreen() {
                       leg={leg}
                       onPress={() => handleLegPress(leg)}
                       showFormStatus={true}
+                      familyMembers={familyMembers}
+                      showTravelerDetails={true}
                     />
                     
                     {/* Timeline connector */}
