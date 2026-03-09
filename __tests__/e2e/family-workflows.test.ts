@@ -7,6 +7,12 @@
 
 import { test, expect } from '@playwright/test';
 
+declare global {
+  interface Window {
+    __BORDERLY_STATE__?: Record<string, unknown>;
+  }
+}
+
 test.describe('Family Onboarding Workflow', () => {
   test('complete family onboarding from single user to family group', async ({ page }) => {
     // Start with fresh user state
@@ -91,7 +97,7 @@ test.describe('Family Onboarding Workflow', () => {
   test('family member addition preserves existing single user data', async ({ page }) => {
     // Start with existing single user
     await page.addInitScript(() => {
-      window.__BORDERLY_STATE__ = {
+      (window as any).__BORDERLY_STATE__ = {
         preferences: { 
           onboardingComplete: true,
           theme: 'dark',
@@ -161,7 +167,7 @@ test.describe('Family Trip Creation Workflow', () => {
   test('create trip with multiple family members', async ({ page }) => {
     // Set up family with multiple members
     await page.addInitScript(() => {
-      window.__BORDERLY_STATE__ = {
+      (window as any).__BORDERLY_STATE__ = {
         preferences: { onboardingComplete: true },
         profile: {
           id: 'primary-user-123',
@@ -241,7 +247,7 @@ test.describe('Family Trip Creation Workflow', () => {
   test('family trip form generation for each member', async ({ page }) => {
     // Set up trip with family members
     await page.addInitScript(() => {
-      window.__BORDERLY_STATE__ = {
+      (window as any).__BORDERLY_STATE__ = {
         preferences: { onboardingComplete: true },
         profile: {
           id: 'primary-user-123',
@@ -313,7 +319,7 @@ test.describe('Family Trip Creation Workflow', () => {
     expiredDate.setFullYear(expiredDate.getFullYear() - 1); // 1 year ago
 
     await page.addInitScript((expDate) => {
-      window.__BORDERLY_STATE__ = {
+      (window as any).__BORDERLY_STATE__ = {
         preferences: { onboardingComplete: true },
         profile: {
           id: 'primary-user-123',
@@ -369,7 +375,7 @@ test.describe('Family Trip Creation Workflow', () => {
   test('family trip deletion and data cleanup', async ({ page }) => {
     // Set up family trip
     await page.addInitScript(() => {
-      window.__BORDERLY_STATE__ = {
+      (window as any).__BORDERLY_STATE__ = {
         preferences: { onboardingComplete: true },
         profile: {
           id: 'primary-user-123',

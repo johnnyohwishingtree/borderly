@@ -21,7 +21,16 @@ function createMockFamilyProfile(index: number): TravelerProfile {
     dateOfBirth: `${1980 + (index % 40)}-${String((index % 12) + 1).padStart(2, '0')}-${String((index % 28) + 1).padStart(2, '0')}`,
     gender: index % 2 === 0 ? 'M' : 'F',
     passportExpiry: `${2025 + (index % 10)}-12-31`,
-    placeOfBirth: `City${index}`,
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false
+    },
+    createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   };
 }
@@ -231,7 +240,7 @@ describe('Family Operations Performance Tests', () => {
     });
 
     it('should handle concurrent validation operations', async () => {
-      const familyCollection = createMockFamilyCollection(8);
+      createMockFamilyCollection(8);
       const profiles = Array.from({ length: 8 }, (_, i) => createMockFamilyProfile(i));
 
       const { duration } = measureExecutionTime(() => {
@@ -287,7 +296,7 @@ describe('Family Operations Performance Tests', () => {
           const currentTraveler = travelers[i % travelers.length];
           
           // Simulate form field population
-          const formFields = {
+          void {
             passportNumber: currentTraveler.passportNumber,
             givenNames: currentTraveler.givenNames,
             surname: currentTraveler.surname,

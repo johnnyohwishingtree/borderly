@@ -28,36 +28,42 @@ jest.mock('@react-navigation/native', () => ({
   },
 }));
 
-// Mock UI components
-jest.mock('@/components/ui', () => ({
-  Button: ({ title, onPress, testID }: any) => (
-    <button onPress={onPress} testID={testID}>{title}</button>
-  ),
-  Card: ({ children, className }: any) => (
-    <div className={className}>{children}</div>
-  ),
-  EmptyState: ({ title, description, buttonProps, icon }: any) => (
-    <div>
-      {icon}
-      <div>{title}</div>
-      <div>{description}</div>
-      {buttonProps && <button onPress={buttonProps.onPress}>{buttonProps.title}</button>}
-    </div>
-  ),
-  LoadingSpinner: ({ text }: any) => <div>{text}</div>,
-}));
+// Mock UI components using React Native primitives
+jest.mock('@/components/ui', () => {
+  const { View, Text, TouchableOpacity } = require('react-native');
+  return {
+    Button: ({ title, onPress, testID }: any) => (
+      <TouchableOpacity onPress={onPress} testID={testID}><Text>{title}</Text></TouchableOpacity>
+    ),
+    Card: ({ children, className }: any) => (
+      <View className={className}>{children}</View>
+    ),
+    EmptyState: ({ title, description, buttonProps, icon }: any) => (
+      <View>
+        {icon}
+        <Text>{title}</Text>
+        <Text>{description}</Text>
+        {buttonProps && <TouchableOpacity onPress={buttonProps.onPress}><Text>{buttonProps.title}</Text></TouchableOpacity>}
+      </View>
+    ),
+    LoadingSpinner: ({ text }: any) => <View><Text>{text}</Text></View>,
+  };
+});
 
 // Mock family member card
-jest.mock('@/components/profile', () => ({
-  FamilyMemberCard: ({ member, onEdit, onRemove }: any) => (
-    <div testID={`family-member-${member.id}`}>
-      <span>{member.givenNames} {member.surname}</span>
-      <span>{member.relationship}</span>
-      {onEdit && <button onPress={onEdit}>Edit</button>}
-      {onRemove && <button onPress={onRemove}>Remove</button>}
-    </div>
-  ),
-}));
+jest.mock('@/components/profile', () => {
+  const { View, Text, TouchableOpacity } = require('react-native');
+  return {
+    FamilyMemberCard: ({ member, onEdit, onRemove }: any) => (
+      <View testID={`family-member-${member.id}`}>
+        <Text>{member.givenNames} {member.surname}</Text>
+        <Text>{member.relationship}</Text>
+        {onEdit && <TouchableOpacity onPress={onEdit}><Text>Edit</Text></TouchableOpacity>}
+        {onRemove && <TouchableOpacity onPress={onRemove}><Text>Remove</Text></TouchableOpacity>}
+      </View>
+    ),
+  };
+});
 
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <NavigationContainer>
@@ -261,17 +267,16 @@ describe('FamilyManagementScreen', () => {
         loadProfile: jest.fn().mockResolvedValue(undefined),
       });
 
-      const { getByTestId } = render(
+      const { getAllByText } = render(
         <TestWrapper>
           <FamilyManagementScreen />
         </TestWrapper>
       );
 
       await waitFor(() => {
-        const familyMemberCard = getByTestId('family-member-primary-123');
-        const editButton = familyMemberCard.querySelector('button');
-        if (editButton) {
-          fireEvent.press(editButton);
+        const editButtons = getAllByText('Edit');
+        if (editButtons.length > 0) {
+          fireEvent.press(editButtons[0]);
         }
       });
 
@@ -300,17 +305,16 @@ describe('FamilyManagementScreen', () => {
         },
       }));
 
-      const { getByTestId } = render(
+      const { getAllByText } = render(
         <TestWrapper>
           <FamilyManagementScreen />
         </TestWrapper>
       );
 
       await waitFor(() => {
-        const familyMemberCard = getByTestId('family-member-spouse-456');
-        const editButton = familyMemberCard.querySelector('button');
-        if (editButton) {
-          fireEvent.press(editButton);
+        const editButtons = getAllByText('Edit');
+        if (editButtons.length > 1) {
+          fireEvent.press(editButtons[1]); // Second edit button = spouse
         }
       });
 
@@ -351,18 +355,16 @@ describe('FamilyManagementScreen', () => {
         },
       }));
 
-      const { getByTestId } = render(
+      const { getAllByText } = render(
         <TestWrapper>
           <FamilyManagementScreen />
         </TestWrapper>
       );
 
       await waitFor(() => {
-        const familyMemberCard = getByTestId('family-member-child-789');
-        const removeButton = Array.from(familyMemberCard.querySelectorAll('button'))
-          .find(button => button.textContent === 'Remove');
-        if (removeButton) {
-          fireEvent.press(removeButton);
+        const removeButtons = getAllByText('Remove');
+        if (removeButtons.length > 0) {
+          fireEvent.press(removeButtons[0]);
         }
       });
 
@@ -385,17 +387,16 @@ describe('FamilyManagementScreen', () => {
         loadProfile: jest.fn().mockResolvedValue(undefined),
       });
 
-      const { getByTestId } = render(
+      const { queryByText } = render(
         <TestWrapper>
           <FamilyManagementScreen />
         </TestWrapper>
       );
 
       await waitFor(() => {
-        const familyMemberCard = getByTestId('family-member-primary-123');
-        const removeButton = Array.from(familyMemberCard.querySelectorAll('button'))
-          .find(button => button.textContent === 'Remove');
-        expect(removeButton).toBeFalsy();
+        // Primary profile mock only renders Edit, not Remove
+        // (the mock renders Remove only when onRemove is provided)
+        expect(queryByText('Remove')).toBeFalsy();
       });
     });
   });
@@ -449,7 +450,7 @@ describe('FamilyManagementScreen', () => {
         loadProfile: mockLoadProfile,
       });
 
-      const { getByText } = render(
+      render(
         <TestWrapper>
           <FamilyManagementScreen />
         </TestWrapper>
