@@ -345,13 +345,22 @@ export function validateForStorage(
  * Sanitizes family member input data
  */
 export function sanitizeFamilyMemberInput(profile: Partial<TravelerProfile>): Partial<TravelerProfile> {
-  return {
-    ...profile,
-    givenNames: profile.givenNames?.trim(),
-    surname: profile.surname?.trim(),
-    passportNumber: profile.passportNumber?.trim().toUpperCase(),
-    nationality: profile.nationality?.trim().toUpperCase(),
-  };
+  const sanitized: Partial<TravelerProfile> = { ...profile };
+  
+  if (sanitized.givenNames) {
+    sanitized.givenNames = sanitized.givenNames.trim();
+  }
+  if (sanitized.surname) {
+    sanitized.surname = sanitized.surname.trim();
+  }
+  if (sanitized.passportNumber) {
+    sanitized.passportNumber = sanitized.passportNumber.trim().toUpperCase();
+  }
+  if (sanitized.nationality) {
+    sanitized.nationality = sanitized.nationality.trim().toUpperCase();
+  }
+  
+  return sanitized;
 }
 
 /**
