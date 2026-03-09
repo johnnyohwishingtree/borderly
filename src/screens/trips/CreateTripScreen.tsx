@@ -47,16 +47,7 @@ interface LegFormData {
   };
 }
 
-const COUNTRIES = [
-  { code: 'JPN', name: 'Japan' },
-  { code: 'MYS', name: 'Malaysia' },
-  { code: 'SGP', name: 'Singapore' },
-];
-
-const COUNTRY_NAMES = COUNTRIES.reduce((acc, country) => {
-  acc[country.code] = country.name;
-  return acc;
-}, {} as Record<string, string>);
+import { SUPPORTED_COUNTRIES, getCountryName } from '../../constants/countries';
 
 const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
   <View className="flex-row items-center justify-between mb-2">
@@ -195,7 +186,7 @@ export default function CreateTripScreen() {
     if (tripLegs.length === 0) return '';
     
     const destinations = tripLegs
-      .map(leg => COUNTRY_NAMES[leg.destinationCountry])
+      .map(leg => getCountryName(leg.destinationCountry))
       .filter(Boolean);
     
     if (destinations.length === 0) return '';
@@ -314,7 +305,7 @@ export default function CreateTripScreen() {
             <View>
               <FieldHeader label="Country" autoFilled={!!leg.autoFilledFields?.destinationCountry} />
               <View className="flex-row flex-wrap gap-2">
-                {COUNTRIES.map((countryOption) => (
+                {SUPPORTED_COUNTRIES.map((countryOption) => (
                   <Button
                     key={countryOption.code}
                     title={countryOption.name}

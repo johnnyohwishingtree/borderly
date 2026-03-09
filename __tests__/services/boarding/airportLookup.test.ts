@@ -76,9 +76,12 @@ describe('Airport Lookup Service', () => {
       expect(isSupportedDestination('SIN')).toBe(true); // Singapore
     });
 
+    it('should return true for newly added supported countries', () => {
+      expect(isSupportedDestination('LAX')).toBe(true); // USA
+      expect(isSupportedDestination('LHR')).toBe(true); // UK
+    });
+
     it('should return false for unsupported countries', () => {
-      expect(isSupportedDestination('LAX')).toBe(false); // USA
-      expect(isSupportedDestination('LHR')).toBe(false); // UK
       expect(isSupportedDestination('ICN')).toBe(false); // Korea
     });
 
@@ -142,26 +145,28 @@ describe('Airport Lookup Service', () => {
   describe('getSupportedDestinationAirports', () => {
     it('should return airports from all supported countries', () => {
       const supportedAirports = getSupportedDestinationAirports();
-      
-      // Should include airports from JPN, MYS, SGP
+
+      // Should include airports from all 8 supported countries
       const japanCount = supportedAirports.filter(a => a.country === 'JPN').length;
       const malaysiaCount = supportedAirports.filter(a => a.country === 'MYS').length;
       const singaporeCount = supportedAirports.filter(a => a.country === 'SGP').length;
-      
+
       expect(japanCount).toBe(6);
       expect(malaysiaCount).toBe(5);
       expect(singaporeCount).toBe(1);
-      
-      expect(supportedAirports).toHaveLength(12); // 6 + 5 + 1
+
+      // All supported airports should be from supported countries
+      const supportedCountrySet = new Set(SUPPORTED_COUNTRIES);
+      for (const airport of supportedAirports) {
+        expect(supportedCountrySet.has(airport.country)).toBe(true);
+      }
     });
 
-    it('should not include departure airports from other countries', () => {
+    it('should not include airports from unsupported countries', () => {
       const supportedAirports = getSupportedDestinationAirports();
       const codes = supportedAirports.map(a => a.code);
-      
-      // Should not include US, UK, or other departure airports
-      expect(codes).not.toContain('LAX');
-      expect(codes).not.toContain('LHR');
+
+      // Korea is not supported
       expect(codes).not.toContain('ICN');
     });
   });
@@ -217,15 +222,20 @@ describe('Airport Lookup Service', () => {
   });
 
   describe('SUPPORTED_COUNTRIES constant', () => {
-    it('should contain exactly the expected countries', () => {
-      expect(SUPPORTED_COUNTRIES).toEqual(['JPN', 'MYS', 'SGP']);
+    it('should contain all 8 supported countries', () => {
+      expect(SUPPORTED_COUNTRIES).toContain('JPN');
+      expect(SUPPORTED_COUNTRIES).toContain('MYS');
+      expect(SUPPORTED_COUNTRIES).toContain('SGP');
+      expect(SUPPORTED_COUNTRIES).toContain('THA');
+      expect(SUPPORTED_COUNTRIES).toContain('VNM');
+      expect(SUPPORTED_COUNTRIES).toContain('GBR');
+      expect(SUPPORTED_COUNTRIES).toContain('USA');
+      expect(SUPPORTED_COUNTRIES).toContain('CAN');
     });
 
-    it('should be a read-only array', () => {
-      // TypeScript prevents modification at compile time
-      // At runtime, the array is still mutable, but TypeScript enforces readonly
+    it('should be an array matching constants/countries.ts', () => {
       expect(Array.isArray(SUPPORTED_COUNTRIES)).toBe(true);
-      expect(SUPPORTED_COUNTRIES.length).toBe(3);
+      expect(SUPPORTED_COUNTRIES.length).toBe(8);
     });
   });
 });

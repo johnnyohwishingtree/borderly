@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, TextInput } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Button, Card, StatusBadge } from '@/components/ui';
+import { formatSupportedCountryList } from '@/constants/countries';
 
 interface FAQScreenProps {
   route?: RouteProp<any, any>;
@@ -33,7 +34,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
     {
       id: 'faq-2',
       question: 'Which countries are supported?',
-      answer: 'Borderly currently supports Japan (Visit Japan Web), Malaysia (MDAC), and Singapore (SG Arrival Card). These countries cover common Asia travel corridors. More countries including Thailand, Vietnam, Canada, UK, and USA will be added in future updates.',
+      answer: `Borderly currently supports ${formatSupportedCountryList()}. These countries cover popular travel corridors across Asia, North America, and Europe.`,
       category: 'countries',
       tags: ['countries', 'japan', 'malaysia', 'singapore', 'supported'],
     },

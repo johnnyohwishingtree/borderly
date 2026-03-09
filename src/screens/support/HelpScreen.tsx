@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Alert, Linking } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { CircleAlert } from 'lucide-react-native';
+import { formatSupportedCountryList } from '@/constants/countries';
 import { Button, Card, StatusBadge } from '@/components/ui';
 import { SearchableHelp } from '@/components/help';
 
@@ -35,7 +36,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
     {
       id: 'faq-2',
       question: 'Which countries are supported?',
-      answer: 'Borderly currently supports Japan, Malaysia, and Singapore. These countries cover common Asia travel corridors. More countries will be added in future updates.',
+      answer: `Borderly currently supports ${formatSupportedCountryList()}. These countries cover popular travel corridors across Asia, North America, and Europe.`,
       category: 'countries',
       tags: ['countries', 'japan', 'malaysia', 'singapore', 'supported'],
     },

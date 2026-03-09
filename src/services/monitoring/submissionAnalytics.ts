@@ -1,6 +1,8 @@
+import { getCountryFullName } from '../../constants/countries';
+
 /**
  * Submission Analytics Service
- * 
+ *
  * Collects and analyzes anonymized metrics about form submissions,
  * portal performance, and user experience. No personally identifiable
  * information is collected or stored.
@@ -581,18 +583,7 @@ export class SubmissionAnalytics {
    * Gets country name from country code
    */
   private getCountryName(countryCode: string): string {
-    const countryNames: Record<string, string> = {
-      'JPN': 'Japan',
-      'MYS': 'Malaysia', 
-      'SGP': 'Singapore',
-      'THA': 'Thailand',
-      'VNM': 'Vietnam',
-      'USA': 'United States',
-      'GBR': 'United Kingdom',
-      'CAN': 'Canada'
-    };
-
-    return countryNames[countryCode] || countryCode;
+    return getCountryFullName(countryCode);
   }
 
   /**

@@ -54,7 +54,7 @@ export const AutomatedSubmissionScreen: React.FC<AutomatedSubmissionScreenProps>
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
 
   // Get leg data (mock implementation)
-  const leg = legId ? { id: legId, destinationCountry: 'JPN' } as any : null;
+  const leg = legId ? { id: legId, destinationCountry: legId } as any : null;
   
   /**
    * Initialize automated submission

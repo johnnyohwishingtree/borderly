@@ -1,6 +1,7 @@
 /**
  * Field value formatting utilities for display in the submission guide
  */
+import { getCountryFullName } from '../constants/countries';
 
 export function formatFieldValue(
   value: unknown, 
@@ -122,13 +123,12 @@ export function formatPassportNumber(passportNumber: string): string {
 }
 
 export function formatCountryName(countryCode: string): string {
-  const countryNames: Record<string, string> = {
-    'JPN': 'Japan',
-    'MYS': 'Malaysia', 
-    'SGP': 'Singapore',
-    'USA': 'United States',
-    'CAN': 'Canada',
-    'GBR': 'United Kingdom',
+  // Check supported countries first (single source of truth)
+  const supported = getCountryFullName(countryCode);
+  if (supported !== countryCode) return supported;
+
+  // Extended list for passport nationalities (not Borderly destinations)
+  const extendedNames: Record<string, string> = {
     'AUS': 'Australia',
     'DEU': 'Germany',
     'FRA': 'France',
@@ -143,13 +143,11 @@ export function formatCountryName(countryCode: string): string {
     'KOR': 'South Korea',
     'CHN': 'China',
     'IND': 'India',
-    'THA': 'Thailand',
-    'VNM': 'Vietnam',
     'IDN': 'Indonesia',
     'PHL': 'Philippines',
   };
-  
-  return countryNames[countryCode] || countryCode;
+
+  return extendedNames[countryCode] || countryCode;
 }
 
 export function formatGender(gender: 'M' | 'F' | 'X'): string {

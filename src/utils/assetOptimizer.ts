@@ -1,4 +1,5 @@
 // Asset optimization utilities - no React Native imports for now
+import { SUPPORTED_COUNTRY_CODES } from '../constants/countries';
 
 /**
  * Asset loading with lazy initialization and caching
@@ -83,7 +84,7 @@ class AssetLoader {
    * Preload critical assets for better perceived performance
    */
   async preloadCriticalAssets(): Promise<void> {
-    const criticalFlags = ['JPN', 'MYS', 'SGP']; // MVP countries
+    const criticalFlags = SUPPORTED_COUNTRY_CODES;
     const criticalIcons = ['camera', 'qr-code', 'user', 'settings'];
 
     const flagPromises = criticalFlags.map(code => this.loadCountryFlag(code));

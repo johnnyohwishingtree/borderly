@@ -1,4 +1,5 @@
 import { CountryPriority } from '../types/schema';
+import { SUPPORTED_COUNTRY_CODES } from '../constants/countries';
 
 /**
  * Country Priority Framework
@@ -271,7 +272,8 @@ class CountryPriorityManager {
    * Get countries by implementation status
    */
   getCountriesByStatus(status: 'implemented' | 'planned' | 'all'): CountryPriority[] {
-    const implementedCountries = ['JPN', 'SGP', 'MYS']; // Phase 1 complete
+    // All countries in the supported list are considered implemented
+    const implementedCountries: string[] = SUPPORTED_COUNTRY_CODES;
     
     return this.getAllPriorities().filter(priority => {
       const isImplemented = implementedCountries.includes(priority.countryCode);

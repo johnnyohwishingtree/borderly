@@ -578,7 +578,8 @@ describe('Boarding Pass Parser Service', () => {
       };
 
       const message = getUnsupportedDestinationMessage(koreaPass);
-      expect(message).toBe('KOR is not yet supported. Currently supported countries: Japan, Malaysia, Singapore.');
+      expect(message).toContain('KOR is not yet supported');
+      expect(message).toContain('Currently supported countries:');
     });
   });
 });

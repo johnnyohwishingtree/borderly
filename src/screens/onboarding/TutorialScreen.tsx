@@ -6,6 +6,7 @@ import { Camera, ArrowRight, Check, Pencil, Sparkles, ClipboardCheck, Wallet, Pl
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, ProgressIndicator, Card } from '../../components/ui';
+import { SUPPORTED_COUNTRIES, formatSupportedCountryList } from '../../constants/countries';
 import CountryFlag from '../../components/trips/CountryFlag';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
@@ -33,17 +34,21 @@ const tutorialSteps = [
     id: 2,
     title: 'Create Your Trips',
     subtitle: 'Multi-Country Itineraries',
-    content: 'Add destinations to your trip itinerary. Borderly supports Japan, Malaysia, and Singapore with more countries coming soon.',
+    content: `Add destinations to your trip itinerary. Borderly supports ${formatSupportedCountryList()}.`,
     icon: PlaneTakeoff,
     iconColor: '#16a34a',
     bgGradient: 'from-green-50 to-emerald-50',
     illustration: (
-      <View className="flex-row items-center justify-center space-x-4">
-        <CountryFlag countryCode="JPN" size="large" />
-        <ArrowRight size={20} color="#6b7280" />
-        <CountryFlag countryCode="MYS" size="large" />
-        <ArrowRight size={20} color="#6b7280" />
-        <CountryFlag countryCode="SGP" size="large" />
+      <View className="flex-row flex-wrap items-center justify-center gap-2">
+        {SUPPORTED_COUNTRIES.slice(0, 4).map((country, i) => (
+          <View key={country.code} className="flex-row items-center">
+            {i > 0 && <ArrowRight size={16} color="#6b7280" style={{ marginRight: 4 }} />}
+            <CountryFlag countryCode={country.code} size="medium" />
+          </View>
+        ))}
+        {SUPPORTED_COUNTRIES.length > 4 && (
+          <Text className="text-sm text-gray-500 ml-1">+{SUPPORTED_COUNTRIES.length - 4}</Text>
+        )}
       </View>
     ),
   },

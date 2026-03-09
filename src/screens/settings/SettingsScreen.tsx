@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Lock, Unlock } from 'lucide-react-native';
+import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
@@ -446,7 +447,7 @@ export default function SettingsScreen() {
             <View className="bg-gray-50 p-3 rounded-lg">
               <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">Supported Countries</Text>
               <View className="mt-2">
-                <Text className="text-sm text-gray-900">🇯🇵 Japan • 🇲🇾 Malaysia • 🇸🇬 Singapore</Text>
+                <Text className="text-sm text-gray-900">{SUPPORTED_COUNTRIES.map(c => c.name).join(' • ')}</Text>
               </View>
             </View>
             
