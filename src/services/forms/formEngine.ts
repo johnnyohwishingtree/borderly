@@ -1,5 +1,5 @@
 import { TravelerProfile } from '../../types/profile';
-import { TripLeg } from '../../types/trip';
+import { TripLeg, TravelerFormData } from '../../types/trip';
 import { CountryFormSchema, FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
 
@@ -442,4 +442,185 @@ export function getCacheStats(): {
     formCache: { size: formCache.size },
     fieldCache: { size: fieldResolutionCache.size },
   };
+}
+
+/**
+ * Generates filled forms for all assigned travelers on a trip leg.
+ * Returns a map of traveler ID to their filled form.
+ */
+export function generateFilledFormsForAllTravelers(
+  travelers: TravelerProfile[],
+  leg: TripLeg,
+  schema: CountryFormSchema,
+  existingTravelerForms?: TravelerFormData[]
+): Map<string, FilledForm> {
+  const formsMap = new Map<string, FilledForm>();
+  const assignedTravelers = leg.assignedTravelers || [];
+
+  for (const travelerId of assignedTravelers) {
+    const traveler = travelers.find(t => t.id === travelerId);
+    if (!traveler) {
+      console.warn(`Traveler with ID ${travelerId} not found`);
+      continue;
+    }
+
+    const existingFormData = existingTravelerForms?.find(
+      t => t.travelerId === travelerId
+    )?.formData;
+
+    const filledForm = generateFilledForm(
+      traveler,
+      leg,
+      schema,
+      existingFormData
+    );
+
+    formsMap.set(travelerId, filledForm);
+  }
+
+  return formsMap;
+}
+
+/**
+ * Generates a filled form for a specific traveler on a trip leg.
+ * This is a convenience function that wraps generateFilledForm with traveler lookup.
+ */
+export function generateFilledFormForTraveler(
+  travelerId: string,
+  travelers: TravelerProfile[],
+  leg: TripLeg,
+  schema: CountryFormSchema,
+  existingFormData?: Record<string, unknown>
+): FilledForm | null {
+  const traveler = travelers.find(t => t.id === travelerId);
+  if (!traveler) {
+    console.warn(`Traveler with ID ${travelerId} not found`);
+    return null;
+  }
+
+  return generateFilledForm(traveler, leg, schema, existingFormData);
+}
+
+/**
+ * Gets the form status for a specific traveler on a trip leg.
+ */
+export function getTravelerFormStatus(
+  travelerId: string,
+  leg: TripLeg
+): 'not_started' | 'in_progress' | 'ready' | 'submitted' {
+  const travelerFormData = leg.travelerFormsData?.find(
+    t => t.travelerId === travelerId
+  );
+  
+  return travelerFormData?.formStatus || 'not_started';
+}
+
+/**
+ * Updates form data for a specific traveler on a trip leg.
+ */
+export function updateTravelerFormData(
+  travelerId: string,
+  leg: TripLeg,
+  fieldId: string,
+  value: unknown
+): TripLeg {
+  const updatedLeg = { ...leg };
+  
+  if (!updatedLeg.travelerFormsData) {
+    updatedLeg.travelerFormsData = [];
+  }
+
+  const existingTravelerIndex = updatedLeg.travelerFormsData.findIndex(
+    t => t.travelerId === travelerId
+  );
+
+  if (existingTravelerIndex >= 0) {
+    // Update existing traveler form data
+    updatedLeg.travelerFormsData[existingTravelerIndex] = {
+      ...updatedLeg.travelerFormsData[existingTravelerIndex],
+      formData: updateFormData(
+        updatedLeg.travelerFormsData[existingTravelerIndex].formData,
+        fieldId,
+        value
+      ),
+    };
+  } else {
+    // Create new traveler form data
+    updatedLeg.travelerFormsData.push({
+      travelerId,
+      formData: { [fieldId]: value },
+      formStatus: 'in_progress',
+    });
+  }
+
+  return updatedLeg;
+}
+
+/**
+ * Updates the form status for a specific traveler on a trip leg.
+ */
+export function updateTravelerFormStatus(
+  travelerId: string,
+  leg: TripLeg,
+  status: 'not_started' | 'in_progress' | 'ready' | 'submitted'
+): TripLeg {
+  const updatedLeg = { ...leg };
+  
+  if (!updatedLeg.travelerFormsData) {
+    updatedLeg.travelerFormsData = [];
+  }
+
+  const existingTravelerIndex = updatedLeg.travelerFormsData.findIndex(
+    t => t.travelerId === travelerId
+  );
+
+  if (existingTravelerIndex >= 0) {
+    updatedLeg.travelerFormsData[existingTravelerIndex] = {
+      ...updatedLeg.travelerFormsData[existingTravelerIndex],
+      formStatus: status,
+    };
+  } else {
+    // Create new traveler form data with the status
+    updatedLeg.travelerFormsData.push({
+      travelerId,
+      formData: {},
+      formStatus: status,
+    });
+  }
+
+  return updatedLeg;
+}
+
+/**
+ * Gets the overall form status for a trip leg considering all assigned travelers.
+ */
+export function getOverallLegFormStatus(
+  leg: TripLeg
+): 'not_started' | 'in_progress' | 'ready' | 'submitted' {
+  const assignedTravelers = leg.assignedTravelers || [];
+  
+  if (assignedTravelers.length === 0) {
+    return 'not_started';
+  }
+
+  const statuses = assignedTravelers.map(travelerId => 
+    getTravelerFormStatus(travelerId, leg)
+  );
+
+  // If all are submitted, overall is submitted
+  if (statuses.every(status => status === 'submitted')) {
+    return 'submitted';
+  }
+
+  // If all are ready, overall is ready
+  if (statuses.every(status => status === 'ready')) {
+    return 'ready';
+  }
+
+  // If any are started, overall is in progress
+  if (statuses.some(status => status === 'in_progress' || status === 'ready')) {
+    return 'in_progress';
+  }
+
+  return 'not_started';
 }
