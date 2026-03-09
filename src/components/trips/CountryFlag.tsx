@@ -132,9 +132,9 @@ export default function CountryFlag({
             <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
           </View>
         );
-      default:
-        return null;
     }
+    
+    return null;
   };
 
   return (

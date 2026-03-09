@@ -37,26 +37,31 @@ export default function WelcomeScreen() {
     <ScrollView 
       className="flex-1 bg-gray-50"
       contentContainerStyle={{ minHeight: height }}
+      accessibilityLabel="Welcome to Borderly screen"
+      accessibilityHint="Swipe up to read about features and get started"
     >
       <View className="flex-1 px-6 pt-16 pb-12">
         {/* Progress indicator */}
         <ProgressBar 
           progress={25} 
           className="mb-8" 
+          accessibilityLabel="Setup progress: Step 1 of 4"
         />
         
         {/* Hero section */}
-        <View className="items-center mb-12">
+        <View className="items-center mb-12" accessibilityRole="header">
           <View 
             className="w-24 h-24 bg-primary-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
+            accessibilityLabel="Borderly app icon"
+            accessibilityRole="image"
           >
             <Icon as={Globe} size={40} color="white" />
           </View>
           
-          <Text className="text-4xl font-bold text-gray-900 text-center mb-2">
+          <Text className="text-4xl font-bold text-gray-900 text-center mb-2" accessibilityRole="header">
             Welcome to
           </Text>
-          <Text className="text-4xl font-bold text-primary-600 text-center mb-4">
+          <Text className="text-4xl font-bold text-primary-600 text-center mb-4" accessibilityRole="header">
             Borderly
           </Text>
           <Text className="text-lg text-gray-600 text-center max-w-sm">

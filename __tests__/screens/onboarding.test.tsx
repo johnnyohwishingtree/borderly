@@ -147,7 +147,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const { getByText } = render(<WelcomeScreen />);
 
       expect(getByText('Privacy First')).toBeTruthy();
-      expect(getByText(/We never transmit your personal information to our servers/)).toBeTruthy();
+      expect(getByText(/Your passport data is encrypted and stored only in your device's secure keychain/)).toBeTruthy();
     });
   });
 
