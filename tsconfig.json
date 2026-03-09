@@ -32,6 +32,7 @@
     "src/**/*",
     "index.js",
     "src/types/nativewind.d.ts",
+    "src/types/global.d.ts",
     "__tests__/**/*"
   ],
   "exclude": [

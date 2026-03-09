@@ -82,7 +82,7 @@ class MemoryLeakDetectionService {
   private timers: Map<string, number> = new Map();
   private networkRequests: Map<string, number> = new Map();
   private isMonitoring = false;
-  private monitoringInterval: NodeJS.Timeout | undefined;
+  private monitoringInterval: number | undefined;
 
   constructor(config: Partial<LeakDetectionConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -654,7 +654,7 @@ class MemoryLeakDetectionService {
 
       let timerIdCounter = 0;
 
-      (globalThis as any).setTimeout = (...args: any[]): NodeJS.Timeout => {
+      (globalThis as any).setTimeout = (...args: any[]): number => {
         const timerId = `timeout_${++timerIdCounter}`;
         this.trackTimer(timerId, 'create');
         
