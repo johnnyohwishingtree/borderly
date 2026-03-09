@@ -16,6 +16,8 @@ export interface DeclarationDefaults {
   carryingCommercialGoods: boolean; // usually false
 }
 
+export type FamilyRelationship = 'self' | 'spouse' | 'child' | 'parent' | 'other';
+
 export interface TravelerProfile {
   id: string; // UUID
   // From passport MRZ scan
@@ -34,11 +36,18 @@ export interface TravelerProfile {
   homeAddress?: Address;
   occupation?: string;
 
+  // Family relationship (self for primary profile)
+  relationship?: FamilyRelationship;
+
   // Common declaration defaults
   defaultDeclarations: DeclarationDefaults;
 
   createdAt: string; // ISO 8601
   updatedAt: string;
+}
+
+export interface FamilyMember extends TravelerProfile {
+  relationship: FamilyRelationship;
 }
 
 // Legacy interface for backward compatibility
