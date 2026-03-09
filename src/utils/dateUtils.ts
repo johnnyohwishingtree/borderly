@@ -4,6 +4,15 @@
  */
 
 /**
+ * Parses a YYYY-MM-DD string as local midnight (not UTC).
+ * `new Date('2025-01-15')` is UTC midnight, which shifts back a day in negative-offset timezones.
+ */
+function parseLocalDate(dateString: string): Date {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/**
  * Validates if a date string is in ISO 8601 format and represents a valid date.
  */
 export function isValidISODate(dateString: string): boolean {
@@ -17,8 +26,12 @@ export function isValidISODate(dateString: string): boolean {
     return false;
   }
 
-  const date = new Date(dateString);
-  return !isNaN(date.getTime()) && date.toISOString().startsWith(dateString);
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return !isNaN(date.getTime()) &&
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
 }
 
 /**
@@ -29,7 +42,7 @@ export function isFutureDate(dateString: string): boolean {
     return false;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start of today
 
@@ -44,7 +57,7 @@ export function isPastDate(dateString: string): boolean {
     return false;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Start of today
 
@@ -59,7 +72,7 @@ export function isValidTravelDate(dateString: string): boolean {
     return false;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const today = new Date();
   const oneYearFromNow = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
 
@@ -74,7 +87,7 @@ export function isValidPassportExpiry(dateString: string): boolean {
     return false;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const today = new Date();
   const tenYearsFromNow = new Date(today.getFullYear() + 10, today.getMonth(), today.getDate());
 
@@ -89,7 +102,7 @@ export function isValidBirthDate(dateString: string): boolean {
     return false;
   }
 
-  const birthDate = new Date(dateString);
+  const birthDate = parseLocalDate(dateString);
   const today = new Date();
   const age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -110,8 +123,8 @@ export function calculateDaysBetween(startDate: string, endDate: string): number
     return null;
   }
 
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  const start = parseLocalDate(startDate);
+  const end = parseLocalDate(endDate);
 
   if (end <= start) {
     return null;
@@ -140,7 +153,7 @@ export function formatDateForDisplay(dateString: string, locale = 'en-US'): stri
     return dateString;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   return date.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'long',
@@ -156,7 +169,7 @@ export function formatDateForPortal(dateString: string, format: 'US' | 'EU' = 'U
     return dateString;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -190,7 +203,7 @@ export function addDays(dateString: string, days: number): string | null {
     return null;
   }
 
-  const date = new Date(dateString);
+  const date = parseLocalDate(dateString);
   date.setDate(date.getDate() + days);
 
   return toISODateString(date);
@@ -288,8 +301,8 @@ export function calculateAge(birthDate: string, referenceDate?: string): number 
     return null;
   }
 
-  const birth = new Date(birthDate);
-  const reference = referenceDate ? new Date(referenceDate) : new Date();
+  const birth = parseLocalDate(birthDate);
+  const reference = referenceDate ? parseLocalDate(referenceDate) : new Date();
 
   let age = reference.getFullYear() - birth.getFullYear();
   const monthDiff = reference.getMonth() - birth.getMonth();
@@ -317,8 +330,8 @@ export function validateDateRange(startDate: string, endDate: string): {
     return { isValid: false, error: 'Invalid end date format' };
   }
 
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  const start = parseLocalDate(startDate);
+  const end = parseLocalDate(endDate);
 
   if (end <= start) {
     return { isValid: false, error: 'End date must be after start date' };
