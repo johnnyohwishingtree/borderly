@@ -122,19 +122,22 @@ export default function WelcomeScreen() {
               Supported Countries
             </Text>
           </View>
-          <View className="flex-row justify-around">
-            <View className="items-center">
-              <CountryFlag countryCode="JPN" size="medium" className="mb-2" />
-              <Text className="text-xs text-gray-600">Japan</Text>
-            </View>
-            <View className="items-center">
-              <CountryFlag countryCode="MYS" size="medium" className="mb-2" />
-              <Text className="text-xs text-gray-600">Malaysia</Text>
-            </View>
-            <View className="items-center">
-              <CountryFlag countryCode="SGP" size="medium" className="mb-2" />
-              <Text className="text-xs text-gray-600">Singapore</Text>
-            </View>
+          <View className="flex-row flex-wrap justify-around">
+            {[
+              { code: 'JPN', name: 'Japan' },
+              { code: 'MYS', name: 'Malaysia' },
+              { code: 'SGP', name: 'Singapore' },
+              { code: 'THA', name: 'Thailand' },
+              { code: 'VNM', name: 'Vietnam' },
+              { code: 'GBR', name: 'UK' },
+              { code: 'USA', name: 'USA' },
+              { code: 'CAN', name: 'Canada' },
+            ].map((country) => (
+              <View key={country.code} className="items-center mb-3 w-1/4">
+                <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
+                <Text className="text-xs text-gray-600">{country.name}</Text>
+              </View>
+            ))}
           </View>
         </Card>
 

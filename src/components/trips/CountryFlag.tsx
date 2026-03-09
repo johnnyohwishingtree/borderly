@@ -11,6 +11,11 @@ const COUNTRY_FLAGS = {
   JPN: { name: 'Japan', colors: ['#FFFFFF', '#E60012'] },
   MYS: { name: 'Malaysia', colors: ['#CE1126', '#FFFFFF', '#010E96', '#FFCC00'] },
   SGP: { name: 'Singapore', colors: ['#EE2436', '#FFFFFF'] },
+  THA: { name: 'Thailand', colors: ['#A51931', '#F4F5F8', '#2D2A4A'] },
+  VNM: { name: 'Vietnam', colors: ['#DA251D', '#FFCD00'] },
+  GBR: { name: 'United Kingdom', colors: ['#012169', '#C8102E', '#FFFFFF'] },
+  USA: { name: 'United States', colors: ['#B22234', '#FFFFFF', '#3C3B6E'] },
+  CAN: { name: 'Canada', colors: ['#FF0000', '#FFFFFF'] },
 } as const;
 
 export default function CountryFlag({
@@ -132,8 +137,115 @@ export default function CountryFlag({
             <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
           </View>
         );
+      case 'THA':
+        return (
+          <View
+            style={{
+              width: flagSize.width,
+              height: flagSize.height,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 2,
+              overflow: 'hidden',
+            }}
+          >
+            {/* 5 horizontal stripes: red, white, blue (2x), white, red */}
+            <View style={{ flex: 1, backgroundColor: '#A51931' }} />
+            <View style={{ flex: 1, backgroundColor: '#F4F5F8' }} />
+            <View style={{ flex: 2, backgroundColor: '#2D2A4A' }} />
+            <View style={{ flex: 1, backgroundColor: '#F4F5F8' }} />
+            <View style={{ flex: 1, backgroundColor: '#A51931' }} />
+          </View>
+        );
+      case 'VNM':
+        return (
+          <View
+            style={{
+              width: flagSize.width,
+              height: flagSize.height,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 2,
+              overflow: 'hidden',
+              backgroundColor: '#DA251D',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View style={{ width: flagSize.height * 0.5, height: flagSize.height * 0.5, backgroundColor: '#FFCD00', transform: [{ rotate: '35deg' }] }} />
+          </View>
+        );
+      case 'GBR':
+        return (
+          <View
+            style={{
+              width: flagSize.width,
+              height: flagSize.height,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 2,
+              overflow: 'hidden',
+              backgroundColor: '#012169',
+            }}
+          >
+            {/* Simplified Union Jack — white + red cross */}
+            <View style={{ position: 'absolute', top: flagSize.height / 2 - 2, left: 0, right: 0, height: 4, backgroundColor: '#FFFFFF' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width / 2 - 2, width: 4, backgroundColor: '#FFFFFF' }} />
+            <View style={{ position: 'absolute', top: flagSize.height / 2 - 1, left: 0, right: 0, height: 2, backgroundColor: '#C8102E' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width / 2 - 1, width: 2, backgroundColor: '#C8102E' }} />
+          </View>
+        );
+      case 'USA':
+        return (
+          <View
+            style={{
+              width: flagSize.width,
+              height: flagSize.height,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 2,
+              overflow: 'hidden',
+            }}
+          >
+            {/* 13 alternating stripes */}
+            {[...Array(13)].map((_, i) => (
+              <View key={i} style={{ height: flagSize.height / 13, backgroundColor: i % 2 === 0 ? '#B22234' : '#FFFFFF' }} />
+            ))}
+            {/* Blue canton */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.4,
+                height: (flagSize.height / 13) * 7,
+                backgroundColor: '#3C3B6E',
+              }}
+            />
+          </View>
+        );
+      case 'CAN':
+        return (
+          <View
+            style={{
+              width: flagSize.width,
+              height: flagSize.height,
+              borderWidth: 1,
+              borderColor: '#E5E7EB',
+              borderRadius: 2,
+              overflow: 'hidden',
+              flexDirection: 'row',
+            }}
+          >
+            <View style={{ flex: 1, backgroundColor: '#FF0000' }} />
+            <View style={{ flex: 2, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: flagSize.height * 0.5, color: '#FF0000' }}>🍁</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#FF0000' }} />
+          </View>
+        );
     }
-    
+
     return null;
   };
 

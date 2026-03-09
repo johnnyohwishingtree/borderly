@@ -26,6 +26,11 @@ test.describe('Complete User Flow', () => {
     await expect(page.getByText('Japan').first()).toBeVisible();
     await expect(page.getByText('Malaysia').first()).toBeVisible();
     await expect(page.getByText('Singapore').first()).toBeVisible();
+    await expect(page.getByText('Thailand').first()).toBeVisible();
+    await expect(page.getByText('Vietnam').first()).toBeVisible();
+    await expect(page.getByText('UK').first()).toBeVisible();
+    await expect(page.getByText('USA').first()).toBeVisible();
+    await expect(page.getByText('Canada').first()).toBeVisible();
   });
 
   test('get started navigates to passport information screen', async ({ page }) => {
