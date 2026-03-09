@@ -112,6 +112,8 @@ export const useTripStore = create<TripStore>((set, get) => ({
             formData: (legModel as any).formData,
             order: (legModel as any).order,
             qrCodes: [], // Will be loaded if needed
+            assignedTravelers: (legModel as any).assignedTravelers || [], // Default to empty array for backward compatibility
+            travelerFormsData: (legModel as any).travelerFormsData || [], // Default to empty array
           })),
           createdAt: (tripModel as any).createdAtISO,
           updatedAt: (tripModel as any).updatedAtISO,
@@ -176,6 +178,8 @@ export const useTripStore = create<TripStore>((set, get) => ({
             formData: (legModel as any).formData,
             order: (legModel as any).order,
             qrCodes: [],
+            assignedTravelers: (legModel as any).assignedTravelers || [], // Default to empty array for backward compatibility
+            travelerFormsData: (legModel as any).travelerFormsData || [], // Default to empty array
           })),
           createdAt: (tripModel as any).createdAtISO,
           updatedAt: (tripModel as any).updatedAtISO,
@@ -293,6 +297,8 @@ export const useTripStore = create<TripStore>((set, get) => ({
         id: legModel.id,
         tripId,
         ...legData,
+        assignedTravelers: legData.assignedTravelers || [], // Default to empty array
+        travelerFormsData: legData.travelerFormsData || [], // Default to empty array
       };
 
       set(state => ({
