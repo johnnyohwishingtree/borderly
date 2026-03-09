@@ -1,5 +1,6 @@
 import { View, Text, ViewProps } from 'react-native';
 import { cssInterop } from 'react-native-css-interop';
+import { getCountryByCode } from '../../constants/countries';
 
 export interface CountryFlagProps extends ViewProps {
   countryCode: string;
@@ -7,16 +8,6 @@ export interface CountryFlagProps extends ViewProps {
   showName?: boolean;
 }
 
-const COUNTRY_FLAGS = {
-  JPN: { name: 'Japan', colors: ['#FFFFFF', '#E60012'] },
-  MYS: { name: 'Malaysia', colors: ['#CE1126', '#FFFFFF', '#010E96', '#FFCC00'] },
-  SGP: { name: 'Singapore', colors: ['#EE2436', '#FFFFFF'] },
-  THA: { name: 'Thailand', colors: ['#A51931', '#F4F5F8', '#2D2A4A'] },
-  VNM: { name: 'Vietnam', colors: ['#DA251D', '#FFCD00'] },
-  GBR: { name: 'United Kingdom', colors: ['#012169', '#C8102E', '#FFFFFF'] },
-  USA: { name: 'United States', colors: ['#B22234', '#FFFFFF', '#3C3B6E'] },
-  CAN: { name: 'Canada', colors: ['#FF0000', '#FFFFFF'] },
-} as const;
 
 export default function CountryFlag({
   countryCode,
@@ -25,7 +16,7 @@ export default function CountryFlag({
   className,
   ...viewProps
 }: CountryFlagProps) {
-  const country = COUNTRY_FLAGS[countryCode as keyof typeof COUNTRY_FLAGS];
+  const country = getCountryByCode(countryCode);
   
   if (!country) {
     return (
@@ -50,21 +41,26 @@ export default function CountryFlag({
 
   const flagSize = sizeMap[size];
 
+  // Common base styles for all flags
+  const baseFlagStyle = {
+    width: flagSize.width,
+    height: flagSize.height,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 2,
+    overflow: 'hidden' as const,
+  };
+
   const renderFlag = () => {
     switch (countryCode) {
       case 'JPN':
         return (
           <View
             style={{
-              width: flagSize.width,
-              height: flagSize.height,
+              ...baseFlagStyle,
               backgroundColor: '#FFF',
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
               justifyContent: 'center',
               alignItems: 'center',
-              overflow: 'hidden',
             }}
           >
             <View
@@ -81,12 +77,7 @@ export default function CountryFlag({
         return (
           <View
             style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
+              ...baseFlagStyle,
               backgroundColor: '#FFF',
             }}
           >
@@ -120,16 +111,7 @@ export default function CountryFlag({
         );
       case 'SGP':
         return (
-          <View
-            style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
-            }}
-          >
+          <View style={baseFlagStyle}>
             <View style={{ flex: 1, backgroundColor: '#EE2436', justifyContent: 'center' }}>
                {/* Simplified white crescent and 5 stars */}
                <View style={{ marginLeft: 2, width: 4, height: 4, borderRadius: 2, backgroundColor: '#FFF' }} />
@@ -139,16 +121,7 @@ export default function CountryFlag({
         );
       case 'THA':
         return (
-          <View
-            style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
-            }}
-          >
+          <View style={baseFlagStyle}>
             {/* 5 horizontal stripes: red, white, blue (2x), white, red */}
             <View style={{ flex: 1, backgroundColor: '#A51931' }} />
             <View style={{ flex: 1, backgroundColor: '#F4F5F8' }} />
@@ -161,30 +134,20 @@ export default function CountryFlag({
         return (
           <View
             style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
+              ...baseFlagStyle,
               backgroundColor: '#DA251D',
               justifyContent: 'center',
               alignItems: 'center',
             }}
           >
-            <View style={{ width: flagSize.height * 0.5, height: flagSize.height * 0.5, backgroundColor: '#FFCD00', transform: [{ rotate: '35deg' }] }} />
+            <Text style={{ fontSize: flagSize.height * 0.6, color: '#FFCD00' }}>⭐</Text>
           </View>
         );
       case 'GBR':
         return (
           <View
             style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
+              ...baseFlagStyle,
               backgroundColor: '#012169',
             }}
           >
@@ -197,16 +160,7 @@ export default function CountryFlag({
         );
       case 'USA':
         return (
-          <View
-            style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
-            }}
-          >
+          <View style={baseFlagStyle}>
             {/* 13 alternating stripes */}
             {[...Array(13)].map((_, i) => (
               <View key={i} style={{ height: flagSize.height / 13, backgroundColor: i % 2 === 0 ? '#B22234' : '#FFFFFF' }} />
@@ -228,12 +182,7 @@ export default function CountryFlag({
         return (
           <View
             style={{
-              width: flagSize.width,
-              height: flagSize.height,
-              borderWidth: 1,
-              borderColor: '#E5E7EB',
-              borderRadius: 2,
-              overflow: 'hidden',
+              ...baseFlagStyle,
               flexDirection: 'row',
             }}
           >
@@ -254,7 +203,7 @@ export default function CountryFlag({
       {renderFlag()}
       {showName && (
         <Text className="ml-2 text-sm font-medium text-gray-700">
-          {country.name}
+          {country.fullName}
         </Text>
       )}
     </View>

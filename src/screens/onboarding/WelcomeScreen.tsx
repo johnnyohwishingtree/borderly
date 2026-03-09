@@ -17,6 +17,7 @@ import { Card } from '../../components/ui/gluestack/card';
 import { Icon } from '../../components/ui/gluestack/icon';
 import { ProgressBar } from '../../components/ui';
 import CountryFlag from '../../components/trips/CountryFlag';
+import { SUPPORTED_COUNTRIES } from '../../constants/countries';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
@@ -123,16 +124,7 @@ export default function WelcomeScreen() {
             </Text>
           </View>
           <View className="flex-row flex-wrap justify-around">
-            {[
-              { code: 'JPN', name: 'Japan' },
-              { code: 'MYS', name: 'Malaysia' },
-              { code: 'SGP', name: 'Singapore' },
-              { code: 'THA', name: 'Thailand' },
-              { code: 'VNM', name: 'Vietnam' },
-              { code: 'GBR', name: 'UK' },
-              { code: 'USA', name: 'USA' },
-              { code: 'CAN', name: 'Canada' },
-            ].map((country) => (
+            {SUPPORTED_COUNTRIES.map((country) => (
               <View key={country.code} className="items-center mb-3 w-1/4">
                 <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
                 <Text className="text-xs text-gray-600">{country.name}</Text>
