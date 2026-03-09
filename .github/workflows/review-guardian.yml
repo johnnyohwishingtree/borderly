@@ -64,10 +64,22 @@ jobs:
             exit 0
           fi
 
+          # Check if the review has critical/high-severity inline comments
+          CRITICAL_COMMENTS=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
+            -q '[.[] | select(.body | test("critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
+            echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
+            AGENT="${{ vars.PREFERRED_AGENT || 'claude' }}"
+            gh pr comment "$PR_NUM" --repo "$REPO" \
+              --body "@$AGENT The code review found critical or high-severity issues (see inline comments above). Please address all critical/high findings, then push the fixes. Do NOT approve until all issues are resolved."
+            exit 0
+          fi
+
           REVIEWER="${{ github.event.review.user.login }}"
-          echo "Bot review from $REVIEWER on PR #$PR_NUM — auto-approving"
+          echo "Bot review from $REVIEWER on PR #$PR_NUM — no critical issues, auto-approving"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review provided by $REVIEWER."
+            --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
 
   # When Claude posts a review comment on a PR, auto-approve
   auto-approve-after-claude:
@@ -206,12 +218,26 @@ jobs:
         if: steps.check.outputs.action == 'approve'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
           PR_NUM=${{ steps.check.outputs.pr_num }}
-          echo "Auto-approving PR #$PR_NUM — review exists but no formal approval"
+
+          # Check for critical/high-severity inline comments
+          CRITICAL_COMMENTS=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/pulls/$PR_NUM/comments" \
+            -q '[.[] | select(.body | test("critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
+            echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
+            GH_TOKEN="$GH_PAT" gh pr comment "$PR_NUM" --repo "$REPO" \
+              --body "@$AGENT The code review found critical or high-severity issues (see inline comments above). Please address all critical/high findings, then push the fixes. Do NOT approve until all issues are resolved."
+            exit 0
+          fi
+
+          echo "Auto-approving PR #$PR_NUM — review exists, no critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review detected, approving for branch protection."
+            --body "Auto-approved: code review detected, no critical/high issues found."
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'

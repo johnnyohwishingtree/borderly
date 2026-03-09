@@ -107,7 +107,7 @@ describe('Keychain Service Multi-Profile', () => {
       await keychainService.deleteProfileById('profile-1');
 
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
-        service: 'borderly_profile_profile-1'
+        server: 'borderly_profile_profile-1'
       });
     });
 
@@ -174,7 +174,7 @@ describe('Keychain Service Multi-Profile', () => {
       await keychainService.deleteProfileEncryptionKey('profile-1');
 
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
-        service: 'borderly_profile_enc_profile-1'
+        server: 'borderly_profile_enc_profile-1'
       });
     });
   });
@@ -217,7 +217,7 @@ describe('Keychain Service Multi-Profile', () => {
 
       // Should delete legacy profile
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
-        service: 'borderly_traveler_profile'
+        server: 'borderly_traveler_profile'
       });
     });
 
@@ -289,7 +289,7 @@ describe('Keychain Service Multi-Profile', () => {
       (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
       await keychainService.deleteProfile();
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
-        service: 'borderly_traveler_profile'
+        server: 'borderly_traveler_profile'
       });
     });
   });
