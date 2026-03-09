@@ -75,6 +75,9 @@ describe('Storage Security Tests', () => {
 
     it('should report keychain as available regardless of biometric support', async () => {
       (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({ password: 'test' });
+      (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       const isAvailable = await keychainService.isAvailable();
 
