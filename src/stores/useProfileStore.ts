@@ -248,10 +248,11 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         throw new Error('Profile data not found in keychain');
       }
 
-      // Apply updates
+      // Apply updates, but prevent changing the ID
+      const { id, ...restOfUpdates } = updates;
       const updatedProfile = {
         ...currentProfile,
-        ...updates,
+        ...restOfUpdates,
         updatedAt: new Date().toISOString(),
       };
 

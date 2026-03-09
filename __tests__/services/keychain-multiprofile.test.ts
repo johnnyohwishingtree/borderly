@@ -109,6 +109,9 @@ describe('Keychain Service Multi-Profile', () => {
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
         service: 'borderly_profile_profile-1'
       });
+      expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
+        service: 'borderly_profile_enc_profile-1'
+      });
     });
 
     it('should check if profile exists', async () => {

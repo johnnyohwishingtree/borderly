@@ -74,12 +74,19 @@ describe('useProfileStore', () => {
     // Reset all mocks
     jest.clearAllMocks();
     
+    // Create mock in-memory storage for profiles
+    const mockProfileStorage: { [profileId: string]: TravelerProfile } = {};
+    
     // Setup default mock returns
     mockMmkvService.getString.mockReturnValue(undefined);
     mockMmkvService.getPreferences.mockReturnValue({ onboardingComplete: false } as any);
     mockKeychainService.migrateLegacyProfile.mockResolvedValue(null);
-    mockKeychainService.storeProfileById.mockResolvedValue();
-    mockKeychainService.getProfileById.mockResolvedValue(null);
+    mockKeychainService.storeProfileById.mockImplementation(async (profileId: string, profile: TravelerProfile) => {
+      mockProfileStorage[profileId] = profile;
+    });
+    mockKeychainService.getProfileById.mockImplementation(async (profileId: string) => {
+      return mockProfileStorage[profileId] || null;
+    });
     mockKeychainService.generateProfileEncryptionKey.mockResolvedValue('mock-encryption-key');
     
     // Reset store state manually
@@ -199,12 +206,19 @@ describe('useProfileStore', () => {
       // Reset all mocks
       jest.clearAllMocks();
       
+      // Create mock in-memory storage for profiles
+      const mockProfileStorage: { [profileId: string]: TravelerProfile } = {};
+      
       // Setup fresh mock returns
       mockMmkvService.getString.mockReturnValue(undefined);
       mockMmkvService.getPreferences.mockReturnValue({ onboardingComplete: false } as any);
       mockKeychainService.migrateLegacyProfile.mockResolvedValue(null);
-      mockKeychainService.storeProfileById.mockResolvedValue();
-      mockKeychainService.getProfileById.mockResolvedValue(null);
+      mockKeychainService.storeProfileById.mockImplementation(async (profileId: string, profile: TravelerProfile) => {
+        mockProfileStorage[profileId] = profile;
+      });
+      mockKeychainService.getProfileById.mockImplementation(async (profileId: string) => {
+        return mockProfileStorage[profileId] || null;
+      });
       mockKeychainService.generateProfileEncryptionKey.mockResolvedValue('mock-encryption-key');
       
       // Reset store state completely
