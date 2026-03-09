@@ -59,6 +59,10 @@ jobs:
           max_turns: 100
           # Allow all git commands EXCEPT push — push happens only after verification
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          custom_instructions: |
+            IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all
+            previous @claude requests in the comment history — they were handled by earlier
+            runs. Focus exclusively on what the <trigger_comment> asks you to do.
 
       # ============================================================
       # Verify + fix loop: typecheck (up to 3 attempts)
@@ -74,6 +78,7 @@ jobs:
         if: always() && steps.tc1.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -95,6 +100,7 @@ jobs:
         if: always() && steps.tc2.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -117,6 +123,7 @@ jobs:
         if: always() && steps.tc3.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -149,6 +156,7 @@ jobs:
         if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -175,6 +183,7 @@ jobs:
         if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -201,6 +210,7 @@ jobs:
         if: always() && steps.test3.outputs.pass == 'false' && steps.test3.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
