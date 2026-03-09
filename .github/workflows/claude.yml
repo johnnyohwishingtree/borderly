@@ -78,7 +78,6 @@ jobs:
         if: always() && steps.tc1.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -101,7 +100,6 @@ jobs:
         if: always() && steps.tc2.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -125,7 +123,6 @@ jobs:
         if: always() && steps.tc3.outputs.pass == 'false'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -159,7 +156,6 @@ jobs:
         if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -187,7 +183,6 @@ jobs:
         if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
@@ -215,7 +210,6 @@ jobs:
         if: always() && steps.test3.outputs.pass == 'false' && steps.test3.outputs.skip != 'true'
         uses: anthropics/claude-code-action@beta
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
