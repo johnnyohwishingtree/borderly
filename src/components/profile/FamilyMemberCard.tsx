@@ -1,10 +1,10 @@
 import { memo, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ViewProps } from 'react-native';
 import { User } from 'lucide-react-native';
 import { Card, StatusBadge, Button } from '../ui';
 import { FamilyMember, FamilyRelationship } from '../../types/profile';
 
-export interface FamilyMemberCardProps {
+export interface FamilyMemberCardProps extends Pick<ViewProps, 'testID' | 'accessibilityLabel'> {
   member: FamilyMember;
   onPress?: () => void;
   onEdit?: () => void;
@@ -12,12 +12,13 @@ export interface FamilyMemberCardProps {
   isActive?: boolean;
 }
 
-const FamilyMemberCard = memo<FamilyMemberCardProps>(({ 
-  member, 
+const FamilyMemberCard = memo<FamilyMemberCardProps>(({
+  member,
   onPress,
   onEdit,
   onRemove,
-  isActive = false
+  isActive = false,
+  ...viewProps
 }) => {
   const memberMetrics = useMemo(() => {
     const formatDate = (dateStr: string) => {
@@ -93,7 +94,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
   const CardComponent = onPress ? TouchableOpacity : View;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} {...viewProps}>
       <Card 
         variant={isActive ? "outlined" : "elevated"} 
         className={`mb-4 ${isActive ? 'border-blue-500 bg-blue-50' : ''}`}
