@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { SUPPORTED_COUNTRY_CODES } from '../../src/constants/countries';
 
 /**
  * Ensures country lists are not hardcoded across the codebase.
@@ -41,11 +42,14 @@ const ALLOWED_PATHS = new Set([
   'src/services/boarding/airportLookup.ts',
 ]);
 
-// Pattern: array with 3+ quoted country codes like ['JPN', 'MYS', 'SGP']
-const HARDCODED_ARRAY_RE = /\[[\s]*['"](?:JPN|MYS|SGP|THA|VNM|GBR|USA|CAN)['"][\s]*,[\s]*['"](?:JPN|MYS|SGP|THA|VNM|GBR|USA|CAN)['"][\s]*,/;
+// Generate regex patterns dynamically from the single source of truth
+const countryCodesPattern = SUPPORTED_COUNTRY_CODES.join('|');
+
+// Pattern: array with 2+ quoted country codes like ['JPN', 'MYS']
+const HARDCODED_ARRAY_RE = new RegExp(`\\[[\\s]*['"](?:${countryCodesPattern})['"][\\s]*,[\\s]*['"](?:${countryCodesPattern})['"]`);
 
 // Pattern: object with code/name like { code: 'JPN', name: 'Japan' }
-const INLINE_COUNTRY_OBJECT_RE = /\{\s*code:\s*['"](?:JPN|MYS|SGP|THA|VNM|GBR|USA|CAN)['"]\s*,\s*name:/;
+const INLINE_COUNTRY_OBJECT_RE = new RegExp(`\\{\\s*code:\\s*['"](?:${countryCodesPattern})['"]\\s*,\\s*name:`);
 
 // Pattern: competing SUPPORTED_COUNTRIES definition (not an import/re-export)
 const COMPETING_DEFINITION_RE = /(?:export\s+)?const\s+SUPPORTED_COUNTRIES\s*=\s*\[/;
