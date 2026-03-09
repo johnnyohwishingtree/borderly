@@ -86,10 +86,15 @@ Your profile is protected by:
 
 ### Supported Countries
 
-Currently supported:
+Currently supported (8 countries):
 - **🇯🇵 Japan** - Visit Japan Web
 - **🇲🇾 Malaysia** - Malaysia Digital Arrival Card (MDAC)
 - **🇸🇬 Singapore** - SG Arrival Card
+- **🇹🇭 Thailand** - Thailand Pass
+- **🇻🇳 Vietnam** - e-Visa Portal
+- **🇬🇧 United Kingdom** - Electronic Travel Authorisation (ETA)
+- **🇺🇸 United States** - ESTA (Electronic System for Travel Authorization)
+- **🇨🇦 Canada** - eTA (Electronic Travel Authorization)
 
 ## Filling Out Country Forms
 
@@ -190,6 +195,127 @@ Track your progress with real-time stats:
 4. Copy travel details and accommodation
 5. Complete health declarations
 6. Submit and receive email confirmation
+
+### 🇹🇭 Thailand - Thailand Pass
+
+**Required Before Arrival:**
+- Complete Thailand Pass application
+- Receive QR code for entry
+- Upload vaccination certificate or insurance
+
+**Borderly Workflow:**
+1. Complete Thailand form in the app
+2. Tap **"View Submission Guide"**
+3. Follow Thailand Pass portal instructions
+4. Use Borderly's copyable fields
+5. Upload documents manually
+6. Submit and save QR code
+
+**Portal Steps:**
+1. Go to [Thailand Pass](https://tp.consular.go.th/)
+2. Create account or login
+3. Start new application
+4. Copy personal information from Borderly
+5. Copy travel and accommodation details
+6. Upload required documents (passport, vaccination)
+7. Submit and receive QR code
+
+### 🇻🇳 Vietnam - e-Visa Portal
+
+**Required Before Arrival:**
+- Complete e-Visa application
+- Upload passport photo and portrait
+- Pay visa fee
+
+**Borderly Workflow:**
+1. Complete Vietnam form in the app
+2. Tap **"View Submission Guide"**
+3. Follow e-Visa portal instructions
+4. Use Borderly's copyable fields
+5. Upload documents manually
+6. Submit and track approval
+
+**Portal Steps:**
+1. Go to [Vietnam e-Visa](https://evisa.xuatnhapcanh.gov.vn/)
+2. Start new application
+3. Copy passport and personal information from Borderly
+4. Copy travel purpose and duration
+5. Upload passport photo and portrait
+6. Pay visa fee
+7. Submit and receive approval
+
+### 🇬🇧 United Kingdom - ETA System
+
+**Required Before Arrival:**
+- Complete ETA application
+- Valid passport from eligible country
+- Pay £10 application fee
+
+**Borderly Workflow:**
+1. Complete UK form in the app
+2. Tap **"View Submission Guide"**
+3. Follow UK ETA portal instructions
+4. Use Borderly's copyable fields
+5. Answer security questions manually
+6. Submit and receive confirmation
+
+**Portal Steps:**
+1. Go to [UK ETA](https://www.gov.uk/apply-electronic-travel-authorisation)
+2. Start new application
+3. Copy passport information from Borderly
+4. Copy travel history and employment details
+5. Answer security and criminal history questions
+6. Pay application fee
+7. Submit and receive digital confirmation
+
+### 🇺🇸 United States - ESTA Portal
+
+**Required Before Arrival:**
+- Complete ESTA application (VWP countries only)
+- Answer extensive security questionnaire
+- Pay $21 application fee
+
+**Borderly Workflow:**
+1. Complete US form in the app
+2. Tap **"View Submission Guide"**
+3. Follow ESTA portal instructions
+4. Use Borderly's copyable fields for basic info
+5. Answer security questions manually
+6. Submit and receive authorization
+
+**Portal Steps:**
+1. Go to [ESTA Portal](https://esta.cbp.dhs.gov/)
+2. Start new application
+3. Copy biographical information from Borderly
+4. Copy passport and travel details
+5. Answer all security and eligibility questions
+6. Review and confirm all information
+7. Pay fee and submit
+8. Receive authorization status
+
+### 🇨🇦 Canada - eTA Application
+
+**Required Before Arrival:**
+- Complete eTA application
+- Valid passport from eligible country
+- Email address for confirmation
+
+**Borderly Workflow:**
+1. Complete Canada form in the app
+2. Tap **"View Submission Guide"**
+3. Follow eTA portal instructions
+4. Use Borderly's copyable fields
+5. Answer background questions manually
+6. Submit and receive confirmation
+
+**Portal Steps:**
+1. Go to [Canada eTA](https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html)
+2. Start new application
+3. Copy passport and biographical information from Borderly
+4. Copy employment and contact details
+5. Answer background check questions
+6. Pay CAD $7 application fee
+7. Submit and receive email confirmation
 
 ## Managing QR Codes
 

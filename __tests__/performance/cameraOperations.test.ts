@@ -1,9 +1,12 @@
 // Mock performance API for testing
-const performance = {
+const mockPerformance = {
   now: jest.fn(() => Date.now()),
   mark: jest.fn(),
   measure: jest.fn(),
 };
+
+// Override global performance for this test
+(global as any).performance = mockPerformance;
 
 // Mock the camera services
 const mockMrzParser = {

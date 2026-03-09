@@ -15,7 +15,7 @@ A local-first mobile app that stores your travel profile on-device, then auto-ge
 - Passport OCR via camera (MRZ reading)
 - Encrypted on-device profile storage (zero-server PII)
 - Trip creation with multi-country itinerary
-- Schema-driven form generation (Japan, Malaysia, Singapore)
+- Schema-driven form generation for 8 countries (Japan, Malaysia, Singapore, Thailand, Vietnam, United Kingdom, United States, Canada)
 - Smart delta — only shows fields unique to each country
 - Step-by-step guided walkthrough of each government portal
 - Offline QR code wallet
@@ -169,9 +169,14 @@ The core of Borderly's "Smart Delta" approach — automatically fills 70%+ of fo
 - **Smart Delta**: Only surfaces fields unique to each country/trip
 
 **Supported Countries:**
-- 🇯🇵 Japan (Visit Japan Web) — 20+ fields, ~85% auto-fill rate
-- 🇲🇾 Malaysia (MDAC) — 24+ fields, ~80% auto-fill rate  
-- 🇸🇬 Singapore (SG Arrival Card) — 18+ fields, ~90% auto-fill rate
+- 🇯🇵 Japan (Visit Japan Web) — 65 fields, ~43% auto-fill rate
+- 🇲🇾 Malaysia (MDAC) — 35 fields, ~57% auto-fill rate  
+- 🇸🇬 Singapore (SG Arrival Card) — 30 fields, ~73% auto-fill rate
+- 🇹🇭 Thailand (Thailand Pass) — 22 fields, ~55% auto-fill rate
+- 🇻🇳 Vietnam (e-Visa Portal) — 28 fields, ~57% auto-fill rate
+- 🇬🇧 United Kingdom (ETA) — 25 fields, ~72% auto-fill rate
+- 🇺🇸 United States (ESTA) — 45 fields, ~44% auto-fill rate
+- 🇨🇦 Canada (eTA) — 35 fields, ~63% auto-fill rate
 
 **Example Usage:**
 ```typescript

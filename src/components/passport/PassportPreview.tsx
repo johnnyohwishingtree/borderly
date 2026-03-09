@@ -64,7 +64,8 @@ export default function PassportPreview({
     if (!dateString) return 'Not provided';
     
     try {
-      const date = new Date(dateString);
+      const [y, m, d] = dateString.split('-').map(Number);
+      const date = dateString.match(/^\d{4}-\d{2}-\d{2}$/) ? new Date(y, m - 1, d) : new Date(dateString);
       if (isNaN(date.getTime())) {
         return dateString; // Return raw string for invalid dates
       }
