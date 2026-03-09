@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { StatusBar, Platform, AppState as RNAppState } from 'react-native';
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import './global.css';
 
 import RootNavigator from './navigation/RootNavigator';
 import { ErrorBoundary } from '@/components/ui';
@@ -62,10 +64,12 @@ function App(): React.JSX.Element {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
-      <RootNavigator />
-    </ErrorBoundary>
+    <GluestackUIProvider mode="light">
+      <ErrorBoundary>
+        <StatusBar barStyle="dark-content" backgroundColor="white" />
+        <RootNavigator />
+      </ErrorBoundary>
+    </GluestackUIProvider>
   );
 }
 

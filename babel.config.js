@@ -1,8 +1,10 @@
 module.exports = {
-  presets: ['@react-native/babel-preset'],
+  presets: [
+    ['@react-native/babel-preset', {jsxImportSource: 'nativewind'}],
+    'nativewind/babel',
+  ],
   plugins: [
     ['@babel/plugin-proposal-decorators', {legacy: true}],
-    'nativewind/babel',
     [
       'module-resolver',
       {
@@ -12,13 +14,12 @@ module.exports = {
         },
       },
     ],
+    'react-native-reanimated/plugin',
   ],
   env: {
     production: {
       plugins: [
-        // Remove console statements in production for smaller bundle
         ['transform-remove-console', {exclude: ['error', 'warn']}],
-        // Remove test properties in production
         ['react-remove-properties', {properties: ['data-testid']}],
       ],
     },

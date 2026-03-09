@@ -37,6 +37,9 @@ module.exports = (env, argv) => {
       'react-native-vector-icons/Feather': path.resolve(__dirname, 'e2e/mocks/vector-icons.js'),
       'react-native-vector-icons/FontAwesome': path.resolve(__dirname, 'e2e/mocks/vector-icons.js'),
       'react-native-vector-icons/Entypo': path.resolve(__dirname, 'e2e/mocks/vector-icons.js'),
+      // react-native-css-interop is NOT mocked — it's pure JS and needed for NativeWind v4 web styles
+      'react-native-svg': path.resolve(__dirname, 'e2e/mocks/react-native-svg.js'),
+      'lucide-react-native': path.resolve(__dirname, 'e2e/mocks/lucide-react-native.js'),
       'react-native-get-random-values': path.resolve(__dirname, 'e2e/mocks/random-values.js'),
       '@nozbe/watermelondb/decorators': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
@@ -57,8 +60,8 @@ module.exports = (env, argv) => {
           options: {
             presets: [
               ['@babel/preset-env', { targets: { chrome: '100' }, modules: false }],
-              ['@babel/preset-react', { runtime: 'automatic' }],
               ['@babel/preset-typescript', { allowDeclareFields: true }],
+              'react-native-css-interop/babel',
             ],
             plugins: [
               ['@babel/plugin-proposal-decorators', { legacy: true }],
@@ -67,10 +70,10 @@ module.exports = (env, argv) => {
           },
         },
       },
-      // react-native-web needs babel for JSX
+      // react-native-web and react-native-css-interop need babel for JSX
       {
         test: /\.[tj]sx?$/,
-        include: /node_modules\/react-native-web/,
+        include: /node_modules\/react-native-web|node_modules\/react-native-css-interop/,
         use: {
           loader: 'babel-loader',
           options: {

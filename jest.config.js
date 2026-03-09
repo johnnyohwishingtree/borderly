@@ -4,7 +4,14 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx)$': ['babel-jest', {
+      configFile: false,
+      presets: ['@react-native/babel-preset'],
+      plugins: [
+        ['@babel/plugin-proposal-decorators', { legacy: true }],
+        ['module-resolver', { root: ['.'], alias: { '@': './src' } }],
+      ],
+    }],
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
         jsx: 'react-jsx',
@@ -17,7 +24,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/android/', '<rootDir>/ios/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/android/', '<rootDir>/ios/', '<rootDir>/.claude/'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

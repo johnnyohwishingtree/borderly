@@ -1,4 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 
 const config = mergeConfig(getDefaultConfig(__dirname), {
   transformer: {
@@ -20,7 +21,7 @@ const config = mergeConfig(getDefaultConfig(__dirname), {
       if (process.env.NODE_ENV === 'production') {
         // Remove dev tools and debug utilities
         const path = module.path;
-        return !path.includes('__DEV__') && 
+        return !path.includes('__DEV__') &&
                !path.includes('react-devtools') &&
                !path.includes('flipper') &&
                !path.includes('.test.') &&
@@ -31,4 +32,4 @@ const config = mergeConfig(getDefaultConfig(__dirname), {
   },
 });
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: './src/app/global.css' });
