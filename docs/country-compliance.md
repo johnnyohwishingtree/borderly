@@ -1,12 +1,61 @@
 # Country Compliance Documentation
 
-This document outlines the legal compliance considerations and validation requirements for automated submission support across the 5 priority countries.
+This document outlines the legal compliance considerations and validation requirements for automated submission support across all 8 supported countries.
 
 ## Overview
 
 Borderly implements automated form filling for government immigration portals while maintaining strict compliance with each country's terms of service and automated access policies.
 
 ## Compliance Status by Country
+
+### Japan (JPN) - Visit Japan Web
+**Portal**: https://vjw-lp.digital.go.jp/  
+**Compliance Status**: ✅ Compliant  
+**Last Reviewed**: March 7, 2026
+
+**Key Compliance Points:**
+- Visit Japan Web portal designed for digital submissions
+- Form automation permitted under accessibility guidelines
+- Rate limiting implemented to respect server resources (max 1 request per 2 seconds)
+- All data processing happens locally on user devices
+- Supports both immigration and customs declarations
+
+**Restrictions:**
+- Account creation requires manual email verification
+- QR code generation and display cannot be automated
+- Health questionnaire sections may require manual attention for changing regulations
+
+### Malaysia (MYS) - MDAC
+**Portal**: https://mdac.gov.my/  
+**Compliance Status**: ✅ Compliant  
+**Last Reviewed**: March 7, 2026
+
+**Key Compliance Points:**
+- Malaysia Digital Arrival Card system designed for online applications
+- No explicit restrictions on form automation for personal use
+- Rate limiting implemented (max 1 request per 2 seconds)
+- Health declaration integration follows Malaysian health guidelines
+
+**Restrictions:**
+- Health declaration sections may require manual verification
+- Confirmation code generation cannot be automated
+- Some travel history questions may require manual attention
+
+### Singapore (SG) - ICA Arrival Card
+**Portal**: https://eservices.ica.gov.sg/sgarrivalcard/  
+**Compliance Status**: ✅ Compliant  
+**Last Reviewed**: March 7, 2026
+
+**Key Compliance Points:**
+- Singapore ICA supports digital arrival card submissions
+- Form automation allowed under digital government initiative
+- Rate limiting implemented (max 1 request per 2 seconds)
+- Supports both tourist and transit passenger declarations
+
+**Restrictions:**
+- Health and security declarations require careful manual attention
+- Email confirmation system cannot be automated
+- Address validation may require manual verification
 
 ### Thailand (THA) - Thailand Pass
 **Portal**: https://tp.consular.go.th/  
