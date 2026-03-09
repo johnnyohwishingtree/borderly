@@ -30,6 +30,6 @@ const Card = ({
   );
 };
 
-cssInterop(Card, { className: 'style' });
+cssInterop(Card, { className: true });
 
 export { Card };

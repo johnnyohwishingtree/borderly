@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ViewProps, ColorSchemeName, useColorScheme } from 'react-native';
+import { View, ViewProps, useColorScheme } from 'react-native';
 
 interface GluestackUIProviderProps extends ViewProps {
   mode?: 'light' | 'dark' | 'system';

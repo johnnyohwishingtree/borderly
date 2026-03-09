@@ -149,4 +149,4 @@ export default function CountryFlag({
   );
 }
 
-cssInterop(CountryFlag, { className: 'style' });
+cssInterop(CountryFlag, { className: true });

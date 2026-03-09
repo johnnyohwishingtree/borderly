@@ -424,6 +424,60 @@ jest.mock('react-native-haptic-feedback', () => ({
   },
 }));
 
+// Mock react-native-css-interop (used by NativeWind v4)
+jest.mock('react-native-css-interop', () => ({
+  cssInterop: jest.fn((component) => component),
+  remapProps: jest.fn((component) => component),
+  StyleSheet: {
+    create: (styles) => styles,
+  },
+}));
+
+// Mock react-native-svg
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const mockSvgComponent = (name) => {
+    const Component = ({ children, ...props }) => React.createElement(name, props, children);
+    Component.displayName = name;
+    return Component;
+  };
+  return {
+    __esModule: true,
+    default: mockSvgComponent('Svg'),
+    Svg: mockSvgComponent('Svg'),
+    Circle: mockSvgComponent('Circle'),
+    Rect: mockSvgComponent('Rect'),
+    Path: mockSvgComponent('Path'),
+    G: mockSvgComponent('G'),
+    Line: mockSvgComponent('Line'),
+    Text: mockSvgComponent('SvgText'),
+    Defs: mockSvgComponent('Defs'),
+    ClipPath: mockSvgComponent('ClipPath'),
+    Polygon: mockSvgComponent('Polygon'),
+    Polyline: mockSvgComponent('Polyline'),
+    Ellipse: mockSvgComponent('Ellipse'),
+    LinearGradient: mockSvgComponent('LinearGradient'),
+    RadialGradient: mockSvgComponent('RadialGradient'),
+    Stop: mockSvgComponent('Stop'),
+  };
+});
+
+// Mock lucide-react-native
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  const mockIcon = (name) => {
+    const Icon = (props) => React.createElement('MockLucideIcon', { ...props, iconName: name });
+    Icon.displayName = name;
+    return Icon;
+  };
+  return new Proxy({}, {
+    get: (_, prop) => {
+      if (prop === '__esModule') return true;
+      return mockIcon(String(prop));
+    },
+  });
+});
+
 // Mock the entire storage module to prevent model imports
 jest.mock('@/services/storage', () => ({
   keychainService: {

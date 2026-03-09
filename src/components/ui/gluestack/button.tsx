@@ -57,6 +57,8 @@ const Button = ({
     <Pressable
       onPress={onPress}
       disabled={isDisabled || isLoading}
+      accessibilityRole="button"
+      accessibilityLabel={title}
       className={`flex-row items-center justify-center rounded-lg transition-all ${variants[variant]} ${sizes[size]} ${isDisabled ? 'opacity-50' : ''} ${className}`}
     >
       {isLoading ? (
@@ -72,6 +74,6 @@ const Button = ({
   );
 };
 
-cssInterop(Button, { className: 'style' });
+cssInterop(Button, { className: true });
 
 export { Button };

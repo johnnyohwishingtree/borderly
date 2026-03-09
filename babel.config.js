@@ -14,7 +14,7 @@ module.exports = {
         },
       },
     ],
-    // react-native-reanimated/plugin must be last
+    'react-native-reanimated/plugin',
   ],
   env: {
     production: {

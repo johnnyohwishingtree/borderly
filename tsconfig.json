@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "lib": ["ES2020"],
+    "lib": [
+      "ES2020"
+    ],
     "allowJs": true,
     "jsx": "react-jsx",
     "declaration": false,
@@ -22,17 +24,25 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "types": ["react", "react-native", "jest", "@types/jest"],
+    "types": [
+      "react",
+      "react-native",
+      "jest",
+      "@types/jest"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
   "include": [
     "src/**/*",
     "index.js",
     "src/types/nativewind.d.ts",
-    "__tests__/**/*"
+    "__tests__/**/*",
+    "nativewind-env.d.ts"
   ],
   "exclude": [
     "node_modules",
