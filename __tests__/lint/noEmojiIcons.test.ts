@@ -29,12 +29,9 @@ function hasEmojiInTitle(line: string): boolean {
 // Files that are allowed to have emoji (camera overlays, non-visible utils).
 // ASCII symbols (checkmarks, x marks) render fine on iOS — only multi-byte emoji break.
 const ALLOWED_FILES = new Set([
-  // Camera scanner overlays — these render over native camera UI and work fine
-  'components/boarding/BoardingPassScanner.tsx',
-  'components/passport/MRZScanner.tsx',
-  // QR full screen overlay controls
+  // QR full screen overlay controls — uses ASCII ✕ which renders fine
   'components/wallet/QRFullScreen.tsx',
-  // Loading state checkmark
+  // Loading state uses ASCII ✓ checkmark which renders fine
   'components/ui/LoadingStates.tsx',
   // Canada flag maple leaf — intentional emoji, renders on all iOS versions
   'components/trips/CountryFlag.tsx',

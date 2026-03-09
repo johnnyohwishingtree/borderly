@@ -20,6 +20,7 @@ import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { parseBoardingPass } from '../../services/boarding/boardingPassParser';
 import { importBoardingPassFromImage, getImageImportErrorMessage } from '../../services/boarding/boardingPassImageImport';
 import type { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
+import { Lightbulb, Flashlight, Camera, Hourglass, Check } from 'lucide-react-native';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
@@ -532,9 +533,11 @@ export default function BoardingPassScanner({
                 } ${isImporting ? 'opacity-50' : ''}`}
                 accessibilityLabel={`Turn flash ${flashMode === 'on' ? 'off' : 'on'}`}
               >
-                <Text className="text-white font-bold text-lg">
-                  {flashMode === 'on' ? '💡' : '🔦'}
-                </Text>
+                {flashMode === 'on' ? (
+                  <Lightbulb size={20} color="#ffffff" />
+                ) : (
+                  <Flashlight size={20} color="#ffffff" />
+                )}
               </TouchableOpacity>
             )}
 
@@ -546,9 +549,11 @@ export default function BoardingPassScanner({
               }`}
               accessibilityLabel="Import from photo"
             >
-              <Text className="text-white font-bold text-lg">
-                {isImporting ? '⏳' : '📷'}
-              </Text>
+              {isImporting ? (
+                <Hourglass size={20} color="#ffffff" />
+              ) : (
+                <Camera size={20} color="#ffffff" />
+              )}
             </TouchableOpacity>
           </View>
 
@@ -574,7 +579,7 @@ export default function BoardingPassScanner({
         {scanResult?.type === 'success' && (
           <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
             <View className="bg-green-500 rounded-full p-4 mb-4">
-              <Text className="text-white text-2xl">✓</Text>
+              <Check size={32} color="#ffffff" />
             </View>
             <Text className="text-white text-xl font-bold">Scan Complete!</Text>
           </View>
@@ -623,7 +628,7 @@ export default function BoardingPassScanner({
       {scanResult?.type === 'success' && (
         <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
           <View className="bg-green-500 rounded-full p-4 mb-4">
-            <Text className="text-white text-2xl">✓</Text>
+            <Check size={32} color="#ffffff" />
           </View>
           <Text className="text-white text-xl font-bold">Scan Complete!</Text>
         </View>
