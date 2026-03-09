@@ -84,9 +84,7 @@ export default function HelpHint({
       accessibilityLabel={title ? `${title}: ${content}` : content}
     >
       <View className="flex-row items-start">
-        <View style={{ marginRight: 12, marginTop: 2 }}>
-          {React.createElement(variantStyle.icon, { size: sizeStyle.iconSize, color: variantStyle.iconColor })}
-        </View>
+        {React.createElement(variantStyle.icon, { size: sizeStyle.iconSize, color: variantStyle.iconColor, style: { marginRight: 12, marginTop: 2 } })}
         
         <View className="flex-1">
           {title && (

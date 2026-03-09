@@ -64,87 +64,65 @@ describe('No emoji icons in UI components', () => {
     expect(files.length).toBeGreaterThan(0);
   });
 
-  it('should not use emoji as standalone icons in <Text> components', () => {
-    const violations: string[] = [];
-
-    for (const file of files) {
-      const relPath = path.relative(srcDir, file);
-      if (ALLOWED_FILES.has(relPath)) continue;
-
-      const content = fs.readFileSync(file, 'utf8');
-      const lines = content.split('\n');
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (hasEmojiAsIcon(line)) {
-          violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
-        }
-      }
-    }
-
-    if (violations.length > 0) {
-      throw new Error(
-        `Found ${violations.length} emoji used as icons. ` +
-          'Use lucide-react-native SVG components instead.\n\n' +
-          violations.join('\n')
-      );
-    }
-  });
-
-  it('should not use emoji in button title props', () => {
-    const violations: string[] = [];
-
-    for (const file of files) {
-      const relPath = path.relative(srcDir, file);
-      const content = fs.readFileSync(file, 'utf8');
-      const lines = content.split('\n');
-
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        if (hasEmojiInTitle(line)) {
-          violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
-        }
-      }
-    }
-
-    if (violations.length > 0) {
-      throw new Error(
-        `Found ${violations.length} emoji in button titles. ` +
-          'Remove emoji from title props — use icon props or lucide components instead.\n\n' +
-          violations.join('\n')
-      );
-    }
-  });
-
-  it('should only import icons from lucide-react-native', () => {
+  it('should not have any lint violations for icons and emojis', () => {
+    const emojiAsIconViolations: string[] = [];
+    const emojiInTitleViolations: string[] = [];
+    const bannedImportViolations: string[] = [];
     const bannedImports = [
       'react-native-vector-icons',
       'react-native-heroicons',
       '@expo/vector-icons',
     ];
-    const violations: string[] = [];
 
     for (const file of files) {
+      const relPath = path.relative(srcDir, file);
       const content = fs.readFileSync(file, 'utf8');
       const lines = content.split('\n');
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
+
+        if (!ALLOWED_FILES.has(relPath) && hasEmojiAsIcon(line)) {
+          emojiAsIconViolations.push(`${relPath}:${i + 1}: ${line.trim()}`);
+        }
+
+        if (hasEmojiInTitle(line)) {
+          emojiInTitleViolations.push(`${relPath}:${i + 1}: ${line.trim()}`);
+        }
+
         for (const banned of bannedImports) {
           if (line.includes(`from '${banned}`) || line.includes(`from "${banned}`)) {
-            const relPath = path.relative(srcDir, file);
-            violations.push(`${relPath}:${i + 1}: ${line.trim()}`);
+            bannedImportViolations.push(`${relPath}:${i + 1}: ${line.trim()}`);
           }
         }
       }
     }
 
-    if (violations.length > 0) {
-      throw new Error(
-        `Found ${violations.length} imports from banned icon libraries. ` +
-          'Use lucide-react-native as the single icon library.\n\n' +
-          violations.join('\n')
+    const allViolations: string[] = [];
+    if (emojiAsIconViolations.length > 0) {
+      allViolations.push(
+        `Found ${emojiAsIconViolations.length} emoji used as icons. ` +
+          'Use lucide-react-native SVG components instead.\n\n' +
+          emojiAsIconViolations.join('\n')
       );
+    }
+    if (emojiInTitleViolations.length > 0) {
+      allViolations.push(
+        `Found ${emojiInTitleViolations.length} emoji in button titles. ` +
+          'Remove emoji from title props — use icon props or lucide components instead.\n\n' +
+          emojiInTitleViolations.join('\n')
+      );
+    }
+    if (bannedImportViolations.length > 0) {
+      allViolations.push(
+        `Found ${bannedImportViolations.length} imports from banned icon libraries. ` +
+          'Use lucide-react-native as the single icon library.\n\n' +
+          bannedImportViolations.join('\n')
+      );
+    }
+
+    if (allViolations.length > 0) {
+      throw new Error(allViolations.join('\n\n'));
     }
   });
 });

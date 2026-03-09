@@ -134,9 +134,7 @@ export default function ContextualHelp({
               {/* Header */}
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center flex-1">
-                  <View style={{ marginRight: 8 }}>
-                    <CircleHelp size={24} color="#2563eb" />
-                  </View>
+                  <CircleHelp size={24} color="#2563eb" style={{ marginRight: 8 }} />
                   <Text className="text-lg font-semibold text-gray-900 flex-1">
                     {content.title}
                   </Text>

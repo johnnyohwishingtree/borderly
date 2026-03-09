@@ -94,9 +94,7 @@ export default function StepCard({
         <View className="p-4">
           {/* Description */}
           <View className="flex-row items-start mb-4">
-            <View style={{ marginTop: 2, marginRight: 8 }}>
-              <Info size={20} color="#6B7280" />
-            </View>
+            <Info size={20} color="#6B7280" style={{ marginTop: 2, marginRight: 8 }} />
             <Text className="flex-1 text-base text-gray-700 leading-6">
               {step.description}
             </Text>

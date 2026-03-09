@@ -136,7 +136,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  (() => { const IconComponent = styles.icon; return <IconComponent size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />; })()
+                  <styles.icon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}
@@ -189,7 +189,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  (() => { const IconComponent = styles.icon; return <IconComponent size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />; })()
+                  <styles.icon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}

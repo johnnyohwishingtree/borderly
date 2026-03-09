@@ -191,11 +191,9 @@ export default function Tooltip({
                 className={`${style.bg} rounded-lg shadow-lg p-3 ${tooltipSize ? '' : 'opacity-0'}`}
               >
                 <View className="flex-row items-start">
-                  {showIcon && (
-                    <View style={{ marginRight: 6, marginTop: 1 }}>
-                      {React.createElement(style.icon, { size: 16, color: style.iconColor })}
-                    </View>
-                  )}
+                  {showIcon && 
+                    React.createElement(style.icon, { size: 16, color: style.iconColor, style: { marginRight: 6, marginTop: 1 } })
+                  }
                   <Text className={`text-sm ${style.text} flex-1`}>
                     {content}
                   </Text>

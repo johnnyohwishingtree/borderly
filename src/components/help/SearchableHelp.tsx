@@ -273,9 +273,7 @@ export default function SearchableHelp({
         {/* Search Input */}
         <View className="bg-white px-4 py-4 border-b border-gray-200">
           <View className="relative">
-            <View style={{ position: 'absolute', left: 12, top: 12, zIndex: 1 }}>
-              <Search size={20} color="#6b7280" />
-            </View>
+            <Search size={20} color="#6b7280" style={{ position: 'absolute', left: 12, top: 12, zIndex: 1 }} />
             <TextInput
               value={searchTerm}
               onChangeText={handleSearch}
@@ -344,9 +342,7 @@ export default function SearchableHelp({
                     onPress={() => handleSearch(topic)}
                     className="flex-row items-center py-2"
                   >
-                    <View style={{ marginRight: 8 }}>
-                      <TrendingUp size={16} color="#6b7280" />
-                    </View>
+                    <TrendingUp size={16} color="#6b7280" style={{ marginRight: 8 }} />
                     <Text className="text-sm text-gray-700">{topic}</Text>
                   </TouchableOpacity>
                 ))}
@@ -366,9 +362,7 @@ export default function SearchableHelp({
                   accessibilityLabel={`View ${result.title}`}
                 >
                   <View className="flex-row items-start">
-                    <View style={{ marginRight: 12, marginTop: 2 }}>
-                      {React.createElement(getTypeIcon(result.type), { size: 20, color: getTypeColor(result.type) })}
-                    </View>
+                    {React.createElement(getTypeIcon(result.type), { size: 20, color: getTypeColor(result.type), style: { marginRight: 12, marginTop: 2 } })}
                     <View className="flex-1">
                       <View className="flex-row items-center mb-1">
                         <Text className="font-semibold text-gray-900 flex-1">
@@ -401,9 +395,7 @@ export default function SearchableHelp({
           {searchTerm.length > 0 && results.length === 0 && !isSearching && (
             <Card>
               <View className="text-center py-8">
-                <View style={{ alignSelf: 'center', marginBottom: 16 }}>
-                  <SearchX size={48} color="#9ca3af" />
-                </View>
+                <SearchX size={48} color="#9ca3af" style={{ alignSelf: 'center', marginBottom: 16 }} />
                 <Text className="text-lg text-gray-600 mb-2">No results found</Text>
                 <Text className="text-sm text-gray-500 mb-4">
                   Try different keywords or browse categories
