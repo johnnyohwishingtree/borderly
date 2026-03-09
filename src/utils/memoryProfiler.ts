@@ -26,7 +26,7 @@ export class MemoryProfiler {
   private maxSnapshots = 50;
   private isEnabled: boolean = __DEV__;
   private leakThreshold = 1024 * 1024 * 10; // 10MB growth threshold
-  private monitoringInterval: number | null = null;
+  private monitoringInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     // Only enable in development or when explicitly enabled
