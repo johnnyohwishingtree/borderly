@@ -23,12 +23,12 @@ Support **3 countries**: Japan, Malaysia, Singapore (common Asia travel corridor
 - Pre-filled data ready to copy/paste into government portals
 - Step-by-step guided walkthrough of each portal
 - Offline QR code wallet for storing submission QR codes
+- Family/group management with secure multi-profile support
 
 **What's NOT included (Phase 2+):**
 - Direct API integration with government systems
 - Automated browser submission
 - NFC passport scanning
-- Family/group management
 - Trip sync from email/TripIt/Google Flights
 - Backend server (schemas ship bundled in app)
 
@@ -106,14 +106,15 @@ src/
 │   ├── onboarding/                # Welcome, PassportScan, ConfirmProfile, BiometricSetup
 │   ├── trips/                     # TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide
 │   ├── wallet/                    # QRWallet, QRDetail, AddQR
-│   ├── profile/                   # Profile, EditProfile
+│   ├── profile/                   # Profile, EditProfile, FamilyManagement, AddFamilyMember
 │   └── settings/                  # Settings
 ├── components/
-│   ├── ui/                        # Button, Card, Input, Select, Toggle, StatusBadge
+│   ├── ui/                        # Button, Card, Input, Select, Toggle, StatusBadge, LoadingState
 │   ├── passport/                  # MRZScanner, PassportPreview
 │   ├── forms/                     # DynamicForm, FormField, FormSection, AutoFilledBadge
-│   ├── trips/                     # TripCard, LegCard, CountryFlag
+│   ├── trips/                     # TripCard, LegCard, CountryFlag, TravelerSelector
 │   ├── wallet/                    # QRCodeCard, QRFullScreen
+│   ├── profile/                   # FamilyMemberCard, ProfileSelector
 │   └── guide/                     # StepCard, CopyableField, GuideProgress
 ├── services/
 │   ├── storage/                   # keychain.ts, mmkv.ts, database.ts
@@ -122,13 +123,14 @@ src/
 │   └── schemas/                   # schemaLoader.ts, schemaRegistry.ts
 ├── stores/                        # Zustand: useProfileStore, useTripStore, useFormStore, useAppStore
 ├── schemas/                       # Bundled JSON: JPN.json, MYS.json, SGP.json
-├── types/                         # profile.ts, trip.ts, schema.ts, navigation.ts
-├── utils/                         # crypto.ts, dateUtils.ts, clipboard.ts, constants.ts
+├── types/                         # profile.ts, trip.ts, schema.ts, navigation.ts, family.ts
+├── utils/                         # crypto.ts, dateUtils.ts, clipboard.ts, constants.ts, familyValidation.ts
 └── assets/                        # icons/, flags/, guide screenshots per country
 
 __tests__/
-├── services/                      # mrzParser.test.ts, formEngine.test.ts, fieldMapper.test.ts
-├── components/                    # DynamicForm.test.tsx
+├── services/                      # mrzParser.test.ts, formEngine.test.ts, familyProfileStorage.test.ts
+├── components/                    # DynamicForm.test.tsx, family/
+├── e2e/                          # family-workflows.test.ts
 └── schemas/                       # JPN.test.ts, MYS.test.ts, SGP.test.ts
 ```
 
@@ -140,6 +142,7 @@ __tests__/
 - **Smart Delta**: Only show the user fields that are country-specific or can't be auto-filled. Most travelers answer 3-5 questions per country instead of 30+.
 - **Submission Guide**: Step-by-step walkthrough of each government portal with pre-filled values ready to copy/paste.
 - **QR Wallet**: Offline storage for QR codes received after form submission (Visit Japan Web gives QR codes for e-Gate entry).
+- **Family Profiles**: Multi-user support allowing up to 8 family members per device. Each family member has their own secure profile stored in separate OS Keychain entries. Supports relationships (self, spouse, child, parent, sibling, other) with data isolation and access control.
 
 ## Security Rules
 
@@ -150,6 +153,7 @@ __tests__/
 - All government portal communication is direct device-to-government
 - Clear copied passport data from clipboard after 60 seconds
 - App lock after 5 minutes of inactivity
+- **Family Profile Security**: Each family member has isolated storage with unique Keychain entries and encryption keys. Primary profile holder has access control over family member data. Family member deletion securely removes all associated data from device.
 
 ## Run Commands
 
