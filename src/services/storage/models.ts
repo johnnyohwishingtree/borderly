@@ -84,6 +84,7 @@ export class SavedQRCode extends Model {
   static table = 'saved_qr_codes';
 
   @field('leg_id') legId!: string;
+  @field('traveler_id') travelerId?: string; // Optional: which traveler this QR belongs to
   @field('type') type!: 'immigration' | 'customs' | 'health' | 'combined';
   @field('image_base64') imageBase64!: string;
   @date('saved_at') @readonly savedAt!: Date;

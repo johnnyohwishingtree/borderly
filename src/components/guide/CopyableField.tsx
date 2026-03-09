@@ -11,6 +11,8 @@ export interface CopyableFieldProps {
   helpText?: string;
   formatValue?: (value: string | number | boolean) => string;
   accessibilityLabel?: string;
+  travelerName?: string; // Optional: show which traveler this data belongs to
+  showTravelerBadge?: boolean; // Whether to show traveler identification badge
 }
 
 export default function CopyableField({
@@ -20,6 +22,8 @@ export default function CopyableField({
   helpText,
   formatValue,
   accessibilityLabel,
+  travelerName,
+  showTravelerBadge = false,
 }: CopyableFieldProps) {
   const [copied, setCopied] = useState(false);
 
@@ -54,9 +58,18 @@ export default function CopyableField({
       {/* Field Label */}
       <View className="flex-row justify-between items-start mb-2">
         <View className="flex-1">
-          <Text className="text-sm font-medium text-gray-900 mb-1">
-            {label}
-          </Text>
+          <View className="flex-row items-center flex-wrap gap-1 mb-1">
+            <Text className="text-sm font-medium text-gray-900">
+              {label}
+            </Text>
+            {showTravelerBadge && travelerName && (
+              <View className="bg-purple-100 px-2 py-1 rounded-md ml-2">
+                <Text className="text-xs font-medium text-purple-700">
+                  {travelerName}
+                </Text>
+              </View>
+            )}
+          </View>
           {portalFieldName && (
             <Text className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-md self-start">
               Portal field: {portalFieldName}

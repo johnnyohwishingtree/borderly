@@ -7,13 +7,17 @@ interface QRCodeCardProps {
   onPress?: (qrCode: SavedQRCode) => void;
   onLongPress?: (qrCode: SavedQRCode) => void;
   compact?: boolean;
+  showTravelerInfo?: boolean; // Whether to show traveler information badge
+  travelerName?: string; // Name of the traveler for this QR code
 }
 
 export function QRCodeCard({ 
   qrCode, 
   onPress, 
   onLongPress, 
-  compact = false 
+  compact = false,
+  showTravelerInfo = false,
+  travelerName
 }: QRCodeCardProps) {
   const getTypeColor = (type: SavedQRCode['type']) => {
     switch (type) {
@@ -114,9 +118,19 @@ export function QRCodeCard({
               <Text className="text-lg font-semibold text-gray-900" numberOfLines={1}>
                 {qrCode.label}
               </Text>
-              <Text className="text-sm text-gray-500 mt-1">
-                Saved {formatDate(qrCode.savedAt)}
-              </Text>
+              <View className="flex-row items-center mt-1">
+                <Text className="text-sm text-gray-500">
+                  Saved {formatDate(qrCode.savedAt)}
+                </Text>
+                {showTravelerInfo && travelerName && (
+                  <>
+                    <Text className="text-sm text-gray-500 mx-2">•</Text>
+                    <Text className="text-sm text-purple-600 font-medium">
+                      {travelerName}
+                    </Text>
+                  </>
+                )}
+              </View>
             </View>
             
             {/* Type Badge */}

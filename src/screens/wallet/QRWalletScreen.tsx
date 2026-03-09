@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { 
   View, 
   Text, 
@@ -7,10 +7,11 @@ import {
   ActionSheetIOS,
   Platform,
   ScrollView,
-  RefreshControl
+  RefreshControl,
+  Modal,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Smartphone } from 'lucide-react-native';
+import { Smartphone, Filter, Users, X } from 'lucide-react-native';
 import { EmptyState, Button } from '../../components/ui';
 import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
 import { HapticFeedback } from '../../components/ui/HapticFeedback';
@@ -19,13 +20,19 @@ import { ContextualHelp, HelpContent } from '../../components/help';
 import { SavedQRCode } from '../../services/storage/models';
 import { useNavigation } from '@react-navigation/native';
 import { databaseService } from '../../services/storage';
+import { useProfileStore } from '../../stores/useProfileStore';
+import type { TravelerProfile } from '../../types/profile';
 
 export default function QRWalletScreen() {
   const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedQR, setSelectedQR] = useState<SavedQRCode | null>(null);
   const [fullScreenVisible, setFullScreenVisible] = useState(false);
+  const [travelers, setTravelers] = useState<Map<string, TravelerProfile>>(new Map());
+  const [selectedTravelerFilter, setSelectedTravelerFilter] = useState<string | null>(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const navigation = useNavigation();
+  const { getAllProfiles } = useProfileStore();
   
   const {
     state,
@@ -41,6 +48,10 @@ export default function QRWalletScreen() {
   const loadQRCodes = async (showLoading = false) => {
     try {
       if (showLoading) setLoading();
+      
+      // Load traveler profiles
+      const profilesMap = await getAllProfiles();
+      setTravelers(profilesMap);
       
       const db = await databaseService.getDatabase();
       const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
@@ -82,6 +93,16 @@ export default function QRWalletScreen() {
     retry();
     loadQRCodes(true);
   }, [retry]);
+
+  // Filter QR codes by selected traveler
+  const filteredQRCodes = useMemo(() => {
+    if (!selectedTravelerFilter) return qrCodes;
+    if (selectedTravelerFilter === 'unassigned') {
+      return qrCodes.filter(qr => !qr.travelerId);
+    }
+    return qrCodes.filter(qr => qr.travelerId === selectedTravelerFilter);
+  }, [qrCodes, selectedTravelerFilter]);
+
 
   // Handle QR code press (show full screen)
   const handleQRPress = (qrCode: SavedQRCode) => {
@@ -266,9 +287,31 @@ export default function QRWalletScreen() {
           <View className="flex-1">
             <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
             <Text className="text-base text-gray-600 mt-1">
-              {qrCodes.length} saved code{qrCodes.length !== 1 ? 's' : ''}
+              {selectedTravelerFilter 
+                ? `${filteredQRCodes.length} code${filteredQRCodes.length !== 1 ? 's' : ''} for ${travelers.get(selectedTravelerFilter)?.givenNames || 'Unknown'}`
+                : `${qrCodes.length} saved code${qrCodes.length !== 1 ? 's' : ''}`
+              }
             </Text>
+            {selectedTravelerFilter && (
+              <TouchableOpacity 
+                onPress={() => setSelectedTravelerFilter(null)}
+                className="mt-1 flex-row items-center"
+              >
+                <Text className="text-sm text-blue-600 mr-1">Clear filter</Text>
+                <X size={14} color="#2563eb" />
+              </TouchableOpacity>
+            )}
           </View>
+          
+          {travelers.size > 1 && (
+            <TouchableOpacity 
+              onPress={() => setShowFilterModal(true)}
+              className="bg-gray-100 rounded-full p-2 mr-3"
+            >
+              <Filter size={20} color="#6b7280" />
+            </TouchableOpacity>
+          )}
+
           <ContextualHelp 
             content={HelpContent.qrWallet}
             variant="icon"
@@ -297,12 +340,14 @@ export default function QRWalletScreen() {
         }
       >
         <View className="py-4">
-          {qrCodes.map((qrCode) => (
+          {filteredQRCodes.map((qrCode) => (
             <QRCodeCard
               key={qrCode.id}
               qrCode={qrCode}
               onPress={handleQRPress}
               onLongPress={handleQRLongPress}
+              showTravelerInfo={true}
+              travelerName={qrCode.travelerId ? travelers.get(qrCode.travelerId)?.givenNames || 'Unknown' : 'Unassigned'}
             />
           ))}
         </View>
@@ -310,6 +355,147 @@ export default function QRWalletScreen() {
         {/* Bottom spacing */}
         <View className="h-20" />
       </ScrollView>
+
+      {/* Family Filter Modal */}
+      <Modal
+        visible={showFilterModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowFilterModal(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-xl p-4">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-lg font-semibold text-gray-900">
+                Filter by Traveler
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowFilterModal(false)}
+                className="p-2"
+              >
+                <X size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView className="max-h-80">
+              {/* All travelers option */}
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedTravelerFilter(null);
+                  setShowFilterModal(false);
+                }}
+                className={`p-4 rounded-lg border mb-2 ${
+                  !selectedTravelerFilter 
+                    ? 'bg-blue-50 border-blue-500' 
+                    : 'bg-gray-50 border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Users size={20} color={!selectedTravelerFilter ? "#3B82F6" : "#6b7280"} />
+                  <Text className={`ml-3 font-medium ${
+                    !selectedTravelerFilter ? 'text-blue-700' : 'text-gray-900'
+                  }`}>
+                    All Travelers
+                  </Text>
+                  <Text className="ml-auto text-sm text-gray-500">
+                    {qrCodes.length} codes
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Individual travelers */}
+              {Array.from(travelers.values()).map((traveler) => {
+                const travelerQRCount = qrCodes.filter(qr => qr.travelerId === traveler.id).length;
+                const isSelected = selectedTravelerFilter === traveler.id;
+                
+                return (
+                  <TouchableOpacity
+                    key={traveler.id}
+                    onPress={() => {
+                      setSelectedTravelerFilter(traveler.id);
+                      setShowFilterModal(false);
+                    }}
+                    className={`p-4 rounded-lg border mb-2 ${
+                      isSelected 
+                        ? 'bg-blue-50 border-blue-500' 
+                        : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    <View className="flex-row items-center">
+                      <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                        isSelected ? 'bg-blue-500' : 'bg-gray-300'
+                      }`}>
+                        <Text className={`text-sm font-bold ${
+                          isSelected ? 'text-white' : 'text-gray-600'
+                        }`}>
+                          {traveler.givenNames.charAt(0)}
+                        </Text>
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className={`font-medium ${
+                          isSelected ? 'text-blue-700' : 'text-gray-900'
+                        }`}>
+                          {traveler.givenNames} {traveler.surname}
+                        </Text>
+                        <Text className={`text-sm ${
+                          isSelected ? 'text-blue-600' : 'text-gray-500'
+                        }`}>
+                          {traveler.relationship === 'self' ? 'Primary' : traveler.relationship}
+                        </Text>
+                      </View>
+                      <Text className="text-sm text-gray-500">
+                        {travelerQRCount} code{travelerQRCount !== 1 ? 's' : ''}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+              
+              {/* Unassigned QR codes */}
+              {qrCodes.some(qr => !qr.travelerId) && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedTravelerFilter('unassigned');
+                    setShowFilterModal(false);
+                  }}
+                  className={`p-4 rounded-lg border mb-2 ${
+                    selectedTravelerFilter === 'unassigned'
+                      ? 'bg-blue-50 border-blue-500' 
+                      : 'bg-gray-50 border-gray-200'
+                  }`}
+                >
+                  <View className="flex-row items-center">
+                    <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                      selectedTravelerFilter === 'unassigned' ? 'bg-blue-500' : 'bg-gray-300'
+                    }`}>
+                      <Text className={`text-sm font-bold ${
+                        selectedTravelerFilter === 'unassigned' ? 'text-white' : 'text-gray-600'
+                      }`}>
+                        ?
+                      </Text>
+                    </View>
+                    <View className="ml-3 flex-1">
+                      <Text className={`font-medium ${
+                        selectedTravelerFilter === 'unassigned' ? 'text-blue-700' : 'text-gray-900'
+                      }`}>
+                        Unassigned
+                      </Text>
+                      <Text className={`text-sm ${
+                        selectedTravelerFilter === 'unassigned' ? 'text-blue-600' : 'text-gray-500'
+                      }`}>
+                        No traveler specified
+                      </Text>
+                    </View>
+                    <Text className="text-sm text-gray-500">
+                      {qrCodes.filter(qr => !qr.travelerId).length} codes
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Full Screen QR Display */}
       <QRFullScreen
