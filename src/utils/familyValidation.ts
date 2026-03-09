@@ -396,6 +396,8 @@ export function getRelationshipDisplayName(relationship: FamilyRelationship): st
       return 'Child';
     case 'parent':
       return 'Parent';
+    case 'sibling':
+      return 'Sibling';
     case 'other':
       return 'Other Family';
     default:

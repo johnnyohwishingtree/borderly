@@ -75,7 +75,16 @@ describe('FamilyManagementScreen', () => {
     dateOfBirth: '1985-03-15',
     gender: 'F',
     passportExpiry: '2030-12-31',
-    placeOfBirth: 'New York',
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false
+    },
+    createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     relationship: 'self'
   };

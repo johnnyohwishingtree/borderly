@@ -20,7 +20,16 @@ describe('FamilyMemberCard', () => {
     dateOfBirth: '1980-05-15',
     gender: 'M',
     passportExpiry: '2030-12-31',
-    placeOfBirth: 'New York',
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false
+    },
+    createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     relationship: 'self'
   };
@@ -34,7 +43,16 @@ describe('FamilyMemberCard', () => {
     dateOfBirth: '1982-08-20',
     gender: 'F',
     passportExpiry: '2029-06-15',
-    placeOfBirth: 'California',
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false
+    },
+    createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     relationship: 'spouse'
   };
@@ -48,7 +66,16 @@ describe('FamilyMemberCard', () => {
     dateOfBirth: '2015-12-03',
     gender: 'F',
     passportExpiry: '2025-12-03', // Expires in 1 year
-    placeOfBirth: 'Texas',
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false
+    },
+    createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
     relationship: 'child'
   };
