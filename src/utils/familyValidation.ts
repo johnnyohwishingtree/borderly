@@ -5,8 +5,8 @@
  * and multi-traveler trip validation to ensure data integrity and security.
  */
 
-import { FamilyMember, FamilyRelationship, TravelerProfile } from '@/types/profile';
-import { FamilyProfileCollection, ProfileMetadata } from '@/types/family';
+import { TravelerProfile } from '@/types/profile';
+import { FamilyProfileCollection, ProfileMetadata, FamilyRelationship } from '@/types/family';
 
 // Constants
 const MAX_FAMILY_MEMBERS = 8;
@@ -331,12 +331,8 @@ export function validateForStorage(
   warnings.push(...relationshipValidation.warnings);
 
   // Check for duplicate passport numbers within family
-  for (const [existingId, existingMetadata] of existingCollection.profiles) {
-    if (existingId !== profile.id) {
-      // Would need to fetch existing profiles to check passport numbers
-      // This is a placeholder for passport number uniqueness check
-    }
-  }
+  // This would require checking against actual stored profiles
+  // For now, we'll skip this validation as it requires async profile fetching
 
   return {
     isValid: errors.length === 0,
@@ -355,7 +351,6 @@ export function sanitizeFamilyMemberInput(profile: Partial<TravelerProfile>): Pa
     surname: profile.surname?.trim(),
     passportNumber: profile.passportNumber?.trim().toUpperCase(),
     nationality: profile.nationality?.trim().toUpperCase(),
-    placeOfBirth: profile.placeOfBirth?.trim(),
   };
 }
 
@@ -392,8 +387,6 @@ export function getRelationshipDisplayName(relationship: FamilyRelationship): st
       return 'Child';
     case 'parent':
       return 'Parent';
-    case 'sibling':
-      return 'Sibling';
     case 'other':
       return 'Other Family';
     default:
@@ -431,10 +424,11 @@ export function getFamilyStatistics(familyCollection: FamilyProfileCollection) {
   const profiles = Array.from(familyCollection.profiles.values());
   const active = profiles.filter(p => p.isActive);
   
-  const relationshipCounts = profiles.reduce((acc, profile) => {
-    acc[profile.relationship] = (acc[profile.relationship] || 0) + 1;
-    return acc;
-  }, {} as Record<FamilyRelationship, number>);
+  const relationshipCounts: Record<string, number> = {};
+  profiles.forEach(profile => {
+    const relationship = profile.relationship;
+    relationshipCounts[relationship] = (relationshipCounts[relationship] || 0) + 1;
+  });
 
   return {
     total: profiles.length,
