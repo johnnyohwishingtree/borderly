@@ -245,11 +245,12 @@ export const AIRPORT_DATABASE: Record<string, AirportInfo> = {
 };
 
 /**
- * Supported destination countries for the app
+ * Supported destination countries — re-exported from single source of truth
  */
-export const SUPPORTED_COUNTRIES = ['JPN', 'MYS', 'SGP'] as const;
+export { SUPPORTED_COUNTRY_CODES as SUPPORTED_COUNTRIES } from '../../constants/countries';
 
-export type SupportedCountry = typeof SUPPORTED_COUNTRIES[number];
+import { SUPPORTED_COUNTRY_CODES } from '../../constants/countries';
+export type SupportedCountry = string;
 
 /**
  * Lookup airport information by IATA code
@@ -272,7 +273,7 @@ export function getCountryFromAirport(airportCode: string): string | null {
  */
 export function isSupportedDestination(airportCode: string): boolean {
   const country = getCountryFromAirport(airportCode);
-  return country ? SUPPORTED_COUNTRIES.includes(country as SupportedCountry) : false;
+  return country ? SUPPORTED_COUNTRY_CODES.includes(country) : false;
 }
 
 /**
@@ -288,7 +289,7 @@ export function getAirportsByCountry(countryCode: string): AirportInfo[] {
  * Get all supported destination airports
  */
 export function getSupportedDestinationAirports(): AirportInfo[] {
-  const supportedCountriesSet = new Set<string>(SUPPORTED_COUNTRIES);
+  const supportedCountriesSet = new Set<string>(SUPPORTED_COUNTRY_CODES);
   return Object.values(AIRPORT_DATABASE).filter(airport =>
     supportedCountriesSet.has(airport.country)
   );

@@ -1,8 +1,9 @@
 import { MMKV } from 'react-native-mmkv';
-import { 
-  CountryFormSchema, 
+import {
+  CountryFormSchema,
   SchemaRegistry
 } from '../../types/schema';
+import { SUPPORTED_COUNTRY_CODES } from '../../constants/countries';
 import { schemaValidator } from './schemaValidator';
 import { schemaMigrator } from './schemaMigrator';
 
@@ -20,24 +21,35 @@ class SchemaManager {
    */
   async initialize(): Promise<void> {
     try {
-      // Load bundled schemas
-      const jpnSchema = require('../../schemas/JPN.json') as CountryFormSchema;
-      const mysSchema = require('../../schemas/MYS.json') as CountryFormSchema;
-      const sgpSchema = require('../../schemas/SGP.json') as CountryFormSchema;
+      // Load bundled schemas dynamically from supported countries
+      const schemaMap: Record<string, CountryFormSchema> = {};
+      const schemaLoaders: Record<string, () => CountryFormSchema> = {
+        JPN: () => require('../../schemas/JPN.json') as CountryFormSchema,
+        MYS: () => require('../../schemas/MYS.json') as CountryFormSchema,
+        SGP: () => require('../../schemas/SGP.json') as CountryFormSchema,
+        THA: () => require('../../schemas/THA.json') as CountryFormSchema,
+        VNM: () => require('../../schemas/VNM.json') as CountryFormSchema,
+        GBR: () => require('../../schemas/GBR.json') as CountryFormSchema,
+        USA: () => require('../../schemas/USA.json') as CountryFormSchema,
+        CAN: () => require('../../schemas/CAN.json') as CountryFormSchema,
+      };
+
+      for (const code of SUPPORTED_COUNTRY_CODES) {
+        const loader = schemaLoaders[code];
+        if (loader) {
+          schemaMap[code] = loader();
+        }
+      }
 
       // Create registry if it doesn't exist
       if (!this.storage.getString('registry')) {
         const initialRegistry: SchemaRegistry = {
-          schemas: {
-            JPN: jpnSchema,
-            MYS: mysSchema,
-            SGP: sgpSchema,
-          },
+          schemas: schemaMap,
           migrations: {},
           metadata: {
             lastUpdated: new Date().toISOString(),
             version: '1.0.0',
-            supportedCountries: ['JPN', 'MYS', 'SGP'],
+            supportedCountries: [...SUPPORTED_COUNTRY_CODES],
           },
         };
         

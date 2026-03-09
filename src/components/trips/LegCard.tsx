@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Card } from '../ui';
 import { StatusBadge } from '../ui';
 import { TripLeg } from '../../types/trip';
+import { getCountryName } from '../../constants/countries';
 import CountryFlag from './CountryFlag';
 
 export interface LegCardProps {
@@ -68,7 +69,7 @@ export default function LegCard({
               <CountryFlag countryCode={leg.destinationCountry} size="medium" />
               <View className="ml-3">
                 <Text className="text-lg font-semibold text-gray-900">
-                  {COUNTRY_FLAGS[leg.destinationCountry as keyof typeof COUNTRY_FLAGS]?.name || 'Unknown'}
+                  {getCountryName(leg.destinationCountry)}
                 </Text>
                 <Text className="text-sm text-gray-600">
                   {formatDate(leg.arrivalDate)}
@@ -116,9 +117,3 @@ export default function LegCard({
   );
 }
 
-// Country names mapping for display
-const COUNTRY_FLAGS = {
-  JPN: { name: 'Japan' },
-  MYS: { name: 'Malaysia' },
-  SGP: { name: 'Singapore' },
-} as const;

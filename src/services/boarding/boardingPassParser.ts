@@ -12,6 +12,7 @@ import {
   BCBPParseError 
 } from '../../types/boarding';
 import { getCountryFromAirport, SUPPORTED_COUNTRIES } from './airportLookup';
+import { formatSupportedCountryList } from '../../constants/countries';
 
 /**
  * Parse BCBP barcode data into structured boarding pass information
@@ -281,5 +282,5 @@ export function getUnsupportedDestinationMessage(parsedPass: ParsedBoardingPass)
     return `Airport ${parsedPass.arrivalAirport} is not in our database. Please check the airport code.`;
   }
   
-  return `${parsedPass.destinationCountry} is not yet supported. Currently supported countries: Japan, Malaysia, Singapore.`;
+  return `${parsedPass.destinationCountry} is not yet supported. Currently supported countries: ${formatSupportedCountryList()}.`;
 }

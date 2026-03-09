@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'reac
 import React from 'react';
 import { X, Search, SearchX, TrendingUp, CircleHelp, BookOpen, Wrench, Info } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { formatSupportedCountryList } from '@/constants/countries';
 import { Button, Card, StatusBadge } from '@/components/ui';
 
 interface SearchResult {
@@ -46,7 +47,7 @@ export default function SearchableHelp({
     {
       id: 'faq-countries',
       title: 'Which countries are supported?',
-      content: 'Borderly currently supports Japan, Malaysia, and Singapore. These countries cover common Asia travel corridors. More countries will be added in future updates.',
+      content: `Borderly currently supports ${formatSupportedCountryList()}. These countries cover popular travel corridors across Asia, North America, and Europe.`,
       category: 'countries',
       type: 'faq',
       relevanceScore: 0,

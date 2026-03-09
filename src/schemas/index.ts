@@ -1,10 +1,11 @@
 import { CountryFormSchema } from '../types/schema';
+import { SUPPORTED_COUNTRY_CODES } from '../constants/countries';
 
 // Schema cache for lazy-loaded schemas
 const schemaCache = new Map<string, CountryFormSchema>();
 
-// Define supported countries without loading schemas
-export const SUPPORTED_COUNTRIES = ['JPN', 'MYS', 'SGP', 'THA', 'VNM', 'GBR', 'USA', 'CAN'] as const;
+// Re-export from the single source of truth
+export const SUPPORTED_COUNTRIES = SUPPORTED_COUNTRY_CODES;
 
 // Lazy schema loaders
 const schemaLoaders = {
