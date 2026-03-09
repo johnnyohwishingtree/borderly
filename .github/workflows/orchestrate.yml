@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   advance-pipeline:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

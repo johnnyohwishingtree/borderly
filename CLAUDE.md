@@ -233,6 +233,7 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 
 Available skills (invoke with `/<skill-name>`):
 - `/review-pr` — Perform a comprehensive code review of a PR
+- `/visual-audit` — Audit UI/UX using vision and screenshots
 - `/epic-planner` — Break a goal into Epic + Story GitHub Issues
 - `/plan-feature` — Plan and implement a new feature
 - `/test-suite` — Find and fix test coverage gaps
@@ -298,6 +299,7 @@ When you receive a comment like "@claude Tests are failing on this PR" (or "@gem
   - Import conflicts — don't re-import names that are already in scope
   - Using type arguments on untyped functions (TS2347) — add proper type annotations
 - **Never commit code that fails `pnpm typecheck`.** This is a hard rule.
+- **After adding a new dependency**, run `pnpm install` and verify the webpack build: `npx webpack --config webpack.config.js`. TypeScript won't catch missing `node_modules` — only webpack/Metro will.
 
 ### Git Commit Rules
 
@@ -305,6 +307,7 @@ When you receive a comment like "@claude Tests are failing on this PR" (or "@gem
 - **Check `git status` before committing** to verify only intended files are staged
 - **Never commit generated files** (`node_modules/`, `ios/Pods/`, `android/build/`, etc.)
 - **Run `pnpm typecheck` before every commit.** If it fails, fix the errors first.
+- **Before the final push**, run `pnpm e2e` to verify the webpack build + E2E tests pass. This catches missing modules that `tsc` misses.
 
 ### Push Early, Push Often
 

@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   watch:
+    if: vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
