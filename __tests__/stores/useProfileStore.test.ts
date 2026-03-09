@@ -140,6 +140,8 @@ describe('useProfileStore', () => {
       updatedAt: expect.any(String),
     });
     expect(mockKeychainService.storeProfileById).toHaveBeenCalledWith(mockProfile.id, mockProfile);
+    expect(savedState.currentProfileId).toBe(mockProfile.id);
+    expect(savedState.currentProfile?.id).toBe(mockProfile.id);
   });
 
   it('should handle onboarding complete', () => {
@@ -155,8 +157,15 @@ describe('useProfileStore', () => {
   it('should update profile', async () => {
     const store = useProfileStore.getState();
 
+    // Mock the keychain service to return profiles
+    mockKeychainService.getProfileById.mockResolvedValue(mockProfile);
+
     // First save the profile
     await store.saveProfile(mockProfile);
+
+    // Mock updated profile for the updateProfile call
+    const updatedProfile = { ...mockProfile, email: 'newemail@example.com', updatedAt: new Date().toISOString() };
+    mockKeychainService.getProfileById.mockResolvedValue(updatedProfile);
 
     // Update the profile
     const updates = { email: 'newemail@example.com' };
@@ -187,21 +196,33 @@ describe('useProfileStore', () => {
     };
 
     beforeEach(async () => {
-      const store = useProfileStore.getState();
-      // Clear all family profiles
-      const stats = store.getFamilyStats();
-      if (stats) {
-        // Delete all profiles except primary
-        for (const [profileId, metadata] of store.familyProfiles.profiles) {
-          if (!metadata.isPrimary) {
-            await store.deleteProfile(profileId);
-          }
-        }
-        // Delete primary profile last
-        if (stats.primaryProfile) {
-          await store.deleteProfile(stats.primaryProfile.id);
-        }
-      }
+      // Reset all mocks
+      jest.clearAllMocks();
+      
+      // Setup fresh mock returns
+      mockMmkvService.getString.mockReturnValue(undefined);
+      mockMmkvService.getPreferences.mockReturnValue({ onboardingComplete: false } as any);
+      mockKeychainService.migrateLegacyProfile.mockResolvedValue(null);
+      mockKeychainService.storeProfileById.mockResolvedValue();
+      mockKeychainService.getProfileById.mockResolvedValue(null);
+      mockKeychainService.generateProfileEncryptionKey.mockResolvedValue('mock-encryption-key');
+      
+      // Reset store state completely
+      useProfileStore.setState({
+        familyProfiles: {
+          profiles: new Map(),
+          primaryProfileId: '',
+          maxProfiles: 8,
+          version: 1,
+          lastModified: new Date().toISOString(),
+        },
+        currentProfile: null,
+        currentProfileId: null,
+        profile: null,
+        isOnboardingComplete: false,
+        isLoading: false,
+        error: null,
+      });
     });
 
     it('should load empty family profiles initially', async () => {
@@ -215,6 +236,13 @@ describe('useProfileStore', () => {
 
     it('should add primary profile', async () => {
       const store = useProfileStore.getState();
+
+      // Mock keychain service to return profiles by ID
+      mockKeychainService.getProfileById.mockImplementation(async (id: string) => {
+        if (id === mockProfile.id) return mockProfile;
+        return null;
+      });
+
       await store.addProfile(mockProfile, {
         relationship: 'self',
         isPrimary: true,
@@ -234,6 +262,13 @@ describe('useProfileStore', () => {
 
     it('should add spouse profile', async () => {
       const store = useProfileStore.getState();
+
+      // Mock keychain service to return profiles by ID
+      mockKeychainService.getProfileById.mockImplementation(async (id: string) => {
+        if (id === mockProfile.id) return mockProfile;
+        if (id === mockSpouseProfile.id) return mockSpouseProfile;
+        return null;
+      });
 
       // Add primary profile first
       await store.addProfile(mockProfile, {
@@ -265,6 +300,13 @@ describe('useProfileStore', () => {
     it('should switch between profiles', async () => {
       const store = useProfileStore.getState();
 
+      // Set up mock to return the correct profile based on ID
+      mockKeychainService.getProfileById.mockImplementation(async (id: string) => {
+        if (id === mockProfile.id) return mockProfile;
+        if (id === mockSpouseProfile.id) return mockSpouseProfile;
+        return null;
+      });
+
       // Add primary profile
       await store.addProfile(mockProfile, {
         relationship: 'self',
@@ -295,6 +337,18 @@ describe('useProfileStore', () => {
     it('should update profile by ID', async () => {
       const store = useProfileStore.getState();
 
+      // Store the updated profile for later use
+      const updatedProfileData = { ...mockProfile, email: 'updated@example.com' };
+      let profileUpdated = false;
+
+      // Set up mock to simulate update behavior
+      mockKeychainService.getProfileById.mockImplementation(async (id: string) => {
+        if (id === mockProfile.id) {
+          return profileUpdated ? updatedProfileData : mockProfile;
+        }
+        return null;
+      });
+
       // Add primary profile
       await store.addProfile(mockProfile, {
         relationship: 'self',
@@ -304,9 +358,10 @@ describe('useProfileStore', () => {
         nickname: 'Me',
       });
 
-      // Update profile
+      // Update profile - this will trigger profileUpdated flag
       const updates = { email: 'updated@example.com' };
       await store.updateProfileById(mockProfile.id, updates);
+      profileUpdated = true; // Simulate that the profile has been updated in keychain
 
       // Get updated profile
       const updatedProfile = await store.getProfile(mockProfile.id);
@@ -500,6 +555,9 @@ describe('useProfileStore', () => {
     it('should maintain backward compatibility with legacy methods', async () => {
       const store = useProfileStore.getState();
 
+      // Mock keychain service for saveProfile (which calls switchToProfile)
+      mockKeychainService.getProfileById.mockResolvedValue(mockProfile);
+
       // Use legacy saveProfile (should create first profile as primary)
       await store.saveProfile(mockProfile);
 
@@ -508,12 +566,18 @@ describe('useProfileStore', () => {
       expect(familyProfiles.profiles.size).toBe(1);
       expect(profile?.id).toBe(mockProfile.id);
 
+      // Set up mock for updateProfile - first returns original, then updated
+      const updatedProfile = { ...mockProfile, email: 'legacy-updated@example.com' };
+      mockKeychainService.getProfileById
+        .mockResolvedValueOnce(mockProfile) // For updateProfile (get current)
+        .mockResolvedValue(updatedProfile); // For all subsequent calls
+
       // Use legacy updateProfile
       const updates = { email: 'legacy-updated@example.com' };
       await store.updateProfile(updates);
 
-      const updatedProfile = useProfileStore.getState().profile;
-      expect(updatedProfile?.email).toBe('legacy-updated@example.com');
+      const finalProfile = useProfileStore.getState().profile;
+      expect(finalProfile?.email).toBe('legacy-updated@example.com');
 
       // Use legacy clearProfile
       await store.clearProfile();
