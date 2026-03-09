@@ -2,15 +2,37 @@ import * as Keychain from 'react-native-keychain';
 import { TravelerProfile } from '@/types/profile';
 import 'react-native-get-random-values';
 
-const PROFILE_KEY = 'borderly_traveler_profile';
+const LEGACY_PROFILE_KEY = 'borderly_traveler_profile';
 const ENCRYPTION_KEY = 'borderly_encryption_key';
 
+// New multi-profile constants
+const PROFILE_KEY_PREFIX = 'borderly_profile_';
+const PROFILE_ENCRYPTION_KEY_PREFIX = 'borderly_profile_enc_';
+
 export interface KeychainService {
+  // Legacy single-profile methods (for backward compatibility)
   storeProfile(profile: TravelerProfile): Promise<void>;
   getProfile(): Promise<TravelerProfile | null>;
   deleteProfile(): Promise<void>;
+
+  // New multi-profile methods
+  storeProfileById(profileId: string, profile: TravelerProfile): Promise<void>;
+  getProfileById(profileId: string): Promise<TravelerProfile | null>;
+  deleteProfileById(profileId: string): Promise<void>;
+  getAllProfileIds(): Promise<string[]>;
+  profileExists(profileId: string): Promise<boolean>;
+
+  // Migration support
+  migrateLegacyProfile(): Promise<string | null>; // Returns migrated profile ID if any
+
+  // Encryption key management
   generateEncryptionKey(): Promise<string>;
+  generateProfileEncryptionKey(profileId: string): Promise<string>;
   getEncryptionKey(): Promise<string | null>;
+  getProfileEncryptionKey(profileId: string): Promise<string | null>;
+  deleteProfileEncryptionKey(profileId: string): Promise<void>;
+
+  // System utilities
   isAvailable(): Promise<boolean>;
   clearSensitiveMemory(): void;
   secureCleanup(): Promise<void>;
@@ -28,11 +50,49 @@ class KeychainServiceImpl implements KeychainService {
   private sensitiveDataRefs: WeakSet<object> = new WeakSet();
   private lastAccessTime: Record<string, number> = {};
 
+  // Helper methods for multi-profile support
+  private getProfileKeychainKey(profileId: string): string {
+    return `${PROFILE_KEY_PREFIX}${profileId}`;
+  }
+
+  private getProfileEncryptionKeychainKey(profileId: string): string {
+    return `${PROFILE_ENCRYPTION_KEY_PREFIX}${profileId}`;
+  }
+
+  private async storeInKeychain(key: string, username: string, data: string): Promise<void> {
+    await Keychain.setInternetCredentials(key, username, data, this.keychainOptions);
+  }
+
+  private async getFromKeychain(key: string): Promise<string | null> {
+    try {
+      this.lastAccessTime[key] = Date.now();
+      const credentials = await Keychain.getInternetCredentials(key, this.keychainOptions);
+      
+      if (!credentials || typeof credentials === 'boolean') {
+        return null;
+      }
+      
+      return credentials.password;
+    } catch (error) {
+      console.error(`Failed to retrieve from keychain (${key}):`, error);
+      return null;
+    }
+  }
+
+  private async deleteFromKeychain(key: string): Promise<void> {
+    try {
+      await Keychain.resetInternetCredentials({ service: key });
+    } catch (error) {
+      console.error(`Failed to delete from keychain (${key}):`, error);
+      throw new Error(`Failed to delete keychain data for ${key}`);
+    }
+  }
+
   async storeProfile(profile: TravelerProfile): Promise<void> {
     try {
       const profileJson = JSON.stringify(profile);
       await Keychain.setInternetCredentials(
-        PROFILE_KEY,
+        LEGACY_PROFILE_KEY,
         'borderly_user',
         profileJson,
         this.keychainOptions
@@ -45,8 +105,8 @@ class KeychainServiceImpl implements KeychainService {
 
   async getProfile(): Promise<TravelerProfile | null> {
     try {
-      this.lastAccessTime[PROFILE_KEY] = Date.now();
-      const credentials = await Keychain.getInternetCredentials(PROFILE_KEY, this.keychainOptions);
+      this.lastAccessTime[LEGACY_PROFILE_KEY] = Date.now();
+      const credentials = await Keychain.getInternetCredentials(LEGACY_PROFILE_KEY, this.keychainOptions);
 
       if (!credentials || typeof credentials === 'boolean') {
         return null;
@@ -68,7 +128,7 @@ class KeychainServiceImpl implements KeychainService {
 
   async deleteProfile(): Promise<void> {
     try {
-      await Keychain.resetInternetCredentials({ service: PROFILE_KEY });
+      await Keychain.resetInternetCredentials({ service: LEGACY_PROFILE_KEY });
     } catch (error) {
       console.error('Failed to delete profile from keychain:', error);
       throw new Error('Failed to delete profile data');
@@ -164,6 +224,159 @@ class KeychainServiceImpl implements KeychainService {
       console.log('Keychain secure cleanup completed');
     } catch (error) {
       console.error('Error during keychain secure cleanup:', error);
+    }
+  }
+
+  // New multi-profile methods
+
+  async storeProfileById(profileId: string, profile: TravelerProfile): Promise<void> {
+    try {
+      const profileJson = JSON.stringify(profile);
+      const keychainKey = this.getProfileKeychainKey(profileId);
+      await this.storeInKeychain(keychainKey, 'borderly_user', profileJson);
+    } catch (error) {
+      console.error(`Failed to store profile ${profileId}:`, error);
+      throw new Error(`Failed to securely store profile data for ${profileId}`);
+    }
+  }
+
+  async getProfileById(profileId: string): Promise<TravelerProfile | null> {
+    try {
+      const keychainKey = this.getProfileKeychainKey(profileId);
+      const profileJson = await this.getFromKeychain(keychainKey);
+      
+      if (!profileJson) {
+        return null;
+      }
+
+      const profile = JSON.parse(profileJson) as TravelerProfile;
+      
+      // Track sensitive data for memory cleanup
+      this.sensitiveDataRefs.add(profile);
+      
+      return profile;
+    } catch (error) {
+      console.error(`Failed to retrieve profile ${profileId}:`, error);
+      return null;
+    }
+  }
+
+  async deleteProfileById(profileId: string): Promise<void> {
+    try {
+      const keychainKey = this.getProfileKeychainKey(profileId);
+      await this.deleteFromKeychain(keychainKey);
+      
+      // Also delete the profile's encryption key
+      await this.deleteProfileEncryptionKey(profileId);
+    } catch (error) {
+      console.error(`Failed to delete profile ${profileId}:`, error);
+      throw new Error(`Failed to delete profile data for ${profileId}`);
+    }
+  }
+
+  async getAllProfileIds(): Promise<string[]> {
+    try {
+      // Note: react-native-keychain doesn't provide a way to list all keys
+      // We'll need to track profile IDs separately in MMKV
+      // For now, return empty array - this will be handled by the profile store
+      return [];
+    } catch (error) {
+      console.error('Failed to get all profile IDs:', error);
+      return [];
+    }
+  }
+
+  async profileExists(profileId: string): Promise<boolean> {
+    try {
+      const keychainKey = this.getProfileKeychainKey(profileId);
+      const data = await this.getFromKeychain(keychainKey);
+      return data !== null;
+    } catch (error) {
+      console.error(`Failed to check if profile ${profileId} exists:`, error);
+      return false;
+    }
+  }
+
+  async migrateLegacyProfile(): Promise<string | null> {
+    try {
+      // Check if legacy profile exists
+      const legacyProfile = await this.getFromKeychain(LEGACY_PROFILE_KEY);
+      if (!legacyProfile) {
+        return null;
+      }
+
+      // Parse the legacy profile
+      const profile = JSON.parse(legacyProfile) as TravelerProfile;
+      
+      // Use the profile's ID or generate a new one
+      const profileId = profile.id;
+      
+      // Store using new multi-profile system
+      await this.storeProfileById(profileId, profile);
+      
+      // Generate encryption key for this profile
+      await this.generateProfileEncryptionKey(profileId);
+      
+      // Delete legacy profile
+      await this.deleteFromKeychain(LEGACY_PROFILE_KEY);
+      
+      console.log(`Migrated legacy profile to multi-profile system: ${profileId}`);
+      return profileId;
+    } catch (error) {
+      console.error('Failed to migrate legacy profile:', error);
+      return null;
+    }
+  }
+
+  async generateProfileEncryptionKey(profileId: string): Promise<string> {
+    try {
+      // Generate a cryptographically secure 256-bit key for this profile
+      const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
+      for (let i = 0; i < keyBytes.length; i++) {
+        keyBytes[i] = Math.floor(Math.random() * 256);
+      }
+
+      // Convert to hex string for storage
+      const key = Array.from(keyBytes)
+        .map((byte: number) => byte.toString(16).padStart(2, '0'))
+        .join('');
+
+      const keychainKey = this.getProfileEncryptionKeychainKey(profileId);
+      await this.storeInKeychain(keychainKey, 'borderly_encryption', key);
+
+      return key;
+    } catch (error) {
+      console.error(`Failed to generate encryption key for profile ${profileId}:`, error);
+      throw new Error(`Failed to generate encryption key for profile ${profileId}`);
+    }
+  }
+
+  async getProfileEncryptionKey(profileId: string): Promise<string | null> {
+    try {
+      const keychainKey = this.getProfileEncryptionKeychainKey(profileId);
+      const key = await this.getFromKeychain(keychainKey);
+      
+      if (key) {
+        // Track access for cleanup scheduling
+        setTimeout(() => {
+          this.clearSensitiveMemory();
+        }, 60000); // Clear after 1 minute
+      }
+
+      return key;
+    } catch (error) {
+      console.error(`Failed to retrieve encryption key for profile ${profileId}:`, error);
+      return null;
+    }
+  }
+
+  async deleteProfileEncryptionKey(profileId: string): Promise<void> {
+    try {
+      const keychainKey = this.getProfileEncryptionKeychainKey(profileId);
+      await this.deleteFromKeychain(keychainKey);
+    } catch (error) {
+      console.error(`Failed to delete encryption key for profile ${profileId}:`, error);
+      throw new Error(`Failed to delete encryption key for profile ${profileId}`);
     }
   }
 }

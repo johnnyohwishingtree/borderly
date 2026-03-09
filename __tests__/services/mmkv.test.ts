@@ -41,6 +41,8 @@ describe('MMKVService', () => {
         lastSchemaUpdateCheck: '',
         analyticsEnabled: false,
         crashReportingEnabled: false,
+        family_profiles: '',
+        current_profile_id: '',
       });
     });
 
@@ -61,6 +63,8 @@ describe('MMKVService', () => {
         lastSchemaUpdateCheck: '',
         analyticsEnabled: false,
         crashReportingEnabled: false,
+        family_profiles: '',
+        current_profile_id: '',
       });
     });
 
@@ -78,6 +82,8 @@ describe('MMKVService', () => {
         lastSchemaUpdateCheck: '',
         analyticsEnabled: false,
         crashReportingEnabled: false,
+        family_profiles: '',
+        current_profile_id: '',
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -102,6 +108,8 @@ describe('MMKVService', () => {
           lastSchemaUpdateCheck: '',
           analyticsEnabled: false,
           crashReportingEnabled: false,
+          family_profiles: '',
+          current_profile_id: '',
         })
       );
     });
