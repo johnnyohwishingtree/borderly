@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Lock, TriangleAlert, Lightbulb } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -263,7 +263,10 @@ export default function EditProfileScreen() {
           </View>
           
           <View className="bg-blue-50 p-3 rounded-lg mb-4">
-            <Text className="text-xs font-medium text-blue-800">💡 Tip</Text>
+            <View className="flex-row items-center">
+              <Lightbulb size={14} color="#1e40af" />
+              <Text className="text-xs font-medium text-blue-800 ml-1">Tip</Text>
+            </View>
             <Text className="text-xs text-blue-700 mt-1">
               Adding your home address helps automatically fill similar fields in country forms
             </Text>
@@ -334,7 +337,7 @@ export default function EditProfileScreen() {
         {/* Passport Information Notice */}
         <Card>
           <View className="flex-row items-center mb-3">
-            <MaterialIcons name="lock" size={18} color="#374151" />
+            <Lock size={18} color="#374151" />
             <Text className="text-lg font-semibold text-gray-900 ml-2">
               Passport Information
             </Text>
@@ -352,7 +355,7 @@ export default function EditProfileScreen() {
           
           <View className="bg-amber-50 p-3 rounded-lg">
             <View className="flex-row items-center">
-              <MaterialIcons name="warning" size={12} color="#d97706" style={{ marginRight: 4 }} />
+              <TriangleAlert size={12} color="#d97706" style={{ marginRight: 4 }} />
               <Text className="text-xs font-medium text-amber-800">Need to update passport info?</Text>
             </View>
             <Text className="text-xs text-amber-700 mt-1">
@@ -366,7 +369,7 @@ export default function EditProfileScreen() {
           {hasUnsavedChanges && (
             <View className="bg-yellow-50 p-3 rounded-lg mb-4">
               <View className="flex-row items-center">
-                <MaterialIcons name="warning" size={12} color="#d97706" style={{ marginRight: 4 }} />
+                <TriangleAlert size={12} color="#d97706" style={{ marginRight: 4 }} />
                 <Text className="text-xs font-medium text-yellow-800">Unsaved Changes</Text>
               </View>
               <Text className="text-xs text-yellow-700 mt-1">

@@ -73,4 +73,30 @@ test.describe('App Smoke Test', () => {
     );
     expect(criticalErrors).toEqual([]);
   });
+
+  test('icons render as visible SVGs', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Welcome to')).toBeVisible();
+
+    // The welcome screen should have SVG icons (not empty spans or missing glyphs)
+    const svgIcons = page.locator('svg[data-icon-name]');
+    const count = await svgIcons.count();
+    expect(count).toBeGreaterThanOrEqual(3); // At least Lock, Smartphone, Zap
+
+    // Each SVG should have actual child elements (paths/circles), not be empty
+    for (let i = 0; i < Math.min(count, 5); i++) {
+      const svg = svgIcons.nth(i);
+      const childCount = await svg.evaluate(
+        (el) => el.querySelectorAll('path, circle, rect, polyline, line').length
+      );
+      expect(childCount).toBeGreaterThan(0);
+    }
+
+    // Verify icons have non-zero rendered dimensions
+    const firstIcon = svgIcons.first();
+    const box = await firstIcon.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThan(0);
+    expect(box!.height).toBeGreaterThan(0);
+  });
 });

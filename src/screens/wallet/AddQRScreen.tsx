@@ -9,6 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Smartphone } from 'lucide-react-native';
 import { Card, Button, LoadingSpinner, Select } from '../../components/ui';
 import { QRCaptureService } from '../../services/camera/qrCapture';
 import { databaseService } from '../../services/storage';
@@ -369,7 +370,7 @@ export default function AddQRScreen() {
             <Card>
               <View className="p-6 items-center">
                 <View className="w-24 h-24 bg-blue-100 rounded-full items-center justify-center mb-4">
-                  <Text className="text-3xl">📱</Text>
+                  <Smartphone size={32} color="#3b82f6" />
                 </View>
                 
                 <Text className="text-lg font-semibold text-gray-900 mb-2">

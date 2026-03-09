@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { CheckIcon } from 'react-native-heroicons/solid';
-import { ClockIcon } from 'react-native-heroicons/outline';
+import { Check, Clock } from 'lucide-react-native';
 
 export interface GuideProgressProps {
   totalSteps: number;
@@ -91,9 +90,9 @@ export default function GuideProgress({
           <View className="items-center">
             <View className={getStepCircleStyles(status)}>
               {status === 'completed' ? (
-                <CheckIcon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                <Check size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
               ) : status === 'current' ? (
-                <ClockIcon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                <Clock size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
               ) : (
                 <Text className={`font-semibold ${getSizeStyles().text} ${getStepTextColor(status)}`}>
                   {stepNumber}

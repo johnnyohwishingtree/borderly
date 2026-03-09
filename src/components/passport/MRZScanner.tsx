@@ -19,6 +19,7 @@ import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { createOptimizedMRZScanner, type ScanResult, type TextRecognition } from '../../services/passport/mrzScanner';
 import { parseMRZ, type MRZParseResult } from '../../services/passport/mrzParser';
+import { Lightbulb, Flashlight, Check } from 'lucide-react-native';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 
@@ -434,9 +435,11 @@ export default function MRZScannerComponent({
               }`}
               accessibilityLabel={`Turn flash ${flashMode === 'on' ? 'off' : 'on'}`}
             >
-              <Text className="text-white font-bold text-lg">
-                {flashMode === 'on' ? '💡' : '🔦'}
-              </Text>
+              {flashMode === 'on' ? (
+                <Lightbulb size={20} color="#ffffff" />
+              ) : (
+                <Flashlight size={20} color="#ffffff" />
+              )}
             </TouchableOpacity>
           )}
 
@@ -461,7 +464,7 @@ export default function MRZScannerComponent({
         {scanResult?.type === 'success' && (
           <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
             <View className="bg-green-500 rounded-full p-4 mb-4">
-              <Text className="text-white text-2xl">✓</Text>
+              <Check size={32} color="#ffffff" />
             </View>
             <Text className="text-white text-xl font-bold">Scan Complete!</Text>
           </View>
@@ -505,7 +508,7 @@ export default function MRZScannerComponent({
       {scanResult?.type === 'success' && (
         <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
           <View className="bg-green-500 rounded-full p-4 mb-4">
-            <Text className="text-white text-2xl">✓</Text>
+            <Check size={32} color="#ffffff" />
           </View>
           <Text className="text-white text-xl font-bold">Scan Complete!</Text>
         </View>

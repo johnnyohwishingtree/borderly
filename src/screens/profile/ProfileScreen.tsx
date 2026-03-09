@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { TriangleAlert, Lock, User } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -115,7 +115,7 @@ export default function ProfileScreen() {
     return (
       <View className="flex-1 bg-gray-50">
         <EmptyState
-          icon={<MaterialIcons name="warning" size={32} color="#dc2626" />}
+          icon={<TriangleAlert size={32} color="#dc2626" />}
           title="Unable to load profile"
           description={error}
           buttonProps={{
@@ -133,7 +133,7 @@ export default function ProfileScreen() {
     return (
       <View className="flex-1 bg-gray-50">
         <EmptyState
-          icon={<Text className="text-4xl">👤</Text>}
+          icon={<User size={40} color="#6b7280" />}
           title="No Profile Found"
           description="You need to complete onboarding to create your travel profile."
           variant="illustration"
@@ -215,7 +215,7 @@ export default function ProfileScreen() {
             </View>
             {isPassportExpiringSoon(profile.passportExpiry) && (
               <View className="flex-row items-center">
-                <MaterialIcons name="warning" size={12} color="#ea580c" style={{ marginRight: 4 }} />
+                <TriangleAlert size={12} color="#ea580c" style={{ marginRight: 4 }} />
                 <Text className="text-xs text-orange-600">Expiring Soon</Text>
               </View>
             )}
@@ -267,7 +267,7 @@ export default function ProfileScreen() {
                     </Text>
                     {isPassportExpiringSoon(profile.passportExpiry) && (
                       <View className="flex-row items-center">
-                        <MaterialIcons name="warning" size={12} color="#ea580c" style={{ marginRight: 4 }} />
+                        <TriangleAlert size={12} color="#ea580c" style={{ marginRight: 4 }} />
                         <Text className="text-xs text-orange-600">Expiring Soon</Text>
                       </View>
                     )}
@@ -379,7 +379,7 @@ export default function ProfileScreen() {
           
           {/* Security Notice */}
           <View className="flex-row items-start">
-            <MaterialIcons name="lock" size={18} color="#374151" style={{ marginRight: 8 }} />
+            <Lock size={18} color="#374151" style={{ marginRight: 8 }} />
             <View className="flex-1">
               <Text className="text-sm font-medium text-gray-900">Local-First Security</Text>
               <Text className="text-xs text-gray-600 mt-1">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Map, Upload, ClipboardList, Trash2 } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
 import { LegCard } from '../../components/trips';
 import { Button, StatusBadge } from '../../components/ui';
@@ -181,7 +182,7 @@ export default function TripDetailScreen() {
 
           {trip.legs.length === 0 ? (
             <View className="bg-white rounded-lg p-6 items-center">
-              <Text className="text-4xl mb-3">🗺️</Text>
+              <Map size={40} color="#6b7280" style={{ marginBottom: 12 }} />
               <Text className="text-lg font-semibold text-gray-900 mb-2">
                 No destinations yet
               </Text>
@@ -224,7 +225,7 @@ export default function TripDetailScreen() {
               className="flex-row items-center py-3 border-b border-gray-100"
               activeOpacity={0.7}
             >
-              <Text className="text-4xl mr-3">📤</Text>
+              <Upload size={28} color="#374151" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-base font-medium text-gray-900">Export Trip</Text>
                 <Text className="text-sm text-gray-600">Save your trip data</Text>
@@ -236,7 +237,7 @@ export default function TripDetailScreen() {
               className="flex-row items-center py-3 border-b border-gray-100"
               activeOpacity={0.7}
             >
-              <Text className="text-4xl mr-3">📋</Text>
+              <ClipboardList size={28} color="#374151" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-base font-medium text-gray-900">Share Itinerary</Text>
                 <Text className="text-sm text-gray-600">Copy trip details</Text>
@@ -248,7 +249,7 @@ export default function TripDetailScreen() {
               className="flex-row items-center py-3"
               activeOpacity={0.7}
             >
-              <Text className="text-4xl mr-3">🗑️</Text>
+              <Trash2 size={28} color="#dc2626" style={{ marginRight: 12 }} />
               <View>
                 <Text className="text-base font-medium text-red-600">Delete Trip</Text>
                 <Text className="text-sm text-gray-600">Remove this trip permanently</Text>

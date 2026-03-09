@@ -9,7 +9,7 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { ArrowLeftIcon, GlobeAltIcon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from 'react-native-heroicons/outline';
+import { ArrowLeft, Globe, CircleCheck, TriangleAlert, Clock } from 'lucide-react-native';
 import { 
   GuideProgress, 
   StepCard,
@@ -152,7 +152,7 @@ export default function SubmissionGuideScreen() {
             className="flex-row items-center"
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
-            <ArrowLeftIcon size={24} color="#374151" />
+            <ArrowLeft size={24} color="#374151" />
             <Text className="text-lg font-semibold text-gray-900 ml-2">
               Back
             </Text>
@@ -185,7 +185,7 @@ export default function SubmissionGuideScreen() {
             <View className="p-4">
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-row items-center">
-                  <GlobeAltIcon size={24} color="#3B82F6" />
+                  <Globe size={24} color="#3B82F6" />
                   <Text className="text-lg font-semibold text-gray-900 ml-3">
                     {schema.portalName}
                   </Text>
@@ -201,7 +201,7 @@ export default function SubmissionGuideScreen() {
               {/* Timing Information */}
               <View className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <View className="flex-row items-center mb-2">
-                  <ClockIcon size={18} color="#3B82F6" />
+                  <Clock size={18} color="#3B82F6" />
                   <Text className="text-sm font-medium text-blue-900 ml-2">
                     Submission Timing
                   </Text>
@@ -253,7 +253,7 @@ export default function SubmissionGuideScreen() {
             <Card className="mb-4 bg-yellow-50 border-yellow-200">
               <View className="p-4">
                 <View className="flex-row items-center">
-                  <ExclamationTriangleIcon size={20} color="#F59E0B" />
+                  <TriangleAlert size={20} color="#F59E0B" />
                   <Text className="text-sm font-medium text-yellow-800 ml-2">
                     Complete your form first
                   </Text>
@@ -291,7 +291,7 @@ export default function SubmissionGuideScreen() {
             <Card className="mt-6 bg-green-50 border-green-200">
               <View className="p-4">
                 <View className="flex-row items-center mb-3">
-                  <CheckCircleIcon size={24} color="#10B981" />
+                  <CircleCheck size={24} color="#10B981" />
                   <Text className="text-lg font-semibold text-green-900 ml-3">
                     Submission Complete!
                   </Text>

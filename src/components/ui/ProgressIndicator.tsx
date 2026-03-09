@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Check } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 
 interface ProgressIndicatorProps {
   currentStep: number;
@@ -68,23 +69,23 @@ export default function ProgressIndicator({
           bg: 'bg-green-500',
           border: 'border-green-500',
           text: 'text-white',
-          icon: 'check',
-        } as const;
+          icon: Check as LucideIcon | null,
+        };
       case 'current':
         return {
           bg: 'bg-blue-500',
           border: 'border-blue-500',
           text: 'text-white',
-          icon: null,
-        } as const;
+          icon: null as LucideIcon | null,
+        };
       case 'upcoming':
       default:
         return {
           bg: 'bg-gray-200',
           border: 'border-gray-300',
           text: 'text-gray-600',
-          icon: null,
-        } as const;
+          icon: null as LucideIcon | null,
+        };
     }
   };
 
@@ -135,7 +136,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  <MaterialIcons name={styles.icon} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                  <styles.icon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}
@@ -188,7 +189,7 @@ export default function ProgressIndicator({
                 }}
               >
                 {styles.icon ? (
-                  <MaterialIcons name={styles.icon} size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
+                  <styles.icon size={size === 'small' ? 12 : size === 'medium' ? 16 : 20} color="white" />
                 ) : (
                   <Text className={`font-semibold ${styles.text} ${sizeStyle.text}`}>
                     {index + 1}

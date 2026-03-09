@@ -416,7 +416,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
           
           <View className="space-y-3">
             <Button
-              title="📘 View FAQ"
+              title="View FAQ"
               onPress={() => {
                 // Navigate to FAQ screen
               }}
@@ -424,7 +424,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
               fullWidth
             />
             <Button
-              title="📚 User Guide"
+              title="User Guide"
               onPress={() => {
                 // Navigate to user guide
               }}
@@ -432,7 +432,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
               fullWidth
             />
             <Button
-              title="💬 Send Feedback"
+              title="Send Feedback"
               onPress={() => {
                 // Navigate to feedback screen
               }}
@@ -440,7 +440,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
               fullWidth
             />
             <Button
-              title="🆘 Contact Support"
+              title="Contact Support"
               onPress={handleContactSupport}
               variant="primary"
               fullWidth

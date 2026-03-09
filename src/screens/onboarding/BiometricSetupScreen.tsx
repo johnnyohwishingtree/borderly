@@ -3,6 +3,8 @@ import { View, Text, ScrollView, Alert, Platform, Animated } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { Fingerprint, ShieldCheck, Zap, KeyRound, Lightbulb } from 'lucide-react-native';
+
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, ProgressBar } from '../../components/ui';
 import { useProfileStore } from '../../stores/useProfileStore';
@@ -122,9 +124,7 @@ export default function BiometricSetupScreen() {
             }}
             className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full items-center justify-center mb-6 shadow-lg"
           >
-            <Text className="text-4xl">
-              {Platform.OS === 'ios' ? '🔐' : '🔍'}
-            </Text>
+            <Fingerprint size={48} color="#ffffff" />
           </Animated.View>
           <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">
             Secure Your Profile
@@ -137,9 +137,7 @@ export default function BiometricSetupScreen() {
         <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
           <View className="bg-gradient-to-r from-purple-500 to-purple-600 -m-6 mb-6 p-6 rounded-t-xl">
             <View className="flex-row items-center mb-2">
-              <Text className="text-2xl mr-3">
-                {Platform.OS === 'ios' ? '🔐' : '🔍'}
-              </Text>
+              <Fingerprint size={28} color="#ffffff" style={{ marginRight: 12 }} />
               <Text className="text-xl font-bold text-white">
                 {biometricType}
               </Text>
@@ -152,7 +150,7 @@ export default function BiometricSetupScreen() {
           <View className="space-y-4">
             <View className="flex-row items-center">
               <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4">
-                <Text className="text-xl">⚡</Text>
+                <Zap size={24} color="#16a34a" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Quick Access</Text>
@@ -161,7 +159,7 @@ export default function BiometricSetupScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-12 h-12 bg-purple-100 rounded-lg items-center justify-center mr-4">
-                <Text className="text-xl">🛡️</Text>
+                <ShieldCheck size={24} color="#8b5cf6" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Additional Security</Text>
@@ -170,7 +168,7 @@ export default function BiometricSetupScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
-                <Text className="text-xl">🧠</Text>
+                <KeyRound size={24} color="#3b82f6" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">No Passwords</Text>
@@ -182,7 +180,7 @@ export default function BiometricSetupScreen() {
 
         <Card variant="outlined" className="mb-8 border-2 border-yellow-200 bg-yellow-50/50">
           <View className="flex-row items-start">
-            <Text className="text-2xl mr-3">💡</Text>
+            <Lightbulb size={28} color="#eab308" style={{ marginRight: 12 }} />
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-900 mb-2">
                 Optional Setup
@@ -197,7 +195,7 @@ export default function BiometricSetupScreen() {
 
         <View className="space-y-4">
           <Button
-            title={isEnabling ? `Setting up ${biometricType}...` : `🔐 Enable ${biometricType}`}
+            title={isEnabling ? `Setting up ${biometricType}...` : `Enable ${biometricType}`}
             onPress={handleEnableBiometric}
             loading={isEnabling}
             size="large"
@@ -206,7 +204,7 @@ export default function BiometricSetupScreen() {
 
           <View className="border-2 border-gray-300 rounded-xl">
             <Button
-              title="⏩ Skip for Now"
+              title="Skip for Now"
               onPress={handleSkip}
               variant="outline"
               size="large"
@@ -216,7 +214,7 @@ export default function BiometricSetupScreen() {
 
           <View className="border-gray-200">
             <Button
-              title="🔙 Back"
+              title="Back"
               onPress={handleBack}
               variant="outline"
               size="medium"

@@ -297,7 +297,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
           
           <View className="space-y-3">
             <Button
-              title="📘 View User Guide"
+              title="View User Guide"
               onPress={() => {
                 // This would navigate to user guide or open documentation
               }}
@@ -305,7 +305,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               fullWidth
             />
             <Button
-              title="🔧 Troubleshooting"
+              title="Troubleshooting"
               onPress={() => {
                 // This would navigate to troubleshooting screen
               }}
@@ -313,7 +313,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               fullWidth
             />
             <Button
-              title="💬 Send Feedback"
+              title="Send Feedback"
               onPress={() => {
                 // This would navigate to feedback screen
               }}
@@ -321,7 +321,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               fullWidth
             />
             <Button
-              title="🐛 Report Bug"
+              title="Report Bug"
               onPress={() => {
                 // This would navigate to bug report screen
               }}

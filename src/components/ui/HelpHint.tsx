@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
+import { Info, Lightbulb, TriangleAlert, CircleCheck, X } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 
 interface HelpHintProps {
   title?: string;
@@ -23,28 +25,28 @@ export default function HelpHint({
   const variantStyles = {
     info: {
       container: 'bg-blue-50 border-blue-200',
-      icon: 'info',
+      icon: Info as LucideIcon,
       iconColor: '#2563eb',
       titleColor: 'text-blue-900',
       contentColor: 'text-blue-800',
     },
     tip: {
       container: 'bg-purple-50 border-purple-200',
-      icon: 'lightbulb-outline',
+      icon: Lightbulb as LucideIcon,
       iconColor: '#9333ea',
       titleColor: 'text-purple-900',
       contentColor: 'text-purple-800',
     },
     warning: {
       container: 'bg-yellow-50 border-yellow-200',
-      icon: 'warning',
+      icon: TriangleAlert as LucideIcon,
       iconColor: '#d97706',
       titleColor: 'text-yellow-900',
       contentColor: 'text-yellow-800',
     },
     success: {
       container: 'bg-green-50 border-green-200',
-      icon: 'check-circle',
+      icon: CircleCheck as LucideIcon,
       iconColor: '#16a34a',
       titleColor: 'text-green-900',
       contentColor: 'text-green-800',
@@ -82,12 +84,7 @@ export default function HelpHint({
       accessibilityLabel={title ? `${title}: ${content}` : content}
     >
       <View className="flex-row items-start">
-        <MaterialIcons
-          name={variantStyle.icon}
-          size={sizeStyle.iconSize}
-          color={variantStyle.iconColor}
-          style={{ marginRight: 12, marginTop: 2 }}
-        />
+        {React.createElement(variantStyle.icon, { size: sizeStyle.iconSize, color: variantStyle.iconColor, style: { marginRight: 12, marginTop: 2 } })}
         
         <View className="flex-1">
           {title && (
@@ -108,8 +105,7 @@ export default function HelpHint({
             accessibilityLabel="Dismiss hint"
             accessibilityHint="Close this help hint"
           >
-            <MaterialIcons
-              name="close"
+            <X
               size={18}
               color={variantStyle.iconColor}
             />

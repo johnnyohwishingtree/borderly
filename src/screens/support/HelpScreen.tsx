@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Alert, Linking } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { CircleAlert } from 'lucide-react-native';
 import { Button, Card, StatusBadge } from '@/components/ui';
 import { SearchableHelp } from '@/components/help';
 
@@ -190,7 +191,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
             Find answers quickly with our comprehensive search
           </Text>
           <Button
-            title="🔍 Search All Help Topics"
+            title="Search All Help Topics"
             onPress={() => setIsSearchVisible(true)}
             variant="primary"
             fullWidth
@@ -203,19 +204,19 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           
           <View className="space-y-3">
             <Button
-              title="❓ Frequently Asked Questions"
+              title="Frequently Asked Questions"
               onPress={handleNavigateToFAQ}
               variant="outline"
               fullWidth
             />
             <Button
-              title="🔧 Troubleshooting Guide"
+              title="Troubleshooting Guide"
               onPress={handleNavigateToTroubleshooting}
               variant="outline"
               fullWidth
             />
             <Button
-              title="📚 User Guide"
+              title="User Guide"
               onPress={handleOpenDocumentation}
               variant="outline"
               fullWidth
@@ -229,19 +230,19 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           
           <View className="space-y-3">
             <Button
-              title="💬 Send Feedback"
+              title="Send Feedback"
               onPress={() => (navigation as any).navigate('Feedback')}
               variant="outline"
               fullWidth
             />
             <Button
-              title="🐛 Report Bug"
+              title="Report Bug"
               onPress={() => (navigation as any).navigate('BugReport')}
               variant="outline"
               fullWidth
             />
             <Button
-              title="📧 Contact Support"
+              title="Contact Support"
               onPress={handleContactSupport}
               variant="primary"
               fullWidth
@@ -327,8 +328,8 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         <Card>
           <View className="bg-red-50 p-4 rounded-lg">
             <View className="flex-row items-center mb-2">
-              <Text className="text-lg mr-2">🚨</Text>
-              <Text className="text-base font-semibold text-red-900">Emergency Travel Support</Text>
+              <CircleAlert size={20} color="#7f1d1d" />
+              <Text className="text-base font-semibold text-red-900 ml-2">Emergency Travel Support</Text>
             </View>
             <Text className="text-sm text-red-800 mb-3">
               If you're having urgent issues while traveling:

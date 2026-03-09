@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import React from 'react';
+import { X, Search, SearchX, TrendingUp, CircleHelp, BookOpen, Wrench, Info } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { Button, Card, StatusBadge } from '@/components/ui';
 
 interface SearchResult {
@@ -225,12 +227,12 @@ export default function SearchableHelp({
     setResults([]);
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: string): LucideIcon => {
     switch (type) {
-      case 'faq': return 'help-outline';
-      case 'guide': return 'book';
-      case 'troubleshooting': return 'build';
-      default: return 'info';
+      case 'faq': return CircleHelp;
+      case 'guide': return BookOpen;
+      case 'troubleshooting': return Wrench;
+      default: return Info;
     }
   };
 
@@ -260,7 +262,7 @@ export default function SearchableHelp({
               accessibilityRole="button"
               accessibilityLabel="Close search"
             >
-              <MaterialIcons name="close" size={24} color="#374151" />
+              <X size={24} color="#374151" />
             </TouchableOpacity>
             <Text className="text-lg font-semibold text-gray-900 flex-1">
               Search Help
@@ -271,12 +273,7 @@ export default function SearchableHelp({
         {/* Search Input */}
         <View className="bg-white px-4 py-4 border-b border-gray-200">
           <View className="relative">
-            <MaterialIcons
-              name="search"
-              size={20}
-              color="#6b7280"
-              style={{ position: 'absolute', left: 12, top: 12, zIndex: 1 }}
-            />
+            <Search size={20} color="#6b7280" style={{ position: 'absolute', left: 12, top: 12, zIndex: 1 }} />
             <TextInput
               value={searchTerm}
               onChangeText={handleSearch}
@@ -292,7 +289,7 @@ export default function SearchableHelp({
                 accessibilityRole="button"
                 accessibilityLabel="Clear search"
               >
-                <MaterialIcons name="clear" size={18} color="#6b7280" />
+                <X size={18} color="#6b7280" />
               </TouchableOpacity>
             )}
           </View>
@@ -345,12 +342,7 @@ export default function SearchableHelp({
                     onPress={() => handleSearch(topic)}
                     className="flex-row items-center py-2"
                   >
-                    <MaterialIcons
-                      name="trending-up"
-                      size={16}
-                      color="#6b7280"
-                      style={{ marginRight: 8 }}
-                    />
+                    <TrendingUp size={16} color="#6b7280" style={{ marginRight: 8 }} />
                     <Text className="text-sm text-gray-700">{topic}</Text>
                   </TouchableOpacity>
                 ))}
@@ -370,12 +362,7 @@ export default function SearchableHelp({
                   accessibilityLabel={`View ${result.title}`}
                 >
                   <View className="flex-row items-start">
-                    <MaterialIcons
-                      name={getTypeIcon(result.type)}
-                      size={20}
-                      color={getTypeColor(result.type)}
-                      style={{ marginRight: 12, marginTop: 2 }}
-                    />
+                    {React.createElement(getTypeIcon(result.type), { size: 20, color: getTypeColor(result.type), style: { marginRight: 12, marginTop: 2 } })}
                     <View className="flex-1">
                       <View className="flex-row items-center mb-1">
                         <Text className="font-semibold text-gray-900 flex-1">
@@ -408,12 +395,7 @@ export default function SearchableHelp({
           {searchTerm.length > 0 && results.length === 0 && !isSearching && (
             <Card>
               <View className="text-center py-8">
-                <MaterialIcons
-                  name="search-off"
-                  size={48}
-                  color="#9ca3af"
-                  style={{ alignSelf: 'center', marginBottom: 16 }}
-                />
+                <SearchX size={48} color="#9ca3af" style={{ alignSelf: 'center', marginBottom: 16 }} />
                 <Text className="text-lg text-gray-600 mb-2">No results found</Text>
                 <Text className="text-sm text-gray-500 mb-4">
                   Try different keywords or browse categories

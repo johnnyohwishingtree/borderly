@@ -8,6 +8,7 @@
  */
 
 import { View, Text, ScrollView, Alert } from 'react-native';
+import { Lock, TriangleAlert } from 'lucide-react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { type TravelerProfile } from '../../types/profile';
 import { validateScannedPassport } from '../../services/passport/mrzScanner';
@@ -119,7 +120,7 @@ export default function PassportPreview({
       {/* Security indicator */}
       <Card className="mb-4 bg-blue-50 border-blue-200">
         <View className="flex-row items-center">
-          <Text className="text-blue-600 text-lg mr-2">🔒</Text>
+          <Lock size={20} color="#2563eb" style={{ marginRight: 8 }} />
           <View className="flex-1">
             <Text className="font-medium text-blue-900 mb-1">
               Secure Local Storage
@@ -153,7 +154,7 @@ export default function PassportPreview({
       {validation && validation.warnings.length > 0 && (
         <Card className="mb-4 bg-yellow-50 border-yellow-200">
           <View className="flex-row items-start">
-            <Text className="text-yellow-600 text-lg mr-2">⚠️</Text>
+            <TriangleAlert size={20} color="#ca8a04" style={{ marginRight: 8 }} />
             <View className="flex-1">
               <Text className="font-medium text-yellow-900 mb-2">
                 Validation Warnings

@@ -44,14 +44,14 @@ test.describe('Trip Creation and Management', () => {
 
     // Destination section
     await expect(page.getByText('No destinations added yet')).toBeVisible();
-    await expect(page.getByRole('button', { name: '📷 Scan Boarding Pass' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Scan Boarding Pass' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
 
     // Top-level destination buttons (these are the small buttons in the header)
     // We'll look for buttons that are siblings of each other (both small header buttons)
     await expect(page.getByRole('button', { name: '+ Add' })).toBeVisible();
     // For the scan button, we'll use the fact that it's the one NOT in the empty state card
-    const scanButtons = page.getByRole('button', { name: '📷 Scan' });
+    const scanButtons = page.getByRole('button', { name: 'Scan' });
     await expect(scanButtons.first()).toBeVisible(); // The header scan button appears first
 
     // Create button
@@ -81,7 +81,7 @@ test.describe('Trip Creation and Management', () => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
-    await page.getByRole('button', { name: '📷 Scan Boarding Pass' }).click();
+    await page.getByRole('button', { name: 'Scan Boarding Pass' }).click();
 
     // Should open the boarding pass scanner
     // In demo mode, should show scanning UI
@@ -96,7 +96,7 @@ test.describe('Trip Creation and Management', () => {
   test.describe('when boarding pass scanner is open', () => {
     test.beforeEach(async ({ page }) => {
       await page.getByRole('button', { name: 'Create Your First Trip' }).click();
-      await page.getByRole('button', { name: '📷 Scan Boarding Pass' }).click();
+      await page.getByRole('button', { name: 'Scan Boarding Pass' }).click();
       await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
     });
 

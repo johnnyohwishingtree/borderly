@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Modal, Alert } from 'react-native';
+import { Lock } from 'lucide-react-native';
 import { Button, Card } from '@/components/ui';
 import { feedbackCollector } from '@/services/support/feedbackCollector';
 
@@ -206,9 +207,12 @@ export default function RatingPrompt({
 
               {/* Privacy Notice */}
               <View className="bg-gray-50 p-3 rounded-lg mt-4">
-                <Text className="text-xs text-gray-600 text-center">
-                  🔒 Your rating helps improve the app. No personal data is shared.
-                </Text>
+                <View className="flex-row items-center justify-center">
+                  <Lock size={12} color="#4b5563" />
+                  <Text className="text-xs text-gray-600 ml-1">
+                    Your rating helps improve the app. No personal data is shared.
+                  </Text>
+                </View>
               </View>
             </Card>
           ) : (

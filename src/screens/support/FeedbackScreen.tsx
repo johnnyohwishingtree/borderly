@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Alert, TextInput } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
+import { Lock } from 'lucide-react-native';
 import { Button, Card, StatusBadge, Select, SelectOption } from '@/components/ui';
 import { useAppStore } from '@/stores/useAppStore';
 
@@ -210,8 +211,8 @@ export default function FeedbackScreen({ route: _route }: FeedbackScreenProps) {
         <Card>
           <View className="bg-blue-50 p-4 rounded-lg">
             <View className="flex-row items-center mb-2">
-              <Text className="text-lg mr-2">🔒</Text>
-              <Text className="text-base font-semibold text-blue-900">Privacy Notice</Text>
+              <Lock size={20} color="#1e3a5f" />
+              <Text className="text-base font-semibold text-blue-900 ml-2">Privacy Notice</Text>
             </View>
             <Text className="text-sm text-blue-800 mb-2">
               Your feedback helps us improve the app while maintaining your privacy.
