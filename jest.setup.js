@@ -118,6 +118,7 @@ jest.mock('react-native-keychain', () => ({
   getInternetCredentials: jest.fn().mockResolvedValue({ password: '{}' }),
   resetInternetCredentials: jest.fn().mockResolvedValue(true),
   getSupportedBiometryType: jest.fn().mockResolvedValue('TouchID'),
+  canImplyAuthentication: jest.fn().mockResolvedValue(true),
   getSecurityLevel: jest.fn().mockResolvedValue('SECURE_HARDWARE'),
   AUTHENTICATION_TYPE: {
     BIOMETRICS: 'AuthenticationWithBiometricsDevicePasscode',

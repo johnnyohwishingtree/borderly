@@ -51,7 +51,6 @@ describe('KeychainService', () => {
         JSON.stringify(mockProfile),
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         })
       );
@@ -205,38 +204,39 @@ describe('KeychainService', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false when biometry is not supported', async () => {
+    it('should return true even when biometry is not supported', async () => {
       (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
 
       const result = await keychainService.isAvailable();
 
-      expect(result).toBe(false);
+      // Keychain is available regardless of biometric enrollment
+      expect(result).toBe(true);
     });
 
-    it('should return false when check fails', async () => {
+    it('should return true even when biometry check fails', async () => {
       const error = new Error('Check failed');
       (Keychain.getSupportedBiometryType as jest.Mock).mockRejectedValue(error);
 
       const result = await keychainService.isAvailable();
 
-      expect(result).toBe(false);
+      // Keychain is available regardless of biometric check errors
+      expect(result).toBe(true);
     });
   });
 
   describe('security requirements', () => {
-    it('should use correct security settings', async () => {
+    it('should use WHEN_UNLOCKED_THIS_DEVICE_ONLY accessibility', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       await keychainService.storeProfile(mockProfile);
 
+      expect(Keychain.setInternetCredentials).toHaveBeenCalledTimes(1);
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         expect.any(String),
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         })
       );

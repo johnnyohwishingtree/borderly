@@ -230,6 +230,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to add profile',
         isLoading: false,
       });
+      throw error;
     }
   },
 
@@ -287,6 +288,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to update profile',
         isLoading: false,
       });
+      throw error;
     }
   },
 
@@ -352,6 +354,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to delete profile',
         isLoading: false,
       });
+      throw error;
     }
   },
 
@@ -564,26 +567,21 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
   },
 
   saveProfile: async (profile: TravelerProfile) => {
-    const { familyProfiles } = get();
-    
-    // If this is the first profile, add it as primary
-    if (familyProfiles.profiles.size === 0) {
+    const { familyProfiles, currentProfileId } = get();
+
+    if (currentProfileId && familyProfiles.profiles.has(currentProfileId)) {
+      // Update existing profile
+      await get().updateProfileById(currentProfileId, profile);
+    } else {
+      // Add as new profile (first time or no current profile set)
       await get().addProfile(profile, {
         relationship: 'self',
-        isPrimary: true,
+        isPrimary: familyProfiles.profiles.size === 0,
         isActive: true,
         biometricEnabled: true,
         nickname: `${profile.givenNames} ${profile.surname}`,
       });
       await get().switchToProfile(profile.id);
-    } else {
-      // Update existing profile
-      const currentProfileId = get().currentProfileId;
-      if (currentProfileId) {
-        await get().updateProfileById(currentProfileId, profile);
-      } else {
-        throw new Error('No current profile to update');
-      }
     }
   },
 
