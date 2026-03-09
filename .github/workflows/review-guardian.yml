@@ -123,14 +123,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Check if PR has a review
+      - name: Check if PR needs review or approval
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
-          # Get the PR number from the workflow run
-          # workflow_run doesn't directly give us PR number, so we find it from the branch
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           echo "CI passed for branch: $BRANCH"
 
@@ -143,49 +141,86 @@ jobs:
           fi
 
           echo "Checking reviews on PR #$PR_NUM"
+          echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
 
-          # Check for any reviews at all (approved, commented, changes_requested)
+          # Check for APPROVED reviews
+          HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+
+          if [ "$HAS_APPROVAL" -gt 0 ]; then
+            echo "PR #$PR_NUM already approved — nothing to do"
+            echo "action=none" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check for any reviews (approved, commented, changes_requested)
           ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
             -q '.reviews | length' 2>/dev/null || echo "0")
 
-          # Also check for bot review comments (Gemini/Copilot sometimes comment without formal review)
+          # Also check for bot review comments
           BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
+            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot|claude"))] | length' 2>/dev/null || echo "0")
 
           TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
           echo "Reviews: $ANY_REVIEWS formal, $BOT_COMMENTS bot comments = $TOTAL total"
 
           if [ "$TOTAL" -gt 0 ]; then
-            echo "PR #$PR_NUM has reviews — the request-approval job will handle getting an APPROVED review"
+            echo "PR #$PR_NUM has reviews but no approval — needs auto-approve"
+            echo "action=approve" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Check if we already requested a fallback review
+          # No reviews at all — check if we already requested one
           EXISTING_REQUEST=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
             -q '[.[] | select(.body | contains("Please perform a comprehensive code review"))] | length' 2>/dev/null || echo "0")
 
           if [ "$EXISTING_REQUEST" -gt 0 ]; then
             echo "Already requested a fallback review — waiting for it"
+            echo "action=none" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # Wait a bit — Gemini might just be slow
+          # Wait for Gemini
           echo "No reviews found. Waiting 60s for Gemini..."
           sleep 60
 
-          # Re-check after waiting
+          # Re-check
           ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
             -q '.reviews | length' 2>/dev/null || echo "0")
           BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot"))] | length' 2>/dev/null || echo "0")
+            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot|claude"))] | length' 2>/dev/null || echo "0")
 
           TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
 
           if [ "$TOTAL" -gt 0 ]; then
-            echo "Review arrived during wait — request-approval job will handle approval"
+            echo "Review arrived during wait — needs auto-approve"
+            echo "action=approve" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "Still no reviews after waiting. Requesting @$AGENT fallback review."
+          echo "Still no reviews. Requesting fallback review."
+          echo "action=request-review" >> $GITHUB_OUTPUT
+        id: check
+
+      - name: Auto-approve PR with existing review
+        if: steps.check.outputs.action == 'approve'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ steps.check.outputs.pr_num }}
+          echo "Auto-approving PR #$PR_NUM — review exists but no formal approval"
+          gh pr review "$PR_NUM" --repo "$REPO" --approve \
+            --body "Auto-approved: code review detected, approving for branch protection."
+
+      - name: Request fallback review
+        if: steps.check.outputs.action == 'request-review'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ steps.check.outputs.pr_num }}
+          echo "Requesting @$AGENT fallback review for PR #$PR_NUM"
           gh pr comment "$PR_NUM" --repo "$REPO" \
             --body "@$AGENT No code review was posted on this PR (the usual reviewer may be at quota). Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback."
