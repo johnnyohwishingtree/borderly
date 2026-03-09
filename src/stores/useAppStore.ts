@@ -47,6 +47,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
     lastSchemaUpdateCheck: '',
     analyticsEnabled: false,
     crashReportingEnabled: false,
+    family_profiles: '',
+    current_profile_id: '',
   },
   featureFlags: {},
   isAppLocked: false,

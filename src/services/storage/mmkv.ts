@@ -8,6 +8,9 @@ export interface AppPreferences {
   lastSchemaUpdateCheck: string;
   analyticsEnabled: boolean;
   crashReportingEnabled: boolean;
+  // Multi-profile support
+  family_profiles: string; // Serialized FamilyProfileCollection
+  current_profile_id: string; // Currently active profile ID
 }
 
 export interface MMKVService {
@@ -57,6 +60,8 @@ class MMKVServiceImpl implements MMKVService {
       lastSchemaUpdateCheck: '',
       analyticsEnabled: false,
       crashReportingEnabled: false,
+      family_profiles: '',
+      current_profile_id: '',
     };
 
     try {
