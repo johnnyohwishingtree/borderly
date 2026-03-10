@@ -155,6 +155,7 @@ export function isStorageError(error: Error): boolean {
     'setinternetcredentials', 'getinternetcredentials',
     'rnkeychainmanager', 'storage unavailable',
     'keychain access', 'biometric',
+    'disk access', 'volume access', 'storage permission',
   ];
   return storageKeywords.some(keyword => msg.includes(keyword));
 }
