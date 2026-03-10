@@ -16,7 +16,8 @@ import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import { type TravelerProfile } from '../../types/profile';
 import { detectDevicePerformance } from '../../utils/imageUtils';
-import { handleStorageError, handleCameraError } from '../../services/error/errorHandler';
+import { handleStorageError, handleCameraError, errorHandler } from '../../services/error/errorHandler';
+import { isStorageError } from '../../utils/errorHandling';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
 
@@ -124,11 +125,13 @@ export default function PassportScanScreen() {
       // Store the failed operation for retry
       setLastFailedOperation({ type: 'save', data: profileData });
 
-      const result = await handleStorageError(error as Error, {
+      const err = error as Error;
+      const errorContext = {
         screen: 'PassportScan',
         action: 'saveProfile',
         timestamp: Date.now()
-      }, {
+      };
+      const recoveryOptions = {
         showUserFeedback: false, // We'll show our own UI
         enableRetry: true,
         onRecoverySuccess: () => {
@@ -140,8 +143,13 @@ export default function PassportScanScreen() {
             navigation.navigate('ConfirmProfile');
           }
         }
-      });
-      
+      };
+
+      // Only route to storage error handler if it's actually a storage error
+      const result = isStorageError(err)
+        ? await handleStorageError(err, errorContext, recoveryOptions)
+        : await errorHandler.handleError(err, errorContext, recoveryOptions);
+
       if (!result.recovered && result.error) {
         showStorageError(result.error);
       }
