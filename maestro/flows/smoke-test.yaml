@@ -81,12 +81,12 @@ tags:
 # Passport expiry
 - tapOn: "Passport Expiry Date, required"
 - inputText: "2032-03-20"
-- tapOn: "Male"
+- tapOn: "Scanning Tips"
 
 # Issuing country
 - tapOn: "Issuing Country, required"
 - inputText: "USA"
-- tapOn: "Male"
+- tapOn: "Scanning Tips"
 
 # Submit
 - scrollUntilVisible:

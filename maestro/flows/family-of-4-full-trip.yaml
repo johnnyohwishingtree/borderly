@@ -262,7 +262,7 @@ tags:
 # Departure date
 - tapOn:
     text: "YYYY-MM-DD"
-    index: 0
+    index: 1
 - inputText: "2026-07-07"
 
 # Flight number
@@ -314,7 +314,7 @@ tags:
 
 - tapOn:
     text: "YYYY-MM-DD"
-    index: 0
+    index: 1
 - inputText: "2026-07-12"
 
 - tapOn:
@@ -376,7 +376,7 @@ tags:
 
 - tapOn:
     text: "YYYY-MM-DD"
-    index: 0
+    index: 1
 - inputText: "2026-07-16"
 
 - tapOn:

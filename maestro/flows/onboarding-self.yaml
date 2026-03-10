@@ -19,27 +19,19 @@ tags:
 - tapOn: "Enter Manually"
 
 # Fill manual passport form
-- tapOn: "Enter passport number"
+- tapOn: "Passport Number, required"
 - inputText: "L12345678"
 
-- tapOn: "Enter surname"
+- tapOn: "Surname (Family Name), required"
 - inputText: "SMITH"
 
-- tapOn: "Enter given names"
+- tapOn: "Given Names, required"
 - inputText: "JOHN MICHAEL"
 
-- scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
-    direction: DOWN
-    timeout: 5000
-
-# Nationality field (first occurrence)
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+- tapOn: "Nationality, required"
 - inputText: "USA"
 
-- tapOn: "YYYY-MM-DD"
+- tapOn: "Date of Birth, required"
 - inputText: "1985-06-15"
 
 # Gender selection
@@ -50,16 +42,12 @@ tags:
     direction: DOWN
     timeout: 5000
 
-# Expiry date (second YYYY-MM-DD field)
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+# Expiry date
+- tapOn: "Passport Expiry Date, required"
 - inputText: "2032-03-20"
 
-# Issuing country (second occurrence of the country code placeholder)
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+# Issuing country
+- tapOn: "Issuing Country, required"
 - inputText: "USA"
 
 - scrollUntilVisible:
