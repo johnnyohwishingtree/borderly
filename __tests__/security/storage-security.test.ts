@@ -48,22 +48,6 @@ describe('Storage Security Tests', () => {
   });
 
   describe('Keychain Security Requirements', () => {
-    it('should use biometric authentication for profile access', async () => {
-      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-
-      await keychainService.storeProfile(mockProfile);
-
-      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        expect.any(String),
-        expect.objectContaining({
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
-        })
-      );
-    });
-
     it('should use device-only access for profile storage', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
 
@@ -79,24 +63,6 @@ describe('Storage Security Tests', () => {
       );
     });
 
-    it('should use appropriate authentication configuration', async () => {
-      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-
-      await keychainService.storeProfile(mockProfile);
-
-      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        expect.any(String),
-        expect.objectContaining({
-          authenticationType: 'AuthenticationWithBiometricsDevicePasscode',
-          accessControl: 'kSecAccessControlBiometryCurrentSet',
-          accessible: 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly',
-          service: 'borderly',
-        })
-      );
-    });
-
     it('should handle biometric authentication failures gracefully', async () => {
       const authError = new Error('User cancelled authentication');
       (Keychain.getInternetCredentials as jest.Mock).mockRejectedValue(authError);
@@ -107,21 +73,16 @@ describe('Storage Security Tests', () => {
       expect(result).toBeNull();
     });
 
-    it('should verify biometry availability before storing', async () => {
-      (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('TouchID');
-
-      const isAvailable = await keychainService.isAvailable();
-
-      expect(isAvailable).toBe(true);
-      expect(Keychain.getSupportedBiometryType).toHaveBeenCalled();
-    });
-
-    it('should handle devices without biometric support', async () => {
+    it('should report keychain as available regardless of biometric support', async () => {
       (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({ password: 'test' });
+      (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       const isAvailable = await keychainService.isAvailable();
 
-      expect(isAvailable).toBe(false);
+      // Keychain is available even without biometrics — biometrics are an optional enhancement
+      expect(isAvailable).toBe(true);
     });
   });
 
@@ -137,7 +98,7 @@ describe('Storage Security Tests', () => {
       expect(key).toMatch(/^[a-zA-Z0-9]+$/); // Only alphanumeric characters
     });
 
-    it('should store encryption key with same security as profile', async () => {
+    it('should store encryption key with secure accessibility', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       await keychainService.generateEncryptionKey();
@@ -147,7 +108,6 @@ describe('Storage Security Tests', () => {
         'borderly_encryption',
         expect.any(String),
         expect.objectContaining({
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         })
       );
@@ -174,15 +134,11 @@ describe('Storage Security Tests', () => {
 
   describe('Database Security Integration', () => {
     it('should use keychain for encryption key management', () => {
-      // Database initialization requires an encryption key from keychain
-      // This is verified in detail in database.test.ts
-      // Here we verify the keychain service exposes the required methods
       expect(keychainService.getEncryptionKey).toBeDefined();
       expect(keychainService.generateEncryptionKey).toBeDefined();
     });
 
     it('should use database service with secure initialization', () => {
-      // databaseService.initialize() requires encryption key from keychain
       expect(databaseService.initialize).toBeDefined();
       expect(databaseService.getDatabase).toBeDefined();
     });
@@ -200,7 +156,6 @@ describe('Storage Security Tests', () => {
         'issuingCountry',
       ];
 
-      // Verify these fields are not stored in MMKV (non-sensitive storage)
       const preferences = mmkvService.getPreferences();
 
       sensitiveFields.forEach(field => {
@@ -211,7 +166,6 @@ describe('Storage Security Tests', () => {
     it('should store non-sensitive preferences in MMKV', () => {
       const preferences = mmkvService.getPreferences();
 
-      // These should be in MMKV (non-encrypted storage)
       expect(preferences).toHaveProperty('theme');
       expect(preferences).toHaveProperty('language');
       expect(preferences).toHaveProperty('onboardingComplete');
@@ -231,7 +185,6 @@ describe('Storage Security Tests', () => {
         'Failed to securely store profile data'
       );
 
-      // Verify error details are logged but not exposed
       expect(consoleSpy).toHaveBeenCalledWith(
         'Failed to store profile in keychain:',
         error
@@ -259,7 +212,6 @@ describe('Storage Security Tests', () => {
         'Failed to generate encryption key'
       );
 
-      // Ensure no key material is exposed in logs
       const logCalls = consoleSpy.mock.calls;
       logCalls.forEach(call => {
         const message = call.join(' ');
@@ -286,34 +238,13 @@ describe('Storage Security Tests', () => {
       );
     });
 
-    it('should use current biometry set for access control', async () => {
+    it('should use WHEN_UNLOCKED_THIS_DEVICE_ONLY for all keychain writes', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       await keychainService.storeProfile(mockProfile);
 
-      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        expect.any(String),
-        expect.objectContaining({
-          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
-        })
-      );
-    });
-
-    it('should require biometric authentication type', async () => {
-      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
-
-      await keychainService.storeProfile(mockProfile);
-
-      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        expect.any(String),
-        expect.objectContaining({
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-        })
-      );
+      const callArgs = (Keychain.setInternetCredentials as jest.Mock).mock.calls[0][3];
+      expect(callArgs.accessible).toBe(Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY);
     });
   });
 

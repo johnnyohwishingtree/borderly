@@ -123,7 +123,7 @@ export default function PassportScanScreen() {
     } catch (error) {
       // Store the failed operation for retry
       setLastFailedOperation({ type: 'save', data: profileData });
-      
+
       const result = await handleStorageError(error as Error, {
         screen: 'PassportScan',
         action: 'saveProfile',

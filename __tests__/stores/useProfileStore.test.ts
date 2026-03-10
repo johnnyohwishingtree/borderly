@@ -508,6 +508,64 @@ describe('useProfileStore', () => {
       ).rejects.toThrow('Cannot add more than 8 profiles');
     });
 
+    it('should handle saveProfile when familyProfiles exist but no currentProfileId is set', async () => {
+      const store = useProfileStore.getState();
+
+      // Simulate stale state: family profiles exist (e.g. from MMKV) but no currentProfileId
+      useProfileStore.setState({
+        familyProfiles: {
+          profiles: new Map([['stale-id', {
+            id: 'stale-id',
+            relationship: 'self',
+            isPrimary: true,
+            isActive: true,
+            biometricEnabled: true,
+            nickname: 'Stale Profile',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }]]),
+          primaryProfileId: 'stale-id',
+          maxProfiles: 8,
+          version: 1,
+          lastModified: new Date().toISOString(),
+        },
+        currentProfileId: null,
+        currentProfile: null,
+      });
+
+      // saveProfile should add as new instead of throwing
+      await store.saveProfile(mockProfile);
+
+      const { familyProfiles, currentProfileId } = useProfileStore.getState();
+      expect(familyProfiles.profiles.has(mockProfile.id)).toBe(true);
+      expect(currentProfileId).toBe(mockProfile.id);
+      expect(mockKeychainService.storeProfileById).toHaveBeenCalledWith(mockProfile.id, mockProfile);
+    });
+
+    it('should handle saveProfile when currentProfileId points to missing profile', async () => {
+      const store = useProfileStore.getState();
+
+      // currentProfileId set but profile not in collection
+      useProfileStore.setState({
+        familyProfiles: {
+          profiles: new Map(),
+          primaryProfileId: '',
+          maxProfiles: 8,
+          version: 1,
+          lastModified: new Date().toISOString(),
+        },
+        currentProfileId: 'ghost-id',
+        currentProfile: null,
+      });
+
+      // Should add as new rather than trying to update non-existent profile
+      await store.saveProfile(mockProfile);
+
+      const { familyProfiles, currentProfileId } = useProfileStore.getState();
+      expect(familyProfiles.profiles.has(mockProfile.id)).toBe(true);
+      expect(currentProfileId).toBe(mockProfile.id);
+    });
+
     it('should maintain backward compatibility with legacy methods', async () => {
       const store = useProfileStore.getState();
 

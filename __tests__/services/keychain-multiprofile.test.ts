@@ -39,6 +39,7 @@ jest.mock('react-native-keychain', () => ({
   getInternetCredentials: jest.fn(),
   resetInternetCredentials: jest.fn(),
   getSupportedBiometryType: jest.fn(),
+  canImplyAuthentication: jest.fn().mockResolvedValue(false),
   ACCESS_CONTROL: {
     BIOMETRY_CURRENT_SET: 'BiometryCurrentSet',
   },
@@ -69,7 +70,6 @@ describe('Keychain Service Multi-Profile', () => {
         JSON.stringify(mockProfile1),
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: 'Biometrics',
         })
       );
     });
@@ -87,7 +87,6 @@ describe('Keychain Service Multi-Profile', () => {
         'borderly_profile_profile-1',
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: 'Biometrics',
         })
       );
       expect(profile).toEqual(mockProfile1);
@@ -143,7 +142,6 @@ describe('Keychain Service Multi-Profile', () => {
         key,
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: 'Biometrics',
         })
       );
     });
@@ -162,7 +160,6 @@ describe('Keychain Service Multi-Profile', () => {
         'borderly_profile_enc_profile-1',
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: 'Biometrics',
         })
       );
       expect(key).toBe(mockKey);

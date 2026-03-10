@@ -39,16 +39,48 @@ export interface KeychainService {
 }
 
 class KeychainServiceImpl implements KeychainService {
-  private readonly keychainOptions = {
-    service: 'borderly',
-    authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-    accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
-    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-  };
-
   // In-memory sensitive data tracking for cleanup
   private sensitiveDataRefs: WeakSet<object> = new WeakSet();
   private lastAccessTime: Record<string, number> = {};
+
+  private async getKeychainSetOptions(): Promise<Keychain.SetOptions> {
+    const baseOptions: Keychain.SetOptions = {
+      service: 'borderly',
+      accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+    };
+
+    try {
+      // Check if biometrics are available and enrolled
+      const biometryType = await Keychain.getSupportedBiometryType();
+      const canUseAuth = await Keychain.canImplyAuthentication({
+        authenticationType: Keychain.AUTHENTICATION_TYPE.DEVICE_PASSCODE_OR_BIOMETRICS
+      });
+
+      if (biometryType && canUseAuth) {
+        // Use biometric authentication when available
+        return {
+          ...baseOptions,
+          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET_OR_DEVICE_PASSCODE,
+        };
+      } else {
+        // Fall back to device passcode only
+        return {
+          ...baseOptions,
+          accessControl: Keychain.ACCESS_CONTROL.DEVICE_PASSCODE,
+        };
+      }
+    } catch (error) {
+      console.warn('Failed to check biometric availability, using basic security:', error);
+      // Fall back to basic security if checks fail
+      return baseOptions;
+    }
+  }
+
+  private get keychainGetOptions(): Keychain.GetOptions {
+    return {
+      service: 'borderly',
+    };
+  }
 
   // Helper methods for multi-profile support
   private getProfileKeychainKey(profileId: string): string {
@@ -60,18 +92,19 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   private async storeInKeychain(key: string, username: string, data: string): Promise<void> {
-    await Keychain.setInternetCredentials(key, username, data, this.keychainOptions);
+    const options = await this.getKeychainSetOptions();
+    await Keychain.setInternetCredentials(key, username, data, options);
   }
 
   private async getFromKeychain(key: string): Promise<string | null> {
     try {
       this.lastAccessTime[key] = Date.now();
-      const credentials = await Keychain.getInternetCredentials(key, this.keychainOptions);
-      
+      const credentials = await Keychain.getInternetCredentials(key, this.keychainGetOptions);
+
       if (!credentials || typeof credentials === 'boolean') {
         return null;
       }
-      
+
       return credentials.password;
     } catch (error) {
       console.error(`Failed to retrieve from keychain (${key}):`, error);
@@ -91,12 +124,7 @@ class KeychainServiceImpl implements KeychainService {
   async storeProfile(profile: TravelerProfile): Promise<void> {
     try {
       const profileJson = JSON.stringify(profile);
-      await Keychain.setInternetCredentials(
-        LEGACY_PROFILE_KEY,
-        'borderly_user',
-        profileJson,
-        this.keychainOptions
-      );
+      await this.storeInKeychain(LEGACY_PROFILE_KEY, 'borderly_user', profileJson);
     } catch (error) {
       console.error('Failed to store profile in keychain:', error);
       throw new Error('Failed to securely store profile data');
@@ -105,19 +133,17 @@ class KeychainServiceImpl implements KeychainService {
 
   async getProfile(): Promise<TravelerProfile | null> {
     try {
-      this.lastAccessTime[LEGACY_PROFILE_KEY] = Date.now();
-      const credentials = await Keychain.getInternetCredentials(LEGACY_PROFILE_KEY, this.keychainOptions);
+      const profileJson = await this.getFromKeychain(LEGACY_PROFILE_KEY);
 
-      if (!credentials || typeof credentials === 'boolean') {
+      if (!profileJson) {
         return null;
       }
 
-      const profileJson = credentials.password;
       const profile = JSON.parse(profileJson) as TravelerProfile;
-      
+
       // Track sensitive data for memory cleanup
       this.sensitiveDataRefs.add(profile);
-      
+
       return profile;
     } catch (error) {
       console.error('Failed to retrieve profile from keychain:', error);
@@ -146,12 +172,7 @@ class KeychainServiceImpl implements KeychainService {
         .map((byte: number) => byte.toString(16).padStart(2, '0'))
         .join('');
 
-      await Keychain.setInternetCredentials(
-        ENCRYPTION_KEY,
-        'borderly_encryption',
-        key,
-        this.keychainOptions
-      );
+      await this.storeInKeychain(ENCRYPTION_KEY, 'borderly_encryption', key);
 
       return key;
     } catch (error) {
@@ -162,15 +183,12 @@ class KeychainServiceImpl implements KeychainService {
 
   async getEncryptionKey(): Promise<string | null> {
     try {
-      this.lastAccessTime[ENCRYPTION_KEY] = Date.now();
-      const credentials = await Keychain.getInternetCredentials(ENCRYPTION_KEY, this.keychainOptions);
+      const key = await this.getFromKeychain(ENCRYPTION_KEY);
 
-      if (!credentials || typeof credentials === 'boolean') {
+      if (!key) {
         return null;
       }
 
-      const key = credentials.password;
-      
       // Track access for cleanup scheduling
       setTimeout(() => {
         // Clear reference after use to help with garbage collection
@@ -186,8 +204,22 @@ class KeychainServiceImpl implements KeychainService {
 
   async isAvailable(): Promise<boolean> {
     try {
-      const supportedType = await Keychain.getSupportedBiometryType();
-      return supportedType !== null;
+      // Check if keychain is available by testing basic functionality
+      const testKey = 'borderly_availability_test';
+      const testData = 'test';
+      
+      // Try to store and retrieve a test value
+      await Keychain.setInternetCredentials(testKey, 'test', testData, {
+        service: 'borderly',
+        accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+      
+      const retrieved = await Keychain.getInternetCredentials(testKey, this.keychainGetOptions);
+      
+      // Clean up test data
+      await Keychain.resetInternetCredentials({ server: testKey }).catch(() => {});
+      
+      return !!(retrieved && typeof retrieved !== 'boolean' && retrieved.password === testData);
     } catch (error) {
       console.error('Failed to check keychain availability:', error);
       return false;

@@ -51,7 +51,6 @@ describe('KeychainService', () => {
         JSON.stringify(mockProfile),
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         })
       );
@@ -197,25 +196,40 @@ describe('KeychainService', () => {
   });
 
   describe('isAvailable', () => {
-    it('should return true when biometry is supported', async () => {
-      (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('TouchID');
+    it('should return true when keychain functionality works', async () => {
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({ 
+        password: 'test', 
+        username: 'test' 
+      });
+      (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       const result = await keychainService.isAvailable();
 
       expect(result).toBe(true);
+      expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
+        'borderly_availability_test',
+        'test',
+        'test',
+        expect.objectContaining({
+          service: 'borderly',
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        })
+      );
     });
 
-    it('should return false when biometry is not supported', async () => {
-      (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
+    it('should return false when keychain operations fail', async () => {
+      const error = new Error('Keychain unavailable');
+      (Keychain.setInternetCredentials as jest.Mock).mockRejectedValue(error);
 
       const result = await keychainService.isAvailable();
 
       expect(result).toBe(false);
     });
 
-    it('should return false when check fails', async () => {
-      const error = new Error('Check failed');
-      (Keychain.getSupportedBiometryType as jest.Mock).mockRejectedValue(error);
+    it('should return false when keychain returns invalid data', async () => {
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue(false);
 
       const result = await keychainService.isAvailable();
 
@@ -224,19 +238,18 @@ describe('KeychainService', () => {
   });
 
   describe('security requirements', () => {
-    it('should use correct security settings', async () => {
+    it('should use WHEN_UNLOCKED_THIS_DEVICE_ONLY accessibility', async () => {
       (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
 
       await keychainService.storeProfile(mockProfile);
 
+      expect(Keychain.setInternetCredentials).toHaveBeenCalledTimes(1);
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(
         expect.any(String),
         expect.any(String),
         expect.any(String),
         expect.objectContaining({
           service: 'borderly',
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET,
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         })
       );
