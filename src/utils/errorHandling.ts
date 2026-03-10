@@ -145,6 +145,22 @@ export function createAppError(
 }
 
 /**
+ * Checks if an error is genuinely a storage/keychain error.
+ * Prevents non-storage errors from being misclassified as STORAGE_UNAVAILABLE.
+ */
+export function isStorageError(error: Error): boolean {
+  const msg = error.message.toLowerCase();
+  const storageKeywords = [
+    'keychain', 'secure storage', 'encryption key',
+    'setinternetcredentials', 'getinternetcredentials',
+    'rnkeychainmanager', 'storage unavailable',
+    'keychain access', 'biometric',
+    'disk access', 'volume access', 'storage permission',
+  ];
+  return storageKeywords.some(keyword => msg.includes(keyword));
+}
+
+/**
  * Creates an AppError from a generic Error
  */
 export function createAppErrorFromError(
@@ -155,17 +171,22 @@ export function createAppErrorFromError(
   if (error.message.toLowerCase().includes('network')) {
     return createAppError(ERROR_CODES.NETWORK_UNAVAILABLE, error.message);
   }
-  
+
   // Check if it's a timeout
   if (error.message.toLowerCase().includes('timeout')) {
     return createAppError(ERROR_CODES.REQUEST_TIMEOUT, error.message);
   }
-  
+
   // Check if it's a permissions error
   if (error.message.toLowerCase().includes('permission')) {
     return createAppError(ERROR_CODES.CAMERA_PERMISSION_DENIED, error.message);
   }
-  
+
+  // Check if it's a storage/keychain error
+  if (isStorageError(error)) {
+    return createAppError(ERROR_CODES.STORAGE_UNAVAILABLE, error.message);
+  }
+
   // Default to fallback code
   return createAppError(fallbackCode, error.message);
 }
@@ -188,9 +209,13 @@ export function logError(
   };
   
   console.error('Borderly Error:', errorData);
-  
-  // In production, you might send this to a crash reporting service
-  // like Crashlytics, Sentry, or Bugsnag
+
+  // In __DEV__ mode, surface the raw error message to help diagnose misclassification
+  if (__DEV__) {
+    const rawMessage = error instanceof Error ? error.message : (error as AppError).details || (error as AppError).message;
+    const classified = !(error instanceof Error) ? (error as AppError).code : 'raw';
+    console.warn(`[DEV] Raw error (classified as ${classified}): ${rawMessage}`);
+  }
 }
 
 /**
