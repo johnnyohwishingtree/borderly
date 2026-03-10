@@ -18,7 +18,10 @@
     "bundle-size:ios": "node scripts/measure-bundle-size.js ios",
     "bundle-size:android": "node scripts/measure-bundle-size.js android",
     "bundle-size:compare": "node scripts/measure-bundle-size.js ios compare",
-    "build:analyze": "npm run bundle-size:ios && npm run bundle-size:android"
+    "build:analyze": "npm run bundle-size:ios && npm run bundle-size:android",
+    "maestro": "maestro test maestro/flows/",
+    "maestro:family": "maestro test maestro/flows/family-of-4-full-trip.yaml",
+    "maestro:onboarding": "maestro test maestro/flows/onboarding-self.yaml"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

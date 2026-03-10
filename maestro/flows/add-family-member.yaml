@@ -1,0 +1,79 @@
+# Reusable flow: Add a family member via manual passport entry
+# Expects to start from the main app (onboarding complete)
+# Parameters:
+#   RELATIONSHIP: spouse | child | parent | other
+#   PASSPORT_NUM: passport number
+#   SURNAME: family name
+#   GIVEN_NAMES: given names
+#   NATIONALITY: 3-letter country code
+#   DOB: date of birth (YYYY-MM-DD)
+#   GENDER: Male | Female | Other
+#   EXPIRY: passport expiry (YYYY-MM-DD)
+#   ISSUING_COUNTRY: 3-letter country code
+appId: com.borderly.app
+tags:
+  - family
+---
+# Navigate to Profile tab
+- tapOn: "Profile"
+
+# Go to family management
+- scrollUntilVisible:
+    element: "Manage"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Manage"
+
+# Add new member
+- assertVisible: "Family Members"
+- tapOn: "Add Member"
+
+# Select relationship
+- assertVisible: "Add Family Member"
+- tapOn: "${RELATIONSHIP}"
+
+# Choose manual entry
+- tapOn: "Enter Manually"
+
+# Fill passport form (same as onboarding but in family mode)
+- assertVisible: "Add Family Member"
+- tapOn: "Enter passport number"
+- inputText: "${PASSPORT_NUM}"
+
+- tapOn: "Enter surname"
+- inputText: "${SURNAME}"
+
+- tapOn: "Enter given names"
+- inputText: "${GIVEN_NAMES}"
+
+- scrollUntilVisible:
+    element: "e.g., USA, CAN, GBR"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    text: "e.g., USA, CAN, GBR"
+    index: 0
+- inputText: "${NATIONALITY}"
+
+- tapOn: "YYYY-MM-DD"
+- inputText: "${DOB}"
+
+- tapOn: "${GENDER}"
+
+- scrollUntilVisible:
+    element: "Continue"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn:
+    text: "YYYY-MM-DD"
+    index: 0
+- inputText: "${EXPIRY}"
+
+- tapOn:
+    text: "e.g., USA, CAN, GBR"
+    index: 0
+- inputText: "${ISSUING_COUNTRY}"
+
+- tapOn: "Continue"

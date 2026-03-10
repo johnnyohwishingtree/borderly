@@ -3,6 +3,11 @@ node_modules/
 ios/Pods/
 ios/build/
 android/build/
+
+# Maestro
+maestro/.maestro/
+maestro/screenshots/
+maestro/test-output/
 android/app/build/
 android/.gradle/
 *.jsbundle
