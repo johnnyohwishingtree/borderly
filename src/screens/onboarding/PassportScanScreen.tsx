@@ -16,7 +16,8 @@ import { useProfileStore } from '../../stores/useProfileStore';
 import { type MRZParseResult } from '../../services/passport/mrzParser';
 import { type TravelerProfile } from '../../types/profile';
 import { detectDevicePerformance } from '../../utils/imageUtils';
-import { handleStorageError, handleCameraError } from '../../services/error/errorHandler';
+import { handleStorageError, handleCameraError, errorHandler } from '../../services/error/errorHandler';
+import { isStorageError } from '../../utils/errorHandling';
 
 type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
 
@@ -124,7 +125,11 @@ export default function PassportScanScreen() {
       // Store the failed operation for retry
       setLastFailedOperation({ type: 'save', data: profileData });
 
-      const result = await handleStorageError(error as Error, {
+      // Classify the error — only treat actual storage errors as storage errors
+      const err = error as Error;
+      const handler = isStorageError(err) ? handleStorageError : errorHandler.handleError.bind(errorHandler);
+
+      const result = await handler(err, {
         screen: 'PassportScan',
         action: 'saveProfile',
         timestamp: Date.now()
@@ -141,7 +146,7 @@ export default function PassportScanScreen() {
           }
         }
       });
-      
+
       if (!result.recovered && result.error) {
         showStorageError(result.error);
       }
