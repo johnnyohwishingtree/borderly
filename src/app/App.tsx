@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar, Platform, AppState as RNAppState } from 'react-native';
+import { LogBox, StatusBar, Platform, AppState as RNAppState } from 'react-native';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import './global.css';
 
@@ -8,6 +8,14 @@ import { ErrorBoundary } from '@/components/ui';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
 import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
+
+// Suppress all LogBox overlays in dev builds so banners like
+// "Fast Refresh disconnected" and "Open debugger to view warnings"
+// don't overlay the UI and intercept taps during E2E testing.
+// This only affects the visual overlay — warnings still go to console.
+if (__DEV__) {
+  LogBox.ignoreAllLogs(true);
+}
 
 function App(): React.JSX.Element {
   useEffect(() => {

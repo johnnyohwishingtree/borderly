@@ -23,16 +23,19 @@ tags:
     visible: "Family Members"
     timeout: 10000
 - scrollUntilVisible:
-    element: "Manage"
+    element:
+      id: "manage-family-button"
     direction: DOWN
     timeout: 5000
-- tapOn: "Manage"
+- tapOn:
+    id: "manage-family-button"
 
 # Family management screen
 - extendedWaitUntil:
     visible: "Family Members"
     timeout: 10000
-- tapOn: "Add Member"
+- tapOn:
+    id: "add-member-button"
 
 # Add Family Member screen - select relationship
 - extendedWaitUntil:
@@ -40,15 +43,19 @@ tags:
     timeout: 10000
 
 # Select relationship from dropdown
-- tapOn: "Family Relationship"
-- tapOn: "${RELATIONSHIP}"
+- tapOn:
+    id: "relationship-select"
+- tapOn:
+    id: "relationship-select-option-${RELATIONSHIP}"
 
 # Choose manual entry
 - scrollUntilVisible:
-    element: "Enter Manually"
+    element:
+      id: "enter-manually-family-button"
     direction: DOWN
     timeout: 5000
-- tapOn: "Enter Manually"
+- tapOn:
+    id: "enter-manually-family-button"
 
 # === PASSPORT FORM (same as onboarding but in family mode) ===
 - extendedWaitUntil:

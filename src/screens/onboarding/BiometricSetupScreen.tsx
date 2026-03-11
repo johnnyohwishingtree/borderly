@@ -209,6 +209,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="large"
               fullWidth
+              testID="skip-biometric-button"
             />
           </View>
 

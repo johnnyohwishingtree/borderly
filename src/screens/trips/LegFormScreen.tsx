@@ -321,6 +321,7 @@ export default function LegFormScreen() {
             size="medium"
             loading={isSubmitting}
             disabled={Object.keys(formData).length === 0}
+            testID="save-progress-button"
           />
 
           <Button

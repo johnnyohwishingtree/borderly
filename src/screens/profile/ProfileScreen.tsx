@@ -369,6 +369,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FamilyManagement')}
               variant="outline"
               size="small"
+              testID="manage-family-button"
             />
           </View>
 

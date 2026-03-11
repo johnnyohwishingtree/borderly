@@ -119,6 +119,7 @@ export default function FamilyManagementScreen() {
               onPress={handleAddFamilyMember}
               variant="primary"
               size="medium"
+              testID="add-member-button"
             />
           </View>
         </View>

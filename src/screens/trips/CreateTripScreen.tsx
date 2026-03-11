@@ -380,6 +380,7 @@ export default function CreateTripScreen() {
                     onPress={() => updateLeg(index, 'destinationCountry', countryOption.code)}
                     variant={leg.destinationCountry === countryOption.code ? 'primary' : 'outline'}
                     size="small"
+                    testID={`country-${countryOption.code}`}
                   />
                 ))}
               </View>
@@ -638,6 +639,7 @@ export default function CreateTripScreen() {
               fullWidth
               loading={isCreating}
               disabled={legs.length === 0 || !tripData.name.trim()}
+              testID="create-trip-button"
             />
             {(legs.length === 0 || !tripData.name.trim()) && (
               <Text className="text-sm text-gray-500 text-center mt-2">

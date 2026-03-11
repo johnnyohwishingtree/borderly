@@ -75,7 +75,8 @@ export default function TripListScreen() {
         title: "Create Your First Trip",
         onPress: handleCreateTrip,
         variant: "primary",
-        size: "large"
+        size: "large",
+        testID: "create-first-trip-button",
       }}
       variant="illustration"
     />

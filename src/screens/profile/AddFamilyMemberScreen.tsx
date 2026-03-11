@@ -88,6 +88,7 @@ export default function AddFamilyMemberScreen() {
               onValueChange={(value) => setSelectedRelationship(value as FamilyRelationship)}
               options={relationshipOptions}
               placeholder="Select relationship"
+              testID="relationship-select"
             />
             <Text className="text-sm text-gray-600 mt-2">
               {getRelationshipDescription(selectedRelationship)}
@@ -117,6 +118,7 @@ export default function AddFamilyMemberScreen() {
                 onPress={handleScanPassport}
                 variant="primary"
                 size="large"
+                testID="start-camera-scan-button"
               />
             </View>
           </Card>
@@ -138,6 +140,7 @@ export default function AddFamilyMemberScreen() {
                 onPress={handleManualEntry}
                 variant="outline"
                 size="medium"
+                testID="enter-manually-family-button"
               />
             </View>
           </Card>

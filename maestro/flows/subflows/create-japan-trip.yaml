@@ -1,0 +1,200 @@
+# Shared subflow: Create a Japan trip with full leg details
+#
+# Usage from any flow:
+#   - runFlow: subflows/create-japan-trip.yaml
+#
+# Precondition: On "Your Trips" screen (no existing trips)
+# Postcondition: Trip created, back on "Your Trips" with trip card visible
+appId: com.borderly.app
+---
+
+- tapOn:
+    id: "create-first-trip-button"
+
+- extendedWaitUntil:
+    visible: "Create New Trip"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "No destinations added yet"
+    timeout: 5000
+
+# Add Japan destination
+- tapOn:
+    id: "add-destination-button"
+- scrollUntilVisible:
+    element:
+      id: "country-JPN"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "country-JPN"
+
+# Trip name
+- scrollUntilVisible:
+    element: "Trip Name"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "trip-name-input"
+- inputText: "Smith Family Asia"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Japan leg details
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-date"
+- inputText: "2026-07-01"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-departure-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-departure-date"
+- inputText: "2026-07-07"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-flight-number"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-flight-number"
+- inputText: "NH101"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-airline-code"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-airline-code"
+- inputText: "NH"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-airport"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-airport"
+- inputText: "NRT"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-name"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-name"
+- inputText: "Park Hyatt Tokyo"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-address"
+- inputText: "3-7-1-2 Nishi Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-city"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-city"
+- inputText: "Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-postal-code"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-postal-code"
+- inputText: "163-1055"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Dismiss keyboard and scroll to Create Trip
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element: "Hotel phone number"
+    direction: DOWN
+    timeout: 5000
+- swipe:
+    direction: UP
+    duration: 500
+- swipe:
+    direction: UP
+    duration: 500
+- tapOn:
+    id: "create-trip-button"
+
+# Handle result
+- runFlow:
+    when:
+      visible: "Validation Error"
+    commands:
+      - takeScreenshot: validation_error
+      - tapOn: "OK"
+- extendedWaitUntil:
+    visible: "Success"
+    timeout: 15000
+- tapOn: "OK"
+
+# Verify trip list
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: "trip-card-Smith Family Asia"
+    timeout: 10000

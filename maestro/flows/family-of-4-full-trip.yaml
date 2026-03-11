@@ -15,263 +15,12 @@ tags:
 ---
 
 # ============================================================
-# PHASE 1: Primary user onboarding (proven pattern)
+# PHASE 1: Primary user onboarding
 # ============================================================
 - launchApp:
     clearState: true
 
-# === WELCOME SCREEN ===
-- extendedWaitUntil:
-    visible: "Borderly"
-    timeout: 15000
-- assertVisible: "Welcome to"
-- scrollUntilVisible:
-    element:
-      id: "take-tutorial-button"
-    direction: DOWN
-- tapOn:
-    id: "take-tutorial-button"
-
-# === TUTORIAL SCREEN ===
-- extendedWaitUntil:
-    visible: "Step 1 of 5"
-    timeout: 10000
-- tapOn:
-    id: "skip-tutorial-button"
-
-# === PASSPORT SCAN SCREEN ===
-- extendedWaitUntil:
-    visible: "Passport Information"
-    timeout: 15000
-
-# Dismiss performance optimization hint if present
-- runFlow:
-    when:
-      visible: "Performance Optimization Enabled"
-    commands:
-      - tapOn: "Dismiss"
-
-# Choose manual entry
-- scrollUntilVisible:
-    element:
-      id: "enter-manually-button"
-    direction: DOWN
-- tapOn:
-    id: "enter-manually-button"
-
-# === MANUAL PASSPORT FORM ===
-- extendedWaitUntil:
-    visible:
-      id: "passport-number-input"
-    timeout: 10000
-
-# Swipe content down to reveal passport number at top
-- swipe:
-    start: "50%,30%"
-    end: "50%,60%"
-    duration: 300
-
-# Passport Number
-- tapOn:
-    id: "passport-number-input"
-- inputText: "L12345678"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Surname
-- scrollUntilVisible:
-    element:
-      id: "surname-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "surname-input"
-- inputText: "SMITH"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Given Names
-- scrollUntilVisible:
-    element:
-      id: "given-names-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "given-names-input"
-- inputText: "JOHN MICHAEL"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Nationality
-- scrollUntilVisible:
-    element:
-      id: "nationality-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "nationality-input"
-- inputText: "USA"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Date of Birth
-- scrollUntilVisible:
-    element:
-      id: "dob-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "dob-input"
-- inputText: "1985-06-15"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Gender
-- scrollUntilVisible:
-    element:
-      id: "gender-Male-button"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "gender-Male-button"
-
-# Passport expiry
-- scrollUntilVisible:
-    element:
-      id: "passport-expiry-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "passport-expiry-input"
-- inputText: "2032-03-20"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Issuing country
-- scrollUntilVisible:
-    element:
-      id: "issuing-country-input"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "issuing-country-input"
-- inputText: "USA"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Extra dismiss before Continue
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Dismiss banners that may block Continue button
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- runFlow:
-    when:
-      visible: "Open debugger to view warnings"
-    commands:
-      - tapOn:
-          point: "93%,94%"
-
-- scrollUntilVisible:
-    element:
-      id: "passport-continue-button"
-    direction: DOWN
-- tapOn:
-    id: "passport-continue-button"
-
-# === CONFIRM PROFILE SCREEN ===
-# Retry Continue if banner intercepted the tap
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-      - tapOn:
-          id: "passport-continue-button"
-- extendedWaitUntil:
-    visible: "Confirm Your Profile"
-    timeout: 30000
-- assertVisible: "L12345678"
-- assertVisible: "JOHN MICHAEL SMITH"
-# Dismiss banners that may interfere
-- runFlow:
-    when:
-      visible: "Open debugger to view warnings"
-    commands:
-      - tapOn:
-          point: "93%,94%"
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "continue-to-security-button"
-    direction: DOWN
-# Dismiss any banner right before tapping
-- runFlow:
-    when:
-      visible: "Dismiss"
-    commands:
-      - tapOn: "Dismiss"
-- tapOn:
-    id: "continue-to-security-button"
-
-# === BIOMETRIC SETUP - SKIP ===
-# Retry if banner intercepted - wait briefly then check
-- runFlow:
-    when:
-      visible:
-        id: "continue-to-security-button"
-    commands:
-      - runFlow:
-          when:
-            visible: "Dismiss"
-          commands:
-            - tapOn: "Dismiss"
-      - tapOn:
-          id: "continue-to-security-button"
-- extendedWaitUntil:
-    visible: "Secure Your Profile"
-    timeout: 15000
-- tapOn: "Skip for Now"
-- extendedWaitUntil:
-    visible: "Skip"
-    timeout: 5000
-- tapOn: "Skip"
-# Handle welcome alert if present
-- runFlow:
-    when:
-      visible: "OK"
-    commands:
-      - tapOn: "OK"
-
-# === MAIN SCREEN ===
-- extendedWaitUntil:
-    visible: "Your Trips"
-    timeout: 15000
-- assertVisible: "No trips yet"
+- runFlow: subflows/onboard-primary-user.yaml
 
 # ============================================================
 # PHASE 2: Navigate to family management and verify screens
@@ -290,10 +39,12 @@ tags:
     direction: DOWN
     timeout: 10000
 - scrollUntilVisible:
-    element: "Manage"
+    element:
+      id: "manage-family-button"
     direction: DOWN
     timeout: 5000
-- tapOn: "Manage"
+- tapOn:
+    id: "manage-family-button"
 
 # Family management screen - verify it loads
 - extendedWaitUntil:
@@ -304,239 +55,24 @@ tags:
     timeout: 5000
 
 # Tap Add Member to verify AddFamilyMember screen loads
-- tapOn: "Add Member"
+- tapOn:
+    id: "add-member-button"
 - extendedWaitUntil:
     visible: "Add Family Member"
     timeout: 10000
-
-# Navigate back — skip Phase 2 verification steps, just go directly to Trips tab
-# The `back` command is unreliable with dev banners, so tap the Trips tab directly
-# from the AddFamilyMember screen — tab bar is visible at the bottom.
-
-# Dismiss banners that may block tab bar
-- runFlow:
-    when:
-      visible: "Dismiss"
-    commands:
-      - tapOn: "Dismiss"
-- runFlow:
-    when:
-      visible: "Open debugger to view warnings"
-    commands:
-      - tapOn:
-          point: "93%,94%"
 
 # ============================================================
 # PHASE 3: Navigate to Trips and create a trip
 # ============================================================
 
+# Tab bar is visible from any screen — tap Trips directly
 - tapOn:
     id: "tab-trips"
 - extendedWaitUntil:
     visible: "Your Trips"
     timeout: 15000
 
-- tapOn: "Create Your First Trip"
-
-- extendedWaitUntil:
-    visible: "Create New Trip"
-    timeout: 10000
-- extendedWaitUntil:
-    visible: "No destinations added yet"
-    timeout: 5000
-
-# Add Japan destination
-- tapOn: "+ Add"
-- scrollUntilVisible:
-    element: "Japan"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Japan"
-
-# Trip name
-- scrollUntilVisible:
-    element: "Trip Name"
-    direction: UP
-    timeout: 5000
-- tapOn:
-    id: "trip-name-input"
-- inputText: "Smith Family Asia"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Japan leg details
-- scrollUntilVisible:
-    element:
-      id: "leg-0-arrival-date"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-arrival-date"
-- inputText: "2026-07-01"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-departure-date"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-departure-date"
-- inputText: "2026-07-07"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-flight-number"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-flight-number"
-- inputText: "NH101"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-airline-code"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-airline-code"
-- inputText: "NH"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-arrival-airport"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-arrival-airport"
-- inputText: "NRT"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-name"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-accommodation-name"
-- inputText: "Park Hyatt Tokyo"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-address"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-accommodation-address"
-- inputText: "3-7-1-2 Nishi Shinjuku"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-city"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-accommodation-city"
-- inputText: "Shinjuku"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-postal-code"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-0-accommodation-postal-code"
-- inputText: "163-1055"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-
-# Dismiss keyboard and scroll to Create Trip
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
-- scrollUntilVisible:
-    element: "Hotel phone number"
-    direction: DOWN
-    timeout: 5000
-- swipe:
-    direction: UP
-    duration: 500
-- swipe:
-    direction: UP
-    duration: 500
-- tapOn:
-    text: "Create Trip"
-    index: 1
-
-# Handle result
-- runFlow:
-    when:
-      visible: "Validation Error"
-    commands:
-      - takeScreenshot: validation_error
-      - tapOn: "OK"
-- extendedWaitUntil:
-    visible: "Success"
-    timeout: 15000
-- tapOn: "OK"
-
-# Verify trip list
-- extendedWaitUntil:
-    visible: "Your Trips"
-    timeout: 15000
-
-# Dismiss banners
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- runFlow:
-    when:
-      visible: "Open debugger to view warnings"
-    commands:
-      - tapOn:
-          point: "93%,94%"
-
-- extendedWaitUntil:
-    visible:
-      id: "trip-card-Smith Family Asia"
-    timeout: 10000
+- runFlow: subflows/create-japan-trip.yaml
 
 # ============================================================
 # PHASE 4: Open trip and save Japan leg form
@@ -561,10 +97,12 @@ tags:
 
 # Scroll to save
 - scrollUntilVisible:
-    element: "Save Progress"
+    element:
+      id: "save-progress-button"
     direction: DOWN
     timeout: 10000
-- tapOn: "Save Progress"
+- tapOn:
+    id: "save-progress-button"
 
 # Success alert
 - extendedWaitUntil:
