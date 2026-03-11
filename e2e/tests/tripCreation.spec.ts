@@ -44,15 +44,12 @@ test.describe('Trip Creation and Management', () => {
 
     // Destination section
     await expect(page.getByText('No destinations added yet')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Scan Boarding Pass' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Add Manually' })).toBeVisible();
+    await expect(page.getByTestId('empty-state-scan-button')).toBeVisible();
+    await expect(page.getByTestId('empty-state-add-button')).toBeVisible();
 
     // Top-level destination buttons (these are the small buttons in the header)
-    // We'll look for buttons that are siblings of each other (both small header buttons)
-    await expect(page.getByRole('button', { name: '+ Add' })).toBeVisible();
-    // For the scan button, we'll use the fact that it's the one NOT in the empty state card
-    const scanButtons = page.getByRole('button', { name: 'Scan' });
-    await expect(scanButtons.first()).toBeVisible(); // The header scan button appears first
+    await expect(page.getByTestId('add-destination-button')).toBeVisible();
+    await expect(page.getByTestId('scan-destination-button')).toBeVisible();
 
     // Create button
     await expect(page.getByRole('button', { name: 'Create Trip' })).toBeVisible();
@@ -62,7 +59,7 @@ test.describe('Trip Creation and Management', () => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
-    const nameInput = page.getByPlaceholder('e.g., Asia Summer 2025');
+    const nameInput = page.getByTestId('trip-name-input');
     await nameInput.fill('Japan Solo Adventure');
     await expect(nameInput).toHaveValue('Japan Solo Adventure');
   });
@@ -71,7 +68,7 @@ test.describe('Trip Creation and Management', () => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Add Manually' }).click();
+    await page.getByTestId('add-destination-button').click();
 
     // After adding, the empty state should be gone
     await expect(page.getByText('No destinations added yet')).not.toBeVisible();
@@ -113,6 +110,33 @@ test.describe('Trip Creation and Management', () => {
       await expect(page.getByText('Create New Trip')).toBeVisible();
       await expect(page.getByText('No destinations added yet')).not.toBeVisible();
     });
+  });
+
+  test('can fill in destination details', async ({ page }) => {
+    await page.getByRole('button', { name: 'Create Your First Trip' }).click();
+    await page.getByTestId('add-destination-button').click();
+
+    // Fill arrival date
+    await page.getByTestId('leg-0-arrival-date').fill('2026-07-01');
+    await expect(page.getByTestId('leg-0-arrival-date')).toHaveValue('2026-07-01');
+
+    // Fill departure date
+    await page.getByTestId('leg-0-departure-date').fill('2026-07-07');
+    await expect(page.getByTestId('leg-0-departure-date')).toHaveValue('2026-07-07');
+
+    // Verify arrival date is NOT merged into departure date
+    // (This indirectly tests that they are separate inputs correctly identified)
+    await expect(page.getByTestId('leg-0-arrival-date')).not.toHaveValue(/2026-07-07/);
+    await expect(page.getByTestId('leg-0-departure-date')).not.toHaveValue(/2026-07-012/); // Check for the merged case from screenshot
+
+    // Fill other fields
+    await page.getByTestId('leg-0-flight-number').fill('NH101');
+    await page.getByTestId('leg-0-airline-code').fill('NH');
+    await page.getByTestId('leg-0-arrival-airport').fill('NRT');
+
+    await expect(page.getByTestId('leg-0-flight-number')).toHaveValue('NH101');
+    await expect(page.getByTestId('leg-0-airline-code')).toHaveValue('NH');
+    await expect(page.getByTestId('leg-0-arrival-airport')).toHaveValue('NRT');
   });
 
   test('tab bar shows all navigation options', async ({ page }) => {

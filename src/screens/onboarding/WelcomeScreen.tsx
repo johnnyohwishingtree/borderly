@@ -155,6 +155,7 @@ export default function WelcomeScreen() {
             onPress={handleTutorial}
             size="lg"
             className="mb-4"
+            testID="take-tutorial-button"
           />
           
           <View className="flex-row items-center justify-center">
@@ -164,6 +165,7 @@ export default function WelcomeScreen() {
               variant="outline"
               size="md"
               className="border-0"
+              testID="skip-tutorial-button"
             />
             <Icon as={HelpCircle} size={18} color="#9ca3af" className="ml-1" />
           </View>

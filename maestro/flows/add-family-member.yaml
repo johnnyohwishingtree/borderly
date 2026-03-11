@@ -37,32 +37,40 @@ tags:
 
 # Fill passport form (same as onboarding but in family mode)
 - assertVisible: "Add Family Member"
-- tapOn: "Passport Number, required"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "${PASSPORT_NUM}"
 
-- tapOn: "Surname (Family Name), required"
+- tapOn:
+    id: "surname-input"
 - inputText: "${SURNAME}"
 
-- tapOn: "Given Names, required"
+- tapOn:
+    id: "given-names-input"
 - inputText: "${GIVEN_NAMES}"
 
-- tapOn: "Nationality, required"
+- tapOn:
+    id: "nationality-input"
 - inputText: "${NATIONALITY}"
 
-- tapOn: "Date of Birth, required"
+- tapOn:
+    id: "dob-input"
 - inputText: "${DOB}"
 
-- tapOn: "${GENDER}"
+- tapOn:
+    id: "gender-${GENDER}-button"
 
 - scrollUntilVisible:
     element: "Continue"
     direction: DOWN
     timeout: 5000
 
-- tapOn: "Passport Expiry Date, required"
+- tapOn:
+    id: "passport-expiry-input"
 - inputText: "${EXPIRY}"
 
-- tapOn: "Issuing Country, required"
+- tapOn:
+    id: "issuing-country-input"
 - inputText: "${ISSUING_COUNTRY}"
 
 - tapOn: "Continue"

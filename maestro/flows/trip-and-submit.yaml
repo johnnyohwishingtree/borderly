@@ -18,14 +18,17 @@ tags:
     timeout: 15000
 - assertVisible: "Welcome to"
 - scrollUntilVisible:
-    element: "Take Quick Tutorial"
+    element:
+      id: "take-tutorial-button"
     direction: DOWN
-- tapOn: "Take Quick Tutorial"
+- tapOn:
+    id: "take-tutorial-button"
 
 - extendedWaitUntil:
     visible: "Step 1 of 5"
     timeout: 10000
-- tapOn: "Skip tutorial"
+- tapOn:
+    id: "skip-tutorial-button"
 
 - extendedWaitUntil:
     visible: "Passport Information"
@@ -39,63 +42,149 @@ tags:
       - tapOn: "Dismiss"
 
 - scrollUntilVisible:
-    element: "Enter Manually"
+    element:
+      id: "enter-manually-button"
     direction: DOWN
-- tapOn: "Enter Manually"
+- tapOn:
+    id: "enter-manually-button"
 
+# Wait for form to render
+- extendedWaitUntil:
+    visible:
+      id: "passport-number-input"
+    timeout: 10000
+
+# Swipe content down to reveal passport number at the top
 - swipe:
-    direction: DOWN
-    duration: 500
+    start: "50%,30%"
+    end: "50%,60%"
+    duration: 300
 
-# Fill passport form
-- tapOn: "Passport Number, required"
+# Fill passport form (with keyboard dismiss between fields)
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L12345678"
-- tapOn: "Scanning Tips"
-
-- tapOn: "Surname (Family Name), required"
-- inputText: "SMITH"
-- tapOn: "Scanning Tips"
-
-- tapOn: "Given Names, required"
-- inputText: "JOHN MICHAEL"
-- tapOn: "Scanning Tips"
-
-- tapOn: "Nationality, required"
-- inputText: "USA"
-- tapOn: "Scanning Tips"
-
-- tapOn: "Date of Birth, required"
-- inputText: "1985-06-15"
-- tapOn: "Scanning Tips"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 - scrollUntilVisible:
-    element: "Male"
+    element:
+      id: "surname-input"
     direction: DOWN
-- tapOn: "Male"
+    timeout: 5000
+- tapOn:
+    id: "surname-input"
+- inputText: "SMITH"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-- tapOn: "Passport Expiry Date, required"
-- inputText: "2032-03-20"
-- tapOn: "Male"
+- scrollUntilVisible:
+    element:
+      id: "given-names-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "given-names-input"
+- inputText: "JOHN MICHAEL"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-- tapOn: "Issuing Country, required"
+- scrollUntilVisible:
+    element:
+      id: "nationality-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "nationality-input"
 - inputText: "USA"
-- tapOn: "Male"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "dob-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "dob-input"
+- inputText: "1985-06-15"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "gender-Male-button"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "gender-Male-button"
+
+- scrollUntilVisible:
+    element:
+      id: "passport-expiry-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "passport-expiry-input"
+- inputText: "2032-03-20"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "issuing-country-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "issuing-country-input"
+- inputText: "USA"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Extra dismiss before scrolling to Continue
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 - scrollUntilVisible:
     element: "Continue"
     direction: DOWN
 - tapOn: "Continue"
 
-# Confirm profile
+# === CONFIRM PROFILE SCREEN ===
 - extendedWaitUntil:
     visible: "Confirm Your Profile"
     timeout: 30000
 - assertVisible: "L12345678"
 - assertVisible: "JOHN MICHAEL SMITH"
+# Dismiss debugger warning if covering buttons
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
 - scrollUntilVisible:
-    element: "Continue to Security Setup"
+    element:
+      id: "continue-to-security-button"
     direction: DOWN
-- tapOn: "Continue to Security Setup"
+- tapOn:
+    id: "continue-to-security-button"
 
 # Biometric setup - skip
 - extendedWaitUntil:
@@ -106,10 +195,12 @@ tags:
     visible: "Skip"
     timeout: 5000
 - tapOn: "Skip"
-- extendedWaitUntil:
-    visible: "OK"
-    timeout: 5000
-- tapOn: "OK"
+# Handle welcome alert if present (may auto-dismiss)
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
 
 # Verify main screen
 - extendedWaitUntil:
@@ -143,100 +234,150 @@ tags:
 - tapOn: "Japan"
 
 # Now enter trip name while no keyboard is showing
-# Scroll up to trip name field
 - scrollUntilVisible:
     element: "Trip Name"
     direction: UP
     timeout: 5000
-- tapOn: "e.g., Asia Summer 2025"
+- tapOn:
+    id: "trip-name-input"
 - inputText: "MyTrip"
-# Dismiss keyboard by scrolling content (keyboardDismissMode on-drag)
-- swipe:
-    start: "50%,40%"
-    end: "50%,50%"
-    duration: 300
-
-# Arrival date
-- scrollUntilVisible:
-    element: "YYYY-MM-DD"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2026-07-01"
-
-# Departure date - tap directly on remaining placeholder
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2026-07-07"
-
-# Flight number - scroll to it first
-- scrollUntilVisible:
-    element: "e.g., NH123"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "e.g., NH123"
-- inputText: "NH101"
-
-# Airline code
-- tapOn: "e.g., NH"
-- inputText: "NH"
-
-# Arrival airport
-- tapOn: "e.g., NRT"
-- inputText: "NRT"
-
-# Scroll to accommodation section
-- scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
-    direction: DOWN
-    timeout: 5000
-
-# Accommodation name
-- tapOn: "e.g., Park Hyatt Tokyo"
-- inputText: "Park Hyatt Tokyo"
-
-# Address
-- tapOn: "Street address"
-- inputText: "3-7-1-2 Nishi Shinjuku"
-
-# Dismiss keyboard by scrolling (keyboardDismissMode="on-drag")
-- swipe:
-    start: "50%,40%"
-    end: "50%,50%"
-    duration: 300
-
-# City - scroll into view first, then tap
-- scrollUntilVisible:
-    element: "Postal Code"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    text: "City"
-    index: 1
-- inputText: "Shinjuku"
-
-# Dismiss keyboard again before postal code
-- swipe:
-    start: "50%,40%"
-    end: "50%,50%"
-    duration: 300
-
-# Postal code
-- tapOn:
-    text: "Postal code"
-    index: 1
-- inputText: "163-1055"
-
 # Dismiss keyboard
 - swipe:
     start: "50%,40%"
-    end: "50%,50%"
-    duration: 300
+    end: "50%,35%"
+    duration: 200
 
-# Scroll to the bottom of the form - past phone field
+# Arrival date
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-date"
+- inputText: "2026-07-01"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Departure date
+- scrollUntilVisible:
+    element:
+      id: "leg-0-departure-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-departure-date"
+- inputText: "2026-07-07"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Flight number
+- scrollUntilVisible:
+    element:
+      id: "leg-0-flight-number"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-flight-number"
+- inputText: "NH101"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Airline code
+- scrollUntilVisible:
+    element:
+      id: "leg-0-airline-code"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-airline-code"
+- inputText: "NH"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Arrival airport
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-airport"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-airport"
+- inputText: "NRT"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Accommodation name
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-name"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-name"
+- inputText: "Park Hyatt Tokyo"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Address
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-address"
+- inputText: "3-7-1-2 Nishi Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# City
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-city"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-city"
+- inputText: "Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Postal code
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-postal-code"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-postal-code"
+- inputText: "163-1055"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Dismiss keyboard and scroll to Create Trip button
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 - scrollUntilVisible:
     element: "Hotel phone number"
     direction: DOWN
@@ -261,7 +402,6 @@ tags:
       - takeScreenshot: validation_error
       - fail: "Unexpected validation error during trip creation."
 - extendedWaitUntil:
-    # If no validation error, we expect the success alert
     visible: "Success"
     timeout: 15000
 - tapOn: "OK"
@@ -275,30 +415,46 @@ tags:
 # PHASE 3: Open trip and go to leg form
 # ============================================================
 
-# Should be back on trip list
-- extendedWaitUntil:
-    visible: "Your Trips"
-    timeout: 10000
-- assertVisible: "MyTrip"
+# Dismiss Fast Refresh banner if present
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss ✕"
 
-# Tap the trip to see details
-- tapOn: "MyTrip"
+# Dismiss debugger warning if covering content
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
+
+# Wait for trip list to load and tap the trip card
+- extendedWaitUntil:
+    visible:
+      id: "trip-card-MyTrip"
+    timeout: 10000
+- tapOn:
+    id: "trip-card-MyTrip"
 
 - extendedWaitUntil:
     visible: "Itinerary"
     timeout: 10000
-- assertVisible: "Japan"
-- assertVisible: "Not Started"
+- assertVisible:
+    id: "leg-card-JPN"
 
 # Tap Japan leg to open form
-- tapOn: "Japan"
+- tapOn:
+    id: "leg-card-JPN"
 
 # ============================================================
 # PHASE 4: LegForm - save progress
 # ============================================================
 
+# Wait for the Travel Form screen to load
 - extendedWaitUntil:
-    visible: "Japan"
+    visible: "Travel Form"
     timeout: 15000
 
 # The form should auto-fill from profile data

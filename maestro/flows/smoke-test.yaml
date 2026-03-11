@@ -14,15 +14,18 @@ tags:
     timeout: 15000
 - assertVisible: "Welcome to"
 - scrollUntilVisible:
-    element: "Take Quick Tutorial"
+    element:
+      id: "take-tutorial-button"
     direction: DOWN
-- tapOn: "Take Quick Tutorial"
+- tapOn:
+    id: "take-tutorial-button"
 
 # === TUTORIAL SCREEN ===
 - extendedWaitUntil:
     visible: "Step 1 of 5"
     timeout: 10000
-- tapOn: "Skip tutorial"
+- tapOn:
+    id: "skip-tutorial-button"
 
 # === PASSPORT SCAN SCREEN ===
 - extendedWaitUntil:
@@ -38,55 +41,133 @@ tags:
 
 # Choose manual entry
 - scrollUntilVisible:
-    element: "Enter Manually"
+    element:
+      id: "enter-manually-button"
     direction: DOWN
-- tapOn: "Enter Manually"
+- tapOn:
+    id: "enter-manually-button"
 
 # === MANUAL PASSPORT FORM ===
+# Wait for form to render
+- extendedWaitUntil:
+    visible:
+      id: "passport-number-input"
+    timeout: 10000
+
+# Swipe content down to reveal passport number at the top of the form
 - swipe:
-    direction: DOWN
-    duration: 500
+    start: "50%,30%"
+    end: "50%,60%"
+    duration: 300
 
 # Passport Number
-- tapOn: "Passport Number, required"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L12345678"
-- tapOn: "Scanning Tips"
+# Dismiss keyboard with a drag gesture (keyboardDismissMode=on-drag)
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Surname
-- tapOn: "Surname (Family Name), required"
+- scrollUntilVisible:
+    element:
+      id: "surname-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "surname-input"
 - inputText: "SMITH"
-- tapOn: "Scanning Tips"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Given Names
-- tapOn: "Given Names, required"
+- scrollUntilVisible:
+    element:
+      id: "given-names-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "given-names-input"
 - inputText: "JOHN MICHAEL"
-- tapOn: "Scanning Tips"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Nationality
-- tapOn: "Nationality, required"
+- scrollUntilVisible:
+    element:
+      id: "nationality-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "nationality-input"
 - inputText: "USA"
-- tapOn: "Scanning Tips"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Date of Birth
-- tapOn: "Date of Birth, required"
+- scrollUntilVisible:
+    element:
+      id: "dob-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "dob-input"
 - inputText: "1985-06-15"
-- tapOn: "Scanning Tips"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Gender
 - scrollUntilVisible:
-    element: "Male"
+    element:
+      id: "gender-Male-button"
     direction: DOWN
-- tapOn: "Male"
+    timeout: 5000
+- tapOn:
+    id: "gender-Male-button"
 
 # Passport expiry
-- tapOn: "Passport Expiry Date, required"
+- scrollUntilVisible:
+    element:
+      id: "passport-expiry-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "passport-expiry-input"
 - inputText: "2032-03-20"
-- tapOn: "Male"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Issuing country
-- tapOn: "Issuing Country, required"
+- scrollUntilVisible:
+    element:
+      id: "issuing-country-input"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "issuing-country-input"
 - inputText: "USA"
-- tapOn: "Male"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Ensure keyboard is dismissed before scrolling to Continue
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
 # Submit
 - scrollUntilVisible:
@@ -100,10 +181,19 @@ tags:
     timeout: 30000
 - assertVisible: "L12345678"
 - assertVisible: "JOHN MICHAEL SMITH"
+# Dismiss debugger warning if covering buttons
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
 - scrollUntilVisible:
-    element: "Continue to Security Setup"
+    element:
+      id: "continue-to-security-button"
     direction: DOWN
-- tapOn: "Continue to Security Setup"
+- tapOn:
+    id: "continue-to-security-button"
 
 # === BIOMETRIC SETUP SCREEN ===
 - extendedWaitUntil:

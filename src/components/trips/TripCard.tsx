@@ -83,7 +83,7 @@ const TripCard = memo<TripCardProps>(({
   const CardComponent = onPress ? TouchableOpacity : View;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} testID={`trip-card-${trip.name}`} accessibilityLabel={trip.name}>
       <Card variant="elevated" className="mb-4">
         <View className="p-5">
           {/* Header */}

@@ -49,7 +49,7 @@ export default function TripDetailScreen() {
 
   const handleLegPress = (leg: TripLeg) => {
     // Navigate to leg form screen
-    (navigation as any).navigate('LegForm', { legId: leg.id });
+    (navigation as any).navigate('LegForm', { tripId, legId: leg.id });
   };
 
   const handleEditTrip = () => {

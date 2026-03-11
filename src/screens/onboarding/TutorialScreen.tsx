@@ -170,6 +170,7 @@ export default function TutorialScreen() {
             size="small"
             accessibilityLabel="Skip tutorial"
             accessibilityHint="Skip the tutorial and go directly to passport scanning"
+            testID="skip-tutorial-button"
           />
         </View>
 
@@ -214,12 +215,14 @@ export default function TutorialScreen() {
             disabled={currentStep === 0}
             accessibilityLabel="Previous step"
             accessibilityHint="Go to the previous tutorial step"
+            testID="previous-step-button"
           />
           <Button
             title={currentStep === tutorialSteps.length - 1 ? 'Get Started' : 'Next'}
             onPress={handleNext}
             variant="primary"
             size="large"
+            testID="next-step-button"
             accessibilityLabel={currentStep === tutorialSteps.length - 1 ? 'Get started' : 'Next step'}
             accessibilityHint={
               currentStep === tutorialSteps.length - 1 

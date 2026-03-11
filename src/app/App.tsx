@@ -7,6 +7,7 @@ import RootNavigator from './navigation/RootNavigator';
 import { ErrorBoundary } from '@/components/ui';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
+import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -32,6 +33,11 @@ function App(): React.JSX.Element {
 
       // Initialize error tracking
       errorTracker.initialize(deviceInfo, appState);
+
+      // Initialize schema registry for country forms
+      initializeSchemaRegistry().catch(err =>
+        console.warn('Failed to initialize schema registry:', err)
+      );
 
       // Record startup metrics (placeholder values until native implementation)
       performanceMonitor.recordStartupMetrics({

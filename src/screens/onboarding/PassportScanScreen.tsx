@@ -274,7 +274,7 @@ export default function PassportScanScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
+    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={50} className="mb-6" />
@@ -422,6 +422,7 @@ export default function PassportScanScreen() {
                   onPress={handleManualEntry}
                   variant="outline"
                   size="medium"
+                  testID="enter-manually-button"
                 />
               </View>
             </Card>
@@ -451,6 +452,7 @@ export default function PassportScanScreen() {
                   error={errors.passportNumber?.message}
                   autoCapitalize="characters"
                   required
+                  testID="passport-number-input"
                 />
               )}
             />
@@ -468,6 +470,7 @@ export default function PassportScanScreen() {
                   error={errors.surname?.message}
                   autoCapitalize="words"
                   required
+                  testID="surname-input"
                 />
               )}
             />
@@ -485,6 +488,7 @@ export default function PassportScanScreen() {
                   error={errors.givenNames?.message}
                   autoCapitalize="words"
                   required
+                  testID="given-names-input"
                 />
               )}
             />
@@ -504,6 +508,7 @@ export default function PassportScanScreen() {
                   helperText="Use 3-letter country code"
                   maxLength={3}
                   required
+                  testID="nationality-input"
                 />
               )}
             />
@@ -521,6 +526,7 @@ export default function PassportScanScreen() {
                   error={errors.dateOfBirth?.message}
                   helperText="Format: YYYY-MM-DD"
                   required
+                  testID="dob-input"
                 />
               )}
             />
@@ -545,6 +551,7 @@ export default function PassportScanScreen() {
                         onPress={() => onChange(option.value)}
                         variant={value === option.value ? 'primary' : 'outline'}
                         size="small"
+                        testID={`gender-${option.label}-button`}
                       />
                     ))}
                   </View>
@@ -568,6 +575,7 @@ export default function PassportScanScreen() {
                   error={errors.passportExpiry?.message}
                   helperText="Format: YYYY-MM-DD"
                   required
+                  testID="passport-expiry-input"
                 />
               )}
             />
@@ -587,6 +595,7 @@ export default function PassportScanScreen() {
                   helperText="Use 3-letter country code"
                   maxLength={3}
                   required
+                  testID="issuing-country-input"
                 />
               )}
             />

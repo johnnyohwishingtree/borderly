@@ -96,18 +96,17 @@ export default function CreateTripScreen() {
   // When family members load, assign the primary traveler to any legs that have no travelers
   useEffect(() => {
     if (familyMembers.length > 0 && legs.length > 0) {
-      const updatedLegs = legs.map(leg => {
-        if (leg.assignedTravelers.length === 0) {
-          return { ...leg, assignedTravelers: [familyMembers[0].id] };
-        }
-        return leg;
-      });
-      const hasChanges = updatedLegs.some((leg, i) => leg !== legs[i]);
-      if (hasChanges) {
-        setLegs(updatedLegs);
+      const needsUpdate = legs.some(leg => leg.assignedTravelers.length === 0);
+      if (needsUpdate) {
+        setLegs(legs.map(leg => {
+          if (leg.assignedTravelers.length === 0) {
+            return { ...leg, assignedTravelers: [familyMembers[0].id] };
+          }
+          return leg;
+        }));
       }
     }
-  }, [familyMembers]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [familyMembers, legs]);
 
   const addLeg = () => {
     const newLeg: LegFormData = {
@@ -258,7 +257,7 @@ export default function CreateTripScreen() {
     }
   };
 
-  const validateTrip = (): boolean => {
+  const validateTrip = (): Record<string, string> => {
     const newErrors: Record<string, string> = {};
 
     if (!tripData.name.trim()) {
@@ -397,6 +396,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => updateLeg(index, 'arrivalDate', text)}
                   placeholder="YYYY-MM-DD"
                   keyboardType="default"
+                  testID={`leg-${index}-arrival-date`}
                 />
                 {errors[`leg${index}.arrival`] && (
                   <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.arrival`]}</Text>
@@ -409,6 +409,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => updateLeg(index, 'departureDate', text)}
                   placeholder="YYYY-MM-DD"
                   keyboardType="default"
+                  testID={`leg-${index}-departure-date`}
                 />
               </View>
             </View>
@@ -421,6 +422,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
                   placeholder="e.g., NH123"
                   autoCapitalize="characters"
+                  testID={`leg-${index}-flight-number`}
                 />
               </View>
               <View className="flex-1">
@@ -430,6 +432,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
                   placeholder="e.g., NH"
                   autoCapitalize="characters"
+                  testID={`leg-${index}-airline-code`}
                 />
               </View>
             </View>
@@ -441,6 +444,7 @@ export default function CreateTripScreen() {
                 onChangeText={(text) => updateLeg(index, 'arrivalAirport', text)}
                 placeholder="e.g., NRT"
                 autoCapitalize="characters"
+                testID={`leg-${index}-arrival-airport`}
               />
             </View>
 
@@ -472,6 +476,7 @@ export default function CreateTripScreen() {
                     value={leg.accommodation.name}
                     onChangeText={(text) => updateLeg(index, 'accommodation.name', text)}
                     placeholder="e.g., Park Hyatt Tokyo"
+                    testID={`leg-${index}-accommodation-name`}
                   />
                   {errors[`leg${index}.accommodation`] && (
                     <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.accommodation`]}</Text>
@@ -484,6 +489,7 @@ export default function CreateTripScreen() {
                     value={leg.accommodation.address.line1}
                     onChangeText={(text) => updateLeg(index, 'accommodation.address.line1', text)}
                     placeholder="Street address"
+                    testID={`leg-${index}-accommodation-address`}
                   />
                 </View>
 
@@ -494,6 +500,7 @@ export default function CreateTripScreen() {
                       value={leg.accommodation.address.city}
                       onChangeText={(text) => updateLeg(index, 'accommodation.address.city', text)}
                       placeholder="City"
+                      testID={`leg-${index}-accommodation-city`}
                     />
                   </View>
                   <View className="flex-1">
@@ -502,6 +509,7 @@ export default function CreateTripScreen() {
                       value={leg.accommodation.address.postalCode}
                       onChangeText={(text) => updateLeg(index, 'accommodation.address.postalCode', text)}
                       placeholder="Postal code"
+                      testID={`leg-${index}-accommodation-postal-code`}
                     />
                   </View>
                 </View>
@@ -555,6 +563,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => setTripData(prev => ({ ...prev, name: text }))}
                   placeholder="e.g., Asia Summer 2025"
                   error={errors.tripName}
+                  testID="trip-name-input"
                 />
                 {errors.tripName && (
                   <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>
@@ -575,12 +584,14 @@ export default function CreateTripScreen() {
                   onPress={() => setShowScanner(true)}
                   variant="outline"
                   size="small"
+                  testID="scan-destination-button"
                 />
                 <Button
                   title="+ Add"
                   onPress={addLeg}
                   variant="primary"
                   size="small"
+                  testID="add-destination-button"
                 />
               </View>
             </View>
@@ -602,11 +613,13 @@ export default function CreateTripScreen() {
                       title="Scan Boarding Pass"
                       onPress={() => setShowScanner(true)}
                       variant="primary"
+                      testID="empty-state-scan-button"
                     />
                     <Button
                       title="Add Manually"
                       onPress={addLeg}
                       variant="outline"
+                      testID="empty-state-add-button"
                     />
                   </View>
                 </View>

@@ -27,26 +27,31 @@ tags:
 
 # Manual passport entry for John Smith (father)
 - tapOn: "Enter Manually"
-- tapOn: "Enter passport number"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L12345678"
-- tapOn: "Enter surname"
+- tapOn:
+    id: "surname-input"
 - inputText: "SMITH"
-- tapOn: "Enter given names"
+- tapOn:
+    id: "given-names-input"
 - inputText: "JOHN MICHAEL"
 
 - scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
+    element:
+      id: "nationality-input"
     direction: DOWN
     timeout: 5000
 
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "nationality-input"
 - inputText: "USA"
 
-- tapOn: "YYYY-MM-DD"
+- tapOn:
+    id: "dob-input"
 - inputText: "1985-06-15"
-- tapOn: "Male"
+- tapOn:
+    id: "gender-Male-button"
 
 - scrollUntilVisible:
     element: "Continue"
@@ -54,20 +59,22 @@ tags:
     timeout: 5000
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "passport-expiry-input"
 - inputText: "2032-03-20"
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "issuing-country-input"
 - inputText: "USA"
 
 - tapOn: "Continue"
 
 # Confirm profile
-- assertVisible: "Confirm Your Profile"
+- extendedWaitUntil:
+    visible:
+      id: "confirm-profile-title"
+    timeout: 30000
 - assertVisible: "SMITH"
-- tapOn: "Continue to Security Setup"
+- tapOn:
+    id: "continue-to-security-button"
 
 # Skip biometrics
 - assertVisible: "Secure Your Profile"
@@ -97,25 +104,30 @@ tags:
 - tapOn: "Spouse"
 - tapOn: "Enter Manually"
 
-- tapOn: "Enter passport number"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L98765432"
-- tapOn: "Enter surname"
+- tapOn:
+    id: "surname-input"
 - inputText: "SMITH"
-- tapOn: "Enter given names"
+- tapOn:
+    id: "given-names-input"
 - inputText: "JANE MARIE"
 
 - scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
+    element:
+      id: "nationality-input"
     direction: DOWN
     timeout: 5000
 
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "nationality-input"
 - inputText: "USA"
-- tapOn: "YYYY-MM-DD"
+- tapOn:
+    id: "dob-input"
 - inputText: "1987-09-22"
-- tapOn: "Female"
+- tapOn:
+    id: "gender-Female-button"
 
 - scrollUntilVisible:
     element: "Continue"
@@ -123,12 +135,10 @@ tags:
     timeout: 5000
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "passport-expiry-input"
 - inputText: "2033-01-15"
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "issuing-country-input"
 - inputText: "USA"
 - tapOn: "Continue"
 
@@ -145,25 +155,30 @@ tags:
 - tapOn: "Child"
 - tapOn: "Enter Manually"
 
-- tapOn: "Enter passport number"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L11223344"
-- tapOn: "Enter surname"
+- tapOn:
+    id: "surname-input"
 - inputText: "SMITH"
-- tapOn: "Enter given names"
+- tapOn:
+    id: "given-names-input"
 - inputText: "EMMA ROSE"
 
 - scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
+    element:
+      id: "nationality-input"
     direction: DOWN
     timeout: 5000
 
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "nationality-input"
 - inputText: "USA"
-- tapOn: "YYYY-MM-DD"
+- tapOn:
+    id: "dob-input"
 - inputText: "2015-03-10"
-- tapOn: "Female"
+- tapOn:
+    id: "gender-Female-button"
 
 - scrollUntilVisible:
     element: "Continue"
@@ -171,12 +186,10 @@ tags:
     timeout: 5000
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "passport-expiry-input"
 - inputText: "2030-08-25"
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "issuing-country-input"
 - inputText: "USA"
 - tapOn: "Continue"
 
@@ -193,25 +206,30 @@ tags:
 - tapOn: "Child"
 - tapOn: "Enter Manually"
 
-- tapOn: "Enter passport number"
+- tapOn:
+    id: "passport-number-input"
 - inputText: "L55667788"
-- tapOn: "Enter surname"
+- tapOn:
+    id: "surname-input"
 - inputText: "SMITH"
-- tapOn: "Enter given names"
+- tapOn:
+    id: "given-names-input"
 - inputText: "LIAM JAMES"
 
 - scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
+    element:
+      id: "nationality-input"
     direction: DOWN
     timeout: 5000
 
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "nationality-input"
 - inputText: "USA"
-- tapOn: "YYYY-MM-DD"
+- tapOn:
+    id: "dob-input"
 - inputText: "2018-11-05"
-- tapOn: "Male"
+- tapOn:
+    id: "gender-Male-button"
 
 - scrollUntilVisible:
     element: "Continue"
@@ -219,12 +237,10 @@ tags:
     timeout: 5000
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "passport-expiry-input"
 - inputText: "2031-04-12"
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
+    id: "issuing-country-input"
 - inputText: "USA"
 - tapOn: "Continue"
 
@@ -241,11 +257,13 @@ tags:
 - assertVisible: "Create New Trip"
 
 # Trip name
-- tapOn: "e.g., Asia Summer 2025"
+- tapOn:
+    id: "trip-name-input"
 - inputText: "Smith Family Asia 2026"
 
 # --- Leg 1: Japan ---
-- tapOn: "+ Add"
+- tapOn:
+    id: "add-destination-button"
 
 - scrollUntilVisible:
     element: "Japan"
@@ -255,51 +273,59 @@ tags:
 
 # Arrival date
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "leg-0-arrival-date"
 - inputText: "2026-07-01"
 
 # Departure date
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
+    id: "leg-0-departure-date"
 - inputText: "2026-07-07"
 
 # Flight number
-- tapOn: "e.g., NH123"
+- tapOn:
+    id: "leg-0-flight-number"
 - inputText: "NH101"
 
 # Airline code
-- tapOn: "e.g., NH"
+- tapOn:
+    id: "leg-0-airline-code"
 - inputText: "NH"
 
 # Arrival airport
-- tapOn: "e.g., NRT"
+- tapOn:
+    id: "leg-0-arrival-airport"
 - inputText: "NRT"
 
 # Accommodation
 - scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
+    element:
+      id: "leg-0-accommodation-name"
     direction: DOWN
     timeout: 5000
-- tapOn: "e.g., Park Hyatt Tokyo"
+- tapOn:
+    id: "leg-0-accommodation-name"
 - inputText: "Park Hyatt Tokyo"
 
-- tapOn: "Street address"
+- tapOn:
+    id: "leg-0-accommodation-address"
 - inputText: "3-7-1-2 Nishi Shinjuku"
 
-- tapOn: "City"
+- tapOn:
+    id: "leg-0-accommodation-city"
 - inputText: "Shinjuku"
 
-- tapOn: "Postal code"
+- tapOn:
+    id: "leg-0-accommodation-postal-code"
 - inputText: "163-1055"
 
 # --- Leg 2: Malaysia ---
 - scrollUntilVisible:
-    element: "+ Add"
+    element:
+      id: "add-destination-button"
     direction: DOWN
     timeout: 5000
-- tapOn: "+ Add"
+- tapOn:
+    id: "add-destination-button"
 
 - scrollUntilVisible:
     element: "Malaysia"
@@ -308,60 +334,53 @@ tags:
 - tapOn: "Malaysia"
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "leg-1-arrival-date"
 - inputText: "2026-07-07"
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
+    id: "leg-1-departure-date"
 - inputText: "2026-07-12"
 
 - tapOn:
-    text: "e.g., NH123"
-    index: 0
+    id: "leg-1-flight-number"
 - inputText: "MH710"
 
 - tapOn:
-    text: "e.g., NH"
-    index: 0
+    id: "leg-1-airline-code"
 - inputText: "MH"
 
 - tapOn:
-    text: "e.g., NRT"
-    index: 0
+    id: "leg-1-arrival-airport"
 - inputText: "KUL"
 
 - scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
+    id: "leg-1-accommodation-name"
     direction: DOWN
     timeout: 5000
 - tapOn:
-    text: "e.g., Park Hyatt Tokyo"
-    index: 0
+    id: "leg-1-accommodation-name"
 - inputText: "Shangri-La Kuala Lumpur"
 
 - tapOn:
-    text: "Street address"
-    index: 0
+    id: "leg-1-accommodation-address"
 - inputText: "11 Jalan Sultan Ismail"
 
 - tapOn:
-    text: "City"
-    index: 0
+    id: "leg-1-accommodation-city"
 - inputText: "Kuala Lumpur"
 
 - tapOn:
-    text: "Postal code"
-    index: 0
+    id: "leg-1-accommodation-postal-code"
 - inputText: "50250"
 
 # --- Leg 3: Singapore ---
 - scrollUntilVisible:
-    element: "+ Add"
+    element:
+      id: "add-destination-button"
     direction: DOWN
     timeout: 5000
-- tapOn: "+ Add"
+- tapOn:
+    id: "add-destination-button"
 
 - scrollUntilVisible:
     element: "Singapore"
@@ -370,52 +389,43 @@ tags:
 - tapOn: "Singapore"
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
+    id: "leg-2-arrival-date"
 - inputText: "2026-07-12"
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
+    id: "leg-2-departure-date"
 - inputText: "2026-07-16"
 
 - tapOn:
-    text: "e.g., NH123"
-    index: 0
+    id: "leg-2-flight-number"
 - inputText: "SQ119"
 
 - tapOn:
-    text: "e.g., NH"
-    index: 0
+    id: "leg-2-airline-code"
 - inputText: "SQ"
 
 - tapOn:
-    text: "e.g., NRT"
-    index: 0
+    id: "leg-2-arrival-airport"
 - inputText: "SIN"
 
 - scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
+    id: "leg-2-accommodation-name"
     direction: DOWN
     timeout: 5000
 - tapOn:
-    text: "e.g., Park Hyatt Tokyo"
-    index: 0
+    id: "leg-2-accommodation-name"
 - inputText: "Marina Bay Sands"
 
 - tapOn:
-    text: "Street address"
-    index: 0
+    id: "leg-2-accommodation-address"
 - inputText: "10 Bayfront Avenue"
 
 - tapOn:
-    text: "City"
-    index: 0
+    id: "leg-2-accommodation-city"
 - inputText: "Singapore"
 
 - tapOn:
-    text: "Postal code"
-    index: 0
+    id: "leg-2-accommodation-postal-code"
 - inputText: "018956"
 
 # Create the trip
