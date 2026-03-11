@@ -93,6 +93,22 @@ export default function CreateTripScreen() {
     loadProfiles();
   }, [getAllProfiles, loadFamilyProfiles]);
 
+  // When family members load, assign the primary traveler to any legs that have no travelers
+  useEffect(() => {
+    if (familyMembers.length > 0 && legs.length > 0) {
+      const updatedLegs = legs.map(leg => {
+        if (leg.assignedTravelers.length === 0) {
+          return { ...leg, assignedTravelers: [familyMembers[0].id] };
+        }
+        return leg;
+      });
+      const hasChanges = updatedLegs.some((leg, i) => leg !== legs[i]);
+      if (hasChanges) {
+        setLegs(updatedLegs);
+      }
+    }
+  }, [familyMembers]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const addLeg = () => {
     const newLeg: LegFormData = {
       destinationCountry: '',
@@ -269,12 +285,14 @@ export default function CreateTripScreen() {
     });
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleCreateTrip = async () => {
-    if (!validateTrip()) {
-      Alert.alert('Validation Error', 'Please fix the errors below');
+    const validationErrors = validateTrip();
+    if (Object.keys(validationErrors).length > 0) {
+      const errorList = Object.entries(validationErrors).map(([k, v]) => `${k}: ${v}`).join('\n');
+      Alert.alert('Validation Error', errorList || 'Please fix the errors below');
       return;
     }
 
@@ -520,7 +538,7 @@ export default function CreateTripScreen() {
         <Text className="text-base text-gray-600">Plan your multi-country journey</Text>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
         <View className="p-4">
 
           <Card className="mb-6" variant="outlined">
