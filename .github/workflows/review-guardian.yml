@@ -119,12 +119,57 @@ jobs:
           CLAUDE_BODY=$(echo '${{ toJSON(github.event.comment.body) }}' | jq -r '.')
           if echo "$CLAUDE_BODY" | grep -qiE 'request.?changes|critical.?(bug|issue|problem)|do not merge'; then
             echo "Claude flagged issues — NOT auto-approving"
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+            echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           echo "Claude reviewed PR #$PR_NUM — auto-approving"
+          echo "has_issues=false" >> $GITHUB_OUTPUT
+          echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by Claude."
+        id: review_check
+
+      - name: Request Claude fix issues found in review
+        if: steps.review_check.outputs.has_issues == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ steps.review_check.outputs.pr_num }}
+
+          # Guard: only request a fix once per review cycle
+          ALREADY_REQUESTED=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.body | test("Fix the issues from the code review above"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$ALREADY_REQUESTED" -gt 0 ]; then
+            echo "Fix already requested on PR #$PR_NUM — skipping to avoid cycle"
+            exit 0
+          fi
+
+          # Extract Claude's review findings to include in the fix request
+          CLAUDE_COMMENT_ID=${{ github.event.comment.id }}
+          REVIEW_BODY=$(gh api "repos/$REPO/issues/comments/$CLAUDE_COMMENT_ID" \
+            -q '.body' 2>/dev/null || echo "")
+
+          # Post a fix request that quotes the specific issues
+          gh pr comment "$PR_NUM" --repo "$REPO" --body "$(cat <<EOF
+          @claude Fix the issues from the code review above (comment #${CLAUDE_COMMENT_ID}).
+
+          Here are the findings to address:
+
+          <review_findings>
+          ${REVIEW_BODY}
+          </review_findings>
+
+          Instructions:
+          - Fix ONLY the issues listed above. Do NOT re-review or look at other comments.
+          - After fixing, run \`pnpm typecheck\` and \`pnpm test\` to verify nothing is broken.
+          - Git add and commit your fixes.
+          - Do NOT post a new review. Just fix the code.
+          EOF
+          )"
 
   # Check for missing reviews after CI passes
   ensure-review:
