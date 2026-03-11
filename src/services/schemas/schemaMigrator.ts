@@ -152,23 +152,40 @@ class SchemaMigrator {
   }
 
   /**
-   * Transform a field using a JavaScript function
+   * Built-in named transformers that can be applied to schema fields during migration.
+   * Named transformers replace the previous dynamic Function constructor (eval) approach.
+   */
+  private readonly builtInTransformers: Record<string, (value: unknown, schema: CountryFormSchema) => unknown> = {
+    toString: (value: unknown) => String(value ?? ''),
+    toNumber: (value: unknown) => Number(value),
+    toBoolean: (value: unknown) => Boolean(value),
+    toLowerCase: (value: unknown) => typeof value === 'string' ? value.toLowerCase() : value,
+    toUpperCase: (value: unknown) => typeof value === 'string' ? value.toUpperCase() : value,
+    trim: (value: unknown) => typeof value === 'string' ? value.trim() : value,
+    toNull: (_value: unknown) => null,
+  };
+
+  /**
+   * Transform a field using a named built-in transformer.
+   * The transformerCode must be one of the keys in builtInTransformers.
    */
   private transformField(schema: CountryFormSchema, path: string, transformerCode: string): CountryFormSchema {
     try {
-      // Create a safe function from the transformer code
-      const transformer = new Function('value', 'schema', transformerCode);
-      
+      const transformer = this.builtInTransformers[transformerCode];
+      if (!transformer) {
+        throw new Error(`Unknown transformer: "${transformerCode}". Available transformers: ${Object.keys(this.builtInTransformers).join(', ')}`);
+      }
+
       const currentValue = this.getValueAtPath(schema, path);
       const newValue = transformer(currentValue, schema);
-      
+
       // Update the field with the transformed value
       this.setValueAtPath(schema, path, newValue);
-      
+
     } catch (error) {
       throw new Error(`Transform function failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    
+
     return schema;
   }
 

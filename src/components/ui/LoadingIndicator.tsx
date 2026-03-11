@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { View, ActivityIndicator, Text, Pressable, Animated } from 'react-native';
 import { LOADING_ANIMATIONS, ANIMATION_DURATION } from '../../utils/animations';
 
@@ -34,11 +34,10 @@ export default function LoadingIndicator({
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(0.95)).current;
-  const dotAnims = [
-    useRef(new Animated.Value(0.5)).current,
-    useRef(new Animated.Value(0.5)).current,
-    useRef(new Animated.Value(0.5)).current,
-  ];
+  const dotAnim0 = useRef(new Animated.Value(0.5)).current;
+  const dotAnim1 = useRef(new Animated.Value(0.5)).current;
+  const dotAnim2 = useRef(new Animated.Value(0.5)).current;
+  const dotAnims = useMemo(() => [dotAnim0, dotAnim1, dotAnim2], [dotAnim0, dotAnim1, dotAnim2]);
 
   useEffect(() => {
     // Fade in animation

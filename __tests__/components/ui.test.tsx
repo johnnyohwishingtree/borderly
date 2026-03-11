@@ -2,7 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'reac
 import { render, fireEvent } from '@testing-library/react-native';
 
 // Mock the components since they don't exist yet
-const Button = ({ title, onPress, disabled, loading, variant, size, fullWidth, accessibilityLabel, accessibilityHint, ...props }: any) => (
+const Button = ({ title, onPress, disabled, loading, variant: _variant, size: _size, fullWidth: _fullWidth, accessibilityLabel, accessibilityHint, ...props }: any) => (
   <TouchableOpacity
     testID={props.testID || 'button'}
     onPress={disabled || loading ? undefined : onPress}
@@ -33,7 +33,7 @@ const Input = ({ label, value, onChangeText, required, error, helperText, access
   </View>
 );
 
-const Card = ({ children, variant, ...props }: any) => (
+const Card = ({ children, variant: _variant, ...props }: any) => (
   <View testID={props.testID || 'card'}>
     {children}
   </View>

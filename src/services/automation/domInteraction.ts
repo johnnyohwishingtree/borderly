@@ -168,7 +168,7 @@ export class DOMInteraction {
     try {
       const result = await executeScript(detectionScript);
       return result as ElementDetectionResult;
-    } catch (error) {
+    } catch {
       return {
         found: false,
         visible: false,

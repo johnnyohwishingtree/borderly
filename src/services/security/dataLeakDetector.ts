@@ -165,7 +165,7 @@ class DataLeakDetectorService {
               await this.scanStringForLeaks(value, `mmkv:${instance.name}:${key}`, leaks);
             }
           }
-        } catch (error) {
+        } catch {
           // Instance may not exist, skip silently
         }
       }

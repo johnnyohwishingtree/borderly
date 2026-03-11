@@ -304,15 +304,10 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   async getAllProfileIds(): Promise<string[]> {
-    try {
-      // Note: react-native-keychain doesn't provide a way to list all keys
-      // We'll need to track profile IDs separately in MMKV
-      // For now, return empty array - this will be handled by the profile store
-      return [];
-    } catch (error) {
-      console.error('Failed to get all profile IDs:', error);
-      return [];
-    }
+    // Note: react-native-keychain doesn't provide a way to list all keys
+    // We'll need to track profile IDs separately in MMKV
+    // For now, return empty array - this will be handled by the profile store
+    return [];
   }
 
   async profileExists(profileId: string): Promise<boolean> {

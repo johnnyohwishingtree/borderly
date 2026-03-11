@@ -70,7 +70,7 @@ export default function TripDetailScreen() {
             try {
               await deleteTrip(tripId);
               navigation.goBack();
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to delete trip');
             }
           },

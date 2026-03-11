@@ -226,7 +226,7 @@ export class WebViewController {
       });
       
       return screenshot as string;
-    } catch (error) {
+    } catch {
       // Fallback: return empty screenshot if capture fails
       return '';
     }
@@ -248,7 +248,7 @@ export class WebViewController {
       });
       
       return Boolean(result);
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -583,7 +583,7 @@ export class WebViewController {
           this.state.loading = false;
           return;
         }
-      } catch (error) {
+      } catch {
         // Continue waiting
       }
       

@@ -63,6 +63,9 @@ export default function BoardingPassScanner({
   const scanCooldownMs = lowPowerMode ? 1000 : 500;
 
   useEffect(() => {
+    // Capture ref for use in cleanup
+    const camera = cameraRef.current;
+
     // Timeout: if camera doesn't initialize within 10 seconds, assume unavailable
     cameraTimeoutRef.current = setTimeout(() => {
       setCameraStatus('unavailable');
@@ -79,12 +82,12 @@ export default function BoardingPassScanner({
         demoTimerRef.current = null;
       }
       setIsScanning(false);
-      
+
       // Clear camera ref and stop preview
-      if (cameraRef.current) {
+      if (camera) {
         try {
-          cameraRef.current.pausePreview?.();
-        } catch (error) {
+          camera.pausePreview?.();
+        } catch {
           // Ignore cleanup errors
         }
       }
@@ -190,8 +193,8 @@ export default function BoardingPassScanner({
     });
   };
 
-  const handleStatusChange = ({ cameraStatus }: { cameraStatus: string }) => {
-    if (cameraStatus === 'NOT_AUTHORIZED') {
+  const handleStatusChange = ({ cameraStatus: camStatus }: { cameraStatus: string }) => {
+    if (camStatus === 'NOT_AUTHORIZED') {
       // Permission denied — show error immediately instead of waiting for timeout
       if (cameraTimeoutRef.current) {
         clearTimeout(cameraTimeoutRef.current);

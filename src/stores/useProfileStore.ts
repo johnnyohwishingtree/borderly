@@ -250,7 +250,8 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       }
 
       // Apply updates (prevent id mutation)
-      const { id: _ignoredId, ...safeUpdates } = updates;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _id, ...safeUpdates } = updates;
       const updatedProfile = {
         ...currentProfile,
         ...safeUpdates,

@@ -61,8 +61,12 @@ export default function MRZScannerComponent({
   const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // Capture refs for use in cleanup
+    const scanner = scannerRef.current;
+    const camera = cameraRef.current;
+
     // Reset scanner when component mounts
-    scannerRef.current.reset();
+    scanner.reset();
 
     // Timeout: if camera doesn't initialize within 10 seconds, assume unavailable
     cameraTimeoutRef.current = setTimeout(() => {
@@ -90,23 +94,23 @@ export default function MRZScannerComponent({
         demoTimerRef.current = null;
       }
       setIsScanning(false);
-      
+
       // Clear performance timer
       if (performanceTimerRef.current) {
         clearInterval(performanceTimerRef.current);
         performanceTimerRef.current = null;
       }
-      
+
       // Dispose scanner resources
-      if (scannerRef.current && typeof scannerRef.current.dispose === 'function') {
-        scannerRef.current.dispose();
+      if (scanner && typeof scanner.dispose === 'function') {
+        scanner.dispose();
       }
-      
+
       // Clear camera ref and stop preview
-      if (cameraRef.current) {
+      if (camera) {
         try {
-          cameraRef.current.pausePreview?.();
-        } catch (error) {
+          camera.pausePreview?.();
+        } catch {
           // Ignore cleanup errors
         }
       }
@@ -169,8 +173,8 @@ export default function MRZScannerComponent({
     setIsScanning(true);
   };
 
-  const handleStatusChange = ({ cameraStatus }: { cameraStatus: string }) => {
-    if (cameraStatus === 'NOT_AUTHORIZED') {
+  const handleStatusChange = ({ cameraStatus: camStatus }: { cameraStatus: string }) => {
+    if (camStatus === 'NOT_AUTHORIZED') {
       // Permission denied — show error immediately instead of waiting for timeout
       if (cameraTimeoutRef.current) {
         clearTimeout(cameraTimeoutRef.current);

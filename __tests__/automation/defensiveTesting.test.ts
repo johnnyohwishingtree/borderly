@@ -186,7 +186,7 @@ describe('Defensive Automation Testing', () => {
       });
       
       // Manually trigger health check
-      await (monitor as any)['performHealthChecks']();
+      await (monitor as any).performHealthChecks();
       
       const alerts = monitor.getAllActiveAlerts();
       expect(alerts.length).toBeGreaterThan(0);
@@ -204,7 +204,7 @@ describe('Defensive Automation Testing', () => {
       // Add a portal and manually create health status with SSL issue
       monitor.addPortal('TEST', 'Test Portal', 'http://insecure-portal.com'); // Non-HTTPS
       
-      await (monitor as any)['performHealthChecks']();
+      await (monitor as any).performHealthChecks();
       
       // Check if auto-responses were triggered
       const responses = monitor.getAutoResponses('TEST');
@@ -219,7 +219,7 @@ describe('Defensive Automation Testing', () => {
           setTimeout(() => resolve(new Response(null, { status: 200 })), 200)
         )); // Slow response
 
-      await (portalMonitor as any)['performHealthChecks']();
+      await (portalMonitor as any).performHealthChecks();
       
       const status = portalMonitor.getMonitoringStatus();
       expect(status.healthyPortals + status.degradedPortals + status.offlinePortals)
@@ -446,12 +446,12 @@ describe('Defensive Automation Testing', () => {
         checkIntervalMinutes: 1
       });
 
-      await (monitor as any)['performHealthChecks']();
+      await (monitor as any).performHealthChecks();
       let alerts = monitor.getAllActiveAlerts();
       expect(alerts.length).toBeGreaterThan(0);
 
       // Second check should succeed
-      await (monitor as any)['performHealthChecks']();
+      await (monitor as any).performHealthChecks();
       
       // Previous alerts should still exist (they need manual resolution)
       // but health should improve

@@ -124,7 +124,7 @@ class PrivacyAuditService {
         accessControl: 'BIOMETRY_CURRENT_SET',
         keychainCompliance: isAvailable && configured
       };
-    } catch (error) {
+    } catch {
       return {
         available: false,
         configured: false,
@@ -165,7 +165,7 @@ class PrivacyAuditService {
           });
         }
       }
-    } catch (error) {
+    } catch {
       violations.push({
         severity: 'medium',
         type: 'insecure_storage',
@@ -199,7 +199,7 @@ class PrivacyAuditService {
           });
         }
       }
-    } catch (error) {
+    } catch {
       violations.push({
         severity: 'high',
         type: 'insecure_storage',
@@ -251,7 +251,7 @@ class PrivacyAuditService {
         description: 'Ensure WatermelonDB encryption is properly implemented at SQLite level',
         implementation: 'Verify SQLite encryption is active for borderly.db file'
       });
-    } catch (error) {
+    } catch {
       violations.push({
         severity: 'high',
         type: 'insecure_storage',
@@ -292,7 +292,7 @@ class PrivacyAuditService {
           });
         }
       }
-    } catch (error) {
+    } catch {
       recommendations.push({
         priority: 'low',
         title: 'MMKV Storage Audit',

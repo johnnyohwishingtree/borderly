@@ -339,7 +339,7 @@ export default function CreateTripScreen() {
       Alert.alert('Success', 'Trip created successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Failed to create trip. Please try again.');
     } finally {
       setIsCreating(false);

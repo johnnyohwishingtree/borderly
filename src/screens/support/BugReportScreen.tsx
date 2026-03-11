@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Alert, TextInput, Platform } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Lock } from 'lucide-react-native';
@@ -43,11 +43,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
     { label: 'UI/UX Issues', value: 'ui-ux' },
   ];
 
-  useEffect(() => {
-    generateDiagnosticInfo();
-  }, []);
-
-  const generateDiagnosticInfo = () => {
+  const generateDiagnosticInfo = useCallback(() => {
     const diagnostics = {
       timestamp: new Date().toISOString(),
       platform: Platform.OS,
@@ -73,7 +69,11 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
       },
     };
     setDiagnosticInfo(diagnostics);
-  };
+  }, [preferences, profile, trips]);
+
+  useEffect(() => {
+    generateDiagnosticInfo();
+  }, [generateDiagnosticInfo]);
 
   const handleSubmitBugReport = async () => {
     if (!title.trim()) {

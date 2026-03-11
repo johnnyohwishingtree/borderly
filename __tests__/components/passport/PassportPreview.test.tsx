@@ -263,7 +263,8 @@ describe('PassportPreview Component', () => {
   });
 
   it('hides rescan button when onRescan not provided', () => {
-    const { onRescan, ...propsWithoutRescan } = mockProps;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { onRescan: _onRescan, ...propsWithoutRescan } = mockProps;
     const { queryByText } = render(<PassportPreview {...propsWithoutRescan} />);
 
     expect(queryByText('Rescan')).toBeNull();

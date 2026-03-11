@@ -684,11 +684,11 @@ export const memoryLeakDetector = new MemoryLeakDetectionService();
  * React hook for component memory tracking
  */
 export function useMemoryLeakDetection(componentName: string) {
-  if (!__DEV__) return;
-
   React.useEffect(() => {
+    if (!__DEV__) return;
+
     const trackerId = memoryLeakDetector.trackComponentMount(componentName);
-    
+
     return () => {
       memoryLeakDetector.trackComponentUnmount(trackerId);
     };

@@ -33,12 +33,8 @@ test.describe('Boarding Pass Scanner', () => {
     
     // Evaluate in browser context to test import
     const importTest = await page.evaluate(() => {
-      try {
-        // This would fail if there were import issues with BoardingPassScanner
-        return { success: true, error: null };
-      } catch (error) {
-        return { success: false, error: error.message };
-      }
+      // This would fail if there were import issues with BoardingPassScanner
+      return { success: true, error: null as string | null };
     });
     
     expect(importTest.success).toBe(true);

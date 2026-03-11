@@ -5,7 +5,7 @@
  * and provides a complete user experience with progress tracking and fallback.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, Alert, SafeAreaView } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -53,8 +53,11 @@ export const AutomatedSubmissionScreen: React.FC<AutomatedSubmissionScreenProps>
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
 
-  // Get leg data (mock implementation)
-  const leg = legId ? { id: legId, destinationCountry: legId } as any : null;
+  // Get leg data (mock implementation) — memoized to keep useCallback deps stable
+  const leg = useMemo(
+    () => (legId ? { id: legId, destinationCountry: legId } as any : null),
+    [legId]
+  );
   
   /**
    * Initialize automated submission

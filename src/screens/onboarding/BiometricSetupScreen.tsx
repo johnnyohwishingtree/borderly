@@ -61,7 +61,7 @@ export default function BiometricSetupScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Setup Failed', 'Could not enable biometric authentication. Please try again.');
     } finally {
       setIsEnabling(false);

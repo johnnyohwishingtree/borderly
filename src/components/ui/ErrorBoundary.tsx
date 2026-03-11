@@ -120,8 +120,8 @@ export function useErrorHandler() {
     setError(null);
   }, []);
 
-  const captureError = React.useCallback((error: Error) => {
-    setError(error);
+  const captureError = React.useCallback((err: Error) => {
+    setError(err);
   }, []);
 
   if (error) {

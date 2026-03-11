@@ -272,10 +272,10 @@ class DatabaseService {
     const { result: allLegs } = await this.measureQueryPerformance(
       `getTripsWithLegs.batchLoadLegs(tripCount=${trips.length})`,
       async () => {
-        const allLegs = await db.collections.get('trip_legs').query().fetch();
-        
+        const tripLegs = await db.collections.get('trip_legs').query().fetch();
+
         // Filter by trip IDs and sort by order
-        const filteredLegs = allLegs
+        const filteredLegs = tripLegs
           .filter(leg => tripIds.includes((leg as any).tripId))
           .sort((a, b) => (a as any).order - (b as any).order);
           

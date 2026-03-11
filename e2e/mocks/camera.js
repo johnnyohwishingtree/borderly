@@ -17,7 +17,7 @@ const RNCamera = forwardRef(function RNCamera(props, ref) {
       if (onCameraReady) onCameraReady();
     }, 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [onCameraReady, onStatusChange]);
 
   useEffect(() => {
     if (onBarCodeRead && barCodeTypes) {

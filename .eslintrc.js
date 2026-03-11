@@ -12,5 +12,17 @@ module.exports = {
         'no-undef': 'off',
       },
     },
+    {
+      files: ['jest.setup.js', 'e2e/mocks/**/*.js', '__tests__/**/*.js'],
+      env: {
+        jest: true,
+      },
+    },
+    {
+      files: ['scripts/**/*.js'],
+      env: {
+        node: true,
+      },
+    },
   ],
 };

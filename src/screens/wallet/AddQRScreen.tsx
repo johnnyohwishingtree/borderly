@@ -208,7 +208,7 @@ export default function AddQRScreen() {
       } else if (result.error && result.error !== 'User cancelled camera') {
         Alert.alert('Error', result.error);
       }
-    } catch (_error) {
+    } catch {
       Alert.alert('Error', 'Failed to capture image');
     } finally {
       setIsLoading(false);
@@ -282,7 +282,7 @@ export default function AddQRScreen() {
       } else if (result.error && result.error !== 'User cancelled image selection') {
         Alert.alert('Error', result.error);
       }
-    } catch (_error) {
+    } catch {
       Alert.alert('Error', 'Failed to import image');
     } finally {
       setIsLoading(false);

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Plane } from 'lucide-react-native';
@@ -29,7 +29,7 @@ export default function TripListScreen() {
     reset,
   } = useLoadingState();
 
-  const fetchTrips = async () => {
+  const fetchTrips = useCallback(async () => {
     setLoading();
     try {
       await loadTrips({ refresh: true });
@@ -37,11 +37,11 @@ export default function TripListScreen() {
     } catch (err) {
       setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
     }
-  };
+  }, [setLoading, loadTrips, setLoadingSuccess, setLoadingError]);
 
   useEffect(() => {
     fetchTrips();
-  }, []);
+  }, [fetchTrips]);
 
   const handleTripPress = (trip: Trip) => {
     HapticFeedback.navigation();

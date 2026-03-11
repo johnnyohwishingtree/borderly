@@ -87,7 +87,7 @@ describe('Performance Acceptance Criteria', () => {
     performanceMonitor.setEnabled(false);
     try {
       await monitoringManager.shutdown();
-    } catch (error) {
+    } catch {
       // Ignore shutdown errors in tests
     }
     
@@ -372,7 +372,7 @@ describe('Performance Acceptance Criteria', () => {
       });
 
       // Monitor should be initialized
-      expect(monitoringManager['isInitialized']).toBe(true);
+      expect((monitoringManager as any).isInitialized).toBe(true);
     });
 
     test('should generate comprehensive system health report', async () => {

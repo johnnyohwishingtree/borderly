@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -30,11 +30,7 @@ export default function QRDetailScreen() {
 
   const { qrCodeId } = route.params;
 
-  useEffect(() => {
-    loadQRCode();
-  }, [qrCodeId]);
-
-  const loadQRCode = async () => {
+  const loadQRCode = useCallback(async () => {
     try {
       setIsLoading(true);
       const db = await databaseService.getDatabase();
@@ -56,7 +52,11 @@ export default function QRDetailScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [qrCodeId, navigation]);
+
+  useEffect(() => {
+    loadQRCode();
+  }, [loadQRCode]);
 
   const handleViewFullScreen = () => {
     setFullScreenVisible(true);

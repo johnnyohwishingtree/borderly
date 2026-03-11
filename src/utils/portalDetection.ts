@@ -203,7 +203,7 @@ export class PortalDetector {
       
       return identification;
 
-    } catch (error) {
+    } catch {
       return {
         portalType: 'unknown',
         confidence: 0,
@@ -287,7 +287,7 @@ export class PortalDetector {
         difficulty: result.difficulty,
         bypassable: result.type === 'text' || result.type === 'image'
       };
-    } catch (error) {
+    } catch {
       return { present: false };
     }
   }
@@ -450,7 +450,7 @@ export class PortalDetector {
 
     try {
       return await executeScript(analysisScript);
-    } catch (error) {
+    } catch {
       return this.getDefaultFormStructure();
     }
   }
@@ -481,7 +481,7 @@ export class PortalDetector {
       
       return changeAnalysis;
 
-    } catch (error) {
+    } catch {
       return {
         hasChanged: true,
         changeType: 'unknown',
@@ -575,7 +575,7 @@ export class PortalDetector {
 
     try {
       return await executeScript(authScript);
-    } catch (error) {
+    } catch {
       return this.getDefaultAuthInfo();
     }
   }
@@ -678,7 +678,7 @@ export class PortalDetector {
 
     try {
       return await executeScript(featureScript);
-    } catch (error) {
+    } catch {
       return this.getDefaultFeatures();
     }
   }
@@ -863,7 +863,7 @@ export class PortalDetector {
         changedElements: []
       };
 
-    } catch (error) {
+    } catch {
       return {
         hasChanged: true,
         changeType: 'unknown',

@@ -150,7 +150,8 @@ describe('StepCard', () => {
   });
 
   it('handles step without tips', () => {
-    const { tips, ...stepWithoutTips } = mockStep;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { tips: _tips, ...stepWithoutTips } = mockStep;
 
     const { queryByText } = render(
       <StepCard
