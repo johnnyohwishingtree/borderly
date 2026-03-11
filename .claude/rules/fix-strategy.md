@@ -14,5 +14,11 @@ When fixing test failures:
 3. After each fix, run BOTH `pnpm typecheck` AND `pnpm test` to confirm you didn't introduce new errors or test failures
 4. Never fix a test in a way that breaks typecheck
 
+When fixing lint errors:
+
+1. Run `pnpm lint` to see all failures.
+2. Fix the errors reported by the linter.
+3. Run `pnpm lint` again to confirm all errors are resolved.
+
 Do NOT use `any` types to suppress errors — fix the root cause.
 Do NOT leave unused variables or imports — delete them.
