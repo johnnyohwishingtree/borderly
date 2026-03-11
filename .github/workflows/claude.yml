@@ -434,6 +434,41 @@ jobs:
           done
           echo "Resolved review threads on PR #$PR_NUM"
 
+      - name: Request Gemini re-review after fixes
+        if: always() && steps.final-verify.outputs.pass == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=""
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            PR_NUM=${{ github.event.pull_request.number }}
+          elif [ -n "${{ github.event.issue.number }}" ]; then
+            HAS_PR=$(gh api "repos/$REPO/issues/${{ github.event.issue.number }}" \
+              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
+            if [ -n "$HAS_PR" ]; then
+              PR_NUM=${{ github.event.issue.number }}
+            fi
+          fi
+
+          if [ -z "$PR_NUM" ]; then
+            echo "Not a PR context — skipping re-review request"
+            exit 0
+          fi
+
+          # Only request re-review if there were previous Gemini reviews
+          GEMINI_REVIEWS=$(gh api "repos/$REPO/pulls/$PR_NUM/reviews" \
+            -q '[.[] | select(.user.login == "gemini-code-assist[bot]")] | length' 2>/dev/null || echo "0")
+
+          if [ "$GEMINI_REVIEWS" -eq 0 ]; then
+            echo "No previous Gemini reviews on PR #$PR_NUM — skipping"
+            exit 0
+          fi
+
+          echo "Requesting Gemini re-review on PR #$PR_NUM"
+          gh pr comment "$PR_NUM" --repo "$REPO" \
+            --body "/gemini review" 2>/dev/null || echo "Failed to request Gemini re-review"
+
       - name: Auto-create PR if branch has commits
         if: always() && steps.final-verify.outputs.pass == 'true'
         env:
