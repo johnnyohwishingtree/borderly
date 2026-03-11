@@ -481,13 +481,15 @@ jobs:
           COMMENT_TARGET=""
           if [ -n "${{ github.event.issue.number }}" ]; then
             COMMENT_TARGET="${{ github.event.issue.number }}"
+          elif [ -n "${{ github.event.pull_request.number }}" ]; then
+            COMMENT_TARGET="${{ github.event.pull_request.number }}"
           fi
 
           if [ -n "$COMMENT_TARGET" ]; then
             gh issue comment "$COMMENT_TARGET" --repo "${{ github.repository }}" --body "$(cat <<EOF
           ⚠️ **Checks failed after 3 fix attempts.** Claude's partial work has been saved to [\`${SALVAGE_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${SALVAGE_BRANCH}) so the next session can resume from it.
 
-          To resume, comment: \`@claude Cherry-pick the commits from ${SALVAGE_BRANCH} and continue fixing the typecheck/test errors.\`
+          To resume, comment: \`@claude\` with "Cherry-pick the commits from \`${SALVAGE_BRANCH}\` and continue fixing the typecheck/test errors."
           EOF
             )" 2>/dev/null || echo "Failed to post salvage comment"
           fi
