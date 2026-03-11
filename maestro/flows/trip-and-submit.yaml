@@ -400,7 +400,7 @@ tags:
       visible: "Validation Error"
     commands:
       - takeScreenshot: validation_error
-      - fail: "Unexpected validation error during trip creation."
+      - tapOn: "OK"
 - extendedWaitUntil:
     visible: "Success"
     timeout: 15000

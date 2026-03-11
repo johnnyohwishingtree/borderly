@@ -28,6 +28,9 @@ const AddQRScreen = lazy(() => import('@/screens/wallet').then(m => ({ default: 
 // Lazy load profile screens
 const ProfileScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.ProfileScreen })));
 const EditProfileScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.EditProfileScreen })));
+const FamilyManagementScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.FamilyManagementScreen })));
+const AddFamilyMemberScreen = lazy(() => import('@/screens/profile').then(m => ({ default: m.AddFamilyMemberScreen })));
+const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
 
 // Lazy load settings screens
 const SettingsScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.SettingsScreen })));
@@ -210,6 +213,36 @@ function ProfileNavigator() {
           </Suspense>
         )}
       </ProfileStack.Screen>
+      <ProfileStack.Screen
+        name="FamilyManagement"
+        options={{ title: 'Family Members' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <FamilyManagementScreen />
+          </Suspense>
+        )}
+      </ProfileStack.Screen>
+      <ProfileStack.Screen
+        name="AddFamilyMember"
+        options={{ title: 'Add Family Member' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <AddFamilyMemberScreen />
+          </Suspense>
+        )}
+      </ProfileStack.Screen>
+      <ProfileStack.Screen
+        name="PassportScan"
+        options={{ title: 'Passport Information' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <PassportScanScreen />
+          </Suspense>
+        )}
+      </ProfileStack.Screen>
     </ProfileStack.Navigator>
     </ErrorBoundary>
   );
@@ -327,6 +360,7 @@ export default function MainTabNavigator() {
           tabBarButton: (props: any) => (
             <TouchableOpacity
               {...props}
+              testID="tab-trips"
               accessibilityLabel="Trips tab"
               accessibilityHint="Navigate to trips and travel forms"
               style={[props.style, { minHeight: 44 }]}
@@ -343,6 +377,7 @@ export default function MainTabNavigator() {
           tabBarButton: (props: any) => (
             <TouchableOpacity
               {...props}
+              testID="tab-wallet"
               accessibilityLabel="QR Wallet tab"
               accessibilityHint="Navigate to saved QR codes and travel documents"
               style={[props.style, { minHeight: 44 }]}
@@ -359,6 +394,7 @@ export default function MainTabNavigator() {
           tabBarButton: (props: any) => (
             <TouchableOpacity
               {...props}
+              testID="tab-profile"
               accessibilityLabel="Profile tab"
               accessibilityHint="Navigate to profile and passport information"
               style={[props.style, { minHeight: 44 }]}
@@ -375,6 +411,7 @@ export default function MainTabNavigator() {
           tabBarButton: (props: any) => (
             <TouchableOpacity
               {...props}
+              testID="tab-settings"
               accessibilityLabel="Settings tab"
               accessibilityHint="Navigate to app settings and preferences"
               style={[props.style, { minHeight: 44 }]}

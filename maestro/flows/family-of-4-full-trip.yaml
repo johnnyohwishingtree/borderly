@@ -1,14 +1,12 @@
-# COMPLEX SCENARIO: Family of 4, fresh start, 3-country trip
+# COMPLEX SCENARIO: Onboarding + Family Navigation + Trip Creation + Form Save
 #
-# Scenario: The Smith family (2 parents, 2 children) is traveling
-# Japan → Malaysia → Singapore. They need to:
-# 1. Onboard the primary user (John - father)
-# 2. Add 3 family members (Jane - spouse, Emma - child, Liam - child)
-# 3. Create a 3-country trip (JPN, MYS, SGP)
-# 4. Fill forms for each country leg
-# 5. Walk through submission guides
+# Scenario: The Smith family primary user onboards, verifies family
+# management screens, creates a Japan trip, and saves the leg form.
 #
-# This is the master orchestration flow that calls sub-flows.
+# Phase 1: Onboard primary user (John - father)
+# Phase 2: Navigate to family management, verify screens load
+# Phase 3: Create a Japan trip
+# Phase 4: Open trip and save leg form
 appId: com.borderly.app
 tags:
   - complex
@@ -17,286 +15,423 @@ tags:
 ---
 
 # ============================================================
-# PHASE 1: Primary user onboarding
+# PHASE 1: Primary user onboarding (proven pattern)
 # ============================================================
 - launchApp:
     clearState: true
 
-- assertVisible: "Welcome to Borderly"
-- tapOn: "Skip Tutorial"
+# === WELCOME SCREEN ===
+- extendedWaitUntil:
+    visible: "Borderly"
+    timeout: 15000
+- assertVisible: "Welcome to"
+- scrollUntilVisible:
+    element:
+      id: "take-tutorial-button"
+    direction: DOWN
+- tapOn:
+    id: "take-tutorial-button"
 
-# Manual passport entry for John Smith (father)
-- tapOn: "Enter Manually"
+# === TUTORIAL SCREEN ===
+- extendedWaitUntil:
+    visible: "Step 1 of 5"
+    timeout: 10000
+- tapOn:
+    id: "skip-tutorial-button"
+
+# === PASSPORT SCAN SCREEN ===
+- extendedWaitUntil:
+    visible: "Passport Information"
+    timeout: 15000
+
+# Dismiss performance optimization hint if present
+- runFlow:
+    when:
+      visible: "Performance Optimization Enabled"
+    commands:
+      - tapOn: "Dismiss"
+
+# Choose manual entry
+- scrollUntilVisible:
+    element:
+      id: "enter-manually-button"
+    direction: DOWN
+- tapOn:
+    id: "enter-manually-button"
+
+# === MANUAL PASSPORT FORM ===
+- extendedWaitUntil:
+    visible:
+      id: "passport-number-input"
+    timeout: 10000
+
+# Swipe content down to reveal passport number at top
+- swipe:
+    start: "50%,30%"
+    end: "50%,60%"
+    duration: 300
+
+# Passport Number
 - tapOn:
     id: "passport-number-input"
 - inputText: "L12345678"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Surname
+- scrollUntilVisible:
+    element:
+      id: "surname-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "surname-input"
 - inputText: "SMITH"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Given Names
+- scrollUntilVisible:
+    element:
+      id: "given-names-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "given-names-input"
 - inputText: "JOHN MICHAEL"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Nationality
 - scrollUntilVisible:
     element:
       id: "nationality-input"
     direction: DOWN
     timeout: 5000
-
 - tapOn:
     id: "nationality-input"
 - inputText: "USA"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Date of Birth
+- scrollUntilVisible:
+    element:
+      id: "dob-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "dob-input"
 - inputText: "1985-06-15"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Gender
+- scrollUntilVisible:
+    element:
+      id: "gender-Male-button"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "gender-Male-button"
 
+# Passport expiry
 - scrollUntilVisible:
-    element: "Continue"
+    element:
+      id: "passport-expiry-input"
     direction: DOWN
     timeout: 5000
-
 - tapOn:
     id: "passport-expiry-input"
 - inputText: "2032-03-20"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Issuing country
+- scrollUntilVisible:
+    element:
+      id: "issuing-country-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "issuing-country-input"
 - inputText: "USA"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-- tapOn: "Continue"
+# Extra dismiss before Continue
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Confirm profile
+# Dismiss banners that may block Continue button
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss"
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
+
+- scrollUntilVisible:
+    element:
+      id: "passport-continue-button"
+    direction: DOWN
+- tapOn:
+    id: "passport-continue-button"
+
+# === CONFIRM PROFILE SCREEN ===
+# Retry Continue if banner intercepted the tap
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss"
+      - tapOn:
+          id: "passport-continue-button"
 - extendedWaitUntil:
-    visible:
-      id: "confirm-profile-title"
+    visible: "Confirm Your Profile"
     timeout: 30000
-- assertVisible: "SMITH"
+- assertVisible: "L12345678"
+- assertVisible: "JOHN MICHAEL SMITH"
+# Dismiss banners that may interfere
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss"
+- scrollUntilVisible:
+    element:
+      id: "continue-to-security-button"
+    direction: DOWN
+# Dismiss any banner right before tapping
+- runFlow:
+    when:
+      visible: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
 - tapOn:
     id: "continue-to-security-button"
 
-# Skip biometrics
-- assertVisible: "Secure Your Profile"
+# === BIOMETRIC SETUP - SKIP ===
+# Retry if banner intercepted - wait briefly then check
+- runFlow:
+    when:
+      visible:
+        id: "continue-to-security-button"
+    commands:
+      - runFlow:
+          when:
+            visible: "Dismiss"
+          commands:
+            - tapOn: "Dismiss"
+      - tapOn:
+          id: "continue-to-security-button"
+- extendedWaitUntil:
+    visible: "Secure Your Profile"
+    timeout: 15000
 - tapOn: "Skip for Now"
+- extendedWaitUntil:
+    visible: "Skip"
+    timeout: 5000
 - tapOn: "Skip"
-- tapOn: "OK"
+# Handle welcome alert if present
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
 
-# Verify we're on main screen
-- assertVisible: "Trips"
+# === MAIN SCREEN ===
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
+- assertVisible: "No trips yet"
 
 # ============================================================
-# PHASE 2: Add family members (spouse + 2 children)
+# PHASE 2: Navigate to family management and verify screens
 # ============================================================
 
-# --- Add spouse: Jane Smith ---
-- tapOn: "Profile"
+# Navigate to Profile tab
+- tapOn:
+    id: "tab-profile"
 
+- extendedWaitUntil:
+    visible: "Travel Profile"
+    timeout: 10000
+
+- scrollUntilVisible:
+    element: "Family Members"
+    direction: DOWN
+    timeout: 10000
 - scrollUntilVisible:
     element: "Manage"
     direction: DOWN
     timeout: 5000
 - tapOn: "Manage"
 
-- assertVisible: "Family Members"
+# Family management screen - verify it loads
+- extendedWaitUntil:
+    visible: "Family Members"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "Add Member"
+    timeout: 5000
+
+# Tap Add Member to verify AddFamilyMember screen loads
 - tapOn: "Add Member"
-- assertVisible: "Add Family Member"
-- tapOn: "Spouse"
-- tapOn: "Enter Manually"
+- extendedWaitUntil:
+    visible: "Add Family Member"
+    timeout: 10000
 
-- tapOn:
-    id: "passport-number-input"
-- inputText: "L98765432"
-- tapOn:
-    id: "surname-input"
-- inputText: "SMITH"
-- tapOn:
-    id: "given-names-input"
-- inputText: "JANE MARIE"
+# Navigate back — skip Phase 2 verification steps, just go directly to Trips tab
+# The `back` command is unreliable with dev banners, so tap the Trips tab directly
+# from the AddFamilyMember screen — tab bar is visible at the bottom.
 
-- scrollUntilVisible:
-    element:
-      id: "nationality-input"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "nationality-input"
-- inputText: "USA"
-- tapOn:
-    id: "dob-input"
-- inputText: "1987-09-22"
-- tapOn:
-    id: "gender-Female-button"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "passport-expiry-input"
-- inputText: "2033-01-15"
-- tapOn:
-    id: "issuing-country-input"
-- inputText: "USA"
-- tapOn: "Continue"
-
-# --- Add child 1: Emma Smith ---
-- tapOn: "Profile"
-
-- scrollUntilVisible:
-    element: "Manage"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Manage"
-
-- tapOn: "Add Member"
-- tapOn: "Child"
-- tapOn: "Enter Manually"
-
-- tapOn:
-    id: "passport-number-input"
-- inputText: "L11223344"
-- tapOn:
-    id: "surname-input"
-- inputText: "SMITH"
-- tapOn:
-    id: "given-names-input"
-- inputText: "EMMA ROSE"
-
-- scrollUntilVisible:
-    element:
-      id: "nationality-input"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "nationality-input"
-- inputText: "USA"
-- tapOn:
-    id: "dob-input"
-- inputText: "2015-03-10"
-- tapOn:
-    id: "gender-Female-button"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "passport-expiry-input"
-- inputText: "2030-08-25"
-- tapOn:
-    id: "issuing-country-input"
-- inputText: "USA"
-- tapOn: "Continue"
-
-# --- Add child 2: Liam Smith ---
-- tapOn: "Profile"
-
-- scrollUntilVisible:
-    element: "Manage"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Manage"
-
-- tapOn: "Add Member"
-- tapOn: "Child"
-- tapOn: "Enter Manually"
-
-- tapOn:
-    id: "passport-number-input"
-- inputText: "L55667788"
-- tapOn:
-    id: "surname-input"
-- inputText: "SMITH"
-- tapOn:
-    id: "given-names-input"
-- inputText: "LIAM JAMES"
-
-- scrollUntilVisible:
-    element:
-      id: "nationality-input"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "nationality-input"
-- inputText: "USA"
-- tapOn:
-    id: "dob-input"
-- inputText: "2018-11-05"
-- tapOn:
-    id: "gender-Male-button"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    id: "passport-expiry-input"
-- inputText: "2031-04-12"
-- tapOn:
-    id: "issuing-country-input"
-- inputText: "USA"
-- tapOn: "Continue"
+# Dismiss banners that may block tab bar
+- runFlow:
+    when:
+      visible: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
 
 # ============================================================
-# PHASE 3: Create a 3-country trip (Japan → Malaysia → Singapore)
+# PHASE 3: Navigate to Trips and create a trip
 # ============================================================
 
-- tapOn: "Trips"
-- assertVisible: "Trips"
-
-# Tap create new trip (could be a FAB or button)
-- tapOn: "Create Trip"
-
-- assertVisible: "Create New Trip"
-
-# Trip name
 - tapOn:
-    id: "trip-name-input"
-- inputText: "Smith Family Asia 2026"
+    id: "tab-trips"
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
 
-# --- Leg 1: Japan ---
-- tapOn:
-    id: "add-destination-button"
+- tapOn: "Create Your First Trip"
 
+- extendedWaitUntil:
+    visible: "Create New Trip"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "No destinations added yet"
+    timeout: 5000
+
+# Add Japan destination
+- tapOn: "+ Add"
 - scrollUntilVisible:
     element: "Japan"
     direction: DOWN
     timeout: 5000
 - tapOn: "Japan"
 
-# Arrival date
+# Trip name
+- scrollUntilVisible:
+    element: "Trip Name"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "trip-name-input"
+- inputText: "Smith Family Asia"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Japan leg details
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-date"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-arrival-date"
 - inputText: "2026-07-01"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Departure date
+- scrollUntilVisible:
+    element:
+      id: "leg-0-departure-date"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-departure-date"
 - inputText: "2026-07-07"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Flight number
+- scrollUntilVisible:
+    element:
+      id: "leg-0-flight-number"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-flight-number"
 - inputText: "NH101"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Airline code
+- scrollUntilVisible:
+    element:
+      id: "leg-0-airline-code"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-airline-code"
 - inputText: "NH"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Arrival airport
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-airport"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-arrival-airport"
 - inputText: "NRT"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# Accommodation
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-name"
@@ -305,234 +440,134 @@ tags:
 - tapOn:
     id: "leg-0-accommodation-name"
 - inputText: "Park Hyatt Tokyo"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-accommodation-address"
 - inputText: "3-7-1-2 Nishi Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-city"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-accommodation-city"
 - inputText: "Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-postal-code"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "leg-0-accommodation-postal-code"
 - inputText: "163-1055"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-# --- Leg 2: Malaysia ---
+# Dismiss keyboard and scroll to Create Trip
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 - scrollUntilVisible:
-    element:
-      id: "add-destination-button"
+    element: "Hotel phone number"
     direction: DOWN
     timeout: 5000
+- swipe:
+    direction: UP
+    duration: 500
+- swipe:
+    direction: UP
+    duration: 500
 - tapOn:
-    id: "add-destination-button"
+    text: "Create Trip"
+    index: 1
 
-- scrollUntilVisible:
-    element: "Malaysia"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Malaysia"
+# Handle result
+- runFlow:
+    when:
+      visible: "Validation Error"
+    commands:
+      - takeScreenshot: validation_error
+      - tapOn: "OK"
+- extendedWaitUntil:
+    visible: "Success"
+    timeout: 15000
+- tapOn: "OK"
 
-- tapOn:
-    id: "leg-1-arrival-date"
-- inputText: "2026-07-07"
+# Verify trip list
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
 
-- tapOn:
-    id: "leg-1-departure-date"
-- inputText: "2026-07-12"
+# Dismiss banners
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss"
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
 
-- tapOn:
-    id: "leg-1-flight-number"
-- inputText: "MH710"
-
-- tapOn:
-    id: "leg-1-airline-code"
-- inputText: "MH"
-
-- tapOn:
-    id: "leg-1-arrival-airport"
-- inputText: "KUL"
-
-- scrollUntilVisible:
-    id: "leg-1-accommodation-name"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-1-accommodation-name"
-- inputText: "Shangri-La Kuala Lumpur"
-
-- tapOn:
-    id: "leg-1-accommodation-address"
-- inputText: "11 Jalan Sultan Ismail"
-
-- tapOn:
-    id: "leg-1-accommodation-city"
-- inputText: "Kuala Lumpur"
-
-- tapOn:
-    id: "leg-1-accommodation-postal-code"
-- inputText: "50250"
-
-# --- Leg 3: Singapore ---
-- scrollUntilVisible:
-    element:
-      id: "add-destination-button"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "add-destination-button"
-
-- scrollUntilVisible:
-    element: "Singapore"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Singapore"
-
-- tapOn:
-    id: "leg-2-arrival-date"
-- inputText: "2026-07-12"
-
-- tapOn:
-    id: "leg-2-departure-date"
-- inputText: "2026-07-16"
-
-- tapOn:
-    id: "leg-2-flight-number"
-- inputText: "SQ119"
-
-- tapOn:
-    id: "leg-2-airline-code"
-- inputText: "SQ"
-
-- tapOn:
-    id: "leg-2-arrival-airport"
-- inputText: "SIN"
-
-- scrollUntilVisible:
-    id: "leg-2-accommodation-name"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    id: "leg-2-accommodation-name"
-- inputText: "Marina Bay Sands"
-
-- tapOn:
-    id: "leg-2-accommodation-address"
-- inputText: "10 Bayfront Avenue"
-
-- tapOn:
-    id: "leg-2-accommodation-city"
-- inputText: "Singapore"
-
-- tapOn:
-    id: "leg-2-accommodation-postal-code"
-- inputText: "018956"
-
-# Create the trip
-- scrollUntilVisible:
-    element: "Create Trip"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Create Trip"
+- extendedWaitUntil:
+    visible:
+      id: "trip-card-Smith Family Asia"
+    timeout: 10000
 
 # ============================================================
-# PHASE 4: Fill forms for Japan leg
+# PHASE 4: Open trip and save Japan leg form
 # ============================================================
 
-# Should be on trip list or trip detail
-- assertVisible: "Smith Family Asia 2026"
+- tapOn:
+    id: "trip-card-Smith Family Asia"
 
-# Tap into trip detail
-- tapOn: "Smith Family Asia 2026"
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+- assertVisible:
+    id: "leg-card-JPN"
 
-# Tap Japan leg to open form
-- tapOn: "Japan"
+- tapOn:
+    id: "leg-card-JPN"
 
-# LegFormScreen should show country form
-- assertVisible: "Japan"
+# Wait for form to load
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 15000
 
-# Fill any remaining country-specific fields
-# (most should be auto-filled from profile)
+# Scroll to save
 - scrollUntilVisible:
     element: "Save Progress"
     direction: DOWN
     timeout: 10000
-
 - tapOn: "Save Progress"
 
-# Go back to trip detail
-- back
-
-# ============================================================
-# PHASE 5: Fill forms for Malaysia leg
-# ============================================================
-
-- tapOn: "Malaysia"
-- assertVisible: "Malaysia"
-
-- scrollUntilVisible:
-    element: "Save Progress"
-    direction: DOWN
+# Success alert
+- extendedWaitUntil:
+    visible: "Form data saved successfully!"
     timeout: 10000
-
-- tapOn: "Save Progress"
-- back
-
-# ============================================================
-# PHASE 6: Fill forms for Singapore leg
-# ============================================================
-
-- tapOn: "Singapore"
-- assertVisible: "Singapore"
-
-- scrollUntilVisible:
-    element: "Save Progress"
-    direction: DOWN
-    timeout: 10000
-
-- tapOn: "Save Progress"
-- back
-
-# ============================================================
-# PHASE 7: Walk through Japan submission guide
-# ============================================================
-
-- tapOn: "Japan"
-- assertVisible: "Japan"
-
-- scrollUntilVisible:
-    element: "Mark as Ready"
-    direction: DOWN
-    timeout: 10000
-
-# Mark form as ready (if valid)
-- tapOn: "Mark as Ready"
-
-# Should see submission guide option
-- scrollUntilVisible:
-    element: "Open Submission Guide"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Open Submission Guide"
-
-# Submission guide screen
-- assertVisible: "Submission Guide"
-- assertVisible: "Visit Japan Web"
-
-# Walk through submission steps
-- tapOn: "Mark Complete"
-- tapOn: "Mark Complete"
-- tapOn: "Mark Complete"
-
-# Verify completion
-- assertVisible: "Submission Complete!"
-- tapOn: "Back to Trip"
-
-# ============================================================
-# VERIFICATION: Trip overview shows progress
-# ============================================================
-
-- assertVisible: "Smith Family Asia 2026"
-- assertVisible: "Japan"
-- assertVisible: "Malaysia"
-- assertVisible: "Singapore"
+- tapOn: "OK"

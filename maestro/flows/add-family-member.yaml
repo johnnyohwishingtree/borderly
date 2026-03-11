@@ -1,7 +1,7 @@
 # Reusable flow: Add a family member via manual passport entry
-# Expects to start from the main app (onboarding complete)
+# Expects to start from the main app (onboarding complete, on any tab)
 # Parameters:
-#   RELATIONSHIP: spouse | child | parent | other
+#   RELATIONSHIP: Spouse | Child | Parent | Other Family
 #   PASSPORT_NUM: passport number
 #   SURNAME: family name
 #   GIVEN_NAMES: given names
@@ -15,62 +15,201 @@ tags:
   - family
 ---
 # Navigate to Profile tab
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 
 # Go to family management
+- extendedWaitUntil:
+    visible: "Family Members"
+    timeout: 10000
 - scrollUntilVisible:
     element: "Manage"
     direction: DOWN
     timeout: 5000
 - tapOn: "Manage"
 
-# Add new member
-- assertVisible: "Family Members"
+# Family management screen
+- extendedWaitUntil:
+    visible: "Family Members"
+    timeout: 10000
 - tapOn: "Add Member"
 
-# Select relationship
-- assertVisible: "Add Family Member"
+# Add Family Member screen - select relationship
+- extendedWaitUntil:
+    visible: "Add Family Member"
+    timeout: 10000
+
+# Select relationship from dropdown
+- tapOn: "Family Relationship"
 - tapOn: "${RELATIONSHIP}"
 
 # Choose manual entry
+- scrollUntilVisible:
+    element: "Enter Manually"
+    direction: DOWN
+    timeout: 5000
 - tapOn: "Enter Manually"
 
-# Fill passport form (same as onboarding but in family mode)
-- assertVisible: "Add Family Member"
+# === PASSPORT FORM (same as onboarding but in family mode) ===
+- extendedWaitUntil:
+    visible:
+      id: "passport-number-input"
+    timeout: 10000
+
+# Dismiss performance hint if present
+- runFlow:
+    when:
+      visible: "Performance Optimization Enabled"
+    commands:
+      - tapOn: "Dismiss"
+
+# Choose manual entry if shown
+- runFlow:
+    when:
+      visible:
+        id: "enter-manually-button"
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "enter-manually-button"
+          direction: DOWN
+      - tapOn:
+          id: "enter-manually-button"
+
+# Wait for form and reveal top
+- extendedWaitUntil:
+    visible:
+      id: "passport-number-input"
+    timeout: 10000
+- swipe:
+    start: "50%,30%"
+    end: "50%,60%"
+    duration: 300
+
+# Passport Number
 - tapOn:
     id: "passport-number-input"
 - inputText: "${PASSPORT_NUM}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Surname
+- scrollUntilVisible:
+    element:
+      id: "surname-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "surname-input"
 - inputText: "${SURNAME}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Given Names
+- scrollUntilVisible:
+    element:
+      id: "given-names-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "given-names-input"
 - inputText: "${GIVEN_NAMES}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Nationality
+- scrollUntilVisible:
+    element:
+      id: "nationality-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "nationality-input"
 - inputText: "${NATIONALITY}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Date of Birth
+- scrollUntilVisible:
+    element:
+      id: "dob-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "dob-input"
 - inputText: "${DOB}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Gender
+- scrollUntilVisible:
+    element:
+      id: "gender-${GENDER}-button"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "gender-${GENDER}-button"
 
+# Passport expiry
 - scrollUntilVisible:
-    element: "Continue"
+    element:
+      id: "passport-expiry-input"
     direction: DOWN
     timeout: 5000
-
 - tapOn:
     id: "passport-expiry-input"
 - inputText: "${EXPIRY}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
+# Issuing country
+- scrollUntilVisible:
+    element:
+      id: "issuing-country-input"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "issuing-country-input"
 - inputText: "${ISSUING_COUNTRY}"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
 
-- tapOn: "Continue"
+# Dismiss keyboard and submit
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Dismiss banners that may block Continue button
+- runFlow:
+    when:
+      visible: "Fast Refresh disconnected"
+    commands:
+      - tapOn: "Dismiss"
+- runFlow:
+    when:
+      visible: "Open debugger to view warnings"
+    commands:
+      - tapOn:
+          point: "93%,94%"
+
+- scrollUntilVisible:
+    element:
+      id: "passport-continue-button"
+    direction: DOWN
+- tapOn:
+    id: "passport-continue-button"

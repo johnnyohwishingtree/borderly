@@ -610,6 +610,7 @@ export default function PassportScanScreen() {
               loading={isSubmitting}
               size="large"
               fullWidth
+              testID="passport-continue-button"
             />
           )}
 
