@@ -366,6 +366,7 @@ export default function CreateTripScreen() {
               onPress={() => removeLeg(index)}
               variant="outline"
               size="small"
+              testID={`remove-leg-${index}-button`}
             />
           </View>
 

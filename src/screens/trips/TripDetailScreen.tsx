@@ -133,6 +133,7 @@ export default function TripDetailScreen() {
             title="Go Back"
             onPress={() => navigation.goBack()}
             variant="outline"
+            testID="trip-detail-go-back-button"
           />
         </View>
       </View>
@@ -216,6 +217,7 @@ export default function TripDetailScreen() {
                 title="Add Destination"
                 onPress={handleAddDestination}
                 variant="primary"
+                testID="add-destination-empty-button"
               />
             </View>
           ) : (

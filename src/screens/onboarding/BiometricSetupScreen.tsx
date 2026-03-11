@@ -200,6 +200,7 @@ export default function BiometricSetupScreen() {
             loading={isEnabling}
             size="large"
             fullWidth
+            testID="enable-biometric-button"
           />
 
           <View className="border-2 border-gray-300 rounded-xl">
@@ -220,6 +221,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="medium"
               fullWidth
+              testID="biometric-back-button"
             />
           </View>
         </View>

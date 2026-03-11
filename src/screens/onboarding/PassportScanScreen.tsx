@@ -362,6 +362,7 @@ export default function PassportScanScreen() {
                   onPress={() => setShowPerformanceHint(false)}
                   variant="outline"
                   size="small"
+                  testID="dismiss-performance-hint-button"
                 />
               </View>
             </View>
@@ -395,6 +396,7 @@ export default function PassportScanScreen() {
                   onPress={handleStartScanning}
                   variant="primary"
                   size="large"
+                  testID="start-camera-scan-button"
                 />
               </View>
             </Card>
@@ -620,6 +622,7 @@ export default function PassportScanScreen() {
             variant="outline"
             size="large"
             fullWidth
+            testID="passport-back-button"
           />
         </View>
       </View>

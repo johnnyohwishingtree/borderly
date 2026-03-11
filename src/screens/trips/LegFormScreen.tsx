@@ -251,6 +251,7 @@ export default function LegFormScreen() {
               onPress={() => setShowOnlyCountrySpecific(!showOnlyCountrySpecific)}
               variant="outline"
               size="small"
+              testID="smart-delta-button"
             />
           </View>
         </View>
@@ -332,6 +333,7 @@ export default function LegFormScreen() {
             fullWidth
             loading={isSubmitting}
             disabled={!isValid}
+            testID="mark-ready-button"
           />
         </View>
 
@@ -347,6 +349,7 @@ export default function LegFormScreen() {
                 });
               }}
               variant="secondary"
+              testID="open-submission-guide-button"
               size="medium"
               fullWidth
             />

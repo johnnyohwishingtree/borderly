@@ -60,6 +60,7 @@ export default function ConfirmProfileScreen() {
           variant="primary"
           size="large"
           fullWidth
+          testID="confirm-go-back-button"
         />
       </View>
     );
@@ -166,6 +167,7 @@ export default function ConfirmProfileScreen() {
             variant="outline"
             size="large"
             fullWidth
+            testID="edit-information-button"
           />
         </View>
       </View>
