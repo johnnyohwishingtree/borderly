@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "pnpm typecheck 2>&1 | tail -8; exit 0"
+      }
+    ]
+  }
+}
