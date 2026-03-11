@@ -1,6 +1,6 @@
 # Fix Strategy
 
-When fixing typecheck or test errors:
+When fixing typecheck errors:
 
 1. Fix ONE FILE AT A TIME
 2. After each file, run `pnpm typecheck` to confirm you didn't introduce new errors
