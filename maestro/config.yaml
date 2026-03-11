@@ -1,0 +1,6 @@
+appId: com.borderly.app
+name: Borderly E2E Tests
+tags:
+  - native
+  - ios
+  - android

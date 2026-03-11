@@ -1,0 +1,79 @@
+# Flow 1: Primary user onboarding with manual passport entry
+# This is the first step of the family-of-4 scenario.
+# The primary user (parent) goes through full onboarding.
+appId: com.borderly.app
+tags:
+  - onboarding
+  - critical
+---
+- launchApp:
+    clearState: true
+
+# Welcome screen
+- assertVisible: "Welcome to Borderly"
+- assertVisible: "Private & Secure"
+- tapOn: "Skip Tutorial"
+
+# Passport Scan screen - choose manual entry
+- assertVisible: "Quick Passport Scan"
+- tapOn: "Enter Manually"
+
+# Fill manual passport form
+- tapOn: "Passport Number, required"
+- inputText: "L12345678"
+
+- tapOn: "Surname (Family Name), required"
+- inputText: "SMITH"
+
+- tapOn: "Given Names, required"
+- inputText: "JOHN MICHAEL"
+
+- tapOn: "Nationality, required"
+- inputText: "USA"
+
+- tapOn: "Date of Birth, required"
+- inputText: "1985-06-15"
+
+# Gender selection
+- tapOn: "Male"
+
+- scrollUntilVisible:
+    element: "Passport Expiry"
+    direction: DOWN
+    timeout: 5000
+
+# Expiry date
+- tapOn: "Passport Expiry Date, required"
+- inputText: "2032-03-20"
+
+# Issuing country
+- tapOn: "Issuing Country, required"
+- inputText: "USA"
+
+- scrollUntilVisible:
+    element: "Continue"
+    direction: DOWN
+    timeout: 5000
+
+- tapOn: "Continue"
+
+# Confirm profile screen
+- assertVisible: "Confirm Your Profile"
+- assertVisible: "JOHN MICHAEL"
+- assertVisible: "SMITH"
+- assertVisible: "L12345678"
+- tapOn: "Continue to Security Setup"
+
+# Biometric setup screen
+- assertVisible: "Secure Your Profile"
+- tapOn: "Skip for Now"
+
+# Handle skip confirmation alert
+- tapOn: "Skip"
+
+# Handle welcome alert
+- assertVisible: "Welcome to Borderly!"
+- tapOn: "OK"
+
+# Should now be on main screen
+- assertVisible: "Trips"
