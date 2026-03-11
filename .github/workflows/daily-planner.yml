@@ -124,13 +124,12 @@ jobs:
 
       - name: Run Claude Code planner
         if: steps.gate.outputs.needed == 'true'
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           max_turns: 30
           allowed_tools: "Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
-          direct_prompt: |
+          prompt: |
             You are a technical product manager for Borderly, a universal travel
             declaration app. Your job is to create a GitHub epic with stories
             that the autonomous pipeline can execute.
