@@ -56,9 +56,20 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 100
           # Allow all git commands EXCEPT push — push happens only after verification
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 100,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git checkout:*)",
+                "Bash(git branch:*)", "Bash(git status:*)", "Bash(git diff:*)",
+                "Bash(git log:*)", "Bash(git stash:*)", "Bash(git merge:*)",
+                "Bash(git rebase:*)", "Bash(git reset:*)", "Bash(git remote:*)",
+                "Bash(git ls-remote:*)", "Bash(git rev-parse:*)", "Bash(git rev-list:*)",
+                "Bash(git show:*)", "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
 
@@ -79,8 +90,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -105,8 +124,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -132,8 +159,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -171,8 +206,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -195,8 +238,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 20
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 20,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -225,8 +276,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -249,8 +308,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 20
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 20,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -279,8 +346,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -303,8 +378,16 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 20
-          allowed_tools: "Bash(git add:*),Bash(git commit:*),Bash(git checkout:*),Bash(git branch:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git stash:*),Bash(git merge:*),Bash(git rebase:*),Bash(git reset:*),Bash(git remote:*),Bash(git ls-remote:*),Bash(git rev-parse:*),Bash(git rev-list:*),Bash(git show:*),Bash(gh:*),Bash(node:*),Bash(pnpm:*),Bash(npx:*)"
+          settings: |
+            {
+              "maxTurns": 20,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
           claude_args: |
             --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
           prompt: |
@@ -337,9 +420,76 @@ jobs:
 
           echo "pass=$PASS" >> $GITHUB_OUTPUT
           if [ "$PASS" = "false" ]; then
-            echo "ERROR: Code still fails after 3 fix attempts — will NOT push"
+            echo "ERROR: Code still fails after 3 fix attempts — will NOT push to main branch"
           else
             echo "All checks pass — safe to push"
+          fi
+
+      # ============================================================
+      # Salvage branch: push partial work when checks fail
+      # ============================================================
+      - name: Push to salvage branch on failure
+        if: always() && steps.final-verify.outputs.pass == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          BRANCH=$(git branch --show-current)
+          RUN_ID=${{ github.run_id }}
+          SALVAGE_BRANCH="claude/salvage/${BRANCH}-${RUN_ID}"
+
+          # Check if there are any commits beyond what's on the remote
+          HAS_CHANGES=false
+          REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$REMOTE_EXISTS" -gt 0 ]; then
+            UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
+            if [ -n "$UNPUSHED" ]; then
+              HAS_CHANGES=true
+            fi
+          else
+            COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+              HAS_CHANGES=true
+            fi
+          fi
+
+          # Also check for uncommitted changes
+          UNCOMMITTED=$(git status --porcelain | grep -v '^?? output.txt$' || true)
+          if [ -n "$UNCOMMITTED" ]; then
+            HAS_CHANGES=true
+            echo "Committing uncommitted changes to salvage branch:"
+            echo "$UNCOMMITTED"
+            git add -u
+            if [ -n "$(git diff --cached --name-only)" ]; then
+              git commit -m "wip: uncommitted changes from failed CI run #${RUN_ID}
+
+          Co-authored-by: Claude <noreply@anthropic.com>"
+            fi
+          fi
+
+          if [ "$HAS_CHANGES" = "false" ]; then
+            echo "No changes to salvage — skipping"
+            exit 0
+          fi
+
+          echo "Pushing salvage branch: $SALVAGE_BRANCH"
+          git checkout -b "$SALVAGE_BRANCH"
+          git push -u origin "$SALVAGE_BRANCH"
+
+          # Comment on the issue/PR about the salvage branch
+          COMMENT_TARGET=""
+          if [ -n "${{ github.event.issue.number }}" ]; then
+            COMMENT_TARGET="${{ github.event.issue.number }}"
+          fi
+
+          if [ -n "$COMMENT_TARGET" ]; then
+            gh issue comment "$COMMENT_TARGET" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          ⚠️ **Checks failed after 3 fix attempts.** Claude's partial work has been saved to [\`${SALVAGE_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${SALVAGE_BRANCH}) so the next session can resume from it.
+
+          To resume, comment: \`@claude Cherry-pick the commits from ${SALVAGE_BRANCH} and continue fixing the typecheck/test errors.\`
+          EOF
+            )" 2>/dev/null || echo "Failed to post salvage comment"
           fi
 
       # ============================================================
