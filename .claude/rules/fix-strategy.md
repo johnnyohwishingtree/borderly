@@ -10,8 +10,8 @@ When fixing typecheck errors:
 When fixing test failures:
 
 1. Run `pnpm test` to see all failures
-2. Fix tests one at a time
-3. After each fix, run BOTH `pnpm typecheck` AND `pnpm test`
+2. Fix one test failure at a time
+3. After each fix, run BOTH `pnpm typecheck` AND `pnpm test` to confirm you didn't introduce new errors or test failures
 4. Never fix a test in a way that breaks typecheck
 
 Do NOT use `any` types to suppress errors — fix the root cause.
