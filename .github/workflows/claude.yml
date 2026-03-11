@@ -420,7 +420,7 @@ jobs:
 
           echo "pass=$PASS" >> $GITHUB_OUTPUT
           if [ "$PASS" = "false" ]; then
-            echo "ERROR: Code still fails after 3 fix attempts — will NOT push to main branch"
+            echo "ERROR: Code still fails after 3 fix attempts — saving to salvage branch instead"
           else
             echo "All checks pass — safe to push"
           fi
