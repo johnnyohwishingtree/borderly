@@ -253,19 +253,18 @@ tags:
     text: "Create Trip"
     index: 1
 
-# Handle result - check for Validation Error to debug, or Success
-- extendedWaitUntil:
-    visible: "OK"
-    timeout: 15000
-# Take screenshot before tapping OK to see which error
-- tapOn: "OK"
-
-# If validation error occurred, scroll up to check errors then fail clearly
+# Handle result - check for Validation Error first, then expect Success
 - runFlow:
     when:
       visible: "Validation Error"
     commands:
-      - tapOn: "OK"
+      - takeScreenshot: validation_error
+      - fail: "Unexpected validation error during trip creation."
+- extendedWaitUntil:
+    # If no validation error, we expect the success alert
+    visible: "Success"
+    timeout: 15000
+- tapOn: "OK"
 
 # Check for success - should be on trip list now
 - extendedWaitUntil:
