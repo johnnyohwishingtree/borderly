@@ -52,25 +52,26 @@ tags:
     visible: "Travel Form"
     timeout: 15000
 
-# Dismiss Fast Refresh banner if present
+# Wait for form content to render (Form Summary appears first)
+- extendedWaitUntil:
+    visible: "Form Summary"
+    timeout: 10000
+
+# Dismiss Fast Refresh banner if present (may appear with delay)
 - runFlow:
     when:
-      visible: "Dismiss"
+      visible: "Fast Refresh"
     commands:
       - tapOn: "Dismiss"
 
 # Scroll past Form Summary to reach actual form fields
 - scrollUntilVisible:
-    element: "Airline Company"
-    direction: DOWN
-    timeout: 10000
-
-# City of Departure — the only required field without autoFillSource
-- scrollUntilVisible:
     element:
       id: "field-departureCity"
     direction: DOWN
-    timeout: 10000
+    timeout: 15000
+
+# City of Departure — the only required field without autoFillSource
 - tapOn:
     id: "field-departureCity"
 - inputText: "Los Angeles"
@@ -88,10 +89,10 @@ tags:
 - tapOn:
     id: "field-hotelPhone"
 - inputText: "03-5322-1234"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+
+# Dismiss keyboard by tapping the return key then tapping header area
+- pressKey: Enter
+- tapOn: "Travel Form"
 
 # Save progress
 - scrollUntilVisible:
@@ -108,11 +109,9 @@ tags:
     timeout: 10000
 - tapOn: "OK"
 
-# Mark as Ready — form should be valid now
-- scrollUntilVisible:
-    element:
-      id: "mark-ready-button"
-    direction: DOWN
+# Mark as Ready — button is in fixed footer, no scroll needed
+- extendedWaitUntil:
+    visible: "Mark as Ready"
     timeout: 10000
 - tapOn:
     id: "mark-ready-button"
