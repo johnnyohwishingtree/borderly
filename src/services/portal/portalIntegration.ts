@@ -287,12 +287,13 @@ export class PortalIntegrationService {
       }
 
       // Check if the URL can be opened
+      let timeoutId: ReturnType<typeof setTimeout>;
       const canOpen = await Promise.race([
         Linking.canOpenURL(finalUrl),
-        new Promise<boolean>((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), this.PORTAL_TIMEOUT)
-        ),
-      ]);
+        new Promise<boolean>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error('Timeout')), this.PORTAL_TIMEOUT);
+        }),
+      ]).finally(() => clearTimeout(timeoutId));
 
       if (!canOpen) {
         return {

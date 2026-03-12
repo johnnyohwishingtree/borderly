@@ -17,7 +17,8 @@ const RNCamera = forwardRef(function RNCamera(props, ref) {
       if (onCameraReady) onCameraReady();
     }, 100);
     return () => clearTimeout(timer);
-  }, [onCameraReady, onStatusChange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (onBarCodeRead && barCodeTypes) {

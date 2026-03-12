@@ -16,7 +16,8 @@ jest.mock('react-native-camera', () => {
       if (autoFireCameraReady && onCameraReady) {
         onCameraReady();
       }
-    }, [onCameraReady]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     return React.createElement('RNCamera', props, children);
   };
   RNCamera.Constants = {

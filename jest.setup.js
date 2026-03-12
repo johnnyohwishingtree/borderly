@@ -381,11 +381,12 @@ jest.mock('react-native-vector-icons/FontAwesome', () => {
 // Mock react-native-camera
 jest.mock('react-native-camera', () => {
   const React = require('react');
-  const RNCamera = ({ children, onCameraReady, ...props }) => {
+  const RNCamera = ({ children, ...props }) => {
     React.useEffect(() => {
-      if (onCameraReady) onCameraReady();
-    }, [onCameraReady]);
-    return React.createElement('RNCamera', { onCameraReady, ...props }, children);
+      if (props.onCameraReady) props.onCameraReady();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return React.createElement('RNCamera', props, children);
   };
   RNCamera.Constants = {
     Type: { back: 'back', front: 'front' },
