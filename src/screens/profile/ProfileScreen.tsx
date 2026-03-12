@@ -231,6 +231,7 @@ export default function ProfileScreen() {
                 onPress={handleUnlockProfile}
                 variant="primary"
                 fullWidth
+                testID="unlock-biometrics-button"
               />
             </View>
           ) : (
@@ -299,6 +300,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('EditProfile')}
               variant="outline"
               size="small"
+              testID="edit-contact-button"
             />
           </View>
 
@@ -369,6 +371,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FamilyManagement')}
               variant="outline"
               size="small"
+              testID="manage-family-button"
             />
           </View>
 
@@ -384,6 +387,7 @@ export default function ProfileScreen() {
               variant="primary"
               size="medium"
               fullWidth
+              testID="add-family-member-button"
             />
           </View>
         </Card>

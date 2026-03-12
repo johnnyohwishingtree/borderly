@@ -272,10 +272,10 @@ class DatabaseService {
     const { result: allLegs } = await this.measureQueryPerformance(
       `getTripsWithLegs.batchLoadLegs(tripCount=${trips.length})`,
       async () => {
-        const allLegs = await db.collections.get('trip_legs').query().fetch();
-        
+        const tripLegs = await db.collections.get('trip_legs').query().fetch();
+
         // Filter by trip IDs and sort by order
-        const filteredLegs = allLegs
+        const filteredLegs = tripLegs
           .filter(leg => tripIds.includes((leg as any).tripId))
           .sort((a, b) => (a as any).order - (b as any).order);
           
@@ -304,7 +304,14 @@ class DatabaseService {
     const db = await this.getDatabase();
     return await db.write(async () => {
       return await db.collections.get('trip_legs').create((leg: any) => {
-        Object.assign(leg, legData);
+        const { accommodation, formData, ...directFields } = legData as any;
+        Object.assign(leg, directFields);
+        if (accommodation) {
+          leg.accommodationData = typeof accommodation === 'string' ? accommodation : JSON.stringify(accommodation);
+        }
+        if (formData) {
+          leg.formDataString = typeof formData === 'string' ? formData : JSON.stringify(formData);
+        }
         leg.formStatus = leg.formStatus || 'not_started';
       });
     });
@@ -315,7 +322,14 @@ class DatabaseService {
     return await db.write(async () => {
       const leg = await db.collections.get('trip_legs').find(legId);
       return await leg.update((legRecord: any) => {
-        Object.assign(legRecord, updates);
+        const { accommodation, formData, ...directFields } = updates as any;
+        Object.assign(legRecord, directFields);
+        if (accommodation) {
+          legRecord.accommodationData = typeof accommodation === 'string' ? accommodation : JSON.stringify(accommodation);
+        }
+        if (formData !== undefined) {
+          legRecord.formDataString = formData ? (typeof formData === 'string' ? formData : JSON.stringify(formData)) : '';
+        }
       });
     });
   }

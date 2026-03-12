@@ -8,7 +8,6 @@
 jest.unmock('@nozbe/watermelondb');
 jest.unmock('@nozbe/watermelondb/Schema/migrations');
 
-import type { appSchema as _appSchema } from '@nozbe/watermelondb';
 
 describe('WatermelonDB Schema and Migrations', () => {
   it('schema should be valid and have version >= 1', () => {

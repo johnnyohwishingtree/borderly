@@ -384,6 +384,7 @@ jest.mock('react-native-camera', () => {
   const RNCamera = ({ children, ...props }) => {
     React.useEffect(() => {
       if (props.onCameraReady) props.onCameraReady();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return React.createElement('RNCamera', props, children);
   };

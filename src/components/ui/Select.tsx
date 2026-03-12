@@ -268,13 +268,14 @@ export default function Select({
                 return (
                   <Pressable
                     className={`p-4 ${
-                      highContrastMode 
+                      highContrastMode
                         ? (isSelected ? 'bg-gray-200 border-b-2 border-black' : 'border-b border-gray-400')
                         : (isSelected ? 'bg-blue-50 border-b border-gray-100' : 'border-b border-gray-100')
                     }`}
                     onPress={() => !isDisabled && handleSelect(item.value)}
                     disabled={isDisabled}
-                    
+                    testID={testID ? `${testID}-option-${item.value}` : undefined}
+
                     // Accessibility props
                     accessible={true}
                     accessibilityRole="button"

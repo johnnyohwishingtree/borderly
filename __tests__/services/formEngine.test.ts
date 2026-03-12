@@ -465,7 +465,8 @@ describe('FormEngine', () => {
 
   describe('edge cases', () => {
     it('should handle trip leg without departure date', () => {
-      const { departureDate: _, ...legWithoutDepartureBase } = mockTripLeg;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { departureDate: _departureDate, ...legWithoutDepartureBase } = mockTripLeg;
       const legWithoutDeparture = legWithoutDepartureBase as TripLeg;
 
       const result = generateFilledForm(mockProfile, legWithoutDeparture, mockSchema);

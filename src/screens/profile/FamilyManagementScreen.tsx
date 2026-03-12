@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -13,37 +13,41 @@ type FamilyManagementScreenNavigationProp = NativeStackNavigationProp<ProfileSta
 
 export default function FamilyManagementScreen() {
   const navigation = useNavigation<FamilyManagementScreenNavigationProp>();
-  const { profile, loadProfile } = useProfileStore();
+  const { loadProfile } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load family members on screen focus
-  useFocusEffect(() => {
-    loadFamilyMembers();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      const load = async () => {
+        setIsLoading(true);
+        try {
+          await loadProfile();
 
-  const loadFamilyMembers = async () => {
-    setIsLoading(true);
-    try {
-      await loadProfile();
-      
-      // Create family members list with primary profile as 'self'
-      if (profile) {
-        const primaryMember: FamilyMember = {
-          ...profile,
-          relationship: 'self'
-        };
-        
-        // TODO: Load additional family members from storage
-        // For now, just show the primary profile
-        setFamilyMembers([primaryMember]);
-      }
-    } catch (error) {
-      console.error('Failed to load family members:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+          // Read the latest profile from the store (not the stale closure value)
+          const currentProfile = useProfileStore.getState().profile;
+
+          // Create family members list with primary profile as 'self'
+          if (currentProfile) {
+            const primaryMember: FamilyMember = {
+              ...currentProfile,
+              relationship: 'self'
+            };
+
+            // TODO: Load additional family members from storage
+            // For now, just show the primary profile
+            setFamilyMembers([primaryMember]);
+          }
+        } catch (error) {
+          console.error('Failed to load family members:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      load();
+    }, [loadProfile])
+  );
 
   const handleAddFamilyMember = () => {
     navigation.navigate('AddFamilyMember');
@@ -115,6 +119,7 @@ export default function FamilyManagementScreen() {
               onPress={handleAddFamilyMember}
               variant="primary"
               size="medium"
+              testID="add-member-button"
             />
           </View>
         </View>
@@ -122,20 +127,15 @@ export default function FamilyManagementScreen() {
         {/* Family Members List */}
         {familyMembers.length > 0 ? (
           <View className="space-y-4">
-            {familyMembers.map((member) => {
-              const props: any = {
-                key: member.id,
-                member,
-                onEdit: () => handleEditMember(member),
-                isActive: false,
-              };
-              
-              if (member.relationship !== 'self') {
-                props.onRemove = () => handleRemoveMember(member);
-              }
-              
-              return <FamilyMemberCard {...props} />;
-            })}
+            {familyMembers.map((member) => (
+              <FamilyMemberCard
+                key={member.id}
+                member={member}
+                onEdit={() => handleEditMember(member)}
+                isActive={false}
+                {...(member.relationship !== 'self' ? { onRemove: () => handleRemoveMember(member) } : {})}
+              />
+            ))}
           </View>
         ) : (
           <EmptyState

@@ -114,7 +114,7 @@ class KeychainValidatorService {
           accessControl: this.REQUIRED_ACCESS_CONTROL,
         });
         accessControlValid = true;
-      } catch (error) {
+      } catch {
         // Expected if no test credential exists
         accessControlValid = true;
       }
@@ -151,7 +151,7 @@ class KeychainValidatorService {
       const securityLevel = await Keychain.getSecurityLevel();
       return securityLevel === Keychain.SECURITY_LEVEL.SECURE_HARDWARE ||
              securityLevel === Keychain.SECURITY_LEVEL.SECURE_SOFTWARE;
-    } catch (error) {
+    } catch {
       // Fallback: assume enrolled if biometry is supported
       const supportedType = await Keychain.getSupportedBiometryType();
       return supportedType !== null;
@@ -477,7 +477,7 @@ class KeychainValidatorService {
       if (!supportedBiometry) return false;
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

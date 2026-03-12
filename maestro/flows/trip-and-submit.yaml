@@ -1,0 +1,66 @@
+# Full flow: Onboarding + Trip Creation + Form + Submission Guide
+# Single user, single country (Japan) - validates the complete happy path
+appId: com.borderly.app
+tags:
+  - trip
+  - submission
+  - critical
+---
+
+# ============================================================
+# PHASE 1: Onboarding
+# ============================================================
+- launchApp:
+    clearState: true
+
+- runFlow: subflows/onboard-primary-user.yaml
+
+# ============================================================
+# PHASE 2: Create a trip to Japan
+# ============================================================
+
+- runFlow: subflows/create-japan-trip.yaml
+
+# ============================================================
+# PHASE 3: Open trip and go to leg form
+# ============================================================
+
+# Wait for trip list and tap the trip card
+- tapOn:
+    id: "trip-card-Smith Family Asia"
+
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+- assertVisible:
+    id: "leg-card-JPN"
+
+# Tap Japan leg to open form
+- tapOn:
+    id: "leg-card-JPN"
+
+# ============================================================
+# PHASE 4: LegForm - save progress
+# ============================================================
+
+# Wait for the Travel Form screen to load
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 15000
+
+# The form should auto-fill from profile data
+# Scroll to see the action buttons
+- scrollUntilVisible:
+    element:
+      id: "save-progress-button"
+    direction: DOWN
+    timeout: 10000
+
+- tapOn:
+    id: "save-progress-button"
+
+# Success alert
+- extendedWaitUntil:
+    visible: "Form data saved successfully!"
+    timeout: 10000
+- tapOn: "OK"

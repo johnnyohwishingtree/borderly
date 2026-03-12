@@ -64,7 +64,7 @@ export function parseBoardingPass(
       } else {
         throw new Error('No flight date found');
       }
-    } catch (error) {
+    } catch {
       return {
         code: 'PARSE_ERROR',
         message: `Invalid flight date format: ${passenger.flightDate || passenger.dateOfFlight}`,
@@ -163,7 +163,7 @@ export function parseMultiLegBoardingPass(
         } else {
           throw new Error('No flight date found');
         }
-      } catch (error) {
+      } catch {
         // Skip legs with invalid dates
         continue;
       }

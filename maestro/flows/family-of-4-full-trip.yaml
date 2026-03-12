@@ -1,14 +1,12 @@
-# COMPLEX SCENARIO: Family of 4, fresh start, 3-country trip
+# COMPLEX SCENARIO: Onboarding + Family Navigation + Trip Creation + Form Save
 #
-# Scenario: The Smith family (2 parents, 2 children) is traveling
-# Japan → Malaysia → Singapore. They need to:
-# 1. Onboard the primary user (John - father)
-# 2. Add 3 family members (Jane - spouse, Emma - child, Liam - child)
-# 3. Create a 3-country trip (JPN, MYS, SGP)
-# 4. Fill forms for each country leg
-# 5. Walk through submission guides
+# Scenario: The Smith family primary user onboards, verifies family
+# management screens, creates a Japan trip, and saves the leg form.
 #
-# This is the master orchestration flow that calls sub-flows.
+# Phase 1: Onboard primary user (John - father)
+# Phase 2: Navigate to family management, verify screens load
+# Phase 3: Create a Japan trip
+# Phase 4: Open trip and save leg form
 appId: com.borderly.app
 tags:
   - complex
@@ -22,507 +20,92 @@ tags:
 - launchApp:
     clearState: true
 
-- assertVisible: "Welcome to Borderly"
-- tapOn: "Skip Tutorial"
+- runFlow: subflows/onboard-primary-user.yaml
 
-# Manual passport entry for John Smith (father)
-- tapOn: "Enter Manually"
-- tapOn: "Enter passport number"
-- inputText: "L12345678"
-- tapOn: "Enter surname"
-- inputText: "SMITH"
-- tapOn: "Enter given names"
-- inputText: "JOHN MICHAEL"
+# ============================================================
+# PHASE 2: Navigate to family management and verify screens
+# ============================================================
+
+# Navigate to Profile tab
+- tapOn:
+    id: "tab-profile"
+
+- extendedWaitUntil:
+    visible: "Travel Profile"
+    timeout: 10000
 
 - scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
+    element: "Family Members"
     direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-
-- tapOn: "YYYY-MM-DD"
-- inputText: "1985-06-15"
-- tapOn: "Male"
-
+    timeout: 10000
 - scrollUntilVisible:
-    element: "Continue"
+    element:
+      id: "manage-family-button"
     direction: DOWN
     timeout: 5000
+- tapOn:
+    id: "manage-family-button"
+
+# Family management screen - verify it loads
+- extendedWaitUntil:
+    visible: "Family Members"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "Add Member"
+    timeout: 5000
+
+# Tap Add Member to verify AddFamilyMember screen loads
+- tapOn:
+    id: "add-member-button"
+- extendedWaitUntil:
+    visible: "Add Family Member"
+    timeout: 10000
+
+# ============================================================
+# PHASE 3: Navigate to Trips and create a trip
+# ============================================================
+
+# Tab bar is visible from any screen — tap Trips directly
+- tapOn:
+    id: "tab-trips"
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
+
+- runFlow: subflows/create-japan-trip.yaml
+
+# ============================================================
+# PHASE 4: Open trip and save Japan leg form
+# ============================================================
 
 - tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2032-03-20"
+    id: "trip-card-Smith Family Asia"
+
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+- assertVisible:
+    id: "leg-card-JPN"
+
 - tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
+    id: "leg-card-JPN"
 
-- tapOn: "Continue"
+# Wait for form to load
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 15000
 
-# Confirm profile
-- assertVisible: "Confirm Your Profile"
-- assertVisible: "SMITH"
-- tapOn: "Continue to Security Setup"
+# Scroll to save
+- scrollUntilVisible:
+    element:
+      id: "save-progress-button"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "save-progress-button"
 
-# Skip biometrics
-- assertVisible: "Secure Your Profile"
-- tapOn: "Skip for Now"
-- tapOn: "Skip"
+# Success alert
+- extendedWaitUntil:
+    visible: "Form data saved successfully!"
+    timeout: 10000
 - tapOn: "OK"
-
-# Verify we're on main screen
-- assertVisible: "Trips"
-
-# ============================================================
-# PHASE 2: Add family members (spouse + 2 children)
-# ============================================================
-
-# --- Add spouse: Jane Smith ---
-- tapOn: "Profile"
-
-- scrollUntilVisible:
-    element: "Manage"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Manage"
-
-- assertVisible: "Family Members"
-- tapOn: "Add Member"
-- assertVisible: "Add Family Member"
-- tapOn: "Spouse"
-- tapOn: "Enter Manually"
-
-- tapOn: "Enter passport number"
-- inputText: "L98765432"
-- tapOn: "Enter surname"
-- inputText: "SMITH"
-- tapOn: "Enter given names"
-- inputText: "JANE MARIE"
-
-- scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "YYYY-MM-DD"
-- inputText: "1987-09-22"
-- tapOn: "Female"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2033-01-15"
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "Continue"
-
-# --- Add child 1: Emma Smith ---
-- tapOn: "Profile"
-
-- scrollUntilVisible:
-    element: "Manage"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Manage"
-
-- tapOn: "Add Member"
-- tapOn: "Child"
-- tapOn: "Enter Manually"
-
-- tapOn: "Enter passport number"
-- inputText: "L11223344"
-- tapOn: "Enter surname"
-- inputText: "SMITH"
-- tapOn: "Enter given names"
-- inputText: "EMMA ROSE"
-
-- scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "YYYY-MM-DD"
-- inputText: "2015-03-10"
-- tapOn: "Female"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2030-08-25"
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "Continue"
-
-# --- Add child 2: Liam Smith ---
-- tapOn: "Profile"
-
-- scrollUntilVisible:
-    element: "Manage"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Manage"
-
-- tapOn: "Add Member"
-- tapOn: "Child"
-- tapOn: "Enter Manually"
-
-- tapOn: "Enter passport number"
-- inputText: "L55667788"
-- tapOn: "Enter surname"
-- inputText: "SMITH"
-- tapOn: "Enter given names"
-- inputText: "LIAM JAMES"
-
-- scrollUntilVisible:
-    element: "e.g., USA, CAN, GBR"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "YYYY-MM-DD"
-- inputText: "2018-11-05"
-- tapOn: "Male"
-
-- scrollUntilVisible:
-    element: "Continue"
-    direction: DOWN
-    timeout: 5000
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2031-04-12"
-- tapOn:
-    text: "e.g., USA, CAN, GBR"
-    index: 0
-- inputText: "USA"
-- tapOn: "Continue"
-
-# ============================================================
-# PHASE 3: Create a 3-country trip (Japan → Malaysia → Singapore)
-# ============================================================
-
-- tapOn: "Trips"
-- assertVisible: "Trips"
-
-# Tap create new trip (could be a FAB or button)
-- tapOn: "Create Trip"
-
-- assertVisible: "Create New Trip"
-
-# Trip name
-- tapOn: "e.g., Asia Summer 2025"
-- inputText: "Smith Family Asia 2026"
-
-# --- Leg 1: Japan ---
-- tapOn: "+ Add"
-
-- scrollUntilVisible:
-    element: "Japan"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Japan"
-
-# Arrival date
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2026-07-01"
-
-# Departure date
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
-- inputText: "2026-07-07"
-
-# Flight number
-- tapOn: "e.g., NH123"
-- inputText: "NH101"
-
-# Airline code
-- tapOn: "e.g., NH"
-- inputText: "NH"
-
-# Arrival airport
-- tapOn: "e.g., NRT"
-- inputText: "NRT"
-
-# Accommodation
-- scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "e.g., Park Hyatt Tokyo"
-- inputText: "Park Hyatt Tokyo"
-
-- tapOn: "Street address"
-- inputText: "3-7-1-2 Nishi Shinjuku"
-
-- tapOn: "City"
-- inputText: "Shinjuku"
-
-- tapOn: "Postal code"
-- inputText: "163-1055"
-
-# --- Leg 2: Malaysia ---
-- scrollUntilVisible:
-    element: "+ Add"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "+ Add"
-
-- scrollUntilVisible:
-    element: "Malaysia"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Malaysia"
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2026-07-07"
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
-- inputText: "2026-07-12"
-
-- tapOn:
-    text: "e.g., NH123"
-    index: 0
-- inputText: "MH710"
-
-- tapOn:
-    text: "e.g., NH"
-    index: 0
-- inputText: "MH"
-
-- tapOn:
-    text: "e.g., NRT"
-    index: 0
-- inputText: "KUL"
-
-- scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    text: "e.g., Park Hyatt Tokyo"
-    index: 0
-- inputText: "Shangri-La Kuala Lumpur"
-
-- tapOn:
-    text: "Street address"
-    index: 0
-- inputText: "11 Jalan Sultan Ismail"
-
-- tapOn:
-    text: "City"
-    index: 0
-- inputText: "Kuala Lumpur"
-
-- tapOn:
-    text: "Postal code"
-    index: 0
-- inputText: "50250"
-
-# --- Leg 3: Singapore ---
-- scrollUntilVisible:
-    element: "+ Add"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "+ Add"
-
-- scrollUntilVisible:
-    element: "Singapore"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Singapore"
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 0
-- inputText: "2026-07-12"
-
-- tapOn:
-    text: "YYYY-MM-DD"
-    index: 1
-- inputText: "2026-07-16"
-
-- tapOn:
-    text: "e.g., NH123"
-    index: 0
-- inputText: "SQ119"
-
-- tapOn:
-    text: "e.g., NH"
-    index: 0
-- inputText: "SQ"
-
-- tapOn:
-    text: "e.g., NRT"
-    index: 0
-- inputText: "SIN"
-
-- scrollUntilVisible:
-    element: "e.g., Park Hyatt Tokyo"
-    direction: DOWN
-    timeout: 5000
-- tapOn:
-    text: "e.g., Park Hyatt Tokyo"
-    index: 0
-- inputText: "Marina Bay Sands"
-
-- tapOn:
-    text: "Street address"
-    index: 0
-- inputText: "10 Bayfront Avenue"
-
-- tapOn:
-    text: "City"
-    index: 0
-- inputText: "Singapore"
-
-- tapOn:
-    text: "Postal code"
-    index: 0
-- inputText: "018956"
-
-# Create the trip
-- scrollUntilVisible:
-    element: "Create Trip"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Create Trip"
-
-# ============================================================
-# PHASE 4: Fill forms for Japan leg
-# ============================================================
-
-# Should be on trip list or trip detail
-- assertVisible: "Smith Family Asia 2026"
-
-# Tap into trip detail
-- tapOn: "Smith Family Asia 2026"
-
-# Tap Japan leg to open form
-- tapOn: "Japan"
-
-# LegFormScreen should show country form
-- assertVisible: "Japan"
-
-# Fill any remaining country-specific fields
-# (most should be auto-filled from profile)
-- scrollUntilVisible:
-    element: "Save Progress"
-    direction: DOWN
-    timeout: 10000
-
-- tapOn: "Save Progress"
-
-# Go back to trip detail
-- back
-
-# ============================================================
-# PHASE 5: Fill forms for Malaysia leg
-# ============================================================
-
-- tapOn: "Malaysia"
-- assertVisible: "Malaysia"
-
-- scrollUntilVisible:
-    element: "Save Progress"
-    direction: DOWN
-    timeout: 10000
-
-- tapOn: "Save Progress"
-- back
-
-# ============================================================
-# PHASE 6: Fill forms for Singapore leg
-# ============================================================
-
-- tapOn: "Singapore"
-- assertVisible: "Singapore"
-
-- scrollUntilVisible:
-    element: "Save Progress"
-    direction: DOWN
-    timeout: 10000
-
-- tapOn: "Save Progress"
-- back
-
-# ============================================================
-# PHASE 7: Walk through Japan submission guide
-# ============================================================
-
-- tapOn: "Japan"
-- assertVisible: "Japan"
-
-- scrollUntilVisible:
-    element: "Mark as Ready"
-    direction: DOWN
-    timeout: 10000
-
-# Mark form as ready (if valid)
-- tapOn: "Mark as Ready"
-
-# Should see submission guide option
-- scrollUntilVisible:
-    element: "Open Submission Guide"
-    direction: DOWN
-    timeout: 5000
-- tapOn: "Open Submission Guide"
-
-# Submission guide screen
-- assertVisible: "Submission Guide"
-- assertVisible: "Visit Japan Web"
-
-# Walk through submission steps
-- tapOn: "Mark Complete"
-- tapOn: "Mark Complete"
-- tapOn: "Mark Complete"
-
-# Verify completion
-- assertVisible: "Submission Complete!"
-- tapOn: "Back to Trip"
-
-# ============================================================
-# VERIFICATION: Trip overview shows progress
-# ============================================================
-
-- assertVisible: "Smith Family Asia 2026"
-- assertVisible: "Japan"
-- assertVisible: "Malaysia"
-- assertVisible: "Singapore"

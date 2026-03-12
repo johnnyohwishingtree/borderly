@@ -164,11 +164,15 @@ describe('PortalIntegrationService', () => {
 
     it('handles timeout errors', async () => {
       // Mock a delayed response that exceeds timeout
-      mockLinking.canOpenURL.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(true), 15000))
+      let timerId: ReturnType<typeof setTimeout>;
+      mockLinking.canOpenURL.mockImplementation(() =>
+        new Promise(resolve => {
+          timerId = setTimeout(() => resolve(true), 15000);
+        })
       );
 
       const result = await PortalIntegrationService.launchPortal(mockSchema);
+      clearTimeout(timerId!);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Timeout');

@@ -37,6 +37,7 @@ export type ProfileStackParamList = {
   EditProfile: undefined;
   FamilyManagement: undefined;
   AddFamilyMember: { relationship?: string } | undefined;
+  PassportScan: { familyMode?: boolean; relationship?: string } | undefined;
 };
 
 export type SettingsStackParamList = {

@@ -15,6 +15,13 @@ import { FamilyMember } from '@/types/profile';
 jest.mock('@/stores/useProfileStore');
 const mockUseProfileStore = useProfileStore as jest.MockedFunction<typeof useProfileStore>;
 
+// Helper to set up the store mock with getState support
+function setupProfileStoreMock(profile: FamilyMember | null, loadProfile: jest.Mock) {
+  const storeValue = { profile, loadProfile };
+  mockUseProfileStore.mockReturnValue(storeValue);
+  (mockUseProfileStore as any).getState = () => storeValue;
+}
+
 // Mock navigation fully to avoid NavigationContainer getConstants error
 const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
@@ -22,7 +29,7 @@ jest.mock('@react-navigation/native', () => ({
     navigate: mockNavigate,
   }),
   useFocusEffect: (callback: () => void) => {
-    React.useEffect(callback, []);
+    React.useEffect(() => { callback(); }, [callback]);
   },
 }));
 
@@ -102,10 +109,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner while loading family members', () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: null,
-        loadProfile: jest.fn().mockReturnValue(new Promise(() => {})), // Never resolves
-      });
+      setupProfileStoreMock(null, jest.fn().mockReturnValue(new Promise(() => {}))); // Never resolves
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -115,10 +119,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Empty State', () => {
     it('should show empty state when no family members exist', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: null,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(null, jest.fn().mockResolvedValue(undefined));
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -130,10 +131,7 @@ describe('FamilyManagementScreen', () => {
     });
 
     it('should navigate to add family member from empty state', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: null,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(null, jest.fn().mockResolvedValue(undefined));
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -148,11 +146,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Family Members Display', () => {
     it('should display primary profile as self relationship', async () => {
-      const mockLoadProfile = jest.fn().mockResolvedValue(undefined);
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: mockLoadProfile,
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { getByText, getByTestId } = render(<FamilyManagementScreen />);
 
@@ -165,10 +159,7 @@ describe('FamilyManagementScreen', () => {
 
     it('should load family members on screen focus', () => {
       const mockLoadProfile = jest.fn().mockResolvedValue(undefined);
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: mockLoadProfile,
-      });
+      setupProfileStoreMock(mockPrimaryProfile, mockLoadProfile);
 
       render(<FamilyManagementScreen />);
 
@@ -178,10 +169,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Navigation Actions', () => {
     it('should navigate to add family member screen when add button is pressed', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -194,10 +182,7 @@ describe('FamilyManagementScreen', () => {
     });
 
     it('should navigate to edit profile when editing primary member', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { getAllByText } = render(<FamilyManagementScreen />);
 
@@ -215,10 +200,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Family Member Removal', () => {
     it('should not show remove button for primary profile', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { queryByText } = render(<FamilyManagementScreen />);
 
@@ -232,10 +214,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Information Section', () => {
     it('should display family profiles information card', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -251,10 +230,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Screen Header', () => {
     it('should display correct header information', async () => {
-      mockUseProfileStore.mockReturnValue({
-        profile: mockPrimaryProfile,
-        loadProfile: jest.fn().mockResolvedValue(undefined),
-      });
+      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -268,12 +244,7 @@ describe('FamilyManagementScreen', () => {
   describe('Error Handling', () => {
     it('should handle profile loading errors gracefully', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      const mockLoadProfile = jest.fn().mockRejectedValue(new Error('Loading failed'));
-
-      mockUseProfileStore.mockReturnValue({
-        profile: null,
-        loadProfile: mockLoadProfile,
-      });
+      setupProfileStoreMock(null, jest.fn().mockRejectedValue(new Error('Loading failed')));
 
       render(<FamilyManagementScreen />);
 
@@ -285,12 +256,7 @@ describe('FamilyManagementScreen', () => {
     });
 
     it('should stop loading state after error', async () => {
-      const mockLoadProfile = jest.fn().mockRejectedValue(new Error('Loading failed'));
-
-      mockUseProfileStore.mockReturnValue({
-        profile: null,
-        loadProfile: mockLoadProfile,
-      });
+      setupProfileStoreMock(null, jest.fn().mockRejectedValue(new Error('Loading failed')));
 
       const { queryByText } = render(<FamilyManagementScreen />);
 

@@ -793,7 +793,7 @@ export class AutomationPatterns {
       for (let i = 0; i < conditions.length; i++) {
         try {
           results[i] = await conditions[i]();
-        } catch (error) {
+        } catch {
           // Condition check failed, keep as false
         }
       }

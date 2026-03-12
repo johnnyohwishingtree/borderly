@@ -45,14 +45,14 @@ export default function QRWalletScreen() {
   } = useLoadingState();
 
   // Load QR codes from database
-  const loadQRCodes = async (showLoading = false) => {
+  const loadQRCodes = useCallback(async (showLoading = false) => {
     try {
       if (showLoading) setLoading();
-      
+
       // Load traveler profiles
       const profilesMap = await getAllProfiles();
       setTravelers(profilesMap);
-      
+
       const db = await databaseService.getDatabase();
       const qrCodesCollection = db.collections.get<SavedQRCode>('saved_qr_codes');
       const allQRCodes = await qrCodesCollection
@@ -66,19 +66,19 @@ export default function QRWalletScreen() {
 
       setQrCodes(sortedQRCodes);
       setLoadingSuccess();
-    } catch (error) {
-      console.error('Error loading QR codes:', error);
-      setLoadingError(error instanceof Error ? error.message : 'Failed to load QR codes');
+    } catch (err) {
+      console.error('Error loading QR codes:', err);
+      setLoadingError(err instanceof Error ? err.message : 'Failed to load QR codes');
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [getAllProfiles, setLoading, setLoadingSuccess, setLoadingError]);
 
   // Load QR codes when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadQRCodes(true);
-    }, [])
+    }, [loadQRCodes])
   );
 
   // Pull to refresh
@@ -87,12 +87,12 @@ export default function QRWalletScreen() {
     setIsRefreshing(true);
     reset();
     loadQRCodes();
-  }, [reset]);
-  
+  }, [reset, loadQRCodes]);
+
   const handleRetry = useCallback(() => {
     retry();
     loadQRCodes(true);
-  }, [retry]);
+  }, [retry, loadQRCodes]);
 
   // Filter QR codes by selected traveler
   const filteredQRCodes = useMemo(() => {
@@ -183,8 +183,8 @@ export default function QRWalletScreen() {
               await loadQRCodes();
               
               Alert.alert('Success', 'QR code deleted successfully');
-            } catch (error) {
-              console.error('Error deleting QR code:', error);
+            } catch (err) {
+              console.error('Error deleting QR code:', err);
               Alert.alert('Error', 'Failed to delete QR code. Please try again.');
             }
           },

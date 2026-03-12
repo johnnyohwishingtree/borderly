@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -32,7 +32,7 @@ export default function SettingsScreen() {
     cacheSize: string;
   } | null>(null);
 
-  const checkBiometricAvailability = async () => {
+  const checkBiometricAvailability = useCallback(async () => {
     setIsCheckingBiometric(true);
     try {
       const available = await keychainService.isAvailable();
@@ -43,15 +43,9 @@ export default function SettingsScreen() {
     } finally {
       setIsCheckingBiometric(false);
     }
-  };
+  }, [setBiometricAvailable]);
 
-  useEffect(() => {
-    loadPreferences();
-    checkBiometricAvailability();
-    loadStorageStats();
-  }, [loadPreferences]);
-
-  const loadStorageStats = async () => {
+  const loadStorageStats = useCallback(async () => {
     // Mock storage stats - in real implementation, this would calculate actual storage usage
     setStorageStats({
       profileSize: '2.3 KB',
@@ -59,8 +53,13 @@ export default function SettingsScreen() {
       qrCodesCount: 3,
       cacheSize: '1.2 MB'
     });
-  };
+  }, []);
 
+  useEffect(() => {
+    loadPreferences();
+    checkBiometricAvailability();
+    loadStorageStats();
+  }, [loadPreferences, checkBiometricAvailability, loadStorageStats]);
 
   const themeOptions: SelectOption[] = [
     { label: 'Auto (System)', value: 'auto' },
@@ -163,7 +162,7 @@ export default function SettingsScreen() {
                       await clearProfile();
                       resetPreferences();
                       Alert.alert('Data Deleted', 'All data has been deleted. Please restart the app.');
-                    } catch (_error) {
+                    } catch {
                       Alert.alert('Error', 'Failed to delete data. Please try again.');
                     }
                   },

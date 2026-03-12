@@ -126,7 +126,7 @@ export function analyzeImageQuality(base64: string): ImageQualityMetrics {
       brightness,
       contrast,
     };
-  } catch (_error) {
+  } catch {
     return {
       isValid: false,
       warnings: ['Failed to analyze image quality'],
@@ -454,7 +454,7 @@ export function validateImageForProcessing(base64: string): {
       validationResult.format = format;
     }
     return validationResult;
-  } catch (_error) {
+  } catch {
     return {
       isValid: false,
       size: 0,

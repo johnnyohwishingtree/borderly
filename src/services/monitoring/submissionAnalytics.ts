@@ -399,20 +399,20 @@ export class SubmissionAnalytics {
       countryMetrics.get(metric.countryCode)!.push(metric);
     });
 
-    return Array.from(countryMetrics.entries()).map(([countryCode, metrics]) => {
-      const successful = metrics.filter(m => 
+    return Array.from(countryMetrics.entries()).map(([countryCode, metricData]) => {
+      const successful = metricData.filter(m =>
         m.status === 'success' || m.status === 'test_success'
       ).length;
-      
-      const totalDuration = metrics.reduce((sum, m) => sum + m.duration.totalMs, 0);
-      
+
+      const totalDuration = metricData.reduce((sum, m) => sum + m.duration.totalMs, 0);
+
       const errors = new Map<string, number>();
-      metrics.forEach(m => {
+      metricData.forEach(m => {
         m.userExperience.errorsEncountered.forEach(error => {
           errors.set(error, (errors.get(error) || 0) + 1);
         });
       });
-      
+
       const commonErrors = Array.from(errors.entries())
         .sort(([,a], [,b]) => b - a)
         .slice(0, 3)
@@ -421,9 +421,9 @@ export class SubmissionAnalytics {
       return {
         countryCode,
         countryName: this.getCountryName(countryCode),
-        submissionCount: metrics.length,
-        successRate: metrics.length > 0 ? (successful / metrics.length) * 100 : 0,
-        averageDuration: metrics.length > 0 ? totalDuration / metrics.length : 0,
+        submissionCount: metricData.length,
+        successRate: metricData.length > 0 ? (successful / metricData.length) * 100 : 0,
+        averageDuration: metricData.length > 0 ? totalDuration / metricData.length : 0,
         commonErrors,
         portalHealthScore: this.getPortalHealthScore(countryCode)
       };

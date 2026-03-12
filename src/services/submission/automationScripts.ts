@@ -624,7 +624,7 @@ export class AutomationScriptUtils {
         return value.replace(/-/g, '/');
       }
       return value;
-    } catch (error) {
+    } catch {
       return value;
     }
   }

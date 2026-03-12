@@ -48,7 +48,7 @@ export default function CopyableField({
 
       // Reset copied state after 2 seconds
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       Alert.alert('Copy Failed', 'Unable to copy to clipboard');
     }
   };

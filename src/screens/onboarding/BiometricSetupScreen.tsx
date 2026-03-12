@@ -61,7 +61,7 @@ export default function BiometricSetupScreen() {
           },
         ]
       );
-    } catch (error) {
+    } catch {
       Alert.alert('Setup Failed', 'Could not enable biometric authentication. Please try again.');
     } finally {
       setIsEnabling(false);
@@ -200,6 +200,7 @@ export default function BiometricSetupScreen() {
             loading={isEnabling}
             size="large"
             fullWidth
+            testID="enable-biometric-button"
           />
 
           <View className="border-2 border-gray-300 rounded-xl">
@@ -209,6 +210,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="large"
               fullWidth
+              testID="skip-biometric-button"
             />
           </View>
 
@@ -219,6 +221,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="medium"
               fullWidth
+              testID="biometric-back-button"
             />
           </View>
         </View>

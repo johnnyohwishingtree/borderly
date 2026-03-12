@@ -11,11 +11,12 @@ let autoFireCameraReady = true;
 // Mock react-native-camera with controllable onCameraReady and barcode reading
 jest.mock('react-native-camera', () => {
   const React = require('react');
-  const RNCamera = ({ children, onCameraReady, onBarCodeRead, ...props }: any) => {
+  const RNCamera = ({ children, onCameraReady, onBarCodeRead: _onBarCodeRead, ...props }: any) => {
     React.useEffect(() => {
       if (autoFireCameraReady && onCameraReady) {
         onCameraReady();
       }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     return React.createElement('RNCamera', props, children);
   };
@@ -233,7 +234,7 @@ describe('BoardingPassScanner Component', () => {
       const flashButton = getByLabelText('Turn flash on');
       fireEvent.press(flashButton);
       // Flash toggle logic is internal, verified that it doesn't crash
-    } catch (e) {
+    } catch {
       // Flash button may not be available in all states
     }
   });

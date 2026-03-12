@@ -603,7 +603,8 @@ describe('Auto-Fill Logic', () => {
       };
 
       // When no departure date, should use Japan-specific default
-      const { departureDate: _, ...legWithoutDepartureBase } = mockTripLeg;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { departureDate: _departureDate, ...legWithoutDepartureBase } = mockTripLeg;
       const legWithoutDeparture = legWithoutDepartureBase as TripLeg;
 
       const result = intelligentAutoFill(
@@ -630,7 +631,8 @@ describe('Auto-Fill Logic', () => {
         countrySpecific: false,
       };
 
-      const { departureDate: _dep, ...legWithoutDepartureBase2 } = mockTripLeg;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { departureDate: _departureDate2, ...legWithoutDepartureBase2 } = mockTripLeg;
       const legWithoutDeparture = { ...legWithoutDepartureBase2, destinationCountry: 'SGP' } as TripLeg;
 
       const result = intelligentAutoFill(
@@ -805,7 +807,8 @@ describe('Auto-Fill Logic', () => {
     });
 
     it('should handle missing flight number gracefully', () => {
-      const { flightNumber, ...legWithoutFlight } = mockTripLeg;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { flightNumber: _flightNumber, ...legWithoutFlight } = mockTripLeg;
 
       const field: FormField = {
         id: 'airlineCode',

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StatusBar, Platform, AppState as RNAppState } from 'react-native';
+import { LogBox, StatusBar, Platform, AppState as RNAppState } from 'react-native';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import './global.css';
 
@@ -7,6 +7,15 @@ import RootNavigator from './navigation/RootNavigator';
 import { ErrorBoundary } from '@/components/ui';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
+import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
+
+// Suppress all LogBox overlays in dev builds so banners like
+// "Fast Refresh disconnected" and "Open debugger to view warnings"
+// don't overlay the UI and intercept taps during E2E testing.
+// This only affects the visual overlay — warnings still go to console.
+if (__DEV__) {
+  LogBox.ignoreAllLogs(true);
+}
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -32,6 +41,11 @@ function App(): React.JSX.Element {
 
       // Initialize error tracking
       errorTracker.initialize(deviceInfo, appState);
+
+      // Initialize schema registry for country forms
+      initializeSchemaRegistry().catch(err =>
+        console.warn('Failed to initialize schema registry:', err)
+      );
 
       // Record startup metrics (placeholder values until native implementation)
       performanceMonitor.recordStartupMetrics({

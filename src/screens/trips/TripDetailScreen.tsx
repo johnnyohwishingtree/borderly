@@ -49,7 +49,7 @@ export default function TripDetailScreen() {
 
   const handleLegPress = (leg: TripLeg) => {
     // Navigate to leg form screen
-    (navigation as any).navigate('LegForm', { legId: leg.id });
+    (navigation as any).navigate('LegForm', { tripId, legId: leg.id });
   };
 
   const handleEditTrip = () => {
@@ -70,7 +70,7 @@ export default function TripDetailScreen() {
             try {
               await deleteTrip(tripId);
               navigation.goBack();
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'Failed to delete trip');
             }
           },
@@ -133,6 +133,7 @@ export default function TripDetailScreen() {
             title="Go Back"
             onPress={() => navigation.goBack()}
             variant="outline"
+            testID="trip-detail-go-back-button"
           />
         </View>
       </View>
@@ -216,6 +217,7 @@ export default function TripDetailScreen() {
                 title="Add Destination"
                 onPress={handleAddDestination}
                 variant="primary"
+                testID="add-destination-empty-button"
               />
             </View>
           ) : (

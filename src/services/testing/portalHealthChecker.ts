@@ -193,7 +193,7 @@ export class PortalHealthChecker {
         sslValid: url.startsWith('https://'), // Basic SSL check
         httpStatus: response.status
       };
-    } catch (error) {
+    } catch {
       return {
         canConnect: false,
         sslValid: false,
@@ -228,7 +228,7 @@ export class PortalHealthChecker {
       const contentType = response.headers.get('content-type');
       return contentType?.includes('text/html') || false;
 
-    } catch (error) {
+    } catch {
       return false;
     }
   }

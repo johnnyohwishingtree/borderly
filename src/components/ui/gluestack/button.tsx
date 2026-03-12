@@ -13,6 +13,7 @@ interface ButtonProps {
   textClassName?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  testID?: string;
 }
 
 const Button = ({
@@ -26,6 +27,7 @@ const Button = ({
   textClassName = '',
   leftIcon,
   rightIcon,
+  testID,
 }: ButtonProps) => {
   const variants = {
     primary: 'bg-primary-600 active:bg-primary-700',
@@ -59,6 +61,7 @@ const Button = ({
       disabled={isDisabled || isLoading}
       accessibilityRole="button"
       accessibilityLabel={title}
+      testID={testID}
       className={`flex-row items-center justify-center rounded-lg transition-all ${variants[variant]} ${sizes[size]} ${isDisabled ? 'opacity-50' : ''} ${className}`}
     >
       {isLoading ? (

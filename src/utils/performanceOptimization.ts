@@ -806,7 +806,7 @@ class PerformanceOptimization {
       if (typeof global !== 'undefined' && global.performance?.memory) {
         return global.performance.memory.usedJSHeapSize;
       }
-    } catch (error) {
+    } catch {
       // Fallback
     }
     

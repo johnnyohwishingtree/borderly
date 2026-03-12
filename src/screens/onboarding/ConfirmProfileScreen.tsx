@@ -60,6 +60,7 @@ export default function ConfirmProfileScreen() {
           variant="primary"
           size="large"
           fullWidth
+          testID="confirm-go-back-button"
         />
       </View>
     );
@@ -85,7 +86,10 @@ export default function ConfirmProfileScreen() {
           <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-4">
             <ShieldCheck size={40} color="#16a34a" />
           </View>
-          <Text className="text-2xl font-bold text-gray-900 mb-2 text-center">
+          <Text 
+            className="text-2xl font-bold text-gray-900 mb-2 text-center"
+            testID="confirm-profile-title"
+          >
             Confirm Your Profile
           </Text>
           <Text className="text-base text-gray-600 text-center">
@@ -111,7 +115,12 @@ export default function ConfirmProfileScreen() {
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-medium text-gray-500 mb-1">{field.label}</Text>
-                  <Text className="text-lg font-semibold text-gray-900">{field.value}</Text>
+                  <Text 
+                    className="text-lg font-semibold text-gray-900"
+                    testID={`profile-field-${field.label.toLowerCase().replace(/ /g, '-')}`}
+                  >
+                    {field.value}
+                  </Text>
                 </View>
               </View>
             ))}
@@ -149,6 +158,7 @@ export default function ConfirmProfileScreen() {
             onPress={handleContinue}
             size="large"
             fullWidth
+            testID="continue-to-security-button"
           />
 
           <Button
@@ -157,6 +167,7 @@ export default function ConfirmProfileScreen() {
             variant="outline"
             size="large"
             fullWidth
+            testID="edit-information-button"
           />
         </View>
       </View>

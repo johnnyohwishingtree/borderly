@@ -136,7 +136,8 @@ describe('FieldMapper', () => {
       });
 
       it('should handle missing departure date', () => {
-        const { departureDate: _, ...legWithoutDep } = mockTripLeg;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { departureDate: _departureDate, ...legWithoutDep } = mockTripLeg;
         const contextWithoutDeparture: FormContext = {
           ...mockContext,
           leg: legWithoutDep as FormContext['leg'],
@@ -252,7 +253,8 @@ describe('FieldMapper', () => {
       });
 
       it('should handle null/undefined values in path', () => {
-        const { homeAddress: _ha, ...profileWithoutHome } = mockProfile;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { homeAddress: _homeAddress, ...profileWithoutHome } = mockProfile;
         const contextWithNulls: FormContext = {
           profile: profileWithoutHome as FormContext['profile'],
           leg: {

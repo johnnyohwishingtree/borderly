@@ -1,9 +1,10 @@
 /**
  * Common Automation Scripts - Shared JavaScript utilities for WebView automation
- * 
+ *
  * These scripts are injected into government portals to provide common functionality
  * for form filling, element interaction, and automation tasks.
  */
+/* eslint-env browser */
 
 (function() {
   'use strict';

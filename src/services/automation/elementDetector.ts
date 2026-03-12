@@ -198,7 +198,7 @@ export class ElementDetector {
           results: [firstResult],
           matchedCount: firstResult.found ? 1 : 0
         };
-      } catch (error) {
+      } catch {
         return {
           success: false,
           results: [],
@@ -832,8 +832,8 @@ export class ElementDetector {
     // Clean up old cache entries
     if (this.cache.size > 100) {
       const now = Date.now();
-      for (const [key, entry] of this.cache.entries()) {
-        if (entry.expiresAt < now) {
+      for (const [key, innerEntry] of this.cache.entries()) {
+        if (innerEntry.expiresAt < now) {
           this.cache.delete(key);
         }
       }

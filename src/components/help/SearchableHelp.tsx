@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import React from 'react';
 import { X, Search, SearchX, TrendingUp, CircleHelp, BookOpen, Wrench, Info } from 'lucide-react-native';
@@ -22,18 +22,8 @@ interface SearchableHelpProps {
   onNavigate?: (type: string, id: string) => void;
 }
 
-export default function SearchableHelp({ 
-  isVisible, 
-  onClose, 
-  onNavigate 
-}: SearchableHelpProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-
-  // Comprehensive help database
-  const helpDatabase: SearchResult[] = [
+// Comprehensive help database (static — defined outside component to keep referentially stable)
+const helpDatabase: SearchResult[] = [
     // FAQ items
     {
       id: 'faq-passport-scan',
@@ -154,10 +144,20 @@ export default function SearchableHelp({
       relevanceScore: 0,
       tags: ['singapore', 'ica', 'arrival-card', 'submission', 'portal'],
     },
-  ];
+];
+
+export default function SearchableHelp({
+  isVisible,
+  onClose,
+  onNavigate,
+}: SearchableHelpProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Search function with fuzzy matching and relevance scoring
-  const performSearch = (query: string) => {
+  const performSearch = useCallback((query: string) => {
     if (!query.trim()) {
       setResults([]);
       return;
@@ -198,7 +198,7 @@ export default function SearchableHelp({
     .slice(0, 10); // Limit to top 10 results
     
     setResults(searchResults);
-  };
+  }, []);
 
   // Debounced search
   useEffect(() => {
@@ -207,9 +207,9 @@ export default function SearchableHelp({
       performSearch(searchTerm);
       setIsSearching(false);
     }, 300);
-    
+
     return () => clearTimeout(delayedSearch);
-  }, [searchTerm]);
+  }, [searchTerm, performSearch]);
 
   const handleSearch = (query: string) => {
     setSearchTerm(query);

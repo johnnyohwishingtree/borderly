@@ -91,7 +91,7 @@ export default function LegCard({
   const CardComponent = onPress ? TouchableOpacity : View;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} testID={`leg-card-${leg.destinationCountry}`} accessibilityLabel={getCountryName(leg.destinationCountry)}>
       <Card variant="outlined" className="mb-3">
         <View className="p-4">
           <View className="flex-row items-center justify-between mb-3">

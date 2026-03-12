@@ -6,7 +6,7 @@
  * and <100MB memory usage.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { MMKV } from 'react-native-mmkv';
 import { performanceMonitor } from '../services/monitoring/performance';
 import type { ImageCompressionOptions } from './imageUtils';
@@ -583,6 +583,15 @@ export const imageOptimization = new ImageOptimizationManager();
  * React hook for optimized image loading
  */
 export function useOptimizedImage(uri: string, options: ImageCompressionOptions = {}) {
+  // Stable serialized options key — triggers effect re-run when options change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const optionsKey = useMemo(() => JSON.stringify(options), [JSON.stringify(options)]);
+
+  // Keep a ref to the latest options so the effect body can read them without
+  // listing the unstable options object in the dependency array
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   const [imageData, setImageData] = useState<{
     loaded: boolean;
     optimized?: string;
@@ -612,7 +621,7 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
       
       try {
         const result = await imageOptimization.optimizeImage(uri, {
-          ...options,
+          ...optionsRef.current,
           generateThumbnail: true,
           priority: 'normal',
         });
@@ -651,7 +660,7 @@ export function useOptimizedImage(uri: string, options: ImageCompressionOptions 
     return () => {
       isCancelled = true;
     };
-  }, [uri, JSON.stringify(options)]);
+  }, [uri, optionsKey]);
 
   return imageData;
 }

@@ -316,12 +316,12 @@ export const memoryProfiler = new MemoryProfiler();
 
 // Hook for component memory profiling
 export function useMemoryProfiler(componentName: string) {
-  if (!__DEV__) return;
-
   // Take snapshot on mount
   React.useEffect(() => {
+    if (!__DEV__) return;
+
     memoryProfiler.takeSnapshot(`${componentName}:mount`);
-    
+
     return () => {
       // Take snapshot on unmount
       memoryProfiler.takeSnapshot(`${componentName}:unmount`);

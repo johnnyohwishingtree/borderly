@@ -111,7 +111,7 @@ export function processCameraText(
       guidance: `Scan complete (${Math.round(parseResult.confidence * 100)}% confident)`
     };
 
-  } catch (error) {
+  } catch {
     return {
       type: 'error',
       confidence: 0,
@@ -537,7 +537,7 @@ function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
     } else {
       return 'high';
     }
-  } catch (error) {
+  } catch {
     // Default to medium if detection fails
     return 'medium';
   }

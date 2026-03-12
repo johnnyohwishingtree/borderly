@@ -512,7 +512,7 @@ export class FormFiller {
               fieldsToRetry.splice(index, 1);
             }
           }
-        } catch (error) {
+        } catch {
           // Keep in failed list, will be added back at the end
         }
       }
