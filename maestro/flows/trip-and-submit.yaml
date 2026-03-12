@@ -126,3 +126,31 @@ tags:
 - extendedWaitUntil:
     visible: "Itinerary"
     timeout: 10000
+
+# ============================================================
+# PHASE 5: Open Submission Guide and verify it loads
+# ============================================================
+
+# Tap Japan leg again to get back to the form
+- tapOn:
+    id: "leg-card-JPN"
+
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 10000
+
+# Form should be ready — Open Submission Guide button should be visible
+- scrollUntilVisible:
+    element:
+      id: "open-submission-guide-button"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "open-submission-guide-button"
+
+# Verify the submission guide loaded (not stuck on "Loading submission guide...")
+- extendedWaitUntil:
+    visible: "Submission Guide"
+    timeout: 15000
+- assertVisible: "Open Portal"
+- assertVisible: "Submission Timing"

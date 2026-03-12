@@ -63,7 +63,8 @@ export default function SubmissionGuideScreen() {
         return;
       }
 
-      const countrySchema = getSchemaByCountryCode(countryCode);
+      const resolvedCountryCode = countryCode || leg.destinationCountry;
+      const countrySchema = getSchemaByCountryCode(resolvedCountryCode);
       if (!countrySchema) {
         setIsLoading(false);
         return;

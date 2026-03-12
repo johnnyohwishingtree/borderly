@@ -351,6 +351,7 @@ export default function LegFormScreen() {
                 (navigation as any).navigate('SubmissionGuide', {
                   tripId,
                   legId,
+                  countryCode: leg?.destinationCountry,
                 });
               }}
               variant="secondary"
