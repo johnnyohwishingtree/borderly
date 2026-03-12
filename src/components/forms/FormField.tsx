@@ -29,11 +29,11 @@ export default function FormField({
   };
 
   const renderInput = () => {
-    const inputProps = {
+    const baseProps = {
       value: String(fieldValue || ''),
-      onValueChange: handleValueChange,
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
+      testID: `field-${field.id}`,
       ...(hasError && error ? { error } : {}),
     };
 
@@ -42,7 +42,8 @@ export default function FormField({
       case 'textarea':
         return (
           <Input
-            {...inputProps}
+            {...baseProps}
+            onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
             keyboardType="default"
             autoCapitalize="sentences"
@@ -52,7 +53,8 @@ export default function FormField({
       case 'number':
         return (
           <Input
-            {...inputProps}
+            {...baseProps}
+            onChangeText={(text: string) => handleValueChange(text)}
             keyboardType="numeric"
             placeholder={field.label}
           />
@@ -61,7 +63,8 @@ export default function FormField({
       case 'date':
         return (
           <Input
-            {...inputProps}
+            {...baseProps}
+            onChangeText={(text: string) => handleValueChange(text)}
             placeholder="YYYY-MM-DD"
             keyboardType="default"
           />
@@ -82,7 +85,7 @@ export default function FormField({
             onValueChange={handleValueChange}
             options={field.options}
             placeholder={`Select ${field.label}`}
-            disabled={inputProps.disabled}
+            disabled={baseProps.disabled}
             testID={`select-${field.id}`}
             {...(hasError && error ? { error } : {})}
           />
@@ -93,7 +96,8 @@ export default function FormField({
           <Toggle
             value={fieldValue as boolean}
             onValueChange={handleValueChange}
-            disabled={inputProps.disabled}
+            disabled={baseProps.disabled}
+            testID={`field-${field.id}`}
           />
         );
 

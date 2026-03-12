@@ -134,24 +134,21 @@ appId: com.borderly.app
     end: "50%,35%"
     duration: 200
 
+# City and Postal Code are at the bottom of the form — scroll extra to clear the tab bar
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-city"
     direction: DOWN
     timeout: 5000
+- swipe:
+    start: "50%,50%"
+    end: "50%,30%"
+    duration: 300
 - tapOn:
     id: "leg-0-accommodation-city"
-- inputText: "Shinjuku"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- inputText: "Tokyo"
 
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-postal-code"
-    direction: DOWN
-    timeout: 5000
+# Postal Code is in the same row as City
 - tapOn:
     id: "leg-0-accommodation-postal-code"
 - inputText: "163-1055"

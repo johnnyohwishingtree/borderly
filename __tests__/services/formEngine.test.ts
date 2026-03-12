@@ -8,6 +8,8 @@ import {
   clearAllCaches,
   type FilledForm,
 } from '../../src/services/forms/formEngine';
+import { batchAutoFill } from '../../src/services/forms/autoFillLogic';
+import { validateFormWithCrossChecks } from '../../src/services/forms/validators';
 import { clearPathCache } from '../../src/services/forms/fieldMapper';
 import { clearSchemaCache } from '../../src/services/schemas/schemaLoader';
 import { TravelerProfile } from '../../src/types/profile';
@@ -1020,6 +1022,126 @@ describe('FormEngine', () => {
         expect(exported).not.toHaveProperty(form.sections[0].fields[1].id);
         expect(exported).toHaveProperty(form.sections[0].fields[2].id, false);
       });
+    });
+  });
+
+  describe('store-level form generation and validation', () => {
+    // Use a future trip leg so arrivalDate passes isValidTravelDate
+    const futureTripLeg: TripLeg = {
+      ...mockTripLeg,
+      arrivalDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0], // 30 days from now
+      departureDate: new Date(Date.now() + 37 * 86400000).toISOString().split('T')[0], // 37 days from now
+    };
+
+    // Schema that includes dateOfBirth — reproduces the bug where
+    // batchAutoFill rejected past dates, leaving dateOfBirth out of
+    // formData while the form UI showed 100% complete.
+    const schemaWithDateOfBirth: CountryFormSchema = {
+      ...mockSchema,
+      sections: [
+        {
+          id: 'personal',
+          title: 'Personal Information',
+          fields: [
+            {
+              id: 'surname',
+              label: 'Surname',
+              type: 'text',
+              required: true,
+              autoFillSource: 'profile.surname',
+              countrySpecific: false,
+            },
+            {
+              id: 'dateOfBirth',
+              label: 'Date of Birth',
+              type: 'date',
+              required: true,
+              autoFillSource: 'profile.dateOfBirth',
+              countrySpecific: false,
+            },
+          ],
+        },
+        {
+          id: 'travel',
+          title: 'Travel Information',
+          fields: [
+            {
+              id: 'arrivalDate',
+              label: 'Arrival Date',
+              type: 'date',
+              required: true,
+              autoFillSource: 'leg.arrivalDate',
+              countrySpecific: false,
+            },
+          ],
+        },
+        {
+          id: 'customs',
+          title: 'Customs',
+          fields: [
+            {
+              id: 'carryingProhibitedItems',
+              label: 'Carrying prohibited items?',
+              type: 'boolean',
+              required: true,
+              countrySpecific: false,
+            },
+          ],
+        },
+      ],
+      submissionGuide: [],
+    };
+
+    it('should include dateOfBirth in batchAutoFill formData', () => {
+      const form = generateFilledForm(mockProfile, futureTripLeg, schemaWithDateOfBirth);
+      const allFields = form.sections.flatMap(s => s.fields);
+
+      // Simulate what the store's generateForm does
+      const enhancedFormData: Record<string, unknown> = {};
+      const autoFillResults = batchAutoFill(
+        allFields,
+        { profile: mockProfile, leg: futureTripLeg },
+        { enableSmartDefaults: true, enableFallbacks: true, confidenceThreshold: 0.7 }
+      );
+      Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+        if (!enhancedFormData[fieldId] && result.value !== undefined) {
+          enhancedFormData[fieldId] = result.value;
+        }
+      });
+
+      // dateOfBirth MUST be in formData — this was the root cause of
+      // "100% complete but can't mark as ready"
+      expect(enhancedFormData.dateOfBirth).toBe('1990-04-08');
+      expect(enhancedFormData.surname).toBe('JOHNSON');
+      expect(enhancedFormData.arrivalDate).toBeDefined();
+    });
+
+    it('should produce isValid=true when all required fields are auto-filled', () => {
+      const form = generateFilledForm(mockProfile, futureTripLeg, schemaWithDateOfBirth);
+      const allFields = form.sections.flatMap(s => s.fields);
+
+      // Build formData the same way the store does
+      const enhancedFormData: Record<string, unknown> = {};
+      const autoFillResults = batchAutoFill(
+        allFields,
+        { profile: mockProfile, leg: futureTripLeg },
+        { enableSmartDefaults: true, enableFallbacks: true, confidenceThreshold: 0.7 }
+      );
+      Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+        if (!enhancedFormData[fieldId] && result.value !== undefined) {
+          enhancedFormData[fieldId] = result.value;
+        }
+      });
+
+      const validationResult = validateFormWithCrossChecks(allFields, enhancedFormData, {
+        countryCode: 'JPN',
+        profileData: mockProfile,
+      });
+
+      // Every required field is auto-fillable — form must be valid
+      expect(validationResult.isValid).toBe(true);
+      expect(Object.keys(validationResult.errors)).toHaveLength(0);
+      expect(validationResult.crossFieldErrors).toHaveLength(0);
     });
   });
 });

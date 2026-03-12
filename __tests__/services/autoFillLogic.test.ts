@@ -383,6 +383,83 @@ describe('Auto-Fill Logic', () => {
     });
   });
 
+  describe('date field auto-fill for non-travel dates', () => {
+    it('should auto-fill dateOfBirth (past date) from profile', () => {
+      const field: FormField = {
+        id: 'dateOfBirth',
+        label: 'Date of Birth',
+        type: 'date',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'profile.dateOfBirth',
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('1990-05-15');
+      expect(result!.source).toBe('profile');
+      expect(result!.confidence).toBeGreaterThan(0.9);
+    });
+
+    it('should auto-fill passportExpiry (far-future date) from profile', () => {
+      const field: FormField = {
+        id: 'passportExpiry',
+        label: 'Passport Expiry',
+        type: 'date',
+        required: true,
+        countrySpecific: false,
+        autoFillSource: 'profile.passportExpiry',
+      };
+
+      const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('2030-05-15');
+      expect(result!.source).toBe('profile');
+      expect(result!.confidence).toBeGreaterThan(0.9);
+    });
+
+    it('should include dateOfBirth in batchAutoFill results', () => {
+      const fields: FormField[] = [
+        {
+          id: 'dateOfBirth',
+          label: 'Date of Birth',
+          type: 'date',
+          required: true,
+          countrySpecific: false,
+          autoFillSource: 'profile.dateOfBirth',
+        },
+        {
+          id: 'passportExpiry',
+          label: 'Passport Expiry',
+          type: 'date',
+          required: true,
+          countrySpecific: false,
+          autoFillSource: 'profile.passportExpiry',
+        },
+        {
+          id: 'arrivalDate',
+          label: 'Arrival Date',
+          type: 'date',
+          required: true,
+          countrySpecific: false,
+          autoFillSource: 'leg.arrivalDate',
+        },
+      ];
+
+      const results = batchAutoFill(fields, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
+
+      // All three date fields must be populated — past, future, and travel dates
+      expect(results.dateOfBirth).toBeDefined();
+      expect(results.dateOfBirth.value).toBe('1990-05-15');
+      expect(results.passportExpiry).toBeDefined();
+      expect(results.passportExpiry.value).toBe('2030-05-15');
+      expect(results.arrivalDate).toBeDefined();
+      expect(results.arrivalDate.value).toBe('2025-07-15');
+    });
+  });
+
   describe('Edge cases and error handling', () => {
     it('should handle missing profile data gracefully', () => {
       const incompleteProfile: Partial<TravelerProfile> = {

@@ -40,7 +40,7 @@ tags:
     id: "leg-card-JPN"
 
 # ============================================================
-# PHASE 4: LegForm - save progress
+# PHASE 4: LegForm - fill ALL fields and complete the form
 # ============================================================
 
 # Wait for the Travel Form screen to load
@@ -48,19 +48,148 @@ tags:
     visible: "Travel Form"
     timeout: 15000
 
-# The form should auto-fill from profile data
-# Scroll to see the action buttons
+# Dismiss Fast Refresh banner if present
+- runFlow:
+    when:
+      visible: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
+
+# Scroll past Form Summary to reach actual form fields
+- scrollUntilVisible:
+    element: "Airline Company"
+    direction: DOWN
+    timeout: 10000
+
+# City of Departure — scroll to it and fill
+- scrollUntilVisible:
+    element:
+      id: "field-departureCity"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-departureCity"
+- inputText: "Los Angeles"
+# Dismiss keyboard with swipe
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Purpose of Visit select — scroll DOWN to find it (it's below City of Departure)
+- scrollUntilVisible:
+    element:
+      id: "select-purposeOfVisit"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "select-purposeOfVisit"
+# Tap Tourism option in modal (must use coordinates — Maestro can't access React Native Modal tree)
+- tapOn:
+    point: "50%,40%"
+
+# Hotel Phone — fill if empty (in Accommodation section)
+- scrollUntilVisible:
+    element:
+      id: "field-hotelPhone"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-hotelPhone"
+- inputText: "03-5322-1234"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# All customs boolean toggles — toggle twice each (undefined -> true -> false)
+# carryingProhibitedItems
+- scrollUntilVisible:
+    element:
+      id: "field-carryingProhibitedItems"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-carryingProhibitedItems"
+- tapOn:
+    id: "field-carryingProhibitedItems"
+
+# currencyOver1M
+- scrollUntilVisible:
+    element:
+      id: "field-currencyOver1M"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-currencyOver1M"
+- tapOn:
+    id: "field-currencyOver1M"
+
+# commercialGoods
+- scrollUntilVisible:
+    element:
+      id: "field-commercialGoods"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-commercialGoods"
+- tapOn:
+    id: "field-commercialGoods"
+
+# meatProducts
+- scrollUntilVisible:
+    element:
+      id: "field-meatProducts"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-meatProducts"
+- tapOn:
+    id: "field-meatProducts"
+
+# plantProducts
+- scrollUntilVisible:
+    element:
+      id: "field-plantProducts"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-plantProducts"
+- tapOn:
+    id: "field-plantProducts"
+
+# itemsToDeclareDuty
+- scrollUntilVisible:
+    element:
+      id: "field-itemsToDeclareDuty"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-itemsToDeclareDuty"
+- tapOn:
+    id: "field-itemsToDeclareDuty"
+
+# Save progress first
 - scrollUntilVisible:
     element:
       id: "save-progress-button"
     direction: DOWN
     timeout: 10000
-
 - tapOn:
     id: "save-progress-button"
 
-# Success alert
+# Success alert — tap OK to dismiss
 - extendedWaitUntil:
-    visible: "Form data saved successfully!"
+    visible: "OK"
     timeout: 10000
 - tapOn: "OK"
+
+# Take screenshot to verify form completion status
+- takeScreenshot: after_save_form_status
+
+# Scroll up to see form completion percentage
+- scrollUntilVisible:
+    element: "Japan"
+    direction: UP
+    timeout: 10000
+- takeScreenshot: form_completion_check

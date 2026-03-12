@@ -7,7 +7,7 @@
 import { Address } from '../../types/profile';
 import { FormField } from '../../types/schema';
 import { resolveAutoFillPath, FormContext } from './fieldMapper';
-import { calculateStayDuration, isValidTravelDate } from '../../utils/dateUtils';
+import { calculateStayDuration, isValidISODate } from '../../utils/dateUtils';
 
 export interface AutoFillResult {
   value: unknown;
@@ -302,7 +302,7 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
     case 'number':
       return typeof value === 'number' && !isNaN(value);
     case 'date':
-      return typeof value === 'string' && isValidTravelDate(value);
+      return typeof value === 'string' && isValidISODate(value);
     case 'boolean':
       return typeof value === 'boolean';
     case 'select':

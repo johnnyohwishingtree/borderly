@@ -89,3 +89,6 @@ fastlane/test_output
 
 # Temporary React Native project
 BorderlyTemp/
+
+# Maestro test output
+maestro/output/
