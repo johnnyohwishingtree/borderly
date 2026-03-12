@@ -83,8 +83,9 @@ export default function SubmissionGuideScreen() {
       }
 
       // Check if this traveler is assigned to this leg
+      // Skip check when assignedTravelers is empty (single-user flow / backward compat)
       const assignedTravelers = leg.assignedTravelers || [];
-      if (!assignedTravelers.includes(targetTravelerId)) {
+      if (assignedTravelers.length > 0 && !assignedTravelers.includes(targetTravelerId)) {
         console.warn(`Traveler ${targetTravelerId} is not assigned to leg ${legId}`);
         setIsLoading(false);
         return;

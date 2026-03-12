@@ -1,5 +1,6 @@
 import {
   generateFilledForm,
+  generateFilledFormForTraveler,
   updateFormData,
   validateFormCompletion,
   getCountrySpecificFields,
@@ -1022,6 +1023,68 @@ describe('FormEngine', () => {
         expect(exported).not.toHaveProperty(form.sections[0].fields[1].id);
         expect(exported).toHaveProperty(form.sections[0].fields[2].id, false);
       });
+    });
+  });
+
+  describe('generateFilledFormForTraveler with assignedTravelers', () => {
+    const futureLeg: TripLeg = {
+      ...mockTripLeg,
+      arrivalDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+      departureDate: new Date(Date.now() + 37 * 86400000).toISOString().split('T')[0],
+    };
+
+    it('should generate form when traveler is in assignedTravelers', () => {
+      const legWithAssigned: TripLeg = {
+        ...futureLeg,
+        assignedTravelers: [mockProfile.id!],
+      };
+
+      const result = generateFilledFormForTraveler(
+        mockProfile.id!,
+        [mockProfile],
+        legWithAssigned,
+        mockSchema
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.sections.length).toBeGreaterThan(0);
+    });
+
+    it('should generate form when assignedTravelers is empty (single-user backward compat)', () => {
+      // Bug: SubmissionGuideScreen checks assignedTravelers.includes(travelerId)
+      // and fails when the array is empty (single-user flow).
+      // The form engine should still generate the form.
+      const legNoAssigned: TripLeg = {
+        ...futureLeg,
+        assignedTravelers: [],
+      };
+
+      const result = generateFilledFormForTraveler(
+        mockProfile.id!,
+        [mockProfile],
+        legNoAssigned,
+        mockSchema
+      );
+
+      // generateFilledFormForTraveler doesn't check assignedTravelers — it just
+      // needs the traveler to exist in the profiles array.
+      // The bug is in SubmissionGuideScreen's guard check, not the engine.
+      expect(result).not.toBeNull();
+    });
+
+    it('should generate form when assignedTravelers is omitted', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { assignedTravelers: _omit, ...legBase } = futureLeg;
+      const legNoAssignedProp = legBase as TripLeg;
+
+      const result = generateFilledFormForTraveler(
+        mockProfile.id!,
+        [mockProfile],
+        legNoAssignedProp,
+        mockSchema
+      );
+
+      expect(result).not.toBeNull();
     });
   });
 
