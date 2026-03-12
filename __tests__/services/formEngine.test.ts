@@ -1143,5 +1143,32 @@ describe('FormEngine', () => {
       expect(Object.keys(validationResult.errors)).toHaveLength(0);
       expect(validationResult.crossFieldErrors).toHaveLength(0);
     });
+
+    it('should reject meatProducts=true for Japan (country-specific rule)', () => {
+      const form = generateFilledForm(mockProfile, futureTripLeg, schemaWithDateOfBirth);
+      const allFields = form.sections.flatMap(s => s.fields);
+
+      // Build valid formData, then set meatProducts to true
+      const enhancedFormData: Record<string, unknown> = {};
+      const autoFillResults = batchAutoFill(
+        allFields,
+        { profile: mockProfile, leg: futureTripLeg },
+        { enableSmartDefaults: true, enableFallbacks: true, confidenceThreshold: 0.7 }
+      );
+      Object.entries(autoFillResults).forEach(([fieldId, result]) => {
+        if (!enhancedFormData[fieldId] && result.value !== undefined) {
+          enhancedFormData[fieldId] = result.value;
+        }
+      });
+      enhancedFormData.meatProducts = true;
+
+      const validationResult = validateFormWithCrossChecks(allFields, enhancedFormData, {
+        countryCode: 'JPN',
+        profileData: mockProfile,
+      });
+
+      // meatProducts=true should be rejected for Japan
+      expect(validationResult.isValid).toBe(false);
+    });
   });
 });
