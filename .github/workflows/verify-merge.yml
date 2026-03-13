@@ -198,20 +198,11 @@ jobs:
       - name: Claude fix (fresh context)
         uses: anthropics/claude-code-action@v1
         with:
+          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt."
-          prompt: |
+          max_turns: 30
+          allowed_tools: "Edit,MultiEdit,Glob,Grep,LS,Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git rm:*),Bash(pnpm:*),Bash(npx:*),Bash(node:*)"
+          direct_prompt: |
             Fix attempt ${{ inputs.attempt }}/3. Your code has lint, typecheck, or test errors.
 
             Error logs are at:
