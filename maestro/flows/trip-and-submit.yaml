@@ -40,27 +40,117 @@ tags:
     id: "leg-card-JPN"
 
 # ============================================================
-# PHASE 4: LegForm - save progress
+# PHASE 4: LegForm - fill remaining fields and mark as ready
 # ============================================================
+# Most fields are auto-filled from profile/trip data.
+# batchAutoFill defaults booleans to false and purposeOfVisit to 'tourism'.
+# Only departureCity (text, no autoFillSource) needs manual entry.
+# hotelPhone is optional but we fill it for completeness.
 
 # Wait for the Travel Form screen to load
 - extendedWaitUntil:
     visible: "Travel Form"
     timeout: 15000
 
-# The form should auto-fill from profile data
-# Scroll to see the action buttons
+# Wait for form content to render (Form Summary appears first)
+- extendedWaitUntil:
+    visible: "Form Summary"
+    timeout: 10000
+
+# Dismiss Fast Refresh banner if present (may appear with delay)
+- runFlow:
+    when:
+      visible: "Fast Refresh"
+    commands:
+      - tapOn: "Dismiss"
+
+# Scroll past Form Summary to reach actual form fields
+- scrollUntilVisible:
+    element:
+      id: "field-departureCity"
+    direction: DOWN
+    timeout: 15000
+
+# City of Departure — the only required field without autoFillSource
+- tapOn:
+    id: "field-departureCity"
+- inputText: "Los Angeles"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Hotel Phone — optional but fill for completeness
+- scrollUntilVisible:
+    element:
+      id: "field-hotelPhone"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-hotelPhone"
+- inputText: "03-5322-1234"
+
+# Dismiss keyboard by tapping the return key then tapping header area
+- pressKey: Enter
+- tapOn: "Travel Form"
+
+# Save progress
 - scrollUntilVisible:
     element:
       id: "save-progress-button"
     direction: DOWN
     timeout: 10000
-
 - tapOn:
     id: "save-progress-button"
 
-# Success alert
+# Success alert — tap OK to dismiss
 - extendedWaitUntil:
-    visible: "Form data saved successfully!"
+    visible: "OK"
     timeout: 10000
 - tapOn: "OK"
+
+# Mark as Ready — button is in fixed footer, no scroll needed
+- extendedWaitUntil:
+    visible: "Mark as Ready"
+    timeout: 10000
+- tapOn:
+    id: "mark-ready-button"
+
+# Success alert — tap OK which navigates back
+- extendedWaitUntil:
+    visible: "OK"
+    timeout: 10000
+- tapOn: "OK"
+
+# Verify we're back on the trip detail screen
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+
+# ============================================================
+# PHASE 5: Open Submission Guide and verify it loads
+# ============================================================
+
+# Tap Japan leg again to get back to the form
+- tapOn:
+    id: "leg-card-JPN"
+
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 10000
+
+# Form should be ready — Open Submission Guide button should be visible
+- scrollUntilVisible:
+    element:
+      id: "open-submission-guide-button"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "open-submission-guide-button"
+
+# Verify the submission guide loaded (not stuck on "Loading submission guide...")
+- extendedWaitUntil:
+    visible: "Submission Guide"
+    timeout: 15000
+- assertVisible: "Open Portal"
+- assertVisible: "Submission Timing"

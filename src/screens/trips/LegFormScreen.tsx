@@ -82,9 +82,14 @@ export default function LegFormScreen() {
     };
   }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation, showLoadError, clearLoadError]);
 
-  const handleFormDataChange = (_newFormData: Record<string, unknown>) => {
-    // Form data is automatically updated in the store
-    // No additional action needed here
+  const handleFormDataChange = (newFormData: Record<string, unknown>) => {
+    // Sync each changed field to the form store so getFormData() returns current values
+    const { formData: storeData, updateField } = useFormStore.getState();
+    for (const [fieldId, value] of Object.entries(newFormData)) {
+      if (storeData[fieldId] !== value) {
+        updateField(fieldId, value);
+      }
+    }
   };
 
   const handleSaveForm = async () => {
@@ -346,6 +351,7 @@ export default function LegFormScreen() {
                 (navigation as any).navigate('SubmissionGuide', {
                   tripId,
                   legId,
+                  countryCode: leg?.destinationCountry,
                 });
               }}
               variant="secondary"

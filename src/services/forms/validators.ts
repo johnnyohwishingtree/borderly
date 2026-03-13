@@ -525,7 +525,13 @@ export function validateFormWithCrossChecks(
       crossFieldErrors.push('Passport expires before travel date');
     }
   }
-  
+
+  // Country-specific business rules
+  if (context?.countryCode) {
+    const countryRules = validateCountrySpecificRules(context.countryCode, values);
+    crossFieldErrors.push(...countryRules.errors);
+  }
+
   return {
     isValid: Object.keys(errors).length === 0 && crossFieldErrors.length === 0,
     errors,
