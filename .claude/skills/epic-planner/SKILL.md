@@ -30,7 +30,7 @@ Rules:
 The number of stories should match the scope of the work — not a fixed range. A small feature might need 2 stories; a large architectural change might need 10 or more. Use judgment:
 
 - **Combine** steps that are small and tightly coupled (e.g., don't make a separate story for "add config entry" if it's 3 lines in a larger story)
-- **Split** steps that touch different layers or could be reviewed independently
+- **Split** steps that touch different layers or could be reviewed independently (e.g., separate backend API changes from frontend UI changes)
 - Each story should produce a shippable, testable increment — not just "set up files"
 - If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it into the next story
 
