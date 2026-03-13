@@ -6,17 +6,21 @@ on:
   pull_request_review_comment:
     types: [created]
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: write
+
 jobs:
   claude:
     if: |
       contains(github.event.comment.body, '@claude') &&
       (github.event.issue != null || github.event.pull_request != null)
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
+    timeout-minutes: 30
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,7 +60,6 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Allow all git commands EXCEPT push — push happens only after verification
           settings: |
             {
               "maxTurns": 100,
@@ -73,448 +76,22 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
 
-      # ============================================================
-      # Verify + fix loop: typecheck (up to 3 attempts)
-      # ============================================================
-      - name: 'Typecheck: verify (round 1)'
-        id: tc1
-        if: always()
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          pnpm typecheck > /tmp/tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Typecheck: fix (round 1)'
-        if: always() && steps.tc1.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code has typecheck errors (fix attempt 1/3).
-
-            Read /tmp/tc_errors.txt to see the exact errors from the last verify step.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to confirm you didn't introduce new errors.
-            Do NOT use `any` types to suppress errors — fix the root cause.
-            After fixing all errors, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
-
-      - name: 'Typecheck: verify (round 2)'
-        id: tc2
-        if: always() && steps.tc1.outputs.pass == 'false'
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          pnpm typecheck > /tmp/tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Typecheck: fix (round 2)'
-        if: always() && steps.tc2.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code STILL has typecheck errors (fix attempt 2/3).
-
-            The previous fix attempt did not resolve all errors — it may have introduced NEW errors.
-            Read /tmp/tc_errors.txt to see the exact errors from the last verify step.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to confirm you didn't introduce new errors.
-            Do NOT use `any` types. Do NOT leave unused variables or imports.
-            After fixing all errors, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
-
-      - name: 'Typecheck: verify (round 3)'
-        id: tc3
-        if: always() && steps.tc2.outputs.pass == 'false'
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          pnpm typecheck > /tmp/tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Typecheck: fix (round 3)'
-        if: always() && steps.tc3.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code STILL has typecheck errors (fix attempt 3/3 — LAST CHANCE).
-
-            This is the final attempt. If these errors are not fixed, the code will NOT be pushed.
-            Read /tmp/tc_errors.txt to see the exact errors from the last verify step.
-            Previous fix attempts may have introduced NEW errors while fixing old ones.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to verify.
-            Check the component interfaces and make sure your test files match the actual props.
-            Remove unused imports and variables.
-            After fixing all errors, run `pnpm typecheck` and confirm ZERO errors, then git add and git commit.
-
-      # ============================================================
-      # Verify + fix loop: tests (up to 3 attempts)
-      # Only runs if typecheck is passing
-      # ============================================================
-      - name: 'Tests: verify (round 1)'
-        id: test1
-        if: always()
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          if ! pnpm typecheck 2>&1; then
-            echo "typecheck still failing — skipping test verification"
-            echo "pass=false" >> $GITHUB_OUTPUT
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          pnpm test > /tmp/test_errors.txt 2>&1 && TEST_PASS=true || TEST_PASS=false
-          cat /tmp/test_errors.txt
-          echo "pass=$TEST_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Tests: fix (round 1)'
-        if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code has test failures (fix attempt 1/3).
-
-            Run `pnpm test` to see every failure. Fix ALL of them.
-            After fixing, run BOTH `pnpm typecheck` and `pnpm test` to confirm ZERO errors,
-            then git add and git commit.
-
-      - name: 'Post-test-fix: typecheck verify (after test round 1)'
-        id: post_tc1
-        if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
-        run: |
-          pnpm typecheck > /tmp/post_tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/post_tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Post-test-fix: typecheck repair (after test round 1)'
-        if: always() && steps.post_tc1.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 20,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            The previous test fix round introduced TYPECHECK errors. Fix them WITHOUT breaking the test fixes.
-            Read /tmp/post_tc_errors.txt for the exact typecheck errors.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to verify you didn't introduce new errors.
-            After all typecheck errors are fixed, run `pnpm test` to make sure tests still pass.
-            Then git add and git commit.
-
-      - name: 'Tests: verify (round 2)'
-        id: test2
-        if: always() && steps.test1.outputs.pass == 'false' && steps.test1.outputs.skip != 'true'
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          if ! pnpm typecheck 2>&1; then
-            echo "pass=false" >> $GITHUB_OUTPUT
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          pnpm test > /tmp/test_errors.txt 2>&1 && TEST_PASS=true || TEST_PASS=false
-          cat /tmp/test_errors.txt
-          echo "pass=$TEST_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Tests: fix (round 2)'
-        if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code STILL has test failures (fix attempt 2/3).
-
-            Run `pnpm test` to see every failure. Fix ALL of them.
-            After fixing, run BOTH `pnpm typecheck` and `pnpm test` to confirm ZERO errors,
-            then git add and git commit.
-
-      - name: 'Post-test-fix: typecheck verify (after test round 2)'
-        id: post_tc2
-        if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
-        run: |
-          pnpm typecheck > /tmp/post_tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/post_tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Post-test-fix: typecheck repair (after test round 2)'
-        if: always() && steps.post_tc2.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 20,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            The previous test fix round introduced TYPECHECK errors. Fix them WITHOUT breaking the test fixes.
-            Read /tmp/post_tc_errors.txt for the exact typecheck errors.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to verify you didn't introduce new errors.
-            After all typecheck errors are fixed, run `pnpm test` to make sure tests still pass.
-            Then git add and git commit.
-
-      - name: 'Tests: verify (round 3)'
-        id: test3
-        if: always() && steps.test2.outputs.pass == 'false' && steps.test2.outputs.skip != 'true'
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-          if ! pnpm typecheck 2>&1; then
-            echo "pass=false" >> $GITHUB_OUTPUT
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          pnpm test > /tmp/test_errors.txt 2>&1 && TEST_PASS=true || TEST_PASS=false
-          cat /tmp/test_errors.txt
-          echo "pass=$TEST_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Tests: fix (round 3)'
-        if: always() && steps.test3.outputs.pass == 'false' && steps.test3.outputs.skip != 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            CRITICAL: Your code STILL has test failures (fix attempt 3/3 — LAST CHANCE).
-
-            This is the final attempt. If not fixed, the code will NOT be pushed.
-            Run `pnpm test`, fix EVERY failure. Then run BOTH `pnpm typecheck` and `pnpm test`
-            to confirm ZERO errors, then git add and git commit.
-
-      - name: 'Post-test-fix: typecheck verify (after test round 3)'
-        id: post_tc3
-        if: always() && steps.test3.outputs.pass == 'false' && steps.test3.outputs.skip != 'true'
-        run: |
-          pnpm typecheck > /tmp/post_tc_errors.txt 2>&1 && TC_PASS=true || TC_PASS=false
-          cat /tmp/post_tc_errors.txt
-          echo "pass=$TC_PASS" >> $GITHUB_OUTPUT
-
-      - name: 'Post-test-fix: typecheck repair (after test round 3)'
-        if: always() && steps.post_tc3.outputs.pass == 'false'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          settings: |
-            {
-              "maxTurns": 20,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
-              ]
-            }
-          claude_args: |
-            --system-prompt "IGNORE all PR comments, reviews, and conversation history. ONLY follow the prompt. Do NOT address Gemini reviews or previous @claude requests."
-          prompt: |
-            The previous test fix round introduced TYPECHECK errors. Fix them WITHOUT breaking the test fixes.
-            Read /tmp/post_tc_errors.txt for the exact typecheck errors.
-            Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to verify you didn't introduce new errors.
-            After all typecheck errors are fixed, run `pnpm test` to make sure tests still pass.
-            Then git add and git commit.
-
-      # ============================================================
-      # Final gate — nothing ships without passing
-      # ============================================================
-      - name: Final verification
-        id: final-verify
-        if: always()
-        run: |
-          echo "=== Final verification ==="
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-
-          PASS=true
-          if ! pnpm typecheck 2>&1; then
-            echo "FINAL: typecheck FAILED"
-            PASS=false
-          fi
-
-          if [ "$PASS" = "true" ] && ! pnpm test 2>&1; then
-            echo "FINAL: tests FAILED"
-            PASS=false
-          fi
-
-          echo "pass=$PASS" >> $GITHUB_OUTPUT
-          if [ "$PASS" = "false" ]; then
-            echo "ERROR: Code still fails after 3 fix attempts — saving to salvage branch instead"
-          else
-            echo "All checks pass — safe to push"
-          fi
-
-      # ============================================================
-      # Salvage branch: push partial work when checks fail
-      # ============================================================
-      - name: Push to salvage branch on failure
-        if: always() && steps.final-verify.outputs.pass == 'false'
+      - name: Push branch
+        id: push
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
           BRANCH=$(git branch --show-current)
-          RUN_ID=${{ github.run_id }}
-          SALVAGE_BRANCH="claude/salvage/${BRANCH}-${RUN_ID}"
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
-          # Check if there are any commits beyond what's on the remote
-          HAS_CHANGES=false
-          REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$REMOTE_EXISTS" -gt 0 ]; then
-            UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
-            if [ -n "$UNPUSHED" ]; then
-              HAS_CHANGES=true
-            fi
-          else
-            COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
-            if [ "$COMMIT_COUNT" -gt 0 ]; then
-              HAS_CHANGES=true
-            fi
-          fi
-
-          # Also check for uncommitted changes
-          UNCOMMITTED=$(git status --porcelain | grep -v '^?? output.txt$' || true)
-          if [ -n "$UNCOMMITTED" ]; then
-            HAS_CHANGES=true
-            echo "Committing uncommitted changes to salvage branch:"
-            echo "$UNCOMMITTED"
-            git add -u
-            if [ -n "$(git diff --cached --name-only)" ]; then
-              git commit -m "wip: uncommitted changes from failed CI run #${RUN_ID}
-
-          Co-authored-by: Claude <noreply@anthropic.com>"
-            fi
-          fi
-
-          if [ "$HAS_CHANGES" = "false" ]; then
-            echo "No changes to salvage — skipping"
-            exit 0
-          fi
-
-          echo "Pushing salvage branch: $SALVAGE_BRANCH"
-          git checkout -b "$SALVAGE_BRANCH"
-          git push -u origin "$SALVAGE_BRANCH"
-
-          # Comment on the issue/PR about the salvage branch
-          COMMENT_TARGET=""
-          if [ -n "${{ github.event.issue.number }}" ]; then
-            COMMENT_TARGET="${{ github.event.issue.number }}"
-          elif [ -n "${{ github.event.pull_request.number }}" ]; then
-            COMMENT_TARGET="${{ github.event.pull_request.number }}"
-          fi
-
-          if [ -n "$COMMENT_TARGET" ]; then
-            gh issue comment "$COMMENT_TARGET" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          ⚠️ **Checks failed after 3 fix attempts.** Claude's partial work has been saved to [\`${SALVAGE_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${SALVAGE_BRANCH}) so the next session can resume from it.
-
-          To resume, comment: \`@claude\` with "Cherry-pick the commits from \`${SALVAGE_BRANCH}\` and continue fixing the typecheck/test errors."
-          EOF
-            )" 2>/dev/null || echo "Failed to post salvage comment"
-          fi
-
-      # ============================================================
-      # Post-verification: push, PR, merge (only if checks pass)
-      # ============================================================
-      - name: Push verified changes
-        if: always() && steps.final-verify.outputs.pass == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
-          BRANCH=$(git branch --show-current)
-          echo "Current branch: $BRANCH"
 
           # Commit any uncommitted changes
           CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
           if [ -n "$CHANGES" ]; then
-            echo "Committing leftover changes:"
-            echo "$CHANGES"
             git add -u
             if [ -n "$(git diff --cached --name-only)" ]; then
-              git commit -m "Auto-commit: save Claude's unpushed changes
+              git commit -m "chore: save unpushed changes from Claude
 
           Co-authored-by: Claude <noreply@anthropic.com>"
             fi
@@ -523,144 +100,80 @@ jobs:
           # Push
           REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH" 2>/dev/null | wc -l | tr -d ' ')
           if [ "$REMOTE_EXISTS" -eq 0 ]; then
-            echo "Pushing new branch $BRANCH"
             git push -u origin HEAD
           else
             UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
             if [ -n "$UNPUSHED" ]; then
-              echo "Pushing commits:"
-              echo "$UNPUSHED"
               git push origin HEAD
             else
               echo "Nothing to push"
             fi
           fi
 
-      - name: Resolve bot review threads
-        if: always() && steps.final-verify.outputs.pass == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          REPO: ${{ github.repository }}
+      - name: Run checks (typecheck + tests)
+        id: checks
         run: |
-          PR_NUM=""
-          if [ -n "${{ github.event.pull_request.number }}" ]; then
-            PR_NUM=${{ github.event.pull_request.number }}
-          elif [ -n "${{ github.event.issue.number }}" ]; then
-            HAS_PR=$(gh api "repos/$REPO/issues/${{ github.event.issue.number }}" \
-              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
-            if [ -n "$HAS_PR" ]; then
-              PR_NUM=${{ github.event.issue.number }}
-            fi
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+
+          PASS=true
+          if ! pnpm typecheck 2>&1; then
+            echo "Typecheck FAILED"
+            PASS=false
           fi
 
-          if [ -z "$PR_NUM" ]; then
-            echo "Not a PR context — skipping thread resolution"
-            exit 0
+          if [ "$PASS" = "true" ] && ! pnpm test 2>&1; then
+            echo "Tests FAILED"
+            PASS=false
           fi
 
-          echo "Resolving review threads on PR #$PR_NUM"
+          echo "pass=$PASS" >> $GITHUB_OUTPUT
 
-          OWNER=$(echo "$REPO" | cut -d/ -f1)
-          NAME=$(echo "$REPO" | cut -d/ -f2)
-
-          THREAD_IDS=$(gh api graphql -f query="
-            query {
-              repository(owner: \"$OWNER\", name: \"$NAME\") {
-                pullRequest(number: $PR_NUM) {
-                  reviewThreads(first: 100) {
-                    nodes { id isResolved }
-                  }
-                }
-              }
-            }
-          " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
-
-          if [ -z "$THREAD_IDS" ]; then
-            echo "No unresolved review threads"
-            exit 0
-          fi
-
-          echo "$THREAD_IDS" | while read -r TID; do
-            if [ -n "$TID" ]; then
-              gh api graphql -f query="
-                mutation {
-                  resolveReviewThread(input: {threadId: \"$TID\"}) {
-                    thread { isResolved }
-                  }
-                }
-              " 2>/dev/null && echo "Resolved thread $TID" || echo "Failed to resolve thread $TID"
-            fi
-          done
-          echo "Resolved review threads on PR #$PR_NUM"
-
-      - name: Request Gemini re-review after fixes
-        if: always() && steps.final-verify.outputs.pass == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          REPO: ${{ github.repository }}
-        run: |
-          PR_NUM=""
-          if [ -n "${{ github.event.pull_request.number }}" ]; then
-            PR_NUM=${{ github.event.pull_request.number }}
-          elif [ -n "${{ github.event.issue.number }}" ]; then
-            HAS_PR=$(gh api "repos/$REPO/issues/${{ github.event.issue.number }}" \
-              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
-            if [ -n "$HAS_PR" ]; then
-              PR_NUM=${{ github.event.issue.number }}
-            fi
-          fi
-
-          if [ -z "$PR_NUM" ]; then
-            echo "Not a PR context — skipping re-review request"
-            exit 0
-          fi
-
-          # Only request re-review if there were previous Gemini reviews
-          GEMINI_REVIEWS=$(gh api "repos/$REPO/pulls/$PR_NUM/reviews" \
-            -q '[.[] | select(.user.login == "gemini-code-assist[bot]")] | length' 2>/dev/null || echo "0")
-
-          if [ "$GEMINI_REVIEWS" -eq 0 ]; then
-            echo "No previous Gemini reviews on PR #$PR_NUM — skipping"
-            exit 0
-          fi
-
-          echo "Requesting Gemini re-review on PR #$PR_NUM"
-          gh pr comment "$PR_NUM" --repo "$REPO" \
-            --body "/gemini review" 2>/dev/null || echo "Failed to request Gemini re-review"
-
-      - name: Auto-create PR if branch has commits
-        if: always() && steps.final-verify.outputs.pass == 'true'
+      - name: Extract issue number
+        id: issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          BRANCH=$(echo "${{ steps.claude.outputs.branch_name }}" | xargs)
-          if [ -z "$BRANCH" ]; then
-            echo "No branch created — skipping PR"
-            exit 0
-          fi
+          # Get issue number from PR body or from the comment context
+          ISSUE_NUM=""
+          BRANCH="${{ steps.push.outputs.branch }}"
 
-          AHEAD=$(git rev-list --count origin/master.."origin/$BRANCH" 2>/dev/null || echo "0")
-          if [ "$AHEAD" -eq 0 ]; then
-            echo "Branch $BRANCH has no commits ahead of master — skipping PR"
-            exit 0
-          fi
-
-          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -n "$EXISTING" ]; then
-            echo "PR #$EXISTING already exists for $BRANCH"
-            exit 0
-          fi
-
-          # Extract issue number from branch name
+          # Try branch name first
           ISSUE_NUM=$(echo "$BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
 
-          # If triggered from an issue comment, use that issue number
+          # Fall back to comment context
           if [ -z "$ISSUE_NUM" ] && [ -n "${{ github.event.issue.number }}" ]; then
             IS_PR=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}" \
               --jq '.pull_request.url // empty' 2>/dev/null || echo "")
             if [ -z "$IS_PR" ]; then
               ISSUE_NUM=${{ github.event.issue.number }}
             fi
+          fi
+
+          echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
+
+      - name: Create PR (checks passed)
+        if: steps.checks.outputs.pass == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          BRANCH="${{ steps.push.outputs.branch }}"
+          ISSUE_NUM="${{ steps.issue.outputs.number }}"
+
+          if [ -z "$BRANCH" ]; then
+            echo "No branch — skipping PR"
+            exit 0
+          fi
+
+          AHEAD=$(git rev-list --count origin/master.."origin/$BRANCH" 2>/dev/null || echo "0")
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "No commits ahead of master — skipping PR"
+            exit 0
+          fi
+
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING already exists"
+            exit 0
           fi
 
           if [ -n "$ISSUE_NUM" ]; then
@@ -676,27 +189,29 @@ jobs:
             PR_BODY="Autonomously implemented by Claude Code via GitHub Actions."
           fi
 
-          gh pr create \
-            --head "$BRANCH" \
-            --base master \
-            --title "$PR_TITLE" \
-            --body "$PR_BODY"
+          gh pr create --head "$BRANCH" --base master --title "$PR_TITLE" --body "$PR_BODY"
+          PR_NUM=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
+          if [ -n "$PR_NUM" ]; then
+            gh pr merge "$PR_NUM" --squash --auto 2>/dev/null || echo "Auto-merge not available"
+          fi
 
-          echo "PR created for branch $BRANCH"
-
-      - name: Enable auto-merge on PR
-        if: always() && steps.final-verify.outputs.pass == 'true'
+      - name: Trigger fix-checks (checks failed)
+        if: steps.checks.outputs.pass == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          BRANCH=$(echo "${{ steps.claude.outputs.branch_name }}" | xargs)
+          BRANCH="${{ steps.push.outputs.branch }}"
+          ISSUE_NUM="${{ steps.issue.outputs.number }}"
+
           if [ -z "$BRANCH" ]; then
+            echo "No branch — skipping fix trigger"
             exit 0
           fi
 
-          PR_NUM=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -z "$PR_NUM" ]; then
-            exit 0
-          fi
+          gh workflow run fix-checks.yml \
+            --repo "${{ github.repository }}" \
+            --ref master \
+            -f branch="$BRANCH" \
+            -f issue_number="${ISSUE_NUM:-}"
 
-          gh pr merge "$PR_NUM" --squash --auto 2>/dev/null || echo "Auto-merge not available (may need branch protection or admin settings)"
+          echo "Triggered fix-checks workflow for branch $BRANCH"

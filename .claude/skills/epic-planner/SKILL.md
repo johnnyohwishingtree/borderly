@@ -6,13 +6,14 @@ argument-hint: "[goal description]"
 
 # Epic Planner
 
-Break a high-level goal into a structured set of GitHub Issues: one Epic and 3-8 Stories.
+Break a high-level goal into a structured set of GitHub Issues: one Epic and its Stories.
 
 ## Before Planning
 
 1. Read `CLAUDE.md` for project context and architecture
 2. Understand where the goal fits in the existing codebase
 3. Check if any existing code can be reused
+4. Read existing scaffolding/stubs to understand what's already built
 
 ## Epic Structure
 
@@ -23,15 +24,27 @@ Rules:
 - Stories have clear dependencies (Story 2 may depend on Story 1)
 - Each story specifies which skill to use (`/plan-feature`, `/test-suite`, etc.)
 - Stories are created sequentially — issue number defines execution order
-- Maximum 8 stories per epic
 
-## Typical Story Ordering
+## Sizing Stories
 
-1. **Foundation** — create module skeleton, base classes, config entries
-2. **Core logic** — implement the main algorithm/feature
-3. **Integration** — connect to existing modules, handle edge cases
-4. **Tests** — fill test coverage gaps
-5. **Documentation** — update docs, architecture diagrams
+The number of stories should match the scope of the work — not a fixed range. A small feature might need 2 stories; a large architectural change might need 10 or more. Use judgment:
+
+- **Combine** steps that are small and tightly coupled (e.g., don't make a separate story for "add config entry" if it's 3 lines in a larger story)
+- **Split** steps that touch different layers or could be reviewed independently (e.g., separate WatermelonDB model changes from the React Native screens that use them)
+- Each story should produce a shippable, testable increment — not just "set up files". This means it should include relevant tests and documentation updates.
+- If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it with a related story
+
+Order stories by dependency, not by a rigid template. Common patterns include foundation-first (build layers bottom-up), core-then-integration (implement main logic then connect to other parts), or vertical slices (build features top-to-bottom) — pick whatever fits the work.
+
+For example, a **vertical slice** for a new feature might be:
+1. Add DB model and storage layer, with unit tests and model documentation.
+2. Build a UI screen to display the data, with component tests and UI component docs.
+3. Add user interactions and integration tests, and update any relevant user guides.
+
+Alternatively, a **foundation-first** approach for the same feature might look like:
+1. Add all DB models and storage layer methods for the feature, with comprehensive unit tests.
+2. Build all required reusable UI components (e.g., forms, list items), with component tests.
+3. Assemble the final screens using the new components and connect them to the storage layer, adding screen-level integration tests.
 
 ## Creating Issues
 
@@ -115,7 +128,7 @@ gh issue view <story_number> --json labels -q '.labels[].name'
 
 After running this skill:
 1. One Epic issue created with goal, story checklist, success criteria
-2. 3-8 Story issues created with skill reference, acceptance criteria, file lists
+2. Story issues created with skill reference, acceptance criteria, file lists
 3. All stories labeled correctly for the orchestrator workflow
 4. Summary printed: epic number, story numbers, execution order
 
