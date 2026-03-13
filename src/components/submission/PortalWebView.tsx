@@ -130,7 +130,10 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
             parsed.hostname === domain ||
             parsed.hostname.endsWith('.' + domain),
         );
-      } catch {
+      } catch (e) {
+        if (__DEV__) {
+          console.error(`isAllowedDomain: Unparseable URL '${targetUrl}'`, e);
+        }
         // Unparseable URL — deny
         return false;
       }

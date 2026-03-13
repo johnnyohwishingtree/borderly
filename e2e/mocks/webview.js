@@ -41,8 +41,7 @@ const WebView = forwardRef(function WebView(props, ref) {
     }, 50);
 
     return () => clearTimeout(loadTimer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
+  }, [url, injectedJavaScript, onLoad, onLoadEnd, onLoadStart, onNavigationStateChange]);
 
   return (
     <div
