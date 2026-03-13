@@ -37,9 +37,9 @@ The number of stories should match the scope of the work — not a fixed range. 
 Order stories by dependency, not by a rigid template. Common patterns include foundation-first (build layers bottom-up), core-then-integration, or vertical slices (build features top-to-bottom) — pick whatever fits the work.
 
 For example, a vertical slice for a new feature might be:
-1. Add DB model and storage layer, with unit tests.
-2. Build a UI screen to display the data, with component tests.
-3. Add user interactions and integration tests.
+1. Add DB model and storage layer, with unit tests and model documentation.
+2. Build a UI screen to display the data, with component tests and UI component docs.
+3. Add user interactions and integration tests, and update any relevant user guides.
 
 ## Creating Issues
 
