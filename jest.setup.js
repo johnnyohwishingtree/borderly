@@ -340,6 +340,19 @@ jest.mock('react-native-image-picker', () => ({
   },
 }));
 
+// Mock react-native-webview
+jest.mock('react-native-webview', () => {
+  const React = require('react');
+  const WebView = React.forwardRef(function WebView(props, ref) {
+    React.useImperativeHandle(ref, () => ({
+      injectJavaScript: jest.fn(),
+    }));
+    return React.createElement('WebView', { testID: props.testID || 'webview', ...props });
+  });
+  WebView.displayName = 'WebView';
+  return { default: WebView, WebView };
+});
+
 // Mock react-native-qrcode-scanner
 jest.mock('react-native-qrcode-scanner', () => {
   const React = require('react');

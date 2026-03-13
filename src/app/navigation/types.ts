@@ -24,6 +24,12 @@ export type TripStackParamList = {
   TripDetail: { tripId: string };
   LegForm: { tripId: string; legId: string };
   SubmissionGuide: { tripId: string; legId: string };
+  PortalSubmission: {
+    url: string;
+    countryCode: string;
+    tripId: string;
+    legId: string;
+  };
 };
 
 export type WalletStackParamList = {
