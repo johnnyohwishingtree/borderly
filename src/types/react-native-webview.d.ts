@@ -1,11 +1,11 @@
 /**
  * Ambient type declarations for react-native-webview.
  *
- * These stubs allow `pnpm typecheck` to pass before the native package is
- * installed in CI. They mirror the public API surface used by PortalWebView.
+ * These declarations supplement the package's own types to add WebViewRef
+ * (used for the forwarded ref in PortalWebView) and ensure JSX compatibility.
  */
 declare module 'react-native-webview' {
-  import type { ForwardRefExoticComponent, RefAttributes } from 'react';
+  import type { Component } from 'react';
   import type { StyleProp, ViewStyle } from 'react-native';
 
   export interface WebViewNativeEvent {
@@ -53,8 +53,16 @@ declare module 'react-native-webview' {
     testID?: string;
   }
 
-  // The WebView component (default and named export)
-  declare const WebView: ForwardRefExoticComponent<WebViewProps & RefAttributes<WebViewRef>>;
+  // Declare WebView as a full Component subclass so TypeScript accepts it in JSX.
+  // The class form is used here (not ForwardRefExoticComponent) to match the
+  // real package's declaration and satisfy JSX element type checking.
+  class WebView extends Component<WebViewProps> {
+    injectJavaScript: (script: string) => void;
+    goBack: () => void;
+    goForward: () => void;
+    reload: () => void;
+    stopLoading: () => void;
+  }
 
   export { WebView };
   export default WebView;
