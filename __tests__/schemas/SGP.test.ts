@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import SGP from '../../src/schemas/SGP.json';
@@ -183,5 +185,86 @@ describe('Singapore (SGP) Schema', () => {
 
     expect(addressField.type).toBe('textarea');
     expect((addressField as any).helpText).toContain('postal code');
+  });
+});
+
+describe('SGP Portal Field Mappings (Story 3)', () => {
+  const scriptPath = path.resolve(__dirname, '../../assets/automation/scripts/SGP.js');
+  let scriptContent: string;
+
+  beforeAll(() => {
+    scriptContent = fs.readFileSync(scriptPath, 'utf8');
+  });
+
+  test('SGP.js automation script file should exist', () => {
+    expect(fs.existsSync(scriptPath)).toBe(true);
+  });
+
+  test('automation script should define portalUrl', () => {
+    expect(scriptContent).toContain('portalUrl');
+    expect(scriptContent).toContain('ica.gov.sg');
+  });
+
+  test('automation script should define fieldMappings', () => {
+    expect(scriptContent).toContain('fieldMappings');
+  });
+
+  test('automation script should define pageDetectors', () => {
+    expect(scriptContent).toContain('pageDetectors');
+  });
+
+  test('automation script should define submitButtonSelector', () => {
+    expect(scriptContent).toContain('submitButtonSelector');
+  });
+
+  test('fieldMappings should cover all fieldsOnThisScreen IDs', () => {
+    const allGuideFieldIds = new Set<string>();
+    SGP.submissionGuide.forEach(step => {
+      step.fieldsOnThisScreen.forEach(id => allGuideFieldIds.add(id));
+    });
+
+    allGuideFieldIds.forEach(fieldId => {
+      expect(scriptContent).toContain(fieldId);
+    });
+  });
+
+  test('all fields with portalFieldName should also have portalSelector', () => {
+    SGP.sections.forEach(section => {
+      section.fields.forEach(field => {
+        const f = field as any;
+        if (f.portalFieldName) {
+          expect(f.portalSelector).toBeDefined();
+          expect(typeof f.portalSelector).toBe('string');
+          expect((f.portalSelector as string).length).toBeGreaterThan(0);
+        }
+      });
+    });
+  });
+
+  test('portalSelector values should contain valid CSS selector patterns', () => {
+    SGP.sections.forEach(section => {
+      section.fields.forEach(field => {
+        const selector: string | undefined = (field as any).portalSelector;
+        if (selector) {
+          expect(selector).toMatch(/[#.\[\]a-zA-Z*]/);
+        }
+      });
+    });
+  });
+
+  test('SGP schema should not require account (no-account flow)', () => {
+    expect(SGP.portalFlow.requiresAccount).toBe(false);
+  });
+
+  test('SGP script should handle all 7 submission steps', () => {
+    expect(SGP.submissionGuide).toHaveLength(7);
+    expect(scriptContent).toContain('postMessage');
+    expect(scriptContent).toContain('confirmation');
+  });
+
+  test('SGP script should cover health and customs sections (comprehensive declarations)', () => {
+    expect(scriptContent).toContain('feverSymptoms');
+    expect(scriptContent).toContain('exceedsAllowance');
+    expect(scriptContent).toContain('carryingCash');
   });
 });

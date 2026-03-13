@@ -55,7 +55,8 @@
           "required": true,
           "autoFillSource": "profile.surname",
           "countrySpecific": false,
-          "portalFieldName": "Last Name"
+          "portalFieldName": "Last Name",
+          "portalSelector": "[name=\"familyName\"], #familyName, [name=\"lastName\"], #last-name, [id=\"family-name\"]"
         },
         {
           "id": "givenNames",
@@ -64,7 +65,8 @@
           "required": true,
           "autoFillSource": "profile.givenNames",
           "countrySpecific": false,
-          "portalFieldName": "First Name / Middle Name"
+          "portalFieldName": "First Name / Middle Name",
+          "portalSelector": "[name=\"givenName\"], #givenName, [name=\"firstName\"], #first-name, [id=\"given-name\"]"
         },
         {
           "id": "dateOfBirth",
@@ -72,7 +74,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Date of Birth",
+          "portalSelector": "[name=\"birthDate\"], #birthDate, [name=\"dateOfBirth\"], [id=\"birth-date\"], [id=\"date-of-birth\"]"
         },
         {
           "id": "nationality",
@@ -80,7 +84,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Nationality",
+          "portalSelector": "[name=\"nationality\"], #nationality, [name=\"nationalityCode\"], select[name*=\"nation\"]"
         },
         {
           "id": "passportNumber",
@@ -88,7 +94,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Number",
+          "portalSelector": "[name=\"passportNo\"], #passportNo, [name=\"passportNumber\"], [id=\"passport-number\"]"
         },
         {
           "id": "gender",
@@ -97,6 +105,8 @@
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
+          "portalFieldName": "Gender",
+          "portalSelector": "[name=\"sex\"], #sex, [name=\"gender\"], #gender, select[name*=\"sex\"]",
           "options": [
             { "value": "M", "label": "Male" },
             { "value": "F", "label": "Female" }
@@ -114,7 +124,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "leg.arrivalDate",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Scheduled Arrival Date",
+          "portalSelector": "[name=\"scheduledArrivalDate\"], #scheduledArrivalDate, [name=\"arrivalDate\"], [id=\"arrival-date\"]"
         },
         {
           "id": "flightNumber",
@@ -123,6 +135,8 @@
           "required": true,
           "autoFillSource": "leg.flightNumber",
           "countrySpecific": false,
+          "portalFieldName": "Flight Number",
+          "portalSelector": "[name=\"flightNumber\"], #flightNumber, [name=\"flightNo\"], [id=\"flight-number\"]",
           "helpText": "Enter only the numeric part, e.g., for NH0123 enter 0123"
         },
         {
@@ -131,7 +145,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.airlineCode",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Airline Company",
+          "portalSelector": "[name=\"airlineCode\"], #airlineCode, [name=\"airlineCd\"], [id=\"airline-code\"]"
         },
         {
           "id": "departureCity",
@@ -139,6 +155,8 @@
           "type": "text",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "City of Departure",
+          "portalSelector": "[name=\"departureCity\"], #departureCity, [name=\"originCity\"], [id=\"departure-city\"]",
           "helpText": "The city where your first flight departs (even if connecting)"
         },
         {
@@ -147,6 +165,8 @@
           "type": "select",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Purpose of Visit",
+          "portalSelector": "[name=\"visitPurpose\"], #visitPurpose, [name=\"purpose\"], select[id*=\"purpose\"]",
           "options": [
             { "value": "tourism", "label": "Tourism" },
             { "value": "business", "label": "Business" },
@@ -161,6 +181,8 @@
           "type": "number",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "Number of Nights",
+          "portalSelector": "[name=\"numberOfNights\"], #numberOfNights, [name=\"stayDays\"], [name=\"durationOfStay\"], [id=\"stay-days\"]",
           "helpText": "Auto-calculated from arrival/departure dates",
           "autoFillSource": "leg._calculatedDuration"
         }
@@ -176,7 +198,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Name",
+          "portalSelector": "[name=\"accommodationName\"], #accommodationName, [name=\"hotelName\"], [id=\"hotel-name\"]"
         },
         {
           "id": "hotelAddress",
@@ -184,7 +208,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Address",
+          "portalSelector": "[name=\"accommodationAddress\"], #accommodationAddress, [name=\"hotelAddress\"], [id=\"hotel-address\"]"
         },
         {
           "id": "hotelPhone",
@@ -192,7 +218,9 @@
           "type": "text",
           "required": false,
           "autoFillSource": "leg.accommodation.phone",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Phone",
+          "portalSelector": "[name=\"accommodationPhone\"], #accommodationPhone, [name=\"hotelPhone\"], [id=\"hotel-phone\"]"
         }
       ]
     },
@@ -206,7 +234,9 @@
           "type": "boolean",
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Prohibited Items",
+          "portalSelector": "[name=\"hasProhibitedItems\"], input[name*=\"prohibited\"], [id=\"prohibited-items\"]"
         },
         {
           "id": "currencyOver1M",
@@ -214,6 +244,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Currency Over 1 Million Yen",
+          "portalSelector": "[name=\"hasCurrencyOver1M\"], input[name*=\"currency\"], [id=\"currency-over-limit\"], [name=\"currencyDeclaration\"]",
           "helpText": "Japan-specific threshold. Equivalent to roughly $7,000 USD."
         },
         {
@@ -222,7 +254,9 @@
           "type": "boolean",
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Commercial Goods",
+          "portalSelector": "[name=\"hasCommercialGoods\"], input[name*=\"commercial\"], [id=\"commercial-goods\"]"
         },
         {
           "id": "meatProducts",
@@ -230,6 +264,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Meat Products",
+          "portalSelector": "[name=\"hasMeatProducts\"], input[name*=\"meat\"], [id=\"meat-products\"]",
           "helpText": "Japan strictly prohibits all meat products including sausage, ham, bacon, jerky."
         },
         {
@@ -238,6 +274,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Plant Products",
+          "portalSelector": "[name=\"hasPlantProducts\"], input[name*=\"plant\"], [id=\"plant-products\"]",
           "helpText": "Fresh fruits, vegetables, and plants are restricted."
         },
         {
@@ -247,6 +285,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
           "countrySpecific": false,
+          "portalFieldName": "Duty-Free Allowance Exceeded",
+          "portalSelector": "[name=\"hasDutyItems\"], input[name*=\"duty\"], [id=\"duty-items\"], [name=\"exceedsDutyFree\"]",
           "helpText": "Duty-free: 3 bottles of alcohol (760ml each), 400 cigarettes, ¥200,000 worth of goods."
         }
       ]

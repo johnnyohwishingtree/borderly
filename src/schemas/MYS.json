@@ -55,7 +55,8 @@
           "required": true,
           "autoFillSource": "profile.surname",
           "countrySpecific": false,
-          "portalFieldName": "Family Name"
+          "portalFieldName": "Family Name",
+          "portalSelector": "[name=\"lastName\"], #lastName, [name=\"familyName\"], #surname, [id=\"family-name\"]"
         },
         {
           "id": "givenNames",
@@ -64,7 +65,8 @@
           "required": true,
           "autoFillSource": "profile.givenNames",
           "countrySpecific": false,
-          "portalFieldName": "First Name"
+          "portalFieldName": "First Name",
+          "portalSelector": "[name=\"firstName\"], #firstName, [name=\"givenName\"], [id=\"given-name\"], [id=\"first-name\"]"
         },
         {
           "id": "dateOfBirth",
@@ -72,7 +74,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Date of Birth",
+          "portalSelector": "[name=\"dob\"], #dob, [name=\"dateOfBirth\"], [name=\"birthDate\"], [id=\"date-of-birth\"]"
         },
         {
           "id": "nationality",
@@ -80,7 +84,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Nationality",
+          "portalSelector": "[name=\"nationality\"], #nationality, select[name*=\"nation\"], [name=\"citizenship\"]"
         },
         {
           "id": "passportNumber",
@@ -88,7 +94,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Number",
+          "portalSelector": "[name=\"passportNo\"], #passportNo, [name=\"passportNumber\"], [id=\"passport-number\"]"
         },
         {
           "id": "passportExpiry",
@@ -96,7 +104,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.passportExpiry",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Expiry Date",
+          "portalSelector": "[name=\"passportExpiryDate\"], #passportExpiryDate, [name=\"expiryDate\"], [name=\"passportExpiry\"], [id=\"passport-expiry\"]"
         },
         {
           "id": "gender",
@@ -105,6 +115,8 @@
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
+          "portalFieldName": "Gender",
+          "portalSelector": "[name=\"gender\"], #gender, select[name*=\"sex\"], [name=\"sex\"]",
           "options": [
             { "value": "M", "label": "Male" },
             { "value": "F", "label": "Female" }
@@ -117,6 +129,8 @@
           "required": true,
           "autoFillSource": "profile.email",
           "countrySpecific": false,
+          "portalFieldName": "Email Address",
+          "portalSelector": "[name=\"email\"], #email, [type=\"email\"], [name=\"emailAddress\"]",
           "validation": {
             "pattern": "^[^@]+@[^@]+\\.[^@]+$"
           }
@@ -127,7 +141,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.phoneNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Mobile Number",
+          "portalSelector": "[name=\"mobileNo\"], #mobileNo, [name=\"phoneNumber\"], [name=\"phone\"], [id=\"phone-number\"]"
         }
       ]
     },
@@ -141,7 +157,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "leg.arrivalDate",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Date of Arrival",
+          "portalSelector": "[name=\"arrivalDate\"], #arrivalDate, [name=\"dateOfArrival\"], [id=\"arrival-date\"]"
         },
         {
           "id": "arrivalAirport",
@@ -150,6 +168,8 @@
           "required": true,
           "autoFillSource": "leg.arrivalAirport",
           "countrySpecific": true,
+          "portalFieldName": "Port of Entry",
+          "portalSelector": "[name=\"portOfEntry\"], #portOfEntry, select[name*=\"port\"], select[name*=\"airport\"]",
           "options": [
             { "value": "KUL", "label": "Kuala Lumpur International Airport (KLIA)" },
             { "value": "KUA", "label": "Kuala Lumpur International Airport 2 (KLIA2)" },
@@ -167,7 +187,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.flightNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Flight Number",
+          "portalSelector": "[name=\"flightNo\"], #flightNo, [name=\"flightNumber\"], [id=\"flight-number\"]"
         },
         {
           "id": "purposeOfVisit",
@@ -175,6 +197,8 @@
           "type": "select",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Purpose of Visit",
+          "portalSelector": "[name=\"purposeOfVisit\"], #purposeOfVisit, select[name*=\"purpose\"], [name=\"visitPurpose\"]",
           "options": [
             { "value": "tourism", "label": "Tourism/Holiday" },
             { "value": "business", "label": "Business" },
@@ -193,6 +217,8 @@
           "required": true,
           "countrySpecific": false,
           "autoFillSource": "leg._calculatedDuration",
+          "portalFieldName": "Duration of Stay",
+          "portalSelector": "[name=\"duration\"], #duration, [name=\"lengthOfStay\"], [name=\"durationOfStay\"], [id=\"duration-stay\"]",
           "validation": {
             "min": 1,
             "max": 90
@@ -211,7 +237,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Name",
+          "portalSelector": "[name=\"hotelName\"], #hotelName, [name=\"accommodationName\"], [id=\"accommodation-name\"]"
         },
         {
           "id": "hotelAddress",
@@ -219,7 +247,9 @@
           "type": "textarea",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Address",
+          "portalSelector": "textarea[name=\"hotelAddress\"], #hotelAddress, textarea[name*=\"address\"], textarea[name=\"accommodationAddress\"]"
         },
         {
           "id": "hotelPhone",
@@ -227,7 +257,9 @@
           "type": "text",
           "required": false,
           "autoFillSource": "leg.accommodation.phone",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Phone",
+          "portalSelector": "[name=\"hotelPhone\"], #hotelPhone, [name=\"accommodationPhone\"], [id=\"hotel-phone\"]"
         }
       ]
     },
@@ -241,6 +273,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Health Condition Declaration",
+          "portalSelector": "[name=\"hasHealthCondition\"], input[name*=\"health\"], [id=\"health-condition\"]",
           "helpText": "Include recent illnesses, fever, cough, or any contagious conditions"
         },
         {
@@ -249,6 +283,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Visited High-Risk Countries",
+          "portalSelector": "[name=\"visitedHighRisk\"], input[name*=\"high-risk\"], [id=\"high-risk-country\"], input[name*=\"risk\"]",
           "helpText": "Countries with outbreaks of infectious diseases"
         },
         {
@@ -258,6 +294,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingCurrency",
           "countrySpecific": false,
+          "portalFieldName": "Currency Declaration",
+          "portalSelector": "[name=\"hasCurrency\"], input[name*=\"currency\"], [id=\"carrying-currency\"], [name=\"currencyDeclaration\"]",
           "helpText": "Malaysian Ringgit 10,000 or foreign currency equivalent"
         },
         {
@@ -267,6 +305,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
           "countrySpecific": false,
+          "portalFieldName": "Prohibited Items Declaration",
+          "portalSelector": "[name=\"hasProhibitedItems\"], input[name*=\"prohibited\"], [id=\"prohibited-items\"]",
           "helpText": "Drugs, weapons, endangered species products, etc."
         }
       ]
