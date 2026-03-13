@@ -343,11 +343,26 @@ export default function LegFormScreen() {
         </View>
 
         {isValid && (
-          <View className="mt-2">
+          <View className="mt-2 flex-row space-x-3">
             <Button
-              title="Open Submission Guide"
+              title="Submit in App"
               onPress={() => {
-                // Navigate to submission guide screen
+                const schema = schemaRegistry.getSchema(leg?.destinationCountry ?? '');
+                (navigation as any).navigate('PortalSubmission', {
+                  url: schema?.portalUrl ?? '',
+                  countryCode: leg?.destinationCountry ?? '',
+                  tripId,
+                  legId,
+                });
+              }}
+              variant="primary"
+              testID="submit-in-app-button"
+              size="medium"
+              fullWidth
+            />
+            <Button
+              title="Guide"
+              onPress={() => {
                 (navigation as any).navigate('SubmissionGuide', {
                   tripId,
                   legId,
@@ -357,7 +372,6 @@ export default function LegFormScreen() {
               variant="secondary"
               testID="open-submission-guide-button"
               size="medium"
-              fullWidth
             />
           </View>
         )}

@@ -19,6 +19,7 @@ const CreateTripScreen = lazy(() => import('@/screens/trips').then(m => ({ defau
 const TripDetailScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripDetailScreen })));
 const LegFormScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.LegFormScreen })));
 const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
+const PortalSubmissionScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.PortalSubmissionScreen })));
 
 // Lazy load wallet screens
 const QRWalletScreen = lazy(() => import('@/screens/wallet').then(m => ({ default: m.QRWalletScreen })));
@@ -122,6 +123,16 @@ function TripNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <SubmissionGuideScreen />
+          </Suspense>
+        )}
+      </TripStack.Screen>
+      <TripStack.Screen
+        name="PortalSubmission"
+        options={{ title: 'Submit to Portal', headerShown: false }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <PortalSubmissionScreen />
           </Suspense>
         )}
       </TripStack.Screen>

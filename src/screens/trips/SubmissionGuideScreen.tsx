@@ -260,11 +260,28 @@ export default function SubmissionGuideScreen() {
                     {schema.portalName}
                   </Text>
                 </View>
+              </View>
+              <View className="flex-row space-x-2 mb-3">
                 <Button
-                  title="Open Portal"
-                  onPress={handleOpenPortal}
+                  title="Submit in App"
+                  onPress={() => {
+                    (navigation as any).navigate('PortalSubmission', {
+                      url: schema.portalUrl,
+                      countryCode: schema.countryCode,
+                      tripId,
+                      legId,
+                    });
+                  }}
                   variant="primary"
                   size="small"
+                  testID="submit-in-app-button"
+                />
+                <Button
+                  title="Open in Browser"
+                  onPress={handleOpenPortal}
+                  variant="outline"
+                  size="small"
+                  testID="open-in-browser-button"
                 />
               </View>
               
