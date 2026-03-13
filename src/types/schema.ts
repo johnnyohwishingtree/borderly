@@ -27,6 +27,7 @@ export interface FormField {
 
   // What to show in the government portal walkthrough
   portalFieldName?: string; // The label used in the actual government form
+  portalSelector?: string; // Primary CSS selector for the field on the government portal
   portalScreenshot?: string; // Asset reference for walkthrough
 
   // Automation instructions for this field

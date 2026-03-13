@@ -55,7 +55,8 @@
           "required": true,
           "autoFillSource": "profile.surname",
           "countrySpecific": false,
-          "portalFieldName": "Last Name"
+          "portalFieldName": "Last Name",
+          "portalSelector": "input[name='familyName'], #familyName, input[name='lastName']"
         },
         {
           "id": "givenNames",
@@ -64,7 +65,8 @@
           "required": true,
           "autoFillSource": "profile.givenNames",
           "countrySpecific": false,
-          "portalFieldName": "First Name / Middle Name"
+          "portalFieldName": "First Name / Middle Name",
+          "portalSelector": "input[name='givenName'], #givenName, input[name='firstName']"
         },
         {
           "id": "dateOfBirth",
@@ -72,7 +74,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Date of Birth",
+          "portalSelector": "input[name='birthDate'], #birthDate, input[name='dateOfBirth']"
         },
         {
           "id": "nationality",
@@ -80,7 +84,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Nationality",
+          "portalSelector": "select[name='nationality'], #nationality, select[name='nationalityCode']"
         },
         {
           "id": "passportNumber",
@@ -88,7 +94,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Number",
+          "portalSelector": "input[name='documentNo'], #documentNo, input[name='passportNumber']"
         },
         {
           "id": "gender",
@@ -97,6 +105,8 @@
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
+          "portalFieldName": "Sex",
+          "portalSelector": "select[name='sex'], #sex, select[name='gender']",
           "options": [
             { "value": "M", "label": "Male" },
             { "value": "F", "label": "Female" }
@@ -114,7 +124,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "leg.arrivalDate",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Scheduled Arrival Date",
+          "portalSelector": "input[name='scheduledArrivalDate'], #scheduledArrivalDate, input[name='arrivalDate']"
         },
         {
           "id": "flightNumber",
@@ -123,6 +135,8 @@
           "required": true,
           "autoFillSource": "leg.flightNumber",
           "countrySpecific": false,
+          "portalFieldName": "Flight Number",
+          "portalSelector": "input[name='flightNo'], #flightNo, input[name='flightNumber']",
           "helpText": "Enter only the numeric part, e.g., for NH0123 enter 0123"
         },
         {
@@ -131,7 +145,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.airlineCode",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Airline Code",
+          "portalSelector": "input[name='airlineCode'], #airlineCode, select[name='airlineCode']"
         },
         {
           "id": "departureCity",
@@ -139,6 +155,8 @@
           "type": "text",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "Departure City",
+          "portalSelector": "input[name='departureCity'], #departureCity, input[name='cityOfDeparture']",
           "helpText": "The city where your first flight departs (even if connecting)"
         },
         {
@@ -147,6 +165,8 @@
           "type": "select",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Purpose of Visit",
+          "portalSelector": "select[name='purpose'], #purpose, select[name='purposeOfVisit']",
           "options": [
             { "value": "tourism", "label": "Tourism" },
             { "value": "business", "label": "Business" },
@@ -161,6 +181,8 @@
           "type": "number",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "Number of Days of Stay",
+          "portalSelector": "input[name='stayDuration'], #stayDuration, input[name='numberOfDays']",
           "helpText": "Auto-calculated from arrival/departure dates",
           "autoFillSource": "leg._calculatedDuration"
         }
@@ -176,7 +198,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Name of Place of Stay",
+          "portalSelector": "input[name='stayPlaceName'], #stayPlaceName, input[name='hotelName']"
         },
         {
           "id": "hotelAddress",
@@ -184,7 +208,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Address of Place of Stay",
+          "portalSelector": "input[name='stayPlaceAddress'], #stayPlaceAddress, input[name='hotelAddress']"
         },
         {
           "id": "hotelPhone",
@@ -192,7 +218,9 @@
           "type": "text",
           "required": false,
           "autoFillSource": "leg.accommodation.phone",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Phone Number of Place of Stay",
+          "portalSelector": "input[name='stayPlaceTel'], #stayPlaceTel, input[name='hotelPhone']"
         }
       ]
     },
@@ -206,7 +234,9 @@
           "type": "boolean",
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Carrying prohibited or restricted items",
+          "portalSelector": "input[name='declaration1'], input[name='prohibitedItems'], #declaration1"
         },
         {
           "id": "currencyOver1M",
@@ -214,6 +244,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Carrying cash or securities exceeding 1 million yen",
+          "portalSelector": "input[name='declaration2'], input[name='currencyOver1M'], #declaration2",
           "helpText": "Japan-specific threshold. Equivalent to roughly $7,000 USD."
         },
         {
@@ -222,7 +254,9 @@
           "type": "boolean",
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Carrying commercial goods or samples",
+          "portalSelector": "input[name='declaration3'], input[name='commercialGoods'], #declaration3"
         },
         {
           "id": "meatProducts",
@@ -230,6 +264,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Carrying meat or meat products",
+          "portalSelector": "input[name='declaration4'], input[name='meatProducts'], #declaration4",
           "helpText": "Japan strictly prohibits all meat products including sausage, ham, bacon, jerky."
         },
         {
@@ -238,6 +274,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Carrying plants, fruits or vegetables",
+          "portalSelector": "input[name='declaration5'], input[name='plantProducts'], #declaration5",
           "helpText": "Fresh fruits, vegetables, and plants are restricted."
         },
         {
@@ -247,6 +285,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
           "countrySpecific": false,
+          "portalFieldName": "Carrying items exceeding duty-free allowance",
+          "portalSelector": "input[name='declaration6'], input[name='dutyItems'], #declaration6",
           "helpText": "Duty-free: 3 bottles of alcohol (760ml each), 400 cigarettes, ¥200,000 worth of goods."
         }
       ]

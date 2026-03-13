@@ -55,7 +55,8 @@
           "required": true,
           "autoFillSource": "profile.surname",
           "countrySpecific": false,
-          "portalFieldName": "Family Name/Surname"
+          "portalFieldName": "Family Name/Surname",
+          "portalSelector": "input[name='surname'], #surname, input[name='familyName']"
         },
         {
           "id": "givenNames",
@@ -64,7 +65,8 @@
           "required": true,
           "autoFillSource": "profile.givenNames",
           "countrySpecific": false,
-          "portalFieldName": "Given Name"
+          "portalFieldName": "Given Name",
+          "portalSelector": "input[name='givenName'], #givenName, input[name='firstName']"
         },
         {
           "id": "dateOfBirth",
@@ -72,7 +74,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Date of Birth",
+          "portalSelector": "input[name='dateOfBirth'], #dateOfBirth, input[name='dob']"
         },
         {
           "id": "nationality",
@@ -80,7 +84,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Nationality",
+          "portalSelector": "select[name='nationality'], #nationality, select[name='citizenshipCountry']"
         },
         {
           "id": "passportNumber",
@@ -88,7 +94,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Number",
+          "portalSelector": "input[name='passportNumber'], #passportNumber, input[name='passportNo']"
         },
         {
           "id": "passportExpiry",
@@ -96,7 +104,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.passportExpiry",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Passport Expiry Date",
+          "portalSelector": "input[name='passportExpiryDate'], #passportExpiryDate, input[name='passportExpiry']"
         },
         {
           "id": "gender",
@@ -105,6 +115,8 @@
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
+          "portalFieldName": "Sex",
+          "portalSelector": "select[name='sex'], #sex, select[name='gender']",
           "options": [
             { "value": "M", "label": "Male" },
             { "value": "F", "label": "Female" }
@@ -117,6 +129,8 @@
           "required": true,
           "autoFillSource": "profile.email",
           "countrySpecific": false,
+          "portalFieldName": "Email Address",
+          "portalSelector": "input[name='email'], input[type='email'], #email",
           "validation": {
             "pattern": "^[^@]+@[^@]+\\.[^@]+$"
           }
@@ -128,6 +142,8 @@
           "required": true,
           "autoFillSource": "profile.phoneNumber",
           "countrySpecific": false,
+          "portalFieldName": "Mobile Number",
+          "portalSelector": "input[name='mobileNumber'], #mobileNumber, input[type='tel']",
           "helpText": "Include country code (e.g., +1 for US)"
         }
       ]
@@ -142,7 +158,9 @@
           "type": "date",
           "required": true,
           "autoFillSource": "leg.arrivalDate",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Arrival Date",
+          "portalSelector": "input[name='arrivalDate'], #arrivalDate, input[name='dateOfArrival']"
         },
         {
           "id": "arrivalTime",
@@ -150,6 +168,8 @@
           "type": "text",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "Estimated Time of Arrival",
+          "portalSelector": "input[name='arrivalTime'], #arrivalTime, input[name='eta']",
           "helpText": "24-hour format (e.g., 14:30)"
         },
         {
@@ -158,7 +178,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.flightNumber",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Flight Number",
+          "portalSelector": "input[name='flightNumber'], #flightNumber, input[name='flightNo']"
         },
         {
           "id": "airlineCode",
@@ -166,7 +188,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.airlineCode",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Airline",
+          "portalSelector": "input[name='airlineCode'], #airlineCode, select[name='airline']"
         },
         {
           "id": "departureCity",
@@ -174,6 +198,8 @@
           "type": "text",
           "required": true,
           "countrySpecific": false,
+          "portalFieldName": "Port of Embarkation",
+          "portalSelector": "input[name='portOfEmbarkation'], #portOfEmbarkation, input[name='departureCity']",
           "helpText": "City where you boarded your flight to Singapore"
         },
         {
@@ -182,6 +208,8 @@
           "type": "select",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Purpose of Visit",
+          "portalSelector": "select[name='purposeOfVisit'], #purposeOfVisit, select[name='visitPurpose']",
           "options": [
             { "value": "tourism", "label": "Tourism" },
             { "value": "business", "label": "Business" },
@@ -201,6 +229,8 @@
           "required": true,
           "autoFillSource": "leg._calculatedDuration",
           "countrySpecific": false,
+          "portalFieldName": "Intended Duration of Stay",
+          "portalSelector": "input[name='intendedDuration'], #intendedDuration, input[name='intendedLengthOfStay']",
           "validation": {
             "min": 1,
             "max": 90
@@ -219,6 +249,8 @@
           "type": "select",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Type of Accommodation",
+          "portalSelector": "select[name='accommodationType'], #accommodationType, select[name='stayType']",
           "options": [
             { "value": "hotel", "label": "Hotel" },
             { "value": "hostel", "label": "Hostel" },
@@ -234,7 +266,9 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Name of Accommodation",
+          "portalSelector": "input[name='accommodationName'], #accommodationName, input[name='hotelName']"
         },
         {
           "id": "accommodationAddress",
@@ -243,6 +277,8 @@
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
           "countrySpecific": false,
+          "portalFieldName": "Address of Accommodation",
+          "portalSelector": "textarea[name='accommodationAddress'], #accommodationAddress, textarea[name='stayAddress']",
           "helpText": "Include postal code if known"
         },
         {
@@ -251,7 +287,9 @@
           "type": "text",
           "required": false,
           "autoFillSource": "leg.accommodation.phone",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Contact Number of Accommodation",
+          "portalSelector": "input[name='accommodationContactNo'], #accommodationContactNo, input[name='accommodationPhone']"
         }
       ]
     },
@@ -264,14 +302,18 @@
           "label": "Do you have fever, cough, breathing difficulties, or other flu-like symptoms?",
           "type": "boolean",
           "required": true,
-          "countrySpecific": true
+          "countrySpecific": true,
+          "portalFieldName": "Fever or Flu-like Symptoms",
+          "portalSelector": "input[name='hasFever'], #hasFever, input[name='feverSymptoms']"
         },
         {
           "id": "infectiousDisease",
           "label": "Do you have any infectious disease?",
           "type": "boolean",
           "required": true,
-          "countrySpecific": true
+          "countrySpecific": true,
+          "portalFieldName": "Infectious Disease",
+          "portalSelector": "input[name='hasInfectiousDisease'], #hasInfectiousDisease, input[name='infectiousDisease']"
         },
         {
           "id": "visitedOutbreakArea",
@@ -279,6 +321,8 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
+          "portalFieldName": "Visited Outbreak Area",
+          "portalSelector": "input[name='visitedOutbreakArea'], #visitedOutbreakArea, input[name='outbreakAreaVisit']",
           "helpText": "Areas with known outbreaks of communicable diseases"
         },
         {
@@ -286,7 +330,9 @@
           "label": "Have you been in close contact with anyone diagnosed with an infectious disease?",
           "type": "boolean",
           "required": true,
-          "countrySpecific": true
+          "countrySpecific": true,
+          "portalFieldName": "Contact with Infected Person",
+          "portalSelector": "input[name='contactWithInfected'], #contactWithInfected, input[name='infectedContact']"
         }
       ]
     },
@@ -301,6 +347,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
           "countrySpecific": false,
+          "portalFieldName": "Goods Exceeding Duty-Free Allowance",
+          "portalSelector": "input[name='exceedsAllowance'], #exceedsAllowance, input[name='dutyFreeExcess']",
           "helpText": "Alcohol (1L wine + 1L spirits), tobacco (200 cigarettes), chocolate/confectionery (worth ≤S$150)"
         },
         {
@@ -310,6 +358,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingCurrency",
           "countrySpecific": false,
+          "portalFieldName": "Carrying Cash Exceeding S$20,000",
+          "portalSelector": "input[name='carryingCash'], #carryingCash, input[name='cashDeclaration']",
           "helpText": "Singapore Dollars or foreign currency equivalent to S$20,000"
         },
         {
@@ -319,6 +369,8 @@
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
           "countrySpecific": false,
+          "portalFieldName": "Prohibited or Controlled Goods",
+          "portalSelector": "input[name='prohibitedGoods'], #prohibitedGoods, input[name='controlledGoods']",
           "helpText": "Drugs, weapons, endangered species products, obscene materials, etc."
         },
         {
@@ -327,7 +379,9 @@
           "type": "boolean",
           "required": true,
           "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Commercial Goods",
+          "portalSelector": "input[name='commercialGoods'], #commercialGoods, input[name='goodsForSale']"
         }
       ]
     }
