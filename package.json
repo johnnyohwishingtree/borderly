@@ -40,6 +40,7 @@
     "react-hook-form": "^7.53.2",
     "react-native": "0.84.1",
     "react-native-camera": "^4.2.1",
+    "react-native-webview": "^13.0.0",
     "react-native-gesture-handler": "2.30.0",
     "react-native-get-random-values": "^2.0.0",
     "react-native-haptic-feedback": "^2.3.3",

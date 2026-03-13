@@ -27,6 +27,7 @@ module.exports = (env, argv) => {
       'react-native-keychain': path.resolve(__dirname, 'e2e/mocks/keychain.js'),
       'react-native-mmkv': path.resolve(__dirname, 'e2e/mocks/mmkv.js'),
       'react-native-camera': path.resolve(__dirname, 'e2e/mocks/camera.js'),
+      'react-native-webview': path.resolve(__dirname, 'e2e/mocks/webview.js'),
       'react-native-image-picker': path.resolve(__dirname, 'e2e/mocks/image-picker.js'),
       '@react-native-clipboard/clipboard': path.resolve(__dirname, 'e2e/mocks/clipboard.js'),
       '@react-native-async-storage/async-storage': path.resolve(__dirname, 'e2e/mocks/async-storage.js'),
