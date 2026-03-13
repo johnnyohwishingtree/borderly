@@ -1,6 +1,8 @@
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import SGP from '../../src/schemas/SGP.json';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('Singapore (SGP) Schema', () => {
   const schema = SGP;
@@ -183,5 +185,125 @@ describe('Singapore (SGP) Schema', () => {
 
     expect(addressField.type).toBe('textarea');
     expect((addressField as any).helpText).toContain('postal code');
+  });
+});
+
+describe('Singapore (SGP) Portal Field Mappings', () => {
+  const schema = SGP;
+  const scriptPath = path.resolve(__dirname, '../../assets/automation/scripts/SGP.js');
+
+  test('SGP.js automation script file exists', () => {
+    expect(fs.existsSync(scriptPath)).toBe(true);
+  });
+
+  test('SGP.js script contains required exports: portalUrl', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('portalUrl');
+    expect(content).toContain('eservices.ica.gov.sg');
+  });
+
+  test('SGP.js script contains required exports: fieldMappings', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('fieldMappings');
+  });
+
+  test('SGP.js script contains required exports: pageDetectors', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('pageDetectors');
+  });
+
+  test('SGP.js script contains required exports: submitButtonSelector', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('submitButtonSelector');
+  });
+
+  test('SGP.js script handles all 7-step flow', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('landing');
+    expect(content).toContain('personal_details');
+    expect(content).toContain('travel_info');
+    expect(content).toContain('accommodation');
+    expect(content).toContain('health_declaration');
+    expect(content).toContain('customs_declaration');
+    expect(content).toContain('confirmation');
+  });
+
+  test('SGP.js fieldMappings covers all portal-visible fields in schema', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+
+    const portalFields = new Set<string>();
+    schema.submissionGuide.forEach(step => {
+      step.fieldsOnThisScreen.forEach((fieldId: string) => {
+        portalFields.add(fieldId);
+      });
+    });
+
+    portalFields.forEach(fieldId => {
+      expect(content).toContain(`${fieldId}:`);
+    });
+  });
+
+  test('all fields with portalFieldName should also have portalSelector', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalFieldName) {
+          expect(field.portalSelector).toBeDefined();
+          expect(typeof field.portalSelector).toBe('string');
+          expect(field.portalSelector.length).toBeGreaterThan(0);
+        }
+      });
+    });
+  });
+
+  test('portalSelector values should contain valid CSS selector patterns', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalSelector) {
+          const hasValidPattern = (
+            field.portalSelector.includes('input[') ||
+            field.portalSelector.includes('select[') ||
+            field.portalSelector.includes('textarea[') ||
+            field.portalSelector.startsWith('#') ||
+            field.portalSelector.includes(', #')
+          );
+          expect(hasValidPattern).toBe(true);
+        }
+      });
+    });
+  });
+
+  test('SGP.js script registers with BorderlyAutomation', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain("registerCountry('SGP'");
+    expect(content).toContain('BorderlyAutomation.Singapore');
+  });
+
+  test('SGP.js does not require account creation (SGAC is account-free)', () => {
+    expect(schema.portalFlow.requiresAccount).toBe(false);
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).not.toContain('handleRegistration');
+    expect(content).not.toContain('handleLogin');
+  });
+
+  test('SGP.js covers health declaration section (4 fields)', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('feverSymptoms');
+    expect(content).toContain('infectiousDisease');
+    expect(content).toContain('visitedOutbreakArea');
+    expect(content).toContain('contactWithInfected');
+  });
+
+  test('SGP.js covers customs declaration section', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('exceedsAllowance');
+    expect(content).toContain('carryingCash');
+    expect(content).toContain('prohibitedGoods');
+    expect(content).toContain('commercialGoods');
+  });
+
+  test('SGP.js handles confirmation and notifies React Native', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('singapore_sgac_success');
+    expect(content).toContain('ReactNativeWebView');
   });
 });

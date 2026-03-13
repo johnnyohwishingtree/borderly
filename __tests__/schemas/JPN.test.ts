@@ -1,6 +1,8 @@
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import JPN from '../../src/schemas/JPN.json';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('Japan (JPN) Schema', () => {
   const schema = JPN;
@@ -143,5 +145,105 @@ describe('Japan (JPN) Schema', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
     const phoneField = accommodationSection.fields.find(f => f.id === 'hotelPhone')!;
     expect(phoneField.required).toBe(false);
+  });
+});
+
+describe('Japan (JPN) Portal Field Mappings', () => {
+  const schema = JPN;
+  const scriptPath = path.resolve(__dirname, '../../assets/automation/scripts/JPN.js');
+
+  test('JPN.js automation script file exists', () => {
+    expect(fs.existsSync(scriptPath)).toBe(true);
+  });
+
+  test('JPN.js script contains required exports: portalUrl', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('portalUrl');
+    expect(content).toContain('vjw-lp.digital.go.jp');
+  });
+
+  test('JPN.js script contains required exports: fieldMappings', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('fieldMappings');
+  });
+
+  test('JPN.js script contains required exports: pageDetectors', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('pageDetectors');
+  });
+
+  test('JPN.js script contains required exports: submitButtonSelector', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('submitButtonSelector');
+  });
+
+  test('JPN.js script handles all multi-page flow steps', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    // Verify all 6 submission guide steps are handled
+    expect(content).toContain('account_creation');
+    expect(content).toContain('personal_info');
+    expect(content).toContain('trip_registration');
+    expect(content).toContain('accommodation');
+    expect(content).toContain('customs_declaration');
+    expect(content).toContain('qr_code');
+  });
+
+  test('JPN.js fieldMappings covers all portal-visible fields in schema', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+
+    // All fields that appear in submissionGuide fieldsOnThisScreen should be in fieldMappings
+    const portalFields = new Set<string>();
+    schema.submissionGuide.forEach(step => {
+      step.fieldsOnThisScreen.forEach((fieldId: string) => {
+        portalFields.add(fieldId);
+      });
+    });
+
+    portalFields.forEach(fieldId => {
+      expect(content).toContain(`${fieldId}:`);
+    });
+  });
+
+  test('all fields with portalFieldName should also have portalSelector', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalFieldName) {
+          expect(field.portalSelector).toBeDefined();
+          expect(typeof field.portalSelector).toBe('string');
+          expect(field.portalSelector.length).toBeGreaterThan(0);
+        }
+      });
+    });
+  });
+
+  test('portalSelector values should contain valid CSS selector patterns', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalSelector) {
+          // Should reference either input, select, textarea, or id/name selectors
+          const hasValidPattern = (
+            field.portalSelector.includes('input[') ||
+            field.portalSelector.includes('select[') ||
+            field.portalSelector.includes('textarea[') ||
+            field.portalSelector.startsWith('#') ||
+            field.portalSelector.includes(', #')
+          );
+          expect(hasValidPattern).toBe(true);
+        }
+      });
+    });
+  });
+
+  test('JPN.js script registers with BorderlyAutomation', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain("registerCountry('JPN'");
+    expect(content).toContain('BorderlyAutomation.Japan');
+  });
+
+  test('JPN.js script handles QR code extraction', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('qr_code');
+    expect(content).toContain('japan_vjw_qr_code');
+    expect(content).toContain('ReactNativeWebView');
   });
 });

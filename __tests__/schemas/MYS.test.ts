@@ -1,6 +1,8 @@
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import MYS from '../../src/schemas/MYS.json';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('Malaysia (MYS) Schema', () => {
   const schema = MYS;
@@ -156,5 +158,109 @@ describe('Malaysia (MYS) Schema', () => {
     const addressField = accommodationSection.fields.find(f => f.id === 'hotelAddress')!;
 
     expect(addressField.type).toBe('textarea');
+  });
+});
+
+describe('Malaysia (MYS) Portal Field Mappings', () => {
+  const schema = MYS;
+  const scriptPath = path.resolve(__dirname, '../../assets/automation/scripts/MYS.js');
+
+  test('MYS.js automation script file exists', () => {
+    expect(fs.existsSync(scriptPath)).toBe(true);
+  });
+
+  test('MYS.js script contains required exports: portalUrl', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('portalUrl');
+    expect(content).toContain('imigresen-online.imi.gov.my');
+  });
+
+  test('MYS.js script contains required exports: fieldMappings', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('fieldMappings');
+  });
+
+  test('MYS.js script contains required exports: pageDetectors', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('pageDetectors');
+  });
+
+  test('MYS.js script contains required exports: submitButtonSelector', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('submitButtonSelector');
+  });
+
+  test('MYS.js script handles all multi-step flow steps', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('landing');
+    expect(content).toContain('personal_info');
+    expect(content).toContain('travel_details');
+    expect(content).toContain('accommodation');
+    expect(content).toContain('health_declarations');
+    expect(content).toContain('confirmation');
+  });
+
+  test('MYS.js fieldMappings covers all portal-visible fields in schema', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+
+    const portalFields = new Set<string>();
+    schema.submissionGuide.forEach(step => {
+      step.fieldsOnThisScreen.forEach((fieldId: string) => {
+        portalFields.add(fieldId);
+      });
+    });
+
+    portalFields.forEach(fieldId => {
+      expect(content).toContain(`${fieldId}:`);
+    });
+  });
+
+  test('all fields with portalFieldName should also have portalSelector', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalFieldName) {
+          expect(field.portalSelector).toBeDefined();
+          expect(typeof field.portalSelector).toBe('string');
+          expect(field.portalSelector.length).toBeGreaterThan(0);
+        }
+      });
+    });
+  });
+
+  test('portalSelector values should contain valid CSS selector patterns', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach((field: any) => {
+        if (field.portalSelector) {
+          const hasValidPattern = (
+            field.portalSelector.includes('input[') ||
+            field.portalSelector.includes('select[') ||
+            field.portalSelector.includes('textarea[') ||
+            field.portalSelector.startsWith('#') ||
+            field.portalSelector.includes(', #')
+          );
+          expect(hasValidPattern).toBe(true);
+        }
+      });
+    });
+  });
+
+  test('MYS.js script registers with BorderlyAutomation', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain("registerCountry('MYS'");
+    expect(content).toContain('BorderlyAutomation.Malaysia');
+  });
+
+  test('MYS.js does not require account creation (MDAC is account-free)', () => {
+    expect(schema.portalFlow.requiresAccount).toBe(false);
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    // Should handle landing page but not account registration
+    expect(content).not.toContain('handleRegistration');
+    expect(content).not.toContain('handleLogin');
+  });
+
+  test('MYS.js handles confirmation and notifies React Native', () => {
+    const content = fs.readFileSync(scriptPath, 'utf8');
+    expect(content).toContain('malaysia_mdac_success');
+    expect(content).toContain('ReactNativeWebView');
   });
 });
