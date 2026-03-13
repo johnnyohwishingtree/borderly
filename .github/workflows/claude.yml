@@ -80,15 +80,16 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
 
-      - name: Push branch
+      - name: Push to temporary branch
         id: push
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          BRANCH=$(git branch --show-current)
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          # Remember the source branch (where Claude's work lives)
+          SOURCE_BRANCH=$(git branch --show-current)
+          echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
 
           # Commit any uncommitted changes
           CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
@@ -101,48 +102,75 @@ jobs:
             fi
           fi
 
-          # Push
-          REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$REMOTE_EXISTS" -eq 0 ]; then
-            git push -u origin HEAD
-          else
-            UNPUSHED=$(git log "origin/${BRANCH}..HEAD" --oneline 2>/dev/null || echo "")
-            if [ -n "$UNPUSHED" ]; then
-              git push origin HEAD
-            else
-              echo "Nothing to push"
+          # Create temp branch and push
+          TMP_BRANCH="tmp/claude-${{ github.run_id }}"
+          echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
+          git checkout -b "$TMP_BRANCH"
+          git push -u origin "$TMP_BRANCH"
+          echo "Pushed to $TMP_BRANCH"
+
+      - name: Resolve bot review threads
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=""
+          if [ -n "${{ github.event.issue.number }}" ]; then
+            HAS_PR=$(gh api "repos/$REPO/issues/${{ github.event.issue.number }}" \
+              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
+            if [ -n "$HAS_PR" ]; then
+              PR_NUM=${{ github.event.issue.number }}
             fi
           fi
 
-      - name: Run checks (typecheck + tests)
-        id: checks
-        run: |
-          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
-
-          PASS=true
-          if ! pnpm typecheck 2>&1; then
-            echo "Typecheck FAILED"
-            PASS=false
+          if [ -z "$PR_NUM" ]; then
+            echo "Not a PR context — skipping thread resolution"
+            exit 0
           fi
 
-          if [ "$PASS" = "true" ] && ! pnpm test 2>&1; then
-            echo "Tests FAILED"
-            PASS=false
+          echo "Resolving review threads on PR #$PR_NUM"
+          OWNER=$(echo "$REPO" | cut -d/ -f1)
+          NAME=$(echo "$REPO" | cut -d/ -f2)
+
+          THREAD_IDS=$(gh api graphql -f query="
+            query {
+              repository(owner: \"$OWNER\", name: \"$NAME\") {
+                pullRequest(number: $PR_NUM) {
+                  reviewThreads(first: 100) {
+                    nodes { id isResolved }
+                  }
+                }
+              }
+            }
+          " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
+
+          if [ -z "$THREAD_IDS" ]; then
+            echo "No unresolved review threads"
+            exit 0
           fi
 
-          echo "pass=$PASS" >> $GITHUB_OUTPUT
+          echo "$THREAD_IDS" | while read -r TID; do
+            if [ -n "$TID" ]; then
+              gh api graphql -f query="
+                mutation {
+                  resolveReviewThread(input: {threadId: \"$TID\"}) {
+                    thread { isResolved }
+                  }
+                }
+              " 2>/dev/null && echo "Resolved thread $TID" || echo "Failed to resolve $TID"
+            fi
+          done
 
       - name: Extract issue number
         id: issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # Get issue number from PR body or from the comment context
           ISSUE_NUM=""
-          BRANCH="${{ steps.push.outputs.branch }}"
+          SOURCE="${{ steps.push.outputs.source_branch }}"
 
           # Try branch name first
-          ISSUE_NUM=$(echo "$BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
+          ISSUE_NUM=$(echo "$SOURCE" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
 
           # Fall back to comment context
           if [ -z "$ISSUE_NUM" ] && [ -n "${{ github.event.issue.number }}" ]; then
@@ -155,67 +183,20 @@ jobs:
 
           echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
 
-      - name: Create PR (checks passed)
-        if: steps.checks.outputs.pass == 'true'
+      - name: Trigger verify-merge
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          BRANCH="${{ steps.push.outputs.branch }}"
+          TMP_BRANCH="${{ steps.push.outputs.tmp_branch }}"
+          SOURCE_BRANCH="${{ steps.push.outputs.source_branch }}"
           ISSUE_NUM="${{ steps.issue.outputs.number }}"
 
-          if [ -z "$BRANCH" ]; then
-            echo "No branch — skipping PR"
-            exit 0
-          fi
-
-          AHEAD=$(git rev-list --count origin/master.."origin/$BRANCH" 2>/dev/null || echo "0")
-          if [ "$AHEAD" -eq 0 ]; then
-            echo "No commits ahead of master — skipping PR"
-            exit 0
-          fi
-
-          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -n "$EXISTING" ]; then
-            echo "PR #$EXISTING already exists"
-            exit 0
-          fi
-
-          if [ -n "$ISSUE_NUM" ]; then
-            ISSUE_TITLE=$(gh issue view "$ISSUE_NUM" --json title -q '.title' 2>/dev/null || echo "")
-            PR_TITLE="${ISSUE_TITLE:-Implement issue #$ISSUE_NUM}"
-            PR_BODY="Closes #${ISSUE_NUM}
-
-          Autonomously implemented by Claude Code via GitHub Actions.
-
-          Generated with [Claude Code](https://claude.ai/code)"
-          else
-            PR_TITLE="Changes from Claude Code"
-            PR_BODY="Autonomously implemented by Claude Code via GitHub Actions."
-          fi
-
-          gh pr create --head "$BRANCH" --base master --title "$PR_TITLE" --body "$PR_BODY"
-          PR_NUM=$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -n "$PR_NUM" ]; then
-            gh pr merge "$PR_NUM" --squash --auto 2>/dev/null || echo "Auto-merge not available"
-          fi
-
-      - name: Trigger fix-checks (checks failed)
-        if: steps.checks.outputs.pass == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          BRANCH="${{ steps.push.outputs.branch }}"
-          ISSUE_NUM="${{ steps.issue.outputs.number }}"
-
-          if [ -z "$BRANCH" ]; then
-            echo "No branch — skipping fix trigger"
-            exit 0
-          fi
-
-          gh workflow run fix-checks.yml \
+          gh workflow run verify-merge.yml \
             --repo "${{ github.repository }}" \
             --ref master \
-            -f branch="$BRANCH" \
-            -f issue_number="${ISSUE_NUM:-}"
+            -f tmp_branch="$TMP_BRANCH" \
+            -f target_branch="$SOURCE_BRANCH" \
+            -f issue_number="${ISSUE_NUM:-}" \
+            -f attempt="1"
 
-          echo "Triggered fix-checks workflow for branch $BRANCH"
+          echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
