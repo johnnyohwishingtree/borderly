@@ -32,15 +32,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Switch to PR branch if applicable
-        if: github.event.issue.pull_request
+      - name: Create or switch to working branch
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          PR_NUM=${{ github.event.issue.number }}
-          PR_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
-          echo "Switching to PR branch: $PR_BRANCH"
-          git checkout "$PR_BRANCH"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          if [ -n "${{ github.event.issue.pull_request }}" ]; then
+            # PR context — switch to the existing PR branch
+            PR_NUM=${{ github.event.issue.number }}
+            PR_BRANCH=$(gh pr view "$PR_NUM" --json headRefName -q '.headRefName')
+            echo "Switching to PR branch: $PR_BRANCH"
+            git checkout "$PR_BRANCH"
+          else
+            # Issue context — create a dedicated branch for this work
+            ISSUE_NUM=${{ github.event.issue.number }}
+            BRANCH="claude/issue-${ISSUE_NUM}"
+
+            # Check if the branch already exists on remote
+            if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+              echo "Branch $BRANCH already exists — checking out"
+              git checkout "$BRANCH"
+            else
+              echo "Creating new branch: $BRANCH"
+              git checkout -b "$BRANCH"
+              git push -u origin "$BRANCH"
+            fi
+          fi
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
