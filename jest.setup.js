@@ -483,6 +483,21 @@ jest.mock('lucide-react-native', () => {
   });
 });
 
+// Mock react-native-webview
+jest.mock('react-native-webview', () => {
+  const React = require('react');
+  const WebView = React.forwardRef(function WebView({ testID, onLoad, onLoadEnd, source }, ref) {
+    React.useEffect(() => {
+      if (onLoad) onLoad({ nativeEvent: { url: source?.uri || '', loading: false } });
+      if (onLoadEnd) onLoadEnd({ nativeEvent: { url: source?.uri || '', loading: false } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return React.createElement('WebView', { testID, ref });
+  });
+  WebView.displayName = 'WebView';
+  return { default: WebView, WebView };
+});
+
 // Mock the entire storage module to prevent model imports
 jest.mock('@/services/storage', () => ({
   keychainService: {

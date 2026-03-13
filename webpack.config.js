@@ -40,6 +40,7 @@ module.exports = (env, argv) => {
       // react-native-css-interop is NOT mocked — it's pure JS and needed for NativeWind v4 web styles
       'react-native-svg': path.resolve(__dirname, 'e2e/mocks/react-native-svg.js'),
       'lucide-react-native': path.resolve(__dirname, 'e2e/mocks/lucide-react-native.js'),
+      'react-native-webview': path.resolve(__dirname, 'e2e/mocks/webview.js'),
       'react-native-get-random-values': path.resolve(__dirname, 'e2e/mocks/random-values.js'),
       '@nozbe/watermelondb/decorators': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
