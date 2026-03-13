@@ -54,15 +54,8 @@ declare module 'react-native-webview' {
   }
 
   // The WebView component (default and named export)
-  export declare class WebView extends ForwardRefExoticComponent<
-    WebViewProps & RefAttributes<WebViewRef>
-  > {
-    injectJavaScript(script: string): void;
-    goBack(): void;
-    goForward(): void;
-    reload(): void;
-    stopLoading(): void;
-  }
+  declare const WebView: ForwardRefExoticComponent<WebViewProps & RefAttributes<WebViewRef>>;
 
+  export { WebView };
   export default WebView;
 }
