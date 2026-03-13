@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import WebView, { WebViewNavigation, WebViewMessageEvent } from 'react-native-webview';
+import WebView, { WebViewNavigation, WebViewMessageEvent, WebViewRef } from 'react-native-webview';
 
 // Allowed government portal domains (and localhost for development)
 const ALLOWED_DOMAINS = [
@@ -110,7 +110,7 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
     { url, onPageLoad, onNavigationChange, onError, onMessage, testID },
     ref,
   ) {
-    const webViewRef = useRef<WebView>(null);
+    const webViewRef = useRef<WebViewRef>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 

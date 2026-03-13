@@ -1,11 +1,14 @@
 /**
  * Ambient type declarations for react-native-webview.
  *
- * These declarations supplement the package's own types to add WebViewRef
- * (used for the forwarded ref in PortalWebView) and ensure JSX compatibility.
+ * The package's own index.d.ts uses `declare class WebView extends Component`
+ * which does not satisfy TypeScript's JSX element type checks without a full
+ * runtime implementation. We override the module here with a
+ * ForwardRefExoticComponent declaration that TypeScript accepts in JSX and
+ * correctly types the ref as WebViewRef (with injectJavaScript etc.).
  */
 declare module 'react-native-webview' {
-  import type { Component } from 'react';
+  import type { ForwardRefExoticComponent, RefAttributes } from 'react';
   import type { StyleProp, ViewStyle } from 'react-native';
 
   export interface WebViewNativeEvent {
@@ -53,16 +56,11 @@ declare module 'react-native-webview' {
     testID?: string;
   }
 
-  // Declare WebView as a full Component subclass so TypeScript accepts it in JSX.
-  // The class form is used here (not ForwardRefExoticComponent) to match the
-  // real package's declaration and satisfy JSX element type checking.
-  class WebView extends Component<WebViewProps> {
-    injectJavaScript: (script: string) => void;
-    goBack: () => void;
-    goForward: () => void;
-    reload: () => void;
-    stopLoading: () => void;
-  }
+  // Declare WebView as a ForwardRef component so TypeScript accepts it in JSX
+  // and the ref resolves to WebViewRef (injectJavaScript, goBack, etc.).
+  declare const WebView: ForwardRefExoticComponent<
+    WebViewProps & RefAttributes<WebViewRef>
+  >;
 
   export { WebView };
   export default WebView;
