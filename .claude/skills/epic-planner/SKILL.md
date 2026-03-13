@@ -27,7 +27,7 @@ Rules:
 
 ## Sizing Stories
 
-The number of stories should match the scope of the work — not a fixed range. A small feature might need 2 stories; a large architectural change might need 10. Use judgment:
+The number of stories should match the scope of the work — not a fixed range. A small feature might need 2 stories; a large architectural change might need 10 or more. Use judgment:
 
 - **Combine** steps that are small and tightly coupled (e.g., don't make a separate story for "add config entry" if it's 3 lines in a larger story)
 - **Split** steps that touch different layers or could be reviewed independently
