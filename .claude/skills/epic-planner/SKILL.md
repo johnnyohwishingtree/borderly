@@ -34,7 +34,7 @@ The number of stories should match the scope of the work — not a fixed range. 
 - Each story should produce a shippable, testable increment — not just "set up files". This means it should include relevant tests and documentation updates.
 - If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it with a related story
 
-Order stories by dependency, not by a rigid template. Common patterns include foundation-first, core-then-integration, or vertical slices — pick whatever fits the work.
+Order stories by dependency, not by a rigid template. Common patterns include foundation-first (build layers bottom-up), core-then-integration, or vertical slices (build features top-to-bottom) — pick whatever fits the work.
 
 For example, a vertical slice for a new feature might be:
 1. Add DB model and storage layer, with unit tests.
