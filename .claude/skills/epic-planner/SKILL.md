@@ -31,7 +31,7 @@ The number of stories should match the scope of the work — not a fixed range. 
 
 - **Combine** steps that are small and tightly coupled (e.g., don't make a separate story for "add config entry" if it's 3 lines in a larger story)
 - **Split** steps that touch different layers or could be reviewed independently (e.g., separate backend API changes from frontend UI changes)
-- Each story should produce a shippable, testable increment — not just "set up files"
+- Each story should produce a shippable, testable increment — not just "set up files". This means it should include relevant tests and documentation updates.
 - If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it into the next story
 
 Order stories by dependency, not by a rigid template. Common patterns include foundation-first, core-then-integration, or vertical slices — pick whatever fits the work.
