@@ -56,7 +56,7 @@ jobs:
 
           RELAY_COUNT=$(gh api \
             "repos/${{ github.repository }}/issues/${PR_NUM}/comments" \
-            --jq '[.[] | select(.user.login == "github-actions[bot]") | select(.body | contains("A code reviewer"))] | length')
+            --jq '[.[] | select(.body | contains("A code reviewer")) | select(.body | contains("review round"))] | length')
 
           echo "Relay count so far: $RELAY_COUNT"
 
