@@ -32,9 +32,9 @@ The number of stories should match the scope of the work — not a fixed range. 
 - **Combine** steps that are small and tightly coupled (e.g., don't make a separate story for "add config entry" if it's 3 lines in a larger story)
 - **Split** steps that touch different layers or could be reviewed independently (e.g., separate WatermelonDB model changes from the React Native screens that use them)
 - Each story should produce a shippable, testable increment — not just "set up files". This means it should include relevant tests and documentation updates.
-- If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it into the next story
+- If a story has no meaningful acceptance criteria beyond "files exist," it's too thin — merge it with a related story
 
-Order stories by dependency, not by a rigid template. Common patterns include foundation-first, core-then-integration, or vertical slices — pick whatever fits the work.
+Order stories by dependency, not by a rigid template. Common patterns include foundation-first, core-then-integration, or vertical slices — pick whatever fits the work. For example, a vertical slice for a new feature might be: 1. Add DB model and storage layer. 2. Build a UI screen to display the data. 3. Add user interactions and tests.
 
 ## Creating Issues
 
