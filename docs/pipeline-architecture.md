@@ -16,6 +16,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright) |
 | `review-relay.yml` | Bot review submitted | Forwards bot review to Claude |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
+| `auto-merge.yml` | CI complete / review / PR sync | Single merge gate: tests + E2E + approval + threads resolved |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
@@ -65,7 +66,6 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |         - Claude works --> commits to PR branch                     |
 |         - Push directly to PR branch (NO verify-merge)              |
 |         - Resolve bot review threads                                |
-|         - Enable auto-merge on PR                                   |
 |                                                                     |
 |   +-- If TIMEOUT (cancelled after 60min):                           |
 |         - Commit all uncommitted work                               |
@@ -185,12 +185,27 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |     1. Claude fixes the code on the PR branch                      |
 |     2. Resolves review threads                                     |
 |     3. Pushes directly to PR branch (NO verify-merge)              |
-|     4. Enables auto-merge on PR                                    |
 |                                                                     |
-|   Auto-merge triggers when:                                         |
-|     [x] All status checks pass (test, e2e, build)                  |
-|     [x] PR is approved                                             |
-|     [x] Conversations resolved (branch ruleset)                    |
++----------------------------+----------------------------------------+
+                             |
+                             v
++---------------------------------------------------------------------+
+| 4b. AUTO-MERGE GATE (auto-merge.yml)                               |
+|                                                                     |
+|   Triggers: workflow_run (Tests/E2E complete),                      |
+|             pull_request_review (approval submitted),               |
+|             pull_request (synchronize)                              |
+|                                                                     |
+|   Single gate controlling ALL merges to master.                     |
+|   Merges only when ALL conditions are met:                          |
+|     [x] Tests workflow passed (test job)                            |
+|     [x] E2E passed (test-chromium, test-performance,               |
+|         test-cross-browser — all 3 jobs)                            |
+|     [x] PR has at least one approval                               |
+|     [x] No unresolved review threads                               |
+|                                                                     |
+|   If any condition is not met: logs status and exits.               |
+|   Re-evaluates on every trigger until all conditions align.         |
 +----------------------------+----------------------------------------+
                              |
                              v
@@ -317,7 +332,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
            Action creates      Resolve review
            internal branch:    threads
            claude/issue-N-TS         |
-                    |           Enable auto-merge
+                    |                 |
            Claude works,             |
            mid-run pushes to         |
            internal branch           |
@@ -332,8 +347,9 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                     |                 |
                     v                 v
               New PR created    Existing PR updated
-              from claude/      (CI re-runs, may
-              issue-N branch     auto-merge)
+              from claude/      (CI re-runs,
+              issue-N branch     auto-merge.yml
+                                 evaluates gate)
 ```
 
 **Why two paths?**
@@ -373,9 +389,9 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: Give-up text containing `@claude` triggered a new ghost run
 - **Solution**: Give-up comment uses neutral language, no agent mentions
 
-### Auto-Merge Timing
-- **Problem**: Auto-merge on PR creation skipped bot review feedback
-- **Solution**: verify-merge creates PR without auto-merge. claude.yml enables auto-merge only after addressing reviews (PR context)
+### Auto-Merge Gate
+- **Problem**: Auto-merge on PR creation skipped bot review feedback and merged before reviews
+- **Solution**: `auto-merge.yml` is the single gate controlling all merges to master. It evaluates on every CI completion, review submission, and PR sync. Merges only when all four conditions are met: tests pass, E2E passes (all 3 jobs), PR approved, no unresolved threads. No other workflow merges PRs.
 
 ### Review Relay Loop Prevention
 - 3 relay rounds max per PR
@@ -492,7 +508,6 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                |  Fix review issues |
                |  Push to PR branch |  <--- direct push, NO verify-merge
                |  Resolve threads   |
-               |  Enable auto-merge |
                +--------+-----------+
                          |
                +---------v----------+
@@ -502,10 +517,13 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                +--------+-----------+
                          |
                +---------v----------+
-               |  Auto-merge fires  |
-               |  (checks pass,     |
-               |   approved,        |
-               |   threads resolved)|
+               | auto-merge.yml     |
+               | evaluates gate:    |
+               |  [x] tests pass    |
+               |  [x] e2e pass      |
+               |  [x] approved      |
+               |  [x] threads clear |
+               |  --> squash merge  |
                +--------+-----------+
                          |
                +---------v----------+
@@ -532,3 +550,4 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Concurrency limits**: Max 3 simultaneous Claude runs prevents runaway costs.
 - **Relay limit**: Max 3 review relay rounds per PR prevents infinite review-fix cycles.
 - **Timeout rescue**: If Claude times out at 60min, all work is saved to a rescue branch instead of being lost. This preserves up to 60min of token spend that would otherwise be wasted.
+- **Single merge gate**: `auto-merge.yml` consolidates all merge logic. No workflow needs its own merge step — they just push code and let auto-merge evaluate readiness.
