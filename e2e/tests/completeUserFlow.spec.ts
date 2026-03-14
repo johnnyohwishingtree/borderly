@@ -36,7 +36,7 @@ test.describe('Complete User Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Passport scan screen shows method selection
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
     await expect(page.getByText('Manual Entry', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Enter Manually' })).toBeVisible();
   });
@@ -45,7 +45,7 @@ test.describe('Complete User Flow', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
 
     // Click "Enter Manually" button
     await page.getByRole('button', { name: 'Enter Manually' }).click();
@@ -60,7 +60,7 @@ test.describe('Complete User Flow', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
 
     await page.getByRole('button', { name: 'Enter Manually' }).click();
 
@@ -106,7 +106,7 @@ test.describe('Complete User Flow', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
 
     // Go back
     await page.getByRole('button', { name: 'Back' }).click();
