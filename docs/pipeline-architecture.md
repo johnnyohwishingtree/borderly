@@ -258,7 +258,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
 |    +-- Active claude.yml or verify-merge run --> skip               |
-|    +-- >=5 @claude attempts --> create "pipeline-stuck" issue       |
+|    +-- >=5 successful claude.yml runs --> create "pipeline-stuck"   |
+|        (only counts runs where Claude completed, not infra failures)|
 |    +-- Last trigger < 15min ago --> skip (grace period)             |
 |    +-- Epic already busy --> skip                                   |
 |    +-- Otherwise --> re-trigger @claude                             |
@@ -494,7 +495,8 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
-- watcher.yml checks for >=5 @claude attempts on a story --> creates "pipeline-stuck" issue
+- watcher.yml checks for >=5 successful claude.yml runs on a story --> creates "pipeline-stuck" issue
+  (infra failures like push rejections don't count toward retry budget)
 
 ### Concurrency Limiting
 - watcher.yml tracks active Claude runs (max 3)

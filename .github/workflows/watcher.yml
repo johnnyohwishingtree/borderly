@@ -223,11 +223,22 @@ jobs:
               continue
             fi
 
-            RETRY_COUNT=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json comments \
-              -q '[.comments[] | select(.body | contains("@claude"))] | length')
+            # Count only claude.yml runs that completed (success or failure from Claude,
+            # NOT infrastructure failures like push rejections). We check runs whose
+            # display title contains this issue number and that concluded successfully
+            # (meaning Claude ran and finished — the work may still have errors, but
+            # the pipeline didn't break). This avoids burning retry budget on infra bugs.
+            SUCCESSFUL_RUNS=$(gh run list --repo "$REPO" --workflow claude.yml \
+              --json displayTitle,conclusion \
+              -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM} \")) | select(.conclusion == \"success\")] | length" 2>/dev/null || echo "0")
+            # Also count @claude comments as a fallback ceiling
+            COMMENT_COUNT=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json comments \
+              -q '[.comments[] | select(.body | contains("@claude"))] | length' 2>/dev/null || echo "0")
+            RETRY_COUNT=$SUCCESSFUL_RUNS
+            echo "  Retries: $SUCCESSFUL_RUNS successful runs, $COMMENT_COUNT @claude comments"
 
             if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
-              echo "  ALERT: $RETRY_COUNT attempts — pausing this story"
+              echo "  ALERT: $RETRY_COUNT successful attempts without merge — pausing this story"
               EXISTING_ALERT=$(gh issue list --repo "$REPO" --label "pipeline-stuck" \
                 --state open --json number -q 'length')
               if [ "$EXISTING_ALERT" -eq 0 ]; then
