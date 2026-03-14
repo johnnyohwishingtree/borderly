@@ -66,6 +66,7 @@ export function AutoFillBanner({
       }).start(() => {
         setShouldRender(false);
       });
+      return;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
