@@ -163,11 +163,7 @@ jobs:
           fi
 
           gh pr create --head "$TARGET" --base master --title "$PR_TITLE" --body "$PR_BODY"
-
-          PR_NUM=$(gh pr list --head "$TARGET" --state open --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -n "$PR_NUM" ]; then
-            gh pr merge "$PR_NUM" --squash --auto 2>/dev/null || echo "Auto-merge not available"
-          fi
+          echo "PR created — waiting for reviews before merge"
 
   fix:
     needs: verify
