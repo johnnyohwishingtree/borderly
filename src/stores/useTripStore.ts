@@ -42,6 +42,9 @@ interface TripStore {
   updateTravelerFormStatus: (legId: string, travelerId: string, status: 'not_started' | 'in_progress' | 'ready' | 'submitted') => Promise<void>;
   getTravelerFormData: (legId: string, travelerId: string) => TravelerFormData | undefined;
 
+  // Submission status
+  markLegAsSubmitted: (legId: string) => Promise<void>;
+
   // Utilities
   getTripById: (tripId: string) => Trip | undefined;
   getLegById: (legId: string) => TripLeg | undefined;
@@ -469,6 +472,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  // Submission status
+  markLegAsSubmitted: async (legId) => {
+    await get().updateTripLeg(legId, { formStatus: 'submitted' });
   },
 
   // Multi-traveler operations

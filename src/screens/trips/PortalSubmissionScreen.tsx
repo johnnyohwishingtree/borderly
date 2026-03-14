@@ -19,10 +19,13 @@ import {
 import { PortalWebView, PortalWebViewHandle } from '../../components/submission/PortalWebView';
 import type { NavigationState } from '../../components/submission/PortalWebView';
 import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
+import { QRSaveOverlay } from '../../components/submission/QRSaveOverlay';
+import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOverlay';
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
 import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission';
+import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { useTripStore } from '../../stores';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
@@ -139,8 +142,11 @@ export default function PortalSubmissionScreen() {
   // Auto-fill banner state (null = hidden)
   const [bannerState, setBannerState] = useState<BannerState | null>(null);
 
+  // QR save overlay state (null = hidden)
+  const [qrPayload, setQrPayload] = useState<QRPageDetectedPayload | null>(null);
+
   // Load schema and form data
-  const { trips } = useTripStore();
+  const { trips, addQRCode, markLegAsSubmitted } = useTripStore();
   const { profile } = useProfileStore();
 
   const trip = trips.find(t => t.id === tripId);
@@ -191,6 +197,7 @@ export default function PortalSubmissionScreen() {
    * Called when a page finishes loading.
    * 1. Detects which submission guide step the URL corresponds to.
    * 2. Injects a non-destructive auto-fill script for the fields on that page.
+   * 3. Injects the country-specific QR page detection script.
    */
   const handlePageLoad = useCallback(
     (loadedUrl: string) => {
@@ -263,33 +270,66 @@ export default function PortalSubmissionScreen() {
         });
       });
 
-      if (fieldSpecs.length === 0) return;
+      if (fieldSpecs.length > 0) {
+        webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
+      }
 
-      webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
+      // Inject QR page detection script after auto-fill (with a slight delay so
+      // the page has time to render any QR code elements).
+      const qrScript = getQRDetectionScript(countryCode);
+      if (qrScript) {
+        setTimeout(() => {
+          webViewRef.current?.injectJavaScript(qrScript);
+        }, 1500);
+      }
     },
     [schema, currentStep, leg, profile, countryCode],
   );
 
   /**
    * Called when the WebView posts a message via window.ReactNativeWebView.postMessage.
-   * Handles AUTO_FILL_RESULT messages to show the AutoFillBanner.
+   * Handles:
+   *  - AUTO_FILL_RESULT  → show AutoFillBanner
+   *  - QR_PAGE_DETECTED  → show QRSaveOverlay
    */
   const handleMessage = useCallback(
     (event: { nativeEvent: { data: string } }) => {
       try {
-        const msg = JSON.parse(event.nativeEvent.data) as {
-          type: string;
-          filled: number;
-          total: number;
-        };
-        if (msg.type === 'AUTO_FILL_RESULT' && typeof msg.total === 'number' && msg.total > 0) {
-          setBannerState({ filled: msg.filled, total: msg.total });
+        // Use a wide record type so all message shapes can coexist.
+        const msg = JSON.parse(event.nativeEvent.data) as Record<string, unknown>;
+        const msgType = typeof msg.type === 'string' ? msg.type : '';
+
+        if (msgType === 'AUTO_FILL_RESULT') {
+          const total = typeof msg.total === 'number' ? msg.total : 0;
+          const filled = typeof msg.filled === 'number' ? msg.filled : 0;
+          if (total > 0) {
+            setBannerState({ filled, total });
+          }
+          return;
+        }
+
+        if (msgType === 'QR_PAGE_DETECTED' && msg.isQRPage === true) {
+          const newPayload: QRPageDetectedPayload = {
+            countryCode:
+              typeof msg.countryCode === 'string' ? msg.countryCode : countryCode,
+            qrImageBase64:
+              typeof msg.qrImageBase64 === 'string' ? msg.qrImageBase64 : null,
+            pageUrl: typeof msg.pageUrl === 'string' ? msg.pageUrl : '',
+          };
+          // Only set confirmationNumber when it's a string or null (not undefined)
+          if (msg.confirmationNumber !== undefined) {
+            newPayload.confirmationNumber =
+              typeof msg.confirmationNumber === 'string'
+                ? msg.confirmationNumber
+                : null;
+          }
+          setQrPayload(newPayload);
         }
       } catch {
         // Not a Borderly message — ignore
       }
     },
-    [],
+    [countryCode],
   );
 
   const handleGoBack = useCallback(() => {
@@ -307,6 +347,49 @@ export default function PortalSubmissionScreen() {
   const handleClose = useCallback(() => {
     (navigation as any).navigate('TripDetail', { tripId });
   }, [navigation, tripId]);
+
+  /**
+   * Save the detected QR code to the wallet and mark the leg as submitted.
+   */
+  const handleSaveQR = useCallback(
+    async (imageBase64: string | null) => {
+      // Determine the QR type based on country
+      const qrTypeMap: Record<string, 'immigration' | 'customs' | 'health' | 'combined'> = {
+        JPN: 'immigration',
+        MYS: 'immigration',
+        SGP: 'immigration',
+      };
+      const type = qrTypeMap[countryCode] ?? 'immigration';
+
+      // Generate a label for the QR code
+      const countryNames: Record<string, string> = {
+        JPN: 'Visit Japan Web',
+        MYS: 'Malaysia MDAC',
+        SGP: 'SG Arrival Card',
+      };
+      const label = `${countryNames[countryCode] ?? countryCode} — Immigration QR`;
+
+      // Persist to QR wallet (imageBase64 can be null if extraction failed;
+      // in that case we still record the submission but without an image).
+      await addQRCode(legId, {
+        type,
+        imageBase64: imageBase64 ?? '',
+        label,
+      });
+
+      // Mark leg as submitted
+      await markLegAsSubmitted(legId);
+    },
+    [addQRCode, markLegAsSubmitted, legId, countryCode],
+  );
+
+  /**
+   * Navigate to the QR Wallet tab after saving.
+   */
+  const handleOpenWallet = useCallback(() => {
+    setQrPayload(null);
+    (navigation as any).navigate('Main', { screen: 'Wallet' });
+  }, [navigation]);
 
   const progressPercent = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
@@ -412,49 +495,60 @@ export default function PortalSubmissionScreen() {
       </View>
 
       {/* Collapsible bottom panel: "Fields for this page" */}
-      <View className="bg-white border-t border-gray-200">
-        <Pressable
-          onPress={() => setIsPanelOpen(prev => !prev)}
-          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-          className="flex-row items-center justify-between px-4 py-3"
-          accessibilityLabel={isPanelOpen ? 'Collapse fields panel' : 'Expand fields panel'}
-          testID="toggle-fields-panel"
-        >
-          <Text className="text-sm font-semibold text-gray-700">
-            Fields for this page
-            {currentStepFields.length > 0 ? ` (${currentStepFields.length})` : ''}
-          </Text>
-          {isPanelOpen ? (
-            <ChevronDown size={18} color="#6B7280" />
-          ) : (
-            <ChevronUp size={18} color="#6B7280" />
-          )}
-        </Pressable>
-
-        {isPanelOpen && (
-          <ScrollView
-            style={{ maxHeight: 220 }}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
-            keyboardShouldPersistTaps="handled"
-            testID="fields-panel"
+      {qrPayload === null && (
+        <View className="bg-white border-t border-gray-200">
+          <Pressable
+            onPress={() => setIsPanelOpen(prev => !prev)}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+            className="flex-row items-center justify-between px-4 py-3"
+            accessibilityLabel={isPanelOpen ? 'Collapse fields panel' : 'Expand fields panel'}
+            testID="toggle-fields-panel"
           >
-            {currentStepFields.length === 0 ? (
-              <Text className="text-sm text-gray-500 py-2">
-                No copyable fields for this page.
-              </Text>
+            <Text className="text-sm font-semibold text-gray-700">
+              Fields for this page
+              {currentStepFields.length > 0 ? ` (${currentStepFields.length})` : ''}
+            </Text>
+            {isPanelOpen ? (
+              <ChevronDown size={18} color="#6B7280" />
             ) : (
-              currentStepFields.map((field) => (
-                <View key={field.id} className="mb-3">
-                  <CopyableField
-                    label={field.label}
-                    value={field.value}
-                  />
-                </View>
-              ))
+              <ChevronUp size={18} color="#6B7280" />
             )}
-          </ScrollView>
-        )}
-      </View>
+          </Pressable>
+
+          {isPanelOpen && (
+            <ScrollView
+              style={{ maxHeight: 220 }}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
+              keyboardShouldPersistTaps="handled"
+              testID="fields-panel"
+            >
+              {currentStepFields.length === 0 ? (
+                <Text className="text-sm text-gray-500 py-2">
+                  No copyable fields for this page.
+                </Text>
+              ) : (
+                currentStepFields.map((field) => (
+                  <View key={field.id} className="mb-3">
+                    <CopyableField
+                      label={field.label}
+                      value={field.value}
+                    />
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          )}
+        </View>
+      )}
+
+      {/* QR save overlay — shown when portal QR page is detected */}
+      <QRSaveOverlay
+        payload={qrPayload}
+        onSave={handleSaveQR}
+        onDismiss={() => setQrPayload(null)}
+        onOpenWallet={handleOpenWallet}
+        testID="qr-save-overlay"
+      />
     </SafeAreaView>
   );
 }
