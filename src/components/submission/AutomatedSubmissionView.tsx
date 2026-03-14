@@ -1,8 +1,13 @@
 /**
- * AutomatedSubmissionView - WebView component for automated government portal submissions
- * 
- * Provides a secure WebView interface for automated form filling with
- * progress tracking, error handling, and fallback to manual submission.
+ * @deprecated AutomatedSubmissionView is deprecated as of Story 6 (issue #249).
+ *
+ * Real WebView automation is now handled by PortalSubmissionScreen + PortalWebView.
+ * This stub component is retained only because AutomatedSubmissionScreen still
+ * references it.  Both will be removed in a future cleanup sprint.
+ *
+ * The utility functions (formatErrorMessage, getStatusColor, getStatusText) at
+ * the bottom of this file are still exported for use in other screens.  Prefer
+ * importing them directly once the stub component is removed.
  */
 
 import React from 'react';

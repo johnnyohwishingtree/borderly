@@ -1,8 +1,16 @@
 /**
- * AutomatedSubmissionScreen - Full-screen automated submission interface
- * 
- * Orchestrates the automated submission process using the SubmissionEngine
- * and provides a complete user experience with progress tracking and fallback.
+ * @deprecated AutomatedSubmissionScreen is deprecated as of Story 6 (issue #249).
+ *
+ * The WebView-based submission flow is now handled by PortalSubmissionScreen,
+ * which wraps a live government portal inside the app with auto-fill, QR
+ * detection, and graceful manual fallback.
+ *
+ * This file is retained for backward compatibility only and will be removed
+ * in a future cleanup sprint.  Do NOT add new code here.
+ *
+ * Migration:
+ *   - Navigate to 'PortalSubmission' instead of 'AutomatedSubmission'.
+ *   - Use SubmissionGuideScreen for the manual copy-paste flow.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
