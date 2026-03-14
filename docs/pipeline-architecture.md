@@ -293,12 +293,21 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |     /tmp/test_errors.txt                                            |
 |     /tmp/native_dep_errors.txt                                      |
 |                                                                     |
+|   Error summary embedded directly in prompt:                        |
+|     - Top 10 lint/typecheck errors, top 5 bundle errors,            |
+|       top 10 test failures are inlined so Claude sees them           |
+|       immediately without needing to read files first               |
+|                                                                     |
 |   Cross-attempt context (.claude-fix-log.md):                       |
 |     - Lives on the tmp branch, persists across fix attempts         |
 |     - Each attempt reads it first to avoid repeating failed fixes   |
 |     - Each attempt appends a log of: errors found, changes made,    |
 |       check results, and remaining issues                           |
 |     - Merge job deletes it before merging into target branch        |
+|                                                                     |
+|   Early bail-out:                                                   |
+|     - If Claude produces no changes, skip remaining attempts        |
+|     - Comment on issue explaining fix failed, link to tmp branch    |
 |                                                                     |
 |   Native dep constraint: CI runs on Ubuntu, cannot run              |
 |   `pod install`. Claude must work around unlinked native deps       |
