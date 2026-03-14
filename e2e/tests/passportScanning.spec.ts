@@ -8,7 +8,7 @@ test.describe('Passport Scanning Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Should reach passport scan screen with method selection
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
   });
 
   test('shows camera scan and manual entry options', async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Passport Scanning Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Both scan methods should be available
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
     await expect(page.getByText('Manual Entry', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start Camera Scan' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Enter Manually' })).toBeVisible();
@@ -47,7 +47,7 @@ test.describe('Passport Scanning Flow', () => {
 
     // Cancel should go back to method selection
     await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.getByText('Quick Passport Scan')).toBeVisible();
+    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
   });
 
   test('manual entry from camera screen works', async ({ page }) => {

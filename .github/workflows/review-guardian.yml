@@ -70,9 +70,7 @@ jobs:
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
-            AGENT="${{ vars.PREFERRED_AGENT || 'claude' }}"
-            gh pr comment "$PR_NUM" --repo "$REPO" \
-              --body "@$AGENT The code review found critical or high-severity issues (see inline comments above). Please address all critical/high findings, then push the fixes. Do NOT approve until all issues are resolved."
+            echo "review-relay.yml will handle triggering Claude to fix these"
             exit 0
           fi
 
@@ -275,8 +273,7 @@ jobs:
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
-            GH_TOKEN="$GH_PAT" gh pr comment "$PR_NUM" --repo "$REPO" \
-              --body "@$AGENT The code review found critical or high-severity issues (see inline comments above). Please address all critical/high findings, then push the fixes. Do NOT approve until all issues are resolved."
+            echo "review-relay.yml will handle triggering Claude to fix these"
             exit 0
           fi
 
