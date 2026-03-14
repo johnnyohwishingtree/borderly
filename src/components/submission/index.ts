@@ -2,7 +2,9 @@
  * Submission components barrel export
  */
 
+/** @deprecated AutomatedSubmissionView is replaced by PortalWebView + PortalSubmissionScreen. See #249. */
 export { AutomatedSubmissionView } from './AutomatedSubmissionView';
+// Utility functions remain usable until the stub is fully removed
 export {
   formatErrorMessage,
   getStatusColor,
