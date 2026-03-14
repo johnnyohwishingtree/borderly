@@ -63,6 +63,9 @@ Thumbs.db
 
 # E2E
 e2e/dist/
+
+# GitHub Pages
+pages-dist/
 test-results/
 playwright-report/
 
