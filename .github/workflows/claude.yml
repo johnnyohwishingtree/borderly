@@ -55,21 +55,28 @@ jobs:
           echo "Switching to PR branch: $PR_BRANCH"
           git checkout "$PR_BRANCH"
 
-      - name: Determine push target
+      - name: Determine push target and create branches
         id: push_target
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           if [ -n "${{ github.event.issue.pull_request }}" ] || [ -n "${{ github.event.pull_request }}" ]; then
             echo "is_pr=true" >> $GITHUB_OUTPUT
             echo "push_cmd=git push origin HEAD" >> $GITHUB_OUTPUT
           else
+            ISSUE_NUM="${{ github.event.issue.number }}"
+            PR_BRANCH="claude/issue-${ISSUE_NUM}"
             TMP_BRANCH="tmp/claude-${{ github.run_id }}"
+
             echo "is_pr=false" >> $GITHUB_OUTPUT
+            echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
             echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
             echo "push_cmd=git push origin HEAD:refs/heads/$TMP_BRANCH" >> $GITHUB_OUTPUT
 
-            # Create the tmp branch on remote so it exists before Claude starts
+            # Create both branches on remote from current master HEAD
+            git push origin "HEAD:refs/heads/$PR_BRANCH" 2>/dev/null || echo "PR branch $PR_BRANCH already exists"
             git push origin "HEAD:refs/heads/$TMP_BRANCH"
-            echo "Created tmp branch: $TMP_BRANCH"
+            echo "Created PR branch: $PR_BRANCH, tmp branch: $TMP_BRANCH"
           fi
 
       - name: Set up Node.js
@@ -189,11 +196,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          SOURCE_BRANCH=$(git branch --show-current)
-          echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
-
           TMP_BRANCH="${{ steps.push_target.outputs.tmp_branch }}"
+          PR_BRANCH="${{ steps.push_target.outputs.pr_branch }}"
           echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
+          echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
 
           # Commit any uncommitted changes
           CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
@@ -263,47 +269,24 @@ jobs:
             fi
           done
 
-      - name: Extract issue number (issue context only)
-        if: success() && steps.push_target.outputs.is_pr == 'false'
-        id: issue
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          ISSUE_NUM=""
-          SOURCE="${{ steps.push_issue.outputs.source_branch }}"
-
-          # Try branch name first
-          ISSUE_NUM=$(echo "$SOURCE" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
-
-          # Fall back to comment context
-          if [ -z "$ISSUE_NUM" ] && [ -n "${{ github.event.issue.number }}" ]; then
-            IS_PR=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}" \
-              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
-            if [ -z "$IS_PR" ]; then
-              ISSUE_NUM=${{ github.event.issue.number }}
-            fi
-          fi
-
-          echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
-
       - name: Trigger verify-merge (issue context only)
         if: success() && steps.push_target.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           TMP_BRANCH="${{ steps.push_issue.outputs.tmp_branch }}"
-          SOURCE_BRANCH="${{ steps.push_issue.outputs.source_branch }}"
-          ISSUE_NUM="${{ steps.issue.outputs.number }}"
+          PR_BRANCH="${{ steps.push_issue.outputs.pr_branch }}"
+          ISSUE_NUM="${{ github.event.issue.number }}"
 
           gh workflow run verify-merge.yml \
             --repo "${{ github.repository }}" \
             --ref master \
             -f tmp_branch="$TMP_BRANCH" \
-            -f target_branch="$SOURCE_BRANCH" \
-            -f issue_number="${ISSUE_NUM:-}" \
+            -f target_branch="$PR_BRANCH" \
+            -f issue_number="${ISSUE_NUM}" \
             -f attempt="1"
 
-          echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
+          echo "Triggered verify-merge for $TMP_BRANCH -> $PR_BRANCH"
 
       - name: Enable auto-merge on PR
         if: success() && steps.push_target.outputs.is_pr == 'true'
