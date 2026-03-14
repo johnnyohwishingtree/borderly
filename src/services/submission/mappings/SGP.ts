@@ -11,7 +11,7 @@ const SGP_MAPPING: AutomationScript = {
   countryCode: 'SGP',
   portalUrl: 'https://eservices.ica.gov.sg/sgarrivalcard',
   version: '1.0.0',
-  lastUpdated: '2026-03-07T00:00:00Z',
+  lastUpdated: '2026-03-14T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

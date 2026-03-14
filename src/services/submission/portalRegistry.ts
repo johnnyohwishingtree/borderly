@@ -42,7 +42,7 @@ export interface PortalInfo {
 // ---------------------------------------------------------------------------
 
 function extractHostname(url: string): string {
-  const match = url.match(/^https?:\/\/([^/?#:]+)/);
+  const match = url.match(/^https?:\/\/([^/:]+)/);
   return match?.[1] ?? '';
 }
 
