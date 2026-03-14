@@ -16,8 +16,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native';
+import { WebViewMessageEvent } from 'react-native-webview';
 import { PortalWebView, PortalWebViewHandle } from '../../components/submission/PortalWebView';
 import type { NavigationState } from '../../components/submission/PortalWebView';
+import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
@@ -26,8 +28,153 @@ import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
 import type { FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
 import { formatFieldValue } from '../../utils/fieldFormatters';
+import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission/automationScripts';
 
 type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
+
+// ---------------------------------------------------------------------------
+// Auto-fill script helpers
+// ---------------------------------------------------------------------------
+
+/** Describes one field to fill via JavaScript injection */
+interface AutoFillFieldData {
+  fieldId: string;
+  selector: string;
+  inputType: string;
+  value: string;
+}
+
+/** Result posted back from the injected auto-fill script */
+interface AutoFillWebViewResult {
+  type: 'AUTO_FILL_RESULT';
+  filled: string[];
+  skipped: string[];
+  failed: string[];
+}
+
+/**
+ * Build a self-contained JavaScript string that:
+ * 1. Iterates the provided field list
+ * 2. Skips fields that already have a value (non-destructive)
+ * 3. Fills empty fields with the supplied values
+ * 4. Briefly highlights each filled field with a blue border
+ * 5. Posts `{ type: 'AUTO_FILL_RESULT', filled, skipped, failed }` back to RN
+ */
+function buildAutoFillScript(fields: AutoFillFieldData[]): string {
+  const fieldsJson = JSON.stringify(fields);
+  return `
+(function() {
+  var fields = ${fieldsJson};
+  var filled = [];
+  var skipped = [];
+  var failed = [];
+
+  fields.forEach(function(field) {
+    try {
+      var el = document.querySelector(field.selector);
+      if (!el) {
+        failed.push(field.fieldId);
+        return;
+      }
+
+      // Non-destructive: skip if the element already holds a value
+      var alreadyFilled = false;
+      if (field.inputType === 'checkbox' || field.inputType === 'radio') {
+        // A checked state counts as "already filled"
+        alreadyFilled = el.checked === true;
+      } else {
+        alreadyFilled = (el.value || '').length > 0;
+      }
+
+      if (alreadyFilled) {
+        skipped.push(field.fieldId);
+        return;
+      }
+
+      // Fill based on input type
+      if (field.inputType === 'select') {
+        el.value = field.value;
+        // Fallback: match by option text if exact value not found
+        if (el.value !== field.value) {
+          var opts = Array.from(el.options || []);
+          var match = opts.find(function(o) {
+            return o.value.toLowerCase() === field.value.toLowerCase() ||
+                   o.text.toLowerCase().indexOf(field.value.toLowerCase()) >= 0;
+          });
+          if (match) el.value = match.value;
+        }
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+
+      } else if (field.inputType === 'radio') {
+        // Use the selector to find the first radio in the group, then select by value
+        var radioName = el.name;
+        if (radioName) {
+          var radios = document.querySelectorAll('input[type="radio"][name="' + radioName + '"]');
+          radios.forEach(function(r) {
+            if (r.value === field.value || r.value.toLowerCase() === field.value.toLowerCase()) {
+              r.checked = true;
+              r.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
+        } else {
+          el.checked = true;
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+      } else if (field.inputType === 'checkbox') {
+        el.checked = (field.value === 'true' || field.value === '1');
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+
+      } else {
+        // text, date, number, textarea, email, tel, etc.
+        // Use the native setter when available (works with React-controlled inputs)
+        try {
+          var nativeDescriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value') ||
+                                 Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
+          if (nativeDescriptor && nativeDescriptor.set) {
+            nativeDescriptor.set.call(el, field.value);
+          } else {
+            el.value = field.value;
+          }
+        } catch (_e) {
+          el.value = field.value;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // Brief blue-border highlight so the user can see what was auto-filled
+      var origBorder = el.style.border;
+      var origBg = el.style.backgroundColor;
+      el.style.transition = 'border 0.3s ease, background-color 0.3s ease';
+      el.style.border = '2px solid #3B82F6';
+      el.style.backgroundColor = 'rgba(59, 130, 246, 0.06)';
+      setTimeout(function() {
+        el.style.border = origBorder;
+        el.style.backgroundColor = origBg;
+      }, 2500);
+
+      filled.push(field.fieldId);
+    } catch (_err) {
+      failed.push(field.fieldId);
+    }
+  });
+
+  window.ReactNativeWebView.postMessage(JSON.stringify({
+    type: 'AUTO_FILL_RESULT',
+    filled: filled,
+    skipped: skipped,
+    failed: failed
+  }));
+
+  true; // scripts must end with a truthy value
+})();
+`.trim();
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export default function PortalSubmissionScreen() {
   const navigation = useNavigation();
@@ -49,6 +196,17 @@ export default function PortalSubmissionScreen() {
 
   // Collapsible panel
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  // Auto-fill banner state
+  const [bannerVisible, setBannerVisible] = useState(false);
+  const [autoFillResult, setAutoFillResult] = useState<{
+    filled: string[];
+    skipped: string[];
+    failed: string[];
+  }>({ filled: [], skipped: [], failed: [] });
+
+  // Track failed fields so they appear in the bottom panel for manual copy
+  const [autoFillFailedIds, setAutoFillFailedIds] = useState<string[]>([]);
 
   // Load schema and form data
   const { trips } = useTripStore();
@@ -94,21 +252,138 @@ export default function PortalSubmissionScreen() {
     }
   })();
 
+  // Fields that failed auto-fill appear in the panel so the user can copy them
+  const failedFields = currentStepFields.filter(f =>
+    autoFillFailedIds.includes(f.id)
+  );
+  // Non-failed fields are shown normally; if auto-fill ran, only show fallback fields
+  const panelFields = autoFillFailedIds.length > 0 ? failedFields : currentStepFields;
+
+  // ---------------------------------------------------------------------------
+  // Auto-fill trigger
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Trigger auto-fill for a given submission guide step.
+   * Generates a JavaScript payload from form data + automation field mappings
+   * and injects it into the WebView. Results arrive via `handleMessage`.
+   */
+  const triggerAutoFill = useCallback((stepIdx: number) => {
+    if (!schema || !leg || !profile || !webViewRef.current) return;
+
+    const step = schema.submissionGuide?.[stepIdx];
+    const fieldsOnScreen = step?.fieldsOnThisScreen ?? [];
+    if (fieldsOnScreen.length === 0) return;
+
+    // Get the country's automation script (synchronously from cache)
+    const automationScript = automationScriptRegistry.getScriptSync(countryCode);
+    if (!automationScript) return;
+
+    // Generate form data
+    let filledForm;
+    try {
+      filledForm = generateFilledFormForTraveler(
+        profile.id,
+        [profile],
+        leg,
+        schema,
+        leg.formData ?? {}
+      );
+    } catch {
+      return;
+    }
+    if (!filledForm) return;
+
+    // Flatten all fields for fast lookup
+    const fieldValueMap = new Map<string, unknown>();
+    filledForm.sections.forEach(section => {
+      section.fields.forEach(field => {
+        if (field.currentValue !== undefined && field.currentValue !== '') {
+          fieldValueMap.set(field.id, field.currentValue);
+        }
+      });
+    });
+
+    // Build the fill list: only fields that are on this screen AND have values AND have a selector
+    const fieldData: AutoFillFieldData[] = [];
+    for (const fieldId of fieldsOnScreen) {
+      const mapping = automationScript.fieldMappings[fieldId];
+      if (!mapping) continue;
+
+      const rawValue = fieldValueMap.get(fieldId);
+      if (rawValue === undefined || rawValue === null || rawValue === '') continue;
+
+      const transformedValue = AutomationScriptUtils.applyTransform(rawValue, mapping.transform);
+      if (transformedValue === undefined || transformedValue === null || transformedValue === '') continue;
+
+      fieldData.push({
+        fieldId,
+        selector: mapping.selector,
+        inputType: mapping.inputType,
+        value: String(transformedValue),
+      });
+    }
+
+    if (fieldData.length === 0) return;
+
+    const script = buildAutoFillScript(fieldData);
+    webViewRef.current.injectJavaScript(script);
+  }, [schema, leg, profile, countryCode]);
+
+  // ---------------------------------------------------------------------------
+  // WebView event handlers
+  // ---------------------------------------------------------------------------
+
   const handleNavigationChange = useCallback((state: NavigationState) => {
     setNavState(state);
   }, []);
 
   const handlePageLoad = useCallback((loadedUrl: string) => {
-    // Try to advance step when URL matches an automation step's URL
+    // Reset auto-fill state on each new page
+    setAutoFillFailedIds([]);
+    setBannerVisible(false);
+
+    // Try to match the loaded URL to a submission guide step
     if (!schema?.submissionGuide) return;
     const stepIndex = schema.submissionGuide.findIndex((step) => {
       if (!step.automation?.url) return false;
       return loadedUrl.startsWith(step.automation.url);
     });
+
     if (stepIndex >= 0) {
       setCurrentStep(stepIndex + 1);
+      // Trigger auto-fill for the detected step
+      triggerAutoFill(stepIndex);
+    } else {
+      // No URL match — still trigger auto-fill for the current step (best-effort)
+      triggerAutoFill(currentStep - 1);
     }
-  }, [schema]);
+  }, [schema, currentStep, triggerAutoFill]);
+
+  /**
+   * Handle messages posted from within the WebView (e.g. auto-fill results).
+   * The auto-fill script posts `{ type: 'AUTO_FILL_RESULT', filled, skipped, failed }`.
+   */
+  const handleMessage = useCallback((event: WebViewMessageEvent) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data) as AutoFillWebViewResult;
+      if (data.type !== 'AUTO_FILL_RESULT') return;
+
+      const filled = data.filled ?? [];
+      const skipped = data.skipped ?? [];
+      const failed = data.failed ?? [];
+
+      setAutoFillResult({ filled, skipped, failed });
+      setAutoFillFailedIds(failed);
+
+      // Show the banner whenever we attempted auto-fill
+      if (filled.length > 0 || failed.length > 0) {
+        setBannerVisible(true);
+      }
+    } catch {
+      // Ignore non-JSON or unrecognised messages
+    }
+  }, []);
 
   const handleGoBack = useCallback(() => {
     webViewRef.current?.injectJavaScript('window.history.back(); true;');
@@ -127,6 +402,11 @@ export default function PortalSubmissionScreen() {
   }, [navigation, tripId]);
 
   const progressPercent = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+
+  // ---------------------------------------------------------------------------
+  // Auto-fill summary for the banner
+  // ---------------------------------------------------------------------------
+  const bannerTotalCount = autoFillResult.filled.length + autoFillResult.failed.length;
 
   return (
     <SafeAreaView className="flex-1 bg-white" testID="portal-submission-screen">
@@ -207,6 +487,16 @@ export default function PortalSubmissionScreen() {
         </Text>
       </View>
 
+      {/* Auto-fill feedback banner */}
+      <AutoFillBanner
+        visible={bannerVisible}
+        filledCount={autoFillResult.filled.length}
+        totalCount={bannerTotalCount}
+        failedCount={autoFillResult.failed.length}
+        onDismiss={() => setBannerVisible(false)}
+        testID="auto-fill-banner"
+      />
+
       {/* WebView */}
       <View style={{ flex: 1 }}>
         <PortalWebView
@@ -214,11 +504,12 @@ export default function PortalSubmissionScreen() {
           url={url}
           onNavigationChange={handleNavigationChange}
           onPageLoad={handlePageLoad}
+          onMessage={handleMessage}
           testID="portal-webview"
         />
       </View>
 
-      {/* Collapsible bottom panel: "Fields for this page" */}
+      {/* Collapsible bottom panel: "Fields for this page" / fallback copy panel */}
       <View className="bg-white border-t border-gray-200">
         <Pressable
           onPress={() => setIsPanelOpen(prev => !prev)}
@@ -228,8 +519,9 @@ export default function PortalSubmissionScreen() {
           testID="toggle-fields-panel"
         >
           <Text className="text-sm font-semibold text-gray-700">
-            Fields for this page
-            {currentStepFields.length > 0 ? ` (${currentStepFields.length})` : ''}
+            {autoFillFailedIds.length > 0
+              ? `Copy manually (${panelFields.length} field${panelFields.length !== 1 ? 's' : ''} couldn't be auto-filled)`
+              : `Fields for this page${currentStepFields.length > 0 ? ` (${currentStepFields.length})` : ''}`}
           </Text>
           {isPanelOpen ? (
             <ChevronDown size={18} color="#6B7280" />
@@ -245,12 +537,14 @@ export default function PortalSubmissionScreen() {
             keyboardShouldPersistTaps="handled"
             testID="fields-panel"
           >
-            {currentStepFields.length === 0 ? (
+            {panelFields.length === 0 ? (
               <Text className="text-sm text-gray-500 py-2">
-                No copyable fields for this page.
+                {autoFillFailedIds.length > 0
+                  ? 'All fields were auto-filled successfully.'
+                  : 'No copyable fields for this page.'}
               </Text>
             ) : (
-              currentStepFields.map((field) => (
+              panelFields.map((field) => (
                 <View key={field.id} className="mb-3">
                   <CopyableField
                     label={field.label}

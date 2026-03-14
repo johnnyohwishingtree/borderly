@@ -5,12 +5,21 @@
  * through controlled JavaScript injection and DOM manipulation.
  */
 
-import { 
-  WebViewState, 
-  JavaScriptPayload, 
+import {
+  WebViewState,
+  JavaScriptPayload,
   WebViewNavigationEvent,
   SecurityValidationResult
 } from '@/types/submission';
+import type { PortalWebViewHandle } from '@/components/submission/PortalWebView';
+
+/** Internal message format used for postMessage-based result passing */
+interface WebViewScriptResultMessage {
+  type: '__WVC_RESULT__';
+  id: string;
+  result?: unknown;
+  error?: string;
+}
 
 /**
  * Interface for WebView implementation (React Native WebView)
@@ -58,6 +67,11 @@ export class WebViewController {
   private securityConstraints: SecurityConstraints;
   private navigationListeners: ((event: WebViewNavigationEvent) => void)[];
   private isInitialized = false;
+  /** Pending promises waiting for postMessage-based script results */
+  private pendingScriptCallbacks = new Map<
+    string,
+    { resolve: (v: unknown) => void; reject: (e: Error) => void }
+  >();
 
   constructor() {
     this.state = {
@@ -369,6 +383,106 @@ export class WebViewController {
 
   isReady(): boolean {
     return this.isInitialized && !this.state.loading && !this.state.error;
+  }
+
+  /**
+   * Wire this controller to a live PortalWebView ref.
+   *
+   * Replaces the mock implementation created in the constructor with one that
+   * delegates to the actual React Native WebView via `injectJavaScript`.
+   * Because `injectJavaScript` is fire-and-forget, results are returned through
+   * a `postMessage` → `handleWebViewMessage` round-trip keyed by a unique ID.
+   *
+   * Call this as soon as the PortalWebView ref is available (e.g. in a
+   * `useEffect` or directly in `handlePageLoad`).
+   */
+  setWebViewRef(handle: PortalWebViewHandle): void {
+    const self = this;
+
+    this.webviewImpl = {
+      loadUrl: async (_url: string) => {
+        // URL changes are controlled via the `source` prop on the WebView —
+        // not imperatively. Navigation is driven by the parent component.
+      },
+
+      executeJavaScript: async (code: string) => {
+        return new Promise<unknown>((resolve, reject) => {
+          const callbackId = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          self.pendingScriptCallbacks.set(callbackId, { resolve, reject });
+
+          // Wrap the caller's code so it posts its return value back.
+          // `code` is already an IIFE expression (from wrapJavaScriptCode), so we
+          // evaluate it directly with `var __r = (code)` — no extra function wrapper —
+          // to avoid the double-wrapping problem where the inner IIFE's `return`
+          // does not propagate to the outer wrapper's assignment.
+          const wrappedCode = `(function(){try{var __r=(${code});window.ReactNativeWebView.postMessage(JSON.stringify({type:'__WVC_RESULT__',id:${JSON.stringify(callbackId)},result:__r}));}catch(e){window.ReactNativeWebView.postMessage(JSON.stringify({type:'__WVC_RESULT__',id:${JSON.stringify(callbackId)},error:e.message}));}})();true;`;
+
+          handle.injectJavaScript(wrappedCode);
+
+          // Reject if no response arrives within the configured timeout
+          setTimeout(() => {
+            if (self.pendingScriptCallbacks.has(callbackId)) {
+              self.pendingScriptCallbacks.delete(callbackId);
+              reject(new Error('Script execution timeout (no postMessage received)'));
+            }
+          }, self.securityConstraints.maxExecutionTime);
+        });
+      },
+
+      goBack: async () => {
+        handle.injectJavaScript('window.history.back();true;');
+      },
+      goForward: async () => {
+        handle.injectJavaScript('window.history.forward();true;');
+      },
+      reload: async () => {
+        handle.injectJavaScript('window.location.reload();true;');
+      },
+      // No-ops: cache/cookie management is handled by the WebView component
+      clearCache: async () => {},
+      clearCookies: async () => {},
+      setUserAgent: async (_userAgent: string) => {},
+      addEventListener: (_event: string, _callback: (data: unknown) => void) => {},
+      removeEventListener: (_event: string, _callback: (data: unknown) => void) => {},
+    };
+
+    if (!this.isInitialized) {
+      this.setupEventListeners();
+      this.isInitialized = true;
+    }
+  }
+
+  /**
+   * Forward a raw WebView `onMessage` payload to the controller so that
+   * pending `executeJavaScript` promises can be resolved.
+   *
+   * Call this from the `onMessage` handler of the parent PortalWebView:
+   *   `onMessage={e => controller.handleWebViewMessage(e.nativeEvent.data)}`
+   */
+  handleWebViewMessage(messageData: string): boolean {
+    try {
+      const parsed = JSON.parse(messageData) as WebViewScriptResultMessage;
+      if (parsed.type !== '__WVC_RESULT__' || !parsed.id) {
+        return false;
+      }
+
+      const callback = this.pendingScriptCallbacks.get(parsed.id);
+      if (!callback) {
+        return false;
+      }
+
+      this.pendingScriptCallbacks.delete(parsed.id);
+
+      if (parsed.error) {
+        callback.reject(new Error(parsed.error));
+      } else {
+        callback.resolve(parsed.result);
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**

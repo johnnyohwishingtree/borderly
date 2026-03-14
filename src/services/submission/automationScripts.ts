@@ -69,6 +69,14 @@ export class AutomationScriptRegistry {
   }
 
   /**
+   * Synchronous script lookup — returns from in-memory cache only.
+   * Built-in scripts (JPN, MYS, SGP) are always available after construction.
+   */
+  getScriptSync(countryCode: string): AutomationScript | null {
+    return this.scripts.get(countryCode) ?? null;
+  }
+
+  /**
    * Load built-in automation scripts
    */
   private loadBuiltinScripts(): void {
@@ -704,10 +712,16 @@ export class AutomationScriptUtils {
     return {
       stepCount: script.steps.length,
       criticalSteps: script.steps.filter(s => s.critical).length,
-      estimatedDuration: script.steps.reduce((total, step) => 
+      estimatedDuration: script.steps.reduce((total, step) =>
         total + step.timing.timeout + (step.timing.waitAfter || 0), 0
       ),
       fieldMappingCount: Object.keys(script.fieldMappings).length
     };
   }
 }
+
+/**
+ * Shared singleton registry — all app code should import and use this instance
+ * rather than constructing their own, to avoid duplicating the built-in scripts.
+ */
+export const automationScriptRegistry = new AutomationScriptRegistry();
