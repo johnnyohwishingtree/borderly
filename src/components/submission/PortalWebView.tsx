@@ -12,14 +12,13 @@ import {
 } from 'react-native';
 import WebView, { WebViewNavigation, WebViewMessageEvent, WebViewRef } from 'react-native-webview';
 
-// Allowed government portal domains (and localhost for development)
-const ALLOWED_DOMAINS = [
-  'vjw-lp.digital.go.jp',    // Visit Japan Web
-  'mdac.gov.my',              // Malaysia MDAC
-  'eservices.ica.gov.sg',     // Singapore SG Arrival Card
-  'localhost',                // Dev / E2E testing
-  '127.0.0.1',               // Dev / E2E testing
-];
+import { getAllowedDomains } from '@/services/submission/portalRegistry';
+
+/**
+ * Allowed government portal domains (and localhost for development/E2E).
+ * Derived from the portal registry — no hardcoded list needed here.
+ */
+const ALLOWED_DOMAINS = getAllowedDomains();
 
 /**
  * Common automation utilities injected on every page load.

@@ -24,7 +24,7 @@ const MYS_SCHEMA = {
   submissionGuide: [
     {
       title: 'Personal Details',
-      automation: { url: 'https://mdac.gov.my/personal' },
+      automation: { url: 'https://imigresen-online.imi.gov.my/mdac/personal' },
     },
   ],
 };
@@ -84,7 +84,11 @@ describe('PageDetector', () => {
     });
 
     it('identifies the MYS portal step', () => {
-      const result = detector.detectPage('https://mdac.gov.my/personal', 'MYS', MYS_SCHEMA);
+      const result = detector.detectPage(
+        'https://imigresen-online.imi.gov.my/mdac/personal',
+        'MYS',
+        MYS_SCHEMA,
+      );
       expect(result).not.toBeNull();
       expect(result!.countryCode).toBe('MYS');
       expect(result!.stepTitle).toBe('Personal Details');
@@ -205,7 +209,7 @@ describe('PageDetector', () => {
     });
 
     it('returns the MYS portal URL', () => {
-      expect(detector.getPortalBaseUrl('MYS')).toBe('https://mdac.gov.my');
+      expect(detector.getPortalBaseUrl('MYS')).toBe('https://imigresen-online.imi.gov.my');
     });
 
     it('returns the SGP portal URL', () => {

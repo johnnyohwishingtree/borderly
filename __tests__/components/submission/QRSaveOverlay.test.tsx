@@ -258,7 +258,7 @@ describe('QRSaveOverlay', () => {
       />
     );
     const subtitle = getByTestId('qr-overlay-subtitle');
-    expect(subtitle.props.children).toContain('Malaysia MDAC');
+    expect(subtitle.props.children).toContain('Malaysia Digital Arrival Card (MDAC)');
   });
 
   it('shows the correct portal name for SGP', () => {

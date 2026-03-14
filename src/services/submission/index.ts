@@ -10,3 +10,11 @@ export { FormFiller, formFiller } from './formFiller';
 export type { FieldSpec, FillResult } from './formFiller';
 export { PageDetector, pageDetector } from './pageDetection';
 export type { DetectedPage } from './pageDetection';
+export {
+  getPortalInfo,
+  getAllPortals,
+  getAllowedDomains,
+  getPortalName,
+  getPortalBaseUrl,
+} from './portalRegistry';
+export type { PortalInfo } from './portalRegistry';
