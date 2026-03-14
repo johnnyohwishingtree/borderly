@@ -241,7 +241,7 @@ jobs:
     needs: verify
     if: needs.verify.outputs.pass == 'false' && inputs.attempt != '6'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
 
     steps:
       - name: Checkout temp branch
@@ -250,10 +250,16 @@ jobs:
           ref: ${{ inputs.tmp_branch }}
           fetch-depth: 0
 
-      - name: Merge master into branch
+      - name: Configure git and auth
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git config user.name "Claude CI"
           git config user.email "claude-ci@users.noreply.github.com"
+
+      - name: Merge master into branch
+        run: |
           git fetch origin master
           git merge origin/master --no-edit || {
             echo "::warning::Merge conflict with master — fix job will resolve"
@@ -377,14 +383,17 @@ jobs:
             8. After fixing, run `pnpm typecheck && pnpm test` to confirm ZERO errors.
             9. Then git add and git commit your changes.
             10. LAST: Update .claude-fix-log.md (create if needed) with: errors found, changes made, whether checks pass now, remaining issues. This helps the next attempt.
+
+            CRITICAL — PUSH AFTER EACH MILESTONE: After every significant fix (e.g. fixing a file, resolving a category of errors), git add, git commit, and push immediately using: git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}
+            If this job times out, unpushed work is lost. Push early and often.
           settings: |
             {
-              "maxTurns": 30,
+              "maxTurns": 50,
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
                 "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
                 "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+                "Bash(git rm:*)", "Bash(git push:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
               ]
             }
 
@@ -410,15 +419,18 @@ jobs:
           fi
 
           # Check if Claude actually produced any changes
+          git fetch origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
           LOCAL_HEAD=$(git rev-parse HEAD)
           REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.tmp_branch }}" 2>/dev/null || echo "none")
 
           if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
             echo "::warning::Claude produced no changes — skipping to give-up"
             echo "no_changes=true" >> $GITHUB_ENV
+          else
+            # Claude may have already pushed mid-run — rebase on top
+            git pull --rebase origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
+            git push origin "HEAD:refs/heads/${{ inputs.tmp_branch }}"
           fi
-
-          git push origin HEAD
 
       - name: Trigger next verify-merge attempt
         if: env.no_changes != 'true'
@@ -454,6 +466,56 @@ jobs:
           To retry manually: Actions > Verify and Merge > Run workflow with \`tmp_branch: ${TMP_BRANCH}\`, \`target_branch: ${{ inputs.target_branch }}\`, \`attempt: 1\`
           EOF
             )" 2>/dev/null || echo "Failed to post comment"
+          fi
+
+      # ── Rescue step: runs ONLY when the fix job is cancelled (e.g. timeout) ──
+      - name: Rescue work on timeout
+        if: cancelled()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          TMP_BRANCH="${{ inputs.tmp_branch }}"
+          ISSUE_NUM="${{ inputs.issue_number }}"
+
+          # Commit any uncommitted work
+          git add -A -- ':!output.txt' ':!node_modules'
+          if [ -n "$(git diff --cached --name-only)" ]; then
+            git commit -m "wip: rescue work from timed-out fix attempt ${{ inputs.attempt }} (#${ISSUE_NUM})
+
+          Fix job timed out after 60 minutes. This commit saves all in-progress work.
+
+          Co-authored-by: Claude <noreply@anthropic.com>"
+          fi
+
+          # Push rescued work to the tmp branch
+          git fetch origin "$TMP_BRANCH" 2>/dev/null || true
+          git pull --rebase origin "$TMP_BRANCH" 2>/dev/null || true
+          git push origin "HEAD:refs/heads/$TMP_BRANCH"
+          echo "Rescued work to $TMP_BRANCH"
+
+          # Trigger next attempt so the fix loop continues
+          NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+          if [ "$NEXT_ATTEMPT" -le 6 ]; then
+            gh workflow run verify-merge.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f tmp_branch="$TMP_BRANCH" \
+              -f target_branch="${{ inputs.target_branch }}" \
+              -f issue_number="$ISSUE_NUM" \
+              -f attempt="$NEXT_ATTEMPT"
+            echo "Triggered verify-merge attempt $NEXT_ATTEMPT after timeout rescue"
+          fi
+
+          # Notify on the issue
+          if [ -n "$ISSUE_NUM" ]; then
+            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          Fix attempt ${{ inputs.attempt }}/6 timed out after 60 minutes. In-progress work was saved to [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
+
+          Automatically continuing with attempt $NEXT_ATTEMPT.
+          EOF
+            )" 2>/dev/null || echo "Failed to post timeout comment"
           fi
 
   give-up:
