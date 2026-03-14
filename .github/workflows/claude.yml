@@ -94,6 +94,8 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
 
+            CRITICAL — PUSH AFTER EACH MILESTONE: Whenever you complete a task or check off an acceptance criterion, you MUST immediately git add, git commit, and git push before moving on to the next task. Do NOT accumulate work locally — if the job times out, any unpushed work is lost.
+
             When asked to fix code review issues: you MUST use the Edit tool to modify files, then git add, git commit, and git push. Posting a comment describing what you would change is NOT sufficient — you must actually make the changes. If you cannot fix an issue, reply on the specific review thread explaining why."
 
       # ── Rescue step: runs ONLY when the job is cancelled (e.g. timeout) ──
