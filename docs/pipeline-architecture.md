@@ -65,8 +65,15 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |         - Resolve bot review threads                                |
 |         - Enable auto-merge on PR                                   |
 |                                                                     |
+|   +-- If TIMEOUT (cancelled after 60min):                           |
+|         - Commit all uncommitted work                               |
+|         - Push to rescue/claude-<issue>-<run_id> branch             |
+|         - Comment on issue with rescue branch link                  |
+|         - Work is preserved, can be resumed manually                |
+|                                                                     |
 |   KEY: PR context pushes directly. Only issue context uses          |
 |   the tmp branch --> verify-merge flow.                             |
+|   Timeout rescue ensures no work is ever lost.                      |
 +----------------------------+----------------------------------------+
                              |
               (issue context only)
@@ -387,6 +394,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: Tmp branches created before pipeline fixes land on master don't have those fixes (e.g., `.eslintignore`, lint config). Checks fail for reasons unrelated to the actual code.
 - **Solution**: Both verify and fix jobs merge master into the tmp branch before running checks. If the merge conflicts, verify fails fast and the fix job Claude resolves the conflicts.
 
+### Timeout Work Rescue
+- **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-merge trigger) are skipped. All committed and uncommitted work is lost.
+- **Solution**: A rescue step with `if: cancelled()` runs after timeout. It commits any uncommitted changes, pushes to a `rescue/claude-<issue>-<run_id>` branch, and comments on the issue with a link to the rescue branch and instructions to resume.
+
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
 - watcher.yml checks for >=5 @claude attempts on a story --> creates "pipeline-stuck" issue
@@ -486,3 +497,4 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Fix job gets all errors at once**: All 5 error files are captured before Claude starts fixing, so it can address everything in one pass.
 - **Concurrency limits**: Max 3 simultaneous Claude runs prevents runaway costs.
 - **Relay limit**: Max 3 review relay rounds per PR prevents infinite review-fix cycles.
+- **Timeout rescue**: If Claude times out at 60min, all work is saved to a rescue branch instead of being lost. This preserves up to 60min of token spend that would otherwise be wasted.

@@ -25,7 +25,7 @@ jobs:
       github.event.comment.user.type != 'Bot' &&
       (github.event.issue != null || github.event.pull_request != null)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -33,12 +33,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure git and auth
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
+
       - name: Switch to PR branch if applicable
         if: github.event.issue.pull_request || github.event.pull_request
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           if [ -n "${{ github.event.pull_request.number }}" ]; then
             PR_NUM=${{ github.event.pull_request.number }}
           else
@@ -87,7 +94,54 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
 
+      # ── Rescue step: runs ONLY when the job is cancelled (e.g. timeout) ──
+      - name: Rescue work on timeout
+        if: cancelled()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          ISSUE_NUM="${{ github.event.issue.number || github.event.pull_request.number }}"
+          RESCUE_BRANCH="rescue/claude-${ISSUE_NUM}-${{ github.run_id }}"
+
+          # Commit any uncommitted work
+          git add -A -- ':!output.txt' ':!node_modules'
+          if [ -n "$(git diff --cached --name-only)" ]; then
+            git commit -m "wip: rescue work from timed-out Claude run (#${ISSUE_NUM})
+
+          Job timed out after 60 minutes. This commit saves all in-progress work.
+
+          Co-authored-by: Claude <noreply@anthropic.com>"
+          fi
+
+          # Check if there's anything to push (committed work beyond what was on the remote)
+          LOCAL_HEAD=$(git rev-parse HEAD)
+          CURRENT_BRANCH=$(git branch --show-current)
+          REMOTE_HEAD=$(git rev-parse "origin/${CURRENT_BRANCH}" 2>/dev/null || echo "none")
+
+          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "No new commits to rescue — nothing was changed"
+            exit 0
+          fi
+
+          # Push to rescue branch
+          git checkout -b "$RESCUE_BRANCH"
+          git push -u origin "$RESCUE_BRANCH"
+          echo "Rescued work to $RESCUE_BRANCH"
+
+          # Comment on the issue so the user knows
+          COMMIT_COUNT=$(git rev-list --count "origin/master..HEAD" 2>/dev/null || echo "?")
+          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          Claude's run timed out after 60 minutes, but the in-progress work was saved to [\`${RESCUE_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${RESCUE_BRANCH}) (${COMMIT_COUNT} commits ahead of master).
+
+          To resume, comment on this issue again with: \`@claude Continue the work from the \`${RESCUE_BRANCH}\` branch. Check out that branch first, then pick up where you left off.\`
+
+          Or manually: \`git fetch origin ${RESCUE_BRANCH} && git checkout ${RESCUE_BRANCH}\`
+          EOF
+          )" 2>/dev/null || echo "Failed to post rescue comment"
+
+      # ── Normal flow (only runs if Claude completed successfully) ──
       - name: Detect context (issue vs PR)
+        if: success()
         id: context
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,13 +153,11 @@ jobs:
           fi
 
       - name: Push to PR branch (PR context)
-        if: steps.context.outputs.is_pr == 'true'
+        if: success() && steps.context.outputs.is_pr == 'true'
         id: push_pr
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
           SOURCE_BRANCH=$(git branch --show-current)
           echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
 
@@ -125,13 +177,11 @@ jobs:
           echo "Pushed directly to PR branch $SOURCE_BRANCH"
 
       - name: Push to temporary branch (issue context)
-        if: steps.context.outputs.is_pr == 'false'
+        if: success() && steps.context.outputs.is_pr == 'false'
         id: push_issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
           # Remember the source branch (where Claude's work lives)
           SOURCE_BRANCH=$(git branch --show-current)
           echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
@@ -155,6 +205,7 @@ jobs:
           echo "Pushed to $TMP_BRANCH"
 
       - name: Resolve bot review threads
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
@@ -207,7 +258,7 @@ jobs:
           done
 
       - name: Extract issue number (issue context only)
-        if: steps.context.outputs.is_pr == 'false'
+        if: success() && steps.context.outputs.is_pr == 'false'
         id: issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -230,7 +281,7 @@ jobs:
           echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
 
       - name: Trigger verify-merge (issue context only)
-        if: steps.context.outputs.is_pr == 'false'
+        if: success() && steps.context.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -249,7 +300,7 @@ jobs:
           echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
 
       - name: Enable auto-merge on PR
-        if: steps.context.outputs.is_pr == 'true'
+        if: success() && steps.context.outputs.is_pr == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
