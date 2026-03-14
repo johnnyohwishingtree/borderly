@@ -83,8 +83,6 @@ describe('WebViewController.handleWebViewMessage', () => {
 
     // Extract the callbackId from the injected script
     await Promise.resolve(); // let the injection happen
-    const idMatch = capturedScript.match(/__WVC_RESULT__.*?id.*?([a-z0-9_]+[a-z0-9])/);
-    // Alternative: extract via JSON-like parsing
     const idJsonMatch = capturedScript.match(/"id"\s*:\s*"([^"]+)"/);
     expect(idJsonMatch).not.toBeNull();
     const callbackId = idJsonMatch![1];
