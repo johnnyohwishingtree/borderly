@@ -233,9 +233,21 @@ jobs:
             fi
           fi
 
-          # Push directly to the PR branch — no verify-merge needed
-          git push origin HEAD
-          echo "Pushed directly to PR branch $SOURCE_BRANCH"
+          # claude-code-action@v1 may have already pushed via its internal
+          # git-push.sh script, so the remote branch can be ahead of local HEAD.
+          # Pull --rebase to fast-forward, then push only if we have new commits.
+          git fetch origin "$SOURCE_BRANCH" 2>/dev/null || true
+          REMOTE_HEAD=$(git rev-parse "origin/$SOURCE_BRANCH" 2>/dev/null || echo "none")
+          LOCAL_HEAD=$(git rev-parse HEAD)
+
+          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "Local HEAD matches remote — nothing to push"
+          else
+            # Rebase local work on top of anything the action already pushed
+            git pull --rebase origin "$SOURCE_BRANCH" 2>/dev/null || true
+            git push origin "HEAD:$SOURCE_BRANCH"
+            echo "Pushed to PR branch $SOURCE_BRANCH"
+          fi
 
       - name: Push remaining work to tmp branch (issue context)
         if: success() && steps.push_target.outputs.is_pr == 'false'
@@ -262,9 +274,18 @@ jobs:
             fi
           fi
 
-          # Push to the same tmp branch Claude has been pushing to mid-run
-          git push origin "HEAD:refs/heads/$TMP_BRANCH"
-          echo "Pushed remaining work to $TMP_BRANCH"
+          # claude-code-action may have already pushed mid-run via push_cmd.
+          # Check if there's anything new to push before attempting.
+          git fetch origin "$TMP_BRANCH" 2>/dev/null || true
+          REMOTE_HEAD=$(git rev-parse "origin/$TMP_BRANCH" 2>/dev/null || echo "none")
+          LOCAL_HEAD=$(git rev-parse HEAD)
+
+          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "Local HEAD matches remote $TMP_BRANCH — nothing to push"
+          else
+            git push origin "HEAD:refs/heads/$TMP_BRANCH" --force-with-lease
+            echo "Pushed remaining work to $TMP_BRANCH"
+          fi
 
       - name: Resolve bot review threads
         if: success()
