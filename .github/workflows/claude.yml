@@ -207,3 +207,13 @@ jobs:
             -f attempt="1"
 
           echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
+
+      - name: Enable auto-merge on PR
+        if: github.event.issue.pull_request
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          PR_NUM=${{ github.event.issue.number }}
+          gh pr merge "$PR_NUM" --squash --auto --repo "${{ github.repository }}" 2>/dev/null \
+            && echo "Auto-merge enabled on PR #$PR_NUM" \
+            || echo "Auto-merge not available for PR #$PR_NUM"
