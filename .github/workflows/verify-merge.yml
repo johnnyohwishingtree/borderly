@@ -80,6 +80,14 @@ jobs:
           fi
 
           if [ "$PASS" = "true" ]; then
+            echo "=== Metro Bundle ==="
+            if ! npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js 2>&1; then
+              echo "Metro Bundle FAILED"
+              PASS=false
+            fi
+          fi
+
+          if [ "$PASS" = "true" ]; then
             echo "=== Tests ==="
             if ! pnpm test 2>&1; then
               echo "Tests FAILED"
@@ -192,6 +200,7 @@ jobs:
         run: |
           pnpm lint > /tmp/lint_errors.txt 2>&1 || true
           pnpm typecheck > /tmp/tc_errors.txt 2>&1 || true
+          npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js > /tmp/bundle_errors.txt 2>&1 || true
           pnpm test > /tmp/test_errors.txt 2>&1 || true
 
       - name: Claude fix (fresh context)
@@ -207,6 +216,7 @@ jobs:
             Error logs are at:
             - /tmp/lint_errors.txt
             - /tmp/tc_errors.txt
+            - /tmp/bundle_errors.txt
             - /tmp/test_errors.txt
 
             Read the error files to see what's wrong. Fix ONE FILE AT A TIME.
