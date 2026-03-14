@@ -135,4 +135,4 @@ jobs:
 
           # TODO: Customize the test command in this trigger message
           gh issue comment "$NEXT" --repo ${{ github.repository }} \
-            --body "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently — after every 2-3 file changes, stage, commit, and push. Do NOT wait until the end. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
+            --body "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: After completing each acceptance criterion, git add, git commit, and git push before moving on. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
