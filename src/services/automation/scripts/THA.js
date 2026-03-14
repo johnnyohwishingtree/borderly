@@ -17,11 +17,11 @@
 
   // ── 1. Determine whether we are on the Thailand Pass QR / confirmation page
 
-  var isQRPage = false;
+  let isQRPage = false;
 
   // URL heuristics for Thailand Pass completion page.
   try {
-    var url = window.location.href.toLowerCase();
+    const url = window.location.href.toLowerCase();
     if (
       url.indexOf('success') >= 0 ||
       url.indexOf('approved') >= 0 ||
@@ -32,12 +32,14 @@
     ) {
       isQRPage = true;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[THA] URL check error:', e);
+  }
 
   // DOM heuristics: QR code or confirmation elements.
   if (!isQRPage) {
     try {
-      var qrElement = document.querySelector(
+      const qrElement = document.querySelector(
         '.confirmation-page, #qr-code-display, #qr-code, ' +
           'canvas, img[alt*="QR" i], img[src*="qr" i], ' +
           '[class*="qr" i], [id*="qr" i]'
@@ -45,13 +47,15 @@
       if (qrElement) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[THA] DOM check error:', e);
+    }
   }
 
   // Text heuristics: Thailand Pass approval language.
   if (!isQRPage) {
     try {
-      var bodyText = (document.body && document.body.innerText
+      const bodyText = (document.body && document.body.innerText
         ? document.body.innerText
         : ''
       ).toLowerCase();
@@ -65,7 +69,9 @@
       ) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[THA] Text check error:', e);
+    }
   }
 
   if (!isQRPage) {
@@ -77,60 +83,66 @@
 
   // ── 2. Attempt to extract QR code image (3-strategy approach) ────────────
 
-  var qrImageBase64 = null;
+  let qrImageBase64 = null;
 
   // Strategy A: canvas element (QR code rendered on canvas).
   try {
-    var canvases = document.querySelectorAll('canvas');
-    for (var i = 0; i < canvases.length; i++) {
-      var c = canvases[i];
+    const canvases = document.querySelectorAll('canvas');
+    for (let i = 0; i < canvases.length; i++) {
+      const c = canvases[i];
       if (c.width >= 50 && c.height >= 50) {
         qrImageBase64 = c.toDataURL('image/png');
         break;
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[THA] Canvas QR extraction error:', e);
+  }
 
   // Strategy B: QR-labelled image.
   if (!qrImageBase64) {
     try {
-      var qrImgs = document.querySelectorAll(
+      const qrImgs = document.querySelectorAll(
         '#qr-code img, .qr-code img, img[alt*="QR" i], img[src*="qr" i], img[id*="qr" i]'
       );
       if (qrImgs.length > 0 && qrImgs[0].src) {
         qrImageBase64 = qrImgs[0].src;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[THA] Image QR extraction error:', e);
+    }
   }
 
   // Strategy C: any roughly square image in the 100-500 px range.
   if (!qrImageBase64) {
     try {
-      var allImgs = document.querySelectorAll('img');
-      for (var j = 0; j < allImgs.length; j++) {
-        var img = allImgs[j];
-        var w = img.naturalWidth || img.width;
-        var h = img.naturalHeight || img.height;
+      const allImgs = document.querySelectorAll('img');
+      for (let j = 0; j < allImgs.length; j++) {
+        const img = allImgs[j];
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
         if (w >= 100 && w <= 600 && Math.abs(w - h) < w * 0.1) {
           qrImageBase64 = img.src;
           break;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[THA] Square image QR extraction error:', e);
+    }
   }
 
   // ── 3. Try to extract the confirmation number ─────────────────────────────
 
-  var confirmationNumber = null;
+  let confirmationNumber = null;
   try {
-    var selectors = [
+    const selectors = [
       '#confirmation-number',
       '.confirmation-number',
       '[id*="confirmation"]',
       '[class*="confirmation-number"]',
     ];
-    for (var k = 0; k < selectors.length; k++) {
-      var el = document.querySelector(selectors[k]);
+    for (let k = 0; k < selectors.length; k++) {
+      const el = document.querySelector(selectors[k]);
       if (el && el.textContent.trim()) {
         confirmationNumber = el.textContent.trim();
         break;
@@ -138,15 +150,17 @@
     }
 
     if (!confirmationNumber) {
-      var bodyHtml = document.body ? document.body.innerHTML : '';
-      var refMatch = bodyHtml.match(
+      const bodyHtml = document.body ? document.body.innerHTML : '';
+      const refMatch = bodyHtml.match(
         /(?:confirmation|reference|pass)\s*(?:no|number|#)?[:\s]+([A-Z0-9\-]{6,20})/i
       );
       if (refMatch) {
         confirmationNumber = refMatch[1].trim();
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[THA] Confirmation extraction error:', e);
+  }
 
   // ── 4. Report back to React Native ──────────────────────────────────────
 

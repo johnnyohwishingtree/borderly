@@ -14,11 +14,11 @@
 
   // ── 1. Determine whether we are on the eTA confirmation page ─────────────
 
-  var isQRPage = false;
+  let isQRPage = false;
 
   // URL heuristics for Canada eTA confirmation page.
   try {
-    var url = window.location.href.toLowerCase();
+    const url = window.location.href.toLowerCase();
     if (
       url.indexOf('confirmation') >= 0 ||
       url.indexOf('approved') >= 0 ||
@@ -29,25 +29,29 @@
     ) {
       isQRPage = true;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[CAN] URL check error:', e);
+  }
 
   // DOM heuristics: eTA approval / confirmation elements.
   if (!isQRPage) {
     try {
-      var approvalEl = document.querySelector(
+      const approvalEl = document.querySelector(
         '.eta-approved, #confirmation-number, [class*="eta-approved"], ' +
           '[id*="eta-number"], [class*="confirmation"], .application-approved'
       );
       if (approvalEl) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[CAN] DOM check error:', e);
+    }
   }
 
   // Text heuristics: eTA success language.
   if (!isQRPage) {
     try {
-      var bodyText = (document.body && document.body.innerText
+      const bodyText = (document.body && document.body.innerText
         ? document.body.innerText
         : ''
       ).toLowerCase();
@@ -62,7 +66,9 @@
       ) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[CAN] Text check error:', e);
+    }
   }
 
   if (!isQRPage) {
@@ -74,18 +80,18 @@
 
   // ── 2. Try to extract the eTA / confirmation number ──────────────────────
 
-  var confirmationNumber = null;
+  let confirmationNumber = null;
   try {
     // Try specific selectors first.
-    var selectors = [
+    const selectors = [
       '#eta-number',
       '#confirmation-number',
       '[id*="eta-number"]',
       '[id*="confirmation"]',
       '.eta-number',
     ];
-    for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
+    for (let i = 0; i < selectors.length; i++) {
+      const el = document.querySelector(selectors[i]);
       if (el && el.textContent.trim()) {
         confirmationNumber = el.textContent.trim();
         break;
@@ -94,15 +100,17 @@
 
     if (!confirmationNumber) {
       // Regex fallback in page HTML.
-      var bodyHtml = document.body ? document.body.innerHTML : '';
-      var refMatch = bodyHtml.match(
+      const bodyHtml = document.body ? document.body.innerHTML : '';
+      const refMatch = bodyHtml.match(
         /(?:eta|application|confirmation)\s*(?:no|number|#)?[:\s]+([A-Z0-9\-]{6,20})/i
       );
       if (refMatch) {
         confirmationNumber = refMatch[1].trim();
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[CAN] Confirmation extraction error:', e);
+  }
 
   // ── 3. Report back to React Native ──────────────────────────────────────
 

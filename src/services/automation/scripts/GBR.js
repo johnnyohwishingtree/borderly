@@ -16,11 +16,11 @@
 
   // ── 1. Determine whether we are on the ETA approval page ─────────────────
 
-  var isQRPage = false;
+  let isQRPage = false;
 
   // URL heuristics for GOV.UK ETA confirmation page.
   try {
-    var url = window.location.href.toLowerCase();
+    const url = window.location.href.toLowerCase();
     if (
       url.indexOf('confirmation') >= 0 ||
       url.indexOf('approved') >= 0 ||
@@ -31,25 +31,29 @@
     ) {
       isQRPage = true;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[GBR] URL check error:', e);
+  }
 
   // DOM heuristics: GOV.UK design system confirmation panel.
   if (!isQRPage) {
     try {
-      var approvalEl = document.querySelector(
+      const approvalEl = document.querySelector(
         '.govuk-panel--confirmation, .application-complete, #eta-approval, ' +
           '[class*="confirmation-panel"], [class*="application-complete"]'
       );
       if (approvalEl) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[GBR] DOM check error:', e);
+    }
   }
 
   // Text heuristics: ETA approval language.
   if (!isQRPage) {
     try {
-      var bodyText = (document.body && document.body.innerText
+      const bodyText = (document.body && document.body.innerText
         ? document.body.innerText
         : ''
       ).toLowerCase();
@@ -64,7 +68,9 @@
       ) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[GBR] Text check error:', e);
+    }
   }
 
   if (!isQRPage) {
@@ -76,18 +82,18 @@
 
   // ── 2. Try to extract the application reference / ETA number ─────────────
 
-  var confirmationNumber = null;
+  let confirmationNumber = null;
   try {
     // Try GOV.UK design system selectors first.
-    var selectors = [
+    const selectors = [
       '#application-reference',
       '#eta-number',
       '.govuk-panel__body',
       '[class*="reference"]',
       '[id*="reference"]',
     ];
-    for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
+    for (let i = 0; i < selectors.length; i++) {
+      const el = document.querySelector(selectors[i]);
       if (el && el.textContent.trim()) {
         confirmationNumber = el.textContent.trim();
         break;
@@ -96,15 +102,17 @@
 
     if (!confirmationNumber) {
       // Regex fallback in page HTML.
-      var bodyHtml = document.body ? document.body.innerHTML : '';
-      var refMatch = bodyHtml.match(
+      const bodyHtml = document.body ? document.body.innerHTML : '';
+      const refMatch = bodyHtml.match(
         /(?:reference|eta|application)\s*(?:no|number|#)?[:\s]+([A-Z0-9\-]{6,20})/i
       );
       if (refMatch) {
         confirmationNumber = refMatch[1].trim();
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[GBR] Confirmation extraction error:', e);
+  }
 
   // ── 3. Report back to React Native ──────────────────────────────────────
 

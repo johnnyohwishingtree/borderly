@@ -15,11 +15,11 @@
 
   // ── 1. Determine whether we are on the ESTA authorization page ───────────
 
-  var isQRPage = false;
+  let isQRPage = false;
 
   // URL heuristics for ESTA completion page.
   try {
-    var url = window.location.href.toLowerCase();
+    const url = window.location.href.toLowerCase();
     if (
       url.indexOf('authorization') >= 0 ||
       url.indexOf('approved') >= 0 ||
@@ -29,25 +29,29 @@
     ) {
       isQRPage = true;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[USA] URL check error:', e);
+  }
 
   // DOM heuristics: authorization approval elements.
   if (!isQRPage) {
     try {
-      var approvalEl = document.querySelector(
+      const approvalEl = document.querySelector(
         '.authorization-approved, #esta-approval, .esta-status-approved, ' +
           '[class*="approved"], [id*="approval"]'
       );
       if (approvalEl) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[USA] DOM check error:', e);
+    }
   }
 
   // Text heuristics: authorization / approval language.
   if (!isQRPage) {
     try {
-      var bodyText = (document.body && document.body.innerText
+      const bodyText = (document.body && document.body.innerText
         ? document.body.innerText
         : ''
       ).toLowerCase();
@@ -62,7 +66,9 @@
       ) {
         isQRPage = true;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[USA] Text check error:', e);
+    }
   }
 
   if (!isQRPage) {
@@ -74,18 +80,18 @@
 
   // ── 2. Try to extract the application / authorization number ────────────
 
-  var confirmationNumber = null;
+  let confirmationNumber = null;
   try {
     // Try specific selectors first.
-    var selectors = [
+    const selectors = [
       '#application-number',
       '#authorization-number',
       '[id*="application"][id*="number"]',
       '[class*="application"][class*="number"]',
       '[id*="confirmation"]',
     ];
-    for (var i = 0; i < selectors.length; i++) {
-      var el = document.querySelector(selectors[i]);
+    for (let i = 0; i < selectors.length; i++) {
+      const el = document.querySelector(selectors[i]);
       if (el && el.textContent.trim()) {
         confirmationNumber = el.textContent.trim();
         break;
@@ -94,15 +100,17 @@
 
     if (!confirmationNumber) {
       // Regex fallback in page HTML.
-      var bodyHtml = document.body ? document.body.innerHTML : '';
-      var refMatch = bodyHtml.match(
+      const bodyHtml = document.body ? document.body.innerHTML : '';
+      const refMatch = bodyHtml.match(
         /(?:application|authorization|confirmation)\s*(?:no|number|#)?[:\s]+([A-Z0-9\-]{6,20})/i
       );
       if (refMatch) {
         confirmationNumber = refMatch[1].trim();
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('[USA] Confirmation extraction error:', e);
+  }
 
   // ── 3. Report back to React Native ──────────────────────────────────────
 
