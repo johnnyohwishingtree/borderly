@@ -111,16 +111,7 @@ module.exports = (env, argv) => {
     }),
     // Generate index.html with script tag automatically
     ...(isPages ? [new HtmlWebpackPlugin({
-      templateContent: `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Borderly</title>
-  <style>html, body, #root { height: 100%; margin: 0; font-family: -apple-system, system-ui, sans-serif; } #root { display: flex; flex-direction: column; }</style>
-</head>
-<body><div id="root"></div></body>
-</html>`,
+      template: path.resolve(__dirname, 'public/index.html'),
       inject: true,
     })] : []),
     // Replace the entire storage barrel export to avoid WatermelonDB decorator compilation
