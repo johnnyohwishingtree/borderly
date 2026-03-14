@@ -67,10 +67,16 @@ jobs:
         run: |
           PASS=true
 
-          echo "=== Lint ==="
-          if ! pnpm lint 2>&1; then
-            echo "Lint FAILED"
-            PASS=false
+          echo "=== Lint (changed files only) ==="
+          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Linting $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') changed files"
+            if ! echo "$CHANGED_FILES" | xargs npx eslint --quiet 2>&1; then
+              echo "Lint FAILED"
+              PASS=false
+            fi
+          else
+            echo "No changed JS/TS files to lint"
           fi
 
           echo "=== Typecheck ==="
@@ -233,7 +239,12 @@ jobs:
 
       - name: Capture errors
         run: |
-          pnpm lint > /tmp/lint_errors.txt 2>&1 || true
+          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "$CHANGED_FILES" | xargs npx eslint --quiet > /tmp/lint_errors.txt 2>&1 || true
+          else
+            echo "No changed files to lint" > /tmp/lint_errors.txt
+          fi
           pnpm typecheck > /tmp/tc_errors.txt 2>&1 || true
           npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js > /tmp/bundle_errors.txt 2>&1 || true
           pnpm test > /tmp/test_errors.txt 2>&1 || true

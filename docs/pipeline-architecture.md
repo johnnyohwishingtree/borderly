@@ -245,7 +245,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 +---------------------------------------------------------------------+
 | VERIFY JOB - Checks run in order, fail-fast                         |
 |                                                                     |
-|   1. pnpm lint                                                      |
+|   1. eslint --quiet (changed files vs master only)                   |
 |   2. pnpm typecheck                                                 |
 |   3. npx react-native bundle (metro bundle check)                   |
 |   4. pnpm test                                                      |
@@ -356,6 +356,11 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Duplicate verify-merge from Review Relay
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
+
+### Lint Scope in verify-merge
+- **Problem**: `pnpm lint` has thousands of pre-existing errors in generated/third-party files. verify-merge's lint step always failed, causing infinite fix loops where Claude fixed its own errors but lint still exited non-zero.
+- **Solution**: verify-merge only lints files changed vs master (`git diff --name-only origin/master...HEAD`), using `eslint --quiet` (errors only, no warnings). This catches new lint errors without failing on pre-existing ones.
+- **Note**: `test.yml` (normal CI) doesn't run lint at all — only typecheck, bundle, and test.
 
 ### Native Dependency Linkage
 - **Problem**: Claude adds `react-native-*` packages on Ubuntu CI but can't run `pod install` to link them in iOS
