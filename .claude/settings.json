@@ -2,11 +2,11 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "pnpm typecheck 2>&1 | head -n 20; exit 0"
+            "command": "bash .claude/hooks/post-edit-typecheck.sh"
           }
         ]
       }
