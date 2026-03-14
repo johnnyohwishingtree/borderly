@@ -107,6 +107,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
           git fetch origin "${{ inputs.tmp_branch }}"
 
           git merge "origin/${{ inputs.tmp_branch }}" --no-edit
