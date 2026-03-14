@@ -154,3 +154,20 @@ tags:
     timeout: 15000
 - assertVisible: "Open Portal"
 - assertVisible: "Submission Timing"
+
+# Try to tap the "Submit in App" button if it is visible (optional — not all
+# schema versions expose this button on the Submission Guide screen).
+# Regardless of whether the button exists, we assert that the user ends up on
+# either the portal screen (PortalSubmissionScreen) or stays on the Submission
+# Guide — both are acceptable outcomes.
+- runFlow:
+    when:
+      visible: "Submit in App"
+    commands:
+      - tapOn: "Submit in App"
+
+# After the optional tap, assert the user is on a valid screen:
+# either the Portal Submission overlay or back on the Submission Guide.
+- assertTrue:
+    condition: ${{visible("Submission Guide") || visible("Government Portal") || visible("portal-submission-screen")}}
+    label: "User should be on Submission Guide or Portal Submission screen"

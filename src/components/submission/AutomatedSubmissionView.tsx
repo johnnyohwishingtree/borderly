@@ -1,8 +1,10 @@
 /**
  * AutomatedSubmissionView - WebView component for automated government portal submissions
- * 
+ *
  * Provides a secure WebView interface for automated form filling with
  * progress tracking, error handling, and fallback to manual submission.
+ *
+ * @deprecated Use PortalSubmissionScreen instead. This component will be removed in a future release.
  */
 
 import React from 'react';
