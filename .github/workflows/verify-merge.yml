@@ -52,6 +52,17 @@ jobs:
           ref: ${{ inputs.tmp_branch }}
           fetch-depth: 0
 
+      - name: Merge master into branch
+        run: |
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
+          git fetch origin master
+          git merge origin/master --no-edit || {
+            echo "::warning::Merge conflict with master — fix job will resolve"
+            git merge --abort
+            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+          }
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -66,6 +77,12 @@ jobs:
         id: checks
         run: |
           PASS=true
+
+          if [ "$MERGE_CONFLICT" = "true" ]; then
+            echo "Merge conflict with master — cannot run checks"
+            echo "pass=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
           echo "=== Lint (changed files only) ==="
           CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
@@ -162,6 +179,12 @@ jobs:
 
           git merge "origin/${{ inputs.tmp_branch }}" --no-edit
 
+          # Remove fix context log before pushing — it's only for cross-attempt context
+          if [ -f .claude-fix-log.md ]; then
+            git rm .claude-fix-log.md
+            git commit -m "chore: remove fix context log"
+          fi
+
           REMOTE_EXISTS=$(git ls-remote --heads origin "${{ inputs.target_branch }}" 2>/dev/null | wc -l | tr -d ' ')
           if [ "$REMOTE_EXISTS" -eq 0 ]; then
             git push -u origin HEAD
@@ -227,6 +250,17 @@ jobs:
           ref: ${{ inputs.tmp_branch }}
           fetch-depth: 0
 
+      - name: Merge master into branch
+        run: |
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
+          git fetch origin master
+          git merge origin/master --no-edit || {
+            echo "::warning::Merge conflict with master — fix job will resolve"
+            git merge --abort
+            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+          }
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -271,7 +305,7 @@ jobs:
             fi
           done
 
-      - name: Claude fix (fresh context)
+      - name: Claude fix (with cross-attempt context)
         uses: anthropics/claude-code-action@v1
         with:
           mode: agent
@@ -279,7 +313,16 @@ jobs:
           max_turns: 30
           allowed_tools: "Edit,MultiEdit,Glob,Grep,LS,Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git rm:*),Bash(pnpm:*),Bash(npx:*),Bash(node:*)"
           direct_prompt: |
-            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
+            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, test errors,
+            or a merge conflict with master.
+
+            FIRST: Check if there's a merge conflict. Run `git fetch origin master` then
+            `git merge origin/master --no-edit`. If it fails with conflicts, resolve them
+            (pick the correct version for each conflict), then `git add` and `git commit`.
+
+            NEXT: Check if .claude-fix-log.md exists in the repo root. If it does, read it —
+            it contains notes from previous fix attempts explaining what was already tried and
+            what failed. Do NOT repeat approaches that already failed.
 
             Error logs are at:
             - /tmp/lint_errors.txt
@@ -297,11 +340,24 @@ jobs:
             After fixing, run `pnpm lint && pnpm typecheck && pnpm test` to confirm ZERO errors.
             Then git add and git commit.
 
+            LAST: Before your final commit, update .claude-fix-log.md (create it if it doesn't
+            exist) with a brief summary of this attempt:
+            - What errors you found
+            - What you changed to fix them
+            - Whether checks passed after your fix
+            - Any remaining issues
+            This log helps the next attempt avoid repeating your work.
+
       - name: Push fixes to temp branch
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          # Stage fix log if it was created/updated
+          if [ -f .claude-fix-log.md ]; then
+            git add .claude-fix-log.md
+          fi
 
           CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
           if [ -n "$CHANGES" ]; then

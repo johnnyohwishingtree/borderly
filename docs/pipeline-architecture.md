@@ -245,6 +245,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 +---------------------------------------------------------------------+
 | VERIFY JOB - Checks run in order, fail-fast                         |
 |                                                                     |
+|   0. Merge master in (picks up latest config/fixes)                 |
 |   1. eslint --quiet (changed files vs master only)                   |
 |   2. pnpm typecheck                                                 |
 |   3. npx react-native bundle (metro bundle check)                   |
@@ -263,6 +264,13 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |     /tmp/bundle_errors.txt                                          |
 |     /tmp/test_errors.txt                                            |
 |     /tmp/native_dep_errors.txt                                      |
+|                                                                     |
+|   Cross-attempt context (.claude-fix-log.md):                       |
+|     - Lives on the tmp branch, persists across fix attempts         |
+|     - Each attempt reads it first to avoid repeating failed fixes   |
+|     - Each attempt appends: what errors it found, what it changed,  |
+|       whether checks passed, remaining issues                       |
+|     - Merge job deletes it before merging into target branch        |
 |                                                                     |
 |   Native dep constraint: CI runs on Ubuntu, cannot run              |
 |   `pod install`. Claude must work around unlinked native deps       |
@@ -357,6 +365,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
 
+### Fix Attempts Repeating Same Failed Fix
+- **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
+- **Solution**: A `.claude-fix-log.md` file on the tmp branch persists across attempts. Each fix attempt reads it first, then appends what it tried and whether it worked. The merge job deletes it before merging so it never reaches the PR.
+
 ### Lint Scope in verify-merge
 - **Problem**: `pnpm lint` has thousands of pre-existing errors in generated/third-party files. verify-merge's lint step always failed, causing infinite fix loops where Claude fixed its own errors but lint still exited non-zero.
 - **Solution**: verify-merge only lints files changed vs master (`git diff --name-only origin/master...HEAD`), using `eslint --quiet` (errors only, no warnings). This catches new lint errors without failing on pre-existing ones.
@@ -371,9 +383,13 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Impact**: Harmless failure -- the work was already merged
 - **Mitigation**: verify-merge's merge job checks if the target branch exists before checkout
 
+### Tmp Branch Diverged from Master
+- **Problem**: Tmp branches created before pipeline fixes land on master don't have those fixes (e.g., `.eslintignore`, lint config). Checks fail for reasons unrelated to the actual code.
+- **Solution**: Both verify and fix jobs merge master into the tmp branch before running checks. If the merge conflicts, verify fails fast and the fix job Claude resolves the conflicts.
+
 ### Consecutive Failure Detection
-- orchestrate.yml checks for 3+ unmerged PRs --> pauses pipeline, creates bug issue
-- watcher.yml checks for 5+ @claude attempts on a story --> creates "pipeline-stuck" issue
+- orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
+- watcher.yml checks for >=5 @claude attempts on a story --> creates "pipeline-stuck" issue
 
 ### Concurrency Limiting
 - watcher.yml tracks active Claude runs (max 3)
