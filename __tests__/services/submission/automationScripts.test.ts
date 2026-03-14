@@ -25,7 +25,7 @@ describe('AutomationScriptRegistry', () => {
     it('loads all country mappings on construction', () => {
       const countries = registry.getAvailableCountries();
       expect(countries.length).toBe(ALL_COUNTRY_MAPPINGS.length);
-      expect(countries.length).toBeGreaterThanOrEqual(3);
+      expect(countries.length).toBeGreaterThanOrEqual(8);
     });
 
     it('has automation for JPN', () => {
@@ -39,10 +39,30 @@ describe('AutomationScriptRegistry', () => {
     it('has automation for SGP', () => {
       expect(registry.hasAutomation('SGP')).toBe(true);
     });
+
+    it('has automation for USA', () => {
+      expect(registry.hasAutomation('USA')).toBe(true);
+    });
+
+    it('has automation for CAN', () => {
+      expect(registry.hasAutomation('CAN')).toBe(true);
+    });
+
+    it('has automation for GBR', () => {
+      expect(registry.hasAutomation('GBR')).toBe(true);
+    });
+
+    it('has automation for THA', () => {
+      expect(registry.hasAutomation('THA')).toBe(true);
+    });
+
+    it('has automation for VNM', () => {
+      expect(registry.hasAutomation('VNM')).toBe(true);
+    });
   });
 
   describe('getScript (async)', () => {
-    it.each(['JPN', 'MYS', 'SGP'])('returns the %s script', async (countryCode) => {
+    it.each(['JPN', 'MYS', 'SGP', 'USA', 'CAN', 'GBR', 'THA', 'VNM'])('returns the %s script', async (countryCode) => {
       const script = await registry.getScript(countryCode);
       expect(script).not.toBeNull();
       expect(script!.countryCode).toBe(countryCode);
@@ -79,9 +99,13 @@ describe('AutomationScriptRegistry', () => {
       ['JPN', true],
       ['MYS', true],
       ['SGP', true],
+      ['USA', true],
+      ['CAN', true],
+      ['GBR', true],
+      ['THA', true],
+      ['VNM', true],
       ['ZZZ', false],
       ['', false],
-      ['USA', false],
     ])('given country code %s, hasAutomation returns %s', (countryCode, expected) => {
       expect(registry.hasAutomation(countryCode)).toBe(expected);
     });
@@ -93,6 +117,11 @@ describe('AutomationScriptRegistry', () => {
       expect(countries).toContain('JPN');
       expect(countries).toContain('MYS');
       expect(countries).toContain('SGP');
+      expect(countries).toContain('USA');
+      expect(countries).toContain('CAN');
+      expect(countries).toContain('GBR');
+      expect(countries).toContain('THA');
+      expect(countries).toContain('VNM');
     });
 
     it('returns an array of strings', () => {
