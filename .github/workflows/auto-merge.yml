@@ -1,0 +1,149 @@
+name: Auto Merge
+
+# Single gate that controls when PRs merge to master.
+# Only merges when ALL conditions are met:
+#   1. Tests workflow passed
+#   2. E2E Smoke Tests passed (all 3 jobs)
+#   3. PR has at least one approval
+#   4. No unresolved review threads
+
+on:
+  # Re-evaluate when CI completes
+  workflow_run:
+    workflows: ["Tests", "E2E Smoke Tests"]
+    types: [completed]
+
+  # Re-evaluate when a review is submitted
+  pull_request_review:
+    types: [submitted]
+
+  # Re-evaluate when review threads are resolved
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref || github.event.pull_request_review.pull_request.head.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    # Only evaluate for PRs targeting master
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request') ||
+      github.event_name == 'pull_request_review' ||
+      github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Evaluate merge readiness
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Resolve PR number and branch
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+            PR_NUM=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
+              --json number -q '.[0].number' 2>/dev/null || echo "")
+          elif [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            PR_NUM=${{ github.event.pull_request.number }}
+          else
+            PR_NUM=${{ github.event.pull_request.number }}
+          fi
+
+          if [ -z "$PR_NUM" ]; then
+            echo "No open PR found — skipping"
+            exit 0
+          fi
+
+          echo "Evaluating PR #$PR_NUM"
+
+          # Check if PR targets master
+          BASE=$(gh pr view "$PR_NUM" --repo "$REPO" --json baseRefName -q '.baseRefName' 2>/dev/null || echo "")
+          if [ "$BASE" != "master" ]; then
+            echo "PR #$PR_NUM targets $BASE, not master — skipping"
+            exit 0
+          fi
+
+          # ── Condition 1: Tests passed ──
+          HEAD_SHA=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefOid -q '.headRefOid' 2>/dev/null || echo "")
+          if [ -z "$HEAD_SHA" ]; then
+            echo "Cannot determine head SHA — skipping"
+            exit 0
+          fi
+
+          CHECK_RUNS=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
+            --jq '.check_runs[] | "\(.name)|\(.conclusion)|\(.status)"' 2>/dev/null || echo "")
+
+          TESTS_PASS=false
+          if echo "$CHECK_RUNS" | grep -q "^test|success|"; then
+            TESTS_PASS=true
+          fi
+          echo "Tests passed: $TESTS_PASS"
+
+          # ── Condition 2: E2E passed (all 3 jobs) ──
+          E2E_PASS=false
+          E2E_CHROMIUM=$(echo "$CHECK_RUNS" | grep "^test-chromium|success|" || true)
+          E2E_PERF=$(echo "$CHECK_RUNS" | grep "^test-performance|success|" || true)
+          E2E_CROSS=$(echo "$CHECK_RUNS" | grep "^test-cross-browser|success|" || true)
+
+          if [ -n "$E2E_CHROMIUM" ] && [ -n "$E2E_PERF" ] && [ -n "$E2E_CROSS" ]; then
+            E2E_PASS=true
+          fi
+          echo "E2E passed: $E2E_PASS"
+
+          # ── Condition 3: PR is approved ──
+          HAS_APPROVAL=false
+          APPROVAL_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+          if [ "$APPROVAL_COUNT" -gt 0 ]; then
+            HAS_APPROVAL=true
+          fi
+          echo "Approved: $HAS_APPROVAL (${APPROVAL_COUNT} approvals)"
+
+          # ── Condition 4: No unresolved review threads ──
+          THREADS_RESOLVED=true
+          OWNER=$(echo "$REPO" | cut -d/ -f1)
+          NAME=$(echo "$REPO" | cut -d/ -f2)
+
+          UNRESOLVED=$(gh api graphql -f query="
+            query {
+              repository(owner: \"$OWNER\", name: \"$NAME\") {
+                pullRequest(number: $PR_NUM) {
+                  reviewThreads(first: 100) {
+                    nodes { isResolved }
+                  }
+                }
+              }
+            }
+          " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+
+          if [ "$UNRESOLVED" -gt 0 ]; then
+            THREADS_RESOLVED=false
+          fi
+          echo "Threads resolved: $THREADS_RESOLVED ($UNRESOLVED unresolved)"
+
+          # ── Decision ──
+          echo ""
+          echo "Summary for PR #$PR_NUM:"
+          echo "  Tests:    $TESTS_PASS"
+          echo "  E2E:      $E2E_PASS"
+          echo "  Approved: $HAS_APPROVAL"
+          echo "  Threads:  $THREADS_RESOLVED"
+
+          if [ "$TESTS_PASS" = "true" ] && [ "$E2E_PASS" = "true" ] && \
+             [ "$HAS_APPROVAL" = "true" ] && [ "$THREADS_RESOLVED" = "true" ]; then
+            echo ""
+            echo "All conditions met — merging PR #$PR_NUM"
+            gh pr merge "$PR_NUM" --repo "$REPO" --squash \
+              && echo "PR #$PR_NUM merged successfully" \
+              || echo "Failed to merge PR #$PR_NUM (may already be merged)"
+          else
+            echo ""
+            echo "Not ready to merge — waiting for all conditions"
+          fi

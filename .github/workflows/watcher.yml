@@ -65,9 +65,7 @@ jobs:
 
             echo "PR #$PR_NUM ($PR_BRANCH):"
 
-            # Enable auto-merge
-            gh pr merge "$PR_NUM" --repo "$REPO" --squash --auto 2>/dev/null \
-              || echo "  (auto-merge already set or unavailable)"
+            # auto-merge.yml is the single gate for merging PRs
 
             # Track busy epics
             ISSUE_NUM=$(echo "$PR_BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || echo "")
