@@ -66,6 +66,10 @@ jobs:
             echo "is_pr=false" >> $GITHUB_OUTPUT
             echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
             echo "push_cmd=git push origin HEAD:refs/heads/$TMP_BRANCH" >> $GITHUB_OUTPUT
+
+            # Create the tmp branch on remote so it exists before Claude starts
+            git push origin "HEAD:refs/heads/$TMP_BRANCH"
+            echo "Created tmp branch: $TMP_BRANCH"
           fi
 
       - name: Set up Node.js
