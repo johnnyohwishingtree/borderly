@@ -51,12 +51,12 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |   +-- Detect context: issue or PR                                   |
 |   |                                                                 |
 |   +-- If Issue context:                                             |
-|   |     - Stay on master                                            |
-|   |     - claude-code-action creates claude/issue-N-TIMESTAMP       |
-|   |     - Claude works --> commits to its branch                    |
-|   |     - Push work to tmp/claude-<run_id>                          |
-|   |     - Extract issue number from branch name                     |
-|   |     - Trigger verify-merge.yml                                  |
+|   |     - Create clean PR branch: claude/issue-N (from master)      |
+|   |     - Create tmp work branch: tmp/claude-<run_id> (from master) |
+|   |     - Claude works, pushes milestones to tmp branch              |
+|   |     - Push command in system prompt targets tmp branch           |
+|   |     - After completion: push remaining work to tmp branch       |
+|   |     - Trigger verify-merge.yml (tmp --> claude/issue-N)          |
 |   |                                                                 |
 |   +-- If PR context:                                                |
 |         - Checkout existing PR branch                               |
@@ -67,13 +67,14 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |                                                                     |
 |   +-- If TIMEOUT (cancelled after 60min):                           |
 |         - Commit all uncommitted work                               |
-|         - Push to rescue/claude-<issue>-<run_id> branch             |
-|         - Comment on issue with rescue branch link                  |
+|         - Push to same tmp/claude-<run_id> branch                   |
+|         - Comment on issue with tmp branch link                     |
 |         - Work is preserved, can be resumed manually                |
 |                                                                     |
-|   KEY: PR context pushes directly. Only issue context uses          |
-|   the tmp branch --> verify-merge flow.                             |
-|   Timeout rescue ensures no work is ever lost.                      |
+|   KEY: Issue context creates two branches upfront:                  |
+|   - claude/issue-N = clean PR branch (only verified code)           |
+|   - tmp/claude-<run_id> = work branch (milestone pushes)            |
+|   Timeout rescue pushes to same tmp branch.                         |
 +----------------------------+----------------------------------------+
                              |
               (issue context only)
@@ -301,32 +302,35 @@ This is a critical architectural distinction. When `@claude` is commented on an 
               (new work)         (fix reviews)
                     |                 |
                     v                 v
-           Stay on master      Checkout PR branch
+           Create 2 branches   Checkout PR branch
+           from master:              |
+           - claude/issue-N    Claude fixes code
+             (clean PR branch)       |
+           - tmp/claude-<rid>  Push directly to
+             (work branch)     PR branch
                     |                 |
-           claude-code-action   Claude fixes code
-           creates branch            |
-           claude/issue-N-TS         |
+           Claude works,       Resolve review
+           pushes milestones   threads
+           to tmp/ branch            |
+                    |           Enable auto-merge
+           Push remaining            |
+           to tmp/ branch            |
                     |                 |
-           Push to tmp branch   Push directly to
-           tmp/claude-<run_id>  PR branch
-                    |                 |
-           Extract issue #      Resolve review
-                    |           threads
-           Trigger              |
-           verify-merge.yml     Enable auto-merge
-                    |                 |
-           (verify, fix loop,        |
-            merge, create PR)        |
+           Trigger                   |
+           verify-merge.yml          |
+           (tmp → claude/issue-N)    |
                     |                 |
                     v                 v
               New PR created    Existing PR updated
-              (needs review)    (CI re-runs, may
-                                 auto-merge)
+              from claude/      (CI re-runs, may
+              issue-N branch     auto-merge)
 ```
 
 **Why two paths?**
-- Issue context: No PR exists yet. Work needs validation before creating a PR.
-  verify-merge runs lint/typecheck/test, fixes errors, then creates the PR.
+- Issue context: No PR exists yet. Two branches are created upfront: a clean
+  PR branch (`claude/issue-N`) that only receives verified code, and a tmp work
+  branch (`tmp/claude-<run_id>`) for incremental milestone pushes. verify-merge
+  validates the tmp branch then merges into the PR branch.
 - PR context: PR already exists with CI checks. Pushing directly to the PR
   branch triggers CI automatically. No need for a redundant verify-merge cycle.
 
@@ -349,8 +353,8 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - `cancel-in-progress: false` prevents any cancellation
 
 ### Branch Naming
-- **Problem**: `claude-code-action@v1` creates its own `claude/issue-N-TIMESTAMP` branch
-- **Solution**: Don't pre-create branches for issue triggers. The push step captures whatever branch Claude ends up on via `git branch --show-current`
+- **Problem**: `claude-code-action@v1` creates its own `claude/issue-N-TIMESTAMP` branch internally, but we need to control branch names
+- **Solution**: We create both branches upfront: `claude/issue-N` (clean PR branch) and `tmp/claude-<run_id>` (work branch). The action's internal branch only exists locally on the runner and never gets pushed. All pushes target the tmp branch via the system prompt's push command.
 
 ### Give-Up Comment
 - **Problem**: Give-up text containing `@claude` triggered a new ghost run
@@ -399,8 +403,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Solution**: Both verify and fix jobs merge master into the tmp branch before running checks. If the merge conflicts, verify fails fast and the fix job Claude resolves the conflicts.
 
 ### Timeout Work Rescue
-- **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-merge trigger) are skipped. All committed and uncommitted work is lost.
-- **Solution**: A rescue step with `if: cancelled()` runs after timeout. It commits any uncommitted changes, pushes to a `rescue/claude-<issue>-<run_id>` branch, and comments on the issue with a link to the rescue branch and instructions to resume.
+- **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-merge trigger) are skipped. Uncommitted work is lost.
+- **Solution**: Two layers of protection:
+  1. **Milestone pushes**: Claude pushes to `tmp/claude-<run_id>` after each acceptance criterion. Most work is already on the remote before timeout.
+  2. **Rescue step**: `if: cancelled()` commits any remaining uncommitted changes and pushes to the same `tmp/` branch. Comments on the issue with a link and resume instructions.
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
@@ -430,8 +436,14 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                +---------v----------+
                |    claude.yml      |
                |  (issue context)   |
+               |  Create branches:  |
+               |  - claude/issue-1  |
+               |    (clean PR)      |
+               |  - tmp/claude-rid  |
+               |    (work branch)   |
                |  Claude implements |
-               |  Push --> tmp branch|
+               |  Pushes milestones |
+               |  --> tmp branch    |
                +--------+-----------+
                          |
                +---------v----------+
@@ -442,8 +454,9 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                +--------+-----------+
                          | pass
                +---------v----------+
-               |  Merge --> PR #259 |
-               |  (no auto-merge)   |
+               |  Merge tmp -->     |
+               |  claude/issue-1    |
+               |  Create PR #259    |
                +--------+-----------+
                          |
                +---------v----------+

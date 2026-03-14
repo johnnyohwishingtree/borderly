@@ -55,6 +55,30 @@ jobs:
           echo "Switching to PR branch: $PR_BRANCH"
           git checkout "$PR_BRANCH"
 
+      - name: Determine push target and create branches
+        id: push_target
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -n "${{ github.event.issue.pull_request }}" ] || [ -n "${{ github.event.pull_request }}" ]; then
+            echo "is_pr=true" >> $GITHUB_OUTPUT
+            echo "push_cmd=git push origin HEAD" >> $GITHUB_OUTPUT
+          else
+            ISSUE_NUM="${{ github.event.issue.number }}"
+            PR_BRANCH="claude/issue-${ISSUE_NUM}"
+            TMP_BRANCH="tmp/claude-${{ github.run_id }}"
+
+            echo "is_pr=false" >> $GITHUB_OUTPUT
+            echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
+            echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
+            echo "push_cmd=git push origin HEAD:refs/heads/$TMP_BRANCH" >> $GITHUB_OUTPUT
+
+            # Create both branches on remote from current master HEAD
+            git push origin "HEAD:refs/heads/$PR_BRANCH" 2>/dev/null || echo "PR branch $PR_BRANCH already exists"
+            git push origin "HEAD:refs/heads/$TMP_BRANCH"
+            echo "Created PR branch: $PR_BRANCH, tmp branch: $TMP_BRANCH"
+          fi
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -94,6 +118,8 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
 
+            CRITICAL — PUSH AFTER EACH MILESTONE: Whenever you complete a task or check off an acceptance criterion, you MUST immediately git add, git commit, and push before moving on to the next task. Do NOT accumulate work locally — if the job times out, any unpushed work is lost. Use this exact command to push: ${{ steps.push_target.outputs.push_cmd }}
+
             When asked to fix code review issues: you MUST use the Edit tool to modify files, then git add, git commit, and git push. Posting a comment describing what you would change is NOT sufficient — you must actually make the changes. If you cannot fix an issue, reply on the specific review thread explaining why."
 
       # ── Rescue step: runs ONLY when the job is cancelled (e.g. timeout) ──
@@ -102,8 +128,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          # Re-auth — claude-code-action may have changed the remote URL
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
           ISSUE_NUM="${{ github.event.issue.number || github.event.pull_request.number }}"
-          RESCUE_BRANCH="rescue/claude-${ISSUE_NUM}-${{ github.run_id }}"
+          TMP_BRANCH="tmp/claude-${{ github.run_id }}"
 
           # Commit any uncommitted work
           git add -A -- ':!output.txt' ':!node_modules'
@@ -115,51 +144,40 @@ jobs:
           Co-authored-by: Claude <noreply@anthropic.com>"
           fi
 
-          # Check if there's anything to push (committed work beyond what was on the remote)
+          # Check if there's anything to push
           LOCAL_HEAD=$(git rev-parse HEAD)
-          CURRENT_BRANCH=$(git branch --show-current)
-          REMOTE_HEAD=$(git rev-parse "origin/${CURRENT_BRANCH}" 2>/dev/null || echo "none")
+          MASTER_HEAD=$(git rev-parse "origin/master" 2>/dev/null || echo "none")
 
-          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+          if [ "$LOCAL_HEAD" = "$MASTER_HEAD" ]; then
             echo "No new commits to rescue — nothing was changed"
             exit 0
           fi
 
-          # Push to rescue branch
-          git checkout -b "$RESCUE_BRANCH"
-          git push -u origin "$RESCUE_BRANCH"
-          echo "Rescued work to $RESCUE_BRANCH"
+          # Push to the same tmp branch that mid-run pushes use
+          git push origin "HEAD:refs/heads/$TMP_BRANCH"
+          echo "Rescued work to $TMP_BRANCH"
 
           # Comment on the issue so the user knows
           COMMIT_COUNT=$(git rev-list --count "origin/master..HEAD" 2>/dev/null || echo "?")
           gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          Claude's run timed out after 60 minutes, but the in-progress work was saved to [\`${RESCUE_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${RESCUE_BRANCH}) (${COMMIT_COUNT} commits ahead of master).
+          Claude's run timed out after 60 minutes, but the in-progress work was saved to [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}) (${COMMIT_COUNT} commits ahead of master).
 
-          To resume, comment on this issue again with: \`@claude Continue the work from the \`${RESCUE_BRANCH}\` branch. Check out that branch first, then pick up where you left off.\`
+          To resume, comment on this issue again with: \`@claude Continue the work from the \`${TMP_BRANCH}\` branch. Check out that branch first, then pick up where you left off.\`
 
-          Or manually: \`git fetch origin ${RESCUE_BRANCH} && git checkout ${RESCUE_BRANCH}\`
+          Or manually: \`git fetch origin ${TMP_BRANCH} && git checkout ${TMP_BRANCH}\`
           EOF
           )" 2>/dev/null || echo "Failed to post rescue comment"
 
       # ── Normal flow (only runs if Claude completed successfully) ──
-      - name: Detect context (issue vs PR)
-        if: success()
-        id: context
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ -n "${{ github.event.issue.pull_request }}" ] || [ -n "${{ github.event.pull_request }}" ]; then
-            echo "is_pr=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_pr=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Push to PR branch (PR context)
-        if: success() && steps.context.outputs.is_pr == 'true'
+        if: success() && steps.push_target.outputs.is_pr == 'true'
         id: push_pr
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          # Re-auth — claude-code-action may have changed the remote URL
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
           SOURCE_BRANCH=$(git branch --show-current)
           echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
 
@@ -178,15 +196,19 @@ jobs:
           git push origin HEAD
           echo "Pushed directly to PR branch $SOURCE_BRANCH"
 
-      - name: Push to temporary branch (issue context)
-        if: success() && steps.context.outputs.is_pr == 'false'
+      - name: Push remaining work to tmp branch (issue context)
+        if: success() && steps.push_target.outputs.is_pr == 'false'
         id: push_issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # Remember the source branch (where Claude's work lives)
-          SOURCE_BRANCH=$(git branch --show-current)
-          echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
+          # Re-auth — claude-code-action may have changed the remote URL
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          TMP_BRANCH="${{ steps.push_target.outputs.tmp_branch }}"
+          PR_BRANCH="${{ steps.push_target.outputs.pr_branch }}"
+          echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
+          echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
 
           # Commit any uncommitted changes
           CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
@@ -199,12 +221,9 @@ jobs:
             fi
           fi
 
-          # Create temp branch and push
-          TMP_BRANCH="tmp/claude-${{ github.run_id }}"
-          echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
-          git checkout -b "$TMP_BRANCH"
-          git push -u origin "$TMP_BRANCH"
-          echo "Pushed to $TMP_BRANCH"
+          # Push to the same tmp branch Claude has been pushing to mid-run
+          git push origin "HEAD:refs/heads/$TMP_BRANCH"
+          echo "Pushed remaining work to $TMP_BRANCH"
 
       - name: Resolve bot review threads
         if: success()
@@ -259,50 +278,27 @@ jobs:
             fi
           done
 
-      - name: Extract issue number (issue context only)
-        if: success() && steps.context.outputs.is_pr == 'false'
-        id: issue
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          ISSUE_NUM=""
-          SOURCE="${{ steps.push_issue.outputs.source_branch }}"
-
-          # Try branch name first
-          ISSUE_NUM=$(echo "$SOURCE" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
-
-          # Fall back to comment context
-          if [ -z "$ISSUE_NUM" ] && [ -n "${{ github.event.issue.number }}" ]; then
-            IS_PR=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.issue.number }}" \
-              --jq '.pull_request.url // empty' 2>/dev/null || echo "")
-            if [ -z "$IS_PR" ]; then
-              ISSUE_NUM=${{ github.event.issue.number }}
-            fi
-          fi
-
-          echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
-
       - name: Trigger verify-merge (issue context only)
-        if: success() && steps.context.outputs.is_pr == 'false'
+        if: success() && steps.push_target.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           TMP_BRANCH="${{ steps.push_issue.outputs.tmp_branch }}"
-          SOURCE_BRANCH="${{ steps.push_issue.outputs.source_branch }}"
-          ISSUE_NUM="${{ steps.issue.outputs.number }}"
+          PR_BRANCH="${{ steps.push_issue.outputs.pr_branch }}"
+          ISSUE_NUM="${{ github.event.issue.number }}"
 
           gh workflow run verify-merge.yml \
             --repo "${{ github.repository }}" \
             --ref master \
             -f tmp_branch="$TMP_BRANCH" \
-            -f target_branch="$SOURCE_BRANCH" \
-            -f issue_number="${ISSUE_NUM:-}" \
+            -f target_branch="$PR_BRANCH" \
+            -f issue_number="${ISSUE_NUM}" \
             -f attempt="1"
 
-          echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
+          echo "Triggered verify-merge for $TMP_BRANCH -> $PR_BRANCH"
 
       - name: Enable auto-merge on PR
-        if: success() && steps.context.outputs.is_pr == 'true'
+        if: success() && steps.push_target.outputs.is_pr == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
