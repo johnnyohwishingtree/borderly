@@ -25,7 +25,7 @@ import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOv
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
-import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission';
+import { automationScriptRegistry, AutomationScriptUtils, formFiller } from '../../services/submission';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { getPortalName } from '../../utils/countryUtils';
 import { useTripStore } from '../../stores';
@@ -346,7 +346,7 @@ export default function PortalSubmissionScreen() {
           if (total > 0) {
             setBannerState({ filled, total });
             const fillRate = filled / total;
-            if (fillRate < 0.5) {
+            if (!formFiller.isAutoFillSufficient(fillRate)) {
               setShowLowFillWarning(true);
               if (__DEV__) {
                 console.warn(
