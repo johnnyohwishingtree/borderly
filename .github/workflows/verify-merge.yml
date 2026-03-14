@@ -1,9 +1,10 @@
 name: Verify and Merge
+run-name: "Verify #${{ inputs.issue_number }} → ${{ inputs.target_branch }} (attempt ${{ inputs.attempt }}/6)"
 
 # Checks out a temporary branch, runs lint + typecheck + test.
 # If all pass: merges into the target branch, cleans up temp branch, creates PR.
 # If fail: Claude fixes once (fresh context), pushes, triggers itself again.
-# Max 3 attempts to prevent infinite loops.
+# Max 6 attempts to prevent infinite loops.
 
 on:
   workflow_dispatch:
@@ -21,7 +22,7 @@ on:
         required: false
         type: string
       attempt:
-        description: 'Current attempt number (1-3)'
+        description: 'Current attempt number (1-6)'
         required: false
         type: string
         default: '1'
@@ -168,7 +169,7 @@ jobs:
 
   fix:
     needs: verify
-    if: needs.verify.outputs.pass == 'false' && inputs.attempt != '3'
+    if: needs.verify.outputs.pass == 'false' && inputs.attempt != '6'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -203,7 +204,7 @@ jobs:
           max_turns: 30
           allowed_tools: "Edit,MultiEdit,Glob,Grep,LS,Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git rm:*),Bash(pnpm:*),Bash(npx:*),Bash(node:*)"
           direct_prompt: |
-            Fix attempt ${{ inputs.attempt }}/3. Your code has lint, typecheck, or test errors.
+            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
 
             Error logs are at:
             - /tmp/lint_errors.txt
@@ -252,7 +253,7 @@ jobs:
 
   give-up:
     needs: verify
-    if: needs.verify.outputs.pass == 'false' && inputs.attempt == '3'
+    if: needs.verify.outputs.pass == 'false' && inputs.attempt == '6'
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -266,11 +267,11 @@ jobs:
 
           if [ -n "$ISSUE_NUM" ]; then
             gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          Checks failed after 3 fix attempts. Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
+          Checks failed after 6 fix attempts. Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 
           To retry manually: Actions > Verify and Merge > Run workflow with \`tmp_branch: ${TMP_BRANCH}\`, \`target_branch: ${{ inputs.target_branch }}\`, \`attempt: 1\`
 
-          Or comment \`@claude fix the lint/typecheck/test errors on this branch\` on the issue.
+          To retry with Claude, comment on the issue tagging the agent to fix the errors on this branch.
           EOF
             )" 2>/dev/null || echo "Failed to post comment"
           fi
