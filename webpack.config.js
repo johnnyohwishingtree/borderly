@@ -1,20 +1,23 @@
-// Webpack config for React Native Web — used only for E2E smoke tests
+// Webpack config for React Native Web — used for E2E smoke tests and GitHub Pages
 const path = require('path');
 const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = (env, argv) => {
   // argv.mode may not be set when mode is only in the config object; default to true
   // since this webpack config is only used for E2E smoke tests in development
   const isDev = !argv.mode || argv.mode === 'development';
+  const isPages = env && env.pages;
 
   return {
-    mode: 'development',
+    mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval-source-map' : false,
   entry: './e2e/web-entry.tsx',
   output: {
-    path: path.resolve(__dirname, 'e2e/dist'),
-    filename: 'bundle.js',
-    publicPath: '/dist/',
+    path: isPages ? path.resolve(__dirname, 'pages-dist') : path.resolve(__dirname, 'e2e/dist'),
+    filename: isPages ? 'bundle.[contenthash:8].js' : 'bundle.js',
+    publicPath: isPages ? '/borderly/' : '/dist/',
+    clean: true,
   },
   resolve: {
     alias: {
@@ -106,6 +109,20 @@ module.exports = (env, argv) => {
     new webpack.DefinePlugin({
       __DEV__: isDev,
     }),
+    // Generate index.html with script tag automatically
+    ...(isPages ? [new HtmlWebpackPlugin({
+      templateContent: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Borderly</title>
+  <style>html, body, #root { height: 100%; margin: 0; font-family: -apple-system, system-ui, sans-serif; } #root { display: flex; flex-direction: column; }</style>
+</head>
+<body><div id="root"></div></body>
+</html>`,
+      inject: true,
+    })] : []),
     // Replace the entire storage barrel export to avoid WatermelonDB decorator compilation
     new webpack.NormalModuleReplacementPlugin(
       /src\/services\/storage\/index\.ts$/,
