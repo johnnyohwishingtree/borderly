@@ -264,6 +264,13 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |     /tmp/test_errors.txt                                            |
 |     /tmp/native_dep_errors.txt                                      |
 |                                                                     |
+|   Cross-attempt context (.claude-fix-log.md):                       |
+|     - Lives on the tmp branch, persists across fix attempts         |
+|     - Each attempt reads it first to avoid repeating failed fixes   |
+|     - Each attempt appends: what errors it found, what it changed,  |
+|       whether checks passed, remaining issues                       |
+|     - Merge job deletes it before merging into target branch        |
+|                                                                     |
 |   Native dep constraint: CI runs on Ubuntu, cannot run              |
 |   `pod install`. Claude must work around unlinked native deps       |
 |   (lazy imports, optional requires) -- Podfile.lock must be         |
@@ -356,6 +363,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Duplicate verify-merge from Review Relay
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
+
+### Fix Attempts Repeating Same Failed Fix
+- **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
+- **Solution**: A `.claude-fix-log.md` file on the tmp branch persists across attempts. Each fix attempt reads it first, then appends what it tried and whether it worked. The merge job deletes it before merging so it never reaches the PR.
 
 ### Lint Scope in verify-merge
 - **Problem**: `pnpm lint` has thousands of pre-existing errors in generated/third-party files. verify-merge's lint step always failed, causing infinite fix loops where Claude fixed its own errors but lint still exited non-zero.
