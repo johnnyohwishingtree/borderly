@@ -245,6 +245,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 +---------------------------------------------------------------------+
 | VERIFY JOB - Checks run in order, fail-fast                         |
 |                                                                     |
+|   0. Merge master in (picks up latest config/fixes)                 |
 |   1. eslint --quiet (changed files vs master only)                   |
 |   2. pnpm typecheck                                                 |
 |   3. npx react-native bundle (metro bundle check)                   |
@@ -381,6 +382,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: If a PR is manually merged while claude.yml or verify-merge is still running, subsequent steps try to checkout deleted branches
 - **Impact**: Harmless failure -- the work was already merged
 - **Mitigation**: verify-merge's merge job checks if the target branch exists before checkout
+
+### Tmp Branch Diverged from Master
+- **Problem**: Tmp branches created before pipeline fixes land on master don't have those fixes (e.g., `.eslintignore`, lint config). Checks fail for reasons unrelated to the actual code.
+- **Solution**: Both verify and fix jobs merge master into the tmp branch before running checks. If the merge conflicts, verify fails fast and the fix job Claude resolves the conflicts.
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
