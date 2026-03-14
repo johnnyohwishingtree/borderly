@@ -383,8 +383,8 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Mitigation**: verify-merge's merge job checks if the target branch exists before checkout
 
 ### Consecutive Failure Detection
-- orchestrate.yml checks for 3+ unmerged PRs --> pauses pipeline, creates bug issue
-- watcher.yml checks for 5+ @claude attempts on a story --> creates "pipeline-stuck" issue
+- orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
+- watcher.yml checks for >=5 @claude attempts on a story --> creates "pipeline-stuck" issue
 
 ### Concurrency Limiting
 - watcher.yml tracks active Claude runs (max 3)
