@@ -4,4 +4,5 @@
 
 export { SubmissionEngine } from './submissionEngine';
 export { WebViewController } from './webviewController';
-export { AutomationScriptRegistry, AutomationScriptUtils } from './automationScripts';
+export type { WebViewHandle } from './webviewController';
+export { AutomationScriptRegistry, AutomationScriptUtils, automationScriptRegistry } from './automationScripts';

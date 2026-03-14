@@ -62,6 +62,14 @@ export class AutomationScriptRegistry {
   }
 
   /**
+   * Synchronous cache lookup — returns null if the script has not been loaded yet.
+   * Use this in non-async contexts (e.g. inside React callbacks).
+   */
+  getScriptSync(countryCode: string): AutomationScript | null {
+    return this.scripts.get(countryCode) ?? null;
+  }
+
+  /**
    * Get script version
    */
   getScriptVersion(countryCode: string): string | undefined {
@@ -704,10 +712,15 @@ export class AutomationScriptUtils {
     return {
       stepCount: script.steps.length,
       criticalSteps: script.steps.filter(s => s.critical).length,
-      estimatedDuration: script.steps.reduce((total, step) => 
+      estimatedDuration: script.steps.reduce((total, step) =>
         total + step.timing.timeout + (step.timing.waitAfter || 0), 0
       ),
       fieldMappingCount: Object.keys(script.fieldMappings).length
     };
   }
 }
+
+/**
+ * Shared singleton registry — import this instead of constructing a new instance.
+ */
+export const automationScriptRegistry = new AutomationScriptRegistry();

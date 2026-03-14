@@ -50,6 +50,14 @@ interface SecurityConstraints {
 }
 
 /**
+ * Minimal interface for wiring to a live PortalWebView handle.
+ * Matches PortalWebViewHandle from PortalWebView.tsx without a cross-layer import.
+ */
+export interface WebViewHandle {
+  injectJavaScript: (script: string) => void;
+}
+
+/**
  * Main WebView controller class
  */
 export class WebViewController {
@@ -58,6 +66,10 @@ export class WebViewController {
   private securityConstraints: SecurityConstraints;
   private navigationListeners: ((event: WebViewNavigationEvent) => void)[];
   private isInitialized = false;
+  private pendingCallbacks: Map<
+    string,
+    { resolve: (value: unknown) => void; reject: (error: Error) => void }
+  >;
 
   constructor() {
     this.state = {
@@ -81,6 +93,7 @@ export class WebViewController {
     };
     
     this.navigationListeners = [];
+    this.pendingCallbacks = new Map();
   }
 
   /**
@@ -382,6 +395,78 @@ export class WebViewController {
     
     this.navigationListeners = [];
     this.isInitialized = false;
+  }
+
+  /**
+   * Wire this controller to a live PortalWebView ref.
+   *
+   * Replaces the internal mock with a real implementation that uses
+   * `injectJavaScript` for JS execution and relies on `handleWebViewMessage`
+   * to receive results via `window.ReactNativeWebView.postMessage`.
+   */
+  setWebViewRef(handle: WebViewHandle): void {
+    const self = this;
+    this.webviewImpl = {
+      loadUrl: async (_url: string) => {
+        // Navigation handled at the React Navigation / PortalWebView level
+      },
+      executeJavaScript: (code: string) =>
+        new Promise((resolve, reject) => {
+          const callbackId = `brd_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const idJson = JSON.stringify(callbackId);
+          const wrapped =
+            `(function(){try{var r=(${code});` +
+            `window.ReactNativeWebView.postMessage(JSON.stringify({type:'SCRIPT_RESULT',id:${idJson},result:r}));` +
+            `}catch(e){` +
+            `window.ReactNativeWebView.postMessage(JSON.stringify({type:'SCRIPT_ERROR',id:${idJson},error:e.message}));` +
+            `}true;})();`;
+          self.pendingCallbacks.set(callbackId, { resolve, reject });
+          handle.injectJavaScript(wrapped);
+        }),
+      goBack: async () => {
+        handle.injectJavaScript('window.history.back(); true;');
+      },
+      goForward: async () => {
+        handle.injectJavaScript('window.history.forward(); true;');
+      },
+      reload: async () => {
+        handle.injectJavaScript('window.location.reload(); true;');
+      },
+      clearCache: async () => { /* Not available via injectJavaScript */ },
+      clearCookies: async () => { /* Not available via injectJavaScript */ },
+      setUserAgent: async (_userAgent: string) => { /* Must be set before WebView load */ },
+      addEventListener: (_event: string, _callback: (data: any) => void) => {
+        /* Messages handled via onMessage prop — see handleWebViewMessage */
+      },
+      removeEventListener: (_event: string, _callback: (data: any) => void) => {
+        /* Messages handled via onMessage prop — see handleWebViewMessage */
+      },
+    };
+    this.isInitialized = true;
+  }
+
+  /**
+   * Route a raw `window.ReactNativeWebView.postMessage` payload to pending
+   * `executeJavaScript` callbacks.  Call this from the `onMessage` handler
+   * of the PortalWebView component.
+   */
+  handleWebViewMessage(data: string): void {
+    let msg: { type: string; id: string; result?: unknown; error?: string };
+    try {
+      msg = JSON.parse(data);
+    } catch {
+      // Not a JSON message — ignore
+      return;
+    }
+    if (msg.type !== 'SCRIPT_RESULT' && msg.type !== 'SCRIPT_ERROR') return;
+    const cb = this.pendingCallbacks.get(msg.id);
+    if (!cb) return;
+    this.pendingCallbacks.delete(msg.id);
+    if (msg.type === 'SCRIPT_RESULT') {
+      cb.resolve(msg.result);
+    } else {
+      cb.reject(new Error(msg.error ?? 'Unknown script error'));
+    }
   }
 
   /**
