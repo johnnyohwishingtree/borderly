@@ -87,8 +87,46 @@ jobs:
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
 
-      - name: Push to temporary branch
-        id: push
+      - name: Detect context (issue vs PR)
+        id: context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ github.event.issue.pull_request }}" ] || [ -n "${{ github.event.pull_request }}" ]; then
+            echo "is_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push to PR branch (PR context)
+        if: steps.context.outputs.is_pr == 'true'
+        id: push_pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+
+          SOURCE_BRANCH=$(git branch --show-current)
+          echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
+
+          # Commit any uncommitted changes
+          CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
+          if [ -n "$CHANGES" ]; then
+            git add -u
+            if [ -n "$(git diff --cached --name-only)" ]; then
+              git commit -m "chore: save unpushed changes from Claude
+
+          Co-authored-by: Claude <noreply@anthropic.com>"
+            fi
+          fi
+
+          # Push directly to the PR branch — no verify-merge needed
+          git push origin HEAD
+          echo "Pushed directly to PR branch $SOURCE_BRANCH"
+
+      - name: Push to temporary branch (issue context)
+        if: steps.context.outputs.is_pr == 'false'
+        id: push_issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -168,13 +206,14 @@ jobs:
             fi
           done
 
-      - name: Extract issue number
+      - name: Extract issue number (issue context only)
+        if: steps.context.outputs.is_pr == 'false'
         id: issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           ISSUE_NUM=""
-          SOURCE="${{ steps.push.outputs.source_branch }}"
+          SOURCE="${{ steps.push_issue.outputs.source_branch }}"
 
           # Try branch name first
           ISSUE_NUM=$(echo "$SOURCE" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || true)
@@ -190,12 +229,13 @@ jobs:
 
           echo "number=$ISSUE_NUM" >> $GITHUB_OUTPUT
 
-      - name: Trigger verify-merge
+      - name: Trigger verify-merge (issue context only)
+        if: steps.context.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          TMP_BRANCH="${{ steps.push.outputs.tmp_branch }}"
-          SOURCE_BRANCH="${{ steps.push.outputs.source_branch }}"
+          TMP_BRANCH="${{ steps.push_issue.outputs.tmp_branch }}"
+          SOURCE_BRANCH="${{ steps.push_issue.outputs.source_branch }}"
           ISSUE_NUM="${{ steps.issue.outputs.number }}"
 
           gh workflow run verify-merge.yml \
@@ -209,7 +249,7 @@ jobs:
           echo "Triggered verify-merge for $TMP_BRANCH -> $SOURCE_BRANCH"
 
       - name: Enable auto-merge on PR
-        if: github.event.issue.pull_request
+        if: steps.context.outputs.is_pr == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |

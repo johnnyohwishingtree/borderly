@@ -262,6 +262,7 @@ When working from a GitHub issue (via the Claude or Gemini GitHub App):
 7. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
 8. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
 9. Run `/update-architecture` if code structure changed
+10. If you modified `.github/workflows/`, update `docs/pipeline-architecture.md` to match
 
 ### Dual-Model Support
 
