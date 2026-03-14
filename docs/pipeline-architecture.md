@@ -123,11 +123,16 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |          |         |                   | Claude fix |               |
 |          |    Comment on               | (agent     |               |
 |          |    issue (no                |  mode,     |               |
-|          |    @claude!)                |  30 turns) |               |
-|          |         |                   |   |        |               |
-|          |    Clean up                 | Push to    |               |
-|          |    stale tmp/               | same tmp   |               |
-|          |    branches                 | branch     |               |
+|          |    @claude!)                |  50 turns, |               |
+|          |         |                   |  60min)    |               |
+|          |    Clean up                 |   |        |               |
+|          |    stale tmp/               | Mid-run    |               |
+|          |    branches                 | pushes to  |               |
+|          |                             | tmp branch |               |
+|          |                             |   |        |               |
+|          |                             | Push to    |               |
+|          |                             | same tmp   |               |
+|          |                             | branch     |               |
 |          |                             |   |        |               |
 |          |                             | Trigger    |               |
 |          |                             | verify-    |               |
@@ -252,6 +257,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |    +-- Track which epics are "busy" (have open PR)                  |
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
+|    +-- Active claude.yml or verify-merge run --> skip               |
 |    +-- >=5 @claude attempts --> create "pipeline-stuck" issue       |
 |    +-- Last trigger < 15min ago --> skip (grace period)             |
 |    +-- Epic already busy --> skip                                   |
@@ -311,9 +317,20 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |       check results, and remaining issues                           |
 |     - Merge job deletes it before merging into target branch        |
 |                                                                     |
+|   Milestone push (mid-run safety):                                  |
+|     - Claude is instructed to push after each significant fix       |
+|     - git push allowed in tool list, auth configured before Claude  |
+|     - If job times out, pushed work survives on the tmp branch      |
+|                                                                     |
 |   Early bail-out:                                                   |
 |     - If Claude produces no changes, skip remaining attempts        |
 |     - Comment on issue explaining fix failed, link to tmp branch    |
+|                                                                     |
+|   Timeout rescue (if: cancelled()):                                 |
+|     - Commits any uncommitted work                                  |
+|     - Pushes to tmp branch (rebases on mid-run pushes)              |
+|     - Auto-triggers next attempt so fix loop continues              |
+|     - Comments on issue with status                                 |
 |                                                                     |
 |   Native dep constraint: CI runs on Ubuntu, cannot run              |
 |   `pod install`. Claude must work around unlinked native deps       |
@@ -454,11 +471,26 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: Tmp branches created before pipeline fixes land on master don't have those fixes (e.g., `.eslintignore`, lint config). Checks fail for reasons unrelated to the actual code.
 - **Solution**: Both verify and fix jobs merge master into the tmp branch before running checks. If the merge conflicts, verify fails fast and the fix job Claude resolves the conflicts.
 
-### Timeout Work Rescue
+### Timeout Work Rescue (claude.yml)
 - **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-merge trigger) are skipped. Uncommitted work is lost.
 - **Solution**: Two layers of protection:
   1. **Mid-run pushes**: Claude pushes milestones to `claude/issue-N-TIMESTAMP` (action's internal branch) during the run. Most work is already on the remote before timeout.
   2. **Rescue step**: `if: cancelled()` commits any remaining uncommitted changes and pushes to `tmp/claude-<run_id>`. Comments on the issue with a link and resume instructions. Work ends up on both the internal branch and tmp branch.
+
+### Timeout Work Rescue (verify-merge fix job)
+- **Problem**: Fix job times out (60min limit). Claude was mid-fix, work is lost, and the fix loop stops.
+- **Solution**: Three layers:
+  1. **Milestone pushes**: Claude pushes to the tmp branch after each significant fix during the run.
+  2. **Rescue step**: `if: cancelled()` commits uncommitted work, pushes to tmp branch.
+  3. **Auto-continue**: Rescue step triggers the next verify-merge attempt so the fix loop doesn't stall.
+
+### Watcher Race Condition
+- **Problem**: Pipeline watcher retriggers `@claude` on in-progress stories while `claude.yml` or `verify-merge.yml` is still running, creating duplicate competing runs.
+- **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` runs (parsed from run display title) and `verify-merge.yml` runs (from workflow inputs). Skips retrigger if any workflow is already in flight for that story.
+
+### Post-Action Push Race
+- **Problem**: `claude-code-action@v1` uses an internal `git-push.sh` script that pushes to the PR/tmp branch mid-run. Our post-action push steps then fail with non-fast-forward rejection.
+- **Solution**: All post-action push steps fetch the remote, compare HEAD to remote HEAD. If equal, skip (nothing new). If ahead, rebase before pushing. If behind, pull --rebase first.
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
@@ -572,5 +604,6 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Fix job gets all errors at once**: All 5 error files are captured before Claude starts fixing, so it can address everything in one pass.
 - **Concurrency limits**: Max 3 simultaneous Claude runs prevents runaway costs.
 - **Relay limit**: Max 3 review relay rounds per PR prevents infinite review-fix cycles.
-- **Timeout rescue**: If Claude times out at 60min, all work is saved to a rescue branch instead of being lost. This preserves up to 60min of token spend that would otherwise be wasted.
+- **Timeout rescue**: If Claude times out at 60min (in claude.yml or verify-merge fix job), all work is saved via rescue steps. Mid-run milestone pushes preserve most work before timeout even hits. This prevents losing up to 60min of token spend.
+- **Watcher skips active work**: Watcher checks for in-flight workflows before retriggering, preventing duplicate runs that waste tokens on the same story.
 - **Single merge gate**: `auto-merge.yml` consolidates all merge logic. No workflow needs its own merge step — they just push code and let auto-merge evaluate readiness.
