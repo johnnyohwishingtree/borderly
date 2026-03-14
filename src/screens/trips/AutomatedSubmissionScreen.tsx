@@ -1,8 +1,10 @@
 /**
  * AutomatedSubmissionScreen - Full-screen automated submission interface
- * 
+ *
  * Orchestrates the automated submission process using the SubmissionEngine
  * and provides a complete user experience with progress tracking and fallback.
+ *
+ * @deprecated Use PortalSubmissionScreen instead. This component will be removed in a future release.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';

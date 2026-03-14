@@ -86,6 +86,8 @@ export interface PortalWebViewProps {
   url: string;
   /** Called when the page finishes loading. */
   onPageLoad?: (url: string) => void;
+  /** Called when the WebView begins loading a new page. */
+  onLoadStart?: () => void;
   /** Called whenever the navigation state changes (URL, loading status). */
   onNavigationChange?: (state: NavigationState) => void;
   /** Called when a WebView error occurs. */
@@ -107,7 +109,7 @@ export interface PortalWebViewProps {
  */
 const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
   function PortalWebView(
-    { url, onPageLoad, onNavigationChange, onError, onMessage, testID },
+    { url, onPageLoad, onLoadStart: onLoadStartProp, onNavigationChange, onError, onMessage, testID },
     ref,
   ) {
     const webViewRef = useRef<WebViewRef>(null);
@@ -162,6 +164,7 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
     const handleLoadStart = () => {
       setIsLoading(true);
       setErrorMessage(null);
+      onLoadStartProp?.();
     };
 
     const handleError = ({

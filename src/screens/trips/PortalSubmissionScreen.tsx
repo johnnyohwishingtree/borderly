@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   Animated,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import {
@@ -24,7 +25,7 @@ import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOv
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
-import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission';
+import { automationScriptRegistry, AutomationScriptUtils, formFiller } from '../../services/submission';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { getPortalName } from '../../utils/countryUtils';
 import { useTripStore } from '../../stores';
@@ -143,6 +144,15 @@ export default function PortalSubmissionScreen() {
   // Auto-fill banner state (null = hidden)
   const [bannerState, setBannerState] = useState<BannerState | null>(null);
 
+  // Low fill-rate warning banner (shown when auto-fill < 50%)
+  const [showLowFillWarning, setShowLowFillWarning] = useState(false);
+
+  // Load error state — set when page times out or WebView reports an error
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Timer ref for the 30-second load timeout
+  const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // QR save overlay state (null = hidden)
   const [qrPayload, setQrPayload] = useState<QRPageDetectedPayload | null>(null);
 
@@ -194,6 +204,33 @@ export default function PortalSubmissionScreen() {
     setNavState(state);
   }, []);
 
+  /** Start a 30-second load timeout when the WebView begins loading a page. */
+  const handleLoadStart = useCallback(() => {
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    setLoadError(null);
+    loadTimerRef.current = setTimeout(() => {
+      setLoadError('The page took too long to load. Please try again or continue manually.');
+    }, 30000);
+  }, []);
+
+  /** Clear timer and error state on unmount. */
+  useEffect(() => {
+    return () => {
+      if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    };
+  }, []);
+
+  /** Navigate to the manual SubmissionGuide screen. */
+  const handleContinueManually = useCallback(() => {
+    (navigation as any).navigate('SubmissionGuide', { legId, tripId });
+  }, [navigation, legId, tripId]);
+
+  /** Handle WebView-reported load errors. */
+  const handleWebViewError = useCallback((_errorMessage: string) => {
+    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+    setLoadError('Failed to load the portal. Please check your connection and try again.');
+  }, []);
+
   /**
    * Called when a page finishes loading.
    * 1. Detects which submission guide step the URL corresponds to.
@@ -202,6 +239,10 @@ export default function PortalSubmissionScreen() {
    */
   const handlePageLoad = useCallback(
     (loadedUrl: string) => {
+      // Clear the load timeout — the page loaded successfully
+      if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+      setLoadError(null);
+
       if (!schema?.submissionGuide) return;
 
       // Detect step by URL
@@ -304,6 +345,18 @@ export default function PortalSubmissionScreen() {
           const filled = typeof msg.filled === 'number' ? msg.filled : 0;
           if (total > 0) {
             setBannerState({ filled, total });
+            const fillRate = filled / total;
+            if (!formFiller.isAutoFillSufficient(fillRate)) {
+              setShowLowFillWarning(true);
+              if (__DEV__) {
+                console.warn(
+                  `[PortalSubmissionScreen] Auto-fill rate ${Math.round(fillRate * 100)}% is below 50%. ` +
+                  'Possible CSS selector mismatch on this portal page.',
+                );
+              }
+            } else {
+              setShowLowFillWarning(false);
+            }
           }
           return;
         }
@@ -341,6 +394,7 @@ export default function PortalSubmissionScreen() {
   }, []);
 
   const handleRefresh = useCallback(() => {
+    setLoadError(null);
     webViewRef.current?.injectJavaScript('window.location.reload(); true;');
   }, []);
 
@@ -477,6 +531,27 @@ export default function PortalSubmissionScreen() {
         />
       )}
 
+      {/* Low fill-rate warning banner */}
+      {showLowFillWarning && (
+        <View
+          style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B' }}
+          className="px-4 py-2 flex-row items-center justify-between"
+          testID="low-fill-warning-banner"
+        >
+          <Text style={{ flex: 1, fontSize: 12, color: '#92400E' }}>
+            {"Auto-fill couldn't complete all fields. Would you like to use the manual guide?"}
+          </Text>
+          <Pressable
+            onPress={handleContinueManually}
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, marginLeft: 8 })}
+            accessibilityLabel="Switch to manual submission guide"
+            testID="manual-guide-button"
+          >
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#92400E' }}>Manual Guide</Text>
+          </Pressable>
+        </View>
+      )}
+
       {/* WebView */}
       <View style={{ flex: 1 }}>
         <PortalWebView
@@ -484,9 +559,78 @@ export default function PortalSubmissionScreen() {
           url={url}
           onNavigationChange={handleNavigationChange}
           onPageLoad={handlePageLoad}
+          onLoadStart={handleLoadStart}
           onMessage={handleMessage}
+          onError={handleWebViewError}
           testID="portal-webview"
         />
+
+        {/* Error overlay — shown on load timeout or WebView error */}
+        {loadError !== null && (
+          <View
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              backgroundColor: 'rgba(107, 114, 128, 0.92)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 24,
+            }}
+            testID="load-error-overlay"
+          >
+            <View
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: 12,
+                padding: 24,
+                width: '100%',
+                maxWidth: 360,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 8 }}>
+                Unable to Load Portal
+              </Text>
+              <Text style={{ fontSize: 14, color: '#4B5563', marginBottom: 20, lineHeight: 20 }}>
+                {loadError}
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setLoadError(null);
+                  handleRefresh();
+                }}
+                style={({ pressed }) => ({
+                  backgroundColor: '#3B82F6',
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  marginBottom: 10,
+                  opacity: pressed ? 0.8 : 1,
+                })}
+                accessibilityLabel="Try again"
+                testID="error-try-again-button"
+              >
+                <Text style={{ color: '#fff', fontWeight: '600', textAlign: 'center' }}>
+                  Try Again
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleContinueManually}
+                style={({ pressed }) => ({
+                  backgroundColor: '#F3F4F6',
+                  borderRadius: 8,
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  opacity: pressed ? 0.8 : 1,
+                })}
+                accessibilityLabel="Continue with manual guide"
+                testID="error-continue-manually-button"
+              >
+                <Text style={{ color: '#374151', fontWeight: '600', textAlign: 'center' }}>
+                  Continue Manually
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </View>
 
       {/* Collapsible bottom panel: "Fields for this page" */}
