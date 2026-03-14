@@ -51,6 +51,43 @@ jobs:
           SLOTS_AVAILABLE=$((MAX_CONCURRENT - TOTAL_ACTIVE))
           echo "Slots available: $SLOTS_AVAILABLE"
 
+          # 1b. Collect issue numbers with active workflows (claude.yml or verify-merge.yml)
+          # This prevents the watcher from retriggering stories that already
+          # have work in flight (either a Claude run or a verify-merge fix loop).
+          WORKFLOW_BUSY_ISSUES=""
+
+          # Check active claude.yml runs — run-name is "Claude #<issue> by <user>"
+          ACTIVE_CLAUDE_ISSUES=$(gh run list --repo "$REPO" --workflow claude.yml \
+            --status in_progress --json displayTitle \
+            -q '.[].displayTitle' 2>/dev/null || true)
+          QUEUED_CLAUDE_ISSUES=$(gh run list --repo "$REPO" --workflow claude.yml \
+            --status queued --json displayTitle \
+            -q '.[].displayTitle' 2>/dev/null || true)
+
+          for TITLE in $ACTIVE_CLAUDE_ISSUES $QUEUED_CLAUDE_ISSUES; do
+            CISSUE=$(echo "$TITLE" | grep -oE '#[0-9]+' | grep -oE '[0-9]+' || true)
+            if [ -n "$CISSUE" ]; then
+              WORKFLOW_BUSY_ISSUES="$WORKFLOW_BUSY_ISSUES $CISSUE"
+              echo "claude.yml active for issue #$CISSUE"
+            fi
+          done
+
+          # Check active verify-merge.yml runs — inputs contain issue_number
+          VM_RUN_IDS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            --status in_progress --json databaseId -q '.[].databaseId' 2>/dev/null || true)
+          VM_QUEUED_IDS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            --status queued --json databaseId -q '.[].databaseId' 2>/dev/null || true)
+
+          for RUN_ID in $VM_RUN_IDS $VM_QUEUED_IDS; do
+            [ -z "$RUN_ID" ] && continue
+            VM_ISSUE=$(gh api "repos/$REPO/actions/runs/$RUN_ID" \
+              --jq '.inputs.issue_number // empty' 2>/dev/null || echo "")
+            if [ -n "$VM_ISSUE" ]; then
+              WORKFLOW_BUSY_ISSUES="$WORKFLOW_BUSY_ISSUES $VM_ISSUE"
+              echo "verify-merge active for issue #$VM_ISSUE (run $RUN_ID)"
+            fi
+          done
+
           # 2. Check open claude/ PRs — enable auto-merge, detect issues
           echo ""
           echo "--- Checking open claude/ PRs ---"
@@ -177,6 +214,12 @@ jobs:
 
             if echo "$BUSY_EPICS" | grep -q "$STORY_EPIC" 2>/dev/null; then
               echo "  Epic $STORY_EPIC is busy (has open PR) — skipping"
+              continue
+            fi
+
+            # Skip if any workflow (claude.yml or verify-merge) is active for this story
+            if echo "$WORKFLOW_BUSY_ISSUES" | grep -qw "$ISSUE_NUM" 2>/dev/null; then
+              echo "  Active workflow running for this story — skipping retrigger"
               continue
             fi
 
