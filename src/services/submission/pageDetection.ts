@@ -1,7 +1,12 @@
 /**
  * PageDetection — detects which government portal page is currently loaded in the WebView
  * and provides helpers for captcha and auth page detection.
+ *
+ * Portal base URLs are derived from the portal registry (which reads JSON schemas) so
+ * that no hardcoded country lists need to be maintained here.
  */
+
+import { getPortalBaseUrl as registryGetPortalBaseUrl } from './portalRegistry';
 
 export interface DetectedPage {
   stepIndex: number;
@@ -9,13 +14,6 @@ export interface DetectedPage {
   countryCode: string;
   url: string;
 }
-
-/** Known base URLs for each supported country's government portal. */
-const PORTAL_BASE_URLS: Record<string, string> = {
-  JPN: 'https://vjw-lp.digital.go.jp',
-  MYS: 'https://mdac.gov.my',
-  SGP: 'https://eservices.ica.gov.sg',
-};
 
 /** Selectors and keyword patterns used for captcha and auth page detection. */
 const CAPTCHA_PATTERNS = [
@@ -92,10 +90,13 @@ export class PageDetector {
   }
 
   /**
-   * Returns the known base URL for a country's government portal, or null if unknown.
+   * Returns the known base URL (origin) for a country's government portal,
+   * or null if unknown.
+   *
+   * Derived from the portal registry — no hardcoded map required.
    */
   getPortalBaseUrl(countryCode: string): string | null {
-    return PORTAL_BASE_URLS[countryCode] ?? null;
+    return registryGetPortalBaseUrl(countryCode);
   }
 }
 
