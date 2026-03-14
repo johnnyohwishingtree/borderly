@@ -26,6 +26,7 @@ import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
 import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
+import { getPortalName } from '../../utils/countryUtils';
 import { useTripStore } from '../../stores';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
@@ -274,13 +275,12 @@ export default function PortalSubmissionScreen() {
         webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
       }
 
-      // Inject QR page detection script after auto-fill (with a slight delay so
-      // the page has time to render any QR code elements).
+      // Inject QR page detection script. The script uses MutationObserver
+      // internally to retry detection as QR code elements render, so no fixed
+      // delay is needed here.
       const qrScript = getQRDetectionScript(countryCode);
       if (qrScript) {
-        setTimeout(() => {
-          webViewRef.current?.injectJavaScript(qrScript);
-        }, 1500);
+        webViewRef.current?.injectJavaScript(qrScript);
       }
     },
     [schema, currentStep, leg, profile, countryCode],
@@ -362,12 +362,7 @@ export default function PortalSubmissionScreen() {
       const type = qrTypeMap[countryCode] ?? 'immigration';
 
       // Generate a label for the QR code
-      const countryNames: Record<string, string> = {
-        JPN: 'Visit Japan Web',
-        MYS: 'Malaysia MDAC',
-        SGP: 'SG Arrival Card',
-      };
-      const label = `${countryNames[countryCode] ?? countryCode} — Immigration QR`;
+      const label = `${getPortalName(countryCode)} — Immigration QR`;
 
       // Persist to QR wallet (imageBase64 can be null if extraction failed;
       // in that case we still record the submission but without an image).
