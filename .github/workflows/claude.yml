@@ -73,10 +73,38 @@ jobs:
             echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
             echo "push_cmd=git push origin HEAD:refs/heads/$TMP_BRANCH" >> $GITHUB_OUTPUT
 
-            # Create both branches on remote from current master HEAD
+            # Check for existing work from previous runs.
+            # Look for claude/issue-N (PR branch) and claude/issue-N-* (action branches).
+            # Pick the one with the most commits ahead of master.
+            BEST_BRANCH=""
+            BEST_AHEAD=0
+
+            for ref in $(git for-each-ref --format='%(refname:short)' \
+              "refs/remotes/origin/claude/issue-${ISSUE_NUM}" \
+              "refs/remotes/origin/claude/issue-${ISSUE_NUM}-*" \
+              2>/dev/null); do
+              AHEAD=$(git rev-list --count "origin/master..$ref" 2>/dev/null || echo "0")
+              if [ "$AHEAD" -gt "$BEST_AHEAD" ]; then
+                BEST_AHEAD=$AHEAD
+                BEST_BRANCH=$(echo "$ref" | sed 's|^origin/||')
+              fi
+            done
+
+            if [ "$BEST_AHEAD" -gt 0 ] && [ -n "$BEST_BRANCH" ]; then
+              echo "Found existing work: $BEST_BRANCH ($BEST_AHEAD commits ahead of master)"
+              echo "resume_branch=$BEST_BRANCH" >> $GITHUB_OUTPUT
+              echo "resume_ahead=$BEST_AHEAD" >> $GITHUB_OUTPUT
+
+              # Check out the existing work so Claude starts from it
+              git checkout "origin/$BEST_BRANCH" --detach
+              echo "Checked out existing branch: $BEST_BRANCH"
+            fi
+
+            # Create PR branch from current HEAD (master or existing work)
             git push origin "HEAD:refs/heads/$PR_BRANCH" 2>/dev/null || echo "PR branch $PR_BRANCH already exists"
+            # Create new tmp branch from current HEAD
             git push origin "HEAD:refs/heads/$TMP_BRANCH"
-            echo "Created PR branch: $PR_BRANCH, tmp branch: $TMP_BRANCH"
+            echo "Created tmp branch: $TMP_BRANCH"
           fi
 
       - name: Set up Node.js
@@ -96,6 +124,17 @@ jobs:
           else
             echo "No package.json yet — skipping install"
           fi
+
+      - name: Build system prompt
+        id: system_prompt
+        run: |
+          RESUME_NOTE=""
+          if [ -n "${{ steps.push_target.outputs.resume_branch }}" ]; then
+            RESUME_NOTE="RESUMING PREVIOUS WORK: This run is continuing from branch \`${{ steps.push_target.outputs.resume_branch }}\` which has ${{ steps.push_target.outputs.resume_ahead }} commits ahead of master from a previous run. Do NOT start over — review what was already done (check git log, read existing files) and continue from where it left off. Only implement what is not yet complete."
+          fi
+          echo "resume_note<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESUME_NOTE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run Claude Code
         id: claude
@@ -119,6 +158,8 @@ jobs:
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
 
             CRITICAL — PUSH AFTER EACH MILESTONE: Whenever you complete a task or check off an acceptance criterion, you MUST immediately git add, git commit, and push before moving on to the next task. Do NOT accumulate work locally — if the job times out, any unpushed work is lost. Use this exact command to push: ${{ steps.push_target.outputs.push_cmd }}
+
+            ${{ steps.system_prompt.outputs.resume_note }}
 
             When asked to fix code review issues: you MUST use the Edit tool to modify files, then git add, git commit, and git push. Posting a comment describing what you would change is NOT sufficient — you must actually make the changes. If you cannot fix an issue, reply on the specific review thread explaining why."
 

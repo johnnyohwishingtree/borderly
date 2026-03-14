@@ -52,10 +52,16 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |   +-- Detect context: issue or PR                                   |
 |   |                                                                 |
 |   +-- If Issue context:                                             |
-|   |     - Create clean PR branch: claude/issue-N (from master)      |
-|   |     - Create tmp work branch: tmp/claude-<run_id> (from master) |
+|   |     - Check for existing work from previous runs:               |
+|   |       Scan claude/issue-N and claude/issue-N-* branches         |
+|   |       Pick the one with the most commits ahead of master        |
+|   |       If found: check it out so Claude resumes instead of restarting    |
+|   |     - Create clean PR branch: claude/issue-N (if not exists)    |
+|   |     - Create tmp work branch: tmp/claude-<run_id> (from HEAD)   |
 |   |     - claude-code-action creates internal branch                |
 |   |       claude/issue-N-TIMESTAMP (we don't control this)          |
+|   |     - System prompt includes RESUMING note if previous work     |
+|   |       found, telling Claude to continue instead of starting over          |
 |   |     - Claude works, pushes milestones to internal branch        |
 |   |       (mid-run safety: work is on remote if timeout)            |
 |   |     - After completion: push all work to tmp branch             |
@@ -328,15 +334,22 @@ This is a critical architectural distinction. When `@claude` is commented on an 
                     +--------+--------+
                     |                 |
               Issue context      PR context
-              (new work)         (fix reviews)
+              (new or resume)    (fix reviews)
                     |                 |
                     v                 v
-           Create 2 branches   Checkout PR branch
-           from master:              |
-           - claude/issue-N    Claude fixes code
-             (clean PR branch)       |
-           - tmp/claude-<rid>  Push directly to
-             (work branch)     PR branch
+           Check for existing  Checkout PR branch
+           work on claude/           |
+           issue-N-* branches  Claude fixes code
+                    |                 |
+           If found: checkout  Push directly to
+           existing work       PR branch
+           If not: use master        |
+                    |                 |
+           Create branches:          |
+           - claude/issue-N          |
+             (if not exists)         |
+           - tmp/claude-<rid>        |
+             (from HEAD)             |
                     |                 |
            Action creates      Resolve review
            internal branch:    threads
@@ -362,10 +375,11 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ```
 
 **Why two paths?**
-- Issue context: No PR exists yet. Two branches are created upfront: a clean
-  PR branch (`claude/issue-N`) that only receives verified code, and a tmp work
-  branch (`tmp/claude-<run_id>`) for incremental milestone pushes. verify-merge
-  validates the tmp branch then merges into the PR branch.
+- Issue context: No PR exists yet. On retrigger, checks for existing branches
+  from previous runs and resumes from the one with the most progress. Creates a
+  clean PR branch (`claude/issue-N`) for verified code and a tmp work branch
+  (`tmp/claude-<run_id>`) for incremental pushes. verify-merge validates then
+  merges into the PR branch.
 - PR context: PR already exists with CI checks. Pushing directly to the PR
   branch triggers CI automatically. No need for a redundant verify-merge cycle.
 
