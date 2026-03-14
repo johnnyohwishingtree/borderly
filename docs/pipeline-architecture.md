@@ -61,7 +61,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |   |     - claude-code-action creates internal branch                |
 |   |       claude/issue-N-TIMESTAMP (we don't control this)          |
 |   |     - System prompt includes RESUMING note if previous work     |
-|   |       found, telling Claude to continue not start over          |
+|   |       found, telling Claude to continue instead of starting over          |
 |   |     - Claude works, pushes milestones to internal branch        |
 |   |       (mid-run safety: work is on remote if timeout)            |
 |   |     - After completion: push all work to tmp branch             |
