@@ -42,22 +42,10 @@ describe('AutomationScriptRegistry', () => {
   });
 
   describe('getScript (async)', () => {
-    it('returns the JPN script', async () => {
-      const script = await registry.getScript('JPN');
+    it.each(['JPN', 'MYS', 'SGP'])('returns the %s script', async (countryCode) => {
+      const script = await registry.getScript(countryCode);
       expect(script).not.toBeNull();
-      expect(script!.countryCode).toBe('JPN');
-    });
-
-    it('returns the MYS script', async () => {
-      const script = await registry.getScript('MYS');
-      expect(script).not.toBeNull();
-      expect(script!.countryCode).toBe('MYS');
-    });
-
-    it('returns the SGP script', async () => {
-      const script = await registry.getScript('SGP');
-      expect(script).not.toBeNull();
-      expect(script!.countryCode).toBe('SGP');
+      expect(script!.countryCode).toBe(countryCode);
     });
 
     it('returns null for unknown country codes', async () => {
@@ -87,16 +75,15 @@ describe('AutomationScriptRegistry', () => {
   });
 
   describe('hasAutomation', () => {
-    it('returns true for registered countries', () => {
-      expect(registry.hasAutomation('JPN')).toBe(true);
-      expect(registry.hasAutomation('MYS')).toBe(true);
-      expect(registry.hasAutomation('SGP')).toBe(true);
-    });
-
-    it('returns false for unregistered countries', () => {
-      expect(registry.hasAutomation('ZZZ')).toBe(false);
-      expect(registry.hasAutomation('')).toBe(false);
-      expect(registry.hasAutomation('USA')).toBe(false);
+    it.each([
+      ['JPN', true],
+      ['MYS', true],
+      ['SGP', true],
+      ['ZZZ', false],
+      ['', false],
+      ['USA', false],
+    ])('given country code %s, hasAutomation returns %s', (countryCode, expected) => {
+      expect(registry.hasAutomation(countryCode)).toBe(expected);
     });
   });
 
