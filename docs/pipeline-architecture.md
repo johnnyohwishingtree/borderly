@@ -55,7 +55,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |   |     - Check for existing work from previous runs:               |
 |   |       Scan claude/issue-N and claude/issue-N-* branches         |
 |   |       Pick the one with the most commits ahead of master        |
-|   |       If found: check it out so Claude resumes, not restarts    |
+|   |       If found: check it out so Claude resumes instead of restarting    |
 |   |     - Create clean PR branch: claude/issue-N (if not exists)    |
 |   |     - Create tmp work branch: tmp/claude-<run_id> (from HEAD)   |
 |   |     - claude-code-action creates internal branch                |
