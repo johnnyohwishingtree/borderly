@@ -314,8 +314,7 @@ describe('Auto-Fill Pipeline — date format transforms', () => {
 
   it('USA: dateOfBirth is formatted MM/DD/YYYY', () => {
     const usaLeg = sampleLegByCountry['USA'];
-    const form = generateFilledForm(sampleProfile, usaLeg, SCHEMAS.USA);
-    const allFields = form.sections.flatMap((s) => s.fields);
+    generateFilledForm(sampleProfile, usaLeg, SCHEMAS.USA);
     const usaMapping = getCountryMapping('USA')!;
 
     const dobMapping = usaMapping.fieldMappings['dateOfBirth'];
