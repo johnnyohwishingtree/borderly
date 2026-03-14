@@ -10,3 +10,5 @@ export {
 } from './AutomatedSubmissionView';
 export { PortalWebView } from './PortalWebView';
 export type { PortalWebViewHandle, PortalWebViewProps, NavigationState } from './PortalWebView';
+export { AutoFillBanner } from './AutoFillBanner';
+export type { AutoFillBannerProps } from './AutoFillBanner';

@@ -18,16 +18,102 @@ import {
 } from 'lucide-react-native';
 import { PortalWebView, PortalWebViewHandle } from '../../components/submission/PortalWebView';
 import type { NavigationState } from '../../components/submission/PortalWebView';
+import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
+import { automationScriptRegistry, AutomationScriptUtils } from '../../services/submission';
 import { useTripStore } from '../../stores';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
-import type { FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
+import type { FilledForm, FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
 import { formatFieldValue } from '../../utils/fieldFormatters';
 
 type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
+
+/** Shape of a field spec sent to the in-page auto-fill script. */
+interface FieldSpec {
+  id: string;
+  selector: string;
+  value: string;
+  inputType: string;
+}
+
+/** Banner state tracked between page loads. */
+interface BannerState {
+  filled: number;
+  total: number;
+}
+
+/**
+ * Build the JavaScript snippet injected into the WebView to auto-fill form fields.
+ *
+ * Design goals:
+ * - Non-destructive: skips fields that already have a value.
+ * - Works for text, select, radio, checkbox, and date inputs.
+ * - Reports results back via window.ReactNativeWebView.postMessage so the
+ *   screen can show the AutoFillBanner.
+ * - Adds a brief blue highlight to each successfully filled field.
+ */
+function buildAutoFillScript(fields: FieldSpec[]): string {
+  // Serialise field specs into the script. JSON.stringify is safe here —
+  // it escapes quotes/slashes so the embedded string can't break out of
+  // the surrounding JS string.
+  const fieldsJson = JSON.stringify(fields);
+
+  return (
+    '(function(){' +
+    'var fields=' + fieldsJson + ';' +
+    'var filled=0,failed=0;' +
+    'var results=[];' +
+    'for(var i=0;i<fields.length;i++){' +
+      'var f=fields[i];' +
+      'try{' +
+        'var el=document.querySelector(f.selector);' +
+        'if(!el){results.push({id:f.id,status:"not_found"});failed++;continue;}' +
+        // Non-destructive: skip if field already has content
+        'var existing=(el.value!==undefined?el.value.toString().trim():"");' +
+        'if(existing!==""){results.push({id:f.id,status:"skipped"});continue;}' +
+        'if(f.inputType==="select"){' +
+          'var opts=Array.from(el.options||[]);' +
+          'var m=opts.find(function(o){return o.value===f.value;})||' +
+              'opts.find(function(o){return o.text.toLowerCase().indexOf(f.value.toLowerCase())>=0;});' +
+          'if(m){el.value=m.value;el.dispatchEvent(new Event("change",{bubbles:true}));' +
+            'results.push({id:f.id,status:"filled"});filled++;}' +
+          'else{results.push({id:f.id,status:"failed"});failed++;}' +
+        '}else if(f.inputType==="radio"){' +
+          'var r=document.querySelector(f.selector);' +
+          'if(r){r.checked=true;r.dispatchEvent(new Event("change",{bubbles:true}));' +
+            'results.push({id:f.id,status:"filled"});filled++;}' +
+          'else{results.push({id:f.id,status:"failed"});failed++;}' +
+        '}else if(f.inputType==="checkbox"){' +
+          'el.checked=(f.value==="true");' +
+          'el.dispatchEvent(new Event("change",{bubbles:true}));' +
+          'results.push({id:f.id,status:"filled"});filled++;' +
+        '}else{' +
+          // Use native setter so React-controlled inputs pick up the change
+          'var desc=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value");' +
+          'if(desc&&desc.set){desc.set.call(el,f.value);}else{el.value=f.value;}' +
+          'el.dispatchEvent(new Event("input",{bubbles:true}));' +
+          'el.dispatchEvent(new Event("change",{bubbles:true}));' +
+          // Brief blue highlight so the user can see what was filled
+          'el.style.outline="2px solid #3B82F6";' +
+          '(function(e){setTimeout(function(){e.style.outline="";},2500);}(el));' +
+          'results.push({id:f.id,status:"filled"});filled++;' +
+        '}' +
+      '}catch(e){results.push({id:f.id,status:"failed",error:e.message});failed++;}' +
+    '}' +
+    'window.ReactNativeWebView.postMessage(JSON.stringify({' +
+      'type:"AUTO_FILL_RESULT",' +
+      'filled:filled,' +
+      'failed:failed,' +
+      'total:fields.length,' +
+      'results:results' +
+    '}));' +
+    'true;' +
+    '})();'
+  );
+}
 
 export default function PortalSubmissionScreen() {
   const navigation = useNavigation();
@@ -50,6 +136,9 @@ export default function PortalSubmissionScreen() {
   // Collapsible panel
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
+  // Auto-fill banner state (null = hidden)
+  const [bannerState, setBannerState] = useState<BannerState | null>(null);
+
   // Load schema and form data
   const { trips } = useTripStore();
   const { profile } = useProfileStore();
@@ -59,7 +148,7 @@ export default function PortalSubmissionScreen() {
   const schema = getSchemaByCountryCode(countryCode);
   const totalSteps = schema?.submissionGuide?.length ?? 0;
 
-  // Build fields for the current step
+  // Build fields for the current step (for the copy-paste fallback panel)
   const currentStepFields = (() => {
     if (!schema || !leg || !profile) return [];
     const step = schema.submissionGuide?.[currentStep - 1];
@@ -98,17 +187,110 @@ export default function PortalSubmissionScreen() {
     setNavState(state);
   }, []);
 
-  const handlePageLoad = useCallback((loadedUrl: string) => {
-    // Try to advance step when URL matches an automation step's URL
-    if (!schema?.submissionGuide) return;
-    const stepIndex = schema.submissionGuide.findIndex((step) => {
-      if (!step.automation?.url) return false;
-      return loadedUrl.startsWith(step.automation.url);
-    });
-    if (stepIndex >= 0) {
-      setCurrentStep(stepIndex + 1);
-    }
-  }, [schema]);
+  /**
+   * Called when a page finishes loading.
+   * 1. Detects which submission guide step the URL corresponds to.
+   * 2. Injects a non-destructive auto-fill script for the fields on that page.
+   */
+  const handlePageLoad = useCallback(
+    (loadedUrl: string) => {
+      if (!schema?.submissionGuide) return;
+
+      // Detect step by URL
+      let stepIndex = currentStep - 1;
+      const detected = schema.submissionGuide.findIndex((step) => {
+        if (!step.automation?.url) return false;
+        return loadedUrl.startsWith(step.automation.url);
+      });
+      if (detected >= 0) {
+        stepIndex = detected;
+        setCurrentStep(detected + 1);
+      }
+
+      // Early exit if we don't have the data we need
+      if (!leg || !profile) return;
+
+      const automationScript = automationScriptRegistry.getScriptSync(countryCode);
+      if (!automationScript) return;
+
+      const step = schema.submissionGuide[stepIndex];
+      const fieldsOnScreen = step?.fieldsOnThisScreen ?? [];
+
+      let filledForm: FilledForm | null;
+      try {
+        filledForm = generateFilledFormForTraveler(
+          profile.id,
+          [profile],
+          leg,
+          schema,
+          leg.formData ?? {}
+        );
+      } catch {
+        return;
+      }
+
+      if (!filledForm) return;
+
+      const fieldSpecs: FieldSpec[] = [];
+      filledForm.sections.forEach((section: FilledFormSection) => {
+        section.fields.forEach((field: FilledFormField) => {
+          // Only include fields listed for this screen (or all if none specified)
+          if (fieldsOnScreen.length > 0 && !fieldsOnScreen.includes(field.id)) return;
+
+          const mapping = automationScript.fieldMappings[field.id];
+          if (!mapping) return;
+
+          let value = formatFieldValue(field.currentValue, field.type);
+          if (!value) return;
+
+          // Apply any configured value transforms (date format, country code, etc.)
+          if (mapping.transform) {
+            const transformed = AutomationScriptUtils.applyTransform(value, mapping.transform);
+            if (transformed !== null && transformed !== undefined) {
+              value = String(transformed);
+            }
+          }
+
+          // Use the first CSS selector from a comma-separated list
+          const selector = mapping.selector.split(',')[0].trim();
+
+          fieldSpecs.push({
+            id: field.id,
+            selector,
+            value,
+            inputType: mapping.inputType,
+          });
+        });
+      });
+
+      if (fieldSpecs.length === 0) return;
+
+      webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
+    },
+    [schema, currentStep, leg, profile, countryCode],
+  );
+
+  /**
+   * Called when the WebView posts a message via window.ReactNativeWebView.postMessage.
+   * Handles AUTO_FILL_RESULT messages to show the AutoFillBanner.
+   */
+  const handleMessage = useCallback(
+    (event: { nativeEvent: { data: string } }) => {
+      try {
+        const msg = JSON.parse(event.nativeEvent.data) as {
+          type: string;
+          filled: number;
+          total: number;
+        };
+        if (msg.type === 'AUTO_FILL_RESULT' && typeof msg.total === 'number' && msg.total > 0) {
+          setBannerState({ filled: msg.filled, total: msg.total });
+        }
+      } catch {
+        // Not a Borderly message — ignore
+      }
+    },
+    [],
+  );
 
   const handleGoBack = useCallback(() => {
     webViewRef.current?.injectJavaScript('window.history.back(); true;');
@@ -207,6 +389,16 @@ export default function PortalSubmissionScreen() {
         </Text>
       </View>
 
+      {/* Auto-fill feedback banner */}
+      {bannerState !== null && (
+        <AutoFillBanner
+          filled={bannerState.filled}
+          total={bannerState.total}
+          onDismiss={() => setBannerState(null)}
+          testID="autofill-banner"
+        />
+      )}
+
       {/* WebView */}
       <View style={{ flex: 1 }}>
         <PortalWebView
@@ -214,6 +406,7 @@ export default function PortalSubmissionScreen() {
           url={url}
           onNavigationChange={handleNavigationChange}
           onPageLoad={handlePageLoad}
+          onMessage={handleMessage}
           testID="portal-webview"
         />
       </View>
