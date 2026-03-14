@@ -166,9 +166,12 @@ describe('QRSaveOverlay', () => {
       <QRSaveOverlay {...defaultProps} />
     );
     fireEvent.press(getByTestId('qr-overlay-save-button'));
+    // Wait for a positive indicator of saved state before checking absence
     await waitFor(() => {
-      expect(queryByTestId('qr-overlay-dismiss')).toBeNull();
+      expect(getByTestId('qr-overlay-open-wallet')).toBeTruthy();
     });
+    // In saved state, the dismiss X button must not be rendered
+    expect(queryByTestId('qr-overlay-dismiss')).toBeNull();
   });
 
   it('calls onOpenWallet when Open QR Wallet is pressed', async () => {
