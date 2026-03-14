@@ -495,7 +495,8 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
-- watcher.yml checks for >=5 successful claude.yml runs on a story --> creates "pipeline-stuck" issue (infra failures like push rejections don't count toward retry budget)
+- watcher.yml checks for >=5 successful claude.yml runs on a story --> creates "pipeline-stuck" issue
+  (infra failures like push rejections don't count toward retry budget)
 
 ### Concurrency Limiting
 - watcher.yml tracks active Claude runs (max 3)
