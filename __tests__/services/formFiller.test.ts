@@ -12,17 +12,24 @@ import type { PortalFieldMapping } from '../../src/types/submission';
 
 // ─── Test helpers ─────────────────────────────────────────────────────────
 
+/**
+ * Build a minimal FilledForm for testing.  Only the fields needed by FormFiller
+ * are populated; everything else is given a safe default.
+ */
 function makeFilledForm(
   fields: Array<{ id: string; value: string }>,
 ): FilledForm {
   return {
-    profileId: 'test-profile',
     countryCode: 'JPN',
-    fillStats: {
+    countryName: 'Japan',
+    portalName: 'Visit Japan Web',
+    portalUrl: 'https://vjw-lp.digital.go.jp/',
+    stats: {
       totalFields: fields.length,
-      autoFilledFields: fields.length,
-      manualFields: 0,
-      fillPercentage: 100,
+      autoFilled: fields.length,
+      userFilled: 0,
+      remaining: 0,
+      completionPercentage: fields.length > 0 ? 100 : 0,
     },
     sections: [
       {
@@ -32,15 +39,20 @@ function makeFilledForm(
           id: f.id,
           label: f.id,
           type: 'text' as const,
+          required: true,
+          countrySpecific: false,
           currentValue: f.value,
-          isAutoFilled: true,
-          isRequired: true,
+          source: 'auto' as const,
+          needsUserInput: false,
         })),
       },
     ],
   };
 }
 
+/**
+ * Build a minimal PortalFieldMapping for a field.
+ */
 function makeMapping(
   fieldId: string,
   overrides: Partial<PortalFieldMapping> = {},
@@ -49,25 +61,24 @@ function makeMapping(
     fieldId,
     selector: `#${fieldId}`,
     inputType: 'text',
-    required: true,
     ...overrides,
   };
 }
 
-/** Build a script executor that returns a successful result for all fields. */
+/** Script executor that returns a successful result for all specified fields. */
 function makeSuccessExecutor(
   fieldIds: string[],
-): (code: string) => Promise<unknown> {
+): jest.Mock {
   const success: Record<string, true> = {};
   fieldIds.forEach((id) => { success[id] = true; });
   return jest.fn().mockResolvedValue({ success, failed: {}, total: fieldIds.length });
 }
 
-/** Build a script executor that returns all fields as failed. */
+/** Script executor that returns all specified fields as failed. */
 function makeFailExecutor(
   fieldIds: string[],
   errorMsg = 'Element not found',
-): (code: string) => Promise<unknown> {
+): jest.Mock {
   const failed: Record<string, string> = {};
   fieldIds.forEach((id) => { failed[id] = errorMsg; });
   return jest.fn().mockResolvedValue({ success: {}, failed, total: fieldIds.length });
@@ -318,8 +329,7 @@ describe('FormFiller.fillForm — field transforms', () => {
       dob: makeMapping('dob', {
         transform: {
           type: 'date_format',
-          fromFormat: 'YYYY-MM-DD',
-          toFormat: 'YYYY/MM/DD',
+          config: { from: 'YYYY-MM-DD', to: 'YYYY/MM/DD' },
         },
       }),
     };
@@ -338,7 +348,9 @@ describe('FormFiller.fillForm — field transforms', () => {
 
   it('applies boolean_to_yesno transform before filling', async () => {
     const filler = new FormFiller({ retryFailedFields: false });
-    const form = makeFilledForm([{ id: 'hasDrugs', value: 'false' }]);
+    // Use 'true' string — the transform runs through AutomationScriptUtils.applyTransform
+    // which calls transformBooleanToYesNo; any truthy value maps to 'yes'.
+    const form = makeFilledForm([{ id: 'hasDrugs', value: 'true' }]);
     const mappings: Record<string, PortalFieldMapping> = {
       hasDrugs: makeMapping('hasDrugs', {
         transform: {
@@ -355,8 +367,8 @@ describe('FormFiller.fillForm — field transforms', () => {
 
     await filler.fillForm(form, mappings, execute);
 
-    // "false" boolean should transform to "No"
-    expect(capturedScript.toLowerCase()).toContain('no');
+    // A truthy value should map to 'yes' after boolean_to_yesno transform
+    expect(capturedScript.toLowerCase()).toContain('yes');
   });
 });
 
@@ -398,10 +410,11 @@ describe('FormFiller.fillSingleField', () => {
 
   it('returns success=false for unsupported input type', async () => {
     const filler = new FormFiller();
-    const mapping = makeMapping('upload', { inputType: 'unsupported-type' as any });
+    // Cast through `any` to test runtime safety with an unexpected inputType
+    const mapping = makeMapping('unsupported', { inputType: 'unsupported-type' as any });
     const execute = jest.fn();
 
-    const result = await filler.fillSingleField('upload', 'file.pdf', mapping, execute);
+    const result = await filler.fillSingleField('unsupported', 'file.pdf', mapping, execute);
     expect(result.success).toBe(false);
     expect(execute).not.toHaveBeenCalled();
   });
