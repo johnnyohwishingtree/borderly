@@ -14,6 +14,11 @@
 import JPNSchema from '@/schemas/JPN.json';
 import MYSSchema from '@/schemas/MYS.json';
 import SGPSchema from '@/schemas/SGP.json';
+import USASchema from '@/schemas/USA.json';
+import CANSchema from '@/schemas/CAN.json';
+import GBRSchema from '@/schemas/GBR.json';
+import THASchema from '@/schemas/THA.json';
+import VNMSchema from '@/schemas/VNM.json';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -73,6 +78,11 @@ const PORTAL_REGISTRY: PortalInfo[] = [
   buildPortalInfo(JPNSchema),
   buildPortalInfo(MYSSchema),
   buildPortalInfo(SGPSchema),
+  buildPortalInfo(USASchema),
+  buildPortalInfo(CANSchema),
+  buildPortalInfo(GBRSchema),
+  buildPortalInfo(THASchema),
+  buildPortalInfo(VNMSchema),
 ];
 
 /** O(1) country-code → PortalInfo lookup map. */
