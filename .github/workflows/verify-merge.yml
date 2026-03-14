@@ -305,50 +305,88 @@ jobs:
             fi
           done
 
+      - name: Build error summary
+        id: errors
+        run: |
+          # Build a concise error summary to embed directly in the prompt
+          SUMMARY=""
+
+          LINT_ERRORS=$(cat /tmp/lint_errors.txt 2>/dev/null | grep -E "error " | head -10 || true)
+          if [ -n "$LINT_ERRORS" ]; then
+            SUMMARY="${SUMMARY}
+          LINT ERRORS:
+          ${LINT_ERRORS}"
+          fi
+
+          TC_ERRORS=$(cat /tmp/tc_errors.txt 2>/dev/null | grep -E "error TS" | head -10 || true)
+          if [ -n "$TC_ERRORS" ]; then
+            SUMMARY="${SUMMARY}
+          TYPECHECK ERRORS:
+          ${TC_ERRORS}"
+          fi
+
+          BUNDLE_ERRORS=$(cat /tmp/bundle_errors.txt 2>/dev/null | grep -iE "error|unable to resolve" | head -5 || true)
+          if [ -n "$BUNDLE_ERRORS" ]; then
+            SUMMARY="${SUMMARY}
+          BUNDLE ERRORS:
+          ${BUNDLE_ERRORS}"
+          fi
+
+          TEST_ERRORS=$(cat /tmp/test_errors.txt 2>/dev/null | grep -E "● |FAIL " | head -10 || true)
+          if [ -n "$TEST_ERRORS" ]; then
+            SUMMARY="${SUMMARY}
+          TEST FAILURES:
+          ${TEST_ERRORS}"
+          fi
+
+          NATIVE_ERRORS=$(cat /tmp/native_dep_errors.txt 2>/dev/null | grep -E "UNLINKED" || true)
+          if [ -n "$NATIVE_ERRORS" ]; then
+            SUMMARY="${SUMMARY}
+          NATIVE DEP ERRORS:
+          ${NATIVE_ERRORS}"
+          fi
+
+          if [ "$MERGE_CONFLICT" = "true" ]; then
+            SUMMARY="MERGE CONFLICT WITH MASTER — resolve this first.
+          ${SUMMARY}"
+          fi
+
+          # Save for use in prompt (escape for GitHub Actions)
+          echo "summary<<EOFSUM" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOFSUM" >> $GITHUB_OUTPUT
+
       - name: Claude fix (with cross-attempt context)
         uses: anthropics/claude-code-action@v1
         with:
-          mode: agent
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          max_turns: 30
-          allowed_tools: "Edit,MultiEdit,Glob,Grep,LS,Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git rm:*),Bash(pnpm:*),Bash(npx:*),Bash(node:*)"
-          direct_prompt: |
-            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, test errors,
-            or a merge conflict with master.
+          prompt: |
+            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
 
-            FIRST: Check if there's a merge conflict. Run `git fetch origin master` then
-            `git merge origin/master --no-edit`. If it fails with conflicts, resolve them
-            (pick the correct version for each conflict), then `git add` and `git commit`.
+            HERE ARE THE ERRORS — fix these:
+            ${{ steps.errors.outputs.summary }}
 
-            NEXT: Check if .claude-fix-log.md exists in the repo root. If it does, read it —
-            it contains notes from previous fix attempts explaining what was already tried and
-            what failed. Do NOT repeat approaches that already failed.
-
-            Error logs are at:
-            - /tmp/lint_errors.txt
-            - /tmp/tc_errors.txt
-            - /tmp/bundle_errors.txt
-            - /tmp/test_errors.txt
-            - /tmp/native_dep_errors.txt (unlinked native iOS dependencies)
-
-            Read the error files to see what's wrong. Fix ONE FILE AT A TIME.
-            After each file, run `pnpm typecheck` to confirm you didn't introduce new errors.
-            Do NOT use `any` types to suppress errors — fix the root cause.
-            If native_dep_errors.txt shows unlinked packages, you CANNOT fix this on Ubuntu.
-            Instead, remove the import of the unlinked package or make it a lazy/optional import
-            that won't crash the Metro bundler. The Podfile.lock must be updated on macOS.
-            If tests fail with "snapshot was not written", run `pnpm test -- -u` to update
-            snapshots, then `git add` the new/updated .snap files.
-            After fixing, run `pnpm lint && pnpm typecheck && pnpm test` to confirm ZERO errors.
-            Then git add and git commit.
-
-            LAST: Before your final commit, update .claude-fix-log.md (create it if it doesn't
-            exist) with a brief summary of this attempt:
-            - What errors you found
-            - What you changed to fix them
-            - Whether checks passed after your fix
-            - Any remaining issues
-            This log helps the next attempt avoid repeating your work.
+            INSTRUCTIONS:
+            1. If there's a merge conflict, run `git fetch origin master && git merge origin/master --no-edit`, resolve conflicts, then `git add` and `git commit`.
+            2. Check if .claude-fix-log.md exists in the repo root. If yes, read it first — it has notes from previous attempts. Do NOT repeat failed approaches.
+            3. Read the error files at /tmp/lint_errors.txt, /tmp/tc_errors.txt, /tmp/bundle_errors.txt, /tmp/test_errors.txt, /tmp/native_dep_errors.txt for full details.
+            4. Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to confirm no new errors.
+            5. Do NOT use `any` types — fix root causes.
+            6. If native_dep_errors.txt shows unlinked packages, use lazy/optional imports (can't run pod install on Ubuntu).
+            7. If tests fail with "snapshot was not written", run `pnpm test -- -u` to update snapshots.
+            8. After fixing, run `pnpm typecheck && pnpm test` to confirm ZERO errors.
+            9. Then git add and git commit your changes.
+            10. LAST: Update .claude-fix-log.md (create if needed) with: errors found, changes made, whether checks pass now, remaining issues. This helps the next attempt.
+          settings: |
+            {
+              "maxTurns": 30,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
+                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
+                "Bash(git rm:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+              ]
+            }
 
       - name: Push fixes to temp branch
         env:
@@ -371,9 +409,19 @@ jobs:
             fi
           fi
 
+          # Check if Claude actually produced any changes
+          LOCAL_HEAD=$(git rev-parse HEAD)
+          REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.tmp_branch }}" 2>/dev/null || echo "none")
+
+          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "::warning::Claude produced no changes — skipping to give-up"
+            echo "no_changes=true" >> $GITHUB_ENV
+          fi
+
           git push origin HEAD
 
       - name: Trigger next verify-merge attempt
+        if: env.no_changes != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -388,6 +436,25 @@ jobs:
             -f attempt="$NEXT_ATTEMPT"
 
           echo "Triggered verify-merge attempt $NEXT_ATTEMPT"
+
+      - name: Early give-up if no changes
+        if: env.no_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          ISSUE_NUM="${{ inputs.issue_number }}"
+          TMP_BRANCH="${{ inputs.tmp_branch }}"
+
+          if [ -n "$ISSUE_NUM" ]; then
+            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          Fix attempt ${{ inputs.attempt }}/6 produced no changes — Claude could not fix the errors. Remaining attempts skipped.
+
+          Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
+
+          To retry manually: Actions > Verify and Merge > Run workflow with \`tmp_branch: ${TMP_BRANCH}\`, \`target_branch: ${{ inputs.target_branch }}\`, \`attempt: 1\`
+          EOF
+            )" 2>/dev/null || echo "Failed to post comment"
+          fi
 
   give-up:
     needs: verify
