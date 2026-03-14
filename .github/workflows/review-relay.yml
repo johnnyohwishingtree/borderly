@@ -76,6 +76,7 @@ jobs:
         id: comments
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REVIEW_BODY: ${{ github.event.review.body }}
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           REVIEWER="${{ github.event.review.user.login }}"
@@ -88,7 +89,6 @@ jobs:
           echo "Found $COUNT inline comments from $REVIEWER"
 
           if [ "$COUNT" -eq 0 ]; then
-            REVIEW_BODY="${{ github.event.review.body }}"
             if [ -n "$REVIEW_BODY" ]; then
               echo "has_comments=false" >> $GITHUB_OUTPUT
               echo "has_body=true" >> $GITHUB_OUTPUT
@@ -130,11 +130,11 @@ jobs:
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_comments == 'false' && steps.comments.outputs.has_body == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          REVIEW_BODY: ${{ github.event.review.body }}
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           REVIEWER="${{ github.event.review.user.login }}"
           ROUND=${{ steps.check.outputs.relay_round }}
-          REVIEW_BODY="${{ github.event.review.body }}"
 
           gh pr comment "$PR_NUM" --repo ${{ github.repository }} \
             --body "@claude A code reviewer ($REVIEWER) left general feedback (round $ROUND/3): \"${REVIEW_BODY}\". Fix the code if valid, or reply explaining why it's not applicable. Run tests after any changes."
