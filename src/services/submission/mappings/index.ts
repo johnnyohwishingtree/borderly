@@ -13,6 +13,11 @@ import type { AutomationScript } from '@/types/submission';
 import JPN_MAPPING from './JPN';
 import MYS_MAPPING from './MYS';
 import SGP_MAPPING from './SGP';
+import USA_MAPPING from './USA';
+import CAN_MAPPING from './CAN';
+import GBR_MAPPING from './GBR';
+import THA_MAPPING from './THA';
+import VNM_MAPPING from './VNM';
 
 /** Re-export the AutomationScript type under the CountryFieldMappings alias. */
 export type CountryFieldMappings = AutomationScript;
@@ -22,4 +27,9 @@ export const ALL_COUNTRY_MAPPINGS: CountryFieldMappings[] = [
   JPN_MAPPING,
   MYS_MAPPING,
   SGP_MAPPING,
+  USA_MAPPING,
+  CAN_MAPPING,
+  GBR_MAPPING,
+  THA_MAPPING,
+  VNM_MAPPING,
 ];
