@@ -372,6 +372,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
 
+### Duplicate `@claude` Triggers from Reviews
+- **Problem**: When Gemini posts a review with critical issues, both `review-guardian.yml` and `review-relay.yml` post separate `@claude` comments. With `cancel-in-progress: true`, earlier runs get killed by later ones, and Claude may end up with confused context from multiple overlapping instructions.
+- **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
+
 ### Fix Attempts Repeating Same Failed Fix
 - **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
 - **Solution**: A `.claude-fix-log.md` file on the tmp branch persists across attempts. Each fix attempt reads it first, then appends what it tried and whether it worked. The merge job deletes it before merging so it never reaches the PR.
