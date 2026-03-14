@@ -268,8 +268,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |   Cross-attempt context (.claude-fix-log.md):                       |
 |     - Lives on the tmp branch, persists across fix attempts         |
 |     - Each attempt reads it first to avoid repeating failed fixes   |
-|     - Each attempt appends: what errors it found, what it changed,  |
-|       whether checks passed, remaining issues                       |
+|     - Each attempt appends a log of: errors found, changes made,    |
+|       check results, and remaining issues                           |
 |     - Merge job deletes it before merging into target branch        |
 |                                                                     |
 |   Native dep constraint: CI runs on Ubuntu, cannot run              |

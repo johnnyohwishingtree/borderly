@@ -337,6 +337,8 @@ jobs:
             If native_dep_errors.txt shows unlinked packages, you CANNOT fix this on Ubuntu.
             Instead, remove the import of the unlinked package or make it a lazy/optional import
             that won't crash the Metro bundler. The Podfile.lock must be updated on macOS.
+            If tests fail with "snapshot was not written", run `pnpm test -- -u` to update
+            snapshots, then `git add` the new/updated .snap files.
             After fixing, run `pnpm lint && pnpm typecheck && pnpm test` to confirm ZERO errors.
             Then git add and git commit.
 
