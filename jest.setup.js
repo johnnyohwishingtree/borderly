@@ -59,12 +59,16 @@ jest.mock('react-native', () => {
     Modal: mockComponent('Modal'),
     TouchableWithoutFeedback: mockComponent('TouchableWithoutFeedback'),
     FlatList: mockComponent('FlatList'),
+    Image: mockComponent('Image'),
     Animated: {
       View: mockComponent('Animated.View'),
       Value: jest.fn(() => ({
         interpolate: jest.fn(() => 'interpolated'),
       })),
       timing: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+      spring: jest.fn(() => ({
         start: jest.fn(),
       })),
     },
