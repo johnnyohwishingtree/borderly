@@ -67,10 +67,16 @@ jobs:
         run: |
           PASS=true
 
-          echo "=== Lint ==="
-          if ! pnpm lint 2>&1; then
-            echo "Lint FAILED"
-            PASS=false
+          echo "=== Lint (changed files only) ==="
+          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "Linting $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') changed files"
+            if ! echo "$CHANGED_FILES" | xargs npx eslint --quiet 2>&1; then
+              echo "Lint FAILED"
+              PASS=false
+            fi
+          else
+            echo "No changed JS/TS files to lint"
           fi
 
           echo "=== Typecheck ==="
@@ -91,6 +97,41 @@ jobs:
             echo "=== Tests ==="
             if ! pnpm test 2>&1; then
               echo "Tests FAILED"
+              PASS=false
+            fi
+          fi
+
+          if [ "$PASS" = "true" ]; then
+            echo "=== Native Dependency Check ==="
+            MISSING=""
+            # Check react-native-* and @react-native-* packages for unlinked native deps
+            for pkg in $(node -e "
+              const pkg = require('./package.json');
+              const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+              Object.keys(deps)
+                .filter(d => d.startsWith('react-native-') || d.startsWith('@react-native-'))
+                .forEach(d => console.log(d));
+            "); do
+              PKG_DIR="node_modules/$pkg"
+              [ ! -d "$PKG_DIR" ] && continue
+              # Check if package has native iOS code (podspec or ios/ directory)
+              HAS_NATIVE=false
+              if ls "$PKG_DIR"/*.podspec 1>/dev/null 2>&1 || [ -d "$PKG_DIR/ios" ]; then
+                HAS_NATIVE=true
+              fi
+              if [ "$HAS_NATIVE" = "true" ]; then
+                # Check if it's referenced in Podfile.lock
+                if ! grep -q "node_modules/$pkg" ios/Podfile.lock 2>/dev/null; then
+                  MISSING="$MISSING $pkg"
+                fi
+              fi
+            done
+            if [ -n "$MISSING" ]; then
+              echo "Native Dependency Check FAILED"
+              echo "The following native packages are in package.json but not linked in ios/Podfile.lock:"
+              for m in $MISSING; do echo "  - $m"; done
+              echo ""
+              echo "Run 'cd ios && pod install' on macOS and commit the updated Podfile.lock."
               PASS=false
             fi
           fi
@@ -198,10 +239,37 @@ jobs:
 
       - name: Capture errors
         run: |
-          pnpm lint > /tmp/lint_errors.txt 2>&1 || true
+          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "$CHANGED_FILES" | xargs npx eslint --quiet > /tmp/lint_errors.txt 2>&1 || true
+          else
+            echo "No changed files to lint" > /tmp/lint_errors.txt
+          fi
           pnpm typecheck > /tmp/tc_errors.txt 2>&1 || true
           npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js > /tmp/bundle_errors.txt 2>&1 || true
           pnpm test > /tmp/test_errors.txt 2>&1 || true
+
+          # Check for unlinked native dependencies
+          echo "" > /tmp/native_dep_errors.txt
+          for pkg in $(node -e "
+            const pkg = require('./package.json');
+            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+            Object.keys(deps)
+              .filter(d => d.startsWith('react-native-') || d.startsWith('@react-native-'))
+              .forEach(d => console.log(d));
+          "); do
+            PKG_DIR="node_modules/$pkg"
+            [ ! -d "$PKG_DIR" ] && continue
+            HAS_NATIVE=false
+            if ls "$PKG_DIR"/*.podspec 1>/dev/null 2>&1 || [ -d "$PKG_DIR/ios" ]; then
+              HAS_NATIVE=true
+            fi
+            if [ "$HAS_NATIVE" = "true" ]; then
+              if ! grep -q "node_modules/$pkg" ios/Podfile.lock 2>/dev/null; then
+                echo "UNLINKED: $pkg is in package.json with native iOS code but missing from ios/Podfile.lock" >> /tmp/native_dep_errors.txt
+              fi
+            fi
+          done
 
       - name: Claude fix (fresh context)
         uses: anthropics/claude-code-action@v1
@@ -218,10 +286,14 @@ jobs:
             - /tmp/tc_errors.txt
             - /tmp/bundle_errors.txt
             - /tmp/test_errors.txt
+            - /tmp/native_dep_errors.txt (unlinked native iOS dependencies)
 
             Read the error files to see what's wrong. Fix ONE FILE AT A TIME.
             After each file, run `pnpm typecheck` to confirm you didn't introduce new errors.
             Do NOT use `any` types to suppress errors — fix the root cause.
+            If native_dep_errors.txt shows unlinked packages, you CANNOT fix this on Ubuntu.
+            Instead, remove the import of the unlinked package or make it a lazy/optional import
+            that won't crash the Metro bundler. The Podfile.lock must be updated on macOS.
             After fixing, run `pnpm lint && pnpm typecheck && pnpm test` to confirm ZERO errors.
             Then git add and git commit.
 
