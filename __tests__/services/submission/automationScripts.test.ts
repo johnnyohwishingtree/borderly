@@ -214,7 +214,6 @@ describe('AutomationScriptUtils.applyTransform', () => {
     it('returns original value when config is missing', () => {
       const result = AutomationScriptUtils.applyTransform('1990-06-15', {
         type: 'date_format',
-        config: undefined,
       });
       expect(result).toBe('1990-06-15');
     });

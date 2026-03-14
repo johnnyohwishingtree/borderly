@@ -2,7 +2,7 @@
  * Tests for FormFiller — auto-fill script builder and result parser.
  */
 
-import { FormFiller, FieldSpec, FillResult } from '../../../src/services/submission/formFiller';
+import { FormFiller, FieldSpec } from '../../../src/services/submission/formFiller';
 
 describe('FormFiller', () => {
   let filler: FormFiller;

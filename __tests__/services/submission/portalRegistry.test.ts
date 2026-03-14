@@ -8,7 +8,6 @@ import {
   getAllowedDomains,
   getPortalName,
   getPortalBaseUrl,
-  PortalInfo,
 } from '../../../src/services/submission/portalRegistry';
 
 // ---------------------------------------------------------------------------
