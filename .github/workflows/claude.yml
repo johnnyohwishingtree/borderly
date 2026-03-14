@@ -92,7 +92,9 @@ jobs:
               ]
             }
           claude_args: |
-            --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do."
+            --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
+
+            When asked to fix code review issues: you MUST use the Edit tool to modify files, then git add, git commit, and git push. Posting a comment describing what you would change is NOT sufficient — you must actually make the changes. If you cannot fix an issue, reply on the specific review thread explaining why."
 
       # ── Rescue step: runs ONLY when the job is cancelled (e.g. timeout) ──
       - name: Rescue work on timeout
