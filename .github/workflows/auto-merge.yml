@@ -17,7 +17,7 @@ on:
   pull_request_review:
     types: [submitted]
 
-  # Re-evaluate when review threads are resolved
+  # Re-evaluate when new commits are pushed (review-fix resolves threads before pushing)
   pull_request:
     types: [synchronize]
 
