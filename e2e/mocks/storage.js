@@ -165,7 +165,7 @@ const databaseService = {
     const allTrips = injected.trips || trips;
     return Promise.resolve(allTrips.map(trip => ({
       trip,
-      legs: tripLegs[trip.id] || [],
+      legs: (injected.tripLegs && injected.tripLegs[trip.id]) || tripLegs[trip.id] || [],
     })));
   },
   getTripCount: (status) => {
@@ -188,7 +188,12 @@ const databaseService = {
     if (idx >= 0) trips.splice(idx, 1);
     return Promise.resolve();
   },
-  getTripLegs: (tripId) => Promise.resolve(tripLegs[tripId] || []),
+  getTripLegs: (tripId) => {
+    const injected = getInjectedState();
+    return Promise.resolve(
+      (injected.tripLegs && injected.tripLegs[tripId]) || tripLegs[tripId] || []
+    );
+  },
   createTripLeg: (tripId, leg) => {
     if (!tripLegs[tripId]) tripLegs[tripId] = [];
     const newLeg = { id: `leg-${Date.now()}`, ...leg };
