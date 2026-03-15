@@ -314,13 +314,21 @@ describe('Auto-Fill Pipeline — date format transforms', () => {
 
   it('USA: dateOfBirth is formatted MM/DD/YYYY', () => {
     const usaLeg = sampleLegByCountry['USA'];
-    generateFilledForm(sampleProfile, usaLeg, SCHEMAS.USA);
+    const form = generateFilledForm(sampleProfile, usaLeg, SCHEMAS.USA);
+    const allFields = form.sections.flatMap((s) => s.fields);
     const usaMapping = getCountryMapping('USA')!;
 
     const dobMapping = usaMapping.fieldMappings['dateOfBirth'];
-    if (dobMapping?.transform?.type === 'date_format') {
-      const transformed = applyTransform('1985-06-15', dobMapping.transform);
+    const dobField = allFields.find((f) => f.id === 'dateOfBirth');
+
+    expect(dobField).toBeDefined();
+    if (dobField && dobMapping?.transform?.type === 'date_format') {
+      const transformed = applyTransform(dobField.currentValue, dobMapping.transform);
       expect(transformed).toBe('06/15/1985');
+
+      const specs = buildFieldSpecsFromForm(allFields, usaMapping.fieldMappings);
+      const script = formFiller.buildAutoFillScript(specs);
+      expect(script).toContain('06/15/1985');
     }
   });
 });
