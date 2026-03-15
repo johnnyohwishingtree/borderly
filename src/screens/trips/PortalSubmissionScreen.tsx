@@ -350,12 +350,17 @@ export default function PortalSubmissionScreen() {
             const rawResults = Array.isArray(msg.results) ? msg.results : [];
             const fieldResults: AutoFillFieldResult[] = rawResults
               .filter((r): r is Record<string, unknown> => r !== null && typeof r === 'object')
-              .map(r => ({
-                id: typeof r.id === 'string' ? r.id : String(r.id ?? ''),
-                status: (r.status as AutoFillFieldResult['status']) ?? 'failed',
-                error: typeof r.error === 'string' ? r.error : undefined,
-              }));
-            setBannerState({ filled, total, results: fieldResults.length > 0 ? fieldResults : undefined });
+              .map(r => {
+                const result: AutoFillFieldResult = {
+                  id: typeof r.id === 'string' ? r.id : String(r.id ?? ''),
+                  status: (r.status as AutoFillFieldResult['status']) ?? 'failed',
+                };
+                if (typeof r.error === 'string') {
+                  result.error = r.error;
+                }
+                return result;
+              });
+            setBannerState(fieldResults.length > 0 ? { filled, total, results: fieldResults } : { filled, total });
             const fillRate = filled / total;
             if (!formFiller.isAutoFillSufficient(fillRate)) {
               setShowLowFillWarning(true);
@@ -547,7 +552,7 @@ export default function PortalSubmissionScreen() {
         <AutoFillBanner
           filled={bannerState.filled}
           total={bannerState.total}
-          results={bannerState.results}
+          {...(bannerState.results ? { results: bannerState.results } : {})}
           onDismiss={() => setBannerState(null)}
           testID="autofill-banner"
         />
