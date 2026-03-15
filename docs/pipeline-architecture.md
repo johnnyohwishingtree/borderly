@@ -430,7 +430,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
   - Bot run: `claude-247-claude[bot]`
 - **Also**: `github.event.comment.user.type != 'Bot'` filter skips bot-triggered runs
 
-### Status Comment Cancellation
+### Cancellation by Status Comments
 - **Problem**: `claude-code-action` posts "Claude Code is working…" status comments via the GH_PAT (same user as the triggerer). This triggers a new workflow run in the same concurrency group with `cancel-in-progress: true`, which cancels the real `@claude` run. The replacement run then skips because the status comment doesn't contain `@claude`. Net result: real work cancelled, nothing runs.
 - **Solution**: `cancel-in-progress: ${{ contains(github.event.comment.body, '@claude') }}`. Only comments containing `@claude` can cancel a previous run. Status comments still trigger the workflow (unavoidable) but queue harmlessly with `cancel-in-progress: false`, then skip at the job `if` condition.
 
