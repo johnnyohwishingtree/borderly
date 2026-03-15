@@ -320,46 +320,53 @@ export default function LegFormScreen() {
       {/* Action Buttons */}
       <View className="bg-white border-t border-gray-200 px-4 py-3">
         <View className="flex-row space-x-3">
-          <Button
-            title="Save Progress"
-            onPress={handleSaveForm}
-            variant="outline"
-            size="medium"
-            loading={isSubmitting}
-            disabled={Object.keys(formData).length === 0}
-            testID="save-progress-button"
-          />
+          <View className="flex-1">
+            <Button
+              title="Save Progress"
+              onPress={handleSaveForm}
+              variant="outline"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              disabled={Object.keys(formData).length === 0}
+              testID="save-progress-button"
+            />
+          </View>
 
-          <Button
-            title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
-            onPress={handleMarkAsReady}
-            variant="primary"
-            size="medium"
-            fullWidth
-            loading={isSubmitting}
-            disabled={!isValid}
-            testID="mark-ready-button"
-          />
+          <View className="flex-1">
+            <Button
+              title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
+              onPress={handleMarkAsReady}
+              variant="primary"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              disabled={!isValid}
+              testID="mark-ready-button"
+            />
+          </View>
         </View>
 
         {isValid && (
           <View className="mt-2 flex-row space-x-3">
-            <Button
-              title="Submit in App"
-              onPress={() => {
-                const schema = schemaRegistry.getSchema(leg?.destinationCountry ?? '');
-                (navigation as any).navigate('PortalSubmission', {
-                  url: schema?.portalUrl ?? '',
-                  countryCode: leg?.destinationCountry ?? '',
-                  tripId,
-                  legId,
-                });
-              }}
-              variant="primary"
-              testID="submit-in-app-button"
-              size="medium"
-              fullWidth
-            />
+            <View className="flex-1">
+              <Button
+                title="Submit in App"
+                onPress={() => {
+                  const schema = schemaRegistry.getSchema(leg?.destinationCountry ?? '');
+                  (navigation as any).navigate('PortalSubmission', {
+                    url: schema?.portalUrl ?? '',
+                    countryCode: leg?.destinationCountry ?? '',
+                    tripId,
+                    legId,
+                  });
+                }}
+                variant="primary"
+                testID="submit-in-app-button"
+                size="medium"
+                fullWidth
+              />
+            </View>
             <Button
               title="Guide"
               onPress={() => {

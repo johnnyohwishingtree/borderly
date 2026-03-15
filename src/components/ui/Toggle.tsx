@@ -54,16 +54,16 @@ export default function Toggle({
   }, [value, animatedValue]);
 
   const getSizeStyles = () => {
-    // Ensure minimum touch target size for accessibility
-    const minSize = ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET;
-    
+    // Visual track dimensions — kept small/oval intentionally.
+    // The 44px touch target is provided by the Pressable container
+    // (minWidth / minHeight below), not by the track itself.
     switch (size) {
       case 'small':
-        return { width: 44, height: Math.max(24, minSize), thumbSize: 20 };
+        return { width: 44, height: 24, thumbSize: 20 };
       case 'large':
-        return { width: 60, height: Math.max(32, minSize), thumbSize: 28 };
+        return { width: 60, height: 32, thumbSize: 28 };
       default:
-        return { width: 52, height: Math.max(28, minSize), thumbSize: 24 };
+        return { width: 52, height: 28, thumbSize: 24 };
     }
   };
 

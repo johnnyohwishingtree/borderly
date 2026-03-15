@@ -1,10 +1,11 @@
 /**
- * United States (USA) — ESTA portal field mappings and portal automation config.
+ * United States (USA) — CBP Declaration field mappings and portal automation config.
  *
- * Portal: Electronic System for Travel Authorization (ESTA)
- * URL: https://esta.cbp.dhs.gov/
+ * Portal: CBP Declaration Form 6059B / CBP One
+ * URL: https://www.cbp.gov/travel/us-citizens/know-before-you-go/cbp-declaration-form-6059b
  * Date format: MM/DD/YYYY
- * Note: Automation is in test mode only due to portal complexity.
+ * Note: Targets the customs declaration form (6059B), not ESTA (travel authorization).
+ * Automation is in test mode only due to portal complexity.
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -296,8 +297,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
 const steps: AutomationStep[] = [
   {
     id: 'load_portal',
-    name: 'Load ESTA Portal',
-    description: 'Navigate to the official ESTA portal and wait for page load',
+    name: 'Load CBP Declaration Portal',
+    description: 'Navigate to the CBP Declaration Form 6059B / CBP One portal and wait for page load',
     script: `
       return new Promise((resolve) => {
         if (document.readyState === 'complete') {
@@ -374,8 +375,8 @@ const steps: AutomationStep[] = [
   },
   {
     id: 'fill_eligibility_questions',
-    name: 'Fill Eligibility Questions',
-    description: 'Answer security and eligibility questions',
+    name: 'Fill Customs Declaration Questions',
+    description: 'Answer customs declaration questions (goods, currency, agricultural items)',
     script: `
       return { success: true, message: 'Eligibility questions filling script placeholder' };
     `,
@@ -386,7 +387,7 @@ const steps: AutomationStep[] = [
 
 const USA_MAPPING: AutomationScript = {
   countryCode: 'USA',
-  portalUrl: 'https://esta.cbp.dhs.gov/',
+  portalUrl: 'https://www.cbp.gov/travel/us-citizens/know-before-you-go/cbp-declaration-form-6059b',
   version: '1.0.0',
   lastUpdated: '2026-03-14T00:00:00Z',
   prerequisites: {
