@@ -576,6 +576,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: `review-fix.yml` ran Claude to fix review feedback, then pushed directly to the PR branch without checking if the fixes passed typecheck/tests. This caused PRs to ship with broken code.
 - **Solution**: Added a verification step between Claude's run and the push. Runs `pnpm typecheck && pnpm test` — if either fails, changes are NOT pushed and a failure comment is posted on the PR. The job exits 1 so it shows red, not green.
 
+### Review Threads Not Resolved After Fix (Auto-Merge Deadlock)
+- **Problem**: When `review-fix.yml` addressed review feedback and pushed fixes, it failed to resolve the corresponding review threads. This created a deadlock because `auto-merge.yml` requires all threads to be resolved (Condition 4), preventing PRs from merging. This happened because the thread resolution logic from `claude.yml` (PR context path) was missing in `review-fix.yml`.
+- **Solution**: A "Resolve review threads" step was added to `review-fix.yml`. It uses the GitHub GraphQL API's `resolveReviewThread` mutation to resolve all unresolved threads after verification passes. Crucially, threads are resolved *before* the push. This ensures that when the push triggers `auto-merge.yml` via `pull_request: synchronize`, the threads are already resolved and the merge gate can pass in a single evaluation.
+
 ### Automated Merge Conflict Resolution (resolve-conflicts.yml)
 - **Trigger**: On push to master (checks all open PRs) or manual dispatch for a specific PR
 - **Logic**: Infrastructure files (`.github/`, `docs/pipeline*`, `CLAUDE.md`) and lock files take master's version. PR-modified files take the branch's version. If conflicts can't be auto-resolved, a comment is posted listing the files needing manual attention.
