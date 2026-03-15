@@ -22,7 +22,7 @@ jest.mock('../../src/utils/errorHandling', () => ({
 
 jest.mock('../../src/components/ui/Button', () => {
   const MockReact = require('react');
-  const { TouchableOpacity, Text } = require('react-native');
+  const { TouchableOpacity } = require('react-native');
   return function MockButton({ title, onPress }: { title: string; onPress: () => void }) {
     return MockReact.createElement(
       TouchableOpacity,
