@@ -12,7 +12,7 @@ jest.mock('lucide-react-native', () => ({
 
 // Mock ProfileSelector to simplify AutoFillPill tests
 jest.mock('../../../src/components/submission/ProfileSelector', () => ({
-  ProfileSelector: ({ profiles, selectedProfileId, onSelect, testID }: {
+  ProfileSelector: ({ profiles, selectedProfileId: _selectedProfileId, onSelect, testID }: {
     profiles: ProfileOption[];
     selectedProfileId: string;
     onSelect: (id: string) => void;
