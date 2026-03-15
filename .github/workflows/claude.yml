@@ -150,7 +150,14 @@ jobs:
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
                 "Bash(*)"
-              ]
+              ],
+              "permissions": {
+                "allow": [
+                  "Edit(*)",
+                  "Write(*)",
+                  "MultiEdit(*)"
+                ]
+              }
             }
           claude_args: |
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
