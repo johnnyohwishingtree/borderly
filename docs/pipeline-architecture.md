@@ -516,6 +516,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` and `verify-merge.yml` runs by parsing `displayTitle` (e.g., "Verify #277 → ..."). Skips retrigger if any workflow is already in flight for that story.
 - **Bug fixed**: Originally tried to read `verify-merge.yml` inputs via `gh api .inputs.issue_number`, but `.inputs` is `null` for `workflow_dispatch` runs via the API. Switched to parsing `displayTitle` like we do for `claude.yml`.
 
+### Same tmp_branch and target_branch
+- **Problem**: verify-merge can be triggered with `tmp_branch == target_branch` (e.g., manual retrigger or when claude-code-action pushes directly to the target). The merge step merges a branch into itself (no-op), then the delete step deletes the target branch, and `gh pr create` fails because GitHub's ref is gone.
+- **Solution**: Three guards: (1) merge step skips `git merge` when branches are the same, (2) delete step skips when branches are the same — never delete the target branch, (3) PR creation retries with a fresh branch name (`pr/issue-N`) if GitHub returns "Head sha can't be blank" or "No commits between" errors (handles stale ref cache after force-pushes).
+
 ### Post-Action Push Race
 - **Problem**: `claude-code-action@v1` uses an internal `git-push.sh` script that pushes to the PR/tmp branch mid-run. Our post-action push steps then fail with non-fast-forward rejection.
 - **Solution**: All post-action push steps fetch the remote, compare HEAD to remote HEAD. If equal, skip (nothing new). If ahead, rebase before pushing. If behind, pull --rebase first.
