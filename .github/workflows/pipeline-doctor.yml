@@ -154,14 +154,19 @@ jobs:
             echo '```' >> "$EVIDENCE_FILE"
             echo "" >> "$EVIDENCE_FILE"
 
-            echo "### Key diffs (first 200 lines)" >> "$EVIDENCE_FILE"
-            echo "<details><summary>git diff origin/master..origin/$BEST_BRANCH</summary>" >> "$EVIDENCE_FILE"
+            echo "### Key diffs (per-file, max 50 lines each)" >> "$EVIDENCE_FILE"
             echo "" >> "$EVIDENCE_FILE"
-            echo '```diff' >> "$EVIDENCE_FILE"
-            git diff "origin/master..origin/$BEST_BRANCH" 2>/dev/null | head -200 >> "$EVIDENCE_FILE"
-            echo '```' >> "$EVIDENCE_FILE"
-            echo "</details>" >> "$EVIDENCE_FILE"
-            echo "" >> "$EVIDENCE_FILE"
+            # Show per-file diffs so truncation doesn't hide later files
+            git diff --name-only "origin/master..origin/$BEST_BRANCH" 2>/dev/null | while read -r DIFF_FILE; do
+              [ -z "$DIFF_FILE" ] && continue
+              echo "<details><summary>$DIFF_FILE</summary>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+              echo '```diff' >> "$EVIDENCE_FILE"
+              git diff "origin/master..origin/$BEST_BRANCH" -- "$DIFF_FILE" 2>/dev/null | head -50 >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "</details>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+            done
 
             # Save for later steps (checkout + test)
             echo "WORK_BRANCH=$BEST_BRANCH" >> $GITHUB_ENV
@@ -371,11 +376,37 @@ jobs:
           echo "" >> "$EVIDENCE_FILE"
 
           # Run tests and capture FULL failure details (not just FAIL lines)
+          # Save full test output so Claude can read the raw file for more context
+          pnpm test > /tmp/full_test_output.txt 2>&1 || true
+
           echo "### Test failure details" >> "$EVIDENCE_FILE"
           echo '```' >> "$EVIDENCE_FILE"
-          pnpm test 2>&1 | grep -E "FAIL |● |Expected|Received|expect\(|toBe\(|at Object|\.test\." | grep -v "● Console" | head -60 >> "$EVIDENCE_FILE" || echo "(tests passed)" >> "$EVIDENCE_FILE"
+          grep -E "FAIL |● |Expected|Received|expect\(|toBe\(|at Object|\.test\." /tmp/full_test_output.txt | grep -v "● Console" | head -60 >> "$EVIDENCE_FILE" || echo "(tests passed)" >> "$EVIDENCE_FILE"
           echo '```' >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
+
+          # Include the failing test file paths so Claude can read them
+          FAILING_TEST_FILES=$(grep -E "^FAIL " /tmp/full_test_output.txt | sed 's/^FAIL //' | head -10 || true)
+          if [ -n "$FAILING_TEST_FILES" ]; then
+            echo "### Failing test file contents" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "These are the test files that fail. Compare their assertions against the commit diffs above." >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "$FAILING_TEST_FILES" | while read -r TEST_FILE; do
+              [ -z "$TEST_FILE" ] && continue
+              # Trim whitespace
+              TEST_FILE=$(echo "$TEST_FILE" | xargs)
+              if [ -f "$TEST_FILE" ]; then
+                echo "<details><summary>$TEST_FILE</summary>" >> "$EVIDENCE_FILE"
+                echo "" >> "$EVIDENCE_FILE"
+                echo '```typescript' >> "$EVIDENCE_FILE"
+                cat "$TEST_FILE" >> "$EVIDENCE_FILE"
+                echo '```' >> "$EVIDENCE_FILE"
+                echo "</details>" >> "$EVIDENCE_FILE"
+                echo "" >> "$EVIDENCE_FILE"
+              fi
+            done
+          fi
 
           # Switch back to master for Claude to work from
           git checkout master
@@ -450,6 +481,12 @@ jobs:
             IMPORTANT: Always include GitHub links in your comments and issues so everything is traceable.
             CRITICAL: Push after each milestone. If this job times out, unpushed work is lost.
             Push command: `git push origin HEAD`
+
+            NOTE: You start on the master branch. To fix code on the work branch, run:
+            `git fetch origin && git checkout origin/<work_branch> --detach`
+            The work branch name is in the evidence file under "Work Branch Analysis".
+            After fixing, push with: `git push origin HEAD:refs/heads/<work_branch>`
+            Full test output is at /tmp/full_test_output.txt if you need more detail than the evidence summary.
           settings: |
             {
               "maxTurns": 50,
