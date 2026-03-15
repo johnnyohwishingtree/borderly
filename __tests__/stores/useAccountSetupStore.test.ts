@@ -18,7 +18,7 @@ describe('useAccountSetupStore', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset store to initial state
-    useAccountSetupStore.setState({ statuses: [] });
+    useAccountSetupStore.setState({ statuses: {} });
     mockMmkvService.getString.mockReturnValue(undefined);
   });
 
@@ -26,16 +26,16 @@ describe('useAccountSetupStore', () => {
   // loadStatuses
   // ──────────────────────────────────────────────────────────────
   describe('loadStatuses', () => {
-    it('loads empty array when nothing is stored', () => {
+    it('loads empty map when nothing is stored', () => {
       mockMmkvService.getString.mockReturnValue(undefined);
       useAccountSetupStore.getState().loadStatuses();
-      expect(useAccountSetupStore.getState().statuses).toEqual([]);
+      expect(useAccountSetupStore.getState().statuses).toEqual({});
     });
 
     it('loads statuses from MMKV on call', () => {
-      const stored = [
-        { profileId: 'p1', portalCode: 'JPN', status: 'ready', lastChecked: '2026-01-01' },
-      ];
+      const stored = {
+        'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready', lastChecked: '2026-01-01' },
+      };
       mockMmkvService.getString.mockReturnValue(JSON.stringify(stored));
 
       useAccountSetupStore.getState().loadStatuses();
@@ -44,10 +44,10 @@ describe('useAccountSetupStore', () => {
       expect(useAccountSetupStore.getState().statuses).toEqual(stored);
     });
 
-    it('falls back to empty array on corrupted JSON', () => {
+    it('falls back to empty map on corrupted JSON', () => {
       mockMmkvService.getString.mockReturnValue('{ bad json !!');
       useAccountSetupStore.getState().loadStatuses();
-      expect(useAccountSetupStore.getState().statuses).toEqual([]);
+      expect(useAccountSetupStore.getState().statuses).toEqual({});
     });
   });
 
@@ -62,21 +62,21 @@ describe('useAccountSetupStore', () => {
 
     it('returns the stored status for a profile × portal pair', () => {
       useAccountSetupStore.setState({
-        statuses: [{ profileId: 'p1', portalCode: 'GBR', status: 'ready' }],
+        statuses: { 'p1__GBR': { profileId: 'p1', portalCode: 'GBR', status: 'ready' } },
       });
       expect(useAccountSetupStore.getState().getStatus('p1', 'GBR')).toBe('ready');
     });
 
     it('returns not_started for a different profile on the same portal', () => {
       useAccountSetupStore.setState({
-        statuses: [{ profileId: 'p1', portalCode: 'JPN', status: 'ready' }],
+        statuses: { 'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' } },
       });
       expect(useAccountSetupStore.getState().getStatus('p2', 'JPN')).toBe('not_started');
     });
 
     it('returns not_started for a different portal on the same profile', () => {
       useAccountSetupStore.setState({
-        statuses: [{ profileId: 'p1', portalCode: 'JPN', status: 'ready' }],
+        statuses: { 'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' } },
       });
       expect(useAccountSetupStore.getState().getStatus('p1', 'GBR')).toBe('not_started');
     });
@@ -90,8 +90,8 @@ describe('useAccountSetupStore', () => {
       useAccountSetupStore.getState().setStatus('p1', 'JPN', 'setup_started');
 
       const { statuses } = useAccountSetupStore.getState();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0]).toMatchObject({
+      expect(Object.keys(statuses)).toHaveLength(1);
+      expect(statuses['p1__JPN']).toMatchObject({
         profileId: 'p1',
         portalCode: 'JPN',
         status: 'setup_started',
@@ -100,31 +100,31 @@ describe('useAccountSetupStore', () => {
 
     it('updates an existing status entry', () => {
       useAccountSetupStore.setState({
-        statuses: [
-          { profileId: 'p1', portalCode: 'JPN', status: 'setup_started' },
-        ],
+        statuses: {
+          'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'setup_started' },
+        },
       });
 
       useAccountSetupStore.getState().setStatus('p1', 'JPN', 'ready');
 
       const { statuses } = useAccountSetupStore.getState();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0].status).toBe('ready');
+      expect(Object.keys(statuses)).toHaveLength(1);
+      expect(statuses['p1__JPN'].status).toBe('ready');
     });
 
     it('does not affect other entries when updating one', () => {
       useAccountSetupStore.setState({
-        statuses: [
-          { profileId: 'p1', portalCode: 'JPN', status: 'setup_started' },
-          { profileId: 'p2', portalCode: 'GBR', status: 'not_started' },
-        ],
+        statuses: {
+          'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'setup_started' },
+          'p2__GBR': { profileId: 'p2', portalCode: 'GBR', status: 'not_started' },
+        },
       });
 
       useAccountSetupStore.getState().setStatus('p1', 'JPN', 'ready');
 
       const { statuses } = useAccountSetupStore.getState();
-      expect(statuses).toHaveLength(2);
-      expect(statuses.find(s => s.profileId === 'p2')?.status).toBe('not_started');
+      expect(Object.keys(statuses)).toHaveLength(2);
+      expect(statuses['p2__GBR'].status).toBe('not_started');
     });
 
     it('persists to MMKV on every update', () => {
@@ -136,17 +136,16 @@ describe('useAccountSetupStore', () => {
     });
 
     it('sets lastChecked timestamp when updating status', () => {
-      const before = new Date().toISOString();
+      const beforeMs = Date.now();
       useAccountSetupStore.getState().setStatus('p1', 'JPN', 'ready');
-      const after = new Date().toISOString();
+      const afterMs = Date.now();
 
-      const status = useAccountSetupStore
-        .getState()
-        .statuses.find(s => s.profileId === 'p1' && s.portalCode === 'JPN');
+      const status = useAccountSetupStore.getState().statuses['p1__JPN'];
 
       expect(status?.lastChecked).toBeDefined();
-      expect(status!.lastChecked! >= before).toBe(true);
-      expect(status!.lastChecked! <= after).toBe(true);
+      const checkedMs = new Date(status!.lastChecked!).getTime();
+      expect(checkedMs).toBeGreaterThanOrEqual(beforeMs);
+      expect(checkedMs).toBeLessThanOrEqual(afterMs);
     });
   });
 
@@ -176,7 +175,7 @@ describe('useAccountSetupStore', () => {
   describe('resetStatus', () => {
     it('resets a ready status back to not_started', () => {
       useAccountSetupStore.setState({
-        statuses: [{ profileId: 'p1', portalCode: 'JPN', status: 'ready' }],
+        statuses: { 'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' } },
       });
       useAccountSetupStore.getState().resetStatus('p1', 'JPN');
       expect(useAccountSetupStore.getState().getStatus('p1', 'JPN')).toBe('not_started');
@@ -189,23 +188,23 @@ describe('useAccountSetupStore', () => {
   describe('clearProfileStatuses', () => {
     it('removes all statuses for a given profile', () => {
       useAccountSetupStore.setState({
-        statuses: [
-          { profileId: 'p1', portalCode: 'JPN', status: 'ready' },
-          { profileId: 'p1', portalCode: 'GBR', status: 'setup_started' },
-          { profileId: 'p2', portalCode: 'JPN', status: 'ready' },
-        ],
+        statuses: {
+          'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' },
+          'p1__GBR': { profileId: 'p1', portalCode: 'GBR', status: 'setup_started' },
+          'p2__JPN': { profileId: 'p2', portalCode: 'JPN', status: 'ready' },
+        },
       });
 
       useAccountSetupStore.getState().clearProfileStatuses('p1');
 
       const { statuses } = useAccountSetupStore.getState();
-      expect(statuses).toHaveLength(1);
-      expect(statuses[0].profileId).toBe('p2');
+      expect(Object.keys(statuses)).toHaveLength(1);
+      expect(statuses['p2__JPN'].profileId).toBe('p2');
     });
 
     it('persists after removing', () => {
       useAccountSetupStore.setState({
-        statuses: [{ profileId: 'p1', portalCode: 'JPN', status: 'ready' }],
+        statuses: { 'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' } },
       });
       useAccountSetupStore.getState().clearProfileStatuses('p1');
       expect(mockMmkvService.setString).toHaveBeenCalled();
@@ -216,17 +215,17 @@ describe('useAccountSetupStore', () => {
   // clearAllStatuses
   // ──────────────────────────────────────────────────────────────
   describe('clearAllStatuses', () => {
-    it('empties the statuses array', () => {
+    it('empties the statuses map', () => {
       useAccountSetupStore.setState({
-        statuses: [
-          { profileId: 'p1', portalCode: 'JPN', status: 'ready' },
-          { profileId: 'p2', portalCode: 'GBR', status: 'ready' },
-        ],
+        statuses: {
+          'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' },
+          'p2__GBR': { profileId: 'p2', portalCode: 'GBR', status: 'ready' },
+        },
       });
 
       useAccountSetupStore.getState().clearAllStatuses();
 
-      expect(useAccountSetupStore.getState().statuses).toEqual([]);
+      expect(useAccountSetupStore.getState().statuses).toEqual({});
     });
 
     it('deletes the MMKV key on clearAll', () => {
@@ -248,7 +247,7 @@ describe('useAccountSetupStore', () => {
       const stored = calls[calls.length - 1]![1];
 
       // Simulate app restart: new session loads from MMKV
-      useAccountSetupStore.setState({ statuses: [] });
+      useAccountSetupStore.setState({ statuses: {} });
       mockMmkvService.getString.mockReturnValue(stored);
 
       useAccountSetupStore.getState().loadStatuses();

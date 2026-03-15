@@ -391,24 +391,18 @@ jobs:
 
             STEPS:
             1. If .claude-fix-log.md exists, read it first — do NOT repeat failed approaches.
-            2. Fix the errors. Do NOT use `any` types. Fix ONE FILE AT A TIME, run `pnpm typecheck` after each.
-            3. Run `pnpm typecheck && pnpm test` to confirm ZERO errors.
-            4. git add, commit, push: `git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}`
-            5. Update .claude-fix-log.md with what you fixed and whether checks pass now.
+            2. If resolving merge conflicts, always take master's version for files not related to the story (e.g. .github/workflows/*, docs/pipeline-architecture.md). Use `git checkout origin/master -- <file>` for those.
+            3. Fix the errors. Do NOT use `any` types. Fix ONE FILE AT A TIME, run `pnpm typecheck` after each.
+            4. Run `pnpm typecheck && pnpm test` to confirm ZERO errors.
+            5. git add, commit, push: `git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}`
+            6. Update .claude-fix-log.md with what you fixed and whether checks pass now.
 
             Push after each milestone — unpushed work is lost on timeout.
           show_full_output: true
           claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
-              "maxTurns": 15,
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 15
             }
 
       - name: Check for permission issues

@@ -50,7 +50,7 @@ interface PortalAccountInfo {
 export default function AccountSetupChecklist({
   legs,
   profileId,
-  familyProfileIds = [],
+  familyProfileIds: _familyProfileIds = [],
   testID,
 }: AccountSetupChecklistProps) {
   const [portalInfos, setPortalInfos] = useState<PortalAccountInfo[]>([]);
@@ -62,7 +62,7 @@ export default function AccountSetupChecklist({
   } | null>(null);
   const [webviewLoading, setWebviewLoading] = useState(true);
 
-  const { getStatus, markReady, loadStatuses } = useAccountSetupStore();
+  const { getStatus, markReady, resetStatus, loadStatuses } = useAccountSetupStore();
 
   useEffect(() => {
     loadStatuses();
@@ -111,15 +111,14 @@ export default function AccountSetupChecklist({
 
   const handleMarkReady = useCallback(
     (portalCode: string) => {
+      // Only mark the current profile as ready.
+      // Family members with 'individual' portals must sign up separately;
+      // companion portals share the primary account, but the primary
+      // profile is already covered by this single call.
       markReady(profileId, portalCode);
-      // For companion portals also mark all family members as ready
-      const allProfileIds = [profileId, ...familyProfileIds];
-      allProfileIds.forEach(pid => {
-        if (pid !== profileId) markReady(pid, portalCode);
-      });
       setSignupModal(null);
     },
-    [profileId, familyProfileIds, markReady]
+    [profileId, markReady]
   );
 
   const handleCloseModal = useCallback(() => {
@@ -230,7 +229,7 @@ export default function AccountSetupChecklist({
                 {isReady && (
                   <TouchableOpacity
                     testID={`reset-account-${info.countryCode}`}
-                    onPress={() => useAccountSetupStore.getState().resetStatus(profileId, info.countryCode)}
+                    onPress={() => resetStatus(profileId, info.countryCode)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <X size={12} color="#9ca3af" style={{ marginLeft: 8 }} />
