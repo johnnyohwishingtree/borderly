@@ -266,8 +266,7 @@ export default function PortalSubmissionScreen() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getAllProfiles, familyProfiles, profile]);
 
   /**
    * The profile data used for auto-fill and field display.
