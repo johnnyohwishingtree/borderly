@@ -116,6 +116,14 @@ export interface CountryFormSchema {
   // Multi-step portal flow support
   portalFlow: {
     requiresAccount: boolean;
+    /** Direct URL to the portal's account signup/registration page */
+    signupUrl?: string;
+    /** Family account policy — how family members are handled under one account */
+    familyPolicy?: {
+      /** companion: one account covers all family; individual: each traveler needs their own; none: no account required */
+      type: 'companion' | 'individual' | 'none';
+      description: string;
+    };
     multiStep: boolean;
     canSaveProgress: boolean;
     sessionTimeout?: string; // How long sessions last, e.g., "30m"
