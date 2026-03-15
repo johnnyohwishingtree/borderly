@@ -473,7 +473,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
 
 ### Fix Job Permission Denials
-- **Problem**: verify-merge fix job's `allowedTools` was missing `Bash(cat:*)`, `Bash(grep:*)`, etc. The prompt tells Claude to "read error files at /tmp/*.txt" but Claude couldn't — `Read` tool only works on project files, and `cat` wasn't allowed. Result: 43 permission denials per attempt, Claude spinning uselessly.
+- **Problem**: verify-merge fix job's `allowedTools` was missing several Bash tools, such as `Bash(cat:*)` and `Bash(grep:*)`. The prompt tells Claude to "read error files at /tmp/*.txt" but Claude couldn't — `Read` tool only works on project files, and `cat` wasn't allowed. Result: 43 permission denials per attempt, Claude spinning uselessly.
 - **Solution**: Added `Bash(cat:*)`, `Bash(head:*)`, `Bash(tail:*)`, `Bash(grep:*)`, `Bash(wc:*)` to the fix job's allowedTools. Also fixed error summary to filter out `● Console` noise lines that drowned out real test failures.
 
 ### Fix Attempts Repeating Same Failed Fix
