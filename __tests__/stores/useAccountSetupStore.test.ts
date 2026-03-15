@@ -244,7 +244,8 @@ describe('useAccountSetupStore', () => {
       useAccountSetupStore.getState().markReady('user-1', 'JPN');
       useAccountSetupStore.getState().markStarted('user-1', 'GBR');
 
-      const stored = mockMmkvService.setString.mock.calls.at(-1)![1];
+      const calls = mockMmkvService.setString.mock.calls;
+      const stored = calls[calls.length - 1]![1];
 
       // Simulate app restart: new session loads from MMKV
       useAccountSetupStore.setState({ statuses: [] });
