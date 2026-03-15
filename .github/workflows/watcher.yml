@@ -72,19 +72,21 @@ jobs:
             fi
           done
 
-          # Check active verify-merge.yml runs — inputs contain issue_number
-          VM_RUN_IDS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
-            --status in_progress --json databaseId -q '.[].databaseId' 2>/dev/null || true)
-          VM_QUEUED_IDS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
-            --status queued --json databaseId -q '.[].databaseId' 2>/dev/null || true)
+          # Check active verify-merge.yml runs — run-name is "Verify #<issue> → ..."
+          # Note: .inputs is null via the API for workflow_dispatch runs, so we
+          # parse the issue number from displayTitle instead.
+          ACTIVE_VM_TITLES=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            --status in_progress --json displayTitle \
+            -q '.[].displayTitle' 2>/dev/null || true)
+          QUEUED_VM_TITLES=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            --status queued --json displayTitle \
+            -q '.[].displayTitle' 2>/dev/null || true)
 
-          for RUN_ID in $VM_RUN_IDS $VM_QUEUED_IDS; do
-            [ -z "$RUN_ID" ] && continue
-            VM_ISSUE=$(gh api "repos/$REPO/actions/runs/$RUN_ID" \
-              --jq '.inputs.issue_number // empty' 2>/dev/null || echo "")
+          for TITLE in $ACTIVE_VM_TITLES $QUEUED_VM_TITLES; do
+            VM_ISSUE=$(echo "$TITLE" | grep -oE '#[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
             if [ -n "$VM_ISSUE" ]; then
               WORKFLOW_BUSY_ISSUES="$WORKFLOW_BUSY_ISSUES $VM_ISSUE"
-              echo "verify-merge active for issue #$VM_ISSUE (run $RUN_ID)"
+              echo "verify-merge active for issue #$VM_ISSUE"
             fi
           done
 
