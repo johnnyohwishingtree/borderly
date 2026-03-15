@@ -45,7 +45,7 @@ describe('getPortalInfo', () => {
 
   it('JPN portal has correct portalUrl', () => {
     const info = getPortalInfo('JPN');
-    expect(info!.portalUrl).toBe('https://vjw-lp.digital.go.jp/en/');
+    expect(info!.portalUrl).toBe('https://vjw-lp.digital.go.jp/en/registration/');
   });
 
   it('JPN portal has correct allowedDomain derived from URL', () => {
