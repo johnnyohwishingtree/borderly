@@ -12,6 +12,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
 | `verify-merge.yml` | Dispatched by claude/gemini | Tests code, fixes errors, creates PR |
+| `pipeline-doctor.yml` | verify-merge give-up / watcher / manual | Diagnoses pipeline failures, creates fix PRs |
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test) |
 | `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright) |
 | `review-relay.yml` | Bot review submitted | Forwards bot review to Claude |
