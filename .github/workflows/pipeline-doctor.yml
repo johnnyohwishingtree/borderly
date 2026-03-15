@@ -106,9 +106,12 @@ jobs:
           ' >> "$EVIDENCE_FILE" 2>/dev/null || echo "(no pipeline comments found)" >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
 
-          # ── Related branches ──
+          # ── Related branches + commit context ──
           echo "## Branches" >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
+
+          BEST_BRANCH=""
+          BEST_AHEAD=0
 
           for PATTERN in "claude/issue-${ISSUE_NUM}" "claude/issue-${ISSUE_NUM}-" "tmp/claude-"; do
             git for-each-ref --format='%(refname:short) %(objectname:short) %(creatordate:relative)' \
@@ -119,6 +122,60 @@ jobs:
             done
           done
           echo "" >> "$EVIDENCE_FILE"
+
+          # Find the branch with most work (most commits ahead of master)
+          for ref in $(git for-each-ref --format='%(refname:short)' \
+            "refs/remotes/origin/claude/issue-${ISSUE_NUM}" \
+            "refs/remotes/origin/claude/issue-${ISSUE_NUM}-*" \
+            2>/dev/null); do
+            AHEAD=$(git rev-list --count "origin/master..$ref" 2>/dev/null || echo "0")
+            if [ "$AHEAD" -gt "$BEST_AHEAD" ]; then
+              BEST_AHEAD=$AHEAD
+              BEST_BRANCH=$(echo "$ref" | sed 's|^origin/||')
+            fi
+          done
+
+          # ── Work branch commit history and diff ──
+          if [ -n "$BEST_BRANCH" ] && [ "$BEST_AHEAD" -gt 0 ]; then
+            echo "## Work Branch Analysis: \`$BEST_BRANCH\`" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "This branch has **$BEST_AHEAD commits** ahead of master. Use this to understand what was intentionally changed." >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+
+            echo "### Commit log" >> "$EVIDENCE_FILE"
+            echo '```' >> "$EVIDENCE_FILE"
+            git log --oneline "origin/master..origin/$BEST_BRANCH" 2>/dev/null | head -30 >> "$EVIDENCE_FILE"
+            echo '```' >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+
+            echo "### Files changed vs master" >> "$EVIDENCE_FILE"
+            echo '```' >> "$EVIDENCE_FILE"
+            git diff --stat "origin/master..origin/$BEST_BRANCH" 2>/dev/null | tail -40 >> "$EVIDENCE_FILE"
+            echo '```' >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+
+            echo "### Key diffs (per-file, max 50 lines each)" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            # Show per-file diffs so truncation doesn't hide later files
+            git diff --name-only "origin/master..origin/$BEST_BRANCH" 2>/dev/null | while read -r DIFF_FILE; do
+              [ -z "$DIFF_FILE" ] && continue
+              echo "<details><summary>$DIFF_FILE</summary>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+              echo '```diff' >> "$EVIDENCE_FILE"
+              git diff "origin/master..origin/$BEST_BRANCH" -- "$DIFF_FILE" 2>/dev/null | head -50 >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "</details>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+            done
+
+            # Save for later steps (checkout + test)
+            echo "WORK_BRANCH=$BEST_BRANCH" >> $GITHUB_ENV
+          else
+            echo "## Work Branch Analysis" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "No work branch found with commits ahead of master." >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+          fi
 
           # ── Related PRs ──
           echo "## Related PRs" >> "$EVIDENCE_FILE"
@@ -215,8 +272,40 @@ jobs:
             fi
           done
 
-          # ── Previous doctor diagnoses ──
-          echo "## Previous Doctor Diagnoses" >> "$EVIDENCE_FILE"
+          # ── Previous doctor runs for this issue ──
+          echo "## Previous Doctor Runs" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          PREV_DOCTOR_RUNS=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+            --json databaseId,displayTitle,conclusion,createdAt \
+            -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | sort_by(.createdAt) | .[]" \
+            2>/dev/null || echo "")
+
+          if [ -n "$PREV_DOCTOR_RUNS" ]; then
+            echo "Previous doctor runs found for this issue. If this is a repeat diagnosis, you MUST try a DIFFERENT approach." >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+
+            echo "$PREV_DOCTOR_RUNS" | jq -r '"- Run \(.databaseId) (\(.conclusion // "unknown")): \(.createdAt)"' >> "$EVIDENCE_FILE" 2>/dev/null || true
+
+            # Fetch logs from the most recent previous doctor run
+            PREV_DOCTOR_ID=$(echo "$PREV_DOCTOR_RUNS" | jq -r 'select(.databaseId != ${{ github.run_id }}) | .databaseId' 2>/dev/null | tail -1 || true)
+            if [ -n "$PREV_DOCTOR_ID" ] && [ "$PREV_DOCTOR_ID" != "null" ]; then
+              echo "" >> "$EVIDENCE_FILE"
+              echo "### Previous doctor run logs (run $PREV_DOCTOR_ID)" >> "$EVIDENCE_FILE"
+              echo "<details><summary>Last 150 lines of previous doctor run</summary>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              gh run view "$PREV_DOCTOR_ID" --repo "$REPO" --log 2>/dev/null | tail -150 >> "$EVIDENCE_FILE" || echo "(logs unavailable)" >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "</details>" >> "$EVIDENCE_FILE"
+            fi
+          else
+            echo "No previous doctor runs found for this issue — this is the first diagnosis." >> "$EVIDENCE_FILE"
+          fi
+          echo "" >> "$EVIDENCE_FILE"
+
+          # ── Previous doctor diagnostic issues ──
+          echo "## Previous Diagnostic Issues" >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
 
           PREV_DIAGNOSES=$(gh issue list --repo "$REPO" --label "pipeline-diagnosis" --state all \
@@ -238,6 +327,7 @@ jobs:
           5. **Silent failures from || true**: `git pull --rebase ... 2>/dev/null || true` swallows real errors, making pushes silently fail.
           6. **Duplicate chains**: Watcher retriggers stories that already have active verify-merge runs because it can't detect them.
           7. **Native deps on Ubuntu**: `pod install` can't run on Ubuntu CI. Native packages need lazy/optional imports.
+          8. **Stale test assertions after intentional code changes**: Code was changed on purpose (e.g., fixing a URL, renaming a field) but existing tests still assert the OLD value. The fix job sees "expected A, got B" but can't tell if the code or test is wrong without knowing the commit intent. Fix: update the test assertions to match the new code. This is the #1 cause of "Claude produced no changes" across all fix attempts.
           PATTERNS
           echo "" >> "$EVIDENCE_FILE"
 
@@ -258,6 +348,69 @@ jobs:
           npm install -g pnpm
           pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
 
+      - name: Reproduce failures on work branch
+        if: env.WORK_BRANCH != ''
+        env:
+          EVIDENCE_FILE: ${{ steps.evidence.outputs.evidence_file }}
+        run: |
+          echo "## Reproduced Test Failures" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          echo "Checked out \`$WORK_BRANCH\`, merged master, and ran checks to capture actual error output." >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Check out work branch to reproduce
+          git checkout "origin/$WORK_BRANCH" --detach
+          git merge origin/master --no-edit 2>/dev/null || {
+            echo "**Merge conflict with master** — this may be the root cause." >> "$EVIDENCE_FILE"
+            git merge --abort
+          }
+
+          # Reinstall deps on the work branch (package.json may differ)
+          pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile 2>/dev/null || true
+
+          # Run typecheck and capture
+          echo "### Typecheck output" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          pnpm typecheck 2>&1 | grep -E "error TS|Found" | head -30 >> "$EVIDENCE_FILE" || echo "(typecheck passed)" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Run tests and capture FULL failure details (not just FAIL lines)
+          # Save full test output so Claude can read the raw file for more context
+          pnpm test > /tmp/full_test_output.txt 2>&1 || true
+
+          echo "### Test failure details" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          grep -E "FAIL |● |Expected|Received|expect\(|toBe\(|at Object|\.test\." /tmp/full_test_output.txt | grep -v "● Console" | head -60 >> "$EVIDENCE_FILE" || echo "(tests passed)" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Include the failing test file paths so Claude can read them
+          FAILING_TEST_FILES=$(grep -E "^FAIL " /tmp/full_test_output.txt | sed 's/^FAIL //' | head -10 || true)
+          if [ -n "$FAILING_TEST_FILES" ]; then
+            echo "### Failing test file contents" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "These are the test files that fail. Compare their assertions against the commit diffs above." >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+            echo "$FAILING_TEST_FILES" | while read -r TEST_FILE; do
+              [ -z "$TEST_FILE" ] && continue
+              # Trim whitespace
+              TEST_FILE=$(echo "$TEST_FILE" | xargs)
+              if [ -f "$TEST_FILE" ]; then
+                echo "<details><summary>$TEST_FILE</summary>" >> "$EVIDENCE_FILE"
+                echo "" >> "$EVIDENCE_FILE"
+                echo '```typescript' >> "$EVIDENCE_FILE"
+                cat "$TEST_FILE" >> "$EVIDENCE_FILE"
+                echo '```' >> "$EVIDENCE_FILE"
+                echo "</details>" >> "$EVIDENCE_FILE"
+                echo "" >> "$EVIDENCE_FILE"
+              fi
+            done
+          fi
+
+          # Switch back to master for Claude to work from
+          git checkout master
+
       - name: Claude diagnose and fix
         uses: anthropics/claude-code-action@v1
         with:
@@ -271,49 +424,50 @@ jobs:
             **Evidence file:** Read /tmp/pipeline-doctor-evidence.md for full context including:
             - Issue details and timeline
             - Related branches and PRs (with GitHub links)
+            - **Work branch commit history and diffs** (what was intentionally changed)
+            - **Reproduced test failures** with Expected/Received values
             - Failed workflow run logs
+            - Previous doctor run logs (if this is a repeat — you MUST try something different)
             - Current workflow YAML files
             - Known bug patterns from previous fixes
 
             **Your task:**
 
-            1. READ the evidence file first. Understand the full picture before acting.
+            1. READ the evidence file COMPLETELY. Understand the full picture before acting.
 
-            2. DIAGNOSE the root cause. Look for:
-               - Patterns in the failed logs (same error across attempts = infrastructure bug)
-               - Mismatches between what the workflow tells Claude to do and what tools are available
-               - Silent failures (commands swallowed by `|| true`)
-               - Missing configuration, wrong branch references, stale state
-               - Whether this is a CODE bug (the story's implementation is wrong) or a PIPELINE bug (the workflow infrastructure is broken)
+            2. DIAGNOSE the root cause. Key analysis steps:
+               - **Read the commit log** on the work branch to understand INTENT — what the developer was trying to do
+               - **Compare test expectations vs code changes** — if a test expects value A but the code now returns value B, check if the code change was intentional (update the test) or a bug (fix the code)
+               - **Read the actual Expected/Received lines** in test failures, not just the test name
+               - Look for patterns in failed logs (same error across attempts = the fix job can't resolve it)
+               - Check if the fix job had the right tools (allowedTools) and context
+               - Whether this is a CODE bug (tests need updating to match intentional changes), a TEST bug (tests assert stale values), or a PIPELINE bug (workflow infrastructure is broken)
 
             3. ACT based on diagnosis:
+
+               **If tests assert stale values after intentional code changes:**
+               - This is the most common pattern. Check out the work branch, update the test assertions to match the new code, verify with `pnpm test`, push, and retrigger verify-merge.
 
                **If it's a PIPELINE bug** (workflow YAML, CI config, tooling issue):
                - Create a fix branch: `git checkout -b fix/pipeline-doctor-${{ inputs.issue_number }}`
                - Fix the workflow files
                - Run `pnpm typecheck` if you changed any .ts/.tsx files
                - Git add, commit, push
-               - Create a PR with title "fix: [pipeline doctor] <description>" and body including:
-                 - Diagnosis summary
-                 - Links to the failed runs from the evidence
-                 - What was fixed and why
-                 - `Closes` any related pipeline-stuck issues
+               - Create a PR with title "fix: [pipeline doctor] <description>" and body including diagnosis, links to failed runs, what was fixed and why
 
                **If it's a CODE bug** (the story's implementation has real errors):
                - Check out the story's work branch (the one with most commits ahead of master)
-               - Fix the code errors identified in the failed logs
+               - Fix the code errors identified in the test output
                - Run `pnpm typecheck && pnpm test` to verify
                - Push the fixes
                - Retrigger verify-merge: `gh workflow run verify-merge.yml --repo ${{ github.repository }} --ref master -f tmp_branch="<branch>" -f target_branch="claude/issue-${{ inputs.issue_number }}" -f issue_number="${{ inputs.issue_number }}" -f attempt="1"`
 
                **If you can't determine the cause or can't fix it:**
-               - Create a diagnostic issue with label "pipeline-diagnosis" containing:
-                 - Full diagnosis
-                 - Links to all failed runs
-                 - What you tried
-                 - Recommended manual steps
+               - Create a diagnostic issue with label "pipeline-diagnosis" containing full diagnosis, links to all failed runs, what you tried, and recommended manual steps
 
-            4. POST a summary comment on issue #${{ inputs.issue_number }}:
+            4. **If this is a repeat doctor run**, check what the previous run did (or failed to do) in the evidence. Do NOT repeat the same approach. Escalate — try fixing the code directly instead of just diagnosing, or create a more detailed diagnostic issue.
+
+            5. POST a summary comment on issue #${{ inputs.issue_number }}:
                ```
                **Pipeline Doctor Diagnosis**
 
@@ -327,6 +481,12 @@ jobs:
             IMPORTANT: Always include GitHub links in your comments and issues so everything is traceable.
             CRITICAL: Push after each milestone. If this job times out, unpushed work is lost.
             Push command: `git push origin HEAD`
+
+            NOTE: You start on the master branch. To fix code on the work branch, run:
+            `git fetch origin && git checkout origin/<work_branch> --detach`
+            The work branch name is in the evidence file under "Work Branch Analysis".
+            After fixing, push with: `git push origin HEAD:refs/heads/<work_branch>`
+            Full test output is at /tmp/full_test_output.txt if you need more detail than the evidence summary.
           settings: |
             {
               "maxTurns": 50,
@@ -337,6 +497,7 @@ jobs:
                 "Bash(git log:*)", "Bash(git fetch:*)", "Bash(git merge:*)",
                 "Bash(git rebase:*)", "Bash(git show:*)", "Bash(git push:*)",
                 "Bash(git rm:*)", "Bash(git rev-parse:*)", "Bash(git rev-list:*)",
-                "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)"
+                "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)",
+                "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(grep:*)", "Bash(wc:*)"
               ]
             }
