@@ -372,6 +372,10 @@ jobs:
           echo "$DIFF_STAT" >> $GITHUB_OUTPUT
           echo "EOFCTX" >> $GITHUB_OUTPUT
 
+      - name: Save pre-fix HEAD
+        id: pre_fix
+        run: echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
       - name: Claude fix (with cross-attempt context)
         uses: anthropics/claude-code-action@v1
         with:
@@ -458,16 +462,20 @@ jobs:
             fi
           fi
 
-          # Check if Claude actually produced any changes
+          # Check if Claude actually produced any changes (compare against pre-fix HEAD,
+          # not remote — Claude may have already pushed mid-run)
           git fetch origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
           LOCAL_HEAD=$(git rev-parse HEAD)
           REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.tmp_branch }}" 2>/dev/null || echo "none")
+          PRE_FIX_HEAD="${{ steps.pre_fix.outputs.head }}"
 
-          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
-            echo "::warning::Claude produced no changes — skipping to give-up"
+          if [ "$LOCAL_HEAD" = "$PRE_FIX_HEAD" ] && [ "$REMOTE_HEAD" = "$PRE_FIX_HEAD" ]; then
+            echo "::warning::Claude produced no changes (local and remote unchanged) — skipping to give-up"
             echo "no_changes=true" >> $GITHUB_ENV
+          elif [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
+            echo "Claude already pushed mid-run — no additional push needed"
           else
-            # Claude may have already pushed mid-run — rebase on top
+            # Claude has unpushed local changes — push them
             git pull --rebase origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
             git push origin "HEAD:refs/heads/${{ inputs.tmp_branch }}"
           fi

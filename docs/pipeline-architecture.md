@@ -338,7 +338,9 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |     - If job times out, pushed work survives on the tmp branch      |
 |                                                                     |
 |   Early bail-out:                                                   |
-|     - If Claude produces no changes, skip remaining attempts        |
+|     - Saves HEAD before Claude runs (pre_fix step)                  |
+|     - "No changes" only triggers if BOTH local and remote match     |
+|       pre-fix HEAD (Claude may have already pushed mid-run)         |
 |     - Comment on issue explaining fix failed, link to tmp branch    |
 |                                                                     |
 |   Timeout rescue (if: cancelled()):                                 |
@@ -529,6 +531,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Post-Action Push Race
 - **Problem**: `claude-code-action@v1` uses an internal `git-push.sh` script that pushes to the PR/tmp branch mid-run. Our post-action push steps then fail with non-fast-forward rejection.
 - **Solution**: All post-action push steps fetch the remote, compare HEAD to remote HEAD. If equal, skip (nothing new). If ahead, rebase before pushing. If behind, pull --rebase first.
+
+### Mid-Run Push Falsely Triggers "No Changes" Give-Up
+- **Problem**: The fix prompt tells Claude to "push after each milestone." When Claude pushes mid-run, local HEAD == remote HEAD by the time the post-step runs. The old check (`local == remote → no changes`) falsely triggered the give-up path, aborting the fix loop even though Claude successfully fixed and pushed.
+- **Solution**: A `pre_fix` step saves HEAD before Claude runs. The "no changes" check now only triggers give-up if **both** local and remote HEAD equal the pre-fix HEAD (nothing changed at all). If `local == remote != pre_fix`, Claude already pushed — skip the push but continue to trigger the next verify attempt.
 
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
