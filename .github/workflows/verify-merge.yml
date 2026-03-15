@@ -326,6 +326,21 @@ jobs:
             fi
           done
 
+      - name: Collect commit context
+        id: context
+        run: |
+          # Give the fix job context about what the branch changed and why
+          COMMIT_LOG=$(git log --oneline origin/master..HEAD 2>/dev/null | head -20 || echo "(no commits)")
+          DIFF_STAT=$(git diff --stat origin/master..HEAD 2>/dev/null | tail -30 || echo "(no diff)")
+
+          echo "commit_context<<EOFCTX" >> $GITHUB_OUTPUT
+          echo "BRANCH COMMIT HISTORY (what was changed and why — use this to decide whether to fix source code or update tests):" >> $GITHUB_OUTPUT
+          echo "$COMMIT_LOG" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "FILES CHANGED vs master:" >> $GITHUB_OUTPUT
+          echo "$DIFF_STAT" >> $GITHUB_OUTPUT
+          echo "EOFCTX" >> $GITHUB_OUTPUT
+
       - name: Build error summary
         id: errors
         run: |
@@ -384,6 +399,8 @@ jobs:
           github_token: ${{ secrets.GH_PAT }}
           prompt: |
             Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
+
+            ${{ steps.context.outputs.commit_context }}
 
             HERE ARE THE ERRORS — fix these:
             ${{ steps.errors.outputs.summary }}
