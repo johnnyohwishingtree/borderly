@@ -15,7 +15,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `pipeline-doctor.yml` | verify-merge give-up / watcher / manual | Diagnoses pipeline failures, creates fix PRs |
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test) |
 | `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright) |
-| `review-relay.yml` | Bot review submitted | Forwards bot review to Claude |
+| `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
+| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback with full Claude permissions |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
 | `auto-merge.yml` | CI complete / review / PR sync | Single merge gate: tests + E2E + approval + threads resolved |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
@@ -515,6 +516,11 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: Pipeline watcher retriggers `@claude` on in-progress stories while `claude.yml` or `verify-merge.yml` is still running, creating duplicate competing runs.
 - **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` and `verify-merge.yml` runs by parsing `displayTitle` (e.g., "Verify #277 → ..."). Skips retrigger if any workflow is already in flight for that story.
 - **Bug fixed**: Originally tried to read `verify-merge.yml` inputs via `gh api .inputs.issue_number`, but `.inputs` is `null` for `workflow_dispatch` runs via the API. Switched to parsing `displayTitle` like we do for `claude.yml`.
+
+### Review Relay Tool Restriction
+- **Problem**: `claude-code-action@v1` restricts tools when triggered from a PR comment — only Read, Glob, Grep, git status/diff/log, and a comment MCP tool are allowed. `Edit`, `Write`, `MultiEdit`, `git push`, `pnpm` are all stripped regardless of what `settings.allowedTools` specifies. This means `@claude` comments on PRs (from review-relay) can't make code changes — Claude can only respond with comments.
+- **Solution**: review-relay no longer posts `@claude` PR comments. Instead it dispatches `review-fix.yml` via `workflow_dispatch`, which runs Claude with full tool permissions on the PR branch. The `prompt` input carries the review feedback.
+- **Key insight**: `claude-code-action@v1` has two modes: (1) issue/`workflow_dispatch` = full tools, (2) PR comment = restricted read-only tools. Always use `workflow_dispatch` when code changes are needed.
 
 ### Same tmp_branch and target_branch
 - **Problem**: verify-merge can be triggered with `tmp_branch == target_branch` (e.g., manual retrigger or when claude-code-action pushes directly to the target). The merge step merges a branch into itself (no-op), then the delete step deletes the target branch, and `gh pr create` fails because GitHub's ref is gone.
