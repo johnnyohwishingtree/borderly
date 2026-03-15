@@ -130,17 +130,16 @@ function buildAutoFillScript(fields: FieldSpec[]): string {
 }
 
 /** Script injected to detect the page type (auth/captcha/form). */
-const PAGE_TYPE_CHECK_SCRIPT =
-  '(function(){' +
-  'var html=document.documentElement.innerHTML.substring(0,50000);' +
-  'var formFields=document.querySelectorAll(\'input:not([type="hidden"]),select,textarea\');' +
-  'window.ReactNativeWebView.postMessage(JSON.stringify({' +
-    'type:"PAGE_TYPE_CHECK",' +
-    'html:html,' +
-    'formFieldCount:formFields.length' +
-  '}));' +
-  'true;' +
-  '})();';
+const PAGE_TYPE_CHECK_SCRIPT = `(function() {
+  const html = document.documentElement.innerHTML.substring(0, 50000);
+  const formFields = document.querySelectorAll('input:not([type="hidden"]),select,textarea');
+  window.ReactNativeWebView.postMessage(JSON.stringify({
+    type: "PAGE_TYPE_CHECK",
+    html: html,
+    formFieldCount: formFields.length
+  }));
+  true;
+})();`;
 
 export default function PortalSubmissionScreen() {
   const navigation = useNavigation();
@@ -266,8 +265,7 @@ export default function PortalSubmissionScreen() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getAllProfiles, familyProfiles, profile]);
 
   /**
    * The profile data used for auto-fill and field display.
