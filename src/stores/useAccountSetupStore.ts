@@ -4,9 +4,14 @@ import { AccountSetupStatus, AccountReadinessStatus } from '@/types/submission';
 
 const STORAGE_KEY = 'account_setup_statuses';
 
+/** Map key for a profile × portal combination */
+function statusKey(profileId: string, portalCode: string): string {
+  return `${profileId}__${portalCode}`;
+}
+
 interface AccountSetupStore {
-  /** All stored account setup statuses */
-  statuses: AccountSetupStatus[];
+  /** All stored account setup statuses, keyed by `${profileId}__${portalCode}` for O(1) lookup */
+  statuses: Record<string, AccountSetupStatus>;
 
   /** Load statuses from MMKV into state */
   loadStatuses: () => void;
@@ -36,8 +41,8 @@ interface AccountSetupStore {
   clearAllStatuses: () => void;
 }
 
-/** Persist the full statuses array to MMKV */
-function persistStatuses(statuses: AccountSetupStatus[]): void {
+/** Persist the statuses map to MMKV */
+function persistStatuses(statuses: Record<string, AccountSetupStatus>): void {
   try {
     mmkvService.setString(STORAGE_KEY, JSON.stringify(statuses));
   } catch (error) {
@@ -45,21 +50,21 @@ function persistStatuses(statuses: AccountSetupStatus[]): void {
   }
 }
 
-/** Load statuses from MMKV. Returns empty array if nothing stored. */
-function loadFromStorage(): AccountSetupStatus[] {
+/** Load statuses from MMKV. Returns empty map if nothing stored. */
+function loadFromStorage(): Record<string, AccountSetupStatus> {
   try {
     const raw = mmkvService.getString(STORAGE_KEY);
     if (raw) {
-      return JSON.parse(raw) as AccountSetupStatus[];
+      return JSON.parse(raw) as Record<string, AccountSetupStatus>;
     }
   } catch (error) {
     console.warn('Failed to load account setup statuses, using empty state:', error);
   }
-  return [];
+  return {};
 }
 
 export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
-  statuses: [],
+  statuses: {},
 
   loadStatuses: () => {
     const statuses = loadFromStorage();
@@ -67,29 +72,19 @@ export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
   },
 
   getStatus: (profileId: string, portalCode: string): AccountReadinessStatus => {
-    const found = get().statuses.find(
-      s => s.profileId === profileId && s.portalCode === portalCode
-    );
-    return found?.status ?? 'not_started';
+    const key = statusKey(profileId, portalCode);
+    return get().statuses[key]?.status ?? 'not_started';
   },
 
   setStatus: (profileId: string, portalCode: string, status: AccountReadinessStatus) => {
+    const key = statusKey(profileId, portalCode);
     const now = new Date().toISOString();
     set(state => {
-      const existing = state.statuses.findIndex(
-        s => s.profileId === profileId && s.portalCode === portalCode
-      );
-      let updated: AccountSetupStatus[];
-      if (existing >= 0) {
-        updated = state.statuses.map((s, i) =>
-          i === existing ? { ...s, status, lastChecked: now } : s
-        );
-      } else {
-        updated = [
-          ...state.statuses,
-          { profileId, portalCode, status, lastChecked: now },
-        ];
-      }
+      const existing = state.statuses[key];
+      const updated: Record<string, AccountSetupStatus> = {
+        ...state.statuses,
+        [key]: { ...existing, profileId, portalCode, status, lastChecked: now },
+      };
       persistStatuses(updated);
       return { statuses: updated };
     });
@@ -109,7 +104,9 @@ export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
 
   clearProfileStatuses: (profileId: string) => {
     set(state => {
-      const updated = state.statuses.filter(s => s.profileId !== profileId);
+      const updated = Object.fromEntries(
+        Object.entries(state.statuses).filter(([, v]) => v.profileId !== profileId)
+      );
       persistStatuses(updated);
       return { statuses: updated };
     });
@@ -117,6 +114,6 @@ export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
 
   clearAllStatuses: () => {
     mmkvService.delete(STORAGE_KEY);
-    set({ statuses: [] });
+    set({ statuses: {} });
   },
 }));
