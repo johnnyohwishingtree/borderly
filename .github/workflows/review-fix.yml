@@ -91,15 +91,13 @@ jobs:
             5. Git add, commit, and push your changes
 
             Push command: git push origin HEAD
+          show_full_output: true
           settings: |
             {
-              "maxTurns": 30,
+              "maxTurns": 20,
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git push:*)", "Bash(git fetch:*)", "Bash(git rm:*)",
-                "Bash(gh:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+                "Bash(*)"
               ]
             }
 
