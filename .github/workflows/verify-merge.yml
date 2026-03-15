@@ -394,13 +394,10 @@ jobs:
 
             Push after each milestone — unpushed work is lost on timeout.
           show_full_output: true
+          claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
               "maxTurns": 15,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(*)"
-              ],
               "permissions": {
                 "allow": [
                   "Edit(*)",

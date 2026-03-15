@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import WebView from 'react-native-webview';
+import { X } from 'lucide-react-native';
 import { useAccountSetupStore } from '@/stores/useAccountSetupStore';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CountryFormSchema } from '@/types/schema';
@@ -232,7 +233,7 @@ export default function AccountSetupChecklist({
                     onPress={() => useAccountSetupStore.getState().resetStatus(profileId, info.countryCode)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    <Text className="text-xs text-gray-400 ml-2">✕</Text>
+                    <X size={12} color="#9ca3af" style={{ marginLeft: 8 }} />
                   </TouchableOpacity>
                 )}
               </TouchableOpacity>
