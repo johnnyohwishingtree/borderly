@@ -538,7 +538,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Pipeline Doctor (pipeline-doctor.yml)
 - **Purpose**: Automated diagnosis and fixing of pipeline failures
 - **Triggers**: verify-merge give-up (after 6 failed attempts), watcher (story stuck at max retries), manual (pass issue number)
-- **Evidence collection**: Gathers issue details, related branches/PRs, **work branch commit log and diffs** (to understand intent), **reproduced test failures** with Expected/Received values, failed run logs (`gh run view --log-failed`), **previous doctor run logs** (to avoid repeating failed approaches), current workflow YAML files, known bug patterns, and previous diagnoses — all with GitHub links for traceability
+- **Evidence collection**: Gathers issue details, related branches/PRs, **work branch commit log and diffs** (to understand intent), **reproduced test failures** with Expected/Received values, failed run logs (`gh run view --log-failed`), current workflow YAML files, known bug patterns, and previous diagnoses — all with GitHub links for traceability
 - **Actions**: If stale test assertions → checks out work branch and updates tests. If pipeline bug → creates fix PR. If code bug → fixes code on the story branch and retriggers verify-merge. If unknown → creates diagnostic issue with label `pipeline-diagnosis`.
 - **Repeat run awareness**: Collects logs from previous doctor runs for the same issue. Prompt explicitly tells Claude to try a different approach if previous runs didn't fix the problem.
 - **Deduplication**: Watcher checks if doctor already ran (not just if active) before retriggering. Concurrency group prevents parallel runs for same issue.
