@@ -47,6 +47,11 @@ const allProjects = [
     testMatch: 'smoke.spec.ts',
     use: { ...devices['Pixel 5'] },
   },
+  {
+    name: 'portal-submission',
+    testMatch: 'portalSubmission.spec.ts',
+    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
+  },
 ];
 
 export default defineConfig({
