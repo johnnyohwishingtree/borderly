@@ -3,25 +3,36 @@
  *
  * Portal: Malaysia Digital Arrival Card (MDAC)
  * URL: https://imigresen-online.imi.gov.my/mdac/main
- * Date format: DD/MM/YYYY
+ * Tech stack: Angular — form controls use ngModel with snake_case attribute names.
+ *   Angular reactive forms may use dynamic IDs; prefer name-attribute selectors.
+ * Date format: DD/MM/YYYY (verified)
+ * Multi-step: Page 1 = Personal/Passport, Page 2 = Travel/Accommodation, Page 3 = Health
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
 
 const fieldMappings: Record<string, PortalFieldMapping> = {
+  // Page 1 — Personal Information
   surname: {
     fieldId: 'surname',
-    selector: 'input[name="family_name"], input[id="family_name"], input[name="surname"], input[id="surname"]',
+    // MDAC uses "surname" or "family_name" in its Angular form model
+    selector:
+      'input[name="surname"], input[formcontrolname="surname"], input[name="family_name"], input[id="family_name"]',
     inputType: 'text',
   },
   givenNames: {
     fieldId: 'givenNames',
-    selector: 'input[name="given_name"], input[id="given_name"], input[name="first_name"], input[id="first_name"]',
+    selector:
+      'input[name="given_name"], input[formcontrolname="given_name"], input[name="first_name"], input[id="first_name"]',
     inputType: 'text',
   },
   dateOfBirth: {
     fieldId: 'dateOfBirth',
-    selector: 'input[name="date_of_birth"], input[id="date_of_birth"], input[name="dob"], input[id="dob"]',
+    // MDAC date fields use DD/MM/YYYY format
+    selector:
+      'input[name="date_of_birth"], input[formcontrolname="date_of_birth"], input[name="dob"], input[id="dob"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -30,7 +41,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   nationality: {
     fieldId: 'nationality',
-    selector: 'select[name="nationality"], select[id="nationality"]',
+    // MDAC nationality is a dropdown of country names
+    selector:
+      'select[name="nationality"], select[formcontrolname="nationality"], select[id="nationality"]',
     inputType: 'select',
     transform: {
       type: 'country_code',
@@ -39,12 +52,14 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   passportNumber: {
     fieldId: 'passportNumber',
-    selector: 'input[name="passport_no"], input[id="passport_no"], input[name="passport_number"], input[id="passport_number"]',
+    selector:
+      'input[name="passport_no"], input[formcontrolname="passport_no"], input[name="passport_number"], input[id="passport_no"]',
     inputType: 'text',
   },
   passportExpiry: {
     fieldId: 'passportExpiry',
-    selector: 'input[name="passport_expiry"], input[id="passport_expiry"], input[name="expiry_date"], input[id="expiry_date"]',
+    selector:
+      'input[name="passport_expiry"], input[formcontrolname="passport_expiry"], input[name="expiry_date"], input[id="passport_expiry"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -53,22 +68,28 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   gender: {
     fieldId: 'gender',
-    selector: 'select[name="gender"], select[id="gender"]',
+    // MDAC uses "gender" select with values: "M", "F"
+    selector:
+      'select[name="gender"], select[formcontrolname="gender"], select[id="gender"]',
     inputType: 'select',
   },
   email: {
     fieldId: 'email',
-    selector: 'input[name="email"], input[id="email"], input[type="email"]',
+    selector:
+      'input[name="email"], input[formcontrolname="email"], input[type="email"], input[id="email"]',
     inputType: 'text',
   },
   phoneNumber: {
     fieldId: 'phoneNumber',
-    selector: 'input[name="phone"], input[id="phone"], input[name="mobile"], input[id="mobile"]',
+    selector:
+      'input[name="phone_no"], input[formcontrolname="phone_no"], input[name="mobile"], input[name="phone"], input[id="phone"]',
     inputType: 'text',
   },
+  // Page 2 — Travel Information
   arrivalDate: {
     fieldId: 'arrivalDate',
-    selector: 'input[name="arrival_date"], input[id="arrival_date"]',
+    selector:
+      'input[name="arrival_date"], input[formcontrolname="arrival_date"], input[id="arrival_date"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -77,42 +98,52 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   arrivalAirport: {
     fieldId: 'arrivalAirport',
-    selector: 'select[name="port_of_entry"], select[id="port_of_entry"], select[name="arrival_airport"], select[id="arrival_airport"]',
+    // MDAC lists ports of entry (KLIA, KLIA2, Penang, etc.)
+    selector:
+      'select[name="port_of_entry"], select[formcontrolname="port_of_entry"], select[name="arrival_airport"], select[id="port_of_entry"]',
     inputType: 'select',
   },
   flightNumber: {
     fieldId: 'flightNumber',
-    selector: 'input[name="flight_no"], input[id="flight_no"], input[name="flight_number"], input[id="flight_number"]',
+    selector:
+      'input[name="flight_no"], input[formcontrolname="flight_no"], input[name="flight_number"], input[id="flight_no"]',
     inputType: 'text',
   },
   purposeOfVisit: {
     fieldId: 'purposeOfVisit',
-    selector: 'select[name="purpose_of_visit"], select[id="purpose_of_visit"]',
+    selector:
+      'select[name="purpose_of_visit"], select[formcontrolname="purpose_of_visit"], select[id="purpose_of_visit"]',
     inputType: 'select',
   },
   durationOfStay: {
     fieldId: 'durationOfStay',
-    selector: 'input[name="duration_of_stay"], input[id="duration_of_stay"], input[name="length_of_stay"], input[id="length_of_stay"]',
+    selector:
+      'input[name="duration_of_stay"], input[formcontrolname="duration_of_stay"], input[name="length_of_stay"], input[id="duration_of_stay"]',
     inputType: 'text',
   },
   hotelName: {
     fieldId: 'hotelName',
-    selector: 'input[name="accommodation_name"], input[id="accommodation_name"], input[name="hotel_name"], input[id="hotel_name"]',
+    selector:
+      'input[name="accommodation_name"], input[formcontrolname="accommodation_name"], input[name="hotel_name"], input[id="accommodation_name"]',
     inputType: 'text',
   },
   hotelAddress: {
     fieldId: 'hotelAddress',
-    selector: 'textarea[name="accommodation_address"], textarea[id="accommodation_address"], input[name="hotel_address"], input[id="hotel_address"]',
+    selector:
+      'textarea[name="accommodation_address"], input[formcontrolname="accommodation_address"], input[name="hotel_address"], textarea[id="accommodation_address"]',
     inputType: 'text',
   },
   hotelPhone: {
     fieldId: 'hotelPhone',
-    selector: 'input[name="accommodation_phone"], input[id="accommodation_phone"], input[name="hotel_phone"], input[id="hotel_phone"]',
+    selector:
+      'input[name="accommodation_contact_no"], input[name="accommodation_phone"], input[formcontrolname="accommodation_contact_no"], input[name="hotel_phone"]',
     inputType: 'text',
   },
+  // Page 3 — Health Declarations (radio: "Y"=yes / "N"=no)
   healthCondition: {
     fieldId: 'healthCondition',
-    selector: 'input[name="health_condition"][value="no"], input[name="health_condition"][value="false"]',
+    selector:
+      'input[name="health_condition"][value="N"], input[name="health_condition"][value="no"], input[name="health_condition"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -121,7 +152,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   visitedHighRiskCountries: {
     fieldId: 'visitedHighRiskCountries',
-    selector: 'input[name="high_risk_country"][value="no"], input[name="high_risk_country"][value="false"]',
+    selector:
+      'input[name="high_risk_country"][value="N"], input[name="high_risk_country"][value="no"], input[name="high_risk_country"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -130,7 +162,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   carryingCurrency: {
     fieldId: 'carryingCurrency',
-    selector: 'input[name="carrying_currency"][value="no"], input[name="carrying_currency"][value="false"]',
+    // Currency over MYR 10,000 threshold
+    selector:
+      'input[name="carrying_currency"][value="N"], input[name="carrying_currency"][value="no"], input[name="carrying_currency"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -139,7 +173,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   carryingProhibitedItems: {
     fieldId: 'carryingProhibitedItems',
-    selector: 'input[name="prohibited_items"][value="no"], input[name="prohibited_items"][value="false"]',
+    selector:
+      'input[name="prohibited_goods"][value="N"], input[name="prohibited_items"][value="no"], input[name="prohibited_items"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -240,8 +275,8 @@ const steps: AutomationStep[] = [
 const MYS_MAPPING: AutomationScript = {
   countryCode: 'MYS',
   portalUrl: 'https://imigresen-online.imi.gov.my/mdac/main',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

@@ -3,8 +3,17 @@
  *
  * Portal: UK Electronic Travel Authorisation (ETA)
  * URL: https://www.gov.uk/apply-electronic-travel-authorisation
- * GOV.UK design system selectors (kebab-case IDs)
- * Requires GOV.UK One Login account.
+ * Tech stack: GOV.UK Frontend (based on GOV.UK Design System v4+).
+ *   Uses kebab-case IDs throughout — this is a core GOV.UK convention.
+ *   Form inputs follow the pattern: id="<field-name>", name="<field-name>".
+ *   Multi-page form: each question on its own page (GOV.UK "question page" pattern).
+ *   Requires GOV.UK One Login account prior to application.
+ * Date format: No single format — date fields split into day/month/year inputs.
+ *   e.g. #dob-day, #dob-month, #dob-year (each a separate text input).
+ * Automation note: GOV.UK One Login requires manual authentication;
+ *   automation starts from the post-login application form page.
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -32,7 +41,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   dateOfBirth: {
     fieldId: 'dateOfBirth',
-    selector: '#date-of-birth, input[name="date-of-birth"]',
+    // GOV.UK splits date into three separate inputs: day, month, year
+    // Primary selector targets the day field; automation script handles splitting
+    selector: '#dob-day, input[name="dob-day"], #date-of-birth-day, input[name="date-of-birth-day"]',
     inputType: 'date',
   },
   countryOfBirth: {
@@ -74,12 +85,14 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   passportIssueDate: {
     fieldId: 'passportIssueDate',
-    selector: '#passport-issue-date, input[name="passport-issue-date"]',
+    // GOV.UK splits date into day/month/year inputs
+    selector: '#passport-issue-date-day, input[name="passport-issue-date-day"], #passport-issue-date, input[name="passport-issue-date"]',
     inputType: 'date',
   },
   passportExpiryDate: {
     fieldId: 'passportExpiryDate',
-    selector: '#passport-expiry-date, input[name="passport-expiry-date"]',
+    // GOV.UK splits date into day/month/year inputs
+    selector: '#passport-expiry-date-day, input[name="passport-expiry-date-day"], #passport-expiry-date, input[name="passport-expiry-date"]',
     inputType: 'date',
   },
   email: {
@@ -148,7 +161,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   arrivalDate: {
     fieldId: 'arrivalDate',
-    selector: '#arrival-date, input[name="arrival-date"]',
+    // GOV.UK splits date into day/month/year inputs
+    selector: '#arrival-date-day, input[name="arrival-date-day"], #arrival-date, input[name="arrival-date"]',
     inputType: 'date',
   },
   visitPurpose: {
@@ -293,8 +307,8 @@ const steps: AutomationStep[] = [
 const GBR_MAPPING: AutomationScript = {
   countryCode: 'GBR',
   portalUrl: 'https://www.gov.uk/apply-electronic-travel-authorisation',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

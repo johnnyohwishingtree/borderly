@@ -1,9 +1,28 @@
 /**
- * Thailand (THA) — Thailand Pass portal field mappings and portal automation config.
+ * Thailand (THA) — COMING SOON — Digital TM6 / Thailand Pass field mappings.
  *
- * Portal: Thailand Pass
- * URL: https://tp.consular.go.th/
- * Account-based application, vaccination cert upload required.
+ * ⚠️  STATUS: COMING SOON — Automation not yet active
+ *
+ * Thailand Pass (tp.consular.go.th) was a COVID-era requirement that was
+ * officially discontinued on May 1, 2022. Thailand no longer requires a
+ * mandatory pre-arrival digital health declaration or Thailand Pass.
+ *
+ * The Thailand TM6 Departure/Arrival Card (paper form) is still used at
+ * some entry points, but Thailand has been piloting a digital TM6 via the
+ * "Thailand Digital Arrival Card" (TDAC) system. As of early 2026, the
+ * TDAC digital rollout is ongoing and not yet mandatory for all travelers.
+ *
+ * Field mappings and selectors in this file are placeholder estimates based
+ * on the discontinued Thailand Pass portal structure and may not match the
+ * eventual TDAC system. Do not enable automation without verifying against
+ * the live TDAC portal when it becomes available.
+ *
+ * Portal: Thailand Pass (discontinued reference)
+ * URL: https://tp.consular.go.th/ (no longer active)
+ * Date format: YYYY-MM-DD
+ * implementationStatus: coming_soon (see THA.json)
+ *
+ * Selectors last verified: 2026-03-15 (against archived Thailand Pass structure)
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -208,9 +227,10 @@ const steps: AutomationStep[] = [
 
 const THA_MAPPING: AutomationScript = {
   countryCode: 'THA',
+  // Thailand Pass is discontinued. URL retained for reference; TDAC URL TBD.
   portalUrl: 'https://tp.consular.go.th/',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

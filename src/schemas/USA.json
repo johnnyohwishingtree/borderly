@@ -1,15 +1,15 @@
 {
   "countryCode": "USA",
   "countryName": "United States",
-  "schemaVersion": "2.0.0",
-  "lastUpdated": "2026-03-07T00:00:00Z",
-  "portalUrl": "https://www.cbp.gov/travel/us-citizens/know-before-you-go/cbp-declaration-form-6059b",
-  "portalName": "CBP Declaration Form 6059B / CBP One",
+  "schemaVersion": "2.1.0",
+  "lastUpdated": "2026-03-15T00:00:00Z",
+  "portalUrl": "https://cbpone.cbp.dhs.gov/",
+  "portalName": "CBP One (Customs Declaration)",
   "metadata": {
     "priority": 5,
     "complexity": "high",
     "popularity": 95,
-    "lastVerified": "2026-03-07T00:00:00Z",
+    "lastVerified": "2026-03-15T00:00:00Z",
     "supportedLanguages": ["en", "es", "fr", "de", "it", "pt", "ja", "ko"],
     "implementationStatus": "planned",
     "maintenanceFrequency": "monthly"
@@ -602,24 +602,26 @@
   "submissionGuide": [
     {
       "order": 1,
-      "title": "Access Official ESTA Website",
-      "description": "Go to the official US Customs and Border Protection ESTA website. Beware of unofficial sites that charge additional fees.",
+      "title": "Access CBP One Portal",
+      "description": "Download the CBP One app or visit cbpone.cbp.dhs.gov to complete your US Customs and Border Protection declaration. Note: this is separate from ESTA (travel authorization) — you may need both.",
       "fieldsOnThisScreen": [],
       "tips": [
-        "Only use esta.cbp.dhs.gov - the official site",
-        "Avoid third-party sites that charge extra fees",
-        "The official fee is $21 per application"
+        "CBP One is the official CBP app for customs declarations",
+        "ESTA (travel authorization) must be obtained separately at esta.cbp.dhs.gov",
+        "The declaration fee is $21 per application",
+        "Avoid third-party sites that charge additional fees"
       ]
     },
     {
       "order": 2,
-      "title": "Start New Application",
-      "description": "Click 'New Application' and then 'Individual Application' to begin your ESTA application.",
+      "title": "Start New Declaration",
+      "description": "Log in to CBP One and start a new declaration. Select 'Individual Application' to begin your customs declaration form.",
       "fieldsOnThisScreen": [],
       "tips": [
-        "Choose your preferred language",
-        "You have 7 days to complete the application",
-        "Keep your confirmation number safe"
+        "Create a CBP One account if you don't have one",
+        "You have 7 days to complete the declaration",
+        "Keep your confirmation number safe",
+        "Each traveler needs their own declaration"
       ]
     },
     {
@@ -739,21 +741,21 @@
   ],
   "automation": {
     "enabled": false,
-    "version": "1.0.0",
-    "entryUrl": "https://esta.cbp.dhs.gov/",
+    "version": "1.1.0",
+    "entryUrl": "https://cbpone.cbp.dhs.gov/",
     "testMode": true,
-    "successIndicators": [".authorization-approved", "#esta-approval"],
-    "failureIndicators": [".authorization-denied", ".validation-error"],
+    "successIndicators": [".declaration-submitted", "#cbp-confirmation", ".submission-complete"],
+    "failureIndicators": [".declaration-error", ".validation-error", ".submission-failed"],
     "dataExtractionRules": [
       {
-        "name": "applicationNumber",
-        "selector": "#application-number",
+        "name": "confirmationNumber",
+        "selector": "#confirmation-number",
         "required": true
       },
       {
-        "name": "authorizationNumber",
-        "selector": "#authorization-number",
-        "required": true
+        "name": "declarationId",
+        "selector": "#declaration-id",
+        "required": false
       }
     ]
   }

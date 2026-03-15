@@ -1,9 +1,29 @@
 /**
- * Canada (CAN) — eTA portal field mappings and portal automation config.
+ * Canada (CAN) — ARCHIVED — ArriveCAN / eTA portal field mappings.
  *
- * Portal: Electronic Travel Authorization (eTA)
+ * ⚠️  ARCHIVED — DO NOT USE FOR PRODUCTION AUTOMATION
+ *
+ * ArriveCAN (the mandatory COVID-era arrival app) was officially discontinued
+ * on October 1, 2023 by the Canada Border Services Agency (CBSA). Travelers
+ * arriving in Canada by air are no longer required to submit a digital
+ * pre-arrival declaration through a third-party app.
+ *
+ * The Canadian customs declaration is now completed on paper (E311 form) or
+ * via the CBSA Primary Inspection Kiosk (PIK) kiosks at major airports.
+ * The eTA (Electronic Travel Authorization) for visa-exempt nationals is still
+ * required but cannot be automated via browser — it is processed via
+ * canada.ca and linked to the passport electronically.
+ *
+ * This mapping is retained for reference and in case a digital replacement
+ * portal is launched in the future. Do not enable automation against these
+ * selectors without verifying they match the current portal DOM.
+ *
+ * Portal: Canada eTA (reference only)
  * URL: https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html
- * Date format: YYYY-MM-DD (standard)
+ * Date format: YYYY-MM-DD (standard ISO)
+ * implementationStatus: archived (see CAN.json)
+ *
+ * Selectors last verified: 2026-03-15 (against canada.ca eTA form)
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -301,9 +321,11 @@ const steps: AutomationStep[] = [
 
 const CAN_MAPPING: AutomationScript = {
   countryCode: 'CAN',
+  // ArriveCAN discontinued Oct 2023; eTA still required but cannot be browser-automated.
+  // This URL is retained for reference only (eTA info page, not a form portal).
   portalUrl: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

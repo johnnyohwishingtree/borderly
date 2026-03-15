@@ -1,18 +1,19 @@
 {
   "countryCode": "THA",
   "countryName": "Thailand",
-  "schemaVersion": "2.0.0",
-  "lastUpdated": "2026-03-07T00:00:00Z",
+  "schemaVersion": "2.1.0",
+  "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://tp.consular.go.th/",
-  "portalName": "Thailand Pass",
+  "portalName": "Thailand Digital Arrival Card (Coming Soon)",
   "metadata": {
     "priority": 4,
     "complexity": "medium",
     "popularity": 90,
-    "lastVerified": "2026-03-07T00:00:00Z",
+    "lastVerified": "2026-03-15T00:00:00Z",
     "supportedLanguages": ["en", "th"],
-    "implementationStatus": "planned",
-    "maintenanceFrequency": "monthly"
+    "implementationStatus": "coming_soon",
+    "statusNote": "Thailand Pass (COVID-era mandatory app) was discontinued on May 1, 2022. Thailand is developing a Thailand Digital Arrival Card (TDAC) system to replace paper TM6 forms, but as of early 2026 it is not yet mandatory for all travelers. This schema will be updated when TDAC launches officially. The portalUrl above (tp.consular.go.th) is the former Thailand Pass URL — the new TDAC portal URL is not yet confirmed.",
+    "maintenanceFrequency": "as_needed"
   },
   "changeDetection": {
     "monitoredSelectors": ["#main-form", ".form-section", ".submit-button"],
