@@ -57,11 +57,18 @@ export class PageDetector {
 
     const steps = schema.submissionGuide;
 
+    // Find the step whose URL is the longest prefix match.
+    // Without this, a root URL like "https://example.gov/" would match
+    // before more specific URLs like "https://example.gov/registration/passport".
+    let bestMatch: DetectedPage | null = null;
+    let bestLen = -1;
+
     for (let i = 0; i < steps.length; i++) {
       const step = steps[i];
       const stepUrl = step.automation?.url;
-      if (stepUrl && url.startsWith(stepUrl)) {
-        return {
+      if (stepUrl && url.startsWith(stepUrl) && stepUrl.length > bestLen) {
+        bestLen = stepUrl.length;
+        bestMatch = {
           stepIndex: i,
           stepTitle: step.title,
           countryCode,
@@ -70,7 +77,7 @@ export class PageDetector {
       }
     }
 
-    return null;
+    return bestMatch;
   }
 
   /**
