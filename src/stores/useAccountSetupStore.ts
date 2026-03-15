@@ -36,11 +36,6 @@ interface AccountSetupStore {
   clearAllStatuses: () => void;
 }
 
-/** Build the MMKV storage key for a profile × portal pair */
-function buildKey(profileId: string, portalCode: string): string {
-  return `acct_status__${profileId}__${portalCode}`;
-}
-
 /** Persist the full statuses array to MMKV */
 function persistStatuses(statuses: AccountSetupStatus[]): void {
   try {
@@ -72,9 +67,8 @@ export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
   },
 
   getStatus: (profileId: string, portalCode: string): AccountReadinessStatus => {
-    const key = buildKey(profileId, portalCode);
     const found = get().statuses.find(
-      s => buildKey(s.profileId, s.portalCode) === key
+      s => s.profileId === profileId && s.portalCode === portalCode
     );
     return found?.status ?? 'not_started';
   },

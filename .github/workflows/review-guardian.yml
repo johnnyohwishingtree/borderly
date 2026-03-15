@@ -65,13 +65,21 @@ jobs:
             exit 0
           fi
 
-          # Check if the review has critical/high-severity inline comments
+          # Check if the review has critical/high-severity inline comments.
+          # Gemini posts priority badges like ![critical] and ![high] in inline
+          # review comments while submitting the overall review as COMMENTED (not
+          # CHANGES_REQUESTED). We must catch these badge patterns here or we
+          # auto-approve PRs that still have unresolved high/critical feedback.
           CRITICAL_COMMENTS=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
             echo "review-relay.yml will handle triggering Claude to fix these"
+
+            # Post a comment explaining why auto-approve was skipped
+            gh pr comment "$PR_NUM" --repo "$REPO" \
+              --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges. These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes."
             exit 0
           fi
 
@@ -126,6 +134,16 @@ jobs:
 
           if [ "$HAS_APPROVAL" -gt 0 ]; then
             echo "PR #$PR_NUM already has an approval — no action needed"
+            exit 0
+          fi
+
+          # Check for high/critical inline review comments (including Gemini
+          # badge patterns like ![critical] and ![high]) from prior reviews
+          CRITICAL_INLINE=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
+            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$CRITICAL_INLINE" -gt 0 ]; then
+            echo "PR has $CRITICAL_INLINE critical/high-severity inline comments — NOT auto-approving"
             exit 0
           fi
 
@@ -283,13 +301,17 @@ jobs:
         run: |
           PR_NUM=${{ steps.check.outputs.pr_num }}
 
-          # Check for critical/high-severity inline comments
+          # Check for critical/high-severity inline comments (including Gemini
+          # badge patterns like ![critical] and ![high])
           CRITICAL_COMMENTS=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/pulls/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
             echo "review-relay.yml will handle triggering Claude to fix these"
+
+            gh pr comment "$PR_NUM" --repo "$REPO" \
+              --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges. These must be addressed before the PR can be approved."
             exit 0
           fi
 

@@ -471,6 +471,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
 
+### Gemini Inline Priority Badges Bypass Auto-Approve
+- **Problem**: Gemini posts inline review comments with priority badges like `![high]` and `![critical]` but submits the overall review as `COMMENTED` (not `CHANGES_REQUESTED`). The review-guardian only checked the review summary body for keywords like `critical` and `high-priority`, so it missed badge-formatted priorities in inline comments and auto-approved PRs that still had unresolved high/critical feedback.
+- **Solution**: All three auto-approve paths in `review-guardian.yml` (`request-approval`, `ensure-review`, `auto-approve-after-claude`) now fetch inline PR review comments via `gh api repos/.../pulls/N/comments` and match against `![high]` and `![critical]` badge patterns (regex: `!\[(critical|high)\]`) in addition to the existing keyword patterns. If any are found, auto-approve is skipped and a comment is posted explaining why. `review-relay.yml` remains the single owner of triggering Claude to fix the flagged issues.
+
 ### Duplicate `@claude` Triggers from Reviews
 - **Problem**: When Gemini posts a review with critical issues, both `review-guardian.yml` and `review-relay.yml` post separate `@claude` comments. With `cancel-in-progress: true`, earlier runs get killed by later ones, and Claude may end up with confused context from multiple overlapping instructions.
 - **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
@@ -558,6 +562,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Actions**: If stale test assertions → checks out work branch and updates tests. If pipeline bug → creates fix PR. If code bug → fixes code on the story branch and retriggers verify-merge. If unknown → creates diagnostic issue with label `pipeline-diagnosis`.
 - **Repeat run awareness**: Collects logs from previous doctor runs for the same issue. Prompt explicitly tells Claude to try a different approach if previous runs didn't fix the problem.
 - **Deduplication**: Watcher checks if doctor already ran (not just if active) before retriggering. Concurrency group prevents parallel runs for same issue.
+
+### Merge Conflict Resolution Polluting PRs
+- **Problem**: Work branches accumulate unrelated commits from master merges. When Claude resolves merge conflicts, it may keep both sides instead of taking master's version for non-story files, polluting the PR with unintended changes.
+- **Solution**: Fix prompt instructs Claude to use `git checkout origin/master -- <file>` for non-story files during conflict resolution.
 
 ### Stale Resource Cleanup
 - verify-merge give-up: cleans tmp/ branches (keeps current)

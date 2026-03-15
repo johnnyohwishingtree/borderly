@@ -136,17 +136,18 @@ describe('useAccountSetupStore', () => {
     });
 
     it('sets lastChecked timestamp when updating status', () => {
-      const before = new Date().toISOString();
+      const beforeMs = Date.now();
       useAccountSetupStore.getState().setStatus('p1', 'JPN', 'ready');
-      const after = new Date().toISOString();
+      const afterMs = Date.now();
 
       const status = useAccountSetupStore
         .getState()
         .statuses.find(s => s.profileId === 'p1' && s.portalCode === 'JPN');
 
       expect(status?.lastChecked).toBeDefined();
-      expect(status!.lastChecked! >= before).toBe(true);
-      expect(status!.lastChecked! <= after).toBe(true);
+      const checkedMs = new Date(status!.lastChecked!).getTime();
+      expect(checkedMs).toBeGreaterThanOrEqual(beforeMs);
+      expect(checkedMs).toBeLessThanOrEqual(afterMs);
     });
   });
 

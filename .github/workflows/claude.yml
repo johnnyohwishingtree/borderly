@@ -146,14 +146,7 @@ jobs:
           show_full_output: true
           settings: |
             {
-              "maxTurns": 100,
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 100
             }
           claude_args: |
             --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
