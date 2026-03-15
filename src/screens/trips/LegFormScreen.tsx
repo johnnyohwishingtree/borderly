@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
@@ -18,7 +19,7 @@ type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
 
 export default function LegFormScreen() {
   const route = useRoute<LegFormScreenRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { tripId, legId } = route.params || {};
 
   const { profile } = useProfileStore();
@@ -320,53 +321,65 @@ export default function LegFormScreen() {
       {/* Action Buttons */}
       <View className="bg-white border-t border-gray-200 px-4 py-3">
         <View className="flex-row space-x-3">
-          <Button
-            title="Save Progress"
-            onPress={handleSaveForm}
-            variant="outline"
-            size="medium"
-            loading={isSubmitting}
-            disabled={Object.keys(formData).length === 0}
-            testID="save-progress-button"
-          />
+          <View className="flex-1">
+            <Button
+              title="Save Progress"
+              onPress={handleSaveForm}
+              variant="outline"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              disabled={Object.keys(formData).length === 0}
+              testID="save-progress-button"
+            />
+          </View>
 
-          <Button
-            title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
-            onPress={handleMarkAsReady}
-            variant="primary"
-            size="medium"
-            fullWidth
-            loading={isSubmitting}
-            disabled={!isValid}
-            testID="mark-ready-button"
-          />
+          <View className="flex-1">
+            <Button
+              title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
+              onPress={handleMarkAsReady}
+              variant="primary"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              disabled={!isValid}
+              testID="mark-ready-button"
+            />
+          </View>
         </View>
 
         {isValid && (
           <View className="mt-2 flex-row space-x-3">
-            <Button
-              title="Submit in App"
-              onPress={() => {
-                const schema = schemaRegistry.getSchema(leg?.destinationCountry ?? '');
-                (navigation as any).navigate('PortalSubmission', {
-                  url: schema?.portalUrl ?? '',
-                  countryCode: leg?.destinationCountry ?? '',
-                  tripId,
-                  legId,
-                });
-              }}
-              variant="primary"
-              testID="submit-in-app-button"
-              size="medium"
-              fullWidth
-            />
+            <View className="flex-1">
+              <Button
+                title="Submit in App"
+                onPress={() => {
+                  const countryCode = leg.destinationCountry;
+                  const schema = schemaRegistry.getSchema(countryCode);
+                  if (schema?.portalUrl) {
+                    navigation.navigate('PortalSubmission', {
+                      url: schema.portalUrl,
+                      countryCode,
+                      tripId,
+                      legId,
+                    });
+                  } else {
+                    Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
+                  }
+                }}
+                variant="primary"
+                testID="submit-in-app-button"
+                size="medium"
+                fullWidth
+              />
+            </View>
             <Button
               title="Guide"
               onPress={() => {
-                (navigation as any).navigate('SubmissionGuide', {
+                navigation.navigate('SubmissionGuide', {
                   tripId,
                   legId,
-                  countryCode: leg?.destinationCountry,
+                  countryCode: leg.destinationCountry,
                 });
               }}
               variant="secondary"

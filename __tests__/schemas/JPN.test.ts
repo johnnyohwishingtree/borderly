@@ -9,7 +9,7 @@ describe('Japan (JPN) Schema', () => {
     expect(schema.countryCode).toBe('JPN');
     expect(schema.countryName).toBe('Japan');
     expect(schema.portalName).toBe('Visit Japan Web');
-    expect(schema.portalUrl).toBe('https://vjw-lp.digital.go.jp/en/');
+    expect(schema.portalUrl).toBe('https://vjw-lp.digital.go.jp/en/registration/');
     expect(schema.schemaVersion).toBe('1.0.0');
   });
 
