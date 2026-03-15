@@ -72,8 +72,7 @@ jobs:
             fi
           done
 
-          # Check active verify-merge.yml runs (workflow: "Verify and Merge")
-          # run-name is "Verify #<issue> → ..."
+          # Check active verify-merge.yml runs — run-name is "Verify #<issue> → ..."
           # Note: .inputs is null via the API for workflow_dispatch runs, so we
           # parse the issue number from displayTitle instead.
           ACTIVE_VM_TITLES=$(gh run list --repo "$REPO" --workflow verify-merge.yml \

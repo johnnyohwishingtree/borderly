@@ -39,21 +39,6 @@ permissions:
   actions: write
 
 jobs:
-  link-to-issue:
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    if: inputs.issue_number != ''
-    steps:
-      - name: Post workflow run link on issue
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          gh issue comment "${{ inputs.issue_number }}" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          Verify and Merge — [attempt ${{ inputs.attempt }}/6]($RUN_URL)
-          EOF
-          )" 2>/dev/null || echo "Failed to post link comment"
-
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -408,9 +393,7 @@ jobs:
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
                 "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
                 "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(git push:*)", "Bash(git fetch:*)",
-                "Bash(git merge:*)", "Bash(git checkout:*)", "Bash(git rebase:*)",
-                "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+                "Bash(git rm:*)", "Bash(git push:*)", "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
               ]
             }
 
