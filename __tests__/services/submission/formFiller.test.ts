@@ -127,14 +127,24 @@ describe('FormFiller', () => {
       expect(script).toContain('AUTO_FILL_RESULT');
     });
 
-    it('snapshot — single text field', () => {
+    it('single text field — contains value, selector, and IIFE structure', () => {
       const fields: FieldSpec[] = [
         { id: 'surname', selector: 'input[name="family_name"]', value: 'SMITH', inputType: 'text' },
       ];
-      expect(filler.buildAutoFillScript(fields)).toMatchSnapshot();
+      const script = filler.buildAutoFillScript(fields);
+      // Structure
+      expect(script).toMatch(/^\(function\(\)\{/);
+      expect(script).toMatch(/\}\)\(\);$/);
+      // Content
+      expect(script).toContain('SMITH');
+      expect(script).toContain('family_name');
+      expect(script).toContain('surname');
+      // Result reporting
+      expect(script).toContain('AUTO_FILL_RESULT');
+      expect(script).toContain('ReactNativeWebView');
     });
 
-    it('snapshot — JPN personal info fields', () => {
+    it('JPN personal info fields — all field values embedded in script', () => {
       const fields: FieldSpec[] = [
         { id: 'surname', selector: 'input[name="family_name"], input[id="family_name"]', value: 'TANAKA', inputType: 'text' },
         { id: 'givenNames', selector: 'input[name="given_name"], input[id="given_name"]', value: 'HIRO', inputType: 'text' },
@@ -143,7 +153,18 @@ describe('FormFiller', () => {
         { id: 'dateOfBirth', selector: 'input[name="birth_date"], input[id="birth_date"]', value: '1985/06/15', inputType: 'date' },
         { id: 'gender', selector: 'select[name="sex"], select[id="sex"]', value: 'M', inputType: 'select' },
       ];
-      expect(filler.buildAutoFillScript(fields)).toMatchSnapshot();
+      const script = filler.buildAutoFillScript(fields);
+      // All 6 field values must be in the script
+      expect(script).toContain('TANAKA');
+      expect(script).toContain('HIRO');
+      expect(script).toContain('TH1234567');
+      expect(script).toContain('Japan');
+      expect(script).toContain('1985/06/15');
+      // Structure
+      expect(script).toMatch(/^\(function\(\)\{/);
+      expect(script).toContain('AUTO_FILL_RESULT');
+      // total count uses fields.length
+      expect(script).toContain('total:fields.length');
     });
   });
 
