@@ -1,0 +1,341 @@
+name: Pipeline Doctor
+run-name: "Doctor: issue #${{ inputs.issue_number }} (${{ inputs.trigger_source }})"
+
+# Diagnoses pipeline failures by collecting evidence from failed workflow runs,
+# branch state, and issue history. Uses Claude to identify root causes and either
+# creates a fix PR or opens a diagnostic issue with full context and links.
+#
+# Trigger points:
+#   - verify-merge give-up job (after 6 failed fix attempts)
+#   - watcher (story stuck at max retries)
+#   - manual (pass an issue number to diagnose)
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to diagnose'
+        required: true
+        type: string
+      trigger_source:
+        description: 'What triggered this (watcher / verify-merge / manual)'
+        required: false
+        type: string
+        default: 'manual'
+      failed_run_ids:
+        description: 'Comma-separated list of failed run IDs to analyze'
+        required: false
+        type: string
+
+concurrency:
+  group: pipeline-doctor-${{ inputs.issue_number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure git and auth
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git config user.name "Pipeline Doctor"
+          git config user.email "pipeline-doctor@users.noreply.github.com"
+
+      - name: Collect evidence
+        id: evidence
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUM: ${{ inputs.issue_number }}
+          FAILED_RUN_IDS: ${{ inputs.failed_run_ids }}
+        run: |
+          set -euo pipefail
+          EVIDENCE_FILE="/tmp/pipeline-doctor-evidence.md"
+          echo "" > "$EVIDENCE_FILE"
+
+          # ── Issue context ──
+          echo "## Issue #${ISSUE_NUM}" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          echo "**Link:** https://github.com/${REPO}/issues/${ISSUE_NUM}" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          ISSUE_DATA=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json title,body,labels,state,comments 2>/dev/null || echo "{}")
+          ISSUE_TITLE=$(echo "$ISSUE_DATA" | jq -r '.title // "unknown"')
+          ISSUE_STATE=$(echo "$ISSUE_DATA" | jq -r '.state // "unknown"')
+          ISSUE_LABELS=$(echo "$ISSUE_DATA" | jq -r '[.labels[].name] | join(", ") // "none"')
+
+          echo "**Title:** $ISSUE_TITLE" >> "$EVIDENCE_FILE"
+          echo "**State:** $ISSUE_STATE" >> "$EVIDENCE_FILE"
+          echo "**Labels:** $ISSUE_LABELS" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Issue body (truncated)
+          ISSUE_BODY=$(echo "$ISSUE_DATA" | jq -r '.body // ""' | head -50)
+          echo "<details><summary>Issue body (first 50 lines)</summary>" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          echo "$ISSUE_BODY" >> "$EVIDENCE_FILE"
+          echo '```' >> "$EVIDENCE_FILE"
+          echo "</details>" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Recent comments (last 10, pipeline-related)
+          echo "### Recent pipeline comments" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          echo "$ISSUE_DATA" | jq -r '
+            [.comments[] | select(
+              (.body | test("@claude|verify|fix attempt|pipeline|doctor|give.up|timed out|stuck"; "i"))
+            )] | last(10) | .[] |
+            "**\(.author.login // "unknown")** (\(.createdAt // "?")):\n\(.body | split("\n") | first(5) | join("\n"))\n"
+          ' >> "$EVIDENCE_FILE" 2>/dev/null || echo "(no pipeline comments found)" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # ── Related branches ──
+          echo "## Branches" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          for PATTERN in "claude/issue-${ISSUE_NUM}" "claude/issue-${ISSUE_NUM}-" "tmp/claude-"; do
+            git for-each-ref --format='%(refname:short) %(objectname:short) %(creatordate:relative)' \
+              "refs/remotes/origin/${PATTERN}*" 2>/dev/null | while read -r ref sha date; do
+              BRANCH=$(echo "$ref" | sed 's|^origin/||')
+              AHEAD=$(git rev-list --count "origin/master..$ref" 2>/dev/null || echo "?")
+              echo "- [\`$BRANCH\`](https://github.com/${REPO}/tree/${BRANCH}) — $sha, ${AHEAD} commits ahead, $date" >> "$EVIDENCE_FILE"
+            done
+          done
+          echo "" >> "$EVIDENCE_FILE"
+
+          # ── Related PRs ──
+          echo "## Related PRs" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          gh pr list --repo "$REPO" --state all --json number,headRefName,state,title,url \
+            -q ".[] | select(.headRefName | test(\"issue-${ISSUE_NUM}($|-)\"))" 2>/dev/null | \
+            jq -r '"- [#\(.number)](\(.url)) (\(.state)): \(.title) [\`\(.headRefName)\`]"' >> "$EVIDENCE_FILE" 2>/dev/null \
+            || echo "(no related PRs found)" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # ── Failed workflow runs ──
+          echo "## Failed Workflow Runs" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Collect run IDs: from input + auto-discovered
+          RUN_IDS=""
+
+          # From input
+          if [ -n "$FAILED_RUN_IDS" ]; then
+            RUN_IDS="$FAILED_RUN_IDS"
+          fi
+
+          # Auto-discover: recent verify-merge runs for this issue
+          VM_RUNS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            --json databaseId,displayTitle,conclusion,status,createdAt \
+            -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | sort_by(.createdAt) | last(6) | .[].databaseId" \
+            2>/dev/null || true)
+
+          for RID in $VM_RUNS; do
+            if ! echo "$RUN_IDS" | grep -qw "$RID" 2>/dev/null; then
+              RUN_IDS="${RUN_IDS:+$RUN_IDS,}$RID"
+            fi
+          done
+
+          # Auto-discover: recent claude.yml runs for this issue
+          CLAUDE_RUNS=$(gh run list --repo "$REPO" --workflow claude.yml \
+            --json databaseId,displayTitle,conclusion \
+            -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | last(3) | .[].databaseId" \
+            2>/dev/null || true)
+
+          for RID in $CLAUDE_RUNS; do
+            if ! echo "$RUN_IDS" | grep -qw "$RID" 2>/dev/null; then
+              RUN_IDS="${RUN_IDS:+$RUN_IDS,}$RID"
+            fi
+          done
+
+          # Fetch details + logs for each run
+          echo "$RUN_IDS" | tr ',' '\n' | while read -r RUN_ID; do
+            [ -z "$RUN_ID" ] && continue
+
+            RUN_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+            RUN_DATA=$(gh run view "$RUN_ID" --repo "$REPO" --json name,displayTitle,conclusion,status,createdAt,updatedAt 2>/dev/null || echo "{}")
+            RUN_NAME=$(echo "$RUN_DATA" | jq -r '.name // "unknown"')
+            RUN_TITLE=$(echo "$RUN_DATA" | jq -r '.displayTitle // "unknown"')
+            RUN_CONCLUSION=$(echo "$RUN_DATA" | jq -r '.conclusion // .status // "unknown"')
+            RUN_CREATED=$(echo "$RUN_DATA" | jq -r '.createdAt // "?"')
+
+            echo "### [${RUN_NAME}: ${RUN_TITLE}](${RUN_URL})" >> "$EVIDENCE_FILE"
+            echo "- **Conclusion:** $RUN_CONCLUSION" >> "$EVIDENCE_FILE"
+            echo "- **Created:** $RUN_CREATED" >> "$EVIDENCE_FILE"
+            echo "" >> "$EVIDENCE_FILE"
+
+            # Get failed job logs (truncated to avoid overwhelming context)
+            FAILED_LOG=$(gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>/dev/null | tail -100 || echo "(no failed logs)")
+            if [ -n "$FAILED_LOG" ] && [ "$FAILED_LOG" != "(no failed logs)" ]; then
+              echo "<details><summary>Failed logs (last 100 lines)</summary>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "$FAILED_LOG" >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "</details>" >> "$EVIDENCE_FILE"
+            else
+              echo "_No failed logs (run may have succeeded or logs expired)_" >> "$EVIDENCE_FILE"
+            fi
+            echo "" >> "$EVIDENCE_FILE"
+          done
+
+          # ── Workflow YAML files ──
+          echo "## Pipeline Workflow Files" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          echo "These are the current workflow files on master. The doctor should check if any of these have bugs causing the failures." >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          for WF in verify-merge.yml claude.yml watcher.yml; do
+            if [ -f ".github/workflows/$WF" ]; then
+              echo "<details><summary>${WF}</summary>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+              echo '```yaml' >> "$EVIDENCE_FILE"
+              cat ".github/workflows/$WF" >> "$EVIDENCE_FILE"
+              echo '```' >> "$EVIDENCE_FILE"
+              echo "</details>" >> "$EVIDENCE_FILE"
+              echo "" >> "$EVIDENCE_FILE"
+            fi
+          done
+
+          # ── Previous doctor diagnoses ──
+          echo "## Previous Doctor Diagnoses" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          PREV_DIAGNOSES=$(gh issue list --repo "$REPO" --label "pipeline-diagnosis" --state all \
+            --json number,title,state,url \
+            -q '.[] | "- [\(.title)](\(.url)) (\(.state))"' 2>/dev/null || echo "(none)")
+          echo "$PREV_DIAGNOSES" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # ── Known bug patterns (from memory) ──
+          echo "## Known Pipeline Bug Patterns" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+          cat >> "$EVIDENCE_FILE" << 'PATTERNS'
+          These are patterns from previous pipeline bugs. Check if the current failure matches any:
+
+          1. **Missing allowedTools**: Claude's fix job couldn't run git commands (fetch, merge, checkout, rebase) because they weren't in allowedTools. Symptom: "Claude produced no changes" across all attempts.
+          2. **Merge conflict + no git tools**: verify-merge detects conflict, sets MERGE_CONFLICT=true, tells Claude to resolve, but Claude can't run `git fetch`/`git merge`.
+          3. **Watcher can't detect active runs**: `gh api .inputs.issue_number` returns null for workflow_dispatch runs. Must parse displayTitle instead.
+          4. **Snapshot files in CI**: `jest --ci` won't auto-create .snap files. Tests with `toMatchSnapshot()` always fail in CI.
+          5. **Silent failures from || true**: `git pull --rebase ... 2>/dev/null || true` swallows real errors, making pushes silently fail.
+          6. **Duplicate chains**: Watcher retriggers stories that already have active verify-merge runs because it can't detect them.
+          7. **Native deps on Ubuntu**: `pod install` can't run on Ubuntu CI. Native packages need lazy/optional imports.
+          PATTERNS
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Save evidence path for next step
+          echo "evidence_file=$EVIDENCE_FILE" >> $GITHUB_OUTPUT
+
+          # Print summary
+          LINE_COUNT=$(wc -l < "$EVIDENCE_FILE")
+          echo "Evidence collected: $LINE_COUNT lines"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm and dependencies
+        run: |
+          npm install -g pnpm
+          pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
+
+      - name: Claude diagnose and fix
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are the Pipeline Doctor. Your job is to diagnose why the autonomous pipeline failed for issue #${{ inputs.issue_number }} and fix it.
+
+            **Trigger source:** ${{ inputs.trigger_source }}
+
+            **Evidence file:** Read /tmp/pipeline-doctor-evidence.md for full context including:
+            - Issue details and timeline
+            - Related branches and PRs (with GitHub links)
+            - Failed workflow run logs
+            - Current workflow YAML files
+            - Known bug patterns from previous fixes
+
+            **Your task:**
+
+            1. READ the evidence file first. Understand the full picture before acting.
+
+            2. DIAGNOSE the root cause. Look for:
+               - Patterns in the failed logs (same error across attempts = infrastructure bug)
+               - Mismatches between what the workflow tells Claude to do and what tools are available
+               - Silent failures (commands swallowed by `|| true`)
+               - Missing configuration, wrong branch references, stale state
+               - Whether this is a CODE bug (the story's implementation is wrong) or a PIPELINE bug (the workflow infrastructure is broken)
+
+            3. ACT based on diagnosis:
+
+               **If it's a PIPELINE bug** (workflow YAML, CI config, tooling issue):
+               - Create a fix branch: `git checkout -b fix/pipeline-doctor-${{ inputs.issue_number }}`
+               - Fix the workflow files
+               - Run `pnpm typecheck` if you changed any .ts/.tsx files
+               - Git add, commit, push
+               - Create a PR with title "fix: [pipeline doctor] <description>" and body including:
+                 - Diagnosis summary
+                 - Links to the failed runs from the evidence
+                 - What was fixed and why
+                 - `Closes` any related pipeline-stuck issues
+
+               **If it's a CODE bug** (the story's implementation has real errors):
+               - Check out the story's work branch (the one with most commits ahead of master)
+               - Fix the code errors identified in the failed logs
+               - Run `pnpm typecheck && pnpm test` to verify
+               - Push the fixes
+               - Retrigger verify-merge: `gh workflow run verify-merge.yml --repo ${{ github.repository }} --ref master -f tmp_branch="<branch>" -f target_branch="claude/issue-${{ inputs.issue_number }}" -f issue_number="${{ inputs.issue_number }}" -f attempt="1"`
+
+               **If you can't determine the cause or can't fix it:**
+               - Create a diagnostic issue with label "pipeline-diagnosis" containing:
+                 - Full diagnosis
+                 - Links to all failed runs
+                 - What you tried
+                 - Recommended manual steps
+
+            4. POST a summary comment on issue #${{ inputs.issue_number }}:
+               ```
+               **Pipeline Doctor Diagnosis**
+
+               **Trigger:** <what triggered this>
+               **Failed runs:** [run 1](link), [run 2](link), ...
+               **Root cause:** <one-line summary>
+               **Action taken:** <PR created / code fixed / diagnostic issue opened>
+               **Status:** <fixed / needs manual intervention>
+               ```
+
+            IMPORTANT: Always include GitHub links in your comments and issues so everything is traceable.
+            CRITICAL: Push after each milestone. If this job times out, unpushed work is lost.
+            Push command: `git push origin HEAD`
+          settings: |
+            {
+              "maxTurns": 50,
+              "allowedTools": [
+                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
+                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git checkout:*)",
+                "Bash(git branch:*)", "Bash(git status:*)", "Bash(git diff:*)",
+                "Bash(git log:*)", "Bash(git fetch:*)", "Bash(git merge:*)",
+                "Bash(git rebase:*)", "Bash(git show:*)", "Bash(git push:*)",
+                "Bash(git rm:*)", "Bash(git rev-parse:*)", "Bash(git rev-list:*)",
+                "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)"
+              ]
+            }

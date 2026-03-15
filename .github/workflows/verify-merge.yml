@@ -550,14 +550,27 @@ jobs:
           TMP_BRANCH="${{ inputs.tmp_branch }}"
 
           if [ -n "$ISSUE_NUM" ]; then
+            # Collect failed run IDs for this issue's verify-merge attempts
+            FAILED_RUNS=$(gh run list --repo "${{ github.repository }}" --workflow verify-merge.yml \
+              --json databaseId,displayTitle,conclusion \
+              -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | .[].databaseId" \
+              2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
+
             gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
           Checks failed after 6 fix attempts. Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 
-          To retry manually: Actions > Verify and Merge > Run workflow with \`tmp_branch: ${TMP_BRANCH}\`, \`target_branch: ${{ inputs.target_branch }}\`, \`attempt: 1\`
-
-          To retry with Claude, comment on the issue tagging the agent to fix the errors on this branch.
+          Triggering Pipeline Doctor to diagnose the failure.
           EOF
             )" 2>/dev/null || echo "Failed to post comment"
+
+            # Trigger pipeline doctor
+            gh workflow run pipeline-doctor.yml \
+              --repo "${{ github.repository }}" \
+              --ref master \
+              -f issue_number="$ISSUE_NUM" \
+              -f trigger_source="verify-merge" \
+              -f failed_run_ids="$FAILED_RUNS"
+            echo "Triggered pipeline doctor for issue #$ISSUE_NUM"
           fi
 
       - name: Clean up stale temp branches
