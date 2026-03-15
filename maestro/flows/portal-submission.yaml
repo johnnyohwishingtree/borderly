@@ -1,0 +1,200 @@
+# Portal Submission Flow — PortalSubmissionScreen smoke test
+#
+# Full end-to-end flow: Onboarding → Trip creation → Leg form → Submission guide →
+# Portal submission screen. Verifies the PortalSubmissionScreen renders correctly,
+# toolbar buttons are visible, and the close button navigates back to trip detail.
+#
+# Tags: portal, submission, critical
+appId: com.borderly.app
+tags:
+  - portal
+  - submission
+  - critical
+---
+
+# ============================================================
+# PHASE 1: Onboarding
+# ============================================================
+- launchApp:
+    clearState: true
+
+- runFlow: subflows/onboard-primary-user.yaml
+
+# ============================================================
+# PHASE 2: Create a trip to Japan
+# ============================================================
+
+- runFlow: subflows/create-japan-trip.yaml
+
+# ============================================================
+# PHASE 3: Open trip and navigate to leg form
+# ============================================================
+
+# Tap the trip card to open trip detail
+- tapOn:
+    id: "trip-card-Smith Family Asia"
+
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+- assertVisible:
+    id: "leg-card-JPN"
+
+# Tap Japan leg to open the leg form
+- tapOn:
+    id: "leg-card-JPN"
+
+# ============================================================
+# PHASE 4: LegForm — fill remaining fields and mark as ready
+# ============================================================
+
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 15000
+
+- extendedWaitUntil:
+    visible: "Form Summary"
+    timeout: 10000
+
+# Dismiss Fast Refresh banner if present
+- runFlow:
+    when:
+      visible: "Fast Refresh"
+    commands:
+      - tapOn: "Dismiss"
+
+# Scroll to city of departure field (only required field without autoFillSource)
+- scrollUntilVisible:
+    element:
+      id: "field-departureCity"
+    direction: DOWN
+    timeout: 15000
+
+- tapOn:
+    id: "field-departureCity"
+- inputText: "Los Angeles"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Fill hotel phone (optional but present)
+- scrollUntilVisible:
+    element:
+      id: "field-hotelPhone"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "field-hotelPhone"
+- inputText: "03-5322-1234"
+- pressKey: Enter
+- tapOn: "Travel Form"
+
+# Save progress
+- scrollUntilVisible:
+    element:
+      id: "save-progress-button"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "save-progress-button"
+
+- extendedWaitUntil:
+    visible: "OK"
+    timeout: 10000
+- tapOn: "OK"
+
+# Mark as Ready
+- extendedWaitUntil:
+    visible: "Mark as Ready"
+    timeout: 10000
+- tapOn:
+    id: "mark-ready-button"
+
+- extendedWaitUntil:
+    visible: "OK"
+    timeout: 10000
+- tapOn: "OK"
+
+# Verify back on trip detail
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+
+# ============================================================
+# PHASE 5: Open Submission Guide
+# ============================================================
+
+# Re-open the Japan leg (now in "ready" state)
+- tapOn:
+    id: "leg-card-JPN"
+
+- extendedWaitUntil:
+    visible: "Travel Form"
+    timeout: 10000
+
+# The "Guide" button (open-submission-guide-button) is visible when form is ready
+- scrollUntilVisible:
+    element:
+      id: "open-submission-guide-button"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "open-submission-guide-button"
+
+# Verify Submission Guide loaded
+- extendedWaitUntil:
+    visible: "Submission Guide"
+    timeout: 15000
+- assertVisible: "Submit in App"
+- assertVisible: "Submission Timing"
+
+# ============================================================
+# PHASE 6: Open Portal Submission Screen
+# ============================================================
+
+- tapOn:
+    id: "submit-in-app-button"
+
+# Verify PortalSubmissionScreen renders
+- extendedWaitUntil:
+    visible:
+      id: "portal-submission-screen"
+    timeout: 15000
+- assertVisible:
+    id: "portal-submission-screen"
+
+# Verify toolbar buttons are visible
+- assertVisible:
+    id: "toolbar-back-button"
+- assertVisible:
+    id: "toolbar-forward-button"
+- assertVisible:
+    id: "toolbar-refresh-button"
+- assertVisible:
+    id: "close-portal-button"
+
+# Verify the WebView area renders
+- assertVisible:
+    id: "portal-webview"
+
+# Verify the step progress bar is visible (Japan schema has submission steps)
+- assertVisible:
+    id: "progress-bar"
+
+# ============================================================
+# PHASE 7: Close portal and verify navigation back to trip detail
+# ============================================================
+
+- tapOn:
+    id: "close-portal-button"
+
+# Verify navigation back to trip detail (Itinerary heading should be visible)
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
+- assertVisible: "Itinerary"
+
+# Verify we are NOT on the portal submission screen
+- assertNotVisible:
+    id: "portal-submission-screen"

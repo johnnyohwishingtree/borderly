@@ -10,6 +10,7 @@ const WebView = forwardRef(function WebView(props, ref) {
     onLoadEnd,
     onError,
     onNavigationStateChange,
+    onMessage,
     injectedJavaScript,
     style,
     testID,
@@ -17,11 +18,38 @@ const WebView = forwardRef(function WebView(props, ref) {
 
   const url = source && source.uri ? source.uri : '';
 
-  // Expose injectJavaScript via ref
+  // Expose imperative API via ref
   useImperativeHandle(ref, () => ({
     injectJavaScript: (script) => {
       // No-op in web mock environment
       void script;
+    },
+    /**
+     * Simulate a message from the in-page JavaScript back to React Native.
+     * Usage (from tests): webViewRef.current.simulateMessage({ type: 'AUTO_FILL_RESULT', filled: 3, total: 5 })
+     */
+    simulateMessage: (data) => {
+      if (onMessage) {
+        onMessage({ nativeEvent: { data: JSON.stringify(data) } });
+      }
+    },
+    /**
+     * Simulate a navigation state change (e.g. page navigation inside the WebView).
+     * Usage: webViewRef.current.simulateNavigationStateChange({ url: 'https://...', canGoBack: true })
+     */
+    simulateNavigationStateChange: (state) => {
+      if (onNavigationStateChange) {
+        onNavigationStateChange({ url, loading: false, canGoBack: false, canGoForward: false, ...state });
+      }
+    },
+    /**
+     * Simulate a load error (e.g. network failure or timeout).
+     * Usage: webViewRef.current.simulateError('Network request failed')
+     */
+    simulateError: (errorMessage) => {
+      if (onError) {
+        onError({ nativeEvent: { description: errorMessage, code: -1 } });
+      }
     },
   }));
 
