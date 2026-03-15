@@ -578,7 +578,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Automated Merge Conflict Resolution (resolve-conflicts.yml)
 - **Trigger**: On push to master (checks all open PRs) or manual dispatch for a specific PR
-- **Logic**: Infrastructure files (`.github/`, `docs/pipeline*`, `CLAUDE.md`) and lock files take master's version. PR-modified files take the branch's version. If conflicts can't be auto-resolved, a comment is posted listing the files needing manual attention.
+- **Logic**: Infrastructure files (`.github/`, `docs/pipeline*`, `CLAUDE.md`) and lock files take master's version. All other conflicting files keep the branch's version. If conflicts can't be auto-resolved, a comment is posted listing the files needing manual attention.
 - **Purpose**: Prevents PRs from going stale when master moves ahead. Previously, merge conflicts accumulated silently and were only discovered during verify-merge.
 
 ### Duplicate PR Prevention
