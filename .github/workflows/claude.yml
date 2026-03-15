@@ -141,6 +141,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           settings: |
             {
               "maxTurns": 100,
@@ -151,7 +152,8 @@ jobs:
                 "Bash(git log:*)", "Bash(git stash:*)", "Bash(git merge:*)",
                 "Bash(git rebase:*)", "Bash(git reset:*)", "Bash(git remote:*)",
                 "Bash(git ls-remote:*)", "Bash(git rev-parse:*)", "Bash(git rev-list:*)",
-                "Bash(git show:*)", "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)"
+                "Bash(git show:*)", "Bash(git push:*)", "Bash(git fetch:*)", "Bash(git rm:*)",
+                "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)"
               ]
             }
           claude_args: |
