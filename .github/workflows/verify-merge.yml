@@ -1,4 +1,4 @@
-name: Verify and Create PR
+name: Verify and Merge
 run-name: "Verify #${{ inputs.issue_number }} → ${{ inputs.target_branch }} (attempt ${{ inputs.attempt }}/6)"
 
 # Checks out a temporary branch, runs lint + typecheck + test.
@@ -50,7 +50,7 @@ jobs:
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           gh issue comment "${{ inputs.issue_number }}" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          Verify and Create PR — [attempt ${{ inputs.attempt }}/6]($RUN_URL)
+          Verify and Merge — [attempt ${{ inputs.attempt }}/6]($RUN_URL)
           EOF
           )" 2>/dev/null || echo "Failed to post link comment"
 
