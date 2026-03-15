@@ -397,7 +397,14 @@ jobs:
           claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
-              "maxTurns": 15
+              "maxTurns": 15,
+              "permissions": {
+                "allow": [
+                  "Edit(*)",
+                  "Write(*)",
+                  "MultiEdit(*)"
+                ]
+              }
             }
 
       - name: Check for permission issues

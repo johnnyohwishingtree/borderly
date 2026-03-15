@@ -39,7 +39,12 @@
     ]
   },
   "portalFlow": {
-    "requiresAccount": false,
+    "requiresAccount": true,
+    "signupUrl": "https://cbpone.cbp.dhs.gov/",
+    "familyPolicy": {
+      "type": "companion",
+      "description": "One family account — add all travelers together in CBP One"
+    },
     "multiStep": true,
     "canSaveProgress": true,
     "sessionTimeout": "7d",

@@ -276,6 +276,39 @@ export interface SubmissionMetrics {
 }
 
 /**
+ * Account readiness status for portal account setup
+ */
+export type AccountReadinessStatus = 'not_started' | 'setup_started' | 'ready';
+
+/**
+ * Family policy type for portals that require account setup
+ */
+export type FamilyPolicyType = 'companion' | 'individual' | 'none';
+
+/**
+ * Family policy for a portal's account management
+ */
+export interface FamilyPolicy {
+  type: FamilyPolicyType;
+  description: string;
+}
+
+/**
+ * Account setup status per profile × portal combination
+ * Stored in MMKV (non-sensitive — just tracks whether the user has set up an account)
+ */
+export interface AccountSetupStatus {
+  /** Country code (e.g. 'JPN', 'GBR') */
+  portalCode: string;
+  /** Profile ID this status belongs to */
+  profileId: string;
+  /** Current readiness status */
+  status: AccountReadinessStatus;
+  /** ISO timestamp of last manual check */
+  lastChecked?: string;
+}
+
+/**
  * Validation result for security checks
  */
 export interface SecurityValidationResult {

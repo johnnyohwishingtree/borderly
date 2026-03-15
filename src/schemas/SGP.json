@@ -32,6 +32,10 @@
   },
   "portalFlow": {
     "requiresAccount": false,
+    "familyPolicy": {
+      "type": "none",
+      "description": "No account required — submit the arrival card directly without registration"
+    },
     "multiStep": false,
     "canSaveProgress": false,
     "sessionTimeout": "15m",

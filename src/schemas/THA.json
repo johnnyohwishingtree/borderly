@@ -32,7 +32,11 @@
     "processingTime": "24h"
   },
   "portalFlow": {
-    "requiresAccount": true,
+    "requiresAccount": false,
+    "familyPolicy": {
+      "type": "none",
+      "description": "No account required — submit the Thailand Pass form directly without registration"
+    },
     "multiStep": true,
     "canSaveProgress": true,
     "sessionTimeout": "30m",
