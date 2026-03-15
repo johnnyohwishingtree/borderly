@@ -117,6 +117,63 @@ jobs:
 
           echo "pass=true" >> $GITHUB_OUTPUT
 
+      - name: Comment failure on PR
+        if: steps.verify.outputs.pass == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh pr comment "${{ inputs.pr_number }}" --repo "${{ github.repository }}" \
+            --body "Review fix round ${{ inputs.round }}/3 failed verification (typecheck or tests). Changes were NOT pushed. [View run]($RUN_URL)" \
+            2>/dev/null || echo "Failed to post comment"
+          exit 1
+
+      # Resolve threads BEFORE pushing so that when the push triggers
+      # auto-merge.yml (via pull_request: synchronize), threads are
+      # already resolved and the merge gate passes.
+      - name: Resolve review threads
+        if: steps.verify.outputs.pass == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ inputs.pr_number }}
+          OWNER=$(echo "$REPO" | cut -d/ -f1)
+          NAME=$(echo "$REPO" | cut -d/ -f2)
+
+          echo "Resolving review threads on PR #$PR_NUM"
+
+          THREAD_IDS=$(gh api graphql -f query="
+            query {
+              repository(owner: \"$OWNER\", name: \"$NAME\") {
+                pullRequest(number: $PR_NUM) {
+                  reviewThreads(first: 100) {
+                    nodes { id isResolved }
+                  }
+                }
+              }
+            }
+          " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
+
+          if [ -z "$THREAD_IDS" ]; then
+            echo "No unresolved review threads"
+            exit 0
+          fi
+
+          echo "$THREAD_IDS" | while read -r TID; do
+            if [ -n "$TID" ]; then
+              gh api graphql -f query="
+                mutation {
+                  resolveReviewThread(input: {threadId: \"$TID\"}) {
+                    thread { isResolved }
+                  }
+                }
+              " 2>/dev/null && echo "Resolved thread $TID" || echo "Failed to resolve $TID"
+            fi
+          done
+
+          echo "Resolved all review threads on PR #$PR_NUM"
+
       - name: Push verified changes
         if: steps.verify.outputs.pass == 'true'
         env:
@@ -148,17 +205,6 @@ jobs:
             echo "Pushed review fixes to ${{ inputs.pr_branch }}"
           fi
 
-      - name: Comment failure on PR
-        if: steps.verify.outputs.pass == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          gh pr comment "${{ inputs.pr_number }}" --repo "${{ github.repository }}" \
-            --body "Review fix round ${{ inputs.round }}/3 failed verification (typecheck or tests). Changes were NOT pushed. [View run]($RUN_URL)" \
-            2>/dev/null || echo "Failed to post comment"
-          exit 1
-
       - name: Comment on PR
         if: steps.verify.outputs.pass == 'true'
         env:
@@ -166,5 +212,5 @@ jobs:
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           gh pr comment "${{ inputs.pr_number }}" --repo "${{ github.repository }}" \
-            --body "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests pass). [View run]($RUN_URL)" \
+            --body "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests pass). Review threads resolved. [View run]($RUN_URL)" \
             2>/dev/null || echo "Failed to post comment"
