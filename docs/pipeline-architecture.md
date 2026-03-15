@@ -487,7 +487,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Watcher Race Condition
 - **Problem**: Pipeline watcher retriggers `@claude` on in-progress stories while `claude.yml` or `verify-merge.yml` is still running, creating duplicate competing runs.
-- **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` runs (parsed from run display title) and `verify-merge.yml` runs (from workflow inputs). Skips retrigger if any workflow is already in flight for that story.
+- **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` and `verify-merge.yml` runs by parsing `displayTitle` (e.g., "Verify #277 → ..."). Skips retrigger if any workflow is already in flight for that story. This method was adopted for `verify-merge.yml` to fix a bug where active runs were not detected, as reading workflow inputs (`gh api .inputs.issue_number`) returns `null` for `workflow_dispatch` runs via the API.
 
 ### Post-Action Push Race
 - **Problem**: `claude-code-action@v1` uses an internal `git-push.sh` script that pushes to the PR/tmp branch mid-run. Our post-action push steps then fail with non-fast-forward rejection.
