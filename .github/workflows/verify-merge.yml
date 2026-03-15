@@ -384,9 +384,8 @@ jobs:
             9. Then git add and git commit your changes.
             10. LAST: Update .claude-fix-log.md (create if needed) with: errors found, changes made, whether checks pass now, remaining issues. This helps the next attempt.
 
-            CRITICAL — PUSH AFTER EACH MILESTONE: After every significant fix (e.g. fixing a file, resolving a category of errors), git add, git commit, and push immediately. Use these exact commands to push:
-            git fetch origin ${{ inputs.tmp_branch }} && git rebase origin/${{ inputs.tmp_branch }} && git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}
-            The fetch+rebase ensures your work is applied on top of any commits from parallel runs. If this job times out, unpushed work is lost. Push early and often.
+            CRITICAL — PUSH AFTER EACH MILESTONE: After every significant fix (e.g. fixing a file, resolving a category of errors), git add, git commit, and push immediately using: git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}
+            If this job times out, unpushed work is lost. Push early and often.
           settings: |
             {
               "maxTurns": 50,
@@ -428,10 +427,9 @@ jobs:
             echo "::warning::Claude produced no changes — skipping to give-up"
             echo "no_changes=true" >> $GITHUB_ENV
           else
-            # Rebase on top of any commits from parallel runs, then push safely
-            git fetch origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
-            git rebase "origin/${{ inputs.tmp_branch }}" 2>/dev/null || git rebase --abort 2>/dev/null
-            git push origin "HEAD:refs/heads/${{ inputs.tmp_branch }}" --force-with-lease
+            # Claude may have already pushed mid-run — rebase on top
+            git pull --rebase origin "${{ inputs.tmp_branch }}" 2>/dev/null || true
+            git push origin "HEAD:refs/heads/${{ inputs.tmp_branch }}"
           fi
 
       - name: Trigger next verify-merge attempt
@@ -491,10 +489,10 @@ jobs:
           Co-authored-by: Claude <noreply@anthropic.com>"
           fi
 
-          # Push rescued work — rebase on top of any parallel run commits
+          # Push rescued work to the tmp branch
           git fetch origin "$TMP_BRANCH" 2>/dev/null || true
-          git rebase "origin/$TMP_BRANCH" 2>/dev/null || git rebase --abort 2>/dev/null
-          git push origin "HEAD:refs/heads/$TMP_BRANCH" --force-with-lease
+          git pull --rebase origin "$TMP_BRANCH" 2>/dev/null || true
+          git push origin "HEAD:refs/heads/$TMP_BRANCH"
           echo "Rescued work to $TMP_BRANCH"
 
           # Trigger next attempt so the fix loop continues
