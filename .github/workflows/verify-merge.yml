@@ -269,10 +269,21 @@ jobs:
           TARGET="${{ inputs.target_branch }}"
           ISSUE_NUM="${{ inputs.issue_number }}"
 
+          # Check for existing PR from this exact branch
           EXISTING=$(gh pr list --head "$TARGET" --state open --json number -q '.[0].number' 2>/dev/null || true)
           if [ -n "$EXISTING" ]; then
             echo "PR #$EXISTING already exists for $TARGET"
             exit 0
+          fi
+
+          # Check for existing PR for the same issue (on a different branch)
+          if [ -n "$ISSUE_NUM" ]; then
+            ISSUE_PR=$(gh pr list --state open --search "Closes #$ISSUE_NUM in:body" --json number,headRefName \
+              -q '.[0].number' 2>/dev/null || true)
+            if [ -n "$ISSUE_PR" ]; then
+              echo "PR #$ISSUE_PR already exists for issue #$ISSUE_NUM — skipping duplicate"
+              exit 0
+            fi
           fi
 
           AHEAD=$(git rev-list --count "origin/master..origin/$TARGET" 2>/dev/null || echo "0")
