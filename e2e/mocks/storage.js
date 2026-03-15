@@ -118,11 +118,24 @@ const mmkvService = {
   getCache: () => null,
   setCache: () => {},
   clearCache: () => {},
-  getString: (key) => memoryStore[key],
+  getString: (key) => {
+    if (memoryStore[key] !== undefined) return memoryStore[key];
+    // Allow tests to pre-seed arbitrary MMKV keys via __BORDERLY_STATE__.mmkv
+    const injected = getInjectedState();
+    return (injected.mmkv && injected.mmkv[key] !== undefined) ? injected.mmkv[key] : undefined;
+  },
   setString: (key, value) => { memoryStore[key] = value; },
-  getBoolean: (key) => memoryStore[key],
+  getBoolean: (key) => {
+    if (memoryStore[key] !== undefined) return memoryStore[key];
+    const injected = getInjectedState();
+    return (injected.mmkv && injected.mmkv[key] !== undefined) ? injected.mmkv[key] : undefined;
+  },
   setBoolean: (key, value) => { memoryStore[key] = value; },
-  getNumber: (key) => memoryStore[key],
+  getNumber: (key) => {
+    if (memoryStore[key] !== undefined) return memoryStore[key];
+    const injected = getInjectedState();
+    return (injected.mmkv && injected.mmkv[key] !== undefined) ? injected.mmkv[key] : undefined;
+  },
   setNumber: (key, value) => { memoryStore[key] = value; },
   delete: (key) => { delete memoryStore[key]; },
   getAllKeys: () => Object.keys(memoryStore),
