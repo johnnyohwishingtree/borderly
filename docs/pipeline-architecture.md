@@ -493,6 +493,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: `claude-code-action@v1` uses an internal `git-push.sh` script that pushes to the PR/tmp branch mid-run. Our post-action push steps then fail with non-fast-forward rejection.
 - **Solution**: All post-action push steps fetch the remote, compare HEAD to remote HEAD. If equal, skip (nothing new). If ahead, rebase before pushing. If behind, pull --rebase first.
 
+### Parallel verify-merge Chains
+- **Problem**: Multiple verify-merge chains can run for the same issue (e.g., watcher retriggers while a chain is mid-fix). Both chains push to the same tmp branch, risking overwrites.
+- **Solution**: All push points in verify-merge (mid-run milestone pushes, post-fix push, timeout rescue) do `git fetch + git rebase` before pushing, with `--force-with-lease` as a safety net. This ensures each chain's work is applied on top of the other's commits rather than overwriting them.
+
 ### Consecutive Failure Detection
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
 - watcher.yml checks for >=5 successful claude.yml runs on a story --> creates "pipeline-stuck" issue
