@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,16 +23,20 @@ import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
 import type { AutoFillFieldResult } from '../../components/submission/AutoFillBanner';
 import { QRSaveOverlay } from '../../components/submission/QRSaveOverlay';
 import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOverlay';
+import { AutoFillPill } from '../../components/submission/AutoFillPill';
+import type { ProfileOption } from '../../components/submission/AutoFillPill';
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
 import { automationScriptRegistry, AutomationScriptUtils, formFiller } from '../../services/submission';
+import { pageDetector } from '../../services/submission/pageDetection';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { getPortalName } from '../../utils/countryUtils';
 import { useTripStore } from '../../stores';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
 import type { FilledForm, FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
+import type { TravelerProfile } from '../../types/profile';
 import { formatFieldValue } from '../../utils/fieldFormatters';
 
 type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
@@ -51,6 +55,9 @@ interface BannerState {
   total: number;
   results?: AutoFillFieldResult[];
 }
+
+/** Detected page type from HTML analysis. */
+type PageType = 'unknown' | 'auth' | 'captcha' | 'form';
 
 /**
  * Build the JavaScript snippet injected into the WebView to auto-fill form fields.
@@ -122,6 +129,19 @@ function buildAutoFillScript(fields: FieldSpec[]): string {
   );
 }
 
+/** Script injected to detect the page type (auth/captcha/form). */
+const PAGE_TYPE_CHECK_SCRIPT =
+  '(function(){' +
+  'var html=document.documentElement.innerHTML.substring(0,50000);' +
+  'var formFields=document.querySelectorAll(\'input:not([type="hidden"]),select,textarea\');' +
+  'window.ReactNativeWebView.postMessage(JSON.stringify({' +
+    'type:"PAGE_TYPE_CHECK",' +
+    'html:html,' +
+    'formFieldCount:formFields.length' +
+  '}));' +
+  'true;' +
+  '})();';
+
 export default function PortalSubmissionScreen() {
   const navigation = useNavigation();
   const route = useRoute<PortalSubmissionRouteProp>();
@@ -158,25 +178,119 @@ export default function PortalSubmissionScreen() {
   // QR save overlay state (null = hidden)
   const [qrPayload, setQrPayload] = useState<QRPageDetectedPayload | null>(null);
 
-  // Load schema and form data
+  // ─── Page detection & passive auto-fill state ────────────────────────────────
+
+  /** Detected type of the current page. Drives whether pill/banners are shown. */
+  const [pageType, setPageType] = useState<PageType>('unknown');
+
+  /** Whether the user has dismissed the auto-fill pill for this page load. */
+  const [pillDismissed, setPillDismissed] = useState(false);
+
+  /** All loaded TravelerProfile objects, keyed by profile ID. */
+  const [loadedProfiles, setLoadedProfiles] = useState<Map<string, TravelerProfile>>(new Map());
+
+  /** Profile options shown in the pill's profile selector. */
+  const [availableProfiles, setAvailableProfiles] = useState<ProfileOption[]>([]);
+
+  /** Currently selected profile ID for auto-fill. */
+  const [selectedProfileId, setSelectedProfileId] = useState<string>('');
+
+  /** Persists the last-used profile ID across page navigations within a leg. */
+  const lastUsedProfileRef = useRef<string>('');
+
+  /** Tracks the last URL seen, used to detect URL changes. */
+  const lastUrlRef = useRef<string>(url);
+
+  // ─── Store access ────────────────────────────────────────────────────────────
+
   const { trips, addQRCode, markLegAsSubmitted } = useTripStore();
-  const { profile } = useProfileStore();
+  const { profile, getAllProfiles, familyProfiles } = useProfileStore();
 
   const trip = trips.find(t => t.id === tripId);
   const leg = trip?.legs.find(l => l.id === legId);
   const schema = getSchemaByCountryCode(countryCode);
   const totalSteps = schema?.submissionGuide?.length ?? 0;
 
+  // ─── Profile loading ─────────────────────────────────────────────────────────
+
+  /**
+   * Load all family profiles on mount and build the ProfileOption list.
+   * Falls back gracefully to the primary profile if loading fails.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const allProfiles = await getAllProfiles();
+        if (cancelled) return;
+
+        const options: ProfileOption[] = [];
+        for (const [profileId, travelerProfile] of allProfiles) {
+          const metadata = familyProfiles.profiles.get(profileId);
+          options.push({
+            id: profileId,
+            name: `${travelerProfile.givenNames} ${travelerProfile.surname}`,
+            relationship: metadata?.relationship ?? 'other',
+          });
+        }
+
+        setAvailableProfiles(options);
+        setLoadedProfiles(allProfiles);
+
+        // Default to primary profile, or the first available profile
+        const primaryId = familyProfiles.primaryProfileId;
+        const defaultId =
+          primaryId && allProfiles.has(primaryId)
+            ? primaryId
+            : options[0]?.id ?? '';
+        const resolvedId = lastUsedProfileRef.current || defaultId;
+        setSelectedProfileId(resolvedId);
+      } catch {
+        if (cancelled) return;
+        // Graceful fallback: use just the primary profile
+        if (profile) {
+          const fallbackOption: ProfileOption = {
+            id: profile.id,
+            name: `${profile.givenNames} ${profile.surname}`,
+            relationship: 'self',
+          };
+          setAvailableProfiles([fallbackOption]);
+          setLoadedProfiles(new Map([[profile.id, profile]]));
+          setSelectedProfileId(profile.id);
+        }
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [getAllProfiles, familyProfiles, profile]);
+
+  /**
+   * The profile data used for auto-fill and field display.
+   * Resolves from loadedProfiles by selectedProfileId, falling back to primary profile.
+   */
+  const effectiveProfile = useMemo<TravelerProfile | null>(() => {
+    if (selectedProfileId && loadedProfiles.has(selectedProfileId)) {
+      return loadedProfiles.get(selectedProfileId) ?? null;
+    }
+    return profile ?? null;
+  }, [selectedProfileId, loadedProfiles, profile]);
+
+  // ─── Copy-paste panel fields ─────────────────────────────────────────────────
+
   // Build fields for the current step (for the copy-paste fallback panel)
   const currentStepFields = (() => {
-    if (!schema || !leg || !profile) return [];
+    if (!schema || !leg || !effectiveProfile) return [];
     const step = schema.submissionGuide?.[currentStep - 1];
     if (!step) return [];
 
     try {
       const filledForm = generateFilledFormForTraveler(
-        profile.id,
-        [profile],
+        effectiveProfile.id,
+        [effectiveProfile],
         leg,
         schema,
         leg.formData ?? {}
@@ -202,8 +316,16 @@ export default function PortalSubmissionScreen() {
     }
   })();
 
+  // ─── Navigation callbacks ────────────────────────────────────────────────────
+
   const handleNavigationChange = useCallback((state: NavigationState) => {
     setNavState(state);
+    // When the URL changes, clear page detection state so we start fresh
+    if (state.url && state.url !== lastUrlRef.current) {
+      lastUrlRef.current = state.url;
+      setPageType('unknown');
+      setPillDismissed(false);
+    }
   }, []);
 
   /** Start a 30-second load timeout when the WebView begins loading a page. */
@@ -233,11 +355,16 @@ export default function PortalSubmissionScreen() {
     setLoadError('Failed to load the portal. Please check your connection and try again.');
   }, []);
 
+  // ─── Page load & type detection ──────────────────────────────────────────────
+
   /**
    * Called when a page finishes loading.
    * 1. Detects which submission guide step the URL corresponds to.
-   * 2. Injects a non-destructive auto-fill script for the fields on that page.
-   * 3. Injects the country-specific QR page detection script.
+   * 2. Resets page detection state for the new page.
+   * 3. Injects a lightweight page-type detection script (auth/captcha/form).
+   * 4. Injects the country-specific QR page detection script.
+   *
+   * Auto-fill is NOT triggered here — the pill lets the user initiate it.
    */
   const handlePageLoad = useCallback(
     (loadedUrl: string) => {
@@ -245,95 +372,112 @@ export default function PortalSubmissionScreen() {
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       setLoadError(null);
 
+      // Reset page type and pill for the new page
+      setPageType('unknown');
+      setPillDismissed(false);
+
       if (!schema?.submissionGuide) return;
 
       // Detect step by URL
-      let stepIndex = currentStep - 1;
       const detected = schema.submissionGuide.findIndex((step) => {
         if (!step.automation?.url) return false;
         return loadedUrl.startsWith(step.automation.url);
       });
       if (detected >= 0) {
-        stepIndex = detected;
         setCurrentStep(detected + 1);
       }
 
-      // Early exit if we don't have the data we need
-      if (!leg || !profile) return;
+      // Inject page-type detection script to determine auth/captcha/form state
+      webViewRef.current?.injectJavaScript(PAGE_TYPE_CHECK_SCRIPT);
 
-      const automationScript = automationScriptRegistry.getScriptSync(countryCode);
-      if (!automationScript) return;
-
-      const step = schema.submissionGuide[stepIndex];
-      const fieldsOnScreen = step?.fieldsOnThisScreen ?? [];
-
-      let filledForm: FilledForm | null;
-      try {
-        filledForm = generateFilledFormForTraveler(
-          profile.id,
-          [profile],
-          leg,
-          schema,
-          leg.formData ?? {}
-        );
-      } catch {
-        return;
-      }
-
-      if (!filledForm) return;
-
-      const fieldSpecs: FieldSpec[] = [];
-      filledForm.sections.forEach((section: FilledFormSection) => {
-        section.fields.forEach((field: FilledFormField) => {
-          // Only include fields listed for this screen (or all if none specified)
-          if (fieldsOnScreen.length > 0 && !fieldsOnScreen.includes(field.id)) return;
-
-          const mapping = automationScript.fieldMappings[field.id];
-          if (!mapping) return;
-
-          let value = formatFieldValue(field.currentValue, field.type);
-          if (!value) return;
-
-          // Apply any configured value transforms (date format, country code, etc.)
-          if (mapping.transform) {
-            const transformed = AutomationScriptUtils.applyTransform(value, mapping.transform);
-            if (transformed !== null && transformed !== undefined) {
-              value = String(transformed);
-            }
-          }
-
-          // Use the first CSS selector from a comma-separated list
-          const selector = mapping.selector.split(',')[0].trim();
-
-          fieldSpecs.push({
-            id: field.id,
-            selector,
-            value,
-            inputType: mapping.inputType,
-          });
-        });
-      });
-
-      if (fieldSpecs.length > 0) {
-        webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
-      }
-
-      // Inject QR page detection script. The script uses MutationObserver
-      // internally to retry detection as QR code elements render, so no fixed
-      // delay is needed here.
+      // Inject QR page detection script
       const qrScript = getQRDetectionScript(countryCode);
       if (qrScript) {
         webViewRef.current?.injectJavaScript(qrScript);
       }
     },
-    [schema, currentStep, leg, profile, countryCode],
+    [schema, countryCode],
   );
+
+  // ─── Auto-fill execution ─────────────────────────────────────────────────────
+
+  /**
+   * Executes the auto-fill for the currently selected profile.
+   * Called when the user taps "Auto-fill Now" in the pill.
+   */
+  const handleAutoFill = useCallback(() => {
+    if (!schema?.submissionGuide || !leg || !effectiveProfile) return;
+
+    // Remember the profile choice for subsequent pages in this leg
+    lastUsedProfileRef.current = selectedProfileId;
+
+    const automationScript = automationScriptRegistry.getScriptSync(countryCode);
+    if (!automationScript) return;
+
+    const stepIndex = currentStep - 1;
+    const step = schema.submissionGuide[stepIndex];
+    const fieldsOnScreen = step?.fieldsOnThisScreen ?? [];
+
+    let filledForm: FilledForm | null;
+    try {
+      filledForm = generateFilledFormForTraveler(
+        effectiveProfile.id,
+        [effectiveProfile],
+        leg,
+        schema,
+        leg.formData ?? {}
+      );
+    } catch {
+      return;
+    }
+
+    if (!filledForm) return;
+
+    const fieldSpecs: FieldSpec[] = [];
+    filledForm.sections.forEach((section: FilledFormSection) => {
+      section.fields.forEach((field: FilledFormField) => {
+        // Only include fields listed for this screen (or all if none specified)
+        if (fieldsOnScreen.length > 0 && !fieldsOnScreen.includes(field.id)) return;
+
+        const mapping = automationScript.fieldMappings[field.id];
+        if (!mapping) return;
+
+        let value = formatFieldValue(field.currentValue, field.type);
+        if (!value) return;
+
+        // Apply any configured value transforms (date format, country code, etc.)
+        if (mapping.transform) {
+          const transformed = AutomationScriptUtils.applyTransform(value, mapping.transform);
+          if (transformed !== null && transformed !== undefined) {
+            value = String(transformed);
+          }
+        }
+
+        // Use the first CSS selector from a comma-separated list
+        const selector = mapping.selector.split(',')[0].trim();
+
+        fieldSpecs.push({
+          id: field.id,
+          selector,
+          value,
+          inputType: mapping.inputType,
+        });
+      });
+    });
+
+    if (fieldSpecs.length > 0) {
+      webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
+    }
+  }, [schema, currentStep, leg, effectiveProfile, selectedProfileId, countryCode]);
+
+  // ─── Message handling ────────────────────────────────────────────────────────
 
   /**
    * Called when the WebView posts a message via window.ReactNativeWebView.postMessage.
    * Handles:
-   *  - AUTO_FILL_RESULT  → show AutoFillBanner
-   *  - QR_PAGE_DETECTED  → show QRSaveOverlay
+   *  - PAGE_TYPE_CHECK  → determine page type, show/hide pill and banners
+   *  - AUTO_FILL_RESULT → show AutoFillBanner
+   *  - QR_PAGE_DETECTED → show QRSaveOverlay
    */
   const handleMessage = useCallback(
     (event: { nativeEvent: { data: string } }) => {
@@ -341,6 +485,23 @@ export default function PortalSubmissionScreen() {
         // Use a wide record type so all message shapes can coexist.
         const msg = JSON.parse(event.nativeEvent.data) as Record<string, unknown>;
         const msgType = typeof msg.type === 'string' ? msg.type : '';
+
+        if (msgType === 'PAGE_TYPE_CHECK') {
+          const html = typeof msg.html === 'string' ? msg.html : '';
+          const formFieldCount =
+            typeof msg.formFieldCount === 'number' ? msg.formFieldCount : 0;
+
+          if (pageDetector.isCaptchaPage(html)) {
+            setPageType('captcha');
+          } else if (pageDetector.isAuthPage(html)) {
+            setPageType('auth');
+          } else if (formFieldCount > 0) {
+            setPageType('form');
+          } else {
+            setPageType('unknown');
+          }
+          return;
+        }
 
         if (msgType === 'AUTO_FILL_RESULT') {
           const total = typeof msg.total === 'number' ? msg.total : 0;
@@ -401,6 +562,8 @@ export default function PortalSubmissionScreen() {
     [countryCode],
   );
 
+  // ─── Toolbar callbacks ───────────────────────────────────────────────────────
+
   const handleGoBack = useCallback(() => {
     webViewRef.current?.injectJavaScript('window.history.back(); true;');
   }, []);
@@ -417,6 +580,8 @@ export default function PortalSubmissionScreen() {
   const handleClose = useCallback(() => {
     (navigation as any).navigate('TripDetail', { tripId });
   }, [navigation, tripId]);
+
+  // ─── QR wallet callbacks ─────────────────────────────────────────────────────
 
   /**
    * Save the detected QR code to the wallet and mark the leg as submitted.
@@ -455,6 +620,13 @@ export default function PortalSubmissionScreen() {
     setQrPayload(null);
     (navigation as any).navigate('Main', { screen: 'Wallet' });
   }, [navigation]);
+
+  // ─── Profile selector callbacks ──────────────────────────────────────────────
+
+  const handleProfileChange = useCallback((profileId: string) => {
+    setSelectedProfileId(profileId);
+    lastUsedProfileRef.current = profileId;
+  }, []);
 
   const progressPercent = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
 
@@ -547,6 +719,30 @@ export default function PortalSubmissionScreen() {
         </Text>
       </View>
 
+      {/* Auth page detection banner */}
+      {pageType === 'auth' && (
+        <View
+          style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
+          testID="auth-page-banner"
+        >
+          <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
+            🔐 Log in to continue
+          </Text>
+        </View>
+      )}
+
+      {/* Captcha page detection banner */}
+      {pageType === 'captcha' && (
+        <View
+          style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
+          testID="captcha-page-banner"
+        >
+          <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
+            🤖 Complete the verification to continue
+          </Text>
+        </View>
+      )}
+
       {/* Auto-fill feedback banner */}
       {bannerState !== null && (
         <AutoFillBanner
@@ -591,6 +787,18 @@ export default function PortalSubmissionScreen() {
           onError={handleWebViewError}
           testID="portal-webview"
         />
+
+        {/* Auto-fill pill — shown when form fields are detected on the page */}
+        {pageType === 'form' && !pillDismissed && availableProfiles.length > 0 && (
+          <AutoFillPill
+            profiles={availableProfiles}
+            selectedProfileId={selectedProfileId}
+            onProfileChange={handleProfileChange}
+            onAutoFill={handleAutoFill}
+            onDismiss={() => setPillDismissed(true)}
+            testID="autofill-pill"
+          />
+        )}
 
         {/* Error overlay — shown on load timeout or WebView error */}
         {loadError !== null && (
