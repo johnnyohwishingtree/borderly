@@ -353,7 +353,7 @@ jobs:
           ${BUNDLE_ERRORS}"
           fi
 
-          TEST_ERRORS=$(cat /tmp/test_errors.txt 2>/dev/null | grep -E "● |FAIL " | head -10 || true)
+          TEST_ERRORS=$(cat /tmp/test_errors.txt 2>/dev/null | grep -E "FAIL |● " | grep -v "● Console" | head -20 || true)
           if [ -n "$TEST_ERRORS" ]; then
             SUMMARY="${SUMMARY}
           TEST FAILURES:
@@ -411,7 +411,8 @@ jobs:
                 "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
                 "Bash(git rm:*)", "Bash(git push:*)", "Bash(git fetch:*)",
                 "Bash(git merge:*)", "Bash(git checkout:*)", "Bash(git rebase:*)",
-                "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)"
+                "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)",
+                "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(grep:*)", "Bash(wc:*)"
               ]
             }
 

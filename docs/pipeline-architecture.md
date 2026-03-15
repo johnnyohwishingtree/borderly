@@ -472,6 +472,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: When Gemini posts a review with critical issues, both `review-guardian.yml` and `review-relay.yml` post separate `@claude` comments. With `cancel-in-progress: true`, earlier runs get killed by later ones, and Claude may end up with confused context from multiple overlapping instructions.
 - **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
 
+### Fix Job Permission Denials
+- **Problem**: verify-merge fix job's `allowedTools` was missing `Bash(cat:*)`, `Bash(grep:*)`, etc. The prompt tells Claude to "read error files at /tmp/*.txt" but Claude couldn't — `Read` tool only works on project files, and `cat` wasn't allowed. Result: 43 permission denials per attempt, Claude spinning uselessly.
+- **Solution**: Added `Bash(cat:*)`, `Bash(head:*)`, `Bash(tail:*)`, `Bash(grep:*)`, `Bash(wc:*)` to the fix job's allowedTools. Also fixed error summary to filter out `● Console` noise lines that drowned out real test failures.
+
 ### Fix Attempts Repeating Same Failed Fix
 - **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
 - **Solution**: A `.claude-fix-log.md` file on the tmp branch persists across attempts. Each fix attempt reads it first, then appends what it tried and whether it worked. The merge job deletes it before merging so it never reaches the PR.
