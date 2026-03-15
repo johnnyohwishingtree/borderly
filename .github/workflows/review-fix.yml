@@ -95,17 +95,30 @@ jobs:
           claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
-              "maxTurns": 20,
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 20
             }
 
-      - name: Push any remaining changes
+      - name: Verify fixes pass checks
+        id: verify
+        run: |
+          echo "=== Typecheck ==="
+          if ! pnpm typecheck 2>&1; then
+            echo "::error::Typecheck failed after review fix — not pushing"
+            echo "pass=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "=== Tests ==="
+          if ! pnpm test 2>&1; then
+            echo "::error::Tests failed after review fix — not pushing"
+            echo "pass=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "pass=true" >> $GITHUB_OUTPUT
+
+      - name: Push verified changes
+        if: steps.verify.outputs.pass == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -135,11 +148,23 @@ jobs:
             echo "Pushed review fixes to ${{ inputs.pr_branch }}"
           fi
 
-      - name: Comment on PR
+      - name: Comment failure on PR
+        if: steps.verify.outputs.pass == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           gh pr comment "${{ inputs.pr_number }}" --repo "${{ github.repository }}" \
-            --body "Review fix round ${{ inputs.round }}/3 complete. [View run]($RUN_URL)" \
+            --body "Review fix round ${{ inputs.round }}/3 failed verification (typecheck or tests). Changes were NOT pushed. [View run]($RUN_URL)" \
+            2>/dev/null || echo "Failed to post comment"
+          exit 1
+
+      - name: Comment on PR
+        if: steps.verify.outputs.pass == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh pr comment "${{ inputs.pr_number }}" --repo "${{ github.repository }}" \
+            --body "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests pass). [View run]($RUN_URL)" \
             2>/dev/null || echo "Failed to post comment"

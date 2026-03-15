@@ -16,9 +16,10 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test) |
 | `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright) |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
-| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback with full Claude permissions |
+| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback with full Claude permissions (verified before push) |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
 | `auto-merge.yml` | CI complete / review / PR sync | Single merge gate: tests + E2E + approval + threads resolved |
+| `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
@@ -471,6 +472,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
 - **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
 
+### Gemini Inline Priority Badges Bypass Auto-Approve
+- **Problem**: Gemini posts inline review comments with priority badges like `![high]` and `![critical]` but submits the overall review as `COMMENTED` (not `CHANGES_REQUESTED`). The review-guardian only checked the review summary body for keywords like `critical` and `high-priority`, so it missed badge-formatted priorities in inline comments and auto-approved PRs that still had unresolved high/critical feedback.
+- **Solution**: All three auto-approve paths in `review-guardian.yml` (`request-approval`, `ensure-review`, `auto-approve-after-claude`) now fetch inline PR review comments via `gh api repos/.../pulls/N/comments` and match against `![high]` and `![critical]` badge patterns (regex: `!\[(critical|high)\]`) in addition to the existing keyword patterns. If any are found, auto-approve is skipped and a comment is posted explaining why. `review-relay.yml` remains the single owner of triggering Claude to fix the flagged issues.
+
 ### Duplicate `@claude` Triggers from Reviews
 - **Problem**: When Gemini posts a review with critical issues, both `review-guardian.yml` and `review-relay.yml` post separate `@claude` comments. With `cancel-in-progress: true`, earlier runs get killed by later ones, and Claude may end up with confused context from multiple overlapping instructions.
 - **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
@@ -559,9 +564,26 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Repeat run awareness**: Collects logs from previous doctor runs for the same issue. Prompt explicitly tells Claude to try a different approach if previous runs didn't fix the problem.
 - **Deduplication**: Watcher checks if doctor already ran (not just if active) before retriggering. Concurrency group prevents parallel runs for same issue.
 
+### Merge Conflict Resolution Polluting PRs
+- **Problem**: Work branches accumulate unrelated commits from master merges. When Claude resolves merge conflicts, it may keep both sides instead of taking master's version for non-story files, polluting the PR with unintended changes.
+- **Solution**: Fix prompt instructs Claude to use `git checkout origin/master -- <file>` for non-story files during conflict resolution.
+
 ### Stale Resource Cleanup
 - verify-merge give-up: cleans tmp/ branches (keeps current)
 - watcher: closes orphan PRs (no linked story, stale)
+
+### Review Fix Verification Gate
+- **Problem**: `review-fix.yml` ran Claude to fix review feedback, then pushed directly to the PR branch without checking if the fixes passed typecheck/tests. This caused PRs to ship with broken code.
+- **Solution**: Added a verification step between Claude's run and the push. Runs `pnpm typecheck && pnpm test` — if either fails, changes are NOT pushed and a failure comment is posted on the PR. The job exits 1 so it shows red, not green.
+
+### Automated Merge Conflict Resolution (resolve-conflicts.yml)
+- **Trigger**: On push to master (checks all open PRs) or manual dispatch for a specific PR
+- **Logic**: Infrastructure files (`.github/`, `docs/pipeline*`, `CLAUDE.md`) and lock files take master's version. PR-modified files take the branch's version. If conflicts can't be auto-resolved, a comment is posted listing the files needing manual attention.
+- **Purpose**: Prevents PRs from going stale when master moves ahead. Previously, merge conflicts accumulated silently and were only discovered during verify-merge.
+
+### Duplicate PR Prevention
+- **Problem**: `claude-code-action@v1` creates timestamped branches (`claude/issue-N-YYYYMMDD-HHMM`), while `claude.yml` pre-creates `claude/issue-N`. Both can end up with PRs, creating duplicates for the same issue.
+- **Solution**: verify-merge's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
 
 ---
 
