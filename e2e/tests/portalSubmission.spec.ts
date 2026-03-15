@@ -82,8 +82,14 @@ async function navigateToPortalSubmission(page: Page) {
     // Fallback: wait for any React content
   });
 
-  // Give the app a moment to initialise all stores
-  await page.waitForTimeout(800);
+  // Wait for the navigation ref to be available — indicates the NavigationContainer
+  // has mounted and Zustand stores have initialised. More reliable than a fixed delay.
+  await page.waitForFunction(
+    () => typeof (window as any).__navigationRef !== 'undefined',
+    { timeout: 3000 },
+  ).catch(() => {
+    // Fallback: navigationRef not exposed (e.g. unexpected env), continue anyway
+  });
 
   // Use the globally exposed navigation ref to navigate imperatively
   const navigated = await page.evaluate(async () => {
@@ -221,15 +227,29 @@ test.describe('PortalSubmissionScreen', () => {
 });
 
 test.describe('PortalSubmissionScreen — UI elements', () => {
+  // Collected JS errors for the current test — reset in beforeEach, checked in afterEach.
+  let jsErrors: string[];
+
   test.beforeEach(async ({ page }) => {
+    jsErrors = [];
+    page.on('pageerror', (err) => jsErrors.push(err.message));
     await injectJapanTripState(page);
     await page.goto('/');
   });
 
-  test('PortalSubmissionScreen renders with header and toolbar', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
+  test.afterEach(() => {
+    // Filter out harmless React / NativeWind warnings that are not actionable errors.
+    const criticalErrors = jsErrors.filter(
+      (e) =>
+        !e.includes('Warning:') &&
+        !e.includes('React does not recognize') &&
+        !e.includes('cannot be a child of') &&
+        !e.includes('NativeWind'),
+    );
+    expect(criticalErrors).toEqual([]);
+  });
 
+  test('PortalSubmissionScreen renders with header and toolbar', async ({ page }) => {
     await navigateToPortalSubmission(page);
 
     // Check for the screen container (rendered if navigation succeeded)
@@ -248,22 +268,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       // WebView area renders
       await expect(page.locator('[data-testid="portal-webview"]')).toBeVisible();
     }
-
-    // No unhandled critical errors regardless of navigation
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('toolbar buttons have accessibility labels', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -276,21 +283,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       await expect(page.getByLabel('Refresh page')).toBeVisible();
       await expect(page.getByLabel('Close portal and go back to trip')).toBeVisible();
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('step progress bar renders when schema has submission steps', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -304,21 +299,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       // Step counter text should be visible (e.g., "Step 1 of N")
       await expect(page.getByText(/Step \d+ of \d+/)).toBeVisible();
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('collapsible "Fields for this page" panel opens and closes', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -340,21 +323,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       // Panel should now be visible (or at least the toggle worked without crashing)
       // Note: the panel shows if there are fields for this page; if empty it shows "No copyable fields"
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('close button navigates back to trip detail', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -370,21 +341,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       // (navigated back to TripDetail)
       await expect(page.locator('[data-testid="portal-submission-screen"]')).not.toBeVisible();
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('error overlay renders on load timeout simulation', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -410,21 +369,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       // The error overlay might not be visible since the custom event may not hook into React state.
       // Instead, verify no critical errors occurred during the interaction.
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('Continue Manually button from low-fill warning navigates to SubmissionGuide', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -443,21 +390,9 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
         await expect(page.locator('[data-testid="portal-submission-screen"]')).not.toBeVisible();
       }
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('auto-fill banner shows filled/total count when triggered', async ({ page }) => {
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
-
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
@@ -482,15 +417,6 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
         await expect(message).toContainText('auto-filled');
       }
     }
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 
   test('WebView mock supports message simulation', async ({ page }) => {
@@ -507,18 +433,7 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
       await expect(webview).toBeVisible();
     }
 
-    // Confirm the mock structure is correct — no JS errors from mock loading
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
+    // Confirm the mock structure is correct — afterEach will assert no critical JS errors.
     await page.waitForTimeout(200);
-
-    const criticalErrors = jsErrors.filter(
-      (e) =>
-        !e.includes('Warning:') &&
-        !e.includes('React does not recognize') &&
-        !e.includes('cannot be a child of') &&
-        !e.includes('NativeWind'),
-    );
-    expect(criticalErrors).toEqual([]);
   });
 });

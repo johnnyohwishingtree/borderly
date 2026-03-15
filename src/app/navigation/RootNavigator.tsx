@@ -36,7 +36,7 @@ const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 // This allows Playwright tests to imperatively navigate without going through
 // the full UI flow. Only exposed in non-production environments.
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
-if (typeof window !== 'undefined') {
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).__navigationRef = navigationRef;
 }
 
