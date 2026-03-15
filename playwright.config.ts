@@ -49,7 +49,15 @@ const allProjects = [
   },
   {
     name: 'portal-submission',
-    testMatch: 'portalSubmission.spec.ts',
+    testMatch: [
+      'portalSubmission.spec.ts',
+      'passiveAutoFill.spec.ts',
+    ],
+    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
+  },
+  {
+    name: 'account-setup',
+    testMatch: 'accountSetup.spec.ts',
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
 ];

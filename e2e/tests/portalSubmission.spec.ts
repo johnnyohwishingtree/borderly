@@ -392,6 +392,32 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     }
   });
 
+  test('auto-fill banner NOT shown on initial load (passive auto-fill mode)', async ({ page }) => {
+    // PASSIVE AUTO-FILL: The auto-fill banner must NOT appear when the portal
+    // page first loads. Auto-fill is now triggered explicitly via the
+    // AutoFillPill — the user taps "Auto-fill Now" rather than having it run
+    // automatically. The banner (autofill-banner) only appears AFTER the user
+    // initiates filling and an AUTO_FILL_RESULT message is received from the
+    // WebView. See passiveAutoFill.spec.ts for full passive-mode E2E coverage.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      // Banner must NOT be visible on initial render
+      const banner = page.locator('[data-testid="autofill-banner"]');
+      await expect(banner).not.toBeVisible();
+
+      // Wait for any async rendering (WebView load, profile loading) to settle
+      await page.waitForTimeout(500);
+
+      // Still not visible — confirms passive mode (no auto-trigger on load)
+      const bannerStillHidden = !(await banner.isVisible().catch(() => false));
+      expect(bannerStillHidden).toBe(true);
+    }
+  });
+
   test('auto-fill banner shows filled/total count when triggered', async ({ page }) => {
     await navigateToPortalSubmission(page);
 
@@ -399,15 +425,11 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     const screenCount = await screen.count();
 
     if (screenCount > 0) {
-      // The auto-fill banner (autofill-banner testID) should not be visible initially
+      // The auto-fill banner (autofill-banner testID) should not be visible initially.
+      // In passive mode, the banner only shows after the user taps "Auto-fill Now"
+      // in the AutoFillPill and an AUTO_FILL_RESULT message is received from the
+      // WebView. The mock WebView supports simulateMessage() for this purpose.
       const banner = page.locator('[data-testid="autofill-banner"]');
-      // Initially hidden — banner only shows after auto-fill result message
-      // The mock WebView fires onLoadEnd, which triggers page-load handlers
-      // For a full banner test, we'd need the WebView mock to simulate AUTO_FILL_RESULT
-      // message, which the updated webview.js mock now supports via simulateMessage().
-      // In this smoke test, we verify no errors occurred.
-
-      // Verify the dismiss button accessibility label is correct (when banner is visible)
       const dismissBtn = page.locator('[data-testid="autofill-banner-dismiss"]');
       const bannerVisible = await banner.isVisible().catch(() => false);
       if (bannerVisible) {
