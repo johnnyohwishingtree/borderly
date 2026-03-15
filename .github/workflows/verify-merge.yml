@@ -396,7 +396,7 @@ jobs:
           show_full_output: true
           settings: |
             {
-              "maxTurns": 20,
+              "maxTurns": 15,
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
                 "Bash(*)"
@@ -404,17 +404,34 @@ jobs:
             }
 
       - name: Check for permission issues
+        id: health
         run: |
           LOG="/home/runner/work/_temp/claude-execution-output.json"
           if [ -f "$LOG" ]; then
             DENIALS=$(grep -o '"permission_denials_count":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
             TURNS=$(grep -o '"num_turns":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
-            echo "Permission denials: $DENIALS, Turns used: $TURNS"
-            if [ "$DENIALS" -gt 10 ]; then
-              echo "::error::Claude hit $DENIALS permission denials in $TURNS turns — allowedTools config may be too restrictive"
+            COST=$(grep -o '"total_cost_usd":[0-9.]*' "$LOG" | grep -o '[0-9.]*' || echo "0")
+            echo "Permission denials: $DENIALS, Turns: $TURNS, Cost: \$$COST"
+
+            if [ "$DENIALS" -gt 5 ]; then
+              echo "::error::Claude hit $DENIALS permission denials in $TURNS turns — allowedTools config is broken. Aborting fix loop."
+              echo "permission_broken=true" >> $GITHUB_OUTPUT
+
+              # Post on issue so humans know immediately
+              ISSUE_NUM="${{ inputs.issue_number }}"
+              if [ -n "$ISSUE_NUM" ]; then
+                gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          Fix attempt ${{ inputs.attempt }}/6 aborted: Claude hit **$DENIALS permission denials** in $TURNS turns (\$$COST wasted). The \`allowedTools\` config is broken — retrying won't help.
+
+          Fix the workflow config, then re-run manually: Actions > Verify and Merge > Run workflow.
+          EOF
+                )" 2>/dev/null || true
+              fi
               exit 1
             fi
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Push fixes to temp branch
         env:
