@@ -50,6 +50,10 @@ afterAll(() => {
 });
 
 describe('ErrorBoundary', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders children when no error occurs', () => {
     const { getByText } = render(
       <ErrorBoundary>
@@ -81,23 +85,35 @@ describe('ErrorBoundary', () => {
     expect(getByText('Try Again')).toBeTruthy();
   });
 
-  it('resets error state when "Try Again" is pressed', () => {
+  it('recovers to non-error state when "Try Again" is pressed after underlying issue is resolved', () => {
+    // Use a mutable ref so we can fix the error condition without remounting
+    const shouldThrowRef = { current: true };
+
+    function RecoverableComponent() {
+      if (shouldThrowRef.current) {
+        throw new Error('Recoverable error');
+      }
+      return <Text>Recovered!</Text>;
+    }
+
     const { getByText, queryByText } = render(
       <ErrorBoundary>
-        <BrokenComponent shouldThrow={true} />
+        <RecoverableComponent />
       </ErrorBoundary>
     );
 
     // Error fallback is shown
     expect(getByText('Something went wrong')).toBeTruthy();
 
-    // Press Try Again
+    // Fix the underlying issue before retrying
+    shouldThrowRef.current = false;
+
+    // Press Try Again — boundary resets and re-renders children
     fireEvent.press(getByText('Try Again'));
 
-    // After reset, boundary no longer shows error (it re-renders children)
-    // The boundary itself is reset — children will re-render (and throw again
-    // since shouldThrow is still true, but the reset mechanism works)
-    expect(queryByText('Try Again')).toBeTruthy();
+    // Component renders normally after recovery
+    expect(getByText('Recovered!')).toBeTruthy();
+    expect(queryByText('Something went wrong')).toBeNull();
   });
 
   it('accepts a custom fallback component', () => {
@@ -250,31 +266,5 @@ describe('useErrorHandler hook', () => {
 
     // ErrorBoundary should now show the fallback UI
     expect(getByText('Something went wrong')).toBeTruthy();
-  });
-
-  it('resetError clears the captured error', () => {
-    function ComponentWithHook() {
-      const { captureError, resetError } = useErrorHandler();
-
-      return (
-        <View>
-          <Text testID="trigger" onPress={() => captureError(new Error('test'))}>
-            Trigger
-          </Text>
-          <Text testID="reset" onPress={resetError}>
-            Reset
-          </Text>
-        </View>
-      );
-    }
-
-    // useErrorHandler throws when error is set, so it bubbles up to ErrorBoundary
-    const { getByTestId } = render(
-      <ErrorBoundary>
-        <ComponentWithHook />
-      </ErrorBoundary>
-    );
-
-    expect(getByTestId('trigger')).toBeTruthy();
   });
 });
