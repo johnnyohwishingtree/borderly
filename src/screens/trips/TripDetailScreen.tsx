@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Upload, ClipboardList, Trash2 } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
 import { useProfileStore } from '../../stores/useProfileStore';
-import { LegCard } from '../../components/trips';
+import { LegCard, AccountSetupChecklist } from '../../components/trips';
 import { Button, StatusBadge } from '../../components/ui';
 import { Trip, TripLeg } from '../../types/trip';
 import { FamilyMember } from '../../types/profile';
@@ -19,7 +19,7 @@ export default function TripDetailScreen() {
   const { tripId } = route.params as RouteParams;
   
   const { getTripById, deleteTrip } = useTripStore();
-  const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
+  const { getAllProfiles, loadFamilyProfiles, currentProfileId } = useProfileStore();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
 
@@ -190,6 +190,20 @@ export default function TripDetailScreen() {
             </View>
           )}
         </View>
+
+        {/* Pre-trip Account Setup */}
+        {trip.legs.length > 0 && currentProfileId && (
+          <View className="pt-4">
+            <AccountSetupChecklist
+              legs={trip.legs}
+              profileId={currentProfileId}
+              familyProfileIds={familyMembers
+                .filter(m => m.id !== currentProfileId)
+                .map(m => m.id)}
+              testID="trip-detail-account-checklist"
+            />
+          </View>
+        )}
 
         {/* Trip Timeline */}
         <View className="px-4 py-6">
