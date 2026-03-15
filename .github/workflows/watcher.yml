@@ -227,24 +227,106 @@ jobs:
               continue
             fi
 
-            # Count only claude.yml runs that completed (success or failure from Claude,
-            # NOT infrastructure failures like push rejections). We check runs whose
-            # display title contains this issue number and that concluded successfully
-            # (meaning Claude ran and finished — the work may still have errors, but
-            # the pipeline didn't break). This avoids burning retry budget on infra bugs.
+            # Check if work already exists on a tmp or claude branch.
+            # If verify-merge already ran (and possibly gave up), we should retrigger
+            # verify-merge directly instead of re-running claude.yml from scratch.
+            #
+            # Look for branches via the GitHub API (no git checkout needed).
+            EXISTING_TMP=""
+            BEST_TMP=""
+
+            # Check for claude/issue-N-* branches (created by claude-code-action)
+            ACTION_BRANCHES=$(gh api "repos/$REPO/git/matching-refs/heads/claude/issue-${ISSUE_NUM}-" \
+              --jq '.[].ref' 2>/dev/null | sed 's|^refs/heads/||' || true)
+            for BRANCH_NAME in $ACTION_BRANCHES; do
+              [ -z "$BRANCH_NAME" ] && continue
+              BEST_TMP="$BRANCH_NAME"
+              echo "  Found action branch: $BRANCH_NAME"
+            done
+
+            # Check for tmp/ branches used in verify-merge for this issue
+            # Parse from completed verify-merge run titles: "Verify #278 → claude/issue-278 (attempt ...)"
+            VM_RUNS_DATA=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+              --json displayTitle,conclusion,headBranch \
+              -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))]" 2>/dev/null || echo "[]")
+            VM_COUNT=$(echo "$VM_RUNS_DATA" | jq 'length' 2>/dev/null || echo "0")
+
+            if [ "$VM_COUNT" -gt 0 ]; then
+              # There are verify-merge runs for this issue — work exists
+              # Find the tmp branch from the most recent run's inputs
+              # The tmp branch is passed as input, but we can find it from matching tmp/ refs
+              TMP_BRANCHES=$(gh api "repos/$REPO/git/matching-refs/heads/tmp/claude-" \
+                --jq '.[].ref' 2>/dev/null | sed 's|^refs/heads/||' || true)
+              for TB in $TMP_BRANCHES; do
+                [ -z "$TB" ] && continue
+                EXISTING_TMP="$TB"
+              done
+            fi
+
+            # Prefer the action branch if available, fall back to tmp branch
+            if [ -n "$BEST_TMP" ]; then
+              EXISTING_TMP="$BEST_TMP"
+            fi
+
+            # If we found existing work, trigger verify-merge directly
+            if [ -n "$EXISTING_TMP" ]; then
+              echo "  Found existing work: $EXISTING_TMP"
+
+              # Check how many verify-merge give-ups there have been
+              VM_GIVEUPS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+                --json displayTitle,conclusion \
+                -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\")) | select(.displayTitle | contains(\"attempt 6/6\"))] | length" 2>/dev/null || echo "0")
+
+              if [ "$VM_GIVEUPS" -ge 2 ]; then
+                echo "  verify-merge has given up $VM_GIVEUPS times — triggering pipeline doctor"
+                DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                  --status in_progress --json displayTitle \
+                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                  --status queued --json displayTitle \
+                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+
+                if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -eq 0 ]; then
+                  gh workflow run pipeline-doctor.yml \
+                    --repo "$REPO" \
+                    --ref master \
+                    -f issue_number="$ISSUE_NUM" \
+                    -f trigger_source="watcher"
+                  echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                else
+                  echo "  Pipeline doctor already running — skipping"
+                fi
+              else
+                echo "  Triggering verify-merge directly with existing work branch"
+                TARGET_BRANCH="claude/issue-${ISSUE_NUM}"
+                gh workflow run verify-merge.yml \
+                  --repo "$REPO" \
+                  --ref master \
+                  -f tmp_branch="$EXISTING_TMP" \
+                  -f target_branch="$TARGET_BRANCH" \
+                  -f issue_number="$ISSUE_NUM" \
+                  -f attempt="1"
+                echo "  Triggered verify-merge: $EXISTING_TMP -> $TARGET_BRANCH"
+              fi
+
+              BUSY_EPICS="$BUSY_EPICS $STORY_EPIC"
+              SLOTS_AVAILABLE=$((SLOTS_AVAILABLE - 1))
+              continue
+            fi
+
+            # No existing work — count claude.yml retries and potentially retrigger
+            # Count only claude.yml runs that completed successfully (meaning Claude
+            # ran and finished — the work may still have errors, but the pipeline
+            # didn't break). This avoids burning retry budget on infra bugs.
             SUCCESSFUL_RUNS=$(gh run list --repo "$REPO" --workflow claude.yml \
               --json displayTitle,conclusion \
               -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM} \")) | select(.conclusion == \"success\")] | length" 2>/dev/null || echo "0")
-            # Also count @claude comments as a fallback ceiling
-            COMMENT_COUNT=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json comments \
-              -q '[.comments[] | select(.body | contains("@claude"))] | length' 2>/dev/null || echo "0")
             RETRY_COUNT=$SUCCESSFUL_RUNS
-            echo "  Retries: $SUCCESSFUL_RUNS successful runs, $COMMENT_COUNT @claude comments"
+            echo "  Retries: $SUCCESSFUL_RUNS successful claude.yml runs"
 
             if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
               echo "  ALERT: $RETRY_COUNT successful attempts without merge — triggering pipeline doctor"
 
-              # Check if doctor is already running for this issue
               DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
                 --status in_progress --json displayTitle \
                 -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
@@ -277,7 +359,7 @@ jobs:
               fi
             fi
 
-            echo "  Re-triggering (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
+            echo "  Re-triggering claude.yml (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
             gh issue comment "$ISSUE_NUM" --repo "$REPO" \
               --body "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently. Run tests before your final commit. Create a PR with 'Closes #$ISSUE_NUM' in the body when done. (Retry #$((RETRY_COUNT + 1)) by pipeline watcher)"
 
