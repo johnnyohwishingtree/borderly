@@ -190,9 +190,16 @@ jobs:
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           git config user.name "Claude CI"
           git config user.email "claude-ci@users.noreply.github.com"
-          git fetch origin "${{ inputs.tmp_branch }}"
 
-          git merge "origin/${{ inputs.tmp_branch }}" --no-edit
+          TMP="${{ inputs.tmp_branch }}"
+          TARGET="${{ inputs.target_branch }}"
+
+          if [ "$TMP" = "$TARGET" ]; then
+            echo "tmp_branch and target_branch are the same ($TMP) — skipping merge"
+          else
+            git fetch origin "$TMP"
+            git merge "origin/$TMP" --no-edit
+          fi
 
           # Remove fix context log before pushing — it's only for cross-attempt context
           if [ -f .claude-fix-log.md ]; then
@@ -200,22 +207,31 @@ jobs:
             git commit -m "chore: remove fix context log"
           fi
 
-          REMOTE_EXISTS=$(git ls-remote --heads origin "${{ inputs.target_branch }}" 2>/dev/null | wc -l | tr -d ' ')
+          REMOTE_EXISTS=$(git ls-remote --heads origin "$TARGET" 2>/dev/null | wc -l | tr -d ' ')
           if [ "$REMOTE_EXISTS" -eq 0 ]; then
             git push -u origin HEAD
           else
             git push origin HEAD
           fi
 
-          echo "Merged ${{ inputs.tmp_branch }} into ${{ inputs.target_branch }}"
+          echo "Merged $TMP into $TARGET"
 
       - name: Delete temp branch
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ inputs.tmp_branch }}" 2>/dev/null \
-            && echo "Deleted ${{ inputs.tmp_branch }}" \
-            || echo "Failed to delete ${{ inputs.tmp_branch }}"
+          TMP="${{ inputs.tmp_branch }}"
+          TARGET="${{ inputs.target_branch }}"
+
+          # Never delete the target branch — only delete tmp if it's separate
+          if [ "$TMP" = "$TARGET" ]; then
+            echo "tmp_branch is the same as target_branch — skipping delete"
+            exit 0
+          fi
+
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$TMP" 2>/dev/null \
+            && echo "Deleted $TMP" \
+            || echo "Failed to delete $TMP"
 
       - name: Create PR if not exists
         env:
@@ -249,8 +265,28 @@ jobs:
             PR_BODY="Autonomously implemented by Claude Code via GitHub Actions."
           fi
 
-          gh pr create --head "$TARGET" --base master --title "$PR_TITLE" --body "$PR_BODY"
-          echo "PR created — waiting for reviews before merge"
+          # Try creating PR; if GitHub's ref cache is stale after force-push,
+          # create a fresh branch and retry
+          if ! gh pr create --head "$TARGET" --base master --title "$PR_TITLE" --body "$PR_BODY" 2>/tmp/pr_error.txt; then
+            if grep -qi "Head sha can't be blank\|No commits between\|Head ref must be" /tmp/pr_error.txt; then
+              echo "::warning::GitHub can't resolve branch ref — creating fresh branch and retrying"
+              FRESH="pr/issue-${ISSUE_NUM:-unknown}"
+              git push origin "HEAD:refs/heads/$FRESH" --force
+              if gh pr create --head "$FRESH" --base master --title "$PR_TITLE" --body "$PR_BODY"; then
+                echo "PR created from fresh branch $FRESH"
+              else
+                echo "::error::Failed to create PR even with fresh branch"
+                cat /tmp/pr_error.txt
+                exit 1
+              fi
+            else
+              echo "::error::Failed to create PR"
+              cat /tmp/pr_error.txt
+              exit 1
+            fi
+          else
+            echo "PR created — waiting for reviews before merge"
+          fi
 
   fix:
     needs: verify
