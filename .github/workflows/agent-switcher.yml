@@ -18,9 +18,10 @@ jobs:
   switch:
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && 
-       (contains(github.event.comment.body, '@gemini use gemini') || 
-        contains(github.event.comment.body, '@gemini use claude')))
+      (github.event_name == 'issue_comment' &&
+       (contains(github.event.comment.body, '@gemini use gemini') ||
+        contains(github.event.comment.body, '@gemini use claude')) &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
     runs-on: ubuntu-latest
     steps:
       - name: Determine New Agent
