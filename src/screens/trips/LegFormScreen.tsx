@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/ui';
 import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
@@ -18,7 +19,7 @@ type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
 
 export default function LegFormScreen() {
   const route = useRoute<LegFormScreenRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { tripId, legId } = route.params || {};
 
   const { profile } = useProfileStore();
@@ -353,13 +354,18 @@ export default function LegFormScreen() {
               <Button
                 title="Submit in App"
                 onPress={() => {
-                  const schema = schemaRegistry.getSchema(leg?.destinationCountry ?? '');
-                  (navigation as any).navigate('PortalSubmission', {
-                    url: schema?.portalUrl ?? '',
-                    countryCode: leg?.destinationCountry ?? '',
-                    tripId,
-                    legId,
-                  });
+                  const countryCode = leg.destinationCountry;
+                  const schema = schemaRegistry.getSchema(countryCode);
+                  if (schema?.portalUrl) {
+                    navigation.navigate('PortalSubmission', {
+                      url: schema.portalUrl,
+                      countryCode,
+                      tripId,
+                      legId,
+                    });
+                  } else {
+                    Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
+                  }
                 }}
                 variant="primary"
                 testID="submit-in-app-button"
@@ -370,10 +376,10 @@ export default function LegFormScreen() {
             <Button
               title="Guide"
               onPress={() => {
-                (navigation as any).navigate('SubmissionGuide', {
+                navigation.navigate('SubmissionGuide', {
                   tripId,
                   legId,
-                  countryCode: leg?.destinationCountry,
+                  countryCode: leg.destinationCountry,
                 });
               }}
               variant="secondary"

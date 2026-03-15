@@ -23,7 +23,7 @@ export type TripStackParamList = {
   CreateTrip: undefined;
   TripDetail: { tripId: string };
   LegForm: { tripId: string; legId: string };
-  SubmissionGuide: { tripId: string; legId: string };
+  SubmissionGuide: { tripId: string; legId: string; countryCode: string };
   PortalSubmission: {
     url: string;
     countryCode: string;
