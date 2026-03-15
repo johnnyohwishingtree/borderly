@@ -400,7 +400,14 @@ jobs:
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
                 "Bash(*)"
-              ]
+              ],
+              "permissions": {
+                "allow": [
+                  "Edit(*)",
+                  "Write(*)",
+                  "MultiEdit(*)"
+                ]
+              }
             }
 
       - name: Check for permission issues
