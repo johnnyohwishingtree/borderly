@@ -122,6 +122,14 @@ jobs:
           echo "$TRUNCATED" >> $GITHUB_OUTPUT
           echo "EOFSUMMARY" >> $GITHUB_OUTPUT
 
+      - name: Save review summary to file
+        if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
+        env:
+          SUMMARY: ${{ steps.comments.outputs.summary }}
+        run: |
+          # Write to file to avoid shell metacharacter issues (review text has parentheses, backticks, etc.)
+          printf '%s' "$SUMMARY" > /tmp/review_summary_dispatch.txt
+
       - name: Dispatch review-fix workflow
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
         env:
@@ -131,7 +139,7 @@ jobs:
           PR_BRANCH="${{ github.event.pull_request.head.ref }}"
           REVIEWER="${{ github.event.review.user.login }}"
           ROUND=${{ steps.check.outputs.relay_round }}
-          SUMMARY="${{ steps.comments.outputs.summary }}"
+          SUMMARY=$(cat /tmp/review_summary_dispatch.txt)
 
           gh workflow run review-fix.yml \
             --repo "${{ github.repository }}" \
