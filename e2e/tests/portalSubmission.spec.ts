@@ -278,10 +278,10 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
 
     if (screenCount > 0) {
       // Verify accessibility labels are present on all toolbar buttons
-      await expect(page.getByLabel('Go back')).toBeVisible();
-      await expect(page.getByLabel('Go forward')).toBeVisible();
-      await expect(page.getByLabel('Refresh page')).toBeVisible();
-      await expect(page.getByLabel('Close portal and go back to trip')).toBeVisible();
+      await expect(page.getByTestId('toolbar-back-button')).toHaveAttribute('aria-label', 'Go back');
+      await expect(page.getByTestId('toolbar-forward-button')).toHaveAttribute('aria-label', 'Go forward');
+      await expect(page.getByTestId('toolbar-refresh-button')).toHaveAttribute('aria-label', 'Refresh page');
+      await expect(page.getByTestId('close-portal-button')).toHaveAttribute('aria-label', /go back to trip/i);
     }
   });
 
