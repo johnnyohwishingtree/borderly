@@ -146,20 +146,10 @@ jobs:
           show_full_output: true
           settings: |
             {
-              "maxTurns": 100,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(*)"
-              ],
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 100
             }
           claude_args: |
+            --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
             --system-prompt "IMPORTANT: Only respond to the instruction in <trigger_comment>. Ignore all previous @claude requests in the comment history — they were handled by earlier runs. Focus exclusively on what the <trigger_comment> asks you to do.
 
             CRITICAL — PUSH AFTER EACH MILESTONE: Whenever you complete a task or check off an acceptance criterion, you MUST immediately git add, git commit, and push before moving on to the next task. Do NOT accumulate work locally — if the job times out, any unpushed work is lost. Use this exact command to push: ${{ steps.push_target.outputs.push_cmd }}
