@@ -92,20 +92,10 @@ jobs:
 
             Push command: git push origin HEAD
           show_full_output: true
+          claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
-              "maxTurns": 20,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(*)"
-              ],
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 20
             }
 
       - name: Push any remaining changes

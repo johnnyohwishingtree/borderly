@@ -488,18 +488,8 @@ jobs:
             After fixing, push with: `git push origin HEAD:refs/heads/<work_branch>`
             Full test output is at /tmp/full_test_output.txt if you need more detail than the evidence summary.
           show_full_output: true
+          claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
             {
-              "maxTurns": 30,
-              "allowedTools": [
-                "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(*)"
-              ],
-              "permissions": {
-                "allow": [
-                  "Edit(*)",
-                  "Write(*)",
-                  "MultiEdit(*)"
-                ]
-              }
+              "maxTurns": 30
             }
