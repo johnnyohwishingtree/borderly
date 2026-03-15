@@ -175,42 +175,56 @@ describe('ErrorBoundary', () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
-  it('shows error details in development mode', () => {
+  describe('when in development mode', () => {
     const g = global as Record<string, unknown>;
-    const originalDev = g['__DEV__'];
-    g['__DEV__'] = true;
+    let originalDev: unknown;
 
-    const { getByText } = render(
-      <ErrorBoundary>
-        <BrokenComponent shouldThrow={true} />
-      </ErrorBoundary>
-    );
+    beforeAll(() => {
+      originalDev = g['__DEV__'];
+      g['__DEV__'] = true;
+    });
 
-    // In dev mode, the error message should be shown
-    expect(getByText('Test render error')).toBeTruthy();
+    afterAll(() => {
+      g['__DEV__'] = originalDev;
+    });
 
-    g['__DEV__'] = originalDev;
+    it('shows error details', () => {
+      const { getByText } = render(
+        <ErrorBoundary>
+          <BrokenComponent shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      expect(getByText('Test render error')).toBeTruthy();
+    });
   });
 
-  it('does not show error details in production mode', () => {
+  describe('when in production mode', () => {
     const g = global as Record<string, unknown>;
-    const originalDev = g['__DEV__'];
-    g['__DEV__'] = false;
+    let originalDev: unknown;
 
-    const { queryByText } = render(
-      <ErrorBoundary>
-        <BrokenComponent shouldThrow={true} />
-      </ErrorBoundary>
-    );
+    beforeAll(() => {
+      originalDev = g['__DEV__'];
+      g['__DEV__'] = false;
+    });
 
-    // In production mode, the raw error message should NOT be shown
-    expect(queryByText('Test render error')).toBeNull();
+    afterAll(() => {
+      g['__DEV__'] = originalDev;
+    });
 
-    g['__DEV__'] = originalDev;
+    it('does not show error details', () => {
+      const { queryByText } = render(
+        <ErrorBoundary>
+          <BrokenComponent shouldThrow={true} />
+        </ErrorBoundary>
+      );
+
+      expect(queryByText('Test render error')).toBeNull();
+    });
   });
 
   it('logs error using errorHandling utilities', () => {
-    const { logError } = require('../../src/utils/errorHandling');
+    const { logError } = jest.requireMock('../../src/utils/errorHandling');
 
     render(
       <ErrorBoundary>
@@ -237,6 +251,10 @@ describe('ErrorBoundary', () => {
 });
 
 describe('useErrorHandler hook', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('captures errors and re-throws them to the nearest ErrorBoundary', () => {
     function ComponentWithHook() {
       const { captureError } = useErrorHandler();
