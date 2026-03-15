@@ -74,13 +74,32 @@ jobs:
             -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
-            echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
-            echo "review-relay.yml will handle triggering Claude to fix these"
+            # Check if threads are resolved — if so, the feedback was already addressed
+            OWNER=$(echo "$REPO" | cut -d/ -f1)
+            NAME=$(echo "$REPO" | cut -d/ -f2)
+            UNRESOLVED=$(gh api graphql -f query="
+              query {
+                repository(owner: \"$OWNER\", name: \"$NAME\") {
+                  pullRequest(number: $PR_NUM) {
+                    reviewThreads(first: 100) {
+                      nodes { isResolved }
+                    }
+                  }
+                }
+              }
+            " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
 
-            # Post a comment explaining why auto-approve was skipped
-            gh pr comment "$PR_NUM" --repo "$REPO" \
-              --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges. These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes."
-            exit 0
+            if [ "$UNRESOLVED" -gt 0 ]; then
+              echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"
+              echo "review-relay.yml will handle triggering Claude to fix these"
+
+              # Post a comment explaining why auto-approve was skipped
+              gh pr comment "$PR_NUM" --repo "$REPO" \
+                --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes."
+              exit 0
+            else
+              echo "Found $CRITICAL_COMMENTS critical/high comments but ALL threads are resolved — feedback was addressed"
+            fi
           fi
 
           # Wait for review-relay to process the review and potentially post @claude.
@@ -300,6 +319,8 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           PR_NUM=${{ steps.check.outputs.pr_num }}
+          OWNER=$(echo "$REPO" | cut -d/ -f1)
+          NAME=$(echo "$REPO" | cut -d/ -f2)
 
           # Check for critical/high-severity inline comments (including Gemini
           # badge patterns like ![critical] and ![high])
@@ -307,17 +328,34 @@ jobs:
             -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
-            echo "Review has $CRITICAL_COMMENTS critical/high-severity comments — NOT auto-approving"
-            echo "review-relay.yml will handle triggering Claude to fix these"
+            # Check if ALL review threads are resolved — if so, the feedback was addressed
+            UNRESOLVED=$(GH_TOKEN="$GH_PAT" gh api graphql -f query="
+              query {
+                repository(owner: \"$OWNER\", name: \"$NAME\") {
+                  pullRequest(number: $PR_NUM) {
+                    reviewThreads(first: 100) {
+                      nodes { isResolved }
+                    }
+                  }
+                }
+              }
+            " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
 
-            gh pr comment "$PR_NUM" --repo "$REPO" \
-              --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges. These must be addressed before the PR can be approved."
-            exit 0
+            if [ "$UNRESOLVED" -gt 0 ]; then
+              echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"
+              echo "review-relay.yml will handle triggering Claude to fix these"
+
+              gh pr comment "$PR_NUM" --repo "$REPO" \
+                --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved."
+              exit 0
+            else
+              echo "Found $CRITICAL_COMMENTS critical/high comments but ALL threads are resolved — feedback was addressed"
+            fi
           fi
 
-          echo "Auto-approving PR #$PR_NUM — review exists, no critical issues"
+          echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review detected, no critical/high issues found."
+            --body "Auto-approved: code review detected, no unresolved critical/high issues."
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'
