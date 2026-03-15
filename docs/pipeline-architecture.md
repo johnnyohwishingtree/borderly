@@ -474,8 +474,8 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Solution**: `review-guardian.yml` no longer posts `@claude` when it finds critical issues — it just skips auto-approve. `review-relay.yml` is the single owner of triggering Claude to fix review feedback, since it includes the actual inline comments with file paths and line numbers.
 
 ### Fix Job Permission Denials
-- **Problem**: verify-merge fix job's `allowedTools` was missing `Bash(cat:*)`, `Bash(grep:*)`, etc. The prompt tells Claude to "read error files at /tmp/*.txt" but Claude couldn't — `Read` tool only works on project files, and `cat` wasn't allowed. Result: 43 permission denials per attempt, Claude spinning uselessly.
-- **Solution**: Added `Bash(cat:*)`, `Bash(head:*)`, `Bash(tail:*)`, `Bash(grep:*)`, `Bash(wc:*)` to the fix job's allowedTools. Also fixed error summary to filter out `● Console` noise lines that drowned out real test failures.
+- **Problem**: verify-merge fix job's `allowedTools` had an explicit whitelist of Bash subcommands (`Bash(cat:*)`, `Bash(grep:*)`, etc.). Any Bash command not in the list caused a permission denial. Claude would attempt common commands like `ls`, `echo`, `sed`, `find`, etc., get denied, and retry — burning through turns doing nothing. One run had **56 permission denials in 48 turns**, taking 11 minutes and $2 for a one-line typecheck fix.
+- **Solution**: Replaced per-command Bash whitelist with `Bash(*)` across all workflows (verify-merge, pipeline-doctor, review-fix, claude.yml). Also reduced `maxTurns` from 50 to 20 for fix jobs (if Claude can't fix a clear error in 20 turns, more turns won't help). Added `show_full_output: true` for debugging. Simplified fix prompt from 10 instructions to 5.
 
 ### Fix Attempts Repeating Same Failed Fix
 - **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.

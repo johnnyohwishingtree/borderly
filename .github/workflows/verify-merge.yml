@@ -378,39 +378,43 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GH_PAT }}
           prompt: |
-            Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
+            Fix attempt ${{ inputs.attempt }}/6. Fix the errors below, then push.
 
             ${{ steps.context.outputs.commit_context }}
 
-            HERE ARE THE ERRORS — fix these:
+            ERRORS:
             ${{ needs.verify.outputs.error_summary }}
 
-            INSTRUCTIONS:
-            1. If there's a merge conflict, run `git fetch origin master && git merge origin/master --no-edit`, resolve conflicts, then `git add` and `git commit`.
-            2. Check if .claude-fix-log.md exists in the repo root. If yes, read it first — it has notes from previous attempts. Do NOT repeat failed approaches.
-            4. Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to confirm no new errors.
-            5. Do NOT use `any` types — fix root causes.
-            6. If native_dep_errors.txt shows unlinked packages, use lazy/optional imports (can't run pod install on Ubuntu).
-            7. If tests fail with "snapshot was not written", run `pnpm test -- -u` to update snapshots.
-            8. After fixing, run `pnpm typecheck && pnpm test` to confirm ZERO errors.
-            9. Then git add and git commit your changes.
-            10. LAST: Update .claude-fix-log.md (create if needed) with: errors found, changes made, whether checks pass now, remaining issues. This helps the next attempt.
+            STEPS:
+            1. If .claude-fix-log.md exists, read it first — do NOT repeat failed approaches.
+            2. Fix the errors. Do NOT use `any` types. Fix ONE FILE AT A TIME, run `pnpm typecheck` after each.
+            3. Run `pnpm typecheck && pnpm test` to confirm ZERO errors.
+            4. git add, commit, push: `git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}`
+            5. Update .claude-fix-log.md with what you fixed and whether checks pass now.
 
-            CRITICAL — PUSH AFTER EACH MILESTONE: After every significant fix (e.g. fixing a file, resolving a category of errors), git add, git commit, and push immediately using: git push origin HEAD:refs/heads/${{ inputs.tmp_branch }}
-            If this job times out, unpushed work is lost. Push early and often.
+            Push after each milestone — unpushed work is lost on timeout.
+          show_full_output: true
           settings: |
             {
-              "maxTurns": 50,
+              "maxTurns": 20,
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git status:*)",
-                "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
-                "Bash(git rm:*)", "Bash(git push:*)", "Bash(git fetch:*)",
-                "Bash(git merge:*)", "Bash(git checkout:*)", "Bash(git rebase:*)",
-                "Bash(pnpm:*)", "Bash(npx:*)", "Bash(node:*)",
-                "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(grep:*)", "Bash(wc:*)"
+                "Bash(*)"
               ]
             }
+
+      - name: Check for permission issues
+        run: |
+          LOG="/home/runner/work/_temp/claude-execution-output.json"
+          if [ -f "$LOG" ]; then
+            DENIALS=$(grep -o '"permission_denials_count":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
+            TURNS=$(grep -o '"num_turns":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
+            echo "Permission denials: $DENIALS, Turns used: $TURNS"
+            if [ "$DENIALS" -gt 10 ]; then
+              echo "::error::Claude hit $DENIALS permission denials in $TURNS turns — allowedTools config may be too restrictive"
+              exit 1
+            fi
+          fi
 
       - name: Push fixes to temp branch
         env:

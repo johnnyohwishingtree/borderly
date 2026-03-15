@@ -487,17 +487,12 @@ jobs:
             The work branch name is in the evidence file under "Work Branch Analysis".
             After fixing, push with: `git push origin HEAD:refs/heads/<work_branch>`
             Full test output is at /tmp/full_test_output.txt if you need more detail than the evidence summary.
+          show_full_output: true
           settings: |
             {
-              "maxTurns": 50,
+              "maxTurns": 30,
               "allowedTools": [
                 "Edit", "MultiEdit", "Glob", "Grep", "LS", "Read", "Write",
-                "Bash(git add:*)", "Bash(git commit:*)", "Bash(git checkout:*)",
-                "Bash(git branch:*)", "Bash(git status:*)", "Bash(git diff:*)",
-                "Bash(git log:*)", "Bash(git fetch:*)", "Bash(git merge:*)",
-                "Bash(git rebase:*)", "Bash(git show:*)", "Bash(git push:*)",
-                "Bash(git rm:*)", "Bash(git rev-parse:*)", "Bash(git rev-list:*)",
-                "Bash(gh:*)", "Bash(node:*)", "Bash(pnpm:*)", "Bash(npx:*)",
-                "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(grep:*)", "Bash(wc:*)"
+                "Bash(*)"
               ]
             }
