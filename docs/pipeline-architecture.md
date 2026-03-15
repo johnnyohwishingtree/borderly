@@ -475,7 +475,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Fix Job Permission Denials
 - **Problem**: verify-merge fix job's `allowedTools` had an explicit whitelist of Bash subcommands (`Bash(cat:*)`, `Bash(grep:*)`, etc.). Any Bash command not in the list caused a permission denial. Claude would attempt common commands like `ls`, `echo`, `sed`, `find`, etc., get denied, and retry — burning through turns doing nothing. One run had **56 permission denials in 48 turns**, taking 11 minutes and $2 for a one-line typecheck fix.
-- **Solution**: Replaced per-command Bash whitelist with `Bash(*)` across all workflows (verify-merge, pipeline-doctor, review-fix, claude.yml). Also reduced `maxTurns` from 50 to 20 for fix jobs (if Claude can't fix a clear error in 20 turns, more turns won't help). Added `show_full_output: true` for debugging. Simplified fix prompt from 10 instructions to 5.
+- **Solution**: Replaced per-command Bash whitelist with `Bash(*)` across all workflows (verify-merge, pipeline-doctor, review-fix, claude.yml). Reduced `maxTurns` for fix jobs (50→20) and doctor jobs (50→30). Added a permission denial check to fail jobs with >10 denials. Added `show_full_output: true` for debugging, and simplified the fix prompt from 10 instructions to 5.
 
 ### Fix Attempts Repeating Same Failed Fix
 - **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
