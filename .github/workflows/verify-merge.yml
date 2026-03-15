@@ -59,6 +59,7 @@ jobs:
     timeout-minutes: 20
     outputs:
       pass: ${{ steps.checks.outputs.pass }}
+      error_summary: ${{ steps.checks.outputs.error_summary }}
 
     steps:
       - name: Checkout temp branch
@@ -92,10 +93,12 @@ jobs:
         id: checks
         run: |
           PASS=true
+          SUMMARY=""
 
           if [ "$MERGE_CONFLICT" = "true" ]; then
             echo "Merge conflict with master — cannot run checks"
             echo "pass=false" >> $GITHUB_OUTPUT
+            echo "error_summary=MERGE CONFLICT WITH MASTER — resolve this first." >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -103,40 +106,59 @@ jobs:
           CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
           if [ -n "$CHANGED_FILES" ]; then
             echo "Linting $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') changed files"
-            if ! echo "$CHANGED_FILES" | xargs npx eslint --quiet 2>&1; then
+            LINT_OUT=$(echo "$CHANGED_FILES" | xargs npx eslint --quiet 2>&1) || true
+            if echo "$LINT_OUT" | grep -qE "error "; then
               echo "Lint FAILED"
               PASS=false
+              LINT_ERRORS=$(echo "$LINT_OUT" | grep -E "error " | head -10)
+              SUMMARY="${SUMMARY}
+          LINT ERRORS:
+          ${LINT_ERRORS}"
             fi
           else
             echo "No changed JS/TS files to lint"
           fi
 
           echo "=== Typecheck ==="
-          if ! pnpm typecheck 2>&1; then
+          TC_OUT=$(pnpm typecheck 2>&1) || true
+          if echo "$TC_OUT" | grep -qE "error TS"; then
             echo "Typecheck FAILED"
             PASS=false
+            TC_ERRORS=$(echo "$TC_OUT" | grep -E "error TS" | head -10)
+            SUMMARY="${SUMMARY}
+          TYPECHECK ERRORS:
+          ${TC_ERRORS}"
           fi
 
           if [ "$PASS" = "true" ]; then
             echo "=== Metro Bundle ==="
-            if ! npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js 2>&1; then
+            BUNDLE_OUT=$(npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js 2>&1) || true
+            if echo "$BUNDLE_OUT" | grep -qiE "error|unable to resolve"; then
               echo "Metro Bundle FAILED"
               PASS=false
+              BUNDLE_ERRORS=$(echo "$BUNDLE_OUT" | grep -iE "error|unable to resolve" | head -5)
+              SUMMARY="${SUMMARY}
+          BUNDLE ERRORS:
+          ${BUNDLE_ERRORS}"
             fi
           fi
 
           if [ "$PASS" = "true" ]; then
             echo "=== Tests ==="
-            if ! pnpm test 2>&1; then
+            TEST_OUT=$(pnpm test 2>&1) || true
+            if echo "$TEST_OUT" | grep -qE "FAIL "; then
               echo "Tests FAILED"
               PASS=false
+              TEST_ERRORS=$(echo "$TEST_OUT" | grep -E "FAIL |● |Expected|Received" | grep -v "● Console" | head -20)
+              SUMMARY="${SUMMARY}
+          TEST FAILURES:
+          ${TEST_ERRORS}"
             fi
           fi
 
           if [ "$PASS" = "true" ]; then
             echo "=== Native Dependency Check ==="
             MISSING=""
-            # Check react-native-* and @react-native-* packages for unlinked native deps
             for pkg in $(node -e "
               const pkg = require('./package.json');
               const deps = { ...pkg.dependencies, ...pkg.devDependencies };
@@ -146,13 +168,11 @@ jobs:
             "); do
               PKG_DIR="node_modules/$pkg"
               [ ! -d "$PKG_DIR" ] && continue
-              # Check if package has native iOS code (podspec or ios/ directory)
               HAS_NATIVE=false
               if ls "$PKG_DIR"/*.podspec 1>/dev/null 2>&1 || [ -d "$PKG_DIR/ios" ]; then
                 HAS_NATIVE=true
               fi
               if [ "$HAS_NATIVE" = "true" ]; then
-                # Check if it's referenced in Podfile.lock
                 if ! grep -q "node_modules/$pkg" ios/Podfile.lock 2>/dev/null; then
                   MISSING="$MISSING $pkg"
                 fi
@@ -160,15 +180,24 @@ jobs:
             done
             if [ -n "$MISSING" ]; then
               echo "Native Dependency Check FAILED"
-              echo "The following native packages are in package.json but not linked in ios/Podfile.lock:"
-              for m in $MISSING; do echo "  - $m"; done
-              echo ""
-              echo "Run 'cd ios && pod install' on macOS and commit the updated Podfile.lock."
               PASS=false
+              NATIVE_ERRORS=""
+              for m in $MISSING; do
+                NATIVE_ERRORS="${NATIVE_ERRORS}
+          UNLINKED: $m is in package.json with native iOS code but missing from ios/Podfile.lock"
+              done
+              SUMMARY="${SUMMARY}
+          NATIVE DEP ERRORS:
+          ${NATIVE_ERRORS}"
             fi
           fi
 
           echo "pass=$PASS" >> $GITHUB_OUTPUT
+
+          # Pass error summary to fix job (avoid re-running checks)
+          echo "error_summary<<EOFERR" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOFERR" >> $GITHUB_OUTPUT
 
   merge:
     needs: verify
@@ -328,40 +357,6 @@ jobs:
           npm install -g pnpm
           pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
 
-      - name: Capture errors
-        run: |
-          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "$CHANGED_FILES" | xargs npx eslint --quiet > /tmp/lint_errors.txt 2>&1 || true
-          else
-            echo "No changed files to lint" > /tmp/lint_errors.txt
-          fi
-          pnpm typecheck > /tmp/tc_errors.txt 2>&1 || true
-          npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js > /tmp/bundle_errors.txt 2>&1 || true
-          pnpm test > /tmp/test_errors.txt 2>&1 || true
-
-          # Check for unlinked native dependencies
-          echo "" > /tmp/native_dep_errors.txt
-          for pkg in $(node -e "
-            const pkg = require('./package.json');
-            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-            Object.keys(deps)
-              .filter(d => d.startsWith('react-native-') || d.startsWith('@react-native-'))
-              .forEach(d => console.log(d));
-          "); do
-            PKG_DIR="node_modules/$pkg"
-            [ ! -d "$PKG_DIR" ] && continue
-            HAS_NATIVE=false
-            if ls "$PKG_DIR"/*.podspec 1>/dev/null 2>&1 || [ -d "$PKG_DIR/ios" ]; then
-              HAS_NATIVE=true
-            fi
-            if [ "$HAS_NATIVE" = "true" ]; then
-              if ! grep -q "node_modules/$pkg" ios/Podfile.lock 2>/dev/null; then
-                echo "UNLINKED: $pkg is in package.json with native iOS code but missing from ios/Podfile.lock" >> /tmp/native_dep_errors.txt
-              fi
-            fi
-          done
-
       - name: Collect commit context
         id: context
         run: |
@@ -377,57 +372,6 @@ jobs:
           echo "$DIFF_STAT" >> $GITHUB_OUTPUT
           echo "EOFCTX" >> $GITHUB_OUTPUT
 
-      - name: Build error summary
-        id: errors
-        run: |
-          # Build a concise error summary to embed directly in the prompt
-          SUMMARY=""
-
-          LINT_ERRORS=$(cat /tmp/lint_errors.txt 2>/dev/null | grep -E "error " | head -10 || true)
-          if [ -n "$LINT_ERRORS" ]; then
-            SUMMARY="${SUMMARY}
-          LINT ERRORS:
-          ${LINT_ERRORS}"
-          fi
-
-          TC_ERRORS=$(cat /tmp/tc_errors.txt 2>/dev/null | grep -E "error TS" | head -10 || true)
-          if [ -n "$TC_ERRORS" ]; then
-            SUMMARY="${SUMMARY}
-          TYPECHECK ERRORS:
-          ${TC_ERRORS}"
-          fi
-
-          BUNDLE_ERRORS=$(cat /tmp/bundle_errors.txt 2>/dev/null | grep -iE "error|unable to resolve" | head -5 || true)
-          if [ -n "$BUNDLE_ERRORS" ]; then
-            SUMMARY="${SUMMARY}
-          BUNDLE ERRORS:
-          ${BUNDLE_ERRORS}"
-          fi
-
-          TEST_ERRORS=$(cat /tmp/test_errors.txt 2>/dev/null | grep -E "FAIL |● " | grep -v "● Console" | head -20 || true)
-          if [ -n "$TEST_ERRORS" ]; then
-            SUMMARY="${SUMMARY}
-          TEST FAILURES:
-          ${TEST_ERRORS}"
-          fi
-
-          NATIVE_ERRORS=$(cat /tmp/native_dep_errors.txt 2>/dev/null | grep -E "UNLINKED" || true)
-          if [ -n "$NATIVE_ERRORS" ]; then
-            SUMMARY="${SUMMARY}
-          NATIVE DEP ERRORS:
-          ${NATIVE_ERRORS}"
-          fi
-
-          if [ "$MERGE_CONFLICT" = "true" ]; then
-            SUMMARY="MERGE CONFLICT WITH MASTER — resolve this first.
-          ${SUMMARY}"
-          fi
-
-          # Save for use in prompt (escape for GitHub Actions)
-          echo "summary<<EOFSUM" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOFSUM" >> $GITHUB_OUTPUT
-
       - name: Claude fix (with cross-attempt context)
         uses: anthropics/claude-code-action@v1
         with:
@@ -439,12 +383,11 @@ jobs:
             ${{ steps.context.outputs.commit_context }}
 
             HERE ARE THE ERRORS — fix these:
-            ${{ steps.errors.outputs.summary }}
+            ${{ needs.verify.outputs.error_summary }}
 
             INSTRUCTIONS:
             1. If there's a merge conflict, run `git fetch origin master && git merge origin/master --no-edit`, resolve conflicts, then `git add` and `git commit`.
             2. Check if .claude-fix-log.md exists in the repo root. If yes, read it first — it has notes from previous attempts. Do NOT repeat failed approaches.
-            3. Read the error files at /tmp/lint_errors.txt, /tmp/tc_errors.txt, /tmp/bundle_errors.txt, /tmp/test_errors.txt, /tmp/native_dep_errors.txt for full details.
             4. Fix ONE FILE AT A TIME. After each file, run `pnpm typecheck` to confirm no new errors.
             5. Do NOT use `any` types — fix root causes.
             6. If native_dep_errors.txt shows unlinked packages, use lazy/optional imports (can't run pod install on Ubuntu).
