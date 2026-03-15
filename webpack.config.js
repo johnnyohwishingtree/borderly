@@ -7,7 +7,6 @@ module.exports = (env, argv) => {
   // argv.mode may not be set when mode is only in the config object; default to true
   // since this webpack config is only used for E2E smoke tests in development
   const isDev = !argv.mode || argv.mode === 'development';
-  const isPages = env && env.pages;
   const isVercel = env && env.vercel;
 
   return {
@@ -15,9 +14,9 @@ module.exports = (env, argv) => {
   devtool: isDev ? 'eval-source-map' : false,
   entry: './e2e/web-entry.tsx',
   output: {
-    path: (isPages || isVercel) ? path.resolve(__dirname, 'pages-dist') : path.resolve(__dirname, 'e2e/dist'),
-    filename: (isPages || isVercel) ? 'bundle.[contenthash:8].js' : 'bundle.js',
-    publicPath: isPages ? '/borderly/' : isVercel ? '/' : '/dist/',
+    path: isVercel ? path.resolve(__dirname, 'pages-dist') : path.resolve(__dirname, 'e2e/dist'),
+    filename: isVercel ? 'bundle.[contenthash:8].js' : 'bundle.js',
+    publicPath: isVercel ? '/' : '/dist/',
     clean: true,
   },
   resolve: {
@@ -111,7 +110,7 @@ module.exports = (env, argv) => {
       __DEV__: isDev,
     }),
     // Generate index.html with script tag automatically
-    ...(isPages ? [new HtmlWebpackPlugin({
+    ...(isVercel ? [new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public/index.html'),
       inject: true,
     })] : []),
