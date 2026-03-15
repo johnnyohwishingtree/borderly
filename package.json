@@ -22,7 +22,8 @@
     "maestro": "maestro test maestro/flows/",
     "maestro:family": "maestro test maestro/flows/family-of-4-full-trip.yaml",
     "maestro:onboarding": "maestro test maestro/flows/onboarding-self.yaml",
-    "pages:build": "npx webpack --config webpack.config.js --mode production --env pages"
+    "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
+    "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

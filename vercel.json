@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm vercel:build",
+  "outputDirectory": "pages-dist",
+  "installCommand": "pnpm install",
+  "framework": null
+}
