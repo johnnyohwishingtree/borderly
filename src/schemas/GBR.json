@@ -33,6 +33,11 @@
   },
   "portalFlow": {
     "requiresAccount": true,
+    "signupUrl": "https://www.gov.uk/apply-electronic-travel-authorisation",
+    "familyPolicy": {
+      "type": "individual",
+      "description": "Each traveler needs their own ETA — parents can apply for children from the same device session"
+    },
     "multiStep": true,
     "canSaveProgress": true,
     "sessionTimeout": "60m",

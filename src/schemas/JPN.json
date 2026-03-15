@@ -32,6 +32,11 @@
   },
   "portalFlow": {
     "requiresAccount": true,
+    "signupUrl": "https://vjw-lp.digital.go.jp/en/registration/",
+    "familyPolicy": {
+      "type": "companion",
+      "description": "One account covers your whole family — add companions (spouse/children) under your registration"
+    },
     "multiStep": true,
     "canSaveProgress": true,
     "sessionTimeout": "30m",

@@ -33,6 +33,10 @@
   },
   "portalFlow": {
     "requiresAccount": false,
+    "familyPolicy": {
+      "type": "none",
+      "description": "No account required — apply for e-Visa directly without registration"
+    },
     "multiStep": true,
     "canSaveProgress": false,
     "sessionTimeout": "20m",
