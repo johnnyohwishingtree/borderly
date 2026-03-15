@@ -99,6 +99,7 @@ jobs:
             -q '[.[] | select(.headRefName | startswith("claude/"))]' 2>/dev/null || echo "[]")
 
           BUSY_EPICS=""
+          PR_ISSUE_NUMS=""  # Track issues that already have an open PR
 
           for row in $(echo "$CLAUDE_PRS" | jq -c '.[]'); do
             PR_NUM=$(echo "$row" | jq -r '.number')
@@ -108,10 +109,11 @@ jobs:
 
             # auto-merge.yml is the single gate for merging PRs
 
-            # Track busy epics
+            # Track busy epics and issues with open PRs
             ISSUE_NUM=$(echo "$PR_BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+' || echo "")
             EPIC_LABEL=""
             if [ -n "$ISSUE_NUM" ]; then
+              PR_ISSUE_NUMS="$PR_ISSUE_NUMS $ISSUE_NUM"
               EPIC_LABEL=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json labels \
                 -q '[.labels[].name | select(startswith("epic:"))] | .[0]' 2>/dev/null || echo "")
             fi
@@ -227,6 +229,12 @@ jobs:
               continue
             fi
 
+            # Skip if an open PR already exists for this story — it's done, just needs review/merge
+            if echo "$PR_ISSUE_NUMS" | grep -qw "$ISSUE_NUM" 2>/dev/null; then
+              echo "  Open PR already exists for this story — skipping (waiting for review/merge)"
+              continue
+            fi
+
             # Check if work already exists on a tmp or claude branch.
             # If verify-merge already ran (and possibly gave up), we should retrigger
             # verify-merge directly instead of re-running claude.yml from scratch.
@@ -279,34 +287,49 @@ jobs:
 
               if [ "$VM_GIVEUPS" -ge 2 ]; then
                 echo "  verify-merge has given up $VM_GIVEUPS times — triggering pipeline doctor"
+
+                # Check if doctor is already running OR ran recently for this issue
                 DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
                   --status in_progress --json displayTitle \
                   -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
                 DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
                   --status queued --json displayTitle \
                   -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                  --json displayTitle,createdAt \
+                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
 
-                if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -eq 0 ]; then
+                if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -gt 0 ]; then
+                  echo "  Pipeline doctor already running — skipping"
+                elif [ "$DOCTOR_RECENT" -gt 0 ]; then
+                  echo "  Pipeline doctor already ran for this issue — skipping (check diagnostic issues)"
+                else
                   gh workflow run pipeline-doctor.yml \
                     --repo "$REPO" \
                     --ref master \
                     -f issue_number="$ISSUE_NUM" \
                     -f trigger_source="watcher"
                   echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
-                else
-                  echo "  Pipeline doctor already running — skipping"
                 fi
               else
-                echo "  Triggering verify-merge directly with existing work branch"
+                # Check if a PR already exists from this work before retriggering
                 TARGET_BRANCH="claude/issue-${ISSUE_NUM}"
-                gh workflow run verify-merge.yml \
-                  --repo "$REPO" \
-                  --ref master \
-                  -f tmp_branch="$EXISTING_TMP" \
-                  -f target_branch="$TARGET_BRANCH" \
-                  -f issue_number="$ISSUE_NUM" \
-                  -f attempt="1"
-                echo "  Triggered verify-merge: $EXISTING_TMP -> $TARGET_BRANCH"
+                EXISTING_PR=$(gh pr list --repo "$REPO" --head "$TARGET_BRANCH" --state open \
+                  --json number -q '.[0].number' 2>/dev/null || true)
+
+                if [ -n "$EXISTING_PR" ]; then
+                  echo "  PR #$EXISTING_PR already exists — skipping (waiting for review/merge)"
+                else
+                  echo "  Triggering verify-merge directly with existing work branch"
+                  gh workflow run verify-merge.yml \
+                    --repo "$REPO" \
+                    --ref master \
+                    -f tmp_branch="$EXISTING_TMP" \
+                    -f target_branch="$TARGET_BRANCH" \
+                    -f issue_number="$ISSUE_NUM" \
+                    -f attempt="1"
+                  echo "  Triggered verify-merge: $EXISTING_TMP -> $TARGET_BRANCH"
+                fi
               fi
 
               BUSY_EPICS="$BUSY_EPICS $STORY_EPIC"
@@ -333,16 +356,21 @@ jobs:
               DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
                 --status queued --json displayTitle \
                 -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+              DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                --json displayTitle,createdAt \
+                -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
 
-              if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -eq 0 ]; then
+              if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -gt 0 ]; then
+                echo "  Pipeline doctor already running for #$ISSUE_NUM — skipping"
+              elif [ "$DOCTOR_RECENT" -gt 0 ]; then
+                echo "  Pipeline doctor already ran for #$ISSUE_NUM — skipping"
+              else
                 gh workflow run pipeline-doctor.yml \
                   --repo "$REPO" \
                   --ref master \
                   -f issue_number="$ISSUE_NUM" \
                   -f trigger_source="watcher"
                 echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
-              else
-                echo "  Pipeline doctor already running for #$ISSUE_NUM — skipping"
               fi
               continue
             fi
