@@ -8,15 +8,16 @@ module.exports = (env, argv) => {
   // since this webpack config is only used for E2E smoke tests in development
   const isDev = !argv.mode || argv.mode === 'development';
   const isPages = env && env.pages;
+  const isVercel = env && env.vercel;
 
   return {
     mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'eval-source-map' : false,
   entry: './e2e/web-entry.tsx',
   output: {
-    path: isPages ? path.resolve(__dirname, 'pages-dist') : path.resolve(__dirname, 'e2e/dist'),
-    filename: isPages ? 'bundle.[contenthash:8].js' : 'bundle.js',
-    publicPath: isPages ? '/borderly/' : '/dist/',
+    path: (isPages || isVercel) ? path.resolve(__dirname, 'pages-dist') : path.resolve(__dirname, 'e2e/dist'),
+    filename: (isPages || isVercel) ? 'bundle.[contenthash:8].js' : 'bundle.js',
+    publicPath: isPages ? '/borderly/' : isVercel ? '/' : '/dist/',
     clean: true,
   },
   resolve: {
