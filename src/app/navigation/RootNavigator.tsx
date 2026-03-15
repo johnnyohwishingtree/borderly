@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
@@ -31,6 +31,14 @@ const ScreenLoader = () => (
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
+
+// Expose navigation ref globally for E2E tests in web/browser environment.
+// This allows Playwright tests to imperatively navigate without going through
+// the full UI flow. Only exposed in non-production environments.
+const navigationRef = createNavigationContainerRef();
+if (typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__navigationRef = navigationRef;
+}
 
 function OnboardingNavigator() {
   return (
@@ -137,7 +145,7 @@ export default function RootNavigator() {
         />
       )}
     >
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <RootStack.Navigator
           screenOptions={{
             ...STANDARD_TRANSITIONS.fade,
