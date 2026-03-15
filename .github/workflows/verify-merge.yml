@@ -381,6 +381,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           prompt: |
             Fix attempt ${{ inputs.attempt }}/6. Your code has lint, typecheck, or test errors.
 

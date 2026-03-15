@@ -262,6 +262,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
           prompt: |
             You are the Pipeline Doctor. Your job is to diagnose why the autonomous pipeline failed for issue #${{ inputs.issue_number }} and fix it.
 

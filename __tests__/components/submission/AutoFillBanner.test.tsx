@@ -3,6 +3,10 @@ import { AutoFillBanner } from '../../../src/components/submission/AutoFillBanne
 
 jest.mock('lucide-react-native', () => ({
   X: 'X',
+  ChevronDown: 'ChevronDown',
+  ChevronUp: 'ChevronUp',
+  CheckCircle: 'CheckCircle',
+  AlertCircle: 'AlertCircle',
 }));
 
 describe('AutoFillBanner', () => {
@@ -105,5 +109,86 @@ describe('AutoFillBanner', () => {
     });
 
     expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  // ─── Field-level detail (expandable) ────────────────────────────────────────
+
+  it('does not render expand toggle when no results are provided', () => {
+    const { queryByTestId } = render(
+      <AutoFillBanner filled={3} total={5} onDismiss={jest.fn()} />
+    );
+    // No expand toggle without results
+    expect(queryByTestId('autofill-banner-expand-toggle')).toBeNull();
+  });
+
+  it('renders expand toggle when results are provided', () => {
+    const results = [
+      { id: 'surname', status: 'filled' as const },
+      { id: 'passportNumber', status: 'filled' as const },
+    ];
+    const { getByTestId } = render(
+      <AutoFillBanner filled={2} total={2} results={results} onDismiss={jest.fn()} />
+    );
+    expect(getByTestId('autofill-banner-expand-toggle')).toBeTruthy();
+  });
+
+  it('detail section is hidden before expand toggle is pressed', () => {
+    const results = [{ id: 'surname', status: 'filled' as const }];
+    const { queryByTestId } = render(
+      <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
+    );
+    // Detail section not rendered initially
+    expect(queryByTestId('autofill-banner-details')).toBeNull();
+  });
+
+  it('shows detail section after pressing expand toggle', () => {
+    const results = [
+      { id: 'surname', status: 'filled' as const },
+      { id: 'departureCity', status: 'failed' as const },
+    ];
+    const { getByTestId } = render(
+      <AutoFillBanner filled={1} total={2} results={results} onDismiss={jest.fn()} />
+    );
+
+    // Press expand
+    fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
+
+    // Detail section should now be visible
+    expect(getByTestId('autofill-banner-details')).toBeTruthy();
+    // Individual field results should be rendered
+    expect(getByTestId('autofill-result-surname')).toBeTruthy();
+    expect(getByTestId('autofill-result-departureCity')).toBeTruthy();
+  });
+
+  it('hides detail section after pressing expand toggle a second time', () => {
+    const results = [{ id: 'surname', status: 'filled' as const }];
+    const { getByTestId, queryByTestId } = render(
+      <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
+    );
+
+    // Open
+    fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
+    expect(getByTestId('autofill-banner-details')).toBeTruthy();
+
+    // Close
+    fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
+    expect(queryByTestId('autofill-banner-details')).toBeNull();
+  });
+
+  it('expand toggle has correct accessibility label when collapsed', () => {
+    const results = [{ id: 'surname', status: 'filled' as const }];
+    const { getByLabelText } = render(
+      <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
+    );
+    expect(getByLabelText('Show field details')).toBeTruthy();
+  });
+
+  it('expand toggle has correct accessibility label when expanded', () => {
+    const results = [{ id: 'surname', status: 'filled' as const }];
+    const { getByTestId, getByLabelText } = render(
+      <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
+    );
+    fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
+    expect(getByLabelText('Hide field details')).toBeTruthy();
   });
 });

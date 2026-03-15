@@ -20,6 +20,7 @@ import {
 import { PortalWebView, PortalWebViewHandle } from '../../components/submission/PortalWebView';
 import type { NavigationState } from '../../components/submission/PortalWebView';
 import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
+import type { AutoFillFieldResult } from '../../components/submission/AutoFillBanner';
 import { QRSaveOverlay } from '../../components/submission/QRSaveOverlay';
 import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOverlay';
 import { CopyableField } from '../../components/guide';
@@ -48,6 +49,7 @@ interface FieldSpec {
 interface BannerState {
   filled: number;
   total: number;
+  results?: AutoFillFieldResult[];
 }
 
 /**
@@ -344,7 +346,21 @@ export default function PortalSubmissionScreen() {
           const total = typeof msg.total === 'number' ? msg.total : 0;
           const filled = typeof msg.filled === 'number' ? msg.filled : 0;
           if (total > 0) {
-            setBannerState({ filled, total });
+            // Parse field-level results for the expandable detail panel
+            const rawResults = Array.isArray(msg.results) ? msg.results : [];
+            const fieldResults: AutoFillFieldResult[] = rawResults
+              .filter((r): r is Record<string, unknown> => r !== null && typeof r === 'object')
+              .map(r => {
+                const result: AutoFillFieldResult = {
+                  id: typeof r.id === 'string' ? r.id : String(r.id ?? ''),
+                  status: (r.status as AutoFillFieldResult['status']) ?? 'failed',
+                };
+                if (typeof r.error === 'string') {
+                  result.error = r.error;
+                }
+                return result;
+              });
+            setBannerState(fieldResults.length > 0 ? { filled, total, results: fieldResults } : { filled, total });
             const fillRate = filled / total;
             if (!formFiller.isAutoFillSufficient(fillRate)) {
               setShowLowFillWarning(true);
@@ -488,6 +504,16 @@ export default function PortalSubmissionScreen() {
         )}
       </View>
 
+      {/* Loading indicator — visible while the WebView is fetching the page */}
+      {navState.loading && loadError === null && (
+        <View
+          style={{ backgroundColor: '#EFF6FF', borderBottomWidth: 1, borderBottomColor: '#BFDBFE', paddingHorizontal: 16, paddingVertical: 4 }}
+          testID="portal-loading-indicator"
+        >
+          <Text style={{ fontSize: 12, color: '#1D4ED8' }}>Loading portal...</Text>
+        </View>
+      )}
+
       {/* Toolbar: back, forward, refresh */}
       <View className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex-row items-center space-x-4">
         <Pressable
@@ -526,6 +552,7 @@ export default function PortalSubmissionScreen() {
         <AutoFillBanner
           filled={bannerState.filled}
           total={bannerState.total}
+          {...(bannerState.results ? { results: bannerState.results } : {})}
           onDismiss={() => setBannerState(null)}
           testID="autofill-banner"
         />
