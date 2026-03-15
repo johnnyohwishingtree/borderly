@@ -51,6 +51,7 @@ jobs:
       - name: Auto-approve after bot review
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
@@ -74,8 +75,23 @@ jobs:
             exit 0
           fi
 
+          # Wait for review-relay to process the review and potentially post @claude.
+          # Without this delay, we auto-approve before Claude has a chance to address
+          # the review feedback, which is confusing (approved before fixes are applied).
+          echo "Waiting 90s for review-relay to process..."
+          sleep 90
+
+          # Re-check: did review-relay post a @claude comment asking for fixes?
+          RELAY_POSTED=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.body | test("@claude.*review round|@claude.*code reviewer"; "i"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$RELAY_POSTED" -gt 0 ]; then
+            echo "review-relay posted @claude to fix review feedback — deferring approval until fixes land"
+            exit 0
+          fi
+
           REVIEWER="${{ github.event.review.user.login }}"
-          echo "Bot review from $REVIEWER on PR #$PR_NUM — no critical issues, auto-approving"
+          echo "Bot review from $REVIEWER on PR #$PR_NUM — no issues relayed, auto-approving"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
 
