@@ -367,7 +367,7 @@ const steps: AutomationStep[] = [
 
 const JPN_MAPPING: AutomationScript = {
   countryCode: 'JPN',
-  portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+  portalUrl: 'https://vjw-lp.digital.go.jp/en/registration/',
   version: '1.0.0',
   lastUpdated: '2026-03-14T00:00:00Z',
   prerequisites: {

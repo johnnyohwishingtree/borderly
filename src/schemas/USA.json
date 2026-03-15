@@ -3,8 +3,8 @@
   "countryName": "United States",
   "schemaVersion": "2.0.0",
   "lastUpdated": "2026-03-07T00:00:00Z",
-  "portalUrl": "https://esta.cbp.dhs.gov/",
-  "portalName": "Electronic System for Travel Authorization (ESTA)",
+  "portalUrl": "https://www.cbp.gov/travel/us-citizens/know-before-you-go/your-trip",
+  "portalName": "CBP Declaration Form 6059B / CBP One",
   "metadata": {
     "priority": 5,
     "complexity": "high",
@@ -15,13 +15,13 @@
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".esta-form", ".application-section", "#submit-esta"],
+    "monitoredSelectors": [".cbp-form", ".declaration-section", "#submit-declaration"],
     "changeThreshold": 5,
     "fallbackActions": [
       {
         "trigger": "cbp_system_update",
         "action": "disable",
-        "message": "ESTA system has been updated. Automation temporarily disabled."
+        "message": "CBP system has been updated. Automation temporarily disabled."
       }
     ]
   },

@@ -386,7 +386,7 @@ const steps: AutomationStep[] = [
 
 const USA_MAPPING: AutomationScript = {
   countryCode: 'USA',
-  portalUrl: 'https://esta.cbp.dhs.gov/',
+  portalUrl: 'https://www.cbp.gov/travel/us-citizens/know-before-you-go/your-trip',
   version: '1.0.0',
   lastUpdated: '2026-03-14T00:00:00Z',
   prerequisites: {
