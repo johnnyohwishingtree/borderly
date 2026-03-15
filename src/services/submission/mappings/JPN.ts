@@ -4,29 +4,42 @@
  * Extracted from AutomationScriptRegistry.createJapanScript() so that the
  * AutomationScriptRegistry can auto-discover it without any hard-coded
  * country lists.
+ *
+ * Portal: Visit Japan Web (vjw-lp.digital.go.jp)
+ * Tech stack: React SPA — element names are stable but IDs may be generated.
+ *   Use name-attribute selectors as primary; add data-testid fallbacks where known.
+ * Date format: YYYY/MM/DD (verified)
+ * Multi-step: Step 1 = Registration, Step 2 = Passport, Step 3 = Visit/Customs
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
 
 const fieldMappings: Record<string, PortalFieldMapping> = {
+  // Step 2 — Passport & Personal Info
   surname: {
     fieldId: 'surname',
-    selector: 'input[name="family_name"], input[id="family_name"]',
+    selector:
+      'input[name="lastName"], input[name="lastNameEn"], input[name="family_name"], input[id="family_name"]',
     inputType: 'text',
   },
   givenNames: {
     fieldId: 'givenNames',
-    selector: 'input[name="given_name"], input[id="given_name"]',
+    selector:
+      'input[name="firstName"], input[name="firstNameEn"], input[name="given_name"], input[id="given_name"]',
     inputType: 'text',
   },
   passportNumber: {
     fieldId: 'passportNumber',
-    selector: 'input[name="passport_no"], input[id="passport_no"]',
+    selector:
+      'input[name="passportNo"], input[name="passportNumber"], input[name="passport_no"], input[id="passport_no"]',
     inputType: 'text',
   },
   nationality: {
     fieldId: 'nationality',
-    selector: 'select[name="nationality"], select[id="nationality"]',
+    selector:
+      'select[name="nationalityCode"], select[name="nationality"], select[id="nationality"]',
     inputType: 'select',
     transform: {
       type: 'country_code',
@@ -35,7 +48,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   dateOfBirth: {
     fieldId: 'dateOfBirth',
-    selector: 'input[name="birth_date"], input[id="birth_date"]',
+    // VJW uses YYYY/MM/DD; the input name is "birthday" in some form versions
+    selector:
+      'input[name="birthday"], input[name="birthDate"], input[name="birth_date"], input[id="birth_date"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -44,12 +59,16 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   gender: {
     fieldId: 'gender',
-    selector: 'select[name="sex"], select[id="sex"]',
+    // VJW uses "sex" with values "M"/"F"; also check for "gender"
+    selector:
+      'select[name="sex"], select[name="gender"], input[name="sex"], input[id="sex"]',
     inputType: 'select',
   },
+  // Step 3 — Visit Details
   arrivalDate: {
     fieldId: 'arrivalDate',
-    selector: 'input[name="arrival_date"], input[id="arrival_date"]',
+    selector:
+      'input[name="scheduledArrivalDate"], input[name="arrivalDate"], input[name="arrival_date"], input[id="arrival_date"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -58,28 +77,35 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   flightNumber: {
     fieldId: 'flightNumber',
-    selector: 'input[name="flight_no"], input[id="flight_no"]',
+    selector:
+      'input[name="flightNumber"], input[name="flight_no"], input[id="flight_no"], input[name="flightNo"]',
     inputType: 'text',
   },
   purposeOfVisit: {
     fieldId: 'purposeOfVisit',
-    selector: 'select[name="purpose"], select[id="purpose"]',
+    selector:
+      'select[name="purposeOfVisit"], select[name="purpose"], select[id="purpose"]',
     inputType: 'select',
   },
+  // Step 3 — Accommodation (address in Japan)
   hotelName: {
     fieldId: 'hotelName',
-    selector: 'input[name="accommodation_name"], input[id="accommodation_name"]',
+    selector:
+      'input[name="accommodationName"], input[name="accommodation_name"], input[id="accommodation_name"]',
     inputType: 'text',
   },
   hotelAddress: {
     fieldId: 'hotelAddress',
-    selector: 'textarea[name="accommodation_address"], textarea[id="accommodation_address"]',
+    selector:
+      'textarea[name="accommodationAddress"], input[name="accommodationAddress"], textarea[name="accommodation_address"], textarea[id="accommodation_address"]',
     inputType: 'text',
   },
+  // Step 3 — Customs Declaration (yes/no radio buttons)
   carryingProhibitedItems: {
     fieldId: 'carryingProhibitedItems',
+    // VJW radio values are typically "0" (no) / "1" (yes)
     selector:
-      'input[name="prohibited_items"][value="no"], input[name="prohibited_items"][value="false"]',
+      'input[name="prohibitedItems"][value="0"], input[name="prohibited_items"][value="no"], input[name="prohibited_items"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -88,8 +114,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   currencyOver1M: {
     fieldId: 'currencyOver1M',
+    // 1 million JPY threshold; VJW radio values are "0" (no) / "1" (yes)
     selector:
-      'input[name="currency_over_limit"][value="no"], input[name="currency_over_limit"][value="false"]',
+      'input[name="currencyOverLimit"][value="0"], input[name="currency_over_limit"][value="no"], input[name="currency_over_limit"][value="false"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -368,8 +395,8 @@ const steps: AutomationStep[] = [
 const JPN_MAPPING: AutomationScript = {
   countryCode: 'JPN',
   portalUrl: 'https://vjw-lp.digital.go.jp/en/registration/',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

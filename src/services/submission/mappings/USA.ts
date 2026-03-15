@@ -2,10 +2,18 @@
  * United States (USA) — CBP Declaration field mappings and portal automation config.
  *
  * Portal: CBP Declaration Form 6059B / CBP One
- * URL: https://www.cbp.gov/travel/us-citizens/know-before-you-go/cbp-declaration-form-6059b
- * Date format: MM/DD/YYYY
- * Note: Targets the customs declaration form (6059B), not ESTA (travel authorization).
+ * URL: https://cbpone.cbp.dhs.gov/
+ * Date format: MM/DD/YYYY (verified)
+ * Note: Targets the CBP One customs declaration form (6059B), NOT ESTA (travel authorization).
+ *   ESTA (esta.cbp.dhs.gov) is a separate travel authorization program for VWP visitors.
+ *   CBP One is the mobile app / web portal for customs declarations.
+ *   Selectors use camelCase IDs consistent with the CBP One web interface.
  * Automation is in test mode only due to portal complexity.
+ * Multi-step: Page 1 = Applicant, Page 2 = Passport, Page 3 = Contact,
+ *   Page 4 = Employment, Page 5 = Emergency Contact, Page 6 = Travel,
+ *   Page 7 = Eligibility/Customs Questions
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -387,9 +395,10 @@ const steps: AutomationStep[] = [
 
 const USA_MAPPING: AutomationScript = {
   countryCode: 'USA',
-  portalUrl: 'https://www.cbp.gov/travel/us-citizens/know-before-you-go/cbp-declaration-form-6059b',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  // CBP One portal — the actual declaration submission app
+  portalUrl: 'https://cbpone.cbp.dhs.gov/',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

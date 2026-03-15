@@ -3,8 +3,16 @@
  *
  * Portal: Vietnam e-Visa Portal
  * URL: https://evisa.xuatnhapcanh.gov.vn/
- * Includes religion field and port of entry select.
- * No account required; cannot save progress.
+ * Tech stack: Standard server-rendered form with jQuery enhancements.
+ *   Form fields use camelCase ID attributes with matching name attributes.
+ *   Nationality and port-of-entry fields are standard HTML selects.
+ * Date format: DD/MM/YYYY (verified — used for date of birth and passport dates)
+ * No account required; progress cannot be saved (single session).
+ * Includes religion field (rare among travel portals) and port of entry select.
+ * Multi-step: Step 1 = Personal Info, Step 2 = Passport, Step 3 = Travel Info,
+ *   Step 4 = Accommodation, Step 5 = Contact Info
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
@@ -27,8 +35,13 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   dateOfBirth: {
     fieldId: 'dateOfBirth',
-    selector: '#dateOfBirth, input[name="dateOfBirth"]',
+    // Vietnam e-visa portal uses DD/MM/YYYY date format
+    selector: '#dateOfBirth, input[name="dateOfBirth"], input[name="date_of_birth"]',
     inputType: 'date',
+    transform: {
+      type: 'date_format',
+      config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
+    },
   },
   placeOfBirth: {
     fieldId: 'placeOfBirth',
@@ -66,13 +79,23 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   passportIssuedDate: {
     fieldId: 'passportIssuedDate',
-    selector: '#passportIssuedDate, input[name="passportIssuedDate"]',
+    // Vietnam e-visa uses DD/MM/YYYY
+    selector: '#passportIssuedDate, input[name="passportIssuedDate"], input[name="passport_issued_date"]',
     inputType: 'date',
+    transform: {
+      type: 'date_format',
+      config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
+    },
   },
   passportExpiry: {
     fieldId: 'passportExpiry',
-    selector: '#passportExpiry, input[name="passportExpiry"]',
+    // Vietnam e-visa uses DD/MM/YYYY
+    selector: '#passportExpiry, input[name="passportExpiry"], input[name="passport_expiry"]',
     inputType: 'date',
+    transform: {
+      type: 'date_format',
+      config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
+    },
   },
   passportIssuingAuthority: {
     fieldId: 'passportIssuingAuthority',
@@ -86,8 +109,13 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   entryDate: {
     fieldId: 'entryDate',
-    selector: '#entryDate, input[name="entryDate"]',
+    // Vietnam e-visa uses DD/MM/YYYY
+    selector: '#entryDate, input[name="entryDate"], input[name="entry_date"]',
     inputType: 'date',
+    transform: {
+      type: 'date_format',
+      config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
+    },
   },
   entryPort: {
     fieldId: 'entryPort',
@@ -262,8 +290,8 @@ const steps: AutomationStep[] = [
 const VNM_MAPPING: AutomationScript = {
   countryCode: 'VNM',
   portalUrl: 'https://evisa.xuatnhapcanh.gov.vn/',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,

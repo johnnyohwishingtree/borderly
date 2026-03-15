@@ -1,18 +1,19 @@
 {
   "countryCode": "CAN",
   "countryName": "Canada",
-  "schemaVersion": "2.0.0",
-  "lastUpdated": "2026-03-07T00:00:00Z",
+  "schemaVersion": "2.1.0",
+  "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
-  "portalName": "Electronic Travel Authorization (eTA)",
+  "portalName": "Electronic Travel Authorization (eTA) — Archived",
   "metadata": {
     "priority": 8,
     "complexity": "medium",
     "popularity": 75,
-    "lastVerified": "2026-03-07T00:00:00Z",
+    "lastVerified": "2026-03-15T00:00:00Z",
     "supportedLanguages": ["en", "fr"],
-    "implementationStatus": "active",
-    "maintenanceFrequency": "quarterly"
+    "implementationStatus": "archived",
+    "archiveReason": "ArriveCAN (mandatory digital arrival app) was discontinued on October 1, 2023 by the Canada Border Services Agency. Travelers no longer need a digital pre-arrival declaration. The Canadian eTA is still required for visa-exempt nationals but cannot be browser-automated — it is processed via canada.ca and linked to the passport electronically. This schema is retained for reference in case a replacement digital portal is introduced.",
+    "maintenanceFrequency": "as_needed"
   },
   "changeDetection": {
     "monitoredSelectors": [".eta-form", ".form-group", "#submit-eta"],
@@ -641,10 +642,11 @@
     }
   ],
   "automation": {
-    "enabled": true,
-    "version": "1.0.0",
+    "enabled": false,
+    "version": "1.1.0",
     "entryUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
-    "testMode": false,
+    "testMode": true,
+    "disabledReason": "ArriveCAN discontinued October 2023. Automation disabled until a replacement digital portal is available.",
     "successIndicators": [".eta-approved", "#confirmation-number"],
     "failureIndicators": [".application-error", ".form-validation-error"],
     "dataExtractionRules": [

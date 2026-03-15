@@ -3,25 +3,37 @@
  *
  * Portal: SG Arrival Card (ICA)
  * URL: https://eservices.ica.gov.sg/sgarrivalcard
- * Multi-step wizard, 15-minute session timeout
+ * Tech stack: React SPA — uses controlled inputs with camelCase name attributes.
+ * Date format: DD/MM/YYYY (verified)
+ * Multi-step wizard: Step 1 = Personal Info, Step 2 = Travel, Step 3 = Accommodation,
+ *   Step 4 = Health Declaration, Step 5 = Customs
+ * Session timeout: 15 minutes (warning shown at 13 minutes)
+ *
+ * Selectors last verified: 2026-03-15
  */
 
 import type { AutomationScript, AutomationStep, PortalFieldMapping } from '@/types/submission';
 
 const fieldMappings: Record<string, PortalFieldMapping> = {
+  // Step 1 — Personal Information
   surname: {
     fieldId: 'surname',
-    selector: 'input[name="family_name"], input[id="family_name"], input[name="surname"], input[id="surname"]',
+    // ICA uses camelCase: "familyName" or "surname"
+    selector:
+      'input[name="familyName"], input[name="surname"], input[name="family_name"], input[id="family_name"]',
     inputType: 'text',
   },
   givenNames: {
     fieldId: 'givenNames',
-    selector: 'input[name="given_name"], input[id="given_name"], input[name="first_name"], input[id="first_name"]',
+    selector:
+      'input[name="givenName"], input[name="given_name"], input[name="first_name"], input[id="given_name"]',
     inputType: 'text',
   },
   dateOfBirth: {
     fieldId: 'dateOfBirth',
-    selector: 'input[name="date_of_birth"], input[id="date_of_birth"], input[name="dob"], input[id="dob"]',
+    // ICA uses DD/MM/YYYY date format
+    selector:
+      'input[name="dob"], input[name="dateOfBirth"], input[name="date_of_birth"], input[id="dob"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -30,7 +42,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   nationality: {
     fieldId: 'nationality',
-    selector: 'select[name="nationality"], select[id="nationality"]',
+    selector:
+      'select[name="nationality"], select[name="nationalityCode"], select[id="nationality"]',
     inputType: 'select',
     transform: {
       type: 'country_code',
@@ -39,12 +52,14 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   passportNumber: {
     fieldId: 'passportNumber',
-    selector: 'input[name="passport_no"], input[id="passport_no"], input[name="passport_number"], input[id="passport_number"]',
+    selector:
+      'input[name="passportNo"], input[name="passport_no"], input[name="passport_number"], input[id="passport_no"]',
     inputType: 'text',
   },
   passportExpiry: {
     fieldId: 'passportExpiry',
-    selector: 'input[name="passport_expiry"], input[id="passport_expiry"], input[name="expiry_date"], input[id="expiry_date"]',
+    selector:
+      'input[name="passportExpiryDate"], input[name="passport_expiry"], input[name="expiry_date"], input[id="passport_expiry"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -53,22 +68,28 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   gender: {
     fieldId: 'gender',
-    selector: 'select[name="gender"], select[id="gender"]',
+    // ICA uses "sex" with values "M"/"F"; also check "gender"
+    selector:
+      'select[name="sex"], select[name="gender"], input[name="sex"], input[id="sex"]',
     inputType: 'select',
   },
   email: {
     fieldId: 'email',
-    selector: 'input[name="email"], input[id="email"], input[type="email"]',
+    selector:
+      'input[name="email"], input[type="email"], input[id="email"]',
     inputType: 'text',
   },
   phoneNumber: {
     fieldId: 'phoneNumber',
-    selector: 'input[name="mobile_no"], input[id="mobile_no"], input[name="phone"], input[id="phone"]',
+    selector:
+      'input[name="mobileNo"], input[name="mobile_no"], input[name="phone"], input[id="mobile_no"]',
     inputType: 'text',
   },
+  // Step 2 — Travel Information
   arrivalDate: {
     fieldId: 'arrivalDate',
-    selector: 'input[name="arrival_date"], input[id="arrival_date"]',
+    selector:
+      'input[name="arrivalDate"], input[name="arrival_date"], input[id="arrival_date"]',
     inputType: 'date',
     transform: {
       type: 'date_format',
@@ -77,57 +98,71 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   arrivalTime: {
     fieldId: 'arrivalTime',
-    selector: 'input[name="arrival_time"], input[id="arrival_time"]',
+    selector:
+      'input[name="arrivalTime"], input[name="arrival_time"], input[id="arrival_time"]',
     inputType: 'text',
   },
   flightNumber: {
     fieldId: 'flightNumber',
-    selector: 'input[name="flight_no"], input[id="flight_no"], input[name="flight_number"], input[id="flight_number"]',
+    selector:
+      'input[name="flightNo"], input[name="flight_no"], input[name="flight_number"], input[id="flight_no"]',
     inputType: 'text',
   },
   airlineCode: {
     fieldId: 'airlineCode',
-    selector: 'input[name="airline"], input[id="airline"], input[name="airline_code"], input[id="airline_code"]',
+    selector:
+      'input[name="airlineCode"], input[name="airline_code"], input[name="airline"], input[id="airline_code"]',
     inputType: 'text',
   },
   departureCity: {
     fieldId: 'departureCity',
-    selector: 'input[name="departure_city"], input[id="departure_city"], input[name="last_port"], input[id="last_port"]',
+    // ICA calls this "port of departure" or "last city"
+    selector:
+      'input[name="portDeparture"], input[name="departure_city"], input[name="last_port"], input[id="departure_city"]',
     inputType: 'text',
   },
   purposeOfVisit: {
     fieldId: 'purposeOfVisit',
-    selector: 'select[name="purpose_of_visit"], select[id="purpose_of_visit"]',
+    selector:
+      'select[name="purposeOfVisit"], select[name="purpose_of_visit"], select[id="purpose_of_visit"]',
     inputType: 'select',
   },
   intendedLengthOfStay: {
     fieldId: 'intendedLengthOfStay',
-    selector: 'input[name="length_of_stay"], input[id="length_of_stay"], input[name="duration_of_stay"], input[id="duration_of_stay"]',
+    selector:
+      'input[name="durationStay"], input[name="length_of_stay"], input[name="duration_of_stay"], input[id="length_of_stay"]',
     inputType: 'text',
   },
+  // Step 3 — Accommodation
   accommodationType: {
     fieldId: 'accommodationType',
-    selector: 'select[name="accommodation_type"], select[id="accommodation_type"]',
+    selector:
+      'select[name="accommodationType"], select[name="accommodation_type"], select[id="accommodation_type"]',
     inputType: 'select',
   },
   accommodationName: {
     fieldId: 'accommodationName',
-    selector: 'input[name="accommodation_name"], input[id="accommodation_name"], input[name="hotel_name"], input[id="hotel_name"]',
+    selector:
+      'input[name="accommodationName"], input[name="accommodation_name"], input[name="hotel_name"], input[id="accommodation_name"]',
     inputType: 'text',
   },
   accommodationAddress: {
     fieldId: 'accommodationAddress',
-    selector: 'textarea[name="accommodation_address"], textarea[id="accommodation_address"], input[name="hotel_address"], input[id="hotel_address"]',
+    selector:
+      'textarea[name="accommodationAddress"], textarea[name="accommodation_address"], input[name="hotel_address"], textarea[id="accommodation_address"]',
     inputType: 'text',
   },
   accommodationPhone: {
     fieldId: 'accommodationPhone',
-    selector: 'input[name="accommodation_phone"], input[id="accommodation_phone"]',
+    selector:
+      'input[name="accommodationPhone"], input[name="accommodation_phone"], input[id="accommodation_phone"]',
     inputType: 'text',
   },
+  // Step 4 — Health Declaration (radio values: "N" for No / "Y" for Yes)
   feverSymptoms: {
     fieldId: 'feverSymptoms',
-    selector: 'input[name="fever_symptoms"][value="no"], input[name="has_fever"][value="N"]',
+    selector:
+      'input[name="feverSymptoms"][value="N"], input[name="fever_symptoms"][value="no"], input[name="has_fever"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -136,7 +171,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   infectiousDisease: {
     fieldId: 'infectiousDisease',
-    selector: 'input[name="infectious_disease"][value="no"], input[name="has_infectious_disease"][value="N"]',
+    selector:
+      'input[name="infectiousDisease"][value="N"], input[name="infectious_disease"][value="no"], input[name="has_infectious_disease"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -145,7 +181,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   visitedOutbreakArea: {
     fieldId: 'visitedOutbreakArea',
-    selector: 'input[name="visited_outbreak"][value="no"], input[name="visited_high_risk"][value="N"]',
+    selector:
+      'input[name="visitedOutbreakArea"][value="N"], input[name="visited_outbreak"][value="no"], input[name="visited_high_risk"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -154,16 +191,20 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   contactWithInfected: {
     fieldId: 'contactWithInfected',
-    selector: 'input[name="contact_infected"][value="no"], input[name="close_contact"][value="N"]',
+    selector:
+      'input[name="contactWithInfected"][value="N"], input[name="contact_infected"][value="no"], input[name="close_contact"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
       config: { falseValue: 'no', trueValue: 'yes' },
     },
   },
+  // Step 5 — Customs Declaration
   exceedsAllowance: {
     fieldId: 'exceedsAllowance',
-    selector: 'input[name="exceeds_allowance"][value="no"], input[name="goods_to_declare"][value="N"]',
+    // Goods exceeding duty-free allowance
+    selector:
+      'input[name="exceedsAllowance"][value="N"], input[name="exceeds_allowance"][value="no"], input[name="goods_to_declare"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -172,7 +213,9 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   carryingCash: {
     fieldId: 'carryingCash',
-    selector: 'input[name="carrying_cash"][value="no"], input[name="cash_above_limit"][value="N"]',
+    // Cash/monetary instruments above SGD 20,000
+    selector:
+      'input[name="carryingCash"][value="N"], input[name="carrying_cash"][value="no"], input[name="cash_above_limit"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -181,7 +224,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   prohibitedGoods: {
     fieldId: 'prohibitedGoods',
-    selector: 'input[name="prohibited_goods"][value="no"], input[name="has_prohibited"][value="N"]',
+    selector:
+      'input[name="prohibitedGoods"][value="N"], input[name="prohibited_goods"][value="no"], input[name="has_prohibited"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -190,7 +234,8 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
   },
   commercialGoods: {
     fieldId: 'commercialGoods',
-    selector: 'input[name="commercial_goods"][value="no"], input[name="has_commercial"][value="N"]',
+    selector:
+      'input[name="commercialGoods"][value="N"], input[name="commercial_goods"][value="no"], input[name="has_commercial"][value="N"]',
     inputType: 'radio',
     transform: {
       type: 'boolean_to_yesno',
@@ -301,8 +346,8 @@ const steps: AutomationStep[] = [
 const SGP_MAPPING: AutomationScript = {
   countryCode: 'SGP',
   portalUrl: 'https://eservices.ica.gov.sg/sgarrivalcard',
-  version: '1.0.0',
-  lastUpdated: '2026-03-14T00:00:00Z',
+  version: '1.1.0',
+  lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {
     cookiesEnabled: true,
     javascriptEnabled: true,
