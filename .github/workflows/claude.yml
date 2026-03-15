@@ -23,7 +23,8 @@ jobs:
     if: |
       contains(github.event.comment.body, '@claude') &&
       github.event.comment.user.type != 'Bot' &&
-      (github.event.issue != null || github.event.pull_request != null)
+      (github.event.issue != null || github.event.pull_request != null) &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
