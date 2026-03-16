@@ -145,7 +145,13 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 - **Problem**: `ensure-review` (triggered by CI passing) counted bot issue comments (Gemini's auto-summary) as "reviews" and immediately auto-approved. But Gemini posts its summary comment BEFORE finishing code analysis. The actual review with `![high]`/`![critical]` inline badges arrives ~2 minutes later via `pull_request_review: submitted`. By then, the PR was already approved and merged.
 - **Timeline**: CI passes (23:04) → ensure-review sees bot comment, approves (23:04:23) → auto-merge merges (23:04:33) → Gemini posts `![high]` inline comment (23:06:07, too late).
 - **Root cause**: `ensure-review` treated ANY bot comment as evidence of a completed code review. It bypassed the `pull_request_review` event hook where inline comments are guaranteed to exist.
-- **Solution**: `ensure-review` no longer auto-approves. It only counts **formal PR reviews** (from `.reviews[]`), not bot issue comments. Approval flows exclusively through event-driven hooks: `request-approval` (triggered by `pull_request_review: submitted` — inline comments guaranteed present) or `auto-approve-after-claude` (triggered by Claude's comment). When `ensure-review` finds no formal review, it requests a Claude fallback review instead of waiting with arbitrary sleeps. When a formal review exists but no approval, it dispatches `auto-merge` for re-evaluation instead of approving directly.
+- **Solution**:
+  - `ensure-review` no longer auto-approves — it only counts **formal PR reviews** (from `.reviews[]`), not bot issue comments.
+  - Approval flows exclusively through event-driven hooks:
+    - `request-approval` (triggered by `pull_request_review: submitted` — inline comments guaranteed present)
+    - `auto-approve-after-claude` (triggered by Claude's comment)
+  - When `ensure-review` finds no formal review, it requests a Claude fallback review instead of waiting with arbitrary sleeps.
+  - When a formal review exists but no approval, it dispatches `auto-merge` for re-evaluation instead of approving directly.
 
 ### Auto-Merge Retrigger When Event Window Missed
 - **Problem**: When a PR has all merge conditions met (CI passes, approved, no unresolved threads) but auto-merge missed the event window, the PR sits open indefinitely. The original fix (PR #350) used close/reopen, but `auto-merge.yml` doesn't listen for `reopened` events -- only `workflow_run`, `pull_request_review`, and `synchronize`.

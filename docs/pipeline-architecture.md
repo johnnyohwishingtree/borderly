@@ -129,8 +129,9 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |     |     WITH critical issues → skip (review-relay handles)        |
 |     |     Checks for active review-fix before approving             |
 |     +-- Gemini fails → request Claude fallback review               |
-|     +-- CI passes, no formal review → request Claude review         |
-|     +-- CI passes, formal review exists → dispatch auto-merge       |
+|     +-- On CI completion:                                           |
+|     |     +-- No formal review → request Claude review              |
+|     |     +-- Formal review exists → dispatch auto-merge            |
 |                                                                     |
 |   review-relay.yml:                                                 |
 |     +-- Bot submits review → dispatches review-fix.yml              |
