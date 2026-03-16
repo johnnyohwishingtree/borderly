@@ -18,18 +18,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '20'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+          cache: 'true'
       - name: Build webpack bundle
         run: npx webpack --config webpack.config.js
       - name: Upload bundle
@@ -46,18 +38,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '20'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+          cache: 'true'
       - name: Install Playwright Chromium
         run: npx playwright install chromium
       - name: Download bundle
@@ -78,18 +62,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '20'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+          cache: 'true'
       - name: Install Playwright Chromium
         run: npx playwright install chromium
       - name: Download bundle
@@ -110,18 +86,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
         with:
-          node-version: '20'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: modules-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+          cache: 'true'
       - name: Install Playwright browsers
         run: npx playwright install chromium firefox
       - name: Download bundle

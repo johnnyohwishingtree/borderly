@@ -108,19 +108,9 @@ jobs:
           echo "context_file=/tmp/planner_context.txt" >> $GITHUB_OUTPUT
           cat /tmp/planner_context.txt
 
-      - name: Set up Node.js
+      - name: Set up Node and pnpm
         if: steps.gate.outputs.needed == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        if: steps.gate.outputs.needed == 'true'
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        if: steps.gate.outputs.needed == 'true'
-        run: pnpm install --frozen-lockfile || pnpm install
+        uses: ./.github/actions/setup-node
 
       - name: Run Claude Code planner
         if: steps.gate.outputs.needed == 'true'

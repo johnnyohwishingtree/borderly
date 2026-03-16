@@ -37,19 +37,19 @@ Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and
 
 | Script | Purpose | Test Suite |
 |--------|---------|------------|
-| `lib.sh` | 14 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo` | — |
+| `lib.sh` | 14 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo` | 45 tests |
 | `state-machine.sh` | Issue-based state machine with 12 states, transition validation, JSON state comments, and idempotent locking (`read_state`, `write_state`, `transition`, `acquire_lock`, `check_lock`, `release_lock`) | 18 tests |
 | `evaluate-merge-gate.sh` | Evaluates 5 merge conditions (tests, E2E, approval, threads, branch status) → JSON with `action: merge\|update_branch\|wait\|skip` | 14 tests |
 | `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output. Flags: `--lint-only-changed`, `--fail-fast`, `--skip-native` | 27 tests |
 
-All scripts use guard patterns for sourcing (import individual functions without executing main). Run tests: `pnpm test:pipeline` (or `bats .github/scripts/__tests__/*.test.bats`).
+All scripts use guard patterns for sourcing (import individual functions without executing main). 104 total tests. Run: `npx bats .github/scripts/__tests__/*.test.bats`.
 
 ### Composite Actions (`.github/actions/`)
 
 | Action | Purpose | Used By |
 |--------|---------|---------|
 | `setup-auth` | Git remote URL auth + user identity (configurable name/email) | claude, review-fix, resolve-conflicts, verify-merge, pipeline-doctor |
-| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-merge, review-fix, test, build-ios |
+| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback. Optional `cache: 'true'` for node_modules caching | verify-merge, review-fix, test, build-ios, e2e-smoke, claude, daily-planner |
 | `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-merge |
 
 ---
