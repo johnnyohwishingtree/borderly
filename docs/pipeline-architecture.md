@@ -42,7 +42,7 @@ Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and
 | `evaluate-merge-gate.sh` | Evaluates 5 merge conditions (tests, E2E, approval, threads, branch status) → JSON with `action: merge\|update_branch\|wait\|skip` | 14 tests |
 | `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output. Flags: `--lint-only-changed`, `--fail-fast`, `--skip-native` | 27 tests |
 
-All scripts use guard patterns for sourcing (import individual functions without executing main). 104 total tests. Run: `npx bats .github/scripts/__tests__/*.test.bats`.
+All scripts use guard patterns for sourcing (import individual functions without executing main). 123 total tests (including 19 regression tests for documented bugs). Run: `npx bats .github/scripts/__tests__/*.test.bats`.
 
 ### Composite Actions (`.github/actions/`)
 
