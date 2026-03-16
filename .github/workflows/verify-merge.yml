@@ -390,7 +390,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          source .github/scripts/lib.sh
+          setup_git_auth
 
           # Stage fix log if it was created/updated
           if [ -f .claude-fix-log.md ]; then
@@ -445,9 +446,8 @@ jobs:
         run: |
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
 
-          gh workflow run verify-merge.yml \
-            --repo "${{ github.repository }}" \
-            --ref master \
+          source .github/scripts/lib.sh
+          dispatch_workflow "verify-merge.yml" \
             -f tmp_branch="${{ inputs.tmp_branch }}" \
             -f target_branch="${{ inputs.target_branch }}" \
             -f issue_number="${{ inputs.issue_number }}" \
@@ -480,7 +480,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          source .github/scripts/lib.sh
+          setup_git_auth
 
           TMP_BRANCH="${{ inputs.tmp_branch }}"
           ISSUE_NUM="${{ inputs.issue_number }}"
@@ -504,9 +505,7 @@ jobs:
           # Trigger next attempt so the fix loop continues
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           if [ "$NEXT_ATTEMPT" -le 6 ]; then
-            gh workflow run verify-merge.yml \
-              --repo "${{ github.repository }}" \
-              --ref master \
+            dispatch_workflow "verify-merge.yml" \
               -f tmp_branch="$TMP_BRANCH" \
               -f target_branch="${{ inputs.target_branch }}" \
               -f issue_number="$ISSUE_NUM" \
@@ -572,9 +571,8 @@ jobs:
             )" 2>/dev/null || echo "Failed to post comment"
 
             # Trigger pipeline doctor
-            gh workflow run pipeline-doctor.yml \
-              --repo "${{ github.repository }}" \
-              --ref master \
+            source .github/scripts/lib.sh
+            dispatch_workflow "pipeline-doctor.yml" \
               -f issue_number="$ISSUE_NUM" \
               -f trigger_source="verify-merge" \
               -f failed_run_ids="$FAILED_RUNS"

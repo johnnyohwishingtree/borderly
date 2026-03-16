@@ -141,8 +141,8 @@ jobs:
           ROUND=${{ steps.check.outputs.relay_round }}
           SUMMARY=$(cat /tmp/review_summary_dispatch.txt)
 
-          gh workflow run review-fix.yml \
-            --repo "${{ github.repository }}" \
+          source .github/scripts/lib.sh
+          dispatch_workflow "review-fix.yml" \
             --ref "$PR_BRANCH" \
             -f pr_number="$PR_NUM" \
             -f pr_branch="$PR_BRANCH" \

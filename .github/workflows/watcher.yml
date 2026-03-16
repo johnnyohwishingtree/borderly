@@ -156,7 +156,7 @@ jobs:
               echo "  NO CI CHECK on HEAD commit, last commit ${COMMIT_AGO}m ago"
               if [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
                 echo "  Re-triggering test.yml for branch $PR_BRANCH"
-                gh workflow run test.yml --repo "$REPO" --ref "$PR_BRANCH" 2>/dev/null \
+                dispatch_workflow "test.yml" --ref "$PR_BRANCH" 2>/dev/null \
                   || echo "  Could not trigger test.yml"
                 gh pr close "$PR_NUM" --repo "$REPO" 2>/dev/null || true
                 sleep 2
