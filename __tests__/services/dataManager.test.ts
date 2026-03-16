@@ -99,10 +99,10 @@ const mockDbTrip = {
 const mockDbLeg = {
   id: 'leg-1',
   destinationCountry: 'JPN',
-  arrivalDate: '2025-04-01',
-  departureDate: '2025-04-10',
+  arrivalDate: new Date('2025-04-01T00:00:00.000Z'),
+  departureDate: new Date('2025-04-10T00:00:00.000Z'),
   flightNumber: 'JL001',
-  formStatus: 'not_started',
+  formStatus: 'not_started' as const,
   order: 0,
 };
 
@@ -121,7 +121,7 @@ describe('buildDataExport', () => {
     const result = await buildDataExport(['profile-1']);
 
     expect(result).toMatchObject({
-      appVersion: '1.0.0',
+      appVersion: expect.any(String),
       profiles: expect.any(Array),
       trips: expect.any(Array),
     });

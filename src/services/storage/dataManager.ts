@@ -10,6 +10,8 @@ import { Share } from 'react-native';
 import { keychainService } from './keychain';
 import { mmkvService } from './mmkv';
 import { databaseService } from './database';
+import { Trip, TripLeg } from './models';
+import packageJson from '../../../package.json';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -101,21 +103,21 @@ export async function buildDataExport(
   // Load trips from WatermelonDB
   const trips: ExportedTrip[] = [];
   try {
-    const dbTrips = await databaseService.getTrips();
+    const dbTrips = (await databaseService.getTrips()) as Trip[];
     for (const dbTrip of dbTrips) {
-      const legs = await databaseService.getTripLegs(dbTrip.id);
+      const legs = (await databaseService.getTripLegs(dbTrip.id)) as TripLeg[];
       trips.push({
         id: dbTrip.id,
-        name: (dbTrip as any).name ?? '',
-        status: (dbTrip as any).status ?? 'upcoming',
-        createdAt: (dbTrip as any).createdAt?.toISOString?.() ?? '',
-        updatedAt: (dbTrip as any).updatedAt?.toISOString?.() ?? '',
-        legs: legs.map((leg: any) => ({
+        name: dbTrip.name ?? '',
+        status: dbTrip.status ?? 'upcoming',
+        createdAt: dbTrip.createdAt?.toISOString() ?? '',
+        updatedAt: dbTrip.updatedAt?.toISOString() ?? '',
+        legs: legs.map(leg => ({
           id: leg.id,
           destinationCountry: leg.destinationCountry ?? '',
-          arrivalDate: leg.arrivalDate ?? '',
-          departureDate: leg.departureDate,
-          flightNumber: leg.flightNumber,
+          arrivalDate: leg.arrivalDate?.toISOString() ?? '',
+          ...(leg.departureDate !== undefined ? { departureDate: leg.departureDate.toISOString() } : {}),
+          ...(leg.flightNumber !== undefined ? { flightNumber: leg.flightNumber } : {}),
           formStatus: leg.formStatus ?? 'not_started',
           order: leg.order ?? 0,
         })),
@@ -127,7 +129,7 @@ export async function buildDataExport(
 
   return {
     exportedAt: new Date().toISOString(),
-    appVersion: '1.0.0',
+    appVersion: packageJson.version,
     profiles,
     trips,
   };
