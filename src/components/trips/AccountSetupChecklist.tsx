@@ -11,14 +11,19 @@ import WebView from 'react-native-webview';
 import { X } from 'lucide-react-native';
 import { useAccountSetupStore } from '@/stores/useAccountSetupStore';
 import { getSchemaByCountryCode } from '@/schemas';
+import { keychainService } from '@/services/storage/keychain';
+import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CountryFormSchema } from '@/types/schema';
 import { TripLeg } from '@/types/trip';
+import { TravelerProfile } from '@/types/profile';
 
 export interface AccountSetupChecklistProps {
   /** The legs of the trip to show account setup items for */
   legs: TripLeg[];
   /** Primary profile ID (for storing readiness per profile × portal) */
   profileId: string;
+  /** Optional profile object — used to pre-fill email in the credential prompt */
+  profile?: TravelerProfile;
   /**
    * Additional family member profile IDs.
    * If provided, the checklist tracks readiness for each family member separately
@@ -46,10 +51,13 @@ interface PortalAccountInfo {
  *
  * Tapping an incomplete item opens the portal's signup page in a WebView
  * modal. After visiting the signup page the user can mark the account as ready.
+ * A credential-save prompt is then shown so the user can store their login
+ * details for future auto-login.
  */
 export default function AccountSetupChecklist({
   legs,
   profileId,
+  profile,
   familyProfileIds: _familyProfileIds = [],
   testID,
 }: AccountSetupChecklistProps) {
@@ -59,8 +67,18 @@ export default function AccountSetupChecklist({
     url: string;
     title: string;
     portalCode: string;
+    portalName: string;
   } | null>(null);
   const [webviewLoading, setWebviewLoading] = useState(true);
+
+  /** Map from portalCode → whether credentials are stored (checked after marking ready) */
+  const [credentialStatus, setCredentialStatus] = useState<Record<string, boolean>>({});
+
+  /** State for the credential-save prompt shown after account creation */
+  const [credentialPrompt, setCredentialPrompt] = useState<{
+    portalCode: string;
+    portalName: string;
+  } | null>(null);
 
   const { getStatus, markReady, resetStatus, loadStatuses } = useAccountSetupStore();
 
@@ -97,6 +115,24 @@ export default function AccountSetupChecklist({
       .finally(() => setLoading(false));
   }, [legs]);
 
+  /** Refresh credential status for all ready portals */
+  const refreshCredentialStatuses = useCallback(async () => {
+    const updates: Record<string, boolean> = {};
+    for (const info of portalInfos) {
+      if (info.requiresAccount && getStatus(profileId, info.countryCode) === 'ready') {
+        const cred = await keychainService.getPortalCredential(profileId, info.countryCode);
+        updates[info.countryCode] = cred !== null;
+      }
+    }
+    setCredentialStatus(prev => ({ ...prev, ...updates }));
+  }, [portalInfos, profileId, getStatus]);
+
+  useEffect(() => {
+    if (!loading) {
+      refreshCredentialStatuses();
+    }
+  }, [loading, refreshCredentialStatuses]);
+
   const handleOpenSignup = useCallback(
     (info: PortalAccountInfo) => {
       setWebviewLoading(true);
@@ -104,19 +140,30 @@ export default function AccountSetupChecklist({
         url: info.signupUrl,
         title: `${info.portalName} — Sign Up`,
         portalCode: info.countryCode,
+        portalName: info.portalName,
       });
     },
     []
   );
 
+  /**
+   * Called when the user taps "Mark Ready".
+   * Marks account as ready, then checks if credentials are stored.
+   * If not, shows the credential-save prompt.
+   */
   const handleMarkReady = useCallback(
-    (portalCode: string) => {
-      // Only mark the current profile as ready.
-      // Family members with 'individual' portals must sign up separately;
-      // companion portals share the primary account, but the primary
-      // profile is already covered by this single call.
+    async (portalCode: string, portalName: string) => {
       markReady(profileId, portalCode);
       setSignupModal(null);
+
+      // Check if credentials are already stored
+      const existing = await keychainService.getPortalCredential(profileId, portalCode);
+      if (!existing) {
+        // Prompt user to save credentials
+        setCredentialPrompt({ portalCode, portalName });
+      } else {
+        setCredentialStatus(prev => ({ ...prev, [portalCode]: true }));
+      }
     },
     [profileId, markReady]
   );
@@ -124,6 +171,46 @@ export default function AccountSetupChecklist({
   const handleCloseModal = useCallback(() => {
     setSignupModal(null);
   }, []);
+
+  /** Called when user taps "Save" in the credential prompt */
+  const handleCredentialSave = useCallback(
+    async (username: string, password: string) => {
+      if (!credentialPrompt) return;
+      try {
+        await keychainService.storePortalCredential(
+          profileId,
+          credentialPrompt.portalCode,
+          username,
+          password,
+          profile?.email,
+        );
+        setCredentialStatus(prev => ({ ...prev, [credentialPrompt.portalCode]: true }));
+      } catch (err) {
+        console.error('AccountSetupChecklist: failed to store credential', err);
+      } finally {
+        setCredentialPrompt(null);
+      }
+    },
+    [credentialPrompt, profileId, profile?.email]
+  );
+
+  const handleCredentialSkip = useCallback(() => {
+    if (credentialPrompt) {
+      setCredentialStatus(prev => ({ ...prev, [credentialPrompt.portalCode]: false }));
+    }
+    setCredentialPrompt(null);
+  }, [credentialPrompt]);
+
+  /**
+   * Called when a "ready" portal row is tapped — lets the user re-save
+   * credentials if they skipped initially.
+   */
+  const handleResaveCredentials = useCallback(
+    (info: PortalAccountInfo) => {
+      setCredentialPrompt({ portalCode: info.countryCode, portalName: info.portalName });
+    },
+    []
+  );
 
   // Show nothing if no legs (e.g. empty trip) or still loading with no data
   if (loading && portalInfos.length === 0) {
@@ -163,6 +250,7 @@ export default function AccountSetupChecklist({
             const isStarted = status === 'setup_started';
             const isCompanion =
               info.familyPolicy?.type === 'companion';
+            const hasCredentials = credentialStatus[info.countryCode] ?? false;
 
             if (!info.requiresAccount) {
               // No account needed — informational row
@@ -188,8 +276,14 @@ export default function AccountSetupChecklist({
               <TouchableOpacity
                 key={info.countryCode}
                 testID={`account-row-${info.countryCode}`}
-                onPress={() => !isReady && handleOpenSignup(info)}
-                activeOpacity={isReady ? 1 : 0.7}
+                onPress={() => {
+                  if (!isReady) {
+                    handleOpenSignup(info);
+                  } else if (!hasCredentials) {
+                    handleResaveCredentials(info);
+                  }
+                }}
+                activeOpacity={isReady && hasCredentials ? 1 : 0.7}
                 className="flex-row items-center px-4 py-3"
               >
                 {/* Status icon */}
@@ -203,11 +297,21 @@ export default function AccountSetupChecklist({
                     {info.countryName}
                     {' — '}
                     {isReady
-                      ? `${info.portalName} account ready`
+                      ? hasCredentials
+                        ? `${info.portalName} account ready (credentials saved)`
+                        : `${info.portalName} account ready (no saved credentials)`
                       : isStarted
                       ? `${info.portalName} setup in progress`
                       : `${info.portalName} account needed`}
                   </Text>
+                  {isReady && !hasCredentials && (
+                    <Text
+                      className="text-xs text-blue-600 mt-0.5"
+                      testID={`save-credentials-hint-${info.countryCode}`}
+                    >
+                      Tap to save login credentials
+                    </Text>
+                  )}
                   {isCompanion && !isReady && (
                     <Text className="text-xs text-blue-600 mt-0.5">
                       {info.familyPolicy?.description}
@@ -267,7 +371,8 @@ export default function AccountSetupChecklist({
             </Text>
             <TouchableOpacity
               onPress={() =>
-                signupModal && handleMarkReady(signupModal.portalCode)
+                signupModal &&
+                handleMarkReady(signupModal.portalCode, signupModal.portalName)
               }
               testID="signup-modal-mark-ready"
               className="ml-4"
@@ -297,6 +402,17 @@ export default function AccountSetupChecklist({
           )}
         </SafeAreaView>
       </Modal>
+
+      {/* Credential save prompt — shown after account creation */}
+      <CredentialPrompt
+        visible={credentialPrompt !== null}
+        portalName={credentialPrompt?.portalName ?? ''}
+        initialUsername={profile?.email ?? ''}
+        title="Account created! Save your login?"
+        onSave={handleCredentialSave}
+        onSkip={handleCredentialSkip}
+        testID="account-setup-credential-prompt"
+      />
     </View>
   );
 }

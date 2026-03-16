@@ -25,6 +25,8 @@ import { QRSaveOverlay } from '../../components/submission/QRSaveOverlay';
 import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOverlay';
 import { AutoFillPill } from '../../components/submission/AutoFillPill';
 import type { ProfileOption } from '../../components/submission/AutoFillPill';
+import { CredentialPrompt } from '../../components/submission/CredentialPrompt';
+import { keychainService } from '../../services/storage/keychain';
 import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
@@ -242,6 +244,12 @@ export default function PortalSubmissionScreen() {
    * auto-login being triggered).
    */
   const [showSaveCredentialsPrompt, setShowSaveCredentialsPrompt] = useState(false);
+
+  /**
+   * Username extracted from the login form DOM after the user manually logs in.
+   * Pre-fills the CredentialPrompt so the user doesn't have to retype it.
+   */
+  const [extractedUsername, setExtractedUsername] = useState('');
 
   // ─── Store access ────────────────────────────────────────────────────────────
 
@@ -495,18 +503,16 @@ export default function PortalSubmissionScreen() {
   }, [selectedProfileId, familyProfiles.primaryProfileId, countryCode, schema]);
 
   /**
-   * Called when the user taps "Save" on the "Save credentials for next time?"
-   * prompt after a successful manual login.
-   *
-   * Injects a script to extract the username from the login form (if still
-   * present in the DOM). Dismisses the prompt regardless of extraction result.
+   * Called when the user taps "Save" on the inline "Save credentials?" banner.
+   * Injects a script to extract the username from the prior login form DOM so
+   * we can pre-populate the CredentialPrompt. The prompt is shown once the
+   * EXTRACT_LOGIN_USERNAME message is received (or immediately with profile email
+   * as fallback if no value is found).
    */
-  const handleSaveCredentials = useCallback(() => {
-    setShowSaveCredentialsPrompt(false);
-    // Attempt to extract the username from the login form DOM so the caller
-    // can pre-populate a credential-save dialog (future enhancement).
-    // For now we inject the extraction script and handle the result in
-    // handleMessage via EXTRACT_LOGIN_USERNAME.
+  const handleShowCredentialPrompt = useCallback(() => {
+    // Pre-seed with profile email in case extraction finds nothing
+    setExtractedUsername(profile?.email ?? '');
+    // Attempt to extract the username from any login form still in DOM
     webViewRef.current?.injectJavaScript(
       '(function(){' +
       'var selectors=["input[type=\\"email\\"]","input[name=\\"email\\"]","input[name=\\"username\\"]","input[id*=\\"email\\"]","input[id*=\\"user\\"]"];' +
@@ -522,7 +528,28 @@ export default function PortalSubmissionScreen() {
       'true;' +
       '})();',
     );
-  }, []);
+    // Show the prompt immediately (username may be pre-filled once extraction returns)
+    setShowSaveCredentialsPrompt(true);
+  }, [profile?.email]);
+
+  /**
+   * Called when the user confirms saving credentials in the CredentialPrompt.
+   * Persists the credential to the OS Keychain for future auto-login.
+   */
+  const handleCredentialSave = useCallback(
+    async (username: string, password: string) => {
+      setShowSaveCredentialsPrompt(false);
+      const profileId = selectedProfileId || familyProfiles.primaryProfileId;
+      try {
+        await keychainService.storePortalCredential(profileId, countryCode, username, password);
+      } catch (err) {
+        if (__DEV__) {
+          console.error('[PortalSubmissionScreen] Failed to store credential:', err);
+        }
+      }
+    },
+    [selectedProfileId, familyProfiles.primaryProfileId, countryCode],
+  );
 
   // ─── Auto-fill execution ─────────────────────────────────────────────────────
 
@@ -634,7 +661,7 @@ export default function PortalSubmissionScreen() {
             detected === 'form' &&
             !autoLoginTriggeredRef.current
           ) {
-            setShowSaveCredentialsPrompt(true);
+            handleShowCredentialPrompt();
           }
 
           prevPageTypeRef.current = detected;
@@ -661,12 +688,14 @@ export default function PortalSubmissionScreen() {
         }
 
         if (msgType === 'EXTRACT_LOGIN_USERNAME') {
-          // Username extracted from DOM after manual-login save prompt.
-          // Future enhancement: use this to pre-populate a credential-save dialog.
+          // Username extracted from DOM — pre-fill the credential prompt.
+          const username = typeof msg.username === 'string' ? msg.username : '';
           if (__DEV__) {
-            const username = typeof msg.username === 'string' ? msg.username : '';
             console.log('[PortalSubmissionScreen] Extracted username for save prompt:', username);
           }
+          // Pre-fill with extracted value (fall back to profile email)
+          setExtractedUsername(username || profile?.email || '');
+          setShowSaveCredentialsPrompt(true);
           return;
         }
 
@@ -726,7 +755,7 @@ export default function PortalSubmissionScreen() {
         // Not a Borderly message — ignore
       }
     },
-    [countryCode, attemptAutoLogin],
+    [countryCode, attemptAutoLogin, handleShowCredentialPrompt],
   );
 
   // ─── Toolbar callbacks ───────────────────────────────────────────────────────
@@ -969,51 +998,15 @@ export default function PortalSubmissionScreen() {
       )}
 
       {/* "Save credentials for next time?" prompt — shown after manual login */}
-      {showSaveCredentialsPrompt && (
-        <View
-          style={{
-            backgroundColor: '#F0FDF4',
-            borderBottomWidth: 1,
-            borderBottomColor: '#86EFAC',
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-          testID="save-credentials-prompt"
-        >
-          <Text style={{ fontSize: 13, color: '#166534', flex: 1 }}>
-            💾 Save credentials for next time?
-          </Text>
-          <View style={{ flexDirection: 'row' }}>
-            <Pressable
-              onPress={() => setShowSaveCredentialsPrompt(false)}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-              })}
-              accessibilityLabel="Dismiss save credentials prompt"
-              testID="save-credentials-dismiss"
-            >
-              <Text style={{ fontSize: 12, color: '#6B7280' }}>Not now</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleSaveCredentials}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-              })}
-              accessibilityLabel="Save credentials for this portal"
-              testID="save-credentials-confirm"
-            >
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#166534' }}>Save</Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
+      <CredentialPrompt
+        visible={showSaveCredentialsPrompt}
+        portalName={schema?.portalName ?? 'this portal'}
+        initialUsername={extractedUsername}
+        title="Save your login for next time?"
+        onSave={handleCredentialSave}
+        onSkip={() => setShowSaveCredentialsPrompt(false)}
+        testID="save-credentials-prompt"
+      />
 
       {/* WebView */}
       <View style={{ flex: 1 }}>
