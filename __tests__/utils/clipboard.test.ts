@@ -3,10 +3,23 @@ import { copyWithTimeout, CLIPBOARD_CLEAR_DELAY_MS } from '@/utils/clipboard';
 
 jest.useFakeTimers();
 
+// Override the global clipboard mock with a proper default-export shape so
+// `import Clipboard from '@react-native-clipboard/clipboard'` resolves correctly.
+jest.mock('@react-native-clipboard/clipboard', () => ({
+  __esModule: true,
+  default: {
+    setString: jest.fn(),
+    getString: jest.fn().mockResolvedValue(''),
+    hasString: jest.fn().mockResolvedValue(false),
+  },
+}));
+
+const mockedSetString = jest.mocked(Clipboard.setString);
+
 describe('clipboard utils', () => {
   beforeEach(() => {
     jest.clearAllTimers();
-    jest.clearAllMocks();
+    mockedSetString.mockClear();
   });
 
   it('CLIPBOARD_CLEAR_DELAY_MS is 60 seconds', () => {
@@ -15,22 +28,22 @@ describe('clipboard utils', () => {
 
   it('copies the value to the clipboard immediately', () => {
     copyWithTimeout('test-value');
-    expect(Clipboard.setString).toHaveBeenCalledWith('test-value');
+    expect(mockedSetString).toHaveBeenCalledWith('test-value');
   });
 
   it('clears the clipboard after 60 seconds', () => {
     copyWithTimeout('sensitive-data');
 
     // Clipboard should still contain the value before the timeout.
-    expect(Clipboard.setString).toHaveBeenCalledTimes(1);
-    expect(Clipboard.setString).toHaveBeenLastCalledWith('sensitive-data');
+    expect(mockedSetString).toHaveBeenCalledTimes(1);
+    expect(mockedSetString).toHaveBeenLastCalledWith('sensitive-data');
 
     // Advance time past the timeout.
     jest.advanceTimersByTime(CLIPBOARD_CLEAR_DELAY_MS);
 
     // Should now have been called a second time with an empty string.
-    expect(Clipboard.setString).toHaveBeenCalledTimes(2);
-    expect(Clipboard.setString).toHaveBeenLastCalledWith('');
+    expect(mockedSetString).toHaveBeenCalledTimes(2);
+    expect(mockedSetString).toHaveBeenLastCalledWith('');
   });
 
   it('does NOT clear the clipboard before 60 seconds', () => {
@@ -40,8 +53,8 @@ describe('clipboard utils', () => {
     jest.advanceTimersByTime(CLIPBOARD_CLEAR_DELAY_MS - 1);
 
     // Only the initial copy, no clear yet.
-    expect(Clipboard.setString).toHaveBeenCalledTimes(1);
-    expect(Clipboard.setString).toHaveBeenLastCalledWith('sensitive-data');
+    expect(mockedSetString).toHaveBeenCalledTimes(1);
+    expect(mockedSetString).toHaveBeenLastCalledWith('sensitive-data');
   });
 
   it('returns a cancel function that prevents clearing', () => {
@@ -53,7 +66,7 @@ describe('clipboard utils', () => {
     jest.advanceTimersByTime(CLIPBOARD_CLEAR_DELAY_MS);
 
     // Still only one call — the clear was cancelled.
-    expect(Clipboard.setString).toHaveBeenCalledTimes(1);
+    expect(mockedSetString).toHaveBeenCalledTimes(1);
   });
 
   it('cancelling a second time after timeout is a no-op', () => {
@@ -61,7 +74,7 @@ describe('clipboard utils', () => {
 
     jest.advanceTimersByTime(CLIPBOARD_CLEAR_DELAY_MS);
 
-    expect(Clipboard.setString).toHaveBeenCalledTimes(2);
+    expect(mockedSetString).toHaveBeenCalledTimes(2);
 
     // Calling cancel after the timer already fired should not throw or error.
     expect(() => cancel()).not.toThrow();

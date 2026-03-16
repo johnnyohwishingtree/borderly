@@ -1,43 +1,24 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { useAppLock, APP_LOCK_TIMEOUT_MS } from '@/hooks/useAppLock';
 import { useAppStore } from '@/stores/useAppStore';
+import { AppState } from 'react-native';
 
 jest.useFakeTimers();
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Mocks
+// Helpers — fire the registered AppState listener
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Capture the AppState change listener so tests can fire it directly.
-let appStateListener: ((state: string) => void) | null = null;
-
-jest.mock('react-native', () => {
-  const actual = jest.requireActual('react-native');
-  return {
-    ...actual,
-    AppState: {
-      ...actual.AppState,
-      addEventListener: jest.fn((_event: string, handler: (state: string) => void) => {
-        appStateListener = handler;
-        return { remove: jest.fn() };
-      }),
-    },
-  };
-});
-
-jest.mock('react-native-keychain', () => ({
-  getGenericPassword: jest.fn().mockResolvedValue(false),
-  ACCESSIBLE: { WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WhenUnlockedThisDeviceOnly' },
-  AUTHENTICATION_TYPE: { DEVICE_PASSCODE_OR_BIOMETRICS: 'AuthenticationWithBiometricsDevicePasscode' },
-}));
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────────────────────────────────────
+function getAppStateListener(): ((state: string) => void) | null {
+  const addEventListenerMock = jest.mocked(AppState.addEventListener);
+  const calls = addEventListenerMock.mock.calls;
+  const lastCall = calls[calls.length - 1];
+  return lastCall ? (lastCall[1] as (state: string) => void) : null;
+}
 
 function simulateAppState(state: string) {
   act(() => {
-    appStateListener?.(state);
+    getAppStateListener()?.(state);
   });
 }
 
@@ -49,11 +30,9 @@ describe('useAppLock', () => {
   beforeEach(() => {
     jest.clearAllTimers();
     jest.clearAllMocks();
-    appStateListener = null;
     // Reset the store to a clean state with biometricEnabled = true.
-    const store = useAppStore.getState();
-    store.setAppLocked(false);
-    store.updatePreference('biometricEnabled', true);
+    useAppStore.getState().setAppLocked(false);
+    useAppStore.getState().updatePreference('biometricEnabled', true);
   });
 
   it('APP_LOCK_TIMEOUT_MS is 5 minutes', () => {
