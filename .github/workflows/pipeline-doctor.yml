@@ -6,7 +6,7 @@ run-name: "Doctor: issue #${{ inputs.issue_number }} (${{ inputs.trigger_source 
 # creates a fix PR or opens a diagnostic issue with full context and links.
 #
 # Trigger points:
-#   - verify-merge give-up job (after 6 failed fix attempts)
+#   - verify-and-fix give-up job (after max failed fix attempts)
 #   - watcher (story stuck at max retries)
 #   - manual (pass an issue number to diagnose)
 
@@ -18,7 +18,7 @@ on:
         required: true
         type: string
       trigger_source:
-        description: 'What triggered this (watcher / verify-merge / manual)'
+        description: 'What triggered this (watcher / verify-and-fix / manual)'
         required: false
         type: string
         default: 'manual'
@@ -250,8 +250,8 @@ jobs:
             RUN_IDS="$FAILED_RUN_IDS"
           fi
 
-          # Auto-discover: recent verify-merge runs for this issue
-          VM_RUNS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+          # Auto-discover: recent verify-and-fix runs for this issue
+          VM_RUNS=$(gh run list --repo "$REPO" --workflow verify-and-fix.yml \
             --json databaseId,displayTitle,conclusion,status,createdAt \
             -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | sort_by(.createdAt) | last(6) | .[].databaseId" \
             2>/dev/null || true)
@@ -311,7 +311,7 @@ jobs:
           echo "These are the current workflow files on master. The doctor should check if any of these have bugs causing the failures." >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
 
-          for WF in verify-merge.yml claude.yml watcher.yml; do
+          for WF in verify-and-fix.yml claude.yml watcher.yml; do
             if [ -f ".github/workflows/$WF" ]; then
               echo "<details><summary>${WF}</summary>" >> "$EVIDENCE_FILE"
               echo "" >> "$EVIDENCE_FILE"
@@ -372,11 +372,11 @@ jobs:
           These are patterns from previous pipeline bugs. Check if the current failure matches any:
 
           1. **Missing allowedTools**: Claude's fix job couldn't run git commands (fetch, merge, checkout, rebase) because they weren't in allowedTools. Symptom: "Claude produced no changes" across all attempts.
-          2. **Merge conflict + no git tools**: verify-merge detects conflict, sets MERGE_CONFLICT=true, tells Claude to resolve, but Claude can't run `git fetch`/`git merge`.
+          2. **Merge conflict + no git tools**: verify-and-fix detects conflict, tells Claude to resolve, but Claude can't run `git fetch`/`git merge`.
           3. **Watcher can't detect active runs**: `gh api .inputs.issue_number` returns null for workflow_dispatch runs. Must parse displayTitle instead.
           4. **Snapshot files in CI**: `jest --ci` won't auto-create .snap files. Tests with `toMatchSnapshot()` always fail in CI.
           5. **Silent failures from || true**: `git pull --rebase ... 2>/dev/null || true` swallows real errors, making pushes silently fail.
-          6. **Duplicate chains**: Watcher retriggers stories that already have active verify-merge runs because it can't detect them.
+          6. **Duplicate chains**: Watcher retriggers stories that already have active verify-and-fix runs because it can't detect them.
           7. **Native deps on Ubuntu**: `pod install` can't run on Ubuntu CI. Native packages need lazy/optional imports.
           8. **Stale test assertions after intentional code changes**: Code was changed on purpose (e.g., fixing a URL, renaming a field) but existing tests still assert the OLD value. The fix job sees "expected A, got B" but can't tell if the code or test is wrong without knowing the commit intent. Fix: update the test assertions to match the new code. This is the #1 cause of "Claude produced no changes" across all fix attempts.
           9. **PR stuck on approval — unresolved review threads**: review-fix addressed feedback but ran with an older workflow version that lacked the "resolve review threads" step. Threads stay unresolved → review-guardian sees ![high]/![critical] badges + unresolved threads → blocks approval → auto-merge can't merge. Fix: resolve all review threads via GraphQL mutation, then close/reopen the PR to retrigger review-guardian.
@@ -499,7 +499,7 @@ jobs:
             3. ACT based on diagnosis:
 
                **If tests assert stale values after intentional code changes:**
-               - This is the most common pattern. Check out the work branch, update the test assertions to match the new code, verify with `pnpm test`, push, and retrigger verify-merge.
+               - This is the most common pattern. Check out the work branch, update the test assertions to match the new code, verify with `pnpm test`, push, and retrigger verify-and-fix.
 
                **If it's a PIPELINE bug** (workflow YAML, CI config, tooling issue):
                - Create a fix branch: `git checkout -b fix/pipeline-doctor-${{ inputs.issue_number }}`
@@ -513,7 +513,7 @@ jobs:
                - Fix the code errors identified in the test output
                - Run `pnpm typecheck && pnpm test` to verify
                - Push the fixes
-               - Retrigger verify-merge: `gh workflow run verify-merge.yml --repo ${{ github.repository }} --ref master -f tmp_branch="<branch>" -f target_branch="claude/issue-${{ inputs.issue_number }}" -f issue_number="${{ inputs.issue_number }}" -f attempt="1"`
+               - Retrigger verify-and-fix: `gh workflow run verify-and-fix.yml --repo ${{ github.repository }} --ref master -f branch="<work_branch>" -f merge_into="claude/issue-${{ inputs.issue_number }}" -f create_pr="true" -f issue_number="${{ inputs.issue_number }}" -f checks="ci" -f fix_enabled="true" -f max_attempts="6"`
 
                **If the PR is stuck on approval (unresolved review threads):**
                - Check the "PR Merge Readiness" section in the evidence file

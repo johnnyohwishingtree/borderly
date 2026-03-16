@@ -6,7 +6,7 @@ See `docs/pipeline-architecture.md` for the full pipeline design, workflow inter
 
 The pipeline follows a **Temporal-inspired** model:
 - **Workflows** = story lifecycle per issue (orchestrate.yml)
-- **Activities** = individual GHA workflow runs (claude.yml, verify-merge.yml, etc.)
+- **Activities** = individual GHA workflow runs (claude.yml, verify-and-fix.yml, etc.)
 - **Steps** = steps inside a GHA job
 
 ## Rules
@@ -72,16 +72,16 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `orchestrate.yml` | Issue labeled `story` | Story lifecycle orchestrator |
 | `claude.yml` | Issue/PR comments, workflow_dispatch | Claude agent implementation |
 | `gemini.yml` | Issue/PR comments | Gemini agent implementation |
-| `verify-merge.yml` | workflow_dispatch | Fix loop (up to 6 attempts) |
+| `verify-and-fix.yml` | workflow_dispatch | Reusable verify + fix loop (configurable attempts) |
 | `auto-merge.yml` | workflow_dispatch, workflow_run | Merge gate evaluator |
 | `review-guardian.yml` | workflow_run, issue_comment, PR review | Review + auto-approve |
 | `review-relay.yml` | PR review submitted | Relay review feedback to fix workflow |
-| `review-fix.yml` | workflow_dispatch | Apply review feedback fixes |
+| `review-fix.yml` | workflow_dispatch | Apply review feedback fixes, dispatch verify-and-fix |
 | `resolve-conflicts.yml` | workflow_dispatch | Merge conflict resolution |
 | `pipeline-doctor.yml` | workflow_dispatch | Diagnose stuck pipelines |
 | `watcher.yml` | schedule (every 30min) | Monitor stale PRs and issues |
-| `test.yml` | push, PR | Unit tests + typecheck + lint |
-| `e2e-smoke.yml` | push, PR | Playwright E2E tests |
+| `test.yml` | push, PR | Unit tests + typecheck + lint; dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | push, PR | Playwright E2E tests; dispatches verify-and-fix on failure |
 | `build-ios.yml` | workflow_dispatch | iOS build |
 | `release.yml` | tags | Release pipeline |
 | `daily-planner.yml` | schedule | Daily story planning |

@@ -257,7 +257,7 @@ teardown() {
   set_state_json '{"state":"verifying","attempts":{"verify":0}}'
   _ACTIVITY_LOCK_ID=""
 
-  activity_fail 42 "verify" "tests failed" "verify-merge.yml" || true
+  activity_fail 42 "verify" "tests failed" "verify-and-fix.yml" || true
 
   local attempts
   attempts=$(cat "$STATE_FILE" | jq '.attempts.verify')
@@ -268,11 +268,11 @@ teardown() {
   set_state_json '{"state":"verifying","attempts":{"verify":0}}'
   _ACTIVITY_LOCK_ID=""
 
-  activity_fail 42 "verify" "tests failed" "verify-merge.yml" -f issue_number=42 || true
+  activity_fail 42 "verify" "tests failed" "verify-and-fix.yml" -f issue_number=42 || true
 
   local dispatched
   dispatched=$(cat "$DISPATCH_LOG")
-  assert_contains "$dispatched" "verify-merge.yml"
+  assert_contains "$dispatched" "verify-and-fix.yml"
   assert_contains "$dispatched" "issue_number=42"
 }
 
@@ -333,7 +333,7 @@ teardown() {
   set_state_json '{"state":"verifying","attempts":{"verify":5}}'
   _ACTIVITY_LOCK_ID=""
 
-  activity_fail 42 "verify" "still failing" "verify-merge.yml" || true
+  activity_fail 42 "verify" "still failing" "verify-and-fix.yml" || true
 
   local state
   state=$(cat "$STATE_FILE" | jq -r '.state')
@@ -344,12 +344,12 @@ teardown() {
   set_state_json '{"state":"verifying","attempts":{"verify":4}}'
   _ACTIVITY_LOCK_ID=""
 
-  activity_fail 42 "verify" "still failing" "verify-merge.yml" || true
+  activity_fail 42 "verify" "still failing" "verify-and-fix.yml" || true
 
   # Should have dispatched a retry, not escalated
   local dispatched
   dispatched=$(cat "$DISPATCH_LOG")
-  assert_contains "$dispatched" "verify-merge.yml"
+  assert_contains "$dispatched" "verify-and-fix.yml"
 
   # State should NOT be escalated
   local state
@@ -373,7 +373,7 @@ teardown() {
   set_state_json '{"state":"verifying","attempts":{"verify":1},"max_attempts":2}'
   _ACTIVITY_LOCK_ID=""
 
-  activity_fail 42 "verify" "still failing" "verify-merge.yml" || true
+  activity_fail 42 "verify" "still failing" "verify-and-fix.yml" || true
 
   local state
   state=$(cat "$STATE_FILE" | jq -r '.state')
@@ -485,11 +485,11 @@ teardown() {
   set_state_json '{"state":"implementing","attempts":{"verify":0}}'
 
   activity_start 42 "verify" "implementing"
-  activity_fail 42 "verify" "tests failed" "verify-merge.yml" -f issue_number=42 || true
+  activity_fail 42 "verify" "tests failed" "verify-and-fix.yml" -f issue_number=42 || true
 
   local dispatched
   dispatched=$(cat "$DISPATCH_LOG")
-  assert_contains "$dispatched" "verify-merge.yml"
+  assert_contains "$dispatched" "verify-and-fix.yml"
 }
 
 @test "full lifecycle: repeated fails escalate after max" {

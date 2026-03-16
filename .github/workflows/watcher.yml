@@ -61,9 +61,9 @@ jobs:
           SLOTS_AVAILABLE=$((MAX_CONCURRENT - TOTAL_ACTIVE))
           echo "Slots available: $SLOTS_AVAILABLE"
 
-          # 1b. Collect issue numbers with active workflows (claude.yml or verify-merge.yml)
+          # 1b. Collect issue numbers with active workflows (claude.yml or verify-and-fix.yml)
           # This prevents the watcher from retriggering stories that already
-          # have work in flight (either a Claude run or a verify-merge fix loop).
+          # have work in flight (either a Claude run or a verify-and-fix loop).
           WORKFLOW_BUSY_ISSUES=""
 
           # Check active claude.yml runs — run-name is "Claude #<issue> by <user>"
@@ -82,22 +82,20 @@ jobs:
             fi
           done
 
-          # Check active verify-merge.yml runs (workflow: "Verify and Merge")
-          # run-name is "Verify #<issue> → ..."
-          # Note: .inputs is null via the API for workflow_dispatch runs, so we
-          # parse the issue number from displayTitle instead.
-          ACTIVE_VM_TITLES=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+          # Check active verify-and-fix.yml runs
+          # run-name is "Verify #<issue> on ..."
+          ACTIVE_VF_TITLES=$(gh run list --repo "$REPO" --workflow verify-and-fix.yml \
             --status in_progress --json displayTitle \
             -q '.[].displayTitle' 2>/dev/null || true)
-          QUEUED_VM_TITLES=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+          QUEUED_VF_TITLES=$(gh run list --repo "$REPO" --workflow verify-and-fix.yml \
             --status queued --json displayTitle \
             -q '.[].displayTitle' 2>/dev/null || true)
 
-          for TITLE in $ACTIVE_VM_TITLES $QUEUED_VM_TITLES; do
-            VM_ISSUE=$(echo "$TITLE" | grep -oE '#[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
-            if [ -n "$VM_ISSUE" ]; then
-              WORKFLOW_BUSY_ISSUES="$WORKFLOW_BUSY_ISSUES $VM_ISSUE"
-              echo "verify-merge active for issue #$VM_ISSUE"
+          for TITLE in $ACTIVE_VF_TITLES $QUEUED_VF_TITLES; do
+            VF_ISSUE=$(echo "$TITLE" | grep -oE '#[0-9]+' | head -1 | grep -oE '[0-9]+' || true)
+            if [ -n "$VF_ISSUE" ]; then
+              WORKFLOW_BUSY_ISSUES="$WORKFLOW_BUSY_ISSUES $VF_ISSUE"
+              echo "verify-and-fix active for issue #$VF_ISSUE"
             fi
           done
 
@@ -301,7 +299,7 @@ jobs:
               continue
             fi
 
-            # Skip if any workflow (claude.yml or verify-merge) is active for this story
+            # Skip if any workflow (claude.yml or verify-and-fix) is active for this story
             if echo "$WORKFLOW_BUSY_ISSUES" | grep -qw "$ISSUE_NUM" 2>/dev/null; then
               echo "  Active workflow running for this story — skipping retrigger"
               continue
@@ -314,8 +312,8 @@ jobs:
             fi
 
             # Check if work already exists on a tmp or claude branch.
-            # If verify-merge already ran (and possibly gave up), we should retrigger
-            # verify-merge directly instead of re-running claude.yml from scratch.
+            # If verify-and-fix already ran (and possibly gave up), we should retrigger
+            # verify-and-fix directly instead of re-running claude.yml from scratch.
             #
             # Look for branches via the GitHub API (no git checkout needed).
             EXISTING_TMP=""
@@ -330,18 +328,15 @@ jobs:
               echo "  Found action branch: $BRANCH_NAME"
             done
 
-            # Check for tmp/ branches used in verify-merge for this issue
-            # Parse from completed verify-merge run titles: "Verify #278 → claude/issue-278 (attempt ...)"
-            VM_RUNS_DATA=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+            # Check for tmp/ branches used in verify-and-fix for this issue
+            VF_RUNS_DATA=$(gh run list --repo "$REPO" --workflow verify-and-fix.yml \
               --json displayTitle,conclusion,headBranch \
               -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))]" 2>/dev/null || echo "[]")
-            VM_COUNT=$(echo "$VM_RUNS_DATA" | jq 'length' 2>/dev/null || echo "0")
+            VF_COUNT=$(echo "$VF_RUNS_DATA" | jq 'length' 2>/dev/null || echo "0")
 
-            if [ "$VM_COUNT" -gt 0 ]; then
-              # There are verify-merge runs for this issue — work exists
-              # Find the tmp branch from the most recent run's inputs
-              # The tmp branch is passed as input, but we can find it from matching tmp/ refs
-              TMP_BRANCHES=$(gh api "repos/$REPO/git/matching-refs/heads/tmp/claude-" \
+            if [ "$VF_COUNT" -gt 0 ]; then
+              # There are verify-and-fix runs for this issue — work exists
+              TMP_BRANCHES=$(gh api "repos/$REPO/git/matching-refs/heads/tmp/" \
                 --jq '.[].ref' 2>/dev/null | sed 's|^refs/heads/||' || true)
               for TB in $TMP_BRANCHES; do
                 [ -z "$TB" ] && continue
@@ -354,17 +349,17 @@ jobs:
               EXISTING_TMP="$BEST_TMP"
             fi
 
-            # If we found existing work, trigger verify-merge directly
+            # If we found existing work, trigger verify-and-fix directly
             if [ -n "$EXISTING_TMP" ]; then
               echo "  Found existing work: $EXISTING_TMP"
 
-              # Check how many verify-merge give-ups there have been
-              VM_GIVEUPS=$(gh run list --repo "$REPO" --workflow verify-merge.yml \
+              # Check how many verify-and-fix give-ups there have been
+              VF_GIVEUPS=$(gh run list --repo "$REPO" --workflow verify-and-fix.yml \
                 --json displayTitle,conclusion \
                 -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\")) | select(.displayTitle | contains(\"attempt 6/6\"))] | length" 2>/dev/null || echo "0")
 
-              if [ "$VM_GIVEUPS" -ge 2 ]; then
-                echo "  verify-merge has given up $VM_GIVEUPS times — triggering pipeline doctor"
+              if [ "$VF_GIVEUPS" -ge 2 ]; then
+                echo "  verify-and-fix has given up $VF_GIVEUPS times — triggering pipeline doctor"
 
                 # Check if doctor is already running or ran recently for this issue
                 if is_workflow_active "pipeline-doctor.yml" "$ISSUE_NUM" "$REPO"; then
@@ -391,13 +386,16 @@ jobs:
                 if [ -n "$EXISTING_PR" ]; then
                   echo "  PR #$EXISTING_PR already exists — skipping (waiting for review/merge)"
                 else
-                  echo "  Triggering verify-merge directly with existing work branch"
-                  dispatch_workflow "verify-merge.yml" \
-                    -f tmp_branch="$EXISTING_TMP" \
-                    -f target_branch="$TARGET_BRANCH" \
+                  echo "  Triggering verify-and-fix directly with existing work branch"
+                  dispatch_workflow "verify-and-fix.yml" \
+                    -f branch="$EXISTING_TMP" \
+                    -f merge_into="$TARGET_BRANCH" \
+                    -f create_pr="true" \
                     -f issue_number="$ISSUE_NUM" \
-                    -f attempt="1"
-                  echo "  Triggered verify-merge: $EXISTING_TMP -> $TARGET_BRANCH"
+                    -f checks="ci" \
+                    -f fix_enabled="true" \
+                    -f max_attempts="6"
+                  echo "  Triggered verify-and-fix: $EXISTING_TMP -> $TARGET_BRANCH"
                 fi
               fi
 
@@ -450,7 +448,7 @@ jobs:
             fi
 
             echo "  Re-triggering claude.yml (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
-            comment_on_issue "$ISSUE_NUM" "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently. Run tests before your final commit. Create a PR with 'Closes #$ISSUE_NUM' in the body when done. (Retry #$((RETRY_COUNT + 1)) by pipeline watcher)" "$REPO"
+            trigger_story_agent "$ISSUE_NUM" "claude" "(Retry #$((RETRY_COUNT + 1)) by pipeline watcher)" "$REPO"
 
             BUSY_EPICS="$BUSY_EPICS $STORY_EPIC"
             SLOTS_AVAILABLE=$((SLOTS_AVAILABLE - 1))
@@ -484,10 +482,7 @@ jobs:
               continue
             fi
 
-            NEXT_PENDING=$(gh issue list --repo "$REPO" \
-              --label "story" --label "pending" --label "$EPIC_LABEL" \
-              --state open --json number \
-              -q '[.[] | .number] | sort | .[0]')
+            NEXT_PENDING=$(get_next_pending_story "$EPIC_LABEL" "$REPO")
 
             if [ -z "$NEXT_PENDING" ] || [ "$NEXT_PENDING" = "null" ]; then
               echo "  No pending stories — epic may be complete"
@@ -510,7 +505,7 @@ jobs:
             echo "  STALLED — triggering story #$NEXT_PENDING"
             gh issue edit "$NEXT_PENDING" --repo "$REPO" \
               --remove-label "pending" --add-label "in-progress" || true
-            comment_on_issue "$NEXT_PENDING" "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently. Run tests before your final commit. Create a PR with 'Closes #$NEXT_PENDING' in the body when done. (Pipeline watcher: orchestrator missed handoff)" "$REPO"
+            trigger_story_agent "$NEXT_PENDING" "claude" "(Pipeline watcher: orchestrator missed handoff)" "$REPO"
 
             BUSY_EPICS="$BUSY_EPICS $EPIC_LABEL"
             SLOTS_AVAILABLE=$((SLOTS_AVAILABLE - 1))

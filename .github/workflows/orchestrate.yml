@@ -50,6 +50,13 @@ jobs:
           gh issue close "$ISSUE_NUM" --repo ${{ github.repository }} --comment "Completed via PR #${{ github.event.pull_request.number }}"
           gh issue edit "$ISSUE_NUM" --repo ${{ github.repository }} --remove-label "pending" --remove-label "in-progress" --add-label "completed" || true
 
+      - name: Checkout scripts
+        if: steps.extract.outputs.found == 'true'
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Find next story in epic
         if: steps.extract.outputs.found == 'true'
         id: next
@@ -66,14 +73,7 @@ jobs:
           fi
           echo "Epic label: $EPIC_LABEL"
 
-          NEXT_STORY=$(gh issue list \
-            --repo ${{ github.repository }} \
-            --label "story" \
-            --label "pending" \
-            --label "$EPIC_LABEL" \
-            --state open \
-            --json number \
-            -q '[.[] | .number] | sort | .[0]')
+          NEXT_STORY=$(get_next_pending_story "$EPIC_LABEL" "${{ github.repository }}")
 
           if [ -z "$NEXT_STORY" ] || [ "$NEXT_STORY" = "null" ]; then
             echo "All stories in $EPIC_LABEL are complete!"
@@ -122,13 +122,6 @@ jobs:
             echo "safe=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout scripts
-        if: steps.next.outputs.found == 'true' && steps.safety.outputs.safe == 'true'
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/scripts
-          sparse-checkout-cone-mode: false
-
       - name: Trigger next story
         if: steps.next.outputs.found == 'true' && steps.safety.outputs.safe == 'true'
         env:
@@ -149,5 +142,4 @@ jobs:
           gh issue edit "$NEXT" --repo ${{ github.repository }} \
             --remove-label "pending" --add-label "in-progress" || true
 
-          # TODO: Customize the test command in this trigger message
-          comment_on_issue "$NEXT" "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: After completing each acceptance criterion, git add, git commit, and git push before moving on. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
+          trigger_story_agent "$NEXT" "$AGENT"

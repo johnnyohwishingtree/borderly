@@ -673,6 +673,119 @@ EOF
 # checkout step, causing "No such file or directory" at runtime.
 # Regression: every workflow job that uses lib.sh (via BASH_ENV or source)
 # must have an actions/checkout step to make the file available.
+# Bug: review-fix.yml verify step only ran typecheck + unit tests (PR #386).
+# A Playwright API misuse (page.off without function ref) passed both checks
+# but crashed at E2E runtime. The verify gate must include E2E tests.
+@test "regression: review-fix verify step includes E2E tests" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_name = str(step.get('name', '')).lower()
+        step_run = str(step.get('run', '')).lower()
+        if 'verify' in step_name and ('typecheck' in step_run or 'test' in step_run):
+            if 'playwright' in step_run or 'e2e' in step_run:
+                print('ok')
+                sys.exit(0)
+
+print('missing')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml verify step does not include E2E/playwright tests"
+    echo "The verify gate must run E2E tests to catch Playwright runtime errors"
+    false
+  fi
+}
+
+# Bug: review-fix.yml prompt told Claude to push before the verify step ran (PR #386).
+# Claude pushed broken code directly; the verify step was too late to prevent it.
+# The prompt must NOT instruct Claude to push — the workflow handles pushing after verify.
+@test "regression: review-fix prompt does not instruct Claude to push" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_with = step.get('with', {}) or {}
+        prompt = str(step_with.get('prompt', ''))
+        if not prompt:
+            continue
+        # Check if prompt contains push instructions
+        for line in prompt.split('\n'):
+            lower = line.lower()
+            # Skip lines that say 'do not push' or 'do NOT push'
+            if 'not push' in lower:
+                continue
+            if 'push' in lower and ('git' in lower or 'origin' in lower):
+                print(f'found: {line.strip()}')
+                sys.exit(0)
+
+print('ok')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml prompt instructs Claude to push"
+    echo "Claude must NOT push — the workflow pushes after verification"
+    echo "Offending line: $result"
+    false
+  fi
+}
+
+# Bug: review-fix.yml verify step installs only chromium but Playwright config
+# includes a firefox-smoke project. Firefox tests fail with "Executable doesn't
+# exist" because firefox was never installed. The install command must match
+# what e2e-smoke.yml cross-browser job installs (chromium + firefox).
+@test "regression: review-fix verify installs all required browsers" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_run = str(step.get('run', ''))
+        if 'playwright install' in step_run:
+            if 'firefox' in step_run:
+                print('ok')
+                sys.exit(0)
+            else:
+                print('missing-firefox')
+                sys.exit(0)
+
+print('no-install-found')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml playwright install is missing firefox"
+    echo "The cross-browser E2E project requires firefox. Got: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""

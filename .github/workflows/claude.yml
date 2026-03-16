@@ -266,17 +266,20 @@ jobs:
           set +u
           activity_success "${{ github.event.issue.number }}" "implementing" 2>/dev/null || true
 
-      - name: Trigger verify-merge (issue context only)
+      - name: Trigger verify-and-fix (issue context only)
         if: success() && steps.push_target.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          dispatch_workflow "verify-merge.yml" \
-            -f tmp_branch="${{ steps.push_issue.outputs.tmp_branch }}" \
-            -f target_branch="${{ steps.push_issue.outputs.pr_branch }}" \
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="${{ steps.push_issue.outputs.tmp_branch }}" \
+            -f merge_into="${{ steps.push_issue.outputs.pr_branch }}" \
+            -f create_pr="true" \
             -f issue_number="${{ github.event.issue.number }}" \
-            -f attempt="1"
-          echo "Triggered verify-merge"
+            -f checks="ci" \
+            -f fix_enabled="true" \
+            -f max_attempts="6"
+          echo "Triggered verify-and-fix"
 
       # Auto-merge removed — auto-merge.yml is the single gate that
       # merges PRs only after Tests + E2E + approval + threads resolved.

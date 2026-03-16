@@ -14,6 +14,10 @@ When writing or modifying GitHub Actions workflow steps in `.github/workflows/`:
    - `smart_push "branch"` instead of `git fetch && git push` with comparison logic
    - `comment_on_issue N "body"` instead of `gh issue comment`
    - `is_workflow_active "X.yml" N "$REPO"` instead of `gh run list --status`
+   - `count_critical_comments N "$REPO"` instead of `gh api pulls/N/comments` with jq filter
+   - `approve_and_merge N "body"` instead of `gh pr review --approve` + `dispatch_workflow`
+   - `get_next_pending_story "$EPIC_LABEL"` instead of `gh issue list --label story --label pending`
+   - `trigger_story_agent N "agent" "(suffix)"` instead of inline `@agent Implement this story...`
 
 3. **Check `.github/scripts/CLAUDE.md`** for the full function reference before writing inline shell code.
 

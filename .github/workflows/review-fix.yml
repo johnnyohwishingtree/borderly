@@ -4,6 +4,9 @@ run-name: "Review fix: PR #${{ inputs.pr_number }} (round ${{ inputs.round }})"
 # Runs Claude with full permissions to fix code review feedback on a PR.
 # Triggered by review-relay via workflow_dispatch instead of @claude PR comment,
 # because claude-code-action@v1 restricts tools (no Edit/Write) in PR comment context.
+#
+# After Claude addresses review feedback, pushes and dispatches verify-and-fix.yml
+# for quality checks with retry capability (up to 3 fix attempts).
 
 on:
   workflow_dispatch:
@@ -40,6 +43,7 @@ permissions:
   pull-requests: write
   issues: write
   id-token: write
+  actions: write
 
 jobs:
   fix:
@@ -88,72 +92,36 @@ jobs:
               "maxTurns": 20
             }
 
-      - name: Verify fixes pass checks
-        id: verify
-        run: |
-          echo "=== Typecheck ==="
-          if ! pnpm typecheck 2>&1; then
-            echo "::error::Typecheck failed after review fix — not pushing"
-            echo "pass=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "=== Tests ==="
-          if ! pnpm test 2>&1; then
-            echo "::error::Tests failed after review fix — not pushing"
-            echo "pass=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "=== E2E ==="
-          npx playwright install --with-deps chromium 2>&1
-          npx webpack --config webpack.config.js 2>&1
-          if ! CI=true npx playwright test 2>&1; then
-            echo "::error::E2E tests failed after review fix — not pushing"
-            echo "pass=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "pass=true" >> $GITHUB_OUTPUT
-
-      - name: Comment failure on PR
-        if: steps.verify.outputs.pass == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 failed verification (typecheck, tests, or E2E). Changes were NOT pushed. [View run]($RUN_URL)"
-          exit 1
-
       # Resolve threads BEFORE pushing so that when the push triggers
       # auto-merge.yml (via pull_request: synchronize), threads are
-      # already resolved and the merge gate passes.
+      # already resolved and the merge gate passes on first eval.
       - name: Resolve review threads
-        if: steps.verify.outputs.pass == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           echo "Resolving review threads on PR #${{ inputs.pr_number }}"
           resolve_all_threads "${{ inputs.pr_number }}" "${{ github.repository }}"
 
-      - name: Push verified changes
-        if: steps.verify.outputs.pass == 'true'
+      - name: Push changes
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           setup_git_auth
 
           check_changes_and_commit "fix: address review feedback (round ${{ inputs.round }})" || true
           smart_push "${{ inputs.pr_branch }}"
 
-      - name: Comment on PR
-        if: steps.verify.outputs.pass == 'true'
+      - name: Comment and dispatch verification
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests + E2E pass). Review threads resolved. [View run]($RUN_URL)"
+          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete. Review threads resolved. Dispatching verification with retry. [View run]($RUN_URL)"
+
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="${{ inputs.pr_branch }}" \
+            -f issue_number="${{ inputs.pr_number }}" \
+            -f checks="all" \
+            -f fix_enabled="true" \
+            -f max_attempts="3" \
+            -f fix_context="This branch is PR #${{ inputs.pr_number }}. Review feedback was addressed in round ${{ inputs.round }}/3. Fix any remaining check failures without reverting the review fixes."

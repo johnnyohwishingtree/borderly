@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  actions: write
 
 jobs:
   test:
@@ -44,7 +45,7 @@ jobs:
           pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
           exit ${PIPESTATUS[0]}
 
-      - name: Notify Claude on failure
+      - name: Dispatch verify-and-fix on failure
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -58,28 +59,16 @@ jobs:
             exit 0
           fi
 
-          # Limit fix attempts to 3
-          FIX_COUNT=$(gh pr view "$PR_NUM" --json comments \
-            -q '[.comments[] | select(.body | contains("@claude")) | select(.body | contains("CI is failing"))] | length' 2>/dev/null || echo "0")
-
-          if [ "$FIX_COUNT" -ge 3 ]; then
-            echo "Already $FIX_COUNT fix attempts — needs human review"
-            exit 0
-          fi
-
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          # Identify which steps failed
           FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
             -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
 
-          BODY="@claude CI is failing on this PR.
+          comment_on_issue "$PR_NUM" "CI checks failed (${FAILED_STEPS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
 
-          **Failed steps:** ${FAILED_STEPS}
-          **Run URL:** ${RUN_URL}
-
-          Use \`gh run view ${{ github.run_id }} --log-failed\` to see the full error output from the failed steps. Diagnose the root cause and fix it.
-
-          IMPORTANT: After fixing, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
-
-          comment_on_issue "$PR_NUM" "$BODY"
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="$BRANCH" \
+            -f issue_number="$PR_NUM" \
+            -f checks="ci" \
+            -f fix_enabled="true" \
+            -f max_attempts="3" \
+            -f fix_context="CI failed on PR #${PR_NUM}. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}"
