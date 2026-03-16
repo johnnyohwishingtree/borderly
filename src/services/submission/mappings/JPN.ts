@@ -5,7 +5,7 @@
  * AutomationScriptRegistry can auto-discover it without any hard-coded
  * country lists.
  *
- * Portal: Visit Japan Web (vjw-lp.digital.go.jp)
+ * Portal: Visit Japan Web (www.vjw.digital.go.jp)
  * Tech stack: React SPA — element names are stable but IDs may be generated.
  *   Use name-attribute selectors as primary; add data-testid fallbacks where known.
  * Date format: YYYY/MM/DD (verified)
@@ -394,7 +394,7 @@ const steps: AutomationStep[] = [
 
 const JPN_MAPPING: AutomationScript = {
   countryCode: 'JPN',
-  portalUrl: 'https://vjw-lp.digital.go.jp/en/registration/',
+  portalUrl: 'https://www.vjw.digital.go.jp/main/#/vjwlogin',
   version: '1.1.0',
   lastUpdated: '2026-03-15T00:00:00Z',
   prerequisites: {

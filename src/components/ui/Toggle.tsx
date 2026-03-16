@@ -1,11 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { Pressable, Animated } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
-import { 
-  AccessibilityStateHelpers, 
-  TouchTargetUtils, 
-  ACCESSIBILITY_CONSTANTS,
-  ScreenReaderUtils 
+import {
+  AccessibilityStateHelpers,
+  TouchTargetUtils,
+  ScreenReaderUtils
 } from '../../utils/accessibility';
 
 export interface ToggleProps {
@@ -159,10 +158,10 @@ export default function Toggle({
       // Testing
       testID={testID}
       
-      style={{ 
+      style={{
         opacity: disabled ? 0.6 : 1,
-        minWidth: ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET,
-        minHeight: ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET,
+        // Use hitSlop (above) for the 44 px touch target — not minWidth/minHeight,
+        // which would add invisible padding that causes a visual "bubble" effect.
         justifyContent: 'center',
         alignItems: 'center',
       }}
