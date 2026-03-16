@@ -74,39 +74,31 @@ test.describe('Trip Creation and Management', () => {
     await expect(page.getByText('No destinations added yet')).not.toBeVisible();
   });
 
-  test('boarding pass scan option opens scanner', async ({ page }) => {
+  test('boarding pass scan option shows camera unavailable on web', async ({ page }) => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
     await page.getByRole('button', { name: 'Scan Boarding Pass' }).click();
 
-    // Should open the boarding pass scanner
-    // In demo mode, should show scanning UI
-    await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
-    await expect(page.getByText('Supports PDF417, Aztec, and QR codes')).toBeVisible();
+    // On web, camera is not available — should show fallback UI
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
 
-    // Should have cancel and manual entry options (use more specific selectors)
-    await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-    await expect(page.getByTestId('camera-view').getByRole('button', { name: 'Manual' })).toBeVisible();
+    // Should offer alternatives
+    await expect(page.getByRole('button', { name: 'Try Demo Scan' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Import from Photo' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Enter Manually Instead' })).toBeVisible();
   });
 
   test.describe('when boarding pass scanner is open', () => {
     test.beforeEach(async ({ page }) => {
       await page.getByRole('button', { name: 'Create Your First Trip' }).click();
       await page.getByRole('button', { name: 'Scan Boarding Pass' }).click();
-      await expect(page.getByText('Position boarding pass barcode in frame')).toBeVisible();
+      await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
     });
 
-    test('cancel returns to form', async ({ page }) => {
-      // Cancel should return to trip creation
-      await page.getByRole('button', { name: 'Cancel' }).click();
-      await expect(page.getByText('Create New Trip')).toBeVisible();
-      await expect(page.getByText('No destinations added yet')).toBeVisible();
-    });
-
-    test('manual option adds destination', async ({ page }) => {
-      // Manual entry should add a destination and return to form (use specific selector)
-      await page.getByTestId('camera-view').getByRole('button', { name: 'Manual' }).click();
+    test('manual entry returns to form with destination', async ({ page }) => {
+      // Manual entry should add a destination and return to form
+      await page.getByRole('button', { name: 'Enter Manually Instead' }).click();
       await expect(page.getByText('Create New Trip')).toBeVisible();
       await expect(page.getByText('No destinations added yet')).not.toBeVisible();
     });
