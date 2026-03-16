@@ -515,12 +515,12 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     await page.goto('/');
     await expect(page.locator('body')).toBeVisible();
 
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
+    const bundleErrors: string[] = [];
+    page.on('pageerror', (err) => bundleErrors.push(err.message));
 
     await page.waitForTimeout(500);
 
-    const criticalErrors = jsErrors.filter(
+    const criticalErrors = bundleErrors.filter(
       (e) =>
         !e.includes('Warning:') &&
         !e.includes('React does not recognize') &&
