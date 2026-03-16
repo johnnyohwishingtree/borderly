@@ -1,0 +1,397 @@
+name: Verify and Fix
+run-name: "Verify #${{ inputs.issue_number }} on ${{ inputs.branch }} (attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }})"
+
+# Reusable verify + fix loop. Runs quality checks on a branch, optionally
+# retries with Claude auto-fix. Used by verify-merge, review-fix, and
+# CI failure notification workflows.
+#
+# Retry mechanism: self-dispatches with attempt+1 since workflow_call
+# can't self-dispatch. Callers trigger via dispatch_workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to verify'
+        required: true
+        type: string
+      issue_number:
+        description: 'Issue/PR number for status comments'
+        required: false
+        type: string
+        default: ''
+      checks:
+        description: 'Check mode: "all", "ci", "e2e"'
+        required: false
+        type: string
+        default: 'all'
+      fix_enabled:
+        description: 'Enable Claude auto-fix on failure'
+        required: false
+        type: boolean
+        default: false
+      max_attempts:
+        description: 'Max fix attempts (1 = verify only, no retry)'
+        required: false
+        type: number
+        default: 1
+      attempt:
+        description: 'Current attempt number'
+        required: false
+        type: number
+        default: 1
+      fix_context:
+        description: 'Additional context for Claude fix prompt (e.g., review feedback)'
+        required: false
+        type: string
+        default: ''
+
+concurrency:
+  group: verify-fix-${{ inputs.branch }}-attempt-${{ inputs.attempt }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      pass: ${{ steps.run-checks.outputs.pass }}
+      error_summary: ${{ steps.run-checks.outputs.error_summary }}
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
+
+      - name: Merge master into branch
+        id: merge-master
+        uses: ./.github/actions/merge-master
+        with:
+          strategy: abort
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Run checks
+        id: run-checks
+        run: |
+          CHECKS="${{ inputs.checks }}"
+
+          # Merge conflict → instant fail
+          if [ "${{ steps.merge-master.outputs.conflict }}" = "true" ]; then
+            echo "pass=false" >> $GITHUB_OUTPUT
+            echo "error_summary=MERGE CONFLICT WITH MASTER — resolve this first." >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          PASS=true
+          SUMMARY=""
+
+          # --- CI checks (typecheck + bundle + test) ---
+          if [ "$CHECKS" = "all" ] || [ "$CHECKS" = "ci" ]; then
+            RESULT=$(.github/scripts/verify-checks.sh --lint-only-changed --fail-fast 2>/dev/null) || true
+            CI_PASS=$(echo "$RESULT" | jq -r '.pass')
+            CI_SUMMARY=$(echo "$RESULT" | jq -r '.summary')
+
+            if [ "$CI_PASS" != "true" ]; then
+              PASS=false
+              SUMMARY="$CI_SUMMARY"
+            fi
+          fi
+
+          # --- E2E checks ---
+          if [ "$CHECKS" = "all" ] || [ "$CHECKS" = "e2e" ]; then
+            # Only run E2E if CI passed (or not requested)
+            if [ "$PASS" = "true" ] || [ "$CHECKS" = "e2e" ]; then
+              echo "=== Installing Playwright browsers ==="
+              npx playwright install --with-deps chromium firefox 2>&1
+
+              echo "=== Building webpack bundle ==="
+              if ! npx webpack --config webpack.config.js 2>&1 | tee /tmp/webpack_errors.txt; then
+                PASS=false
+                WEBPACK_ERRS=$(tail -20 /tmp/webpack_errors.txt)
+                SUMMARY="${SUMMARY}
+
+          WEBPACK BUILD ERRORS:
+          ${WEBPACK_ERRS}"
+              else
+                echo "=== Running Playwright tests ==="
+                if ! CI=true npx playwright test 2>&1 | tee /tmp/e2e_errors.txt; then
+                  PASS=false
+                  E2E_ERRS=$(tail -30 /tmp/e2e_errors.txt)
+                  SUMMARY="${SUMMARY}
+
+          E2E TEST ERRORS:
+          ${E2E_ERRS}"
+                fi
+              fi
+            fi
+          fi
+
+          echo "pass=$PASS" >> $GITHUB_OUTPUT
+          echo "error_summary<<EOFERR" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOFERR" >> $GITHUB_OUTPUT
+
+      - name: Post status comment
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PASS="${{ steps.run-checks.outputs.pass }}"
+
+          if [ "$PASS" = "true" ]; then
+            comment_on_issue "${{ inputs.issue_number }}" "Verify and Fix — [attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }}]($RUN_URL): all checks passed."
+          else
+            comment_on_issue "${{ inputs.issue_number }}" "Verify and Fix — [attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }}]($RUN_URL): checks failed. $([ '${{ inputs.fix_enabled }}' = 'true' ] && echo 'Claude will attempt a fix.' || echo 'Fix not enabled.')"
+          fi
+
+  fix:
+    needs: verify
+    if: >-
+      needs.verify.outputs.pass == 'false' &&
+      inputs.fix_enabled &&
+      inputs.attempt < inputs.max_attempts
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git and auth
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Merge master into branch
+        uses: ./.github/actions/merge-master
+        with:
+          strategy: abort
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Collect commit context
+        id: context
+        run: |
+          COMMIT_LOG=$(git log --oneline origin/master..HEAD 2>/dev/null | head -20 || echo "(no commits)")
+          DIFF_STAT=$(git diff --stat origin/master..HEAD 2>/dev/null | tail -30 || echo "(no diff)")
+
+          echo "commit_context<<EOFCTX" >> $GITHUB_OUTPUT
+          echo "BRANCH COMMIT HISTORY (what was changed and why — use this to decide whether to fix source code or update tests):" >> $GITHUB_OUTPUT
+          echo "$COMMIT_LOG" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "FILES CHANGED vs master:" >> $GITHUB_OUTPUT
+          echo "$DIFF_STAT" >> $GITHUB_OUTPUT
+          echo "EOFCTX" >> $GITHUB_OUTPUT
+
+      - name: Save pre-fix HEAD
+        id: pre_fix
+        run: echo "head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Claude fix
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
+          prompt: |
+            Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }}. Fix the errors below, then push.
+
+            ${{ steps.context.outputs.commit_context }}
+
+            ${{ inputs.fix_context }}
+
+            ERRORS:
+            ${{ needs.verify.outputs.error_summary }}
+
+            STEPS:
+            1. If .claude-fix-log.md exists, read it first — do NOT repeat failed approaches.
+            2. If resolving merge conflicts, always take master's version for files not related to the story (e.g. .github/workflows/*, docs/pipeline-architecture.md). Use `git checkout origin/master -- <file>` for those.
+            3. Fix the errors. Do NOT use `any` types. Fix ONE FILE AT A TIME, run `pnpm typecheck` after each.
+            4. Run `pnpm typecheck && pnpm test` to confirm ZERO errors.
+            5. git add, commit, push: `git push origin HEAD:refs/heads/${{ inputs.branch }}`
+            6. Update .claude-fix-log.md with what you fixed and whether checks pass now.
+
+            Push after each milestone — unpushed work is lost on timeout.
+          show_full_output: true
+          claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
+          settings: |
+            {
+              "maxTurns": 15
+            }
+
+      - name: Check for permission issues
+        id: health
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          LOG="/home/runner/work/_temp/claude-execution-output.json"
+          if [ -f "$LOG" ]; then
+            DENIALS=$(grep -o '"permission_denials_count":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
+            TURNS=$(grep -o '"num_turns":[0-9]*' "$LOG" | grep -o '[0-9]*' || echo "0")
+            COST=$(grep -o '"total_cost_usd":[0-9.]*' "$LOG" | grep -o '[0-9.]*' || echo "0")
+            echo "Permission denials: $DENIALS, Turns: $TURNS, Cost: \$$COST"
+
+            if [ "$DENIALS" -gt 5 ]; then
+              echo "::error::Claude hit $DENIALS permission denials in $TURNS turns — allowedTools config is broken."
+              ISSUE_NUM="${{ inputs.issue_number }}"
+              if [ -n "$ISSUE_NUM" ]; then
+                comment_on_issue "$ISSUE_NUM" "Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }} aborted: Claude hit **$DENIALS permission denials** in $TURNS turns (\$$COST wasted). The \`allowedTools\` config is broken — retrying won't help."
+              fi
+              exit 1
+            fi
+          fi
+
+      - name: Push fixes
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          setup_git_auth
+
+          # Stage fix log if it was created/updated
+          if [ -f .claude-fix-log.md ]; then
+            git add .claude-fix-log.md
+          fi
+
+          check_changes_and_commit "fix: resolve check errors (attempt ${{ inputs.attempt }})" || true
+
+          smart_push "${{ inputs.branch }}" "${{ steps.pre_fix.outputs.head }}"
+
+          # Detect if Claude produced no changes at all
+          LOCAL_HEAD=$(git rev-parse HEAD)
+          PRE_FIX_HEAD="${{ steps.pre_fix.outputs.head }}"
+
+          git fetch origin "${{ inputs.branch }}" 2>/dev/null || true
+          REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.branch }}" 2>/dev/null || echo "none")
+
+          if [ "$LOCAL_HEAD" = "$PRE_FIX_HEAD" ] && [ "$REMOTE_HEAD" = "$PRE_FIX_HEAD" ]; then
+            echo "::warning::Claude produced no changes — skipping retry"
+            echo "no_changes=true" >> $GITHUB_ENV
+          fi
+
+      - name: Trigger next attempt
+        if: env.no_changes != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="${{ inputs.branch }}" \
+            -f issue_number="${{ inputs.issue_number }}" \
+            -f checks="${{ inputs.checks }}" \
+            -f fix_enabled="true" \
+            -f max_attempts="${{ inputs.max_attempts }}" \
+            -f attempt="$NEXT_ATTEMPT" \
+            -f fix_context="${{ inputs.fix_context }}"
+
+          echo "Triggered verify-and-fix attempt $NEXT_ATTEMPT/${{ inputs.max_attempts }}"
+
+      - name: Comment if no changes
+        if: env.no_changes == 'true' && inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          comment_on_issue "${{ inputs.issue_number }}" "Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }} produced no changes — Claude could not fix the errors. Remaining attempts skipped. Branch: [\`${{ inputs.branch }}\`](https://github.com/${{ github.repository }}/tree/${{ inputs.branch }})"
+
+      # Rescue step: runs ONLY when the fix job is cancelled (e.g. timeout)
+      - name: Rescue work on timeout
+        if: cancelled()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          setup_git_auth
+
+          # Commit any uncommitted work
+          git add -A -- ':!output.txt' ':!node_modules'
+          if [ -n "$(git diff --cached --name-only)" ]; then
+            git commit -m "wip: rescue work from timed-out fix attempt ${{ inputs.attempt }}
+
+          Co-authored-by: Claude <noreply@anthropic.com>"
+          fi
+
+          smart_push "${{ inputs.branch }}" || true
+
+          # Continue the fix loop
+          NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+          if [ "$NEXT_ATTEMPT" -le "${{ inputs.max_attempts }}" ]; then
+            dispatch_workflow "verify-and-fix.yml" \
+              -f branch="${{ inputs.branch }}" \
+              -f issue_number="${{ inputs.issue_number }}" \
+              -f checks="${{ inputs.checks }}" \
+              -f fix_enabled="true" \
+              -f max_attempts="${{ inputs.max_attempts }}" \
+              -f attempt="$NEXT_ATTEMPT" \
+              -f fix_context="${{ inputs.fix_context }}"
+          fi
+
+          if [ -n "${{ inputs.issue_number }}" ]; then
+            comment_on_issue "${{ inputs.issue_number }}" "Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }} timed out. Work saved to [\`${{ inputs.branch }}\`](https://github.com/${{ github.repository }}/tree/${{ inputs.branch }}). Continuing with attempt $NEXT_ATTEMPT."
+          fi
+
+  give-up:
+    needs: verify
+    if: >-
+      needs.verify.outputs.pass == 'false' &&
+      (inputs.attempt >= inputs.max_attempts || !inputs.fix_enabled)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+
+    steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Comment failure
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          ISSUE_NUM="${{ inputs.issue_number }}"
+          BRANCH="${{ inputs.branch }}"
+          MAX="${{ inputs.max_attempts }}"
+
+          if [ "${{ inputs.fix_enabled }}" = "true" ]; then
+            BODY="Checks failed after $MAX fix attempts. Claude's work is on [\`${BRANCH}\`](https://github.com/${{ github.repository }}/tree/${BRANCH}). Triggering Pipeline Doctor to diagnose."
+            comment_on_issue "$ISSUE_NUM" "$BODY"
+
+            # Collect failed run IDs
+            FAILED_RUNS=$(gh run list --repo "${{ github.repository }}" --workflow verify-and-fix.yml \
+              --json databaseId,displayTitle \
+              -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | .[].databaseId" \
+              2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
+
+            dispatch_workflow "pipeline-doctor.yml" \
+              -f issue_number="$ISSUE_NUM" \
+              -f trigger_source="verify-and-fix" \
+              -f failed_run_ids="$FAILED_RUNS"
+          else
+            comment_on_issue "$ISSUE_NUM" "Checks failed on [\`${BRANCH}\`](https://github.com/${{ github.repository }}/tree/${BRANCH}). Auto-fix was not enabled."
+          fi
