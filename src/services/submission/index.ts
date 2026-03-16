@@ -18,3 +18,15 @@ export {
   getPortalBaseUrl,
 } from './portalRegistry';
 export type { PortalInfo } from './portalRegistry';
+export { detectLoginForm, is2FAPrompt, isLoginError } from './loginDetector';
+export type { LoginFormInfo } from './loginDetector';
+export {
+  buildLoginScript,
+  buildLoginDetectionScript,
+  buildLoginSuccessCheckScript,
+} from './autoLogin';
+export type {
+  AutoLoginResultPayload,
+  LoginDetectionResultPayload,
+  LoginSuccessCheckPayload,
+} from './autoLogin';

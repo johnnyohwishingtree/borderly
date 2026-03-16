@@ -61,6 +61,25 @@ export interface AutomationStep {
 }
 
 /**
+ * CSS selector configuration for portal login forms.
+ * Used by the auto-login service to inject credentials into WebView.
+ */
+export interface LoginSelectors {
+  /** CSS selector for the username / email input field */
+  username: string;
+  /** CSS selector for the password input field */
+  password: string;
+  /** CSS selector for the form submit button */
+  submit: string;
+  /**
+   * Optional CSS selector that appears in the DOM after a successful login.
+   * When provided, the auto-login script will poll for this element to confirm
+   * that authentication completed before handing off to the auto-fill flow.
+   */
+  successIndicator?: string;
+}
+
+/**
  * Country-specific automation script configuration
  */
 export interface AutomationScript {
@@ -68,7 +87,7 @@ export interface AutomationScript {
   portalUrl: string;
   version: string;
   lastUpdated: string;
-  
+
   // Prerequisites before automation can start
   prerequisites: {
     cookiesEnabled: boolean;
@@ -76,19 +95,26 @@ export interface AutomationScript {
     userAgent?: string;
     viewport?: { width: number; height: number };
   };
-  
+
   // Ordered steps for form automation
   steps: AutomationStep[];
-  
+
   // Field mappings from form schema to portal selectors
   fieldMappings: Record<string, PortalFieldMapping>;
-  
+
   // Session management configuration
   session: {
     maxDurationMs: number;
     keepAlive: boolean;
     clearCookiesOnStart: boolean;
   };
+
+  /**
+   * Login form selectors for portals that require account authentication.
+   * Only present when the portal requires a user account (requiresAccount: true
+   * in the corresponding portalFlow config).
+   */
+  loginSelectors?: LoginSelectors;
 }
 
 /**

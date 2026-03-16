@@ -515,19 +515,19 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     await page.goto('/');
     await expect(page.locator('body')).toBeVisible();
 
-    const jsErrors: string[] = [];
-    page.on('pageerror', (err) => jsErrors.push(err.message));
+    const pageErrors: string[] = [];
+    page.on('pageerror', (err) => pageErrors.push(err.message));
 
     await page.waitForTimeout(500);
 
-    const criticalErrors = jsErrors.filter(
+    const criticalErrors = pageErrors.filter(
       (e) =>
         !e.includes('Warning:') &&
         !e.includes('React does not recognize') &&
         !e.includes('cannot be a child of') &&
         !e.includes('NativeWind'),
     );
-    // No bundle errors means the auto-login service imports resolved correctly
+    // No page errors means the auto-login service imports resolved correctly
     expect(criticalErrors).toEqual([]);
   });
 });
