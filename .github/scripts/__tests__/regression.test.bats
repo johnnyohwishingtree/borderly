@@ -668,3 +668,54 @@ EOF
   echo "$call" | grep -qF -- "-f pr_number=42"
   echo "$call" | grep -qF -- "-f attempt=3"
 }
+
+# Bug: review-relay.yml dispatch step sourced lib.sh but the job had no
+# checkout step, causing "No such file or directory" at runtime.
+# Regression: every workflow job that sources lib.sh must have an
+# actions/checkout step earlier in its step list.
+@test "regression: every job sourcing lib.sh has a checkout step" {
+  local workflows_dir="$SCRIPTS_DIR/../workflows"
+  local failures=""
+
+  for wf in "$workflows_dir"/*.yml; do
+    local wf_name
+    wf_name=$(basename "$wf")
+
+    # Skip CLAUDE.md and non-yaml
+    [[ "$wf_name" == *.yml ]] || continue
+
+    # Use python to parse YAML and check each job
+    local result
+    result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+issues = []
+for job_name, job in data.get('jobs', {}).items():
+    steps = job.get('steps', [])
+    has_checkout = False
+    for step in steps:
+        uses = str(step.get('uses', ''))
+        run_block = str(step.get('run', ''))
+        if 'actions/checkout' in uses:
+            has_checkout = True
+        if 'source .github/scripts/lib.sh' in run_block and not has_checkout:
+            issues.append(f'$wf_name:{job_name}')
+
+for issue in issues:
+    print(issue)
+" 2>/dev/null || echo "")
+
+    if [ -n "$result" ]; then
+      failures="${failures}${result}\n"
+    fi
+  done
+
+  if [ -n "$failures" ]; then
+    echo "Jobs that source lib.sh without a prior checkout step:"
+    echo -e "$failures"
+    false
+  fi
+}
