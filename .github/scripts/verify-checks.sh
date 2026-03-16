@@ -54,18 +54,13 @@ done
 _PASS=true
 _SUMMARY=""
 
-# Per-check state (plain variables for subshell/bats compatibility)
-_CHECK_PASS_lint=true
-_CHECK_PASS_typecheck=true
-_CHECK_PASS_bundle=true
-_CHECK_PASS_test=true
-_CHECK_PASS_native_deps=true
+declare -A _CHECK_PASS
+declare -A _CHECK_ERRORS
 
-_CHECK_ERRORS_lint=""
-_CHECK_ERRORS_typecheck=""
-_CHECK_ERRORS_bundle=""
-_CHECK_ERRORS_test=""
-_CHECK_ERRORS_native_deps=""
+for _c in lint typecheck bundle test native_deps; do
+  _CHECK_PASS[$_c]=true
+  _CHECK_ERRORS[$_c]=""
+done
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -80,16 +75,12 @@ _record_failure() {
   local label="$3"
 
   _PASS=false
-  eval "_CHECK_PASS_${check}=false"
-  eval "_CHECK_ERRORS_${check}=\$errors"
+  _CHECK_PASS[$check]=false
+  _CHECK_ERRORS[$check]="$errors"
   _SUMMARY="${_SUMMARY}
 ${label}:
 ${errors}"
 }
-
-# Accessor helpers for per-check state
-_get_check_pass() { eval "echo \"\$_CHECK_PASS_${1}\""; }
-_get_check_errors() { eval "echo \"\$_CHECK_ERRORS_${1}\""; }
 
 _should_skip() {
   # In fail-fast mode, skip if any earlier check already failed
@@ -120,10 +111,10 @@ _emit_json() {
 
   local first=true
   for check in lint typecheck bundle test native_deps; do
-    local cp
-    cp=$(_get_check_pass "$check")
+    local cp="true"
+    [[ "${_CHECK_PASS[$check]}" == "false" ]] && cp="false"
     local ce
-    ce=$(_json_escape "$(_get_check_errors "$check")")
+    ce=$(_json_escape "${_CHECK_ERRORS[$check]}")
 
     if [[ "$first" == "true" ]]; then
       first=false

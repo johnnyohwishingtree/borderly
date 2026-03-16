@@ -1,37 +1,42 @@
 #!/usr/bin/env bats
 # Tests for .github/scripts/verify-checks.sh
+#
+# Requires bash 4+ for associative arrays used by the script under test.
+# On macOS: SHELL=/opt/homebrew/bin/bash bats <this file>
+# On Linux/CI (bash 4+): works out of the box.
 
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 load 'test-helper'
 
 # ---------------------------------------------------------------------------
-# Helper: source the script (guard prevents execution) and re-init state
+# setup / teardown
 # ---------------------------------------------------------------------------
 setup() {
   setup_mocks
 
-  # Source the script (guard prevents execution of _run_all_checks).
-  # We must clear positional params to avoid the flag parser seeing bats' $@.
+  # Source the script. The _VERIFY_CHECKS_SOURCED guard prevents _run_all_checks
+  # from executing. We must:
+  #   1. Clear positional params so the flag parser doesn't see bats' $@
+  #   2. Disable nounset (-u) after sourcing -- associative array reads via
+  #      variable subscripts (e.g. ${_CHECK_PASS[$check]}) fail under set -u
+  #      in bats due to scope isolation between the sourced file and test shell.
   set --
   source "$SCRIPTS_DIR/verify-checks.sh"
+  set +u
 
-  # Re-init all state
+  # Re-init scalar state (these survive across scopes fine)
   _PASS=true
   _SUMMARY=""
   LINT_ONLY_CHANGED=false
   FAIL_FAST=false
   SKIP_NATIVE=false
-  _CHECK_PASS_lint=true
-  _CHECK_PASS_typecheck=true
-  _CHECK_PASS_bundle=true
-  _CHECK_PASS_test=true
-  _CHECK_PASS_native_deps=true
-  _CHECK_ERRORS_lint=""
-  _CHECK_ERRORS_typecheck=""
-  _CHECK_ERRORS_bundle=""
-  _CHECK_ERRORS_test=""
-  _CHECK_ERRORS_native_deps=""
+
+  # Note: The associative arrays _CHECK_PASS and _CHECK_ERRORS are declared
+  # in the sourced script via `declare -A` (local to setup). They're accessible
+  # within functions defined in the sourced file (e.g. _record_failure,
+  # _emit_json) but not directly in the test body. We verify array state
+  # through _emit_json JSON output rather than direct array reads.
 }
 
 teardown() {
@@ -75,10 +80,13 @@ teardown() {
   [ "$_PASS" = "false" ]
 }
 
-@test "_record_failure records check-level pass=false and errors" {
+@test "_record_failure records check-level failure in JSON output" {
   _record_failure "lint" "unused var" "LINT ERRORS"
-  [ "$_CHECK_PASS_lint" = "false" ]
-  [ "$_CHECK_ERRORS_lint" = "unused var" ]
+
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.lint.pass" "false"
+  assert_json "$json" ".checks.lint.errors" "unused var"
 }
 
 @test "_record_failure accumulates summary for multiple failures" {
@@ -140,8 +148,9 @@ teardown() {
 
   assert_json "$json" ".pass" "false"
   assert_json "$json" ".checks.typecheck.pass" "false"
-  # Other checks still pass
-  assert_json "$json" ".checks.lint.pass" "true"
+  local errors
+  errors=$(echo "$json" | jq -r '.checks.typecheck.errors')
+  assert_contains "$errors" "error TS2345"
 }
 
 @test "_emit_json summary contains all error sections on multiple failures" {
@@ -152,7 +161,6 @@ teardown() {
   json=$(_emit_json)
 
   assert_json "$json" ".pass" "false"
-  # Summary should mention both
   local summary
   summary=$(echo "$json" | jq -r '.summary')
   assert_contains "$summary" "LINT ERRORS"
@@ -169,7 +177,6 @@ teardown() {
   # Mock git to return no files
   cat > "$MOCK_DIR/git" <<'EOF'
 #!/bin/bash
-# Return empty for diff --name-only
 echo ""
 EOF
   chmod +x "$MOCK_DIR/git"
@@ -177,7 +184,9 @@ EOF
   check_lint
 
   [ "$_PASS" = "true" ]
-  [ "$_CHECK_PASS_lint" = "true" ]
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.lint.pass" "true"
 }
 
 # ===================================================================
@@ -206,8 +215,12 @@ EOF
   check_lint
 
   [ "$_PASS" = "false" ]
-  [ "$_CHECK_PASS_lint" = "false" ]
-  assert_contains "$_CHECK_ERRORS_lint" "error"
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.lint.pass" "false"
+  local errors
+  errors=$(echo "$json" | jq -r '.checks.lint.errors')
+  assert_contains "$errors" "error"
 }
 
 # ===================================================================
@@ -225,7 +238,9 @@ EOF
   check_typecheck
 
   [ "$_PASS" = "true" ]
-  [ "$_CHECK_PASS_typecheck" = "true" ]
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.typecheck.pass" "true"
 }
 
 # ===================================================================
@@ -245,8 +260,12 @@ EOF
   check_typecheck
 
   [ "$_PASS" = "false" ]
-  [ "$_CHECK_PASS_typecheck" = "false" ]
-  assert_contains "$_CHECK_ERRORS_typecheck" "error TS2345"
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.typecheck.pass" "false"
+  local errors
+  errors=$(echo "$json" | jq -r '.checks.typecheck.errors')
+  assert_contains "$errors" "error TS2345"
 }
 
 # ===================================================================
@@ -257,7 +276,7 @@ EOF
   _PASS=false
   FAIL_FAST=true
 
-  # npx should NOT be called -- if it is, it would record a failure or pass
+  # npx should NOT be called
   cat > "$MOCK_DIR/npx" <<'EOF'
 #!/bin/bash
 echo "error: should not have been called"
@@ -267,8 +286,10 @@ EOF
 
   check_bundle
 
-  # bundle check should still show pass since it was skipped (never ran)
-  [ "$_CHECK_PASS_bundle" = "true" ]
+  # bundle check still shows pass since it was skipped (never ran)
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.bundle.pass" "true"
 }
 
 @test "check_test is skipped when _PASS=false and FAIL_FAST=true" {
@@ -284,8 +305,10 @@ EOF
 
   check_test
 
-  # test check should still show pass since it was skipped
-  [ "$_CHECK_PASS_test" = "true" ]
+  # test check still shows pass since it was skipped
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.test.pass" "true"
 }
 
 # ===================================================================
@@ -322,7 +345,7 @@ EOF
 }
 
 # ===================================================================
-# Additional integration: check_native_deps skipped with --skip-native
+# Additional: check_native_deps skipped with --skip-native
 # ===================================================================
 
 @test "check_native_deps is skipped when SKIP_NATIVE=true" {
@@ -339,11 +362,13 @@ EOF
   check_native_deps
 
   [ "$_PASS" = "true" ]
-  [ "$_CHECK_PASS_native_deps" = "true" ]
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.native_deps.pass" "true"
 }
 
 # ===================================================================
-# Additional: check_test pass
+# Additional: check_test pass and fail
 # ===================================================================
 
 @test "check_test passes on clean output" {
@@ -358,7 +383,9 @@ EOF
   check_test
 
   [ "$_PASS" = "true" ]
-  [ "$_CHECK_PASS_test" = "true" ]
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.test.pass" "true"
 }
 
 @test "check_test fails when FAIL lines are present" {
@@ -375,8 +402,12 @@ EOF
   check_test
 
   [ "$_PASS" = "false" ]
-  [ "$_CHECK_PASS_test" = "false" ]
-  assert_contains "$_CHECK_ERRORS_test" "FAIL "
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.test.pass" "false"
+  local errors
+  errors=$(echo "$json" | jq -r '.checks.test.errors')
+  assert_contains "$errors" "FAIL "
 }
 
 # ===================================================================
@@ -396,5 +427,7 @@ EOF
   check_lint
 
   [ "$_PASS" = "true" ]
-  [ "$_CHECK_PASS_lint" = "true" ]
+  local json
+  json=$(_emit_json)
+  assert_json "$json" ".checks.lint.pass" "true"
 }
