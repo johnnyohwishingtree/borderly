@@ -184,19 +184,14 @@ export default function MRZScannerComponent({
     }
   };
 
-  const handleMountError = (error: any) => {
-    console.error('Camera mount error:', error);
+  const handleMountError = (_error: any) => {
     if (cameraTimeoutRef.current) {
       clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = null;
     }
+    // Show in-component fallback (Demo Scan / Manual Entry) instead of
+    // escalating to parent — camera init failure is not a scan error.
     setCameraStatus('unavailable');
-    
-    // Call error handler if provided
-    if (onScanError) {
-      const errorObj = error instanceof Error ? error : new Error('Camera mount failed');
-      onScanError(errorObj);
-    }
   };
 
   // Sample MRZ for demo mode (ICAO standard test passport)

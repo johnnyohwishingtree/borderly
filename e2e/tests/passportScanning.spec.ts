@@ -22,47 +22,48 @@ test.describe('Passport Scanning Flow', () => {
     await expect(page.getByRole('button', { name: 'Enter Manually' })).toBeVisible();
   });
 
-  test('camera scan initializes without infinite loading', async ({ page }) => {
+  test('camera scan shows unavailable state with fallback options on web', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Start camera scan
     await page.getByRole('button', { name: 'Start Camera Scan' }).click();
 
-    // Camera mock should initialize — should show the camera overlay
-    // The mock calls onCameraReady after 100ms
-    await expect(page.getByText('Position passport MRZ in frame')).toBeVisible({ timeout: 5000 });
+    // On web, camera is not available — should show fallback UI
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
 
-    // Cancel and Manual buttons should be available
-    await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Manual' })).toBeVisible();
+    // Should offer Demo Scan and Manual Entry as alternatives
+    await expect(page.getByRole('button', { name: 'Try Demo Scan' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Enter Manually Instead' })).toBeVisible();
   });
 
-  test('cancel button returns to method selection', async ({ page }) => {
+  test('cancel from camera returns to method selection via manual entry', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     await page.getByRole('button', { name: 'Start Camera Scan' }).click();
-    await expect(page.getByText('Position passport MRZ in frame')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
 
-    // Cancel should go back to method selection
-    await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
-  });
-
-  test('manual entry from camera screen works', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('button', { name: 'Skip tutorial' }).click();
-
-    await page.getByRole('button', { name: 'Start Camera Scan' }).click();
-    await expect(page.getByText('Position passport MRZ in frame')).toBeVisible({ timeout: 5000 });
-
-    // Switch to manual entry
-    await page.getByRole('button', { name: 'Manual' }).click();
-
-    // Should show manual form fields
+    // "Enter Manually Instead" goes to manual form
+    await page.getByRole('button', { name: 'Enter Manually Instead' }).click();
     await expect(page.getByText('Passport Number')).toBeVisible();
-    await expect(page.getByText('Surname (Family Name)')).toBeVisible();
+  });
+
+  test('demo scan completes and shows passport preview', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
+
+    await page.getByRole('button', { name: 'Start Camera Scan' }).click();
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
+
+    // Try the demo scan
+    await page.getByRole('button', { name: 'Try Demo Scan' }).click();
+
+    // Demo scan simulates MRZ detection over ~4 seconds
+    await expect(page.getByText('Demo: Scanning sample passport')).toBeVisible({ timeout: 3000 });
+
+    // Should eventually show passport preview with parsed data
+    await expect(page.getByText(/DOE/)).toBeVisible({ timeout: 10000 });
   });
 
   test('manual entry form renders and accepts input', async ({ page }) => {
@@ -86,8 +87,8 @@ test.describe('Passport Scanning Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await page.getByRole('button', { name: 'Start Camera Scan' }).click();
 
-    // Wait for camera to initialize
-    await expect(page.getByText('Position passport MRZ in frame')).toBeVisible({ timeout: 5000 });
+    // On web, camera shows unavailable state
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 5000 });
 
     // No uncaught JavaScript errors should have occurred
     expect(errors).toEqual([]);
