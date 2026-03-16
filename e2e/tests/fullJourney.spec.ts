@@ -44,9 +44,11 @@ test.describe('Full User Journey', () => {
 
   test('complete onboarding via demo scan with valid passport data', async ({ page }) => {
     // Track unexpected dialogs (validation warnings should NOT fire for valid demo data)
+    page.off('dialog'); // Remove generic handler from `beforeEach`
     const dialogMessages: string[] = [];
     page.on('dialog', dialog => {
       dialogMessages.push(dialog.message());
+      dialog.accept(); // This test is now responsible for accepting dialogs
     });
 
     await page.goto('/');
@@ -138,9 +140,11 @@ test.describe('Full User Journey', () => {
     test.setTimeout(60000);
 
     // Track dialogs to verify no "Destination Not Supported" alert fires
+    page.off('dialog'); // Remove generic handler from `beforeEach`
     const dialogMessages: string[] = [];
     page.on('dialog', dialog => {
       dialogMessages.push(dialog.message());
+      dialog.accept(); // This test is now responsible for accepting dialogs
     });
 
     await page.goto('/');
