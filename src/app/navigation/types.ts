@@ -53,4 +53,5 @@ export type SettingsStackParamList = {
   Help: undefined;
   FAQ: { highlightId?: string } | undefined;
   Troubleshooting: { highlightId?: string } | undefined;
+  PrivacyPolicy: undefined;
 };
