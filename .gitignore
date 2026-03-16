@@ -93,6 +93,7 @@ fastlane/test_output
 # Temporary React Native project
 BorderlyTemp/
 
-# Maestro test output
+# Maestro test output and credentials
 maestro/output/
+maestro/.env
 .vercel

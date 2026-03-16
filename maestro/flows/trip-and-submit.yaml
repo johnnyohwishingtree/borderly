@@ -152,63 +152,93 @@ tags:
 - extendedWaitUntil:
     visible: "Submission Guide"
     timeout: 15000
-- assertVisible: "Open Portal"
+- assertVisible: "Open in Browser"
 - assertVisible: "Submission Timing"
+- assertVisible: "Submit in App"
 
-# Try to tap the "Submit in App" button if it is visible (optional — not all
-# schema versions expose this button on the Submission Guide screen).
-# Regardless of whether the button exists, we assert that the user ends up on
-# either the portal screen (PortalSubmissionScreen) or stays on the Submission
-# Guide — both are acceptable outcomes.
-- runFlow:
-    when:
-      visible: "Submit in App"
-    commands:
-      - tapOn: "Submit in App"
-
-# After the optional tap, assert the user is on a valid screen:
-# either the Portal Submission overlay or back on the Submission Guide.
-- assertTrue:
-    condition: ${{visible("Submission Guide") || visible("Government Portal") || visible("portal-submission-screen")}}
-    label: "User should be on Submission Guide or Portal Submission screen"
+# Verify our profile data appears in the traveler label
+- assertVisible: "For: JOHN MICHAEL SMITH"
 
 # ============================================================
-# PHASE 6: Verify auto-login banner testIDs are accessible
+# PHASE 6: Open Portal in-app WebView and verify it loads
 # ============================================================
-# These checks are conditional — we only validate the portal submission screen
-# state if the user navigated into it in Phase 5.
 
+- tapOn:
+    id: "submit-in-app-button"
+
+# Verify PortalSubmissionScreen renders with portal chrome
+- extendedWaitUntil:
+    visible:
+      id: "portal-submission-screen"
+    timeout: 15000
+
+# Verify the portal header shows "Visit Japan Web"
+- assertVisible: "Visit Japan Web"
+
+# Verify toolbar rendered (back, forward, refresh buttons)
+- extendedWaitUntil:
+    visible:
+      id: "toolbar-back-button"
+    timeout: 5000
+- assertVisible:
+    id: "toolbar-refresh-button"
+
+# Verify step progress is visible
+- assertVisible: "Step 1 of 6"
+
+# Wait for portal to load — either the WebView loads content
+# or we get the auth banner (VJW requires login), or a load error
+# (government portals can be slow/unreliable).
+- extendedWaitUntil:
+    visible:
+      id: "portal-webview"
+    timeout: 15000
+
+# VJW requires login — verify auth page detection fires
+# The page detection script checks HTML for auth patterns (login, password, etc.)
+# and shows the auth banner when detected.
 - runFlow:
     when:
-      visible: "portal-submission-screen"
+      visible:
+        id: "auth-page-banner"
     commands:
-      # Verify the WebView is rendered inside the portal submission screen
-      - assertVisible:
-          id: "portal-webview"
+      - assertVisible: "Log in to continue"
 
-      # The portal screen must have a progress bar
-      - assertVisible:
-          id: "progress-bar"
+# Verify auto-login banner state is one of the expected states.
+# We don't assert which specific banner because it depends on whether
+# credentials are stored on the test device.
+- runFlow:
+    when:
+      visible:
+        id: "auto-login-progress-banner"
+    commands:
+      - assertVisible: "Logging in automatically"
+- runFlow:
+    when:
+      visible:
+        id: "auto-login-failed-banner"
+    commands:
+      - assertVisible: "Auto-login failed"
 
-      # The screen is in one of three possible auth/auto-login states.
-      # Verify that at least one of the expected banner testIDs is accessible
-      # (or none if we landed directly on a non-auth page — also valid).
-      # We do NOT assert which specific banner is shown because that depends on
-      # whether credentials are stored on the test device.
-      - assertTrue:
-          condition: >
-            ${{
-              visible("auth-page-banner") ||
-              visible("auto-login-progress-banner") ||
-              visible("auto-login-failed-banner") ||
-              !visible("auth-page-banner")
-            }}
-          label: "Auto-login banner state is accessible via testID (or portal is on a non-auth page)"
+# Check that the fields panel toggle is available (copy-paste fallback)
+- extendedWaitUntil:
+    visible:
+      id: "toggle-fields-panel"
+    timeout: 5000
+- tapOn:
+    id: "toggle-fields-panel"
 
-      # Toolbar navigation buttons must always be accessible
-      - assertVisible:
-          id: "toolbar-back-button"
-      - assertVisible:
-          id: "toolbar-refresh-button"
-      - assertVisible:
-          id: "close-portal-button"
+# Verify the fields panel opens and shows our auto-filled data
+- extendedWaitUntil:
+    visible:
+      id: "fields-panel"
+    timeout: 5000
+
+# Close portal and go back to trip
+- tapOn:
+    id: "close-portal-button"
+
+# Verify we're back on trip detail
+- extendedWaitUntil:
+    visible: "Itinerary"
+    timeout: 10000
