@@ -221,8 +221,24 @@ jobs:
                 " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
 
                 if [ "$UNRESOLVED" -gt 0 ]; then
-                  echo "  STUCK: CI passes, no approval, $UNRESOLVED unresolved threads, ${COMMIT_AGO}m stale"
-                  echo "  Resolving threads and retriggering approval flow"
+                  # Check if watcher already tried this (our previous comment exists)
+                  WATCHER_ATTEMPTS=$(gh pr view "$PR_NUM" --repo "$REPO" --json comments \
+                    -q '[.comments[] | select(.body | contains("Pipeline watcher: resolved"))] | length' 2>/dev/null || echo "0")
+
+                  if [ "$WATCHER_ATTEMPTS" -ge 2 ]; then
+                    echo "  STUCK: watcher already resolved threads $WATCHER_ATTEMPTS times — escalating to pipeline doctor"
+                    if [ -n "$ISSUE_NUM" ]; then
+                      gh workflow run pipeline-doctor.yml \
+                        --repo "$REPO" \
+                        --ref master \
+                        -f issue_number="$ISSUE_NUM" \
+                        -f trigger_source="watcher-stuck-approval" 2>/dev/null || true
+                      echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                    fi
+                  else
+                    echo "  STUCK: CI passes, no approval, $UNRESOLVED unresolved threads, ${COMMIT_AGO}m stale"
+                    echo "  Resolving threads and retriggering approval flow (attempt $((WATCHER_ATTEMPTS + 1)))"
+                  fi
 
                   # Resolve all unresolved threads
                   THREAD_IDS=$(gh api graphql -f query="

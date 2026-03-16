@@ -592,8 +592,11 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 - **Solution**: verify-merge's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
 
 ### Stuck PR: Unresolved Threads After Review-Fix
-- **Problem**: `review-fix.yml` addresses review feedback and pushes, but if it ran with an older workflow version that lacked the "resolve review threads" step, threads remain unresolved. The review-guardian sees unresolved review threads containing `![high]`/`![critical]` badges and blocks approval. The watcher previously skipped PRs that exist ("waiting for review/merge") without checking if the approval flow was stuck. Neither the watcher nor pipeline-doctor detected this deadlock.
-- **Solution**: The watcher now detects PRs where CI passes, no approval exists, and review threads are unresolved for >15min. It resolves the threads, then closes/reopens the PR to trigger the review-guardian → auto-merge chain. This acts as a safety net for any future case where threads don't get resolved by review-fix.
+- **Problem**: `review-fix.yml` addresses review feedback and pushes, but if it ran with an older workflow version that lacked the "resolve review threads" step, threads remain unresolved. The review-guardian sees `![high]`/`![critical]` badge comments with unresolved threads and blocks approval. The watcher previously skipped PRs that exist ("waiting for review/merge") without checking if the approval flow was stuck. Neither the watcher nor pipeline-doctor detected this deadlock.
+- **Solution (3 layers)**:
+  1. **Watcher**: Detects PRs where CI passes, no approval exists, and review threads are unresolved for >15min. Resolves threads and closes/reopens the PR to retrigger approval. If this fails twice, escalates to the pipeline doctor.
+  2. **Pipeline Doctor**: Evidence collection now includes "PR Merge Readiness" section showing approval count, unresolved thread count, CI status, and review-fix run history. Known bug pattern #9 documents this deadlock. The doctor's prompt includes specific instructions for resolving threads via GraphQL.
+  3. **review-fix.yml**: Already has a "Resolve review threads" step (added in PR #345), preventing this from recurring on new runs.
 
 ---
 
