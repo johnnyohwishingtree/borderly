@@ -37,7 +37,7 @@ Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and
 
 | Script | Purpose | Tests |
 |--------|---------|-------|
-| `lib.sh` | 14 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo` | 45 |
+| `lib.sh` | 18 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo`, `count_critical_comments`, `approve_and_merge`, `get_next_pending_story`, `trigger_story_agent` | 58 |
 | `state-machine.sh` | Issue-based state machine with 12 states, transition validation, JSON state comments, and idempotent locking | 18 |
 | `workflow.sh` | Temporal-like activity runner: `activity_start` (guard + lock), `activity_success` (transition + unlock), `activity_fail` (retry counter + escalation) | 43 |
 | `evaluate-merge-gate.sh` | Evaluates 6 merge conditions → JSON with `action: merge|update_branch|wait|skip` | 16 |
