@@ -23,6 +23,7 @@ const allProjects = [
       'completeUserFlow.spec.ts',
       'tripCreation.spec.ts',
       'passportScanning.spec.ts',
+      'fullJourney.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
