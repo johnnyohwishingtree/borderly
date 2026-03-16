@@ -123,9 +123,11 @@ check_no_active_review_fix() {
   active_runs=$(gh run list --repo "$REPO" --workflow review-fix.yml \
     --json status,displayTitle \
     -q "[.[] | select(.status == \"in_progress\" or .status == \"queued\") | select(.displayTitle | contains(\"PR #${pr_number}\"))] | length" \
-    2>/dev/null || echo "0")
+    2>/dev/null)
 
-  if [ "$active_runs" -eq 0 ]; then
+  # Fail-safe: if the gh command fails or returns non-numeric output,
+  # assume a fix is active to prevent an incorrect merge.
+  if [[ "$active_runs" =~ ^[0-9]+$ ]] && [ "$active_runs" -eq 0 ]; then
     echo "true"
   else
     echo "false"
