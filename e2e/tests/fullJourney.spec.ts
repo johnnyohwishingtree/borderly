@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 /**
  * Full user journey E2E test for the web deployment.
@@ -9,11 +10,38 @@ import { test, expect } from '@playwright/test';
  *
  * This test verifies the Vercel-deployed web app is fully functional end-to-end.
  */
+
+async function completeManualOnboarding(page: Page, passport: {
+  number: string; surname: string; givenNames: string;
+  nationality: string; dob: string; gender: 'Male' | 'Female';
+  expiry: string; issuingCountry: string;
+}) {
+  await page.getByRole('button', { name: 'Skip tutorial' }).click();
+  await page.getByRole('button', { name: 'Enter Manually' }).click();
+
+  await page.getByTestId('passport-number-input').fill(passport.number);
+  await page.getByTestId('surname-input').fill(passport.surname);
+  await page.getByTestId('given-names-input').fill(passport.givenNames);
+  await page.getByTestId('nationality-input').fill(passport.nationality);
+  await page.getByTestId('dob-input').fill(passport.dob);
+  await page.getByTestId(`gender-${passport.gender}-button`).click();
+  await page.getByTestId('passport-expiry-input').fill(passport.expiry);
+  await page.getByTestId('issuing-country-input').fill(passport.issuingCountry);
+
+  await page.getByTestId('passport-continue-button').click();
+  await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+  await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
+  await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
+  await page.getByRole('button', { name: 'Skip for Now' }).click();
+  await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+}
+
 test.describe('Full User Journey', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('dialog', dialog => dialog.accept());
+  });
 
   test('complete onboarding via demo scan and reach main app', async ({ page }) => {
-    page.on('dialog', dialog => dialog.accept());
-
     await page.goto('/');
 
     // === Step 1: Welcome Screen ===
@@ -56,70 +84,23 @@ test.describe('Full User Journey', () => {
   });
 
   test('complete onboarding via manual entry', async ({ page }) => {
-    page.on('dialog', dialog => dialog.accept());
-
     await page.goto('/');
 
-    // Skip tutorial
-    await page.getByRole('button', { name: 'Skip tutorial' }).click();
-    await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
-
-    // Use manual entry instead of camera
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
-
-    // Fill in passport form
-    await page.getByTestId('passport-number-input').fill('AB1234567');
-    await page.getByTestId('surname-input').fill('SMITH');
-    await page.getByTestId('given-names-input').fill('JOHN');
-    await page.getByTestId('nationality-input').fill('USA');
-    await page.getByTestId('dob-input').fill('1990-01-15');
-    await page.getByTestId('gender-Male-button').click();
-    await page.getByTestId('passport-expiry-input').fill('2030-12-31');
-    await page.getByTestId('issuing-country-input').fill('USA');
-
-    // Submit the form
-    await page.getByTestId('passport-continue-button').click();
-
-    // Should navigate to ConfirmProfile
-    await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-
-    // Continue to biometric setup
-    await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
-    await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
-
-    // Skip biometric
-    await page.getByRole('button', { name: 'Skip for Now' }).click();
-
-    // Should reach main app
-    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+    await completeManualOnboarding(page, {
+      number: 'AB1234567', surname: 'SMITH', givenNames: 'JOHN',
+      nationality: 'USA', dob: '1990-01-15', gender: 'Male',
+      expiry: '2030-12-31', issuingCountry: 'USA',
+    });
   });
 
   test('full journey: onboarding → create trip → view trip', async ({ page }) => {
-    page.on('dialog', dialog => dialog.accept());
-
     await page.goto('/');
 
-    // === Fast onboarding via manual entry ===
-    await page.getByRole('button', { name: 'Skip tutorial' }).click();
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
-
-    await page.getByTestId('passport-number-input').fill('CD9876543');
-    await page.getByTestId('surname-input').fill('TANAKA');
-    await page.getByTestId('given-names-input').fill('YUKI');
-    await page.getByTestId('nationality-input').fill('JPN');
-    await page.getByTestId('dob-input').fill('1985-06-20');
-    await page.getByTestId('gender-Female-button').click();
-    await page.getByTestId('passport-expiry-input').fill('2029-03-15');
-    await page.getByTestId('issuing-country-input').fill('JPN');
-
-    await page.getByTestId('passport-continue-button').click();
-    await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-    await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
-    await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
-    await page.getByRole('button', { name: 'Skip for Now' }).click();
-
-    // === Main app should be visible ===
-    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+    await completeManualOnboarding(page, {
+      number: 'CD9876543', surname: 'TANAKA', givenNames: 'YUKI',
+      nationality: 'JPN', dob: '1985-06-20', gender: 'Female',
+      expiry: '2029-03-15', issuingCountry: 'JPN',
+    });
 
     // === Create a trip ===
     await page.getByTestId('create-first-trip-button').click();
