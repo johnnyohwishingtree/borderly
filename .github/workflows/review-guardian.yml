@@ -88,8 +88,7 @@ jobs:
               echo "review-relay.yml will handle triggering Claude to fix these"
 
               # Post a comment explaining why auto-approve was skipped
-              gh pr comment "$PR_NUM" --repo "$REPO" \
-                --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes."
+              comment_on_issue "$PR_NUM" "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes." "$REPO"
               exit 0
             else
               echo "Found $CRITICAL_COMMENTS critical/high comments but ALL threads are resolved — feedback was addressed"
@@ -217,13 +216,15 @@ jobs:
             exit 0
           fi
 
+          source .github/scripts/lib.sh
+
           # Extract Claude's review findings to include in the fix request
           CLAUDE_COMMENT_ID=${{ github.event.comment.id }}
           REVIEW_BODY=$(gh api "repos/$REPO/issues/comments/$CLAUDE_COMMENT_ID" \
             -q '.body' 2>/dev/null || echo "")
 
           # Post a fix request that quotes the specific issues
-          gh pr comment "$PR_NUM" --repo "$REPO" --body "$(cat <<EOF
+          BODY=$(cat <<EOF
           @claude Fix the issues from the code review above (comment #${CLAUDE_COMMENT_ID}).
 
           Here are the findings to address:
@@ -238,7 +239,8 @@ jobs:
           - Git add and commit your fixes.
           - Do NOT post a new review. Just fix the code.
           EOF
-          )"
+          )
+          comment_on_issue "$PR_NUM" "$BODY" "$REPO"
 
   # Check for missing reviews after CI passes
   ensure-review:
@@ -358,8 +360,7 @@ jobs:
               echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"
               echo "review-relay.yml will handle triggering Claude to fix these"
 
-              gh pr comment "$PR_NUM" --repo "$REPO" \
-                --body "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved."
+              comment_on_issue "$PR_NUM" "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved." "$REPO"
               exit 0
             else
               echo "Found $CRITICAL_COMMENTS critical/high comments but ALL threads are resolved — feedback was addressed"
@@ -400,9 +401,7 @@ jobs:
               echo "Bot review had 'Request Changes' but fixes were requested and new commits landed — allowing approval"
             else
               echo "Bot review comment contains 'Request Changes' or critical issues — NOT auto-approving"
-              gh pr comment "$PR_NUM" --repo "$REPO" \
-                --body "Auto-approve skipped: the latest bot code review contains 'Request Changes' or flagged critical issues. These must be addressed before the PR can be approved." \
-                2>/dev/null || true
+              comment_on_issue "$PR_NUM" "Auto-approve skipped: the latest bot code review contains 'Request Changes' or flagged critical issues. These must be addressed before the PR can be approved." "$REPO"
               exit 0
             fi
           fi
@@ -421,7 +420,7 @@ jobs:
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           PR_NUM=${{ steps.check.outputs.pr_num }}
           echo "Requesting @$AGENT fallback review for PR #$PR_NUM"
-          gh pr comment "$PR_NUM" --repo "$REPO" \
-            --body "@$AGENT No code review was posted on this PR (the usual reviewer may be at quota). Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback."
+          comment_on_issue "$PR_NUM" "@$AGENT No code review was posted on this PR (the usual reviewer may be at quota). Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback." "$REPO"

@@ -154,6 +154,4 @@ jobs:
 
           # Post a status comment on the PR
           RUN_URL="https://github.com/${{ github.repository }}/actions/workflows/review-fix.yml"
-          gh pr comment "$PR_NUM" --repo "${{ github.repository }}" \
-            --body "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it." \
-            2>/dev/null || true
+          comment_on_issue "$PR_NUM" "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it."

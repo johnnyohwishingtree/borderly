@@ -195,14 +195,15 @@ jobs:
 
           # Comment on the issue so the user knows
           COMMIT_COUNT=$(git rev-list --count "origin/master..HEAD" 2>/dev/null || echo "?")
-          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          BODY=$(cat <<EOF
           Claude's run timed out after 60 minutes, but the in-progress work was saved to [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}) (${COMMIT_COUNT} commits ahead of master).
 
           To resume, comment on this issue again with: \`@claude Continue the work from the \`${TMP_BRANCH}\` branch. Check out that branch first, then pick up where you left off.\`
 
           Or manually: \`git fetch origin ${TMP_BRANCH} && git checkout ${TMP_BRANCH}\`
           EOF
-          )" 2>/dev/null || echo "Failed to post rescue comment"
+          )
+          comment_on_issue "$ISSUE_NUM" "$BODY"
 
       # ── Normal flow (only runs if Claude completed successfully) ──
       - name: Push to PR branch (PR context)

@@ -289,5 +289,5 @@ jobs:
           echo "Triggering first story: #$FIRST_STORY"
           gh issue edit "$FIRST_STORY" --repo "$REPO" \
             --remove-label "pending" --add-label "in-progress" || true
-          gh issue comment "$FIRST_STORY" --repo "$REPO" \
-            --body "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. Create a PR with 'Closes #$FIRST_STORY' in the body when done. Run all tests before committing."
+          source .github/scripts/lib.sh
+          comment_on_issue "$FIRST_STORY" "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. Create a PR with 'Closes #$FIRST_STORY' in the body when done. Run all tests before committing."

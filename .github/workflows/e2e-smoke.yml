@@ -149,4 +149,5 @@ jobs:
 
           IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
-          gh pr comment "$PR_NUM" --body "$BODY"
+          source .github/scripts/lib.sh
+          comment_on_issue "$PR_NUM" "$BODY"
