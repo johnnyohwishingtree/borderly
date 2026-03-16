@@ -553,6 +553,137 @@ is_workflow_active() {
 #     --ref "some-branch" \
 #     -f issue_number="42"
 # ────────────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────
+# count_critical_comments
+#
+# Count inline PR review comments with critical/high-severity badges.
+# Matches Gemini's priority badge patterns (![critical], ![high]) and
+# keyword patterns (critical, security-high, high-priority).
+#
+# Args:
+#   $1 — PR number (required)
+#   $2 — repo (owner/repo format) (required)
+#
+# Env:
+#   GH_TOKEN — GitHub token (required)
+#
+# Returns:
+#   Prints count to stdout.
+#
+# Usage:
+#   CRITICAL=$(count_critical_comments 42 "owner/repo")
+# ────────────────────────────────────────────────────────────────────────────
+count_critical_comments() {
+  local pr_num="${1:?PR number is required}"
+  local repo="${2:?repo is required}"
+
+  gh api "repos/$repo/pulls/$pr_num/comments" \
+    -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0"
+}
+
+# ────────────────────────────────────────────────────────────────────────────
+# approve_and_merge
+#
+# Approve a PR and dispatch auto-merge.
+# GITHUB_TOKEN approvals don't emit pull_request_review events, so we
+# always dispatch auto-merge.yml explicitly after approving.
+#
+# Args:
+#   $1 — PR number (required)
+#   $2 — approval body message (required)
+#   $3 — repo (optional, defaults to GITHUB_REPOSITORY)
+#
+# Env:
+#   GH_TOKEN   — Token for the approval (typically github.token)
+#   GH_PAT     — PAT for dispatching auto-merge (required)
+#   GITHUB_REPOSITORY — owner/repo (used as default for $3)
+#
+# Usage:
+#   approve_and_merge 42 "Auto-approved: no critical issues found."
+# ────────────────────────────────────────────────────────────────────────────
+approve_and_merge() {
+  local pr_num="${1:?PR number is required}"
+  local body="${2:?approval body is required}"
+  local repo="${3:-${GITHUB_REPOSITORY:-}}"
+
+  if [ -z "$repo" ]; then
+    echo "Error: repo not specified and GITHUB_REPOSITORY not set"
+    return 1
+  fi
+
+  gh pr review "$pr_num" --repo "$repo" --approve --body "$body"
+
+  # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger events
+  GH_TOKEN="${GH_PAT:?GH_PAT is required}" dispatch_workflow "auto-merge.yml" -f pr_number="$pr_num" 2>/dev/null || true
+}
+
+# ────────────────────────────────────────────────────────────────────────────
+# get_next_pending_story
+#
+# Find the next pending story in an epic (lowest issue number).
+#
+# Args:
+#   $1 — epic label (e.g., "epic:webview-submission") (required)
+#   $2 — repo (optional, defaults to GITHUB_REPOSITORY)
+#
+# Env:
+#   GH_TOKEN            — GitHub token (required)
+#   GITHUB_REPOSITORY   — owner/repo (used as default for $2)
+#
+# Returns:
+#   Prints issue number to stdout, or empty string if none found.
+#
+# Usage:
+#   NEXT=$(get_next_pending_story "epic:webview-submission")
+# ────────────────────────────────────────────────────────────────────────────
+get_next_pending_story() {
+  local epic_label="${1:?epic label is required}"
+  local repo="${2:-${GITHUB_REPOSITORY:-}}"
+
+  if [ -z "$repo" ]; then
+    echo "Error: repo not specified and GITHUB_REPOSITORY not set"
+    return 1
+  fi
+
+  gh issue list --repo "$repo" \
+    --label "story" --label "pending" --label "$epic_label" \
+    --state open --json number -q 'sort_by(.number) | .[0].number' 2>/dev/null || echo ""
+}
+
+# ────────────────────────────────────────────────────────────────────────────
+# trigger_story_agent
+#
+# Post a standardized @agent comment to trigger implementation of a story.
+#
+# Args:
+#   $1 — issue number (required)
+#   $2 — agent name (optional, default: "claude")
+#   $3 — suffix note (optional, e.g., "(Retry #2 by pipeline watcher)")
+#   $4 — repo (optional, defaults to GITHUB_REPOSITORY)
+#
+# Env:
+#   GH_TOKEN            — GitHub token (required)
+#   GITHUB_REPOSITORY   — owner/repo (used as default for $4)
+#
+# Usage:
+#   trigger_story_agent 42
+#   trigger_story_agent 42 "gemini" "(Retry #3 by watcher)"
+# ────────────────────────────────────────────────────────────────────────────
+trigger_story_agent() {
+  local issue_num="${1:?issue number is required}"
+  local agent="${2:-claude}"
+  local suffix="${3:-}"
+  local repo="${4:-${GITHUB_REPOSITORY:-}}"
+
+  local body="@${agent} Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: After completing each acceptance criterion, git add, git commit, and git push before moving on. Run tests before your final commit. Create a PR with 'Closes #${issue_num}' in the body when done."
+
+  if [ -n "$suffix" ]; then
+    body="${body} ${suffix}"
+  fi
+
+  comment_on_issue "$issue_num" "$body" "$repo"
+}
+
 dispatch_workflow() {
   local workflow="${1:?workflow file is required}"
   shift

@@ -450,7 +450,7 @@ jobs:
             fi
 
             echo "  Re-triggering claude.yml (attempt $((RETRY_COUNT + 1))/$MAX_RETRIES)"
-            comment_on_issue "$ISSUE_NUM" "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently. Run tests before your final commit. Create a PR with 'Closes #$ISSUE_NUM' in the body when done. (Retry #$((RETRY_COUNT + 1)) by pipeline watcher)" "$REPO"
+            trigger_story_agent "$ISSUE_NUM" "claude" "(Retry #$((RETRY_COUNT + 1)) by pipeline watcher)" "$REPO"
 
             BUSY_EPICS="$BUSY_EPICS $STORY_EPIC"
             SLOTS_AVAILABLE=$((SLOTS_AVAILABLE - 1))
@@ -484,10 +484,7 @@ jobs:
               continue
             fi
 
-            NEXT_PENDING=$(gh issue list --repo "$REPO" \
-              --label "story" --label "pending" --label "$EPIC_LABEL" \
-              --state open --json number \
-              -q '[.[] | .number] | sort | .[0]')
+            NEXT_PENDING=$(get_next_pending_story "$EPIC_LABEL" "$REPO")
 
             if [ -z "$NEXT_PENDING" ] || [ "$NEXT_PENDING" = "null" ]; then
               echo "  No pending stories — epic may be complete"
@@ -510,7 +507,7 @@ jobs:
             echo "  STALLED — triggering story #$NEXT_PENDING"
             gh issue edit "$NEXT_PENDING" --repo "$REPO" \
               --remove-label "pending" --add-label "in-progress" || true
-            comment_on_issue "$NEXT_PENDING" "@claude Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: Commit and push frequently. Run tests before your final commit. Create a PR with 'Closes #$NEXT_PENDING' in the body when done. (Pipeline watcher: orchestrator missed handoff)" "$REPO"
+            trigger_story_agent "$NEXT_PENDING" "claude" "(Pipeline watcher: orchestrator missed handoff)" "$REPO"
 
             BUSY_EPICS="$BUSY_EPICS $EPIC_LABEL"
             SLOTS_AVAILABLE=$((SLOTS_AVAILABLE - 1))

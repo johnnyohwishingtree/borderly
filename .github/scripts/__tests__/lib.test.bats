@@ -598,6 +598,145 @@ SCRIPT
 # 27. Direct execution guard
 # ===================================================================
 
+# ===================================================================
+# count_critical_comments
+# ===================================================================
+
+@test "count_critical_comments returns count of critical/high badge comments" {
+  mock_gh_response "pulls/42/comments" "3"
+
+  run count_critical_comments 42 "testowner/testrepo"
+  [ "$status" -eq 0 ]
+  [ "$output" = "3" ]
+}
+
+@test "count_critical_comments returns 0 when no critical comments" {
+  mock_gh_response "pulls/42/comments" "0"
+
+  run count_critical_comments 42 "testowner/testrepo"
+  [ "$status" -eq 0 ]
+  [ "$output" = "0" ]
+}
+
+@test "count_critical_comments returns 0 on API failure" {
+  mock_gh_failure "pulls/42/comments"
+
+  run count_critical_comments 42 "testowner/testrepo"
+  [ "$status" -eq 0 ]
+  [ "$output" = "0" ]
+}
+
+# ===================================================================
+# approve_and_merge
+# ===================================================================
+
+@test "approve_and_merge approves PR and dispatches auto-merge" {
+  # Mock both the approval and the dispatch
+  mock_gh_response "pr review" "approved"
+  mock_gh_response "workflow run" "dispatched"
+  export GH_PAT="fake-pat"
+
+  run approve_and_merge 42 "Auto-approved: looks good."
+  [ "$status" -eq 0 ]
+}
+
+@test "approve_and_merge fails without GH_PAT" {
+  unset GH_PAT 2>/dev/null || true
+
+  run approve_and_merge 42 "Auto-approved."
+  [ "$status" -ne 0 ]
+}
+
+@test "approve_and_merge uses custom repo when provided" {
+  mock_gh_response "pr review" "approved"
+  mock_gh_response "workflow run" "dispatched"
+  export GH_PAT="fake-pat"
+
+  run approve_and_merge 42 "Auto-approved." "custom/repo"
+  [ "$status" -eq 0 ]
+}
+
+# ===================================================================
+# get_next_pending_story
+# ===================================================================
+
+@test "get_next_pending_story returns lowest issue number" {
+  mock_gh_response "issue list" "101"
+
+  run get_next_pending_story "epic:webview" "testowner/testrepo"
+  [ "$status" -eq 0 ]
+  [ "$output" = "101" ]
+}
+
+@test "get_next_pending_story returns empty when no stories found" {
+  mock_gh_response "issue list" ""
+
+  run get_next_pending_story "epic:webview" "testowner/testrepo"
+  [ "$status" -eq 0 ]
+  [ "$output" = "" ]
+}
+
+@test "get_next_pending_story uses GITHUB_REPOSITORY as default repo" {
+  mock_gh_response "issue list" "42"
+
+  run get_next_pending_story "epic:ocr"
+  [ "$status" -eq 0 ]
+  [ "$output" = "42" ]
+}
+
+# ===================================================================
+# trigger_story_agent
+# ===================================================================
+
+@test "trigger_story_agent posts @claude comment by default" {
+  mock_gh_response "issue comment" "posted"
+
+  run trigger_story_agent 42
+  [ "$status" -eq 0 ]
+  assert_contains "$output" "posted"
+}
+
+@test "trigger_story_agent uses custom agent name" {
+  # Create a gh mock that captures args to verify agent name
+  cat > "$MOCK_DIR/gh" <<'EOF'
+#!/bin/bash
+echo "$*"
+EOF
+  chmod +x "$MOCK_DIR/gh"
+
+  run trigger_story_agent 42 "gemini"
+  [ "$status" -eq 0 ]
+  assert_contains "$output" "@gemini"
+}
+
+@test "trigger_story_agent appends suffix note" {
+  cat > "$MOCK_DIR/gh" <<'EOF'
+#!/bin/bash
+echo "$*"
+EOF
+  chmod +x "$MOCK_DIR/gh"
+
+  run trigger_story_agent 42 "claude" "(Retry #2 by watcher)"
+  [ "$status" -eq 0 ]
+  assert_contains "$output" "(Retry #2 by watcher)"
+}
+
+@test "trigger_story_agent includes Closes #N in body" {
+  cat > "$MOCK_DIR/gh" <<'EOF'
+#!/bin/bash
+echo "$*"
+EOF
+  chmod +x "$MOCK_DIR/gh"
+
+  run trigger_story_agent 42
+  [ "$status" -eq 0 ]
+  assert_contains "$output" "Closes #42"
+}
+
+# ===================================================================
+# 27. Direct execution guard
+# ===================================================================
+
 @test "lib.sh exits with error when executed directly" {
   run bash "$SCRIPTS_DIR/lib.sh"
   [ "$status" -eq 1 ]

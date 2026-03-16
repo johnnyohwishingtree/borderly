@@ -77,8 +77,7 @@ jobs:
           # review comments while submitting the overall review as COMMENTED (not
           # CHANGES_REQUESTED). We must catch these badge patterns here or we
           # auto-approve PRs that still have unresolved high/critical feedback.
-          CRITICAL_COMMENTS=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+          CRITICAL_COMMENTS=$(count_critical_comments "$PR_NUM" "$REPO")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             # Check if threads are resolved — if so, the feedback was already addressed
@@ -125,11 +124,7 @@ jobs:
 
           REVIEWER="${{ github.event.review.user.login }}"
           echo "Bot review from $REVIEWER on PR #$PR_NUM — no issues relayed, auto-approving"
-          gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
-
-          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="$GH_PAT" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
+          approve_and_merge "$PR_NUM" "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)." "$REPO"
 
   # When Claude posts a review comment on a PR, auto-approve
   auto-approve-after-claude:
@@ -174,8 +169,7 @@ jobs:
 
           # Check for high/critical inline review comments (including Gemini
           # badge patterns like ![critical] and ![high]) from prior reviews
-          CRITICAL_INLINE=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+          CRITICAL_INLINE=$(count_critical_comments "$PR_NUM" "$REPO")
 
           if [ "$CRITICAL_INLINE" -gt 0 ]; then
             echo "PR has $CRITICAL_INLINE critical/high-severity inline comments — NOT auto-approving"
@@ -194,11 +188,7 @@ jobs:
           echo "Claude reviewed PR #$PR_NUM — auto-approving"
           echo "has_issues=false" >> $GITHUB_OUTPUT
           echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
-          gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review provided by Claude."
-
-          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="${{ secrets.GH_PAT }}" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
+          GH_PAT="${{ secrets.GH_PAT }}" approve_and_merge "$PR_NUM" "Auto-approved: code review provided by Claude." "$REPO"
         id: review_check
 
       - name: Request Claude fix issues found in review
@@ -349,8 +339,7 @@ jobs:
 
           # Check for critical/high-severity inline comments (including Gemini
           # badge patterns like ![critical] and ![high])
-          CRITICAL_COMMENTS=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/pulls/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("!\\[(critical|high)\\]|critical|security-high|high-priority"; "i"))] | length' 2>/dev/null || echo "0")
+          CRITICAL_COMMENTS=$(GH_TOKEN="$GH_PAT" count_critical_comments "$PR_NUM" "$REPO")
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             # Check if ALL review threads are resolved — if so, the feedback was addressed
@@ -407,11 +396,7 @@ jobs:
           fi
 
           echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
-          gh pr review "$PR_NUM" --repo "$REPO" --approve \
-            --body "Auto-approved: code review detected, no unresolved critical/high issues."
-
-          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="$GH_PAT" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
+          approve_and_merge "$PR_NUM" "Auto-approved: code review detected, no unresolved critical/high issues." "$REPO"
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'
