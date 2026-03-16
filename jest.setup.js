@@ -51,6 +51,7 @@ jest.mock('react-native', () => {
     NativeModules: {},
     View: mockComponent('View'),
     Text: mockComponent('Text'),
+    SafeAreaView: mockComponent('SafeAreaView'),
     TouchableOpacity: mockComponent('TouchableOpacity'),
     Pressable: mockComponent('Pressable'),
     TextInput: mockComponent('TextInput'),
@@ -76,6 +77,7 @@ jest.mock('react-native', () => {
     StyleSheet: {
       create: (styles) => styles,
       flatten: (style) => Object.assign({}, ...(Array.isArray(style) ? style : [style])),
+      absoluteFillObject: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
     },
     Alert: {
       alert: jest.fn(),

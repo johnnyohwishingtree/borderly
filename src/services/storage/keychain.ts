@@ -1,5 +1,7 @@
 import * as Keychain from 'react-native-keychain';
 import { TravelerProfile } from '@/types/profile';
+import { PortalCredential } from '@/types/submission';
+import { mmkvService } from './mmkv';
 import 'react-native-get-random-values';
 
 const LEGACY_PROFILE_KEY = 'borderly_traveler_profile';
@@ -31,6 +33,13 @@ export interface KeychainService {
   getEncryptionKey(): Promise<string | null>;
   getProfileEncryptionKey(profileId: string): Promise<string | null>;
   deleteProfileEncryptionKey(profileId: string): Promise<void>;
+
+  // Portal credential methods
+  storePortalCredential(profileId: string, portalCode: string, username: string, password: string, email?: string): Promise<void>;
+  getPortalCredential(profileId: string, portalCode: string): Promise<{ username: string; password: string } | null>;
+  deletePortalCredential(profileId: string, portalCode: string): Promise<void>;
+  getPortalCredentialsForProfile(profileId: string): Promise<PortalCredential[]>;
+  deleteAllPortalCredentialsForProfile(profileId: string): Promise<void>;
 
   // System utilities
   isAvailable(): Promise<boolean>;
@@ -202,6 +211,159 @@ class KeychainServiceImpl implements KeychainService {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Portal credential helpers
+  // ---------------------------------------------------------------------------
+
+  private getPortalCredentialKey(profileId: string, portalCode: string): string {
+    return `borderly_portal_cred_${profileId}_${portalCode}`;
+  }
+
+  private getPortalCredentialIndexKey(profileId: string): string {
+    return `borderly_portal_cred_index_${profileId}`;
+  }
+
+  private getPortalCredentialIndex(profileId: string): PortalCredential[] {
+    try {
+      const raw = mmkvService.getString(this.getPortalCredentialIndexKey(profileId));
+      if (raw) {
+        return JSON.parse(raw) as PortalCredential[];
+      }
+    } catch (error) {
+      console.warn(`Failed to read portal credential index for ${profileId}:`, error);
+    }
+    return [];
+  }
+
+  private savePortalCredentialIndex(profileId: string, credentials: PortalCredential[]): void {
+    try {
+      mmkvService.setString(
+        this.getPortalCredentialIndexKey(profileId),
+        JSON.stringify(credentials),
+      );
+    } catch (error) {
+      console.error(`Failed to save portal credential index for ${profileId}:`, error);
+      throw error;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Portal credential methods
+  // ---------------------------------------------------------------------------
+
+  async storePortalCredential(
+    profileId: string,
+    portalCode: string,
+    username: string,
+    password: string,
+    email?: string,
+  ): Promise<void> {
+    try {
+      const key = this.getPortalCredentialKey(profileId, portalCode);
+      // Store password as the Keychain "password" field; username as the "username"
+      await this.storeInKeychain(key, username, password);
+
+      // Update MMKV metadata index (no password here)
+      const now = new Date().toISOString();
+      const index = this.getPortalCredentialIndex(profileId);
+      const existingIdx = index.findIndex(c => c.portalCode === portalCode);
+      const entry: PortalCredential = {
+        portalCode,
+        profileId,
+        username,
+        ...(email !== undefined && { email }),
+        createdAt: existingIdx >= 0 ? index[existingIdx].createdAt : now,
+        lastUsed: now,
+      };
+
+      if (existingIdx >= 0) {
+        index[existingIdx] = entry;
+      } else {
+        index.push(entry);
+      }
+      this.savePortalCredentialIndex(profileId, index);
+    } catch (error) {
+      console.error(`Failed to store portal credential for ${profileId}/${portalCode}:`, error);
+      throw new Error('Failed to securely store portal credential');
+    }
+  }
+
+  async getPortalCredential(
+    profileId: string,
+    portalCode: string,
+  ): Promise<{ username: string; password: string } | null> {
+    try {
+      const key = this.getPortalCredentialKey(profileId, portalCode);
+      this.lastAccessTime[key] = Date.now();
+      const credentials = await Keychain.getInternetCredentials(key, this.keychainGetOptions);
+
+      if (!credentials || typeof credentials === 'boolean') {
+        return null;
+      }
+
+      // Update lastUsed in MMKV index
+      const index = this.getPortalCredentialIndex(profileId);
+      const existingIdx = index.findIndex(c => c.portalCode === portalCode);
+      if (existingIdx >= 0) {
+        index[existingIdx] = {
+          ...index[existingIdx],
+          lastUsed: new Date().toISOString(),
+        };
+        this.savePortalCredentialIndex(profileId, index);
+      }
+
+      return { username: credentials.username, password: credentials.password };
+    } catch (error) {
+      console.error(`Failed to retrieve portal credential for ${profileId}/${portalCode}:`, error);
+      return null;
+    }
+  }
+
+  async deletePortalCredential(profileId: string, portalCode: string): Promise<void> {
+    try {
+      const key = this.getPortalCredentialKey(profileId, portalCode);
+      await this.deleteFromKeychain(key);
+
+      // Remove from MMKV index
+      const index = this.getPortalCredentialIndex(profileId);
+      const updated = index.filter(c => c.portalCode !== portalCode);
+      this.savePortalCredentialIndex(profileId, updated);
+    } catch (error) {
+      console.error(`Failed to delete portal credential for ${profileId}/${portalCode}:`, error);
+      throw new Error('Failed to delete portal credential');
+    }
+  }
+
+  async getPortalCredentialsForProfile(profileId: string): Promise<PortalCredential[]> {
+    return this.getPortalCredentialIndex(profileId);
+  }
+
+  async deleteAllPortalCredentialsForProfile(profileId: string): Promise<void> {
+    try {
+      const credentials = this.getPortalCredentialIndex(profileId);
+
+      // Delete each credential from Keychain in parallel
+      await Promise.all(
+        credentials.map(cred =>
+          this.deleteFromKeychain(
+            this.getPortalCredentialKey(profileId, cred.portalCode),
+          ).catch(err => {
+            console.warn(
+              `Failed to delete portal credential ${cred.portalCode} for ${profileId}:`,
+              err,
+            );
+          }),
+        ),
+      );
+
+      // Clear the MMKV index
+      mmkvService.delete(this.getPortalCredentialIndexKey(profileId));
+    } catch (error) {
+      console.error(`Failed to delete all portal credentials for profile ${profileId}:`, error);
+      throw new Error(`Failed to delete portal credentials for profile ${profileId}`);
+    }
+  }
+
   async isAvailable(): Promise<boolean> {
     try {
       // Check if keychain is available by testing basic functionality
@@ -294,9 +456,12 @@ class KeychainServiceImpl implements KeychainService {
     try {
       const keychainKey = this.getProfileKeychainKey(profileId);
       await this.deleteFromKeychain(keychainKey);
-      
+
       // Also delete the profile's encryption key
       await this.deleteProfileEncryptionKey(profileId);
+
+      // Cascade: delete all portal credentials for this profile
+      await this.deleteAllPortalCredentialsForProfile(profileId);
     } catch (error) {
       console.error(`Failed to delete profile ${profileId}:`, error);
       throw new Error(`Failed to delete profile data for ${profileId}`);

@@ -204,6 +204,22 @@ tags:
     commands:
       - assertVisible: "Log in to continue"
 
+# Verify auto-login banner state is one of the expected states.
+# We don't assert which specific banner because it depends on whether
+# credentials are stored on the test device.
+- runFlow:
+    when:
+      visible:
+        id: "auto-login-progress-banner"
+    commands:
+      - assertVisible: "Logging in automatically"
+- runFlow:
+    when:
+      visible:
+        id: "auto-login-failed-banner"
+    commands:
+      - assertVisible: "Auto-login failed"
+
 # Check that the fields panel toggle is available (copy-paste fallback)
 - extendedWaitUntil:
     visible:

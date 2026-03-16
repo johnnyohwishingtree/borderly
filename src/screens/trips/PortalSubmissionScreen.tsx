@@ -33,6 +33,8 @@ import type { FieldSpec } from '../../services/submission';
 import { pageDetector } from '../../services/submission/pageDetection';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { getPortalName } from '../../utils/countryUtils';
+import { resolvePortalCredential } from '../../services/submission/credentialResolver';
+import { buildLoginScript } from '../../services/submission/autoLogin';
 import { useTripStore } from '../../stores';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripStackParamList } from '../../app/navigation/types';
@@ -123,6 +125,46 @@ export default function PortalSubmissionScreen() {
 
   /** Tracks the last URL seen, used to detect URL changes. */
   const lastUrlRef = useRef<string>(url);
+
+  // ─── Auto-login state ─────────────────────────────────────────────────────────
+
+  /**
+   * Current auto-login banner state:
+   * - 'idle'        → no attempt or not applicable (use default auth banner)
+   * - 'in_progress' → login script injected, waiting for page redirect
+   * - 'failed'      → login script ran but reported failure
+   */
+  const [autoLoginBannerState, setAutoLoginBannerState] = useState<
+    'idle' | 'in_progress' | 'failed'
+  >('idle');
+
+  /**
+   * Whether auto-login has been attempted for the current page load.
+   * Reset to false on every new page load / URL change.
+   * Prevents infinite retry loops (max 1 auto-attempt per page load).
+   */
+  const autoLoginAttemptedRef = useRef(false);
+
+  /**
+   * Whether auto-login was triggered on the current auth page.
+   * Used to decide whether to show the "Save credentials?" prompt when
+   * the page transitions from auth → form: if auto-login triggered the
+   * login, there's no need to save credentials again.
+   */
+  const autoLoginTriggeredRef = useRef(false);
+
+  /**
+   * The page type detected on the previous page load.
+   * Used to detect auth → form transitions for the "Save credentials?" prompt.
+   */
+  const prevPageTypeRef = useRef<PageType>('unknown');
+
+  /**
+   * Whether to show the "Save credentials for next time?" prompt.
+   * Shown when the user manually logs in (auth → form transition without
+   * auto-login being triggered).
+   */
+  const [showSaveCredentialsPrompt, setShowSaveCredentialsPrompt] = useState(false);
 
   // ─── Store access ────────────────────────────────────────────────────────────
 
@@ -248,6 +290,12 @@ export default function PortalSubmissionScreen() {
       lastUrlRef.current = state.url;
       setPageType('unknown');
       setPillDismissed(false);
+      // Reset auto-login state for the new page
+      autoLoginAttemptedRef.current = false;
+      autoLoginTriggeredRef.current = false;
+      prevPageTypeRef.current = 'unknown';
+      setAutoLoginBannerState('idle');
+      setShowSaveCredentialsPrompt(false);
     }
   }, []);
 
@@ -295,9 +343,14 @@ export default function PortalSubmissionScreen() {
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       setLoadError(null);
 
-      // Reset page type and pill for the new page
+      // Reset page type, pill, and auto-login state for the new page
       setPageType('unknown');
       setPillDismissed(false);
+      autoLoginAttemptedRef.current = false;
+      autoLoginTriggeredRef.current = false;
+      prevPageTypeRef.current = 'unknown';
+      setAutoLoginBannerState('idle');
+      setShowSaveCredentialsPrompt(false);
 
       if (!schema?.submissionGuide) return;
 
@@ -321,6 +374,78 @@ export default function PortalSubmissionScreen() {
     },
     [schema, countryCode],
   );
+
+  // ─── Auto-login ──────────────────────────────────────────────────────────────
+
+  /**
+   * Attempts to auto-login using stored credentials for the current portal.
+   *
+   * Guards:
+   * - Only runs once per page load (autoLoginAttemptedRef prevents retry loops).
+   * - Resolves credentials respecting the portal's family policy.
+   * - If credentials are found: injects the login script into the WebView.
+   * - If no credentials: no-op (the default auth banner stays visible).
+   */
+  const attemptAutoLogin = useCallback(async () => {
+    if (autoLoginAttemptedRef.current) return;
+    autoLoginAttemptedRef.current = true;
+
+    const familyPolicyType = schema?.portalFlow?.familyPolicy?.type ?? 'none';
+    const primaryProfileId = familyProfiles.primaryProfileId;
+    const profileId = selectedProfileId || primaryProfileId;
+
+    try {
+      const credential = await resolvePortalCredential(
+        profileId,
+        primaryProfileId,
+        countryCode,
+        familyPolicyType,
+      );
+
+      if (credential) {
+        autoLoginTriggeredRef.current = true;
+        setAutoLoginBannerState('in_progress');
+        webViewRef.current?.injectJavaScript(
+          buildLoginScript(credential.username, credential.password),
+        );
+      } else {
+        // No credentials stored — auth banner visible, user logs in manually
+        autoLoginTriggeredRef.current = false;
+      }
+    } catch {
+      autoLoginTriggeredRef.current = false;
+    }
+  }, [selectedProfileId, familyProfiles.primaryProfileId, countryCode, schema]);
+
+  /**
+   * Called when the user taps "Save" on the "Save credentials for next time?"
+   * prompt after a successful manual login.
+   *
+   * Injects a script to extract the username from the login form (if still
+   * present in the DOM). Dismisses the prompt regardless of extraction result.
+   */
+  const handleSaveCredentials = useCallback(() => {
+    setShowSaveCredentialsPrompt(false);
+    // Attempt to extract the username from the login form DOM so the caller
+    // can pre-populate a credential-save dialog (future enhancement).
+    // For now we inject the extraction script and handle the result in
+    // handleMessage via EXTRACT_LOGIN_USERNAME.
+    webViewRef.current?.injectJavaScript(
+      '(function(){' +
+      'var selectors=["input[type=\\"email\\"]","input[name=\\"email\\"]","input[name=\\"username\\"]","input[id*=\\"email\\"]","input[id*=\\"user\\"]"];' +
+      'var username="";' +
+      'for(var i=0;i<selectors.length;i++){' +
+        'var el=document.querySelector(selectors[i]);' +
+        'if(el&&el.value){username=el.value;break;}' +
+      '}' +
+      'window.ReactNativeWebView.postMessage(JSON.stringify({' +
+        'type:"EXTRACT_LOGIN_USERNAME",' +
+        'username:username' +
+      '}));' +
+      'true;' +
+      '})();',
+    );
+  }, []);
 
   // ─── Auto-fill execution ─────────────────────────────────────────────────────
 
@@ -401,9 +526,11 @@ export default function PortalSubmissionScreen() {
   /**
    * Called when the WebView posts a message via window.ReactNativeWebView.postMessage.
    * Handles:
-   *  - PAGE_TYPE_CHECK  → determine page type, show/hide pill and banners
-   *  - AUTO_FILL_RESULT → show AutoFillBanner
-   *  - QR_PAGE_DETECTED → show QRSaveOverlay
+   *  - PAGE_TYPE_CHECK       → determine page type; trigger auto-login on auth pages
+   *  - AUTO_LOGIN_RESULT     → update auto-login banner (success waits for redirect; failure shows error)
+   *  - EXTRACT_LOGIN_USERNAME → receive extracted username after manual-login save prompt
+   *  - AUTO_FILL_RESULT      → show AutoFillBanner
+   *  - QR_PAGE_DETECTED      → show QRSaveOverlay
    */
   const handleMessage = useCallback(
     (event: { nativeEvent: { data: string } }) => {
@@ -417,14 +544,54 @@ export default function PortalSubmissionScreen() {
           const formFieldCount =
             typeof msg.formFieldCount === 'number' ? msg.formFieldCount : 0;
 
+          let detected: PageType = 'unknown';
           if (pageDetector.isCaptchaPage(html)) {
-            setPageType('captcha');
+            detected = 'captcha';
           } else if (pageDetector.isAuthPage(html)) {
-            setPageType('auth');
+            detected = 'auth';
           } else if (formFieldCount > 0) {
-            setPageType('form');
+            detected = 'form';
+          }
+
+          // Detect auth → form transition for "Save credentials?" prompt.
+          // Only prompt if the user logged in manually (no auto-login triggered).
+          if (
+            prevPageTypeRef.current === 'auth' &&
+            detected === 'form' &&
+            !autoLoginTriggeredRef.current
+          ) {
+            setShowSaveCredentialsPrompt(true);
+          }
+
+          prevPageTypeRef.current = detected;
+          setPageType(detected);
+
+          // Trigger auto-login when an auth page is detected
+          if (detected === 'auth') {
+            attemptAutoLogin();
+          }
+          return;
+        }
+
+        if (msgType === 'AUTO_LOGIN_RESULT') {
+          const success = msg.success === true;
+          if (success) {
+            // Script injected successfully — wait for the page to redirect.
+            // The banner stays in 'in_progress' until the next PAGE_TYPE_CHECK
+            // (which fires after the redirect completes).
           } else {
-            setPageType('unknown');
+            // Login script ran but couldn't find/submit the form — show failure.
+            setAutoLoginBannerState('failed');
+          }
+          return;
+        }
+
+        if (msgType === 'EXTRACT_LOGIN_USERNAME') {
+          // Username extracted from DOM after manual-login save prompt.
+          // Future enhancement: use this to pre-populate a credential-save dialog.
+          if (__DEV__) {
+            const username = typeof msg.username === 'string' ? msg.username : '';
+            console.log('[PortalSubmissionScreen] Extracted username for save prompt:', username);
           }
           return;
         }
@@ -485,7 +652,7 @@ export default function PortalSubmissionScreen() {
         // Not a Borderly message — ignore
       }
     },
-    [countryCode],
+    [countryCode, attemptAutoLogin],
   );
 
   // ─── Toolbar callbacks ───────────────────────────────────────────────────────
@@ -645,8 +812,34 @@ export default function PortalSubmissionScreen() {
         </Text>
       </View>
 
-      {/* Auth page detection banner */}
-      {pageType === 'auth' && (
+      {/* Auth page banners — three mutually exclusive states */}
+
+      {/* Auto-login in progress */}
+      {pageType === 'auth' && autoLoginBannerState === 'in_progress' && (
+        <View
+          style={{ backgroundColor: '#EFF6FF', borderBottomWidth: 1, borderBottomColor: '#3B82F6', paddingHorizontal: 16, paddingVertical: 10 }}
+          testID="auto-login-progress-banner"
+        >
+          <Text style={{ fontSize: 13, color: '#1D4ED8', fontWeight: '500' }}>
+            🔐 Logging in automatically...
+          </Text>
+        </View>
+      )}
+
+      {/* Auto-login failed — user must log in manually */}
+      {pageType === 'auth' && autoLoginBannerState === 'failed' && (
+        <View
+          style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
+          testID="auto-login-failed-banner"
+        >
+          <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
+            ⚠️ Auto-login failed. Please log in manually.
+          </Text>
+        </View>
+      )}
+
+      {/* No credentials / idle — show default "Log in to continue" */}
+      {pageType === 'auth' && autoLoginBannerState === 'idle' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
           testID="auth-page-banner"
@@ -698,6 +891,53 @@ export default function PortalSubmissionScreen() {
           >
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#92400E' }}>Manual Guide</Text>
           </Pressable>
+        </View>
+      )}
+
+      {/* "Save credentials for next time?" prompt — shown after manual login */}
+      {showSaveCredentialsPrompt && (
+        <View
+          style={{
+            backgroundColor: '#F0FDF4',
+            borderBottomWidth: 1,
+            borderBottomColor: '#86EFAC',
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+          testID="save-credentials-prompt"
+        >
+          <Text style={{ fontSize: 13, color: '#166534', flex: 1 }}>
+            💾 Save credentials for next time?
+          </Text>
+          <View style={{ flexDirection: 'row' }}>
+            <Pressable
+              onPress={() => setShowSaveCredentialsPrompt(false)}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.7 : 1,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+              })}
+              accessibilityLabel="Dismiss save credentials prompt"
+              testID="save-credentials-dismiss"
+            >
+              <Text style={{ fontSize: 12, color: '#6B7280' }}>Not now</Text>
+            </Pressable>
+            <Pressable
+              onPress={handleSaveCredentials}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.7 : 1,
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+              })}
+              accessibilityLabel="Save credentials for this portal"
+              testID="save-credentials-confirm"
+            >
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#166534' }}>Save</Text>
+            </Pressable>
+          </View>
         </View>
       )}
 
