@@ -1,4 +1,4 @@
-import { test, expect, Dialog } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 /**
  * Full user journey E2E test for the web deployment.
@@ -12,17 +12,7 @@ import { test, expect, Dialog } from '@playwright/test';
 test.describe('Full User Journey', () => {
 
   test('complete onboarding via demo scan and reach main app', async ({ page }) => {
-    // Handle native alerts (RN Web uses window.confirm/alert for Alert.alert)
-    const dismissedDialogs: string[] = [];
-    page.on('dialog', async (dialog: Dialog) => {
-      dismissedDialogs.push(dialog.message());
-      // Accept all dialogs (click OK/confirm)
-      await dialog.accept();
-    });
-
-    // Track console errors
-    const errors: string[] = [];
-    page.on('pageerror', err => errors.push(err.message));
+    page.on('dialog', dialog => dialog.accept());
 
     await page.goto('/');
 
@@ -42,17 +32,14 @@ test.describe('Full User Journey', () => {
     await expect(page.getByText('Demo: Scanning sample passport')).toBeVisible({ timeout: 3000 });
 
     // Wait for demo scan to complete and show passport preview
-    // Demo scan takes ~4s then navigates to preview mode
     await expect(page.getByText('Scan Quality')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('DOE')).toBeVisible();
     await expect(page.getByText('JANE')).toBeVisible();
 
     // === Step 3: Confirm scanned profile ===
-    // This is the PassportPreview within PassportScanScreen
     await page.getByRole('button', { name: 'Confirm & Continue' }).click();
 
     // === Step 4: ConfirmProfile Screen ===
-    // Should show the profile data we just saved
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
 
     // Continue to biometric setup
@@ -61,23 +48,15 @@ test.describe('Full User Journey', () => {
     // === Step 5: Biometric Setup Screen ===
     await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
 
-    // Skip biometric setup - this triggers an Alert
+    // Skip biometric setup - this triggers browser confirm() dialogs
     await page.getByRole('button', { name: 'Skip for Now' }).click();
 
-    // Wait a moment for the alert chain to complete
-    await page.waitForTimeout(1000);
-
     // === Step 6: Main App - Trip List ===
-    // After onboarding completes, RootNavigator should switch to Main
-    // The trip list should show the empty state
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
   });
 
   test('complete onboarding via manual entry', async ({ page }) => {
-    // Handle alerts
-    page.on('dialog', async (dialog: Dialog) => {
-      await dialog.accept();
-    });
+    page.on('dialog', dialog => dialog.accept());
 
     await page.goto('/');
 
@@ -110,17 +89,13 @@ test.describe('Full User Journey', () => {
 
     // Skip biometric
     await page.getByRole('button', { name: 'Skip for Now' }).click();
-    await page.waitForTimeout(1000);
 
     // Should reach main app
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
   });
 
   test('full journey: onboarding → create trip → view trip', async ({ page }) => {
-    // Handle alerts
-    page.on('dialog', async (dialog: Dialog) => {
-      await dialog.accept();
-    });
+    page.on('dialog', dialog => dialog.accept());
 
     await page.goto('/');
 
@@ -142,7 +117,6 @@ test.describe('Full User Journey', () => {
     await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
     await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: 'Skip for Now' }).click();
-    await page.waitForTimeout(1000);
 
     // === Main app should be visible ===
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });

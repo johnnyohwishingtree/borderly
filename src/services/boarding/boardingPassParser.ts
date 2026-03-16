@@ -56,8 +56,12 @@ export function parseBoardingPass(
     let flightDate: string;
     try {
       if (passenger.flightDate) {
-        // New format: already ISO date
-        flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
+        // bcbp may return a Date object (browser) or ISO string (Node)
+        if (passenger.flightDate instanceof Date) {
+          flightDate = passenger.flightDate.toISOString().split('T')[0];
+        } else {
+          flightDate = String(passenger.flightDate).split('T')[0];
+        }
       } else if (passenger.dateOfFlight) {
         // Legacy format: Julian day
         flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
@@ -155,8 +159,12 @@ export function parseMultiLegBoardingPass(
       let flightDate: string;
       try {
         if (passenger.flightDate) {
-          // New format: already ISO date
-          flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
+          // bcbp may return a Date object (browser) or ISO string (Node)
+          if (passenger.flightDate instanceof Date) {
+            flightDate = passenger.flightDate.toISOString().split('T')[0];
+          } else {
+            flightDate = String(passenger.flightDate).split('T')[0];
+          }
         } else if (passenger.dateOfFlight) {
           // Legacy format: Julian day
           flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
