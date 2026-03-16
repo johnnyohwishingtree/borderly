@@ -43,12 +43,11 @@ test.describe('Full User Journey', () => {
   });
 
   test('complete onboarding via demo scan with valid passport data', async ({ page }) => {
-    // Track unexpected dialogs (validation warnings should NOT fire for valid demo data)
-    page.off('dialog'); // Remove generic handler from `beforeEach`
+    // Track dialog messages to verify no validation warnings fire
+    // (beforeEach handler already accepts all dialogs; this just records them)
     const dialogMessages: string[] = [];
     page.on('dialog', dialog => {
       dialogMessages.push(dialog.message());
-      dialog.accept(); // This test is now responsible for accepting dialogs
     });
 
     await page.goto('/');
@@ -139,12 +138,11 @@ test.describe('Full User Journey', () => {
   test('boarding pass demo scan auto-fills trip leg with supported destination', async ({ page }) => {
     test.setTimeout(60000);
 
-    // Track dialogs to verify no "Destination Not Supported" alert fires
-    page.off('dialog'); // Remove generic handler from `beforeEach`
+    // Track dialog messages to verify no "Destination Not Supported" alert fires
+    // (beforeEach handler already accepts all dialogs; this just records them)
     const dialogMessages: string[] = [];
     page.on('dialog', dialog => {
       dialogMessages.push(dialog.message());
-      dialog.accept(); // This test is now responsible for accepting dialogs
     });
 
     await page.goto('/');
