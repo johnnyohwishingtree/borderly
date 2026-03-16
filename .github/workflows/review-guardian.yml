@@ -103,8 +103,11 @@ jobs:
           sleep 90
 
           # Re-check: is review-fix.yml running or queued for this PR?
-          source .github/scripts/lib.sh
-          REVIEW_FIX_ACTIVE=$(is_workflow_active "review-fix.yml" "PR #${PR_NUM}" 2>/dev/null || echo "false")
+          if is_workflow_active "review-fix.yml" "${PR_NUM}" "$REPO" 2>/dev/null; then
+            REVIEW_FIX_ACTIVE=true
+          else
+            REVIEW_FIX_ACTIVE=false
+          fi
 
           if [ "$REVIEW_FIX_ACTIVE" = "true" ]; then
             echo "review-fix.yml is active for PR #$PR_NUM — deferring approval until fixes land"
@@ -126,8 +129,7 @@ jobs:
             --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
 
           # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
-            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
+          GH_TOKEN="$GH_PAT" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
 
   # When Claude posts a review comment on a PR, auto-approve
   auto-approve-after-claude:
@@ -195,8 +197,7 @@ jobs:
             --body "Auto-approved: code review provided by Claude."
 
           # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="${{ secrets.GH_PAT }}" gh workflow run auto-merge.yml \
-            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
+          GH_TOKEN="${{ secrets.GH_PAT }}" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
         id: review_check
 
       - name: Request Claude fix issues found in review
@@ -411,8 +412,7 @@ jobs:
             --body "Auto-approved: code review detected, no unresolved critical/high issues."
 
           # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
-          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
-            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
+          GH_TOKEN="$GH_PAT" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM" 2>/dev/null || true
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'
