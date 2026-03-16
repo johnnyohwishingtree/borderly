@@ -130,6 +130,13 @@ jobs:
           # Write to file to avoid shell metacharacter issues (review text has parentheses, backticks, etc.)
           printf '%s' "$SUMMARY" > /tmp/review_summary_dispatch.txt
 
+      - name: Checkout scripts
+        if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Dispatch review-fix workflow
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
         env:
