@@ -750,6 +750,43 @@ sys.exit(0)
   fi
 }
 
+# Bug: review-fix.yml verify step installs only chromium but Playwright config
+# includes a firefox-smoke project. Firefox tests fail with "Executable doesn't
+# exist" because firefox was never installed. The install command must match
+# what e2e-smoke.yml cross-browser job installs (chromium + firefox).
+@test "regression: review-fix verify installs all required browsers" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_run = str(step.get('run', ''))
+        if 'playwright install' in step_run:
+            if 'firefox' in step_run:
+                print('ok')
+                sys.exit(0)
+            else:
+                print('missing-firefox')
+                sys.exit(0)
+
+print('no-install-found')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml playwright install is missing firefox"
+    echo "The cross-browser E2E project requires firefox. Got: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""

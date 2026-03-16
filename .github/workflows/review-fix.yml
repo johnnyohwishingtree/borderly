@@ -106,7 +106,7 @@ jobs:
           fi
 
           echo "=== E2E ==="
-          npx playwright install --with-deps chromium 2>&1
+          npx playwright install --with-deps chromium firefox 2>&1
           npx webpack --config webpack.config.js 2>&1
           if ! CI=true npx playwright test 2>&1; then
             echo "::error::E2E tests failed after review fix — not pushing"
