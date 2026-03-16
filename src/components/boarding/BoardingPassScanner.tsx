@@ -247,7 +247,7 @@ export default function BoardingPassScanner({
         // Step 4: Parse and succeed (4s)
         demoTimerRef.current = setTimeout(() => {
           const result = parseBoardingPass(DEMO_BCBP);
-          
+
           if ('code' in result) {
             // Demo should not fail, but handle gracefully
             setScanResult({
