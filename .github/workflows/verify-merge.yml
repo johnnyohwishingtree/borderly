@@ -230,6 +230,24 @@ jobs:
             git merge "origin/$TMP" --no-edit
           fi
 
+          # Merge master so the PR branch is up to date (verify job tested
+          # this combination already, so it should merge cleanly)
+          git fetch origin master
+          git merge origin/master --no-edit || {
+            echo "::warning::Merge conflict with master in merge job — taking master for infra files"
+            # Auto-resolve: infra files take master, rest take ours
+            CONFLICTING=$(git diff --name-only --diff-filter=U || true)
+            for file in $CONFLICTING; do
+              if echo "$file" | grep -qE '^\.(github|claude)/|^docs/pipeline|^CLAUDE\.md|lock\.(yaml|json)$|Podfile\.lock$'; then
+                git checkout origin/master -- "$file"
+              else
+                git checkout --ours "$file"
+              fi
+              git add "$file"
+            done
+            git commit --no-edit
+          }
+
           # Remove fix context log before pushing — it's only for cross-attempt context
           if [ -f .claude-fix-log.md ]; then
             git rm .claude-fix-log.md
