@@ -215,7 +215,7 @@ export default function BoardingPassScanner({
   };
 
   // Sample BCBP for demo mode
-  const DEMO_BCBP = 'M1DESMARAIS/LUC       EABC123 YULFRAAC 0834 226F001A0025 106>60000';
+  const DEMO_BCBP = 'M1DESMARAIS/LUC       EABC123 YULNRTAC 0834 226F001A0025 106>60000';
 
   const startDemoScan = () => {
     setCameraStatus('demo');
