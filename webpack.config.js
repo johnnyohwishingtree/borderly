@@ -121,6 +121,11 @@ module.exports = (env, argv) => {
       /src\/services\/storage\/index\.ts$/,
       path.resolve(__dirname, 'e2e/mocks/storage.js')
     ),
+    // Replace RN Web's no-op Alert with native browser dialog implementation
+    new webpack.NormalModuleReplacementPlugin(
+      /react-native-web\/dist\/exports\/Alert\/index\.js$/,
+      path.resolve(__dirname, 'e2e/mocks/alert.js')
+    ),
   ],
   devServer: {
     static: path.resolve(__dirname, 'e2e'),
