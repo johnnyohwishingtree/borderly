@@ -1,28 +1,44 @@
-# Bug Fix Workflow: Maestro for Discovery, Unit Tests for Fixes
+# Bug Fix Workflow: TDD for ALL Bug Fixes
 
-Maestro E2E tests are for **bug discovery**, not bug fixing. They are slow and flaky — never iterate on a fix by re-running Maestro. Instead, follow this TDD workflow:
+Every bug fix — whether in app code, pipeline scripts, or workflow YAML — follows the same TDD workflow. Discovery tools (Maestro, CI logs, user reports) reveal bugs; **tests** fix them.
 
-## When a Maestro test reveals a bug:
+## When any bug is discovered:
 
-1. **Stop the Maestro test.** Note the symptom (what failed, what was expected).
+1. **Note the symptom.** What failed, what was expected, where did it happen.
 2. **Read the relevant source code** to understand the root cause.
-3. **Write a failing unit test** that reproduces the exact bug. The test must:
+3. **Write a failing test** that reproduces the exact bug. The test must:
    - Fail BEFORE the fix (proves it catches the bug)
    - Target the specific function/module that's broken
    - Run in under 1 second
-4. **Fix the code** so the unit test passes.
-5. **Run `pnpm test`** to verify no regressions.
-6. **Only then** resume or re-run the Maestro test to confirm end-to-end.
+4. **Fix the code** so the test passes.
+5. **Run the test suite** to verify no regressions.
+6. **Only then** re-run the discovery tool (Maestro, CI, etc.) to confirm end-to-end.
+
+## Where to write the test:
+
+| Bug location | Test tool | Test file |
+|-------------|-----------|-----------|
+| App code (`src/`) | Jest | `__tests__/<matching-path>.test.ts` |
+| Pipeline scripts (`.github/scripts/`) | bats | `.github/scripts/__tests__/regression.test.bats` |
+| Workflow YAML (`.github/workflows/`) | bats | `.github/scripts/__tests__/regression.test.bats` |
+| Country schemas (`src/schemas/`) | Jest | `__tests__/schemas/<ISO>.test.ts` |
+
+## Pipeline bug examples:
+
+- **CI failure from missing checkout**: Write a bats test that parses workflow YAML and validates all jobs sourcing lib.sh have a checkout step.
+- **Function returns wrong value**: Write a bats test that calls the function with the bug-triggering input and asserts the correct output.
+- **Race condition between workflows**: Write a bats test for the merge gate or guard function that should prevent it.
 
 ## Why this order matters:
 
-- Unit tests give instant feedback (< 1s vs minutes for Maestro)
-- Unit tests pinpoint the exact failure (Maestro just shows a symptom)
-- Unit tests prevent regressions permanently
-- Iterating on fixes via Maestro wastes time on slow test cycles
+- Tests give instant feedback (< 1s vs minutes for CI)
+- Tests pinpoint the exact failure (CI logs just show a symptom)
+- Tests prevent regressions permanently
+- Iterating on fixes without tests wastes time and risks repeating bugs
 
 ## Do NOT:
 
-- Re-run Maestro repeatedly to check if a code fix worked
-- Skip writing the unit test because "the Maestro test will cover it"
-- Write a unit test that only passes — verify it fails without the fix too
+- Fix a bug without writing a test first
+- Re-run CI repeatedly to check if a code fix worked
+- Skip writing the test because "CI will cover it"
+- Write a test that only passes — verify it fails without the fix too

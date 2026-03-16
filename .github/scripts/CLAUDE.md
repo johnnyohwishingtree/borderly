@@ -71,3 +71,14 @@ Tests use `test-helper.bash` for mock setup. When adding new lib.sh functions:
 2. Add a mock response handler in `test-helper.bash` if it calls `gh`
 3. Write tests in the appropriate `.test.bats` file
 4. Add a regression test in `regression.test.bats` if the function fixes a bug
+
+### Bug fix TDD (mandatory)
+
+When fixing ANY pipeline bug — whether in scripts or workflow YAML:
+1. **Write a failing bats test first** in `regression.test.bats`
+2. Verify it fails on the broken state
+3. Fix the bug
+4. Verify the test passes
+5. Run `bats .github/scripts/__tests__/*.bats` for full suite
+
+This applies to ALL pipeline bugs, not just function-level bugs. Structural issues (e.g., missing checkout steps, wrong function arguments, YAML misconfigurations) should also have regression tests. See `.claude/rules/bug-fix-workflow.md`.
