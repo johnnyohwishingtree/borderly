@@ -29,6 +29,7 @@ import { CopyableField } from '../../components/guide';
 import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
 import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
 import { automationScriptRegistry, AutomationScriptUtils, formFiller } from '../../services/submission';
+import type { FieldSpec } from '../../services/submission';
 import { pageDetector } from '../../services/submission/pageDetection';
 import { getQRDetectionScript } from '../../services/automation/qrDetection';
 import { getPortalName } from '../../utils/countryUtils';
@@ -41,14 +42,6 @@ import { formatFieldValue } from '../../utils/fieldFormatters';
 
 type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
 
-/** Shape of a field spec sent to the in-page auto-fill script. */
-interface FieldSpec {
-  id: string;
-  selector: string;
-  value: string;
-  inputType: string;
-}
-
 /** Banner state tracked between page loads. */
 interface BannerState {
   filled: number;
@@ -58,76 +51,6 @@ interface BannerState {
 
 /** Detected page type from HTML analysis. */
 type PageType = 'unknown' | 'auth' | 'captcha' | 'form';
-
-/**
- * Build the JavaScript snippet injected into the WebView to auto-fill form fields.
- *
- * Design goals:
- * - Non-destructive: skips fields that already have a value.
- * - Works for text, select, radio, checkbox, and date inputs.
- * - Reports results back via window.ReactNativeWebView.postMessage so the
- *   screen can show the AutoFillBanner.
- * - Adds a brief blue highlight to each successfully filled field.
- */
-function buildAutoFillScript(fields: FieldSpec[]): string {
-  // Serialise field specs into the script. JSON.stringify is safe here —
-  // it escapes quotes/slashes so the embedded string can't break out of
-  // the surrounding JS string.
-  const fieldsJson = JSON.stringify(fields);
-
-  return (
-    '(function(){' +
-    'var fields=' + fieldsJson + ';' +
-    'var filled=0,failed=0;' +
-    'var results=[];' +
-    'for(var i=0;i<fields.length;i++){' +
-      'var f=fields[i];' +
-      'try{' +
-        'var el=document.querySelector(f.selector);' +
-        'if(!el){results.push({id:f.id,status:"not_found"});failed++;continue;}' +
-        // Non-destructive: skip if field already has content
-        'var existing=(el.value!==undefined?el.value.toString().trim():"");' +
-        'if(existing!==""){results.push({id:f.id,status:"skipped"});continue;}' +
-        'if(f.inputType==="select"){' +
-          'var opts=Array.from(el.options||[]);' +
-          'var m=opts.find(function(o){return o.value===f.value;})||' +
-              'opts.find(function(o){return o.text.toLowerCase().indexOf(f.value.toLowerCase())>=0;});' +
-          'if(m){el.value=m.value;el.dispatchEvent(new Event("change",{bubbles:true}));' +
-            'results.push({id:f.id,status:"filled"});filled++;}' +
-          'else{results.push({id:f.id,status:"failed"});failed++;}' +
-        '}else if(f.inputType==="radio"){' +
-          'var r=document.querySelector(f.selector);' +
-          'if(r){r.checked=true;r.dispatchEvent(new Event("change",{bubbles:true}));' +
-            'results.push({id:f.id,status:"filled"});filled++;}' +
-          'else{results.push({id:f.id,status:"failed"});failed++;}' +
-        '}else if(f.inputType==="checkbox"){' +
-          'el.checked=(f.value==="true");' +
-          'el.dispatchEvent(new Event("change",{bubbles:true}));' +
-          'results.push({id:f.id,status:"filled"});filled++;' +
-        '}else{' +
-          // Use native setter so React-controlled inputs pick up the change
-          'var desc=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value");' +
-          'if(desc&&desc.set){desc.set.call(el,f.value);}else{el.value=f.value;}' +
-          'el.dispatchEvent(new Event("input",{bubbles:true}));' +
-          'el.dispatchEvent(new Event("change",{bubbles:true}));' +
-          // Brief blue highlight so the user can see what was filled
-          'el.style.outline="2px solid #3B82F6";' +
-          '(function(e){setTimeout(function(){e.style.outline="";},2500);}(el));' +
-          'results.push({id:f.id,status:"filled"});filled++;' +
-        '}' +
-      '}catch(e){results.push({id:f.id,status:"failed",error:e.message});failed++;}' +
-    '}' +
-    'window.ReactNativeWebView.postMessage(JSON.stringify({' +
-      'type:"AUTO_FILL_RESULT",' +
-      'filled:filled,' +
-      'failed:failed,' +
-      'total:fields.length,' +
-      'results:results' +
-    '}));' +
-    'true;' +
-    '})();'
-  );
-}
 
 /** Script injected to detect the page type (auth/captcha/form). */
 const PAGE_TYPE_CHECK_SCRIPT =
@@ -453,6 +376,9 @@ export default function PortalSubmissionScreen() {
           }
         }
 
+        // File inputs can't be auto-filled via JS
+        if (mapping.inputType === 'file') return;
+
         // Use the first CSS selector from a comma-separated list
         const selector = mapping.selector.split(',')[0].trim();
 
@@ -466,7 +392,7 @@ export default function PortalSubmissionScreen() {
     });
 
     if (fieldSpecs.length > 0) {
-      webViewRef.current?.injectJavaScript(buildAutoFillScript(fieldSpecs));
+      webViewRef.current?.injectJavaScript(formFiller.buildAutoFillScript(fieldSpecs));
     }
   }, [schema, currentStep, leg, effectiveProfile, selectedProfileId, countryCode]);
 
