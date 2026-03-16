@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { mmkvService } from '@/services/storage';
+import { keychainService } from '@/services/storage/keychain';
 import { AccountSetupStatus, AccountReadinessStatus } from '@/types/submission';
 
 const STORAGE_KEY = 'account_setup_statuses';
@@ -39,6 +40,13 @@ interface AccountSetupStore {
 
   /** Remove all stored statuses (for testing / app reset) */
   clearAllStatuses: () => void;
+
+  /**
+   * Returns true if a portal credential is stored in the OS Keychain
+   * for the given profile × portal combination.
+   * Reads directly from the Keychain so it reflects real-time state.
+   */
+  hasCredential: (profileId: string, portalCode: string) => Promise<boolean>;
 }
 
 /** Persist the statuses map to MMKV */
@@ -115,5 +123,10 @@ export const useAccountSetupStore = create<AccountSetupStore>((set, get) => ({
   clearAllStatuses: () => {
     mmkvService.delete(STORAGE_KEY);
     set({ statuses: {} });
+  },
+
+  hasCredential: async (profileId: string, portalCode: string): Promise<boolean> => {
+    const credential = await keychainService.getPortalCredential(profileId, portalCode);
+    return credential !== null;
   },
 }));

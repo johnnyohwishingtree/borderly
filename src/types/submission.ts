@@ -309,6 +309,26 @@ export interface AccountSetupStatus {
 }
 
 /**
+ * Portal credential stored in OS Keychain.
+ * The password field is stored as the Keychain "password" and is never
+ * serialised to JSON — only the metadata is stored in the MMKV index.
+ */
+export interface PortalCredential {
+  /** Portal / country code (e.g. 'JPN', 'SGP') */
+  portalCode: string;
+  /** Profile ID this credential belongs to */
+  profileId: string;
+  /** Username or email used to log in */
+  username: string;
+  /** Optional separate email address (if the portal differentiates) */
+  email?: string;
+  /** ISO timestamp when credential was first stored */
+  createdAt: string;
+  /** ISO timestamp of the last time the credential was retrieved */
+  lastUsed?: string;
+}
+
+/**
  * Validation result for security checks
  */
 export interface SecurityValidationResult {
