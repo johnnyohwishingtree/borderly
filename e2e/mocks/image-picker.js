@@ -17,18 +17,24 @@ function pickFile(accept) {
     input.accept = accept || 'image/*';
     input.style.display = 'none';
 
+    const cleanupAndResolve = (result) => {
+      if (document.body.contains(input)) {
+        document.body.removeChild(input);
+      }
+      resolve(result);
+    };
+
     input.onchange = async () => {
       const file = input.files && input.files[0];
       if (!file) {
-        resolve({ didCancel: true });
-        document.body.removeChild(input);
+        cleanupAndResolve({ didCancel: true });
         return;
       }
 
       try {
         const dataUri = await fileToBase64(file);
         const base64 = typeof dataUri === 'string' ? dataUri.split(',')[1] : '';
-        resolve({
+        cleanupAndResolve({
           didCancel: false,
           assets: [
             {
@@ -43,19 +49,17 @@ function pickFile(accept) {
           ],
         });
       } catch (err) {
-        resolve({
+        cleanupAndResolve({
           didCancel: false,
           errorCode: 'others',
           errorMessage: err instanceof Error ? err.message : 'Failed to read file',
         });
       }
-      document.body.removeChild(input);
     };
 
     // Handle cancel (user closes the file picker without selecting)
     input.addEventListener('cancel', () => {
-      resolve({ didCancel: true });
-      document.body.removeChild(input);
+      cleanupAndResolve({ didCancel: true });
     });
 
     document.body.appendChild(input);
