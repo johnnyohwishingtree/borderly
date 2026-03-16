@@ -124,11 +124,14 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |   Gemini Code Assist reviews automatically                          |
 |                                                                     |
 |   review-guardian.yml:                                               |
-|     +-- Bot review, no critical issues → auto-approve               |
-|     +-- Bot review WITH critical issues → skip approve              |
-|     +-- Gemini fails → request fallback review                      |
-|     +-- CI passes, no reviews → request fallback review             |
-|     +-- Checks for active review-fix before approving               |
+|     +-- Bot review (pull_request_review event):                     |
+|     |     No critical issues → auto-approve                         |
+|     |     WITH critical issues → skip (review-relay handles)        |
+|     |     Checks for active review-fix before approving             |
+|     +-- Gemini fails → request Claude fallback review               |
+|     +-- On CI completion:                                           |
+|     |     +-- No formal review → request Claude review              |
+|     |     +-- Formal review exists → dispatch auto-merge            |
 |                                                                     |
 |   review-relay.yml:                                                 |
 |     +-- Bot submits review → dispatches review-fix.yml              |
@@ -290,6 +293,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix instead of @claude PR comments (which have restricted tools) |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
+| Event-driven approval | ensure-review never auto-approves; approval flows through review event hooks only |
 | Merge conflict resolution | `resolve-conflicts.yml` auto-resolves on push to master |
 | Branch behind detection | Auto-merge merges master into PR branch when behind |
 | Watcher race prevention | Checks active/queued workflows before retriggering |
