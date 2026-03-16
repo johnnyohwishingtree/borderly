@@ -106,6 +106,58 @@ jobs:
           ' >> "$EVIDENCE_FILE" 2>/dev/null || echo "(no pipeline comments found)" >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
 
+          # ── PR merge readiness (approval, threads, CI) ──
+          echo "## PR Merge Readiness" >> "$EVIDENCE_FILE"
+          echo "" >> "$EVIDENCE_FILE"
+
+          # Find PRs related to this issue
+          RELATED_PRS=$(gh pr list --repo "$REPO" --state open --json number,headRefName,body \
+            -q "[.[] | select(.headRefName | test(\"issue-${ISSUE_NUM}($|-)\")) or select(.body | test(\"#${ISSUE_NUM}\"))] | .[].number" 2>/dev/null || true)
+
+          OWNER=$(echo "$REPO" | cut -d/ -f1)
+          NAME=$(echo "$REPO" | cut -d/ -f2)
+
+          for PR_N in $RELATED_PRS; do
+            [ -z "$PR_N" ] && continue
+            echo "### PR #$PR_N" >> "$EVIDENCE_FILE"
+
+            # Approval status
+            APPROVALS=$(gh pr view "$PR_N" --repo "$REPO" --json reviews \
+              -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "?")
+            echo "- **Approvals:** $APPROVALS" >> "$EVIDENCE_FILE"
+
+            # Unresolved threads
+            UNRESOLVED_THREADS=$(gh api graphql -f query="
+              query {
+                repository(owner: \"$OWNER\", name: \"$NAME\") {
+                  pullRequest(number: $PR_N) {
+                    reviewThreads(first: 100) {
+                      nodes { isResolved }
+                    }
+                  }
+                }
+              }
+            " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "?")
+            echo "- **Unresolved review threads:** $UNRESOLVED_THREADS" >> "$EVIDENCE_FILE"
+
+            # CI status
+            PR_CI=$(gh pr view "$PR_N" --repo "$REPO" --json statusCheckRollup \
+              -q '[.statusCheckRollup[] | "\(.name): \(.conclusion // .status)"] | join(", ")' 2>/dev/null || echo "?")
+            echo "- **CI checks:** $PR_CI" >> "$EVIDENCE_FILE"
+
+            # Mergeable
+            MERGEABLE_STATUS=$(gh pr view "$PR_N" --repo "$REPO" --json mergeable -q '.mergeable' 2>/dev/null || echo "?")
+            echo "- **Mergeable:** $MERGEABLE_STATUS" >> "$EVIDENCE_FILE"
+
+            # Recent review-fix runs
+            REVIEW_FIX_RUNS=$(gh run list --repo "$REPO" --workflow review-fix.yml \
+              --json displayTitle,conclusion,createdAt \
+              -q "[.[] | select(.displayTitle | contains(\"#${PR_N}\"))] | .[] | \"\(.conclusion) at \(.createdAt)\"" 2>/dev/null || echo "none")
+            echo "- **Review-fix runs:** $REVIEW_FIX_RUNS" >> "$EVIDENCE_FILE"
+
+            echo "" >> "$EVIDENCE_FILE"
+          done
+
           # ── Related branches + commit context ──
           echo "## Branches" >> "$EVIDENCE_FILE"
           echo "" >> "$EVIDENCE_FILE"
@@ -328,6 +380,8 @@ jobs:
           6. **Duplicate chains**: Watcher retriggers stories that already have active verify-merge runs because it can't detect them.
           7. **Native deps on Ubuntu**: `pod install` can't run on Ubuntu CI. Native packages need lazy/optional imports.
           8. **Stale test assertions after intentional code changes**: Code was changed on purpose (e.g., fixing a URL, renaming a field) but existing tests still assert the OLD value. The fix job sees "expected A, got B" but can't tell if the code or test is wrong without knowing the commit intent. Fix: update the test assertions to match the new code. This is the #1 cause of "Claude produced no changes" across all fix attempts.
+          9. **PR stuck on approval — unresolved review threads**: review-fix addressed feedback but ran with an older workflow version that lacked the "resolve review threads" step. Threads stay unresolved → review-guardian sees ![high]/![critical] badges + unresolved threads → blocks approval → auto-merge can't merge. Fix: resolve all review threads via GraphQL mutation, then close/reopen the PR to retrigger review-guardian.
+          10. **Workflow version mismatch**: `workflow_run`-triggered workflows run from the default branch, but `workflow_dispatch`-triggered workflows (like review-fix) run from the ref they were dispatched on. If a fix was added to master but review-fix was dispatched before the merge, it uses the old code. This is a GitHub Actions fundamental — cannot be fixed, only mitigated by safety nets (watcher, doctor).
           PATTERNS
           echo "" >> "$EVIDENCE_FILE"
 
@@ -461,6 +515,12 @@ jobs:
                - Run `pnpm typecheck && pnpm test` to verify
                - Push the fixes
                - Retrigger verify-merge: `gh workflow run verify-merge.yml --repo ${{ github.repository }} --ref master -f tmp_branch="<branch>" -f target_branch="claude/issue-${{ inputs.issue_number }}" -f issue_number="${{ inputs.issue_number }}" -f attempt="1"`
+
+               **If the PR is stuck on approval (unresolved review threads):**
+               - Check the "PR Merge Readiness" section in the evidence file
+               - If there are unresolved threads, resolve them via: `gh api graphql -f query='mutation { resolveReviewThread(input: {threadId: "<TID>"}) { thread { isResolved } } }'`
+               - Close and reopen the PR to retrigger review-guardian: `gh pr close N && sleep 2 && gh pr reopen N`
+               - This is a known issue (pattern #9 in Known Bug Patterns) caused by review-fix running with an older workflow version
 
                **If you can't determine the cause or can't fix it:**
                - Create a diagnostic issue with label "pipeline-diagnosis" containing full diagnosis, links to all failed runs, what you tried, and recommended manual steps

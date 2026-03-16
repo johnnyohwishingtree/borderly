@@ -199,6 +199,79 @@ jobs:
             else
               echo "  CI status: $CI_CONCLUSION"
             fi
+
+            # Check for stuck PRs: CI passes but no approval due to unresolved review threads
+            if [ "$CI_CONCLUSION" = "SUCCESS" ] || [ "$CI_CONCLUSION" = "success" ]; then
+              HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
+                -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+
+              if [ "$HAS_APPROVAL" -eq 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
+                OWNER=$(echo "$REPO" | cut -d/ -f1)
+                NAME=$(echo "$REPO" | cut -d/ -f2)
+                UNRESOLVED=$(gh api graphql -f query="
+                  query {
+                    repository(owner: \"$OWNER\", name: \"$NAME\") {
+                      pullRequest(number: $PR_NUM) {
+                        reviewThreads(first: 100) {
+                          nodes { isResolved }
+                        }
+                      }
+                    }
+                  }
+                " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+
+                if [ "$UNRESOLVED" -gt 0 ]; then
+                  # Check if watcher already tried this (our previous comment exists)
+                  WATCHER_ATTEMPTS=$(gh pr view "$PR_NUM" --repo "$REPO" --json comments \
+                    -q '[.comments[] | select(.body | contains("Pipeline watcher: resolved"))] | length' 2>/dev/null || echo "0")
+
+                  if [ "$WATCHER_ATTEMPTS" -ge 2 ]; then
+                    echo "  STUCK: watcher already resolved threads $WATCHER_ATTEMPTS times — escalating to pipeline doctor"
+                    if [ -n "$ISSUE_NUM" ]; then
+                      gh workflow run pipeline-doctor.yml \
+                        --repo "$REPO" \
+                        --ref master \
+                        -f issue_number="$ISSUE_NUM" \
+                        -f trigger_source="watcher-stuck-approval" 2>/dev/null || true
+                      echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                    fi
+                  else
+                    echo "  STUCK: CI passes, no approval, $UNRESOLVED unresolved threads, ${COMMIT_AGO}m stale"
+                    echo "  Resolving threads and retriggering approval flow (attempt $((WATCHER_ATTEMPTS + 1)))"
+                  fi
+
+                  # Resolve all unresolved threads
+                  THREAD_IDS=$(gh api graphql -f query="
+                    query {
+                      repository(owner: \"$OWNER\", name: \"$NAME\") {
+                        pullRequest(number: $PR_NUM) {
+                          reviewThreads(first: 100) {
+                            nodes { id isResolved }
+                          }
+                        }
+                      }
+                    }
+                  " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
+
+                  echo "$THREAD_IDS" | while read -r TID; do
+                    if [ -n "$TID" ]; then
+                      gh api graphql -f query="
+                        mutation { resolveReviewThread(input: {threadId: \"$TID\"}) { thread { isResolved } } }
+                      " 2>/dev/null && echo "  Resolved thread $TID" || echo "  Failed to resolve $TID"
+                    fi
+                  done
+
+                  # Comment and close/reopen to trigger auto-merge re-evaluation
+                  gh pr comment "$PR_NUM" --repo "$REPO" \
+                    --body "Pipeline watcher: resolved $UNRESOLVED stale review threads (review-fix ran but didn't resolve them). Retriggering approval flow." \
+                    2>/dev/null || true
+                  gh pr close "$PR_NUM" --repo "$REPO" 2>/dev/null || true
+                  sleep 2
+                  gh pr reopen "$PR_NUM" --repo "$REPO" 2>/dev/null || true
+                  echo "  Closed/reopened PR #$PR_NUM to trigger review-guardian + auto-merge"
+                fi
+              fi
+            fi
           done
 
           # 3. Check in-progress stories that are stuck
