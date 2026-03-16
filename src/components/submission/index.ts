@@ -12,3 +12,5 @@ export { AutoFillPill } from './AutoFillPill';
 export type { AutoFillPillProps, ProfileOption } from './AutoFillPill';
 export { ProfileSelector } from './ProfileSelector';
 export type { ProfileSelectorProps } from './ProfileSelector';
+export { CredentialPrompt } from './CredentialPrompt';
+export type { CredentialPromptProps } from './CredentialPrompt';
