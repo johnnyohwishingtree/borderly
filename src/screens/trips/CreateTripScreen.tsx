@@ -7,6 +7,8 @@ import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { BoardingPassScanner } from '../../components/boarding';
+import { SmartImportSheet } from '../../components/import';
+import type { SmartImportResult } from '../../components/import';
 import { useTripStore } from '../../stores/useTripStore';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { TripLeg, Accommodation } from '../../types/trip';
@@ -72,6 +74,7 @@ export default function CreateTripScreen() {
   const [isCreating, setIsCreating] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showScanner, setShowScanner] = useState(false);
+  const [showSmartImport, setShowSmartImport] = useState(false);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
 
   // Load family members on component mount
@@ -237,6 +240,95 @@ export default function CreateTripScreen() {
   const handleManualEntry = () => {
     setShowScanner(false);
     addLeg();
+  };
+
+  const handleSmartImport = (result: SmartImportResult) => {
+    setShowSmartImport(false);
+
+    const newLegs: LegFormData[] = [];
+
+    // Create legs from imported flights
+    for (const flight of result.flights) {
+      const newLeg: LegFormData = {
+        destinationCountry: flight.destinationCountry || '',
+        arrivalDate: flight.flightDate || '',
+        departureDate: '',
+        flightNumber: flight.flightNumber,
+        airlineCode: flight.airlineCode,
+        arrivalAirport: flight.arrivalAirport || '',
+        accommodation: {
+          name: '',
+          address: {
+            line1: '',
+            city: '',
+            country: flight.destinationCountry || '',
+            postalCode: '',
+          },
+          phone: '',
+        },
+        assignedTravelers:
+          familyMembers.length > 0 ? [familyMembers[0].id] : [],
+        autoFilledFields: {
+          ...(flight.destinationCountry ? { destinationCountry: 'auto' as const } : {}),
+          ...(flight.flightDate ? { arrivalDate: 'auto' as const } : {}),
+          flightNumber: 'auto',
+          airlineCode: 'auto',
+          ...(flight.arrivalAirport ? { arrivalAirport: 'auto' as const } : {}),
+        },
+      };
+
+      // Fill hotel info into the first matching leg if available
+      const matchingHotel = result.hotels[0];
+      if (matchingHotel && newLegs.length === 0) {
+        newLeg.accommodation.name = matchingHotel.name;
+        if (matchingHotel.address) {
+          newLeg.accommodation.address.line1 = matchingHotel.address;
+        }
+        if (matchingHotel.phone) {
+          newLeg.accommodation.phone = matchingHotel.phone;
+        }
+        if (matchingHotel.checkOutDate) {
+          newLeg.departureDate = matchingHotel.checkOutDate;
+        }
+      }
+
+      newLegs.push(newLeg);
+    }
+
+    // If we got hotels but no flights, create a leg just for the hotel
+    if (result.flights.length === 0 && result.hotels.length > 0) {
+      const hotel = result.hotels[0];
+      newLegs.push({
+        destinationCountry: '',
+        arrivalDate: hotel.checkInDate || '',
+        departureDate: hotel.checkOutDate || '',
+        flightNumber: '',
+        airlineCode: '',
+        arrivalAirport: '',
+        accommodation: {
+          name: hotel.name,
+          address: {
+            line1: hotel.address || '',
+            city: hotel.city || '',
+            country: '',
+            postalCode: hotel.postalCode || '',
+          },
+          phone: hotel.phone || '',
+        },
+        assignedTravelers:
+          familyMembers.length > 0 ? [familyMembers[0].id] : [],
+      });
+    }
+
+    if (newLegs.length > 0) {
+      setLegs([...legs, ...newLegs]);
+
+      // Auto-suggest trip name if this is the first leg
+      if (legs.length === 0 && !tripData.name) {
+        const suggestedName = generateTripName([...legs, ...newLegs]);
+        setTripData(prev => ({ ...prev, name: suggestedName }));
+      }
+    }
   };
 
   const generateTripName = (tripLegs: LegFormData[]): string => {
@@ -582,6 +674,13 @@ export default function CreateTripScreen() {
               </View>
               <View className="flex-row space-x-2">
                 <Button
+                  title="Import"
+                  onPress={() => setShowSmartImport(true)}
+                  variant="outline"
+                  size="small"
+                  testID="smart-import-button"
+                />
+                <Button
                   title="Scan"
                   onPress={() => setShowScanner(true)}
                   variant="outline"
@@ -661,6 +760,18 @@ export default function CreateTripScreen() {
           onScanSuccess={handleScanSuccess}
           onScanCancel={handleScanCancel}
           onManualEntry={handleManualEntry}
+        />
+      </Modal>
+
+      {/* Smart Import Modal */}
+      <Modal
+        visible={showSmartImport}
+        animationType="slide"
+        presentationStyle="fullScreen"
+      >
+        <SmartImportSheet
+          onImport={handleSmartImport}
+          onClose={() => setShowSmartImport(false)}
         />
       </Modal>
     </View>
