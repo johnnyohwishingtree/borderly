@@ -109,6 +109,8 @@ jobs:
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
       - uses: actions/checkout@v4
       - name: Notify Claude on failure
@@ -149,5 +151,4 @@ jobs:
 
           IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
-          source .github/scripts/lib.sh
           comment_on_issue "$PR_NUM" "$BODY"

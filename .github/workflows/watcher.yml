@@ -16,6 +16,8 @@ jobs:
     if: vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout scripts
@@ -33,7 +35,6 @@ jobs:
           MAX_CONCURRENT: 3
         run: |
           set -euo pipefail
-          source .github/scripts/lib.sh
           set +u
           echo "=== Pipeline Watcher $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 

@@ -45,6 +45,8 @@ jobs:
   fix:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout PR branch
@@ -113,7 +115,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 failed verification (typecheck or tests). Changes were NOT pushed. [View run]($RUN_URL)"
           exit 1
@@ -127,7 +128,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           echo "Resolving review threads on PR #${{ inputs.pr_number }}"
           resolve_all_threads "${{ inputs.pr_number }}" "${{ github.repository }}"
 
@@ -137,7 +137,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           setup_git_auth
 
           check_changes_and_commit "fix: address review feedback (round ${{ inputs.round }})" || true
@@ -149,6 +148,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests pass). Review threads resolved. [View run]($RUN_URL)"

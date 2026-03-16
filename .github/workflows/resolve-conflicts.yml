@@ -65,6 +65,8 @@ jobs:
     if: needs.find-conflicting-prs.outputs.prs != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     strategy:
       matrix:
         pr: ${{ fromJSON(needs.find-conflicting-prs.outputs.prs) }}
@@ -161,7 +163,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           TYPE="${{ steps.merge.outputs.resolved }}"
           if [ "$TYPE" = "clean" ]; then
             MSG="Merged latest master (no conflicts)."
@@ -176,5 +177,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           comment_on_issue "${{ matrix.pr.number }}" "Could not auto-resolve merge conflicts. Files needing manual resolution: \`${{ steps.merge.outputs.manual_files }}\`"

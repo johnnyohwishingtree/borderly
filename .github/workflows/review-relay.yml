@@ -25,6 +25,8 @@ jobs:
       github.event.review.state == 'commented'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Check reviewer and relay count
@@ -148,7 +150,6 @@ jobs:
           ROUND=${{ steps.check.outputs.relay_round }}
           SUMMARY=$(cat /tmp/review_summary_dispatch.txt)
 
-          source .github/scripts/lib.sh
           dispatch_workflow "review-fix.yml" \
             --ref "$PR_BRANCH" \
             -f pr_number="$PR_NUM" \

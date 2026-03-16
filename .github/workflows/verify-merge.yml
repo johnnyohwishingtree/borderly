@@ -43,6 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     if: inputs.issue_number != ''
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
       - name: Checkout scripts
         uses: actions/checkout@v4
@@ -54,7 +56,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          source .github/scripts/lib.sh
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           BODY="Verify and Merge — [attempt ${{ inputs.attempt }}/6]($RUN_URL)"
           comment_on_issue "${{ inputs.issue_number }}" "$BODY"
@@ -287,6 +288,8 @@ jobs:
     if: needs.verify.outputs.pass == 'false' && inputs.attempt != '6'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout temp branch
@@ -378,7 +381,6 @@ jobs:
               # Post on issue so humans know immediately
               ISSUE_NUM="${{ inputs.issue_number }}"
               if [ -n "$ISSUE_NUM" ]; then
-                source .github/scripts/lib.sh
                 BODY=$(cat <<EOF
           Fix attempt ${{ inputs.attempt }}/6 aborted: Claude hit **$DENIALS permission denials** in $TURNS turns (\$$COST wasted). The \`allowedTools\` config is broken — retrying won't help.
 
@@ -397,7 +399,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          source .github/scripts/lib.sh
           setup_git_auth
 
           # Stage fix log if it was created/updated
@@ -453,7 +454,6 @@ jobs:
         run: |
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
 
-          source .github/scripts/lib.sh
           dispatch_workflow "verify-merge.yml" \
             -f tmp_branch="${{ inputs.tmp_branch }}" \
             -f target_branch="${{ inputs.target_branch }}" \
@@ -471,7 +471,6 @@ jobs:
           TMP_BRANCH="${{ inputs.tmp_branch }}"
 
           if [ -n "$ISSUE_NUM" ]; then
-            source .github/scripts/lib.sh
             BODY=$(cat <<EOF
           Fix attempt ${{ inputs.attempt }}/6 produced no changes — Claude could not fix the errors. Remaining attempts skipped.
 
@@ -489,7 +488,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          source .github/scripts/lib.sh
           setup_git_auth
 
           TMP_BRANCH="${{ inputs.tmp_branch }}"
@@ -538,6 +536,8 @@ jobs:
     if: needs.verify.outputs.pass == 'false' && inputs.attempt == '6'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout scripts
@@ -573,7 +573,6 @@ jobs:
               -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | .[].databaseId" \
               2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
 
-            source .github/scripts/lib.sh
             BODY=$(cat <<EOF
           Checks failed after 6 fix attempts. Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 

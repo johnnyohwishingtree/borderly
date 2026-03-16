@@ -47,6 +47,8 @@ jobs:
       contains(fromJSON('["gemini-code-assist[bot]", "copilot[bot]"]'), github.event.review.user.login)
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
       - name: Checkout scripts
         uses: actions/checkout@v4
@@ -60,7 +62,6 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           PR_NUM=${{ github.event.pull_request.number }}
 
           # Check if there's already an APPROVED review
@@ -138,6 +139,8 @@ jobs:
       github.event.comment.user.login == 'claude[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
       - name: Checkout scripts
         uses: actions/checkout@v4
@@ -150,7 +153,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           PR_NUM=${{ github.event.issue.number }}
 
           # Only approve if Claude was asked to review (not just any Claude comment)
@@ -216,8 +218,6 @@ jobs:
             exit 0
           fi
 
-          source .github/scripts/lib.sh
-
           # Extract Claude's review findings to include in the fix request
           CLAUDE_COMMENT_ID=${{ github.event.comment.id }}
           REVIEW_BODY=$(gh api "repos/$REPO/issues/comments/$CLAUDE_COMMENT_ID" \
@@ -250,6 +250,8 @@ jobs:
       github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
       - name: Checkout scripts
         uses: actions/checkout@v4
@@ -263,7 +265,6 @@ jobs:
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           echo "CI passed for branch: $BRANCH"
 
@@ -344,7 +345,6 @@ jobs:
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           PR_NUM=${{ steps.check.outputs.pr_num }}
 
           # Check for critical/high-severity inline comments (including Gemini
@@ -420,7 +420,6 @@ jobs:
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           PR_NUM=${{ steps.check.outputs.pr_num }}
           echo "Requesting @$AGENT fallback review for PR #$PR_NUM"
           comment_on_issue "$PR_NUM" "@$AGENT No code review was posted on this PR (the usual reviewer may be at quota). Please perform a comprehensive code review. Check for bugs, security issues, performance problems, and code quality. Post your findings as a PR review (approve if it looks good, or request changes if there are issues). This is an automated fallback." "$REPO"

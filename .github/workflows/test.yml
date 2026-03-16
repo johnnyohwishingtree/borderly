@@ -15,6 +15,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout repo
@@ -80,5 +82,4 @@ jobs:
 
           IMPORTANT: After fixing, you MUST run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\` locally to verify ALL checks pass BEFORE committing. Do NOT push code that still has failing checks. Then git add, git commit, and git push. (Auto-fix attempt $((FIX_COUNT + 1))/3)"
 
-          source .github/scripts/lib.sh
           comment_on_issue "$PR_NUM" "$BODY"

@@ -47,6 +47,8 @@ jobs:
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout scripts
@@ -61,7 +63,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          source .github/scripts/lib.sh
           export INPUT_PR_NUMBER="${{ inputs.pr_number }}"
           export WORKFLOW_RUN_HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
           export PR_NUMBER_FROM_EVENT="${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}"

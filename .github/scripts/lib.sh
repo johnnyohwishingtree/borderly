@@ -1,11 +1,16 @@
 #!/bin/bash
-set -euo pipefail
 
 # ============================================================================
 # lib.sh — Shared shell library for GitHub Actions workflows
 #
 # Source this file in workflow steps:
 #   source .github/scripts/lib.sh
+#
+# Or set as BASH_ENV at the job level to auto-source in every step:
+#   jobs:
+#     my-job:
+#       env:
+#         BASH_ENV: .github/scripts/lib.sh
 #
 # All functions use $GH_TOKEN from env for GitHub API calls.
 # Functions return exit codes; callers decide what to do with failures.
@@ -17,6 +22,10 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   echo "Usage: source .github/scripts/lib.sh"
   exit 1
 fi
+
+# Note: no `set -euo pipefail` here. When sourced (or via BASH_ENV), set
+# flags leak into the caller's shell. GHA already sets -eo pipefail.
+# Adding -u (nounset) would break steps that use unset variables.
 
 # ────────────────────────────────────────────────────────────────────────────
 # setup_git_auth

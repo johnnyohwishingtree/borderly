@@ -30,22 +30,30 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | `gh issue comment N --repo ... --body "..."` | `comment_on_issue N "body"` |
 | `gh run list --workflow X --status in_progress ...` | `is_workflow_active "X.yml" N "$REPO"` |
 
-### How to source lib.sh in a workflow step
+### How to use lib.sh in a workflow
+
+Set `BASH_ENV` at the job level — bash auto-sources it before every `run:` block:
 
 ```yaml
-- name: Do something
-  env:
-    GH_TOKEN: ${{ secrets.GH_PAT }}
-  run: |
-    source .github/scripts/lib.sh
-    setup_git_auth
-    dispatch_workflow "auto-merge.yml" -f pr_number="42"
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+    steps:
+      - uses: actions/checkout@v4  # required — makes lib.sh available
+      - run: |
+          setup_git_auth
+          dispatch_workflow "auto-merge.yml" -f pr_number="42"
 ```
+
+No `source` line needed in any step — all lib.sh functions are available automatically.
 
 Requirements:
 - The job must checkout `.github/scripts/` (via `actions/checkout` or sparse-checkout)
 - `$GH_TOKEN` must be set in the step's `env` (most functions need it)
 - `$GITHUB_REPOSITORY` is set automatically by GitHub Actions
+- Do NOT add `source .github/scripts/lib.sh` in steps — use `BASH_ENV` instead
 
 ### Function signatures
 

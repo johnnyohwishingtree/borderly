@@ -2,7 +2,7 @@
 
 When writing or modifying GitHub Actions workflow steps in `.github/workflows/`:
 
-1. **Always `source .github/scripts/lib.sh`** at the top of `run:` blocks that interact with git or the GitHub API.
+1. **Set `BASH_ENV: .github/scripts/lib.sh`** in the job's `env:` block. This auto-sources lib.sh in every step — do NOT use `source .github/scripts/lib.sh` in individual steps.
 
 2. **Use lib.sh functions instead of inline commands:**
    - `dispatch_workflow` instead of `gh workflow run`

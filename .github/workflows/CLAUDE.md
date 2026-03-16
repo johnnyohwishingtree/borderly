@@ -13,27 +13,30 @@ The pipeline follows a **Temporal-inspired** model:
 
 ### 1. Use lib.sh functions — never inline raw commands
 
-Every workflow step that interacts with git or the GitHub API must `source .github/scripts/lib.sh` and use its functions. See `.github/scripts/CLAUDE.md` for the full mapping.
+Every workflow step that interacts with git or the GitHub API must use lib.sh functions. See `.github/scripts/CLAUDE.md` for the full mapping.
 
-Common violations to avoid:
 ```yaml
 # BAD — raw dispatch
 gh workflow run auto-merge.yml --repo "$REPO" --ref master -f pr_number="$N"
 
-# GOOD — reusable function
-source .github/scripts/lib.sh
+# GOOD — reusable function (available via BASH_ENV)
 dispatch_workflow "auto-merge.yml" -f pr_number="$N"
 ```
 
-### 2. Checkout scripts before sourcing
+### 2. Set BASH_ENV at the job level
 
-If a job needs lib.sh, it must checkout the scripts:
+Every job that uses lib.sh functions must set `BASH_ENV` and have a checkout step:
 ```yaml
-- uses: actions/checkout@v4
-  with:
-    sparse-checkout: .github/scripts
-    sparse-checkout-cone-mode: false
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    env:
+      BASH_ENV: .github/scripts/lib.sh   # auto-sourced in every step
+    steps:
+      - uses: actions/checkout@v4         # makes the file available
 ```
+
+Do NOT use `source .github/scripts/lib.sh` in individual steps — `BASH_ENV` handles it once at the job level.
 
 ### 3. Use GH_PAT for cross-workflow triggers
 
