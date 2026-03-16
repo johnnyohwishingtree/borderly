@@ -435,8 +435,8 @@ describe('PortalSubmissionScreen — auto-login states', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(queryByTestId('save-credentials-prompt')).toBeTruthy();
-    expect(queryByTestId('save-credentials-confirm')).toBeTruthy();
-    expect(queryByTestId('save-credentials-dismiss')).toBeTruthy();
+    expect(queryByTestId('credential-prompt-save')).toBeTruthy();
+    expect(queryByTestId('credential-prompt-skip')).toBeTruthy();
   });
 
   it('does NOT show save-credentials-prompt when auto-login handled the login', async () => {
