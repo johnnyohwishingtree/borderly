@@ -998,15 +998,17 @@ export default function PortalSubmissionScreen() {
       )}
 
       {/* "Save credentials for next time?" prompt — shown after manual login */}
-      <CredentialPrompt
-        visible={showSaveCredentialsPrompt}
-        portalName={schema?.portalName ?? 'this portal'}
-        initialUsername={extractedUsername}
-        title="Save your login for next time?"
-        onSave={handleCredentialSave}
-        onSkip={() => setShowSaveCredentialsPrompt(false)}
-        testID="save-credentials-prompt"
-      />
+      {showSaveCredentialsPrompt && (
+        <CredentialPrompt
+          visible
+          portalName={schema?.portalName ?? 'this portal'}
+          initialUsername={extractedUsername}
+          title="Save your login for next time?"
+          onSave={handleCredentialSave}
+          onSkip={() => setShowSaveCredentialsPrompt(false)}
+          testID="save-credentials-prompt"
+        />
+      )}
 
       {/* WebView */}
       <View style={{ flex: 1 }}>
