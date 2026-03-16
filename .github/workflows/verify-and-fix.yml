@@ -6,10 +6,14 @@ run-name: "Verify #${{ inputs.issue_number }} on ${{ inputs.branch }} (attempt $
 # to the target branch).
 #
 # Temp branch pattern:
-#   - Attempt 1 verifies the target branch directly.
+#   - Attempt 1 verifies the source branch directly.
 #   - On failure, the fix job creates tmp/vf-<branch>-<run_id> from the
-#     target, fixes there, and passes it to subsequent attempts.
-#   - Only on final pass does the merge job merge temp → target and clean up.
+#     source, fixes there, and passes it to subsequent attempts.
+#   - Only on final pass does the merge job merge verified code back.
+#
+# Merge modes (controlled by merge_into):
+#   - Empty: merge work branch back into source branch (default for CI fixes)
+#   - Set: merge into a DIFFERENT target branch, create PR (for claude.yml flow)
 #
 # Retry mechanism: self-dispatches with attempt+1 since workflow_call
 # can't self-dispatch. Callers trigger via dispatch_workflow.
@@ -18,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Target branch (PR branch — only receives verified code)'
+        description: 'Source branch to verify (receives verified code back unless merge_into is set)'
         required: true
         type: string
       work_branch:
@@ -26,6 +30,16 @@ on:
         required: false
         type: string
         default: ''
+      merge_into:
+        description: 'Merge verified code into this branch instead of source (for claude.yml flow)'
+        required: false
+        type: string
+        default: ''
+      create_pr:
+        description: 'Create a PR after merge (requires merge_into)'
+        required: false
+        type: boolean
+        default: false
       issue_number:
         description: 'Issue/PR number for status comments'
         required: false
@@ -186,22 +200,44 @@ jobs:
             comment_on_issue "${{ inputs.issue_number }}" "Verify and Fix — [attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }}]($RUN_URL): checks failed. $([ '${{ inputs.fix_enabled }}' = 'true' ] && echo 'Claude will attempt a fix.' || echo 'Fix not enabled.')"
           fi
 
-  # Merge verified temp branch back into target, clean up
+  # Merge verified code into target branch, clean up temp branches, optionally create PR.
+  #
+  # Two modes:
+  #   1. work_branch set, no merge_into: merge work→branch (fix was on temp, merge back)
+  #   2. merge_into set: merge source→merge_into (claude.yml flow: tmp→PR branch)
+  #   Both can coexist: work→branch→merge_into (fix on temp, then merge into final target)
   merge:
     needs: verify
     if: >-
       needs.verify.outputs.pass == 'true' &&
-      inputs.work_branch != ''
+      (inputs.work_branch != '' || inputs.merge_into != '')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       BASH_ENV: .github/scripts/lib.sh
 
     steps:
-      - name: Checkout target branch
+      - name: Determine merge target
+        id: target
+        run: |
+          # Final target: merge_into if set, otherwise branch
+          if [ -n "${{ inputs.merge_into }}" ]; then
+            echo "final=${{ inputs.merge_into }}" >> $GITHUB_OUTPUT
+          else
+            echo "final=${{ inputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+
+          # Source of verified code: work_branch if set, otherwise branch
+          if [ -n "${{ inputs.work_branch }}" ]; then
+            echo "source=${{ inputs.work_branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "source=${{ inputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout final target
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ steps.target.outputs.final }}
           fetch-depth: 0
 
       - name: Configure git and auth
@@ -209,15 +245,33 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
 
-      - name: Merge work branch into target
+      - name: Merge verified code into target
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          WORK="${{ inputs.work_branch }}"
-          TARGET="${{ inputs.branch }}"
+          SOURCE="${{ steps.target.outputs.source }}"
+          FINAL="${{ steps.target.outputs.final }}"
 
-          git fetch origin "$WORK"
-          git merge "origin/$WORK" --no-edit
+          if [ "$SOURCE" != "$FINAL" ]; then
+            git fetch origin "$SOURCE"
+            git merge "origin/$SOURCE" --no-edit
+          fi
+
+          # Merge master so the target branch is up to date
+          git fetch origin master
+          git merge origin/master --no-edit || {
+            echo "::warning::Merge conflict with master — taking master for infra files"
+            CONFLICTING=$(git diff --name-only --diff-filter=U || true)
+            for file in $CONFLICTING; do
+              if echo "$file" | grep -qE '^\.(github|claude)/|^docs/pipeline|^CLAUDE\.md|lock\.(yaml|json)$|Podfile\.lock$'; then
+                git checkout origin/master -- "$file"
+              else
+                git checkout --ours "$file"
+              fi
+              git add "$file"
+            done
+            git commit --no-edit
+          }
 
           # Remove fix context log — only needed across fix attempts
           if [ -f .claude-fix-log.md ]; then
@@ -225,16 +279,100 @@ jobs:
             git commit -m "chore: remove fix context log"
           fi
 
-          smart_push "$TARGET"
-          echo "Merged $WORK into $TARGET"
+          REMOTE_EXISTS=$(git ls-remote --heads origin "$FINAL" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$REMOTE_EXISTS" -eq 0 ]; then
+            git push -u origin HEAD
+          else
+            smart_push "$FINAL"
+          fi
 
-      - name: Delete work branch
+          echo "Merged $SOURCE into $FINAL"
+
+      - name: Clean up source branches
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ inputs.work_branch }}" 2>/dev/null \
-            && echo "Deleted ${{ inputs.work_branch }}" \
-            || echo "Failed to delete ${{ inputs.work_branch }}"
+          FINAL="${{ steps.target.outputs.final }}"
+
+          # Delete work branch if it exists and differs from target
+          if [ -n "${{ inputs.work_branch }}" ] && [ "${{ inputs.work_branch }}" != "$FINAL" ]; then
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ inputs.work_branch }}" 2>/dev/null \
+              && echo "Deleted work branch: ${{ inputs.work_branch }}" || true
+          fi
+
+          # Delete source branch if merge_into was used (source is now merged)
+          if [ -n "${{ inputs.merge_into }}" ] && [ "${{ inputs.branch }}" != "$FINAL" ]; then
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ inputs.branch }}" 2>/dev/null \
+              && echo "Deleted source branch: ${{ inputs.branch }}" || true
+          fi
+
+          # Clean up stale tmp/ branches
+          gh api "repos/${{ github.repository }}/git/matching-refs/heads/tmp/" \
+            --jq '.[].ref' 2>/dev/null | sed 's|^refs/heads/||' | while read -r branch; do
+            if [ "$branch" != "${{ inputs.branch }}" ] && [ "$branch" != "${{ inputs.work_branch }}" ]; then
+              gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$branch" 2>/dev/null \
+                && echo "Cleaned up $branch" || true
+            fi
+          done
+
+      - name: Create PR
+        if: inputs.create_pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          TARGET="${{ steps.target.outputs.final }}"
+          ISSUE_NUM="${{ inputs.issue_number }}"
+
+          # Check for existing PR
+          EXISTING=$(gh pr list --head "$TARGET" --state open --json number -q '.[0].number' 2>/dev/null || true)
+          if [ -n "$EXISTING" ]; then
+            echo "PR #$EXISTING already exists for $TARGET"
+            exit 0
+          fi
+
+          if [ -n "$ISSUE_NUM" ]; then
+            ISSUE_PR=$(gh pr list --state open --search "Closes #$ISSUE_NUM in:body" --json number \
+              -q '.[0].number' 2>/dev/null || true)
+            if [ -n "$ISSUE_PR" ]; then
+              echo "PR #$ISSUE_PR already exists for issue #$ISSUE_NUM — skipping"
+              exit 0
+            fi
+          fi
+
+          AHEAD=$(git rev-list --count "origin/master..origin/$TARGET" 2>/dev/null || echo "0")
+          if [ "$AHEAD" -eq 0 ]; then
+            echo "No commits ahead of master — skipping PR"
+            exit 0
+          fi
+
+          if [ -n "$ISSUE_NUM" ]; then
+            ISSUE_TITLE=$(gh issue view "$ISSUE_NUM" --json title -q '.title' 2>/dev/null || echo "")
+            PR_TITLE="${ISSUE_TITLE:-Implement issue #$ISSUE_NUM}"
+            PR_BODY="Closes #${ISSUE_NUM}
+
+          Autonomously implemented by Claude Code via GitHub Actions.
+
+          Generated with [Claude Code](https://claude.ai/code)"
+          else
+            PR_TITLE="Changes from Claude Code"
+            PR_BODY="Autonomously implemented by Claude Code via GitHub Actions."
+          fi
+
+          if ! gh pr create --head "$TARGET" --base master --title "$PR_TITLE" --body "$PR_BODY" 2>/tmp/pr_error.txt; then
+            if grep -qi "Head sha can't be blank\|No commits between\|Head ref must be" /tmp/pr_error.txt; then
+              echo "::warning::GitHub can't resolve branch ref — creating fresh branch"
+              FRESH="pr/issue-${ISSUE_NUM:-unknown}"
+              git push origin "HEAD:refs/heads/$FRESH" --force
+              gh pr create --head "$FRESH" --base master --title "$PR_TITLE" --body "$PR_BODY" \
+                || { echo "::error::Failed to create PR"; cat /tmp/pr_error.txt; exit 1; }
+            else
+              echo "::error::Failed to create PR"
+              cat /tmp/pr_error.txt
+              exit 1
+            fi
+          else
+            echo "PR created — waiting for reviews before merge"
+          fi
 
   fix:
     needs: verify
@@ -398,15 +536,26 @@ jobs:
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           WORK_BRANCH="${{ steps.work.outputs.branch }}"
 
-          dispatch_workflow "verify-and-fix.yml" \
-            -f branch="${{ inputs.branch }}" \
-            -f work_branch="$WORK_BRANCH" \
-            -f issue_number="${{ inputs.issue_number }}" \
-            -f checks="${{ inputs.checks }}" \
-            -f fix_enabled="true" \
-            -f max_attempts="${{ inputs.max_attempts }}" \
-            -f attempt="$NEXT_ATTEMPT" \
+          DISPATCH_ARGS=(
+            -f branch="${{ inputs.branch }}"
+            -f work_branch="$WORK_BRANCH"
+            -f issue_number="${{ inputs.issue_number }}"
+            -f checks="${{ inputs.checks }}"
+            -f fix_enabled="true"
+            -f max_attempts="${{ inputs.max_attempts }}"
+            -f attempt="$NEXT_ATTEMPT"
             -f fix_context="${{ inputs.fix_context }}"
+          )
+
+          # Thread merge inputs through retries
+          if [ -n "${{ inputs.merge_into }}" ]; then
+            DISPATCH_ARGS+=(-f merge_into="${{ inputs.merge_into }}")
+          fi
+          if [ "${{ inputs.create_pr }}" = "true" ]; then
+            DISPATCH_ARGS+=(-f create_pr="true")
+          fi
+
+          dispatch_workflow "verify-and-fix.yml" "${DISPATCH_ARGS[@]}"
 
           echo "Triggered verify-and-fix attempt $NEXT_ATTEMPT/${{ inputs.max_attempts }}"
 
@@ -439,15 +588,25 @@ jobs:
           # Continue the fix loop
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           if [ "$NEXT_ATTEMPT" -le "${{ inputs.max_attempts }}" ]; then
-            dispatch_workflow "verify-and-fix.yml" \
-              -f branch="${{ inputs.branch }}" \
-              -f work_branch="$WORK_BRANCH" \
-              -f issue_number="${{ inputs.issue_number }}" \
-              -f checks="${{ inputs.checks }}" \
-              -f fix_enabled="true" \
-              -f max_attempts="${{ inputs.max_attempts }}" \
-              -f attempt="$NEXT_ATTEMPT" \
+            DISPATCH_ARGS=(
+              -f branch="${{ inputs.branch }}"
+              -f work_branch="$WORK_BRANCH"
+              -f issue_number="${{ inputs.issue_number }}"
+              -f checks="${{ inputs.checks }}"
+              -f fix_enabled="true"
+              -f max_attempts="${{ inputs.max_attempts }}"
+              -f attempt="$NEXT_ATTEMPT"
               -f fix_context="${{ inputs.fix_context }}"
+            )
+
+            if [ -n "${{ inputs.merge_into }}" ]; then
+              DISPATCH_ARGS+=(-f merge_into="${{ inputs.merge_into }}")
+            fi
+            if [ "${{ inputs.create_pr }}" = "true" ]; then
+              DISPATCH_ARGS+=(-f create_pr="true")
+            fi
+
+            dispatch_workflow "verify-and-fix.yml" "${DISPATCH_ARGS[@]}"
           fi
 
           if [ -n "${{ inputs.issue_number }}" ]; then

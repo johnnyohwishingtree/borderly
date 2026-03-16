@@ -24,7 +24,7 @@
 #
 #   # 3b. On failure:
 #   activity_fail "$ISSUE_NUM" "verify" "typecheck failed: 3 errors" \
-#     "verify-merge.yml" -f issue_number="$ISSUE_NUM" -f attempt="$NEXT"
+#     "verify-and-fix.yml" -f issue_number="$ISSUE_NUM" -f attempt="$NEXT"
 #
 # Environment:
 #   GH_TOKEN            — GitHub token

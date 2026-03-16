@@ -20,25 +20,25 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 - **Solution**: `cancel-in-progress: ${{ contains(github.event.comment.body, '@claude') }}`. Only comments containing `@claude` can cancel a previous run. Status comments still trigger the workflow (unavoidable) but queue harmlessly with `cancel-in-progress: false`, then skip at the job `if` condition.
 
 ### Fix Attempt Isolation
-- **Problem**: verify-merge attempt 2 could cancel attempt 1's fix job
+- **Problem**: verify-and-fix attempt 2 could cancel attempt 1's fix job
 - **Solution**: Concurrency group includes attempt number
-  - `verify-merge-tmp/claude-123-attempt-1`
-  - `verify-merge-tmp/claude-123-attempt-2`
+  - `verify-fix-tmp/claude-123-attempt-1`
+  - `verify-fix-tmp/claude-123-attempt-2`
 - `cancel-in-progress: false` prevents any cancellation
 
 ### Watcher Race Condition
-- **Problem**: Pipeline watcher retriggers `@claude` on in-progress stories while `claude.yml` or `verify-merge.yml` is still running, creating duplicate competing runs.
-- **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` and `verify-merge.yml` runs by parsing `displayTitle` (e.g., "Verify #277 -> ..."). Skips retrigger if any workflow is already in flight for that story.
-- **Bug fixed**: Originally tried to read `verify-merge.yml` inputs via `gh api .inputs.issue_number`, but `.inputs` is `null` for `workflow_dispatch` runs via the API. Switched to parsing `displayTitle` like we do for `claude.yml`.
+- **Problem**: Pipeline watcher retriggers `@claude` on in-progress stories while `claude.yml` or `verify-and-fix.yml` is still running, creating duplicate competing runs.
+- **Solution**: Watcher collects issue numbers from all active/queued `claude.yml` and `verify-and-fix.yml` runs by parsing `displayTitle` (e.g., "Verify #277 -> ..."). Skips retrigger if any workflow is already in flight for that story.
+- **Bug fixed**: Originally tried to read `verify-and-fix.yml` inputs via `gh api .inputs.issue_number`, but `.inputs` is `null` for `workflow_dispatch` runs via the API. Switched to parsing `displayTitle` like we do for `claude.yml`.
 
 ### Review-Fix Race Condition (PR #380)
 - **Problem**: When a bot reviewer posted a COMMENTED review, two things happened concurrently: (1) review-relay dispatched review-fix.yml to address the feedback, and (2) review-guardian waited 90s then checked for `@claude.*review round` comments to decide whether to defer approval. But review-relay no longer posts `@claude` comments (it dispatches review-fix.yml directly), so the regex never matched. review-guardian auto-approved, auto-merge saw all conditions met, and merged the PR while review-fix was still running -- review feedback was never addressed.
 - **Solution**: Two fixes: (1) review-guardian now checks `is_workflow_active("review-fix.yml")` before auto-approving, and also checks for review-relay's actual comment format ("Dispatched review-fix workflow"). (2) evaluate-merge-gate.sh adds a 6th condition: `no_active_fix` -- the merge gate will not merge while any review-fix.yml run is in_progress or queued for the PR.
 
 ### Race Condition: PR Merged While Pipeline Runs
-- **Problem**: If a PR is manually merged while claude.yml or verify-merge is still running, subsequent steps try to checkout deleted branches
+- **Problem**: If a PR is manually merged while claude.yml or verify-and-fix is still running, subsequent steps try to checkout deleted branches
 - **Impact**: Harmless failure -- the work was already merged
-- **Mitigation**: verify-merge's merge job checks if the target branch exists before checkout
+- **Mitigation**: verify-and-fix's merge job checks if the target branch exists before checkout
 
 ---
 
@@ -46,13 +46,13 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 
 ### Branch Naming (Three Branches)
 - **Problem**: `claude-code-action@v1` creates its own `claude/issue-N-TIMESTAMP` branch and pushes to it via its built-in push script, ignoring our system prompt push command
-- **Solution**: We create two branches upfront: `claude/issue-N` (clean PR branch) and `tmp/claude-<run_id>` (work branch for verify-merge). The action also creates `claude/issue-N-TIMESTAMP` and Claude pushes milestones there. This is fine -- work is safe on the remote. The end-of-run step copies everything to `tmp/` for verify-merge. Three branches total:
-  1. `claude/issue-N` -- clean PR branch, only receives verified code via verify-merge
-  2. `tmp/claude-<run_id>` -- work branch for verify-merge (populated at end-of-run)
+- **Solution**: We create two branches upfront: `claude/issue-N` (clean PR branch) and `tmp/claude-<run_id>` (work branch for verify-and-fix). The action also creates `claude/issue-N-TIMESTAMP` and Claude pushes milestones there. This is fine -- work is safe on the remote. The end-of-run step copies everything to `tmp/` for verify-and-fix. Three branches total:
+  1. `claude/issue-N` -- clean PR branch, only receives verified code via verify-and-fix
+  2. `tmp/claude-<run_id>` -- work branch for verify-and-fix (populated at end-of-run)
   3. `claude/issue-N-TIMESTAMP` -- action's internal branch (mid-run pushes land here)
 
 ### Same tmp_branch and target_branch
-- **Problem**: verify-merge can be triggered with `tmp_branch == target_branch` (e.g., manual retrigger or when claude-code-action pushes directly to the target). The merge step merges a branch into itself (no-op), then the delete step deletes the target branch, and `gh pr create` fails because GitHub's ref is gone.
+- **Problem**: verify-and-fix can be triggered with source branch == target branch (e.g., manual retrigger or when claude-code-action pushes directly to the target). The merge step merges a branch into itself (no-op), then the delete step deletes the target branch, and `gh pr create` fails because GitHub's ref is gone.
 - **Solution**: Three guards: (1) merge step skips `git merge` when branches are the same, (2) delete step skips when branches are the same -- never delete the target branch, (3) PR creation retries with a fresh branch name (`pr/issue-N`) if GitHub returns "Head sha can't be blank" or "No commits between" errors (handles stale ref cache after force-pushes).
 
 ### Post-Action Push Race
@@ -69,7 +69,7 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 
 ### Duplicate PR Prevention
 - **Problem**: `claude-code-action@v1` creates timestamped branches (`claude/issue-N-YYYYMMDD-HHMM`), while `claude.yml` pre-creates `claude/issue-N`. Both can end up with PRs, creating duplicates for the same issue.
-- **Solution**: verify-merge's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
+- **Solution**: verify-and-fix's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
 
 ### Auto-Merge Branch Behind Master
 - **Problem**: When multiple PRs merge in quick succession, remaining PRs fall behind master (`mergeStateStatus: "BEHIND"`). `gh pr merge --squash` fails silently because the branch isn't up-to-date. Auto-merge evaluates all conditions as met but can't actually merge. The watcher detects the stuck PR and dispatches auto-merge, but auto-merge hits the same `BEHIND` failure. Neither watcher, doctor, nor auto-merge updates the branch -- so PRs sit open indefinitely.
@@ -82,7 +82,7 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 ### Automated Merge Conflict Resolution (resolve-conflicts.yml)
 - **Trigger**: On push to master (checks all open PRs) or manual dispatch for a specific PR
 - **Logic**: Infrastructure files (`.github/`, `docs/pipeline*`, `CLAUDE.md`) and lock files take master's version. PR-modified files take the branch's version. If conflicts can't be auto-resolved, a comment is posted listing the files needing manual attention.
-- **Purpose**: Prevents PRs from going stale when master moves ahead. Previously, merge conflicts accumulated silently and were only discovered during verify-merge.
+- **Purpose**: Prevents PRs from going stale when master moves ahead. Previously, merge conflicts accumulated silently and were only discovered during verify-and-fix.
 
 ---
 
@@ -100,9 +100,9 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 - **Problem**: `${{ github.event.review.body }}` interpolated in shell `run:` blocks caused review text to be executed as shell commands
 - **Solution**: Pass review body via `env:` block, reference as `$REVIEW_BODY`
 
-### Duplicate verify-merge from Review Relay
-- **Problem**: verify-merge creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-merge
-- **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-merge entirely. Only issue-context runs go through verify-merge.
+### Duplicate verify-and-fix from Review Relay
+- **Problem**: verify-and-fix creates PR --> Gemini reviews --> review-relay posts `@claude` --> claude.yml runs again on same branch --> dispatches redundant verify-and-fix
+- **Solution**: claude.yml detects issue vs PR context. PR-context runs push directly to the PR branch and skip verify-and-fix entirely. Only issue-context runs go through verify-and-fix.
 
 ### Gemini Inline Priority Badges Bypass Auto-Approve
 - **Problem**: Gemini posts inline review comments with priority badges like `![high]` and `![critical]` but submits the overall review as `COMMENTED` (not `CHANGES_REQUESTED`). The review-guardian only checked the review summary body for keywords like `critical` and `high-priority`, so it missed badge-formatted priorities in inline comments and auto-approved PRs that still had unresolved high/critical feedback.
@@ -158,42 +158,42 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 - **Solution**: `auto-merge.yml` is the single gate controlling all merges to master. It evaluates on every CI completion, review submission, and PR sync. Merges only when all six conditions are met: tests pass, E2E passes (all 3 jobs), PR approved, no unresolved threads, no active review-fix runs, branch up to date. No other workflow merges PRs.
 
 ### Fix Job Permission Denials
-- **Problem**: verify-merge fix job's `allowedTools` had an explicit whitelist of Bash subcommands (`Bash(cat:*)`, `Bash(grep:*)`, etc.). Any Bash command not in the list caused a permission denial. Claude would attempt common commands like `ls`, `echo`, `sed`, `find`, etc., get denied, and retry -- burning through turns doing nothing. One run had **56 permission denials in 48 turns**, taking 11 minutes and $2 for a one-line typecheck fix.
+- **Problem**: verify-and-fix fix job's `allowedTools` had an explicit whitelist of Bash subcommands (`Bash(cat:*)`, `Bash(grep:*)`, etc.). Any Bash command not in the list caused a permission denial. Claude would attempt common commands like `ls`, `echo`, `sed`, `find`, etc., get denied, and retry -- burning through turns doing nothing. One run had **56 permission denials in 48 turns**, taking 11 minutes and $2 for a one-line typecheck fix.
 - **Solution**: `allowedTools` is now passed via `claude_args: --allowedTools` (not `settings` JSON) across all workflows. The SDK's `--allowedTools` flag both exposes AND auto-approves tools, bypassing the sandbox permission prompt. Putting `allowedTools` in `settings` JSON only lists available tools but still requires sandbox approval -- which fails silently in CI with no human to approve. Also added `permissions.allow` with `Edit(*)`, `Write(*)`, `MultiEdit(*)` to pre-approve file writes (belt-and-suspenders). Also reduced `maxTurns` to 15 for fix jobs, added `show_full_output: true` for debugging, simplified fix prompt, and added a post-step that fails the job if >5 permission denials occur (so it shows red and aborts the retry loop instead of silently wasting turns).
 
 ### Fix Attempts Repeating Same Failed Fix
-- **Problem**: Each verify-merge fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
+- **Problem**: Each verify-and-fix fix attempt starts with fresh Claude context. Claude has no idea what previous attempts tried, so it often repeats the same failed approach across all 6 attempts.
 - **Solution**: A `.claude-fix-log.md` file on the tmp branch persists across attempts. Each fix attempt reads it first, then appends what it tried and whether it worked. The merge job deletes it before merging so it never reaches the PR.
 
 ### Stale Test Assertions (Fix Job Context Gap)
 - **Problem**: Code is intentionally changed (e.g., fixing a wrong URL), but existing tests still assert the old value. The fix job sees "expected A, got B" but has no context about whether the code change or the test is correct. Result: Claude produces zero file changes across all 6 attempts, and the pipeline doctor also can't resolve it.
-- **Solution**: verify-merge fix job now includes commit context -- `git log --oneline` and `git diff --stat` of the work branch vs master. This tells Claude what was intentionally changed and why, so it can decide whether to update tests or revert code. Pipeline doctor also now checks out the work branch, reproduces failures, and includes commit history + actual Expected/Received values in its evidence.
+- **Solution**: verify-and-fix fix job now includes commit context -- `git log --oneline` and `git diff --stat` of the work branch vs master. This tells Claude what was intentionally changed and why, so it can decide whether to update tests or revert code. Pipeline doctor also now checks out the work branch, reproduces failures, and includes commit history + actual Expected/Received values in its evidence.
 
-### Lint Scope in verify-merge
-- **Problem**: `pnpm lint` has thousands of pre-existing errors in generated/third-party files. verify-merge's lint step always failed, causing infinite fix loops where Claude fixed its own errors but lint still exited non-zero.
-- **Solution**: verify-merge only lints files changed vs master (`git diff --name-only origin/master...HEAD`), using `eslint --quiet` (errors only, no warnings). This catches new lint errors without failing on pre-existing ones.
+### Lint Scope in verify-and-fix
+- **Problem**: `pnpm lint` has thousands of pre-existing errors in generated/third-party files. verify-and-fix's lint step always failed, causing infinite fix loops where Claude fixed its own errors but lint still exited non-zero.
+- **Solution**: verify-and-fix only lints files changed vs master (`git diff --name-only origin/master...HEAD`), using `eslint --quiet` (errors only, no warnings). This catches new lint errors without failing on pre-existing ones.
 - **Note**: `test.yml` (normal CI) doesn't run lint at all -- only typecheck, bundle, and test.
 
 ### Native Dependency Linkage
 - **Problem**: Claude adds `react-native-*` packages on Ubuntu CI but can't run `pod install` to link them in iOS
-- **Solution**: verify-merge checks that every native package in `package.json` appears in `ios/Podfile.lock`. If missing, the fix job is told to use lazy/optional imports instead of failing on the missing linkage.
+- **Solution**: verify-and-fix checks that every native package in `package.json` appears in `ios/Podfile.lock`. If missing, the fix job is told to use lazy/optional imports instead of failing on the missing linkage.
 
 ---
 
 ## Timeout & Recovery
 
 ### Timeout Work Rescue (claude.yml)
-- **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-merge trigger) are skipped. Uncommitted work is lost.
+- **Problem**: Claude's job times out (60min limit). All subsequent steps (push, verify-and-fix trigger) are skipped. Uncommitted work is lost.
 - **Solution**: Two layers of protection:
   1. **Mid-run pushes**: Claude pushes milestones to `claude/issue-N-TIMESTAMP` (action's internal branch) during the run. Most work is already on the remote before timeout.
   2. **Rescue step**: `if: cancelled()` commits any remaining uncommitted changes and pushes to `tmp/claude-<run_id>`. Comments on the issue with a link and resume instructions. Work ends up on both the internal branch and tmp branch.
 
-### Timeout Work Rescue (verify-merge fix job)
+### Timeout Work Rescue (verify-and-fix fix job)
 - **Problem**: Fix job times out (60min limit). Claude was mid-fix, work is lost, and the fix loop stops.
 - **Solution**: Three layers:
   1. **Milestone pushes**: Claude pushes to the tmp branch after each significant fix during the run.
   2. **Rescue step**: `if: cancelled()` commits uncommitted work, pushes to tmp branch.
-  3. **Auto-continue**: Rescue step triggers the next verify-merge attempt so the fix loop doesn't stall.
+  3. **Auto-continue**: Rescue step triggers the next verify-and-fix attempt so the fix loop doesn't stall.
 
 ---
 
@@ -203,7 +203,7 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 - orchestrate.yml checks for >=3 unmerged PRs --> pauses pipeline, creates bug issue
 - watcher.yml checks for >=5 successful claude.yml runs on a story --> triggers pipeline doctor
   (infra failures like push rejections don't count toward retry budget)
-- verify-merge give-up (6 failed fix attempts) --> triggers pipeline doctor with failed run IDs
+- verify-and-fix give-up (6 failed fix attempts) --> triggers pipeline doctor with failed run IDs
 
 ### Concurrency Limiting
 - watcher.yml tracks active Claude runs (max 3)
@@ -212,12 +212,12 @@ Each bug also has a corresponding regression test in `.github/scripts/__tests__/
 
 ### Pipeline Doctor (pipeline-doctor.yml)
 - **Purpose**: Automated diagnosis and fixing of pipeline failures
-- **Triggers**: verify-merge give-up (after 6 failed attempts), watcher (story stuck at max retries), manual (pass issue number)
+- **Triggers**: verify-and-fix give-up (after 6 failed attempts), watcher (story stuck at max retries), manual (pass issue number)
 - **Evidence collection**: Gathers issue details, related branches/PRs, **work branch commit log and diffs** (to understand intent), **reproduced test failures** with Expected/Received values, failed run logs (`gh run view --log-failed`), current workflow YAML files, known bug patterns, and previous diagnoses -- all with GitHub links for traceability
-- **Actions**: If stale test assertions -> checks out work branch and updates tests. If pipeline bug -> creates fix PR. If code bug -> fixes code on the story branch and retriggers verify-merge. If unknown -> creates diagnostic issue with label `pipeline-diagnosis`.
+- **Actions**: If stale test assertions -> checks out work branch and updates tests. If pipeline bug -> creates fix PR. If code bug -> fixes code on the story branch and retriggers verify-and-fix. If unknown -> creates diagnostic issue with label `pipeline-diagnosis`.
 - **Repeat run awareness**: Collects logs from previous doctor runs for the same issue. Prompt explicitly tells Claude to try a different approach if previous runs didn't fix the problem.
 - **Deduplication**: Watcher checks if doctor already ran (not just if active) before retriggering. Concurrency group prevents parallel runs for same issue.
 
 ### Stale Resource Cleanup
-- verify-merge give-up: cleans tmp/ branches (keeps current)
+- verify-and-fix give-up: cleans tmp/ branches (keeps current)
 - watcher: closes orphan PRs (no linked story, stale)

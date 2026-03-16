@@ -487,7 +487,7 @@ count_fix_attempts() {
 # in the displayTitle.
 #
 # Args:
-#   $1 — workflow filename (e.g., "verify-merge.yml") (required)
+#   $1 — workflow filename (e.g., "verify-and-fix.yml") (required)
 #   $2 — issue number (required)
 #   $3 — repo (owner/repo format) (required)
 #
@@ -499,7 +499,7 @@ count_fix_attempts() {
 #   1 if not active
 #
 # Usage:
-#   if is_workflow_active "verify-merge.yml" 42 "owner/repo"; then
+#   if is_workflow_active "verify-and-fix.yml" 42 "owner/repo"; then
 #     echo "Already running"
 #   fi
 # ────────────────────────────────────────────────────────────────────────────
@@ -533,7 +533,7 @@ is_workflow_active() {
 # Trigger a workflow_dispatch event.
 #
 # Args:
-#   $1 — workflow file (e.g., "verify-merge.yml") (required)
+#   $1 — workflow file (e.g., "verify-and-fix.yml") (required)
 #   Remaining args — passed directly to `gh workflow run` (e.g., -f key=value)
 #
 # If --ref is not specified in the remaining args, defaults to "master".
@@ -543,7 +543,7 @@ is_workflow_active() {
 #   GITHUB_REPOSITORY   — owner/repo (required)
 #
 # Usage:
-#   dispatch_workflow "verify-merge.yml" \
+#   dispatch_workflow "verify-and-fix.yml" \
 #     -f tmp_branch="tmp/claude-123" \
 #     -f target_branch="claude/issue-42" \
 #     -f issue_number="42" \

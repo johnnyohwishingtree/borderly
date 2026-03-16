@@ -72,9 +72,11 @@ verify → (pass, no work branch)                     → done
 | `test.yml` (on failure) | `checks: "ci"`, `max_attempts: 3` |
 | `e2e-smoke.yml` (on failure) | `checks: "e2e"`, `max_attempts: 3` |
 
+| `claude.yml` (issue context) | `checks: "ci"`, `max_attempts: 6`, `merge_into: "claude/issue-N"`, `create_pr: true` |
+| `watcher.yml` (stuck stories) | `checks: "ci"`, `max_attempts: 6`, `merge_into: "claude/issue-N"`, `create_pr: true` |
+
 ### Not yet migrated
 
 | Workflow | Why |
 |---------|-----|
-| `verify-merge.yml` | Has state machine tracking + merge/PR creation logic tightly coupled to verify output. Needs callback pattern to migrate. |
 | `release.yml` | Could use `checks: "all"`, `fix_enabled: false` as a gate. Low priority. |

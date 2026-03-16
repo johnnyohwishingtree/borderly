@@ -11,9 +11,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `daily-planner.yml` | Cron (weekends) / manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
-| `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop (up to N attempts) |
-| `verify-merge.yml` | Dispatched by claude/gemini | Tests code, fixes errors, merges |
-| `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses pipeline failures, creates fix PRs |
+| `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
+| `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
 | `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
@@ -50,9 +49,9 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 
 | Action | Purpose | Used By |
 |--------|---------|---------|
-| `setup-auth` | Git remote URL auth + user identity | claude, review-fix, resolve-conflicts, verify-merge, pipeline-doctor |
-| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-merge, review-fix, test, build-ios, e2e-smoke, claude, daily-planner |
-| `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-merge |
+| `setup-auth` | Git remote URL auth + user identity | claude, review-fix, resolve-conflicts, verify-and-fix, pipeline-doctor |
+| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-and-fix, review-fix, test, build-ios, e2e-smoke, claude, daily-planner |
+| `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-and-fix |
 
 ---
 
@@ -85,13 +84,13 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |   |     - Action creates claude/issue-N-TIMESTAMP internally        |
 |   |     - Claude works, mid-run pushes to internal branch           |
 |   |     - End: copy all to tmp branch                               |
-|   |     - Trigger verify-merge.yml                                  |
+|   |     - Trigger verify-and-fix.yml                                 |
 |   |                                                                 |
 |   +-- PR context:                                                   |
 |   |     - Checkout existing PR branch                               |
 |   |     - Claude fixes code, pushes directly                        |
 |   |     - Resolves review threads                                   |
-|   |     - NO verify-merge (CI runs on PR push)                      |
+|   |     - NO verify-and-fix (CI runs on PR push)                     |
 |   |                                                                 |
 |   +-- Timeout rescue (if: cancelled()):                             |
 |         - Commit uncommitted work, push to tmp branch               |
@@ -101,18 +100,18 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
               (issue context only)
                              v
 +---------------------------------------------------------------------+
-| 3. VERIFY & MERGE (verify-merge.yml)                                |
+| 3. VERIFY & FIX (verify-and-fix.yml)                                |
 |                                                                     |
-|   Max attempts: 6                                                   |
+|   Reusable workflow — all code-pushing paths use it.                |
+|   Temp branch pattern: fixes on tmp/vf-*, merge only on pass.      |
 |                                                                     |
-|   VERIFY job: lint → typecheck → metro bundle → test → native deps  |
+|   VERIFY job: runs checks (ci, e2e, or all)                        |
 |     |                                                                |
-|     +-- pass → MERGE job (merge tmp → target, create PR)            |
-|     +-- fail + attempt < 6 → FIX job (Claude fixes, retriggers)     |
-|     +-- fail + attempt = 6 → GIVE-UP (pipeline-doctor.yml)          |
+|     +-- pass → MERGE job (merge work→target, create PR if needed)  |
+|     +-- fail + attempt < max → FIX job (Claude fixes on temp)      |
+|     +-- fail + attempt = max → GIVE-UP (pipeline-doctor.yml)       |
 |                                                                     |
 |   FIX job context:                                                  |
-|     - Error files: lint, typecheck, bundle, test, native deps       |
 |     - .claude-fix-log.md persists across attempts                   |
 |     - Commit log + diff vs master (intent context)                  |
 |     - Milestone pushes for timeout safety                           |
@@ -192,7 +191,7 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
 |    +-- Active workflow running → skip                               |
-|    +-- Existing work branch → trigger verify-merge directly         |
+|    +-- Existing work branch → trigger verify-and-fix directly       |
 |    +-- >=5 successful runs → pipeline doctor                        |
 |    +-- Otherwise → re-trigger @claude                               |
 |                                                                     |
@@ -228,8 +227,8 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 | Activity | Workflow | On Success | On Failure |
 |----------|----------|------------|------------|
 | implement | `claude.yml` | → implementing | retry or escalate |
-| verify | `verify-merge.yml` | → verified | → fix-loop |
-| fix | `verify-merge.yml` | → verifying | retry or escalate |
+| verify | `verify-and-fix.yml` | → verified | → fix-loop |
+| fix | `verify-and-fix.yml` | → verifying | retry or escalate |
 | review | `review-guardian.yml` | → approved | → fix-reviews |
 | fix-review | `review-fix.yml` | → reviewing | retry or escalate |
 | merge | `auto-merge.yml` | → merged | retry or escalate |
@@ -240,12 +239,12 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 ## Key Design Decisions
 
 ### Issue vs PR: Two Paths in claude.yml
-- **Issue context**: No PR exists. Creates work branches, goes through verify-merge.
-- **PR context**: PR exists. Pushes directly to PR branch, skips verify-merge. This is the biggest token saver.
+- **Issue context**: No PR exists. Creates work branches, goes through verify-and-fix.
+- **PR context**: PR exists. Pushes directly to PR branch, skips verify-and-fix. This is the biggest token saver.
 
 ### Three Branches (Issue Context)
 1. `claude/issue-N` — clean PR branch, only receives verified code
-2. `tmp/claude-<run_id>` — work branch for verify-merge
+2. `tmp/claude-<run_id>` — work branch for verify-and-fix
 3. `claude/issue-N-TIMESTAMP` — action's internal branch (mid-run safety pushes)
 
 ### review-relay → review-fix (Not @claude PR Comments)
@@ -255,19 +254,25 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 `GITHUB_TOKEN` approvals don't emit `pull_request_review` events. All auto-approve paths dispatch `auto-merge.yml` explicitly.
 
 ### Reusable Verify-and-Fix Loop
-`verify-and-fix.yml` is the shared quality gate with retry. Callers dispatch it with configurable check mode and retry count:
+`verify-and-fix.yml` is the single quality gate for all code-pushing workflows. It replaces the old `verify-merge.yml` by combining verify, fix, merge, and PR creation into one workflow.
+
+Callers dispatch it with configurable check mode and retry count:
+- `claude.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (implement → verify → merge → PR)
 - `review-fix.yml` → `checks: "all"`, `max_attempts: 3` (after addressing review feedback)
 - `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure for claude/ branches)
 - `e2e-smoke.yml` → `checks: "e2e"`, `max_attempts: 3` (on E2E failure for claude/ branches)
-- `verify-merge.yml` still uses its own inline verify+fix (has state machine tracking + merge logic)
+- `watcher.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (unstick stories with existing work)
 
 The workflow self-dispatches with `attempt+1` for retry (since `workflow_call` can't self-dispatch).
 
-### Verify-Merge Fix Context
-- `.claude-fix-log.md` persists across attempts (deleted before merge)
+### Temp Branch Pattern
+All fix attempts work on `tmp/vf-*` branches — never pushing broken code to the target branch. Only verified code merges into the target. This keeps PR branches and git history clean.
+
+### Fix Context
+- `.claude-fix-log.md` persists on temp branch across attempts (deleted before merge)
 - Commit log + diff included so Claude understands intent
 - Milestone pushes for timeout safety
-- Early bail-out checks both local and remote HEAD vs pre-fix
+- Early bail-out if Claude produces no changes
 
 ---
 
@@ -289,7 +294,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Branch behind detection | Auto-merge merges master into PR branch when behind |
 | Watcher race prevention | Checks active/queued workflows before retriggering |
 | Timeout rescue | `if: cancelled()` commits + pushes work on timeout |
-| Lint scope | verify-merge only lints changed files vs master |
+| Lint scope | verify-and-fix only lints changed files vs master |
 | Native dep check | Verifies react-native packages are in Podfile.lock |
 | Consecutive failure detection | >=3 unmerged PRs pauses pipeline; >=5 runs triggers doctor |
 | Pipeline doctor | Diagnoses failures, checks out work branch, reproduces errors |
@@ -299,8 +304,8 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 
 ## Token/Cost Efficiency
 
-- PR context skips verify-merge (direct push to PR branch)
-- verify-merge fail-fast (lint → typecheck → bundle → test → native deps)
+- PR context skips verify-and-fix (direct push to PR branch)
+- verify-and-fix fail-fast (lint → typecheck → bundle → test → native deps)
 - Fix job gets all errors at once (5 error files)
 - Max 3 concurrent Claude runs
 - Max 3 review relay rounds per PR
