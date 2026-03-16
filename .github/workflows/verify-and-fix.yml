@@ -2,8 +2,14 @@ name: Verify and Fix
 run-name: "Verify #${{ inputs.issue_number }} on ${{ inputs.branch }} (attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }})"
 
 # Reusable verify + fix loop. Runs quality checks on a branch, optionally
-# retries with Claude auto-fix. Used by verify-merge, review-fix, and
-# CI failure notification workflows.
+# retries with Claude auto-fix on a temp branch (never pushes broken code
+# to the target branch).
+#
+# Temp branch pattern:
+#   - Attempt 1 verifies the target branch directly.
+#   - On failure, the fix job creates tmp/vf-<branch>-<run_id> from the
+#     target, fixes there, and passes it to subsequent attempts.
+#   - Only on final pass does the merge job merge temp → target and clean up.
 #
 # Retry mechanism: self-dispatches with attempt+1 since workflow_call
 # can't self-dispatch. Callers trigger via dispatch_workflow.
@@ -12,9 +18,14 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to verify'
+        description: 'Target branch (PR branch — only receives verified code)'
         required: true
         type: string
+      work_branch:
+        description: 'Temp work branch (empty on first call, set internally for retries)'
+        required: false
+        type: string
+        default: ''
       issue_number:
         description: 'Issue/PR number for status comments'
         required: false
@@ -64,14 +75,26 @@ jobs:
     outputs:
       pass: ${{ steps.run-checks.outputs.pass }}
       error_summary: ${{ steps.run-checks.outputs.error_summary }}
+      check_branch: ${{ steps.pick-branch.outputs.check_branch }}
     env:
       BASH_ENV: .github/scripts/lib.sh
 
     steps:
+      - name: Pick branch to verify
+        id: pick-branch
+        run: |
+          # Attempt 1: verify the target branch directly
+          # Attempt 2+: verify the temp work branch (has previous fix attempts)
+          if [ -n "${{ inputs.work_branch }}" ]; then
+            echo "check_branch=${{ inputs.work_branch }}" >> $GITHUB_OUTPUT
+          else
+            echo "check_branch=${{ inputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ steps.pick-branch.outputs.check_branch }}
           fetch-depth: 0
 
       - name: Configure git identity
@@ -163,6 +186,56 @@ jobs:
             comment_on_issue "${{ inputs.issue_number }}" "Verify and Fix — [attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }}]($RUN_URL): checks failed. $([ '${{ inputs.fix_enabled }}' = 'true' ] && echo 'Claude will attempt a fix.' || echo 'Fix not enabled.')"
           fi
 
+  # Merge verified temp branch back into target, clean up
+  merge:
+    needs: verify
+    if: >-
+      needs.verify.outputs.pass == 'true' &&
+      inputs.work_branch != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git and auth
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Merge work branch into target
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          WORK="${{ inputs.work_branch }}"
+          TARGET="${{ inputs.branch }}"
+
+          git fetch origin "$WORK"
+          git merge "origin/$WORK" --no-edit
+
+          # Remove fix context log — only needed across fix attempts
+          if [ -f .claude-fix-log.md ]; then
+            git rm .claude-fix-log.md
+            git commit -m "chore: remove fix context log"
+          fi
+
+          smart_push "$TARGET"
+          echo "Merged $WORK into $TARGET"
+
+      - name: Delete work branch
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/${{ inputs.work_branch }}" 2>/dev/null \
+            && echo "Deleted ${{ inputs.work_branch }}" \
+            || echo "Failed to delete ${{ inputs.work_branch }}"
+
   fix:
     needs: verify
     if: >-
@@ -175,11 +248,35 @@ jobs:
       BASH_ENV: .github/scripts/lib.sh
 
     steps:
-      - name: Checkout branch
+      - name: Determine work branch
+        id: work
+        run: |
+          if [ -n "${{ inputs.work_branch }}" ]; then
+            # Subsequent attempt — reuse existing temp branch
+            echo "branch=${{ inputs.work_branch }}" >> $GITHUB_OUTPUT
+            echo "created=false" >> $GITHUB_OUTPUT
+          else
+            # First fix — create temp branch from target
+            WORK_BRANCH="tmp/vf-$(echo '${{ inputs.branch }}' | tr '/' '-')-${{ github.run_id }}"
+            echo "branch=$WORK_BRANCH" >> $GITHUB_OUTPUT
+            echo "created=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ steps.work.outputs.created == 'true' && inputs.branch || steps.work.outputs.branch }}
           fetch-depth: 0
+
+      - name: Create work branch
+        if: steps.work.outputs.created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          WORK_BRANCH="${{ steps.work.outputs.branch }}"
+          git push origin "HEAD:refs/heads/$WORK_BRANCH"
+          git checkout -b "$WORK_BRANCH"
+          echo "Created work branch: $WORK_BRANCH"
 
       - name: Configure git and auth
         uses: ./.github/actions/setup-auth
@@ -232,7 +329,7 @@ jobs:
             2. If resolving merge conflicts, always take master's version for files not related to the story (e.g. .github/workflows/*, docs/pipeline-architecture.md). Use `git checkout origin/master -- <file>` for those.
             3. Fix the errors. Do NOT use `any` types. Fix ONE FILE AT A TIME, run `pnpm typecheck` after each.
             4. Run `pnpm typecheck && pnpm test` to confirm ZERO errors.
-            5. git add, commit, push: `git push origin HEAD:refs/heads/${{ inputs.branch }}`
+            5. git add, commit, push: `git push origin HEAD:refs/heads/${{ steps.work.outputs.branch }}`
             6. Update .claude-fix-log.md with what you fixed and whether checks pass now.
 
             Push after each milestone — unpushed work is lost on timeout.
@@ -265,10 +362,11 @@ jobs:
             fi
           fi
 
-      - name: Push fixes
+      - name: Push fixes to work branch
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          WORK_BRANCH="${{ steps.work.outputs.branch }}"
           setup_git_auth
 
           # Stage fix log if it was created/updated
@@ -278,14 +376,14 @@ jobs:
 
           check_changes_and_commit "fix: resolve check errors (attempt ${{ inputs.attempt }})" || true
 
-          smart_push "${{ inputs.branch }}" "${{ steps.pre_fix.outputs.head }}"
+          smart_push "$WORK_BRANCH" "${{ steps.pre_fix.outputs.head }}"
 
           # Detect if Claude produced no changes at all
           LOCAL_HEAD=$(git rev-parse HEAD)
           PRE_FIX_HEAD="${{ steps.pre_fix.outputs.head }}"
 
-          git fetch origin "${{ inputs.branch }}" 2>/dev/null || true
-          REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.branch }}" 2>/dev/null || echo "none")
+          git fetch origin "$WORK_BRANCH" 2>/dev/null || true
+          REMOTE_HEAD=$(git rev-parse "origin/$WORK_BRANCH" 2>/dev/null || echo "none")
 
           if [ "$LOCAL_HEAD" = "$PRE_FIX_HEAD" ] && [ "$REMOTE_HEAD" = "$PRE_FIX_HEAD" ]; then
             echo "::warning::Claude produced no changes — skipping retry"
@@ -298,9 +396,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+          WORK_BRANCH="${{ steps.work.outputs.branch }}"
 
           dispatch_workflow "verify-and-fix.yml" \
             -f branch="${{ inputs.branch }}" \
+            -f work_branch="$WORK_BRANCH" \
             -f issue_number="${{ inputs.issue_number }}" \
             -f checks="${{ inputs.checks }}" \
             -f fix_enabled="true" \
@@ -323,6 +423,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          WORK_BRANCH="${{ steps.work.outputs.branch }}"
           setup_git_auth
 
           # Commit any uncommitted work
@@ -333,13 +434,14 @@ jobs:
           Co-authored-by: Claude <noreply@anthropic.com>"
           fi
 
-          smart_push "${{ inputs.branch }}" || true
+          smart_push "$WORK_BRANCH" || true
 
           # Continue the fix loop
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           if [ "$NEXT_ATTEMPT" -le "${{ inputs.max_attempts }}" ]; then
             dispatch_workflow "verify-and-fix.yml" \
               -f branch="${{ inputs.branch }}" \
+              -f work_branch="$WORK_BRANCH" \
               -f issue_number="${{ inputs.issue_number }}" \
               -f checks="${{ inputs.checks }}" \
               -f fix_enabled="true" \
@@ -349,7 +451,7 @@ jobs:
           fi
 
           if [ -n "${{ inputs.issue_number }}" ]; then
-            comment_on_issue "${{ inputs.issue_number }}" "Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }} timed out. Work saved to [\`${{ inputs.branch }}\`](https://github.com/${{ github.repository }}/tree/${{ inputs.branch }}). Continuing with attempt $NEXT_ATTEMPT."
+            comment_on_issue "${{ inputs.issue_number }}" "Fix attempt ${{ inputs.attempt }}/${{ inputs.max_attempts }} timed out. Work saved to [\`$WORK_BRANCH\`](https://github.com/${{ github.repository }}/tree/$WORK_BRANCH). Continuing with attempt $NEXT_ATTEMPT."
           fi
 
   give-up:
@@ -376,10 +478,14 @@ jobs:
         run: |
           ISSUE_NUM="${{ inputs.issue_number }}"
           BRANCH="${{ inputs.branch }}"
+          WORK="${{ inputs.work_branch }}"
           MAX="${{ inputs.max_attempts }}"
 
+          # Point to work branch if it exists, otherwise target
+          WORK_LINK="${WORK:-$BRANCH}"
+
           if [ "${{ inputs.fix_enabled }}" = "true" ]; then
-            BODY="Checks failed after $MAX fix attempts. Claude's work is on [\`${BRANCH}\`](https://github.com/${{ github.repository }}/tree/${BRANCH}). Triggering Pipeline Doctor to diagnose."
+            BODY="Checks failed after $MAX fix attempts. Claude's work is on [\`${WORK_LINK}\`](https://github.com/${{ github.repository }}/tree/${WORK_LINK}). Triggering Pipeline Doctor to diagnose."
             comment_on_issue "$ISSUE_NUM" "$BODY"
 
             # Collect failed run IDs
@@ -393,5 +499,5 @@ jobs:
               -f trigger_source="verify-and-fix" \
               -f failed_run_ids="$FAILED_RUNS"
           else
-            comment_on_issue "$ISSUE_NUM" "Checks failed on [\`${BRANCH}\`](https://github.com/${{ github.repository }}/tree/${BRANCH}). Auto-fix was not enabled."
+            comment_on_issue "$ISSUE_NUM" "Checks failed on [\`${WORK_LINK}\`](https://github.com/${{ github.repository }}/tree/${WORK_LINK}). Auto-fix was not enabled."
           fi
