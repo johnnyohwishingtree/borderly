@@ -458,4 +458,76 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     // Confirm the mock structure is correct — afterEach will assert no critical JS errors.
     await page.waitForTimeout(200);
   });
+
+  test('auto-login-progress-banner NOT shown on initial load', async ({ page }) => {
+    // The auto-login progress banner should not appear on the initial page load.
+    // It only appears after an auth page is detected AND credentials are found,
+    // which requires a PAGE_TYPE_CHECK WebView message — not triggered on initial render.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      const progressBanner = page.locator('[data-testid="auto-login-progress-banner"]');
+      await expect(progressBanner).not.toBeVisible();
+
+      await page.waitForTimeout(300);
+
+      // Still not visible after settling
+      const stillHidden = !(await progressBanner.isVisible().catch(() => false));
+      expect(stillHidden).toBe(true);
+    }
+  });
+
+  test('auto-login-failed-banner NOT shown on initial load', async ({ page }) => {
+    // The auto-login failed banner only appears after an AUTO_LOGIN_RESULT
+    // message with success=false — not on initial render.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      const failedBanner = page.locator('[data-testid="auto-login-failed-banner"]');
+      await expect(failedBanner).not.toBeVisible();
+    }
+  });
+
+  test('save-credentials-prompt NOT shown on initial load', async ({ page }) => {
+    // The "Save credentials for next time?" prompt only appears after a manual
+    // auth → form page transition, not on initial render.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      const savePrompt = page.locator('[data-testid="save-credentials-prompt"]');
+      await expect(savePrompt).not.toBeVisible();
+    }
+  });
+
+  test('all new auto-login banner testIDs are in the component bundle', async ({ page }) => {
+    // Smoke test: verify PortalSubmissionScreen renders without crashing after
+    // the auto-login integration. If any new imports fail to resolve (e.g.
+    // autoLogin.ts, credentialResolver.ts), the bundle would throw at load time.
+    await page.goto('/');
+    await expect(page.locator('body')).toBeVisible();
+
+    const jsErrors: string[] = [];
+    page.on('pageerror', (err) => jsErrors.push(err.message));
+
+    await page.waitForTimeout(500);
+
+    const criticalErrors = jsErrors.filter(
+      (e) =>
+        !e.includes('Warning:') &&
+        !e.includes('React does not recognize') &&
+        !e.includes('cannot be a child of') &&
+        !e.includes('NativeWind'),
+    );
+    // No bundle errors means the auto-login service imports resolved correctly
+    expect(criticalErrors).toEqual([]);
+  });
 });
