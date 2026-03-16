@@ -49,130 +49,83 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Resolve PR number
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          source .github/scripts/lib.sh
+          export INPUT_PR_NUMBER="${{ inputs.pr_number }}"
+          export WORKFLOW_RUN_HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
+          export PR_NUMBER_FROM_EVENT="${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}"
+          PR_NUM=$(get_pr_number "${{ github.event_name }}")
+          if [ -z "$PR_NUM" ]; then
+            echo "No open PR found — skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "number=$PR_NUM" >> "$GITHUB_OUTPUT"
+
       - name: Evaluate merge readiness
+        if: steps.pr.outputs.skip != 'true'
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          RESULT=$(bash .github/scripts/evaluate-merge-gate.sh "${{ steps.pr.outputs.number }}")
+          ACTION=$(echo "$RESULT" | jq -r '.action')
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "$RESULT" | jq .
+
+      - name: Execute merge action
+        if: steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
         run: |
-          # Resolve PR number and branch
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            PR_NUM="${{ inputs.pr_number }}"
-          elif [ "${{ github.event_name }}" = "workflow_run" ]; then
-            BRANCH="${{ github.event.workflow_run.head_branch }}"
-            PR_NUM=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
-              --json number -q '.[0].number' 2>/dev/null || echo "")
-          elif [ "${{ github.event_name }}" = "pull_request_review" ]; then
-            PR_NUM=${{ github.event.pull_request.number }}
-          else
-            PR_NUM=${{ github.event.pull_request.number }}
-          fi
+          PR_NUM="${{ steps.pr.outputs.number }}"
+          ACTION="${{ steps.gate.outputs.action }}"
 
-          if [ -z "$PR_NUM" ]; then
-            echo "No open PR found — skipping"
-            exit 0
-          fi
-
-          echo "Evaluating PR #$PR_NUM"
-
-          # Check if PR targets master
-          BASE=$(gh pr view "$PR_NUM" --repo "$REPO" --json baseRefName -q '.baseRefName' 2>/dev/null || echo "")
-          if [ "$BASE" != "master" ]; then
-            echo "PR #$PR_NUM targets $BASE, not master — skipping"
-            exit 0
-          fi
-
-          # ── Condition 1: Tests passed ──
-          HEAD_SHA=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefOid -q '.headRefOid' 2>/dev/null || echo "")
-          if [ -z "$HEAD_SHA" ]; then
-            echo "Cannot determine head SHA — skipping"
-            exit 0
-          fi
-
-          CHECK_RUNS=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
-            --jq '.check_runs[] | "\(.name)|\(.conclusion)|\(.status)"' 2>/dev/null || echo "")
-
-          TESTS_PASS=false
-          if echo "$CHECK_RUNS" | grep -q "^test|success|"; then
-            TESTS_PASS=true
-          fi
-          echo "Tests passed: $TESTS_PASS"
-
-          # ── Condition 2: E2E passed (all 3 jobs) ──
-          E2E_PASS=false
-          E2E_CHROMIUM=$(echo "$CHECK_RUNS" | grep "^test-chromium|success|" || true)
-          E2E_PERF=$(echo "$CHECK_RUNS" | grep "^test-performance|success|" || true)
-          E2E_CROSS=$(echo "$CHECK_RUNS" | grep "^test-cross-browser|success|" || true)
-
-          if [ -n "$E2E_CHROMIUM" ] && [ -n "$E2E_PERF" ] && [ -n "$E2E_CROSS" ]; then
-            E2E_PASS=true
-          fi
-          echo "E2E passed: $E2E_PASS"
-
-          # ── Condition 3: PR is approved ──
-          HAS_APPROVAL=false
-          APPROVAL_COUNT=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
-          if [ "$APPROVAL_COUNT" -gt 0 ]; then
-            HAS_APPROVAL=true
-          fi
-          echo "Approved: $HAS_APPROVAL (${APPROVAL_COUNT} approvals)"
-
-          # ── Condition 4: No unresolved review threads ──
-          THREADS_RESOLVED=true
-          OWNER=$(echo "$REPO" | cut -d/ -f1)
-          NAME=$(echo "$REPO" | cut -d/ -f2)
-
-          UNRESOLVED=$(gh api graphql -f query="
-            query {
-              repository(owner: \"$OWNER\", name: \"$NAME\") {
-                pullRequest(number: $PR_NUM) {
-                  reviewThreads(first: 100) {
-                    nodes { isResolved }
-                  }
-                }
-              }
-            }
-          " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
-
-          if [ "$UNRESOLVED" -gt 0 ]; then
-            THREADS_RESOLVED=false
-          fi
-          echo "Threads resolved: $THREADS_RESOLVED ($UNRESOLVED unresolved)"
-
-          # ── Decision ──
-          echo ""
-          echo "Summary for PR #$PR_NUM:"
-          echo "  Tests:    $TESTS_PASS"
-          echo "  E2E:      $E2E_PASS"
-          echo "  Approved: $HAS_APPROVAL"
-          echo "  Threads:  $THREADS_RESOLVED"
-
-          if [ "$TESTS_PASS" = "true" ] && [ "$E2E_PASS" = "true" ] && \
-             [ "$HAS_APPROVAL" = "true" ] && [ "$THREADS_RESOLVED" = "true" ]; then
-            echo ""
+          if [ "$ACTION" = "merge" ]; then
             echo "All conditions met — merging PR #$PR_NUM"
+            if gh pr merge "$PR_NUM" --repo "$REPO" --squash; then
+              echo "PR #$PR_NUM merged successfully"
 
-            # Check if branch is behind master and update if needed
-            MERGE_STATE=$(gh pr view "$PR_NUM" --repo "$REPO" --json mergeStateStatus -q '.mergeStateStatus' 2>/dev/null || echo "")
-            if [ "$MERGE_STATE" = "BEHIND" ]; then
-              echo "Branch is behind master — updating branch before merge"
-              BRANCH_NAME=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefName -q '.headRefName' 2>/dev/null || echo "")
-              gh api "repos/$REPO/merges" \
-                -f base="$BRANCH_NAME" \
-                -f head="master" \
-                -f commit_message="Merge master into $BRANCH_NAME (auto-update before merge)" \
-                2>/dev/null \
-                && echo "Branch updated — CI will re-run and auto-merge will re-evaluate on completion" \
-                || echo "Failed to update branch — may need manual intervention"
-              # Don't try to merge now — the branch update will trigger CI,
-              # which triggers workflow_run, which re-evaluates auto-merge.
-              exit 0
+              # Track state → merged (find linked issue from PR body)
+              ISSUE_NUM=$(gh pr view "$PR_NUM" --repo "$REPO" --json body \
+                -q '.body' 2>/dev/null | grep -oP '(?:Closes|Fixes|Resolves)\s+#\K\d+' | head -1 || true)
+              if [ -n "$ISSUE_NUM" ]; then
+                set --
+                source .github/scripts/workflow.sh
+                set +u
+                activity_success "$ISSUE_NUM" "merged" 2>/dev/null || true
+              fi
+            else
+              echo "Failed to merge PR #$PR_NUM (may already be merged)"
             fi
 
-            gh pr merge "$PR_NUM" --repo "$REPO" --squash \
-              && echo "PR #$PR_NUM merged successfully" \
-              || echo "Failed to merge PR #$PR_NUM (may already be merged)"
+          elif [ "$ACTION" = "update_branch" ]; then
+            echo "Branch is behind master — updating branch before merge"
+            BRANCH_NAME=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefName -q '.headRefName' 2>/dev/null || echo "")
+            gh api "repos/$REPO/merges" \
+              -f base="$BRANCH_NAME" \
+              -f head="master" \
+              -f commit_message="Merge master into $BRANCH_NAME (auto-update before merge)" \
+              2>/dev/null \
+              && echo "Branch updated — CI will re-run and auto-merge will re-evaluate on completion" \
+              || echo "Failed to update branch — may need manual intervention"
+
+          elif [ "$ACTION" = "skip" ]; then
+            echo "PR does not target master — skipping"
+
           else
-            echo ""
             echo "Not ready to merge — waiting for all conditions"
           fi

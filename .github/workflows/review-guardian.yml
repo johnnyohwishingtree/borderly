@@ -48,17 +48,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Auto-approve after bot review
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PAT: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           PR_NUM=${{ github.event.pull_request.number }}
 
           # Check if there's already an APPROVED review
-          HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+          HAS_APPROVAL=$(count_approvals "$PR_NUM" "$REPO")
 
           if [ "$HAS_APPROVAL" -gt 0 ]; then
             echo "PR #$PR_NUM already has an approval — no action needed"
@@ -75,19 +81,7 @@ jobs:
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             # Check if threads are resolved — if so, the feedback was already addressed
-            OWNER=$(echo "$REPO" | cut -d/ -f1)
-            NAME=$(echo "$REPO" | cut -d/ -f2)
-            UNRESOLVED=$(gh api graphql -f query="
-              query {
-                repository(owner: \"$OWNER\", name: \"$NAME\") {
-                  pullRequest(number: $PR_NUM) {
-                    reviewThreads(first: 100) {
-                      nodes { isResolved }
-                    }
-                  }
-                }
-              }
-            " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+            UNRESOLVED=$(count_unresolved_threads "$PR_NUM" "$REPO")
 
             if [ "$UNRESOLVED" -gt 0 ]; then
               echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"
@@ -131,11 +125,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Auto-approve after Claude review
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           PR_NUM=${{ github.event.issue.number }}
 
           # Only approve if Claude was asked to review (not just any Claude comment)
@@ -148,8 +149,7 @@ jobs:
           fi
 
           # Check if there's already an APPROVED review
-          HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+          HAS_APPROVAL=$(count_approvals "$PR_NUM" "$REPO")
 
           if [ "$HAS_APPROVAL" -gt 0 ]; then
             echo "PR #$PR_NUM already has an approval — no action needed"
@@ -231,17 +231,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Check if PR needs review or approval
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           BRANCH="${{ github.event.workflow_run.head_branch }}"
           echo "CI passed for branch: $BRANCH"
 
-          PR_NUM=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open \
-            --json number -q '.[0].number' 2>/dev/null || echo "")
+          export WORKFLOW_RUN_HEAD_BRANCH="$BRANCH"
+          PR_NUM=$(get_pr_number "workflow_run")
 
           if [ -z "$PR_NUM" ]; then
             echo "No open PR found for branch $BRANCH"
@@ -252,8 +259,7 @@ jobs:
           echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
 
           # Check for APPROVED reviews
-          HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-            -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+          HAS_APPROVAL=$(count_approvals "$PR_NUM" "$REPO")
 
           if [ "$HAS_APPROVAL" -gt 0 ]; then
             echo "PR #$PR_NUM already approved — nothing to do"
@@ -318,9 +324,8 @@ jobs:
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           PR_NUM=${{ steps.check.outputs.pr_num }}
-          OWNER=$(echo "$REPO" | cut -d/ -f1)
-          NAME=$(echo "$REPO" | cut -d/ -f2)
 
           # Check for critical/high-severity inline comments (including Gemini
           # badge patterns like ![critical] and ![high])
@@ -329,17 +334,7 @@ jobs:
 
           if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
             # Check if ALL review threads are resolved — if so, the feedback was addressed
-            UNRESOLVED=$(GH_TOKEN="$GH_PAT" gh api graphql -f query="
-              query {
-                repository(owner: \"$OWNER\", name: \"$NAME\") {
-                  pullRequest(number: $PR_NUM) {
-                    reviewThreads(first: 100) {
-                      nodes { isResolved }
-                    }
-                  }
-                }
-              }
-            " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+            UNRESOLVED=$(GH_TOKEN="$GH_PAT" count_unresolved_threads "$PR_NUM" "$REPO")
 
             if [ "$UNRESOLVED" -gt 0 ]; then
               echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"

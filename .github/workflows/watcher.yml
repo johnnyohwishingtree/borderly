@@ -18,6 +18,12 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Check pipeline health
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -27,6 +33,8 @@ jobs:
           MAX_CONCURRENT: 3
         run: |
           set -euo pipefail
+          source .github/scripts/lib.sh
+          set +u
           echo "=== Pipeline Watcher $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 
           # Helper: minutes since an ISO timestamp
@@ -202,8 +210,7 @@ jobs:
 
             # Check for stuck PRs: CI passes but no approval due to unresolved review threads
             if [ "$CI_CONCLUSION" = "SUCCESS" ] || [ "$CI_CONCLUSION" = "success" ]; then
-              HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-                -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
+              HAS_APPROVAL=$(count_approvals "$PR_NUM" "$REPO")
 
               # PR has approval + CI passes but auto-merge missed the window
               if [ "$HAS_APPROVAL" -gt 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
@@ -215,16 +222,8 @@ jobs:
                 if [ "$DISPATCH_ATTEMPTS" -ge "$MAX_DISPATCH_RETRIES" ]; then
                   echo "  STUCK: dispatched auto-merge $DISPATCH_ATTEMPTS times without merge — escalating to pipeline doctor"
                   if [ -n "$ISSUE_NUM" ]; then
-                    DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                      --status in_progress --json displayTitle \
-                      -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-                    DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                      --status queued --json displayTitle \
-                      -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-                    if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -eq 0 ]; then
-                      gh workflow run pipeline-doctor.yml \
-                        --repo "$REPO" \
-                        --ref master \
+                    if ! is_workflow_active "pipeline-doctor.yml" "$ISSUE_NUM" "$REPO"; then
+                      dispatch_workflow "pipeline-doctor.yml" \
                         -f issue_number="$ISSUE_NUM" \
                         -f trigger_source="watcher-stuck-merge" 2>/dev/null || true
                       echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
@@ -236,9 +235,7 @@ jobs:
                   # Dispatch auto-merge to re-evaluate and merge if conditions hold.
                   # The watcher detects the issue; auto-merge owns the merge decision.
                   echo "  All merge conditions appear met — dispatching auto-merge for PR #$PR_NUM (attempt $((DISPATCH_ATTEMPTS + 1))/$MAX_DISPATCH_RETRIES)"
-                  if gh workflow run auto-merge.yml \
-                    --repo "$REPO" \
-                    --ref master \
+                  if dispatch_workflow "auto-merge.yml" \
                     -f pr_number="$PR_NUM" 2>/dev/null; then
                     echo "  Dispatched auto-merge for PR #$PR_NUM"
                     gh pr comment "$PR_NUM" --repo "$REPO" \
@@ -250,19 +247,7 @@ jobs:
               fi
 
               if [ "$HAS_APPROVAL" -eq 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
-                OWNER=$(echo "$REPO" | cut -d/ -f1)
-                NAME=$(echo "$REPO" | cut -d/ -f2)
-                UNRESOLVED=$(gh api graphql -f query="
-                  query {
-                    repository(owner: \"$OWNER\", name: \"$NAME\") {
-                      pullRequest(number: $PR_NUM) {
-                        reviewThreads(first: 100) {
-                          nodes { isResolved }
-                        }
-                      }
-                    }
-                  }
-                " --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+                UNRESOLVED=$(count_unresolved_threads "$PR_NUM" "$REPO")
 
                 if [ "$UNRESOLVED" -gt 0 ]; then
                   # Check if watcher already tried this (our previous comment exists)
@@ -272,9 +257,7 @@ jobs:
                   if [ "$WATCHER_ATTEMPTS" -ge 2 ]; then
                     echo "  STUCK: watcher already resolved threads $WATCHER_ATTEMPTS times — escalating to pipeline doctor"
                     if [ -n "$ISSUE_NUM" ]; then
-                      gh workflow run pipeline-doctor.yml \
-                        --repo "$REPO" \
-                        --ref master \
+                      dispatch_workflow "pipeline-doctor.yml" \
                         -f issue_number="$ISSUE_NUM" \
                         -f trigger_source="watcher-stuck-approval" 2>/dev/null || true
                       echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
@@ -285,25 +268,7 @@ jobs:
                   fi
 
                   # Resolve all unresolved threads
-                  THREAD_IDS=$(gh api graphql -f query="
-                    query {
-                      repository(owner: \"$OWNER\", name: \"$NAME\") {
-                        pullRequest(number: $PR_NUM) {
-                          reviewThreads(first: 100) {
-                            nodes { id isResolved }
-                          }
-                        }
-                      }
-                    }
-                  " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
-
-                  echo "$THREAD_IDS" | while read -r TID; do
-                    if [ -n "$TID" ]; then
-                      gh api graphql -f query="
-                        mutation { resolveReviewThread(input: {threadId: \"$TID\"}) { thread { isResolved } } }
-                      " 2>/dev/null && echo "  Resolved thread $TID" || echo "  Failed to resolve $TID"
-                    fi
-                  done
+                  resolve_all_threads "$PR_NUM" "$REPO"
 
                   # Comment and close/reopen to trigger auto-merge re-evaluation
                   gh pr comment "$PR_NUM" --repo "$REPO" \
@@ -405,28 +370,21 @@ jobs:
               if [ "$VM_GIVEUPS" -ge 2 ]; then
                 echo "  verify-merge has given up $VM_GIVEUPS times — triggering pipeline doctor"
 
-                # Check if doctor is already running OR ran recently for this issue
-                DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                  --status in_progress --json displayTitle \
-                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-                DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                  --status queued --json displayTitle \
-                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-                DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                  --json displayTitle,createdAt \
-                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-
-                if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -gt 0 ]; then
+                # Check if doctor is already running or ran recently for this issue
+                if is_workflow_active "pipeline-doctor.yml" "$ISSUE_NUM" "$REPO"; then
                   echo "  Pipeline doctor already running — skipping"
-                elif [ "$DOCTOR_RECENT" -gt 0 ]; then
-                  echo "  Pipeline doctor already ran for this issue — skipping (check diagnostic issues)"
                 else
-                  gh workflow run pipeline-doctor.yml \
-                    --repo "$REPO" \
-                    --ref master \
-                    -f issue_number="$ISSUE_NUM" \
-                    -f trigger_source="watcher"
-                  echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                  DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                    --json displayTitle,createdAt \
+                    -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                  if [ "$DOCTOR_RECENT" -gt 0 ]; then
+                    echo "  Pipeline doctor already ran for this issue — skipping (check diagnostic issues)"
+                  else
+                    dispatch_workflow "pipeline-doctor.yml" \
+                      -f issue_number="$ISSUE_NUM" \
+                      -f trigger_source="watcher"
+                    echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                  fi
                 fi
               else
                 # Check if a PR already exists from this work before retriggering
@@ -438,9 +396,7 @@ jobs:
                   echo "  PR #$EXISTING_PR already exists — skipping (waiting for review/merge)"
                 else
                   echo "  Triggering verify-merge directly with existing work branch"
-                  gh workflow run verify-merge.yml \
-                    --repo "$REPO" \
-                    --ref master \
+                  dispatch_workflow "verify-merge.yml" \
                     -f tmp_branch="$EXISTING_TMP" \
                     -f target_branch="$TARGET_BRANCH" \
                     -f issue_number="$ISSUE_NUM" \
@@ -467,27 +423,20 @@ jobs:
             if [ "$RETRY_COUNT" -ge "$MAX_RETRIES" ]; then
               echo "  ALERT: $RETRY_COUNT successful attempts without merge — triggering pipeline doctor"
 
-              DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                --status in_progress --json displayTitle \
-                -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-              DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                --status queued --json displayTitle \
-                -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-              DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
-                --json displayTitle,createdAt \
-                -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
-
-              if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -gt 0 ]; then
+              if is_workflow_active "pipeline-doctor.yml" "$ISSUE_NUM" "$REPO"; then
                 echo "  Pipeline doctor already running for #$ISSUE_NUM — skipping"
-              elif [ "$DOCTOR_RECENT" -gt 0 ]; then
-                echo "  Pipeline doctor already ran for #$ISSUE_NUM — skipping"
               else
-                gh workflow run pipeline-doctor.yml \
-                  --repo "$REPO" \
-                  --ref master \
-                  -f issue_number="$ISSUE_NUM" \
-                  -f trigger_source="watcher"
-                echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                DOCTOR_RECENT=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                  --json displayTitle,createdAt \
+                  -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                if [ "$DOCTOR_RECENT" -gt 0 ]; then
+                  echo "  Pipeline doctor already ran for #$ISSUE_NUM — skipping"
+                else
+                  dispatch_workflow "pipeline-doctor.yml" \
+                    -f issue_number="$ISSUE_NUM" \
+                    -f trigger_source="watcher"
+                  echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                fi
               fi
               continue
             fi

@@ -29,6 +29,32 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 ---
 
+## Shared Scripts & Composite Actions
+
+Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and `.github/actions/` (composite actions). Workflows are thin YAML wrappers that call these.
+
+### Scripts (`.github/scripts/`)
+
+| Script | Purpose | Test Suite |
+|--------|---------|------------|
+| `lib.sh` | 14 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo` | 45 tests |
+| `state-machine.sh` | Issue-based state machine with 12 states, transition validation, JSON state comments, and idempotent locking (`read_state`, `write_state`, `transition`, `acquire_lock`, `check_lock`, `release_lock`) | 18 tests |
+| `workflow.sh` | Temporal-like activity runner: `activity_start` (guard + lock), `activity_success` (transition + unlock), `activity_fail` (retry counter + escalation). Per-activity max attempts, idempotent locking. | 43 tests |
+| `evaluate-merge-gate.sh` | Evaluates 5 merge conditions (tests, E2E, approval, threads, branch status) → JSON with `action: merge\|update_branch\|wait\|skip` | 14 tests |
+| `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output. Flags: `--lint-only-changed`, `--fail-fast`, `--skip-native` | 27 tests |
+
+All scripts use guard patterns for sourcing (import individual functions without executing main). 166 total tests (including 19 regression tests for documented bugs). Run: `npx bats .github/scripts/__tests__/*.test.bats`.
+
+### Composite Actions (`.github/actions/`)
+
+| Action | Purpose | Used By |
+|--------|---------|---------|
+| `setup-auth` | Git remote URL auth + user identity (configurable name/email) | claude, review-fix, resolve-conflicts, verify-merge, pipeline-doctor |
+| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback. Optional `cache: 'true'` for node_modules caching | verify-merge, review-fix, test, build-ios, e2e-smoke, claude, daily-planner |
+| `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-merge |
+
+---
+
 ## Main Flow: Issue --> Merge
 
 ```
@@ -428,6 +454,38 @@ This is a critical architectural distinction. When `@claude` is commented on an 
   merges into the PR branch.
 - PR context: PR already exists with CI checks. Pushing directly to the PR
   branch triggers CI automatically. No need for a redundant verify-merge cycle.
+
+---
+
+## Temporal-like Activity Model
+
+The pipeline uses a Temporal-inspired activity runner (`workflow.sh`) that provides:
+
+- **Activities**: Each workflow step (implement, verify, fix, review, merge) is an activity with built-in retry policies and idempotent guards
+- **State Machine**: Durable state stored as JSON in GitHub issue comments, tracking the current phase, attempt counters, locks, and history
+- **Retry Policies**: Per-activity configurable max attempts (implement: 3, verify: 6, fix: 6, review: 3, merge: 3, orchestrate: 1)
+- **Idempotent Locking**: `activity_start` acquires a lock keyed by `{activity}-{run_id}`. Same lock_id succeeds (reentrant), different lock_id fails (concurrent protection)
+- **Automatic Escalation**: When retries are exhausted, `activity_fail` transitions to `escalated` state
+
+### State Flow
+
+```
+planned → implementing → verifying ←→ fix-loop → verified → reviewing ←→ fix-reviews → approved → merging → merged
+                              ↓                                    ↓                                    ↓
+                          escalated                            escalated                             escalated
+```
+
+### Activity-to-Workflow Mapping
+
+| Activity | Workflow | Valid From States | On Success | On Failure |
+|----------|----------|-------------------|------------|------------|
+| implement | `claude.yml` | planned, stuck, escalated | → implementing | retry or escalate |
+| verify | `verify-merge.yml` | implementing, fix-loop | → verified | → fix-loop |
+| fix | `verify-merge.yml` | fix-loop | → verifying | retry or escalate |
+| review | `review-guardian.yml` | verified | → approved | → fix-reviews |
+| fix-review | `review-fix.yml` | fix-reviews | → reviewing | retry or escalate |
+| merge | `auto-merge.yml` | approved | → merged | retry or escalate |
+| orchestrate | `orchestrate.yml` | merged | → planned (next story) | escalate |
 
 ---
 

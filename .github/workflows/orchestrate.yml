@@ -120,15 +120,29 @@ jobs:
             echo "safe=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Checkout scripts
+        if: steps.next.outputs.found == 'true' && steps.safety.outputs.safe == 'true'
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Trigger next story
         if: steps.next.outputs.found == 'true' && steps.safety.outputs.safe == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
           # Use 'claude' by default, or 'gemini' if configured in vars
           AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
         run: |
           NEXT=${{ steps.next.outputs.next_story }}
           echo "Triggering story #$NEXT using @$AGENT"
+
+          # Initialize pipeline state for the new story
+          set --
+          source .github/scripts/state-machine.sh
+          set +u
+          transition "$NEXT" "planned" 2>/dev/null || true
 
           gh issue edit "$NEXT" --repo ${{ github.repository }} \
             --remove-label "pending" --add-label "in-progress" || true

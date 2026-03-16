@@ -24,7 +24,8 @@
     "maestro:onboarding": "maestro test maestro/flows/onboarding-self.yaml",
     "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
     "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel",
-    "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts"
+    "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts",
+    "test:pipeline": "bats .github/scripts/__tests__/*.test.bats"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

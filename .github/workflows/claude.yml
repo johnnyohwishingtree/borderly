@@ -35,12 +35,9 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git and auth
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Claude CI"
-          git config user.email "claude-ci@users.noreply.github.com"
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - name: Switch to PR branch if applicable
         if: github.event.issue.pull_request || github.event.pull_request
@@ -108,23 +105,26 @@ jobs:
             echo "Created tmp branch: $TMP_BRANCH"
           fi
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
+      - name: Track state → implementing
+        if: steps.push_target.outputs.is_pr == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
-          elif [ -f package.json ]; then
-            pnpm install
-          else
-            echo "No package.json yet — skipping install"
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          ISSUE_NUM="${{ github.event.issue.number }}"
+          # Initialize state if this is a fresh issue
+          if [ "$(get_state "$ISSUE_NUM")" = "unknown" ]; then
+            transition "$ISSUE_NUM" "planned" 2>/dev/null || true
           fi
+          activity_start "$ISSUE_NUM" "implement" \
+            "planned" "stuck" "escalated" 2>/dev/null || true
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Build system prompt
         id: system_prompt
@@ -164,8 +164,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # Re-auth — claude-code-action may have changed the remote URL
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          source .github/scripts/lib.sh
+          setup_git_auth
 
           ISSUE_NUM="${{ github.event.issue.number || github.event.pull_request.number }}"
           TMP_BRANCH="tmp/claude-${{ github.run_id }}"
@@ -211,38 +211,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # Re-auth — claude-code-action may have changed the remote URL
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
+          source .github/scripts/lib.sh
+          setup_git_auth
+          check_changes_and_commit "chore: save unpushed changes from Claude" || true
           SOURCE_BRANCH=$(git branch --show-current)
           echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
-
-          # Commit any uncommitted changes
-          CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
-          if [ -n "$CHANGES" ]; then
-            git add -u
-            if [ -n "$(git diff --cached --name-only)" ]; then
-              git commit -m "chore: save unpushed changes from Claude
-
-          Co-authored-by: Claude <noreply@anthropic.com>"
-            fi
-          fi
-
-          # claude-code-action@v1 may have already pushed via its internal
-          # git-push.sh script, so the remote branch can be ahead of local HEAD.
-          # Pull --rebase to fast-forward, then push only if we have new commits.
-          git fetch origin "$SOURCE_BRANCH" 2>/dev/null || true
-          REMOTE_HEAD=$(git rev-parse "origin/$SOURCE_BRANCH" 2>/dev/null || echo "none")
-          LOCAL_HEAD=$(git rev-parse HEAD)
-
-          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
-            echo "Local HEAD matches remote — nothing to push"
-          else
-            # Rebase local work on top of anything the action already pushed
-            git pull --rebase origin "$SOURCE_BRANCH" 2>/dev/null || true
-            git push origin "HEAD:$SOURCE_BRANCH"
-            echo "Pushed to PR branch $SOURCE_BRANCH"
-          fi
+          smart_push "$SOURCE_BRANCH"
 
       - name: Push remaining work to tmp branch (issue context)
         if: success() && steps.push_target.outputs.is_pr == 'false'
@@ -250,37 +224,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # Re-auth — claude-code-action may have changed the remote URL
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-
+          source .github/scripts/lib.sh
+          setup_git_auth
+          check_changes_and_commit "chore: save unpushed changes from Claude" || true
           TMP_BRANCH="${{ steps.push_target.outputs.tmp_branch }}"
           PR_BRANCH="${{ steps.push_target.outputs.pr_branch }}"
           echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
           echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
-
-          # Commit any uncommitted changes
-          CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
-          if [ -n "$CHANGES" ]; then
-            git add -u
-            if [ -n "$(git diff --cached --name-only)" ]; then
-              git commit -m "chore: save unpushed changes from Claude
-
-          Co-authored-by: Claude <noreply@anthropic.com>"
-            fi
-          fi
-
-          # claude-code-action may have already pushed mid-run via push_cmd.
-          # Check if there's anything new to push before attempting.
-          git fetch origin "$TMP_BRANCH" 2>/dev/null || true
-          REMOTE_HEAD=$(git rev-parse "origin/$TMP_BRANCH" 2>/dev/null || echo "none")
-          LOCAL_HEAD=$(git rev-parse HEAD)
-
-          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
-            echo "Local HEAD matches remote $TMP_BRANCH — nothing to push"
-          else
-            git push origin "HEAD:refs/heads/$TMP_BRANCH" --force-with-lease
-            echo "Pushed remaining work to $TMP_BRANCH"
-          fi
+          smart_push "$TMP_BRANCH"
 
       - name: Resolve bot review threads
         if: success()
@@ -288,6 +239,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
         run: |
+          source .github/scripts/lib.sh
           PR_NUM=""
           if [ -n "${{ github.event.issue.number }}" ]; then
             HAS_PR=$(gh api "repos/$REPO/issues/${{ github.event.issue.number }}" \
@@ -296,63 +248,37 @@ jobs:
               PR_NUM=${{ github.event.issue.number }}
             fi
           fi
-
           if [ -z "$PR_NUM" ]; then
             echo "Not a PR context — skipping thread resolution"
             exit 0
           fi
-
           echo "Resolving review threads on PR #$PR_NUM"
-          OWNER=$(echo "$REPO" | cut -d/ -f1)
-          NAME=$(echo "$REPO" | cut -d/ -f2)
+          resolve_all_threads "$PR_NUM" "$REPO"
 
-          THREAD_IDS=$(gh api graphql -f query="
-            query {
-              repository(owner: \"$OWNER\", name: \"$NAME\") {
-                pullRequest(number: $PR_NUM) {
-                  reviewThreads(first: 100) {
-                    nodes { id isResolved }
-                  }
-                }
-              }
-            }
-          " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
-
-          if [ -z "$THREAD_IDS" ]; then
-            echo "No unresolved review threads"
-            exit 0
-          fi
-
-          echo "$THREAD_IDS" | while read -r TID; do
-            if [ -n "$TID" ]; then
-              gh api graphql -f query="
-                mutation {
-                  resolveReviewThread(input: {threadId: \"$TID\"}) {
-                    thread { isResolved }
-                  }
-                }
-              " 2>/dev/null && echo "Resolved thread $TID" || echo "Failed to resolve $TID"
-            fi
-          done
+      - name: Track state → implementing complete
+        if: success() && steps.push_target.outputs.is_pr == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_success "${{ github.event.issue.number }}" "implementing" 2>/dev/null || true
 
       - name: Trigger verify-merge (issue context only)
         if: success() && steps.push_target.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          TMP_BRANCH="${{ steps.push_issue.outputs.tmp_branch }}"
-          PR_BRANCH="${{ steps.push_issue.outputs.pr_branch }}"
-          ISSUE_NUM="${{ github.event.issue.number }}"
-
-          gh workflow run verify-merge.yml \
-            --repo "${{ github.repository }}" \
-            --ref master \
-            -f tmp_branch="$TMP_BRANCH" \
-            -f target_branch="$PR_BRANCH" \
-            -f issue_number="${ISSUE_NUM}" \
+          source .github/scripts/lib.sh
+          dispatch_workflow "verify-merge.yml" \
+            -f tmp_branch="${{ steps.push_issue.outputs.tmp_branch }}" \
+            -f target_branch="${{ steps.push_issue.outputs.pr_branch }}" \
+            -f issue_number="${{ github.event.issue.number }}" \
             -f attempt="1"
-
-          echo "Triggered verify-merge for $TMP_BRANCH -> $PR_BRANCH"
+          echo "Triggered verify-merge"
 
       # Auto-merge removed — auto-merge.yml is the single gate that
       # merges PRs only after Tests + E2E + approval + threads resolved.
