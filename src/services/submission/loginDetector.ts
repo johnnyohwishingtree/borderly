@@ -132,12 +132,14 @@ function attributeFragmentInHtml(lowerHtml: string, selector: string): boolean {
   const attrExpr = attrMatch[1]; // e.g. `type="email"` or `name*="user"`
 
   if (attrExpr.includes('*=')) {
-    // Substring match: name*="user" → look for name= ... user ...
+    // Substring match: name*="user" → look for name="...user..." or name='...user...'
+    // Use a regex to avoid false positives where the value appears as text outside
+    // the attribute (e.g. '<p>username</p>' matching selector input[name*="user"]).
     const [attrName, attrValue] = attrExpr.split('*=');
     const val = attrValue.replace(/['"]/g, '').toLowerCase();
-    return (
-      lowerHtml.includes(`${attrName.toLowerCase()}=`) && lowerHtml.includes(val)
-    );
+    const name = attrName.toLowerCase();
+    const regex = new RegExp(`${name}\\s*=\\s*["'][^"']*${val}[^"']*["']`);
+    return regex.test(lowerHtml);
   }
 
   if (attrExpr.includes('=')) {
