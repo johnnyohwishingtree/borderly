@@ -278,24 +278,30 @@ jobs:
             exit 0
           fi
 
-          # Check for any reviews (approved, commented, changes_requested)
+          # Check for formal PR reviews ONLY (not bot issue comments).
+          # Bot issue comments (e.g., Gemini's auto-summary) are NOT code reviews.
+          # They arrive before Gemini finishes analyzing, so approving based on them
+          # races with the actual review that may contain ![high]/![critical] badges.
+          #
+          # Formal PR reviews arrive via pull_request_review:submitted, which triggers
+          # request-approval — that job handles approval with proper badge checks.
           ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
             -q '.reviews | length' 2>/dev/null || echo "0")
 
-          # Also check for bot review comments
-          BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot|claude"))] | length' 2>/dev/null || echo "0")
+          echo "Formal PR reviews: $ANY_REVIEWS"
 
-          TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
-          echo "Reviews: $ANY_REVIEWS formal, $BOT_COMMENTS bot comments = $TOTAL total"
-
-          if [ "$TOTAL" -gt 0 ]; then
-            echo "PR #$PR_NUM has reviews but no approval — needs auto-approve"
-            echo "action=approve" >> $GITHUB_OUTPUT
+          if [ "$ANY_REVIEWS" -gt 0 ]; then
+            # A formal review exists but no approval yet.
+            # request-approval was already triggered by the pull_request_review event.
+            # It either approved (and we'd have caught it above) or deferred (review-fix
+            # active, critical badges found). Don't duplicate its logic — just dispatch
+            # auto-merge in case it's waiting on CI.
+            echo "PR #$PR_NUM has formal review(s) but no approval — dispatching auto-merge to re-evaluate"
+            echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # No reviews at all — check if we already requested one
+          # No formal reviews — check if we already requested a fallback
           EXISTING_REQUEST=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
             -q '[.[] | select(.body | contains("Please perform a comprehensive code review"))] | length' 2>/dev/null || echo "0")
 
@@ -305,98 +311,21 @@ jobs:
             exit 0
           fi
 
-          # Wait for Gemini
-          echo "No reviews found. Waiting 60s for Gemini..."
-          sleep 60
-
-          # Re-check
-          ANY_REVIEWS=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
-            -q '.reviews | length' 2>/dev/null || echo "0")
-          BOT_COMMENTS=$(gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.user.login | test("gemini-code-assist|copilot|claude"))] | length' 2>/dev/null || echo "0")
-
-          TOTAL=$((ANY_REVIEWS + BOT_COMMENTS))
-
-          if [ "$TOTAL" -gt 0 ]; then
-            echo "Review arrived during wait — needs auto-approve"
-            echo "action=approve" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "Still no reviews. Requesting fallback review."
+          # No formal reviews and no fallback requested.
+          # Request a Claude review — when Claude responds, auto-approve-after-claude
+          # handles approval via the issue_comment event (deterministic, no race).
+          echo "No formal reviews found. Requesting Claude fallback review."
           echo "action=request-review" >> $GITHUB_OUTPUT
         id: check
 
-      - name: Auto-approve PR with existing review
-        if: steps.check.outputs.action == 'approve'
+      - name: Dispatch auto-merge for re-evaluation
+        if: steps.check.outputs.action == 'dispatch-auto-merge'
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PAT: ${{ secrets.GH_PAT }}
-          AGENT: ${{ vars.PREFERRED_AGENT || 'claude' }}
-          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           PR_NUM=${{ steps.check.outputs.pr_num }}
-
-          # Check for critical/high-severity inline comments (including Gemini
-          # badge patterns like ![critical] and ![high])
-          CRITICAL_COMMENTS=$(GH_TOKEN="$GH_PAT" count_critical_comments "$PR_NUM" "$REPO")
-
-          if [ "$CRITICAL_COMMENTS" -gt 0 ]; then
-            # Check if ALL review threads are resolved — if so, the feedback was addressed
-            UNRESOLVED=$(GH_TOKEN="$GH_PAT" count_unresolved_threads "$PR_NUM" "$REPO")
-
-            if [ "$UNRESOLVED" -gt 0 ]; then
-              echo "Review has $CRITICAL_COMMENTS critical/high-severity comments and $UNRESOLVED unresolved threads — NOT auto-approving"
-              echo "review-relay.yml will handle triggering Claude to fix these"
-
-              comment_on_issue "$PR_NUM" "Auto-approve skipped: found $CRITICAL_COMMENTS inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved." "$REPO"
-              exit 0
-            else
-              echo "Found $CRITICAL_COMMENTS critical/high comments but ALL threads are resolved — feedback was addressed"
-            fi
-          fi
-
-          # Check if the LATEST bot review comment contains "Request Changes".
-          # Claude sometimes posts reviews as issue comments (not formal PR reviews).
-          # We only check the most recent bot review comment — if Claude was asked to
-          # fix the issues and pushed a new commit, the original "Request Changes"
-          # comment is stale and should not block approval.
-          #
-          # We also check whether a fix was requested AFTER the review. If
-          # "Fix the issues from the code review" appears after the review comment,
-          # the fix cycle is in progress — let it complete and approve on the next
-          # CI pass (the fix commit triggers a new ensure-review evaluation).
-          LATEST_BOT_REVIEW=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.user.login | test("claude|gemini-code-assist|copilot"; "i")) | select(.body | test("perform a comprehensive code review|Please review the diff|Verdict|Review Summary"; "i"))] | last' 2>/dev/null || echo "{}")
-
-          REVIEW_HAS_ISSUES=$(echo "$LATEST_BOT_REVIEW" | jq -r '.body // ""' | grep -ciE 'request.?changes|critical.?(bug|issue|problem)|do not merge' || echo "0")
-          REVIEW_CREATED=$(echo "$LATEST_BOT_REVIEW" | jq -r '.created_at // ""')
-
-          if [ "$REVIEW_HAS_ISSUES" -gt 0 ] && [ -n "$REVIEW_CREATED" ]; then
-            # Check if a fix was already requested after this review
-            FIX_REQUESTED_AFTER=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
-              -q "[.[] | select(.body | test(\"Fix the issues from the code review\")) | select(.created_at > \"$REVIEW_CREATED\")] | length" 2>/dev/null || echo "0")
-
-            # Check if new commits were pushed after the review (meaning fixes landed)
-            LAST_COMMIT_DATE=$(gh api "repos/$REPO/pulls/$PR_NUM/commits" \
-              -q '.[-1].commit.author.date' 2>/dev/null || echo "")
-
-            FIXES_LANDED=false
-            if [ -n "$LAST_COMMIT_DATE" ] && [ -n "$REVIEW_CREATED" ] && [[ "$LAST_COMMIT_DATE" > "$REVIEW_CREATED" ]]; then
-              FIXES_LANDED=true
-            fi
-
-            if [ "$FIX_REQUESTED_AFTER" -gt 0 ] && [ "$FIXES_LANDED" = "true" ]; then
-              echo "Bot review had 'Request Changes' but fixes were requested and new commits landed — allowing approval"
-            else
-              echo "Bot review comment contains 'Request Changes' or critical issues — NOT auto-approving"
-              comment_on_issue "$PR_NUM" "Auto-approve skipped: the latest bot code review contains 'Request Changes' or flagged critical issues. These must be addressed before the PR can be approved." "$REPO"
-              exit 0
-            fi
-          fi
-
-          echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
-          approve_and_merge "$PR_NUM" "Auto-approved: code review detected, no unresolved critical/high issues." "$REPO"
+          echo "Dispatching auto-merge for PR #$PR_NUM"
+          dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM"
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'
