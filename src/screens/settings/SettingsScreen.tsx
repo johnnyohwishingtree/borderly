@@ -7,7 +7,7 @@ import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
-import { keychainService } from '@/services/storage';
+import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
 import type { SettingsStackParamList } from '@/app/navigation/types';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
@@ -23,7 +23,7 @@ export default function SettingsScreen() {
     setBiometricAvailable,
     clearCache,
   } = useAppStore();
-  const { clearProfile } = useProfileStore();
+  const { familyProfiles, setOnboardingComplete } = useProfileStore();
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const [storageStats, setStorageStats] = useState<{
     profileSize: string;
@@ -113,12 +113,17 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleExportData = () => {
-    Alert.alert(
-      'Export Data',
-      'Data export functionality will be available in a future update.',
-      [{ text: 'OK' }]
-    );
+  const handleExportData = async () => {
+    try {
+      const profileIds = Array.from(familyProfiles.profiles.keys());
+      if (profileIds.length === 0) {
+        Alert.alert('No Data', 'There is no profile data to export.');
+        return;
+      }
+      await exportUserData(profileIds);
+    } catch {
+      Alert.alert('Export Failed', 'Unable to export your data. Please try again.');
+    }
   };
 
   const handleClearCache = () => {
@@ -151,7 +156,7 @@ export default function SettingsScreen() {
           onPress: () => {
             Alert.alert(
               'Are you sure?',
-              'This will permanently delete ALL your data. You will need to complete onboarding again.',
+              'This will permanently delete ALL your data including your passport info, trips, and QR codes. You will need to complete onboarding again.',
               [
                 { text: 'Cancel', style: 'cancel' },
                 {
@@ -159,11 +164,12 @@ export default function SettingsScreen() {
                   style: 'destructive',
                   onPress: async () => {
                     try {
-                      await clearProfile();
-                      resetPreferences();
-                      Alert.alert('Data Deleted', 'All data has been deleted. Please restart the app.');
+                      const profileIds = Array.from(familyProfiles.profiles.keys());
+                      await deleteAllData(profileIds);
+                      // Reset in-memory state so RootNavigator routes to Onboarding
+                      setOnboardingComplete(false);
                     } catch {
-                      Alert.alert('Error', 'Failed to delete data. Please try again.');
+                      Alert.alert('Error', 'Failed to delete all data. Some data may remain. Please try again.');
                     }
                   },
                 },

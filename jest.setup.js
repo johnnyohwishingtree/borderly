@@ -96,6 +96,11 @@ jest.mock('react-native', () => {
       vibrate: jest.fn(),
       cancel: jest.fn(),
     },
+    Share: {
+      share: jest.fn().mockResolvedValue({ action: 'sharedAction' }),
+      dismissedAction: 'dismissedAction',
+      sharedAction: 'sharedAction',
+    },
   };
 });
 
