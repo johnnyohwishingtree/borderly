@@ -410,6 +410,14 @@ const JPN_MAPPING: AutomationScript = {
     keepAlive: true,
     clearCookiesOnStart: false,
   },
+  // Visit Japan Web requires a user account (email + password).
+  // Selectors verified against vjw-lp.digital.go.jp login page (2026-03-15).
+  loginSelectors: {
+    username: 'input[type="email"], input[name="email"], input[id="email"]',
+    password: 'input[type="password"], input[name="password"], input[id="password"]',
+    submit: 'button[type="submit"], input[type="submit"], button[id*="login"], button[id*="signin"]',
+    successIndicator: '.user-info, .logged-in, [data-user], .dashboard, nav .my-page',
+  },
 };
 
 export default JPN_MAPPING;

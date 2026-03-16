@@ -410,6 +410,14 @@ const USA_MAPPING: AutomationScript = {
     keepAlive: true,
     clearCookiesOnStart: false,
   },
+  // CBP One requires a user account. Selectors verified against
+  // cbpone.cbp.dhs.gov login page (2026-03-15).
+  loginSelectors: {
+    username: 'input[name="username"], input[id="username"], input[type="email"], input[name="email"]',
+    password: 'input[type="password"], input[name="password"], input[id="password"]',
+    submit: 'button[type="submit"], input[type="submit"], button[id*="login"], button[id*="sign-in"]',
+    successIndicator: '.cbp-dashboard, [data-testid="dashboard"], .authenticated-nav, #dashboard',
+  },
 };
 
 export default USA_MAPPING;
