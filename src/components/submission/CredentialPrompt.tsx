@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -54,20 +54,14 @@ export function CredentialPrompt({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Reset fields each time the prompt becomes visible
-  const handleVisible = (isVisible: boolean) => {
-    if (isVisible) {
+  // Reset fields each time the prompt becomes visible or initialUsername changes
+  useEffect(() => {
+    if (visible) {
       setUsername(initialUsername);
       setPassword('');
       setShowPassword(false);
     }
-  };
-
-  // Trigger field reset when `visible` flips to true (controlled externally)
-  // We use a simple approach: reset when visible changes to true
-  if (visible && username === '' && initialUsername !== '') {
-    setUsername(initialUsername);
-  }
+  }, [visible, initialUsername]);
 
   const canSave = username.trim().length > 0 && password.length > 0;
 
@@ -87,7 +81,6 @@ export function CredentialPrompt({
       animationType="slide"
       transparent
       onRequestClose={onSkip}
-      onShow={() => handleVisible(true)}
       testID={testID ?? 'credential-prompt-modal'}
     >
       <View style={{ flex: 1 }}>

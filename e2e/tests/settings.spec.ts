@@ -122,8 +122,8 @@ async function injectStateWithPortalCredentials(page: Page) {
 
 /** Navigate to the Settings tab from the main app. */
 async function navigateToSettings(page: Page) {
-  // Wait for the app to load past onboarding
-  await page.waitForTimeout(800);
+  // Wait for the app to load past onboarding — wait for the settings tab to appear
+  await page.locator('[data-testid="tab-settings"]').waitFor({ timeout: 5000 }).catch(() => {});
 
   await page.waitForFunction(
     () => typeof (window as any).__navigationRef !== 'undefined',
@@ -146,7 +146,7 @@ async function navigateToSettings(page: Page) {
   });
 
   if (navigated) {
-    await page.waitForTimeout(600);
+    await page.getByText('Settings').first().waitFor({ timeout: 3000 }).catch(() => {});
   }
 }
 
@@ -250,15 +250,14 @@ test.describe('SettingsScreen', () => {
   test('settings tab is accessible via the bottom tab bar', async ({ page }) => {
     await injectBasicState(page);
     await page.goto('/');
-    await page.waitForTimeout(800);
-
-    // Try tapping the settings tab if it's visible
+    // Wait for the settings tab to be visible before clicking
     const settingsTab = page.locator('[data-testid="tab-settings"]');
+    await settingsTab.waitFor({ timeout: 5000 }).catch(() => {});
     const tabCount = await settingsTab.count();
 
     if (tabCount > 0) {
       await settingsTab.click();
-      await page.waitForTimeout(400);
+      await page.getByText('App preferences and data management').waitFor({ timeout: 3000 }).catch(() => {});
       // After clicking, "Settings" heading should appear
       const heading = page.getByText('App preferences and data management');
       const headingCount = await heading.count();
