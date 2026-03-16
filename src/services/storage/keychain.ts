@@ -243,6 +243,7 @@ class KeychainServiceImpl implements KeychainService {
       );
     } catch (error) {
       console.error(`Failed to save portal credential index for ${profileId}:`, error);
+      throw error;
     }
   }
 
