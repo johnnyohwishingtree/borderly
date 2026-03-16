@@ -607,7 +607,7 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 
 ### Review-Guardian Bypassing Claude's "Request Changes" Verdict
 - **Problem**: Claude sometimes posts code reviews as issue comments (not formal PR reviews). When Claude's review contains "Request Changes" or flags critical issues, the `ensure-review` job in review-guardian doesn't detect this. It only checks inline PR review comments for `![critical]`/`![high]` badges, so it auto-approves the PR despite Claude's verdict. This allowed PR #349 to merge with known critical bugs.
-- **Solution**: Added a check in `ensure-review`'s auto-approve step that scans issue comments from bot reviewers (Claude, Gemini, Copilot) for patterns such as "Request Changes", "critical bug", "critical issue", "critical problem", or "do not merge". If found, auto-approve is skipped and a comment explains why.
+- **Solution**: Added a check in `ensure-review`'s auto-approve step that finds the **latest** bot review comment (Claude, Gemini, Copilot) and checks for "Request Changes", "critical bug/issue/problem", or "do not merge" patterns. If found, auto-approve is blocked — unless a fix was already requested AND new commits were pushed after the review (meaning the issues were addressed). This prevents both the bypass (merging with critical bugs) and the deadlock (permanently blocking approval after fixes land).
 
 ---
 
