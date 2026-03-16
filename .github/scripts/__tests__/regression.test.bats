@@ -673,6 +673,83 @@ EOF
 # checkout step, causing "No such file or directory" at runtime.
 # Regression: every workflow job that uses lib.sh (via BASH_ENV or source)
 # must have an actions/checkout step to make the file available.
+# Bug: review-fix.yml verify step only ran typecheck + unit tests (PR #386).
+# A Playwright API misuse (page.off without function ref) passed both checks
+# but crashed at E2E runtime. The verify gate must include E2E tests.
+@test "regression: review-fix verify step includes E2E tests" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_name = str(step.get('name', ''))
+        step_run = str(step.get('run', ''))
+        if 'erify' in step_name and ('typecheck' in step_run or 'test' in step_run):
+            if 'playwright' in step_run or 'e2e' in step_run.lower():
+                print('ok')
+                sys.exit(0)
+
+print('missing')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml verify step does not include E2E/playwright tests"
+    echo "The verify gate must run E2E tests to catch Playwright runtime errors"
+    false
+  fi
+}
+
+# Bug: review-fix.yml prompt told Claude to push before the verify step ran (PR #386).
+# Claude pushed broken code directly; the verify step was too late to prevent it.
+# The prompt must NOT instruct Claude to push — the workflow handles pushing after verify.
+@test "regression: review-fix prompt does not instruct Claude to push" {
+  local wf="$SCRIPTS_DIR/../workflows/review-fix.yml"
+  [ -f "$wf" ] || skip "review-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        step_with = step.get('with', {}) or {}
+        prompt = str(step_with.get('prompt', ''))
+        if not prompt:
+            continue
+        # Check if prompt contains push instructions
+        lines = prompt.lower().split('\n')
+        for line in lines:
+            stripped = line.strip()
+            # Skip lines that say 'do not push' or 'do NOT push'
+            if 'not push' in stripped or 'not push' in line:
+                continue
+            if 'push' in stripped and ('git' in stripped or 'origin' in stripped):
+                print(f'found: {line.strip()}')
+                sys.exit(0)
+
+print('ok')
+sys.exit(0)
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: review-fix.yml prompt instructs Claude to push"
+    echo "Claude must NOT push — the workflow pushes after verification"
+    echo "Offending line: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""
