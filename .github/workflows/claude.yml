@@ -35,12 +35,9 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git and auth
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Claude CI"
-          git config user.email "claude-ci@users.noreply.github.com"
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - name: Switch to PR branch if applicable
         if: github.event.issue.pull_request || github.event.pull_request

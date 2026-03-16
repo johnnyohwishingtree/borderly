@@ -54,22 +54,12 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git and auth
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Claude CI"
-          git config user.email "claude-ci@users.noreply.github.com"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: ./.github/actions/setup-auth
         with:
-          node-version: '20'
+          token: ${{ secrets.GH_PAT }}
 
-      - name: Install pnpm and dependencies
-        run: |
-          npm install -g pnpm
-          pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Run Claude to fix review feedback
         id: claude
@@ -135,75 +125,23 @@ jobs:
         if: steps.verify.outputs.pass == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-          REPO: ${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          PR_NUM=${{ inputs.pr_number }}
-          OWNER=$(echo "$REPO" | cut -d/ -f1)
-          NAME=$(echo "$REPO" | cut -d/ -f2)
-
-          echo "Resolving review threads on PR #$PR_NUM"
-
-          THREAD_IDS=$(gh api graphql -f query="
-            query {
-              repository(owner: \"$OWNER\", name: \"$NAME\") {
-                pullRequest(number: $PR_NUM) {
-                  reviewThreads(first: 100) {
-                    nodes { id isResolved }
-                  }
-                }
-              }
-            }
-          " --jq '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .id' 2>/dev/null || echo "")
-
-          if [ -z "$THREAD_IDS" ]; then
-            echo "No unresolved review threads"
-            exit 0
-          fi
-
-          echo "$THREAD_IDS" | while read -r TID; do
-            if [ -n "$TID" ]; then
-              gh api graphql -f query="
-                mutation {
-                  resolveReviewThread(input: {threadId: \"$TID\"}) {
-                    thread { isResolved }
-                  }
-                }
-              " 2>/dev/null && echo "Resolved thread $TID" || echo "Failed to resolve $TID"
-            fi
-          done
-
-          echo "Resolved all review threads on PR #$PR_NUM"
+          source .github/scripts/lib.sh
+          echo "Resolving review threads on PR #${{ inputs.pr_number }}"
+          resolve_all_threads "${{ inputs.pr_number }}" "${{ github.repository }}"
 
       - name: Push verified changes
         if: steps.verify.outputs.pass == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          source .github/scripts/lib.sh
+          setup_git_auth
 
-          # Commit any uncommitted changes
-          CHANGES=$(git status --porcelain | grep -v '^?? output.txt$' || true)
-          if [ -n "$CHANGES" ]; then
-            git add -u
-            if [ -n "$(git diff --cached --name-only)" ]; then
-              git commit -m "fix: address review feedback (round ${{ inputs.round }})
-
-          Co-authored-by: Claude <noreply@anthropic.com>"
-            fi
-          fi
-
-          # Push if we have new commits
-          git fetch origin "${{ inputs.pr_branch }}" 2>/dev/null || true
-          LOCAL_HEAD=$(git rev-parse HEAD)
-          REMOTE_HEAD=$(git rev-parse "origin/${{ inputs.pr_branch }}" 2>/dev/null || echo "none")
-
-          if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
-            echo "No new changes to push"
-          else
-            git pull --rebase origin "${{ inputs.pr_branch }}" 2>/dev/null || true
-            git push origin "HEAD:${{ inputs.pr_branch }}"
-            echo "Pushed review fixes to ${{ inputs.pr_branch }}"
-          fi
+          check_changes_and_commit "fix: address review feedback (round ${{ inputs.round }})" || true
+          smart_push "${{ inputs.pr_branch }}"
 
       - name: Comment on PR
         if: steps.verify.outputs.pass == 'true'

@@ -68,133 +68,38 @@ jobs:
           ref: ${{ inputs.tmp_branch }}
           fetch-depth: 0
 
-      - name: Merge master into branch
+      - name: Configure git identity
         run: |
           git config user.name "Claude CI"
           git config user.email "claude-ci@users.noreply.github.com"
-          git fetch origin master
-          git merge origin/master --no-edit || {
-            echo "::warning::Merge conflict with master — fix job will resolve"
-            git merge --abort
-            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
-          }
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Merge master into branch
+        id: merge-master
+        uses: ./.github/actions/merge-master
         with:
-          node-version: '20'
+          strategy: abort
 
-      - name: Install pnpm and dependencies
-        run: |
-          npm install -g pnpm
-          pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
+      - name: Set merge conflict env
+        if: steps.merge-master.outputs.conflict == 'true'
+        run: echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Run checks (lint + typecheck + test)
         id: checks
         run: |
-          PASS=true
-          SUMMARY=""
-
           if [ "$MERGE_CONFLICT" = "true" ]; then
-            echo "Merge conflict with master — cannot run checks"
             echo "pass=false" >> $GITHUB_OUTPUT
             echo "error_summary=MERGE CONFLICT WITH MASTER — resolve this first." >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "=== Lint (changed files only) ==="
-          CHANGED_FILES=$(git diff --name-only origin/master...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' | grep -v node_modules || true)
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "Linting $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') changed files"
-            LINT_OUT=$(echo "$CHANGED_FILES" | xargs npx eslint --quiet 2>&1) || true
-            if echo "$LINT_OUT" | grep -qE "error "; then
-              echo "Lint FAILED"
-              PASS=false
-              LINT_ERRORS=$(echo "$LINT_OUT" | grep -E "error " | head -10)
-              SUMMARY="${SUMMARY}
-          LINT ERRORS:
-          ${LINT_ERRORS}"
-            fi
-          else
-            echo "No changed JS/TS files to lint"
-          fi
-
-          echo "=== Typecheck ==="
-          TC_OUT=$(pnpm typecheck 2>&1) || true
-          if echo "$TC_OUT" | grep -qE "error TS"; then
-            echo "Typecheck FAILED"
-            PASS=false
-            TC_ERRORS=$(echo "$TC_OUT" | grep -E "error TS" | head -10)
-            SUMMARY="${SUMMARY}
-          TYPECHECK ERRORS:
-          ${TC_ERRORS}"
-          fi
-
-          if [ "$PASS" = "true" ]; then
-            echo "=== Metro Bundle ==="
-            BUNDLE_OUT=$(npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js 2>&1) || true
-            if echo "$BUNDLE_OUT" | grep -qiE "error|unable to resolve"; then
-              echo "Metro Bundle FAILED"
-              PASS=false
-              BUNDLE_ERRORS=$(echo "$BUNDLE_OUT" | grep -iE "error|unable to resolve" | head -5)
-              SUMMARY="${SUMMARY}
-          BUNDLE ERRORS:
-          ${BUNDLE_ERRORS}"
-            fi
-          fi
-
-          if [ "$PASS" = "true" ]; then
-            echo "=== Tests ==="
-            TEST_OUT=$(pnpm test 2>&1) || true
-            if echo "$TEST_OUT" | grep -qE "FAIL "; then
-              echo "Tests FAILED"
-              PASS=false
-              TEST_ERRORS=$(echo "$TEST_OUT" | grep -E "FAIL |● |Expected|Received" | grep -v "● Console" | head -20)
-              SUMMARY="${SUMMARY}
-          TEST FAILURES:
-          ${TEST_ERRORS}"
-            fi
-          fi
-
-          if [ "$PASS" = "true" ]; then
-            echo "=== Native Dependency Check ==="
-            MISSING=""
-            for pkg in $(node -e "
-              const pkg = require('./package.json');
-              const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-              Object.keys(deps)
-                .filter(d => d.startsWith('react-native-') || d.startsWith('@react-native-'))
-                .forEach(d => console.log(d));
-            "); do
-              PKG_DIR="node_modules/$pkg"
-              [ ! -d "$PKG_DIR" ] && continue
-              HAS_NATIVE=false
-              if ls "$PKG_DIR"/*.podspec 1>/dev/null 2>&1 || [ -d "$PKG_DIR/ios" ]; then
-                HAS_NATIVE=true
-              fi
-              if [ "$HAS_NATIVE" = "true" ]; then
-                if ! grep -q "node_modules/$pkg" ios/Podfile.lock 2>/dev/null; then
-                  MISSING="$MISSING $pkg"
-                fi
-              fi
-            done
-            if [ -n "$MISSING" ]; then
-              echo "Native Dependency Check FAILED"
-              PASS=false
-              NATIVE_ERRORS=""
-              for m in $MISSING; do
-                NATIVE_ERRORS="${NATIVE_ERRORS}
-          UNLINKED: $m is in package.json with native iOS code but missing from ios/Podfile.lock"
-              done
-              SUMMARY="${SUMMARY}
-          NATIVE DEP ERRORS:
-          ${NATIVE_ERRORS}"
-            fi
-          fi
+          RESULT=$(.github/scripts/verify-checks.sh --lint-only-changed --fail-fast 2>/dev/null) || true
+          PASS=$(echo "$RESULT" | jq -r '.pass')
+          SUMMARY=$(echo "$RESULT" | jq -r '.summary')
 
           echo "pass=$PASS" >> $GITHUB_OUTPUT
-
-          # Pass error summary to fix job (avoid re-running checks)
           echo "error_summary<<EOFERR" >> $GITHUB_OUTPUT
           echo "$SUMMARY" >> $GITHUB_OUTPUT
           echo "EOFERR" >> $GITHUB_OUTPUT
@@ -212,14 +117,15 @@ jobs:
           ref: ${{ inputs.target_branch }}
           fetch-depth: 0
 
+      - name: Configure git and auth
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       - name: Merge temp branch into target
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Claude CI"
-          git config user.email "claude-ci@users.noreply.github.com"
-
           TMP="${{ inputs.tmp_branch }}"
           TARGET="${{ inputs.target_branch }}"
 
@@ -360,31 +266,22 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git and auth
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Claude CI"
-          git config user.email "claude-ci@users.noreply.github.com"
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
 
       - name: Merge master into branch
-        run: |
-          git fetch origin master
-          git merge origin/master --no-edit || {
-            echo "::warning::Merge conflict with master — fix job will resolve"
-            git merge --abort
-            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
-          }
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        id: merge-master-fix
+        uses: ./.github/actions/merge-master
         with:
-          node-version: '20'
+          strategy: abort
 
-      - name: Install pnpm and dependencies
-        run: |
-          npm install -g pnpm
-          pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
+      - name: Set merge conflict env
+        if: steps.merge-master-fix.outputs.conflict == 'true'
+        run: echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
 
       - name: Collect commit context
         id: context

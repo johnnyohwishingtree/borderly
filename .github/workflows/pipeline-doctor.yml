@@ -50,12 +50,11 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git and auth
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
-          git config user.name "Pipeline Doctor"
-          git config user.email "pipeline-doctor@users.noreply.github.com"
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+          user_name: 'Pipeline Doctor'
+          user_email: 'pipeline-doctor@users.noreply.github.com'
 
       - name: Collect evidence
         id: evidence
