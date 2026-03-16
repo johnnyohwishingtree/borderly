@@ -225,30 +225,15 @@ jobs:
                 if [ "$MERGE_UNRESOLVED" -gt 0 ]; then
                   echo "  Has $MERGE_UNRESOLVED unresolved threads — cannot retrigger merge (handled below)"
                 else
-                  # Cap retrigger attempts to prevent infinite close/reopen loops
-                  RETRIGGER_ATTEMPTS=$(gh pr view "$PR_NUM" --repo "$REPO" --json comments \
-                    -q '[.comments[] | select(.body | contains("Pipeline watcher: retriggering auto-merge"))] | length' 2>/dev/null || echo "0")
-
-                  if [ "$RETRIGGER_ATTEMPTS" -ge 3 ]; then
-                    echo "  STUCK: retriggered $RETRIGGER_ATTEMPTS times already — escalating to pipeline doctor"
-                    if [ -n "$ISSUE_NUM" ]; then
-                      gh workflow run pipeline-doctor.yml \
-                        --repo "$REPO" \
-                        --ref master \
-                        -f issue_number="$ISSUE_NUM" \
-                        -f trigger_source="watcher-stuck-merge" 2>/dev/null || true
-                      echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
-                    fi
-                  else
-                    echo "  All merge conditions appear met but PR not merged — retriggering auto-merge (attempt $((RETRIGGER_ATTEMPTS + 1))/3)"
-                    gh pr comment "$PR_NUM" --repo "$REPO" \
-                      --body "Pipeline watcher: retriggering auto-merge — all conditions appear met (CI passes, approved, no unresolved threads) but PR was not merged. Close/reopen to re-evaluate. (attempt $((RETRIGGER_ATTEMPTS + 1))/3)" \
-                      2>/dev/null || true
-                    gh pr close "$PR_NUM" --repo "$REPO" 2>/dev/null || true
-                    sleep 2
-                    gh pr reopen "$PR_NUM" --repo "$REPO" 2>/dev/null || true
-                    echo "  Closed/reopened PR #$PR_NUM to trigger auto-merge"
-                  fi
+                  # Dispatch auto-merge to re-evaluate and merge if conditions hold.
+                  # The watcher detects the issue; auto-merge owns the merge decision.
+                  echo "  All merge conditions appear met — dispatching auto-merge for PR #$PR_NUM"
+                  gh workflow run auto-merge.yml \
+                    --repo "$REPO" \
+                    --ref master \
+                    -f pr_number="$PR_NUM" 2>/dev/null \
+                    && echo "  Dispatched auto-merge for PR #$PR_NUM" \
+                    || echo "  Failed to dispatch auto-merge for PR #$PR_NUM"
                 fi
               fi
 
