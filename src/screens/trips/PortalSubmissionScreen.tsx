@@ -501,6 +501,9 @@ export default function PortalSubmissionScreen() {
           }
         }
 
+        // File inputs can't be auto-filled via JS
+        if (mapping.inputType === 'file') return;
+
         // Use the first CSS selector from a comma-separated list
         const selector = mapping.selector.split(',')[0].trim();
 

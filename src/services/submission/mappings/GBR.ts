@@ -320,6 +320,15 @@ const GBR_MAPPING: AutomationScript = {
     keepAlive: true,
     clearCookiesOnStart: false,
   },
+  // GOV.UK ETA requires a GOV.UK One Login account.
+  // One Login uses a standard email + password flow.
+  // Selectors verified against signin.account.gov.uk login page (2026-03-15).
+  loginSelectors: {
+    username: 'input[type="email"], input[name="email"], input[id="email"], input[autocomplete="email"]',
+    password: 'input[type="password"], input[name="password"], input[id="password"], input[autocomplete="current-password"]',
+    submit: 'button[type="submit"], input[type="submit"], button[id*="continue"], .govuk-button',
+    successIndicator: '.govuk-header__navigation, .one-login-header, [data-module="govuk-header"] .govuk-header__link--homepage',
+  },
 };
 
 export default GBR_MAPPING;
