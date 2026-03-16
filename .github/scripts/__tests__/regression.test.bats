@@ -689,10 +689,10 @@ with open('$wf') as f:
 
 for job_name, job in data.get('jobs', {}).items():
     for step in job.get('steps', []):
-        step_name = str(step.get('name', ''))
-        step_run = str(step.get('run', ''))
-        if 'erify' in step_name and ('typecheck' in step_run or 'test' in step_run):
-            if 'playwright' in step_run or 'e2e' in step_run.lower():
+        step_name = str(step.get('name', '')).lower()
+        step_run = str(step.get('run', '')).lower()
+        if 'verify' in step_name and ('typecheck' in step_run or 'test' in step_run):
+            if 'playwright' in step_run or 'e2e' in step_run:
                 print('ok')
                 sys.exit(0)
 
@@ -728,13 +728,12 @@ for job_name, job in data.get('jobs', {}).items():
         if not prompt:
             continue
         # Check if prompt contains push instructions
-        lines = prompt.lower().split('\n')
-        for line in lines:
-            stripped = line.strip()
+        for line in prompt.split('\n'):
+            lower = line.lower()
             # Skip lines that say 'do not push' or 'do NOT push'
-            if 'not push' in stripped or 'not push' in line:
+            if 'not push' in lower:
                 continue
-            if 'push' in stripped and ('git' in stripped or 'origin' in stripped):
+            if 'push' in lower and ('git' in lower or 'origin' in lower):
                 print(f'found: {line.strip()}')
                 sys.exit(0)
 
