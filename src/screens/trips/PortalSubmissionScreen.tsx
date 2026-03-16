@@ -507,9 +507,6 @@ export default function PortalSubmissionScreen() {
         // Use the first CSS selector from a comma-separated list
         const selector = mapping.selector.split(',')[0].trim();
 
-        // 'file' inputs can't be auto-filled via script injection; skip them.
-        if (mapping.inputType === 'file') return;
-
         fieldSpecs.push({
           id: field.id,
           selector,
