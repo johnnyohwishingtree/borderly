@@ -11,12 +11,13 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `daily-planner.yml` | Cron (weekends) / manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
+| `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop (up to N attempts) |
 | `verify-merge.yml` | Dispatched by claude/gemini | Tests code, fixes errors, merges |
-| `pipeline-doctor.yml` | verify-merge give-up / watcher / manual | Diagnoses pipeline failures, creates fix PRs |
-| `test.yml` | Push/PR to master | CI checks (lint, typecheck, test) |
-| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright) |
+| `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses pipeline failures, creates fix PRs |
+| `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
-| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback (verified: typecheck + tests + E2E before push) |
+| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
 | `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate (6 conditions) |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
@@ -136,9 +137,8 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |                                                                     |
 |   review-fix.yml:                                                   |
 |     +-- Claude fixes code (no push permission in prompt)            |
-|     +-- Verify: typecheck + tests + E2E                             |
-|     +-- Only pushes if all checks pass                              |
-|     +-- Resolves review threads before push                         |
+|     +-- Resolves review threads, pushes changes                     |
+|     +-- Dispatches verify-and-fix.yml (3 attempts) for quality gate |
 +----------------------------+----------------------------------------+
                              |
                              v
@@ -254,6 +254,15 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 ### Auto-Approve → Explicit Auto-Merge Dispatch
 `GITHUB_TOKEN` approvals don't emit `pull_request_review` events. All auto-approve paths dispatch `auto-merge.yml` explicitly.
 
+### Reusable Verify-and-Fix Loop
+`verify-and-fix.yml` is the shared quality gate with retry. Callers dispatch it with configurable check mode and retry count:
+- `review-fix.yml` → `checks: "all"`, `max_attempts: 3` (after addressing review feedback)
+- `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure for claude/ branches)
+- `e2e-smoke.yml` → `checks: "e2e"`, `max_attempts: 3` (on E2E failure for claude/ branches)
+- `verify-merge.yml` still uses its own inline verify+fix (has state machine tracking + merge logic)
+
+The workflow self-dispatches with `attempt+1` for retry (since `workflow_call` can't self-dispatch).
+
 ### Verify-Merge Fix Context
 - `.claude-fix-log.md` persists across attempts (deleted before merge)
 - Commit log + diff included so Claude understands intent
@@ -272,7 +281,8 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Cancel-in-progress guard | Only `@claude` comments can cancel; status comments queue harmlessly |
 | Fix attempt isolation | Concurrency group includes attempt number; no cancellation |
 | Give-up comment safety | Neutral language, no `@claude`/`@gemini` triggers |
-| Review-fix verification gate | Typecheck + tests + E2E must pass before push; Claude's prompt says "do NOT push" |
+| Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
+| CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix instead of @claude PR comments (which have restricted tools) |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Merge conflict resolution | `resolve-conflicts.yml` auto-resolves on push to master |
