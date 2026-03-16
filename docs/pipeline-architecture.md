@@ -43,7 +43,7 @@ Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and
 | `evaluate-merge-gate.sh` | Evaluates 6 merge conditions → JSON with `action: merge|update_branch|wait|skip` | 16 |
 | `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output | 27 |
 
-171 total tests (including 22 regression tests for documented bugs). Run: `bats .github/scripts/__tests__/*.bats`.
+Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regression tests for documented bugs).
 
 ### Composite Actions (`.github/actions/`)
 
@@ -264,7 +264,7 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 
 ## Edge Cases & Safety Mechanisms
 
-Historical bugs and their fixes are tracked as regression tests in `.github/scripts/__tests__/regression.test.bats` (22 tests). Key safety mechanisms:
+Historical bugs and their fixes are tracked as regression tests in `.github/scripts/__tests__/regression.test.bats`. For detailed root-cause analysis and solutions, see [`pipeline-edge-cases.md`](pipeline-edge-cases.md). Key safety mechanisms:
 
 | Mechanism | Purpose |
 |-----------|---------|
