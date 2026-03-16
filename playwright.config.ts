@@ -24,6 +24,7 @@ const allProjects = [
       'tripCreation.spec.ts',
       'passportScanning.spec.ts',
       'fullJourney.spec.ts',
+      'tripAndSubmit.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
