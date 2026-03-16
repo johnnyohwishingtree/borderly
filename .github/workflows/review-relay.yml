@@ -25,6 +25,8 @@ jobs:
       github.event.review.state == 'commented'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Check reviewer and relay count
@@ -130,6 +132,13 @@ jobs:
           # Write to file to avoid shell metacharacter issues (review text has parentheses, backticks, etc.)
           printf '%s' "$SUMMARY" > /tmp/review_summary_dispatch.txt
 
+      - name: Checkout scripts
+        if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Dispatch review-fix workflow
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
         env:
@@ -141,8 +150,7 @@ jobs:
           ROUND=${{ steps.check.outputs.relay_round }}
           SUMMARY=$(cat /tmp/review_summary_dispatch.txt)
 
-          gh workflow run review-fix.yml \
-            --repo "${{ github.repository }}" \
+          dispatch_workflow "review-fix.yml" \
             --ref "$PR_BRANCH" \
             -f pr_number="$PR_NUM" \
             -f pr_branch="$PR_BRANCH" \
@@ -154,6 +162,4 @@ jobs:
 
           # Post a status comment on the PR
           RUN_URL="https://github.com/${{ github.repository }}/actions/workflows/review-fix.yml"
-          gh pr comment "$PR_NUM" --repo "${{ github.repository }}" \
-            --body "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it." \
-            2>/dev/null || true
+          comment_on_issue "$PR_NUM" "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it."

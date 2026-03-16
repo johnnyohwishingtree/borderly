@@ -668,3 +668,56 @@ EOF
   echo "$call" | grep -qF -- "-f pr_number=42"
   echo "$call" | grep -qF -- "-f attempt=3"
 }
+
+# Bug: review-relay.yml dispatch step used lib.sh but the job had no
+# checkout step, causing "No such file or directory" at runtime.
+# Regression: every workflow job that uses lib.sh (via BASH_ENV or source)
+# must have an actions/checkout step to make the file available.
+@test "regression: every job using lib.sh has a checkout step" {
+  local workflows_dir="$SCRIPTS_DIR/../workflows"
+  local failures=""
+
+  for wf in "$workflows_dir"/*.yml; do
+    local wf_name
+    wf_name=$(basename "$wf")
+
+    # Skip non-yaml
+    [[ "$wf_name" == *.yml ]] || continue
+
+    # Use python to parse YAML and check each job
+    local result
+    result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+issues = []
+for job_name, job in data.get('jobs', {}).items():
+    steps = job.get('steps', [])
+    job_env = job.get('env', {}) or {}
+    uses_bash_env = 'lib.sh' in str(job_env.get('BASH_ENV', ''))
+    uses_source = any('source .github/scripts/lib.sh' in str(s.get('run', '')) for s in steps)
+
+    if not (uses_bash_env or uses_source):
+        continue
+
+    has_checkout = any('actions/checkout' in str(s.get('uses', '')) for s in steps)
+    if not has_checkout:
+        issues.append(f'$wf_name:{job_name}')
+
+for issue in issues:
+    print(issue)
+" 2>/dev/null || echo "")
+
+    if [ -n "$result" ]; then
+      failures="${failures}${result}\n"
+    fi
+  done
+
+  if [ -n "$failures" ]; then
+    echo "Jobs using lib.sh (BASH_ENV or source) without a checkout step:"
+    echo -e "$failures"
+    false
+  fi
+}

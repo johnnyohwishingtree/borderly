@@ -65,6 +65,8 @@ jobs:
     if: needs.find-conflicting-prs.outputs.prs != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     strategy:
       matrix:
         pr: ${{ fromJSON(needs.find-conflicting-prs.outputs.prs) }}
@@ -159,6 +161,7 @@ jobs:
         if: steps.merge.outputs.resolved == 'auto' || steps.merge.outputs.resolved == 'clean'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           TYPE="${{ steps.merge.outputs.resolved }}"
           if [ "$TYPE" = "clean" ]; then
@@ -166,14 +169,12 @@ jobs:
           else
             MSG="Auto-resolved merge conflicts with master (${{ steps.merge.outputs.resolved_count }} files). Infrastructure/lock files took master's version; PR-modified files kept this branch's version."
           fi
-          gh pr comment "${{ matrix.pr.number }}" --repo "${{ github.repository }}" \
-            --body "$MSG" 2>/dev/null || echo "Failed to post comment"
+          comment_on_issue "${{ matrix.pr.number }}" "$MSG"
 
       - name: Comment on PR (manual needed)
         if: steps.merge.outputs.resolved == 'manual'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          gh pr comment "${{ matrix.pr.number }}" --repo "${{ github.repository }}" \
-            --body "Could not auto-resolve merge conflicts. Files needing manual resolution: \`${{ steps.merge.outputs.manual_files }}\`" \
-            2>/dev/null || echo "Failed to post comment"
+          comment_on_issue "${{ matrix.pr.number }}" "Could not auto-resolve merge conflicts. Files needing manual resolution: \`${{ steps.merge.outputs.manual_files }}\`"

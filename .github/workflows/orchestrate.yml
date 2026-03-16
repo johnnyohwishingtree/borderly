@@ -15,6 +15,8 @@ jobs:
     if: github.event.pull_request.merged == true && vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Extract story issue number from PR
@@ -148,5 +150,4 @@ jobs:
             --remove-label "pending" --add-label "in-progress" || true
 
           # TODO: Customize the test command in this trigger message
-          gh issue comment "$NEXT" --repo ${{ github.repository }} \
-            --body "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: After completing each acceptance criterion, git add, git commit, and git push before moving on. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."
+          comment_on_issue "$NEXT" "@$AGENT Implement this story. Read CLAUDE.md for project context and follow the skill referenced in this issue. IMPORTANT: After completing each acceptance criterion, git add, git commit, and git push before moving on. Run tests before your final commit. Create a PR with 'Closes #$NEXT' in the body when done."

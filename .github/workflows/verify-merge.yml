@@ -43,16 +43,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     if: inputs.issue_number != ''
+    env:
+      BASH_ENV: .github/scripts/lib.sh
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
       - name: Post workflow run link on issue
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          gh issue comment "${{ inputs.issue_number }}" --repo "${{ github.repository }}" --body "$(cat <<EOF
-          Verify and Merge — [attempt ${{ inputs.attempt }}/6]($RUN_URL)
-          EOF
-          )" 2>/dev/null || echo "Failed to post link comment"
+          BODY="Verify and Merge — [attempt ${{ inputs.attempt }}/6]($RUN_URL)"
+          comment_on_issue "${{ inputs.issue_number }}" "$BODY"
 
   verify:
     runs-on: ubuntu-latest
@@ -282,6 +288,8 @@ jobs:
     if: needs.verify.outputs.pass == 'false' && inputs.attempt != '6'
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout temp branch
@@ -373,12 +381,13 @@ jobs:
               # Post on issue so humans know immediately
               ISSUE_NUM="${{ inputs.issue_number }}"
               if [ -n "$ISSUE_NUM" ]; then
-                gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+                BODY=$(cat <<EOF
           Fix attempt ${{ inputs.attempt }}/6 aborted: Claude hit **$DENIALS permission denials** in $TURNS turns (\$$COST wasted). The \`allowedTools\` config is broken — retrying won't help.
 
           Fix the workflow config, then re-run manually: Actions > Verify and Merge > Run workflow.
           EOF
-                )" 2>/dev/null || true
+                )
+                comment_on_issue "$ISSUE_NUM" "$BODY"
               fi
               exit 1
             fi
@@ -390,7 +399,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          setup_git_auth
 
           # Stage fix log if it was created/updated
           if [ -f .claude-fix-log.md ]; then
@@ -445,9 +454,7 @@ jobs:
         run: |
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
 
-          gh workflow run verify-merge.yml \
-            --repo "${{ github.repository }}" \
-            --ref master \
+          dispatch_workflow "verify-merge.yml" \
             -f tmp_branch="${{ inputs.tmp_branch }}" \
             -f target_branch="${{ inputs.target_branch }}" \
             -f issue_number="${{ inputs.issue_number }}" \
@@ -464,14 +471,15 @@ jobs:
           TMP_BRANCH="${{ inputs.tmp_branch }}"
 
           if [ -n "$ISSUE_NUM" ]; then
-            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+            BODY=$(cat <<EOF
           Fix attempt ${{ inputs.attempt }}/6 produced no changes — Claude could not fix the errors. Remaining attempts skipped.
 
           Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 
           To retry manually: Actions > Verify and Merge > Run workflow with \`tmp_branch: ${TMP_BRANCH}\`, \`target_branch: ${{ inputs.target_branch }}\`, \`attempt: 1\`
           EOF
-            )" 2>/dev/null || echo "Failed to post comment"
+            )
+            comment_on_issue "$ISSUE_NUM" "$BODY"
           fi
 
       # ── Rescue step: runs ONLY when the fix job is cancelled (e.g. timeout) ──
@@ -480,7 +488,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          setup_git_auth
 
           TMP_BRANCH="${{ inputs.tmp_branch }}"
           ISSUE_NUM="${{ inputs.issue_number }}"
@@ -504,9 +512,7 @@ jobs:
           # Trigger next attempt so the fix loop continues
           NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
           if [ "$NEXT_ATTEMPT" -le 6 ]; then
-            gh workflow run verify-merge.yml \
-              --repo "${{ github.repository }}" \
-              --ref master \
+            dispatch_workflow "verify-merge.yml" \
               -f tmp_branch="$TMP_BRANCH" \
               -f target_branch="${{ inputs.target_branch }}" \
               -f issue_number="$ISSUE_NUM" \
@@ -516,12 +522,13 @@ jobs:
 
           # Notify on the issue
           if [ -n "$ISSUE_NUM" ]; then
-            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+            BODY=$(cat <<EOF
           Fix attempt ${{ inputs.attempt }}/6 timed out after 60 minutes. In-progress work was saved to [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 
           Automatically continuing with attempt $NEXT_ATTEMPT.
           EOF
-            )" 2>/dev/null || echo "Failed to post timeout comment"
+            )
+            comment_on_issue "$ISSUE_NUM" "$BODY"
           fi
 
   give-up:
@@ -529,6 +536,8 @@ jobs:
     if: needs.verify.outputs.pass == 'false' && inputs.attempt == '6'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
 
     steps:
       - name: Checkout scripts
@@ -564,17 +573,16 @@ jobs:
               -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | .[].databaseId" \
               2>/dev/null | tr '\n' ',' | sed 's/,$//' || echo "")
 
-            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "$(cat <<EOF
+            BODY=$(cat <<EOF
           Checks failed after 6 fix attempts. Claude's work is on [\`${TMP_BRANCH}\`](https://github.com/${{ github.repository }}/tree/${TMP_BRANCH}).
 
           Triggering Pipeline Doctor to diagnose the failure.
           EOF
-            )" 2>/dev/null || echo "Failed to post comment"
+            )
+            comment_on_issue "$ISSUE_NUM" "$BODY"
 
             # Trigger pipeline doctor
-            gh workflow run pipeline-doctor.yml \
-              --repo "${{ github.repository }}" \
-              --ref master \
+            dispatch_workflow "pipeline-doctor.yml" \
               -f issue_number="$ISSUE_NUM" \
               -f trigger_source="verify-merge" \
               -f failed_run_ids="$FAILED_RUNS"
