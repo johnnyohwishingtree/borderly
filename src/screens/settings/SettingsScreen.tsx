@@ -8,6 +8,8 @@ import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
 import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
+import { getPortalName } from '@/utils/countryUtils';
+import type { PortalCredential } from '@/types/submission';
 import type { SettingsStackParamList } from '@/app/navigation/types';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
@@ -32,6 +34,10 @@ export default function SettingsScreen() {
     cacheSize: string;
   } | null>(null);
 
+  /** Stored portal credentials for the primary profile */
+  const [portalCredentials, setPortalCredentials] = useState<PortalCredential[]>([]);
+  const [isDeletingCredential, setIsDeletingCredential] = useState<string | null>(null);
+
   const checkBiometricAvailability = useCallback(async () => {
     setIsCheckingBiometric(true);
     try {
@@ -55,11 +61,23 @@ export default function SettingsScreen() {
     });
   }, []);
 
+  const loadPortalCredentials = useCallback(async () => {
+    try {
+      const primaryId = familyProfiles.primaryProfileId;
+      if (!primaryId) return;
+      const creds = await keychainService.getPortalCredentialsForProfile(primaryId);
+      setPortalCredentials(creds);
+    } catch (err) {
+      console.error('Failed to load portal credentials:', err);
+    }
+  }, [familyProfiles.primaryProfileId]);
+
   useEffect(() => {
     loadPreferences();
     checkBiometricAvailability();
     loadStorageStats();
-  }, [loadPreferences, checkBiometricAvailability, loadStorageStats]);
+    loadPortalCredentials();
+  }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials]);
 
   const themeOptions: SelectOption[] = [
     { label: 'Auto (System)', value: 'auto' },
@@ -138,6 +156,57 @@ export default function SettingsScreen() {
             clearCache();
             loadStorageStats(); // Refresh storage stats
             Alert.alert('Cache Cleared', 'App cache has been cleared successfully.');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeletePortalCredential = (portalCode: string) => {
+    Alert.alert(
+      'Delete Portal Credential',
+      `Remove saved login for ${getPortalName(portalCode)}? You will need to log in manually next time.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setIsDeletingCredential(portalCode);
+            try {
+              const primaryId = familyProfiles.primaryProfileId;
+              if (!primaryId) return;
+              await keychainService.deletePortalCredential(primaryId, portalCode);
+              await loadPortalCredentials();
+            } catch {
+              Alert.alert('Error', 'Failed to delete credential. Please try again.');
+            } finally {
+              setIsDeletingCredential(null);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAllPortalCredentials = () => {
+    Alert.alert(
+      'Delete All Portal Credentials',
+      'This will remove all saved portal logins. You will need to log in manually to each portal.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const primaryId = familyProfiles.primaryProfileId;
+              if (!primaryId) return;
+              await keychainService.deleteAllPortalCredentialsForProfile(primaryId);
+              setPortalCredentials([]);
+            } catch {
+              Alert.alert('Error', 'Failed to delete all portal credentials. Please try again.');
+            }
           },
         },
       ]
@@ -353,6 +422,73 @@ export default function SettingsScreen() {
               </View>
             </View>
           </View>
+        </Card>
+
+        {/* Portal Accounts */}
+        <Card testID="portal-accounts-card">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-900 mr-3">Portal Accounts</Text>
+            <StatusBadge
+              status={portalCredentials.length > 0 ? 'success' : 'neutral'}
+              size="small"
+              text={portalCredentials.length > 0 ? `${portalCredentials.length} saved` : 'None saved'}
+            />
+          </View>
+
+          <View className="bg-blue-50 p-3 rounded-lg mb-4">
+            <Text className="text-xs text-blue-800">
+              🔒 Portal login credentials are stored securely on this device with biometric
+              protection. Passwords are never displayed.
+            </Text>
+          </View>
+
+          {portalCredentials.length === 0 ? (
+            <View className="bg-gray-50 p-4 rounded-lg items-center">
+              <Text className="text-sm text-gray-500">No portal credentials saved yet.</Text>
+              <Text className="text-xs text-gray-400 mt-1">
+                Credentials are saved automatically when you log in to a portal.
+              </Text>
+            </View>
+          ) : (
+            <View className="space-y-2">
+              {portalCredentials.map(cred => (
+                <View
+                  key={cred.portalCode}
+                  testID={`portal-credential-row-${cred.portalCode}`}
+                  className="bg-gray-50 p-3 rounded-lg flex-row items-center justify-between"
+                >
+                  <View className="flex-1 mr-3">
+                    <Text className="text-sm font-medium text-gray-900">
+                      {getPortalName(cred.portalCode)}
+                    </Text>
+                    <Text className="text-xs text-gray-500 mt-0.5">{cred.username}</Text>
+                  </View>
+                  {isDeletingCredential === cred.portalCode ? (
+                    <ActivityIndicator size="small" color="#EF4444" />
+                  ) : (
+                    <Button
+                      title="Delete"
+                      onPress={() => handleDeletePortalCredential(cred.portalCode)}
+                      variant="outline"
+                      size="small"
+                    />
+                  )}
+                </View>
+              ))}
+
+              <View className="mt-2">
+                <Button
+                  title="Delete All Portal Credentials"
+                  onPress={handleDeleteAllPortalCredentials}
+                  variant="outline"
+                  fullWidth
+                />
+                <Text className="text-xs text-red-600 mt-1 text-center">
+                  ⚠️ Removes all saved portal logins
+                </Text>
+              </View>
+            </View>
+          )}
         </Card>
 
         {/* Data Management */}
