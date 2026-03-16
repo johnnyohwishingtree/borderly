@@ -40,7 +40,6 @@ jest.mock('@/services/storage/mmkv', () => ({
 }));
 
 // ── Import after mocks are in place ──────────────────────────────────────────
-// eslint-disable-next-line import/first
 import { keychainService } from '@/services/storage/keychain';
 import { PortalCredential } from '@/types/submission';
 
