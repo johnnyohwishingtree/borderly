@@ -4,27 +4,38 @@ import type { Page } from '@playwright/test';
 /**
  * Full trip-and-submit E2E test — web equivalent of maestro/flows/trip-and-submit.yaml
  *
- * Walks through the complete flow:
- * 1. Onboarding (manual entry)
- * 2. Create trip with Japan destination + leg details
- * 3. Open trip detail → tap Japan leg → fill leg form
- * 4. Save progress → Mark as Ready
- * 5. Open Submission Guide → verify content
- * 6. Open Portal Submission → verify toolbar/progress
+ * Phases:
+ * 1. Onboarding   — skip tutorial, enter passport manually, confirm profile, skip biometric
+ * 2. Create trip  — add Japan destination, fill leg details (dates, flight, accommodation)
+ * 3. Trip detail  — open trip card, navigate to Japan leg
+ * 4. Leg form     — fill departure city + hotel phone, save progress, mark as ready
+ * 5. Submission Guide — reopen leg, open guide, verify profile data and step content
+ * 6. Portal       — open in-app submission, verify WebView + toolbar + fields panel
  */
+
+// Fixed test data — DOB is historical; expiry is far enough in the future to stay valid
+const TEST_PASSPORT = {
+  number: 'L12345678',
+  surname: 'SMITH',
+  givenNames: 'JOHN MICHAEL',
+  nationality: 'USA',
+  dob: '1985-06-15',
+  expiry: '2032-03-20',
+  issuingCountry: 'USA',
+} as const;
 
 async function completeOnboarding(page: Page) {
   await page.getByRole('button', { name: 'Skip tutorial' }).click();
   await page.getByRole('button', { name: 'Enter Manually' }).click();
 
-  await page.getByTestId('passport-number-input').fill('L12345678');
-  await page.getByTestId('surname-input').fill('SMITH');
-  await page.getByTestId('given-names-input').fill('JOHN MICHAEL');
-  await page.getByTestId('nationality-input').fill('USA');
-  await page.getByTestId('dob-input').fill('1985-06-15');
+  await page.getByTestId('passport-number-input').fill(TEST_PASSPORT.number);
+  await page.getByTestId('surname-input').fill(TEST_PASSPORT.surname);
+  await page.getByTestId('given-names-input').fill(TEST_PASSPORT.givenNames);
+  await page.getByTestId('nationality-input').fill(TEST_PASSPORT.nationality);
+  await page.getByTestId('dob-input').fill(TEST_PASSPORT.dob);
   await page.getByTestId('gender-Male-button').click();
-  await page.getByTestId('passport-expiry-input').fill('2032-03-20');
-  await page.getByTestId('issuing-country-input').fill('USA');
+  await page.getByTestId('passport-expiry-input').fill(TEST_PASSPORT.expiry);
+  await page.getByTestId('issuing-country-input').fill(TEST_PASSPORT.issuingCountry);
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
@@ -92,19 +103,13 @@ test.describe('Trip and Submit Flow', () => {
     await expect(page.getByText('Travel Form')).toBeVisible({ timeout: 15000 });
 
     // departureCity — the only required field without autoFillSource
-    const departureCityField = page.getByTestId('field-departureCity');
-    await departureCityField.scrollIntoViewIfNeeded();
-    await departureCityField.fill('Los Angeles');
+    await page.getByTestId('field-departureCity').fill('Los Angeles');
 
     // hotelPhone — optional but fill for completeness
-    const hotelPhoneField = page.getByTestId('field-hotelPhone');
-    await hotelPhoneField.scrollIntoViewIfNeeded();
-    await hotelPhoneField.fill('03-5322-1234');
+    await page.getByTestId('field-hotelPhone').fill('03-5322-1234');
 
     // Save progress
-    const saveButton = page.getByTestId('save-progress-button');
-    await saveButton.scrollIntoViewIfNeeded();
-    await saveButton.click();
+    await page.getByTestId('save-progress-button').click();
 
     // Wait for success alert to be accepted (dialog handler auto-accepts)
     // Then mark as ready
@@ -121,9 +126,7 @@ test.describe('Trip and Submit Flow', () => {
     await expect(page.getByText('Travel Form')).toBeVisible({ timeout: 10000 });
 
     // Form should be ready — Open Submission Guide button should be visible
-    const guideButton = page.getByTestId('open-submission-guide-button');
-    await guideButton.scrollIntoViewIfNeeded();
-    await guideButton.click();
+    await page.getByTestId('open-submission-guide-button').click();
 
     // Verify submission guide loaded
     await expect(page.getByText('Submission Guide')).toBeVisible({ timeout: 15000 });
