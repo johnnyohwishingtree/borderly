@@ -18,7 +18,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback with full Claude permissions (verified before push) |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
-| `auto-merge.yml` | CI complete / review / PR sync | Single merge gate: tests + E2E + approval + threads resolved |
+| `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate: tests + E2E + approval + threads resolved |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
@@ -214,7 +214,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |                                                                     |
 |   Triggers: workflow_run (Tests/E2E complete),                      |
 |             pull_request_review (approval submitted),               |
-|             pull_request (synchronize)                              |
+|             pull_request (synchronize),                             |
+|             workflow_dispatch (watcher / manual)                    |
 |                                                                     |
 |   Single gate controlling ALL merges to master.                     |
 |   Merges only when ALL conditions are met:                          |
@@ -263,6 +264,11 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |    +-- CI failing + no commits in 15min --> @claude to fix          |
 |    |   (up to 5 retries per PR)                                     |
 |    +-- Missing CI check + stale --> close/reopen to retrigger       |
+|    +-- CI passes + no approval + unresolved threads + stale 15min   |
+|    |   --> resolve threads + close/reopen to retrigger approval     |
+|    +-- CI passes + approved + no unresolved threads + stale 15min   |
+|    |   --> dispatch auto-merge.yml to re-evaluate and merge         |
+|    |   (up to 3 dispatch attempts; then escalate to pipeline doctor)|
 |    +-- Track which epics are "busy" (have open PR)                  |
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
@@ -588,6 +594,21 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Duplicate PR Prevention
 - **Problem**: `claude-code-action@v1` creates timestamped branches (`claude/issue-N-YYYYMMDD-HHMM`), while `claude.yml` pre-creates `claude/issue-N`. Both can end up with PRs, creating duplicates for the same issue.
 - **Solution**: verify-merge's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
+
+### Stuck PR: Unresolved Threads After Review-Fix
+- **Problem**: `review-fix.yml` addresses review feedback and pushes, but if it ran with an older workflow version that lacked the "resolve review threads" step, threads remain unresolved. The review-guardian sees `![high]`/`![critical]` badge comments with unresolved threads and blocks approval. The watcher previously skipped PRs that exist ("waiting for review/merge") without checking if the approval flow was stuck. Neither the watcher nor pipeline-doctor detected this deadlock.
+- **Solution (3 layers)**:
+  1. **Watcher**: Detects PRs where CI passes, no approval exists, and review threads are unresolved for >15min. Resolves threads and closes/reopens the PR to retrigger approval. If this fails twice, escalates to the pipeline doctor.
+  2. **Pipeline Doctor**: Evidence collection now includes "PR Merge Readiness" section showing approval count, unresolved thread count, CI status, and review-fix run history. Known bug pattern #9 documents this deadlock. The doctor's prompt includes specific instructions for resolving threads via GraphQL.
+  3. **review-fix.yml**: Already has a "Resolve review threads" step (added in PR #345), preventing this from recurring on new runs.
+
+### Auto-Merge Retrigger When Event Window Missed
+- **Problem**: When a PR has all merge conditions met (CI passes, approved, no unresolved threads) but auto-merge missed the event window, the PR sits open indefinitely. The original fix (PR #350) used close/reopen, but `auto-merge.yml` doesn't listen for `reopened` events — only `workflow_run`, `pull_request_review`, and `synchronize`.
+- **Solution**: Added `workflow_dispatch` trigger to `auto-merge.yml` with a `pr_number` input. The watcher dispatches `auto-merge.yml` to re-evaluate and merge. This keeps the watcher as the orchestrator (detect + dispatch) and auto-merge as the single merge gate (evaluate + merge).
+
+### Review-Guardian Bypassing Claude's "Request Changes" Verdict
+- **Problem**: Claude sometimes posts code reviews as issue comments (not formal PR reviews). When Claude's review contains "Request Changes" or flags critical issues, the `ensure-review` job in review-guardian doesn't detect this. It only checks inline PR review comments for `![critical]`/`![high]` badges, so it auto-approves the PR despite Claude's verdict. This allowed PR #349 to merge with known critical bugs.
+- **Solution**: Added a check in `ensure-review`'s auto-approve step that finds the **latest** bot review comment (Claude, Gemini, Copilot) and checks for "Request Changes", "critical bug/issue/problem", or "do not merge" patterns. If found, auto-approve is blocked — unless a fix was already requested AND new commits were pushed after the review (meaning the issues were addressed). This prevents both the bypass (merging with critical bugs) and the deadlock (permanently blocking approval after fixes land).
 
 ---
 

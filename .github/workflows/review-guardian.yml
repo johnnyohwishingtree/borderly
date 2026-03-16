@@ -353,6 +353,47 @@ jobs:
             fi
           fi
 
+          # Check if the LATEST bot review comment contains "Request Changes".
+          # Claude sometimes posts reviews as issue comments (not formal PR reviews).
+          # We only check the most recent bot review comment — if Claude was asked to
+          # fix the issues and pushed a new commit, the original "Request Changes"
+          # comment is stale and should not block approval.
+          #
+          # We also check whether a fix was requested AFTER the review. If
+          # "Fix the issues from the code review" appears after the review comment,
+          # the fix cycle is in progress — let it complete and approve on the next
+          # CI pass (the fix commit triggers a new ensure-review evaluation).
+          LATEST_BOT_REVIEW=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.user.login | test("claude|gemini-code-assist|copilot"; "i")) | select(.body | test("perform a comprehensive code review|Please review the diff|Verdict|Review Summary"; "i"))] | last' 2>/dev/null || echo "{}")
+
+          REVIEW_HAS_ISSUES=$(echo "$LATEST_BOT_REVIEW" | jq -r '.body // ""' | grep -ciE 'request.?changes|critical.?(bug|issue|problem)|do not merge' || echo "0")
+          REVIEW_CREATED=$(echo "$LATEST_BOT_REVIEW" | jq -r '.created_at // ""')
+
+          if [ "$REVIEW_HAS_ISSUES" -gt 0 ] && [ -n "$REVIEW_CREATED" ]; then
+            # Check if a fix was already requested after this review
+            FIX_REQUESTED_AFTER=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
+              -q "[.[] | select(.body | test(\"Fix the issues from the code review\")) | select(.created_at > \"$REVIEW_CREATED\")] | length" 2>/dev/null || echo "0")
+
+            # Check if new commits were pushed after the review (meaning fixes landed)
+            LAST_COMMIT_DATE=$(gh api "repos/$REPO/pulls/$PR_NUM/commits" \
+              -q '.[-1].commit.author.date' 2>/dev/null || echo "")
+
+            FIXES_LANDED=false
+            if [ -n "$LAST_COMMIT_DATE" ] && [ -n "$REVIEW_CREATED" ] && [[ "$LAST_COMMIT_DATE" > "$REVIEW_CREATED" ]]; then
+              FIXES_LANDED=true
+            fi
+
+            if [ "$FIX_REQUESTED_AFTER" -gt 0 ] && [ "$FIXES_LANDED" = "true" ]; then
+              echo "Bot review had 'Request Changes' but fixes were requested and new commits landed — allowing approval"
+            else
+              echo "Bot review comment contains 'Request Changes' or critical issues — NOT auto-approving"
+              gh pr comment "$PR_NUM" --repo "$REPO" \
+                --body "Auto-approve skipped: the latest bot code review contains 'Request Changes' or flagged critical issues. These must be addressed before the PR can be approved." \
+                2>/dev/null || true
+              exit 0
+            fi
+          fi
+
           echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review detected, no unresolved critical/high issues."
