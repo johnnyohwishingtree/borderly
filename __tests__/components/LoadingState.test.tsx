@@ -21,6 +21,30 @@ jest.mock('../../src/components/ui/HapticFeedback', () => ({
   },
 }));
 
+// Mock Button component (same pattern as EmptyState.test.tsx)
+jest.mock('../../src/components/ui/Button', () => {
+  const MockReact = require('react');
+  const { TouchableOpacity, Text: RNText } = require('react-native');
+  return {
+    __esModule: true,
+    default: function MockButton({
+      title,
+      onPress,
+      testID,
+    }: {
+      title: string;
+      onPress: () => void;
+      testID?: string;
+    }) {
+      return MockReact.createElement(
+        TouchableOpacity,
+        { onPress, testID: testID ?? 'mock-button' },
+        MockReact.createElement(RNText, null, title),
+      );
+    },
+  };
+});
+
 // Mock LoadingIndicator to keep tests simple
 jest.mock('../../src/components/ui/LoadingIndicator', () => {
   const MockReact = require('react');
