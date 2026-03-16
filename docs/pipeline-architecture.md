@@ -265,6 +265,9 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |    +-- Missing CI check + stale --> close/reopen to retrigger       |
 |    +-- CI passes + no approval + unresolved threads + stale 15min   |
 |    |   --> resolve threads + close/reopen to retrigger approval     |
+|    +-- CI passes + approved + no unresolved threads + stale 15min   |
+|    |   --> close/reopen to retrigger auto-merge (max 3 attempts)    |
+|    |   --> escalate to pipeline doctor after 3 failed retriggers    |
 |    +-- Track which epics are "busy" (have open PR)                  |
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
@@ -597,6 +600,14 @@ This is a critical architectural distinction. When `@claude` is commented on an 
   1. **Watcher**: Detects PRs where CI passes, no approval exists, and review threads are unresolved for >15min. Resolves threads and closes/reopens the PR to retrigger approval. If this fails twice, escalates to the pipeline doctor.
   2. **Pipeline Doctor**: Evidence collection now includes "PR Merge Readiness" section showing approval count, unresolved thread count, CI status, and review-fix run history. Known bug pattern #9 documents this deadlock. The doctor's prompt includes specific instructions for resolving threads via GraphQL.
   3. **review-fix.yml**: Already has a "Resolve review threads" step (added in PR #345), preventing this from recurring on new runs.
+
+### Auto-Merge Retrigger Loop Prevention
+- **Problem**: When a PR has all merge conditions met (CI passes, approved, no unresolved threads) but auto-merge missed the event window, the watcher would close/reopen the PR to retrigger auto-merge. However, there was no attempt cap — if auto-merge kept failing for any reason, the watcher would close/reopen infinitely every 20 minutes. There was also no PR comment explaining the close/reopen, and no check for unresolved threads before retriggering.
+- **Solution**: Added three safeguards: (1) Check for unresolved threads before retrigger — skip if threads block the merge. (2) Cap close/reopen retrigger attempts at 3 by counting watcher comments on the PR. (3) Post a PR comment explaining each retrigger. After 3 failed attempts, escalate to the pipeline doctor for diagnosis.
+
+### Review-Guardian Bypassing Claude's "Request Changes" Verdict
+- **Problem**: Claude sometimes posts code reviews as issue comments (not formal PR reviews). When Claude's review contains "Request Changes" or flags critical issues, the `ensure-review` job in review-guardian doesn't detect this. It only checks inline PR review comments for `![critical]`/`![high]` badges, so it auto-approves the PR despite Claude's verdict. This allowed PR #349 to merge with known critical bugs.
+- **Solution**: Added a check in `ensure-review`'s auto-approve step that finds the **latest** bot review comment (Claude, Gemini, Copilot) and checks for "Request Changes", "critical bug/issue/problem", or "do not merge" patterns. If found, auto-approve is blocked — unless a fix was already requested AND new commits were pushed after the review (meaning the issues were addressed). This prevents both the bypass (merging with critical bugs) and the deadlock (permanently blocking approval after fixes land).
 
 ---
 
