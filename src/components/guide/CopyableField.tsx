@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { Check, Copy } from 'lucide-react-native';
+import { copyWithTimeout } from '@/utils/clipboard';
 
 export interface CopyableFieldProps {
   label: string;
@@ -26,20 +26,33 @@ export default function CopyableField({
   showTravelerBadge = false,
 }: CopyableFieldProps) {
   const [copied, setCopied] = useState(false);
+  // Keeps a reference to the clipboard-clear cancellation function so we can
+  // cancel it if the component unmounts or another copy supersedes the first.
+  const cancelClearRef = useRef<(() => void) | null>(null);
+
+  // Clean up any pending clipboard clear on unmount.
+  useEffect(() => {
+    return () => {
+      cancelClearRef.current?.();
+    };
+  }, []);
 
   const formattedValue = formatValue ? formatValue(value) : String(value);
   const displayValue = formattedValue || 'Not provided';
 
-  const handleCopy = async () => {
+  const handleCopy = () => {
     if (!formattedValue) {
       Alert.alert('Cannot Copy', 'No value to copy');
       return;
     }
 
     try {
-      await Clipboard.setString(formattedValue);
+      // Cancel any existing clipboard clear before scheduling a new one.
+      cancelClearRef.current?.();
+      cancelClearRef.current = copyWithTimeout(formattedValue);
+
       setCopied(true);
-      
+
       // Haptic feedback
       trigger(HapticFeedbackTypes.notificationSuccess, {
         enableVibrateFallback: true,

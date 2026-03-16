@@ -164,8 +164,13 @@ describe('CopyableField', () => {
     expect(mockedAlert.alert).toHaveBeenCalledWith('Cannot Copy', 'No value to copy');
   });
 
-  it('shows alert when clipboard operation fails', async () => {
-    (mockedClipboard.setString.mockReset() as any).mockRejectedValue(new Error('Clipboard error'));
+  it('shows alert when clipboard operation fails', () => {
+    // Clipboard.setString is called synchronously inside copyWithTimeout,
+    // so we throw synchronously to trigger the catch branch in handleCopy.
+    mockedClipboard.setString.mockReset();
+    mockedClipboard.setString.mockImplementation(() => {
+      throw new Error('Clipboard error');
+    });
 
     const { getByLabelText } = render(
       <CopyableField
@@ -177,12 +182,10 @@ describe('CopyableField', () => {
     const copyButton = getByLabelText('Copy Test Field: Test Value');
     fireEvent.press(copyButton);
 
-    await waitFor(() => {
-      expect(mockedAlert.alert).toHaveBeenCalledWith(
-        'Copy Failed',
-        'Unable to copy to clipboard'
-      );
-    });
+    expect(mockedAlert.alert).toHaveBeenCalledWith(
+      'Copy Failed',
+      'Unable to copy to clipboard'
+    );
   });
 
   it('handles boolean values correctly', () => {

@@ -5,6 +5,8 @@ import './global.css';
 
 import RootNavigator from './navigation/RootNavigator';
 import { ErrorBoundary } from '@/components/ui';
+import AppLockScreen from '@/components/ui/AppLockScreen';
+import { useAppLock } from '@/hooks/useAppLock';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
 import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
@@ -15,6 +17,21 @@ import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
 // This only affects the visual overlay — warnings still go to console.
 if (__DEV__) {
   LogBox.ignoreAllLogs(true);
+}
+
+function AppContent(): React.JSX.Element {
+  const { isAppLocked, unlockWithBiometrics } = useAppLock();
+
+  if (isAppLocked) {
+    return <AppLockScreen onUnlock={unlockWithBiometrics} />;
+  }
+
+  return (
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <RootNavigator />
+    </>
+  );
 }
 
 function App(): React.JSX.Element {
@@ -80,8 +97,7 @@ function App(): React.JSX.Element {
   return (
     <GluestackUIProvider mode="light">
       <ErrorBoundary>
-        <StatusBar barStyle="dark-content" backgroundColor="white" />
-        <RootNavigator />
+        <AppContent />
       </ErrorBoundary>
     </GluestackUIProvider>
   );

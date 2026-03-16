@@ -101,6 +101,10 @@ jest.mock('react-native', () => {
       dismissedAction: 'dismissedAction',
       sharedAction: 'sharedAction',
     },
+    AppState: {
+      currentState: 'active',
+      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+    },
   };
 });
 
@@ -126,6 +130,9 @@ jest.mock('react-native-keychain', () => ({
   setInternetCredentials: jest.fn().mockResolvedValue(true),
   getInternetCredentials: jest.fn().mockResolvedValue({ password: '{}' }),
   resetInternetCredentials: jest.fn().mockResolvedValue(true),
+  getGenericPassword: jest.fn().mockResolvedValue(false),
+  setGenericPassword: jest.fn().mockResolvedValue(true),
+  resetGenericPassword: jest.fn().mockResolvedValue(true),
   getSupportedBiometryType: jest.fn().mockResolvedValue('TouchID'),
   canImplyAuthentication: jest.fn().mockResolvedValue(true),
   getSecurityLevel: jest.fn().mockResolvedValue('SECURE_HARDWARE'),

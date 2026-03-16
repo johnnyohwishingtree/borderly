@@ -35,6 +35,7 @@ const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => (
 
 // Lazy load settings screens
 const SettingsScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.SettingsScreen })));
+const PrivacyPolicyScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.PrivacyPolicyScreen })));
 
 // Lazy load support screens
 const FeedbackScreen = lazy(() => import('@/screens/support').then(m => ({ default: m.FeedbackScreen })));
@@ -330,6 +331,16 @@ function SettingsNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <TroubleshootingScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="PrivacyPolicy"
+        options={{ title: 'Privacy Policy' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <PrivacyPolicyScreen />
           </Suspense>
         )}
       </SettingsStack.Screen>

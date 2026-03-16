@@ -548,6 +548,13 @@ export default function SettingsScreen() {
                 size="small"
                 fullWidth
               />
+              <Button
+                title="Privacy Policy"
+                onPress={() => navigation.navigate('PrivacyPolicy')}
+                variant="outline"
+                size="small"
+                fullWidth
+              />
             </View>
           </View>
         </Card>
