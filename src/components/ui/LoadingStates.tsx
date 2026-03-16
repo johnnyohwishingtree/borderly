@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import LoadingIndicator, { LoadingIndicatorProps } from './LoadingIndicator';
 import { HapticFeedback } from './HapticFeedback';
 import { ScreenReaderUtils } from '../../utils/accessibility';
+import Button from './Button';
 
 /**
  * Centralized loading states component providing consistent loading UX patterns
@@ -124,32 +125,22 @@ export default function LoadingStates({
 
         <View className="flex-row gap-3">
           {onCancel && (
-            <TouchableOpacity
-              className="px-6 py-3 bg-gray-100 rounded-xl"
-              onPress={() => {
-                HapticFeedback.button();
-                onCancel();
-              }}
-              accessibilityRole="button"
+            <Button
+              title="Cancel"
+              onPress={onCancel}
+              variant="outline"
               accessibilityLabel="Cancel"
-            >
-              <Text className="text-gray-700 font-medium">Cancel</Text>
-            </TouchableOpacity>
+            />
           )}
-          
+
           {showRetryButton && onRetry && (
-            <TouchableOpacity
-              className="px-6 py-3 bg-blue-600 rounded-xl"
-              onPress={() => {
-                HapticFeedback.button();
-                onRetry();
-              }}
-              accessibilityRole="button"
+            <Button
+              title={retryButtonText}
+              onPress={onRetry}
+              variant="primary"
               accessibilityLabel={retryButtonText}
               accessibilityHint="Retry the failed operation"
-            >
-              <Text className="text-white font-medium">{retryButtonText}</Text>
-            </TouchableOpacity>
+            />
           )}
         </View>
       </View>

@@ -5,7 +5,10 @@ import Button, { ButtonProps } from './Button';
 export interface EmptyStateProps {
   icon?: React.ReactNode;
   title: string;
+  /** Primary description text shown below the title */
   description?: string;
+  /** Alias for description — use whichever reads more naturally at the call site */
+  subtitle?: string;
   buttonProps?: ButtonProps;
   variant?: 'default' | 'compact' | 'illustration';
 }
@@ -14,9 +17,12 @@ export default function EmptyState({
   icon,
   title,
   description,
+  subtitle,
   buttonProps,
   variant = 'default',
 }: EmptyStateProps) {
+  // Support both `description` and `subtitle` — subtitle takes precedence when both are provided
+  const bodyText = subtitle ?? description;
   const getContainerStyles = () => {
     const baseStyles = 'items-center justify-center px-6';
     
@@ -77,9 +83,9 @@ export default function EmptyState({
         {title}
       </Text>
       
-      {description && (
+      {bodyText && (
         <Text className={getDescriptionStyles()}>
-          {description}
+          {bodyText}
         </Text>
       )}
       
