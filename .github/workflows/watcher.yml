@@ -205,6 +205,15 @@ jobs:
               HAS_APPROVAL=$(gh pr view "$PR_NUM" --repo "$REPO" --json reviews \
                 -q '[.reviews[] | select(.state == "APPROVED")] | length' 2>/dev/null || echo "0")
 
+              # PR has approval + CI passes but auto-merge missed the window
+              if [ "$HAS_APPROVAL" -gt 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
+                echo "  All merge conditions appear met but PR not merged — retriggering auto-merge"
+                gh pr close "$PR_NUM" --repo "$REPO" 2>/dev/null || true
+                sleep 2
+                gh pr reopen "$PR_NUM" --repo "$REPO" 2>/dev/null || true
+                echo "  Closed/reopened PR #$PR_NUM to trigger auto-merge"
+              fi
+
               if [ "$HAS_APPROVAL" -eq 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
                 OWNER=$(echo "$REPO" | cut -d/ -f1)
                 NAME=$(echo "$REPO" | cut -d/ -f2)
