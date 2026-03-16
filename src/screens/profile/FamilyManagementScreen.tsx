@@ -4,7 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users } from 'lucide-react-native';
 import { ProfileStackParamList } from '@/app/navigation/types';
-import { Button, Card, EmptyState, LoadingSpinner } from '@/components/ui';
+import { Button, Card, EmptyState, LoadingStates } from '@/components/ui';
 import { FamilyMemberCard } from '@/components/profile';
 import { FamilyMember } from '@/types/profile';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -88,10 +88,12 @@ export default function FamilyManagementScreen() {
   if (isLoading) {
     return (
       <View className="flex-1 bg-gray-50">
-        <LoadingSpinner 
-          size="large" 
-          text="Loading family members..." 
+        <LoadingStates
+          state="loading"
           variant="spinner"
+          size="large"
+          text="Loading family members..."
+          fullScreen={true}
         />
       </View>
     );

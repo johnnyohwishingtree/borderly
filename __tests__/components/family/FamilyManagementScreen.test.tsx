@@ -60,6 +60,8 @@ jest.mock('@/components/ui', () => {
       </View>
     ),
     LoadingSpinner: ({ text }: any) => <View><Text>{text}</Text></View>,
+    LoadingStates: ({ text }: any) => <View><Text>{text}</Text></View>,
+    LoadingState: ({ text }: any) => <View><Text>{text}</Text></View>,
   };
 });
 
