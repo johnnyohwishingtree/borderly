@@ -114,7 +114,27 @@ check_threads_resolved() {
   fi
 }
 
-# ── Condition 5: Branch up to date ──
+# ── Condition 5: No active review-fix runs ──
+# Returns "true" if no review-fix.yml runs are in_progress or queued for this PR.
+check_no_active_review_fix() {
+  local pr_number="$1"
+  local active_runs
+
+  active_runs=$(gh run list --repo "$REPO" --workflow review-fix.yml \
+    --json status,displayTitle \
+    -q "[.[] | select(.status == \"in_progress\" or .status == \"queued\") | select(.displayTitle | contains(\"PR #${pr_number}\"))] | length" \
+    2>/dev/null)
+
+  # Fail-safe: if the gh command fails or returns non-numeric output,
+  # assume a fix is active to prevent an incorrect merge.
+  if [[ "$active_runs" =~ ^[0-9]+$ ]] && [ "$active_runs" -eq 0 ]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+# ── Condition 6: Branch up to date ──
 # Checks mergeStateStatus via gh pr view. Returns the merge state string.
 check_branch_status() {
   local pr_number="$1"
@@ -134,13 +154,14 @@ build_result() {
   local e2e_pass="$4"
   local approved="$5"
   local threads_resolved="$6"
-  local branch_up_to_date="$7"
-  local approval_count="$8"
-  local unresolved_threads="$9"
-  local merge_state="${10}"
-  local head_sha="${11}"
-  local base_ref="${12}"
-  local action="${13}"
+  local no_active_fix="$7"
+  local branch_up_to_date="$8"
+  local approval_count="$9"
+  local unresolved_threads="${10}"
+  local merge_state="${11}"
+  local head_sha="${12}"
+  local base_ref="${13}"
+  local action="${14}"
 
   jq -n \
     --argjson ready "$ready" \
@@ -149,6 +170,7 @@ build_result() {
     --argjson e2e_pass "$e2e_pass" \
     --argjson approved "$approved" \
     --argjson threads_resolved "$threads_resolved" \
+    --argjson no_active_fix "$no_active_fix" \
     --argjson branch_up_to_date "$branch_up_to_date" \
     --argjson approval_count "$approval_count" \
     --argjson unresolved_threads "$unresolved_threads" \
@@ -164,6 +186,7 @@ build_result() {
         e2e_pass: $e2e_pass,
         approved: $approved,
         threads_resolved: $threads_resolved,
+        no_active_fix: $no_active_fix,
         branch_up_to_date: $branch_up_to_date
       },
       details: {
@@ -200,7 +223,7 @@ main() {
 
   if [ "$base_ref" != "master" ]; then
     echo "PR #$pr_number targets '$base_ref', not master — skipping" >&2
-    build_result false "$pr_number" false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
+    build_result false "$pr_number" false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
     exit 0
   fi
 
@@ -211,7 +234,7 @@ main() {
 
   if [ -z "$head_sha" ]; then
     echo "Cannot determine head SHA for PR #$pr_number — skipping" >&2
-    build_result false "$pr_number" false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
+    build_result false "$pr_number" false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
     exit 0
   fi
 
@@ -237,6 +260,9 @@ main() {
   threads_resolved=$(echo "$threads_result" | cut -d'|' -f1)
   unresolved_threads=$(echo "$threads_result" | cut -d'|' -f2)
 
+  local no_active_fix
+  no_active_fix=$(check_no_active_review_fix "$pr_number")
+
   local merge_state branch_up_to_date
   merge_state=$(check_branch_status "$pr_number")
   if [ "$merge_state" = "BEHIND" ]; then
@@ -250,6 +276,7 @@ main() {
   echo "  E2E passed:         $e2e_pass" >&2
   echo "  Approved:           $approved ($approval_count approvals)" >&2
   echo "  Threads resolved:   $threads_resolved ($unresolved_threads unresolved)" >&2
+  echo "  No active fix:      $no_active_fix" >&2
   echo "  Branch up to date:  $branch_up_to_date (merge state: $merge_state)" >&2
 
   # ── Decision logic ──
@@ -257,7 +284,8 @@ main() {
   local core_conditions_met=false
 
   if [ "$tests_pass" = "true" ] && [ "$e2e_pass" = "true" ] && \
-     [ "$approved" = "true" ] && [ "$threads_resolved" = "true" ]; then
+     [ "$approved" = "true" ] && [ "$threads_resolved" = "true" ] && \
+     [ "$no_active_fix" = "true" ]; then
     core_conditions_met=true
   fi
 
@@ -275,8 +303,8 @@ main() {
   echo "Decision: action=$action ready=$ready" >&2
 
   build_result "$ready" "$pr_number" "$tests_pass" "$e2e_pass" "$approved" \
-    "$threads_resolved" "$branch_up_to_date" "$approval_count" "$unresolved_threads" \
-    "$merge_state" "$head_sha" "$base_ref" "$action"
+    "$threads_resolved" "$no_active_fix" "$branch_up_to_date" "$approval_count" \
+    "$unresolved_threads" "$merge_state" "$head_sha" "$base_ref" "$action"
 }
 
 # Only run main when executed directly (not sourced)

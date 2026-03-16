@@ -18,7 +18,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback with full Claude permissions (verified before push) |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
-| `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate: tests + E2E + approval + threads resolved |
+| `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate: tests + E2E + approval + threads resolved + no active fix + branch up to date |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
@@ -40,10 +40,10 @@ Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and
 | `lib.sh` | 14 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo` | 45 tests |
 | `state-machine.sh` | Issue-based state machine with 12 states, transition validation, JSON state comments, and idempotent locking (`read_state`, `write_state`, `transition`, `acquire_lock`, `check_lock`, `release_lock`) | 18 tests |
 | `workflow.sh` | Temporal-like activity runner: `activity_start` (guard + lock), `activity_success` (transition + unlock), `activity_fail` (retry counter + escalation). Per-activity max attempts, idempotent locking. | 43 tests |
-| `evaluate-merge-gate.sh` | Evaluates 5 merge conditions (tests, E2E, approval, threads, branch status) → JSON with `action: merge\|update_branch\|wait\|skip` | 14 tests |
+| `evaluate-merge-gate.sh` | Evaluates 6 merge conditions (tests, E2E, approval, threads, no active review-fix, branch status) → JSON with `action: merge\|update_branch\|wait\|skip` | 16 tests |
 | `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output. Flags: `--lint-only-changed`, `--fail-fast`, `--skip-native` | 27 tests |
 
-All scripts use guard patterns for sourcing (import individual functions without executing main). 166 total tests (including 19 regression tests for documented bugs). Run: `npx bats .github/scripts/__tests__/*.test.bats`.
+All scripts use guard patterns for sourcing (import individual functions without executing main). 168 total tests (including 19 regression tests for documented bugs). Run: `npx bats .github/scripts/__tests__/*.test.bats`.
 
 ### Composite Actions (`.github/actions/`)
 
@@ -522,7 +522,15 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 
 ### Auto-Merge Gate
 - **Problem**: Auto-merge on PR creation skipped bot review feedback and merged before reviews
-- **Solution**: `auto-merge.yml` is the single gate controlling all merges to master. It evaluates on every CI completion, review submission, and PR sync. Merges only when all four conditions are met: tests pass, E2E passes (all 3 jobs), PR approved, no unresolved threads. No other workflow merges PRs.
+- **Solution**: `auto-merge.yml` is the single gate controlling all merges to master. It evaluates on every CI completion, review submission, and PR sync. Merges only when all six conditions are met: tests pass, E2E passes (all 3 jobs), PR approved, no unresolved threads, no active review-fix runs, branch up to date. No other workflow merges PRs.
+
+### Review-Fix Race Condition (PR #380)
+- **Problem**: When a bot reviewer posted a COMMENTED review, two things happened concurrently: (1) review-relay dispatched review-fix.yml to address the feedback, and (2) review-guardian waited 90s then checked for `@claude.*review round` comments to decide whether to defer approval. But review-relay no longer posts `@claude` comments (it dispatches review-fix.yml directly), so the regex never matched. review-guardian auto-approved, auto-merge saw all conditions met, and merged the PR while review-fix was still running — review feedback was never addressed.
+- **Solution**: Two fixes: (1) review-guardian now checks `is_workflow_active("review-fix.yml")` before auto-approving, and also checks for review-relay's actual comment format ("Dispatched review-fix workflow"). (2) evaluate-merge-gate.sh adds a 6th condition: `no_active_fix` — the merge gate will not merge while any review-fix.yml run is in_progress or queued for the PR.
+
+### Auto-Approve Doesn't Trigger Auto-Merge (PR #382)
+- **Problem**: After review-fix resolved feedback and pushed, CI re-ran, `ensure-review` detected the approval was missing and called `gh pr review --approve`. But the approval used `GITHUB_TOKEN`, and GitHub suppresses `pull_request_review` events for actions performed by the same workflow's token (anti-recursion). Since `auto-merge.yml` relies on `pull_request_review` events to re-evaluate, the PR sat approved but unmerged indefinitely.
+- **Solution**: All three auto-approve paths in review-guardian (`request-approval`, `auto-approve-after-claude`, `ensure-review`) now dispatch `auto-merge.yml` via `workflow_dispatch` immediately after approving. This ensures auto-merge re-evaluates regardless of whether GitHub fires the `pull_request_review` event.
 
 ### Review Relay Loop Prevention
 - 3 relay rounds max per PR

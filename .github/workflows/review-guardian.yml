@@ -96,18 +96,27 @@ jobs:
             fi
           fi
 
-          # Wait for review-relay to process the review and potentially post @claude.
+          # Wait for review-relay to process the review and dispatch review-fix.
           # Without this delay, we auto-approve before Claude has a chance to address
           # the review feedback, which is confusing (approved before fixes are applied).
           echo "Waiting 90s for review-relay to process..."
           sleep 90
 
-          # Re-check: did review-relay post a @claude comment asking for fixes?
+          # Re-check: is review-fix.yml running or queued for this PR?
+          source .github/scripts/lib.sh
+          REVIEW_FIX_ACTIVE=$(is_workflow_active "review-fix.yml" "PR #${PR_NUM}" 2>/dev/null || echo "false")
+
+          if [ "$REVIEW_FIX_ACTIVE" = "true" ]; then
+            echo "review-fix.yml is active for PR #$PR_NUM — deferring approval until fixes land"
+            exit 0
+          fi
+
+          # Also check if review-relay posted a dispatch comment
           RELAY_POSTED=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
-            -q '[.[] | select(.body | test("@claude.*review round|@claude.*code reviewer"; "i"))] | length' 2>/dev/null || echo "0")
+            -q "[.[] | select(.body | test(\"Dispatched review-fix workflow|review round\"; \"i\"))] | length" 2>/dev/null || echo "0")
 
           if [ "$RELAY_POSTED" -gt 0 ]; then
-            echo "review-relay posted @claude to fix review feedback — deferring approval until fixes land"
+            echo "review-relay dispatched fixes for PR #$PR_NUM — deferring approval until fixes land"
             exit 0
           fi
 
@@ -115,6 +124,10 @@ jobs:
           echo "Bot review from $REVIEWER on PR #$PR_NUM — no issues relayed, auto-approving"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
+
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
 
   # When Claude posts a review comment on a PR, auto-approve
   auto-approve-after-claude:
@@ -180,6 +193,10 @@ jobs:
           echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by Claude."
+
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="${{ secrets.GH_PAT }}" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
         id: review_check
 
       - name: Request Claude fix issues found in review
@@ -392,6 +409,10 @@ jobs:
           echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review detected, no unresolved critical/high issues."
+
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'
