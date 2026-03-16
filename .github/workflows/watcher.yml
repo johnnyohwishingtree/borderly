@@ -207,15 +207,46 @@ jobs:
 
               # PR has approval + CI passes but auto-merge missed the window
               if [ "$HAS_APPROVAL" -gt 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then
-                # Dispatch auto-merge to re-evaluate and merge if conditions hold.
-                # The watcher detects the issue; auto-merge owns the merge decision.
-                echo "  All merge conditions appear met — dispatching auto-merge for PR #$PR_NUM"
-                gh workflow run auto-merge.yml \
-                  --repo "$REPO" \
-                  --ref master \
-                  -f pr_number="$PR_NUM" 2>/dev/null \
-                  && echo "  Dispatched auto-merge for PR #$PR_NUM" \
-                  || echo "  Failed to dispatch auto-merge for PR #$PR_NUM"
+                # Count prior dispatch attempts via watcher comments
+                DISPATCH_ATTEMPTS=$(gh pr view "$PR_NUM" --repo "$REPO" --json comments \
+                  -q '[.comments[] | select(.body | contains("Watcher: dispatched auto-merge"))] | length' 2>/dev/null || echo "0")
+                MAX_DISPATCH_RETRIES=3
+
+                if [ "$DISPATCH_ATTEMPTS" -ge "$MAX_DISPATCH_RETRIES" ]; then
+                  echo "  STUCK: dispatched auto-merge $DISPATCH_ATTEMPTS times without merge — escalating to pipeline doctor"
+                  if [ -n "$ISSUE_NUM" ]; then
+                    DOCTOR_ACTIVE=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                      --status in_progress --json displayTitle \
+                      -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                    DOCTOR_QUEUED=$(gh run list --repo "$REPO" --workflow pipeline-doctor.yml \
+                      --status queued --json displayTitle \
+                      -q "[.[] | select(.displayTitle | contains(\"#${ISSUE_NUM}\"))] | length" 2>/dev/null || echo "0")
+                    if [ "$((DOCTOR_ACTIVE + DOCTOR_QUEUED))" -eq 0 ]; then
+                      gh workflow run pipeline-doctor.yml \
+                        --repo "$REPO" \
+                        --ref master \
+                        -f issue_number="$ISSUE_NUM" \
+                        -f trigger_source="watcher-stuck-merge" 2>/dev/null || true
+                      echo "  Triggered pipeline doctor for issue #$ISSUE_NUM"
+                    else
+                      echo "  Pipeline doctor already running — skipping"
+                    fi
+                  fi
+                else
+                  # Dispatch auto-merge to re-evaluate and merge if conditions hold.
+                  # The watcher detects the issue; auto-merge owns the merge decision.
+                  echo "  All merge conditions appear met — dispatching auto-merge for PR #$PR_NUM (attempt $((DISPATCH_ATTEMPTS + 1))/$MAX_DISPATCH_RETRIES)"
+                  if gh workflow run auto-merge.yml \
+                    --repo "$REPO" \
+                    --ref master \
+                    -f pr_number="$PR_NUM" 2>/dev/null; then
+                    echo "  Dispatched auto-merge for PR #$PR_NUM"
+                    gh pr comment "$PR_NUM" --repo "$REPO" \
+                      --body "Watcher: dispatched auto-merge (attempt $((DISPATCH_ATTEMPTS + 1))/$MAX_DISPATCH_RETRIES)" 2>/dev/null || true
+                  else
+                    echo "  Failed to dispatch auto-merge for PR #$PR_NUM"
+                  fi
+                fi
               fi
 
               if [ "$HAS_APPROVAL" -eq 0 ] && [ "$COMMIT_AGO" -ge "$GRACE_MINUTES" ]; then

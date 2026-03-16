@@ -214,7 +214,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |                                                                     |
 |   Triggers: workflow_run (Tests/E2E complete),                      |
 |             pull_request_review (approval submitted),               |
-|             pull_request (synchronize)                              |
+|             pull_request (synchronize),                             |
+|             workflow_dispatch (watcher / manual)                    |
 |                                                                     |
 |   Single gate controlling ALL merges to master.                     |
 |   Merges only when ALL conditions are met:                          |
@@ -267,6 +268,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |    |   --> resolve threads + close/reopen to retrigger approval     |
 |    +-- CI passes + approved + no unresolved threads + stale 15min   |
 |    |   --> dispatch auto-merge.yml to re-evaluate and merge         |
+|    |   (up to 3 dispatch attempts; then escalate to pipeline doctor)|
 |    +-- Track which epics are "busy" (have open PR)                  |
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
