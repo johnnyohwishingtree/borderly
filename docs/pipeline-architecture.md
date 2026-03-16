@@ -263,6 +263,8 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 |    +-- CI failing + no commits in 15min --> @claude to fix          |
 |    |   (up to 5 retries per PR)                                     |
 |    +-- Missing CI check + stale --> close/reopen to retrigger       |
+|    +-- CI passes + no approval + unresolved threads + stale 15min   |
+|    |   --> resolve threads + close/reopen to retrigger approval     |
 |    +-- Track which epics are "busy" (have open PR)                  |
 |                                                                     |
 | 2. CHECK IN-PROGRESS STORIES (no PR yet)                            |
@@ -588,6 +590,10 @@ This is a critical architectural distinction. When `@claude` is commented on an 
 ### Duplicate PR Prevention
 - **Problem**: `claude-code-action@v1` creates timestamped branches (`claude/issue-N-YYYYMMDD-HHMM`), while `claude.yml` pre-creates `claude/issue-N`. Both can end up with PRs, creating duplicates for the same issue.
 - **Solution**: verify-merge's "Create PR" step now checks for existing open PRs that reference the same issue (`Closes #N in:body`), not just PRs from the same branch.
+
+### Stuck PR: Unresolved Threads After Review-Fix
+- **Problem**: `review-fix.yml` addresses review feedback and pushes, but if it ran with an older workflow version that lacked the "resolve review threads" step, threads remain unresolved. The review-guardian sees `![high]`/`![critical]` badge comments with unresolved threads and blocks approval. The watcher previously skipped PRs that exist ("waiting for review/merge") without checking if the approval flow was stuck. Neither the watcher nor pipeline-doctor detected this deadlock.
+- **Solution**: The watcher now detects PRs where CI passes, no approval exists, and review threads are unresolved for >15min. It resolves the threads, then closes/reopens the PR to trigger the review-guardian → auto-merge chain. This acts as a safety net for any future case where threads don't get resolved by review-fix.
 
 ---
 
