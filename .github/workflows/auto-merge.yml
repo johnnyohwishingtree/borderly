@@ -96,9 +96,21 @@ jobs:
 
           if [ "$ACTION" = "merge" ]; then
             echo "All conditions met — merging PR #$PR_NUM"
-            gh pr merge "$PR_NUM" --repo "$REPO" --squash \
-              && echo "PR #$PR_NUM merged successfully" \
-              || echo "Failed to merge PR #$PR_NUM (may already be merged)"
+            if gh pr merge "$PR_NUM" --repo "$REPO" --squash; then
+              echo "PR #$PR_NUM merged successfully"
+
+              # Track state → merged (find linked issue from PR body)
+              ISSUE_NUM=$(gh pr view "$PR_NUM" --repo "$REPO" --json body \
+                -q '.body' 2>/dev/null | grep -oP '(?:Closes|Fixes|Resolves)\s+#\K\d+' | head -1 || true)
+              if [ -n "$ISSUE_NUM" ]; then
+                set --
+                source .github/scripts/workflow.sh
+                set +u
+                activity_success "$ISSUE_NUM" "merged" 2>/dev/null || true
+              fi
+            else
+              echo "Failed to merge PR #$PR_NUM (may already be merged)"
+            fi
 
           elif [ "$ACTION" = "update_branch" ]; then
             echo "Branch is behind master — updating branch before merge"

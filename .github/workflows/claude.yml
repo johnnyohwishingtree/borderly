@@ -105,6 +105,24 @@ jobs:
             echo "Created tmp branch: $TMP_BRANCH"
           fi
 
+      - name: Track state → implementing
+        if: steps.push_target.outputs.is_pr == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          ISSUE_NUM="${{ github.event.issue.number }}"
+          # Initialize state if this is a fresh issue
+          if [ "$(get_state "$ISSUE_NUM")" = "unknown" ]; then
+            transition "$ISSUE_NUM" "planned" 2>/dev/null || true
+          fi
+          activity_start "$ISSUE_NUM" "implement" \
+            "planned" "stuck" "escalated" 2>/dev/null || true
+
       - name: Set up Node and pnpm
         uses: ./.github/actions/setup-node
 
@@ -236,6 +254,18 @@ jobs:
           fi
           echo "Resolving review threads on PR #$PR_NUM"
           resolve_all_threads "$PR_NUM" "$REPO"
+
+      - name: Track state → implementing complete
+        if: success() && steps.push_target.outputs.is_pr == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_success "${{ github.event.issue.number }}" "implementing" 2>/dev/null || true
 
       - name: Trigger verify-merge (issue context only)
         if: success() && steps.push_target.outputs.is_pr == 'false'

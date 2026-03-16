@@ -68,6 +68,19 @@ jobs:
           ref: ${{ inputs.tmp_branch }}
           fetch-depth: 0
 
+      - name: Track state → verifying
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_start "${{ inputs.issue_number }}" "verify" \
+            "implementing" "fix-loop" "planned" 2>/dev/null || true
+
       - name: Configure git identity
         run: |
           git config user.name "Claude CI"
@@ -185,6 +198,18 @@ jobs:
           gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$TMP" 2>/dev/null \
             && echo "Deleted $TMP" \
             || echo "Failed to delete $TMP"
+
+      - name: Track state → verified
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_success "${{ inputs.issue_number }}" "verified" 2>/dev/null || true
 
       - name: Create PR if not exists
         env:
@@ -400,6 +425,19 @@ jobs:
             git push origin "HEAD:refs/heads/${{ inputs.tmp_branch }}"
           fi
 
+      - name: Track state → fix-loop
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_fail "${{ inputs.issue_number }}" "verify" \
+            "${{ needs.verify.outputs.error_summary }}" 2>/dev/null || true
+
       - name: Trigger next verify-merge attempt
         if: env.no_changes != 'true'
         env:
@@ -493,6 +531,25 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Checkout scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Track state → escalated
+        if: inputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          set --
+          source .github/scripts/workflow.sh
+          set +u
+          activity_fail "${{ inputs.issue_number }}" "verify" \
+            "6 fix attempts exhausted" 2>/dev/null || true
+
       - name: Comment on issue about failure
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
