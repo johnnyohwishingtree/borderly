@@ -646,7 +646,8 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 
 ### Review Fix Verification Gate
 - **Problem**: `review-fix.yml` ran Claude to fix review feedback, then pushed directly to the PR branch without checking if the fixes passed typecheck/tests. This caused PRs to ship with broken code.
-- **Solution**: Added a verification step between Claude's run and the push. Runs `pnpm typecheck && pnpm test` — if either fails, changes are NOT pushed and a failure comment is posted on the PR. The job exits 1 so it shows red, not green.
+- **Solution**: Added a verification step between Claude's run and the push. Runs `pnpm typecheck`, `pnpm test`, and Playwright E2E tests — if any fail, changes are NOT pushed and a failure comment is posted on the PR. The job exits 1 so it shows red, not green. Claude's prompt explicitly says "do NOT push" — the workflow handles pushing only after all checks pass.
+- **Why E2E**: Review-fix originally only verified typecheck + unit tests. A Playwright API misuse (`page.off('dialog')` without a function ref) passed both checks but crashed at E2E runtime (PR #386). E2E tests were added to the verification gate to catch this class of errors.
 
 ### Review Threads Not Resolved After Fix (Auto-Merge Deadlock)
 - **Problem**: When `review-fix.yml` addressed review feedback and pushed fixes, it failed to resolve the corresponding review threads. This created a deadlock because `auto-merge.yml` requires all threads to be resolved (Condition 4), preventing PRs from merging. This happened because the thread resolution logic from `claude.yml` (PR context path) was missing in `review-fix.yml`.

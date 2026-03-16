@@ -194,9 +194,9 @@ export default function MRZScannerComponent({
     setCameraStatus('unavailable');
   };
 
-  // Sample MRZ for demo mode (ICAO standard test passport)
-  const DEMO_MRZ_LINE1 = 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
-  const DEMO_MRZ_LINE2 = 'L898902C36UTO7408122F1204159ZE184226B<<<<<10';
+  // Sample MRZ for demo mode (valid US passport, expiry 2032)
+  const DEMO_MRZ_LINE1 = 'P<USADOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
+  const DEMO_MRZ_LINE2 = 'L898902C36USA9001151F3201159ZE184226B<<<<<10';
 
   const startDemoScan = () => {
     setCameraStatus('demo');

@@ -80,9 +80,7 @@ jobs:
             2. If the feedback is valid, fix the code using the Edit tool
             3. If the feedback is incorrect or not applicable, reply on the PR explaining why
             4. After fixing, run `pnpm typecheck` and `pnpm test` to verify no regressions
-            5. Git add, commit, and push your changes
-
-            Push command: git push origin HEAD
+            5. Git add and commit your changes — do NOT push (the workflow will push after verification)
           show_full_output: true
           claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
           settings: |
@@ -107,6 +105,15 @@ jobs:
             exit 0
           fi
 
+          echo "=== E2E ==="
+          npx playwright install --with-deps chromium 2>&1
+          npx webpack --config webpack.config.js 2>&1
+          if ! CI=true npx playwright test 2>&1; then
+            echo "::error::E2E tests failed after review fix — not pushing"
+            echo "pass=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           echo "pass=true" >> $GITHUB_OUTPUT
 
       - name: Comment failure on PR
@@ -116,7 +123,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 failed verification (typecheck or tests). Changes were NOT pushed. [View run]($RUN_URL)"
+          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 failed verification (typecheck, tests, or E2E). Changes were NOT pushed. [View run]($RUN_URL)"
           exit 1
 
       # Resolve threads BEFORE pushing so that when the push triggers
@@ -149,4 +156,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests pass). Review threads resolved. [View run]($RUN_URL)"
+          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete (verified: typecheck + tests + E2E pass). Review threads resolved. [View run]($RUN_URL)"
