@@ -125,6 +125,10 @@ jobs:
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by $REVIEWER (no critical/high issues found)."
 
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
+
   # When Claude posts a review comment on a PR, auto-approve
   auto-approve-after-claude:
     if: |
@@ -189,6 +193,10 @@ jobs:
           echo "pr_num=$PR_NUM" >> $GITHUB_OUTPUT
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review provided by Claude."
+
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="${{ secrets.GH_PAT }}" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
         id: review_check
 
       - name: Request Claude fix issues found in review
@@ -401,6 +409,10 @@ jobs:
           echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review detected, no unresolved critical/high issues."
+
+          # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
+          GH_TOKEN="$GH_PAT" gh workflow run auto-merge.yml \
+            --repo "$REPO" --ref master -f pr_number="$PR_NUM" 2>/dev/null || true
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'

@@ -528,6 +528,10 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 - **Problem**: When a bot reviewer posted a COMMENTED review, two things happened concurrently: (1) review-relay dispatched review-fix.yml to address the feedback, and (2) review-guardian waited 90s then checked for `@claude.*review round` comments to decide whether to defer approval. But review-relay no longer posts `@claude` comments (it dispatches review-fix.yml directly), so the regex never matched. review-guardian auto-approved, auto-merge saw all conditions met, and merged the PR while review-fix was still running — review feedback was never addressed.
 - **Solution**: Two fixes: (1) review-guardian now checks `is_workflow_active("review-fix.yml")` before auto-approving, and also checks for review-relay's actual comment format ("Dispatched review-fix workflow"). (2) evaluate-merge-gate.sh adds a 6th condition: `no_active_fix` — the merge gate will not merge while any review-fix.yml run is in_progress or queued for the PR.
 
+### Auto-Approve Doesn't Trigger Auto-Merge (PR #382)
+- **Problem**: After review-fix resolved feedback and pushed, CI re-ran, `ensure-review` detected the approval was missing and called `gh pr review --approve`. But the approval used `GITHUB_TOKEN`, and GitHub suppresses `pull_request_review` events for actions performed by the same workflow's token (anti-recursion). Since `auto-merge.yml` relies on `pull_request_review` events to re-evaluate, the PR sat approved but unmerged indefinitely.
+- **Solution**: All three auto-approve paths in review-guardian (`request-approval`, `auto-approve-after-claude`, `ensure-review`) now dispatch `auto-merge.yml` via `workflow_dispatch` immediately after approving. This ensures auto-merge re-evaluates regardless of whether GitHub fires the `pull_request_review` event.
+
 ### Review Relay Loop Prevention
 - 3 relay rounds max per PR
 - Count by comment body content (not author, since GH_PAT posts as PAT owner)
