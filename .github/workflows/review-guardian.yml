@@ -353,6 +353,20 @@ jobs:
             fi
           fi
 
+          # Check Claude/bot issue comments for "Request Changes" verdicts.
+          # Claude sometimes posts reviews as issue comments (not formal PR reviews),
+          # and those can contain "Request Changes" or "Verdict: Request Changes".
+          CLAUDE_REQUEST_CHANGES=$(GH_TOKEN="$GH_PAT" gh api "repos/$REPO/issues/$PR_NUM/comments" \
+            -q '[.[] | select(.user.login | test("claude|gemini-code-assist|copilot"; "i")) | select(.body | test("request.?changes|critical.?(bug|issue|problem)|do not merge"; "i"))] | length' 2>/dev/null || echo "0")
+
+          if [ "$CLAUDE_REQUEST_CHANGES" -gt 0 ]; then
+            echo "Bot review comment contains 'Request Changes' or critical issues — NOT auto-approving"
+            gh pr comment "$PR_NUM" --repo "$REPO" \
+              --body "Auto-approve skipped: a code review comment from a bot reviewer contains 'Request Changes' or flagged critical issues. These must be addressed before the PR can be approved." \
+              2>/dev/null || true
+            exit 0
+          fi
+
           echo "Auto-approving PR #$PR_NUM — review exists, no unresolved critical issues"
           gh pr review "$PR_NUM" --repo "$REPO" --approve \
             --body "Auto-approved: code review detected, no unresolved critical/high issues."
