@@ -52,18 +52,9 @@ export function parseBoardingPass(
       };
     }
 
-    // Convert date to ISO format (handle both new ISO format and legacy Julian format)
     let flightDate: string;
     try {
-      if (passenger.flightDate) {
-        // New format: already ISO date
-        flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
-      } else if (passenger.dateOfFlight) {
-        // Legacy format: Julian day
-        flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
-      } else {
-        throw new Error('No flight date found');
-      }
+      flightDate = extractFlightDate(passenger, year);
     } catch {
       return {
         code: 'PARSE_ERROR',
@@ -154,15 +145,7 @@ export function parseMultiLegBoardingPass(
 
       let flightDate: string;
       try {
-        if (passenger.flightDate) {
-          // New format: already ISO date
-          flightDate = passenger.flightDate.split('T')[0]; // Extract YYYY-MM-DD
-        } else if (passenger.dateOfFlight) {
-          // Legacy format: Julian day
-          flightDate = convertJulianDateToISO(passenger.dateOfFlight, year);
-        } else {
-          throw new Error('No flight date found');
-        }
+        flightDate = extractFlightDate(passenger, year);
       } catch {
         // Skip legs with invalid dates
         continue;
@@ -219,6 +202,24 @@ export function parseMultiLegBoardingPass(
       originalData: rawBarcode,
     };
   }
+}
+
+/**
+ * Extract ISO date string (YYYY-MM-DD) from a bcbp passenger leg.
+ * The bcbp library returns flightDate as a Date object in browsers
+ * but as an ISO string in Node.js. Falls back to Julian day parsing.
+ */
+function extractFlightDate(passenger: any, year: number): string {
+  if (passenger.flightDate) {
+    if (passenger.flightDate instanceof Date) {
+      return passenger.flightDate.toISOString().split('T')[0];
+    }
+    return String(passenger.flightDate).split('T')[0];
+  }
+  if (passenger.dateOfFlight) {
+    return convertJulianDateToISO(passenger.dateOfFlight, year);
+  }
+  throw new Error('No flight date found');
 }
 
 /**
