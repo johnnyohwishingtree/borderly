@@ -79,9 +79,29 @@ const _AUTHENTICATED_SELECTORS: Record<string, { fieldId: string; selector: stri
     selector:
       'input[name="birthday"], input[name="birthDate"], input[name="birth_date"], input[id="birth_date"]',
   },
+  passportExpiry: {
+    fieldId: 'passportExpiry',
+    selector:
+      'input[name="passportExpiry"], input[name="expiryDate"], input[name="passport_expiry"], input[id="passport_expiry"]',
+  },
   gender: {
     fieldId: 'gender',
     selector: 'select[name="sex"], select[name="gender"], input[name="sex"], input[id="sex"]',
+  },
+  occupation: {
+    fieldId: 'occupation',
+    selector:
+      'input[name="occupation"], input[name="job"], select[name="occupation"], input[id="occupation"]',
+  },
+  homeCountry: {
+    fieldId: 'homeCountry',
+    selector:
+      'select[name="homeCountry"], select[name="countryOfResidence"], select[name="home_country"], select[id="home_country"]',
+  },
+  homeCity: {
+    fieldId: 'homeCity',
+    selector:
+      'input[name="homeCity"], input[name="cityOfResidence"], input[name="home_city"], input[id="home_city"]',
   },
   arrivalDate: {
     fieldId: 'arrivalDate',

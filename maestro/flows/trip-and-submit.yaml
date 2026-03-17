@@ -184,7 +184,7 @@ tags:
     id: "toolbar-refresh-button"
 
 # Verify step progress is visible
-- assertVisible: "Step 1 of 6"
+- assertVisible: "Step 1 of 7"
 
 # Wait for portal to load — either the WebView loads content
 # or we get the auth banner (VJW requires login), or a load error
