@@ -402,13 +402,42 @@ pipeline/
     └── __tests__/
         ├── state-machine.test.ts   # 24 tests
         ├── merge-gate.test.ts      # 9 tests
-        └── events.test.ts          # 2 tests
+        ├── events.test.ts                          # 2 tests
+        ├── story-lifecycle.integration.test.ts     # 8 tests
+        ├── merge-gate.integration.test.ts          # 9 tests
+        ├── verify-and-fix.integration.test.ts      # 6 tests
+        ├── review-orchestration.integration.test.ts # 8 tests
+        ├── watcher.integration.test.ts             # 7 tests
+        └── helpers/
+            ├── index.ts                # Barrel exports
+            ├── mock-step.ts            # Mock Inngest step primitives
+            └── mock-github.ts          # Mock GitHubClient with state
 ```
+
+### Testing
+
+The pipeline has two test layers:
+
+| Layer | Files | What it covers |
+|-------|-------|---------------|
+| **Unit tests** | `*.test.ts` | Pure logic: state transitions, merge gate evaluation, event types |
+| **Integration tests** | `*.integration.test.ts` | Full function flows with mocked GitHub API + Inngest step primitives |
+
+Integration tests mock `GitHubClient` and `PipelineStateMachine` at the module level, then exercise each Inngest function's handler with a mock step context. This verifies:
+- Correct GitHub API call sequences
+- State machine transitions at each stage
+- Event emission (step.sendEvent) for downstream functions
+- Sleep/wait behavior for async operations
+- Error handling and escalation paths
+
+Run all pipeline tests: `cd pipeline && pnpm test`
+
+Pipeline tests also run in CI as the `pipeline-test` job in `test.yml`.
 
 ### Migration Status
 
 - [x] Sprint 1: Core infrastructure (types, events, state machine, GitHub client, all functions, tests)
-- [ ] Sprint 2: Integration testing with Inngest Dev Server
+- [x] Sprint 2: Integration testing (mock step harness, 38 integration tests across all functions, CI job)
 - [ ] Sprint 3: Deploy to Inngest Cloud, wire up secrets
 - [ ] Sprint 4: Parallel run (old + new), validate parity
 - [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
