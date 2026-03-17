@@ -277,17 +277,15 @@ export default function PassportScanScreen() {
               name="nationality"
               render={({ field: { onChange, value } }) => (
                 <View className="mb-4">
-                  <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Nationality <Text className="text-red-500">*</Text>
-                  </Text>
                   <SearchableSelect
+                    label="Nationality"
                     options={ALL_COUNTRIES}
                     value={value}
                     onValueChange={onChange}
                     placeholder="Search nationality..."
-                    label="Nationality"
                     error={errors.nationality?.message}
                     testID="nationality-input"
+                    required
                   />
                 </View>
               )}
@@ -365,17 +363,15 @@ export default function PassportScanScreen() {
               name="issuingCountry"
               render={({ field: { onChange, value } }) => (
                 <View className="mb-4">
-                  <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Issuing Country <Text className="text-red-500">*</Text>
-                  </Text>
                   <SearchableSelect
+                    label="Issuing Country"
                     options={ALL_COUNTRIES}
                     value={value}
                     onValueChange={onChange}
                     placeholder="Search issuing country..."
-                    label="Issuing Country"
                     error={errors.issuingCountry?.message}
                     testID="issuing-country-input"
+                    required
                   />
                 </View>
               )}

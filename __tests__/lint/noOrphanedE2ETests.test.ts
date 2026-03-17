@@ -24,7 +24,7 @@ describe('no orphaned E2E tests', () => {
     const configContent = fs.readFileSync(PLAYWRIGHT_CONFIG, 'utf8');
 
     const orphaned = specFiles.filter(
-      (f) => !configContent.includes(`'${f}'`)
+      (f) => !new RegExp(`['"]${f}['"]`).test(configContent)
     );
 
     if (orphaned.length > 0) {

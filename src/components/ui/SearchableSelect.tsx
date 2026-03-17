@@ -8,6 +8,7 @@ export interface SearchableSelectProps {
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  required?: boolean;
   error?: string | undefined;
   testID?: string;
 }
@@ -19,6 +20,7 @@ export default function SearchableSelect({
   placeholder = 'Select an option',
   disabled = false,
   label,
+  required = false,
   error,
   testID,
 }: SearchableSelectProps) {
@@ -41,6 +43,12 @@ export default function SearchableSelect({
 
   return (
     <View testID={testID}>
+      {label && (
+        <Text className="text-sm font-medium text-gray-700 mb-2">
+          {label}
+          {required && <Text className="text-red-500"> *</Text>}
+        </Text>
+      )}
       {/* Trigger button */}
       <Pressable
         className={`border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center ${
