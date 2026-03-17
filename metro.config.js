@@ -1,5 +1,6 @@
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const { withNativeWind } = require('nativewind/metro');
+const path = require('path');
 
 const config = mergeConfig(getDefaultConfig(__dirname), {
   transformer: {
@@ -13,6 +14,10 @@ const config = mergeConfig(getDefaultConfig(__dirname), {
     alias: {
       '@': './src',
     },
+    // Exclude worktrees and other non-source directories from Metro resolution
+    blockList: [
+      new RegExp(path.resolve(__dirname, '.claude/worktrees/.*').replace(/[/\\]/g, '[/\\\\]')),
+    ],
   },
   serializer: {
     // Enable tree shaking and dead code elimination

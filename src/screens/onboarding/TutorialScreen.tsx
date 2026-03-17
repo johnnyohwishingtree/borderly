@@ -195,7 +195,7 @@ export default function TutorialScreen() {
               <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
                 {step.title}
               </Text>
-              <Text className="text-lg text-blue-600 font-semibold text-center mb-4">
+              <Text className="text-lg text-gray-500 font-semibold text-center mb-4">
                 {step.subtitle}
               </Text>
               <Text className="text-base text-gray-700 text-center leading-relaxed">
@@ -207,16 +207,19 @@ export default function TutorialScreen() {
 
         {/* Navigation buttons */}
         <View className="flex-row items-center justify-between mt-8 space-x-4">
-          <Button
-            title="Previous"
-            onPress={handlePrevious}
-            variant="outline"
-            size="large"
-            disabled={currentStep === 0}
-            accessibilityLabel="Previous step"
-            accessibilityHint="Go to the previous tutorial step"
-            testID="previous-step-button"
-          />
+          {currentStep > 0 ? (
+            <Button
+              title="Previous"
+              onPress={handlePrevious}
+              variant="outline"
+              size="large"
+              accessibilityLabel="Previous step"
+              accessibilityHint="Go to the previous tutorial step"
+              testID="previous-step-button"
+            />
+          ) : (
+            <View className="flex-1" />
+          )}
           <Button
             title={currentStep === tutorialSteps.length - 1 ? 'Get Started' : 'Next'}
             onPress={handleNext}

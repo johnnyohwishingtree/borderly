@@ -159,15 +159,7 @@ export default function PassportScanScreen() {
                 </Text>
                 <Text className="text-sm text-gray-600 text-center mb-4">
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
-                  {devicePerformance === 'low' && '\n\n⚡ Optimized for your device performance'}
                 </Text>
-
-                <HelpHint
-                  content="Look for the two lines of text at the bottom of your passport photo page. This is the MRZ that contains your passport information."
-                  variant="info"
-                  size="small"
-                  className="mb-4"
-                />
                 <Button
                   title="Start Camera Scan"
                   onPress={handleStartScanning}
@@ -178,33 +170,15 @@ export default function PassportScanScreen() {
               </View>
             </Card>
 
-            <Card variant="elevated" className="mb-6 bg-white shadow-lg">
-              <View className="items-center py-6">
-                <View className="w-20 h-20 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
-                  <Pencil size={28} color="#374151" />
-                </View>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  Manual Entry
-                </Text>
-                <Text className="text-sm text-gray-600 text-center mb-4">
-                  Enter your passport information by hand if camera scanning isn't working
-                </Text>
-
-                <HelpHint
-                  content="You can find this information on your passport photo page. Make sure to enter dates in YYYY-MM-DD format and country codes as 3 letters (e.g., USA, GBR, JPN)."
-                  variant="tip"
-                  size="small"
-                  className="mb-4"
-                />
-                <Button
-                  title="Enter Manually"
-                  onPress={handleManualEntry}
-                  variant="outline"
-                  size="medium"
-                  testID="enter-manually-button"
-                />
-              </View>
-            </Card>
+            <View className="items-center py-4">
+              <Button
+                title="Or enter manually"
+                onPress={handleManualEntry}
+                variant="outline"
+                size="medium"
+                testID="enter-manually-button"
+              />
+            </View>
           </>
         )}
 
@@ -297,7 +271,7 @@ export default function PassportScanScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Date of Birth"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="Enter date"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -346,7 +320,7 @@ export default function PassportScanScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Passport Expiry Date"
-                  placeholder="YYYY-MM-DD"
+                  placeholder="Enter date"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
