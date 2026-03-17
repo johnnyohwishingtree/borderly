@@ -11,7 +11,6 @@ import WebView from 'react-native-webview';
 import { X } from 'lucide-react-native';
 import { useAccountSetup } from '@/hooks/useAccountSetup';
 import { getSchemaByCountryCode } from '@/schemas';
-import { keychainService } from '@/services/storage/keychain';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CountryFormSchema } from '@/types/schema';
 import { TripLeg } from '@/types/trip';
@@ -80,7 +79,7 @@ export default function AccountSetupChecklist({
     portalName: string;
   } | null>(null);
 
-  const { getPortalStatus, markPortalReady, resetPortalStatus, loadStatuses } = useAccountSetup(profileId);
+  const { getPortalStatus, markPortalReady, resetPortalStatus, loadStatuses, getPortalCredential, storePortalCredential } = useAccountSetup(profileId);
 
   useEffect(() => {
     loadStatuses();
@@ -120,12 +119,12 @@ export default function AccountSetupChecklist({
     const updates: Record<string, boolean> = {};
     for (const info of portalInfos) {
       if (info.requiresAccount && getPortalStatus(info.countryCode) === 'ready') {
-        const cred = await keychainService.getPortalCredential(profileId, info.countryCode);
+        const cred = await getPortalCredential(info.countryCode);
         updates[info.countryCode] = cred !== null;
       }
     }
     setCredentialStatus(prev => ({ ...prev, ...updates }));
-  }, [portalInfos, profileId, getPortalStatus]);
+  }, [portalInfos, getPortalStatus, getPortalCredential]);
 
   useEffect(() => {
     if (!loading) {
@@ -157,7 +156,7 @@ export default function AccountSetupChecklist({
       setSignupModal(null);
 
       // Check if credentials are already stored
-      const existing = await keychainService.getPortalCredential(profileId, portalCode);
+      const existing = await getPortalCredential(portalCode);
       if (!existing) {
         // Prompt user to save credentials
         setCredentialPrompt({ portalCode, portalName });
@@ -165,7 +164,7 @@ export default function AccountSetupChecklist({
         setCredentialStatus(prev => ({ ...prev, [portalCode]: true }));
       }
     },
-    [profileId, markPortalReady]
+    [markPortalReady, getPortalCredential]
   );
 
   const handleCloseModal = useCallback(() => {
@@ -177,8 +176,7 @@ export default function AccountSetupChecklist({
     async (username: string, password: string) => {
       if (!credentialPrompt) return;
       try {
-        await keychainService.storePortalCredential(
-          profileId,
+        await storePortalCredential(
           credentialPrompt.portalCode,
           username,
           password,
@@ -191,7 +189,7 @@ export default function AccountSetupChecklist({
         setCredentialPrompt(null);
       }
     },
-    [credentialPrompt, profileId, profile?.email]
+    [credentialPrompt, storePortalCredential, profile?.email]
   );
 
   const handleCredentialSkip = useCallback(() => {
