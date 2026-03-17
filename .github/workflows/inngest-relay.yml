@@ -1,0 +1,146 @@
+# inngest-relay.yml — Relays GitHub events to Inngest
+#
+# This thin workflow bridges GitHub Actions events to the Inngest pipeline.
+# It converts GitHub webhook payloads into Inngest events and sends them
+# to the Inngest API endpoint.
+#
+# This replaces the complex workflow-dispatch chaining between orchestrate.yml,
+# auto-merge.yml, verify-and-fix.yml, etc. with a single event relay.
+
+name: Inngest Relay
+
+on:
+  # PR merged to master → pipeline/pr.merged
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+  # CI completed → pipeline/ci.completed
+  workflow_run:
+    workflows: ['Tests', 'E2E Smoke Tests', 'Build Android']
+    types: [completed]
+
+  # PR review submitted → pipeline/review.submitted
+  pull_request_review:
+    types: [submitted]
+
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      event_name:
+        description: 'Inngest event name to send'
+        required: true
+        type: string
+      event_data:
+        description: 'JSON event data payload'
+        required: true
+        type: string
+
+concurrency:
+  group: inngest-relay-${{ github.event_name }}-${{ github.event.number || github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      github.event_name == 'workflow_run' ||
+      github.event_name == 'pull_request_review' ||
+      github.event_name == 'workflow_dispatch'
+    env:
+      INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+      INNGEST_API_URL: ${{ vars.INNGEST_API_URL || 'https://inn.gs/e' }}
+
+    steps:
+      - name: Relay PR merged event
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: |
+          # Only relay PRs linked to stories (claude/* branches)
+          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+          if [[ ! "$HEAD_BRANCH" == claude/* ]]; then
+            echo "Skipping non-pipeline PR"
+            exit 0
+          fi
+
+          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "pipeline/pr.merged",
+              "data": {
+                "prNumber": ${{ github.event.pull_request.number }},
+                "headBranch": "'"$HEAD_BRANCH"'",
+                "mergedBy": "${{ github.event.pull_request.merged_by.login }}",
+                "repo": "${{ github.repository }}"
+              }
+            }'
+          echo "Relayed pipeline/pr.merged for PR #${{ github.event.pull_request.number }}"
+
+      - name: Relay CI completed event
+        if: github.event_name == 'workflow_run'
+        run: |
+          HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
+          if [[ ! "$HEAD_BRANCH" == claude/* ]]; then
+            echo "Skipping non-pipeline CI run"
+            exit 0
+          fi
+
+          # Find the PR for this branch
+          PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" \
+            --head "$HEAD_BRANCH" --state open \
+            --json number -q '.[0].number' 2>/dev/null || echo "")
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open PR for branch $HEAD_BRANCH"
+            exit 0
+          fi
+
+          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "pipeline/ci.completed",
+              "data": {
+                "prNumber": '"$PR_NUMBER"',
+                "headSha": "${{ github.event.workflow_run.head_sha }}",
+                "headBranch": "'"$HEAD_BRANCH"'",
+                "repo": "${{ github.repository }}"
+              }
+            }'
+          echo "Relayed pipeline/ci.completed for PR #$PR_NUMBER"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Relay review submitted event
+        if: github.event_name == 'pull_request_review'
+        run: |
+          REVIEWER="${{ github.event.review.user.login }}"
+          IS_BOT="false"
+          if [[ "$REVIEWER" == *"[bot]" ]]; then
+            IS_BOT="true"
+          fi
+
+          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "pipeline/review.submitted",
+              "data": {
+                "prNumber": ${{ github.event.pull_request.number }},
+                "reviewer": "'"$REVIEWER"'",
+                "reviewState": "${{ github.event.review.state }}",
+                "reviewBody": "",
+                "isBot": '"$IS_BOT"',
+                "repo": "${{ github.repository }}"
+              }
+            }'
+          echo "Relayed pipeline/review.submitted for PR #${{ github.event.pull_request.number }}"
+
+      - name: Relay manual event
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "${{ inputs.event_name }}",
+              "data": ${{ inputs.event_data }}
+            }'
+          echo "Relayed ${{ inputs.event_name }}"

@@ -318,3 +318,97 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 - Timeout rescue preserves work (no lost token spend)
 - Watcher reuses existing work branches instead of re-running claude.yml
 - Single merge gate (`auto-merge.yml`) — no workflow needs its own merge logic
+
+---
+
+## Inngest Migration (In Progress)
+
+The orchestration layer is being migrated from GitHub Actions workflow-dispatch chaining to [Inngest](https://www.inngest.com/) durable functions. This provides:
+
+- **Durable execution**: Steps are memoized and survive crashes/restarts
+- **Built-in retry**: Exponential backoff per step, no manual attempt tracking
+- **Concurrency controls**: Per-function, per-tenant limits via configuration
+- **Type-safe events**: All pipeline events are strongly typed in TypeScript
+- **Testable functions**: Pure TypeScript functions testable with Vitest
+
+### Architecture
+
+```
+GitHub Events (PR merged, CI complete, review submitted)
+    │
+    ▼
+inngest-relay.yml (thin GitHub Actions workflow)
+    │ curl POST to Inngest API
+    ▼
+Inngest Cloud / Self-hosted
+    │ routes events to functions
+    ▼
+┌─────────────────────────────────────────┐
+│        pipeline/ (TypeScript)            │
+│                                          │
+│  Functions:                              │
+│  ├── story-lifecycle  (orchestrate.yml)  │
+│  ├── verify-and-fix   (verify-and-fix)   │
+│  ├── merge-gate       (auto-merge.yml)   │
+│  ├── ensure-review    (review-guardian)   │
+│  ├── review-relay     (review-relay)      │
+│  ├── review-fix       (review-fix)        │
+│  └── watcher          (watcher.yml)       │
+│                                          │
+│  Shared Libraries:                       │
+│  ├── github.ts        (lib.sh port)      │
+│  └── state-machine.ts (state-machine.sh) │
+└─────────────────────────────────────────┘
+    │ Octokit API calls
+    ▼
+GitHub API (issues, PRs, checks, reviews)
+```
+
+### Event Flow
+
+| Inngest Event | Replaces | Trigger |
+|---------------|----------|---------|
+| `pipeline/pr.merged` | `orchestrate.yml` | PR merged to master |
+| `pipeline/story.trigger` | `trigger_story_agent()` | Story ready for implementation |
+| `pipeline/verify.requested` | `verify-and-fix.yml` dispatch | Code needs verification |
+| `pipeline/ci.completed` | `auto-merge.yml` workflow_run | CI checks finished |
+| `pipeline/merge.evaluate` | `auto-merge.yml` dispatch | Merge gate re-evaluation |
+| `pipeline/review.submitted` | `review-relay.yml` trigger | Bot/human review posted |
+| `pipeline/review.fix-requested` | `review-fix.yml` dispatch | Review fixes needed |
+| `pipeline/review.ensure` | `review-guardian.yml` trigger | Ensure PR gets reviewed |
+| `pipeline/watcher.tick` | `watcher.yml` cron | Health check (every 20min) |
+| `pipeline/doctor.requested` | `pipeline-doctor.yml` dispatch | Diagnosis needed |
+
+### Project Structure
+
+```
+pipeline/
+├── package.json          # Inngest + Octokit + Hono + Vitest
+├── tsconfig.json         # Standalone TypeScript config
+├── vitest.config.ts      # Test configuration
+└── src/
+    ├── inngest.ts        # Client + event type definitions
+    ├── types.ts          # State machine types, CI status, config
+    ├── serve.ts          # Hono HTTP server for Inngest
+    ├── functions/
+    │   ├── story-lifecycle.ts      # PR merged → close story → next story
+    │   ├── verify-and-fix.ts       # Verify CI → fix loop → escalate
+    │   ├── merge-gate.ts           # 6-condition merge evaluation
+    │   ├── review-orchestration.ts # Ensure review + relay + fix
+    │   └── watcher.ts              # Scheduled health monitoring
+    ├── lib/
+    │   ├── github.ts               # Octokit wrapper (port of lib.sh)
+    │   └── state-machine.ts        # State persistence (port of state-machine.sh)
+    └── __tests__/
+        ├── state-machine.test.ts   # 24 tests
+        ├── merge-gate.test.ts      # 9 tests
+        └── events.test.ts          # 2 tests
+```
+
+### Migration Status
+
+- [x] Sprint 1: Core infrastructure (types, events, state machine, GitHub client, all functions, tests)
+- [ ] Sprint 2: Integration testing with Inngest Dev Server
+- [ ] Sprint 3: Deploy to Inngest Cloud, wire up secrets
+- [ ] Sprint 4: Parallel run (old + new), validate parity
+- [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
