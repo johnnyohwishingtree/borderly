@@ -518,7 +518,7 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     await navigateToPortalSubmission(page);
 
     const screen = page.locator('[data-testid="portal-submission-screen"]');
-    if ((await screen.count()) === 0) return;
+    await expect(screen).toBeVisible({ timeout: 10000 });
 
     // Within 12 seconds (covers the 8-second mock timeout + buffer),
     // the loading indicator must disappear. Either:

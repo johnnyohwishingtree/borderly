@@ -48,12 +48,16 @@ const WebView = forwardRef(function WebView(props, ref) {
     },
   }));
 
-  const handleIframeLoad = () => {
+  const markLoaded = () => {
     loadedRef.current = true;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+  };
+
+  const handleIframeLoad = () => {
+    markLoaded();
     if (onNavigationStateChange) {
       onNavigationStateChange({ url, loading: false, canGoBack: false, canGoForward: false });
     }
@@ -62,11 +66,7 @@ const WebView = forwardRef(function WebView(props, ref) {
   };
 
   const handleIframeError = () => {
-    loadedRef.current = true;
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
+    markLoaded();
     if (onError) {
       onError({ nativeEvent: { description: 'Failed to load page', code: -1 } });
     }
@@ -106,7 +106,7 @@ const WebView = forwardRef(function WebView(props, ref) {
         timeoutRef.current = null;
       }
     };
-  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [url, onLoadStart, onNavigationStateChange, onError, onLoadEnd]);
 
   if (!url) {
     return (
