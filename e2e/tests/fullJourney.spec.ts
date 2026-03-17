@@ -18,7 +18,7 @@ async function completeManualOnboarding(page: Page, passport: {
   expiry: string; issuingCountry: string;
 }) {
   await page.getByRole('button', { name: 'Skip tutorial' }).click();
-  await page.getByRole('button', { name: 'Enter Manually' }).click();
+  await page.getByRole('button', { name: 'Or enter manually' }).click();
 
   await page.getByTestId('passport-number-input').fill(passport.number);
   await page.getByTestId('surname-input').fill(passport.surname);

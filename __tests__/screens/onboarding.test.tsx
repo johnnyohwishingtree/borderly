@@ -170,17 +170,16 @@ describe('Onboarding Flow Integration Tests', () => {
 
       expect(getByText('Passport Information')).toBeTruthy();
       expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
-      expect(getByText('Optimized Passport Scan')).toBeTruthy();
+      expect(getByText('Quick Passport Scan')).toBeTruthy();
       expect(getByText('Start Camera Scan')).toBeTruthy();
-      expect(getByText('Manual Entry')).toBeTruthy();
-      expect(getByText('Enter Manually')).toBeTruthy();
+      expect(getByText('Or enter manually')).toBeTruthy();
     });
 
     it('should show manual form when manual entry is selected', () => {
       const { getByText, getByPlaceholderText } = render(<PassportScanScreen />);
       
       // Click manual entry to show the form
-      fireEvent.press(getByText('Enter Manually'));
+      fireEvent.press(getByText('Or enter manually'));
 
       expect(getByPlaceholderText('Enter passport number')).toBeTruthy();
       expect(getByPlaceholderText('Enter surname')).toBeTruthy();
@@ -191,7 +190,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const { getByText } = render(<PassportScanScreen />);
 
       // Click manual entry to show the form
-      fireEvent.press(getByText('Enter Manually'));
+      fireEvent.press(getByText('Or enter manually'));
 
       expect(getByText(/Gender/)).toBeTruthy();
       expect(getByText('Male')).toBeTruthy();
@@ -212,7 +211,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const { getByText } = render(<PassportScanScreen />);
 
       // Click manual entry to show the form
-      fireEvent.press(getByText('Enter Manually'));
+      fireEvent.press(getByText('Or enter manually'));
 
       const femaleButton = getByText('Female');
       fireEvent.press(femaleButton);

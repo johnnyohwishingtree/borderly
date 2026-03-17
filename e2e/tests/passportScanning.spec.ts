@@ -17,9 +17,8 @@ test.describe('Passport Scanning Flow', () => {
 
     // Both scan methods should be available
     await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
-    await expect(page.getByText('Manual Entry', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Start Camera Scan' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Enter Manually' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Or enter manually' })).toBeVisible();
   });
 
   test('camera scan shows unavailable state with fallback options on web', async ({ page }) => {
@@ -71,7 +70,7 @@ test.describe('Passport Scanning Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Go directly to manual entry
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
 
     // Form fields should be visible
     await expect(page.getByText('Passport Number')).toBeVisible();

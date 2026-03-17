@@ -24,7 +24,7 @@ test.describe('Onboarding Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
     // Passport selection -> Enter Manually
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
 
     // Fill passport form using testIDs
     await page.getByTestId('passport-number-input').fill('L12345678');

@@ -150,8 +150,8 @@ export default function TutorialScreen() {
   const step = tutorialSteps[currentStep];
 
   return (
-    <ScrollView 
-      className={`flex-1 bg-gradient-to-b ${step.bgGradient}`}
+    <ScrollView
+      className="flex-1 bg-white"
       contentContainerStyle={{ minHeight: height * 0.9 }}
     >
       <View className="flex-1 px-6 pt-12 pb-8">
@@ -190,12 +190,12 @@ export default function TutorialScreen() {
           </View>
 
           {/* Text content */}
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white border border-gray-200 rounded-xl">
             <View className="items-center text-center">
               <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
                 {step.title}
               </Text>
-              <Text className="text-lg text-blue-600 font-semibold text-center mb-4">
+              <Text className="text-lg text-gray-500 font-semibold text-center mb-4">
                 {step.subtitle}
               </Text>
               <Text className="text-base text-gray-700 text-center leading-relaxed">
@@ -207,16 +207,19 @@ export default function TutorialScreen() {
 
         {/* Navigation buttons */}
         <View className="flex-row items-center justify-between mt-8 space-x-4">
-          <Button
-            title="Previous"
-            onPress={handlePrevious}
-            variant="outline"
-            size="large"
-            disabled={currentStep === 0}
-            accessibilityLabel="Previous step"
-            accessibilityHint="Go to the previous tutorial step"
-            testID="previous-step-button"
-          />
+          {currentStep > 0 ? (
+            <Button
+              title="Previous"
+              onPress={handlePrevious}
+              variant="outline"
+              size="large"
+              accessibilityLabel="Previous step"
+              accessibilityHint="Go to the previous tutorial step"
+              testID="previous-step-button"
+            />
+          ) : (
+            <View className="flex-1" />
+          )}
           <Button
             title={currentStep === tutorialSteps.length - 1 ? 'Get Started' : 'Next'}
             onPress={handleNext}
