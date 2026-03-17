@@ -84,9 +84,9 @@ export async function recordParity(
 
   try {
     await github.commentOnIssue(issueNumber, body);
-  } catch {
+  } catch (error) {
     // Non-fatal — don't break function execution if logging fails
-    console.error(`[parity] Failed to log to issue #${issueNumber}`);
+    console.error(`[parity] Failed to log to issue #${issueNumber}`, error);
   }
 }
 

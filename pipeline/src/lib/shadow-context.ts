@@ -26,7 +26,7 @@ export interface ShadowContext {
     decision: string,
     result: T,
     conditions?: Record<string, unknown>
-  ) => Promise<T>;
+  ) => Promise<T & { _shadow?: boolean }>;
 }
 
 export function createShadowContext(
@@ -45,7 +45,7 @@ export function createShadowContext(
       decision: string,
       result: T,
       conditions?: Record<string, unknown>
-    ): Promise<T> => {
+    ): Promise<T & { _shadow?: boolean }> => {
       if (shadow) {
         await recordParity(github, {
           functionId,
@@ -55,7 +55,7 @@ export function createShadowContext(
           actions,
           conditions,
         });
-        return { ...result, _shadow: true } as T;
+        return { ...result, _shadow: true };
       }
       return result;
     },
