@@ -85,7 +85,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     return () => {
       resetForm();
     };
-  }, [tripId, legId, profile, trip, leg, generateForm, resetForm, navigation]);
+  }, [tripId, legId, profile, trip, leg, generateForm, resetForm]);
 
   const handleFormDataChange = useCallback((newFormData: Record<string, unknown>) => {
     const storeData = useFormStore.getState().formData;

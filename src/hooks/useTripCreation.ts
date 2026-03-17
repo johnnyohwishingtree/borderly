@@ -124,6 +124,7 @@ export function useTripCreation() {
   const updateLeg = useCallback((index: number, field: string, value: string) => {
     setLegs(prev => {
       const newLegs = [...prev];
+      newLegs[index] = structuredClone(newLegs[index]);
       const keys = field.split('.');
       let current: any = newLegs[index];
       for (let i = 0; i < keys.length - 1; i++) {

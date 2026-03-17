@@ -1,4 +1,4 @@
-import type { FilledForm } from '../services/forms/formEngine';
+import type { FilledForm, FilledFormField } from '../services/forms/formEngine';
 
 export function findFieldInForm(form: FilledForm, fieldId: string) {
   for (const section of form.sections) {
@@ -8,7 +8,7 @@ export function findFieldInForm(form: FilledForm, fieldId: string) {
   return undefined;
 }
 
-export function validateFieldValue(field: any, value: unknown): string | undefined {
+export function validateFieldValue(field: FilledFormField, value: unknown): string | undefined {
   // Check if required field is empty
   if (field.required && (value === undefined || value === '' || value === null)) {
     return `${field.label} is required`;

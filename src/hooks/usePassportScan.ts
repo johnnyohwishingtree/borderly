@@ -49,7 +49,7 @@ export function usePassportScan() {
   const [showPerformanceHint, setShowPerformanceHint] = useState(false);
   const [storageError, setStorageError] = useState<AppError | string | null>(null);
   const [scanError, setScanError] = useState<AppError | string | null>(null);
-  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'scan', data?: any } | null>(null);
+  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'scan', data?: Partial<TravelerProfile> } | null>(null);
 
   const form = useForm<PassportFormData>({
     resolver: zodResolver(passportSchema),
