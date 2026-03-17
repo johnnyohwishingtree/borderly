@@ -845,6 +845,78 @@ else:
   fi
 }
 
+# Bug: ensure-review approved PR when only one CI workflow passed (e.g., Tests)
+# but other required checks (build-android, test-chromium) were still failing.
+# The ensure-review job triggers on workflow_run for Tests OR E2E Smoke Tests,
+# but only checked that threads were resolved — not that ALL CI checks passed.
+# Regression: ensure-review must verify all CI checks pass before approving.
+@test "regression: ensure-review checks all CI status before approving" {
+  local wf="$SCRIPTS_DIR/../workflows/review-guardian.yml"
+  [ -f "$wf" ] || skip "review-guardian.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+jobs = data.get('jobs', {})
+ensure = jobs.get('ensure-review', {})
+steps = ensure.get('steps', [])
+
+# The approve path must check CI status (check_ci_status or check-runs API)
+# before setting action=approve
+has_ci_check_before_approve = False
+
+for step in steps:
+    run_text = str(step.get('run', ''))
+    # Must use check_ci_status to verify all checks passed
+    if 'check_ci_status' in run_text and 'action=approve' in run_text:
+        has_ci_check_before_approve = True
+
+if has_ci_check_before_approve:
+    print('ok')
+else:
+    print('missing: check_ci_status call before action=approve in ensure-review')
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: ensure-review approves without checking all CI status"
+    echo "The ensure-review job must call check_ci_status and verify ALL checks"
+    echo "(tests, e2e, android build) passed before approving the PR."
+    echo "Detail: $result"
+    false
+  fi
+}
+
+# Bug: check_ci_status did not report ANDROID_BUILD_PASS
+# Regression: check_ci_status must include android build status.
+@test "regression: check_ci_status reports android build status" {
+  source_lib
+
+  mock_gh_response "check-runs" 'test|success|completed
+test-chromium|success|completed
+test-performance|success|completed
+test-cross-browser|success|completed
+build-android|success|completed'
+
+  result=$(check_ci_status "abc123" "testowner/testrepo")
+  assert_contains "$result" "ANDROID_BUILD_PASS=true"
+}
+
+@test "regression: check_ci_status reports android build fail when missing" {
+  source_lib
+
+  mock_gh_response "check-runs" 'test|success|completed
+test-chromium|success|completed
+test-performance|success|completed
+test-cross-browser|success|completed'
+
+  result=$(check_ci_status "abc123" "testowner/testrepo")
+  assert_contains "$result" "ANDROID_BUILD_PASS=false"
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""
