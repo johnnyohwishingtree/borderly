@@ -60,27 +60,33 @@ export const verifyAndFix = inngest.createFunction(
         }
       });
 
-      // Step: Run verification checks
+      // Step: Run verification checks — dispatch CI and capture headSha
       const verifyResult = await step.run(`verify-${stepSuffix}`, async () => {
-        // In the real implementation, this would trigger GitHub Actions CI
-        // and wait for results. For now, we check existing CI status.
-        //
-        // The actual verification is done by dispatching a GitHub Actions
-        // workflow and waiting for it to complete via a waitForEvent.
+        const checkBranch = workBranch || branch;
+
+        // Get the HEAD SHA of the branch so we can match the ci.completed event
+        const headSha = await github.getHeadSha(checkBranch);
+
+        // Dispatch the CI workflow on the branch
+        await github.dispatchWorkflow('ci.yml', checkBranch, {
+          branch: checkBranch,
+          sha: headSha,
+        });
+
         await github.commentOnIssue(
           issueNumber,
-          `Verify attempt ${currentAttempt}/${maxAttempts} — checking ${checks}...`
+          `Verify attempt ${currentAttempt}/${maxAttempts} — checking ${checks} (sha: ${headSha.slice(0, 7)})...`
         );
 
-        // Return a placeholder — real implementation dispatches CI
-        return { pass: false as boolean, errorSummary: '', checkBranch: workBranch || branch };
+        return { pass: false as boolean, errorSummary: '', checkBranch, headSha };
       });
 
-      // Wait for CI results (the CI workflow sends an event when done)
+      // Wait for CI results (the CI workflow sends an event when done).
+      // Match on headSha so this works even before a PR exists.
       const ciResult = await step.waitForEvent(`wait-ci-${stepSuffix}`, {
         event: 'pipeline/ci.completed',
         timeout: '30m',
-        if: `async.data.prNumber == ${issueNumber}`,
+        if: `async.data.headSha == '${verifyResult.headSha}'`,
       });
 
       const pass = ciResult !== null;
@@ -116,7 +122,7 @@ export const verifyAndFix = inngest.createFunction(
           name: 'pipeline/review.ensure',
           data: {
             prNumber: issueNumber,
-            headSha: '',
+            headSha: verifyResult.headSha,
             repo,
           },
         });
