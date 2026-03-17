@@ -11,6 +11,7 @@
 import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
 import { PipelineStateMachine } from '../lib/state-machine.js';
+import { createShadowContext } from '../lib/shadow-context.js';
 
 const CONSECUTIVE_FAILURE_THRESHOLD = 3;
 
@@ -25,7 +26,9 @@ export const storyLifecycle = inngest.createFunction(
   async ({ event, step }) => {
     const { prNumber, repo } = event.data;
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'story-lifecycle', event.name);
+    const github = ctx.github;
     const stateMachine = new PipelineStateMachine(github);
     const preferredAgent = (process.env['PREFERRED_AGENT'] ?? 'claude') as
       | 'claude'
@@ -44,7 +47,7 @@ export const storyLifecycle = inngest.createFunction(
     });
 
     if (!storyNumber) {
-      return { status: 'skipped', reason: 'No linked story found' };
+      return ctx.finalize('skipped', { status: 'skipped', reason: 'No linked story found' });
     }
 
     // Step 2: Close the completed story
@@ -78,7 +81,7 @@ export const storyLifecycle = inngest.createFunction(
     });
 
     if (!epicInfo.epicLabel) {
-      return { status: 'done', reason: 'No epic label found' };
+      return ctx.finalize('done', { status: 'done', reason: 'No epic label found' });
     }
 
     if (!epicInfo.nextStory) {
@@ -89,7 +92,7 @@ export const storyLifecycle = inngest.createFunction(
           `All stories in ${epicInfo.epicLabel} are complete. Closing epic.`
         );
       });
-      return { status: 'epic-complete', epicLabel: epicInfo.epicLabel };
+      return ctx.finalize('epic-complete', { status: 'epic-complete', epicLabel: epicInfo.epicLabel });
     }
 
     // Step 5: Safety check — pause if too many consecutive failures
@@ -106,10 +109,10 @@ export const storyLifecycle = inngest.createFunction(
           `Pipeline paused: ${CONSECUTIVE_FAILURE_THRESHOLD}+ unmerged PRs detected. Manual review needed before continuing.`
         );
       });
-      return {
+      return ctx.finalize('paused', {
         status: 'paused',
         reason: 'Too many consecutive unmerged PRs',
-      };
+      });
     }
 
     // Step 6: Initialize state for next story and trigger agent
@@ -134,11 +137,11 @@ export const storyLifecycle = inngest.createFunction(
       },
     });
 
-    return {
+    return ctx.finalize('triggered', {
       status: 'triggered',
       completedStory: storyNumber,
       nextStory: epicInfo.nextStory,
       agent: preferredAgent,
-    };
+    });
   }
 );

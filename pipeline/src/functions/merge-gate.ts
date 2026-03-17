@@ -10,6 +10,7 @@
 import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
 import { PipelineStateMachine } from '../lib/state-machine.js';
+import { createShadowContext } from '../lib/shadow-context.js';
 import type { MergeGateResult } from '../types.js';
 
 export async function evaluateMergeGate(
@@ -79,7 +80,9 @@ export const mergeGate = inngest.createFunction(
     const prNumber = event.data.prNumber;
     const repo = event.data.repo;
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'merge-gate', event.name);
+    const github = ctx.github;
     const stateMachine = new PipelineStateMachine(github);
 
     // Step 1: Evaluate all merge conditions
@@ -132,7 +135,7 @@ export const mergeGate = inngest.createFunction(
           },
         });
 
-        return { action: 'merged', prNumber };
+        return ctx.finalize('merge', { action: 'merged', prNumber }, result.conditions);
       }
 
       case 'update_branch': {
@@ -141,19 +144,19 @@ export const mergeGate = inngest.createFunction(
         });
 
         // Re-evaluate after branch update (CI will re-run)
-        return {
+        return ctx.finalize('update_branch', {
           action: 'updated_branch',
           prNumber,
           note: 'Will re-evaluate when CI completes',
-        };
+        }, result.conditions);
       }
 
       case 'wait': {
-        return {
+        return ctx.finalize('wait', {
           action: 'waiting',
           prNumber,
           failingConditions: result.failingConditions,
-        };
+        }, result.conditions);
       }
     }
   }

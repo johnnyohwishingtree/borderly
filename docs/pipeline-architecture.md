@@ -443,8 +443,38 @@ Pipeline tests also run in CI as the `pipeline-test` job in `test.yml`.
 - [x] Sprint 1: Core infrastructure (types, events, state machine, GitHub client, all functions, tests)
 - [x] Sprint 2: Integration testing (mock step harness, 38 integration tests across all functions, CI job)
 - [x] Sprint 3: Deploy infrastructure (Dockerfile, env config, deploy workflow, hardened relay, DEPLOY.md)
-- [ ] Sprint 4: Parallel run (old + new), validate parity
+- [x] Sprint 4: Parallel run — shadow mode, parity logging, write interception via Proxy
 - [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
+
+### Sprint 4: Parallel Run (Shadow Mode)
+
+The parallel run allows old GHA workflows and new Inngest functions to run simultaneously. Inngest functions observe and record decisions but skip write actions.
+
+**Architecture:**
+- `INNGEST_SHADOW_MODE=true` enables shadow mode globally
+- `PARITY_TRACKING_ISSUE=N` sets the GitHub issue for parity logging
+- Each Inngest function wraps its `GitHubClient` with `createShadowContext()`
+- The shadow context uses a JS `Proxy` to intercept write methods (merge, comment, label, approve, etc.)
+- Read methods (checkCIStatus, countApprovals, getPR, etc.) pass through unchanged
+- Intercepted writes are recorded as `ParityAction[]` and logged to the tracking issue
+- All function return values include a `_shadow: true` flag in shadow mode
+
+**Parity Logging:**
+Each function decision is posted to the tracking issue with:
+- Function ID and event name
+- Decision made (merge, wait, triggered, etc.)
+- Table of intercepted write actions (type, target, detail)
+- Conditions evaluated (e.g., CI status, approval count)
+
+This allows comparing what Inngest would do vs what the old GHA workflows actually did.
+
+**Key files:**
+| File | Purpose |
+|------|---------|
+| `pipeline/src/lib/parity.ts` | `isShadowMode()`, `wrapForShadow()`, `recordParity()` |
+| `pipeline/src/lib/shadow-context.ts` | `createShadowContext()` — shared helper for all functions |
+| `pipeline/src/__tests__/parity.test.ts` | 14 tests for shadow mode + parity recording |
+| `pipeline/src/__tests__/shadow-context.test.ts` | 8 tests for shadow context lifecycle |
 
 ### Deployment
 
@@ -456,6 +486,12 @@ The pipeline server deploys as a Docker container. See `pipeline/DEPLOY.md` for 
 | `GH_PAT` | GitHub API access for pipeline functions |
 | `INNGEST_EVENT_KEY` | Inngest event sending authentication |
 | `INNGEST_SIGNING_KEY` | Inngest webhook request verification |
+
+**Optional Environment Variables (Parallel Run):**
+| Variable | Purpose |
+|----------|---------|
+| `INNGEST_SHADOW_MODE` | Set to `true` to enable observe-only mode |
+| `PARITY_TRACKING_ISSUE` | GitHub issue number for parity decision logging |
 
 **Deploy workflow:** `deploy-pipeline.yml` runs on push to master when `pipeline/` changes.
 Builds Docker image → pushes to registry → verifies health endpoint.

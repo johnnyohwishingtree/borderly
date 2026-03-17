@@ -92,6 +92,8 @@ The pipeline server requires these env vars at runtime:
 | `PREFERRED_AGENT` | No | `claude` (default) or `gemini` |
 | `PORT` | No | Server port (default: `3000`) |
 | `NODE_ENV` | No | `production`, `development`, or `test` |
+| `INNGEST_SHADOW_MODE` | No | Set to `true` for parallel run (observe-only, no writes) |
+| `PARITY_TRACKING_ISSUE` | No | GitHub issue number for parity decision logging |
 
 ## Health Check
 
