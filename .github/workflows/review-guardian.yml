@@ -302,8 +302,28 @@ jobs:
             UNRESOLVED=$(count_unresolved_threads "$PR_NUM" "$REPO")
 
             if [ "$UNRESOLVED" -eq 0 ]; then
-              echo "PR #$PR_NUM has formal review(s), no approval, but ALL threads resolved — approving now"
-              echo "action=approve" >> $GITHUB_OUTPUT
+              # All threads resolved — but we must also verify ALL CI checks passed,
+              # not just the one workflow_run that triggered us. This prevents premature
+              # approval when e.g. Tests passes but build-android or E2E is still failing.
+              HEAD_SHA=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefOid \
+                -q '.headRefOid' 2>/dev/null || echo "")
+
+              if [ -z "$HEAD_SHA" ]; then
+                echo "Could not get head SHA for PR #$PR_NUM — skipping"
+                echo "action=none" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+
+              eval "$(check_ci_status "$HEAD_SHA" "$REPO")"
+              echo "CI status — Tests: $TESTS_PASS, E2E: $E2E_PASS, Android: $ANDROID_BUILD_PASS"
+
+              if [ "$TESTS_PASS" = "true" ] && [ "$E2E_PASS" = "true" ] && [ "$ANDROID_BUILD_PASS" = "true" ]; then
+                echo "PR #$PR_NUM has formal review(s), ALL threads resolved, ALL CI passed — approving now"
+                echo "action=approve" >> $GITHUB_OUTPUT
+              else
+                echo "PR #$PR_NUM threads resolved but not all CI checks passed — dispatching auto-merge to wait"
+                echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
+              fi
             else
               echo "PR #$PR_NUM has $UNRESOLVED unresolved threads — dispatching auto-merge to wait"
               echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT

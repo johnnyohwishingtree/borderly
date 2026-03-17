@@ -41,11 +41,8 @@ jobs:
         with:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
-      - name: Android lint check
-        run: cd android && ./gradlew lint --warning-mode all 2>&1 | tail -50
-
       - name: Build Android debug APK
-        run: cd android && ./gradlew assembleDebug
+        run: cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

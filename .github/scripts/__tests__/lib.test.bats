@@ -150,11 +150,13 @@ ROUTE
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed'
+test-cross-browser|success|completed
+build-android|success|completed'
 
   result=$(check_ci_status "abc123" "testowner/testrepo")
   assert_contains "$result" "TESTS_PASS=true"
   assert_contains "$result" "E2E_PASS=true"
+  assert_contains "$result" "ANDROID_BUILD_PASS=true"
 }
 
 # ===================================================================
@@ -169,6 +171,7 @@ test-performance|success|completed'
   result=$(check_ci_status "abc123" "testowner/testrepo")
   assert_contains "$result" "TESTS_PASS=true"
   assert_contains "$result" "E2E_PASS=false"
+  assert_contains "$result" "ANDROID_BUILD_PASS=false"
 }
 
 @test "check_ci_status reports e2e fail when one e2e job fails" {
@@ -180,6 +183,7 @@ test-cross-browser|success|completed'
   result=$(check_ci_status "abc123" "testowner/testrepo")
   assert_contains "$result" "TESTS_PASS=true"
   assert_contains "$result" "E2E_PASS=false"
+  assert_contains "$result" "ANDROID_BUILD_PASS=false"
 }
 
 # ===================================================================
@@ -192,6 +196,7 @@ test-cross-browser|success|completed'
   result=$(check_ci_status "abc123" "testowner/testrepo")
   assert_contains "$result" "TESTS_PASS=false"
   assert_contains "$result" "E2E_PASS=false"
+  assert_contains "$result" "ANDROID_BUILD_PASS=false"
 }
 
 @test "check_ci_status handles empty check runs (gh api failure)" {
@@ -200,6 +205,7 @@ test-cross-browser|success|completed'
   result=$(check_ci_status "abc123" "testowner/testrepo")
   assert_contains "$result" "TESTS_PASS=false"
   assert_contains "$result" "E2E_PASS=false"
+  assert_contains "$result" "ANDROID_BUILD_PASS=false"
 }
 
 # ===================================================================
