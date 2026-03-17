@@ -82,3 +82,25 @@ jobs:
             -f fix_enabled="true" \
             -f max_attempts="3" \
             -f fix_context="CI failed on PR #${PR_NUM}. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}"
+
+  pipeline-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Install pipeline dependencies
+        working-directory: pipeline
+        run: pnpm install --frozen-lockfile
+
+      - name: Pipeline type check
+        working-directory: pipeline
+        run: pnpm typecheck
+
+      - name: Pipeline tests (unit + integration)
+        working-directory: pipeline
+        run: pnpm test
