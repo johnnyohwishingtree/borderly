@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, ScrollView } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '../../components/ui';
@@ -120,6 +120,7 @@ export default function LegFormScreen() {
         </View>
       </View>
 
+      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       {/* Error Messages */}
       <View className="px-4">
         <ErrorMessage
@@ -208,6 +209,7 @@ export default function LegFormScreen() {
           </View>
         )}
       </View>
+    </ScrollView>
     </View>
   );
 }

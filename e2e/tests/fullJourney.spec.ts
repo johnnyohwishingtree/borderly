@@ -23,11 +23,15 @@ async function completeManualOnboarding(page: Page, passport: {
   await page.getByTestId('passport-number-input').fill(passport.number);
   await page.getByTestId('surname-input').fill(passport.surname);
   await page.getByTestId('given-names-input').fill(passport.givenNames);
-  await page.getByTestId('nationality-input').fill(passport.nationality);
+  await page.getByTestId('nationality-input-trigger').click();
+  await page.getByTestId('nationality-input-search').fill('United States');
+  await page.getByTestId('nationality-input-option-USA').click();
   await page.getByTestId('dob-input').fill(passport.dob);
   await page.getByTestId(`gender-${passport.gender}-button`).click();
   await page.getByTestId('passport-expiry-input').fill(passport.expiry);
-  await page.getByTestId('issuing-country-input').fill(passport.issuingCountry);
+  await page.getByTestId('issuing-country-input-trigger').click();
+  await page.getByTestId('issuing-country-input-search').fill('United States');
+  await page.getByTestId('issuing-country-input-option-USA').click();
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });

@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
-import { Button, Card, Input, ProgressBar, HelpHint } from '../../components/ui';
+import { Button, Card, Input, ProgressBar, HelpHint, SearchableSelect } from '../../components/ui';
+import { ALL_COUNTRIES } from '../../constants/countries';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { ContextualHelp, HelpContent } from '../../components/help';
@@ -274,20 +275,21 @@ export default function PassportScanScreen() {
             <Controller
               control={control}
               name="nationality"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Nationality"
-                  placeholder="e.g., USA, CAN, GBR"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.nationality?.message}
-                  autoCapitalize="characters"
-                  helperText="Use 3-letter country code"
-                  maxLength={3}
-                  required
-                  testID="nationality-input"
-                />
+              render={({ field: { onChange, value } }) => (
+                <View className="mb-4">
+                  <Text className="text-sm font-medium text-gray-700 mb-2">
+                    Nationality <Text className="text-red-500">*</Text>
+                  </Text>
+                  <SearchableSelect
+                    options={ALL_COUNTRIES}
+                    value={value}
+                    onValueChange={onChange}
+                    placeholder="Search nationality..."
+                    label="Nationality"
+                    error={errors.nationality?.message}
+                    testID="nationality-input"
+                  />
+                </View>
               )}
             />
 
@@ -361,20 +363,21 @@ export default function PassportScanScreen() {
             <Controller
               control={control}
               name="issuingCountry"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Issuing Country"
-                  placeholder="e.g., USA, CAN, GBR"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.issuingCountry?.message}
-                  autoCapitalize="characters"
-                  helperText="Use 3-letter country code"
-                  maxLength={3}
-                  required
-                  testID="issuing-country-input"
-                />
+              render={({ field: { onChange, value } }) => (
+                <View className="mb-4">
+                  <Text className="text-sm font-medium text-gray-700 mb-2">
+                    Issuing Country <Text className="text-red-500">*</Text>
+                  </Text>
+                  <SearchableSelect
+                    options={ALL_COUNTRIES}
+                    value={value}
+                    onValueChange={onChange}
+                    placeholder="Search issuing country..."
+                    label="Issuing Country"
+                    error={errors.issuingCountry?.message}
+                    testID="issuing-country-input"
+                  />
+                </View>
               )}
             />
           </Card>

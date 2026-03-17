@@ -64,42 +64,64 @@ tags:
     commands:
       - tapOn: "Dismiss"
 
-# Scroll past Form Summary to reach actual form fields
-- scrollUntilVisible:
-    element:
-      id: "field-departureCity"
-    direction: DOWN
+# Wait for DynamicForm to render (form wrapper is at accessible depth)
+- extendedWaitUntil:
+    visible:
+      id: "dynamic-form"
     timeout: 15000
 
-# City of Departure — the only required field without autoFillSource
+# NOTE: Form fields are beyond Maestro's XCTest hierarchy traversal depth
+# (~36 levels) in the full navigation stack. scrollUntilVisible and text
+# matching fail at this depth. We use fixed swipes to scroll, then tapOn
+# by testID once the element is in the viewport (tapOn works at any depth).
+
+# Swipe up to scroll past Form Summary to reach form fields
+- swipe:
+    start: "50%,70%"
+    end: "50%,20%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,20%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,20%"
+    duration: 400
+
+# City of Departure — tap the input field by testID
 - tapOn:
-    id: "field-departureCity"
+    id: "input-departureCity"
 - inputText: "Los Angeles"
 - swipe:
     start: "50%,40%"
     end: "50%,35%"
     duration: 200
 
-# Hotel Phone — optional but fill for completeness
-- scrollUntilVisible:
-    element:
-      id: "field-hotelPhone"
-    direction: DOWN
-    timeout: 10000
+# Scroll down to reach Hotel Phone field in Accommodation section
+- swipe:
+    start: "50%,70%"
+    end: "50%,30%"
+    duration: 400
+
+# Hotel Phone — tap by testID
 - tapOn:
-    id: "field-hotelPhone"
+    id: "input-hotelPhone"
 - inputText: "03-5322-1234"
 
 # Dismiss keyboard by tapping the return key then tapping header area
 - pressKey: Enter
 - tapOn: "Travel Form"
 
-# Save progress
-- scrollUntilVisible:
-    element:
-      id: "save-progress-button"
-    direction: DOWN
-    timeout: 10000
+# Save progress — scroll to bottom action buttons
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
 - tapOn:
     id: "save-progress-button"
 
@@ -109,10 +131,7 @@ tags:
     timeout: 10000
 - tapOn: "OK"
 
-# Mark as Ready — button is in fixed footer, no scroll needed
-- extendedWaitUntil:
-    visible: "Mark as Ready"
-    timeout: 10000
+# Mark as Ready
 - tapOn:
     id: "mark-ready-button"
 
@@ -139,12 +158,28 @@ tags:
     visible: "Travel Form"
     timeout: 10000
 
-# Form should be ready — Open Submission Guide button should be visible
-- scrollUntilVisible:
-    element:
-      id: "open-submission-guide-button"
-    direction: DOWN
-    timeout: 15000
+# Form should be ready — scroll to bottom where action buttons are
+# (scrollUntilVisible fails at hierarchy depth 36, use fixed swipes)
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
+- swipe:
+    start: "50%,70%"
+    end: "50%,10%"
+    duration: 400
 - tapOn:
     id: "open-submission-guide-button"
 
@@ -184,7 +219,7 @@ tags:
     id: "toolbar-refresh-button"
 
 # Verify step progress is visible
-- assertVisible: "Step 1 of 6"
+- assertVisible: "Step 1 of 7"
 
 # Wait for portal to load — either the WebView loads content
 # or we get the auth banner (VJW requires login), or a load error

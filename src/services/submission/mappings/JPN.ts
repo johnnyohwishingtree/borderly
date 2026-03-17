@@ -57,12 +57,45 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
       config: { from: 'YYYY-MM-DD', to: 'YYYY/MM/DD' },
     },
   },
+  passportExpiry: {
+    fieldId: 'passportExpiry',
+    selector:
+      'input[name="passportExpiry"], input[name="expiryDate"], input[name="passport_expiry"], input[id="passport_expiry"]',
+    inputType: 'date',
+    transform: {
+      type: 'date_format',
+      config: { from: 'YYYY-MM-DD', to: 'YYYY/MM/DD' },
+    },
+  },
   gender: {
     fieldId: 'gender',
     // VJW uses "sex" with values "M"/"F"; also check for "gender"
     selector:
       'select[name="sex"], select[name="gender"], input[name="sex"], input[id="sex"]',
     inputType: 'select',
+  },
+  // Basic Information
+  occupation: {
+    fieldId: 'occupation',
+    selector:
+      'input[name="occupation"], input[name="job"], select[name="occupation"], input[id="occupation"]',
+    inputType: 'text',
+  },
+  homeCountry: {
+    fieldId: 'homeCountry',
+    selector:
+      'select[name="homeCountry"], select[name="countryOfResidence"], select[name="home_country"], select[id="home_country"]',
+    inputType: 'select',
+    transform: {
+      type: 'country_code',
+      config: { format: 'iso3_to_name' },
+    },
+  },
+  homeCity: {
+    fieldId: 'homeCity',
+    selector:
+      'input[name="homeCity"], input[name="cityOfResidence"], input[name="home_city"], input[id="home_city"]',
+    inputType: 'text',
   },
   // Step 3 — Visit Details
   arrivalDate: {

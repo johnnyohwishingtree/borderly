@@ -18,7 +18,7 @@ import * as path from 'path';
 const SCREENS_DIR = path.resolve(__dirname, '../../src/screens');
 
 // Components that must have testID when used in screen files
-const INTERACTIVE_COMPONENTS = ['Button', 'Select'];
+const INTERACTIVE_COMPONENTS = ['Button', 'Select', 'SearchableSelect'];
 
 // Screens covered by Maestro E2E flows — strictly enforced
 const E2E_COVERED_SCREENS = [

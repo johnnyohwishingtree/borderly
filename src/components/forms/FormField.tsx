@@ -1,7 +1,8 @@
 import { View, Text } from 'react-native';
-import { Input, Select, Toggle } from '../ui';
+import { Input, Select, Toggle, SearchableSelect } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
+import { ALL_COUNTRIES } from '../../constants/countries';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -33,7 +34,7 @@ export default function FormField({
       value: String(fieldValue || ''),
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
-      testID: `field-${field.id}`,
+      testID: `input-${field.id}`,
       ...(hasError && error ? { error } : {}),
     };
 
@@ -69,6 +70,24 @@ export default function FormField({
             keyboardType="default"
           />
         );
+
+      case 'searchable_select': {
+        const resolvedOptions = field.optionsSource === 'countries'
+          ? ALL_COUNTRIES
+          : field.options || [];
+        return (
+          <SearchableSelect
+            value={fieldValue as string}
+            onValueChange={handleValueChange}
+            options={resolvedOptions}
+            placeholder={`Search ${field.label}...`}
+            label={field.label}
+            disabled={baseProps.disabled}
+            testID={`searchable-select-${field.id}`}
+            {...(hasError && error ? { error } : {})}
+          />
+        );
+      }
 
       case 'select':
         if (!field.options) {
@@ -116,7 +135,7 @@ export default function FormField({
                          (field.source === 'auto' || field.source === 'user');
 
   return (
-    <View className="mb-4">
+    <View className="mb-4" testID={`field-${field.id}`}>
       {/* Field Label and Badge */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center flex-1">

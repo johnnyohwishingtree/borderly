@@ -8,6 +8,7 @@
  * creating a mapping file there and registering it in `./mappings/index.ts`.
  */
 
+import { ALL_COUNTRIES } from '@/constants/countries';
 import { AutomationScript, PortalFieldMapping } from '@/types/submission';
 import { ALL_COUNTRY_MAPPINGS } from './mappings';
 
@@ -145,21 +146,9 @@ export class AutomationScriptUtils {
     value: string,
     config: Record<string, unknown> | undefined,
   ): string {
-    const countryMap: Record<string, string> = {
-      USA: 'United States',
-      GBR: 'United Kingdom',
-      DEU: 'Germany',
-      FRA: 'France',
-      JPN: 'Japan',
-      KOR: 'South Korea',
-      CHN: 'China',
-      IND: 'India',
-      AUS: 'Australia',
-      CAN: 'Canada',
-    };
-
     if (config?.format === 'iso3_to_name') {
-      return countryMap[value] || value;
+      const entry = ALL_COUNTRIES.find((c) => c.value === value);
+      return entry ? entry.label : value;
     }
 
     return value;

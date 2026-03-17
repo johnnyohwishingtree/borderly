@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { FilledForm, updateFormData, validateFormCompletion, getCountrySpecificFields } from '../../services/forms/formEngine';
 import FormSection from './FormSection';
 import AutoFilledBadge from './AutoFilledBadge';
@@ -211,50 +211,46 @@ export default function DynamicForm({
   }
 
   return (
-    <ScrollView
-      className="flex-1 bg-gray-50"
-      showsVerticalScrollIndicator={false}
-    >
-      <View className="p-4">
-        {/* Form Header */}
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
-            {form.countryName} Declaration
-          </Text>
-          <Text className="text-gray-600">
-            {form.portalName}
-          </Text>
-        </View>
-
-        {renderFormStats()}
-        {renderValidationSummary()}
-
-        {/* Form Sections */}
-        {sectionsToRender.map(section => (
-          <FormSection
-            key={section.id}
-            section={section}
-            values={formData}
-            onValueChange={handleValueChange}
-            errors={errors}
-            collapsible={collapsibleSections}
-            defaultExpanded={true}
-            showAutoFillBadges={!showOnlyCountrySpecific}
-          />
-        ))}
-
-        {/* Validate Button (for development/testing) */}
-        {__DEV__ && (
-          <Pressable
-            onPress={validateAllFields}
-            className="mt-4 p-3 bg-blue-500 rounded-lg"
-          >
-            <Text className="text-white text-center font-medium">
-              Validate All Fields
-            </Text>
-          </Pressable>
-        )}
+    <View className="bg-gray-50 p-4" testID="dynamic-form">
+      {/* Form Header */}
+      <View className="mb-6">
+        <Text className="text-2xl font-bold text-gray-900 mb-2">
+          {form.countryName} Declaration
+        </Text>
+        <Text className="text-gray-600">
+          {form.portalName}
+        </Text>
       </View>
-    </ScrollView>
+
+      {renderFormStats()}
+      {renderValidationSummary()}
+
+      {/* Form Sections */}
+      {sectionsToRender.map(section => (
+        <FormSection
+          key={section.id}
+          section={section}
+          values={formData}
+          onValueChange={handleValueChange}
+          errors={errors}
+          collapsible={collapsibleSections}
+          defaultExpanded={true}
+          showAutoFillBadges={!showOnlyCountrySpecific}
+        />
+      ))}
+
+      {/* Validate Button (for development/testing) */}
+      {__DEV__ && (
+        <Pressable
+          onPress={validateAllFields}
+          className="mt-4 p-3 bg-blue-500 rounded-lg"
+          testID="validate-all-button"
+        >
+          <Text className="text-white text-center font-medium">
+            Validate All Fields
+          </Text>
+        </Pressable>
+      )}
+    </View>
   );
 }

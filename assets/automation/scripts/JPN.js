@@ -75,12 +75,42 @@
         label: 'Passport Number',
         nearbyText: 'Passport No'
       },
+      passportExpiry: {
+        selector: '[name="passportExpiry"], [name="expiryDate"], #passportExpiry, #expiryDate',
+        id: 'passportExpiry',
+        name: 'passportExpiry',
+        label: 'Date of Expiry',
+        nearbyText: 'Expiry'
+      },
       gender: {
         selector: '[name="sex"], [name="gender"], #sex, #gender',
         id: 'sex',
         name: 'sex',
         label: 'Sex',
         nearbyText: 'Gender'
+      },
+
+      // ── Basic Information ─────────────────────────────────────────────────
+      occupation: {
+        selector: '[name="occupation"], [name="job"], #occupation',
+        id: 'occupation',
+        name: 'occupation',
+        label: 'Occupation',
+        nearbyText: 'Occupation'
+      },
+      homeCountry: {
+        selector: '[name="homeCountry"], [name="countryOfResidence"], #homeCountry',
+        id: 'homeCountry',
+        name: 'homeCountry',
+        label: 'Home address: Country name',
+        nearbyText: 'Country'
+      },
+      homeCity: {
+        selector: '[name="homeCity"], [name="cityOfResidence"], #homeCity',
+        id: 'homeCity',
+        name: 'homeCity',
+        label: 'Home address: City name',
+        nearbyText: 'City'
       },
 
       // ── Travel Information ────────────────────────────────────────────────

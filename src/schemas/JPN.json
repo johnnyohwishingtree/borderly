@@ -50,50 +50,101 @@
   },
   "sections": [
     {
-      "id": "personal",
-      "title": "Personal Information",
+      "id": "passport",
+      "title": "Passport Details",
       "fields": [
         {
+          "id": "passportNumber",
+          "label": "Passport number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "helpText": "Check that the passport number is correct. E.g.: AB1234567",
+          "portalFieldName": "Passport number"
+        },
+        {
           "id": "surname",
-          "label": "Surname (as on passport)",
+          "label": "Surname",
           "type": "text",
           "required": true,
           "autoFillSource": "profile.surname",
           "countrySpecific": false,
-          "portalFieldName": "Last Name"
+          "helpText": "E.g.: DIGITAL",
+          "portalFieldName": "Surname"
         },
         {
           "id": "givenNames",
-          "label": "Given Names (as on passport)",
+          "label": "Given name",
           "type": "text",
           "required": true,
           "autoFillSource": "profile.givenNames",
           "countrySpecific": false,
-          "portalFieldName": "First Name / Middle Name"
-        },
-        {
-          "id": "dateOfBirth",
-          "label": "Date of Birth",
-          "type": "date",
-          "required": true,
-          "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false
+          "helpText": "E.g.: HANAKO",
+          "portalFieldName": "Given name"
         },
         {
           "id": "nationality",
-          "label": "Nationality",
-          "type": "text",
+          "label": "Nationality or citizenship",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "portalFieldName": "Nationality or citizenship",
+          "optionsSource": "countries"
         },
         {
-          "id": "passportNumber",
-          "label": "Passport Number",
-          "type": "text",
+          "id": "dateOfBirth",
+          "label": "Date of birth",
+          "type": "date",
           "required": true,
-          "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "portalFieldName": "Date of birth"
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Date of expiry",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "portalFieldName": "Date of expiry"
+        }
+      ]
+    },
+    {
+      "id": "basic_info",
+      "title": "Basic Information",
+      "fields": [
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": false,
+          "portalFieldName": "Occupation"
+        },
+        {
+          "id": "homeCountry",
+          "label": "Home address: Country name",
+          "type": "searchable_select",
+          "required": false,
+          "autoFillSource": "profile.homeAddress.country",
+          "countrySpecific": false,
+          "helpText": "E.g.: USA",
+          "portalFieldName": "Home address: Country name",
+          "optionsSource": "countries"
+        },
+        {
+          "id": "homeCity",
+          "label": "Home address: City name",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.homeAddress.city",
+          "countrySpecific": false,
+          "portalFieldName": "Home address: City name"
         },
         {
           "id": "gender",
@@ -270,16 +321,27 @@
     },
     {
       "order": 2,
-      "title": "Register Your Details",
+      "title": "Register Your Passport Details",
       "description": "Enter your passport information. The portal will ask you to scan your passport or enter details manually.",
-      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "gender"],
+      "fieldsOnThisScreen": ["passportNumber", "surname", "givenNames", "nationality", "dateOfBirth", "passportExpiry"],
       "tips": [
         "Use EXACTLY the name shown on your passport",
+        "You can scan your passport to register your photo for Tax-free QR Code",
         "You only need to enter this once per passport"
       ]
     },
     {
       "order": 3,
+      "title": "Enter Basic Information",
+      "description": "Provide your occupation and home address. This information makes entry easier in subsequent procedures.",
+      "fieldsOnThisScreen": ["occupation", "homeCountry", "homeCity"],
+      "tips": [
+        "Registration is optional but makes entry easier",
+        "Use the dropdown search to find your country"
+      ]
+    },
+    {
+      "order": 4,
       "title": "Register Your Trip",
       "description": "Click 'Register new planned entry/return' and enter your travel details.",
       "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "durationOfStay"],
@@ -289,7 +351,7 @@
       ]
     },
     {
-      "order": 4,
+      "order": 5,
       "title": "Enter Accommodation",
       "description": "Provide your hotel or accommodation details in Japan.",
       "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
@@ -299,7 +361,7 @@
       ]
     },
     {
-      "order": 5,
+      "order": 6,
       "title": "Complete Immigration & Customs Declaration",
       "description": "Answer the customs declaration questions. For most tourists, the answer to all questions is 'No'.",
       "fieldsOnThisScreen": ["carryingProhibitedItems", "currencyOver1M", "commercialGoods", "meatProducts", "plantProducts", "itemsToDeclareDuty"],
@@ -310,7 +372,7 @@
       ]
     },
     {
-      "order": 6,
+      "order": 7,
       "title": "Get Your QR Code",
       "description": "After completing all sections, your QR code will be generated. Save it to this app's QR wallet or take a screenshot.",
       "fieldsOnThisScreen": [],

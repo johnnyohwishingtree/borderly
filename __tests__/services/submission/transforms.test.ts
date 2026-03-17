@@ -175,7 +175,7 @@ describe('Transform: country_code', () => {
       ['DEU', 'Germany'],
       ['FRA', 'France'],
       ['JPN', 'Japan'],
-      ['KOR', 'South Korea'],
+      ['KOR', 'Korea (South)'],
       ['CHN', 'China'],
       ['IND', 'India'],
       ['AUS', 'Australia'],
