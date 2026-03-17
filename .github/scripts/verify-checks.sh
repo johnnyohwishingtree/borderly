@@ -196,12 +196,31 @@ check_bundle() {
     --bundle-output /tmp/bundle.js 2>&1) || true
 
   if echo "$bundle_out" | grep -qiE "error|unable to resolve"; then
-    _progress "Metro Bundle FAILED"
+    _progress "Metro Bundle (iOS) FAILED"
     local errors
     errors=$(echo "$bundle_out" | grep -iE "error|unable to resolve" | head -5)
-    _record_failure "bundle" "$errors" "BUNDLE ERRORS"
+    _record_failure "bundle" "$errors" "BUNDLE ERRORS (iOS)"
+    return
   else
-    _progress "Metro Bundle passed"
+    _progress "Metro Bundle (iOS) passed"
+  fi
+
+  # Android bundle check
+  _progress "=== Metro Bundle (Android) ==="
+  local android_bundle_out
+  android_bundle_out=$(npx react-native bundle \
+    --platform android \
+    --dev false \
+    --entry-file index.js \
+    --bundle-output /tmp/android-bundle.js 2>&1) || true
+
+  if echo "$android_bundle_out" | grep -qiE "error|unable to resolve"; then
+    _progress "Metro Bundle (Android) FAILED"
+    local android_errors
+    android_errors=$(echo "$android_bundle_out" | grep -iE "error|unable to resolve" | head -5)
+    _record_failure "bundle-android" "$android_errors" "BUNDLE ERRORS (Android)"
+  else
+    _progress "Metro Bundle (Android) passed"
   fi
 }
 

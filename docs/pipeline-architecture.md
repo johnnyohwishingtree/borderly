@@ -25,6 +25,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master / manual | iOS build |
+| `build-android.yml` | Push to master / PR / manual | Android debug build + lint |
 | `release.yml` | Tag push / manual | Release workflow |
 
 ---
@@ -50,7 +51,7 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 | Action | Purpose | Used By |
 |--------|---------|---------|
 | `setup-auth` | Git remote URL auth + user identity | claude, review-fix, resolve-conflicts, verify-and-fix, pipeline-doctor |
-| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-and-fix, review-fix, test, build-ios, e2e-smoke, claude, daily-planner |
+| `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-and-fix, review-fix, test, build-ios, build-android, e2e-smoke, claude, daily-planner |
 | `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-and-fix |
 
 ---
@@ -150,13 +151,14 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |   Triggers: workflow_run, pull_request_review,                      |
 |             pull_request (synchronize), workflow_dispatch            |
 |                                                                     |
-|   Merges only when ALL 6 conditions are met:                        |
+|   Merges only when ALL 7 conditions are met:                        |
 |     1. Tests workflow passed                                        |
 |     2. E2E passed (all 3 jobs: chromium, performance, cross-browser)|
-|     3. PR has at least one approval                                 |
-|     4. No unresolved review threads                                 |
-|     5. No active review-fix runs                                    |
-|     6. Branch up to date with master                                |
+|     3. Android build passed                                         |
+|     4. PR has at least one approval                                 |
+|     5. No unresolved review threads                                 |
+|     6. No active review-fix runs                                    |
+|     7. Branch up to date with master                                |
 |                                                                     |
 |   If branch behind → merge master into PR branch → re-evaluate     |
 +----------------------------+----------------------------------------+

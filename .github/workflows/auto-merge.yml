@@ -4,13 +4,14 @@ name: Auto Merge
 # Only merges when ALL conditions are met:
 #   1. Tests workflow passed
 #   2. E2E Smoke Tests passed (all 3 jobs)
-#   3. PR has at least one approval
-#   4. No unresolved review threads
+#   3. Android build passed
+#   4. PR has at least one approval
+#   5. No unresolved review threads
 
 on:
   # Re-evaluate when CI completes
   workflow_run:
-    workflows: ["Tests", "E2E Smoke Tests"]
+    workflows: ["Tests", "E2E Smoke Tests", "Build Android"]
     types: [completed]
 
   # Re-evaluate when a review is submitted

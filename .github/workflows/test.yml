@@ -29,7 +29,7 @@ jobs:
       - name: Type check
         run: pnpm typecheck
 
-      - name: Metro bundle check
+      - name: Metro bundle check (iOS)
         run: |
           npx react-native bundle \
             --platform ios \
@@ -37,6 +37,16 @@ jobs:
             --entry-file index.js \
             --bundle-output /tmp/ios-bundle.js \
             --assets-dest /tmp/ios-assets 2>&1 | tee /tmp/bundle_output.txt
+          exit ${PIPESTATUS[0]}
+
+      - name: Metro bundle check (Android)
+        run: |
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output /tmp/android-bundle.js \
+            --assets-dest /tmp/android-assets 2>&1 | tee /tmp/android_bundle_output.txt
           exit ${PIPESTATUS[0]}
 
       - name: Run tests
