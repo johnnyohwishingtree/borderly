@@ -786,6 +786,65 @@ sys.exit(0)
   fi
 }
 
+# Bug: ensure-review only dispatched auto-merge when formal reviews existed but
+# no approval — but auto-merge requires approval, so the PR stalled forever.
+# After review-fix resolves threads and CI passes, ensure-review must check if
+# all threads are resolved and approve directly (not just dispatch auto-merge).
+# Regression: The ensure-review step must check unresolved threads and have an
+# "approve" action path, not just "dispatch-auto-merge".
+@test "regression: ensure-review approves when formal reviews exist and all threads resolved" {
+  local wf="$SCRIPTS_DIR/../workflows/review-guardian.yml"
+  [ -f "$wf" ] || skip "review-guardian.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+jobs = data.get('jobs', {})
+ensure = jobs.get('ensure-review', {})
+steps = ensure.get('steps', [])
+
+has_unresolved_check = False
+has_approve_action = False
+
+for step in steps:
+    run_text = str(step.get('run', ''))
+    if 'count_unresolved_threads' in run_text and 'ANY_REVIEWS' in run_text:
+        has_unresolved_check = True
+    if 'action=approve' in run_text:
+        has_approve_action = True
+
+# Also check there's a step that acts on action==approve
+has_approve_step = any(
+    'approve' in str(s.get('if', '')) and 'approve_and_merge' in str(s.get('run', ''))
+    for s in steps
+)
+
+if has_unresolved_check and has_approve_action and has_approve_step:
+    print('ok')
+else:
+    missing = []
+    if not has_unresolved_check:
+        missing.append('count_unresolved_threads check in ensure-review')
+    if not has_approve_action:
+        missing.append('action=approve output')
+    if not has_approve_step:
+        missing.append('approve_and_merge step for action==approve')
+    print('missing: ' + ', '.join(missing))
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: ensure-review does not self-heal after review-fix resolves threads"
+    echo "When formal reviews exist, no approval, and all threads resolved, ensure-review"
+    echo "must approve the PR directly instead of just dispatching auto-merge."
+    echo "Detail: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""

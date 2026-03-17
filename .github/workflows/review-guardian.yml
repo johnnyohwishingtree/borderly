@@ -294,10 +294,20 @@ jobs:
             # A formal review exists but no approval yet.
             # request-approval was already triggered by the pull_request_review event.
             # It either approved (and we'd have caught it above) or deferred (review-fix
-            # active, critical badges found). Don't duplicate its logic — just dispatch
-            # auto-merge in case it's waiting on CI.
-            echo "PR #$PR_NUM has formal review(s) but no approval — dispatching auto-merge to re-evaluate"
-            echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
+            # active, critical badges found).
+            #
+            # Self-healing: if review-fix already resolved all threads and CI passed,
+            # request-approval won't re-fire (it only triggers on pull_request_review).
+            # We must re-evaluate and approve here to close the loop.
+            UNRESOLVED=$(count_unresolved_threads "$PR_NUM" "$REPO")
+
+            if [ "$UNRESOLVED" -eq 0 ]; then
+              echo "PR #$PR_NUM has formal review(s), no approval, but ALL threads resolved — approving now"
+              echo "action=approve" >> $GITHUB_OUTPUT
+            else
+              echo "PR #$PR_NUM has $UNRESOLVED unresolved threads — dispatching auto-merge to wait"
+              echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
+            fi
             exit 0
           fi
 
@@ -317,6 +327,17 @@ jobs:
           echo "No formal reviews found. Requesting Claude fallback review."
           echo "action=request-review" >> $GITHUB_OUTPUT
         id: check
+
+      - name: Approve PR (all threads resolved after review-fix)
+        if: steps.check.outputs.action == 'approve'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ steps.check.outputs.pr_num }}
+          echo "All review threads resolved on PR #$PR_NUM — approving"
+          approve_and_merge "$PR_NUM" "Auto-approved: all review threads resolved after fixes landed and CI passed." "$REPO"
 
       - name: Dispatch auto-merge for re-evaluation
         if: steps.check.outputs.action == 'dispatch-auto-merge'
