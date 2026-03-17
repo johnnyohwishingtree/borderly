@@ -293,7 +293,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix instead of @claude PR comments (which have restricted tools) |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
-| Event-driven approval | ensure-review never auto-approves; approval flows through review event hooks only |
+| Event-driven approval | ensure-review checks thread resolution after CI passes; approves directly when all threads resolved (self-healing after review-fix) |
 | Merge conflict resolution | `resolve-conflicts.yml` auto-resolves on push to master |
 | Branch behind detection | Auto-merge merges master into PR branch when behind |
 | Watcher race prevention | Checks active/queued workflows before retriggering |

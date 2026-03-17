@@ -508,6 +508,26 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     }
   });
 
+  test('loading indicator resolves after portal navigation (no infinite spinner)', async ({ page }) => {
+    // Regression: on Vercel, the Japan portal iframe could stall indefinitely,
+    // causing the loading indicator to spin forever. The WebView mock now has
+    // a load timeout that fires onError if the iframe never fires onLoad.
+    //
+    // This test navigates to the portal and verifies the loading state
+    // resolves — either the page loads or an error is shown.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    await expect(screen).toBeVisible({ timeout: 10000 });
+
+    // Within 12 seconds (covers the 8-second mock timeout + buffer),
+    // the loading indicator must disappear. Either:
+    // - The iframe loaded successfully (indicator hidden, content visible)
+    // - The mock timeout fired onError (indicator hidden, error shown)
+    const loadingIndicator = page.locator('[data-testid="portal-loading-indicator"]');
+    await expect(loadingIndicator).not.toBeVisible({ timeout: 12000 });
+  });
+
   test('all new auto-login banner testIDs are in the component bundle', async ({ page }) => {
     // Smoke test: verify PortalSubmissionScreen renders without crashing after
     // the auto-login integration. If any new imports fail to resolve (e.g.
