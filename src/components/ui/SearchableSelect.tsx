@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, Modal, FlatList, TextInput } from 'react-native';
+import { View, Text, Pressable, FlatList, TextInput, StyleSheet } from 'react-native';
 
 export interface SearchableSelectProps {
   options: { value: string; label: string }[];
@@ -41,88 +41,100 @@ export default function SearchableSelect({
 
   return (
     <View testID={testID}>
+      {/* Trigger button */}
       <Pressable
         className={`border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center ${
           error ? 'border-red-500 bg-red-50/30' : 'border-gray-200 bg-white'
         } ${disabled ? 'bg-gray-100 opacity-60' : ''}`}
-        onPress={() => !disabled && setIsOpen(true)}
+        onPress={() => {
+          if (!disabled) {
+            setIsOpen(!isOpen);
+            if (isOpen) setSearch('');
+          }
+        }}
         disabled={disabled}
         accessible={true}
         accessibilityRole="button"
         accessibilityLabel={`${label || placeholder}. ${selectedOption ? `Selected: ${selectedOption.label}` : 'No selection'}`}
         accessibilityHint="Tap to search and select"
+        testID={testID ? `${testID}-trigger` : undefined}
       >
         <Text className={`text-base ${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
           {selectedOption?.label || placeholder}
         </Text>
-        <Text className="text-gray-400 text-lg">▼</Text>
+        <Text className="text-gray-400 text-lg">{isOpen ? '▲' : '▼'}</Text>
       </Pressable>
 
-      {error && (
+      {error && !isOpen && (
         <Text className="text-sm mt-2 font-medium text-red-600">{error}</Text>
       )}
 
-      <Modal
-        visible={isOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => { setIsOpen(false); setSearch(''); }}
-        accessibilityViewIsModal={true}
-      >
-        <Pressable
-          className="flex-1 bg-black/50 justify-center items-center"
-          onPress={() => { setIsOpen(false); setSearch(''); }}
-        >
-          <View
-            className="bg-white rounded-2xl mx-4 max-h-96 w-full max-w-sm shadow-2xl"
-            onStartShouldSetResponder={() => true}
-          >
-            <View className="p-4 border-b border-gray-100">
-              <Text className="text-lg font-semibold text-gray-900 mb-3">
-                {label || 'Select an option'}
-              </Text>
-              <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-2 text-base"
-                placeholder="Type to filter..."
-                value={search}
-                onChangeText={setSearch}
-                autoFocus
-                testID={testID ? `${testID}-search` : undefined}
-              />
-            </View>
-
-            <FlatList
-              data={filtered}
-              keyExtractor={item => item.value}
-              renderItem={({ item }) => {
-                const isSelected = item.value === value;
-                return (
-                  <Pressable
-                    className={`p-4 border-b border-gray-100 ${isSelected ? 'bg-blue-50' : ''}`}
-                    onPress={() => handleSelect(item.value)}
-                    testID={testID ? `${testID}-option-${item.value}` : undefined}
-                    accessible={true}
-                    accessibilityRole="button"
-                    accessibilityLabel={item.label}
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Text className={`text-base ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-900'}`}>
-                      {item.label}
-                      {isSelected && ' ✓'}
-                    </Text>
-                  </Pressable>
-                );
-              }}
-              style={{ maxHeight: 280 }}
-              ListEmptyComponent={
-                <View className="p-4">
-                  <Text className="text-gray-500 text-center">No results for "{search}"</Text>
-                </View>
-              }
+      {/* Inline dropdown panel — renders below trigger, no Modal or absolute positioning */}
+      {isOpen && (
+        <View style={styles.dropdown} testID={testID ? `${testID}-panel` : undefined}>
+          <View className="p-3 border-b border-gray-100">
+            <TextInput
+              className="border border-gray-300 rounded-lg px-3 py-2 text-base"
+              placeholder="Type to filter..."
+              value={search}
+              onChangeText={setSearch}
+              autoFocus
+              testID={testID ? `${testID}-search` : undefined}
             />
           </View>
-        </Pressable>
-      </Modal>
+
+          <FlatList
+            data={filtered}
+            keyExtractor={item => item.value}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }) => {
+              const isSelected = item.value === value;
+              return (
+                <Pressable
+                  className={`p-3 border-b border-gray-100 ${isSelected ? 'bg-blue-50' : ''}`}
+                  onPress={() => handleSelect(item.value)}
+                  testID={testID ? `${testID}-option-${item.value}` : undefined}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.label}
+                  accessibilityState={{ selected: isSelected }}
+                >
+                  <Text className={`text-base ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-900'}`}>
+                    {item.label}
+                    {isSelected && ' ✓'}
+                  </Text>
+                </Pressable>
+              );
+            }}
+            style={styles.list}
+            ListEmptyComponent={
+              <View className="p-4">
+                <Text className="text-gray-500 text-center">No results for &quot;{search}&quot;</Text>
+              </View>
+            }
+          />
+        </View>
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  dropdown: {
+    marginTop: 4,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    maxHeight: 280,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  list: {
+    maxHeight: 220,
+  },
+});

@@ -64,16 +64,18 @@ tags:
     commands:
       - tapOn: "Dismiss"
 
-# Scroll past Form Summary to reach actual form fields
+# Scroll past Form Summary to reach the City of Departure field
+# DynamicForm no longer has its own ScrollView, reducing hierarchy depth
+# so testIDs on form fields are reachable by Maestro.
 - scrollUntilVisible:
     element:
-      id: "field-departureCity"
+      id: "input-departureCity"
     direction: DOWN
     timeout: 15000
 
 # City of Departure — the only required field without autoFillSource
 - tapOn:
-    id: "field-departureCity"
+    id: "input-departureCity"
 - inputText: "Los Angeles"
 - swipe:
     start: "50%,40%"
@@ -83,11 +85,11 @@ tags:
 # Hotel Phone — optional but fill for completeness
 - scrollUntilVisible:
     element:
-      id: "field-hotelPhone"
+      id: "input-hotelPhone"
     direction: DOWN
     timeout: 10000
 - tapOn:
-    id: "field-hotelPhone"
+    id: "input-hotelPhone"
 - inputText: "03-5322-1234"
 
 # Dismiss keyboard by tapping the return key then tapping header area

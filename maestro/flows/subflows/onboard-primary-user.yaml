@@ -103,8 +103,8 @@ appId: com.borderly.app
     direction: DOWN
     timeout: 5000
 - tapOn:
-    id: "nationality-input"
-# Modal opens — type in the search field to filter
+    id: "nationality-input-trigger"
+# Dropdown opens — type in search field to filter
 - extendedWaitUntil:
     visible:
       id: "nationality-input-search"
@@ -112,7 +112,9 @@ appId: com.borderly.app
 - tapOn:
     id: "nationality-input-search"
 - inputText: "United States"
-# Tap the matching option
+# Dismiss keyboard first so the option is tappable
+- pressKey: Enter
+# Now tap the matching option
 - tapOn:
     id: "nationality-input-option-USA"
 
@@ -159,9 +161,14 @@ appId: com.borderly.app
       id: "issuing-country-input"
     direction: DOWN
     timeout: 5000
+# Scroll extra so the dropdown options won't be clipped below screen edge
+- swipe:
+    start: "50%,60%"
+    end: "50%,30%"
+    duration: 300
 - tapOn:
-    id: "issuing-country-input"
-# Modal opens — type in the search field to filter
+    id: "issuing-country-input-trigger"
+# Dropdown opens — type in search field to filter
 - extendedWaitUntil:
     visible:
       id: "issuing-country-input-search"
@@ -169,7 +176,14 @@ appId: com.borderly.app
 - tapOn:
     id: "issuing-country-input-search"
 - inputText: "United States"
-# Tap the matching option
+# Dismiss keyboard first so the option is tappable
+- pressKey: Enter
+# Scroll to reveal option if below screen edge
+- swipe:
+    start: "50%,70%"
+    end: "50%,50%"
+    duration: 200
+# Now tap the matching option
 - tapOn:
     id: "issuing-country-input-option-USA"
 
