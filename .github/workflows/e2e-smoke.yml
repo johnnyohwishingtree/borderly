@@ -114,9 +114,11 @@ jobs:
       BASH_ENV: .github/scripts/lib.sh
     steps:
       - uses: actions/checkout@v4
-      - name: Dispatch verify-and-fix on failure
+      - name: Send verify-and-fix event to Inngest on failure
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+          INNGEST_API_URL: ${{ vars.INNGEST_API_URL || 'https://inn.gs/e' }}
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           BRANCH="${{ github.head_ref }}"
@@ -126,16 +128,40 @@ jobs:
             exit 0
           fi
 
+          if [ -z "$INNGEST_EVENT_KEY" ]; then
+            echo "::warning::INNGEST_EVENT_KEY not set — skipping Inngest event"
+            exit 0
+          fi
+
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           FAILED_JOBS=$(gh run view ${{ github.run_id }} --json jobs \
             -q '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
 
-          comment_on_issue "$PR_NUM" "E2E smoke tests failed (${FAILED_JOBS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
+          comment_on_issue "$PR_NUM" "E2E smoke tests failed (${FAILED_JOBS}). Sending to Inngest verify-and-fix. [View run]($RUN_URL)"
 
-          dispatch_workflow "verify-and-fix.yml" \
-            -f branch="$BRANCH" \
-            -f issue_number="$PR_NUM" \
-            -f checks="e2e" \
-            -f fix_enabled="true" \
-            -f max_attempts="3" \
-            -f fix_context="E2E smoke tests failed on PR #${PR_NUM}. Failed jobs: ${FAILED_JOBS}. Run: ${RUN_URL}. Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js."
+          PAYLOAD=$(jq -n \
+            --arg name "pipeline/verify.requested" \
+            --arg branch "$BRANCH" \
+            --arg workBranch "" \
+            --argjson issueNumber "$PR_NUM" \
+            --arg checks "e2e" \
+            --argjson fixEnabled true \
+            --argjson maxAttempts 3 \
+            --argjson attempt 1 \
+            --arg mergeInto "" \
+            --argjson createPr false \
+            --arg fixContext "E2E smoke tests failed on PR #${PR_NUM}. Failed jobs: ${FAILED_JOBS}. Run: ${RUN_URL}. Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js." \
+            --arg repo "${{ github.repository }}" \
+            '{name: $name, data: {branch: $branch, workBranch: $workBranch, issueNumber: $issueNumber, checks: $checks, fixEnabled: $fixEnabled, maxAttempts: $maxAttempts, attempt: $attempt, mergeInto: $mergeInto, createPr: $createPr, fixContext: $fixContext, repo: $repo}}')
+
+          HTTP_CODE=$(curl -s -o /tmp/inngest_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Sent pipeline/verify.requested to Inngest (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Inngest event send failed with HTTP $HTTP_CODE"
+            cat /tmp/inngest_response.txt
+          fi

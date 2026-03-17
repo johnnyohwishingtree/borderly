@@ -67,7 +67,7 @@ test-performance|success|completed
 test-cross-browser|success|completed'
   mock_gh_response "reviews" "1"
   mock_gh_response "graphql" "0"
-  mock_gh_response "review-fix.yml" "0"
+
   mock_gh_response "mergeStateStatus" "CLEAN"
 }
 
@@ -82,7 +82,7 @@ test-performance|success|completed
 test-cross-browser|success|completed'
   mock_gh_response "reviews" "1"
   mock_gh_response "graphql" "3"
-  mock_gh_response "review-fix.yml" "0"
+
   mock_gh_response "mergeStateStatus" "CLEAN"
 
   result=$("$SCRIPTS_DIR/evaluate-merge-gate.sh" 42 2>/dev/null)
@@ -108,7 +108,7 @@ test-performance|success|completed
 test-cross-browser|success|completed'
   mock_gh_response "reviews" "1"
   mock_gh_response "graphql" "0"
-  mock_gh_response "review-fix.yml" "0"
+
   mock_gh_response "mergeStateStatus" "BEHIND"
 
   result=$("$SCRIPTS_DIR/evaluate-merge-gate.sh" 42 2>/dev/null)

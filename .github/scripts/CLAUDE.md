@@ -30,7 +30,7 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | `gh issue comment N --repo ... --body "..."` | `comment_on_issue N "body"` |
 | `gh run list --workflow X --status in_progress ...` | `is_workflow_active "X.yml" N "$REPO"` |
 | `gh api "repos/.../pulls/N/comments" -q '..critical..'` | `count_critical_comments N "$REPO"` |
-| `gh pr review --approve` + `dispatch_workflow "auto-merge.yml"` | `approve_and_merge N "body"` |
+| `gh pr review --approve` | `approve_and_merge N "body"` |
 | `gh issue list --label story --label pending ...` | `get_next_pending_story "$EPIC_LABEL"` |
 | `comment_on_issue N "@claude Implement this story..."` | `trigger_story_agent N "claude" "(suffix)"` |
 

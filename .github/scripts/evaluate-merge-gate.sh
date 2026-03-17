@@ -127,23 +127,10 @@ check_threads_resolved() {
 }
 
 # ── Condition 5: No active review-fix runs ──
-# Returns "true" if no review-fix.yml runs are in_progress or queued for this PR.
+# Review fixes are now handled by Inngest review-fix function.
+# This check always passes since review-fix.yml was removed.
 check_no_active_review_fix() {
-  local pr_number="$1"
-  local active_runs
-
-  active_runs=$(gh run list --repo "$REPO" --workflow review-fix.yml \
-    --json status,displayTitle \
-    -q "[.[] | select(.status == \"in_progress\" or .status == \"queued\") | select(.displayTitle | contains(\"PR #${pr_number}\"))] | length" \
-    2>/dev/null)
-
-  # Fail-safe: if the gh command fails or returns non-numeric output,
-  # assume a fix is active to prevent an incorrect merge.
-  if [[ "$active_runs" =~ ^[0-9]+$ ]] && [ "$active_runs" -eq 0 ]; then
-    echo "true"
-  else
-    echo "false"
-  fi
+  echo "true"
 }
 
 # ── Condition 6: Branch up to date ──

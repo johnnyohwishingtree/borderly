@@ -32,8 +32,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
   mock_gh_response "graphql" "0"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "CLEAN"
 }
@@ -79,8 +78,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
   mock_gh_response "graphql" "0"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "CLEAN"
 
@@ -108,8 +106,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
   mock_gh_response "graphql" "0"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "CLEAN"
 
@@ -138,8 +135,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "0"
   # graphql (unresolved threads = 0)
   mock_gh_response "graphql" "0"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "CLEAN"
 
@@ -168,8 +164,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "1"
   # graphql (2 unresolved threads)
   mock_gh_response "graphql" "2"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "CLEAN"
 
@@ -198,8 +193,7 @@ build-android|success|completed'
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
   mock_gh_response "graphql" "0"
-  # review-fix.yml runs (none active)
-  mock_gh_response "review-fix.yml" "0"
+
   # mergeStateStatus
   mock_gh_response "mergeStateStatus" "BEHIND"
 
@@ -309,32 +303,14 @@ test-cross-browser|success|completed'
   [ "$result" = "false" ]
 }
 
-# ── Test: Active review-fix blocks merge ──
+# ── Test: review-fix check always passes (handled by Inngest now) ──
 
-@test "active review-fix run returns action wait" {
-  # All conditions pass EXCEPT review-fix is active
-  mock_gh_response "baseRefName" "master"
-  mock_gh_response "headRefOid" "abc123"
-  mock_gh_response "check-runs" 'test|success|completed
-test-chromium|success|completed
-test-performance|success|completed
-test-cross-browser|success|completed'
-  mock_gh_response "reviews" "1"
-  mock_gh_response "graphql" "0"
-  # review-fix.yml has 1 active run
-  mock_gh_response "review-fix.yml" "1"
-  mock_gh_response "mergeStateStatus" "CLEAN"
+@test "no_active_fix always returns true since review-fix.yml was removed" {
+  mock_all_pass
 
   result=$("$SCRIPTS_DIR/evaluate-merge-gate.sh" 42 2>/dev/null)
 
-  assert_json "$result" ".action" "wait"
-  assert_json "$result" ".ready" "false"
-  assert_json "$result" ".conditions.no_active_fix" "false"
-  # All other conditions should still be true
-  assert_json "$result" ".conditions.tests_pass" "true"
-  assert_json "$result" ".conditions.e2e_pass" "true"
-  assert_json "$result" ".conditions.approved" "true"
-  assert_json "$result" ".conditions.threads_resolved" "true"
+  assert_json "$result" ".conditions.no_active_fix" "true"
 }
 
 # ── Test: Android build failing -> action is "wait" ──

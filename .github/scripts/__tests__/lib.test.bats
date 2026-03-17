@@ -636,27 +636,15 @@ SCRIPT
 # approve_and_merge
 # ===================================================================
 
-@test "approve_and_merge approves PR and dispatches auto-merge" {
-  # Mock both the approval and the dispatch
+@test "approve_and_merge approves PR" {
   mock_gh_response "pr review" "approved"
-  mock_gh_response "workflow run" "dispatched"
-  export GH_PAT="fake-pat"
 
   run approve_and_merge 42 "Auto-approved: looks good."
   [ "$status" -eq 0 ]
 }
 
-@test "approve_and_merge fails without GH_PAT" {
-  unset GH_PAT 2>/dev/null || true
-
-  run approve_and_merge 42 "Auto-approved."
-  [ "$status" -ne 0 ]
-}
-
 @test "approve_and_merge uses custom repo when provided" {
   mock_gh_response "pr review" "approved"
-  mock_gh_response "workflow run" "dispatched"
-  export GH_PAT="fake-pat"
 
   run approve_and_merge 42 "Auto-approved." "custom/repo"
   [ "$status" -eq 0 ]

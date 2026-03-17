@@ -6,27 +6,36 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 ## Workflow Inventory
 
+### Active Workflows (GitHub Actions)
+
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `daily-planner.yml` | Cron (weekends) / manual | Creates epics with stories |
-| `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
+| `claude.yml` | `@claude` comment | Runs Claude on issue or PR; sends Inngest events on completion |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
-| `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
-| `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
-| `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
-| `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
-| `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
-| `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
-| `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate (6 conditions) |
+| `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); sends Inngest verify event on failure |
+| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); sends Inngest verify event on failure |
+| `inngest-relay.yml` | PR merged, CI done, review submitted | Relays GitHub events to Inngest Cloud |
+| `deploy-pipeline.yml` | Push to master (pipeline/ changes) | Builds and deploys the Inngest pipeline server |
+| `pipeline-doctor.yml` | Inngest escalation / manual | Diagnoses failures, creates fix PRs |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
-| `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
-| `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master / manual | iOS build |
 | `build-android.yml` | Push to master / PR / manual | Android debug build + lint |
 | `release.yml` | Tag push / manual | Release workflow |
+
+### Removed Workflows (replaced by Inngest functions)
+
+| Old Workflow | Replaced By | Removed In |
+|-------------|-------------|------------|
+| `orchestrate.yml` | `story-lifecycle` Inngest function | Sprint 5 |
+| `auto-merge.yml` | `merge-gate` Inngest function | Sprint 5 |
+| `verify-and-fix.yml` | `verify-and-fix` Inngest function | Sprint 5 |
+| `review-relay.yml` | `review-relay` Inngest function | Sprint 5 |
+| `review-fix.yml` | `review-fix` Inngest function | Sprint 5 |
+| `review-guardian.yml` | `ensure-review` Inngest function | Sprint 5 |
+| `watcher.yml` | `pipeline-watcher` Inngest function | Sprint 5 |
 
 ---
 
@@ -444,7 +453,7 @@ Pipeline tests also run in CI as the `pipeline-test` job in `test.yml`.
 - [x] Sprint 2: Integration testing (mock step harness, 38 integration tests across all functions, CI job)
 - [x] Sprint 3: Deploy infrastructure (Dockerfile, env config, deploy workflow, hardened relay, DEPLOY.md)
 - [x] Sprint 4: Parallel run — shadow mode, parity logging, write interception via Proxy
-- [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
+- [x] Sprint 5: Cutover — removed 7 old workflows, updated CI to send Inngest events, cleaned up shell scripts
 
 ### Sprint 4: Parallel Run (Shadow Mode)
 
@@ -475,6 +484,33 @@ This allows comparing what Inngest would do vs what the old GHA workflows actual
 | `pipeline/src/lib/shadow-context.ts` | `createShadowContext()` — shared helper for all functions |
 | `pipeline/src/__tests__/parity.test.ts` | 14 tests for shadow mode + parity recording |
 | `pipeline/src/__tests__/shadow-context.test.ts` | 8 tests for shadow context lifecycle |
+
+### Sprint 5: Cutover
+
+Completed the migration from GitHub Actions workflow-dispatch chains to Inngest durable functions.
+
+**Removed 7 old workflows:**
+- `orchestrate.yml`, `auto-merge.yml`, `verify-and-fix.yml`
+- `review-relay.yml`, `review-fix.yml`, `review-guardian.yml`, `watcher.yml`
+
+**Updated remaining workflows:**
+- `test.yml` — sends `pipeline/verify.requested` event to Inngest on CI failure (was: dispatch verify-and-fix.yml)
+- `e2e-smoke.yml` — sends `pipeline/verify.requested` event to Inngest on E2E failure (was: dispatch verify-and-fix.yml)
+- `claude.yml` — sends `pipeline/verify.requested` event to Inngest after agent push (was: dispatch verify-and-fix.yml)
+
+**Updated shell scripts:**
+- `lib.sh` `approve_and_merge()` — no longer dispatches auto-merge.yml (Inngest handles merge gating)
+- `evaluate-merge-gate.sh` `check_no_active_review_fix()` — always returns true (review-fix handled by Inngest)
+
+**Rollback procedure:**
+If Inngest functions encounter issues, restore the old workflows from git history:
+```bash
+git checkout HEAD~1 -- .github/workflows/orchestrate.yml .github/workflows/auto-merge.yml \
+  .github/workflows/verify-and-fix.yml .github/workflows/review-relay.yml \
+  .github/workflows/review-fix.yml .github/workflows/review-guardian.yml \
+  .github/workflows/watcher.yml
+```
+Then revert the dispatch changes in test.yml, e2e-smoke.yml, and claude.yml.
 
 ### Deployment
 

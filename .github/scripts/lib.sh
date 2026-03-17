@@ -590,9 +590,8 @@ count_critical_comments() {
 # ────────────────────────────────────────────────────────────────────────────
 # approve_and_merge
 #
-# Approve a PR and dispatch auto-merge.
-# GITHUB_TOKEN approvals don't emit pull_request_review events, so we
-# always dispatch auto-merge.yml explicitly after approving.
+# Approve a PR. Merge gating is handled by Inngest merge-gate function
+# (triggered automatically via inngest-relay.yml on review events).
 #
 # Args:
 #   $1 — PR number (required)
@@ -601,7 +600,6 @@ count_critical_comments() {
 #
 # Env:
 #   GH_TOKEN   — Token for the approval (typically github.token)
-#   GH_PAT     — PAT for dispatching auto-merge (required)
 #   GITHUB_REPOSITORY — owner/repo (used as default for $3)
 #
 # Usage:
@@ -619,8 +617,8 @@ approve_and_merge() {
 
   gh pr review "$pr_num" --repo "$repo" --approve --body "$body"
 
-  # Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger events
-  GH_TOKEN="${GH_PAT:?GH_PAT is required}" dispatch_workflow "auto-merge.yml" -f pr_number="$pr_num" 2>/dev/null || true
+  # Merge gating handled by Inngest merge-gate function (via inngest-relay.yml)
+  # The pull_request_review event triggers the relay, which sends pipeline/review.submitted
 }
 
 # ────────────────────────────────────────────────────────────────────────────

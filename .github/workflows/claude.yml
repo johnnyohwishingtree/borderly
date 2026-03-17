@@ -266,20 +266,43 @@ jobs:
           set +u
           activity_success "${{ github.event.issue.number }}" "implementing" 2>/dev/null || true
 
-      - name: Trigger verify-and-fix (issue context only)
+      - name: Send verify-and-fix event to Inngest (issue context only)
         if: success() && steps.push_target.outputs.is_pr == 'false'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+          INNGEST_API_URL: ${{ vars.INNGEST_API_URL || 'https://inn.gs/e' }}
         run: |
-          dispatch_workflow "verify-and-fix.yml" \
-            -f branch="${{ steps.push_issue.outputs.tmp_branch }}" \
-            -f merge_into="${{ steps.push_issue.outputs.pr_branch }}" \
-            -f create_pr="true" \
-            -f issue_number="${{ github.event.issue.number }}" \
-            -f checks="ci" \
-            -f fix_enabled="true" \
-            -f max_attempts="6"
-          echo "Triggered verify-and-fix"
+          if [ -z "$INNGEST_EVENT_KEY" ]; then
+            echo "::warning::INNGEST_EVENT_KEY not set — skipping Inngest event"
+            exit 0
+          fi
 
-      # Auto-merge removed — auto-merge.yml is the single gate that
-      # merges PRs only after Tests + E2E + approval + threads resolved.
+          PAYLOAD=$(jq -n \
+            --arg name "pipeline/verify.requested" \
+            --arg branch "${{ steps.push_issue.outputs.tmp_branch }}" \
+            --arg workBranch "" \
+            --argjson issueNumber "${{ github.event.issue.number }}" \
+            --arg checks "ci" \
+            --argjson fixEnabled true \
+            --argjson maxAttempts 6 \
+            --argjson attempt 1 \
+            --arg mergeInto "${{ steps.push_issue.outputs.pr_branch }}" \
+            --argjson createPr true \
+            --arg fixContext "" \
+            --arg repo "${{ github.repository }}" \
+            '{name: $name, data: {branch: $branch, workBranch: $workBranch, issueNumber: $issueNumber, checks: $checks, fixEnabled: $fixEnabled, maxAttempts: $maxAttempts, attempt: $attempt, mergeInto: $mergeInto, createPr: $createPr, fixContext: $fixContext, repo: $repo}}')
+
+          HTTP_CODE=$(curl -s -o /tmp/inngest_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Sent pipeline/verify.requested to Inngest (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Inngest event send failed with HTTP $HTTP_CODE"
+            cat /tmp/inngest_response.txt
+          fi
+
+      # Merge gating handled by Inngest merge-gate function (triggered via inngest-relay.yml)

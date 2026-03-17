@@ -69,22 +69,28 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 
 | Workflow | Trigger | Role |
 |----------|---------|------|
-| `orchestrate.yml` | Issue labeled `story` | Story lifecycle orchestrator |
-| `claude.yml` | Issue/PR comments, workflow_dispatch | Claude agent implementation |
+| `claude.yml` | Issue/PR comments, workflow_dispatch | Claude agent implementation; sends Inngest events |
 | `gemini.yml` | Issue/PR comments | Gemini agent implementation |
-| `verify-and-fix.yml` | workflow_dispatch | Reusable verify + fix loop (configurable attempts) |
-| `auto-merge.yml` | workflow_dispatch, workflow_run | Merge gate evaluator |
-| `review-guardian.yml` | workflow_run, issue_comment, PR review | Review + auto-approve |
-| `review-relay.yml` | PR review submitted | Relay review feedback to fix workflow |
-| `review-fix.yml` | workflow_dispatch | Apply review feedback fixes, dispatch verify-and-fix |
+| `inngest-relay.yml` | PR merged, CI done, review submitted | Relays GitHub events to Inngest Cloud |
+| `deploy-pipeline.yml` | Push to master (pipeline/ changes) | Builds and deploys Inngest pipeline server |
+| `test.yml` | push, PR | Unit tests + typecheck + lint; sends Inngest verify event on failure |
+| `e2e-smoke.yml` | push, PR | Playwright E2E tests; sends Inngest verify event on failure |
 | `resolve-conflicts.yml` | workflow_dispatch | Merge conflict resolution |
 | `pipeline-doctor.yml` | workflow_dispatch | Diagnose stuck pipelines |
-| `watcher.yml` | schedule (every 30min) | Monitor stale PRs and issues |
-| `test.yml` | push, PR | Unit tests + typecheck + lint; dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | push, PR | Playwright E2E tests; dispatches verify-and-fix on failure |
 | `build-ios.yml` | workflow_dispatch | iOS build |
 | `build-android.yml` | push, PR, workflow_dispatch | Android debug build + lint |
 | `release.yml` | tags | Release pipeline |
 | `daily-planner.yml` | schedule | Daily story planning |
 | `agent-switcher.yml` | workflow_dispatch | Switch between Claude/Gemini |
 | `pipeline-toggle.yml` | workflow_dispatch | Enable/disable pipeline |
+
+**Orchestration (Inngest functions — replaces old workflow-dispatch chains):**
+| Function | Event | Replaces |
+|----------|-------|----------|
+| `story-lifecycle` | `pipeline/pr.merged` | `orchestrate.yml` |
+| `merge-gate` | `pipeline/merge.evaluate`, `pipeline/ci.completed` | `auto-merge.yml` |
+| `verify-and-fix` | `pipeline/verify.requested` | `verify-and-fix.yml` |
+| `ensure-review` | `pipeline/review.ensure` | `review-guardian.yml` |
+| `review-relay` | `pipeline/review.submitted` | `review-relay.yml` |
+| `review-fix` | `pipeline/review.fix-requested` | `review-fix.yml` |
+| `pipeline-watcher` | cron (every 20min), `pipeline/watcher.tick` | `watcher.yml` |
