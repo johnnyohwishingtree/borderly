@@ -30,14 +30,18 @@ test.describe('Onboarding Flow', () => {
     await page.getByTestId('passport-number-input').fill('L12345678');
     await page.getByTestId('surname-input').fill('SMITH');
     await page.getByTestId('given-names-input').fill('JOHN MICHAEL');
-    await page.getByTestId('nationality-input').fill('USA');
+    await page.getByTestId('nationality-input-trigger').click();
+    await page.getByTestId('nationality-input-search').fill('United States');
+    await page.getByTestId('nationality-input-option-USA').click();
     await page.getByTestId('dob-input').fill('1985-06-15');
     
     // Gender selection
     await page.getByTestId('gender-Male-button').click();
 
     await page.getByTestId('passport-expiry-input').fill('2032-03-20');
-    await page.getByTestId('issuing-country-input').fill('USA');
+    await page.getByTestId('issuing-country-input-trigger').click();
+    await page.getByTestId('issuing-country-input-search').fill('United States');
+    await page.getByTestId('issuing-country-input-option-USA').click();
 
     // Submit and verify next screen
     await page.getByRole('button', { name: 'Continue' }).click();

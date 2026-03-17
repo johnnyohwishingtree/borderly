@@ -31,11 +31,15 @@ async function completeOnboarding(page: Page) {
   await page.getByTestId('passport-number-input').fill(TEST_PASSPORT.number);
   await page.getByTestId('surname-input').fill(TEST_PASSPORT.surname);
   await page.getByTestId('given-names-input').fill(TEST_PASSPORT.givenNames);
-  await page.getByTestId('nationality-input').fill(TEST_PASSPORT.nationality);
+  await page.getByTestId('nationality-input-trigger').click();
+  await page.getByTestId('nationality-input-search').fill('United States');
+  await page.getByTestId('nationality-input-option-USA').click();
   await page.getByTestId('dob-input').fill(TEST_PASSPORT.dob);
   await page.getByTestId('gender-Male-button').click();
   await page.getByTestId('passport-expiry-input').fill(TEST_PASSPORT.expiry);
-  await page.getByTestId('issuing-country-input').fill(TEST_PASSPORT.issuingCountry);
+  await page.getByTestId('issuing-country-input-trigger').click();
+  await page.getByTestId('issuing-country-input-search').fill('United States');
+  await page.getByTestId('issuing-country-input-option-USA').click();
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
@@ -103,10 +107,10 @@ test.describe('Trip and Submit Flow', () => {
     await expect(page.getByText('Travel Form')).toBeVisible({ timeout: 15000 });
 
     // departureCity — the only required field without autoFillSource
-    await page.getByTestId('field-departureCity').fill('Los Angeles');
+    await page.getByTestId('input-departureCity').fill('Los Angeles');
 
     // hotelPhone — optional but fill for completeness
-    await page.getByTestId('field-hotelPhone').fill('03-5322-1234');
+    await page.getByTestId('input-hotelPhone').fill('03-5322-1234');
 
     // Save progress
     await page.getByTestId('save-progress-button').click();
