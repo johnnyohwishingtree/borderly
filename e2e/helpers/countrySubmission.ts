@@ -37,12 +37,9 @@ export function createCountrySubmissionTests(config: CountrySubmissionConfig) {
       await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
 
       const tripCard = page.getByTestId(`trip-card-${config.tripName}`);
-      const tripCardCount = await tripCard.count();
-      if (tripCardCount > 0) {
-        await tripCard.click();
-        await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
-        await expect(page.getByTestId(`leg-card-${config.countryCode}`)).toBeVisible({ timeout: 5000 });
-      }
+      await tripCard.click();
+      await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
+      await expect(page.getByTestId(`leg-card-${config.countryCode}`)).toBeVisible({ timeout: 5000 });
     });
 
     test(`${config.countryCode} leg form renders with DynamicForm`, async ({ page }) => {
@@ -53,9 +50,6 @@ export function createCountrySubmissionTests(config: CountrySubmissionConfig) {
       await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
 
       const tripCard = page.getByTestId(`trip-card-${config.tripName}`);
-      const tripCardCount = await tripCard.count();
-      if (tripCardCount === 0) return;
-
       await tripCard.click();
       await expect(page.getByTestId(`leg-card-${config.countryCode}`)).toBeVisible({ timeout: 10000 });
       await page.getByTestId(`leg-card-${config.countryCode}`).click();

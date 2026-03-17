@@ -88,14 +88,9 @@ test.describe('FamilyManagementScreen', () => {
     await page.goto('/');
     await navigateToFamilyManagement(page);
 
-    const heading = page.getByText('Family Members');
-    if (await heading.count() > 0) await expect(heading.first()).toBeVisible();
-
-    const userName = page.getByText('Jane Smith');
-    if (await userName.count() > 0) await expect(userName.first()).toBeVisible();
-
-    const relationship = page.getByText('Primary Traveler');
-    if (await relationship.count() > 0) await expect(relationship.first()).toBeVisible();
+    await expect(page.getByText('Family Members').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Jane Smith').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Primary Traveler').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('add member button is present', async ({ page }) => {
@@ -103,8 +98,7 @@ test.describe('FamilyManagementScreen', () => {
     await page.goto('/');
     await navigateToFamilyManagement(page);
 
-    const addButton = page.locator('[data-testid="add-member-button"]');
-    if (await addButton.count() > 0) await expect(addButton.first()).toBeVisible();
+    await expect(page.locator('[data-testid="add-member-button"]').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('multiple family members display when injected', async ({ page }) => {
@@ -113,8 +107,7 @@ test.describe('FamilyManagementScreen', () => {
     await navigateToFamilyManagement(page);
 
     for (const name of ['Jane Smith', 'John Smith', 'Emma Smith']) {
-      const el = page.getByText(name);
-      if (await el.count() > 0) await expect(el.first()).toBeVisible();
+      await expect(page.getByText(name).first()).toBeVisible({ timeout: 5000 });
     }
   });
 });
