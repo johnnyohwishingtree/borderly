@@ -117,7 +117,7 @@ If the Stitch MCP server is connected:
 
 1. For screens with Critical or Major issues, use Stitch to generate redesign alternatives:
    - Upload the screenshot to Stitch
-   - Prompt: "Redesign this [screen type] for a mobile travel app. Modern, clean, accessible. Use blue (#2563eb) as primary color, white backgrounds, subtle shadows. Focus on [specific issues found in Phase 1]."
+   - Prompt: "Redesign this [screen type] for a mobile travel app. Modern, clean, accessible. Use the project's primary color (e.g., from tailwind.config.js), white backgrounds, subtle shadows. Focus on [specific issues found in Phase 1]."
    - Generate 2-3 variations
 
 2. Present the variations to the user with commentary on which addresses the identified issues best.
