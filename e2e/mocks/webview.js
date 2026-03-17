@@ -1,7 +1,14 @@
-import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
 // Web implementation of react-native-webview using a real <iframe>.
 // Renders actual web content instead of a blank div.
+//
+// Government portals (and many external sites) block iframe embedding via
+// X-Frame-Options or CSP frame-ancestors. When the iframe fails to load
+// within a timeout, we fire onError so the parent screen can show a
+// meaningful error instead of spinning forever.
+const LOAD_TIMEOUT_MS = 8000;
+
 const WebView = forwardRef(function WebView(props, ref) {
   const {
     source,
@@ -17,6 +24,8 @@ const WebView = forwardRef(function WebView(props, ref) {
   } = props;
 
   const url = source && source.uri ? source.uri : '';
+  const loadedRef = useRef(false);
+  const timeoutRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
     injectJavaScript: (script) => {
@@ -40,6 +49,11 @@ const WebView = forwardRef(function WebView(props, ref) {
   }));
 
   const handleIframeLoad = () => {
+    loadedRef.current = true;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (onNavigationStateChange) {
       onNavigationStateChange({ url, loading: false, canGoBack: false, canGoForward: false });
     }
@@ -48,16 +62,51 @@ const WebView = forwardRef(function WebView(props, ref) {
   };
 
   const handleIframeError = () => {
+    loadedRef.current = true;
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (onError) {
       onError({ nativeEvent: { description: 'Failed to load page', code: -1 } });
     }
   };
 
   useEffect(() => {
-    if (onLoadStart && url) {
+    if (!url) return;
+    loadedRef.current = false;
+
+    if (onLoadStart) {
       onLoadStart({ nativeEvent: { url, loading: true, navigationType: 'other' } });
     }
-  }, [url, onLoadStart]);
+
+    // Safety net: if the iframe never fires onLoad (e.g. blocked by
+    // X-Frame-Options, network error, or cross-origin restriction),
+    // fire onError after a timeout so the UI doesn't spin forever.
+    timeoutRef.current = setTimeout(() => {
+      if (!loadedRef.current) {
+        if (onNavigationStateChange) {
+          onNavigationStateChange({ url, loading: false, canGoBack: false, canGoForward: false });
+        }
+        if (onError) {
+          onError({
+            nativeEvent: {
+              description: 'The page could not be loaded in the embedded viewer. The site may block iframe embedding. Try opening it in your browser instead.',
+              code: -2,
+            },
+          });
+        }
+        if (onLoadEnd) onLoadEnd({ nativeEvent: { url, loading: false } });
+      }
+    }, LOAD_TIMEOUT_MS);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!url) {
     return (
