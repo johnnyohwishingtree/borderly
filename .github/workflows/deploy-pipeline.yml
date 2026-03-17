@@ -135,6 +135,10 @@ jobs:
           echo "  - INNGEST_EVENT_KEY secret"
           echo "  - PREFERRED_AGENT=claude"
           echo ""
+          echo "Optional (parallel run / shadow mode):"
+          echo "  - INNGEST_SHADOW_MODE=true  (observe-only, no write actions)"
+          echo "  - PARITY_TRACKING_ISSUE=N   (GitHub issue for parity logging)"
+          echo ""
           echo "Then register the Inngest endpoint URL in Inngest Cloud."
 
       - name: Verify health endpoint

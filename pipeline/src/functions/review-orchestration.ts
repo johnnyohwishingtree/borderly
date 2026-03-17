@@ -10,6 +10,7 @@
 import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
 import { PipelineStateMachine } from '../lib/state-machine.js';
+import { createShadowContext } from '../lib/shadow-context.js';
 
 const MAX_RELAY_ROUNDS = 3;
 const BOT_REVIEWERS = ['gemini-code-assist[bot]', 'copilot[bot]'];
@@ -27,7 +28,9 @@ export const ensureReview = inngest.createFunction(
   async ({ event, step }) => {
     const { prNumber, repo } = event.data;
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'ensure-review', event.name);
+    const github = ctx.github;
     const stateMachine = new PipelineStateMachine(github);
 
     // Step 1: Check if already approved
@@ -41,7 +44,7 @@ export const ensureReview = inngest.createFunction(
         name: 'pipeline/merge.evaluate',
         data: { prNumber, repo },
       });
-      return { status: 'already-approved', prNumber };
+      return ctx.finalize('already-approved', { status: 'already-approved', prNumber });
     }
 
     // Step 2: Check for existing reviews
@@ -73,15 +76,15 @@ export const ensureReview = inngest.createFunction(
           data: { prNumber, repo },
         });
 
-        return { status: 'auto-approved', prNumber };
+        return ctx.finalize('auto-approved', { status: 'auto-approved', prNumber });
       }
 
       // Has unresolved issues — wait for review-fix
-      return {
+      return ctx.finalize('waiting-for-fixes', {
         status: 'waiting-for-fixes',
         unresolvedThreads: reviewStatus.unresolvedThreads,
         criticalComments: reviewStatus.criticalComments,
-      };
+      });
     }
 
     // No reviews yet — request Claude review
@@ -100,7 +103,7 @@ export const ensureReview = inngest.createFunction(
       );
     });
 
-    return { status: 'review-requested', prNumber };
+    return ctx.finalize('review-requested', { status: 'review-requested', prNumber });
   }
 );
 
@@ -118,9 +121,15 @@ export const reviewRelay = inngest.createFunction(
     const { prNumber, reviewer, reviewState, reviewBody, isBot, repo } =
       event.data;
 
+    const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'review-relay', event.name);
+    const github = ctx.github;
+    const stateMachine = new PipelineStateMachine(github);
+
     // Only relay bot reviews
     if (!isBot || !BOT_REVIEWERS.includes(reviewer)) {
-      return { status: 'skipped', reason: 'Not a bot review' };
+      return ctx.finalize('skipped', { status: 'skipped', reason: 'Not a bot review' });
     }
 
     // Only relay CHANGES_REQUESTED or COMMENTED (not APPROVED)
@@ -129,12 +138,8 @@ export const reviewRelay = inngest.createFunction(
         name: 'pipeline/merge.evaluate',
         data: { prNumber, repo },
       });
-      return { status: 'approved', prNumber };
+      return ctx.finalize('approved', { status: 'approved', prNumber });
     }
-
-    const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
-    const stateMachine = new PipelineStateMachine(github);
 
     // Check relay limit
     const relayCount = await step.run('check-relay-limit', async () => {
@@ -142,10 +147,10 @@ export const reviewRelay = inngest.createFunction(
     });
 
     if (relayCount >= MAX_RELAY_ROUNDS) {
-      return {
+      return ctx.finalize('relay-limit-reached', {
         status: 'relay-limit-reached',
         rounds: relayCount,
-      };
+      });
     }
 
     // Collect inline comments
@@ -193,11 +198,11 @@ export const reviewRelay = inngest.createFunction(
       },
     });
 
-    return {
+    return ctx.finalize('relayed', {
       status: 'relayed',
       round: relayCount + 1,
       prNumber,
-    };
+    });
   }
 );
 
@@ -214,7 +219,9 @@ export const reviewFix = inngest.createFunction(
   async ({ event, step }) => {
     const { prNumber, issueNumber, feedback, repo } = event.data;
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'review-fix', event.name);
+    const github = ctx.github;
     const preferredAgent = process.env['PREFERRED_AGENT'] ?? 'claude';
 
     // Step 1: Trigger agent to fix review feedback
@@ -251,6 +258,6 @@ export const reviewFix = inngest.createFunction(
       },
     });
 
-    return { status: 'fix-dispatched', prNumber };
+    return ctx.finalize('fix-dispatched', { status: 'fix-dispatched', prNumber });
   }
 );

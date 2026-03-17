@@ -20,6 +20,10 @@ export interface PipelineEnv {
   port: number;
   /** Node environment */
   nodeEnv: 'production' | 'development' | 'test';
+  /** Shadow mode — Inngest functions observe but don't act */
+  shadowMode: boolean;
+  /** GitHub issue number for parity tracking (shadow mode logging) */
+  parityTrackingIssue: number;
 }
 
 /** Required env vars — server will not start without these */
@@ -66,6 +70,11 @@ export function loadEnv(): PipelineEnv {
     inngestEventKey: process.env['INNGEST_EVENT_KEY'],
     port: parseInt(process.env['PORT'] ?? DEFAULTS['PORT'], 10),
     nodeEnv,
+    shadowMode: process.env['INNGEST_SHADOW_MODE'] === 'true',
+    parityTrackingIssue: parseInt(
+      process.env['PARITY_TRACKING_ISSUE'] ?? '0',
+      10
+    ),
   };
 }
 
@@ -82,5 +91,7 @@ export function envSummary(env: PipelineEnv): Record<string, string> {
     ghToken: env.ghToken ? '***set***' : 'MISSING',
     inngestSigningKey: env.inngestSigningKey ? '***set***' : 'not set',
     inngestEventKey: env.inngestEventKey ? '***set***' : 'not set',
+    shadowMode: String(env.shadowMode),
+    parityTrackingIssue: String(env.parityTrackingIssue || 'not set'),
   };
 }

@@ -10,6 +10,7 @@
 
 import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
+import { createShadowContext } from '../lib/shadow-context.js';
 
 const STALE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_CONCURRENT_AGENTS = 3;
@@ -29,7 +30,9 @@ export const watcher = inngest.createFunction(
   async ({ step }) => {
     const repo = process.env['GITHUB_REPOSITORY'] ?? '';
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'pipeline-watcher', 'pipeline/watcher.tick');
+    const github = ctx.github;
 
     const results: Record<string, unknown> = {};
 
@@ -48,7 +51,7 @@ export const watcher = inngest.createFunction(
     });
 
     if (activeAgents >= MAX_CONCURRENT_AGENTS) {
-      return { status: 'at-capacity', activeAgents };
+      return ctx.finalize('at-capacity', { status: 'at-capacity', activeAgents });
     }
 
     // Step 2: Check open PRs
@@ -179,12 +182,12 @@ export const watcher = inngest.createFunction(
 
     results['storyActions'] = storyActions;
 
-    return {
+    return ctx.finalize('complete', {
       status: 'complete',
       activeAgents,
       prActionsCount: prActions.length,
       storyActionsCount: storyActions.length,
       results,
-    };
+    });
   }
 );

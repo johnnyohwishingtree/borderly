@@ -12,6 +12,7 @@
 import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
 import { PipelineStateMachine } from '../lib/state-machine.js';
+import { createShadowContext } from '../lib/shadow-context.js';
 import { NonRetriableError } from 'inngest';
 
 export const verifyAndFix = inngest.createFunction(
@@ -38,7 +39,9 @@ export const verifyAndFix = inngest.createFunction(
     } = event.data;
 
     const token = process.env['GH_PAT'] ?? process.env['GITHUB_TOKEN'] ?? '';
-    const github = new GitHubClient({ token, repo });
+    const rawGithub = new GitHubClient({ token, repo });
+    const ctx = createShadowContext(rawGithub, 'verify-and-fix', event.name);
+    const github = ctx.github;
     const stateMachine = new PipelineStateMachine(github);
 
     let currentAttempt = startAttempt;
@@ -127,11 +130,11 @@ export const verifyAndFix = inngest.createFunction(
           },
         });
 
-        return {
+        return ctx.finalize('verified', {
           status: 'verified',
           attempt: currentAttempt,
           branch: verifyResult.checkBranch,
-        };
+        });
       }
 
       // Verification failed
@@ -159,7 +162,7 @@ export const verifyAndFix = inngest.createFunction(
           },
         });
 
-        return { status: 'escalated', attempt: currentAttempt, error: lastError };
+        return ctx.finalize('escalated', { status: 'escalated', attempt: currentAttempt, error: lastError });
       }
 
       if (currentAttempt >= maxAttempts) {
@@ -183,7 +186,7 @@ export const verifyAndFix = inngest.createFunction(
           },
         });
 
-        return { status: 'escalated', attempt: currentAttempt, error: lastError };
+        return ctx.finalize('escalated-max', { status: 'escalated', attempt: currentAttempt, error: lastError });
       }
 
       // Step: Transition to fix-loop and attempt fix
