@@ -6,6 +6,12 @@
 #
 # This replaces the complex workflow-dispatch chaining between orchestrate.yml,
 # auto-merge.yml, verify-and-fix.yml, etc. with a single event relay.
+#
+# Required secrets:
+#   INNGEST_EVENT_KEY — Inngest event key for authentication
+#
+# Required vars (optional, has defaults):
+#   INNGEST_API_URL — Inngest event API URL (default: https://inn.gs/e)
 
 name: Inngest Relay
 
@@ -53,35 +59,53 @@ jobs:
       INNGEST_API_URL: ${{ vars.INNGEST_API_URL || 'https://inn.gs/e' }}
 
     steps:
+      - name: Validate secrets
+        run: |
+          if [ -z "$INNGEST_EVENT_KEY" ]; then
+            echo "::error::INNGEST_EVENT_KEY secret is not set. Skipping relay."
+            echo "Configure it in Settings → Secrets → Actions."
+            exit 0
+          fi
+
       - name: Relay PR merged event
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         run: |
           # Only relay PRs linked to stories (claude/* branches)
           HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
           if [[ ! "$HEAD_BRANCH" == claude/* ]]; then
-            echo "Skipping non-pipeline PR"
+            echo "Skipping non-pipeline PR (branch: $HEAD_BRANCH)"
             exit 0
           fi
 
-          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+          PAYLOAD=$(jq -n \
+            --arg name "pipeline/pr.merged" \
+            --argjson prNumber "${{ github.event.pull_request.number }}" \
+            --arg headBranch "$HEAD_BRANCH" \
+            --arg mergedBy "${{ github.event.pull_request.merged_by.login }}" \
+            --arg repo "${{ github.repository }}" \
+            '{name: $name, data: {prNumber: $prNumber, headBranch: $headBranch, mergedBy: $mergedBy, repo: $repo}}')
+
+          HTTP_CODE=$(curl -s -o /tmp/relay_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "name": "pipeline/pr.merged",
-              "data": {
-                "prNumber": ${{ github.event.pull_request.number }},
-                "headBranch": "'"$HEAD_BRANCH"'",
-                "mergedBy": "${{ github.event.pull_request.merged_by.login }}",
-                "repo": "${{ github.repository }}"
-              }
-            }'
-          echo "Relayed pipeline/pr.merged for PR #${{ github.event.pull_request.number }}"
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Relayed pipeline/pr.merged for PR #${{ github.event.pull_request.number }} (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Relay failed with HTTP $HTTP_CODE"
+            cat /tmp/relay_response.txt
+            exit 1
+          fi
 
       - name: Relay CI completed event
         if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
           if [[ ! "$HEAD_BRANCH" == claude/* ]]; then
-            echo "Skipping non-pipeline CI run"
+            echo "Skipping non-pipeline CI run (branch: $HEAD_BRANCH)"
             exit 0
           fi
 
@@ -91,24 +115,30 @@ jobs:
             --json number -q '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR_NUMBER" ]; then
-            echo "No open PR for branch $HEAD_BRANCH"
+            echo "No open PR for branch $HEAD_BRANCH — skipping"
             exit 0
           fi
 
-          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+          PAYLOAD=$(jq -n \
+            --arg name "pipeline/ci.completed" \
+            --argjson prNumber "$PR_NUMBER" \
+            --arg headSha "${{ github.event.workflow_run.head_sha }}" \
+            --arg headBranch "$HEAD_BRANCH" \
+            --arg repo "${{ github.repository }}" \
+            '{name: $name, data: {prNumber: $prNumber, headSha: $headSha, headBranch: $headBranch, repo: $repo}}')
+
+          HTTP_CODE=$(curl -s -o /tmp/relay_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "name": "pipeline/ci.completed",
-              "data": {
-                "prNumber": '"$PR_NUMBER"',
-                "headSha": "${{ github.event.workflow_run.head_sha }}",
-                "headBranch": "'"$HEAD_BRANCH"'",
-                "repo": "${{ github.repository }}"
-              }
-            }'
-          echo "Relayed pipeline/ci.completed for PR #$PR_NUMBER"
-        env:
-          GH_TOKEN: ${{ github.token }}
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Relayed pipeline/ci.completed for PR #$PR_NUMBER (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Relay failed with HTTP $HTTP_CODE"
+            cat /tmp/relay_response.txt
+            exit 1
+          fi
 
       - name: Relay review submitted event
         if: github.event_name == 'pull_request_review'
@@ -119,28 +149,52 @@ jobs:
             IS_BOT="true"
           fi
 
-          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+          PAYLOAD=$(jq -n \
+            --arg name "pipeline/review.submitted" \
+            --argjson prNumber "${{ github.event.pull_request.number }}" \
+            --arg reviewer "$REVIEWER" \
+            --arg reviewState "${{ github.event.review.state }}" \
+            --arg reviewBody "" \
+            --argjson isBot "$IS_BOT" \
+            --arg repo "${{ github.repository }}" \
+            '{name: $name, data: {prNumber: $prNumber, reviewer: $reviewer, reviewState: $reviewState, reviewBody: $reviewBody, isBot: $isBot, repo: $repo}}')
+
+          HTTP_CODE=$(curl -s -o /tmp/relay_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "name": "pipeline/review.submitted",
-              "data": {
-                "prNumber": ${{ github.event.pull_request.number }},
-                "reviewer": "'"$REVIEWER"'",
-                "reviewState": "${{ github.event.review.state }}",
-                "reviewBody": "",
-                "isBot": '"$IS_BOT"',
-                "repo": "${{ github.repository }}"
-              }
-            }'
-          echo "Relayed pipeline/review.submitted for PR #${{ github.event.pull_request.number }}"
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Relayed pipeline/review.submitted for PR #${{ github.event.pull_request.number }} (HTTP $HTTP_CODE)"
+          else
+            echo "::warning::Relay failed with HTTP $HTTP_CODE"
+            cat /tmp/relay_response.txt
+            exit 1
+          fi
 
       - name: Relay manual event
         if: github.event_name == 'workflow_dispatch'
         run: |
-          curl -s -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
+          # Validate event_data is valid JSON
+          if ! echo '${{ inputs.event_data }}' | jq . > /dev/null 2>&1; then
+            echo "::error::event_data is not valid JSON"
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg name "${{ inputs.event_name }}" \
+            --argjson data '${{ inputs.event_data }}' \
+            '{name: $name, data: $data}')
+
+          HTTP_CODE=$(curl -s -o /tmp/relay_response.txt -w "%{http_code}" \
+            -X POST "${INNGEST_API_URL}/${INNGEST_EVENT_KEY}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "name": "${{ inputs.event_name }}",
-              "data": ${{ inputs.event_data }}
-            }'
-          echo "Relayed ${{ inputs.event_name }}"
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Relayed ${{ inputs.event_name }} (HTTP $HTTP_CODE)"
+          else
+            echo "::error::Relay failed with HTTP $HTTP_CODE"
+            cat /tmp/relay_response.txt
+            exit 1
+          fi
