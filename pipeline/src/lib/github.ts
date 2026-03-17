@@ -355,6 +355,54 @@ export class GitHubClient {
     );
   }
 
+  /**
+   * Count all active (in_progress + queued) runs for a workflow,
+   * regardless of issue number. Used by the watcher for global
+   * agent concurrency checks.
+   */
+  async countActiveWorkflowRuns(workflowFile: string): Promise<number> {
+    const [inProgress, queued] = await Promise.all([
+      this.octokit.actions.listWorkflowRuns({
+        owner: this.owner,
+        repo: this.repo,
+        workflow_id: workflowFile,
+        status: 'in_progress',
+      }),
+      this.octokit.actions.listWorkflowRuns({
+        owner: this.owner,
+        repo: this.repo,
+        workflow_id: workflowFile,
+        status: 'queued',
+      }),
+    ]);
+    return inProgress.data.total_count + queued.data.total_count;
+  }
+
+  // ─── Branch / Commit Queries ────────────────────────────────────────────
+
+  async getHeadSha(branch: string): Promise<string> {
+    const { data } = await this.octokit.repos.getBranch({
+      owner: this.owner,
+      repo: this.repo,
+      branch,
+    });
+    return data.commit.sha;
+  }
+
+  async dispatchWorkflow(
+    workflowFile: string,
+    branch: string,
+    inputs?: Record<string, string>
+  ): Promise<void> {
+    await this.octokit.actions.createWorkflowDispatch({
+      owner: this.owner,
+      repo: this.repo,
+      workflow_id: workflowFile,
+      ref: branch,
+      inputs,
+    });
+  }
+
   // ─── Trigger Agent (port of trigger_story_agent) ────────────────────────
 
   async triggerStoryAgent(

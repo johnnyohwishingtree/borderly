@@ -33,15 +33,16 @@ export const watcher = inngest.createFunction(
 
     const results: Record<string, unknown> = {};
 
-    // Step 1: Check concurrency — how many agents are currently running
+    // Step 1: Check concurrency — how many agent runs are currently active
     const activeAgents = await step.run('check-concurrency', async () => {
-      // Check for active Claude/Gemini workflow runs
       let count = 0;
-      try {
-        const claudeActive = await github.isWorkflowActive('claude.yml', 0);
-        if (claudeActive) count++;
-      } catch {
-        // Workflow might not exist
+      // Count all active runs across both supported agent workflows
+      for (const workflowFile of ['claude.yml', 'gemini.yml']) {
+        try {
+          count += await github.countActiveWorkflowRuns(workflowFile);
+        } catch {
+          // Workflow might not exist in this repo
+        }
       }
       return count;
     });
