@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { NAVIGATION_ANIMATIONS, ANIMATION_DURATION } from '../utils/animations';
+import { NAVIGATION_ANIMATIONS, ANIMATION_DURATION } from '../../utils/animations';
 
 /**
  * Navigation transition configurations for React Navigation

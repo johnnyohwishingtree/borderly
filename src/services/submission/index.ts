@@ -30,3 +30,5 @@ export type {
   LoginDetectionResultPayload,
   LoginSuccessCheckPayload,
 } from './autoLogin';
+export { submissionCoordinator } from './submissionCoordinator';
+export type { PageType } from './submissionCoordinator';

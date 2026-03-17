@@ -2,7 +2,7 @@ import {
   isStorageError,
   createAppErrorFromError,
   ERROR_CODES,
-} from '@/utils/errorHandling';
+} from '@/services/error/errorHandling';
 
 describe('isStorageError', () => {
   it('should return true for keychain errors', () => {

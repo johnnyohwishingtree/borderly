@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { CircleAlert } from 'lucide-react-native';
 import Button from './Button';
-import { AppError } from '../../utils/errorHandling';
+import { AppError } from '../../services/error/errorHandling';
 
 export interface ErrorMessageProps {
   error?: AppError | string | null;

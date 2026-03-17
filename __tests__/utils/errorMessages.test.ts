@@ -6,7 +6,7 @@ import {
   getHelpSearchTerms,
   ENHANCED_ERROR_MESSAGES 
 } from '../../src/utils/errorMessages';
-import { ERROR_CODES } from '../../src/utils/errorHandling';
+import { ERROR_CODES } from '../../src/services/error/errorHandling';
 
 describe('errorMessages utility', () => {
   describe('getEnhancedErrorMessage', () => {

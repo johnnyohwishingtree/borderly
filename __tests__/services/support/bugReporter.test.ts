@@ -1,4 +1,4 @@
-import { bugReporter } from '@/services/support/bugReporter';
+import { bugReporter, DiagnosticContext } from '@/services/support/bugReporter';
 import { mmkvService } from '@/services/storage';
 
 // Mock MMKV service
@@ -17,36 +17,15 @@ jest.mock('react-native', () => ({
   },
 }));
 
-// Mock stores
-jest.mock('@/stores/useAppStore', () => ({
-  useAppStore: {
-    getState: jest.fn(() => ({
-      preferences: {
-        language: 'en',
-        theme: 'auto',
-        biometricEnabled: true,
-        analyticsEnabled: true,
-      },
-      isBiometricAvailable: true,
-    })),
-  },
-}));
-
-jest.mock('@/stores/useProfileStore', () => ({
-  useProfileStore: {
-    getState: jest.fn(() => ({
-      profile: { id: 'test-profile' },
-    })),
-  },
-}));
-
-jest.mock('@/stores/useTripStore', () => ({
-  useTripStore: {
-    getState: jest.fn(() => ({
-      trips: [{ id: 'trip-1' }, { id: 'trip-2' }],
-    })),
-  },
-}));
+const testDiagnosticContext: DiagnosticContext = {
+  language: 'en',
+  theme: 'auto',
+  biometricEnabled: true,
+  analyticsEnabled: true,
+  isBiometricAvailable: true,
+  hasProfile: true,
+  tripsCount: 2,
+};
 
 describe('BugReporter', () => {
   beforeEach(() => {
@@ -64,7 +43,7 @@ describe('BugReporter', () => {
         stepsToReproduce: '1. Open app\n2. Wait for splash screen\n3. App crashes',
       };
 
-      const result = await bugReporter.submitBugReport(bugReportData, true);
+      const result = await bugReporter.submitBugReport(bugReportData, testDiagnosticContext);
 
       expect(result.success).toBe(true);
       expect(result.reportId).toBeDefined();
@@ -90,7 +69,7 @@ describe('BugReporter', () => {
           },
         ])); // For error logs
 
-      const result = await bugReporter.submitBugReport(bugReportData, true);
+      const result = await bugReporter.submitBugReport(bugReportData, testDiagnosticContext);
 
       expect(result.success).toBe(true);
       
@@ -113,7 +92,7 @@ describe('BugReporter', () => {
         category: 'general' as const,
       };
 
-      const result = await bugReporter.submitBugReport(bugReportData, false);
+      const result = await bugReporter.submitBugReport(bugReportData);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid bug report data');
@@ -127,7 +106,7 @@ describe('BugReporter', () => {
         category: 'general' as const,
       };
 
-      const result = await bugReporter.submitBugReport(bugReportData, false);
+      const result = await bugReporter.submitBugReport(bugReportData);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid bug report data');

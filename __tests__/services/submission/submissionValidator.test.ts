@@ -2,7 +2,7 @@
  * Tests for SubmissionValidator
  */
 
-import { SubmissionValidator } from '@/utils/submissionValidator';
+import { SubmissionValidator } from '@/services/submission/submissionValidator';
 import { FilledForm } from '@/services/forms/formEngine';
 
 describe('SubmissionValidator', () => {

@@ -31,7 +31,7 @@ import { TripLeg } from '@/types/trip';
 import { FilledForm } from '@/services/forms/formEngine';
 import { WebViewController } from './webviewController';
 import { AutomationScriptRegistry } from './automationScripts';
-import { SubmissionValidator } from '@/utils/submissionValidator';
+import { SubmissionValidator } from './submissionValidator';
 
 /**
  * Default configuration for submission engine

@@ -14,8 +14,8 @@ import {
   createAppErrorFromError,
   logError,
   showErrorAlert
-} from '../../utils/errorHandling';
-import { retryAsync, RetryConfig, RETRY_CONFIGS } from '../../utils/retryLogic';
+} from './errorHandling';
+import { retryAsync, RetryConfig, RETRY_CONFIGS } from './retryLogic';
 
 export interface ErrorRecoveryOptions {
   showUserFeedback?: boolean;

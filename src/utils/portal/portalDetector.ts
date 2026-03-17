@@ -1,173 +1,17 @@
 /**
- * Portal Detection - Utilities for identifying and analyzing government portals
- * 
- * Provides intelligent detection of government portal types, form structures,
- * authentication requirements, and dynamic content patterns.
+ * Portal Detection - Identifies and analyzes government portals
  */
 
+import type {
+  PortalIdentification,
+  PortalFeatures,
+  AuthenticationInfo,
+  FormStructureInfo,
+  PortalChangeInfo,
+  CaptchaInfo,
+  PortalSignature,
+} from './portalTypes';
 
-/**
- * Portal identification result
- */
-export interface PortalIdentification {
-  portalType: 'japan_vjw' | 'malaysia_mdac' | 'singapore_ica' | 'generic' | 'unknown';
-  confidence: number; // 0-1
-  countryCode: string;
-  portalName: string;
-  portalUrl: string;
-  version?: string;
-  features: PortalFeatures;
-  authentication: AuthenticationInfo;
-  formStructure: FormStructureInfo;
-}
-
-/**
- * Portal features and capabilities
- */
-export interface PortalFeatures {
-  hasFileUpload: boolean;
-  hasMultiPageForm: boolean;
-  hasProgressIndicator: boolean;
-  hasSessionTimeout: boolean;
-  hasCaptcha: boolean;
-  hasQRCodeGeneration: boolean;
-  hasLanguageSelection: boolean;
-  hasFormSave: boolean;
-  hasPrefill: boolean;
-  hasValidation: boolean;
-  supportsMobile: boolean;
-  requiresJavaScript: boolean;
-}
-
-/**
- * Authentication requirements
- */
-export interface AuthenticationInfo {
-  required: boolean;
-  methods: AuthMethod[];
-  loginUrl?: string;
-  registrationUrl?: string;
-  sessionDuration?: number; // minutes
-  remembersSession: boolean;
-  twoFactorAuth: boolean;
-}
-
-/**
- * Authentication methods
- */
-export type AuthMethod = 
-  | 'email_password'
-  | 'phone_otp'
-  | 'social_login'
-  | 'government_id'
-  | 'digital_certificate'
-  | 'biometric'
-  | 'guest_access';
-
-/**
- * Form structure information
- */
-export interface FormStructureInfo {
-  totalSteps: number;
-  currentStep?: number;
-  sections: FormSectionInfo[];
-  requiredFields: string[];
-  optionalFields: string[];
-  uploadFields: UploadFieldInfo[];
-  validationRules: ValidationRule[];
-}
-
-/**
- * Form section information
- */
-export interface FormSectionInfo {
-  id: string;
-  name: string;
-  description?: string;
-  fields: FormFieldInfo[];
-  isRequired: boolean;
-  dependencies?: string[]; // IDs of sections this depends on
-}
-
-/**
- * Form field information
- */
-export interface FormFieldInfo {
-  id: string;
-  name: string;
-  type: 'text' | 'email' | 'tel' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'file';
-  label: string;
-  placeholder?: string;
-  required: boolean;
-  selector: string;
-  validation?: FieldValidationInfo;
-  options?: { value: string; text: string }[]; // For select/radio fields
-}
-
-/**
- * Upload field information
- */
-export interface UploadFieldInfo {
-  id: string;
-  name: string;
-  label: string;
-  selector: string;
-  acceptedTypes: string[];
-  maxSize?: number;
-  required: boolean;
-  multiple: boolean;
-  description?: string;
-}
-
-/**
- * Field validation information
- */
-export interface FieldValidationInfo {
-  pattern?: string; // regex pattern
-  minLength?: number;
-  maxLength?: number;
-  min?: number; // for numeric fields
-  max?: number; // for numeric fields
-  customRules?: string[]; // custom validation rules
-}
-
-/**
- * Validation rules
- */
-export interface ValidationRule {
-  field: string;
-  rule: string;
-  message: string;
-  trigger: 'onBlur' | 'onInput' | 'onSubmit';
-}
-
-/**
- * Portal change detection
- */
-export interface PortalChangeInfo {
-  hasChanged: boolean;
-  changeType: 'layout' | 'content' | 'structure' | 'authentication' | 'unknown';
-  description: string;
-  impact: 'low' | 'medium' | 'high';
-  suggestedAction: string;
-  changedElements: string[];
-}
-
-/**
- * CAPTCHA detection result
- */
-export interface CaptchaInfo {
-  present: boolean;
-  type?: 'recaptcha' | 'hcaptcha' | 'image' | 'text' | 'audio' | 'unknown';
-  selector?: string;
-  provider?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
-  bypassable?: boolean;
-}
-
-/**
- * Main portal detection class
- */
 export class PortalDetector {
   private knownPortals: Map<string, PortalSignature>;
   private detectionCache: Map<string, PortalIdentification>;
@@ -185,22 +29,17 @@ export class PortalDetector {
     executeScript: (code: string) => Promise<any>
   ): Promise<PortalIdentification> {
     try {
-      // Get page information
       const pageInfo = await this.getPageInfo(executeScript);
       const cacheKey = `${pageInfo.url}_${pageInfo.title}`;
 
-      // Check cache first
       const cached = this.detectionCache.get(cacheKey);
       if (cached) {
         return cached;
       }
 
-      // Analyze page for portal signatures
       const identification = await this.analyzePortal(pageInfo, executeScript);
-      
-      // Cache the result
       this.detectionCache.set(cacheKey, identification);
-      
+
       return identification;
 
     } catch {
@@ -305,7 +144,7 @@ export class PortalDetector {
           return { totalSteps: 1, sections: [], requiredFields: [], optionalFields: [], uploadFields: [], validationRules: [] };
         }
 
-        const mainForm = forms[0]; // Assume first form is the main one
+        const mainForm = forms[0];
         const structure = {
           totalSteps: 1,
           currentStep: 1,
@@ -320,8 +159,7 @@ export class PortalDetector {
         const stepIndicators = mainForm.querySelectorAll('.step, .page, [data-step]');
         if (stepIndicators.length > 1) {
           structure.totalSteps = stepIndicators.length;
-          
-          // Try to determine current step
+
           const activeStep = mainForm.querySelector('.step.active, .step.current, .page.active');
           if (activeStep) {
             const steps = Array.from(stepIndicators);
@@ -340,10 +178,9 @@ export class PortalDetector {
             isRequired: section.hasAttribute('required') || section.classList.contains('required')
           };
 
-          // Analyze fields in this section
           const fields = section.querySelectorAll('input, select, textarea');
           fields.forEach(field => {
-            const label = field.closest('label') || 
+            const label = field.closest('label') ||
                          document.querySelector(\`label[for="\${field.id}"]\`) ||
                          field.previousElementSibling?.tagName === 'LABEL' ? field.previousElementSibling : null;
 
@@ -357,7 +194,6 @@ export class PortalDetector {
               selector: field.id ? \`#\${field.id}\` : field.name ? \`[\${field.name}]\` : field.tagName.toLowerCase()
             };
 
-            // Extract options for select/radio fields
             if (field.tagName === 'SELECT') {
               fieldInfo.options = Array.from(field.options).map(option => ({
                 value: option.value,
@@ -367,14 +203,12 @@ export class PortalDetector {
 
             sectionInfo.fields.push(fieldInfo);
 
-            // Categorize fields
             if (fieldInfo.required) {
               structure.requiredFields.push(fieldInfo.id);
             } else {
               structure.optionalFields.push(fieldInfo.id);
             }
 
-            // Check for upload fields
             if (field.type === 'file') {
               structure.uploadFields.push({
                 id: fieldInfo.id,
@@ -404,7 +238,7 @@ export class PortalDetector {
             };
 
             allFields.forEach(field => {
-              const label = field.closest('label') || 
+              const label = field.closest('label') ||
                            document.querySelector(\`label[for="\${field.id}"]\`) ||
                            field.previousElementSibling?.tagName === 'LABEL' ? field.previousElementSibling : null;
 
@@ -464,7 +298,7 @@ export class PortalDetector {
   ): Promise<PortalChangeInfo> {
     try {
       const currentSignature = await this.generatePortalSignature(executeScript);
-      
+
       if (previousSignature === currentSignature) {
         return {
           hasChanged: false,
@@ -476,9 +310,8 @@ export class PortalDetector {
         };
       }
 
-      // Analyze the type and impact of changes
       const changeAnalysis = await this.analyzePortalChanges(previousSignature, currentSignature, executeScript);
-      
+
       return changeAnalysis;
 
     } catch {
@@ -511,17 +344,15 @@ export class PortalDetector {
           twoFactorAuth: false
         };
 
-        // Check for login indicators
         const passwordElements = document.querySelectorAll('input[type="password"]');
         const loginLinks = document.querySelectorAll('a[href*="login"]');
         const loginForms = document.querySelectorAll('.login-form, #login-form, .auth-form');
-        
-        // Check for login/signin buttons by text content
+
         const allButtons = Array.from(document.querySelectorAll('button'));
-        const loginButtons = allButtons.filter(btn => 
-          /login|sign\s*in/i.test(btn.textContent || '')
+        const loginButtons = allButtons.filter(btn =>
+          /login|sign\\s*in/i.test(btn.textContent || '')
         );
-        
+
         const loginElements = [
           ...passwordElements,
           ...loginLinks,
@@ -532,7 +363,6 @@ export class PortalDetector {
         if (loginElements.length > 0) {
           authInfo.required = true;
 
-          // Detect authentication methods
           if (document.querySelector('input[type="email"], input[type="text"][placeholder*="email"]')) {
             authInfo.methods.push('email_password');
           }
@@ -549,7 +379,6 @@ export class PortalDetector {
             authInfo.methods.push('guest_access');
           }
 
-          // Look for login and registration URLs
           const loginLink = document.querySelector('a[href*="login"]');
           if (loginLink) {
             authInfo.loginUrl = loginLink.href;
@@ -560,11 +389,9 @@ export class PortalDetector {
             authInfo.registrationUrl = registerLink.href;
           }
 
-          // Check for "Remember Me" functionality
           const rememberMe = document.querySelector('input[name*="remember"], .remember-me');
           authInfo.remembersSession = !!rememberMe;
 
-          // Check for 2FA indicators
           const twoFactorElements = document.querySelectorAll('.two-factor, .2fa, [placeholder*="verification code"]');
           authInfo.twoFactorAuth = twoFactorElements.length > 0;
         }
@@ -580,9 +407,6 @@ export class PortalDetector {
     }
   }
 
-  /**
-   * Get page information
-   */
   private async getPageInfo(executeScript: (code: string) => Promise<any>) {
     const pageInfoScript = `
       ({
@@ -604,17 +428,13 @@ export class PortalDetector {
     return await executeScript(pageInfoScript);
   }
 
-  /**
-   * Analyze portal based on page information and DOM
-   */
   private async analyzePortal(
     pageInfo: any,
     executeScript: (code: string) => Promise<any>
   ): Promise<PortalIdentification> {
-    // Check against known portal signatures
     for (const [portalType, signature] of this.knownPortals.entries()) {
       const confidence = this.calculateSignatureMatch(pageInfo, signature);
-      
+
       if (confidence > 0.7) {
         const features = await this.detectPortalFeatures(executeScript);
         const authentication = await this.checkAuthenticationRequired(executeScript);
@@ -634,7 +454,6 @@ export class PortalDetector {
       }
     }
 
-    // Generic analysis if no known portal matched
     const features = await this.detectPortalFeatures(executeScript);
     const authentication = await this.checkAuthenticationRequired(executeScript);
     const formStructure = await this.analyzeFormStructure(executeScript);
@@ -651,9 +470,6 @@ export class PortalDetector {
     };
   }
 
-  /**
-   * Detect portal features
-   */
   private async detectPortalFeatures(
     executeScript: (code: string) => Promise<any>
   ): Promise<PortalFeatures> {
@@ -683,11 +499,7 @@ export class PortalDetector {
     }
   }
 
-  /**
-   * Initialize known portal signatures
-   */
   private initializeKnownPortals(): void {
-    // Japan - Visit Japan Web
     this.knownPortals.set('japan_vjw', {
       name: 'Visit Japan Web',
       countryCode: 'JP',
@@ -701,7 +513,6 @@ export class PortalDetector {
       metaTags: [{ name: 'application-name', content: 'Visit Japan Web' }]
     });
 
-    // Malaysia - MDAC
     this.knownPortals.set('malaysia_mdac', {
       name: 'Malaysia Digital Arrival Card',
       countryCode: 'MY',
@@ -715,7 +526,6 @@ export class PortalDetector {
       metaTags: [{ name: 'description', content: 'Malaysia Digital Arrival Card' }]
     });
 
-    // Singapore - ICA
     this.knownPortals.set('singapore_ica', {
       name: 'Singapore ICA eServices',
       countryCode: 'SG',
@@ -730,45 +540,33 @@ export class PortalDetector {
     });
   }
 
-  /**
-   * Calculate confidence score for portal signature match
-   */
   private calculateSignatureMatch(pageInfo: any, signature: PortalSignature): number {
     let score = 0;
     let maxScore = 0;
 
-    // Domain matching (highest weight)
     maxScore += 30;
     if (signature.domains.some(domain => pageInfo.domain.includes(domain))) {
       score += 30;
     }
 
-    // URL pattern matching
     maxScore += 20;
     if (signature.urlPatterns.some(pattern => pageInfo.pathname.includes(pattern))) {
       score += 20;
     }
 
-    // Title matching
     maxScore += 20;
     if (signature.titlePatterns.some(pattern => pageInfo.title.includes(pattern))) {
       score += 20;
     }
 
-    // Additional checks would go here...
-    
     return maxScore > 0 ? score / maxScore : 0;
   }
 
-  /**
-   * Generate portal signature for change detection
-   */
   private async generatePortalSignature(executeScript: (code: string) => Promise<any>): Promise<string> {
     const signatureScript = `
       (function() {
         const elements = [];
-        
-        // Collect key structural elements
+
         document.querySelectorAll('form, .form, .step, .page, fieldset').forEach(el => {
           elements.push({
             tag: el.tagName,
@@ -777,7 +575,7 @@ export class PortalDetector {
             childCount: el.children.length
           });
         });
-        
+
         return {
           url: window.location.href,
           title: document.title,
@@ -793,9 +591,6 @@ export class PortalDetector {
     return JSON.stringify(signature);
   }
 
-  /**
-   * Analyze portal changes
-   */
   private async analyzePortalChanges(
     previousSignature: string,
     currentSignature: string,
@@ -805,7 +600,6 @@ export class PortalDetector {
       const prev = JSON.parse(previousSignature);
       const curr = JSON.parse(currentSignature);
 
-      // URL change
       if (prev.url !== curr.url) {
         return {
           hasChanged: true,
@@ -817,7 +611,6 @@ export class PortalDetector {
         };
       }
 
-      // Title change
       if (prev.title !== curr.title) {
         return {
           hasChanged: true,
@@ -829,7 +622,6 @@ export class PortalDetector {
         };
       }
 
-      // Form structure change
       if (prev.formCount !== curr.formCount || prev.inputCount !== curr.inputCount) {
         return {
           hasChanged: true,
@@ -841,9 +633,8 @@ export class PortalDetector {
         };
       }
 
-      // Content hash change (indicates layout or content changes)
       const hashDifference = Math.abs(prev.hash - curr.hash) / Math.max(prev.hash, curr.hash);
-      if (hashDifference > 0.1) { // 10% change threshold
+      if (hashDifference > 0.1) {
         return {
           hasChanged: true,
           changeType: 'layout',
@@ -875,9 +666,6 @@ export class PortalDetector {
     }
   }
 
-  /**
-   * Guess country from domain
-   */
   private guessCountryFromDomain(domain: string): string {
     const countryTlds: Record<string, string> = {
       '.jp': 'JP',
@@ -901,9 +689,6 @@ export class PortalDetector {
     return '';
   }
 
-  /**
-   * Get default portal features
-   */
   private getDefaultFeatures(): PortalFeatures {
     return {
       hasFileUpload: false,
@@ -921,9 +706,6 @@ export class PortalDetector {
     };
   }
 
-  /**
-   * Get default authentication info
-   */
   private getDefaultAuthInfo(): AuthenticationInfo {
     return {
       required: false,
@@ -933,9 +715,6 @@ export class PortalDetector {
     };
   }
 
-  /**
-   * Get default form structure
-   */
   private getDefaultFormStructure(): FormStructureInfo {
     return {
       totalSteps: 1,
@@ -947,20 +726,4 @@ export class PortalDetector {
       validationRules: []
     };
   }
-}
-
-/**
- * Portal signature for pattern matching
- */
-interface PortalSignature {
-  name: string;
-  countryCode: string;
-  version: string;
-  domains: string[];
-  urlPatterns: string[];
-  titlePatterns: string[];
-  bodyTextPatterns: string[];
-  elementSelectors: string[];
-  cssClasses: string[];
-  metaTags: Array<{ name: string; content: string }>;
 }

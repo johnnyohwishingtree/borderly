@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { CONTEXT_TRANSITIONS, STANDARD_TRANSITIONS } from '@/navigation/transitions';
+import { CONTEXT_TRANSITIONS, STANDARD_TRANSITIONS } from './transitions';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import LoadingStates from '@/components/ui/LoadingStates';
 

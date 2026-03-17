@@ -1,5 +1,5 @@
-import { ErrorHandler } from '../../src/services/error/errorHandler';
-import { ERROR_CODES, createAppError } from '../../src/utils/errorHandling';
+import { ErrorHandler } from '../../../src/services/error/errorHandler';
+import { ERROR_CODES, createAppError } from '../../../src/services/error/errorHandling';
 
 // Mock dependencies
 jest.mock('react-native', () => ({
@@ -8,7 +8,7 @@ jest.mock('react-native', () => ({
   },
 }));
 
-jest.mock('../../src/utils/retryLogic', () => ({
+jest.mock('../../../src/services/error/retryLogic', () => ({
   retryAsync: jest.fn(),
   RETRY_CONFIGS: {
     network: { maxAttempts: 3, baseDelay: 1000, maxDelay: 5000, backoffStrategy: 'exponential' },
@@ -54,7 +54,7 @@ describe('ErrorHandler', () => {
     });
 
     it('attempts recovery for recoverable errors', async () => {
-      const { retryAsync } = require('../../src/utils/retryLogic');
+      const { retryAsync } = require('../../../src/services/error/retryLogic');
       retryAsync.mockResolvedValue({ success: true, attempts: 1, totalTime: 100 });
 
       const appError = createAppError(ERROR_CODES.NETWORK_UNAVAILABLE, 'Network test');
@@ -72,7 +72,7 @@ describe('ErrorHandler', () => {
     });
 
     it('executes fallback action when recovery fails', async () => {
-      const { retryAsync } = require('../../src/utils/retryLogic');
+      const { retryAsync } = require('../../../src/services/error/retryLogic');
       retryAsync.mockResolvedValue({ success: false, attempts: 3, error: new Error('Retry failed') });
 
       const appError = createAppError(ERROR_CODES.NETWORK_UNAVAILABLE, 'Network test');

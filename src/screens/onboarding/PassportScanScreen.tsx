@@ -1,253 +1,44 @@
 import { View, Text, ScrollView } from 'react-native';
-import { useState, useEffect } from 'react';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
-
-import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, Input, ProgressBar, HelpHint } from '../../components/ui';
-import { ErrorMessage, useErrorMessage } from '../../components/ui/ErrorMessage';
+import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { ContextualHelp, HelpContent } from '../../components/help';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { type MRZParseResult } from '../../services/passport/mrzParser';
-import { type TravelerProfile } from '../../types/profile';
-import { detectDevicePerformance } from '../../utils/imageUtils';
-import { handleStorageError, handleCameraError, errorHandler } from '../../services/error/errorHandler';
-import { isStorageError } from '../../utils/errorHandling';
-
-type PassportScanScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>;
-
-const passportSchema = z.object({
-  passportNumber: z.string().min(1, 'Passport number is required').min(6, 'Invalid passport number'),
-  surname: z.string().min(1, 'Surname is required'),
-  givenNames: z.string().min(1, 'Given names are required'),
-  nationality: z.string().min(3, 'Nationality is required').max(3, 'Use 3-letter country code'),
-  dateOfBirth: z.string().min(1, 'Date of birth is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
-  gender: z.enum(['M', 'F', 'X']),
-  passportExpiry: z.string().min(1, 'Passport expiry date is required').regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be in YYYY-MM-DD format'),
-  issuingCountry: z.string().min(3, 'Issuing country is required').max(3, 'Use 3-letter country code'),
-});
-
-type PassportFormData = z.infer<typeof passportSchema>;
+import { usePassportScan } from '../../hooks/usePassportScan';
 
 export default function PassportScanScreen() {
-  const navigation = useNavigation<PassportScanScreenNavigationProp>();
-  const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
-  const { saveProfile } = useProfileStore();
-  
-  const familyMode = route.params?.familyMode || false;
-  const relationship = route.params?.relationship || 'self';
-  const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
-  const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
-  const [scannedProfile, setScannedProfile] = useState<Partial<TravelerProfile> | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [devicePerformance, setDevicePerformance] = useState<'low' | 'medium' | 'high'>('medium');
-  const [showPerformanceHint, setShowPerformanceHint] = useState(false);
-  const { error: storageError, showError: showStorageError, clearError: clearStorageError } = useErrorMessage();
-  const { error: scanError, showError: showScanError, clearError: clearScanError } = useErrorMessage();
-  const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'scan', data?: any } | null>(null);
   const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<PassportFormData>({
-    resolver: zodResolver(passportSchema),
-    defaultValues: {
-      gender: 'M',
-    },
-  });
+    mode,
+    scanResult,
+    scannedProfile,
+    isSubmitting,
+    devicePerformance,
+    showPerformanceHint,
+    setShowPerformanceHint,
+    storageError,
+    scanError,
+    familyMode,
+    relationship,
+    form,
+    clearStorageError,
+    saveProfileData,
+    handleScanSuccess,
+    handleScanError,
+    handleScanCancel,
+    handleManualEntry,
+    handleStartScanning,
+    handleBack,
+    handleConfirmScanned,
+    handleEditScanned,
+    handleRescan,
+    retrySave,
+    retryScan,
+    fallbackToManual,
+  } = usePassportScan();
 
-  // Detect device performance on mount
-  useEffect(() => {
-    const { tier } = detectDevicePerformance();
-    setDevicePerformance(tier);
-    
-    // Show hint for low-end devices
-    if (tier === 'low') {
-      setShowPerformanceHint(true);
-    }
-  }, []);
+  const { control, handleSubmit, formState: { errors } } = form;
 
-  const generateProfileId = () => {
-    // Generate a secure UUID-like identifier using timestamp and multiple random sources
-    const timestamp = Date.now();
-    const randomPart1 = Math.random().toString(36).substring(2, 10);
-    const randomPart2 = Math.random().toString(36).substring(2, 10);
-    return `profile_${timestamp}_${randomPart1}_${randomPart2}`;
-  };
-
-  const saveProfileData = async (profileData: Partial<TravelerProfile>) => {
-    setIsSubmitting(true);
-    clearStorageError(); // Clear any previous storage errors
-    
-    try {
-      // Ensure all required TravelerProfile fields are provided with defaults
-      const completeProfile: TravelerProfile = {
-        id: generateProfileId(),
-        passportNumber: profileData.passportNumber || '',
-        surname: profileData.surname || '',
-        givenNames: profileData.givenNames || '',
-        nationality: profileData.nationality || '',
-        dateOfBirth: profileData.dateOfBirth || '',
-        gender: profileData.gender || 'X',
-        passportExpiry: profileData.passportExpiry || '',
-        issuingCountry: profileData.issuingCountry || '',
-        email: profileData.email || '',
-        phoneNumber: profileData.phoneNumber || '',
-        relationship: familyMode ? relationship as any : 'self',
-        defaultDeclarations: {
-          hasItemsToDeclar: false,
-          carryingCurrency: false,
-          carryingProhibitedItems: false,
-          visitedFarm: false,
-          hasCriminalRecord: false,
-          carryingCommercialGoods: false,
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      await saveProfile(completeProfile);
-      setLastFailedOperation(null); // Clear any failed operation
-      
-      if (familyMode) {
-        // Navigate back to family management
-        navigation.navigate('FamilyManagement' as any);
-      } else {
-        navigation.navigate('ConfirmProfile');
-      }
-    } catch (error) {
-      // Store the failed operation for retry
-      setLastFailedOperation({ type: 'save', data: profileData });
-
-      const err = error as Error;
-      const errorContext = {
-        screen: 'PassportScan',
-        action: 'saveProfile',
-        timestamp: Date.now()
-      };
-      const recoveryOptions = {
-        showUserFeedback: false, // We'll show our own UI
-        enableRetry: true,
-        onRecoverySuccess: () => {
-          clearStorageError();
-          setLastFailedOperation(null);
-          if (familyMode) {
-            navigation.navigate('FamilyManagement' as any);
-          } else {
-            navigation.navigate('ConfirmProfile');
-          }
-        }
-      };
-
-      // Only route to storage error handler if it's actually a storage error
-      const result = isStorageError(err)
-        ? await handleStorageError(err, errorContext, recoveryOptions)
-        : await errorHandler.handleError(err, errorContext, recoveryOptions);
-
-      if (!result.recovered && result.error) {
-        showStorageError(result.error);
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const onSubmit = async (data: PassportFormData) => {
-    await saveProfileData(data);
-  };
-
-  const handleBack = () => {
-    if (mode === 'method') {
-      navigation.goBack();
-    } else {
-      setMode('method');
-      setScanResult(null);
-      setScannedProfile(null);
-    }
-  };
-
-  // Camera scanning handlers
-  const handleScanSuccess = (result: MRZParseResult) => {
-    clearScanError(); // Clear any previous scan errors
-    setScanResult(result);
-    setScannedProfile(result.profile || null);
-    setMode('preview');
-  };
-
-  const handleScanError = async (error: Error) => {
-    // Store the failed operation for retry
-    setLastFailedOperation({ type: 'scan' });
-    
-    const result = await handleCameraError(error, {
-      screen: 'PassportScan',
-      action: 'mrzScanning',
-      timestamp: Date.now()
-    }, {
-      showUserFeedback: false, // We'll show our own UI
-      enableRetry: true,
-      onRecoverySuccess: () => {
-        clearScanError();
-        setLastFailedOperation(null);
-        setMode('scanning'); // Retry scanning
-      },
-      fallbackAction: () => {
-        setMode('manual'); // Fall back to manual entry
-      }
-    });
-    
-    if (!result.recovered && result.error) {
-      showScanError(result.error);
-    }
-  };
-
-  const handleScanCancel = () => {
-    clearScanError();
-    setMode('method');
-  };
-
-  const handleManualEntry = () => {
-    setMode('manual');
-  };
-
-  const handleStartScanning = () => {
-    setMode('scanning');
-  };
-
-  // Preview handlers
-  const handleConfirmScanned = async () => {
-    if (scannedProfile) {
-      await saveProfileData(scannedProfile);
-    }
-  };
-
-  const handleEditScanned = () => {
-    // Pre-fill manual form with scanned data
-    if (scannedProfile) {
-      setValue('passportNumber', scannedProfile.passportNumber || '');
-      setValue('surname', scannedProfile.surname || '');
-      setValue('givenNames', scannedProfile.givenNames || '');
-      setValue('nationality', scannedProfile.nationality || '');
-      setValue('dateOfBirth', scannedProfile.dateOfBirth || '');
-      setValue('gender', scannedProfile.gender || 'M');
-      setValue('passportExpiry', scannedProfile.passportExpiry || '');
-      setValue('issuingCountry', scannedProfile.issuingCountry || '');
-    }
-    setMode('manual');
-  };
-
-  const handleRescan = () => {
-    setScanResult(null);
-    setScannedProfile(null);
-    setMode('scanning');
-  };
-
-  // Render different modes
   if (mode === 'scanning') {
     return (
       <MRZScanner
@@ -276,9 +67,8 @@ export default function PassportScanScreen() {
   return (
     <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
       <View className="px-6 py-8">
-        {/* Progress indicator */}
         <ProgressBar progress={50} className="mb-6" />
-        
+
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-row items-center flex-1">
@@ -287,22 +77,22 @@ export default function PassportScanScreen() {
                 {familyMode ? 'Add Family Member' : 'Passport Information'}
               </Text>
             </View>
-            <ContextualHelp 
+            <ContextualHelp
               content={HelpContent.passportScanning}
               variant="icon"
               size="medium"
             />
           </View>
           <Text className="text-base text-gray-600 mb-4">
-            {familyMode 
-              ? `Scan the ${relationship === 'spouse' ? "spouse's" : 
-                           relationship === 'child' ? "child's" : 
-                           relationship === 'parent' ? "parent's" : 
+            {familyMode
+              ? `Scan the ${relationship === 'spouse' ? "spouse's" :
+                           relationship === 'child' ? "child's" :
+                           relationship === 'parent' ? "parent's" :
                            "family member's"} passport or enter information manually. All data is stored securely on your device.`
               : 'Scan your passport or enter information manually. All data is stored securely on your device.'
             }
           </Text>
-          
+
           <HelpHint
             title="Scanning Tips"
             content="For best results, ensure good lighting and hold your passport flat. The camera will automatically detect the MRZ (Machine Readable Zone) at the bottom of your passport photo page."
@@ -317,13 +107,7 @@ export default function PassportScanScreen() {
           error={storageError}
           variant="card"
           showRetry
-          onRetry={async () => {
-            clearStorageError();
-            // Retry the last failed save operation
-            if (lastFailedOperation?.type === 'save' && lastFailedOperation.data) {
-              await saveProfileData(lastFailedOperation.data);
-            }
-          }}
+          onRetry={retrySave}
           onDismiss={clearStorageError}
           className="mb-4"
         />
@@ -332,16 +116,8 @@ export default function PassportScanScreen() {
           error={scanError}
           variant="card"
           showRetry
-          onRetry={() => {
-            clearScanError();
-            setLastFailedOperation(null);
-            setMode('scanning'); // Retry scanning
-          }}
-          onDismiss={() => {
-            clearScanError();
-            setLastFailedOperation(null);
-            setMode('manual'); // Fall back to manual
-          }}
+          onRetry={retryScan}
+          onDismiss={fallbackToManual}
           className="mb-4"
         />
 
@@ -384,7 +160,7 @@ export default function PassportScanScreen() {
                   Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
                   {devicePerformance === 'low' && '\n\n⚡ Optimized for your device performance'}
                 </Text>
-                
+
                 <HelpHint
                   content="Look for the two lines of text at the bottom of your passport photo page. This is the MRZ that contains your passport information."
                   variant="info"
@@ -412,7 +188,7 @@ export default function PassportScanScreen() {
                 <Text className="text-sm text-gray-600 text-center mb-4">
                   Enter your passport information by hand if camera scanning isn't working
                 </Text>
-                
+
                 <HelpHint
                   content="You can find this information on your passport photo page. Make sure to enter dates in YYYY-MM-DD format and country codes as 3 letters (e.g., USA, GBR, JPN)."
                   variant="tip"
@@ -608,7 +384,7 @@ export default function PassportScanScreen() {
           {mode === 'manual' && (
             <Button
               title="Continue"
-              onPress={handleSubmit(onSubmit)}
+              onPress={handleSubmit((data) => saveProfileData(data))}
               loading={isSubmitting}
               size="large"
               fullWidth

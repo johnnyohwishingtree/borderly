@@ -9,8 +9,8 @@ import {
   validateCountrySpecificRules,
   sanitizeFormData,
   isValidFormValue,
-} from '../../src/services/forms/validators';
-import { FormField } from '../../src/types/schema';
+} from '../../../src/services/forms/validators';
+import { FormField } from '../../../src/types/schema';
 
 describe('Form Validators', () => {
   describe('createFieldSchema', () => {

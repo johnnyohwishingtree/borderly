@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import Button from './Button';
-import { createAppError, logError, ERROR_CODES } from '../../utils/errorHandling';
+import { createAppError, logError, ERROR_CODES } from '../../services/error/errorHandling';
 
 export interface ErrorBoundaryState {
   hasError: boolean;
