@@ -386,10 +386,13 @@ pipeline/
 ├── package.json          # Inngest + Octokit + Hono + Vitest
 ├── tsconfig.json         # Standalone TypeScript config
 ├── vitest.config.ts      # Test configuration
+├── Dockerfile            # Container build for deployment
+├── .dockerignore         # Docker build exclusions
+├── DEPLOY.md             # Deployment and secrets setup guide
 └── src/
     ├── inngest.ts        # Client + event type definitions
     ├── types.ts          # State machine types, CI status, config
-    ├── serve.ts          # Hono HTTP server for Inngest
+    ├── serve.ts          # Hono HTTP server (Node adapter, health endpoints)
     ├── functions/
     │   ├── story-lifecycle.ts      # PR merged → close story → next story
     │   ├── verify-and-fix.ts       # Verify CI → fix loop → escalate
@@ -398,7 +401,8 @@ pipeline/
     │   └── watcher.ts              # Scheduled health monitoring
     ├── lib/
     │   ├── github.ts               # Octokit wrapper (port of lib.sh)
-    │   └── state-machine.ts        # State persistence (port of state-machine.sh)
+    │   ├── state-machine.ts        # State persistence (port of state-machine.sh)
+    │   └── env.ts                  # Environment config with validation
     └── __tests__/
         ├── state-machine.test.ts   # 24 tests
         ├── merge-gate.test.ts      # 9 tests
@@ -438,6 +442,23 @@ Pipeline tests also run in CI as the `pipeline-test` job in `test.yml`.
 
 - [x] Sprint 1: Core infrastructure (types, events, state machine, GitHub client, all functions, tests)
 - [x] Sprint 2: Integration testing (mock step harness, 38 integration tests across all functions, CI job)
-- [ ] Sprint 3: Deploy to Inngest Cloud, wire up secrets
+- [x] Sprint 3: Deploy infrastructure (Dockerfile, env config, deploy workflow, hardened relay, DEPLOY.md)
 - [ ] Sprint 4: Parallel run (old + new), validate parity
 - [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
+
+### Deployment
+
+The pipeline server deploys as a Docker container. See `pipeline/DEPLOY.md` for full setup.
+
+**Required GitHub Secrets:**
+| Secret | Purpose |
+|--------|---------|
+| `GH_PAT` | GitHub API access for pipeline functions |
+| `INNGEST_EVENT_KEY` | Inngest event sending authentication |
+| `INNGEST_SIGNING_KEY` | Inngest webhook request verification |
+
+**Deploy workflow:** `deploy-pipeline.yml` runs on push to master when `pipeline/` changes.
+Builds Docker image → pushes to registry → verifies health endpoint.
+
+**Relay workflow:** `inngest-relay.yml` bridges GitHub webhook events to Inngest Cloud.
+Uses `jq` for safe JSON construction, validates HTTP responses, checks secret presence.
