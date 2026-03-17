@@ -1,66 +1,68 @@
 /**
- * E2E tests for boarding pass scanning functionality
+ * E2E tests for boarding pass scanning functionality.
+ *
+ * Navigates through the real app flow: onboarding -> CreateTrip -> scan button.
+ * On web, the camera is unavailable so a fallback UI with a demo scan option is shown.
  */
 
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+// Helper to complete onboarding
+async function completeOnboarding(page: Page) {
+  await page.getByRole('button', { name: 'Skip tutorial' }).click();
+  await page.getByRole('button', { name: 'Enter Manually' }).click();
+
+  await page.getByTestId('passport-number-input').fill('AB1234567');
+  await page.getByTestId('surname-input').fill('SMITH');
+  await page.getByTestId('given-names-input').fill('JOHN');
+  await page.getByTestId('nationality-input-trigger').click();
+  await page.getByTestId('nationality-input-search').fill('United States');
+  await page.getByTestId('nationality-input-option-USA').click();
+  await page.getByTestId('dob-input').fill('1990-01-15');
+  await page.getByTestId('gender-Male-button').click();
+  await page.getByTestId('passport-expiry-input').fill('2030-12-31');
+  await page.getByTestId('issuing-country-input-trigger').click();
+  await page.getByTestId('issuing-country-input-search').fill('United States');
+  await page.getByTestId('issuing-country-input-option-USA').click();
+
+  await page.getByTestId('passport-continue-button').click();
+  await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+  await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
+  await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
+  await page.getByRole('button', { name: 'Skip for Now' }).click();
+  await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+}
 
 test.describe('Boarding Pass Scanner', () => {
   test.beforeEach(async ({ page }) => {
-    // Start the app
-    await page.goto('http://localhost:19006');
-    
-    // Wait for app to load
-    await page.waitForSelector('[data-testid="app-loaded"]', { timeout: 10000 });
+    page.on('dialog', dialog => dialog.accept());
+    await page.goto('/');
   });
 
-  test('renders without crashing when camera is available', async ({ page }) => {
-    // This is a basic smoke test - we can't easily navigate to the scanner
-    // without building the full navigation flow, but we can verify the 
-    // component exports and imports work correctly through the bundle
-    
-    // Check that the app loaded successfully
-    const appElement = page.locator('[data-testid="app-loaded"]');
-    await expect(appElement).toBeVisible();
-    
-    // The fact that the page loaded means all imports resolved correctly,
-    // including the BoardingPassScanner component
-  });
+  test('shows camera not available fallback on web and supports demo scan', async ({ page }) => {
+    test.setTimeout(60000);
 
-  test('scanner component can be imported without module errors', async ({ page }) => {
-    // Navigate to a test page that would use the scanner
-    // Since we don't have a direct route to the scanner, we'll test that
-    // the module can be loaded without runtime errors
-    
-    // Evaluate in browser context to test import
-    const importTest = await page.evaluate(() => {
-      // This would fail if there were import issues with BoardingPassScanner
-      return { success: true, error: null as string | null };
-    });
-    
-    expect(importTest.success).toBe(true);
-  });
+    // Complete onboarding to reach the trips screen
+    await completeOnboarding(page);
 
-  test('camera mock simulates barcode detection', async ({ page }) => {
-    // Test that our camera mock correctly simulates barcode reading
-    // This verifies the E2E infrastructure works for future scanner tests
-    
-    const mockTest = await page.evaluate(() => {
-      // Test camera mock constants
-      const cameraConstants = window.RNCamera?.Constants;
-      if (!cameraConstants) return { success: false, error: 'Camera mock not loaded' };
-      
-      const hasBarCodeTypes = cameraConstants.BarCodeType && 
-        cameraConstants.BarCodeType.pdf417 === 'pdf417' &&
-        cameraConstants.BarCodeType.aztec === 'aztec' &&
-        cameraConstants.BarCodeType.qr === 'qr';
-      
-      if (!hasBarCodeTypes) {
-        return { success: false, error: 'Barcode types not properly mocked' };
-      }
-      
-      return { success: true, error: null };
-    });
-    
-    expect(mockTest.success).toBe(true);
+    // Navigate to Create Trip
+    await page.getByTestId('create-first-trip-button').click();
+
+    // Click the scan boarding pass button (empty state)
+    await page.getByTestId('empty-state-scan-button').click();
+
+    // On web, camera is not available — verify fallback UI
+    await expect(page.getByText('Camera Not Available')).toBeVisible({ timeout: 10000 });
+
+    // Click the demo scan button
+    await page.getByRole('button', { name: 'Try Demo Scan' }).click();
+
+    // Verify demo scan feedback appears
+    await expect(page.getByText('Demo: Scanning sample boarding pass')).toBeVisible({ timeout: 10000 });
+
+    // Verify auto-filled leg data from the demo scan
+    await expect(page.getByTestId('leg-0-arrival-airport')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId('leg-0-airline-code')).toBeVisible({ timeout: 10000 });
   });
 });

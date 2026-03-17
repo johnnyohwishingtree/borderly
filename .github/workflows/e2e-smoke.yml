@@ -54,7 +54,7 @@ jobs:
         run: npx playwright test --reporter=line
         env:
           CI: true
-          E2E_PROJECT: chromium,qr-workflow
+          E2E_PROJECT: chromium,qr-workflow,account-setup,portal-submission,family,country-submissions
 
   # Performance tests (9 tests) — run in parallel with chromium
   test-performance:

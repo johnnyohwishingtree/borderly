@@ -25,6 +25,9 @@ const allProjects = [
       'passportScanning.spec.ts',
       'fullJourney.spec.ts',
       'tripAndSubmit.spec.ts',
+      'boardingPassScan.spec.ts',
+      'formCompletion.spec.ts',
+      'settings.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
@@ -60,6 +63,27 @@ const allProjects = [
   {
     name: 'account-setup',
     testMatch: 'accountSetup.spec.ts',
+    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
+  },
+  {
+    name: 'family',
+    testMatch: [
+      'family-management.spec.ts',
+      'family-workflows.spec.ts',
+    ],
+    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
+  },
+  {
+    name: 'country-submissions',
+    testMatch: [
+      'canadaSubmission.spec.ts',
+      'malaysiaSubmission.spec.ts',
+      'singaporeSubmission.spec.ts',
+      'thailandSubmission.spec.ts',
+      'ukSubmission.spec.ts',
+      'usaSubmission.spec.ts',
+      'vietnamSubmission.spec.ts',
+    ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
 ];
