@@ -8,6 +8,8 @@
     "serve": "tsx src/serve.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:unit": "vitest run --grep 'test.ts$'",
+    "test:integration": "vitest run --grep 'integration.test.ts$'",
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts"
   },
