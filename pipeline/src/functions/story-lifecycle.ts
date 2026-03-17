@@ -12,7 +12,7 @@ import { inngest } from '../inngest.js';
 import { GitHubClient } from '../lib/github.js';
 import { PipelineStateMachine } from '../lib/state-machine.js';
 
-const CONSECUTIVE_FAILURE_THRESHOLD = 3;
+export const CONSECUTIVE_FAILURE_THRESHOLD = 3;
 
 export const storyLifecycle = inngest.createFunction(
   {

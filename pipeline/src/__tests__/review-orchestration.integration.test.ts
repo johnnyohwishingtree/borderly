@@ -32,7 +32,7 @@ vi.mock('../lib/state-machine.js', () => ({
   PipelineStateMachine: vi.fn(() => mockStateMachine),
 }));
 
-const { ensureReview, reviewRelay, reviewFix } = await import(
+const { ensureReview, reviewRelay, reviewFix, AGENT_FIX_WAIT_DURATION } = await import(
   '../functions/review-orchestration.js'
 );
 
@@ -273,7 +273,7 @@ describe('reviewFix integration', () => {
 
     // Should sleep waiting for fix
     expect(context.sleeps).toHaveLength(1);
-    expect(context.sleeps[0].duration).toBe('3m');
+    expect(context.sleeps[0].duration).toBe(AGENT_FIX_WAIT_DURATION);
 
     // Should emit verify event
     const verifyEvent = context.sentEvents.find((e) => e.name === 'pipeline/verify.requested');

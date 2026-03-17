@@ -5,6 +5,29 @@
  * so we can test function logic end-to-end without the Inngest Dev Server.
  */
 
+/**
+ * Evaluate a simple CEL-like `if` condition against an event object.
+ *
+ * Supports the pattern used in this codebase:
+ *   async.data.FIELD == 'VALUE'
+ *
+ * `async` refers to the received event being evaluated. Returns true
+ * (permissive) for any pattern that cannot be parsed.
+ */
+function evaluateIfCondition(
+  condition: string,
+  event: Record<string, unknown>
+): boolean {
+  const eqMatch = condition.match(/^async\.data\.(\w+)\s*==\s*'([^']*)'$/);
+  if (eqMatch) {
+    const [, field, value] = eqMatch;
+    const eventData = event['data'] as Record<string, unknown> | undefined;
+    return eventData?.[field] === value;
+  }
+  // Unrecognized condition pattern — permissive fallback
+  return true;
+}
+
 export interface SentEvent {
   stepId: string;
   name: string;
@@ -56,6 +79,12 @@ export function createMockStep() {
       // Return queued event or null (timeout)
       const queued = context.waitEventQueue.get(opts.event);
       if (queued !== undefined) {
+        // If an `if` condition is specified, evaluate it against the queued
+        // event. Return null (simulate timeout) when the event doesn't match,
+        // so tests can verify that only matching events are consumed.
+        if (opts.if && queued !== null && !evaluateIfCondition(opts.if, queued)) {
+          return null;
+        }
         context.waitEventQueue.delete(opts.event);
         return queued;
       }

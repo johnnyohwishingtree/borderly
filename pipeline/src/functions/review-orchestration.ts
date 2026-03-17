@@ -13,6 +13,7 @@ import { PipelineStateMachine } from '../lib/state-machine.js';
 
 const MAX_RELAY_ROUNDS = 3;
 const BOT_REVIEWERS = ['gemini-code-assist[bot]', 'copilot[bot]'];
+export const AGENT_FIX_WAIT_DURATION = '3m';
 
 // ─── Ensure Review ──────────────────────────────────────────────────────────
 
@@ -231,7 +232,7 @@ export const reviewFix = inngest.createFunction(
     });
 
     // Step 3: Wait for agent to push fixes, then trigger verify
-    await step.sleep('wait-for-agent-fix', '3m');
+    await step.sleep('wait-for-agent-fix', AGENT_FIX_WAIT_DURATION);
 
     // Step 4: Dispatch verify-and-fix for the fixed code
     await step.sendEvent('emit-verify', {

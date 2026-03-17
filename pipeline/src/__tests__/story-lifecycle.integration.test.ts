@@ -51,7 +51,7 @@ vi.mock('../lib/state-machine.js', () => ({
   PipelineStateMachine: vi.fn(() => mockStateMachine),
 }));
 
-const { storyLifecycle } = await import('../functions/story-lifecycle.js');
+const { storyLifecycle, CONSECUTIVE_FAILURE_THRESHOLD } = await import('../functions/story-lifecycle.js');
 
 function getHandler() {
   return (storyLifecycle as unknown as { fn: (...args: unknown[]) => unknown }).fn;
@@ -198,11 +198,11 @@ describe('story-lifecycle integration', () => {
   it('pauses pipeline when too many unmerged PRs', async () => {
     mockState.issueLabels.set(142, ['story', 'epic:mvp']);
     mockState.nextPendingStory = 143;
-    mockState.openPRs = [
-      { number: 10, head: { sha: 'a', ref: 'claude/a' }, updated_at: new Date().toISOString() },
-      { number: 11, head: { sha: 'b', ref: 'claude/b' }, updated_at: new Date().toISOString() },
-      { number: 12, head: { sha: 'c', ref: 'claude/c' }, updated_at: new Date().toISOString() },
-    ];
+    mockState.openPRs = Array.from({ length: CONSECUTIVE_FAILURE_THRESHOLD }, (_, i) => ({
+      number: 10 + i,
+      head: { sha: String.fromCharCode(97 + i), ref: `claude/${String.fromCharCode(97 + i)}` },
+      updated_at: new Date().toISOString(),
+    }));
 
     const { step, context } = createMockStep();
     const result = await getHandler()({ ...makeEvent(42), step });
