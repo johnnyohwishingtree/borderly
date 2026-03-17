@@ -78,14 +78,16 @@ app.on(
 
 // ─── Start server ───────────────────────────────────────────────────────────
 
-honoServe(
-  { fetch: app.fetch, port: env.port },
-  (info) => {
-    console.log(`Pipeline server listening on port ${info.port}`);
-    console.log(`Environment: ${env.nodeEnv}`);
-    console.log(`Repo: ${env.repo}`);
-    console.log(`Inngest endpoint: http://localhost:${info.port}/api/inngest`);
-  }
-);
+if (env.nodeEnv !== 'test') {
+  honoServe(
+    { fetch: app.fetch, port: env.port },
+    (info) => {
+      console.log(`Pipeline server listening on port ${info.port}`);
+      console.log(`Environment: ${env.nodeEnv}`);
+      console.log(`Repo: ${env.repo}`);
+      console.log(`Inngest endpoint: http://localhost:${info.port}/api/inngest`);
+    }
+  );
+}
 
 export default app;
