@@ -10,23 +10,62 @@ Perform a comprehensive UI/UX review combining screenshot analysis, AI-powered r
 ## Overview
 
 This skill chains three tools together:
-1. **Screenshot Critique** — Claude vision analyzes your screenshots for design issues
-2. **Stitch Redesign** (optional) — Google Stitch generates alternative UI designs from your screenshots
-3. **Code-Level UX Audit** — The `frontend-design-audit` plugin scans your code for usability violations and auto-fixes them
+1. **Screenshot Capture** — Maestro flow automatically captures screenshots of every key screen
+2. **Screenshot Critique** — Claude vision analyzes the screenshots for design issues
+3. **Stitch Redesign** (optional) — Google Stitch generates alternative UI designs
+4. **Code-Level UX Audit** — The `frontend-design-audit` plugin scans code for usability violations
 
 ## Prerequisites
 
-- **Stitch MCP server** (optional): Requires `STITCH_API_KEY` env var. Get your key at https://stitch.withgoogle.com → Profile → Stitch Settings → API Keys → Create Key. Free tier: 350 generations/month.
-- **frontend-design-audit plugin**: Should be installed at project scope. If not: `claude plugin install frontend-design-audit@frontend-design-audit --scope project`
-- **frontend-design plugin**: Should be installed at project scope. If not: `claude plugin install frontend-design@claude-plugins-official --scope project`
+- **iOS Simulator running** with the app installed (`pnpm ios`)
+- **Maestro CLI** installed (`brew install maestro`)
+- **Stitch MCP server** (optional): Requires `STITCH_API_KEY` env var. Free tier: 350 gen/month.
+- **frontend-design-audit plugin**: `claude plugin install frontend-design-audit@frontend-design-audit --scope project`
+- **frontend-design plugin**: `claude plugin install frontend-design@claude-plugins-official --scope project`
 
 ## Steps
 
-### Phase 1: Capture & Critique
+### Phase 0: Automated Screenshot Capture
 
-1. **Gather screenshots** of the target screens. The user should provide:
-   - Screenshots from their device/simulator (drag & drop into chat, or provide file paths)
-   - OR specify which screens to audit (you can read the screen source files)
+1. **Run the screenshot capture Maestro flow** to automatically walk through the app and capture screenshots of every key screen:
+
+```bash
+maestro test maestro/flows/capture-screenshots.yaml
+```
+
+This flow:
+- Launches the app with clean state
+- Walks through onboarding (Welcome → Tutorial → Passport Form → Confirm → Biometric)
+- Creates a trip to Japan
+- Opens the leg form and fills it
+- Opens the submission guide
+- Visits each bottom tab (Wallet, Profile, Settings)
+- Saves numbered screenshots to `maestro/output/`:
+  - `01-welcome-screen.png`
+  - `02-tutorial-screen.png`
+  - `03-passport-scan-screen.png`
+  - `04-passport-form-top.png`
+  - `05-passport-form-filled.png`
+  - `06-confirm-profile-screen.png`
+  - `07-biometric-setup-screen.png`
+  - `08-trip-list-empty.png`
+  - `09-trip-list-with-trip.png`
+  - `10-trip-detail-screen.png`
+  - `11-leg-form-top.png`
+  - `12-leg-form-middle.png`
+  - `13-leg-form-bottom.png`
+  - `14-submission-guide.png`
+  - `15-wallet-screen.png`
+  - `16-profile-screen.png`
+  - `17-settings-screen.png`
+
+2. If the user already has screenshots (from a previous run or manual capture), skip this step and read them from `maestro/output/` or the provided paths.
+
+3. If the Maestro flow fails (simulator not running, app not built), fall back to asking the user to provide screenshots manually.
+
+### Phase 1: Screenshot Critique
+
+1. **Read all screenshots** from `maestro/output/` using the Read tool (it supports image files).
 
 2. **Analyze each screenshot** using vision. Evaluate against these criteria:
 
@@ -72,7 +111,7 @@ This skill chains three tools together:
    - **Minor**: Polish issue, good to fix
 
 4. **Output a structured report** with:
-   - Screenshot reference (which screen)
+   - Screenshot reference (filename)
    - Issue description
    - Severity
    - Specific fix suggestion (NativeWind classes, component changes)
@@ -82,9 +121,9 @@ This skill chains three tools together:
 If the Stitch MCP server is connected:
 
 1. For screens with Critical or Major issues, use Stitch to generate redesign alternatives:
-   - Upload the screenshot to Stitch
-   - Prompt: "Redesign this [screen type] for a mobile travel app. Modern, clean, accessible. Use the project's primary color (e.g., from tailwind.config.js), white backgrounds, subtle shadows. Focus on [specific issues found in Phase 1]."
-   - Generate 2-3 variations
+   - Create a Stitch project for the audit
+   - Generate screens with prompt: "Redesign this [screen type] for a mobile travel app. Modern, clean, accessible. Use the project's primary color (from tailwind.config.js), white backgrounds, subtle shadows. Focus on [specific issues found in Phase 1]."
+   - Generate 2-3 variations per problematic screen
 
 2. Present the variations to the user with commentary on which addresses the identified issues best.
 
@@ -129,8 +168,9 @@ If Stitch is NOT connected, skip this phase and proceed directly to Phase 3 with
 
 The user can invoke this skill in several ways:
 
-1. **With screenshots**: Drag screenshots into chat, then type `/visual-audit`
-2. **With screen names**: `/visual-audit` then specify "audit the TripDetailScreen and CreateTripScreen"
-3. **Full app audit**: `/visual-audit` then specify "audit all main screens"
+1. **Automated** (recommended): `/visual-audit` — runs Maestro screenshot capture, then analyzes all screenshots
+2. **With existing screenshots**: `/visual-audit` then say "use screenshots in maestro/output/"
+3. **Specific screens**: `/visual-audit` then say "audit the TripDetailScreen and CreateTripScreen"
+4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
 
-For the best results, provide actual screenshots from the simulator — reading source code alone misses runtime rendering issues like icon failures, truncated text, and layout overflow.
+For best results, use the automated Maestro flow — it captures every key screen in a consistent state.
