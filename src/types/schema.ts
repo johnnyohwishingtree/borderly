@@ -1,7 +1,7 @@
 export interface FormField {
   id: string;
   label: string; // Display label
-  type: 'text' | 'date' | 'select' | 'boolean' | 'number' | 'textarea';
+  type: 'text' | 'date' | 'select' | 'searchable_select' | 'boolean' | 'number' | 'textarea';
   required: boolean;
 
   // Mapping from universal profile
@@ -10,8 +10,11 @@ export interface FormField {
   // If autoFillSource is null, this is a country-specific field the user must fill
   countrySpecific: boolean;
 
-  // For select fields
+  // For select / searchable_select fields
   options?: { value: string; label: string }[];
+
+  // Dynamic options loaded at runtime (e.g., "countries" for nationality dropdowns)
+  optionsSource?: string;
 
   // Validation
   validation?: {

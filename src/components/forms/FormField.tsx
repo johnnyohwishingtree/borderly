@@ -1,7 +1,8 @@
 import { View, Text } from 'react-native';
-import { Input, Select, Toggle } from '../ui';
+import { Input, Select, Toggle, SearchableSelect } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
+import { ALL_COUNTRIES } from '../../constants/countries';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -69,6 +70,24 @@ export default function FormField({
             keyboardType="default"
           />
         );
+
+      case 'searchable_select': {
+        const resolvedOptions = field.optionsSource === 'countries'
+          ? ALL_COUNTRIES
+          : field.options || [];
+        return (
+          <SearchableSelect
+            value={fieldValue as string}
+            onValueChange={handleValueChange}
+            options={resolvedOptions}
+            placeholder={`Search ${field.label}...`}
+            label={field.label}
+            disabled={baseProps.disabled}
+            testID={`searchable-select-${field.id}`}
+            {...(hasError && error ? { error } : {})}
+          />
+        );
+      }
 
       case 'select':
         if (!field.options) {
