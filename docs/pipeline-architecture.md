@@ -505,9 +505,13 @@ Completed the migration from GitHub Actions workflow-dispatch chains to Inngest 
 **Rollback procedure:**
 If Inngest functions encounter issues, restore the old workflows from git history:
 ```bash
-git checkout HEAD~1 -- .github/workflows/orchestrate.yml .github/workflows/auto-merge.yml \
-  .github/workflows/verify-and-fix.yml .github/workflows/review-relay.yml \
-  .github/workflows/review-fix.yml .github/workflows/review-guardian.yml \
+git checkout HEAD~1 -- \
+  .github/workflows/orchestrate.yml \
+  .github/workflows/auto-merge.yml \
+  .github/workflows/verify-and-fix.yml \
+  .github/workflows/review-relay.yml \
+  .github/workflows/review-fix.yml \
+  .github/workflows/review-guardian.yml \
   .github/workflows/watcher.yml
 ```
 Then revert the dispatch changes in test.yml, e2e-smoke.yml, and claude.yml.
