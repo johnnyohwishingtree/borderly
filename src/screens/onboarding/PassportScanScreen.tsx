@@ -1,7 +1,7 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
-import { Button, Card, Input, ProgressBar, HelpHint, SearchableSelect } from '../../components/ui';
+import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator } from '../../components/ui';
 import { ALL_COUNTRIES } from '../../constants/countries';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
@@ -65,10 +65,19 @@ export default function PassportScanScreen() {
     );
   }
 
+  const currentStep = mode === 'method' ? 0 : 1;
+  const totalSteps = 3;
+
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
+    <ScrollView className="flex-1 bg-white" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
       <View className="px-6 py-8">
-        <ProgressBar progress={50} className="mb-6" />
+        <ProgressIndicator
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          variant="dots"
+          size="medium"
+          className="mb-6"
+        />
 
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-2">
@@ -124,8 +133,8 @@ export default function PassportScanScreen() {
 
         {/* Performance hint for low-end devices */}
         {showPerformanceHint && (
-          <Card variant="elevated" className="mb-4 bg-orange-50 border border-orange-200">
-            <View className="flex-row items-start space-x-3 p-4">
+          <View className="mb-4 bg-orange-50 border border-orange-200 rounded-xl p-4">
+            <View className="flex-row items-start space-x-3">
               <Zap size={20} color="#ea580c" />
               <View className="flex-1">
                 <Text className="text-sm font-medium text-orange-800 mb-1">
@@ -143,32 +152,30 @@ export default function PassportScanScreen() {
                 />
               </View>
             </View>
-          </Card>
+          </View>
         )}
 
         {/* Method selection */}
         {mode === 'method' && (
           <>
-            <Card variant="elevated" className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
-              <View className="items-center py-8">
-                <View className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
-                  <Camera size={40} color="#374151" />
-                </View>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  {devicePerformance === 'low' ? 'Optimized Passport Scan' : 'Quick Passport Scan'}
-                </Text>
-                <Text className="text-sm text-gray-600 text-center mb-4">
-                  Automatically fill your information by scanning the MRZ (Machine Readable Zone) on your passport
-                </Text>
-                <Button
-                  title="Start Camera Scan"
-                  onPress={handleStartScanning}
-                  variant="primary"
-                  size="large"
-                  testID="start-camera-scan-button"
-                />
+            <View className="items-center py-8 mb-4 border border-gray-200 rounded-xl">
+              <View className="w-20 h-20 bg-blue-50 rounded-full mb-4 items-center justify-center">
+                <Camera size={36} color="#2563eb" />
               </View>
-            </Card>
+              <Text className="text-lg font-semibold text-gray-900 mb-2">
+                Quick Passport Scan
+              </Text>
+              <Text className="text-sm text-gray-600 text-center mb-6 px-6">
+                Point your camera at the bottom of your passport photo page
+              </Text>
+              <Button
+                title="Start Camera Scan"
+                onPress={handleStartScanning}
+                variant="primary"
+                size="large"
+                testID="start-camera-scan-button"
+              />
+            </View>
 
             <View className="items-center py-4">
               <Button
@@ -184,13 +191,14 @@ export default function PassportScanScreen() {
 
         {/* Manual entry section */}
         {mode === 'manual' && (
-          <Card variant="elevated" className="bg-white shadow-lg">
-            <View className="flex-row items-center mb-4">
+          <View className="border border-gray-200 rounded-xl p-4">
+            <View className="flex-row items-center mb-2">
               <Pencil size={20} color="#111827" style={{ marginRight: 8 }} />
               <Text className="text-lg font-semibold text-gray-900">
-                Passport Information
+                Passport Details
               </Text>
             </View>
+            <Text className="text-sm text-gray-500 mb-4">All fields are required</Text>
 
             <Controller
               control={control}
@@ -204,7 +212,6 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.passportNumber?.message}
                   autoCapitalize="characters"
-                  required
                   testID="passport-number-input"
                 />
               )}
@@ -222,7 +229,6 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.surname?.message}
                   autoCapitalize="words"
-                  required
                   testID="surname-input"
                 />
               )}
@@ -240,7 +246,6 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.givenNames?.message}
                   autoCapitalize="words"
-                  required
                   testID="given-names-input"
                 />
               )}
@@ -259,7 +264,6 @@ export default function PassportScanScreen() {
                     placeholder="Search nationality..."
                     error={errors.nationality?.message}
                     testID="nationality-input"
-                    required
                   />
                 </View>
               )}
@@ -277,7 +281,6 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.dateOfBirth?.message}
                   helperText="Format: YYYY-MM-DD"
-                  required
                   testID="dob-input"
                 />
               )}
@@ -289,7 +292,7 @@ export default function PassportScanScreen() {
               render={({ field: { onChange, value } }) => (
                 <View className="mb-4">
                   <Text className="text-sm font-medium text-gray-700 mb-2">
-                    Gender <Text className="text-red-500">*</Text>
+                    Gender
                   </Text>
                   <View className="flex-row space-x-4">
                     {[
@@ -326,7 +329,6 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.passportExpiry?.message}
                   helperText="Format: YYYY-MM-DD"
-                  required
                   testID="passport-expiry-input"
                 />
               )}
@@ -345,12 +347,11 @@ export default function PassportScanScreen() {
                     placeholder="Search issuing country..."
                     error={errors.issuingCountry?.message}
                     testID="issuing-country-input"
-                    required
                   />
                 </View>
               )}
             />
-          </Card>
+          </View>
         )}
 
         <View className="mt-6 space-y-4">

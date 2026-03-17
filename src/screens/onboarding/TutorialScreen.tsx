@@ -150,8 +150,8 @@ export default function TutorialScreen() {
   const step = tutorialSteps[currentStep];
 
   return (
-    <ScrollView 
-      className={`flex-1 bg-gradient-to-b ${step.bgGradient}`}
+    <ScrollView
+      className="flex-1 bg-white"
       contentContainerStyle={{ minHeight: height * 0.9 }}
     >
       <View className="flex-1 px-6 pt-12 pb-8">
@@ -190,7 +190,7 @@ export default function TutorialScreen() {
           </View>
 
           {/* Text content */}
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white border border-gray-200 rounded-xl">
             <View className="items-center text-center">
               <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
                 {step.title}
