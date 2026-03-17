@@ -380,6 +380,8 @@ test-cross-browser|success|completed'
   assert_json "$result" ".action" "wait"
   assert_json "$result" ".ready" "false"
   assert_json "$result" ".conditions.android_build_pass" "false"
+  assert_json "$result" ".conditions.tests_pass" "true"
+  assert_json "$result" ".conditions.e2e_pass" "true"
 }
 
 # ── Test: check_android_build_passed unit tests ──
