@@ -77,14 +77,14 @@ export async function navigateToLegForm(page: Page, tripName: string, countryCod
 export async function navigateImperatively(page: Page, screen: string, params?: any) {
   await page.waitForFunction(() => (window as any).__navigationRef?.isReady(), { timeout: 10000 });
   await page.evaluate(
-    ({ screen, params }) => {
+    ({ screenName, screenParams }) => {
       const navRef = (window as any).__navigationRef;
-      if (params) {
-        navRef.navigate(screen, params);
+      if (screenParams) {
+        navRef.navigate(screenName, screenParams);
       } else {
-        navRef.navigate(screen);
+        navRef.navigate(screenName);
       }
     },
-    { screen, params },
+    { screenName: screen, screenParams: params },
   );
 }
