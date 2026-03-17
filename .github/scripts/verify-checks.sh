@@ -180,6 +180,35 @@ check_typecheck() {
   fi
 }
 
+# _check_bundle_platform <platform> <output_file> <failure_key>
+# Bundles for a single platform and records any errors.
+# Returns 0 if the bundle succeeded, 1 if it failed.
+_check_bundle_platform() {
+  local platform="$1"
+  local output_file="$2"
+  local failure_key="$3"
+  local label
+  label="$(echo "$platform" | tr '[:lower:]' '[:upper:]')"
+
+  local bundle_out
+  bundle_out=$(npx react-native bundle \
+    --platform "$platform" \
+    --dev false \
+    --entry-file index.js \
+    --bundle-output "$output_file" 2>&1) || true
+
+  if echo "$bundle_out" | grep -qiE "error|unable to resolve"; then
+    _progress "Metro Bundle ($label) FAILED"
+    local errors
+    errors=$(echo "$bundle_out" | grep -iE "error|unable to resolve" | head -5)
+    _record_failure "$failure_key" "$errors" "BUNDLE ERRORS ($label)"
+    return 1
+  else
+    _progress "Metro Bundle ($label) passed"
+    return 0
+  fi
+}
+
 check_bundle() {
   _progress "=== Metro Bundle ==="
 
@@ -188,21 +217,10 @@ check_bundle() {
     return
   fi
 
-  local bundle_out
-  bundle_out=$(npx react-native bundle \
-    --platform ios \
-    --dev false \
-    --entry-file index.js \
-    --bundle-output /tmp/bundle.js 2>&1) || true
+  _check_bundle_platform "ios" "/tmp/bundle.js" "bundle" || return
 
-  if echo "$bundle_out" | grep -qiE "error|unable to resolve"; then
-    _progress "Metro Bundle FAILED"
-    local errors
-    errors=$(echo "$bundle_out" | grep -iE "error|unable to resolve" | head -5)
-    _record_failure "bundle" "$errors" "BUNDLE ERRORS"
-  else
-    _progress "Metro Bundle passed"
-  fi
+  _progress "=== Metro Bundle (Android) ==="
+  _check_bundle_platform "android" "/tmp/android-bundle.js" "bundle-android"
 }
 
 check_test() {

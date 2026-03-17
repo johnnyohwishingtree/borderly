@@ -15,6 +15,7 @@
 #   "conditions": {
 #     "tests_pass": true,
 #     "e2e_pass": true,
+#     "android_build_pass": true,
 #     "approved": true,
 #     "threads_resolved": true,
 #     "branch_up_to_date": true
@@ -61,6 +62,17 @@ check_e2e_passed() {
   cross=$(echo "$check_runs" | grep "^test-cross-browser|success|" || true)
 
   if [ -n "$chromium" ] && [ -n "$perf" ] && [ -n "$cross" ]; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
+# ── Condition 2b: Android build passed ──
+# Checks for the "build-android" job with conclusion "success".
+check_android_build_passed() {
+  local check_runs="$1"
+  if echo "$check_runs" | grep -q "^build-android|success|"; then
     echo "true"
   else
     echo "false"
@@ -152,22 +164,24 @@ build_result() {
   local pr_number="$2"
   local tests_pass="$3"
   local e2e_pass="$4"
-  local approved="$5"
-  local threads_resolved="$6"
-  local no_active_fix="$7"
-  local branch_up_to_date="$8"
-  local approval_count="$9"
-  local unresolved_threads="${10}"
-  local merge_state="${11}"
-  local head_sha="${12}"
-  local base_ref="${13}"
-  local action="${14}"
+  local android_build_pass="$5"
+  local approved="$6"
+  local threads_resolved="$7"
+  local no_active_fix="$8"
+  local branch_up_to_date="$9"
+  local approval_count="${10}"
+  local unresolved_threads="${11}"
+  local merge_state="${12}"
+  local head_sha="${13}"
+  local base_ref="${14}"
+  local action="${15}"
 
   jq -n \
     --argjson ready "$ready" \
     --argjson pr_number "$pr_number" \
     --argjson tests_pass "$tests_pass" \
     --argjson e2e_pass "$e2e_pass" \
+    --argjson android_build_pass "$android_build_pass" \
     --argjson approved "$approved" \
     --argjson threads_resolved "$threads_resolved" \
     --argjson no_active_fix "$no_active_fix" \
@@ -184,6 +198,7 @@ build_result() {
       conditions: {
         tests_pass: $tests_pass,
         e2e_pass: $e2e_pass,
+        android_build_pass: $android_build_pass,
         approved: $approved,
         threads_resolved: $threads_resolved,
         no_active_fix: $no_active_fix,
@@ -223,7 +238,7 @@ main() {
 
   if [ "$base_ref" != "master" ]; then
     echo "PR #$pr_number targets '$base_ref', not master — skipping" >&2
-    build_result false "$pr_number" false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
+    build_result false "$pr_number" false false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
     exit 0
   fi
 
@@ -234,7 +249,7 @@ main() {
 
   if [ -z "$head_sha" ]; then
     echo "Cannot determine head SHA for PR #$pr_number — skipping" >&2
-    build_result false "$pr_number" false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
+    build_result false "$pr_number" false false false false false false false 0 0 "UNKNOWN" "" "$base_ref" "skip"
     exit 0
   fi
 
@@ -246,9 +261,10 @@ main() {
     --jq '.check_runs[] | "\(.name)|\(.conclusion)|\(.status)"' 2>/dev/null || echo "")
 
   # ── Evaluate conditions ──
-  local tests_pass e2e_pass
+  local tests_pass e2e_pass android_build_pass
   tests_pass=$(check_tests_passed "$check_runs")
   e2e_pass=$(check_e2e_passed "$check_runs")
+  android_build_pass=$(check_android_build_passed "$check_runs")
 
   local approved_result approved approval_count
   approved_result=$(check_approved "$pr_number")
@@ -274,6 +290,7 @@ main() {
   echo "Conditions:" >&2
   echo "  Tests passed:       $tests_pass" >&2
   echo "  E2E passed:         $e2e_pass" >&2
+  echo "  Android build:      $android_build_pass" >&2
   echo "  Approved:           $approved ($approval_count approvals)" >&2
   echo "  Threads resolved:   $threads_resolved ($unresolved_threads unresolved)" >&2
   echo "  No active fix:      $no_active_fix" >&2
@@ -284,6 +301,7 @@ main() {
   local core_conditions_met=false
 
   if [ "$tests_pass" = "true" ] && [ "$e2e_pass" = "true" ] && \
+     [ "$android_build_pass" = "true" ] && \
      [ "$approved" = "true" ] && [ "$threads_resolved" = "true" ] && \
      [ "$no_active_fix" = "true" ]; then
     core_conditions_met=true
@@ -302,9 +320,9 @@ main() {
 
   echo "Decision: action=$action ready=$ready" >&2
 
-  build_result "$ready" "$pr_number" "$tests_pass" "$e2e_pass" "$approved" \
-    "$threads_resolved" "$no_active_fix" "$branch_up_to_date" "$approval_count" \
-    "$unresolved_threads" "$merge_state" "$head_sha" "$base_ref" "$action"
+  build_result "$ready" "$pr_number" "$tests_pass" "$e2e_pass" "$android_build_pass" \
+    "$approved" "$threads_resolved" "$no_active_fix" "$branch_up_to_date" \
+    "$approval_count" "$unresolved_threads" "$merge_state" "$head_sha" "$base_ref" "$action"
 }
 
 # Only run main when executed directly (not sourced)
