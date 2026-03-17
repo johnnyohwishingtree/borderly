@@ -34,7 +34,7 @@ export default function FormField({
       value: String(fieldValue || ''),
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
-      testID: `field-${field.id}`,
+      testID: `input-${field.id}`,
       ...(hasError && error ? { error } : {}),
     };
 
@@ -135,7 +135,7 @@ export default function FormField({
                          (field.source === 'auto' || field.source === 'user');
 
   return (
-    <View className="mb-4">
+    <View className="mb-4" testID={`field-${field.id}`}>
       {/* Field Label and Badge */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center flex-1">

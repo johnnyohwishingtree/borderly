@@ -96,7 +96,7 @@ appId: com.borderly.app
     end: "50%,35%"
     duration: 200
 
-# Nationality
+# Nationality (searchable dropdown)
 - scrollUntilVisible:
     element:
       id: "nationality-input"
@@ -104,11 +104,17 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "nationality-input"
-- inputText: "USA"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+# Modal opens — type in the search field to filter
+- extendedWaitUntil:
+    visible:
+      id: "nationality-input-search"
+    timeout: 5000
+- tapOn:
+    id: "nationality-input-search"
+- inputText: "United States"
+# Tap the matching option
+- tapOn:
+    id: "nationality-input-option-USA"
 
 # Date of Birth
 - scrollUntilVisible:
@@ -147,7 +153,7 @@ appId: com.borderly.app
     end: "50%,35%"
     duration: 200
 
-# Issuing country
+# Issuing country (searchable dropdown)
 - scrollUntilVisible:
     element:
       id: "issuing-country-input"
@@ -155,11 +161,17 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "issuing-country-input"
-- inputText: "USA"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+# Modal opens — type in the search field to filter
+- extendedWaitUntil:
+    visible:
+      id: "issuing-country-input-search"
+    timeout: 5000
+- tapOn:
+    id: "issuing-country-input-search"
+- inputText: "United States"
+# Tap the matching option
+- tapOn:
+    id: "issuing-country-input-option-USA"
 
 # Extra dismiss before Continue
 - swipe:

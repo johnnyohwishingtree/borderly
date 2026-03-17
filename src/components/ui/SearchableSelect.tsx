@@ -8,7 +8,7 @@ export interface SearchableSelectProps {
   placeholder?: string;
   disabled?: boolean;
   label?: string;
-  error?: string;
+  error?: string | undefined;
   testID?: string;
 }
 

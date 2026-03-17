@@ -93,6 +93,17 @@ jest.mock('@/components/ui', () => {
         <Text>{currentStep} of {steps?.length || 0}</Text>
       </View>
     ),
+    SearchableSelect: ({ value, onValueChange, placeholder, label, error, testID }: any) => {
+      const { Pressable } = require('react-native');
+      return (
+        <View testID={testID}>
+          <Pressable onPress={() => onValueChange?.('USA')}>
+            <Text>{value || placeholder || label}</Text>
+          </Pressable>
+          {error && <Text>{error}</Text>}
+        </View>
+      );
+    },
   };
 });
 
