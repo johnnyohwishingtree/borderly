@@ -37,8 +37,7 @@ test.describe('Complete User Flow', () => {
 
     // Passport scan screen shows method selection
     await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
-    await expect(page.getByText('Manual Entry', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Enter Manually' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Or enter manually' })).toBeVisible();
   });
 
   test('can navigate to manual entry from passport screen', async ({ page }) => {
@@ -47,8 +46,8 @@ test.describe('Complete User Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
 
-    // Click "Enter Manually" button
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
+    // Click "Or enter manually" button
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
 
     // Manual entry form should show passport fields
     await expect(page.getByText('Passport Number')).toBeVisible();
@@ -62,7 +61,7 @@ test.describe('Complete User Flow', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText(/Quick Passport Scan|Optimized Passport Scan/)).toBeVisible();
 
-    await page.getByRole('button', { name: 'Enter Manually' }).click();
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
 
     // All required fields should be visible with their labels
     await expect(page.getByRole('textbox', { name: 'Passport Number' })).toBeVisible();
