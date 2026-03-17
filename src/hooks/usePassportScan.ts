@@ -88,7 +88,7 @@ export function usePassportScan() {
         issuingCountry: profileData.issuingCountry || '',
         email: profileData.email || '',
         phoneNumber: profileData.phoneNumber || '',
-        relationship: familyMode ? relationship as any : 'self',
+        relationship: familyMode ? (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other') : 'self',
         defaultDeclarations: {
           hasItemsToDeclar: false,
           carryingCurrency: false,

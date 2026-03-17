@@ -350,7 +350,7 @@ export class PortalDetector {
 
         const allButtons = Array.from(document.querySelectorAll('button'));
         const loginButtons = allButtons.filter(btn =>
-          /login|sign\\s*in/i.test(btn.textContent || '')
+          /login|sign\s*in/i.test(btn.textContent || '')
         );
 
         const loginElements = [
