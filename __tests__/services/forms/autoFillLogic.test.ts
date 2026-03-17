@@ -3,10 +3,10 @@ import {
   batchAutoFill,
   calculateAutoFillMetrics,
   AutoFillOptions,
-} from '../../src/services/forms/autoFillLogic';
-import { FormField } from '../../src/types/schema';
-import { TravelerProfile } from '../../src/types/profile';
-import { TripLeg } from '../../src/types/trip';
+} from '../../../src/services/forms/autoFillLogic';
+import { FormField } from '../../../src/types/schema';
+import { TravelerProfile } from '../../../src/types/profile';
+import { TripLeg } from '../../../src/types/trip';
 
 const mockProfile: TravelerProfile = {
   id: '123',

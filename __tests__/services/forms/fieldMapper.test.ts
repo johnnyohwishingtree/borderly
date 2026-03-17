@@ -3,9 +3,9 @@ import {
   validateAutoFillPath,
   getAvailablePaths,
   type FormContext,
-} from '../../src/services/forms/fieldMapper';
-import { TravelerProfile } from '../../src/types/profile';
-import { TripLeg } from '../../src/types/trip';
+} from '../../../src/services/forms/fieldMapper';
+import { TravelerProfile } from '../../../src/types/profile';
+import { TripLeg } from '../../../src/types/trip';
 
 // Mock data for testing
 const mockProfile: TravelerProfile = {

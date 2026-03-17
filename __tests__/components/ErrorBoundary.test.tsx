@@ -7,7 +7,7 @@ import { Text, View } from 'react-native';
 import ErrorBoundary, { useErrorHandler } from '../../src/components/ui/ErrorBoundary';
 
 // Mock dependencies
-jest.mock('../../src/utils/errorHandling', () => ({
+jest.mock('../../src/services/error/errorHandling', () => ({
   createAppError: jest.fn((_code: string, message: string) => ({
     code: _code,
     message,
@@ -210,7 +210,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('logs error using errorHandling utilities', () => {
-    const { logError } = require('../../src/utils/errorHandling');
+    const { logError } = require('../../src/services/error/errorHandling');
 
     render(
       <ErrorBoundary>

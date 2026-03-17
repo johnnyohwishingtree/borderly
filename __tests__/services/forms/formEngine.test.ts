@@ -8,14 +8,14 @@ import {
   calculateFormProgress,
   clearAllCaches,
   type FilledForm,
-} from '../../src/services/forms/formEngine';
-import { batchAutoFill } from '../../src/services/forms/autoFillLogic';
-import { validateFormWithCrossChecks } from '../../src/services/forms/validators';
-import { clearPathCache } from '../../src/services/forms/fieldMapper';
-import { clearSchemaCache } from '../../src/services/schemas/schemaLoader';
-import { TravelerProfile } from '../../src/types/profile';
-import { TripLeg } from '../../src/types/trip';
-import { CountryFormSchema } from '../../src/types/schema';
+} from '../../../src/services/forms/formEngine';
+import { batchAutoFill } from '../../../src/services/forms/autoFillLogic';
+import { validateFormWithCrossChecks } from '../../../src/services/forms/validators';
+import { clearPathCache } from '../../../src/services/forms/fieldMapper';
+import { clearSchemaCache } from '../../../src/services/schemas/schemaLoader';
+import { TravelerProfile } from '../../../src/types/profile';
+import { TripLeg } from '../../../src/types/trip';
+import { CountryFormSchema } from '../../../src/types/schema';
 
 // Mock data for testing
 const mockProfile: TravelerProfile = {

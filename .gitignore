@@ -97,3 +97,6 @@ BorderlyTemp/
 maestro/output/
 maestro/.env
 .vercel
+
+# Claude Code worktrees
+.claude/worktrees/

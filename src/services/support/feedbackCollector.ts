@@ -1,5 +1,5 @@
 import { mmkvService } from '@/services/storage';
-import { useAppStore } from '@/stores/useAppStore';
+import type { AppPreferences } from '@/services/storage';
 
 export interface FeedbackData {
   id: string;
@@ -30,13 +30,16 @@ class FeedbackCollector {
   /**
    * Submit feedback (locally store for now, can be enhanced to send to server)
    */
-  async submitFeedback(feedbackData: Omit<FeedbackData, 'id' | 'timestamp' | 'metadata'>): Promise<FeedbackSubmissionResult> {
+  async submitFeedback(
+    feedbackData: Omit<FeedbackData, 'id' | 'timestamp' | 'metadata'>,
+    preferences?: Pick<AppPreferences, 'language' | 'analyticsEnabled'>
+  ): Promise<FeedbackSubmissionResult> {
     try {
       const feedback: FeedbackData = {
         ...feedbackData,
         id: this.generateFeedbackId(),
         timestamp: new Date().toISOString(),
-        metadata: this.collectMetadata(),
+        metadata: this.collectMetadata(preferences),
       };
 
       // Validate feedback data
@@ -179,16 +182,16 @@ class FeedbackCollector {
     return `feedback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private collectMetadata(): FeedbackData['metadata'] {
-    // Get app preferences - using direct access to avoid circular imports
-    const preferences = useAppStore.getState().preferences;
-    
+  private collectMetadata(preferences?: Pick<AppPreferences, 'language' | 'analyticsEnabled'>): FeedbackData['metadata'] {
+    const language = preferences?.language ?? 'en';
+    const analyticsEnabled = preferences?.analyticsEnabled ?? false;
+
     const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
     return {
       appVersion: '1.0.0', // This would come from app config
       platform: (typeof process !== 'undefined' && 'env' in process && (process as any).env?.NODE_ENV === 'test') ? 'test' : 'react-native',
-      language: preferences.language,
-      analyticsEnabled: preferences.analyticsEnabled,
+      language,
+      analyticsEnabled,
       ...(userAgent !== undefined ? { userAgent } : {}),
     };
   }

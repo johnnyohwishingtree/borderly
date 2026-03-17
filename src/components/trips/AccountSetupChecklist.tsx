@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import WebView from 'react-native-webview';
 import { X } from 'lucide-react-native';
-import { useAccountSetupStore } from '@/stores/useAccountSetupStore';
+import { useAccountSetup } from '@/hooks/useAccountSetup';
 import { getSchemaByCountryCode } from '@/schemas';
 import { keychainService } from '@/services/storage/keychain';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
@@ -80,7 +80,7 @@ export default function AccountSetupChecklist({
     portalName: string;
   } | null>(null);
 
-  const { getStatus, markReady, resetStatus, loadStatuses } = useAccountSetupStore();
+  const { getPortalStatus, markPortalReady, resetPortalStatus, loadStatuses } = useAccountSetup(profileId);
 
   useEffect(() => {
     loadStatuses();
@@ -119,13 +119,13 @@ export default function AccountSetupChecklist({
   const refreshCredentialStatuses = useCallback(async () => {
     const updates: Record<string, boolean> = {};
     for (const info of portalInfos) {
-      if (info.requiresAccount && getStatus(profileId, info.countryCode) === 'ready') {
+      if (info.requiresAccount && getPortalStatus(info.countryCode) === 'ready') {
         const cred = await keychainService.getPortalCredential(profileId, info.countryCode);
         updates[info.countryCode] = cred !== null;
       }
     }
     setCredentialStatus(prev => ({ ...prev, ...updates }));
-  }, [portalInfos, profileId, getStatus]);
+  }, [portalInfos, profileId, getPortalStatus]);
 
   useEffect(() => {
     if (!loading) {
@@ -153,7 +153,7 @@ export default function AccountSetupChecklist({
    */
   const handleMarkReady = useCallback(
     async (portalCode: string, portalName: string) => {
-      markReady(profileId, portalCode);
+      markPortalReady(portalCode);
       setSignupModal(null);
 
       // Check if credentials are already stored
@@ -165,7 +165,7 @@ export default function AccountSetupChecklist({
         setCredentialStatus(prev => ({ ...prev, [portalCode]: true }));
       }
     },
-    [profileId, markReady]
+    [profileId, markPortalReady]
   );
 
   const handleCloseModal = useCallback(() => {
@@ -244,7 +244,7 @@ export default function AccountSetupChecklist({
         <View className="py-1">
           {portalInfos.map(info => {
             const status = info.requiresAccount
-              ? getStatus(profileId, info.countryCode)
+              ? getPortalStatus(info.countryCode)
               : 'not_started';
             const isReady = status === 'ready';
             const isStarted = status === 'setup_started';
@@ -333,7 +333,7 @@ export default function AccountSetupChecklist({
                 {isReady && (
                   <TouchableOpacity
                     testID={`reset-account-${info.countryCode}`}
-                    onPress={() => resetStatus(profileId, info.countryCode)}
+                    onPress={() => resetPortalStatus(info.countryCode)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <X size={12} color="#9ca3af" style={{ marginLeft: 8 }} />

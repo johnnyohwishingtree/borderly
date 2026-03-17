@@ -5,7 +5,7 @@
  * for different error scenarios in the Borderly app.
  */
 
-import { ERROR_CODES, ErrorCode } from './errorHandling';
+import { ERROR_CODES, ErrorCode } from '../services/error/errorHandling';
 
 export interface ErrorMessageContext {
   screen?: string;

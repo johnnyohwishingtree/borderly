@@ -53,7 +53,7 @@ const mockValidateSubmission = jest.fn().mockResolvedValue({
   }
 });
 
-jest.mock('@/utils/submissionValidator', () => {
+jest.mock('@/services/submission/submissionValidator', () => {
   return {
     SubmissionValidator: jest.fn().mockImplementation(() => ({
       validateSubmission: mockValidateSubmission
@@ -63,7 +63,7 @@ jest.mock('@/utils/submissionValidator', () => {
 
 // Mock implementations
 import { AutomationScriptRegistry } from '@/services/submission/automationScripts';
-import { SubmissionValidator } from '@/utils/submissionValidator';
+import { SubmissionValidator } from '@/services/submission/submissionValidator';
 import { WebViewController } from '@/services/submission/webviewController';
 
 const mockAutomationScriptRegistry = AutomationScriptRegistry as jest.Mocked<typeof AutomationScriptRegistry>;

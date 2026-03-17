@@ -2,7 +2,7 @@
 import { Text, Pressable } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { ErrorMessage, useErrorMessage } from '../../../src/components/ui/ErrorMessage';
-import { createAppError, ERROR_CODES } from '../../../src/utils/errorHandling';
+import { createAppError, ERROR_CODES } from '../../../src/services/error/errorHandling';
 
 describe('ErrorMessage Component', () => {
   const mockError = createAppError(

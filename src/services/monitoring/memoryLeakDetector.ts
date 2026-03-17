@@ -22,7 +22,7 @@ declare global {
 }
 
 import { performanceMonitor } from './performance';
-import { memoryProfiler } from '../../utils/memoryProfiler';
+import { memoryProfiler } from './memoryProfiler';
 
 export interface MemoryLeak {
   id: string;

@@ -1,8 +1,5 @@
 import { Platform } from 'react-native';
 import { mmkvService } from '@/services/storage';
-import { useAppStore } from '@/stores/useAppStore';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { useTripStore } from '@/stores/useTripStore';
 
 export interface BugReportData {
   id: string;
@@ -46,6 +43,20 @@ export interface BugReportSubmissionResult {
   error?: string;
 }
 
+/**
+ * Context snapshot passed by the caller (screen/hook) so the service
+ * doesn't import stores directly.
+ */
+export interface DiagnosticContext {
+  language: string;
+  theme: string;
+  biometricEnabled: boolean;
+  analyticsEnabled: boolean;
+  isBiometricAvailable: boolean;
+  hasProfile: boolean;
+  tripsCount: number;
+}
+
 class BugReporter {
   private readonly BUG_REPORTS_STORAGE_KEY = 'stored_bug_reports';
   private readonly ERROR_LOGS_STORAGE_KEY = 'error_logs';
@@ -57,10 +68,10 @@ class BugReporter {
    */
   async submitBugReport(
     reportData: Omit<BugReportData, 'id' | 'timestamp' | 'diagnostics'>,
-    includeDiagnostics: boolean = true
+    diagnosticContext?: DiagnosticContext
   ): Promise<BugReportSubmissionResult> {
     try {
-      const diagnostics = includeDiagnostics ? await this.collectDiagnosticInfo() : undefined;
+      const diagnostics = diagnosticContext ? await this.collectDiagnosticInfo(diagnosticContext) : undefined;
       const bugReport: BugReportData = {
         ...reportData,
         id: this.generateReportId(),
@@ -241,36 +252,31 @@ class BugReporter {
   /**
    * Collect diagnostic information
    */
-  private async collectDiagnosticInfo(): Promise<DiagnosticInfo> {
+  private async collectDiagnosticInfo(ctx: DiagnosticContext): Promise<DiagnosticInfo> {
     try {
-      // Get state from stores - using getState to avoid hooks outside components
-      const appState = useAppStore.getState();
-      const profileState = useProfileStore.getState();
-      const tripState = useTripStore.getState();
-      
       const recentErrorLogs = await this.getErrorLogs();
-      
+
       return {
         timestamp: new Date().toISOString(),
         platform: Platform.OS,
         platformVersion: Platform.Version,
-        appVersion: '1.0.0', // This would come from app config
-        language: appState.preferences.language,
-        theme: appState.preferences.theme,
-        biometricEnabled: appState.preferences.biometricEnabled,
-        analyticsEnabled: appState.preferences.analyticsEnabled,
+        appVersion: '1.0.0',
+        language: ctx.language,
+        theme: ctx.theme,
+        biometricEnabled: ctx.biometricEnabled,
+        analyticsEnabled: ctx.analyticsEnabled,
         deviceInfo: {
-          hasProfile: !!profileState.profile,
-          tripsCount: tripState.trips.length,
+          hasProfile: ctx.hasProfile,
+          tripsCount: ctx.tripsCount,
           lastActivity: new Date().toISOString(),
         },
         memory: {
-          estimated: '< 100MB', // In a real app, you'd get actual memory usage
+          estimated: '< 100MB',
         },
         features: {
-          cameraAvailable: true, // Would check actual camera availability
-          biometricsAvailable: appState.isBiometricAvailable,
-          keychainAvailable: true, // Would check keychain availability
+          cameraAvailable: true,
+          biometricsAvailable: ctx.isBiometricAvailable,
+          keychainAvailable: true,
         },
         errorLogs: recentErrorLogs.slice(-10).map(log => `${log.timestamp}: ${log.message}`),
       };

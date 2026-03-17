@@ -3,7 +3,7 @@ import {
   JPN_QR_DETECTION_SCRIPT,
   MYS_QR_DETECTION_SCRIPT,
   SGP_QR_DETECTION_SCRIPT,
-} from '../../src/services/automation/qrDetection';
+} from '../../../src/services/automation/qrDetection';
 
 describe('getQRDetectionScript', () => {
   it('returns a non-empty string for JPN', () => {
