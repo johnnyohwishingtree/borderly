@@ -112,15 +112,10 @@ export class SchemaUpdateService {
           continue;
         }
 
-        try {
-          const result = await this.fetchSchema(countryCode, manifest);
-          if (result !== null) {
-            updated.push(countryCode);
-          } else {
-            failed.push(countryCode);
-          }
-        } catch (err) {
-          console.warn(`[SchemaUpdateService] Failed to update schema for ${countryCode}:`, err);
+        const result = await this.fetchSchema(countryCode, manifest);
+        if (result !== null) {
+          updated.push(countryCode);
+        } else {
           failed.push(countryCode);
         }
       }
