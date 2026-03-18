@@ -213,6 +213,19 @@ export interface CountryPriority {
   notes?: string;
 }
 
+// Schema manifest — source of truth for OTA update service
+export interface SchemaManifestEntry {
+  version: string; // Semver string matching the schema's schemaVersion
+  checksum: string; // SHA-256 hash of the schema JSON file, prefixed with "sha256:"
+  url: string; // URL where the OTA service can download the latest schema
+}
+
+export interface SchemaManifest {
+  version: string; // Manifest format version (semver)
+  updatedAt: string; // ISO 8601 timestamp of the last manifest update
+  schemas: Record<string, SchemaManifestEntry>; // countryCode (ISO 3166-1 alpha-3) -> entry
+}
+
 // Keep backward compatibility
 export interface CountrySchema extends CountryFormSchema {
   portalInfo: {
