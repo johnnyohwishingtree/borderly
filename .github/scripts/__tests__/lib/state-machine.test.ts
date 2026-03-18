@@ -4,7 +4,7 @@ import {
   STATE_TRANSITIONS,
   type PipelineState,
   type PipelineStateData,
-} from '../types.js';
+} from '../../lib/types.js';
 
 // Test the state machine validation logic directly (without GitHub API calls)
 

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { loadEnv, envSummary } from '../lib/env.js';
+import { loadEnv, envSummary } from '../../lib/env.js';
 
 describe('loadEnv', () => {
   const originalEnv = { ...process.env };
@@ -14,12 +14,8 @@ describe('loadEnv', () => {
     process.env['GITHUB_REPOSITORY'] = 'owner/repo';
     // Clear optional vars
     delete process.env['PREFERRED_AGENT'];
-    delete process.env['INNGEST_SIGNING_KEY'];
-    delete process.env['INNGEST_EVENT_KEY'];
     delete process.env['PORT'];
     delete process.env['NODE_ENV'];
-    delete process.env['INNGEST_SHADOW_MODE'];
-    delete process.env['PARITY_TRACKING_ISSUE'];
   });
 
   afterEach(() => {
@@ -37,10 +33,6 @@ describe('loadEnv', () => {
     expect(env.preferredAgent).toBe('claude');
     expect(env.port).toBe(3000);
     expect(env.nodeEnv).toBe('development');
-    expect(env.inngestSigningKey).toBeUndefined();
-    expect(env.inngestEventKey).toBeUndefined();
-    expect(env.shadowMode).toBe(false);
-    expect(env.parityTrackingIssue).toBe(0);
   });
 
   it('throws when GH_PAT is missing', () => {
@@ -64,22 +56,14 @@ describe('loadEnv', () => {
   });
 
   it('reads optional vars when set', () => {
-    process.env['INNGEST_SIGNING_KEY'] = 'signkey-xxx';
-    process.env['INNGEST_EVENT_KEY'] = 'eventkey-xxx';
     process.env['PORT'] = '8080';
     process.env['NODE_ENV'] = 'production';
     process.env['PREFERRED_AGENT'] = 'gemini';
-    process.env['INNGEST_SHADOW_MODE'] = 'true';
-    process.env['PARITY_TRACKING_ISSUE'] = '500';
 
     const env = loadEnv();
-    expect(env.inngestSigningKey).toBe('signkey-xxx');
-    expect(env.inngestEventKey).toBe('eventkey-xxx');
     expect(env.port).toBe(8080);
     expect(env.nodeEnv).toBe('production');
     expect(env.preferredAgent).toBe('gemini');
-    expect(env.shadowMode).toBe(true);
-    expect(env.parityTrackingIssue).toBe(500);
   });
 });
 
@@ -89,10 +73,7 @@ describe('envSummary', () => {
   beforeEach(() => {
     process.env['GH_PAT'] = 'ghp_test123';
     process.env['GITHUB_REPOSITORY'] = 'owner/repo';
-    delete process.env['INNGEST_SIGNING_KEY'];
     delete process.env['NODE_ENV'];
-    delete process.env['INNGEST_SHADOW_MODE'];
-    delete process.env['PARITY_TRACKING_ISSUE'];
   });
 
   afterEach(() => {
@@ -105,16 +86,5 @@ describe('envSummary', () => {
 
     expect(summary['ghToken']).toBe('***set***');
     expect(summary['repo']).toBe('owner/repo');
-    expect(summary['inngestSigningKey']).toBe('not set');
-    expect(summary['shadowMode']).toBe('false');
-    expect(summary['parityTrackingIssue']).toBe('not set');
-  });
-
-  it('shows set status for signing key when present', () => {
-    process.env['INNGEST_SIGNING_KEY'] = 'signkey-xxx';
-    const env = loadEnv();
-    const summary = envSummary(env);
-
-    expect(summary['inngestSigningKey']).toBe('***set***');
   });
 });

@@ -846,7 +846,7 @@ else:
 }
 
 # Bug: ensure-review approved PR when only one CI workflow passed (e.g., Tests)
-# but other required checks (build-android, test-chromium) were still failing.
+# but other required checks (test-chromium) were still failing.
 # The ensure-review job triggers on workflow_run for Tests OR E2E Smoke Tests,
 # but only checked that threads were resolved — not that ALL CI checks passed.
 # Regression: ensure-review must verify all CI checks pass before approving.
@@ -884,37 +884,10 @@ else:
   if [ "$result" != "ok" ]; then
     echo "REGRESSION: ensure-review approves without checking all CI status"
     echo "The ensure-review job must call check_ci_status and verify ALL checks"
-    echo "(tests, e2e, android build) passed before approving the PR."
+    echo "(tests, e2e) passed before approving the PR."
     echo "Detail: $result"
     false
   fi
-}
-
-# Bug: check_ci_status did not report ANDROID_BUILD_PASS
-# Regression: check_ci_status must include android build status.
-@test "regression: check_ci_status reports android build status" {
-  source_lib
-
-  mock_gh_response "check-runs" 'test|success|completed
-test-chromium|success|completed
-test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
-
-  result=$(check_ci_status "abc123" "testowner/testrepo")
-  assert_contains "$result" "ANDROID_BUILD_PASS=true"
-}
-
-@test "regression: check_ci_status reports android build fail when missing" {
-  source_lib
-
-  mock_gh_response "check-runs" 'test|success|completed
-test-chromium|success|completed
-test-performance|success|completed
-test-cross-browser|success|completed'
-
-  result=$(check_ci_status "abc123" "testowner/testrepo")
-  assert_contains "$result" "ANDROID_BUILD_PASS=false"
 }
 
 @test "regression: every job using lib.sh has a checkout step" {

@@ -25,7 +25,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master / manual | iOS build |
-| `build-android.yml` | Push to master / PR / manual | Android debug build + lint |
+| `build-android.yml` | Push to master / manual | Android debug build (master only) |
 | `release.yml` | Tag push / manual | Release workflow |
 
 ---
@@ -151,14 +151,13 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |   Triggers: workflow_run, pull_request_review,                      |
 |             pull_request (synchronize), workflow_dispatch            |
 |                                                                     |
-|   Merges only when ALL 7 conditions are met:                        |
+|   Merges only when ALL 6 conditions are met:                        |
 |     1. Tests workflow passed                                        |
 |     2. E2E passed (all 3 jobs: chromium, performance, cross-browser)|
-|     3. Android build passed                                         |
-|     4. PR has at least one approval                                 |
-|     5. No unresolved review threads                                 |
-|     6. No active review-fix runs                                    |
-|     7. Branch up to date with master                                |
+|     3. PR has at least one approval                                 |
+|     4. No unresolved review threads                                 |
+|     5. No active review-fix runs                                    |
+|     6. Branch up to date with master                                |
 |                                                                     |
 |   If branch behind → merge master into PR branch → re-evaluate     |
 +----------------------------+----------------------------------------+
@@ -318,183 +317,3 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 - Timeout rescue preserves work (no lost token spend)
 - Watcher reuses existing work branches instead of re-running claude.yml
 - Single merge gate (`auto-merge.yml`) — no workflow needs its own merge logic
-
----
-
-## Inngest Migration (In Progress)
-
-The orchestration layer is being migrated from GitHub Actions workflow-dispatch chaining to [Inngest](https://www.inngest.com/) durable functions. This provides:
-
-- **Durable execution**: Steps are memoized and survive crashes/restarts
-- **Built-in retry**: Exponential backoff per step, no manual attempt tracking
-- **Concurrency controls**: Per-function, per-tenant limits via configuration
-- **Type-safe events**: All pipeline events are strongly typed in TypeScript
-- **Testable functions**: Pure TypeScript functions testable with Vitest
-
-### Architecture
-
-```
-GitHub Events (PR merged, CI complete, review submitted)
-    │
-    ▼
-inngest-relay.yml (thin GitHub Actions workflow)
-    │ curl POST to Inngest API
-    ▼
-Inngest Cloud / Self-hosted
-    │ routes events to functions
-    ▼
-┌─────────────────────────────────────────┐
-│        pipeline/ (TypeScript)            │
-│                                          │
-│  Functions:                              │
-│  ├── story-lifecycle  (orchestrate.yml)  │
-│  ├── verify-and-fix   (verify-and-fix)   │
-│  ├── merge-gate       (auto-merge.yml)   │
-│  ├── ensure-review    (review-guardian)   │
-│  ├── review-relay     (review-relay)      │
-│  ├── review-fix       (review-fix)        │
-│  └── watcher          (watcher.yml)       │
-│                                          │
-│  Shared Libraries:                       │
-│  ├── github.ts        (lib.sh port)      │
-│  └── state-machine.ts (state-machine.sh) │
-└─────────────────────────────────────────┘
-    │ Octokit API calls
-    ▼
-GitHub API (issues, PRs, checks, reviews)
-```
-
-### Event Flow
-
-| Inngest Event | Replaces | Trigger |
-|---------------|----------|---------|
-| `pipeline/pr.merged` | `orchestrate.yml` | PR merged to master |
-| `pipeline/story.trigger` | `trigger_story_agent()` | Story ready for implementation |
-| `pipeline/verify.requested` | `verify-and-fix.yml` dispatch | Code needs verification |
-| `pipeline/ci.completed` | `auto-merge.yml` workflow_run | CI checks finished |
-| `pipeline/merge.evaluate` | `auto-merge.yml` dispatch | Merge gate re-evaluation |
-| `pipeline/review.submitted` | `review-relay.yml` trigger | Bot/human review posted |
-| `pipeline/review.fix-requested` | `review-fix.yml` dispatch | Review fixes needed |
-| `pipeline/review.ensure` | `review-guardian.yml` trigger | Ensure PR gets reviewed |
-| `pipeline/watcher.tick` | `watcher.yml` cron | Health check (every 20min) |
-| `pipeline/doctor.requested` | `pipeline-doctor.yml` dispatch | Diagnosis needed |
-
-### Project Structure
-
-```
-pipeline/
-├── package.json          # Inngest + Octokit + Hono + Vitest
-├── tsconfig.json         # Standalone TypeScript config
-├── vitest.config.ts      # Test configuration
-├── Dockerfile            # Container build for deployment
-├── .dockerignore         # Docker build exclusions
-├── DEPLOY.md             # Deployment and secrets setup guide
-└── src/
-    ├── inngest.ts        # Client + event type definitions
-    ├── types.ts          # State machine types, CI status, config
-    ├── serve.ts          # Hono HTTP server (Node adapter, health endpoints)
-    ├── functions/
-    │   ├── story-lifecycle.ts      # PR merged → close story → next story
-    │   ├── verify-and-fix.ts       # Verify CI → fix loop → escalate
-    │   ├── merge-gate.ts           # 6-condition merge evaluation
-    │   ├── review-orchestration.ts # Ensure review + relay + fix
-    │   └── watcher.ts              # Scheduled health monitoring
-    ├── lib/
-    │   ├── github.ts               # Octokit wrapper (port of lib.sh)
-    │   ├── state-machine.ts        # State persistence (port of state-machine.sh)
-    │   └── env.ts                  # Environment config with validation
-    └── __tests__/
-        ├── state-machine.test.ts   # 24 tests
-        ├── merge-gate.test.ts      # 9 tests
-        ├── events.test.ts                          # 2 tests
-        ├── story-lifecycle.integration.test.ts     # 8 tests
-        ├── merge-gate.integration.test.ts          # 9 tests
-        ├── verify-and-fix.integration.test.ts      # 6 tests
-        ├── review-orchestration.integration.test.ts # 8 tests
-        ├── watcher.integration.test.ts             # 7 tests
-        └── helpers/
-            ├── index.ts                # Barrel exports
-            ├── mock-step.ts            # Mock Inngest step primitives
-            └── mock-github.ts          # Mock GitHubClient with state
-```
-
-### Testing
-
-The pipeline has two test layers:
-
-| Layer | Files | What it covers |
-|-------|-------|---------------|
-| **Unit tests** | `*.test.ts` | Pure logic: state transitions, merge gate evaluation, event types |
-| **Integration tests** | `*.integration.test.ts` | Full function flows with mocked GitHub API + Inngest step primitives |
-
-Integration tests mock `GitHubClient` and `PipelineStateMachine` at the module level, then exercise each Inngest function's handler with a mock step context. This verifies:
-- Correct GitHub API call sequences
-- State machine transitions at each stage
-- Event emission (step.sendEvent) for downstream functions
-- Sleep/wait behavior for async operations
-- Error handling and escalation paths
-
-Run all pipeline tests: `cd pipeline && pnpm test`
-
-Pipeline tests also run in CI as the `pipeline-test` job in `test.yml`.
-
-### Migration Status
-
-- [x] Sprint 1: Core infrastructure (types, events, state machine, GitHub client, all functions, tests)
-- [x] Sprint 2: Integration testing (mock step harness, 38 integration tests across all functions, CI job)
-- [x] Sprint 3: Deploy infrastructure (Dockerfile, env config, deploy workflow, hardened relay, DEPLOY.md)
-- [x] Sprint 4: Parallel run — shadow mode, parity logging, write interception via Proxy
-- [ ] Sprint 5: Cut over, remove old workflow-dispatch chains
-
-### Sprint 4: Parallel Run (Shadow Mode)
-
-The parallel run allows old GHA workflows and new Inngest functions to run simultaneously. Inngest functions observe and record decisions but skip write actions.
-
-**Architecture:**
-- `INNGEST_SHADOW_MODE=true` enables shadow mode globally
-- `PARITY_TRACKING_ISSUE=N` sets the GitHub issue for parity logging
-- Each Inngest function wraps its `GitHubClient` with `createShadowContext()`
-- The shadow context uses a JS `Proxy` to intercept write methods (merge, comment, label, approve, etc.)
-- Read methods (checkCIStatus, countApprovals, getPR, etc.) pass through unchanged
-- Intercepted writes are recorded as `ParityAction[]` and logged to the tracking issue
-- All function return values include a `_shadow: true` flag in shadow mode
-
-**Parity Logging:**
-Each function decision is posted to the tracking issue with:
-- Function ID and event name
-- Decision made (merge, wait, triggered, etc.)
-- Table of intercepted write actions (type, target, detail)
-- Conditions evaluated (e.g., CI status, approval count)
-
-This allows comparing what Inngest would do vs what the old GHA workflows actually did.
-
-**Key files:**
-| File | Purpose |
-|------|---------|
-| `pipeline/src/lib/parity.ts` | `isShadowMode()`, `wrapForShadow()`, `recordParity()` |
-| `pipeline/src/lib/shadow-context.ts` | `createShadowContext()` — shared helper for all functions |
-| `pipeline/src/__tests__/parity.test.ts` | 14 tests for shadow mode + parity recording |
-| `pipeline/src/__tests__/shadow-context.test.ts` | 8 tests for shadow context lifecycle |
-
-### Deployment
-
-The pipeline server deploys as a Docker container. See `pipeline/DEPLOY.md` for full setup.
-
-**Required GitHub Secrets:**
-| Secret | Purpose |
-|--------|---------|
-| `GH_PAT` | GitHub API access for pipeline functions |
-| `INNGEST_EVENT_KEY` | Inngest event sending authentication |
-| `INNGEST_SIGNING_KEY` | Inngest webhook request verification |
-
-**Optional Environment Variables (Parallel Run):**
-| Variable | Purpose |
-|----------|---------|
-| `INNGEST_SHADOW_MODE` | Set to `true` to enable observe-only mode |
-| `PARITY_TRACKING_ISSUE` | GitHub issue number for parity decision logging |
-
-**Deploy workflow:** `deploy-pipeline.yml` runs on push to master when `pipeline/` changes.
-Builds Docker image → pushes to registry → verifies health endpoint.
-
-**Relay workflow:** `inngest-relay.yml` bridges GitHub webhook events to Inngest Cloud.
-Uses `jq` for safe JSON construction, validates HTTP responses, checks secret presence.

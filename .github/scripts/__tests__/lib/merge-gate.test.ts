@@ -1,12 +1,11 @@
 import { describe, it, expect, vi } from 'vitest';
-import { evaluateMergeGate } from '../functions/merge-gate.js';
-import type { GitHubClient } from '../lib/github.js';
+import { evaluateMergeGate } from '../../lib/merge-gate.js';
+import type { GitHubClient } from '../../lib/github.js';
 
 function createMockGitHub(
   overrides: Partial<{
     testsPass: boolean;
     e2ePass: boolean;
-    androidBuildPass: boolean;
     approvals: number;
     unresolvedThreads: number;
     branchStatus: 'ahead' | 'behind' | 'diverged' | 'identical';
@@ -15,7 +14,6 @@ function createMockGitHub(
   const defaults = {
     testsPass: true,
     e2ePass: true,
-    androidBuildPass: true,
     approvals: 1,
     unresolvedThreads: 0,
     branchStatus: 'ahead' as const,
@@ -29,7 +27,6 @@ function createMockGitHub(
     checkCIStatus: vi.fn().mockResolvedValue({
       testsPass: config.testsPass,
       e2ePass: config.e2ePass,
-      androidBuildPass: config.androidBuildPass,
     }),
     countApprovals: vi.fn().mockResolvedValue(config.approvals),
     countUnresolvedThreads: vi
@@ -49,7 +46,6 @@ describe('evaluateMergeGate', () => {
     expect(result.conditions).toEqual({
       testsPass: true,
       e2ePass: true,
-      androidBuildPass: true,
       approved: true,
       threadsResolved: true,
       branchUpToDate: true,

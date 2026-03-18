@@ -1,6 +1,2 @@
-packages:
-  - '.'
-  - 'pipeline'
-
 patchedDependencies:
   react-native-screens@4.24.0: patches/react-native-screens@4.24.0.patch

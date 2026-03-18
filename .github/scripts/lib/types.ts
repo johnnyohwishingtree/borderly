@@ -1,5 +1,5 @@
 /**
- * Core types for the Inngest pipeline orchestration.
+ * Core types for the pipeline orchestration.
  * Ports the state-machine.sh states and lib.sh concepts to TypeScript.
  */
 
@@ -77,7 +77,6 @@ export type ActivityType = keyof typeof ACTIVITY_LIMITS;
 export interface CIStatus {
   testsPass: boolean;
   e2ePass: boolean;
-  androidBuildPass: boolean;
 }
 
 // ─── Merge Gate Conditions ──────────────────────────────────────────────────
@@ -87,7 +86,6 @@ export interface MergeGateResult {
   conditions: {
     testsPass: boolean;
     e2ePass: boolean;
-    androidBuildPass: boolean;
     approved: boolean;
     threadsResolved: boolean;
     branchUpToDate: boolean;

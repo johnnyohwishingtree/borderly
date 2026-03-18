@@ -12,18 +12,10 @@ export interface PipelineEnv {
   repo: string;
   /** Preferred AI agent for story implementation */
   preferredAgent: 'claude' | 'gemini';
-  /** Inngest signing key for request verification (production only) */
-  inngestSigningKey: string | undefined;
-  /** Inngest event key for sending events */
-  inngestEventKey: string | undefined;
   /** Port to listen on */
   port: number;
   /** Node environment */
   nodeEnv: 'production' | 'development' | 'test';
-  /** Shadow mode — Inngest functions observe but don't act */
-  shadowMode: boolean;
-  /** GitHub issue number for parity tracking (shadow mode logging) */
-  parityTrackingIssue: number;
 }
 
 /** Required env vars — server will not start without these */
@@ -47,8 +39,7 @@ export function loadEnv(): PipelineEnv {
 
   if (missing.length > 0) {
     throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}\n` +
-        'See pipeline/DEPLOY.md for setup instructions.'
+      `Missing required environment variables: ${missing.join(', ')}`
     );
   }
 
@@ -66,15 +57,8 @@ export function loadEnv(): PipelineEnv {
     ghToken: process.env['GH_PAT']!,
     repo: process.env['GITHUB_REPOSITORY']!,
     preferredAgent: agent,
-    inngestSigningKey: process.env['INNGEST_SIGNING_KEY'],
-    inngestEventKey: process.env['INNGEST_EVENT_KEY'],
     port: parseInt(process.env['PORT'] ?? DEFAULTS['PORT'], 10),
     nodeEnv,
-    shadowMode: process.env['INNGEST_SHADOW_MODE'] === 'true',
-    parityTrackingIssue: parseInt(
-      process.env['PARITY_TRACKING_ISSUE'] ?? '0',
-      10
-    ),
   };
 }
 
@@ -89,9 +73,5 @@ export function envSummary(env: PipelineEnv): Record<string, string> {
     nodeEnv: env.nodeEnv,
     port: String(env.port),
     ghToken: env.ghToken ? '***set***' : 'MISSING',
-    inngestSigningKey: env.inngestSigningKey ? '***set***' : 'not set',
-    inngestEventKey: env.inngestEventKey ? '***set***' : 'not set',
-    shadowMode: String(env.shadowMode),
-    parityTrackingIssue: String(env.parityTrackingIssue || 'not set'),
   };
 }

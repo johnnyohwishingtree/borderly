@@ -163,14 +163,8 @@ check_ci_status() {
     e2e_pass=true
   fi
 
-  local android_build_pass=false
-  if echo "$check_runs" | grep -q "^build-android|success|"; then
-    android_build_pass=true
-  fi
-
   echo "TESTS_PASS=$tests_pass"
   echo "E2E_PASS=$e2e_pass"
-  echo "ANDROID_BUILD_PASS=$android_build_pass"
 }
 
 # ────────────────────────────────────────────────────────────────────────────

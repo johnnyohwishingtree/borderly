@@ -3,12 +3,6 @@ name: Build Android
 on:
   push:
     branches: [master]
-    paths:
-      - 'android/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-  pull_request:
-    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -51,36 +45,3 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
 
-  # Notify Claude on failure (only for bot PRs)
-  notify:
-    needs: [build-android]
-    if: failure() && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    env:
-      BASH_ENV: .github/scripts/lib.sh
-    steps:
-      - uses: actions/checkout@v4
-      - name: Dispatch verify-and-fix on failure
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          PR_NUM=${{ github.event.pull_request.number }}
-          BRANCH="${{ github.head_ref }}"
-
-          if [[ "$BRANCH" != claude/* ]]; then
-            echo "Not a claude/ branch — skipping"
-            exit 0
-          fi
-
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          comment_on_issue "$PR_NUM" "Android build failed. Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
-
-          dispatch_workflow "verify-and-fix.yml" \
-            -f branch="$BRANCH" \
-            -f issue_number="$PR_NUM" \
-            -f checks="ci" \
-            -f fix_enabled="true" \
-            -f max_attempts="3" \
-            -f fix_context="Android build failed on PR #${PR_NUM}. Run: ${RUN_URL}. Check android/app/build.gradle and native module configuration."

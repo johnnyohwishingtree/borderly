@@ -6,8 +6,8 @@
  * locks identically to the bash implementation.
  */
 
-import type { PipelineState, PipelineStateData } from '../types.js';
-import { PIPELINE_STATES, STATE_TRANSITIONS } from '../types.js';
+import type { PipelineState, PipelineStateData } from './types.js';
+import { PIPELINE_STATES, STATE_TRANSITIONS } from './types.js';
 import { GitHubClient } from './github.js';
 
 const STATE_MARKER = '<!-- pipeline-state -->';
