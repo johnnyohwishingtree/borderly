@@ -112,7 +112,10 @@ jest.mock('react-native', () => {
 
 // Mock react-native-get-random-values
 jest.mock('react-native-get-random-values', () => {
-  // Polyfill crypto.getRandomValues for tests
+  // Polyfill crypto.getRandomValues and crypto.subtle for tests.
+  // subtle uses Node.js's built-in webcrypto so SHA-256 and other
+  // SubtleCrypto operations work correctly in Jest (Node.js environment).
+  const nodeCrypto = require('crypto');
   Object.defineProperty(global, 'crypto', {
     value: {
       getRandomValues: (arr) => {
@@ -121,6 +124,7 @@ jest.mock('react-native-get-random-values', () => {
         }
         return arr;
       },
+      subtle: nodeCrypto.webcrypto.subtle,
     },
     writable: true,
   });
