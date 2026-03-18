@@ -1,6 +1,8 @@
 import { CountryFormSchema } from '../../types/schema';
-import { SUPPORTED_COUNTRIES, getSchemaByCountryCode as loadSchemaByCode } from '../../schemas';
-import { validateSchemaCompletely } from './schemaLoader';
+import { SUPPORTED_COUNTRIES } from '../../schemas';
+import { validateSchemaCompletely, loadSchemaForCountry } from './schemaLoader';
+import { mmkvService } from '../storage/mmkv';
+import { SCHEMA_MMKV_KEY_PREFIX } from '../../utils/constants';
 
 export interface SchemaMetadata {
   countryCode: string;
@@ -28,7 +30,9 @@ export class SchemaRegistry {
   }
 
   /**
-   * Initialize the registry with all bundled schemas
+   * Initialize the registry, preferring MMKV-cached (OTA) schemas over
+   * bundled ones so that over-the-air updates are picked up on the next
+   * cold start.
    */
   public async initialize(): Promise<void> {
     if (this.initialized) {
@@ -36,14 +40,24 @@ export class SchemaRegistry {
     }
 
     try {
-      // Load and validate all bundled schemas
+      // Load schemas — MMKV-cached version takes precedence over bundled.
       for (const countryCode of SUPPORTED_COUNTRIES) {
-        const validatedSchema = await loadSchemaByCode(countryCode);
-        
-        if (validatedSchema) {
-          // Perform comprehensive validation
-          validateSchemaCompletely(validatedSchema);
-          this.schemas.set(countryCode, validatedSchema);
+        const schema = await loadSchemaForCountry(countryCode);
+
+        if (schema) {
+          // Perform comprehensive validation only on bundled schemas;
+          // cached schemas were already validated when they were stored.
+          try {
+            validateSchemaCompletely(schema);
+          } catch {
+            // Validation failure on a cached schema means it may be corrupt —
+            // log and skip so the app continues with the remaining countries.
+            console.warn(
+              `[SchemaRegistry] Skipping invalid schema for "${countryCode}"`,
+            );
+            continue;
+          }
+          this.schemas.set(countryCode, schema);
         }
       }
 
@@ -54,14 +68,35 @@ export class SchemaRegistry {
   }
 
   /**
-   * Get a schema by country code
+   * Get a schema by country code.
+   *
+   * Checks MMKV for a more-recently cached (OTA) version first; if one
+   * exists it is hot-swapped into the in-memory registry so future callers
+   * also see the latest version.  Falls back to the in-memory schema loaded
+   * at initialization time.
    */
   public getSchema(countryCode: string): CountryFormSchema | null {
     if (!this.initialized) {
       throw new Error('Schema registry not initialized. Call initialize() first.');
     }
 
-    return this.schemas.get(countryCode.toUpperCase()) || null;
+    const code = countryCode.toUpperCase();
+
+    // Check MMKV for a newer OTA version.
+    try {
+      const key = `${SCHEMA_MMKV_KEY_PREFIX}${code}`;
+      const cached = mmkvService.getString(key);
+      if (cached) {
+        const parsed = JSON.parse(cached) as CountryFormSchema;
+        // Hot-swap in memory so subsequent calls also get the fresh version.
+        this.schemas.set(code, parsed);
+        return parsed;
+      }
+    } catch {
+      // Corrupt / missing — fall through to in-memory schema.
+    }
+
+    return this.schemas.get(code) || null;
   }
 
   /**
