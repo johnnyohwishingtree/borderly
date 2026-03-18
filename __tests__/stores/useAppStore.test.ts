@@ -138,10 +138,70 @@ describe('useAppStore — schema update tracking', () => {
 
     await expect(
       useAppStore.getState().triggerSchemaUpdateCheck(),
-    ).resolves.toBeUndefined();
+    ).resolves.toBe(false);
 
     // Should still record the timestamp so we don't retry immediately
     expect(useAppStore.getState().lastSchemaCheck).not.toBeNull();
     expect(useAppStore.getState().schemasUpToDate).toBe(false);
+  });
+
+  it('returns true when the check completes successfully', async () => {
+    mockCheckForUpdates.mockResolvedValue({ updated: [], failed: [] });
+    const result = await useAppStore.getState().triggerSchemaUpdateCheck();
+    expect(result).toBe(true);
+  });
+
+  it('returns true when schemas are updated successfully', async () => {
+    mockCheckForUpdates.mockResolvedValue({ updated: ['JPN'], failed: [] });
+    const result = await useAppStore.getState().triggerSchemaUpdateCheck();
+    expect(result).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// loadSchemaFreshnessState — safe JSON.parse
+// ---------------------------------------------------------------------------
+
+describe('useAppStore — loadSchemaFreshnessState', () => {
+  const { mmkvService } = jest.requireMock('@/services/storage') as {
+    mmkvService: {
+      getNumber: jest.Mock;
+      getString: jest.Mock;
+    };
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useAppStore.setState({
+      lastSchemaRefreshTime: null,
+      schemaRefreshCountries: [],
+      schemaBannerDismissedAt: null,
+    });
+  });
+
+  it('loads valid persisted countries correctly', () => {
+    mmkvService.getNumber.mockReturnValue(12345);
+    mmkvService.getString.mockReturnValue('["Japan","Malaysia"]');
+
+    useAppStore.getState().loadSchemaFreshnessState();
+
+    expect(useAppStore.getState().schemaRefreshCountries).toEqual(['Japan', 'Malaysia']);
+  });
+
+  it('falls back to empty array when stored JSON is malformed', () => {
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue('not valid json {{');
+
+    expect(() => useAppStore.getState().loadSchemaFreshnessState()).not.toThrow();
+    expect(useAppStore.getState().schemaRefreshCountries).toEqual([]);
+  });
+
+  it('falls back to empty array when stored JSON is not an array', () => {
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue('"just a string"');
+
+    useAppStore.getState().loadSchemaFreshnessState();
+
+    expect(useAppStore.getState().schemaRefreshCountries).toEqual([]);
   });
 });

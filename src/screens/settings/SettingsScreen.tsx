@@ -90,15 +90,14 @@ export default function SettingsScreen() {
 
   const handleRefreshSchemas = useCallback(async () => {
     setIsRefreshingSchemas(true);
-    try {
-      await triggerSchemaUpdateCheck();
-      loadSchemaMetadata();
+    const success = await triggerSchemaUpdateCheck();
+    loadSchemaMetadata();
+    if (success) {
       Alert.alert('Form Data Updated', 'Country form schemas have been checked for updates.');
-    } catch {
+    } else {
       Alert.alert('Update Failed', 'Unable to check for schema updates. Please try again.');
-    } finally {
-      setIsRefreshingSchemas(false);
     }
+    setIsRefreshingSchemas(false);
   }, [triggerSchemaUpdateCheck, loadSchemaMetadata]);
 
   useEffect(() => {

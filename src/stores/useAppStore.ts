@@ -45,8 +45,10 @@ interface AppStore {
    * Trigger a background schema-update check.  Never blocks the UI — the
    * returned Promise resolves after the check finishes but callers can safely
    * fire-and-forget without awaiting.
+   * Returns `true` if the check completed successfully (even if no updates were
+   * found), or `false` if the check itself failed.
    */
-  triggerSchemaUpdateCheck: () => Promise<void>;
+  triggerSchemaUpdateCheck: () => Promise<boolean>;
 
   // Schema freshness — for the TripList banner and Settings Form Data section
   /** Epoch ms when the most recent OTA schema refresh occurred; null = never updated (fresh install). */
@@ -203,10 +205,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
           schemasUpToDate: result.failed.length === 0,
         });
       }
+      return true;
     } catch (err) {
       // Never throw — keep the app running even if the check fails.
       console.warn('[useAppStore] triggerSchemaUpdateCheck failed:', err);
       set({ lastSchemaCheck: Date.now(), schemasUpToDate: false });
+      return false;
     }
   },
 
@@ -220,7 +224,17 @@ export const useAppStore = create<AppStore>((set, get) => ({
   loadSchemaFreshnessState: () => {
     const refreshTime = mmkvService.getNumber('schema_refresh_time') ?? null;
     const countriesJson = mmkvService.getString('schema_refresh_countries');
-    const refreshCountries: string[] = countriesJson ? (JSON.parse(countriesJson) as string[]) : [];
+    let refreshCountries: string[] = [];
+    if (countriesJson) {
+      try {
+        const parsed = JSON.parse(countriesJson);
+        if (Array.isArray(parsed)) {
+          refreshCountries = parsed as string[];
+        }
+      } catch {
+        console.warn('[useAppStore] Failed to parse schema_refresh_countries from storage');
+      }
+    }
     const dismissedAt = mmkvService.getNumber('schema_banner_dismissed_at') ?? null;
 
     set({
