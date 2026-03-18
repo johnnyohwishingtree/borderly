@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity } from 'react-native';
+import { Platform, TouchableOpacity } from 'react-native';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import LoadingStates from '@/components/ui/LoadingStates';
 
@@ -45,6 +45,18 @@ const HelpScreen = lazy(() => import('@/screens/support').then(m => ({ default: 
 // Lazy load help screens
 const FAQScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.FAQScreen })));
 const TroubleshootingScreen = lazy(() => import('@/screens/help').then(m => ({ default: m.TroubleshootingScreen })));
+
+// On web, React Navigation passes `href` to tab buttons, which causes
+// TouchableOpacity to render as an <a> tag and trigger browser navigation
+// instead of in-app navigation. Strip `href` on web to prevent this.
+function stripWebHref(props: any) {
+  if (Platform.OS === 'web') {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { href, ...rest } = props;
+    return rest;
+  }
+  return props;
+}
 
 // Enhanced loading component for lazy-loaded screens
 const ScreenLoader = () => (
@@ -379,15 +391,18 @@ export default function MainTabNavigator() {
         component={TripNavigator}
         options={{
           tabBarLabel: 'Trips',
-          tabBarButton: (props: any) => (
-            <TouchableOpacity
-              {...props}
-              testID="tab-trips"
-              accessibilityLabel="Trips tab"
-              accessibilityHint="Navigate to trips and travel forms"
-              style={[props.style, { minHeight: 44 }]}
-            />
-          ),
+          tabBarButton: (props: any) => {
+            const safeProps = stripWebHref(props);
+            return (
+              <TouchableOpacity
+                {...safeProps}
+                testID="tab-trips"
+                accessibilityLabel="Trips tab"
+                accessibilityHint="Navigate to trips and travel forms"
+                style={[safeProps.style, { minHeight: 44 }]}
+              />
+            );
+          },
           // TODO: Add tab bar icon
         }}
       />
@@ -396,15 +411,18 @@ export default function MainTabNavigator() {
         component={WalletNavigator}
         options={{
           tabBarLabel: 'Wallet',
-          tabBarButton: (props: any) => (
-            <TouchableOpacity
-              {...props}
-              testID="tab-wallet"
-              accessibilityLabel="QR Wallet tab"
-              accessibilityHint="Navigate to saved QR codes and travel documents"
-              style={[props.style, { minHeight: 44 }]}
-            />
-          ),
+          tabBarButton: (props: any) => {
+            const safeProps = stripWebHref(props);
+            return (
+              <TouchableOpacity
+                {...safeProps}
+                testID="tab-wallet"
+                accessibilityLabel="QR Wallet tab"
+                accessibilityHint="Navigate to saved QR codes and travel documents"
+                style={[safeProps.style, { minHeight: 44 }]}
+              />
+            );
+          },
           // TODO: Add tab bar icon
         }}
       />
@@ -413,15 +431,18 @@ export default function MainTabNavigator() {
         component={ProfileNavigator}
         options={{
           tabBarLabel: 'Profile',
-          tabBarButton: (props: any) => (
-            <TouchableOpacity
-              {...props}
-              testID="tab-profile"
-              accessibilityLabel="Profile tab"
-              accessibilityHint="Navigate to profile and passport information"
-              style={[props.style, { minHeight: 44 }]}
-            />
-          ),
+          tabBarButton: (props: any) => {
+            const safeProps = stripWebHref(props);
+            return (
+              <TouchableOpacity
+                {...safeProps}
+                testID="tab-profile"
+                accessibilityLabel="Profile tab"
+                accessibilityHint="Navigate to profile and passport information"
+                style={[safeProps.style, { minHeight: 44 }]}
+              />
+            );
+          },
           // TODO: Add tab bar icon
         }}
       />
@@ -430,15 +451,18 @@ export default function MainTabNavigator() {
         component={SettingsNavigator}
         options={{
           tabBarLabel: 'Settings',
-          tabBarButton: (props: any) => (
-            <TouchableOpacity
-              {...props}
-              testID="tab-settings"
-              accessibilityLabel="Settings tab"
-              accessibilityHint="Navigate to app settings and preferences"
-              style={[props.style, { minHeight: 44 }]}
-            />
-          ),
+          tabBarButton: (props: any) => {
+            const safeProps = stripWebHref(props);
+            return (
+              <TouchableOpacity
+                {...safeProps}
+                testID="tab-settings"
+                accessibilityLabel="Settings tab"
+                accessibilityHint="Navigate to app settings and preferences"
+                style={[safeProps.style, { minHeight: 44 }]}
+              />
+            );
+          },
           // TODO: Add tab bar icon
         }}
       />

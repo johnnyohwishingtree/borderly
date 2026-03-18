@@ -161,8 +161,33 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await screenshot(page, '10-create-trip');
   });
 
-  // NOTE: Tab screens (Wallet, Profile, Settings) cannot be captured via Playwright
-  // because React Navigation renders tab buttons as <a> links on web. Clicking them
-  // causes a full page navigation to /Main/Wallet etc., which webpack-dev-server can't
-  // serve. For tab screen auditing, use Maestro with the iOS Simulator instead.
+  // --- Tab Screens ---
+
+  test('12 - Wallet Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    // Use Playwright click with noWaitAfter to prevent waiting for navigation
+    await page.getByRole('tab', { name: 'QR Wallet tab' }).click({ noWaitAfter: true });
+    await page.waitForTimeout(2000);
+    await screenshot(page, '12-wallet-screen');
+  });
+
+  test('13 - Profile Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Profile tab' }).click({ noWaitAfter: true });
+    await page.waitForTimeout(2000);
+    await screenshot(page, '13-profile-screen');
+  });
+
+  test('14 - Settings Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Settings tab' }).click({ noWaitAfter: true });
+    await page.waitForTimeout(2000);
+    await screenshot(page, '14-settings-screen');
+  });
 });
