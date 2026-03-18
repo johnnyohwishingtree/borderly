@@ -55,7 +55,7 @@ jobs:
           pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
           exit ${PIPESTATUS[0]}
 
-      - name: Dispatch verify-and-fix on failure
+      - name: Dispatch verify-and-fix on PR failure
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -83,3 +83,25 @@ jobs:
             -f fix_enabled="true" \
             -f max_attempts="3" \
             -f fix_context="CI failed on PR #${PR_NUM}. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}"
+
+      - name: Dispatch verify-and-fix on master push failure
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          FIX_BRANCH="fix/master-ci-$(date +%Y%m%d-%H%M)"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
+            -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
+
+          # Create fix branch from master
+          git checkout -b "$FIX_BRANCH"
+          git push -u origin "$FIX_BRANCH"
+
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="$FIX_BRANCH" \
+            -f checks="ci" \
+            -f fix_enabled="true" \
+            -f max_attempts="3" \
+            -f create_pr="true" \
+            -f fix_context="CI failed on master after merge. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}. Fix the issue and create a PR back to master."
