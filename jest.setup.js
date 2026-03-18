@@ -572,3 +572,43 @@ jest.mock('@/services/storage', () => ({
     close: jest.fn().mockResolvedValue({}),
   },
 }));
+// ---------------------------------------------------------------------------
+// Global fetch mock — simulates CDN responses for OTA schema update tests.
+//
+// Default behaviour:
+//  - manifest.json endpoint → returns an empty manifest (no schemas)
+//  - any other URL          → 404 Not Found
+//
+// Individual test files override this with:
+//   global.fetch = jest.fn()               (replaces entirely)
+//   global.fetch.mockResolvedValueOnce(...)  (one-shot override)
+// ---------------------------------------------------------------------------
+global.fetch = jest.fn().mockImplementation((url) => {
+  const urlStr = String(url ?? '');
+
+  if (urlStr.includes('manifest.json')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () =>
+        Promise.resolve({
+          version: '1.0.0',
+          updatedAt: '2026-01-01T00:00:00Z',
+          schemas: {},
+        }),
+      text: () =>
+        Promise.resolve(
+          JSON.stringify({ version: '1.0.0', updatedAt: '2026-01-01T00:00:00Z', schemas: {} }),
+        ),
+    });
+  }
+
+  // Default: simulate an unavailable CDN resource
+  return Promise.resolve({
+    ok: false,
+    status: 404,
+    statusText: 'Not Found',
+    json: () => Promise.reject(new Error('404 Not Found')),
+    text: () => Promise.resolve(''),
+  });
+});
