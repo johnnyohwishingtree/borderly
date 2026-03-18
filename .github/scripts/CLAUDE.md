@@ -55,7 +55,7 @@ jobs:
           npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
           npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "auto-merge.yml" -f pr_number="42"
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 ```
 

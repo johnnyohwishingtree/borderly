@@ -209,8 +209,8 @@ describe('git operations', () => {
 
       expect(result).toBe(true);
       expect(mockedExecSync).toHaveBeenCalledWith(
-        expect.stringContaining('git commit -m'),
-        expect.any(Object)
+        'git commit -F -',
+        expect.objectContaining({ input: expect.stringContaining('fix: something') })
       );
     });
 
@@ -223,10 +223,10 @@ describe('git operations', () => {
 
       checkChangesAndCommit('msg', 'Bot <bot@test.com>');
 
-      const commitCall = mockedExecSync.mock.calls.find(
-        (c) => typeof c[0] === 'string' && c[0].includes('git commit')
+      expect(mockedExecSync).toHaveBeenCalledWith(
+        'git commit -F -',
+        expect.objectContaining({ input: expect.stringContaining('Co-authored-by: Bot <bot@test.com>') })
       );
-      expect(commitCall?.[0]).toContain('Co-authored-by: Bot <bot@test.com>');
     });
 
     it('uses default co-author when none provided', () => {
@@ -238,10 +238,10 @@ describe('git operations', () => {
 
       checkChangesAndCommit('msg');
 
-      const commitCall = mockedExecSync.mock.calls.find(
-        (c) => typeof c[0] === 'string' && c[0].includes('git commit')
+      expect(mockedExecSync).toHaveBeenCalledWith(
+        'git commit -F -',
+        expect.objectContaining({ input: expect.stringContaining('Co-authored-by: Claude <noreply@anthropic.com>') })
       );
-      expect(commitCall?.[0]).toContain('Co-authored-by: Claude <noreply@anthropic.com>');
     });
 
     it('returns false when git add -u produces no staged files', () => {
@@ -316,6 +316,12 @@ describe('git operations', () => {
         expect.stringContaining('git push'),
         expect.any(Object)
       );
+    });
+
+    it('rejects branch names with shell metacharacters', () => {
+      expect(() => smartPush('main"; rm -rf /')).toThrow('Invalid branch name');
+      expect(() => smartPush('branch$(whoami)')).toThrow('Invalid branch name');
+      expect(() => smartPush('branch`cmd`')).toThrow('Invalid branch name');
     });
 
     it('handles missing remote branch gracefully', () => {

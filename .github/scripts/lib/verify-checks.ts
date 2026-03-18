@@ -76,7 +76,7 @@ export function runVerifyChecks(opts: VerifyChecksOptions = {}): VerifyChecksOut
       const fileCount = changedFiles.trim().split('\n').length;
       progress(`Linting ${fileCount} changed files`);
       const { stdout: lintOut } = runCmd(
-        `echo "${changedFiles.trim().replace(/\n/g, ' ')}" | xargs npx eslint --quiet 2>&1`
+        `echo "${changedFiles.trim()}" | xargs -d '\\n' npx eslint --quiet 2>&1`
       );
       if (/error /.test(lintOut)) {
         progress('Lint FAILED');
@@ -163,6 +163,7 @@ export function runVerifyChecks(opts: VerifyChecksOptions = {}): VerifyChecksOut
         : '';
 
       for (const pkg of nativePkgs) {
+        if (/[^a-zA-Z0-9@/._-]/.test(pkg)) continue;
         const pkgDir = `node_modules/${pkg}`;
         if (!existsSync(pkgDir)) continue;
 

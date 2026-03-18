@@ -32,7 +32,6 @@
 
 import { GitHubClient } from '../github.js';
 import { setupGitAuth, mergeMasterIntoBranch, checkChangesAndCommit, smartPush } from '../git.js';
-import { execSync } from 'node:child_process';
 
 function getToken(): string {
   const token = process.env['GH_PAT'] ?? process.env['GH_TOKEN'];
@@ -95,6 +94,9 @@ async function main() {
         } else if (args[i] === '--ref' && args[i + 1]) {
           ref = args[i + 1];
           i++;
+        } else {
+          console.error(`Unknown or malformed argument: ${args[i]}`);
+          process.exit(1);
         }
       }
       const github = getGitHub();
@@ -135,10 +137,10 @@ async function main() {
           const branch = process.env['WORKFLOW_RUN_HEAD_BRANCH'] ?? '';
           if (branch) {
             try {
-              prNum = execSync(
-                `gh pr list --repo "${getRepo()}" --head "${branch}" --state open --json number -q '.[0].number'`,
-                { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
-              ).trim();
+              const github = getGitHub();
+              const prs = await github.listOpenPRs();
+              const match = prs.find((p) => p.head.ref === branch);
+              if (match) prNum = String(match.number);
             } catch { /* no PR found */ }
           }
           break;

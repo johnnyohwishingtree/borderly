@@ -92,7 +92,7 @@ export function checkChangesAndCommit(
   }
 
   const fullMessage = `${message}\n\nCo-authored-by: ${coAuthor}`;
-  execSync(`git commit -m "${fullMessage.replace(/"/g, '\\"')}"`, { stdio: 'inherit' });
+  execSync('git commit -F -', { input: fullMessage, stdio: ['pipe', 'inherit', 'inherit'] });
   return true;
 }
 
@@ -101,6 +101,9 @@ export function checkChangesAndCommit(
  * Port of: smart_push() in lib.sh
  */
 export function smartPush(branch: string, prePushHead?: string): boolean {
+  if (!/^[a-zA-Z0-9/_.\-]+$/.test(branch)) {
+    throw new Error(`Invalid branch name: ${branch}`);
+  }
   run(`git fetch origin "${branch}"`, { allowFailure: true });
 
   const localHead = run('git rev-parse HEAD');
