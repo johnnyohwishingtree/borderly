@@ -48,7 +48,7 @@ test.describe('QR Code Workflow and Wallet', () => {
 
     // Should navigate in-app — the tab bar should still be visible
     // and the Settings screen content should render
-    await expect(page.getByText('Settings')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByRole('tab', { name: 'Settings tab' })).toBeVisible({ timeout: 3000 });
   });
 

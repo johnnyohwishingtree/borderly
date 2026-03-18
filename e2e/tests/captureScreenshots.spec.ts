@@ -186,7 +186,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByText('Settings')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await screenshot(page, '14-settings-screen');
   });
 });
