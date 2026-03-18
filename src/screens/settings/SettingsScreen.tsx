@@ -8,6 +8,8 @@ import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
 import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
+import { schemaRegistry } from '@/services/schemas/schemaRegistry';
+import type { SchemaMetadata } from '@/services/schemas/schemaRegistry';
 import { getPortalName } from '@/utils/countryUtils';
 import type { PortalCredential } from '@/types/submission';
 import type { SettingsStackParamList } from '@/app/navigation/types';
@@ -24,6 +26,7 @@ export default function SettingsScreen() {
     isBiometricAvailable,
     setBiometricAvailable,
     clearCache,
+    triggerSchemaUpdateCheck,
   } = useAppStore();
   const { familyProfiles, setOnboardingComplete } = useProfileStore();
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
@@ -37,6 +40,10 @@ export default function SettingsScreen() {
   /** Stored portal credentials for the primary profile */
   const [portalCredentials, setPortalCredentials] = useState<PortalCredential[]>([]);
   const [isDeletingCredential, setIsDeletingCredential] = useState<string | null>(null);
+
+  /** Schema metadata for the Form Data section */
+  const [schemaMetadata, setSchemaMetadata] = useState<SchemaMetadata[]>([]);
+  const [isRefreshingSchemas, setIsRefreshingSchemas] = useState(false);
 
   const checkBiometricAvailability = useCallback(async () => {
     setIsCheckingBiometric(true);
@@ -72,12 +79,35 @@ export default function SettingsScreen() {
     }
   }, [familyProfiles.primaryProfileId]);
 
+  const loadSchemaMetadata = useCallback(() => {
+    try {
+      const metadata = schemaRegistry.getSchemaMetadata();
+      setSchemaMetadata(metadata);
+    } catch {
+      // Registry may not yet be initialized; silently ignore.
+    }
+  }, []);
+
+  const handleRefreshSchemas = useCallback(async () => {
+    setIsRefreshingSchemas(true);
+    try {
+      await triggerSchemaUpdateCheck();
+      loadSchemaMetadata();
+      Alert.alert('Form Data Updated', 'Country form schemas have been checked for updates.');
+    } catch {
+      Alert.alert('Update Failed', 'Unable to check for schema updates. Please try again.');
+    } finally {
+      setIsRefreshingSchemas(false);
+    }
+  }, [triggerSchemaUpdateCheck, loadSchemaMetadata]);
+
   useEffect(() => {
     loadPreferences();
     checkBiometricAvailability();
     loadStorageStats();
     loadPortalCredentials();
-  }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials]);
+    loadSchemaMetadata();
+  }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials, loadSchemaMetadata]);
 
   const themeOptions: SelectOption[] = [
     { label: 'Auto (System)', value: 'auto' },
@@ -568,14 +598,67 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
+        {/* Form Data */}
+        <Card testID="form-data-card">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-900 mr-3">Form Data</Text>
+            <StatusBadge
+              status="info"
+              size="small"
+              text="Country Schemas"
+            />
+          </View>
+
+          <Text className="text-xs text-gray-500 mb-4">
+            Country entry form definitions bundled with the app or refreshed over the air.
+          </Text>
+
+          {/* Per-country schema rows */}
+          {schemaMetadata.length === 0 ? (
+            <View className="bg-gray-50 p-4 rounded-lg items-center mb-4">
+              <Text className="text-sm text-gray-500">No schema data available yet.</Text>
+            </View>
+          ) : (
+            <View className="space-y-2 mb-4">
+              {schemaMetadata.map(meta => (
+                <View
+                  key={meta.countryCode}
+                  testID={`schema-row-${meta.countryCode}`}
+                  className="bg-gray-50 p-3 rounded-lg"
+                >
+                  <View className="flex-row items-center justify-between mb-1">
+                    <Text className="text-sm font-medium text-gray-900">{meta.countryName}</Text>
+                    <StatusBadge status="neutral" size="small" text={`v${meta.schemaVersion}`} />
+                  </View>
+                  <Text className="text-xs text-gray-500">
+                    Updated: {new Date(meta.lastUpdated).toLocaleDateString()}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <Button
+            title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'}
+            onPress={handleRefreshSchemas}
+            variant="outline"
+            fullWidth
+            disabled={isRefreshingSchemas}
+            testID="refresh-schemas-button"
+          />
+          <Text className="text-xs text-gray-500 mt-1 text-center">
+            Manually check for updated country form definitions
+          </Text>
+        </Card>
+
         {/* App Information */}
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 mr-3">App Information</Text>
-            <StatusBadge 
-              status="info" 
-              size="small" 
-              text="MVP Version" 
+            <StatusBadge
+              status="info"
+              size="small"
+              text="MVP Version"
             />
           </View>
 
