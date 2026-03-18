@@ -3,23 +3,34 @@ import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { Plane } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
+import { useAppStore } from '../../stores/useAppStore';
 import { TripCard } from '../../components/trips';
-import { EmptyState } from '../../components/ui';
+import { EmptyState, InfoBanner } from '../../components/ui';
 import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
 import { HapticFeedback } from '../../components/ui/HapticFeedback';
 import { Trip } from '../../types/trip';
 
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
 export default function TripListScreen() {
   const navigation = useNavigation();
-  const { 
-    trips, 
-    isLoading, 
-    isLoadingMore, 
-    error, 
-    hasMoreTrips, 
-    loadTrips, 
-    loadMoreTrips 
+  const {
+    trips,
+    isLoading,
+    isLoadingMore,
+    error,
+    hasMoreTrips,
+    loadTrips,
+    loadMoreTrips
   } = useTripStore();
+
+  const {
+    lastSchemaRefreshTime,
+    schemaRefreshCountries,
+    schemaBannerDismissedAt,
+    dismissSchemaBanner,
+    loadSchemaFreshnessState,
+  } = useAppStore();
   
   const {
     state,
@@ -41,7 +52,31 @@ export default function TripListScreen() {
 
   useEffect(() => {
     fetchTrips();
-  }, [fetchTrips]);
+    loadSchemaFreshnessState();
+  }, [fetchTrips, loadSchemaFreshnessState]);
+
+  /**
+   * The "schemas updated" banner should show when:
+   * 1. An OTA schema refresh has occurred (lastSchemaRefreshTime !== null), AND
+   * 2. The refresh was within the last 24 hours, AND
+   * 3. The user has not dismissed the banner since the last refresh.
+   */
+  const showSchemaBanner =
+    lastSchemaRefreshTime !== null &&
+    Date.now() - lastSchemaRefreshTime < TWENTY_FOUR_HOURS_MS &&
+    (schemaBannerDismissedAt === null || schemaBannerDismissedAt < lastSchemaRefreshTime);
+
+  const schemaBannerMessage = (() => {
+    if (schemaRefreshCountries.length === 0) {
+      return 'Form data updated — country entry forms have new fields.';
+    }
+    if (schemaRefreshCountries.length === 1) {
+      return `Form data updated — ${schemaRefreshCountries[0]} entry form has new fields.`;
+    }
+    const listed = schemaRefreshCountries.slice(0, 2).join(' & ');
+    const extra = schemaRefreshCountries.length > 2 ? ` and ${schemaRefreshCountries.length - 2} more` : '';
+    return `Form data updated — ${listed}${extra} entry forms have new fields.`;
+  })();
 
   const handleTripPress = (trip: Trip) => {
     HapticFeedback.navigation();
@@ -114,6 +149,15 @@ export default function TripListScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
+      {/* Schema update banner */}
+      {showSchemaBanner && (
+        <InfoBanner
+          message={schemaBannerMessage}
+          onDismiss={dismissSchemaBanner}
+          testID="schema-update-banner"
+        />
+      )}
+
       {/* Header */}
       <View className="bg-white px-4 py-6 border-b border-gray-100">
         <View className="flex-row items-center justify-between">
