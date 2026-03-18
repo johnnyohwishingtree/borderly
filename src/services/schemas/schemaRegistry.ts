@@ -63,7 +63,13 @@ export class SchemaRegistry {
 
       this.initialized = true;
     } catch (error) {
-      throw new Error(`Failed to initialize schema registry: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Always mark as initialized so the registry is never left in a broken
+      // state. Callers that check getSchema() will get null for missing
+      // schemas rather than crashing on "not initialized" errors.
+      this.initialized = true;
+      console.warn(
+        `[SchemaRegistry] Initialization encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 

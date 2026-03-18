@@ -338,7 +338,7 @@ export async function loadSchemaForCountry(
     const key = `${SCHEMA_MMKV_KEY_PREFIX}${countryCode}`;
     const cached = mmkvService.getString(key);
     if (cached) {
-      return JSON.parse(cached) as CountryFormSchema;
+      return validateSchema(JSON.parse(cached), countryCode);
     }
   } catch (err) {
     console.warn(
