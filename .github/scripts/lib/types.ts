@@ -46,6 +46,8 @@ export interface PipelineStateData {
   state: PipelineState;
   attempt: number;
   maxAttempts: number;
+  /** Per-activity attempt counters (e.g., { verify: 2, fix: 1 }) */
+  attempts?: Partial<Record<ActivityType, number>>;
   branches: {
     pr: string | null;
     tmp: string | null;
@@ -82,12 +84,13 @@ export interface CIStatus {
 // ─── Merge Gate Conditions ──────────────────────────────────────────────────
 
 export interface MergeGateResult {
-  action: 'merge' | 'update_branch' | 'wait';
+  action: 'merge' | 'update_branch' | 'wait' | 'skip';
   conditions: {
     testsPass: boolean;
     e2ePass: boolean;
     approved: boolean;
     threadsResolved: boolean;
+    noActiveReviewFix: boolean;
     branchUpToDate: boolean;
   };
   failingConditions: string[];

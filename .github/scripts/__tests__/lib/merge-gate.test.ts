@@ -8,6 +8,7 @@ function createMockGitHub(
     e2ePass: boolean;
     approvals: number;
     unresolvedThreads: number;
+    reviewFixActive: boolean;
     branchStatus: 'ahead' | 'behind' | 'diverged' | 'identical';
   }> = {}
 ): GitHubClient {
@@ -16,6 +17,7 @@ function createMockGitHub(
     e2ePass: true,
     approvals: 1,
     unresolvedThreads: 0,
+    reviewFixActive: false,
     branchStatus: 'ahead' as const,
   };
   const config = { ...defaults, ...overrides };
@@ -32,6 +34,7 @@ function createMockGitHub(
     countUnresolvedThreads: vi
       .fn()
       .mockResolvedValue(config.unresolvedThreads),
+    isWorkflowActive: vi.fn().mockResolvedValue(config.reviewFixActive),
     compareBranches: vi.fn().mockResolvedValue(config.branchStatus),
   } as unknown as GitHubClient;
 }
@@ -48,6 +51,7 @@ describe('evaluateMergeGate', () => {
       e2ePass: true,
       approved: true,
       threadsResolved: true,
+      noActiveReviewFix: true,
       branchUpToDate: true,
     });
   });
@@ -90,6 +94,14 @@ describe('evaluateMergeGate', () => {
 
     expect(result.action).toBe('wait');
     expect(result.failingConditions).toContain('threadsResolved');
+  });
+
+  it('returns "wait" when review-fix is active', async () => {
+    const github = createMockGitHub({ reviewFixActive: true });
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('wait');
+    expect(result.failingConditions).toContain('noActiveReviewFix');
   });
 
   it('returns "wait" when multiple conditions fail', async () => {

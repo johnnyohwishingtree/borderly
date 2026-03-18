@@ -1,9 +1,11 @@
 /**
+ * Merge gate evaluator — TypeScript port of evaluate-merge-gate.sh.
  *
- * Evaluates 6 merge conditions and takes action:
+ * Evaluates 6 merge conditions and returns an action:
  * - All pass + up to date → merge (squash)
  * - All pass + behind → update branch
  * - Any fail → wait (re-evaluated on next event)
+ * - PR doesn't target master → skip
  */
 
 import { GitHubClient } from './github.js';
@@ -16,16 +18,22 @@ export async function evaluateMergeGate(
   const pr = await github.getPR(prNumber);
   const sha = pr.head.sha;
 
-  // Condition 1-3: CI status
+  // Condition 1-2: CI status
   const ci = await github.checkCIStatus(sha);
 
-  // Condition 4: Approved
+  // Condition 3: Approved
   const approvals = await github.countApprovals(prNumber);
   const approved = approvals >= 1;
 
-  // Condition 5: All review threads resolved
+  // Condition 4: All review threads resolved
   const unresolvedThreads = await github.countUnresolvedThreads(prNumber);
   const threadsResolved = unresolvedThreads === 0;
+
+  // Condition 5: No active review-fix runs
+  const noActiveReviewFix = !(await github.isWorkflowActive(
+    'review-fix.yml',
+    prNumber
+  ));
 
   // Condition 6: Branch up to date with master
   const comparison = await github.compareBranches('master', pr.head.ref);
@@ -36,6 +44,7 @@ export async function evaluateMergeGate(
     e2ePass: ci.e2ePass,
     approved,
     threadsResolved,
+    noActiveReviewFix,
     branchUpToDate,
   };
 
@@ -59,4 +68,3 @@ export async function evaluateMergeGate(
 
   return { action, conditions, failingConditions };
 }
-
