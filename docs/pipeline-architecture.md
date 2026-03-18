@@ -503,14 +503,16 @@ Completed the migration from GitHub Actions workflow-dispatch chains to Inngest 
 - `evaluate-merge-gate.sh` `check_no_active_review_fix()` — always returns true (review-fix handled by Inngest)
 
 **Rollback procedure:**
-If Inngest functions encounter issues, restore the old workflows from git history:
+If Inngest functions encounter issues, restore the old state with these commands:
 ```bash
+# Restore deleted workflows
 git checkout HEAD~1 -- .github/workflows/orchestrate.yml .github/workflows/auto-merge.yml \
   .github/workflows/verify-and-fix.yml .github/workflows/review-relay.yml \
   .github/workflows/review-fix.yml .github/workflows/review-guardian.yml \
   .github/workflows/watcher.yml
-```
-Then revert the dispatch changes in test.yml, e2e-smoke.yml, and claude.yml.
+
+# Revert changes in modified files
+git checkout HEAD~1 -- .github/workflows/test.yml .github/workflows/e2e-smoke.yml .github/workflows/claude.yml .github/scripts/lib.sh .github/scripts/evaluate-merge-gate.sh
 
 ### Deployment
 
