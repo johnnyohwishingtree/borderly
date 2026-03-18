@@ -134,7 +134,9 @@ jobs:
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
         uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            .github/actions
           sparse-checkout-cone-mode: false
 
       - name: Setup pipeline TypeScript

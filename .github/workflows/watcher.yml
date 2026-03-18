@@ -21,7 +21,9 @@ jobs:
       - name: Checkout scripts
         uses: actions/checkout@v4
         with:
-          sparse-checkout: .github/scripts
+          sparse-checkout: |
+            .github/scripts
+            .github/actions
           sparse-checkout-cone-mode: false
 
       - name: Setup pipeline TypeScript
