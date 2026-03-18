@@ -26,6 +26,8 @@ export { default as HelpHint } from './HelpHint';
 export { default as ProgressIndicator } from './ProgressIndicator';
 export { default as AnimatedCard } from './AnimatedCard';
 export { HapticFeedback, HAPTIC_PATTERNS, triggerHaptic } from './HapticFeedback';
+export { default as InfoBanner } from './InfoBanner';
+export type { InfoBannerProps } from './InfoBanner';
 
 // Enhanced accessible component types
 export type { AccessibleInputProps } from './AccessibleInput';
