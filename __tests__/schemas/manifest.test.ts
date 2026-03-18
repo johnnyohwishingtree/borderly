@@ -44,8 +44,8 @@ describe('manifest.json — top-level structure', () => {
 
   it('has an updatedAt field that is an ISO 8601 timestamp', () => {
     expect(typeof m.updatedAt).toBe('string');
-    // Accept YYYY-MM-DDTHH:MM:SS with optional timezone (Z or ±HH:MM)
-    expect(m.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    // Accept YYYY-MM-DDTHH:MM:SS with optional milliseconds and timezone (Z or ±HH:MM)
+    expect(m.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})?$/);
   });
 
   it('has a schemas object with at least one entry', () => {

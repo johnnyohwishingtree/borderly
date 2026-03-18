@@ -216,7 +216,7 @@ Read path (form generation):
 
 #### Version Comparison Logic
 
-The service compares `schemaVersion` (from the MMKV-cached schema) against the `version` field in the manifest entry. Only a strict equality check is used: if the cached version equals the manifest version, the download is skipped. Any mismatch (including a fresh install with no cache) triggers a download.
+The service compares `schemaVersion` (from the MMKV-cached schema) against the `version` field in the manifest entry using strict string equality — not semantic versioning. If the cached version string equals the manifest version string exactly, the download is skipped. Any mismatch (including a fresh install with no cache) triggers a download. The term "download-if-outdated" in the UI refers to this check: any version that does not exactly match the latest manifest is considered outdated.
 
 ### Security Architecture
 
