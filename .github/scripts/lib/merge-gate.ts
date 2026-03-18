@@ -30,10 +30,17 @@ export async function evaluateMergeGate(
   const threadsResolved = unresolvedThreads === 0;
 
   // Condition 5: No active review-fix runs
-  const noActiveReviewFix = !(await github.isWorkflowActive(
-    'review-fix.yml',
-    prNumber
-  ));
+  let noActiveReviewFix = false;
+  try {
+    noActiveReviewFix = !(await github.isWorkflowActive(
+      'review-fix.yml',
+      prNumber
+    ));
+  } catch (error) {
+    console.error('Error checking review-fix workflow status:', error);
+    // Default to false (block merge) so a transient API failure doesn't
+    // accidentally allow a merge while a review-fix run may still be active.
+  }
 
   // Condition 6: Branch up to date with master
   const comparison = await github.compareBranches('master', pr.head.ref);
