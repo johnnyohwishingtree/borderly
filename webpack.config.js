@@ -131,6 +131,7 @@ module.exports = (env, argv) => {
     static: path.resolve(__dirname, 'e2e'),
     port: 3000,
     hot: false,
+    historyApiFallback: true,
   },
   };
 };

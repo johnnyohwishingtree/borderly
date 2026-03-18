@@ -122,32 +122,11 @@ async function injectStateWithPortalCredentials(page: Page) {
 
 /** Navigate to the Settings tab from the main app. */
 async function navigateToSettings(page: Page) {
-  // Wait for the app to load past onboarding — wait for the settings tab to appear
-  await page.locator('[data-testid="tab-settings"]').waitFor({ timeout: 5000 }).catch(() => {});
-
-  await page.waitForFunction(
-    () => typeof (window as any).__navigationRef !== 'undefined',
-    { timeout: 3000 },
-  ).catch(() => {});
-
-  const navigated = await page.evaluate(async () => {
-    const navRef = (window as any).__navigationRef;
-    if (!navRef) return false;
-
-    let attempts = 0;
-    while (!navRef.isReady() && attempts < 20) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      attempts++;
-    }
-    if (!navRef.isReady()) return false;
-
-    navRef.navigate('Main', { screen: 'Settings' });
-    return true;
-  });
-
-  if (navigated) {
-    await page.getByText('Settings').first().waitFor({ timeout: 3000 }).catch(() => {});
-  }
+  // Wait for the tab bar to appear, then click the Settings tab
+  const settingsTab = page.getByRole('tab', { name: 'Settings tab' });
+  await settingsTab.waitFor({ timeout: 5000 });
+  await settingsTab.click();
+  await page.getByText('Settings').first().waitFor({ timeout: 3000 });
 }
 
 test.describe('SettingsScreen', () => {

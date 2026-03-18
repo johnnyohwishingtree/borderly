@@ -39,6 +39,19 @@ test.describe('QR Code Workflow and Wallet', () => {
     await expect(page.getByRole('tab', { name: 'Trips tab', selected: true })).toBeVisible();
   });
 
+  test('clicking Settings tab navigates without full page reload', async ({ page }) => {
+    // Verify we start on Trips
+    await expect(page.getByText('My Trips')).toBeVisible();
+
+    // Click the Settings tab
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+
+    // Should navigate in-app — the tab bar should still be visible
+    // and the Settings screen content should render
+    await expect(page.getByRole('tab', { name: 'Trips tab' })).toBeVisible({ timeout: 3000 });
+    await expect(page.getByRole('tab', { name: 'Settings tab' })).toBeVisible({ timeout: 3000 });
+  });
+
   test('can create a trip from empty state', async ({ page }) => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();

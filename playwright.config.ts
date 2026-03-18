@@ -14,6 +14,18 @@ const chromiumLaunchOptions = {
 // CI can target specific projects via E2E_PROJECT env var (comma-separated)
 const targetProjects = process.env.E2E_PROJECT?.split(',').filter(Boolean);
 
+// Screenshot capture project — excluded from CI, run manually for visual audits.
+// Usage: npx playwright test captureScreenshots --project=screenshot-capture
+const screenshotProject = {
+  name: 'screenshot-capture',
+  testMatch: 'captureScreenshots.spec.ts',
+  fullyParallel: false,
+  use: {
+    ...devices['Desktop Chrome'],
+    launchOptions: chromiumLaunchOptions,
+  },
+};
+
 const allProjects = [
   {
     name: 'chromium',
@@ -105,7 +117,7 @@ export default defineConfig({
     navigationTimeout: 15000,
   },
   projects: targetProjects?.length
-    ? allProjects.filter(p => targetProjects.includes(p.name))
+    ? [...allProjects, screenshotProject].filter(p => targetProjects.includes(p.name))
     : allProjects,
   webServer: {
     // In CI with pre-built bundle, use a lightweight static server.
