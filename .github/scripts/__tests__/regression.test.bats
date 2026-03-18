@@ -1088,12 +1088,11 @@ for job_name, job in data.get('jobs', {}).items():
         run_text = str(step.get('run', ''))
         combined = step_if + job_if
         # Must handle push event (master failures) and dispatch verify-and-fix
-        if 'push' in combined and 'verify-and-fix' in run_text:
+        if 'push' in combined and ('verify-and-fix' in run_text or 'dispatch_workflow' in run_text):
             has_master_fix = True
             break
-        if 'push' in combined and 'dispatch_workflow' in run_text:
-            has_master_fix = True
-            break
+    if has_master_fix:
+        break
 
 if has_master_fix:
     print('ok')
