@@ -45,8 +45,22 @@ interface AppStore {
    * Trigger a background schema-update check.  Never blocks the UI — the
    * returned Promise resolves after the check finishes but callers can safely
    * fire-and-forget without awaiting.
+   * Returns `true` if the check completed successfully (even if no updates were
+   * found), or `false` if the check itself failed.
    */
-  triggerSchemaUpdateCheck: () => Promise<void>;
+  triggerSchemaUpdateCheck: () => Promise<boolean>;
+
+  // Schema freshness — for the TripList banner and Settings Form Data section
+  /** Epoch ms when the most recent OTA schema refresh occurred; null = never updated (fresh install). */
+  lastSchemaRefreshTime: number | null;
+  /** Human-readable country names refreshed in the last OTA update. */
+  schemaRefreshCountries: string[];
+  /** Epoch ms when the user dismissed the "schemas updated" banner; null = not yet dismissed. */
+  schemaBannerDismissedAt: number | null;
+  /** Dismiss the "schemas updated" informational banner. */
+  dismissSchemaBanner: () => void;
+  /** Load schema-freshness persisted state from MMKV (call once at startup). */
+  loadSchemaFreshnessState: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -70,6 +84,9 @@ export const useAppStore = create<AppStore>((set, get) => ({
   lastError: null,
   lastSchemaCheck: null,
   schemasUpToDate: false,
+  lastSchemaRefreshTime: null,
+  schemaRefreshCountries: [],
+  schemaBannerDismissedAt: null,
 
   // App preferences
   updatePreference: <K extends keyof AppPreferences>(key: K, value: AppPreferences[K]) => {
@@ -162,16 +179,68 @@ export const useAppStore = create<AppStore>((set, get) => ({
         await schemaRegistry.initialize().catch(err =>
           console.warn('[useAppStore] Failed to reinitialize schema registry after update:', err),
         );
-      }
 
-      set({
-        lastSchemaCheck: Date.now(),
-        schemasUpToDate: result.failed.length === 0,
-      });
+        // Resolve human-readable country names for the banner message.
+        const refreshedNames = result.updated.map(code => {
+          const schema = schemaRegistry.getSchema(code);
+          return schema?.countryName ?? code;
+        });
+
+        const now = Date.now();
+        mmkvService.setNumber('schema_refresh_time', now);
+        mmkvService.setString('schema_refresh_countries', JSON.stringify(refreshedNames));
+        // Reset banner dismissal so the new-refresh banner shows again.
+        mmkvService.delete('schema_banner_dismissed_at');
+
+        set({
+          lastSchemaCheck: now,
+          schemasUpToDate: result.failed.length === 0,
+          lastSchemaRefreshTime: now,
+          schemaRefreshCountries: refreshedNames,
+          schemaBannerDismissedAt: null,
+        });
+      } else {
+        set({
+          lastSchemaCheck: Date.now(),
+          schemasUpToDate: result.failed.length === 0,
+        });
+      }
+      return true;
     } catch (err) {
       // Never throw — keep the app running even if the check fails.
       console.warn('[useAppStore] triggerSchemaUpdateCheck failed:', err);
       set({ lastSchemaCheck: Date.now(), schemasUpToDate: false });
+      return false;
     }
+  },
+
+  // Schema freshness actions
+  dismissSchemaBanner: () => {
+    const now = Date.now();
+    mmkvService.setNumber('schema_banner_dismissed_at', now);
+    set({ schemaBannerDismissedAt: now });
+  },
+
+  loadSchemaFreshnessState: () => {
+    const refreshTime = mmkvService.getNumber('schema_refresh_time') ?? null;
+    const countriesJson = mmkvService.getString('schema_refresh_countries');
+    let refreshCountries: string[] = [];
+    if (countriesJson) {
+      try {
+        const parsed = JSON.parse(countriesJson);
+        if (Array.isArray(parsed)) {
+          refreshCountries = parsed as string[];
+        }
+      } catch {
+        console.warn('[useAppStore] Failed to parse schema_refresh_countries from storage');
+      }
+    }
+    const dismissedAt = mmkvService.getNumber('schema_banner_dismissed_at') ?? null;
+
+    set({
+      lastSchemaRefreshTime: refreshTime,
+      schemaRefreshCountries: refreshCountries,
+      schemaBannerDismissedAt: dismissedAt,
+    });
   },
 }));
