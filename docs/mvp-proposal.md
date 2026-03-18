@@ -152,6 +152,72 @@ When a backend becomes necessary (for OTA schema updates, analytics, feature fla
 4. User reviews pre-filled data → app shows step-by-step guide for Visit Japan Web with data ready to copy
 5. After submission to government portal → user screenshots/saves QR code → stored locally in app's QR wallet
 
+### OTA Schema Update System
+
+Country form schemas ship bundled in the app binary (inside `src/schemas/`), but can be silently updated over-the-air via a CDN-hosted manifest. This means bug-fixes to government portal field mappings reach users without an App Store release.
+
+#### Architecture
+
+```
+App Launch (cold start)
+       │
+       ▼
+SchemaUpdateService.checkForUpdates()
+       │
+       ├─── 1. Fetch manifest.json from CDN
+       │          https://schemas.borderly.app/v1/manifest.json
+       │          {
+       │            "version": "1.0.0",
+       │            "schemas": {
+       │              "JPN": { "version": "2.0.0", "checksum": "sha256:...", "url": "..." }
+       │            }
+       │          }
+       │
+       ├─── 2. Compare cached version vs manifest version (per country)
+       │          ┌─ versions match ──► skip (no download)
+       │          └─ versions differ ─► fetch schema from manifest URL
+       │
+       ├─── 3. Validate SHA-256 checksum of downloaded schema
+       │          ┌─ checksum OK  ──► store in MMKV under "schema:<code>"
+       │          └─ checksum BAD ──► discard, keep existing cached/bundled schema
+       │
+       └─── 4. Return { updated: string[], failed: string[] }
+
+Read path (form generation):
+  SchemaUpdateService.getSchema(countryCode)
+       ├─ MMKV has "schema:<code>" ──► return parsed OTA schema (preferred)
+       └─ MMKV empty / corrupted  ──► return bundled schema (fallback)
+```
+
+#### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/schemas/manifest.json` | Bundled manifest; also served from CDN at `SCHEMA_MANIFEST_URL` |
+| `src/schemas/<ISO>.json` | Bundled schema files (fallback when OTA cache is empty) |
+| `src/services/schemas/schemaUpdateService.ts` | OTA download, checksum validation, MMKV persistence |
+| `src/services/schemas/schemaLoader.ts` | MMKV-first schema loading with bundled fallback |
+| `src/services/schemas/schemaRegistry.ts` | In-memory registry; hot-swaps newer MMKV schemas |
+| `src/utils/constants.ts` | `SCHEMA_CDN_BASE_URL`, `SCHEMA_MANIFEST_URL`, `SCHEMA_MMKV_KEY_PREFIX` |
+
+#### Storage Keys (MMKV)
+
+| Key | Value |
+|-----|-------|
+| `schema:<COUNTRY_CODE>` | JSON string of the OTA-fetched schema (e.g. `schema:JPN`) |
+| `schema_manifest_cache` | JSON string of the last fetched manifest |
+
+#### Security Properties
+
+- **Checksum enforcement**: SHA-256 is computed on the downloaded payload and compared to the manifest entry. A mismatch causes the schema to be silently discarded — the existing cached or bundled schema remains in use.
+- **No PII in transit**: Schemas contain no user data. CDN communication is schema-config-only.
+- **Offline resilience**: `checkForUpdates()` never throws. Network errors return `{ updated: [], failed: [] }` so the app continues with cached/bundled schemas.
+- **Manifest caching**: The last successfully fetched manifest is stored in MMKV. Subsequent `fetchSchema()` calls use it to avoid a redundant manifest request.
+
+#### Version Comparison Logic
+
+The service compares `schemaVersion` (from the MMKV-cached schema) against the `version` field in the manifest entry. Only a strict equality check is used: if the cached version equals the manifest version, the download is skipped. Any mismatch (including a fresh install with no cache) triggers a download.
+
 ### Security Architecture
 
 ```
