@@ -56,11 +56,7 @@ export class GitHubClient {
     );
     const e2ePass = e2eChromium && e2ePerf && e2eCross;
 
-    const androidBuildPass = runs.some(
-      (r) => r.name === 'build-android' && r.conclusion === 'success'
-    );
-
-    return { testsPass, e2ePass, androidBuildPass };
+    return { testsPass, e2ePass };
   }
 
   // ─── PR Queries (ports of count_approvals, count_unresolved_threads) ────

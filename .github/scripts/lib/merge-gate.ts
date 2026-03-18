@@ -34,7 +34,6 @@ export async function evaluateMergeGate(
   const conditions = {
     testsPass: ci.testsPass,
     e2ePass: ci.e2ePass,
-    androidBuildPass: ci.androidBuildPass,
     approved,
     threadsResolved,
     branchUpToDate,

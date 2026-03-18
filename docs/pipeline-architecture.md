@@ -25,7 +25,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master / manual | iOS build |
-| `build-android.yml` | Push to master / PR / manual | Android debug build + lint |
+| `build-android.yml` | Push to master / manual | Android debug build (master only) |
 | `release.yml` | Tag push / manual | Release workflow |
 
 ---
@@ -151,14 +151,13 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |   Triggers: workflow_run, pull_request_review,                      |
 |             pull_request (synchronize), workflow_dispatch            |
 |                                                                     |
-|   Merges only when ALL 7 conditions are met:                        |
+|   Merges only when ALL 6 conditions are met:                        |
 |     1. Tests workflow passed                                        |
 |     2. E2E passed (all 3 jobs: chromium, performance, cross-browser)|
-|     3. Android build passed                                         |
-|     4. PR has at least one approval                                 |
-|     5. No unresolved review threads                                 |
-|     6. No active review-fix runs                                    |
-|     7. Branch up to date with master                                |
+|     3. PR has at least one approval                                 |
+|     4. No unresolved review threads                                 |
+|     5. No active review-fix runs                                    |
+|     6. Branch up to date with master                                |
 |                                                                     |
 |   If branch behind → merge master into PR branch → re-evaluate     |
 +----------------------------+----------------------------------------+

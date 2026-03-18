@@ -304,7 +304,7 @@ jobs:
             if [ "$UNRESOLVED" -eq 0 ]; then
               # All threads resolved — but we must also verify ALL CI checks passed,
               # not just the one workflow_run that triggered us. This prevents premature
-              # approval when e.g. Tests passes but build-android or E2E is still failing.
+              # approval when e.g. Tests passes but E2E is still failing.
               HEAD_SHA=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefOid \
                 -q '.headRefOid' 2>/dev/null || echo "")
 
@@ -315,9 +315,9 @@ jobs:
               fi
 
               eval "$(check_ci_status "$HEAD_SHA" "$REPO")"
-              echo "CI status — Tests: $TESTS_PASS, E2E: $E2E_PASS, Android: $ANDROID_BUILD_PASS"
+              echo "CI status — Tests: $TESTS_PASS, E2E: $E2E_PASS"
 
-              if [ "$TESTS_PASS" = "true" ] && [ "$E2E_PASS" = "true" ] && [ "$ANDROID_BUILD_PASS" = "true" ]; then
+              if [ "$TESTS_PASS" = "true" ] && [ "$E2E_PASS" = "true" ]; then
                 echo "PR #$PR_NUM has formal review(s), ALL threads resolved, ALL CI passed — approving now"
                 echo "action=approve" >> $GITHUB_OUTPUT
               else

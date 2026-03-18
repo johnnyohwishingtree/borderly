@@ -77,7 +77,6 @@ export type ActivityType = keyof typeof ACTIVITY_LIMITS;
 export interface CIStatus {
   testsPass: boolean;
   e2ePass: boolean;
-  androidBuildPass: boolean;
 }
 
 // ─── Merge Gate Conditions ──────────────────────────────────────────────────
@@ -87,7 +86,6 @@ export interface MergeGateResult {
   conditions: {
     testsPass: boolean;
     e2ePass: boolean;
-    androidBuildPass: boolean;
     approved: boolean;
     threadsResolved: boolean;
     branchUpToDate: boolean;

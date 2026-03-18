@@ -22,12 +22,11 @@ mock_all_pass() {
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs (test + 3 e2e jobs + android build)
+  # check-runs (test + 3 e2e jobs)
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (1 approval)
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
@@ -50,7 +49,6 @@ build-android|success|completed'
   assert_json "$result" ".pr_number" "42"
   assert_json "$result" ".conditions.tests_pass" "true"
   assert_json "$result" ".conditions.e2e_pass" "true"
-  assert_json "$result" ".conditions.android_build_pass" "true"
   assert_json "$result" ".conditions.approved" "true"
   assert_json "$result" ".conditions.threads_resolved" "true"
   assert_json "$result" ".conditions.no_active_fix" "true"
@@ -69,12 +67,11 @@ build-android|success|completed'
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs: test fails, e2e + android pass
+  # check-runs: test fails, e2e pass
   mock_gh_response "check-runs" 'test|failure|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (1 approval)
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
@@ -99,11 +96,10 @@ build-android|success|completed'
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs: test passes, test-performance missing, android passes
+  # check-runs: test passes, test-performance missing
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (1 approval)
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
@@ -128,12 +124,11 @@ build-android|success|completed'
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs: all pass (including android)
+  # check-runs: all pass
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (0 approvals)
   mock_gh_response "reviews" "0"
   # graphql (unresolved threads = 0)
@@ -158,12 +153,11 @@ build-android|success|completed'
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs: all pass (including android)
+  # check-runs: all pass
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (1 approval)
   mock_gh_response "reviews" "1"
   # graphql (2 unresolved threads)
@@ -188,12 +182,11 @@ build-android|success|completed'
   mock_gh_response "baseRefName" "master"
   # headRefOid
   mock_gh_response "headRefOid" "abc123"
-  # check-runs: all pass (including android)
+  # check-runs: all pass
   mock_gh_response "check-runs" 'test|success|completed
 test-chromium|success|completed
 test-performance|success|completed
-test-cross-browser|success|completed
-build-android|success|completed'
+test-cross-browser|success|completed'
   # reviews (1 approval)
   mock_gh_response "reviews" "1"
   # graphql (unresolved threads = 0)
@@ -335,88 +328,6 @@ test-cross-browser|success|completed'
   assert_json "$result" ".conditions.e2e_pass" "true"
   assert_json "$result" ".conditions.approved" "true"
   assert_json "$result" ".conditions.threads_resolved" "true"
-}
-
-# ── Test: Android build failing -> action is "wait" ──
-
-@test "android build failing returns action wait" {
-  mock_gh_response "baseRefName" "master"
-  mock_gh_response "headRefOid" "abc123"
-  # check-runs: test + e2e pass, android fails
-  mock_gh_response "check-runs" 'test|success|completed
-test-chromium|success|completed
-test-performance|success|completed
-test-cross-browser|success|completed
-build-android|failure|completed'
-  mock_gh_response "reviews" "1"
-  mock_gh_response "graphql" "0"
-  mock_gh_response "review-fix.yml" "0"
-  mock_gh_response "mergeStateStatus" "CLEAN"
-
-  result=$("$SCRIPTS_DIR/evaluate-merge-gate.sh" 42 2>/dev/null)
-
-  assert_json "$result" ".action" "wait"
-  assert_json "$result" ".ready" "false"
-  assert_json "$result" ".conditions.android_build_pass" "false"
-  assert_json "$result" ".conditions.tests_pass" "true"
-  assert_json "$result" ".conditions.e2e_pass" "true"
-}
-
-@test "android build missing returns action wait" {
-  mock_gh_response "baseRefName" "master"
-  mock_gh_response "headRefOid" "abc123"
-  # check-runs: test + e2e pass, no android build
-  mock_gh_response "check-runs" 'test|success|completed
-test-chromium|success|completed
-test-performance|success|completed
-test-cross-browser|success|completed'
-  mock_gh_response "reviews" "1"
-  mock_gh_response "graphql" "0"
-  mock_gh_response "review-fix.yml" "0"
-  mock_gh_response "mergeStateStatus" "CLEAN"
-
-  result=$("$SCRIPTS_DIR/evaluate-merge-gate.sh" 42 2>/dev/null)
-
-  assert_json "$result" ".action" "wait"
-  assert_json "$result" ".ready" "false"
-  assert_json "$result" ".conditions.android_build_pass" "false"
-  assert_json "$result" ".conditions.tests_pass" "true"
-  assert_json "$result" ".conditions.e2e_pass" "true"
-}
-
-# ── Test: check_android_build_passed unit tests ──
-
-@test "check_android_build_passed returns true when build-android succeeds" {
-  export _EVALUATE_MERGE_GATE_SOURCED=true
-  source "$SCRIPTS_DIR/evaluate-merge-gate.sh"
-
-  local check_runs='test|success|completed
-build-android|success|completed'
-
-  result=$(check_android_build_passed "$check_runs")
-  [ "$result" = "true" ]
-}
-
-@test "check_android_build_passed returns false when build-android fails" {
-  export _EVALUATE_MERGE_GATE_SOURCED=true
-  source "$SCRIPTS_DIR/evaluate-merge-gate.sh"
-
-  local check_runs='test|success|completed
-build-android|failure|completed'
-
-  result=$(check_android_build_passed "$check_runs")
-  [ "$result" = "false" ]
-}
-
-@test "check_android_build_passed returns false when build-android missing" {
-  export _EVALUATE_MERGE_GATE_SOURCED=true
-  source "$SCRIPTS_DIR/evaluate-merge-gate.sh"
-
-  local check_runs='test|success|completed
-test-chromium|success|completed'
-
-  result=$(check_android_build_passed "$check_runs")
-  [ "$result" = "false" ]
 }
 
 @test "all conditions pass includes no_active_fix in output" {
