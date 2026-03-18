@@ -100,7 +100,7 @@ function App(): React.JSX.Element {
       console.warn('Failed to initialize monitoring:', error);
       return () => {}; // Return empty cleanup function
     }
-  }, []);
+  }, [triggerSchemaUpdateCheck]);
 
   return (
     <GluestackUIProvider mode="light">
