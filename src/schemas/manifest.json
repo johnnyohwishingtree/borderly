@@ -1,0 +1,46 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-03-18T00:00:00Z",
+  "schemas": {
+    "JPN": {
+      "version": "1.0.0",
+      "checksum": "sha256:4e5587d82773c44f7e47571a79938ad3c32634d403a68a423c4052a8b2cc12c8",
+      "url": "https://schemas.borderly.app/v1/JPN.json"
+    },
+    "MYS": {
+      "version": "1.0.0",
+      "checksum": "sha256:27e00c9985f98e8c5eda2d1fd810b1c4692c0cc56b31c789288d2c24c878b162",
+      "url": "https://schemas.borderly.app/v1/MYS.json"
+    },
+    "SGP": {
+      "version": "1.0.0",
+      "checksum": "sha256:35a27360d0cec367f385c1cc9cbde2ba0d8612c8051969bb3236449560ce5d06",
+      "url": "https://schemas.borderly.app/v1/SGP.json"
+    },
+    "THA": {
+      "version": "2.1.0",
+      "checksum": "sha256:10d4f803d904d2bbd88671bbcff63100282b80ef5be2914ed3ca5fdd6ca8740a",
+      "url": "https://schemas.borderly.app/v1/THA.json"
+    },
+    "VNM": {
+      "version": "2.0.0",
+      "checksum": "sha256:96f4901eed936a069f953a7603739adfd6d26e3e248725d182c912709f4c2c6b",
+      "url": "https://schemas.borderly.app/v1/VNM.json"
+    },
+    "GBR": {
+      "version": "2.0.0",
+      "checksum": "sha256:de1d3486583614e54906552897ba3e62d17e23b9e0338afe7ed2f39adb6ecae8",
+      "url": "https://schemas.borderly.app/v1/GBR.json"
+    },
+    "USA": {
+      "version": "2.1.0",
+      "checksum": "sha256:4d8aa248b136cdfdb6ccfd70300fa3750cf1e755722d177c1b0f488b66f3385d",
+      "url": "https://schemas.borderly.app/v1/USA.json"
+    },
+    "CAN": {
+      "version": "2.1.0",
+      "checksum": "sha256:922bbd36bd5cd3514496a75f593bcad27cf4e78f9d4dac4ccfb93ba074b2d0d0",
+      "url": "https://schemas.borderly.app/v1/CAN.json"
+    }
+  }
+}
