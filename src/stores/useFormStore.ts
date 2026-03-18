@@ -6,6 +6,7 @@ import { CountryFormSchema } from '../types/schema';
 import { TravelerProfile } from '../types/profile';
 import { TripLeg } from '../types/trip';
 import { findFieldInForm, validateFieldValue } from './formStoreHelpers';
+import { schemaUpdateService } from '../services/schemas/schemaUpdateService';
 
 interface FormStore {
   // Current form state
@@ -114,6 +115,13 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
+
+    // Fire a background schema-update check so that the next time a leg form
+    // is opened it will pick up any OTA changes stored in MMKV.
+    // This is intentionally fire-and-forget — never blocks the UI.
+    schemaUpdateService.checkForUpdates().catch(() => {
+      // Swallow errors: offline or CDN failures should never break form generation.
+    });
 
     try {
       const state = get();

@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { mmkvService, AppPreferences } from '@/services/storage';
+import { schemaUpdateService } from '@/services/schemas/schemaUpdateService';
+import { schemaRegistry } from '@/services/schemas/schemaRegistry';
 
 interface AppStore {
   // App preferences
@@ -35,6 +37,16 @@ interface AppStore {
   lastError: string | null;
   setError: (error: string | null) => void;
   clearError: () => void;
+
+  // Schema update tracking
+  lastSchemaCheck: number | null;
+  schemasUpToDate: boolean;
+  /**
+   * Trigger a background schema-update check.  Never blocks the UI — the
+   * returned Promise resolves after the check finishes but callers can safely
+   * fire-and-forget without awaiting.
+   */
+  triggerSchemaUpdateCheck: () => Promise<void>;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -56,6 +68,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   isBiometricAvailable: false,
   isOnline: true,
   lastError: null,
+  lastSchemaCheck: null,
+  schemasUpToDate: false,
 
   // App preferences
   updatePreference: <K extends keyof AppPreferences>(key: K, value: AppPreferences[K]) => {
@@ -134,5 +148,30 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   clearError: () => {
     set({ lastError: null });
+  },
+
+  // Schema update tracking
+  triggerSchemaUpdateCheck: async () => {
+    try {
+      const result = await schemaUpdateService.checkForUpdates();
+
+      // If any schemas were refreshed, reload the registry so the in-memory
+      // cache reflects the newly-stored MMKV data.
+      if (result.updated.length > 0) {
+        schemaRegistry.reset();
+        await schemaRegistry.initialize().catch(err =>
+          console.warn('[useAppStore] Failed to reinitialize schema registry after update:', err),
+        );
+      }
+
+      set({
+        lastSchemaCheck: Date.now(),
+        schemasUpToDate: result.failed.length === 0,
+      });
+    } catch (err) {
+      // Never throw — keep the app running even if the check fails.
+      console.warn('[useAppStore] triggerSchemaUpdateCheck failed:', err);
+      set({ lastSchemaCheck: Date.now(), schemasUpToDate: false });
+    }
   },
 }));
