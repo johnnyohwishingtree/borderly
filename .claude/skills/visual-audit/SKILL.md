@@ -9,7 +9,7 @@ Perform a comprehensive UI/UX review combining screenshot analysis, AI-powered r
 
 ## Overview
 
-This skill chains three tools together:
+This skill chains together several tools:
 1. **Screenshot Critique** — Claude vision analyzes your screenshots for design issues
 2. **Stitch Redesign** (optional) — Google Stitch generates alternative UI designs from your screenshots
 3. **Code-Level UX Audit** — The `frontend-design-audit` plugin scans your code for usability violations and auto-fixes them
