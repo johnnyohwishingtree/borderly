@@ -32,19 +32,36 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 ## Shared Scripts & Composite Actions
 
-Reusable logic is extracted into `.github/scripts/` (testable shell scripts) and `.github/actions/` (composite actions). Workflows are thin YAML wrappers that call these.
+Reusable logic is organized into TypeScript modules (`.github/scripts/lib/`), bash scripts (`.github/scripts/`), and composite actions (`.github/actions/`). Workflows call these via CLI entry points or `BASH_ENV`.
 
-### Scripts (`.github/scripts/`)
+### TypeScript Modules (`.github/scripts/lib/`)
+
+The primary pipeline logic is implemented in TypeScript with full type safety and Vitest tests.
+
+| Module | Purpose | CLI Entry Point |
+|--------|---------|-----------------|
+| `github.ts` | Typed GitHub API client (Octokit REST + GraphQL) | — (library) |
+| `state-machine.ts` | Pipeline state persistence in GitHub issue comments | `lib/cli/state-machine.ts` |
+| `workflow.ts` | Temporal-like activity runner: start, success, fail, retry | `lib/cli/activity.ts` |
+| `merge-gate.ts` | Evaluates 6 merge conditions → `merge\|update_branch\|wait\|skip` | `lib/cli/evaluate-merge-gate.ts` |
+| `types.ts` | Shared types, state transitions, activity limits | — (library) |
+| `env.ts` | Environment validation and typed access | — (library) |
+
+Run `cd .github/scripts && pnpm test` for the TypeScript test suite (57 tests).
+
+### Bash Scripts (`.github/scripts/`)
+
+Git operations and local tool execution remain in bash (sourced via `BASH_ENV`).
 
 | Script | Purpose | Tests |
 |--------|---------|-------|
 | `lib.sh` | 18 shared functions: `setup_git_auth`, `get_pr_number`, `check_ci_status`, `count_unresolved_threads`, `resolve_all_threads`, `count_approvals`, `merge_master_into_branch`, `check_changes_and_commit`, `smart_push`, `comment_on_issue`, `count_fix_attempts`, `is_workflow_active`, `dispatch_workflow`, `parse_repo`, `count_critical_comments`, `approve_and_merge`, `get_next_pending_story`, `trigger_story_agent` | 58 |
-| `state-machine.sh` | Issue-based state machine with 12 states, transition validation, JSON state comments, and idempotent locking | 18 |
-| `workflow.sh` | Temporal-like activity runner: `activity_start` (guard + lock), `activity_success` (transition + unlock), `activity_fail` (retry counter + escalation) | 43 |
-| `evaluate-merge-gate.sh` | Evaluates 6 merge conditions → JSON with `action: merge|update_branch|wait|skip` | 16 |
 | `verify-checks.sh` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output | 27 |
+| `state-machine.sh` | (Legacy) Shell state machine — replaced by TypeScript but kept for bats tests | 18 |
+| `workflow.sh` | (Legacy) Shell activity runner — replaced by TypeScript but kept for bats tests | 43 |
+| `evaluate-merge-gate.sh` | (Legacy) Shell merge gate — replaced by TypeScript but kept for bats tests | 16 |
 
-Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regression tests for documented bugs).
+Run `bats .github/scripts/__tests__/*.bats` for the bash test suite (includes regression tests).
 
 ### Composite Actions (`.github/actions/`)
 
@@ -52,6 +69,7 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |--------|---------|---------|
 | `setup-auth` | Git remote URL auth + user identity | claude, review-fix, resolve-conflicts, verify-and-fix, pipeline-doctor |
 | `setup-node` | Node.js 20 + pnpm + `pnpm install` with frozen lockfile fallback | verify-and-fix, review-fix, test, build-ios, build-android, e2e-smoke, claude, daily-planner |
+| `setup-pipeline-ts` | Node.js 20 + pnpm + pipeline TS deps (`.github/scripts/`) | auto-merge, claude, orchestrate |
 | `merge-master` | Fetch + merge master with strategy (`abort`, `infra-theirs`, `ours`) | verify-and-fix |
 
 ---

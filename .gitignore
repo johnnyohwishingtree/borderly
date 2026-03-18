@@ -99,5 +99,8 @@ maestro/output/
 maestro/.env
 .vercel
 
+# Pipeline scripts build output
+.github/scripts/dist/
+
 # Claude Code worktrees
 .claude/worktrees/
