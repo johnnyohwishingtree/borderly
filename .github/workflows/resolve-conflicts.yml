@@ -65,8 +65,6 @@ jobs:
     if: needs.find-conflicting-prs.outputs.prs != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      BASH_ENV: .github/scripts/lib.sh
     strategy:
       matrix:
         pr: ${{ fromJSON(needs.find-conflicting-prs.outputs.prs) }}
@@ -83,6 +81,9 @@ jobs:
         uses: ./.github/actions/setup-auth
         with:
           token: ${{ secrets.GH_PAT }}
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Merge master and resolve conflicts
         id: merge
@@ -169,7 +170,7 @@ jobs:
           else
             MSG="Auto-resolved merge conflicts with master (${{ steps.merge.outputs.resolved_count }} files). Infrastructure/lock files took master's version; PR-modified files kept this branch's version."
           fi
-          comment_on_issue "${{ matrix.pr.number }}" "$MSG"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "${{ matrix.pr.number }}" "$MSG"
 
       - name: Comment on PR (manual needed)
         if: steps.merge.outputs.resolved == 'manual'
@@ -177,4 +178,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          comment_on_issue "${{ matrix.pr.number }}" "Could not auto-resolve merge conflicts. Files needing manual resolution: \`${{ steps.merge.outputs.manual_files }}\`"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "${{ matrix.pr.number }}" "Could not auto-resolve merge conflicts. Files needing manual resolution: \`${{ steps.merge.outputs.manual_files }}\`"

@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Extract story issue number from PR
         id: extract
@@ -74,7 +72,7 @@ jobs:
           fi
           echo "Epic label: $EPIC_LABEL"
 
-          NEXT_STORY=$(get_next_pending_story "$EPIC_LABEL" "${{ github.repository }}")
+          NEXT_STORY=$(npx tsx .github/scripts/lib/cli/pipeline.ts get-next-pending-story "$EPIC_LABEL" "${{ github.repository }}")
 
           if [ -z "$NEXT_STORY" ] || [ "$NEXT_STORY" = "null" ]; then
             echo "All stories in $EPIC_LABEL are complete!"
@@ -140,4 +138,4 @@ jobs:
           gh issue edit "$NEXT" --repo ${{ github.repository }} \
             --remove-label "pending" --add-label "in-progress" || true
 
-          trigger_story_agent "$NEXT" "$AGENT"
+          npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent "$NEXT" "$AGENT"

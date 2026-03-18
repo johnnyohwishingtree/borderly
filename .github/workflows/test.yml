@@ -16,12 +16,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Set up Node and pnpm
         uses: ./.github/actions/setup-node
@@ -74,9 +74,9 @@ jobs:
           FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
             -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
 
-          comment_on_issue "$PR_NUM" "CI checks failed (${FAILED_STEPS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "$PR_NUM" "CI checks failed (${FAILED_STEPS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
 
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="$BRANCH" \
             -f issue_number="$PR_NUM" \
             -f checks="ci" \
@@ -98,7 +98,7 @@ jobs:
           git checkout -b "$FIX_BRANCH"
           git push -u origin "$FIX_BRANCH"
 
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="$FIX_BRANCH" \
             -f checks="ci" \
             -f fix_enabled="true" \

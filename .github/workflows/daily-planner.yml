@@ -26,13 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Check if planning is needed
         id: gate
@@ -291,4 +292,4 @@ jobs:
           echo "Triggering first story: #$FIRST_STORY"
           gh issue edit "$FIRST_STORY" --repo "$REPO" \
             --remove-label "pending" --add-label "in-progress" || true
-          trigger_story_agent "$FIRST_STORY" "claude" "" "$REPO"
+          npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent "$FIRST_STORY" "claude"

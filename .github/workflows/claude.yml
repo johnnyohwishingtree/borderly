@@ -28,8 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,6 +38,9 @@ jobs:
         uses: ./.github/actions/setup-auth
         with:
           token: ${{ secrets.GH_PAT }}
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Switch to PR branch if applicable
         if: github.event.issue.pull_request || github.event.pull_request
@@ -107,10 +108,6 @@ jobs:
             echo "Created tmp branch: $TMP_BRANCH"
           fi
 
-      - name: Setup pipeline TypeScript
-        if: steps.push_target.outputs.is_pr == 'false'
-        uses: ./.github/actions/setup-pipeline-ts
-
       - name: Track state → implementing
         if: steps.push_target.outputs.is_pr == 'false'
         env:
@@ -163,7 +160,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          setup_git_auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
 
           ISSUE_NUM="${{ github.event.issue.number || github.event.pull_request.number }}"
           TMP_BRANCH="tmp/claude-${{ github.run_id }}"
@@ -201,7 +198,7 @@ jobs:
           Or manually: \`git fetch origin ${TMP_BRANCH} && git checkout ${TMP_BRANCH}\`
           EOF
           )
-          comment_on_issue "$ISSUE_NUM" "$BODY"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "$ISSUE_NUM" "$BODY"
 
       # ── Normal flow (only runs if Claude completed successfully) ──
       - name: Push to PR branch (PR context)
@@ -210,11 +207,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          setup_git_auth
-          check_changes_and_commit "chore: save unpushed changes from Claude" || true
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts commit "chore: save unpushed changes from Claude" || true
           SOURCE_BRANCH=$(git branch --show-current)
           echo "source_branch=$SOURCE_BRANCH" >> $GITHUB_OUTPUT
-          smart_push "$SOURCE_BRANCH"
+          npx tsx .github/scripts/lib/cli/pipeline.ts push "$SOURCE_BRANCH"
 
       - name: Push remaining work to tmp branch (issue context)
         if: success() && steps.push_target.outputs.is_pr == 'false'
@@ -222,13 +219,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          setup_git_auth
-          check_changes_and_commit "chore: save unpushed changes from Claude" || true
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts commit "chore: save unpushed changes from Claude" || true
           TMP_BRANCH="${{ steps.push_target.outputs.tmp_branch }}"
           PR_BRANCH="${{ steps.push_target.outputs.pr_branch }}"
           echo "tmp_branch=$TMP_BRANCH" >> $GITHUB_OUTPUT
           echo "pr_branch=$PR_BRANCH" >> $GITHUB_OUTPUT
-          smart_push "$TMP_BRANCH"
+          npx tsx .github/scripts/lib/cli/pipeline.ts push "$TMP_BRANCH"
 
       - name: Resolve bot review threads
         if: success()
@@ -249,7 +246,7 @@ jobs:
             exit 0
           fi
           echo "Resolving review threads on PR #$PR_NUM"
-          resolve_all_threads "$PR_NUM" "$REPO"
+          npx tsx .github/scripts/lib/cli/pipeline.ts resolve-all-threads "$PR_NUM" "$REPO"
 
       - name: Track state → implementing complete
         if: success() && steps.push_target.outputs.is_pr == 'false'
@@ -268,7 +265,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="${{ steps.push_issue.outputs.tmp_branch }}" \
             -f merge_into="${{ steps.push_issue.outputs.pr_branch }}" \
             -f create_pr="true" \

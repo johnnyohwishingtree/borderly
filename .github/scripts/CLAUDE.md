@@ -1,96 +1,117 @@
-# .github/scripts/ — Pipeline Shell Scripts
+# .github/scripts/ — Pipeline TypeScript Library
 
 ## Architecture
 
-This folder contains shared shell scripts for GitHub Actions workflows, following a **Temporal-inspired** design where reusable "activities" are composed into workflow orchestrations.
+This folder contains shared TypeScript modules for GitHub Actions workflows, following a **Temporal-inspired** design where reusable "activities" are composed into workflow orchestrations.
 
-| Script | Role |
+| Module | Role |
 |--------|------|
-| `lib.sh` | Shared function library — source this, never execute directly |
-| `workflow.sh` | Temporal-like activity runner with state tracking and retry policies |
-| `state-machine.sh` | Pipeline state persistence (JSON in GitHub issue comments) |
-| `evaluate-merge-gate.sh` | Merge readiness evaluator (6 conditions) |
-| `verify-checks.sh` | CI check verification helpers |
+| `lib/github.ts` | Octokit-based typed GitHub API client |
+| `lib/git.ts` | Local git operations via child_process |
+| `lib/merge-gate.ts` | Merge readiness evaluator (6 conditions) |
+| `lib/state-machine.ts` | Pipeline state persistence (JSON in GitHub issue comments) |
+| `lib/workflow.ts` | Temporal-like activity runner with state tracking and retry policies |
+| `lib/verify-checks.ts` | CI check verification (lint, typecheck, bundle, test, native deps) |
+| `lib/cli/pipeline.ts` | Unified CLI — replaces all lib.sh functions |
+| `lib/cli/verify-checks.ts` | CLI wrapper for verify-checks |
+| `lib/cli/evaluate-merge-gate.ts` | CLI wrapper for merge-gate evaluation |
+| `lib/cli/state-machine.ts` | CLI wrapper for state machine |
+| `lib/cli/activity.ts` | CLI wrapper for activity runner |
 
 ## Rules
 
-### Always use lib.sh functions instead of inline commands
+### Always use the pipeline CLI instead of inline commands
 
-When writing workflow steps, **never** use raw `gh` or `git` commands for operations that lib.sh already provides. This is the single most important rule.
+When writing workflow steps, **never** use raw `gh` or `git` commands for operations that the pipeline CLI already provides.
 
 | Instead of... | Use... |
 |---------------|--------|
-| `gh workflow run X.yml --repo ... --ref master -f ...` | `dispatch_workflow "X.yml" -f ...` |
-| `git remote set-url origin "https://..."` + `git config user.name/email` | `setup_git_auth` |
-| `gh pr view N --json reviews -q '..APPROVED..'` | `count_approvals N "$REPO"` |
-| `gh api graphql ... reviewThreads ...` | `count_unresolved_threads N "$REPO"` |
-| `git fetch origin master && git merge origin/master` | `merge_master_into_branch` |
-| `git status --porcelain && git add -u && git commit` | `check_changes_and_commit "message"` |
-| `git fetch && git push origin HEAD:refs/heads/...` | `smart_push "branch"` |
-| `gh issue comment N --repo ... --body "..."` | `comment_on_issue N "body"` |
-| `gh run list --workflow X --status in_progress ...` | `is_workflow_active "X.yml" N "$REPO"` |
-| `gh api "repos/.../pulls/N/comments" -q '..critical..'` | `count_critical_comments N "$REPO"` |
-| `gh pr review --approve` + `dispatch_workflow "auto-merge.yml"` | `approve_and_merge N "body"` |
-| `gh issue list --label story --label pending ...` | `get_next_pending_story "$EPIC_LABEL"` |
-| `comment_on_issue N "@claude Implement this story..."` | `trigger_story_agent N "claude" "(suffix)"` |
+| `gh workflow run X.yml ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "X.yml" -f key=val` |
+| `git remote set-url origin ...` + `git config ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth` |
+| `gh pr view N --json reviews ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts count-approvals N [repo]` |
+| `gh api graphql ... reviewThreads ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts count-unresolved-threads N [repo]` |
+| `git fetch && git merge origin/master` | `npx tsx .github/scripts/lib/cli/pipeline.ts merge-master` |
+| `git status && git add -u && git commit` | `npx tsx .github/scripts/lib/cli/pipeline.ts commit "message" [co-author]` |
+| `git fetch && git push ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts push "branch" [pre-push-head]` |
+| `gh issue comment N ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts comment N "body" [repo]` |
+| `gh run list --workflow X ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts is-workflow-active "X.yml" N [repo]` |
+| `gh api pulls/N/comments ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts count-critical-comments N [repo]` |
+| `gh pr review --approve` + dispatch | `npx tsx .github/scripts/lib/cli/pipeline.ts approve-and-merge N "body" [repo]` |
+| `gh issue list --label story ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts get-next-pending-story "label" [repo]` |
+| Comment with @agent ... | `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" [suffix]` |
 
-### How to use lib.sh in a workflow
+### How to use the pipeline CLI in a workflow
 
-Set `BASH_ENV` at the job level — bash auto-sources it before every `run:` block:
+Every job using the CLI must have `setup-pipeline-ts` and a checkout step:
 
 ```yaml
 jobs:
   my-job:
     runs-on: ubuntu-latest
-    env:
-      BASH_ENV: .github/scripts/lib.sh
     steps:
-      - uses: actions/checkout@v4  # required — makes lib.sh available
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pipeline-ts
       - run: |
-          setup_git_auth
-          dispatch_workflow "auto-merge.yml" -f pr_number="42"
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "auto-merge.yml" -f pr_number="42"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 ```
-
-No `source` line needed in any step — all lib.sh functions are available automatically.
 
 Requirements:
 - The job must checkout `.github/scripts/` (via `actions/checkout` or sparse-checkout)
-- `$GH_TOKEN` must be set in the step's `env` (most functions need it)
+- `setup-pipeline-ts` must run before any `npx tsx` calls
+- `$GH_TOKEN` or `$GH_PAT` must be set in the step's `env`
 - `$GITHUB_REPOSITORY` is set automatically by GitHub Actions
-- Do NOT add `source .github/scripts/lib.sh` in steps — use `BASH_ENV` instead
 
-### Function signatures
+### CLI command reference
 
-All functions document their args, env vars, and return values in comments. Read them before using. Key patterns:
-- Functions that return data print to stdout — capture with `$()`
-- Functions that return status use exit codes — check with `if` or `$?`
-- `is_workflow_active` returns exit code (0=active, 1=not active), NOT a string
+```
+npx tsx .github/scripts/lib/cli/pipeline.ts <command> [args...]
+
+GitHub API:
+  comment <issue> <body> [repo]
+  dispatch <workflow> [-f key=value]... [--ref ref]
+  approve-and-merge <pr> <body> [repo]
+  get-pr-number <event_name>
+  count-approvals <pr> [repo]
+  count-unresolved-threads <pr> [repo]
+  resolve-all-threads <pr> [repo]
+  check-ci-status <sha> [repo]
+  is-workflow-active <workflow> <issue> [repo]
+  count-critical-comments <pr> [repo]
+  get-next-pending-story <epic_label> [repo]
+  trigger-story-agent <issue> [agent] [suffix]
+
+Git:
+  setup-git-auth
+  merge-master
+  commit <message> [co-author]
+  push <branch> [pre-push-head]
+```
 
 ### Testing
 
-Every script has a corresponding `.bats` test file in `__tests__/`:
+Tests are in vitest:
 
 ```bash
-# Run all tests
-bats .github/scripts/__tests__/*.bats
-
-# Run a specific test file
-bats .github/scripts/__tests__/lib.test.bats
+cd .github/scripts && npx vitest
 ```
 
-Tests use `test-helper.bash` for mock setup. When adding new lib.sh functions:
-1. Add the function to `lib.sh`
-2. Add a mock response handler in `test-helper.bash` if it calls `gh`
-3. Write tests in the appropriate `.test.bats` file
-4. Add a regression test in `regression.test.bats` if the function fixes a bug
+When adding new pipeline functions:
+1. Add the function to the appropriate module in `lib/`
+2. Add a CLI command in `lib/cli/pipeline.ts`
+3. Write vitest tests in `__tests__/lib/`
+4. Export from `lib/index.ts`
 
 ### Bug fix TDD (mandatory)
 
 When fixing ANY pipeline bug — whether in scripts or workflow YAML:
-1. **Write a failing bats test first** in `regression.test.bats`
+1. **Write a failing vitest test first**
 2. Verify it fails on the broken state
 3. Fix the bug
 4. Verify the test passes
-5. Run `bats .github/scripts/__tests__/*.bats` for full suite
+5. Run `npx vitest` for full suite
 
-This applies to ALL pipeline bugs, not just function-level bugs. Structural issues (e.g., missing checkout steps, wrong function arguments, YAML misconfigurations) should also have regression tests. See `.claude/rules/bug-fix-workflow.md`.
+This applies to ALL pipeline bugs, not just function-level bugs.

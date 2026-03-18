@@ -2,7 +2,7 @@
 
 This file contains the full root-cause analysis and solutions for every pipeline bug we've encountered. The summary table lives in `pipeline-architecture.md`. Come here when you need to debug a stuck pipeline.
 
-Each bug also has a corresponding regression test in `.github/scripts/__tests__/regression.test.bats`.
+Each bug should have a corresponding regression test in `.github/scripts/__tests__/lib/`.
 
 ---
 

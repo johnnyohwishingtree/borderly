@@ -11,46 +11,47 @@ The pipeline follows a **Temporal-inspired** model:
 
 ## Rules
 
-### 1. Use lib.sh functions — never inline raw commands
+### 1. Use the pipeline TypeScript CLI — never inline raw commands
 
-Every workflow step that interacts with git or the GitHub API must use lib.sh functions. See `.github/scripts/CLAUDE.md` for the full mapping.
+Every workflow step that interacts with git or the GitHub API must use the pipeline CLI. See `.github/scripts/CLAUDE.md` for the full mapping.
 
 ```yaml
 # BAD — raw dispatch
 gh workflow run auto-merge.yml --repo "$REPO" --ref master -f pr_number="$N"
 
-# GOOD — reusable function (available via BASH_ENV)
-dispatch_workflow "auto-merge.yml" -f pr_number="$N"
+# GOOD — pipeline CLI
+npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "auto-merge.yml" -f pr_number="$N"
 ```
 
-### 2. Set BASH_ENV at the job level
+### 2. Use setup-pipeline-ts action
 
-Every job that uses lib.sh functions must set `BASH_ENV` and have a checkout step:
+Every job that uses the pipeline CLI must have `setup-pipeline-ts` and a checkout step:
 ```yaml
 jobs:
   my-job:
     runs-on: ubuntu-latest
-    env:
-      BASH_ENV: .github/scripts/lib.sh   # auto-sourced in every step
     steps:
-      - uses: actions/checkout@v4         # makes the file available
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pipeline-ts
+      - run: |
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "auto-merge.yml" -f pr_number="42"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 ```
-
-Do NOT use `source .github/scripts/lib.sh` in individual steps — `BASH_ENV` handles it once at the job level.
 
 ### 3. Use GH_PAT for cross-workflow triggers
 
 `GITHUB_TOKEN` cannot trigger other workflows or push when `.github/workflows/` files differ. Always use `secrets.GH_PAT` for:
-- `dispatch_workflow` calls
-- `gh pr review --approve` (GITHUB_TOKEN approvals don't emit events)
+- `dispatch` calls
+- `approve-and-merge` calls (GITHUB_TOKEN approvals don't emit events)
 - Pushing branches that modify workflow files
 
 ### 4. GITHUB_TOKEN approvals don't trigger events
 
 When a workflow approves a PR using `${{ github.token }}`, GitHub suppresses the `pull_request_review` event. After any GITHUB_TOKEN approval, explicitly dispatch auto-merge:
 ```yaml
-gh pr review "$PR_NUM" --approve --body "Auto-approved: ..."
-GH_TOKEN="$GH_PAT" dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM"
+npx tsx .github/scripts/lib/cli/pipeline.ts approve-and-merge "$PR_NUM" "Auto-approved: ..." "$REPO"
 ```
 
 ### 5. Never put @claude or @gemini in automated comments
@@ -79,7 +80,7 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `review-fix.yml` | workflow_dispatch | Apply review feedback fixes, dispatch verify-and-fix |
 | `resolve-conflicts.yml` | workflow_dispatch | Merge conflict resolution |
 | `pipeline-doctor.yml` | workflow_dispatch | Diagnose stuck pipelines |
-| `watcher.yml` | schedule (every 30min) | Monitor stale PRs and issues |
+| `watcher.yml` | schedule (every 20min) | Monitor stale PRs and issues |
 | `test.yml` | push, PR | Unit tests + typecheck + lint; dispatches verify-and-fix on failure |
 | `e2e-smoke.yml` | push, PR | Playwright E2E tests; dispatches verify-and-fix on failure |
 | `build-ios.yml` | workflow_dispatch | iOS build |

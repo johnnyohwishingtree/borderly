@@ -14,9 +14,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

@@ -26,8 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Check reviewer and relay count
         id: check
@@ -139,6 +137,10 @@ jobs:
           sparse-checkout: .github/scripts
           sparse-checkout-cone-mode: false
 
+      - name: Setup pipeline TypeScript
+        if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
+        uses: ./.github/actions/setup-pipeline-ts
+
       - name: Dispatch review-fix workflow
         if: steps.check.outputs.should_relay == 'true' && steps.comments.outputs.has_feedback == 'true'
         env:
@@ -150,7 +152,7 @@ jobs:
           ROUND=${{ steps.check.outputs.relay_round }}
           SUMMARY=$(cat /tmp/review_summary_dispatch.txt)
 
-          dispatch_workflow "review-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "review-fix.yml" \
             --ref "$PR_BRANCH" \
             -f pr_number="$PR_NUM" \
             -f pr_branch="$PR_BRANCH" \
@@ -162,4 +164,4 @@ jobs:
 
           # Post a status comment on the PR
           RUN_URL="https://github.com/${{ github.repository }}/actions/workflows/review-fix.yml"
-          comment_on_issue "$PR_NUM" "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it."
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "$PR_NUM" "Review feedback from $REVIEWER detected (round $ROUND/3). [Dispatched review-fix workflow]($RUN_URL) to address it."

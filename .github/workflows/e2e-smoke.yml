@@ -110,10 +110,11 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    env:
-      BASH_ENV: .github/scripts/lib.sh
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Dispatch verify-and-fix on PR failure
         if: github.event_name == 'pull_request'
@@ -134,9 +135,9 @@ jobs:
           FAILED_JOBS=$(gh run view ${{ github.run_id }} --json jobs \
             -q '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
 
-          comment_on_issue "$PR_NUM" "E2E smoke tests failed (${FAILED_JOBS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "$PR_NUM" "E2E smoke tests failed (${FAILED_JOBS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
 
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="$BRANCH" \
             -f issue_number="$PR_NUM" \
             -f checks="e2e" \
@@ -158,7 +159,7 @@ jobs:
           git checkout -b "$FIX_BRANCH"
           git push -u origin "$FIX_BRANCH"
 
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="$FIX_BRANCH" \
             -f checks="e2e" \
             -f fix_enabled="true" \
