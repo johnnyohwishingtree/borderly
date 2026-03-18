@@ -325,8 +325,17 @@ jobs:
                 echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
               fi
             else
-              echo "PR #$PR_NUM has $UNRESOLVED unresolved threads — dispatching auto-merge to wait"
-              echo "action=dispatch-auto-merge" >> $GITHUB_OUTPUT
+              # Unresolved threads exist. The normal path is review-relay dispatching
+              # review-fix, but pull_request_review events from bot tokens (GITHUB_TOKEN)
+              # are suppressed by GitHub, so review-relay may never fire.
+              # Fallback: dispatch review-fix directly if not already running.
+              if is_workflow_active "review-fix.yml" "${PR_NUM}" "$REPO" 2>/dev/null; then
+                echo "PR #$PR_NUM has $UNRESOLVED unresolved threads — review-fix already active"
+                echo "action=none" >> $GITHUB_OUTPUT
+              else
+                echo "PR #$PR_NUM has $UNRESOLVED unresolved threads — dispatching review-fix"
+                echo "action=dispatch-review-fix" >> $GITHUB_OUTPUT
+              fi
             fi
             exit 0
           fi
@@ -367,6 +376,27 @@ jobs:
           PR_NUM=${{ steps.check.outputs.pr_num }}
           echo "Dispatching auto-merge for PR #$PR_NUM"
           dispatch_workflow "auto-merge.yml" -f pr_number="$PR_NUM"
+
+      - name: Dispatch review-fix for unresolved threads
+        if: steps.check.outputs.action == 'dispatch-review-fix'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          PR_NUM=${{ steps.check.outputs.pr_num }}
+          BRANCH=$(gh pr view "$PR_NUM" --repo "$REPO" --json headRefName -q '.headRefName')
+
+          # Gather unresolved review comments as context for Claude
+          REVIEW_SUMMARY=$(gh api "repos/$REPO/pulls/$PR_NUM/comments" \
+            --jq '[.[] | "\(.path):\(.line) — \(.body | split("\n")[0])"] | join("\n")' 2>/dev/null \
+            | head -c 2000 || echo "Unresolved review threads on PR #$PR_NUM")
+
+          echo "Dispatching review-fix for PR #$PR_NUM (branch: $BRANCH)"
+          dispatch_workflow "review-fix.yml" \
+            -f pr_number="$PR_NUM" \
+            -f pr_branch="$BRANCH" \
+            -f review_summary="$REVIEW_SUMMARY" \
+            -f reviewer="bot-review-guardian-fallback"
 
       - name: Request fallback review
         if: steps.check.outputs.action == 'request-review'

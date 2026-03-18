@@ -890,6 +890,61 @@ else:
   fi
 }
 
+# Bug: Gemini Code Assist reviews posted with GITHUB_TOKEN don't fire
+# pull_request_review events, so review-relay never triggers review-fix.
+# ensure-review (triggered by workflow_run) sees unresolved threads but
+# only dispatched auto-merge to wait — nothing ever fixes the threads.
+# Regression: ensure-review must dispatch review-fix when unresolved threads
+# exist and review-fix is not already active.
+@test "regression: ensure-review dispatches review-fix for unresolved threads" {
+  local wf="$SCRIPTS_DIR/../workflows/review-guardian.yml"
+  [ -f "$wf" ] || skip "review-guardian.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+jobs = data.get('jobs', {})
+ensure = jobs.get('ensure-review', {})
+steps = ensure.get('steps', [])
+
+has_review_fix_dispatch = False
+has_review_fix_action = False
+has_review_fix_step = False
+
+for step in steps:
+    run_text = str(step.get('run', ''))
+    step_if = str(step.get('if', ''))
+    if 'dispatch-review-fix' in run_text:
+        has_review_fix_action = True
+    if 'review-fix.yml' in run_text and 'dispatch-review-fix' in step_if:
+        has_review_fix_step = True
+        has_review_fix_dispatch = True
+
+missing = []
+if not has_review_fix_action:
+    missing.append('action=dispatch-review-fix output in ensure-review logic')
+if not has_review_fix_step:
+    missing.append('review-fix.yml dispatch step for unresolved threads')
+
+if not missing:
+    print('ok')
+else:
+    print('missing: ' + ', '.join(missing))
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: ensure-review does not dispatch review-fix for unresolved threads"
+    echo "When bot reviews (Gemini) don't fire pull_request_review events, ensure-review"
+    echo "must dispatch review-fix directly instead of just dispatching auto-merge to wait."
+    echo "Detail: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""
