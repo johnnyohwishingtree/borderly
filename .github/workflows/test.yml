@@ -63,9 +63,10 @@ jobs:
           PR_NUM=${{ github.event.pull_request.number }}
           BRANCH="${{ github.head_ref }}"
 
-          # Only auto-fix on claude/ branches (don't spam human PRs)
-          if [[ "$BRANCH" != claude/* ]]; then
-            echo "Not a claude/ branch — skipping"
+          # Opt out with the "no-autofix" label
+          LABELS=$(gh pr view "$PR_NUM" --repo "${{ github.repository }}" --json labels -q '[.labels[].name] | join(",")' 2>/dev/null || echo "")
+          if [[ "$LABELS" == *"no-autofix"* ]]; then
+            echo "PR has no-autofix label — skipping"
             exit 0
           fi
 
