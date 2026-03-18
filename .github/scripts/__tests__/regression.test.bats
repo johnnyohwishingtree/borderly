@@ -1157,3 +1157,90 @@ for issue in issues:
     false
   fi
 }
+
+# ─── TypeScript Pipeline Migration ─────────────────────────────────────
+
+@test "regression: auto-merge.yml uses TypeScript merge-gate evaluator, not bash" {
+  # Bug: auto-merge was calling evaluate-merge-gate.sh directly.
+  # Fix: Replaced with npx tsx .github/scripts/lib/cli/evaluate-merge-gate.ts
+  local wf="$SCRIPTS_DIR/../workflows/auto-merge.yml"
+
+  # Should NOT reference the old bash script
+  if grep -q 'evaluate-merge-gate\.sh' "$wf"; then
+    echo "auto-merge.yml still references evaluate-merge-gate.sh — should use TypeScript CLI"
+    false
+  fi
+
+  # Should use the TypeScript CLI
+  grep -q 'evaluate-merge-gate\.ts' "$wf"
+}
+
+@test "regression: auto-merge.yml uses TypeScript activity CLI for state tracking" {
+  local wf="$SCRIPTS_DIR/../workflows/auto-merge.yml"
+
+  # Should NOT source workflow.sh
+  if grep -q 'source.*workflow\.sh' "$wf"; then
+    echo "auto-merge.yml still sources workflow.sh — should use TypeScript CLI"
+    false
+  fi
+
+  # Should use the activity CLI
+  grep -q 'activity\.ts' "$wf"
+}
+
+@test "regression: claude.yml uses TypeScript activity CLI, not bash workflow.sh" {
+  local wf="$SCRIPTS_DIR/../workflows/claude.yml"
+
+  # Should NOT source workflow.sh
+  if grep -q 'source.*workflow\.sh' "$wf"; then
+    echo "claude.yml still sources workflow.sh — should use TypeScript CLI"
+    false
+  fi
+
+  # Should use the activity CLI
+  grep -q 'activity\.ts' "$wf"
+}
+
+@test "regression: orchestrate.yml uses TypeScript state-machine CLI, not bash" {
+  local wf="$SCRIPTS_DIR/../workflows/orchestrate.yml"
+
+  # Should NOT source state-machine.sh
+  if grep -q 'source.*state-machine\.sh' "$wf"; then
+    echo "orchestrate.yml still sources state-machine.sh — should use TypeScript CLI"
+    false
+  fi
+
+  # Should use the state-machine CLI
+  grep -q 'state-machine\.ts' "$wf"
+}
+
+@test "regression: workflows using TypeScript CLIs have setup-pipeline-ts action" {
+  # Any workflow that calls 'npx tsx .github/scripts/lib/cli/' must have setup-pipeline-ts
+  local failures=""
+  for wf in "$SCRIPTS_DIR"/../workflows/*.yml; do
+    local wf_name
+    wf_name=$(basename "$wf")
+    if grep -q 'scripts/lib/cli/' "$wf" 2>/dev/null; then
+      if ! grep -q 'setup-pipeline-ts' "$wf"; then
+        failures="${failures}${wf_name} uses TS CLI but missing setup-pipeline-ts\n"
+      fi
+    fi
+  done
+
+  if [ -n "$failures" ]; then
+    echo -e "$failures"
+    false
+  fi
+}
+
+@test "regression: TypeScript pipeline scripts package.json exists with required deps" {
+  local pkg="$SCRIPTS_DIR/../scripts/package.json"
+  [ -f "$pkg" ]
+
+  # Must have @octokit dependencies
+  grep -q '@octokit/rest' "$pkg"
+  grep -q '@octokit/graphql' "$pkg"
+
+  # Must have tsx for CLI execution
+  grep -q '"tsx"' "$pkg"
+}

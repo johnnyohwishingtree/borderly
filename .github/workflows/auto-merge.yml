@@ -6,6 +6,8 @@ name: Auto Merge
 #   2. E2E Smoke Tests passed (all 3 jobs)
 #   3. PR has at least one approval
 #   4. No unresolved review threads
+#   5. No active review-fix runs
+#   6. Branch up to date with master
 
 on:
   # Re-evaluate when CI completes
@@ -51,11 +53,11 @@ jobs:
       BASH_ENV: .github/scripts/lib.sh
 
     steps:
-      - name: Checkout scripts
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/scripts
-          sparse-checkout-cone-mode: false
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Resolve PR number
         id: pr
@@ -78,10 +80,10 @@ jobs:
         if: steps.pr.outputs.skip != 'true'
         id: gate
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          RESULT=$(bash .github/scripts/evaluate-merge-gate.sh "${{ steps.pr.outputs.number }}")
+          RESULT=$(npx tsx .github/scripts/lib/cli/evaluate-merge-gate.ts "${{ steps.pr.outputs.number }}")
           ACTION=$(echo "$RESULT" | jq -r '.action')
           echo "action=$ACTION" >> "$GITHUB_OUTPUT"
           echo "$RESULT" | jq .
@@ -90,7 +92,9 @@ jobs:
         if: steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_PAT: ${{ secrets.GH_PAT }}
           REPO: ${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           PR_NUM="${{ steps.pr.outputs.number }}"
           ACTION="${{ steps.gate.outputs.action }}"
@@ -102,12 +106,11 @@ jobs:
 
               # Track state → merged (find linked issue from PR body)
               ISSUE_NUM=$(gh pr view "$PR_NUM" --repo "$REPO" --json body \
-                -q '.body' 2>/dev/null | grep -oP '(?:Closes|Fixes|Resolves)\s+#\K\d+' | head -1 || true)
+                -q '.body' 2>/dev/null | grep -oE '(Closes|Fixes|Resolves)\s+#[0-9]+' | grep -oE '[0-9]+' | head -1 || true)
               if [ -n "$ISSUE_NUM" ]; then
-                set --
-                source .github/scripts/workflow.sh
-                set +u
-                activity_success "$ISSUE_NUM" "merged" 2>/dev/null || true
+                export ACTIVITY_NAME="merge"
+                export ACTIVITY_LOCK_ID="merge-${GITHUB_RUN_ID}"
+                npx tsx .github/scripts/lib/cli/activity.ts success "$ISSUE_NUM" "merged" 2>/dev/null || true
               fi
             else
               echo "Failed to merge PR #$PR_NUM (may already be merged)"

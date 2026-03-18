@@ -50,12 +50,13 @@ jobs:
           gh issue close "$ISSUE_NUM" --repo ${{ github.repository }} --comment "Completed via PR #${{ github.event.pull_request.number }}"
           gh issue edit "$ISSUE_NUM" --repo ${{ github.repository }} --remove-label "pending" --remove-label "in-progress" --add-label "completed" || true
 
-      - name: Checkout scripts
+      - name: Checkout repo
         if: steps.extract.outputs.found == 'true'
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/scripts
-          sparse-checkout-cone-mode: false
+
+      - name: Setup pipeline TypeScript
+        if: steps.extract.outputs.found == 'true'
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Find next story in epic
         if: steps.extract.outputs.found == 'true'
@@ -134,10 +135,7 @@ jobs:
           echo "Triggering story #$NEXT using @$AGENT"
 
           # Initialize pipeline state for the new story
-          set --
-          source .github/scripts/state-machine.sh
-          set +u
-          transition "$NEXT" "planned" 2>/dev/null || true
+          npx tsx .github/scripts/lib/cli/state-machine.ts transition "$NEXT" "planned" 2>/dev/null || true
 
           gh issue edit "$NEXT" --repo ${{ github.repository }} \
             --remove-label "pending" --add-label "in-progress" || true
