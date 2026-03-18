@@ -374,6 +374,80 @@ jobs:
             echo "PR created — waiting for reviews before merge"
           fi
 
+  # When verify passes but there's no merge job to run (no work_branch,
+  # no merge_into), the verify job may have merged master locally to pass.
+  # The PR branch on GitHub is still behind master and CI still shows failure.
+  # Push the merged state back to the PR branch so fresh CI runs trigger.
+  retrigger:
+    needs: verify
+    if: >-
+      needs.verify.outputs.pass == 'true' &&
+      inputs.work_branch == '' &&
+      inputs.merge_into == '' &&
+      inputs.issue_number != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASH_ENV: .github/scripts/lib.sh
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0
+
+      - name: Configure git and auth
+        uses: ./.github/actions/setup-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Merge master and push to PR branch
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          BRANCH="${{ inputs.branch }}"
+          PR_NUM="${{ inputs.issue_number }}"
+
+          git fetch origin master
+          BEHIND=$(git rev-list --count HEAD..origin/master 2>/dev/null || echo "0")
+
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "PR branch is $BEHIND commits behind master — merging and pushing"
+            git merge origin/master --no-edit
+            smart_push "$BRANCH"
+            comment_on_issue "$PR_NUM" "Verify passed after merging master. Pushed updated branch to trigger fresh CI."
+          else
+            echo "Branch is up to date with master — re-running failed checks"
+            # Flaky test case: branch is current but check status is stale
+            CHECKS="${{ inputs.checks }}"
+            WORKFLOWS=()
+            if [ "$CHECKS" = "e2e" ] || [ "$CHECKS" = "all" ]; then
+              WORKFLOWS+=("E2E Smoke Tests")
+            fi
+            if [ "$CHECKS" = "ci" ] || [ "$CHECKS" = "all" ]; then
+              WORKFLOWS+=("Tests")
+            fi
+
+            RERAN=false
+            for WF_NAME in "${WORKFLOWS[@]}"; do
+              FAILED_RUN=$(gh run list --repo "${{ github.repository }}" --branch "$BRANCH" \
+                --workflow "$WF_NAME" --status failure --limit 1 \
+                --json databaseId -q '.[0].databaseId' 2>/dev/null || echo "")
+
+              if [ -n "$FAILED_RUN" ]; then
+                echo "Re-running failed $WF_NAME run #$FAILED_RUN"
+                gh run rerun "$FAILED_RUN" --repo "${{ github.repository }}" --failed 2>/dev/null && RERAN=true || true
+              fi
+            done
+
+            if [ "$RERAN" = "true" ]; then
+              comment_on_issue "$PR_NUM" "Verify passed (flaky test). Re-running failed CI to update check statuses."
+            else
+              echo "No failed runs to re-run — dispatching auto-merge as fallback"
+              dispatch_workflow "auto-merge.yml"
+            fi
+          fi
+
   fix:
     needs: verify
     if: >-

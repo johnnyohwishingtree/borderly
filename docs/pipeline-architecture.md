@@ -108,7 +108,8 @@ Run `bats .github/scripts/__tests__/*.bats` to see the full suite (includes regr
 |                                                                     |
 |   VERIFY job: runs checks (ci, e2e, or all)                        |
 |     |                                                                |
-|     +-- pass → MERGE job (merge work→target, create PR if needed)  |
+|     +-- pass + merge needed → MERGE job (work→target, create PR)   |
+|     +-- pass + no merge → RETRIGGER job (re-run failed CI checks)  |
 |     +-- fail + attempt < max → FIX job (Claude fixes on temp)      |
 |     +-- fail + attempt = max → GIVE-UP (pipeline-doctor.yml)       |
 |                                                                     |
@@ -305,6 +306,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Consecutive failure detection | >=3 unmerged PRs pauses pipeline; >=5 runs triggers doctor |
 | Pipeline doctor | Diagnoses failures, checks out work branch, reproduces errors |
 | Orphan PR cleanup | Watcher closes stale PRs with no linked story |
+| Stale check recovery | verify-and-fix retrigger job: when verify passes with no merge needed, merges master into PR branch and pushes (triggers fresh CI), or re-runs failed checks if already up-to-date |
 
 ---
 
