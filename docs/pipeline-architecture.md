@@ -292,7 +292,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Fix attempt isolation | Concurrency group includes attempt number; no cancellation |
 | Give-up comment safety | Neutral language, no `@claude`/`@gemini` triggers |
 | Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
-| CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) |
+| CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) and on master push failures (creates fix/master-* branch + PR) |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Event-driven approval | ensure-review checks thread resolution AND all CI checks (tests, e2e) after a workflow_run passes; approves only when all threads resolved AND all CI passed (self-healing after review-fix) |

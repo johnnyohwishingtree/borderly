@@ -104,17 +104,19 @@ jobs:
           CI: true
           E2E_PROJECT: firefox-smoke,mobile-smoke
 
-  # Notify Claude on failure (runs after all test jobs)
+  # Auto-fix on failure (runs after all test jobs)
   notify:
     needs: [test-chromium, test-performance, test-cross-browser]
-    if: failure() && github.event_name == 'pull_request'
+    if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 2
     env:
       BASH_ENV: .github/scripts/lib.sh
     steps:
       - uses: actions/checkout@v4
-      - name: Dispatch verify-and-fix on failure
+
+      - name: Dispatch verify-and-fix on PR failure
+        if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -141,3 +143,25 @@ jobs:
             -f fix_enabled="true" \
             -f max_attempts="3" \
             -f fix_context="E2E smoke tests failed on PR #${PR_NUM}. Failed jobs: ${FAILED_JOBS}. Run: ${RUN_URL}. Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js."
+
+      - name: Dispatch verify-and-fix on master push failure
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          FIX_BRANCH="fix/master-e2e-$(date +%Y%m%d-%H%M)"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          FAILED_JOBS=$(gh run view ${{ github.run_id }} --json jobs \
+            -q '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
+
+          # Create fix branch from master
+          git checkout -b "$FIX_BRANCH"
+          git push -u origin "$FIX_BRANCH"
+
+          dispatch_workflow "verify-and-fix.yml" \
+            -f branch="$FIX_BRANCH" \
+            -f checks="e2e" \
+            -f fix_enabled="true" \
+            -f max_attempts="3" \
+            -f create_pr="true" \
+            -f fix_context="E2E failed on master after merge. Failed jobs: ${FAILED_JOBS}. Run: ${RUN_URL}. Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js."

@@ -1061,6 +1061,55 @@ else:
   fi
 }
 
+# Bug: When CI fails on master (after merge), nothing self-heals. The pipeline
+# only auto-fixed PR branches, leaving master red until a human intervenes.
+# Regression: test.yml and e2e-smoke.yml must dispatch verify-and-fix on master
+# push failures too, creating a fix branch and PR back to master.
+@test "regression: CI auto-fix triggers on master push failures" {
+  for wf_name in test.yml e2e-smoke.yml; do
+    local wf="$SCRIPTS_DIR/../workflows/$wf_name"
+    [ -f "$wf" ] || skip "$wf_name not found"
+
+    local result
+    result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+# Look for a step or job that dispatches verify-and-fix on push (master) failures
+has_master_fix = False
+
+for job_name, job in data.get('jobs', {}).items():
+    job_if = str(job.get('if', ''))
+    steps = job.get('steps', [])
+    for step in steps:
+        step_if = str(step.get('if', ''))
+        run_text = str(step.get('run', ''))
+        combined = step_if + job_if
+        # Must handle push event (master failures) and dispatch verify-and-fix
+        if 'push' in combined and 'verify-and-fix' in run_text:
+            has_master_fix = True
+            break
+        if 'push' in combined and 'dispatch_workflow' in run_text:
+            has_master_fix = True
+            break
+
+if has_master_fix:
+    print('ok')
+else:
+    print('missing: auto-fix dispatch for master push failures')
+")
+
+    if [ "$result" != "ok" ]; then
+      echo "REGRESSION: $wf_name does not auto-fix master push failures"
+      echo "When CI fails on master, nothing creates a fix PR."
+      echo "Got: $result"
+      false
+    fi
+  done
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""
