@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { CountryFormSchema } from '../../types/schema';
+import { mmkvService } from '../storage/mmkv';
+import { SCHEMA_MMKV_KEY_PREFIX } from '../../utils/constants';
+import { getSchemaByCountryCode as loadBundledSchema } from '../../schemas';
 
 // Schema parsing cache to avoid re-validation
 const schemaCache = new Map<string, { schema: CountryFormSchema; timestamp: number }>();
@@ -315,4 +318,43 @@ export function clearSchemaCache(): void {
  */
 export function getSchemaCacheStats(): { size: number } {
   return { size: schemaCache.size };
+}
+
+/**
+ * Loads a schema for a given country code, preferring the MMKV-cached (OTA)
+ * version over the bundled JSON.  Falls back gracefully to the bundled schema
+ * when the cache is empty, missing, or corrupted.
+ *
+ * This function is async because the bundled-schema fallback uses dynamic
+ * `import()` under the hood.
+ *
+ * @returns The best available schema, or `null` if neither source has it.
+ */
+export async function loadSchemaForCountry(
+  countryCode: string,
+): Promise<CountryFormSchema | null> {
+  // 1. Check MMKV cache first.
+  try {
+    const key = `${SCHEMA_MMKV_KEY_PREFIX}${countryCode}`;
+    const cached = mmkvService.getString(key);
+    if (cached) {
+      return validateSchema(JSON.parse(cached), countryCode);
+    }
+  } catch (err) {
+    console.warn(
+      `[schemaLoader] Failed to read cached schema for "${countryCode}":`,
+      err,
+    );
+  }
+
+  // 2. Fall back to the bundled schema.
+  try {
+    return await loadBundledSchema(countryCode);
+  } catch (err) {
+    console.warn(
+      `[schemaLoader] Failed to load bundled schema for "${countryCode}":`,
+      err,
+    );
+    return null;
+  }
 }

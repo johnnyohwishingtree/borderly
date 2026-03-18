@@ -989,6 +989,78 @@ sys.exit(0)
   done
 }
 
+# Bug: PR #419 stuck — verify-and-fix verify passed (after merging master
+# locally) but merge was skipped because neither work_branch nor merge_into
+# was set. The PR branch stayed behind master with stale "failure" check
+# status, and nothing pushed the merged code or retriggered CI.
+# Regression: verify-and-fix must have a retrigger job that merges master
+# into the PR branch and pushes (or re-runs failed checks if up-to-date).
+@test "regression: verify-and-fix retriggers when verify passes with no merge" {
+  local wf="$SCRIPTS_DIR/../workflows/verify-and-fix.yml"
+  [ -f "$wf" ] || skip "verify-and-fix.yml not found"
+
+  local result
+  result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+jobs = data.get('jobs', {})
+
+# Look for a retrigger job that:
+# 1. Depends on verify
+# 2. Runs when pass=true and no work_branch/merge_into
+# 3. Merges master and pushes OR re-runs failed checks
+has_retrigger_job = False
+has_merge_master = False
+has_rerun_fallback = False
+
+for job_name, job in jobs.items():
+    job_if = str(job.get('if', ''))
+    needs = job.get('needs', [])
+    if isinstance(needs, str):
+        needs = [needs]
+
+    if 'verify' not in needs:
+        continue
+    if 'pass' not in job_if:
+        continue
+    if 'work_branch' not in job_if:
+        continue
+
+    has_retrigger_job = True
+    steps = job.get('steps', [])
+    for step in steps:
+        run_text = str(step.get('run', ''))
+        if 'merge origin/master' in run_text or 'merge_master' in run_text:
+            has_merge_master = True
+        if 'run rerun' in run_text:
+            has_rerun_fallback = True
+
+missing = []
+if not has_retrigger_job:
+    missing.append('retrigger job depending on verify with pass/work_branch condition')
+if not has_merge_master:
+    missing.append('merge master into PR branch step')
+if not has_rerun_fallback:
+    missing.append('re-run failed checks fallback for up-to-date branches')
+
+if not missing:
+    print('ok')
+else:
+    print('missing: ' + ', '.join(missing))
+")
+
+  if [ "$result" != "ok" ]; then
+    echo "REGRESSION: verify-and-fix does not handle verify-pass-no-merge scenario"
+    echo "When verify passes (after merging master locally) but merge is skipped,"
+    echo "the PR branch stays behind master with stale failure status."
+    echo "Detail: $result"
+    false
+  fi
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""

@@ -10,6 +10,7 @@ import { useAppLock } from '@/hooks/useAppLock';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
 import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
+import { useAppStore } from '@/stores/useAppStore';
 
 // Suppress all LogBox overlays in dev builds so banners like
 // "Fast Refresh disconnected" and "Open debugger to view warnings"
@@ -35,6 +36,8 @@ function AppContent(): React.JSX.Element {
 }
 
 function App(): React.JSX.Element {
+  const triggerSchemaUpdateCheck = useAppStore(s => s.triggerSchemaUpdateCheck);
+
   useEffect(() => {
     // Initialize monitoring services
     try {
@@ -59,10 +62,15 @@ function App(): React.JSX.Element {
       // Initialize error tracking
       errorTracker.initialize(deviceInfo, appState);
 
-      // Initialize schema registry for country forms
+      // Initialize schema registry for country forms (prefers MMKV-cached schemas)
       initializeSchemaRegistry().catch(err =>
         console.warn('Failed to initialize schema registry:', err)
       );
+
+      // Fire background schema update check — non-blocking, never throws.
+      // Uses void to explicitly discard the promise; errors are swallowed
+      // inside triggerSchemaUpdateCheck so the app always stays running.
+      void triggerSchemaUpdateCheck();
 
       // Record startup metrics (placeholder values until native implementation)
       performanceMonitor.recordStartupMetrics({
@@ -92,7 +100,7 @@ function App(): React.JSX.Element {
       console.warn('Failed to initialize monitoring:', error);
       return () => {}; // Return empty cleanup function
     }
-  }, []);
+  }, [triggerSchemaUpdateCheck]);
 
   return (
     <GluestackUIProvider mode="light">

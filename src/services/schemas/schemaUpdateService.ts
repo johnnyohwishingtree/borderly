@@ -28,32 +28,23 @@ import {
  * Compute a SHA-256 hash of the given string and return it as
  * "sha256:<hex-digest>" — matching the manifest checksum format.
  *
- * Prefers the Web Crypto API (available in Hermes ≥ 0.73 / all browsers).
- * Falls back to Node.js `require('crypto')` so that Jest tests (Node env) work
- * without needing a SubtleCrypto polyfill.
+ * Uses the Web Crypto API (available in Hermes ≥ 0.73 / all browsers).
+ * In Jest (Node.js) the global crypto is polyfilled via jest.setup.js.
  */
 async function computeSHA256(content: string): Promise<string> {
   const subtle = (globalThis as any).crypto?.subtle as
     | { digest: (algorithm: string, data: ArrayBuffer | ArrayBufferView) => Promise<ArrayBuffer> }
     | undefined;
 
-  if (subtle) {
-    // Hermes / browser path
-    const encoded: Uint8Array = Buffer.from(content, 'utf-8');
-    const hashBuffer: ArrayBuffer = await subtle.digest('SHA-256', encoded);
-    const hex = Array.from(new Uint8Array(hashBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-    return `sha256:${hex}`;
+  if (!subtle) {
+    throw new Error('[SchemaUpdateService] SubtleCrypto not available in this environment');
   }
 
-  // Node.js path (Jest test environment)
-  const nodeCrypto = require('crypto') as {
-    createHash: (algorithm: string) => {
-      update: (data: string, encoding: string) => { digest: (enc: string) => string };
-    };
-  };
-  const hex = nodeCrypto.createHash('sha256').update(content, 'utf-8').digest('hex');
+  const encoded: Uint8Array = Buffer.from(content, 'utf-8');
+  const hashBuffer: ArrayBuffer = await subtle.digest('SHA-256', encoded);
+  const hex = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
   return `sha256:${hex}`;
 }
 
