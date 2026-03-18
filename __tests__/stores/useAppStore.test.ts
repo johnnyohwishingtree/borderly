@@ -14,6 +14,7 @@ import { useAppStore } from '../../src/stores/useAppStore';
 const mockCheckForUpdates = jest.fn();
 const mockReset = jest.fn();
 const mockInitialize = jest.fn();
+const mockGetSchema = jest.fn();
 
 jest.mock('../../src/services/schemas/schemaUpdateService', () => ({
   schemaUpdateService: {
@@ -25,6 +26,7 @@ jest.mock('../../src/services/schemas/schemaRegistry', () => ({
   schemaRegistry: {
     reset: (...args: unknown[]) => mockReset(...args),
     initialize: (...args: unknown[]) => mockInitialize(...args),
+    getSchema: (...args: unknown[]) => mockGetSchema(...args),
   },
 }));
 
@@ -71,9 +73,13 @@ describe('useAppStore — schema update tracking', () => {
     useAppStore.setState({
       lastSchemaCheck: null,
       schemasUpToDate: false,
+      lastSchemaRefreshTime: null,
+      schemaRefreshCountries: [],
+      schemaBannerDismissedAt: null,
     });
     mockCheckForUpdates.mockResolvedValue({ updated: [], failed: [] });
     mockInitialize.mockResolvedValue(undefined);
+    mockGetSchema.mockReturnValue({ countryName: 'Japan' });
   });
 
   it('has null lastSchemaCheck and false schemasUpToDate in initial state', () => {
