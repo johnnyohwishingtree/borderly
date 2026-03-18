@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, ArrowRight, Check, Pencil, Sparkles, ClipboardCheck, Wallet, PlaneTakeoff } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, ProgressIndicator, Card } from '../../components/ui';
+import { Button, ProgressIndicator } from '../../components/ui';
 import { SUPPORTED_COUNTRIES, formatSupportedCountryList } from '../../constants/countries';
 import CountryFlag from '../../components/trips/CountryFlag';
 
@@ -190,7 +190,7 @@ export default function TutorialScreen() {
           </View>
 
           {/* Text content */}
-          <Card className="bg-white border border-gray-200 rounded-xl">
+          <View className="bg-white border border-gray-200 rounded-xl p-4">
             <View className="items-center text-center">
               <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
                 {step.title}
@@ -202,7 +202,7 @@ export default function TutorialScreen() {
                 {step.content}
               </Text>
             </View>
-          </Card>
+          </View>
         </View>
 
         {/* Navigation buttons */}

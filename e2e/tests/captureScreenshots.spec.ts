@@ -167,9 +167,8 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    // Use Playwright click with noWaitAfter to prevent waiting for navigation
-    await page.getByRole('tab', { name: 'QR Wallet tab' }).click({ noWaitAfter: true });
-    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
+    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
     await screenshot(page, '12-wallet-screen');
   });
 
@@ -177,8 +176,8 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    await page.getByRole('tab', { name: 'Profile tab' }).click({ noWaitAfter: true });
-    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Profile tab' }).click();
+    await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
     await screenshot(page, '13-profile-screen');
   });
 
@@ -186,8 +185,8 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    await page.getByRole('tab', { name: 'Settings tab' }).click({ noWaitAfter: true });
-    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await screenshot(page, '14-settings-screen');
   });
 });

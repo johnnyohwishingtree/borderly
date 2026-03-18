@@ -945,6 +945,50 @@ else:
   fi
 }
 
+# Bug: Auto-fix only triggered for claude/* branches, leaving all other PR
+# branches (human or bot-created) without automatic CI fix attempts.
+# Regression: test.yml and e2e-smoke.yml must use label-based opt-out
+# (no-autofix) instead of branch-name allowlist.
+@test "regression: CI auto-fix uses no-autofix label opt-out, not branch allowlist" {
+  for wf_name in test.yml e2e-smoke.yml; do
+    local wf="$SCRIPTS_DIR/../workflows/$wf_name"
+    [ -f "$wf" ] || skip "$wf_name not found"
+
+    local result
+    result=$(python3 -c "
+import yaml, sys
+
+with open('$wf') as f:
+    data = yaml.safe_load(f)
+
+for job_name, job in data.get('jobs', {}).items():
+    for step in job.get('steps', []):
+        run_text = str(step.get('run', ''))
+        if 'verify-and-fix' in run_text or 'dispatch_workflow' in run_text:
+            if 'claude/*' in run_text or 'claude/' in run_text:
+                print('branch-allowlist')
+                sys.exit(0)
+            if 'no-autofix' in run_text:
+                print('ok')
+                sys.exit(0)
+
+print('no-guard-found')
+sys.exit(0)
+")
+
+    if [ "$result" = "branch-allowlist" ]; then
+      echo "REGRESSION: $wf_name still uses claude/* branch allowlist for auto-fix"
+      echo "Should use no-autofix label opt-out to cover all PR branches"
+      false
+    fi
+    if [ "$result" != "ok" ]; then
+      echo "REGRESSION: $wf_name missing no-autofix label check in auto-fix guard"
+      echo "Got: $result"
+      false
+    fi
+  done
+}
+
 @test "regression: every job using lib.sh has a checkout step" {
   local workflows_dir="$SCRIPTS_DIR/../workflows"
   local failures=""
