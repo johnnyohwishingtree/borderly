@@ -50,8 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -63,6 +61,9 @@ jobs:
         uses: ./.github/actions/setup-auth
         with:
           token: ${{ secrets.GH_PAT }}
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Set up Node and pnpm
         uses: ./.github/actions/setup-node
@@ -100,25 +101,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           echo "Resolving review threads on PR #${{ inputs.pr_number }}"
-          resolve_all_threads "${{ inputs.pr_number }}" "${{ github.repository }}"
+          npx tsx .github/scripts/lib/cli/pipeline.ts resolve-all-threads "${{ inputs.pr_number }}" "${{ github.repository }}"
 
       - name: Push changes
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          setup_git_auth
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
 
-          check_changes_and_commit "fix: address review feedback (round ${{ inputs.round }})" || true
-          smart_push "${{ inputs.pr_branch }}"
+          npx tsx .github/scripts/lib/cli/pipeline.ts commit "fix: address review feedback (round ${{ inputs.round }})" || true
+          npx tsx .github/scripts/lib/cli/pipeline.ts push "${{ inputs.pr_branch }}"
 
       - name: Comment and dispatch verification
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          comment_on_issue "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete. Review threads resolved. Dispatching verification with retry. [View run]($RUN_URL)"
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "${{ inputs.pr_number }}" "Review fix round ${{ inputs.round }}/3 complete. Review threads resolved. Dispatching verification with retry. [View run]($RUN_URL)"
 
-          dispatch_workflow "verify-and-fix.yml" \
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
             -f branch="${{ inputs.pr_branch }}" \
             -f issue_number="${{ inputs.pr_number }}" \
             -f checks="all" \

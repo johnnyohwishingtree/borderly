@@ -1,24 +1,24 @@
-# Pipeline Reuse: Use lib.sh Functions
+# Pipeline Reuse: Use TypeScript Pipeline CLI
 
 When writing or modifying GitHub Actions workflow steps in `.github/workflows/`:
 
-1. **Set `BASH_ENV: .github/scripts/lib.sh`** in the job's `env:` block. This auto-sources lib.sh in every step — do NOT use `source .github/scripts/lib.sh` in individual steps.
+1. **Add `setup-pipeline-ts`** action after checkout. This installs Node.js, pnpm, and pipeline TS dependencies.
 
-2. **Use lib.sh functions instead of inline commands:**
-   - `dispatch_workflow "X.yml" ...` instead of `gh workflow run`
-   - `setup_git_auth` instead of `git remote set-url` + `git config`
-   - `count_approvals N "$REPO"` instead of `gh pr view --json reviews`
-   - `count_unresolved_threads N "$REPO"` instead of inline GraphQL queries
-   - `merge_master_into_branch` instead of `git fetch && git merge`
-   - `check_changes_and_commit "message"` instead of `git status && git add && git commit`
-   - `smart_push "branch"` instead of `git fetch && git push` with comparison logic
-   - `comment_on_issue N "body"` instead of `gh issue comment`
-   - `is_workflow_active "X.yml" N "$REPO"` instead of `gh run list --status`
-   - `count_critical_comments N "$REPO"` instead of `gh api pulls/N/comments` with jq filter
-   - `approve_and_merge N "body"` instead of `gh pr review --approve` + `dispatch_workflow`
-   - `get_next_pending_story "$EPIC_LABEL"` instead of `gh issue list --label story --label pending`
-   - `trigger_story_agent N "agent" "(suffix)"` instead of inline `@agent Implement this story...`
+2. **Use the pipeline CLI instead of inline commands:**
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "X.yml" -f key=val` instead of `gh workflow run`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth` instead of `git remote set-url` + `git config`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts count-approvals N "$REPO"` instead of `gh pr view --json reviews`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts count-unresolved-threads N "$REPO"` instead of inline GraphQL queries
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts merge-master` instead of `git fetch && git merge`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts commit "message"` instead of `git status && git add && git commit`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts push "branch"` instead of `git fetch && git push`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts comment N "body"` instead of `gh issue comment`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts is-workflow-active "X.yml" N "$REPO"` instead of `gh run list`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts count-critical-comments N "$REPO"` instead of `gh api pulls/N/comments`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts approve-and-merge N "body"` instead of `gh pr review --approve`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts get-next-pending-story "$EPIC_LABEL"` instead of `gh issue list`
+   - `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" "(suffix)"` instead of inline `@agent`
 
-3. **Check `.github/scripts/CLAUDE.md`** for the full function reference before writing inline shell code.
+3. **Check `.github/scripts/CLAUDE.md`** for the full CLI reference before writing inline shell code.
 
-4. If a pattern is needed more than once and doesn't exist in lib.sh, add it there with tests in `__tests__/`.
+4. If a pattern is needed more than once and doesn't exist in the CLI, add it to `lib/cli/pipeline.ts` with tests.

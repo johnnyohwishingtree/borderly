@@ -15,8 +15,6 @@ jobs:
       (github.event.issue != null || github.event.pull_request != null) &&
       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
-    env:
-      BASH_ENV: .github/scripts/lib.sh
     permissions:
       contents: write
       pull-requests: write
@@ -27,6 +25,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
 
       - name: Switch to PR branch if applicable
         if: github.event.issue.pull_request || github.event.pull_request
@@ -104,12 +105,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          GIT_USER_NAME="Gemini CLI" GIT_USER_EMAIL="gemini-cli@google.com" setup_git_auth
+          export GIT_USER_NAME="Gemini CLI"
+          export GIT_USER_EMAIL="gemini-cli@google.com"
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
 
           BRANCH=$(git branch --show-current)
           echo "Current branch: $BRANCH"
 
-          if check_changes_and_commit "Auto-commit: save Gemini's unpushed changes
+          if npx tsx .github/scripts/lib/cli/pipeline.ts commit "Auto-commit: save Gemini's unpushed changes
 
           Gemini edited files but did not commit/push before the session ended.
           This auto-commit preserves the work so it isn't lost." "Gemini <noreply@google.com>"; then

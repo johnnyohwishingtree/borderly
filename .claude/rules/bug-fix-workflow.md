@@ -19,15 +19,15 @@ Every bug fix — whether in app code, pipeline scripts, or workflow YAML — fo
 | Bug location | Test tool | Test file |
 |-------------|-----------|-----------|
 | App code (`src/`) | Jest | `__tests__/<matching-path>.test.ts` |
-| Pipeline scripts (`.github/scripts/`) | bats | `.github/scripts/__tests__/regression.test.bats` |
-| Workflow YAML (`.github/workflows/`) | bats | `.github/scripts/__tests__/regression.test.bats` |
+| Pipeline scripts (`.github/scripts/`) | vitest | `.github/scripts/__tests__/lib/<module>.test.ts` |
+| Workflow YAML (`.github/workflows/`) | vitest | `.github/scripts/__tests__/lib/<module>.test.ts` |
 | Country schemas (`src/schemas/`) | Jest | `__tests__/schemas/<ISO>.test.ts` |
 
 ## Pipeline bug examples:
 
-- **CI failure from missing checkout**: Write a bats test that parses workflow YAML and validates all jobs sourcing lib.sh have a checkout step.
-- **Function returns wrong value**: Write a bats test that calls the function with the bug-triggering input and asserts the correct output.
-- **Race condition between workflows**: Write a bats test for the merge gate or guard function that should prevent it.
+- **CI failure from missing checkout**: Write a vitest test that parses workflow YAML and validates all jobs using setup-pipeline-ts have a checkout step.
+- **Function returns wrong value**: Write a vitest test that calls the function with the bug-triggering input and asserts the correct output.
+- **Race condition between workflows**: Write a vitest test for the merge gate or guard function that should prevent it.
 
 ## Why this order matters:
 

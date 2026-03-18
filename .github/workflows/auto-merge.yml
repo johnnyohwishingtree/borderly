@@ -50,8 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      BASH_ENV: .github/scripts/lib.sh
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -68,7 +66,7 @@ jobs:
           export INPUT_PR_NUMBER="${{ inputs.pr_number }}"
           export WORKFLOW_RUN_HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
           export PR_NUMBER_FROM_EVENT="${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}"
-          PR_NUM=$(get_pr_number "${{ github.event_name }}")
+          PR_NUM=$(npx tsx .github/scripts/lib/cli/pipeline.ts get-pr-number "${{ github.event_name }}")
           if [ -z "$PR_NUM" ]; then
             echo "No open PR found — skipping"
             echo "skip=true" >> "$GITHUB_OUTPUT"
