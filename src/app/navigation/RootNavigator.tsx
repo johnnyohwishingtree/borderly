@@ -152,10 +152,11 @@ export default function RootNavigator() {
           }}
         >
         {isOnboardingComplete ? (
-          <RootStack.Screen 
-            name="Main" 
+          <RootStack.Screen
+            name="Main"
             options={{
               ...STANDARD_TRANSITIONS.fade,
+              headerShown: false,
             }}
           >
             {() => (
@@ -166,10 +167,11 @@ export default function RootNavigator() {
           </RootStack.Screen>
         ) : (
           <RootStack.Screen 
-            name="Onboarding" 
+            name="Onboarding"
             component={OnboardingNavigator}
             options={{
               ...STANDARD_TRANSITIONS.fade,
+              headerShown: false,
             }}
           />
         )}

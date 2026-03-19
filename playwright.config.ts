@@ -23,7 +23,7 @@ const screenshotProject = {
   use: {
     ...devices['Desktop Chrome'],
     viewport: { width: 430, height: 932 },
-    deviceScaleFactor: 3,
+    deviceScaleFactor: 1,
     isMobile: true,
     hasTouch: true,
     launchOptions: chromiumLaunchOptions,

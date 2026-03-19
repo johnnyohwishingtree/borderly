@@ -484,7 +484,8 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
-    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
+    // Wait for actual screen content (not just navigator header)
+    await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
     await screenshot(page, '15-wallet-empty', {
       screen: 'QRWalletScreen',
       domain: 'wallet',
@@ -498,13 +499,11 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
-    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
-    // Click the Add QR Code button (FAB or empty state button)
-    const addButton = page.getByText('Add QR Code');
-    if (await addButton.isVisible()) {
-      await addButton.click();
-      await page.waitForTimeout(1500);
-    }
+    // Wait for actual screen content
+    await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
+    // Click the Add QR Code button
+    await page.getByRole('button', { name: 'Add QR Code' }).click();
+    await page.waitForTimeout(1500);
     await screenshot(page, '16-add-qr', {
       screen: 'AddQRScreen',
       domain: 'wallet',
@@ -518,7 +517,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
-    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
     // Navigate to QR Detail with a fake ID — will show the not-found state
     await page.evaluate(() => {
       const navRef = (window as any).__navigationRef;
@@ -628,7 +627,8 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    // Wait for actual screen content (not just navigator header)
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await screenshot(page, '22-settings', {
       screen: 'SettingsScreen',
       domain: 'settings',
@@ -642,7 +642,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
     await screenshot(page, '23-help', {
@@ -658,7 +658,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Frequently Asked Questions' }).click();
@@ -676,7 +676,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Troubleshooting Guide' }).click();
@@ -694,7 +694,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Send Feedback' }).click();
     await page.waitForTimeout(1500);
     await screenshot(page, '26-feedback', {
@@ -710,7 +710,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Report Bug' }).click();
     await page.waitForTimeout(1500);
     await screenshot(page, '27-bug-report', {
@@ -726,7 +726,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Privacy Policy' }).click();
     await page.waitForTimeout(1500);
     await screenshot(page, '28-privacy-policy', {

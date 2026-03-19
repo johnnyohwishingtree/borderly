@@ -22,14 +22,17 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
 }) => {
   const memberMetrics = useMemo(() => {
     const formatDate = (dateStr: string) => {
+      if (!dateStr) return null;
       try {
-        return new Date(dateStr).toLocaleDateString('en-US', {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return null;
+        return date.toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         });
       } catch {
-        return dateStr;
+        return null;
       }
     };
 
@@ -73,7 +76,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
     };
 
     return {
-      formattedExpiry: formatDate(member.passportExpiry),
+      formattedExpiry: formatDate(member.passportExpiry) || member.passportExpiry,
       relationshipDisplay: getRelationshipDisplay(member.relationship),
       statusColor: getStatusColor(),
       statusText: getStatusText(),
@@ -131,9 +134,11 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
               <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                 Passport
               </Text>
-              <Text className="text-xs text-gray-500">
-                Last scanned: {lastScanned}
-              </Text>
+              {lastScanned && (
+                <Text className="text-xs text-gray-500">
+                  Last scanned: {lastScanned}
+                </Text>
+              )}
             </View>
             <Text className="text-sm font-mono text-gray-900 mb-1">
               {member.passportNumber}

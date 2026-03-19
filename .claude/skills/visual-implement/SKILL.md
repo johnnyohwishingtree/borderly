@@ -19,6 +19,7 @@ Takes findings from a `/visual-audit` report and implements the fixes in code. A
 1. If the user provides a specific audit report, use it directly.
 2. If no report is provided, ask the user which screens to fix or run `/visual-audit` first.
 3. Prioritize by severity: Critical > Major > Minor.
+4. **Classify each finding** as either a **bug** (broken behavior, missing content, data errors) or a **styling fix** (spacing, colors, alignment). This determines the fix workflow.
 
 ### Step 2: Read Before Screenshots
 
@@ -26,7 +27,24 @@ Before making changes, read the current screenshots from `e2e/screenshots/` for 
 
 ### Step 3: Implement Fixes
 
-For each finding, apply the fix in the source code:
+#### Bug Fixes (TDD Required)
+
+Findings that involve broken behavior — screens not rendering, incorrect data displayed, loading states that never resolve, missing UI elements that should exist — are **bugs**, not styling issues. Follow the project's TDD bug-fix workflow (`.claude/rules/bug-fix-workflow.md`):
+
+1. **Read the relevant source code** to understand the root cause
+2. **Write a failing test** that reproduces the exact bug (must fail before the fix)
+3. **Fix the code** so the test passes
+4. **Run the test suite** to verify no regressions
+
+| Bug location | Test tool | Test file |
+|-------------|-----------|-----------|
+| App code (`src/`) | Jest | `__tests__/<matching-path>.test.ts` |
+| E2E rendering issues | Playwright | `e2e/tests/<relevant>.spec.ts` |
+| Components (`src/components/`) | Jest + RNTL | `__tests__/components/<matching-path>.test.tsx` |
+
+#### Styling Fixes (No Test Required)
+
+Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class adjustments — do not need new tests. Apply directly.
 
 **Styling Rules:**
 - Use NativeWind `className` props (not inline styles)
@@ -42,7 +60,7 @@ For each finding, apply the fix in the source code:
 **Process for each fix:**
 1. Read the screen source file
 2. Identify the exact code to modify
-3. Apply the NativeWind class changes
+3. Apply the fix (with TDD for bugs, directly for styling)
 4. Run `pnpm typecheck` after each file to catch errors immediately
 
 ### Step 4: Verify
@@ -77,7 +95,7 @@ The screenshot capture test automatically updates `e2e/screenshots/manifest.json
 
 ## What NOT to Do
 
-- **Don't change functionality** — only visual/UX fixes
+- **Don't skip tests for bugs** — if a screen doesn't render, data is wrong, or behavior is broken, write a test first
 - **Don't add new dependencies** without checking `src/components/ui/` first
 - **Don't refactor unrelated code** — stay focused on the audit findings
 - **Don't skip the re-capture step** — the before/after comparison is the proof
@@ -86,13 +104,13 @@ The screenshot capture test automatically updates `e2e/screenshots/manifest.json
 
 ```
 User: /visual-audit
-→ Report: "Settings screen has inconsistent spacing, Profile has low-contrast text"
+→ Report: "Settings screen shows Loading forever (bug), Profile has low-contrast text (styling)"
 
 User: /visual-implement
 → Reads before screenshots
-→ Fixes SettingsScreen.tsx spacing (p-2 → p-4, mb-2 → mb-4)
-→ Fixes ProfileScreen.tsx text contrast (text-gray-400 → text-gray-600)
-→ Runs typecheck + tests
+→ BUG: SettingsScreen loading — writes failing test, finds async init never resolves in web, fixes it, test passes
+→ STYLING: ProfileScreen text contrast — changes text-gray-400 → text-gray-600
+→ Runs typecheck + tests (including new test)
 → Re-captures screenshots
 → Shows before/after comparison
 ```

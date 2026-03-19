@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform, TouchableOpacity } from 'react-native';
+import { Plane, QrCode, User, Settings } from 'lucide-react-native';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import LoadingStates from '@/components/ui/LoadingStates';
 
@@ -403,7 +404,7 @@ export default function MainTabNavigator() {
               />
             );
           },
-          // TODO: Add tab bar icon
+          tabBarIcon: ({ color, size }) => <Plane size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -423,7 +424,7 @@ export default function MainTabNavigator() {
               />
             );
           },
-          // TODO: Add tab bar icon
+          tabBarIcon: ({ color, size }) => <QrCode size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -443,7 +444,7 @@ export default function MainTabNavigator() {
               />
             );
           },
-          // TODO: Add tab bar icon
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -463,7 +464,7 @@ export default function MainTabNavigator() {
               />
             );
           },
-          // TODO: Add tab bar icon
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
