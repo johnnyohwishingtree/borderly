@@ -192,14 +192,9 @@ describe('United Kingdom (GBR) Schema', () => {
   });
 
   test('should have unique field IDs across all sections', () => {
-    const allFieldIds = new Set<string>();
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(allFieldIds.has(field.id)).toBe(false);
-        allFieldIds.add(field.id);
-      });
-    });
+    const allFieldIds = schema.sections.flatMap(s => s.fields.map(f => f.id));
+    const duplicates = allFieldIds.filter((id, index) => allFieldIds.indexOf(id) !== index);
+    expect(duplicates).toEqual([]);
   });
 
   test('fields with autoFillSource should reference valid profile or leg paths', () => {
