@@ -15,7 +15,6 @@ jobs:
     if: github.event.pull_request.merged == true && vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
     steps:
       - name: Extract story issue number from PR
         id: extract

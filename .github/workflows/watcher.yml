@@ -16,7 +16,6 @@ jobs:
     if: vars.PIPELINE_ENABLED != 'false'
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    env:
     steps:
       - name: Checkout scripts
         uses: actions/checkout@v4
