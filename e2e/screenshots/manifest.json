@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-03-19T05:26:06.737Z",
+  "capturedAt": "2026-03-19T05:45:14.685Z",
   "screenshotDir": "e2e/screenshots/",
   "totalScreens": 28,
   "screens": [
@@ -105,7 +105,7 @@
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Step-by-step portal walkthrough with pre-filled values ready to copy/paste.",
-      "state": "Viewing Japan submission guide from completed leg form"
+      "state": "Viewing Japan submission guide via imperative navigation"
     },
     {
       "id": "14-portal-submission",

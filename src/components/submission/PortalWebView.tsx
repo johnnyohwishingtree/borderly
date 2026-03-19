@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -179,7 +180,18 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
       onError?.(msg);
     };
 
-    if (!isAllowedDomain(url)) {
+    const urlBlocked = !isAllowedDomain(url);
+
+    // When the URL is blocked at render time, notify the parent so it can
+    // clear loading indicators and show appropriate UI.
+    useEffect(() => {
+      if (urlBlocked) {
+        onNavigationChange?.({ url, loading: false, canGoBack: false, canGoForward: false });
+        onError?.('This URL is not permitted. Only official government portals may be loaded.');
+      }
+    }, [urlBlocked, url, onNavigationChange, onError]);
+
+    if (urlBlocked) {
       return (
         <View style={styles.errorContainer} testID={testID}>
           <Text style={styles.errorTitle}>Access Denied</Text>
