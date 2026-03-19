@@ -420,28 +420,27 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(1000);
-    // Navigate: Trip List → Trip Detail → Leg Form → Submission Guide
-    const tripCard = page.getByText('Asia Summer 2026');
-    if (await tripCard.isVisible()) {
-      await tripCard.click();
-      await page.waitForTimeout(1500);
-      const legCard = page.getByTestId('leg-card-JPN');
-      if (await legCard.isVisible()) {
-        await legCard.click();
-        await page.waitForTimeout(2000);
+    // Use imperative navigation — the Guide button only appears when form
+    // isValid, which requires complex form state. Direct navigation bypasses this.
+    await page.evaluate(() => {
+      const navRef = (window as any).__navigationRef;
+      if (navRef?.isReady()) {
+        navRef.navigate('Trips', {
+          screen: 'SubmissionGuide',
+          params: {
+            tripId: 'trip-japan',
+            legId: 'leg-jpn',
+            countryCode: 'JPN',
+          },
+        });
       }
-    }
-    // The Guide button only shows when form isValid — try clicking it
-    const guideBtn = page.getByTestId('open-submission-guide-button');
-    if (await guideBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await guideBtn.click();
-      await page.waitForTimeout(2000);
-    }
+    });
+    await page.waitForTimeout(3000);
     await screenshot(page, '13-submission-guide', {
       screen: 'SubmissionGuideScreen',
       domain: 'trips',
       description: 'Step-by-step portal walkthrough with pre-filled values ready to copy/paste.',
-      state: 'Viewing Japan submission guide from completed leg form',
+      state: 'Viewing Japan submission guide via imperative navigation',
     });
   });
 
