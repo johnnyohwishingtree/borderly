@@ -86,8 +86,8 @@ export interface CountryFormSchema {
     popularity: number; // 1-100 based on traveler volume
     lastVerified: string; // ISO 8601 - when portal was last verified working
     supportedLanguages: string[]; // Portal language support
-    implementationStatus: 'planned' | 'in_progress' | 'complete' | 'deprecated';
-    maintenanceFrequency: 'weekly' | 'monthly' | 'quarterly' | 'annually';
+    implementationStatus: 'planned' | 'in_progress' | 'complete' | 'deprecated' | 'coming_soon';
+    maintenanceFrequency: 'weekly' | 'monthly' | 'quarterly' | 'annually' | 'as_needed';
   };
 
   // Portal change detection

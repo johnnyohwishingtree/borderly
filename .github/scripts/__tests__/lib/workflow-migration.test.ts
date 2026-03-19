@@ -165,6 +165,17 @@ describe('no empty env blocks in workflow YAML', () => {
   });
 });
 
+describe('auto-merge uses --admin for owner PRs', () => {
+  it('gh pr merge command includes --admin flag', () => {
+    const content = readWorkflow('auto-merge.yml');
+    // The merge command must use --admin so owner-authored PRs can merge
+    // without a formal GitHub approval (which is impossible in personal repos).
+    expect(content, 'auto-merge.yml must use --admin flag on gh pr merge').toContain(
+      '--admin',
+    );
+  });
+});
+
 describe('approve-and-merge self-approval safety', () => {
   it('pipeline.ts approve-and-merge wraps approvePR in try-catch', () => {
     const pipelineSrc = readFileSync(
