@@ -176,6 +176,152 @@ function injectStateWithTrip(page: Page) {
 }
 
 
+function injectStateWithMultiCountryTrip(page: Page) {
+  return page.addInitScript(() => {
+    (window as any).__BORDERLY_STATE__ = {
+      preferences: { onboardingComplete: true },
+      mmkv: {
+        'current_profile_id': 'screenshot-profile-1',
+        'family_profiles': JSON.stringify({
+          profiles: {
+            'screenshot-profile-1': {
+              id: 'screenshot-profile-1',
+              relationship: 'self',
+              displayName: 'John Smith',
+              createdAt: '2026-01-01T00:00:00Z',
+            },
+            'screenshot-profile-2': {
+              id: 'screenshot-profile-2',
+              relationship: 'spouse',
+              displayName: 'Jane Smith',
+              createdAt: '2026-01-01T00:00:00Z',
+            },
+          },
+          primaryProfileId: 'screenshot-profile-1',
+        }),
+      },
+      profiles: {
+        'screenshot-profile-1': {
+          id: 'screenshot-profile-1',
+          surname: 'SMITH',
+          givenNames: 'JOHN',
+          passportNumber: 'AB1234567',
+          nationality: 'USA',
+          dateOfBirth: '1990-01-15',
+          gender: 'M',
+          passportExpiry: '2030-12-31',
+          issuingCountry: 'USA',
+          email: 'john.smith@example.com',
+          phoneNumber: '+1-555-0123',
+          occupation: 'Software Engineer',
+        },
+        'screenshot-profile-2': {
+          id: 'screenshot-profile-2',
+          surname: 'SMITH',
+          givenNames: 'JANE',
+          passportNumber: 'CD9876543',
+          nationality: 'USA',
+          dateOfBirth: '1992-05-20',
+          gender: 'F',
+          passportExpiry: '2031-06-15',
+          issuingCountry: 'USA',
+        },
+      },
+      trips: [
+        {
+          id: 'trip-multi',
+          name: 'Southeast Asia + Canada 2026',
+          status: 'upcoming',
+        },
+      ],
+      tripLegs: {
+        'trip-multi': [
+          {
+            id: 'leg-mys',
+            destinationCountry: 'MYS',
+            arrivalDateISO: '2026-08-01',
+            departureDateISO: '2026-08-05',
+            flightNumber: 'MH88',
+            airlineCode: 'MH',
+            arrivalAirport: 'KUL',
+            formStatus: 'not_started',
+            order: 0,
+            accommodation: {
+              name: 'Mandarin Oriental KL',
+              address: {
+                street: 'Kuala Lumpur City Centre',
+                city: 'Kuala Lumpur',
+                country: 'MYS',
+                postalCode: '50088',
+              },
+            },
+          },
+          {
+            id: 'leg-sgp',
+            destinationCountry: 'SGP',
+            arrivalDateISO: '2026-08-05',
+            departureDateISO: '2026-08-09',
+            flightNumber: 'SQ119',
+            airlineCode: 'SQ',
+            arrivalAirport: 'SIN',
+            formStatus: 'not_started',
+            order: 1,
+            accommodation: {
+              name: 'Marina Bay Sands',
+              address: {
+                street: '10 Bayfront Avenue',
+                city: 'Singapore',
+                country: 'SGP',
+                postalCode: '018956',
+              },
+            },
+          },
+          {
+            id: 'leg-vnm',
+            destinationCountry: 'VNM',
+            arrivalDateISO: '2026-08-09',
+            departureDateISO: '2026-08-14',
+            flightNumber: 'VN300',
+            airlineCode: 'VN',
+            arrivalAirport: 'SGN',
+            formStatus: 'not_started',
+            order: 2,
+            accommodation: {
+              name: 'Park Hyatt Saigon',
+              address: {
+                street: '2 Lam Son Square',
+                city: 'Ho Chi Minh City',
+                country: 'VNM',
+                postalCode: '700000',
+              },
+            },
+          },
+          {
+            id: 'leg-can',
+            destinationCountry: 'CAN',
+            arrivalDateISO: '2026-09-01',
+            departureDateISO: '2026-09-07',
+            flightNumber: 'AC34',
+            airlineCode: 'AC',
+            arrivalAirport: 'YVR',
+            formStatus: 'not_started',
+            order: 3,
+            accommodation: {
+              name: 'Fairmont Pacific Rim',
+              address: {
+                street: '1038 Canada Place',
+                city: 'Vancouver',
+                country: 'CAN',
+                postalCode: 'V6C 0B9',
+              },
+            },
+          },
+        ],
+      },
+    };
+  });
+}
+
 test.describe('Screenshot Capture for Visual Audit', () => {
   test.setTimeout(90000);
 
@@ -735,6 +881,77 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       state: 'Navigated from Settings',
     });
   });
+
+  // ═══════════════════════════════════════════
+  // PORTAL SCREENS — NO-ACCOUNT COUNTRIES
+  // ═══════════════════════════════════════════
+
+  const portalCountries = [
+    { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC', num: 29 },
+    { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card', num: 30 },
+    { code: 'VNM', legId: 'leg-vnm', name: 'Vietnam e-Visa', num: 31 },
+    { code: 'CAN', legId: 'leg-can', name: 'Canada eTA', num: 32 },
+  ];
+
+  for (const country of portalCountries) {
+    test(`${country.num} - Submission Guide (${country.code})`, async ({ page }) => {
+      await injectStateWithMultiCountryTrip(page);
+      await page.goto('/');
+      await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(1000);
+      await page.evaluate(({ code, legId }) => {
+        const navRef = (window as any).__navigationRef;
+        if (navRef?.isReady()) {
+          navRef.navigate('Trips', {
+            screen: 'SubmissionGuide',
+            params: { tripId: 'trip-multi', legId, countryCode: code },
+          });
+        }
+      }, { code: country.code, legId: country.legId });
+      await page.waitForTimeout(3000);
+      await screenshot(page, `${country.num}-submission-guide-${country.code.toLowerCase()}`, {
+        screen: 'SubmissionGuideScreen',
+        domain: 'trips',
+        description: `${country.name} submission guide with step-by-step portal walkthrough.`,
+        state: `Viewing ${country.code} submission guide via imperative navigation`,
+      });
+    });
+
+    test(`${country.num + 4} - Portal Submission (${country.code})`, async ({ page }) => {
+      await injectStateWithMultiCountryTrip(page);
+      await page.goto('/');
+      await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+      await page.waitForTimeout(1000);
+      await page.evaluate(({ code, legId }) => {
+        const navRef = (window as any).__navigationRef;
+        if (navRef?.isReady()) {
+          // Look up portal URL from loaded schemas
+          const schemaMap: Record<string, string> = {
+            MYS: 'https://imigresen-online.imi.gov.my/mdac/main',
+            SGP: 'https://eservices.ica.gov.sg/sgarrivalcard',
+            VNM: 'https://evisa.xuatnhapcanh.gov.vn/',
+            CAN: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html',
+          };
+          navRef.navigate('Trips', {
+            screen: 'PortalSubmission',
+            params: {
+              url: schemaMap[code],
+              countryCode: code,
+              tripId: 'trip-multi',
+              legId,
+            },
+          });
+        }
+      }, { code: country.code, legId: country.legId });
+      await page.waitForTimeout(3000);
+      await screenshot(page, `${country.num + 4}-portal-submission-${country.code.toLowerCase()}`, {
+        screen: 'PortalSubmissionScreen',
+        domain: 'trips',
+        description: `${country.name} portal submission screen with WebView and Borderly toolbar.`,
+        state: `Viewing ${country.code} portal (iframe blocked, showing Borderly UI chrome)`,
+      });
+    });
+  }
 
   // ═══════════════════════════════════════════
   // WRITE MANIFEST

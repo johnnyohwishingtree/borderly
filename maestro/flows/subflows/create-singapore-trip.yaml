@@ -1,0 +1,195 @@
+# Shared subflow: Create a Singapore trip with full leg details
+#
+# Usage from any flow:
+#   - runFlow: subflows/create-singapore-trip.yaml
+#
+# Precondition: On "Your Trips" screen (no existing trips)
+# Postcondition: Trip created, back on "Your Trips" with trip card visible
+appId: com.borderly.app
+---
+
+- tapOn:
+    id: "create-first-trip-button"
+
+- extendedWaitUntil:
+    visible: "Create New Trip"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "No destinations added yet"
+    timeout: 5000
+
+# Add Singapore destination
+- tapOn:
+    id: "add-destination-button"
+- scrollUntilVisible:
+    element:
+      id: "country-SGP"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "country-SGP"
+
+# Trip name
+- scrollUntilVisible:
+    element: "Trip Name"
+    direction: UP
+    timeout: 5000
+- tapOn:
+    id: "trip-name-input"
+- inputText: "Singapore Trip"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Singapore leg details
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-date"
+- inputText: "2026-08-05"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-departure-date"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-departure-date"
+- inputText: "2026-08-09"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-flight-number"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-flight-number"
+- inputText: "SQ119"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-airline-code"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-airline-code"
+- inputText: "SQ"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-arrival-airport"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-arrival-airport"
+- inputText: "SIN"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-name"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-name"
+- inputText: "Marina Bay Sands"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "leg-0-accommodation-address"
+- inputText: "10 Bayfront Avenue"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-city"
+    direction: DOWN
+    timeout: 5000
+- swipe:
+    start: "50%,50%"
+    end: "50%,30%"
+    duration: 300
+- tapOn:
+    id: "leg-0-accommodation-city"
+- inputText: "Singapore"
+
+- tapOn:
+    id: "leg-0-accommodation-postal-code"
+- inputText: "018956"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+
+# Scroll to bottom and create trip
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element: "Hotel phone number"
+    direction: DOWN
+    timeout: 5000
+- swipe:
+    direction: UP
+    duration: 500
+- swipe:
+    direction: UP
+    duration: 500
+- tapOn:
+    id: "create-trip-button"
+
+# Handle result
+- runFlow:
+    when:
+      visible: "Validation Error"
+    commands:
+      - takeScreenshot: validation_error
+      - tapOn: "OK"
+- extendedWaitUntil:
+    visible: "Success"
+    timeout: 15000
+- tapOn: "OK"
+
+# Verify trip list
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: "trip-card-Singapore Trip"
+    timeout: 10000

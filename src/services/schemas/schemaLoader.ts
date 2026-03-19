@@ -31,6 +31,10 @@ const FormFieldSchema = z.object({
   portalFieldName: z.string().optional(),
   portalScreenshot: z.string().optional(),
   optionsSource: z.string().optional(),
+  automation: z.object({
+    selector: z.string(),
+    fillMethod: z.enum(['input', 'select', 'click', 'date']),
+  }).optional(),
 }).strict();
 
 const FormSectionSchema = z.object({
@@ -59,6 +63,7 @@ const CountryFormSchemaValidator = z.object({
     earliestBeforeArrival: z.string(),
     latestBeforeArrival: z.string(),
     recommended: z.string(),
+    processingTime: z.string().optional(),
   }),
   sections: z.array(FormSectionSchema),
   submissionGuide: z.array(SubmissionStepSchema),
