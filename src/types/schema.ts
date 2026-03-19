@@ -60,7 +60,7 @@ export interface SubmissionStep {
   automation?: {
     url?: string; // URL to navigate to for this step
     actions?: Array<{
-      type: 'navigate' | 'click' | 'wait' | 'fill' | 'submit' | 'scroll';
+      type: 'navigate' | 'click' | 'wait' | 'fill' | 'submit' | 'scroll' | 'copy' | 'upload';
       selector?: string; // Element selector
       value?: string; // Value to enter or URL to navigate to
       waitFor?: string; // What to wait for
