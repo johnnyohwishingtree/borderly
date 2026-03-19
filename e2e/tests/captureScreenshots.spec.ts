@@ -2,6 +2,10 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import * as path from 'path';
 import * as fs from 'fs';
+import MYS from '../../src/schemas/MYS.json';
+import SGP from '../../src/schemas/SGP.json';
+import VNM from '../../src/schemas/VNM.json';
+import CAN from '../../src/schemas/CAN.json';
 
 /**
  * Screenshot capture test for visual auditing.
@@ -886,6 +890,14 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // PORTAL SCREENS — NO-ACCOUNT COUNTRIES
   // ═══════════════════════════════════════════
 
+  // Load portal URLs from schema files (single source of truth)
+  const portalUrlMap: Record<string, string> = {
+    MYS: MYS.portalUrl,
+    SGP: SGP.portalUrl,
+    VNM: VNM.portalUrl,
+    CAN: CAN.portalUrl,
+  };
+
   const portalCountries = [
     { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC', num: 29 },
     { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card', num: 30 },
@@ -922,27 +934,20 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await page.goto('/');
       await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
       await page.waitForTimeout(1000);
-      await page.evaluate(({ code, legId }) => {
+      await page.evaluate(({ code, legId, urlMap }) => {
         const navRef = (window as any).__navigationRef;
         if (navRef?.isReady()) {
-          // Look up portal URL from loaded schemas
-          const schemaMap: Record<string, string> = {
-            MYS: 'https://imigresen-online.imi.gov.my/mdac/main',
-            SGP: 'https://eservices.ica.gov.sg/sgarrivalcard',
-            VNM: 'https://evisa.xuatnhapcanh.gov.vn/',
-            CAN: 'https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html',
-          };
           navRef.navigate('Trips', {
             screen: 'PortalSubmission',
             params: {
-              url: schemaMap[code],
+              url: urlMap[code],
               countryCode: code,
               tripId: 'trip-multi',
               legId,
             },
           });
         }
-      }, { code: country.code, legId: country.legId });
+      }, { code: country.code, legId: country.legId, urlMap: portalUrlMap });
       await page.waitForTimeout(3000);
       await screenshot(page, `${country.num + 4}-portal-submission-${country.code.toLowerCase()}`, {
         screen: 'PortalSubmissionScreen',

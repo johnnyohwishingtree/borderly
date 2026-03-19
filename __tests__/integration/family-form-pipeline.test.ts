@@ -216,6 +216,17 @@ function getManualFields(form: FilledForm): FilledFormField[] {
   return form.sections.flatMap(s => s.fields.filter(f => f.needsUserInput));
 }
 
+function assertFieldNeedsInput(field: FilledFormField | undefined): void {
+  if (field) {
+    expect(
+      field.currentValue === '' ||
+      field.currentValue === null ||
+      field.currentValue === undefined ||
+      field.needsUserInput
+    ).toBe(true);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -296,25 +307,9 @@ describe('Family Form Pipeline — No-Account Countries', () => {
       });
 
       it('should NOT auto-fill email/phone (child has none)', () => {
-        const emailField = findField(form, 'email');
-        const phoneField = findField(form, 'phoneNumber');
         // Either empty/null or marked as needing input
-        if (emailField) {
-          expect(
-            emailField.currentValue === '' ||
-            emailField.currentValue === null ||
-            emailField.currentValue === undefined ||
-            emailField.needsUserInput
-          ).toBe(true);
-        }
-        if (phoneField) {
-          expect(
-            phoneField.currentValue === '' ||
-            phoneField.currentValue === null ||
-            phoneField.currentValue === undefined ||
-            phoneField.needsUserInput
-          ).toBe(true);
-        }
+        assertFieldNeedsInput(findField(form, 'email'));
+        assertFieldNeedsInput(findField(form, 'phoneNumber'));
       });
 
       it('should have more remaining fields than primary traveler', () => {
@@ -449,7 +444,7 @@ describe('Family Form Pipeline — No-Account Countries', () => {
         // VNM schema may use "givenName" (singular) — check both
         const given = findField(form, 'givenName') || findField(form, 'givenNames');
         if (given) {
-          expect(given.source === 'auto' || given.currentValue).toBeTruthy();
+          expect(given.currentValue).toBeTruthy();
         }
       });
 
