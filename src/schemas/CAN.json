@@ -488,7 +488,7 @@
     {
       "order": 1,
       "title": "Check if You Need an eTA",
-      "description": "Confirm that you need an eTA. Citizens of visa-exempt countries need an eTA to fly to or transit through Canada.",
+      "description": "Important: The ArriveCAN digital pre-arrival app was discontinued in October 2023 and is no longer required. However, the Electronic Travel Authorization (eTA) for visa-exempt nationals is still required. This is a manual-only guide — direct browser automation is not supported for this archived portal.",
       "fieldsOnThisScreen": [],
       "tips": [
         "US citizens don't need an eTA",
