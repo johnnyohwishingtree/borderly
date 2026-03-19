@@ -237,6 +237,13 @@ describe('Thailand (THA) Schema', () => {
     });
   });
 
+  test('each submission guide step should have non-empty title and description', () => {
+    schema.submissionGuide.forEach((step) => {
+      expect(step.title).toEqual(expect.stringMatching(/\S/));
+      expect(step.description).toEqual(expect.stringMatching(/\S/));
+    });
+  });
+
   test('should have unique field IDs across all sections', () => {
     const allFieldIds = new Set<string>();
 

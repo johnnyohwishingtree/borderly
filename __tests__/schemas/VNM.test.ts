@@ -210,6 +210,20 @@ describe('Vietnam (VNM) Schema', () => {
     });
   });
 
+  test('submission guide steps should have incrementing order', () => {
+    const orders = schema.submissionGuide.map(s => s.order);
+    orders.forEach((order, index) => {
+      expect(order).toBe(index + 1);
+    });
+  });
+
+  test('each submission guide step should have non-empty title and description', () => {
+    schema.submissionGuide.forEach(step => {
+      expect(step.title).toEqual(expect.stringMatching(/\S/));
+      expect(step.description).toEqual(expect.stringMatching(/\S/));
+    });
+  });
+
   test('should have unique field IDs across all sections', () => {
     const allFieldIds = new Set<string>();
 
