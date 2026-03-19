@@ -84,7 +84,11 @@ jobs:
             2. If the feedback is valid, fix the code using the Edit tool
             3. If the feedback is incorrect or not applicable, reply on the PR explaining why
             4. After fixing, run `pnpm typecheck` and `pnpm test` to verify no regressions
-            5. If the review feedback points to a pattern that ESLint could catch (e.g., "avoid `as any`"), check if a corresponding ESLint rule exists in `.eslintrc.js`. If not, add the rule as a warning and include the `.eslintrc.js` change in your commit.
+            5. If the review feedback points to a recurring pattern, prevent it from happening again:
+               a. **Syntax/style pattern** (e.g., "avoid `as any`", "use optional chaining") → add an ESLint rule in `.eslintrc.js` as a warning
+               b. **Architecture/convention** (e.g., "components shouldn't import stores", "extract hooks from fat screens") → add or update a rule in `.claude/rules/`
+               c. **Structural check** (e.g., "files too long", "missing checkout step") → add a vitest test in `.github/scripts/__tests__/`
+               Only do this if the pattern is general enough to apply beyond this one PR.
             6. Git add and commit your changes — do NOT push (the workflow will push after verification)
           show_full_output: true
           claude_args: --allowedTools "Edit" "MultiEdit" "Glob" "Grep" "LS" "Read" "Write" "Bash(*)"
