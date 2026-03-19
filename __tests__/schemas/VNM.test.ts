@@ -1,8 +1,9 @@
+import { CountryFormSchema } from '../../src/types/schema';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import VNM from '../../src/schemas/VNM.json';
 
 describe('Vietnam (VNM) Schema', () => {
-  const schema = VNM;
+  const schema = VNM as CountryFormSchema;
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('VNM');
@@ -63,7 +64,7 @@ describe('Vietnam (VNM) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const religionField = personalSection.fields.find(f => f.id === 'religion')!;
 
-    const values = (religionField as any).options!.map((o: any) => o.value);
+    const values = religionField.options?.map(o => o.value) ?? [];
     expect(values).toContain('buddhism');
     expect(values).toContain('christianity');
     expect(values).toContain('islam');
@@ -87,7 +88,7 @@ describe('Vietnam (VNM) Schema', () => {
     const expiryField = passportSection.fields.find(f => f.id === 'passportExpiry')!;
 
     expect(expiryField.required).toBe(true);
-    expect((expiryField as any).autoFillSource).toBe('profile.passportExpiry');
+    expect(expiryField.autoFillSource).toBe('profile.passportExpiry');
   });
 
   test('travel section should have Vietnam-specific port of entry field', () => {
@@ -98,7 +99,7 @@ describe('Vietnam (VNM) Schema', () => {
     expect(entryPortField).toBeDefined();
     expect(entryPortField!.countrySpecific).toBe(true);
 
-    const portCodes = (entryPortField as any).options!.map((o: any) => o.value);
+    const portCodes = entryPortField!.options?.map(o => o.value) ?? [];
     expect(portCodes).toContain('SGN');
     expect(portCodes).toContain('HAN');
     expect(portCodes).toContain('DAD');
