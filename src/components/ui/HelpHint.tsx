@@ -31,11 +31,11 @@ export default function HelpHint({
       contentColor: 'text-blue-800',
     },
     tip: {
-      container: 'bg-purple-50 border-purple-200',
+      container: 'bg-blue-50 border-blue-200',
       icon: Lightbulb as LucideIcon,
-      iconColor: '#9333ea',
-      titleColor: 'text-purple-900',
-      contentColor: 'text-purple-800',
+      iconColor: '#2563eb',
+      titleColor: 'text-blue-900',
+      contentColor: 'text-blue-800',
     },
     warning: {
       container: 'bg-yellow-50 border-yellow-200',

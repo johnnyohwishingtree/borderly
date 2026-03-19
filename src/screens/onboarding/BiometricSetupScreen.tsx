@@ -112,7 +112,7 @@ export default function BiometricSetupScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-purple-50 to-white">
+    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={100} className="mb-6" />
@@ -122,7 +122,7 @@ export default function BiometricSetupScreen() {
             style={{
               transform: [{ scale: isEnabling ? pulseAnimation : 1 }],
             }}
-            className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full items-center justify-center mb-6 shadow-lg"
+            className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full items-center justify-center mb-6 shadow-lg"
           >
             <Fingerprint size={48} color="#ffffff" />
           </Animated.View>
@@ -135,14 +135,14 @@ export default function BiometricSetupScreen() {
         </View>
 
         <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
-          <View className="bg-gradient-to-r from-purple-500 to-purple-600 -m-6 mb-6 p-6 rounded-t-xl">
+          <View className="bg-gradient-to-r from-blue-500 to-blue-600 -m-6 mb-6 p-6 rounded-t-xl">
             <View className="flex-row items-center mb-2">
               <Fingerprint size={28} color="#ffffff" style={{ marginRight: 12 }} />
               <Text className="text-xl font-bold text-white">
                 {biometricType}
               </Text>
             </View>
-            <Text className="text-purple-100">
+            <Text className="text-blue-100">
               Use your device's biometric authentication to quickly and securely access your travel profile.
             </Text>
           </View>
@@ -158,8 +158,8 @@ export default function BiometricSetupScreen() {
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-12 h-12 bg-purple-100 rounded-lg items-center justify-center mr-4">
-                <ShieldCheck size={24} color="#8b5cf6" />
+              <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
+                <ShieldCheck size={24} color="#3b82f6" />
               </View>
               <View className="flex-1">
                 <Text className="text-gray-900 font-semibold">Additional Security</Text>
@@ -178,9 +178,9 @@ export default function BiometricSetupScreen() {
           </View>
         </Card>
 
-        <Card variant="outlined" className="mb-8 border-2 border-yellow-200 bg-yellow-50/50">
+        <Card variant="outlined" className="mb-8 border-2 border-blue-200 bg-blue-50/50">
           <View className="flex-row items-start">
-            <Lightbulb size={28} color="#eab308" style={{ marginRight: 12 }} />
+            <Lightbulb size={28} color="#3b82f6" style={{ marginRight: 12 }} />
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-900 mb-2">
                 Optional Setup

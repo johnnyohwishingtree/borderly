@@ -41,16 +41,16 @@ export default function WelcomeScreen() {
       accessibilityLabel="Welcome to Borderly screen"
       accessibilityHint="Swipe up to read about features and get started"
     >
-      <View className="flex-1 px-6 pt-16 pb-12">
+      <View className="flex-1 px-6 pt-12 pb-8">
         {/* Progress indicator */}
-        <ProgressBar 
-          progress={25} 
-          className="mb-8" 
+        <ProgressBar
+          progress={25}
+          className="mb-6"
           accessibilityLabel="Setup progress: Step 1 of 4"
         />
-        
+
         {/* Hero section */}
-        <View className="items-center mb-12" accessibilityRole="header">
+        <View className="items-center mb-6" accessibilityRole="header">
           <View 
             className="w-24 h-24 bg-primary-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
             accessibilityLabel="Borderly app icon"
@@ -58,11 +58,11 @@ export default function WelcomeScreen() {
           >
             <Icon as={Globe} size={40} color="white" />
           </View>
-          
-          <Text className="text-4xl font-bold text-gray-900 text-center mb-2" accessibilityRole="header">
+
+          <Text className="text-3xl font-bold text-gray-900 text-center mb-1" accessibilityRole="header">
             Welcome to
           </Text>
-          <Text className="text-4xl font-bold text-primary-600 text-center mb-4" accessibilityRole="header">
+          <Text className="text-3xl font-bold text-primary-600 text-center mb-3" accessibilityRole="header">
             Borderly
           </Text>
           <Text className="text-lg text-gray-600 text-center max-w-sm">
@@ -71,7 +71,7 @@ export default function WelcomeScreen() {
         </View>
 
         {/* Features section */}
-        <Card variant="elevated" className="mb-8 p-0 overflow-hidden">
+        <Card variant="elevated" className="mb-4 p-0 overflow-hidden">
           <View className="bg-primary-600 p-6">
             <View className="flex-row items-center mb-2">
               <Icon as={Plane} size={20} color="white" className="mr-2" />
@@ -104,8 +104,8 @@ export default function WelcomeScreen() {
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-4">
-                <Icon as={Zap} size={20} color="#9333ea" />
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Icon as={Zap} size={20} color="#2563eb" />
               </View>
               <View>
                 <Text className="text-gray-900 font-semibold">Lightning Fast</Text>
@@ -116,7 +116,7 @@ export default function WelcomeScreen() {
         </Card>
 
         {/* Countries supported section */}
-        <Card variant="outlined" className="mb-8 bg-blue-50/30 border-blue-100">
+        <Card variant="outlined" className="mb-4 bg-blue-50/30 border-blue-100">
           <View className="flex-row items-center mb-4">
             <Icon as={Globe} size={20} color="#374151" className="mr-2" />
             <Text className="text-lg font-semibold text-gray-900">
@@ -134,7 +134,7 @@ export default function WelcomeScreen() {
         </Card>
 
         {/* Privacy notice */}
-        <Card variant="outlined" className="mb-8 border-green-200 bg-green-50/30">
+        <Card variant="outlined" className="mb-4 border-green-200 bg-green-50/30">
           <View className="flex-row items-start">
             <Icon as={ShieldCheck} size={24} color="#16a34a" className="mr-3" />
             <View className="flex-1">

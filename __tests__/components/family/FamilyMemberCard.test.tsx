@@ -307,6 +307,32 @@ describe('FamilyMemberCard', () => {
       expect(getByText('Primary Traveler')).toBeTruthy();
     });
 
+    it('should not display "Invalid Date" when updatedAt is missing or empty', () => {
+      const memberWithNoUpdatedAt = {
+        ...mockPrimaryMember,
+        updatedAt: '',
+      };
+
+      const { queryByText } = render(
+        <FamilyMemberCard member={memberWithNoUpdatedAt} />
+      );
+
+      expect(queryByText(/Invalid Date/)).toBeFalsy();
+    });
+
+    it('should not display "Invalid Date" when updatedAt is undefined', () => {
+      const memberWithUndefinedUpdatedAt = {
+        ...mockPrimaryMember,
+        updatedAt: undefined as unknown as string,
+      };
+
+      const { queryByText } = render(
+        <FamilyMemberCard member={memberWithUndefinedUpdatedAt} />
+      );
+
+      expect(queryByText(/Invalid Date/)).toBeFalsy();
+    });
+
     it('should handle missing optional fields', () => {
       const memberWithMissingFields = {
         ...mockPrimaryMember,

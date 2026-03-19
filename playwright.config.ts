@@ -22,6 +22,10 @@ const screenshotProject = {
   fullyParallel: false,
   use: {
     ...devices['Desktop Chrome'],
+    viewport: { width: 430, height: 932 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
     launchOptions: chromiumLaunchOptions,
   },
 };

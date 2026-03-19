@@ -111,7 +111,7 @@ const TripCard = memo<TripCardProps>(({
               <View className="flex-row items-center space-x-1">
                 {trip.legs.slice(0, 4).map((leg, index) => (
                   <React.Fragment key={leg.id}>
-                    <CountryFlag countryCode={leg.destinationCountry} size="small" />
+                    <CountryFlag countryCode={leg.destinationCountry} size="medium" />
                     {index < Math.min(trip.legs.length - 1, 3) && (
                       <Text className="mx-1 text-gray-400">→</Text>
                     )}

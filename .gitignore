@@ -7,7 +7,7 @@ android/build/
 # Maestro
 maestro/.maestro/
 maestro/screenshots/
-e2e/screenshots/
+# e2e/screenshots/ — committed for visual audit skills
 maestro/test-output/
 .maestro-output/
 android/app/build/
@@ -75,6 +75,7 @@ playwright-report/
 !src/assets/**/*.png
 !ios/**/*.png
 !android/**/*.png
+!e2e/screenshots/**/*.png
 
 # Metro
 .metro-health-check*

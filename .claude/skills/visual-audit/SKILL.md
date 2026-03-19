@@ -15,22 +15,34 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ## Steps
 
-### Step 1: Load Screenshots
+### Step 1: Load Manifest
 
-1. **Check for existing screenshots** in `e2e/screenshots/`. Read `e2e/screenshots/manifest.json` if it exists — it describes each screen's purpose and state.
+1. **Read `e2e/screenshots/manifest.json`** — it describes each screen's purpose, state, and domain.
 
 2. **If no screenshots exist**, run the capture:
 ```bash
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
 ```
 
-3. **Read all screenshots** from `e2e/screenshots/` using the Read tool (it supports image files). Use the manifest to understand context for each screen.
+3. If the user provided specific screenshots or screen names, focus on those instead of the full set.
 
-4. If the user provided specific screenshots or screen names, focus on those instead of the full set.
+### Step 2: Batched Visual Critique
 
-### Step 2: Visual Critique
+Process screenshots **one domain at a time** to stay within context limits. The domains are:
+- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, BiometricSetup
+- **trips** — TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide, PortalSubmission
+- **wallet** — QRWallet, AddQR, QRDetail
+- **profile** — Profile, EditProfile, FamilyManagement, AddFamilyMember
+- **settings** — Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy
 
-Analyze each screenshot using vision. Evaluate against these criteria:
+For each domain batch:
+1. **Read all screenshots** in that domain using the Read tool (it supports image files)
+2. **Analyze and critique** those screenshots (see criteria below)
+3. **Record findings** before moving to the next domain
+
+Do NOT load all screenshots at once — this exhausts the context window.
+
+#### Evaluation Criteria
 
 **Layout & Spacing**
 - Consistent spacing on 4px/8px grid

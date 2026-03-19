@@ -1,0 +1,231 @@
+{
+  "capturedAt": "2026-03-19T05:26:06.737Z",
+  "screenshotDir": "e2e/screenshots/",
+  "totalScreens": 28,
+  "screens": [
+    {
+      "id": "01-welcome-screen",
+      "file": "01-welcome-screen.png",
+      "screen": "WelcomeScreen",
+      "domain": "onboarding",
+      "description": "First screen shown to new users. App intro with Get Started button.",
+      "state": "Fresh install, no profile"
+    },
+    {
+      "id": "02-tutorial-screen",
+      "file": "02-tutorial-screen.png",
+      "screen": "TutorialScreen",
+      "domain": "onboarding",
+      "description": "Step-by-step tutorial explaining the app workflow (scan, create, fill, submit).",
+      "state": "After clicking Get Started from Welcome"
+    },
+    {
+      "id": "03-passport-scan-method",
+      "file": "03-passport-scan-method.png",
+      "screen": "PassportScanScreen",
+      "domain": "onboarding",
+      "description": "Choose between camera scan or manual passport entry. Shows MRZ explanation.",
+      "state": "After skipping tutorial, mode=method"
+    },
+    {
+      "id": "04-passport-manual-form-empty",
+      "file": "04-passport-manual-form-empty.png",
+      "screen": "PassportScanScreen",
+      "domain": "onboarding",
+      "description": "Manual passport entry form with all fields empty.",
+      "state": "After clicking Or enter manually, mode=manual, form empty"
+    },
+    {
+      "id": "05-passport-manual-form-filled",
+      "file": "05-passport-manual-form-filled.png",
+      "screen": "PassportScanScreen",
+      "domain": "onboarding",
+      "description": "Manual passport entry form with all fields filled in.",
+      "state": "After filling all passport fields, mode=manual, form complete"
+    },
+    {
+      "id": "06-confirm-profile",
+      "file": "06-confirm-profile.png",
+      "screen": "ConfirmProfileScreen",
+      "domain": "onboarding",
+      "description": "Profile confirmation screen showing all parsed passport data for review.",
+      "state": "After completing passport form, reviewing data before saving"
+    },
+    {
+      "id": "07-biometric-setup",
+      "file": "07-biometric-setup.png",
+      "screen": "BiometricSetupScreen",
+      "domain": "onboarding",
+      "description": "Biometric authentication setup — enable Face ID/Touch ID or skip.",
+      "state": "After confirming profile, before completing onboarding"
+    },
+    {
+      "id": "08-trip-list-empty",
+      "file": "08-trip-list-empty.png",
+      "screen": "TripListScreen",
+      "domain": "trips",
+      "description": "Empty trip list with \"Create Your First Trip\" CTA.",
+      "state": "Onboarded, no trips created"
+    },
+    {
+      "id": "09-create-trip",
+      "file": "09-create-trip.png",
+      "screen": "CreateTripScreen",
+      "domain": "trips",
+      "description": "Trip creation form — name, destinations, dates, flight info, accommodation.",
+      "state": "Onboarded, creating first trip, form empty"
+    },
+    {
+      "id": "10-trip-list-with-trip",
+      "file": "10-trip-list-with-trip.png",
+      "screen": "TripListScreen",
+      "domain": "trips",
+      "description": "Trip list showing a trip card with destination flags and status.",
+      "state": "Onboarded, one trip to Japan exists"
+    },
+    {
+      "id": "11-trip-detail",
+      "file": "11-trip-detail.png",
+      "screen": "TripDetailScreen",
+      "domain": "trips",
+      "description": "Trip detail with itinerary legs, form status, and submission actions.",
+      "state": "Viewing Japan trip with one leg"
+    },
+    {
+      "id": "12-leg-form",
+      "file": "12-leg-form.png",
+      "screen": "LegFormScreen",
+      "domain": "trips",
+      "description": "Country-specific form (Japan) with auto-filled fields and remaining questions.",
+      "state": "Viewing Japan leg form with profile auto-fill applied"
+    },
+    {
+      "id": "13-submission-guide",
+      "file": "13-submission-guide.png",
+      "screen": "SubmissionGuideScreen",
+      "domain": "trips",
+      "description": "Step-by-step portal walkthrough with pre-filled values ready to copy/paste.",
+      "state": "Viewing Japan submission guide from completed leg form"
+    },
+    {
+      "id": "14-portal-submission",
+      "file": "14-portal-submission.png",
+      "screen": "PortalSubmissionScreen",
+      "domain": "trips",
+      "description": "Portal submission screen with WebView, toolbar, progress bar, and copy-paste fields panel.",
+      "state": "Viewing Visit Japan Web portal (iframe blocked, showing Borderly UI chrome)"
+    },
+    {
+      "id": "15-wallet-empty",
+      "file": "15-wallet-empty.png",
+      "screen": "QRWalletScreen",
+      "domain": "wallet",
+      "description": "Empty QR wallet with \"Add QR Code\" button. For storing submission QR codes.",
+      "state": "Onboarded, no QR codes saved"
+    },
+    {
+      "id": "16-add-qr",
+      "file": "16-add-qr.png",
+      "screen": "AddQRScreen",
+      "domain": "wallet",
+      "description": "Add QR code screen — scan or import QR from camera/gallery.",
+      "state": "Adding a new QR code to wallet"
+    },
+    {
+      "id": "17-qr-detail",
+      "file": "17-qr-detail.png",
+      "screen": "QRDetailScreen",
+      "domain": "wallet",
+      "description": "QR code detail view — shows not-found state (no QR codes in E2E database).",
+      "state": "Navigated to QR detail with non-existent ID"
+    },
+    {
+      "id": "18-profile",
+      "file": "18-profile.png",
+      "screen": "ProfileScreen",
+      "domain": "profile",
+      "description": "Profile overview — passport info (masked), completeness, contact details, family.",
+      "state": "Onboarded with full profile data"
+    },
+    {
+      "id": "19-edit-profile",
+      "file": "19-edit-profile.png",
+      "screen": "EditProfileScreen",
+      "domain": "profile",
+      "description": "Edit profile form — contact info, home address, default declarations.",
+      "state": "Editing existing profile"
+    },
+    {
+      "id": "20-family-management",
+      "file": "20-family-management.png",
+      "screen": "FamilyManagementScreen",
+      "domain": "profile",
+      "description": "Family member list with primary profile and spouse. Add/remove members.",
+      "state": "2 family members (self + spouse)"
+    },
+    {
+      "id": "21-add-family-member",
+      "file": "21-add-family-member.png",
+      "screen": "AddFamilyMemberScreen",
+      "domain": "profile",
+      "description": "Add family member — select relationship, scan or enter passport manually.",
+      "state": "Adding a new family member from Family Management"
+    },
+    {
+      "id": "22-settings",
+      "file": "22-settings.png",
+      "screen": "SettingsScreen",
+      "domain": "settings",
+      "description": "App settings — security, privacy, portal accounts, data management, help links.",
+      "state": "Onboarded, default settings"
+    },
+    {
+      "id": "23-help",
+      "file": "23-help.png",
+      "screen": "HelpScreen",
+      "domain": "settings",
+      "description": "Help & support hub — FAQ categories, troubleshooting, contact options.",
+      "state": "Navigated from Settings"
+    },
+    {
+      "id": "24-faq",
+      "file": "24-faq.png",
+      "screen": "FAQScreen",
+      "domain": "settings",
+      "description": "FAQ screen with searchable questions organized by category.",
+      "state": "Navigated from Help screen"
+    },
+    {
+      "id": "25-troubleshooting",
+      "file": "25-troubleshooting.png",
+      "screen": "TroubleshootingScreen",
+      "domain": "settings",
+      "description": "Troubleshooting guide with common issues, symptoms, and solutions.",
+      "state": "Navigated from Help screen"
+    },
+    {
+      "id": "26-feedback",
+      "file": "26-feedback.png",
+      "screen": "FeedbackScreen",
+      "domain": "settings",
+      "description": "Feedback form — rating, category, message text for user feedback.",
+      "state": "Navigated from Settings"
+    },
+    {
+      "id": "27-bug-report",
+      "file": "27-bug-report.png",
+      "screen": "BugReportScreen",
+      "domain": "settings",
+      "description": "Bug report form with auto-collected diagnostics (device, OS, app version).",
+      "state": "Navigated from Settings"
+    },
+    {
+      "id": "28-privacy-policy",
+      "file": "28-privacy-policy.png",
+      "screen": "PrivacyPolicyScreen",
+      "domain": "settings",
+      "description": "Privacy policy — data handling, local-first architecture, security details.",
+      "state": "Navigated from Settings"
+    }
+  ]
+}
