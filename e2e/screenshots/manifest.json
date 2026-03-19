@@ -1,7 +1,7 @@
 {
-  "capturedAt": "2026-03-19T03:33:00.765Z",
+  "capturedAt": "2026-03-19T03:43:29.705Z",
   "screenshotDir": "e2e/screenshots/",
-  "totalScreens": 27,
+  "totalScreens": 28,
   "screens": [
     {
       "id": "01-welcome-screen",
@@ -132,88 +132,96 @@
       "state": "Adding a new QR code to wallet"
     },
     {
-      "id": "17-profile",
-      "file": "17-profile.png",
+      "id": "17-qr-detail",
+      "file": "17-qr-detail.png",
+      "screen": "QRDetailScreen",
+      "domain": "wallet",
+      "description": "QR code detail view — shows not-found state (no QR codes in E2E database).",
+      "state": "Navigated to QR detail with non-existent ID"
+    },
+    {
+      "id": "18-profile",
+      "file": "18-profile.png",
       "screen": "ProfileScreen",
       "domain": "profile",
       "description": "Profile overview — passport info (masked), completeness, contact details, family.",
       "state": "Onboarded with full profile data"
     },
     {
-      "id": "18-edit-profile",
-      "file": "18-edit-profile.png",
+      "id": "19-edit-profile",
+      "file": "19-edit-profile.png",
       "screen": "EditProfileScreen",
       "domain": "profile",
       "description": "Edit profile form — contact info, home address, default declarations.",
       "state": "Editing existing profile"
     },
     {
-      "id": "19-family-management",
-      "file": "19-family-management.png",
+      "id": "20-family-management",
+      "file": "20-family-management.png",
       "screen": "FamilyManagementScreen",
       "domain": "profile",
       "description": "Family member list with primary profile and spouse. Add/remove members.",
       "state": "2 family members (self + spouse)"
     },
     {
-      "id": "20-add-family-member",
-      "file": "20-add-family-member.png",
+      "id": "21-add-family-member",
+      "file": "21-add-family-member.png",
       "screen": "AddFamilyMemberScreen",
       "domain": "profile",
       "description": "Add family member — select relationship, scan or enter passport manually.",
       "state": "Adding a new family member from Family Management"
     },
     {
-      "id": "21-settings",
-      "file": "21-settings.png",
+      "id": "22-settings",
+      "file": "22-settings.png",
       "screen": "SettingsScreen",
       "domain": "settings",
       "description": "App settings — security, privacy, portal accounts, data management, help links.",
       "state": "Onboarded, default settings"
     },
     {
-      "id": "22-help",
-      "file": "22-help.png",
+      "id": "23-help",
+      "file": "23-help.png",
       "screen": "HelpScreen",
       "domain": "settings",
       "description": "Help & support hub — FAQ categories, troubleshooting, contact options.",
       "state": "Navigated from Settings"
     },
     {
-      "id": "23-faq",
-      "file": "23-faq.png",
+      "id": "24-faq",
+      "file": "24-faq.png",
       "screen": "FAQScreen",
       "domain": "settings",
       "description": "FAQ screen with searchable questions organized by category.",
       "state": "Navigated from Help screen"
     },
     {
-      "id": "24-troubleshooting",
-      "file": "24-troubleshooting.png",
+      "id": "25-troubleshooting",
+      "file": "25-troubleshooting.png",
       "screen": "TroubleshootingScreen",
       "domain": "settings",
       "description": "Troubleshooting guide with common issues, symptoms, and solutions.",
       "state": "Navigated from Help screen"
     },
     {
-      "id": "25-feedback",
-      "file": "25-feedback.png",
+      "id": "26-feedback",
+      "file": "26-feedback.png",
       "screen": "FeedbackScreen",
       "domain": "settings",
       "description": "Feedback form — rating, category, message text for user feedback.",
       "state": "Navigated from Settings"
     },
     {
-      "id": "26-bug-report",
-      "file": "26-bug-report.png",
+      "id": "27-bug-report",
+      "file": "27-bug-report.png",
       "screen": "BugReportScreen",
       "domain": "settings",
       "description": "Bug report form with auto-collected diagnostics (device, OS, app version).",
       "state": "Navigated from Settings"
     },
     {
-      "id": "27-privacy-policy",
-      "file": "27-privacy-policy.png",
+      "id": "28-privacy-policy",
+      "file": "28-privacy-policy.png",
       "screen": "PrivacyPolicyScreen",
       "domain": "settings",
       "description": "Privacy policy — data handling, local-first architecture, security details.",

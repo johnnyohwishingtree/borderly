@@ -513,17 +513,42 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
+  test('17 - QR Detail Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
+    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
+    // Navigate to QR Detail with a fake ID — will show the not-found state
+    await page.evaluate(() => {
+      const navRef = (window as any).__navigationRef;
+      if (navRef?.isReady()) {
+        navRef.navigate('Wallet', {
+          screen: 'QRDetail',
+          params: { qrCodeId: 'screenshot-qr-1' },
+        });
+      }
+    });
+    await page.waitForTimeout(2000);
+    await screenshot(page, '17-qr-detail', {
+      screen: 'QRDetailScreen',
+      domain: 'wallet',
+      description: 'QR code detail view — shows not-found state (no QR codes in E2E database).',
+      state: 'Navigated to QR detail with non-existent ID',
+    });
+  });
+
   // ═══════════════════════════════════════════
   // PROFILE TAB
   // ═══════════════════════════════════════════
 
-  test('17 - Profile Screen', async ({ page }) => {
+  test('18 - Profile Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '17-profile', {
+    await screenshot(page, '18-profile', {
       screen: 'ProfileScreen',
       domain: 'profile',
       description: 'Profile overview — passport info (masked), completeness, contact details, family.',
@@ -531,7 +556,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('18 - Edit Profile Screen', async ({ page }) => {
+  test('19 - Edit Profile Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -543,7 +568,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await editBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '18-edit-profile', {
+    await screenshot(page, '19-edit-profile', {
       screen: 'EditProfileScreen',
       domain: 'profile',
       description: 'Edit profile form — contact info, home address, default declarations.',
@@ -551,7 +576,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('19 - Family Management Screen', async ({ page }) => {
+  test('20 - Family Management Screen', async ({ page }) => {
     await injectStateWithTrip(page); // Has 2 family members
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -562,7 +587,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await familyBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '19-family-management', {
+    await screenshot(page, '20-family-management', {
       screen: 'FamilyManagementScreen',
       domain: 'profile',
       description: 'Family member list with primary profile and spouse. Add/remove members.',
@@ -570,7 +595,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('20 - Add Family Member Screen', async ({ page }) => {
+  test('21 - Add Family Member Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -586,7 +611,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await addBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '20-add-family-member', {
+    await screenshot(page, '21-add-family-member', {
       screen: 'AddFamilyMemberScreen',
       domain: 'profile',
       description: 'Add family member — select relationship, scan or enter passport manually.',
@@ -598,13 +623,13 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // SETTINGS TAB
   // ═══════════════════════════════════════════
 
-  test('21 - Settings Screen', async ({ page }) => {
+  test('22 - Settings Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '21-settings', {
+    await screenshot(page, '22-settings', {
       screen: 'SettingsScreen',
       domain: 'settings',
       description: 'App settings — security, privacy, portal accounts, data management, help links.',
@@ -612,7 +637,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('22 - Help Screen', async ({ page }) => {
+  test('23 - Help Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -620,7 +645,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '22-help', {
+    await screenshot(page, '23-help', {
       screen: 'HelpScreen',
       domain: 'settings',
       description: 'Help & support hub — FAQ categories, troubleshooting, contact options.',
@@ -628,7 +653,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('23 - FAQ Screen', async ({ page }) => {
+  test('24 - FAQ Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -638,7 +663,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Frequently Asked Questions' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '23-faq', {
+    await screenshot(page, '24-faq', {
       screen: 'FAQScreen',
       domain: 'settings',
       description: 'FAQ screen with searchable questions organized by category.',
@@ -646,7 +671,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('24 - Troubleshooting Screen', async ({ page }) => {
+  test('25 - Troubleshooting Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -656,7 +681,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Troubleshooting Guide' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '24-troubleshooting', {
+    await screenshot(page, '25-troubleshooting', {
       screen: 'TroubleshootingScreen',
       domain: 'settings',
       description: 'Troubleshooting guide with common issues, symptoms, and solutions.',
@@ -664,7 +689,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('25 - Feedback Screen', async ({ page }) => {
+  test('26 - Feedback Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -672,7 +697,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Send Feedback' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '25-feedback', {
+    await screenshot(page, '26-feedback', {
       screen: 'FeedbackScreen',
       domain: 'settings',
       description: 'Feedback form — rating, category, message text for user feedback.',
@@ -680,7 +705,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('26 - Bug Report Screen', async ({ page }) => {
+  test('27 - Bug Report Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -688,7 +713,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Report Bug' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '26-bug-report', {
+    await screenshot(page, '27-bug-report', {
       screen: 'BugReportScreen',
       domain: 'settings',
       description: 'Bug report form with auto-collected diagnostics (device, OS, app version).',
@@ -696,7 +721,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('27 - Privacy Policy Screen', async ({ page }) => {
+  test('28 - Privacy Policy Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -704,7 +729,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Privacy Policy' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '27-privacy-policy', {
+    await screenshot(page, '28-privacy-policy', {
       screen: 'PrivacyPolicyScreen',
       domain: 'settings',
       description: 'Privacy policy — data handling, local-first architecture, security details.',
