@@ -3,7 +3,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { UserPlus, Camera, Pencil } from 'lucide-react-native';
+import { Camera, Pencil } from 'lucide-react-native';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { Button, Card, Select } from '@/components/ui';
 import { FamilyRelationship } from '@/types/profile';
@@ -63,17 +63,12 @@ export default function AddFamilyMemberScreen() {
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
-          <View className="flex-row items-center mb-4">
-            <UserPlus size={24} color="#111827" style={{ marginRight: 8 }} />
-            <View>
-              <Text className="text-2xl font-bold text-gray-900">
-                Add Family Member
-              </Text>
-              <Text className="text-base text-gray-600">
-                Create a new family travel profile
-              </Text>
-            </View>
-          </View>
+          <Text className="text-2xl font-bold text-gray-900">
+            Add Family Member
+          </Text>
+          <Text className="text-base text-gray-600">
+            Create a new family travel profile
+          </Text>
         </View>
 
         {/* Relationship Selection */}
