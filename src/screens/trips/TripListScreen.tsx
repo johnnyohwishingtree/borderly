@@ -248,7 +248,7 @@ export default function TripListScreen() {
       {trips.length > 0 && (
         <TouchableOpacity
           onPress={handleCreateTrip}
-          className="absolute bottom-6 right-6 bg-blue-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          className="absolute bottom-20 right-6 bg-blue-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="Create new trip"

@@ -206,33 +206,33 @@ export default function TutorialScreen() {
         </View>
 
         {/* Navigation buttons */}
-        <View className="flex-row items-center justify-between mt-8 space-x-4">
-          {currentStep > 0 ? (
-            <Button
-              title="Previous"
-              onPress={handlePrevious}
-              variant="outline"
-              size="large"
-              accessibilityLabel="Previous step"
-              accessibilityHint="Go to the previous tutorial step"
-              testID="previous-step-button"
-            />
-          ) : (
-            <View className="flex-1" />
-          )}
+        <View className="mt-8 space-y-3">
           <Button
             title={currentStep === tutorialSteps.length - 1 ? 'Get Started' : 'Next'}
             onPress={handleNext}
             variant="primary"
             size="large"
+            fullWidth
             testID="next-step-button"
             accessibilityLabel={currentStep === tutorialSteps.length - 1 ? 'Get started' : 'Next step'}
             accessibilityHint={
-              currentStep === tutorialSteps.length - 1 
-                ? 'Complete tutorial and start passport scanning' 
+              currentStep === tutorialSteps.length - 1
+                ? 'Complete tutorial and start passport scanning'
                 : 'Go to the next tutorial step'
             }
           />
+          {currentStep > 0 && (
+            <Button
+              title="Previous"
+              onPress={handlePrevious}
+              variant="outline"
+              size="large"
+              fullWidth
+              accessibilityLabel="Previous step"
+              accessibilityHint="Go to the previous tutorial step"
+              testID="previous-step-button"
+            />
+          )}
         </View>
 
         {/* Step indicator text */}
