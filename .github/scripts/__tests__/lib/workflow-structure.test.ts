@@ -248,8 +248,6 @@ describe('workflow structure regressions', () => {
             const lines = step.run.split('\n');
             for (const line of lines) {
               if (line.includes('pipeline.ts comment') && /@(claude|gemini)(?!\[)/i.test(line)) {
-                // Ignore lines that are intentionally mentioning agents
-                if (line.includes('trigger-story-agent')) continue;
                 if (line.includes('code review')) continue;
                 failures.push(
                   `${name} → job "${jobName}" → step "${step.name}": comment call contains @claude/@gemini trigger`
@@ -295,12 +293,17 @@ describe('workflow structure regressions', () => {
     it('review-fix claude-code-action prompt does not instruct pushing', () => {
       const wf = workflows.find((w) => w.name === 'review-fix.yml');
       expect(wf).toBeDefined();
+      if (!wf) return;
 
-      const content = readFileSync(join(WORKFLOWS_DIR, 'review-fix.yml'), 'utf-8');
-      // Find the claude-code-action step's prompt/system-prompt
-      const promptMatches = content.match(/prompt:.*(?:\n.*)*?(?=\n\s+\w+:|$)/g) ?? [];
-      for (const prompt of promptMatches) {
-        expect(prompt.toLowerCase()).not.toContain('git push');
+      for (const job of Object.values(wf.workflow.jobs ?? {})) {
+        for (const step of job.steps ?? []) {
+          if (step.uses?.includes('claude-code-action')) {
+            const prompt = (step as any).with?.prompt ?? '';
+            const systemPrompt = (step as any).with?.['system-prompt'] ?? '';
+            expect(prompt.toLowerCase()).not.toContain('git push');
+            expect(systemPrompt.toLowerCase()).not.toContain('git push');
+          }
+        }
       }
     });
   });
@@ -312,16 +315,21 @@ describe('workflow structure regressions', () => {
       const failures: string[] = [];
 
       for (const { name, workflow } of workflows) {
-        const raw = readFileSync(join(WORKFLOWS_DIR, name), 'utf-8');
+        // Check if triggered by issue_comment using parsed YAML
+        const onEvents = (workflow as any).on;
+        let isIssueCommentTrigger = false;
+        if (typeof onEvents === 'string') {
+          isIssueCommentTrigger = onEvents === 'issue_comment';
+        } else if (Array.isArray(onEvents)) {
+          isIssueCommentTrigger = onEvents.includes('issue_comment');
+        } else if (onEvents && typeof onEvents === 'object') {
+          isIssueCommentTrigger = 'issue_comment' in onEvents;
+        }
 
-        // Check if triggered by issue_comment
-        if (!raw.includes('issue_comment')) continue;
+        if (!isIssueCommentTrigger) continue;
 
-        // Check concurrency group
-        const concurrencyMatch = raw.match(/concurrency:\s*\n\s+group:\s*(.+)/);
-        if (!concurrencyMatch) continue;
-
-        const group = concurrencyMatch[1];
+        const group = (workflow as any).concurrency?.group;
+        if (!group) continue; // No top-level concurrency group — skip
         if (!group.includes('comment.user.login')) {
           failures.push(
             `${name}: concurrency group "${group}" missing comment.user.login`
