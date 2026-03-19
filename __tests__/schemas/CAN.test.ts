@@ -31,14 +31,14 @@ describe('Canada (CAN) Schema', () => {
   });
 
   test('should have a non-empty archiveReason', () => {
-    const archiveReason = (schema.metadata as any).archiveReason;
+    const archiveReason = schema.metadata.archiveReason;
     expect(archiveReason).toBeDefined();
     expect(typeof archiveReason).toBe('string');
-    expect((archiveReason as string).trim().length).toBeGreaterThan(0);
+    expect(archiveReason!.trim().length).toBeGreaterThan(0);
   });
 
   test('archiveReason should mention ArriveCAN or discontinued', () => {
-    const archiveReason = (schema.metadata as any).archiveReason as string;
+    const archiveReason = schema.metadata.archiveReason!;
     const reason = archiveReason.toLowerCase();
     const mentionsContext = reason.includes('arrivecan') || reason.includes('discontinued');
     expect(mentionsContext).toBe(true);
@@ -106,15 +106,15 @@ describe('Canada (CAN) Schema', () => {
     expect(prerequisites).toBeDefined();
     expect(prerequisites!.length).toBeGreaterThanOrEqual(2);
 
-    const types = prerequisites!.map((p: { type: string }) => p.type);
+    const types = prerequisites!.map(p => p.type);
     expect(types).toContain('document');
     expect(types).toContain('payment');
 
-    const paymentPrereq = prerequisites!.find((p: { type: string }) => p.type === 'payment');
+    const paymentPrereq = prerequisites!.find(p => p.type === 'payment');
     expect(paymentPrereq!.required).toBe(true);
 
-    const descriptions = prerequisites!.map((p: { description: string }) => p.description.toLowerCase());
-    expect(descriptions.some((d: string) => d.includes('passport'))).toBe(true);
+    const descriptions = prerequisites!.map(p => p.description.toLowerCase());
+    expect(descriptions.some(d => d.includes('passport'))).toBe(true);
   });
 
   // ── 7. Sections structure ───────────────────────────────────────────────────
