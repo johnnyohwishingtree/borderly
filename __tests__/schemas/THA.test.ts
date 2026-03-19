@@ -239,13 +239,8 @@ describe('Thailand (THA) Schema', () => {
 
   test('each submission guide step should have non-empty title and description', () => {
     schema.submissionGuide.forEach((step) => {
-      expect(step.title).toBeDefined();
-      expect(typeof step.title).toBe('string');
-      expect(step.title.trim().length).toBeGreaterThan(0);
-
-      expect(step.description).toBeDefined();
-      expect(typeof step.description).toBe('string');
-      expect(step.description.trim().length).toBeGreaterThan(0);
+      expect(step.title).toEqual(expect.stringMatching(/\S/));
+      expect(step.description).toEqual(expect.stringMatching(/\S/));
     });
   });
 
