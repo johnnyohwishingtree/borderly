@@ -104,8 +104,8 @@ export default function WelcomeScreen() {
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-purple-100 rounded-full items-center justify-center mr-4">
-                <Icon as={Zap} size={20} color="#9333ea" />
+              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+                <Icon as={Zap} size={20} color="#2563eb" />
               </View>
               <View>
                 <Text className="text-gray-900 font-semibold">Lightning Fast</Text>

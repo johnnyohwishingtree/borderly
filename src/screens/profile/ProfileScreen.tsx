@@ -206,10 +206,10 @@ export default function ProfileScreen() {
                   text={isUnlocked ? "Unlocked" : "Locked"} 
                 />
               ) : (
-                <StatusBadge 
-                  status="neutral" 
-                  size="small" 
-                  text="Biometric Off" 
+                <StatusBadge
+                  status="warning"
+                  size="small"
+                  text="Biometric Off"
                 />
               )}
             </View>
