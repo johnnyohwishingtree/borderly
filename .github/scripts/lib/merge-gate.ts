@@ -22,8 +22,13 @@ export async function evaluateMergeGate(
   const ci = await github.checkCIStatus(sha);
 
   // Condition 3: Approved
+  // In personal repos, the owner's GITHUB_TOKEN and GH_PAT cannot approve
+  // their own PRs (GitHub returns 422 "Can not approve your own pull request").
+  // Treat owner-authored PRs as implicitly approved.
   const approvals = await github.countApprovals(prNumber);
-  const approved = approvals >= 1;
+  const prAuthor = (pr as any).user?.login;
+  const isOwnerPR = prAuthor && prAuthor === github.owner;
+  const approved = approvals >= 1 || isOwnerPR;
 
   // Condition 4: All review threads resolved
   const unresolvedThreads = await github.countUnresolvedThreads(prNumber);

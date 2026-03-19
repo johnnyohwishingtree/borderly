@@ -23,8 +23,10 @@ function createMockGitHub(
   const config = { ...defaults, ...overrides };
 
   return {
+    owner: 'testowner',
     getPR: vi.fn().mockResolvedValue({
       head: { sha: 'abc123', ref: 'claude/issue-42' },
+      user: { login: 'bot-user' },
     }),
     checkCIStatus: vi.fn().mockResolvedValue({
       testsPass: config.testsPass,
@@ -131,5 +133,25 @@ describe('evaluateMergeGate', () => {
 
     expect(result.action).toBe('update_branch');
     expect(result.failingConditions).toEqual(['branchUpToDate']);
+  });
+
+  it('returns "merge" when PR author is repo owner and no formal approval exists', async () => {
+    // In personal repos, GITHUB_TOKEN and GH_PAT both belong to the owner,
+    // so neither can approve the owner's own PR. The merge gate should treat
+    // owner-authored PRs as implicitly approved.
+    const github = createMockGitHub({ approvals: 0 });
+    // Override getPR to return owner as author
+    (github.getPR as ReturnType<typeof vi.fn>).mockResolvedValue({
+      head: { sha: 'abc123', ref: 'feat/my-feature' },
+      user: { login: 'testowner' },
+    });
+    // github.owner is 'testowner' (from createMockGitHub's repo split)
+
+    const result = await evaluateMergeGate(github, 42);
+
+    // Should merge — owner's PR is implicitly approved
+    expect(result.action).toBe('merge');
+    expect(result.conditions.approved).toBe(true);
+    expect(result.failingConditions).not.toContain('approved');
   });
 });
