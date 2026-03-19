@@ -169,7 +169,7 @@ describe('FormEngine — Canada (CAN) Integration', () => {
     }).not.toThrow();
 
     // Confirm the archived metadata is present and intact.
-    expect((canSchema as any).metadata?.implementationStatus).toBe('archived');
+    expect(canSchema.metadata?.implementationStatus).toBe('archived');
   });
 
   describe('generateFilledForm() with CAN schema', () => {
@@ -179,8 +179,7 @@ describe('FormEngine — Canada (CAN) Integration', () => {
       expect(result.countryCode).toBe('CAN');
       expect(result.countryName).toBe('Canada');
       expect(result.portalName).toBe('Electronic Travel Authorization (eTA) — Archived');
-      // personal, nationality, passport, contact, address, employment, travel, background
-      expect(result.sections).toHaveLength(8);
+      expect(result.sections).toHaveLength(canSchema.sections.length);
     });
 
     it('should auto-fill core profile fields (surname, givenNames, passportNumber, nationality, dateOfBirth, gender, passportExpiry)', () => {
@@ -304,8 +303,7 @@ describe('FormEngine — United Kingdom (GBR) Integration', () => {
       expect(result.countryCode).toBe('GBR');
       expect(result.countryName).toBe('United Kingdom');
       expect(result.portalName).toBe('UK Electronic Travel Authorisation (ETA)');
-      // personal, passport, contact, address, employment, travel, security
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(gbrSchema.sections.length);
     });
 
     it('should auto-fill core profile fields (familyName/surname, givenNames, passportNumber, nationality, dateOfBirth, gender, passportExpiry)', () => {
@@ -441,8 +439,7 @@ describe('FormEngine — United States (USA) Integration', () => {
       expect(result.countryCode).toBe('USA');
       expect(result.countryName).toBe('United States');
       expect(result.portalName).toBe('CBP One (Customs Declaration)');
-      // applicant, passport, contact, employment, emergency, travel, eligibility
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(usaSchema.sections.length);
     });
 
     it('should auto-fill core profile fields (surname, firstName/givenNames, passportNumber, dateOfBirth, gender, passportExpiry)', () => {
