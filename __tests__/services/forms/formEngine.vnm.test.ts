@@ -15,10 +15,9 @@ import { clearSchemaCache } from '../../../src/services/schemas/schemaLoader';
 import { TravelerProfile } from '../../../src/types/profile';
 import { TripLeg } from '../../../src/types/trip';
 import { CountryFormSchema } from '../../../src/types/schema';
+import vnmSchemaJson from '../../../src/schemas/VNM.json';
 
-// Load the real VNM schema from bundled JSON
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const vnmSchema: CountryFormSchema = require('../../../src/schemas/VNM.json') as CountryFormSchema;
+const vnmSchema = vnmSchemaJson as CountryFormSchema;
 
 // Mock traveler profile with realistic passport data
 const mockProfile: TravelerProfile = {
@@ -177,7 +176,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
       expect(fieldMap.hotelName.needsUserInput).toBe(false);
 
       // Hotel address → formatted from leg.accommodation.address
-      expect(fieldMap.hotelAddress.currentValue).toBeTruthy();
+      expect(fieldMap.hotelAddress.currentValue).toBe('2 Lam Son Square, Ho Chi Minh City, Ho Chi Minh, 700000');
       expect(fieldMap.hotelAddress.source).toBe('auto');
       expect(fieldMap.hotelAddress.needsUserInput).toBe(false);
 

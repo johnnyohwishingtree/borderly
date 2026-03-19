@@ -15,10 +15,9 @@ import { clearSchemaCache } from '../../../src/services/schemas/schemaLoader';
 import { TravelerProfile } from '../../../src/types/profile';
 import { TripLeg } from '../../../src/types/trip';
 import { CountryFormSchema } from '../../../src/types/schema';
+import thaSchemaJson from '../../../src/schemas/THA.json';
 
-// Load the real THA schema from bundled JSON
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const thaSchema: CountryFormSchema = require('../../../src/schemas/THA.json') as CountryFormSchema;
+const thaSchema = thaSchemaJson as CountryFormSchema;
 
 // Mock traveler profile with realistic passport data
 const mockProfile: TravelerProfile = {
@@ -170,7 +169,7 @@ describe('FormEngine — Thailand (THA) Integration', () => {
       expect(fieldMap.hotelName.needsUserInput).toBe(false);
 
       // Hotel address → formatted from leg.accommodation.address
-      expect(fieldMap.hotelAddress.currentValue).toBeTruthy();
+      expect(fieldMap.hotelAddress.currentValue).toBe('48 Oriental Avenue, Bangkok, Bangkok, 10500');
       expect(fieldMap.hotelAddress.source).toBe('auto');
       expect(fieldMap.hotelAddress.needsUserInput).toBe(false);
 
