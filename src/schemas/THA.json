@@ -71,11 +71,7 @@
             { "value": "Mrs", "label": "Mrs." },
             { "value": "Ms", "label": "Ms." },
             { "value": "Dr", "label": "Dr." }
-          ],
-          "automation": {
-            "selector": "#title-select",
-            "fillMethod": "select"
-          }
+          ]
         },
         {
           "id": "firstName",
@@ -83,11 +79,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.givenNames",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#firstName",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "lastName",
@@ -95,11 +87,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.surname",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#lastName",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "dateOfBirth",
@@ -107,11 +95,7 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.dateOfBirth",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#dateOfBirth",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "nationality",
@@ -119,11 +103,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.nationality",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#nationality",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "passportNumber",
@@ -131,11 +111,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "profile.passportNumber",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#passportNumber",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "passportExpiry",
@@ -143,11 +119,7 @@
           "type": "date",
           "required": true,
           "autoFillSource": "profile.passportExpiry",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#passportExpiry",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         }
       ]
     },
@@ -161,11 +133,7 @@
           "type": "date",
           "required": true,
           "autoFillSource": "leg.arrivalDate",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#arrivalDate",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "flightNumber",
@@ -173,11 +141,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.flightNumber",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#flightNumber",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "departureCountry",
@@ -185,11 +149,7 @@
           "type": "text",
           "required": true,
           "countrySpecific": false,
-          "helpText": "The country where your flight to Thailand departs from",
-          "automation": {
-            "selector": "#departureCountry",
-            "fillMethod": "input"
-          }
+          "helpText": "The country where your flight to Thailand departs from"
         },
         {
           "id": "purposeOfVisit",
@@ -204,11 +164,7 @@
             { "value": "medical", "label": "Medical Treatment" },
             { "value": "education", "label": "Education" },
             { "value": "other", "label": "Other" }
-          ],
-          "automation": {
-            "selector": "#purposeOfVisit",
-            "fillMethod": "select"
-          }
+          ]
         },
         {
           "id": "lengthOfStay",
@@ -220,10 +176,6 @@
           "validation": {
             "min": 1,
             "max": 60
-          },
-          "automation": {
-            "selector": "#lengthOfStay",
-            "fillMethod": "input"
           }
         }
       ]
@@ -246,11 +198,7 @@
             { "value": "apartment", "label": "Apartment/Condo" },
             { "value": "friend_family", "label": "Friend/Family" },
             { "value": "other", "label": "Other" }
-          ],
-          "automation": {
-            "selector": "#accommodationType",
-            "fillMethod": "select"
-          }
+          ]
         },
         {
           "id": "hotelName",
@@ -258,11 +206,7 @@
           "type": "text",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#hotelName",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "hotelAddress",
@@ -270,11 +214,7 @@
           "type": "textarea",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#hotelAddress",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         },
         {
           "id": "hotelPhone",
@@ -282,11 +222,7 @@
           "type": "text",
           "required": false,
           "autoFillSource": "leg.accommodation.phone",
-          "countrySpecific": false,
-          "automation": {
-            "selector": "#hotelPhone",
-            "fillMethod": "input"
-          }
+          "countrySpecific": false
         }
       ]
     },
@@ -305,11 +241,7 @@
             { "value": "not_vaccinated", "label": "Not Vaccinated" },
             { "value": "partially_vaccinated", "label": "Partially Vaccinated (1 dose)" }
           ],
-          "helpText": "Thailand's requirements vary based on vaccination status",
-          "automation": {
-            "selector": "#vaccinationStatus",
-            "fillMethod": "select"
-          }
+          "helpText": "Thailand's requirements vary based on vaccination status"
         },
         {
           "id": "hasInsurance",
@@ -317,11 +249,7 @@
           "type": "boolean",
           "required": true,
           "countrySpecific": true,
-          "helpText": "Required for unvaccinated travelers",
-          "automation": {
-            "selector": "#hasInsurance",
-            "fillMethod": "click"
-          }
+          "helpText": "Required for unvaccinated travelers"
         },
         {
           "id": "emergencyContact",
@@ -329,11 +257,7 @@
           "type": "text",
           "required": true,
           "countrySpecific": true,
-          "helpText": "Name and phone number of local contact or hotel",
-          "automation": {
-            "selector": "#emergencyContact",
-            "fillMethod": "input"
-          }
+          "helpText": "Name and phone number of local contact or hotel"
         }
       ]
     }
@@ -347,22 +271,7 @@
       "tips": [
         "Use an email you'll have access to while traveling",
         "Check your spam folder for the verification email"
-      ],
-      "automation": {
-        "url": "https://tp.consular.go.th/",
-        "actions": [
-          {
-            "type": "navigate",
-            "value": "https://tp.consular.go.th/",
-            "timeout": 5000
-          },
-          {
-            "type": "click",
-            "selector": "#register-btn",
-            "waitFor": "#registration-form"
-          }
-        ]
-      }
+      ]
     },
     {
       "order": 2,
@@ -372,16 +281,7 @@
       "tips": [
         "Choose the correct visa exemption/visa type for your nationality",
         "Tourist applications are most common"
-      ],
-      "automation": {
-        "actions": [
-          {
-            "type": "click",
-            "selector": "#apply-new-btn",
-            "waitFor": ".application-form"
-          }
-        ]
-      }
+      ]
     },
     {
       "order": 3,
