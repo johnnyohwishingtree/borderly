@@ -13,7 +13,7 @@ expect((field as any).validation).toBeDefined();
 // GOOD
 expect(field.validation).toBeDefined();
 // or if the type doesn't include the property:
-const typedField = field as SchemaField & { validation?: unknown };
+const typedField = field as FormField & { validation?: unknown };
 expect(typedField.validation).toBeDefined();
 ```
 
@@ -50,7 +50,7 @@ When creating test fixtures, type them correctly rather than using `any` to bypa
 const mockField: any = { id: 'name', type: 'text' };
 
 // GOOD
-const mockField: SchemaField = { id: 'name', type: 'text', label: 'Name', required: true };
+const mockField: FormField = { id: 'name', type: 'text', label: 'Name', required: true };
 ```
 
 ## Use `unknown` + type guards for truly dynamic data
