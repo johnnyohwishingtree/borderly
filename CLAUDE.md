@@ -237,7 +237,9 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 
 Available skills (invoke with `/<skill-name>`):
 - `/review-pr` — Perform a comprehensive code review of a PR
-- `/visual-audit` — Audit UI/UX using vision and screenshots
+- `/capture-screens` — Capture screenshots of every screen + generate manifest
+- `/visual-audit` — Audit UI/UX using screenshots (read-only analysis)
+- `/visual-implement` — Apply UI fixes from an audit, then re-capture to verify
 - `/epic-planner` — Break a goal into Epic + Story GitHub Issues
 - `/plan-feature` — Plan and implement a new feature
 - `/test-suite` — Find and fix test coverage gaps

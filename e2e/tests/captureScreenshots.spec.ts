@@ -1,31 +1,48 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * Screenshot capture test for visual auditing.
  *
  * Run manually with:
- *   E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture
+ *   E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
  *
- * Captures numbered screenshots of every key screen to e2e/screenshots/
- * for use with the /visual-audit skill.
+ * Captures numbered screenshots of every screen to e2e/screenshots/
+ * for use with the /visual-audit and /capture-screens skills.
  *
- * NOTE: React Navigation on web converts screen navigations to URL changes.
- * webpack-dev-server doesn't handle SPA routing, so navigating between screens
- * via button clicks causes "Cannot GET /path" errors. To work around this,
- * each test captures a single screen state by injecting the right app state
- * and loading the page fresh.
+ * Each test is independent — loads the page fresh with injected state.
+ * Must run with --workers=1 (parallel runs cause webpack-dev-server race conditions).
  */
 
 const SCREENSHOT_DIR = path.resolve(__dirname, '../screenshots');
 
-async function screenshot(page: Page, name: string) {
+// Manifest of all captured screenshots, written at the end
+const manifest: Array<{
+  id: string;
+  file: string;
+  screen: string;
+  domain: string;
+  description: string;
+  state: string;
+}> = [];
+
+async function screenshot(page: Page, name: string, meta: {
+  screen: string;
+  domain: string;
+  description: string;
+  state: string;
+}) {
+  const file = `${name}.png`;
   await page.screenshot({
-    path: path.join(SCREENSHOT_DIR, `${name}.png`),
+    path: path.join(SCREENSHOT_DIR, file),
     fullPage: true,
   });
+  manifest.push({ id: name, file, ...meta });
 }
+
+// ── State injection helpers ──
 
 function injectOnboardedState(page: Page) {
   return page.addInitScript(() => {
@@ -56,46 +73,173 @@ function injectOnboardedState(page: Page) {
           gender: 'M',
           passportExpiry: '2030-12-31',
           issuingCountry: 'USA',
+          email: 'john.smith@example.com',
+          phoneNumber: '+1-555-0123',
+          occupation: 'Software Engineer',
+          homeAddress: {
+            line1: '123 Main St',
+            city: 'San Francisco',
+            state: 'CA',
+            postalCode: '94102',
+            country: 'USA',
+          },
         },
       },
     };
   });
 }
 
+function injectStateWithTrip(page: Page) {
+  return page.addInitScript(() => {
+    (window as any).__BORDERLY_STATE__ = {
+      preferences: { onboardingComplete: true },
+      mmkv: {
+        'current_profile_id': 'screenshot-profile-1',
+        'family_profiles': JSON.stringify({
+          profiles: {
+            'screenshot-profile-1': {
+              id: 'screenshot-profile-1',
+              relationship: 'self',
+              displayName: 'John Smith',
+              createdAt: '2026-01-01T00:00:00Z',
+            },
+            'screenshot-profile-2': {
+              id: 'screenshot-profile-2',
+              relationship: 'spouse',
+              displayName: 'Jane Smith',
+              createdAt: '2026-01-01T00:00:00Z',
+            },
+          },
+          primaryProfileId: 'screenshot-profile-1',
+        }),
+      },
+      profiles: {
+        'screenshot-profile-1': {
+          id: 'screenshot-profile-1',
+          surname: 'SMITH',
+          givenNames: 'JOHN',
+          passportNumber: 'AB1234567',
+          nationality: 'USA',
+          dateOfBirth: '1990-01-15',
+          gender: 'M',
+          passportExpiry: '2030-12-31',
+          issuingCountry: 'USA',
+          email: 'john.smith@example.com',
+          phoneNumber: '+1-555-0123',
+          occupation: 'Software Engineer',
+        },
+        'screenshot-profile-2': {
+          id: 'screenshot-profile-2',
+          surname: 'SMITH',
+          givenNames: 'JANE',
+          passportNumber: 'CD9876543',
+          nationality: 'USA',
+          dateOfBirth: '1992-05-20',
+          gender: 'F',
+          passportExpiry: '2031-06-15',
+          issuingCountry: 'USA',
+        },
+      },
+      trips: [
+        {
+          id: 'trip-japan',
+          name: 'Asia Summer 2026',
+          status: 'upcoming',
+        },
+      ],
+      tripLegs: {
+        'trip-japan': [
+          {
+            id: 'leg-jpn',
+            destinationCountry: 'JPN',
+            arrivalDateISO: '2026-07-01',
+            departureDateISO: '2026-07-07',
+            flightNumber: 'NH101',
+            airlineCode: 'NH',
+            arrivalAirport: 'NRT',
+            formStatus: 'not_started',
+            order: 0,
+            accommodation: {
+              name: 'Park Hyatt Tokyo',
+              address: {
+                street: '3-7-1-2 Nishi Shinjuku',
+                city: 'Tokyo',
+                country: 'JPN',
+                postalCode: '163-1055',
+              },
+            },
+          },
+        ],
+      },
+    };
+  });
+}
+
+
 test.describe('Screenshot Capture for Visual Audit', () => {
-  test.setTimeout(60000);
+  test.setTimeout(90000);
 
   test.beforeEach(async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
   });
 
-  // --- Onboarding Screens ---
+  // ═══════════════════════════════════════════
+  // ONBOARDING SCREENS
+  // ═══════════════════════════════════════════
 
   test('01 - Welcome Screen', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
-    await screenshot(page, '01-welcome-screen');
+    await screenshot(page, '01-welcome-screen', {
+      screen: 'WelcomeScreen',
+      domain: 'onboarding',
+      description: 'First screen shown to new users. App intro with Get Started button.',
+      state: 'Fresh install, no profile',
+    });
   });
 
-  test('04 - Passport Scan Method Selection', async ({ page }) => {
+  test('02 - Tutorial Screen', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
+    await page.getByRole('button', { name: /get started|take.*tutorial/i }).click();
+    await page.waitForTimeout(1500);
+    await screenshot(page, '02-tutorial-screen', {
+      screen: 'TutorialScreen',
+      domain: 'onboarding',
+      description: 'Step-by-step tutorial explaining the app workflow (scan, create, fill, submit).',
+      state: 'After clicking Get Started from Welcome',
+    });
+  });
+
+  test('03 - Passport Scan Method Selection', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '04-passport-scan-method');
+    await screenshot(page, '03-passport-scan-method', {
+      screen: 'PassportScanScreen',
+      domain: 'onboarding',
+      description: 'Choose between camera scan or manual passport entry. Shows MRZ explanation.',
+      state: 'After skipping tutorial, mode=method',
+    });
   });
 
-  test('05 - Passport Manual Entry Form (empty)', async ({ page }) => {
+  test('04 - Passport Manual Entry Form (empty)', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Or enter manually' }).click();
     await expect(page.getByText('Passport Details')).toBeVisible({ timeout: 5000 });
-    await screenshot(page, '05-passport-manual-form');
+    await screenshot(page, '04-passport-manual-form-empty', {
+      screen: 'PassportScanScreen',
+      domain: 'onboarding',
+      description: 'Manual passport entry form with all fields empty.',
+      state: 'After clicking Or enter manually, mode=manual, form empty',
+    });
   });
 
-  test('06 - Passport Form Filled', async ({ page }) => {
+  test('05 - Passport Manual Entry Form (filled)', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
@@ -115,10 +259,15 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.getByTestId('issuing-country-input-trigger').click();
     await page.getByTestId('issuing-country-input-search').fill('United States');
     await page.getByTestId('issuing-country-input-option-USA').click();
-    await screenshot(page, '06-passport-form-filled');
+    await screenshot(page, '05-passport-manual-form-filled', {
+      screen: 'PassportScanScreen',
+      domain: 'onboarding',
+      description: 'Manual passport entry form with all fields filled in.',
+      state: 'After filling all passport fields, mode=manual, form complete',
+    });
   });
 
-  test('07 - Confirm Profile Screen', async ({ page }) => {
+  test('06 - Confirm Profile Screen', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
@@ -140,53 +289,328 @@ test.describe('Screenshot Capture for Visual Audit', () => {
 
     await page.getByTestId('passport-continue-button').click();
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '07-confirm-profile');
+    await screenshot(page, '06-confirm-profile', {
+      screen: 'ConfirmProfileScreen',
+      domain: 'onboarding',
+      description: 'Profile confirmation screen showing all parsed passport data for review.',
+      state: 'After completing passport form, reviewing data before saving',
+    });
   });
 
-  // --- Main App Screens ---
+  test('07 - Biometric Setup Screen', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
+    await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
 
-  test('09 - Trip List (empty)', async ({ page }) => {
+    await page.getByTestId('passport-number-input').fill('AB1234567');
+    await page.getByTestId('surname-input').fill('SMITH');
+    await page.getByTestId('given-names-input').fill('JOHN');
+    await page.getByTestId('nationality-input-trigger').click();
+    await page.getByTestId('nationality-input-search').fill('United States');
+    await page.getByTestId('nationality-input-option-USA').click();
+    await page.getByTestId('dob-input').fill('1990-01-15');
+    await page.getByTestId('gender-Male-button').click();
+    await page.getByTestId('passport-expiry-input').fill('2030-12-31');
+    await page.getByTestId('issuing-country-input-trigger').click();
+    await page.getByTestId('issuing-country-input-search').fill('United States');
+    await page.getByTestId('issuing-country-input-option-USA').click();
+
+    await page.getByTestId('passport-continue-button').click();
+    await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
+    await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
+    await screenshot(page, '07-biometric-setup', {
+      screen: 'BiometricSetupScreen',
+      domain: 'onboarding',
+      description: 'Biometric authentication setup — enable Face ID/Touch ID or skip.',
+      state: 'After confirming profile, before completing onboarding',
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // TRIPS TAB
+  // ═══════════════════════════════════════════
+
+  test('08 - Trip List (empty)', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    await screenshot(page, '09-trip-list-empty');
+    await screenshot(page, '08-trip-list-empty', {
+      screen: 'TripListScreen',
+      domain: 'trips',
+      description: 'Empty trip list with "Create Your First Trip" CTA.',
+      state: 'Onboarded, no trips created',
+    });
   });
 
-  test('10 - Create Trip Screen', async ({ page }) => {
+  test('09 - Create Trip Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByTestId('create-first-trip-button').click();
     await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '10-create-trip');
+    await screenshot(page, '09-create-trip', {
+      screen: 'CreateTripScreen',
+      domain: 'trips',
+      description: 'Trip creation form — name, destinations, dates, flight info, accommodation.',
+      state: 'Onboarded, creating first trip, form empty',
+    });
   });
 
-  // --- Tab Screens ---
+  test('10 - Trip List (with trip)', async ({ page }) => {
+    await injectStateWithTrip(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.waitForTimeout(2000);
+    await screenshot(page, '10-trip-list-with-trip', {
+      screen: 'TripListScreen',
+      domain: 'trips',
+      description: 'Trip list showing a trip card with destination flags and status.',
+      state: 'Onboarded, one trip to Japan exists',
+    });
+  });
 
-  test('12 - Wallet Screen', async ({ page }) => {
+  test('11 - Trip Detail Screen', async ({ page }) => {
+    await injectStateWithTrip(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.waitForTimeout(1000);
+    // Click on the trip card
+    const tripCard = page.getByText('Asia Summer 2026');
+    if (await tripCard.isVisible()) {
+      await tripCard.click();
+      await page.waitForTimeout(2000);
+    }
+    await screenshot(page, '11-trip-detail', {
+      screen: 'TripDetailScreen',
+      domain: 'trips',
+      description: 'Trip detail with itinerary legs, form status, and submission actions.',
+      state: 'Viewing Japan trip with one leg',
+    });
+  });
+
+  test('12 - Leg Form Screen', async ({ page }) => {
+    await injectStateWithTrip(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.waitForTimeout(1000);
+    // Navigate: Trip List → Trip Detail → Leg Form
+    const tripCard = page.getByText('Asia Summer 2026');
+    if (await tripCard.isVisible()) {
+      await tripCard.click();
+      await page.waitForTimeout(1500);
+      const legCard = page.getByTestId('leg-card-JPN');
+      if (await legCard.isVisible()) {
+        await legCard.click();
+        await page.waitForTimeout(2000);
+      }
+    }
+    await screenshot(page, '12-leg-form', {
+      screen: 'LegFormScreen',
+      domain: 'trips',
+      description: 'Country-specific form (Japan) with auto-filled fields and remaining questions.',
+      state: 'Viewing Japan leg form with profile auto-fill applied',
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // WALLET TAB
+  // ═══════════════════════════════════════════
+
+  test('13 - Wallet Screen (empty)', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
     await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '12-wallet-screen');
+    await screenshot(page, '13-wallet-empty', {
+      screen: 'QRWalletScreen',
+      domain: 'wallet',
+      description: 'Empty QR wallet with "Add QR Code" button. For storing submission QR codes.',
+      state: 'Onboarded, no QR codes saved',
+    });
   });
 
-  test('13 - Profile Screen', async ({ page }) => {
+  test('14 - Add QR Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
+    await expect(page.getByText('QR Wallet')).toBeVisible({ timeout: 10000 });
+    // Click the Add QR Code button (FAB or empty state button)
+    const addButton = page.getByText('Add QR Code');
+    if (await addButton.isVisible()) {
+      await addButton.click();
+      await page.waitForTimeout(1500);
+    }
+    await screenshot(page, '14-add-qr', {
+      screen: 'AddQRScreen',
+      domain: 'wallet',
+      description: 'Add QR code screen — scan or import QR from camera/gallery.',
+      state: 'Adding a new QR code to wallet',
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // PROFILE TAB
+  // ═══════════════════════════════════════════
+
+  test('15 - Profile Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '13-profile-screen');
+    await screenshot(page, '15-profile', {
+      screen: 'ProfileScreen',
+      domain: 'profile',
+      description: 'Profile overview — passport info (masked), completeness, contact details, family.',
+      state: 'Onboarded with full profile data',
+    });
   });
 
-  test('14 - Settings Screen', async ({ page }) => {
+  test('16 - Edit Profile Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Profile tab' }).click();
+    await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
+    // Click Edit Contact button
+    const editBtn = page.getByTestId('edit-contact-button');
+    if (await editBtn.isVisible()) {
+      await editBtn.click();
+      await page.waitForTimeout(1500);
+    }
+    await screenshot(page, '16-edit-profile', {
+      screen: 'EditProfileScreen',
+      domain: 'profile',
+      description: 'Edit profile form — contact info, home address, default declarations.',
+      state: 'Editing existing profile',
+    });
+  });
+
+  test('17 - Family Management Screen', async ({ page }) => {
+    await injectStateWithTrip(page); // Has 2 family members
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Profile tab' }).click();
+    await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
+    const familyBtn = page.getByTestId('manage-family-button');
+    if (await familyBtn.isVisible()) {
+      await familyBtn.click();
+      await page.waitForTimeout(1500);
+    }
+    await screenshot(page, '17-family-management', {
+      screen: 'FamilyManagementScreen',
+      domain: 'profile',
+      description: 'Family member list with primary profile and spouse. Add/remove members.',
+      state: '2 family members (self + spouse)',
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // SETTINGS TAB
+  // ═══════════════════════════════════════════
+
+  test('18 - Settings Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
-    await expect(page.getByText('Settings')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '14-settings-screen');
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await screenshot(page, '18-settings', {
+      screen: 'SettingsScreen',
+      domain: 'settings',
+      description: 'App settings — security, privacy, portal accounts, data management, help links.',
+      state: 'Onboarded, default settings',
+    });
+  });
+
+  test('19 - Help Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Help & FAQ' }).click();
+    await page.waitForTimeout(1500);
+    await screenshot(page, '19-help', {
+      screen: 'HelpScreen',
+      domain: 'settings',
+      description: 'Help & support hub — FAQ categories, troubleshooting, contact options.',
+      state: 'Navigated from Settings',
+    });
+  });
+
+  test('20 - Feedback Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Send Feedback' }).click();
+    await page.waitForTimeout(1500);
+    await screenshot(page, '20-feedback', {
+      screen: 'FeedbackScreen',
+      domain: 'settings',
+      description: 'Feedback form — rating, category, message text for user feedback.',
+      state: 'Navigated from Settings',
+    });
+  });
+
+  test('21 - Bug Report Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Report Bug' }).click();
+    await page.waitForTimeout(1500);
+    await screenshot(page, '21-bug-report', {
+      screen: 'BugReportScreen',
+      domain: 'settings',
+      description: 'Bug report form with auto-collected diagnostics (device, OS, app version).',
+      state: 'Navigated from Settings',
+    });
+  });
+
+  test('22 - Privacy Policy Screen', async ({ page }) => {
+    await injectOnboardedState(page);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+    await page.getByRole('tab', { name: 'Settings tab' }).click();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Privacy Policy' }).click();
+    await page.waitForTimeout(1500);
+    await screenshot(page, '22-privacy-policy', {
+      screen: 'PrivacyPolicyScreen',
+      domain: 'settings',
+      description: 'Privacy policy — data handling, local-first architecture, security details.',
+      state: 'Navigated from Settings',
+    });
+  });
+
+  // ═══════════════════════════════════════════
+  // WRITE MANIFEST
+  // ═══════════════════════════════════════════
+
+  test('99 - Write manifest', async () => {
+    // Sort manifest by ID
+    manifest.sort((a, b) => a.id.localeCompare(b.id));
+
+    const manifestContent = {
+      capturedAt: new Date().toISOString(),
+      screenshotDir: 'e2e/screenshots/',
+      totalScreens: manifest.length,
+      screens: manifest,
+    };
+
+    fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
+    fs.writeFileSync(
+      path.join(SCREENSHOT_DIR, 'manifest.json'),
+      JSON.stringify(manifestContent, null, 2),
+    );
   });
 });
