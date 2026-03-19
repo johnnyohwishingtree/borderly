@@ -135,6 +135,36 @@ describe('lib.sh migration completeness', () => {
   });
 });
 
+describe('no empty env blocks in workflow YAML', () => {
+  it('no job or step has env: with null value (empty env block)', () => {
+    // When BASH_ENV was removed, some `env:` keys were left with no value.
+    // YAML parses `env:` (no value) as `env: null`. This causes GitHub to
+    // return 422 "failed to parse workflow" when dispatching via API.
+    // `env: undefined` means the key is absent entirely — that's fine.
+    const failures: string[] = [];
+    for (const file of getWorkflowFiles()) {
+      const workflow = parseWorkflow(file) as any;
+      if (!workflow?.jobs) continue;
+
+      for (const [jobName, job] of Object.entries(workflow.jobs)) {
+        if ('env' in (job as any) && (job as any).env === null) {
+          failures.push(`${file} → job "${jobName}" has empty env: (parsed as null)`);
+        }
+        const steps = (job as any).steps;
+        if (!steps) continue;
+        for (const step of steps) {
+          if ('env' in step && step.env === null) {
+            failures.push(
+              `${file} → job "${jobName}" → step "${step.name ?? 'unnamed'}" has empty env:`
+            );
+          }
+        }
+      }
+    }
+    expect(failures, `Empty env blocks (causes 422 on dispatch):\n${failures.join('\n')}`).toEqual([]);
+  });
+});
+
 describe('approve-and-merge self-approval safety', () => {
   it('pipeline.ts approve-and-merge wraps approvePR in try-catch', () => {
     const pipelineSrc = readFileSync(
