@@ -1,9 +1,10 @@
+import { CountryFormSchema } from '../../src/types/schema';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import THA from '../../src/schemas/THA.json';
 
 describe('Thailand (THA) Schema', () => {
-  const schema = THA;
+  const schema = THA as CountryFormSchema;
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('THA');
@@ -15,11 +16,11 @@ describe('Thailand (THA) Schema', () => {
 
   test('should have implementationStatus set to coming_soon', () => {
     expect(schema.metadata).toBeDefined();
-    expect((schema.metadata as any).implementationStatus).toBe('coming_soon');
+    expect(schema.metadata.implementationStatus).toBe('coming_soon');
   });
 
   test('should have metadata with expected fields', () => {
-    const metadata = schema.metadata as any;
+    const metadata = schema.metadata;
     expect(metadata.priority).toBe(4);
     expect(metadata.complexity).toBe('medium');
     expect(metadata.popularity).toBe(90);
@@ -33,29 +34,29 @@ describe('Thailand (THA) Schema', () => {
     expect(schema.submission.earliestBeforeArrival).toBe('7d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('72h');
-    expect((schema.submission as any).processingTime).toBe('24h');
+    expect(schema.submission.processingTime).toBe('24h');
   });
 
   test('portalFlow should have requiresAccount set to false', () => {
     expect(schema.portalFlow).toBeDefined();
-    expect((schema.portalFlow as any).requiresAccount).toBe(false);
+    expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('portalFlow should have family policy with no account requirement', () => {
-    const portalFlow = schema.portalFlow as any;
+    const portalFlow = schema.portalFlow;
     expect(portalFlow.familyPolicy).toBeDefined();
-    expect(portalFlow.familyPolicy.type).toBe('none');
-    expect(portalFlow.familyPolicy.description).toContain('No account required');
+    expect(portalFlow.familyPolicy!.type).toBe('none');
+    expect(portalFlow.familyPolicy!.description).toContain('No account required');
   });
 
   test('portalFlow should have prerequisites for passport and accommodation', () => {
-    const portalFlow = schema.portalFlow as any;
+    const portalFlow = schema.portalFlow;
     expect(portalFlow.prerequisites).toBeDefined();
-    expect(portalFlow.prerequisites.length).toBeGreaterThanOrEqual(2);
+    expect(portalFlow.prerequisites!.length).toBeGreaterThanOrEqual(2);
 
-    const prereqDescriptions = portalFlow.prerequisites.map((p: any) => p.description);
-    expect(prereqDescriptions.some((d: string) => d.toLowerCase().includes('passport'))).toBe(true);
-    expect(prereqDescriptions.some((d: string) => d.toLowerCase().includes('accommodation'))).toBe(true);
+    const prereqDescriptions = portalFlow.prerequisites!.map(p => p.description);
+    expect(prereqDescriptions.some(d => d.toLowerCase().includes('passport'))).toBe(true);
+    expect(prereqDescriptions.some(d => d.toLowerCase().includes('accommodation'))).toBe(true);
   });
 
   test('should have all required sections', () => {
@@ -88,7 +89,7 @@ describe('Thailand (THA) Schema', () => {
     expect(titleField).toBeDefined();
     expect(titleField!.type).toBe('select');
 
-    const titleValues = (titleField as any).options!.map((o: any) => o.value);
+    const titleValues = titleField!.options!.map(o => o.value);
     expect(titleValues).toContain('Mr');
     expect(titleValues).toContain('Mrs');
     expect(titleValues).toContain('Ms');
@@ -100,7 +101,7 @@ describe('Thailand (THA) Schema', () => {
     const expiryField = personalSection.fields.find(f => f.id === 'passportExpiry')!;
 
     expect(expiryField.required).toBe(true);
-    expect((expiryField as any).autoFillSource).toBe('profile.passportExpiry');
+    expect(expiryField.autoFillSource).toBe('profile.passportExpiry');
   });
 
   test('travel section should have Thailand-specific purpose of visit', () => {
@@ -111,7 +112,7 @@ describe('Thailand (THA) Schema', () => {
     expect(purposeField).toBeDefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
-    const purposes = (purposeField as any).options!.map((o: any) => o.value);
+    const purposes = purposeField!.options!.map(o => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('business');
     expect(purposes).toContain('transit');
@@ -125,9 +126,9 @@ describe('Thailand (THA) Schema', () => {
     const lengthField = travelSection!.fields.find(f => f.id === 'lengthOfStay');
 
     expect(lengthField).toBeDefined();
-    expect((lengthField as any).validation).toBeDefined();
-    expect((lengthField as any).validation!.min).toBe(1);
-    expect((lengthField as any).validation!.max).toBe(60);
+    expect(lengthField!.validation).toBeDefined();
+    expect(lengthField!.validation!.min).toBe(1);
+    expect(lengthField!.validation!.max).toBe(60);
   });
 
   test('travel section should have required flight and departure fields', () => {
@@ -147,7 +148,7 @@ describe('Thailand (THA) Schema', () => {
     expect(typeField).toBeDefined();
     expect(typeField!.countrySpecific).toBe(true);
 
-    const types = (typeField as any).options!.map((o: any) => o.value);
+    const types = typeField!.options!.map(o => o.value);
     expect(types).toContain('hotel');
     expect(types).toContain('resort');
     expect(types).toContain('hostel');
@@ -187,7 +188,7 @@ describe('Thailand (THA) Schema', () => {
     expect(vaccinationField.countrySpecific).toBe(true);
     expect(vaccinationField.type).toBe('select');
 
-    const options = (vaccinationField as any).options!.map((o: any) => o.value);
+    const options = vaccinationField.options!.map(o => o.value);
     expect(options).toContain('fully_vaccinated');
     expect(options).toContain('not_vaccinated');
     expect(options).toContain('partially_vaccinated');
@@ -265,7 +266,7 @@ describe('Thailand (THA) Schema', () => {
 
     schema.sections.forEach(section => {
       section.fields.forEach(field => {
-        const autoFill = (field as any).autoFillSource;
+        const autoFill = field.autoFillSource;
         if (autoFill) {
           const hasValidPrefix = validPrefixes.some(prefix => autoFill.startsWith(prefix));
           expect(hasValidPrefix).toBe(true);

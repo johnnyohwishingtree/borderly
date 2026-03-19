@@ -190,14 +190,15 @@ class SchemaManager {
     const daysSinceVerified = Math.floor((now.getTime() - lastVerified.getTime()) / (1000 * 60 * 60 * 24));
 
     // Check based on maintenance frequency
-    const frequencyMap = {
+    const frequencyMap: Record<string, number> = {
       weekly: 7,
       monthly: 30,
       quarterly: 90,
       annually: 365,
+      as_needed: 365,
     };
 
-    const updateInterval = frequencyMap[schema.metadata.maintenanceFrequency] || 30;
+    const updateInterval = frequencyMap[schema.metadata.maintenanceFrequency] ?? 30;
     return daysSinceVerified >= updateInterval;
   }
 
