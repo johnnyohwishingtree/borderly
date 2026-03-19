@@ -103,13 +103,15 @@ export default function PassportScanScreen() {
             }
           </Text>
 
-          <HelpHint
-            title="Scanning Tips"
-            content="For best results, ensure good lighting and hold your passport flat. The camera will automatically detect the MRZ (Machine Readable Zone) at the bottom of your passport photo page."
-            variant="tip"
-            size="small"
-            className="mb-4"
-          />
+          {mode !== 'manual' && (
+            <HelpHint
+              title="Scanning Tips"
+              content="For best results, ensure good lighting and hold your passport flat. The camera will automatically detect the MRZ (Machine Readable Zone) at the bottom of your passport photo page."
+              variant="tip"
+              size="small"
+              className="mb-4"
+            />
+          )}
         </View>
 
         {/* Error Messages */}

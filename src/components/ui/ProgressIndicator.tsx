@@ -66,8 +66,8 @@ export default function ProgressIndicator({
     switch (status) {
       case 'completed':
         return {
-          bg: 'bg-green-500',
-          border: 'border-green-500',
+          bg: 'bg-blue-600',
+          border: 'border-blue-600',
           text: 'text-white',
           icon: Check as LucideIcon | null,
         };
@@ -145,7 +145,7 @@ export default function ProgressIndicator({
               </View>
               
               {showLabels && (
-                <Text className={`ml-3 font-medium ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-green-600' : 'text-gray-500'} ${sizeStyle.text}`}>
+                <Text className={`ml-3 font-medium ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-gray-500'} ${sizeStyle.text}`}>
                   {label}
                 </Text>
               )}
@@ -198,14 +198,14 @@ export default function ProgressIndicator({
               </View>
               
               {showLabels && (
-                <Text className={`mt-2 text-center ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-green-600' : 'text-gray-500'} ${sizeStyle.text} font-medium`}>
+                <Text className={`mt-2 text-center ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-gray-500'} ${sizeStyle.text} font-medium`}>
                   {label}
                 </Text>
               )}
             </View>
             
             {index < totalSteps - 1 && (
-              <View className={`flex-1 h-0.5 mx-2 ${status === 'completed' ? 'bg-green-500' : 'bg-gray-300'}`} />
+              <View className={`flex-1 h-0.5 mx-2 ${status === 'completed' ? 'bg-blue-600' : 'bg-gray-300'}`} />
             )}
           </View>
         );

@@ -221,7 +221,7 @@ export default function TripListScreen() {
                 />
               );
             }
-            if (!hasMoreTrips && trips.length > 0) {
+            if (!hasMoreTrips && trips.length >= 5) {
               return (
                 <View className="py-4 items-center">
                   <Text className="text-gray-500 text-sm">No more trips to show</Text>
