@@ -296,6 +296,69 @@ describe('pipeline CLI', () => {
     });
   });
 
+  describe('approve-and-merge self-approval handling', () => {
+    /**
+     * Tests the self-approval error detection logic used in pipeline.ts.
+     * GitHub returns 422 "Can not approve your own pull request" in personal repos
+     * when GITHUB_TOKEN tries to approve a PR created by the repo owner.
+     */
+    function isSelfApprovalError(err: unknown): boolean {
+      if (err instanceof Error && err.message.match(/approve your own pull request/i)) {
+        return true;
+      }
+      return false;
+    }
+
+    it('detects self-approval error from GitHub 422', () => {
+      const err = new Error('Review Can not approve your own pull request');
+      (err as any).status = 422;
+      expect(isSelfApprovalError(err)).toBe(true);
+    });
+
+    it('does not match unrelated errors', () => {
+      expect(isSelfApprovalError(new Error('Internal Server Error'))).toBe(false);
+      expect(isSelfApprovalError(new Error('Not Found'))).toBe(false);
+    });
+
+    it('approve-and-merge catches self-approval and still dispatches auto-merge', async () => {
+      const approvePR = vi.fn().mockRejectedValue(
+        new Error('Review Can not approve your own pull request'),
+      );
+      const dispatchWorkflow = vi.fn().mockResolvedValue(undefined);
+
+      // Simulate the fixed approve-and-merge flow
+      try {
+        await approvePR(42, 'Auto-approved.');
+      } catch (err) {
+        if (!isSelfApprovalError(err)) throw err;
+        // Self-approval: skip but continue to dispatch
+      }
+      await dispatchWorkflow('auto-merge.yml', 'master', { pr_number: '42' });
+
+      expect(approvePR).toHaveBeenCalled();
+      expect(dispatchWorkflow).toHaveBeenCalledWith(
+        'auto-merge.yml', 'master', { pr_number: '42' },
+      );
+    });
+
+    it('approve-and-merge re-throws non-self-approval errors', async () => {
+      const approvePR = vi.fn().mockRejectedValue(new Error('Internal Server Error'));
+      const dispatchWorkflow = vi.fn();
+
+      async function flow() {
+        try {
+          await approvePR(42, 'Auto-approved.');
+        } catch (err) {
+          if (!isSelfApprovalError(err)) throw err;
+        }
+        await dispatchWorkflow('auto-merge.yml', 'master', { pr_number: '42' });
+      }
+
+      await expect(flow()).rejects.toThrow('Internal Server Error');
+      expect(dispatchWorkflow).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getToken logic', () => {
     it('prefers GH_PAT over GH_TOKEN', () => {
       // The actual function prefers GH_PAT first

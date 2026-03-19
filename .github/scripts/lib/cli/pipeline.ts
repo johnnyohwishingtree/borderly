@@ -112,7 +112,15 @@ async function main() {
         process.exit(1);
       }
       const github = getGitHub(repo);
-      await github.approvePR(pr, body);
+      try {
+        await github.approvePR(pr, body);
+      } catch (err) {
+        if (err instanceof Error && /approve your own pull request/i.test(err.message)) {
+          console.log(`Skipping self-approval for PR #${pr} (token owner is the PR author). Auto-merge will still be dispatched.`);
+        } else {
+          throw err;
+        }
+      }
       // Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger events
       const pat = process.env['GH_PAT'];
       if (pat) {
