@@ -91,6 +91,8 @@ If Stitch is NOT connected, include specific NativeWind fix suggestions in the r
 
 - **NEVER** use raw `View` styles for complex components. Use `src/components/ui/` components.
 - **NEVER** use `react-native-vector-icons` directly. Use Lucide icons from `lucide-react-native`.
+- **ALWAYS** wrap screens in a responsive container with appropriate max-width for web.
+- **FLAGS**: Use `CountryFlag` component; verify canton and star/crescent accuracy for Malaysia.
 - **STYLING**: Use NativeWind `className` everywhere. Follow existing Tailwind class patterns.
 - **COMPONENTS**: Check `src/components/ui/` before suggesting new primitives.
 - **SPACING**: Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px). Never use arbitrary values.
