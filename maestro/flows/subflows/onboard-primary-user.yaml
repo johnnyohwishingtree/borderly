@@ -217,6 +217,12 @@ appId: com.borderly.app
       - tapOn:
           id: "continue-to-security-button"
 
+# === ADD COMPANIONS - SKIP ===
+- extendedWaitUntil:
+    visible: "Traveling with family?"
+    timeout: 15000
+- tapOn: "Continue — just me"
+
 # === BIOMETRIC SETUP - SKIP ===
 - extendedWaitUntil:
     visible: "Secure Your Profile"
