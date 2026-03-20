@@ -1,12 +1,6 @@
 name: Planner
 
 on:
-  schedule:
-    # Weekend window: Friday 5pm PT - Sunday 7pm PT
-    # = Saturday 01:00 UTC - Monday 03:00 UTC
-    # TODO: Adjust schedule for your timezone and preferences
-    - cron: '0 */5 * * 0,6'  # Every 5 hours on Saturday and Sunday (UTC)
-    - cron: '0 1,2 * * 1'    # Monday 01:00 and 02:00 UTC (still Sunday PT)
   workflow_dispatch:
     inputs:
       topic:
