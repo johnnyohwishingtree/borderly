@@ -1,0 +1,36 @@
+# Shared subflow: Pick a date using the DatePickerField modal
+#
+# The DatePickerField opens a Modal with Month/Day/Year column pickers
+# and a "Done" button. Since React Native Modal content is invisible
+# to Maestro, we use coordinate taps.
+#
+# Modal layout (iPhone):
+#   Top bar: [Clear]  [Title]  [Done]
+#   Columns: [Month (wide)] [Day] [Year]
+#
+# This subflow taps the "Done" button at known coordinates to confirm
+# whatever date is pre-selected (today or the field's current value).
+# For specific dates, use the column pickers via coordinate taps.
+#
+# Usage from any flow:
+#   # First tap the date field to open the picker
+#   - tapOn:
+#       id: "leg-0-arrival-date"
+#   # Then run this subflow to confirm the default date
+#   - runFlow: subflows/pick-date.yaml
+#
+# For a specific date, tap the column items before running this subflow.
+appId: com.borderly.app
+---
+
+# Wait for modal to appear (brief delay)
+- swipe:
+    start: "50%,50%"
+    end: "50%,50%"
+    duration: 100
+
+# Tap "Done" button — top-right of the modal sheet
+# The modal slides up from the bottom and the Done button is at approximately
+# x=90% (right side), y=62% (just above the picker columns in the bottom sheet)
+- tapOn:
+    point: "90%,62%"

@@ -22,7 +22,7 @@ appId: com.borderly.app
 
 # === TUTORIAL SCREEN ===
 - extendedWaitUntil:
-    visible: "Step 1 of 5"
+    visible: "Step 1 of 3"
     timeout: 10000
 - tapOn:
     id: "skip-tutorial-button"
@@ -118,7 +118,7 @@ appId: com.borderly.app
 - tapOn:
     id: "nationality-input-option-USA"
 
-# Date of Birth
+# Date of Birth (DatePickerField — opens modal)
 - scrollUntilVisible:
     element:
       id: "dob-input"
@@ -126,11 +126,8 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "dob-input"
-- inputText: "1985-06-15"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+# Confirm the default date (today) — we accept any valid DOB for testing
+- runFlow: subflows/pick-date.yaml
 
 # Gender
 - scrollUntilVisible:
@@ -141,7 +138,7 @@ appId: com.borderly.app
 - tapOn:
     id: "gender-Male-button"
 
-# Passport expiry
+# Passport expiry (DatePickerField — opens modal)
 - scrollUntilVisible:
     element:
       id: "passport-expiry-input"
@@ -149,11 +146,8 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "passport-expiry-input"
-- inputText: "2032-03-20"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+# Confirm the default date — we accept any valid expiry for testing
+- runFlow: subflows/pick-date.yaml
 
 # Issuing country (searchable dropdown)
 - scrollUntilVisible:

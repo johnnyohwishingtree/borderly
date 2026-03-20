@@ -50,11 +50,7 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "leg-0-arrival-date"
-- inputText: "2026-07-01"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 - scrollUntilVisible:
     element:
@@ -63,11 +59,7 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "leg-0-departure-date"
-- inputText: "2026-07-07"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 - scrollUntilVisible:
     element:
