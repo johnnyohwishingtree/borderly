@@ -29,6 +29,9 @@ export { HapticFeedback, HAPTIC_PATTERNS, triggerHaptic } from './HapticFeedback
 export { default as InfoBanner } from './InfoBanner';
 export type { InfoBannerProps } from './InfoBanner';
 
+export { default as DatePickerField } from './DatePickerField';
+export type { DatePickerFieldProps } from './DatePickerField';
+
 // Enhanced accessible component types
 export type { AccessibleInputProps } from './AccessibleInput';
 

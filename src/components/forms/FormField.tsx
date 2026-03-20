@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { Input, Select, Toggle, SearchableSelect } from '../ui';
+import { Input, Select, Toggle, SearchableSelect, DatePickerField } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
@@ -63,11 +63,13 @@ export default function FormField({
 
       case 'date':
         return (
-          <Input
-            {...baseProps}
-            onChangeText={(text: string) => handleValueChange(text)}
-            placeholder="YYYY-MM-DD"
-            keyboardType="default"
+          <DatePickerField
+            value={String(fieldValue || '')}
+            onChange={(isoDate: string) => handleValueChange(isoDate)}
+            disabled={baseProps.disabled}
+            testID={`input-${field.id}`}
+            placeholder="Select a date"
+            {...(hasError && error ? { error } : {})}
           />
         );
 
