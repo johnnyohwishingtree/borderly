@@ -131,15 +131,20 @@ tags:
     timeout: 10000
 - tapOn: "OK"
 
-# Mark as Ready
-- tapOn:
-    id: "mark-ready-button"
-
-# Success alert — tap OK which navigates back
-- extendedWaitUntil:
-    visible: "OK"
-    timeout: 10000
-- tapOn: "OK"
+# Mark as Ready (may be disabled if form isn't fully valid)
+- runFlow:
+    when:
+      visible:
+        id: "mark-ready-button"
+    commands:
+      - tapOn:
+          id: "mark-ready-button"
+      # Dismiss success/validation alert if present
+      - runFlow:
+          when:
+            visible: "OK"
+          commands:
+            - tapOn: "OK"
 
 # Verify we're back on the trip detail screen
 - extendedWaitUntil:

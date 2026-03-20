@@ -137,42 +137,26 @@ appId: com.borderly.app
     end: "50%,35%"
     duration: 200
 
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-city"
-    direction: DOWN
-    timeout: 5000
+# City and Postal Code — deep in hierarchy, use text taps
 - swipe:
-    start: "50%,50%"
+    start: "50%,60%"
     end: "50%,30%"
     duration: 300
-- tapOn:
-    id: "leg-0-accommodation-city"
+- tapOn: "City"
 - inputText: "Singapore"
 
-- tapOn:
-    id: "leg-0-accommodation-postal-code"
+- tapOn: "Postal code"
 - inputText: "018956"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
 
-# Scroll to bottom and create trip
+# Dismiss keyboard and scroll to Create Trip button
 - swipe:
     start: "50%,40%"
     end: "50%,35%"
     duration: 200
-- scrollUntilVisible:
-    element: "Hotel phone number"
-    direction: DOWN
-    timeout: 5000
 - swipe:
-    direction: UP
-    duration: 500
-- swipe:
-    direction: UP
-    duration: 500
+    start: "50%,60%"
+    end: "50%,30%"
+    duration: 300
 - tapOn:
     id: "create-trip-button"
 
