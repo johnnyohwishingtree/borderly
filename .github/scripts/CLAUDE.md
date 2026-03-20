@@ -13,6 +13,9 @@ This folder contains shared TypeScript modules for GitHub Actions workflows, fol
 | `lib/workflow.ts` | Temporal-like activity runner with state tracking and retry policies |
 | `lib/verify-checks.ts` | CI check verification (lint, typecheck, bundle, test, native deps) |
 | `lib/ci-dispatch.ts` | CI failure dispatch (label check, failed items extraction, verify-and-fix dispatch) |
+| `lib/watcher.ts` | Pipeline watcher logic (slot counting, PR health, story retrigger, epic staleness, orphan cleanup) |
+| `lib/doctor.ts` | Pipeline doctor evidence collection and failure reproduction |
+| `lib/review-guardian.ts` | Review guardian auto-approve and review decision logic |
 | `lib/cli/pipeline.ts` | Unified CLI — replaces all lib.sh functions |
 | `lib/cli/verify-checks.ts` | CLI wrapper for verify-checks |
 | `lib/cli/evaluate-merge-gate.ts` | CLI wrapper for merge-gate evaluation |
@@ -42,6 +45,13 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | Comment with @agent ... | `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" [suffix]` |
 | Inline CI failure dispatch (label check + failed items + comment + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr N branch run_id run_url checks [extra]` |
 | Inline master failure dispatch (create branch + push + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master run_id run_url checks prefix [extra]` |
+| Inline watcher shell (~530 lines of health checks) | `npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run maxSlots staleMin epicStaleH` |
+| Inline doctor evidence collection (~330 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-collect-evidence issueNum [failedRunIds]` |
+| Inline doctor failure reproduction (~60 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-reproduce workBranch` |
+| Inline review-guardian bot review decision (~60 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts guardian-bot-review pr reviewer` |
+| Inline review-guardian post-wait check (~20 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts guardian-post-wait pr` |
+| Inline review-guardian Claude review decision (~35 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts guardian-claude-review pr body` |
+| Inline review-guardian ensure-review decision (~80 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts guardian-ensure-review pr` |
 
 ### How to use the pipeline CLI in a workflow
 
@@ -90,6 +100,19 @@ GitHub API:
 CI Dispatch:
   ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
   ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
+
+Watcher:
+  watcher-run <max_slots> <stale_minutes> <epic_stale_hours>
+
+Doctor:
+  doctor-collect-evidence <issue_number> [failed_run_ids]
+  doctor-reproduce <work_branch>
+
+Review Guardian:
+  guardian-bot-review <pr> <reviewer>
+  guardian-post-wait <pr>
+  guardian-claude-review <pr> <comment_body>
+  guardian-ensure-review <pr>
 
 Git:
   setup-git-auth

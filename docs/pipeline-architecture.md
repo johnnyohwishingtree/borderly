@@ -121,6 +121,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |     +-- pass + no merge → RETRIGGER job (re-run failed CI checks)  |
 |     +-- fail + attempt < max → FIX job (Claude fixes on temp)      |
 |     +-- fail + attempt = max → GIVE-UP (pipeline-doctor.yml)       |
+|         Evidence collection in lib/doctor.ts (tested TypeScript)    |
 |                                                                     |
 |   FIX job context:                                                  |
 |     - .claude-fix-log.md persists across attempts                   |
@@ -143,6 +144,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |     +-- On CI completion:                                           |
 |     |     +-- No formal review → request Claude review              |
 |     |     +-- Formal review exists → dispatch auto-merge            |
+|     Decision logic in lib/review-guardian.ts (tested TypeScript)     |
 |                                                                     |
 |   review-relay.yml:                                                 |
 |     +-- Bot submits review → dispatches review-fix.yml              |
@@ -215,6 +217,11 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |                                                                     |
 | 4. CLOSE ORPHAN PRs (no linked story, stale)                        |
 +---------------------------------------------------------------------+
+```
+
+All watcher logic is implemented in `lib/watcher.ts` (testable TypeScript) and invoked via `watcher-run` CLI command. The workflow YAML is a thin shell that calls:
+```
+npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run <maxSlots> <staleMin> <epicStaleH>
 ```
 
 ---
