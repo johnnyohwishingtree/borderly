@@ -14,7 +14,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
 | `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); auto-captures screenshots on UI changes; dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
@@ -286,6 +286,9 @@ All fix attempts work on `tmp/vf-*` branches — never pushing broken code to th
 - Commit log + diff included so Claude understands intent
 - Milestone pushes for timeout safety
 - Early bail-out if Claude produces no changes
+
+### Auto Screenshot Capture (CI Quality Gate)
+`e2e-smoke.yml` runs a `capture-screenshots` job in parallel on PRs when UI-related files change: `src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or `e2e/tests/captureScreenshots.spec.ts`. The job commits updated PNGs and a manifest back to the PR branch, keeping screenshots in sync with the code without manual effort.
 
 ---
 

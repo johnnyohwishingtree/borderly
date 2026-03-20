@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   actions: write
 
@@ -103,6 +103,76 @@ jobs:
         env:
           CI: true
           E2E_PROJECT: firefox-smoke,mobile-smoke
+
+  # Capture screenshots when UI files change (runs in parallel with tests)
+  capture-screenshots:
+    needs: build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Check for UI file changes
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only origin/master...HEAD -- \
+            'src/screens/' \
+            'src/components/' \
+            'e2e/tests/captureScreenshots.spec.ts' \
+            'src/app/navigation/' \
+            'src/schemas/' \
+          | head -1)
+          if [ -n "$CHANGED" ]; then
+            echo "ui_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "ui_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node and pnpm
+        if: steps.changes.outputs.ui_changed == 'true'
+        uses: ./.github/actions/setup-node
+        with:
+          cache: 'true'
+
+      - name: Install Playwright Chromium
+        if: steps.changes.outputs.ui_changed == 'true'
+        run: npx playwright install chromium
+
+      - name: Download bundle
+        if: steps.changes.outputs.ui_changed == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+
+      - name: Capture screenshots
+        if: steps.changes.outputs.ui_changed == 'true'
+        run: npx playwright test captureScreenshots --reporter=line --workers=1
+        env:
+          CI: true
+          E2E_PROJECT: screenshot-capture
+
+      - name: Commit screenshots
+        if: steps.changes.outputs.ui_changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # Check if any screenshots changed
+          git add e2e/screenshots/
+          if git diff --cached --quiet; then
+            echo "No screenshot changes to commit"
+            exit 0
+          fi
+
+          git config user.name "Claude CI"
+          git config user.email "claude-ci@users.noreply.github.com"
+          git commit -m "chore: update screenshots from CI capture"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push
 
   # Auto-fix on failure (runs after all test jobs)
   notify:
