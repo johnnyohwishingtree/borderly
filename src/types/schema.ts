@@ -1,7 +1,7 @@
 export interface FormField {
   id: string;
   label: string; // Display label
-  type: 'text' | 'date' | 'select' | 'searchable_select' | 'boolean' | 'number' | 'textarea';
+  type: 'text' | 'date' | 'select' | 'searchable_select' | 'boolean' | 'number' | 'textarea' | 'address';
   required: boolean;
 
   // Mapping from universal profile

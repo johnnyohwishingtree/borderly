@@ -1,10 +1,11 @@
 import { View, Text } from 'react-native';
-import { Input, Select, Toggle, SearchableSelect, DatePickerField } from '../ui';
+import { Input, Select, Toggle, SearchableSelect, DatePickerField, AddressAutocomplete } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
 import { ALL_AIRPORTS } from '../../constants/airports';
 import { ALL_AIRLINES } from '../../constants/airlines';
+import { Address } from '../../types/profile';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -124,6 +125,30 @@ export default function FormField({
             {...(hasError && error ? { error } : {})}
           />
         );
+
+      case 'address': {
+        // Parse current value as an Address object (may be a JSON string or object)
+        let addressValue: Address;
+        if (typeof fieldValue === 'string' && fieldValue) {
+          try {
+            addressValue = JSON.parse(fieldValue) as Address;
+          } catch {
+            addressValue = { line1: fieldValue, city: '', postalCode: '', country: '' };
+          }
+        } else if (fieldValue && typeof fieldValue === 'object') {
+          addressValue = fieldValue as Address;
+        } else {
+          addressValue = { line1: '', city: '', postalCode: '', country: '' };
+        }
+        return (
+          <AddressAutocomplete
+            value={addressValue}
+            onAddressChange={(addr) => handleValueChange(addr)}
+            disabled={baseProps.disabled}
+            testID={`address-${field.id}`}
+          />
+        );
+      }
 
       case 'boolean':
         return (

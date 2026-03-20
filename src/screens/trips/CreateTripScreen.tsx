@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
-import { Button, Input, Card, DatePickerField, SearchableSelect } from '../../components/ui';
+import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete } from '../../components/ui';
 import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
@@ -178,36 +178,11 @@ export default function CreateTripScreen() {
                   )}
                 </View>
 
-                <View>
-                  <Text className="text-sm font-medium text-gray-700 mb-1">Address</Text>
-                  <Input
-                    value={leg.accommodation.address.line1}
-                    onChangeText={(text) => updateLeg(index, 'accommodation.address.line1', text)}
-                    placeholder="Street address"
-                    testID={`leg-${index}-accommodation-address`}
-                  />
-                </View>
-
-                <View className="flex-row space-x-3">
-                  <View className="flex-1">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">City</Text>
-                    <Input
-                      value={leg.accommodation.address.city}
-                      onChangeText={(text) => updateLeg(index, 'accommodation.address.city', text)}
-                      placeholder="City"
-                      testID={`leg-${index}-accommodation-city`}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-sm font-medium text-gray-700 mb-1">Postal Code</Text>
-                    <Input
-                      value={leg.accommodation.address.postalCode}
-                      onChangeText={(text) => updateLeg(index, 'accommodation.address.postalCode', text)}
-                      placeholder="Postal code"
-                      testID={`leg-${index}-accommodation-postal-code`}
-                    />
-                  </View>
-                </View>
+                <AddressAutocomplete
+                  value={leg.accommodation.address}
+                  onAddressChange={(address) => updateLeg(index, 'accommodation.address', address)}
+                  testID={`leg-${index}-accommodation-address`}
+                />
 
                 <View>
                   <Text className="text-sm font-medium text-gray-700 mb-1">Phone (Optional)</Text>
