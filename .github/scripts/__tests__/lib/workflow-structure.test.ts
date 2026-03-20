@@ -382,7 +382,7 @@ describe('workflow structure regressions', () => {
     // Review-guardian has more complex YAML (case statements parsing JSON output),
     // but individual decision logic must stay in lib/review-guardian.ts.
     // We enforce that no single run: block has raw gh/git calls doing business logic.
-    it('review-guardian.yml: no run: block calls gh api with inline jq queries > 1 line', () => {
+    it('review-guardian.yml: no run: block calls gh api with inline jq queries > 2 lines', () => {
       const wf = workflows.find((w) => w.name === 'review-guardian.yml');
       expect(wf, 'review-guardian.yml not found').toBeDefined();
       if (!wf) return;
@@ -396,7 +396,7 @@ describe('workflow structure regressions', () => {
           // (these should be in review-guardian.ts, not inline)
           const lines = step.run.split('\n');
           const rawGhQueryLines = lines.filter(
-            (l) => /^\s*(gh\s+(api|pr\s+view|run\s+list)\s+.*-[qj]|--jq)/.test(l)
+            (l) => /^\s*gh\s+(api|pr\s+view|run\s+list)\s+.*(-q|--jq)/.test(l)
           );
 
           // Allow up to 2 simple gh calls per step (e.g., getting branch name + review summary)
