@@ -131,14 +131,21 @@ export function useTripCreation() {
     }
   }, [familyMembers, legs]);
 
+  /**
+   * Returns the default traveler list for a new leg:
+   * - the current trip-level selection if non-empty, or
+   * - the primary traveler (relationship === 'self'), or
+   * - empty if no profiles are loaded yet.
+   */
+  const getDefaultTravelers = useCallback((): string[] => {
+    if (tripTravelers.length > 0) return tripTravelers;
+    const primaryId = getPrimaryTravelerId(familyMembers);
+    return primaryId ? [primaryId] : [];
+  }, [tripTravelers, familyMembers]);
+
   const addLeg = useCallback(() => {
     // New legs inherit the current trip-level traveler selection.
-    const defaultTravelers =
-      tripTravelers.length > 0
-        ? tripTravelers
-        : familyMembers.length > 0
-          ? [familyMembers[0].id]
-          : [];
+    const defaultTravelers = getDefaultTravelers();
 
     const newLeg: LegFormData = {
       destinationCountry: '',
@@ -156,7 +163,7 @@ export function useTripCreation() {
     };
     setLegs(prev => [...prev, newLeg]);
     // New legs are NOT added to legOverrides — they follow trip-level changes.
-  }, [familyMembers, tripTravelers]);
+  }, [getDefaultTravelers]);
 
   const removeLeg = useCallback((index: number) => {
     setLegs(prev => prev.filter((_, i) => i !== index));
@@ -270,12 +277,7 @@ export function useTripCreation() {
     }
 
     // Scanned legs inherit the trip-level traveler selection.
-    const defaultTravelers =
-      tripTravelers.length > 0
-        ? tripTravelers
-        : familyMembers.length > 0
-          ? [familyMembers[0].id]
-          : [];
+    const defaultTravelers = getDefaultTravelers();
 
     const newLeg: LegFormData = {
       destinationCountry: parsedPass.destinationCountry || '',
@@ -305,7 +307,7 @@ export function useTripCreation() {
       const suggestedName = generateTripName([newLeg]);
       setTripData(prev => ({ ...prev, name: suggestedName }));
     }
-  }, [familyMembers, tripTravelers, legs.length, tripData.name, generateTripName, addLeg]);
+  }, [getDefaultTravelers, legs.length, tripData.name, generateTripName, addLeg]);
 
   const validateTrip = useCallback((): Record<string, string> => {
     const newErrors: Record<string, string> = {};
@@ -387,12 +389,7 @@ export function useTripCreation() {
     setShowSmartImport(false);
 
     // Imported legs inherit the trip-level traveler selection.
-    const defaultTravelers =
-      tripTravelers.length > 0
-        ? tripTravelers
-        : familyMembers.length > 0
-          ? [familyMembers[0].id]
-          : [];
+    const defaultTravelers = getDefaultTravelers();
 
     const newLegs: LegFormData[] = [];
 
@@ -456,7 +453,7 @@ export function useTripCreation() {
         setTripData(prev => ({ ...prev, name: suggestedName }));
       }
     }
-  }, [familyMembers, tripTravelers, legs, tripData.name, generateTripName]);
+  }, [getDefaultTravelers, legs, tripData.name, generateTripName]);
 
   return {
     tripData,
