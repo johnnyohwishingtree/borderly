@@ -287,6 +287,9 @@ All fix attempts work on `tmp/vf-*` branches — never pushing broken code to th
 - Milestone pushes for timeout safety
 - Early bail-out if Claude produces no changes
 
+### Auto Screenshot Capture (CI Quality Gate)
+`e2e-smoke.yml` runs a `capture-screenshots` job in parallel on PRs when UI-related files change: `src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or `e2e/tests/captureScreenshots.spec.ts`. The job commits updated PNGs and a manifest back to the PR branch, keeping screenshots in sync with the code without manual effort.
+
 ---
 
 ## Edge Cases & Safety Mechanisms
@@ -301,7 +304,6 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Give-up comment safety | Neutral language, no `@claude`/`@gemini` triggers |
 | Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) and on master push failures (creates fix/master-* branch + PR) |
-| Auto screenshot capture | e2e-smoke.yml runs `capture-screenshots` job in parallel on PRs when `src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or `e2e/tests/captureScreenshots.spec.ts` change. Commits updated PNGs + manifest back to the PR branch. |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Event-driven approval | ensure-review checks thread resolution AND all CI checks (tests, e2e) after a workflow_run passes; approves only when all threads resolved AND all CI passed (self-healing after review-fix) |
