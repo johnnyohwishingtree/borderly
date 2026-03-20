@@ -2,6 +2,10 @@
 export { default as AddressAutocomplete } from './AddressAutocomplete';
 export type { AddressAutocompleteProps } from './AddressAutocomplete';
 
+// Accommodation (lodging) autocomplete
+export { default as AccommodationAutocomplete } from './AccommodationAutocomplete';
+export type { AccommodationAutocompleteProps } from './AccommodationAutocomplete';
+
 // Enhanced accessible components
 export { default as AccessibleInput, EmailInput, PasswordInput, PhoneInput, NumericInput, SearchInput } from './AccessibleInput';
 

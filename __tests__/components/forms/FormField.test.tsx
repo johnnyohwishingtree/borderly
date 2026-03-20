@@ -698,3 +698,215 @@ describe('FormField — airline autocomplete rendering', () => {
     expect(screen.queryByTestId('searchable-select-airlineCode-panel')).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// FormField — accommodation autocomplete (optionsSource: 'accommodations')
+// ---------------------------------------------------------------------------
+
+describe('FormField — accommodation autocomplete rendering', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  it('renders AccommodationAutocomplete when type is searchable_select + optionsSource accommodations', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    // The AccommodationAutocomplete renders a text input (not a searchable-select trigger)
+    expect(screen.getByTestId('accommodation-hotelName-input')).toBeTruthy();
+  });
+
+  it('renders the field label', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    // Label appears in the FormField header (and possibly in the Input label too)
+    const matches = screen.getAllByText('Hotel / Accommodation Name');
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows the current value in the text input', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+      currentValue: 'Park Hyatt Tokyo',
+    });
+
+    render(
+      <FormField
+        field={field}
+        value="Park Hyatt Tokyo"
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    const input = screen.getByTestId('accommodation-hotelName-input');
+    expect(input.props.value).toBe('Park Hyatt Tokyo');
+  });
+
+  it('calls onValueChange with the hotel name field id when text changes', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    const input = screen.getByTestId('accommodation-hotelName-input');
+    fireEvent.changeText(input, 'Hilton');
+
+    expect(mockOnValueChange).toHaveBeenCalledWith('hotelName', 'Hilton');
+  });
+
+  it('shows the required asterisk when field is required', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+      required: true,
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('*')).toBeTruthy();
+  });
+
+  it('renders an error message when error prop is provided', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+        error="Accommodation name is required"
+      />,
+    );
+
+    // Error message may appear in both the Input component and the FormField error section
+    const errorTexts = screen.getAllByText('Accommodation name is required');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('renders a disabled input when the disabled prop is true', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+        disabled
+      />,
+    );
+
+    const input = screen.getByTestId('accommodation-hotelName-input');
+    // Disabled input is not editable
+    expect(input.props.editable).toBe(false);
+  });
+
+  it('shows help text when provided', () => {
+    const field = makeField({
+      id: 'hotelName',
+      label: 'Hotel / Accommodation Name',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+      helpText: 'Search for your hotel in Japan',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Search for your hotel in Japan')).toBeTruthy();
+  });
+
+  it('works with accommodationName field id (Singapore schema pattern)', () => {
+    const field = makeField({
+      id: 'accommodationName',
+      label: 'Name of Accommodation',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByTestId('accommodation-accommodationName-input')).toBeTruthy();
+  });
+
+  it('calls onValueChange with the name field when typing (accommodationName pattern)', () => {
+    const field = makeField({
+      id: 'accommodationName',
+      label: 'Name of Accommodation',
+      type: 'searchable_select',
+      optionsSource: 'accommodations',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    const input = screen.getByTestId('accommodation-accommodationName-input');
+    fireEvent.changeText(input, 'Marina Bay Sands');
+
+    expect(mockOnValueChange).toHaveBeenCalledWith('accommodationName', 'Marina Bay Sands');
+  });
+});

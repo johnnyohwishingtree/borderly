@@ -241,10 +241,12 @@
         {
           "id": "hotelName",
           "label": "Hotel / Accommodation Name",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "accommodations",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "helpText": "Search for your hotel or accommodation in Japan"
         },
         {
           "id": "hotelAddress",

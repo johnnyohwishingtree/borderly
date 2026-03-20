@@ -33,6 +33,13 @@ export interface PlaceDetails {
   address: Partial<Address>;
 }
 
+export interface LodgingDetails {
+  placeId: string;
+  name: string;
+  formattedAddress: string;
+  address: Partial<Address>;
+}
+
 /**
  * ISO 3166-1 alpha-2 to alpha-3 country code mapping for common countries.
  * Google Places returns alpha-2 codes; Borderly uses alpha-3.
@@ -92,6 +99,128 @@ export function getPlacesApiKey(): string {
 /** Persist the Google Places API key to app config (MMKV). */
 export function setPlacesApiKey(apiKey: string): void {
   mmkvService.setString(PLACES_API_KEY_MMKV_KEY, apiKey);
+}
+
+/**
+ * Fetch lodging autocomplete suggestions from the Google Places Autocomplete API.
+ *
+ * Filters results to lodging types (hotels, hostels, resorts, etc.) using the
+ * `types=lodging` parameter. The session token is shared with `getLodgingDetails`
+ * for billing purposes.
+ *
+ * @param input - Partial hotel/accommodation name typed by the user
+ * @param sessionToken - Session token for billing grouping (one per user session)
+ * @returns Array of lodging place suggestions, or empty array on error/offline
+ */
+export async function getLodgingSuggestions(
+  input: string,
+  sessionToken: string,
+): Promise<PlaceSuggestion[]> {
+  const apiKey = getPlacesApiKey();
+  if (!apiKey || !input.trim()) {
+    return [];
+  }
+
+  const params = new URLSearchParams({
+    input: input.trim(),
+    types: 'lodging',
+    sessiontoken: sessionToken,
+    key: apiKey,
+  });
+
+  try {
+    const response = await fetch(`${AUTOCOMPLETE_URL}?${params.toString()}`);
+    if (!response.ok) {
+      return [];
+    }
+    const data = await response.json() as {
+      status: string;
+      predictions?: Array<{
+        place_id: string;
+        description: string;
+        structured_formatting: {
+          main_text: string;
+          secondary_text: string;
+        };
+      }>;
+    };
+
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.warn('[PlacesService] Lodging autocomplete error:', data.status);
+      return [];
+    }
+
+    return (data.predictions ?? []).map((p) => ({
+      placeId: p.place_id,
+      description: p.description,
+      mainText: p.structured_formatting.main_text,
+      secondaryText: p.structured_formatting.secondary_text,
+    }));
+  } catch (error) {
+    // Network error / offline — return empty gracefully
+    console.warn('[PlacesService] Network error in lodging autocomplete:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch structured place details for a lodging place, including the
+ * establishment name (hotel/hostel/resort name from Google's database).
+ *
+ * @param placeId - Google Places place_id from a lodging suggestion
+ * @param sessionToken - Same session token used for autocomplete (ends the session)
+ * @returns Parsed LodgingDetails including name, or null on error
+ */
+export async function getLodgingDetails(
+  placeId: string,
+  sessionToken: string,
+): Promise<LodgingDetails | null> {
+  const apiKey = getPlacesApiKey();
+  if (!apiKey || !placeId) {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    place_id: placeId,
+    fields: 'place_id,name,formatted_address,address_components',
+    sessiontoken: sessionToken,
+    key: apiKey,
+  });
+
+  try {
+    const response = await fetch(`${PLACE_DETAILS_URL}?${params.toString()}`);
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json() as {
+      status: string;
+      result?: {
+        place_id: string;
+        name: string;
+        formatted_address: string;
+        address_components: Array<{
+          long_name: string;
+          short_name: string;
+          types: string[];
+        }>;
+      };
+    };
+
+    if (data.status !== 'OK' || !data.result) {
+      console.warn('[PlacesService] Lodging Details error:', data.status);
+      return null;
+    }
+
+    return {
+      placeId: data.result.place_id,
+      name: data.result.name,
+      formattedAddress: data.result.formatted_address,
+      address: parseAddressComponents(data.result.address_components),
+    };
+  } catch (error) {
+    console.warn('[PlacesService] Network error in lodging details:', error);
+    return null;
+  }
 }
 
 /**
