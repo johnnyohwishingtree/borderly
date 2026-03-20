@@ -450,15 +450,11 @@ describe('workflow structure regressions', () => {
   // Improvement: e2e-smoke should skip when only pipeline files changed.
   // Pipeline-only PRs (only .github/ files) don't affect the app.
   describe('e2e-smoke supports path-based skip', () => {
-    it('e2e-smoke has paths-ignore or a changed-files check to skip pipeline-only PRs', () => {
+    it('e2e-smoke has a check-changes job that sets skip_e2e for pipeline-only PRs', () => {
       const content = readFileSync(join(WORKFLOWS_DIR, 'e2e-smoke.yml'), 'utf-8');
-      // The workflow must skip E2E for PRs that only change .github/ files.
-      // This can be done via paths-ignore in the trigger, or a job-level
-      // changed-files check that sets a skip condition.
-      expect(
-        content,
-        'e2e-smoke.yml must have paths-ignore or a skip condition for pipeline-only PRs',
-      ).toMatch(/paths-ignore:|pipeline.only|skip.*pipeline|SKIP_E2E/);
+      expect(content, 'must have check-changes job').toContain('check-changes');
+      expect(content, 'must output skip_e2e').toContain('skip_e2e');
+      expect(content, 'build job must check skip_e2e').toMatch(/build:[\s\S]*?skip_e2e/);
     });
   });
 });
