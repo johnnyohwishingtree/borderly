@@ -153,6 +153,18 @@ export function getPRCIConclusion(pr: number, repo: string): string {
   }
 }
 
+/** Returns list of file paths changed by a PR. */
+export function getPRChangedPaths(pr: number, repo: string): string[] {
+  const raw = execOrDefault('gh', ['pr', 'diff', String(pr), '--repo', repo, '--name-only'], '');
+  return raw.split('\n').filter(Boolean);
+}
+
+/** Returns true if the PR only changes pipeline files (.github/). */
+export function isPipelineOnlyPR(pr: number, repo: string): boolean {
+  const paths = getPRChangedPaths(pr, repo);
+  return paths.length > 0 && paths.every(p => p.startsWith('.github/'));
+}
+
 export function getLastCommitTime(pr: number, repo: string): string {
   return execOrDefault('gh', ['api', `repos/${repo}/pulls/${pr}/commits`,
     '-q', '.[-1].commit.author.date'], '');
@@ -201,12 +213,14 @@ export async function checkPR(
   graceMinutes: number,
   maxRetries: number,
 ): Promise<PRCheckResult> {
-  // Check merge conflicts
+  // Check merge conflicts — dispatch resolve-conflicts.yml directly
+  // (not @claude comment, which relies on a broken workflow trigger)
   const mergeable = getPRMergeability(pr.number, repo);
   if (mergeable === 'CONFLICTING') {
-    await github.commentOnIssue(pr.number,
-      '@claude This PR has merge conflicts with master. Please rebase onto master and resolve conflicts, then push.');
-    return { action: 'conflict', detail: 'Merge conflict — commented for rebase' };
+    await github.dispatchWorkflow('resolve-conflicts.yml', 'master', {
+      pr_number: String(pr.number),
+    });
+    return { action: 'conflict', detail: 'Merge conflict — dispatched resolve-conflicts.yml' };
   }
 
   // Check CI status
@@ -214,12 +228,13 @@ export async function checkPR(
   const lastCommitTime = getLastCommitTime(pr.number, repo);
   const commitAgo = lastCommitTime ? minutesAgo(lastCommitTime) : 0;
 
-  // Missing CI
+  // Missing CI — dispatch both test.yml and e2e-smoke.yml
   if (!ciConclusion || ciConclusion === 'null') {
     if (commitAgo >= graceMinutes) {
       await github.dispatchWorkflow('test.yml', pr.branch);
+      await github.dispatchWorkflow('e2e-smoke.yml', pr.branch);
       closeAndReopenPR(pr.number, repo);
-      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — retriggered` };
+      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — retriggered test + e2e-smoke` };
     }
     return { action: 'none', detail: `No CI check, ${commitAgo}m ago — within grace period` };
   }

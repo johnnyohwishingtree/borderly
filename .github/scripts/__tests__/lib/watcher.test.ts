@@ -8,6 +8,7 @@ import {
   getWorkflowSlots,
   getOpenClaudePRs,
   getOpenPRs,
+  getPRChangedPaths,
   getPRMergeability,
   getPRCIConclusion,
   countCommentsByContent,
@@ -343,6 +344,61 @@ describe('watcher', () => {
         fnBody,
         'getPRCIConclusion must check E2E results, not just the "test" check',
       ).toMatch(/test-chromium|e2e|E2E|statusCheckRollup.*FAILURE/i);
+    });
+  });
+
+  // Bug: watcher handled conflicts by posting @claude comment, which relies
+  // on claude.yml triggering (broken). Should dispatch resolve-conflicts.yml.
+  describe('checkPR conflict handling', () => {
+    it('dispatches resolve-conflicts instead of posting @claude comment', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const checkPRBody = src.match(/export async function checkPR[\s\S]*?^}/m);
+      expect(checkPRBody).toBeTruthy();
+
+      // Must NOT contain @claude in the conflict handling section
+      const conflictSection = checkPRBody![0].match(/CONFLICTING[\s\S]*?return/);
+      expect(conflictSection).toBeTruthy();
+      expect(
+        conflictSection![0],
+        'Conflict handling must dispatch resolve-conflicts.yml, not post @claude',
+      ).not.toContain('@claude');
+    });
+  });
+
+  // Bug: missing CI handler only dispatched test.yml, not e2e-smoke.yml.
+  // E2E failures were invisible even after retrigger.
+  describe('checkPR missing CI triggers both test and e2e', () => {
+    it('dispatches both test.yml and e2e-smoke.yml when CI is missing', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const checkPRBody = src.match(/export async function checkPR[\s\S]*?^}/m);
+      expect(checkPRBody).toBeTruthy();
+
+      const missingCISection = checkPRBody![0].match(/Missing CI[\s\S]*?retrigger/);
+      expect(missingCISection).toBeTruthy();
+
+      expect(
+        missingCISection![0],
+        'Missing CI handler must dispatch e2e-smoke.yml too',
+      ).toContain('e2e-smoke.yml');
+    });
+  });
+
+  // Improvement: path-based CI skip — if only .github/ files changed,
+  // E2E tests don't need to run (pipeline changes don't affect the app).
+  describe('getPRChangedPaths', () => {
+    it('returns list of changed file paths', () => {
+      mockExec('.github/workflows/test.yml\n.github/scripts/lib/watcher.ts\n');
+      const paths = getPRChangedPaths(42, 'owner/repo');
+      expect(paths).toEqual(['.github/workflows/test.yml', '.github/scripts/lib/watcher.ts']);
+    });
+
+    it('returns empty array on failure', () => {
+      mockExecThrow();
+      expect(getPRChangedPaths(42, 'owner/repo')).toEqual([]);
     });
   });
 

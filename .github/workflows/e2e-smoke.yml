@@ -3,8 +3,22 @@ name: E2E Smoke Tests
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - '.github/scripts/**'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - '.claude/**'
+      - 'docs/**'
+      - '*.md'
   pull_request:
     branches: [master]
+    paths-ignore:
+      - '.github/scripts/**'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - '.claude/**'
+      - 'docs/**'
+      - '*.md'
   workflow_dispatch:
 
 permissions:
