@@ -180,7 +180,7 @@ export function usePassportScan() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [generateProfileId, saveProfile, updateProfileById, profileId, familyMode, relationship, navigation]);
+  }, [generateProfileId, saveProfile, updateProfileById, profileId, familyMode, relationship, returnTo, navigation]);
 
   const handleScanSuccess = useCallback((result: MRZParseResult) => {
     setScanError(null);
