@@ -121,6 +121,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |     +-- pass + no merge → RETRIGGER job (re-run failed CI checks)  |
 |     +-- fail + attempt < max → FIX job (Claude fixes on temp)      |
 |     +-- fail + attempt = max → GIVE-UP (pipeline-doctor.yml)       |
+|         Evidence collection in lib/doctor.ts (tested TypeScript)    |
 |                                                                     |
 |   FIX job context:                                                  |
 |     - .claude-fix-log.md persists across attempts                   |
@@ -143,6 +144,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |     +-- On CI completion:                                           |
 |     |     +-- No formal review → request Claude review              |
 |     |     +-- Formal review exists → dispatch auto-merge            |
+|     Decision logic in lib/review-guardian.ts (tested TypeScript)     |
 |                                                                     |
 |   review-relay.yml:                                                 |
 |     +-- Bot submits review → dispatches review-fix.yml              |
