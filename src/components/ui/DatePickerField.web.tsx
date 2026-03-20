@@ -13,6 +13,7 @@ const NativeInput = 'input' as unknown as React.ComponentType<{
   max?: string | undefined;
   disabled?: boolean | undefined;
   'data-testid'?: string | undefined;
+  'aria-label'?: string | undefined;
   style?: Record<string, unknown> | undefined;
   placeholder?: string | undefined;
 }>;
@@ -46,6 +47,7 @@ export default function DatePickerField({
         max={maxDate}
         disabled={disabled}
         data-testid={testID}
+        aria-label={label}
         placeholder={placeholder}
         style={{
           width: '100%',
