@@ -169,7 +169,9 @@ describe('useTripCreation', () => {
       result.current.updateLeg(0, 'accommodation.address.city', 'Tokyo');
     });
 
+    // The old reference should not have been mutated
     expect(legBefore.accommodation.address.city).toBe('');
+    // The new leg should have the update
     expect(result.current.legs[0].accommodation.address.city).toBe('Tokyo');
   });
 
@@ -196,6 +198,7 @@ describe('useTripCreation', () => {
 
     expect(result.current.legs[0].assignedTravelers).toContain('traveler_1');
 
+    // Toggle off
     act(() => {
       result.current.handleTravelerToggle(0, 'traveler_1');
     });

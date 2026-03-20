@@ -1,12 +1,13 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
-import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator } from '../../components/ui';
+import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField } from '../../components/ui';
 import { ALL_COUNTRIES } from '../../constants/countries';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { usePassportScan } from '../../hooks/usePassportScan';
+import { getTodayISO } from '../../utils/dateUtils';
 
 export default function PassportScanScreen() {
   const {
@@ -274,16 +275,15 @@ export default function PassportScanScreen() {
             <Controller
               control={control}
               name="dateOfBirth"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
+              render={({ field: { onChange, value } }) => (
+                <DatePickerField
                   label="Date of Birth"
-                  placeholder="Enter date"
                   value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
+                  onChange={onChange}
                   error={errors.dateOfBirth?.message}
-                  helperText="Format: YYYY-MM-DD"
+                  maxDate={getTodayISO()}
                   testID="dob-input"
+                  placeholder="Select date of birth"
                 />
               )}
             />
@@ -322,16 +322,15 @@ export default function PassportScanScreen() {
             <Controller
               control={control}
               name="passportExpiry"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
+              render={({ field: { onChange, value } }) => (
+                <DatePickerField
                   label="Passport Expiry Date"
-                  placeholder="Enter date"
                   value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
+                  onChange={onChange}
                   error={errors.passportExpiry?.message}
-                  helperText="Format: YYYY-MM-DD"
+                  minDate={getTodayISO()}
                   testID="passport-expiry-input"
+                  placeholder="Select expiry date"
                 />
               )}
             />

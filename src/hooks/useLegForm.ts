@@ -287,7 +287,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
         generateForm(newProfile, leg, schema, storedData);
       }
     }
-  }, [leg, activeTravelerId, travelerProfiles, getFormData, isValid, updateTripLeg, generateForm, getLegById, legId]);
+  }, [leg, activeTravelerId, travelerProfiles, getFormData, isValid, updateTripLeg, generateForm, getLegById, legId, currentForm]);
 
   const handleFormDataChange = useCallback((newFormData: Record<string, unknown>) => {
     const storeData = useFormStore.getState().formData;

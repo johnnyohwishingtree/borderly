@@ -104,6 +104,22 @@ jest.mock('@/components/ui', () => {
         </View>
       );
     },
+    DatePickerField: ({ label, value, onChange, error, testID, placeholder, required }: any) => {
+      const { TextInput } = require('react-native');
+      return (
+        <View testID={testID ? `${testID}-container` : undefined}>
+          {label && <Text>{label}</Text>}
+          {required && <Text>*</Text>}
+          <TextInput
+            value={value || ''}
+            onChangeText={onChange}
+            placeholder={placeholder || 'Select a date'}
+            testID={testID}
+          />
+          {error && <Text>{error}</Text>}
+        </View>
+      );
+    },
   };
 });
 
