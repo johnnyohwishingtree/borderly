@@ -58,10 +58,13 @@ Re-capture screenshots whenever:
 
 ## CI Auto-Capture
 
-Screenshots are automatically captured in CI:
-- **On PRs** (`e2e-smoke.yml`): When UI files change, captures Playwright screenshots and commits them to the PR branch
-- **On verify-and-fix**: After E2E tests pass, captures screenshots if UI files changed
-- **Post-merge** (`screenshot-capture.yml`): Native-fidelity capture on Android emulator; creates a PR if screenshots differ
+Screenshots are now captured exclusively post-merge on the `master` branch by the `screenshot-capture.yml` workflow. This process:
+
+- Boots an Android emulator to run the app.
+- Executes the Maestro capture flow for native-fidelity screenshots.
+- Creates a pull request if any screenshot differences are detected.
+
+This replaces the previous in-PR Playwright captures; screenshots are no longer generated during PR or verify-and-fix runs.
 
 ## Integration with Other Skills
 
