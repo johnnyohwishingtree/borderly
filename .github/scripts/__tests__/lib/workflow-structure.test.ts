@@ -406,7 +406,7 @@ describe('workflow structure regressions', () => {
     it('uses pipefail or PIPESTATUS to detect playwright failures through tee', () => {
       const content = readFileSync(join(WORKFLOWS_DIR, 'verify-and-fix.yml'), 'utf-8');
 
-      const playwrightPipedToTee = content.match(/npx playwright test.*\|.*tee/s);
+      const playwrightPipedToTee = content.match(/playwright test.*\|.*tee/s);
       if (playwrightPipedToTee) {
         expect(
           content,
