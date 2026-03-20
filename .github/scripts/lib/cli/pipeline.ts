@@ -346,9 +346,9 @@ async function main() {
       const busyEpics = new Set<string>();
       const prIssueNums = new Set<number>();
 
-      // 2. Check open claude/ PRs
-      console.log('\n--- Checking open claude/ PRs ---');
-      const claudePRs = watcher.getOpenClaudePRs(repo);
+      // 2. Check ALL open PRs (not just claude/ branches)
+      console.log('\n--- Checking open PRs ---');
+      const claudePRs = watcher.getOpenPRs(repo);
 
       for (const pr of claudePRs) {
         console.log(`PR #${pr.number} (${pr.branch}):`);

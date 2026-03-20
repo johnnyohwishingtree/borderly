@@ -115,15 +115,58 @@ export function getOpenClaudePRs(repo: string): PRInfo[] {
   }
 }
 
+/** Returns ALL open PRs (not just claude/ branches). */
+export function getOpenPRs(repo: string): PRInfo[] {
+  const raw = execOrDefault('gh', ['pr', 'list', '--repo', repo, '--state', 'open',
+    '--json', 'number,headRefName,createdAt'], '[]');
+  try {
+    return JSON.parse(raw).map((r: { number: number; headRefName: string; createdAt: string }) => ({
+      number: r.number,
+      branch: r.headRefName,
+      createdAt: r.createdAt,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export function getPRMergeability(pr: number, repo: string): string {
   return execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'mergeable', '-q', '.mergeable'], 'UNKNOWN');
 }
 
 export function getPRCIConclusion(pr: number, repo: string): string {
-  return execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
+  // Check ALL required CI checks (test + E2E test-chromium), not just "test".
+  // If any required check failed, return FAILURE.
+  const raw = execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'statusCheckRollup',
-    '-q', '[.statusCheckRollup[] | select(.name == "test")] | .[0].conclusion'], '');
+    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium") | {name: .name, conclusion: .conclusion}]'], '[]');
+  try {
+    const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
+    if (checks.length === 0) return '';
+    if (checks.some(c => c.conclusion === 'FAILURE')) return 'FAILURE';
+    // Only return SUCCESS when both required checks are present and succeeded.
+    // If one hasn't started yet it won't appear in the list — don't prematurely
+    // declare success based only on the checks that have run so far.
+    const requiredChecks = ['test', 'test-chromium'];
+    const allPresent = requiredChecks.every(name => checks.some(c => c.name === name));
+    if (!allPresent) return '';
+    return checks.every(c => c.conclusion === 'SUCCESS') ? 'SUCCESS' : '';
+  } catch {
+    return '';
+  }
+}
+
+/** Returns list of file paths changed by a PR. */
+export function getPRChangedPaths(pr: number, repo: string): string[] {
+  const raw = execOrDefault('gh', ['pr', 'diff', String(pr), '--repo', repo, '--name-only'], '');
+  return raw.split('\n').filter(Boolean);
+}
+
+/** Returns true if the PR only changes pipeline files (.github/). */
+export function isPipelineOnlyPR(pr: number, repo: string): boolean {
+  const paths = getPRChangedPaths(pr, repo);
+  return paths.length > 0 && paths.every(p => p.startsWith('.github/'));
 }
 
 export function getLastCommitTime(pr: number, repo: string): string {
@@ -174,12 +217,14 @@ export async function checkPR(
   graceMinutes: number,
   maxRetries: number,
 ): Promise<PRCheckResult> {
-  // Check merge conflicts
+  // Check merge conflicts — dispatch resolve-conflicts.yml directly
+  // (not @claude comment, which relies on a broken workflow trigger)
   const mergeable = getPRMergeability(pr.number, repo);
   if (mergeable === 'CONFLICTING') {
-    await github.commentOnIssue(pr.number,
-      '@claude This PR has merge conflicts with master. Please rebase onto master and resolve conflicts, then push.');
-    return { action: 'conflict', detail: 'Merge conflict — commented for rebase' };
+    await github.dispatchWorkflow('resolve-conflicts.yml', 'master', {
+      pr_number: String(pr.number),
+    });
+    return { action: 'conflict', detail: 'Merge conflict — dispatched resolve-conflicts.yml' };
   }
 
   // Check CI status
@@ -187,12 +232,13 @@ export async function checkPR(
   const lastCommitTime = getLastCommitTime(pr.number, repo);
   const commitAgo = lastCommitTime ? minutesAgo(lastCommitTime) : 0;
 
-  // Missing CI
+  // Missing CI — dispatch both test.yml and e2e-smoke.yml
   if (!ciConclusion || ciConclusion === 'null') {
     if (commitAgo >= graceMinutes) {
       await github.dispatchWorkflow('test.yml', pr.branch);
+      await github.dispatchWorkflow('e2e-smoke.yml', pr.branch);
       closeAndReopenPR(pr.number, repo);
-      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — retriggered` };
+      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — retriggered test + e2e-smoke` };
     }
     return { action: 'none', detail: `No CI check, ${commitAgo}m ago — within grace period` };
   }

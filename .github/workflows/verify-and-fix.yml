@@ -169,6 +169,7 @@ jobs:
           ${WEBPACK_ERRS}"
               else
                 echo "=== Running Playwright tests ==="
+                set -o pipefail
                 if ! CI=true npx playwright test 2>&1 | tee /tmp/e2e_errors.txt; then
                   PASS=false
                   E2E_ERRS=$(tail -30 /tmp/e2e_errors.txt)
