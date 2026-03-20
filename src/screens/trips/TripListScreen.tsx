@@ -29,7 +29,9 @@ export default function TripListScreen() {
     schemaRefreshCountries,
     schemaBannerDismissedAt,
     dismissSchemaBanner,
-    loadSchemaFreshnessState,
+    loadPersistedAppState,
+    hasSeenFirstRunPrompt,
+    dismissFirstRunPrompt,
   } = useAppStore();
   
   const {
@@ -52,8 +54,8 @@ export default function TripListScreen() {
 
   useEffect(() => {
     fetchTrips();
-    loadSchemaFreshnessState();
-  }, [fetchTrips, loadSchemaFreshnessState]);
+    loadPersistedAppState();
+  }, [fetchTrips, loadPersistedAppState]);
 
   /**
    * The "schemas updated" banner should show when:
@@ -149,6 +151,15 @@ export default function TripListScreen() {
 
   return (
     <View className="flex-1 bg-gray-50">
+      {/* First-run welcome banner — shown once after onboarding completes */}
+      {!hasSeenFirstRunPrompt && (
+        <InfoBanner
+          message="You're all set! Create your first trip to get started."
+          onDismiss={dismissFirstRunPrompt}
+          testID="first-run-welcome-banner"
+        />
+      )}
+
       {/* Schema update banner */}
       {showSchemaBanner && (
         <InfoBanner
