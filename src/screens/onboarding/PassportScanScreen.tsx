@@ -7,6 +7,7 @@ import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '../../components/passport';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { usePassportScan } from '../../hooks/usePassportScan';
+import { getTodayISO } from '../../utils/dateUtils';
 
 export default function PassportScanScreen() {
   const {
@@ -280,7 +281,7 @@ export default function PassportScanScreen() {
                   value={value}
                   onChange={onChange}
                   error={errors.dateOfBirth?.message}
-                  maxDate={new Date().toISOString().split('T')[0]}
+                  maxDate={getTodayISO()}
                   testID="dob-input"
                   placeholder="Select date of birth"
                 />
@@ -327,7 +328,7 @@ export default function PassportScanScreen() {
                   value={value}
                   onChange={onChange}
                   error={errors.passportExpiry?.message}
-                  minDate={new Date().toISOString().split('T')[0]}
+                  minDate={getTodayISO()}
                   testID="passport-expiry-input"
                   placeholder="Select expiry date"
                 />

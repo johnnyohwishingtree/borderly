@@ -149,12 +149,12 @@ export default function DatePickerField({
       setDraftMonth(p.month);
       setDraftDay(p.day);
     } else {
-      setDraftYear(today.getFullYear());
-      setDraftMonth(today.getMonth() + 1);
-      setDraftDay(today.getDate());
+      const now = new Date();
+      setDraftYear(now.getFullYear());
+      setDraftMonth(now.getMonth() + 1);
+      setDraftDay(now.getDate());
     }
     setIsOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, value]);
 
   const handleConfirm = useCallback(() => {
