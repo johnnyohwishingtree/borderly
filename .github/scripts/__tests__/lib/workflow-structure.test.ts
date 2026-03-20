@@ -340,4 +340,35 @@ describe('workflow structure regressions', () => {
       expect(failures, failures.join('\n')).toHaveLength(0);
     });
   });
+
+  // Bug: review-relay dispatches review-fix for clean reviews (no inline
+  // comments, just a summary body). This causes a deadlock: request-approval
+  // defers because review-fix is "active", but review-fix produces no changes,
+  // so ensure-review never re-fires and the PR gets stuck.
+  describe('review-relay only dispatches for actionable feedback', () => {
+    it('review-relay skips dispatch when there are no inline review comments', () => {
+      const content = readFileSync(join(WORKFLOWS_DIR, 'review-relay.yml'), 'utf-8');
+
+      // Bug (#455): when COUNT=0 (no inline comments) but REVIEW_BODY is
+      // non-empty (Gemini always includes a summary), review-relay sets
+      // has_feedback=true and dispatches review-fix. Claude finds nothing
+      // to fix, produces no changes, and the PR deadlocks.
+      //
+      // Fix: when COUNT is 0, set has_feedback=false and exit early,
+      // regardless of whether REVIEW_BODY exists.
+
+      // Extract the "Collect review comments" step's run script
+      const collectStep = content.match(
+        /- name: Collect review comments[\s\S]*?run: \|\n([\s\S]*?)(?=\n\s+- name:)/
+      );
+      expect(collectStep, 'Could not find "Collect review comments" step').toBeTruthy();
+      const script = collectStep![1];
+
+      // The script must exit with has_feedback=false when COUNT is 0
+      expect(
+        script,
+        'Must set has_feedback=false when COUNT=0 (no inline comments)',
+      ).toMatch(/\$COUNT.*-eq\s*0|"\$COUNT"\s*=\s*"0"/);
+    });
+  });
 });
