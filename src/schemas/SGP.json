@@ -173,6 +173,16 @@
           "countrySpecific": false
         },
         {
+          "id": "arrivalAirport",
+          "label": "Arrival Airport",
+          "type": "searchable_select",
+          "required": false,
+          "autoFillSource": "leg.arrivalAirport",
+          "countrySpecific": false,
+          "optionsSource": "airports",
+          "helpText": "Singapore Changi (SIN) for most flights"
+        },
+        {
           "id": "departureCity",
           "label": "Last Departure City/Port",
           "type": "text",
