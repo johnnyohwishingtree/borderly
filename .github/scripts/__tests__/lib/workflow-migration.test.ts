@@ -176,6 +176,21 @@ describe('auto-merge uses --admin for owner PRs', () => {
   });
 });
 
+describe('auto-merge dispatches CI after update_branch', () => {
+  it('update_branch path dispatches test.yml and e2e-smoke.yml', () => {
+    const content = readWorkflow('auto-merge.yml');
+    // After updating a branch, GitHub's pull_request event may not fire
+    // reliably. auto-merge must explicitly dispatch CI to avoid PRs getting
+    // stuck with "Waiting for status to be reported".
+    // Extract the update_branch block: starts at 'update_branch' line, ends at next 'elif' or 'else' at same indent
+    const updateSection = content.match(/update_branch"\s*\][\s\S]*?(?=\n\s+elif|\n\s+else\b)/);
+    expect(updateSection, 'update_branch section not found').toBeTruthy();
+    const section = updateSection![0];
+    expect(section, 'must dispatch test.yml after branch update').toContain('test.yml');
+    expect(section, 'must dispatch e2e-smoke.yml after branch update').toContain('e2e-smoke.yml');
+  });
+});
+
 describe('approve-and-merge self-approval safety', () => {
   it('pipeline.ts approve-and-merge wraps approvePR in try-catch', () => {
     const pipelineSrc = readFileSync(
