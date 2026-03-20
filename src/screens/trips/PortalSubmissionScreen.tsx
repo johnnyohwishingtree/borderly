@@ -63,6 +63,10 @@ export default function PortalSubmissionScreen() {
   // Collapsible panel
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
+  // Incomplete-form message shown when Submit in App is tapped with missing fields
+  const [showIncompleteMessage, setShowIncompleteMessage] = useState(false);
+  const incompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // QR save overlay state
   const [qrPayload, setQrPayload] = useState<QRPageDetectedPayload | null>(null);
 
@@ -271,6 +275,23 @@ export default function PortalSubmissionScreen() {
   const handleClose = useCallback(() => {
     (navigation as any).navigate('TripDetail', { tripId });
   }, [navigation, tripId]);
+
+  // ─── Submit in App ────────────────────────────────────────────────────────
+
+  /**
+   * Primary submission CTA. When all required fields are filled, triggers
+   * auto-fill of the current portal page. When fields are missing, shows a
+   * brief inline message listing what needs to be completed first.
+   */
+  const handleSubmitInApp = useCallback(() => {
+    if (!autoFill.isFormComplete) {
+      if (incompleteTimerRef.current) clearTimeout(incompleteTimerRef.current);
+      setShowIncompleteMessage(true);
+      incompleteTimerRef.current = setTimeout(() => setShowIncompleteMessage(false), 3000);
+      return;
+    }
+    autoFill.handleAutoFill();
+  }, [autoFill]);
 
   // ─── QR wallet callbacks ──────────────────────────────────────────────────
 
@@ -571,6 +592,51 @@ export default function PortalSubmissionScreen() {
           </View>
         )}
       </View>
+
+      {/* Submit in App — primary CTA (gated on form completeness) */}
+      {qrPayload === null && (
+        <View
+          style={{ backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 }}
+          testID="submit-in-app-section"
+        >
+          {showIncompleteMessage && (
+            <View
+              style={{ backgroundColor: '#FEF3C7', borderRadius: 8, padding: 10, marginBottom: 8 }}
+              testID="incomplete-form-message"
+            >
+              <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
+                {'Complete required fields first:'}
+              </Text>
+              {autoFill.missingRequiredFields.length > 0 && (
+                <Text style={{ fontSize: 12, color: '#92400E', marginTop: 2 }} testID="missing-fields-list">
+                  {autoFill.missingRequiredFields.join(', ')}
+                </Text>
+              )}
+            </View>
+          )}
+          <Pressable
+            onPress={handleSubmitInApp}
+            style={({ pressed }) => ({
+              backgroundColor: autoFill.isFormComplete ? '#3B82F6' : '#93C5FD',
+              borderRadius: 8,
+              paddingVertical: 11,
+              alignItems: 'center' as const,
+              opacity: pressed && autoFill.isFormComplete ? 0.8 : autoFill.isFormComplete ? 1 : 0.5,
+            })}
+            accessibilityLabel={
+              autoFill.isFormComplete
+                ? 'Submit in app — auto-fill and submit this portal form'
+                : 'Submit in app — disabled until all required fields are complete'
+            }
+            accessibilityState={{ disabled: !autoFill.isFormComplete }}
+            testID="submit-in-app-button"
+          >
+            <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>
+              Submit in App
+            </Text>
+          </Pressable>
+        </View>
+      )}
 
       {/* Collapsible bottom panel */}
       {qrPayload === null && (
