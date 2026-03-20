@@ -30,6 +30,12 @@
  *   doctor-collect-evidence <issue_number> [failed_run_ids]
  *   doctor-reproduce <work_branch>
  *
+ * Commands (Review Guardian):
+ *   guardian-bot-review <pr> <reviewer>
+ *   guardian-post-wait <pr>
+ *   guardian-claude-review <pr> <comment_body>
+ *   guardian-ensure-review <pr>
+ *
  * Commands (Git):
  *   setup-git-auth
  *   merge-master
@@ -47,6 +53,7 @@ import { setupGitAuth, mergeMasterIntoBranch, checkChangesAndCommit, smartPush }
 import { dispatchPRFix, dispatchMasterFix } from '../ci-dispatch.js';
 import * as watcher from '../watcher.js';
 import * as doctor from '../doctor.js';
+import * as guardian from '../review-guardian.js';
 
 function exec(command: string, args: string[]): string {
   return execFileSync(command, args, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -591,6 +598,44 @@ async function main() {
         fsAppend.writeFileSync(evidenceFile, lines.join('\n'));
         console.log(`Wrote reproduction results to ${evidenceFile}`);
       }
+      break;
+    }
+
+    // ─── Review Guardian Commands ──────────────────────────────────────
+
+    case 'guardian-bot-review': {
+      const [prStr, reviewer] = args;
+      if (!prStr || !reviewer) { console.error('Usage: pipeline guardian-bot-review <pr> <reviewer>'); process.exit(1); }
+      const repo = getRepo();
+      const result = guardian.decideBotReviewAction(parseInt(prStr, 10), reviewer, repo);
+      console.log(JSON.stringify(result));
+      break;
+    }
+
+    case 'guardian-post-wait': {
+      const [prStr] = args;
+      if (!prStr) { console.error('Usage: pipeline guardian-post-wait <pr>'); process.exit(1); }
+      const repo = getRepo();
+      const result = guardian.checkPostWaitConditions(parseInt(prStr, 10), repo);
+      console.log(JSON.stringify(result));
+      break;
+    }
+
+    case 'guardian-claude-review': {
+      const [prStr, commentBody] = args;
+      if (!prStr) { console.error('Usage: pipeline guardian-claude-review <pr> <comment_body>'); process.exit(1); }
+      const repo = getRepo();
+      const result = guardian.decideClaudeReviewAction(parseInt(prStr, 10), commentBody ?? '', repo);
+      console.log(JSON.stringify(result));
+      break;
+    }
+
+    case 'guardian-ensure-review': {
+      const [prStr] = args;
+      if (!prStr) { console.error('Usage: pipeline guardian-ensure-review <pr>'); process.exit(1); }
+      const repo = getRepo();
+      const result = guardian.decideEnsureReviewAction(parseInt(prStr, 10), repo);
+      console.log(JSON.stringify(result));
       break;
     }
 
