@@ -16,6 +16,7 @@ const WelcomeScreen = lazy(() => import('@/screens/onboarding').then(m => ({ def
 const TutorialScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.TutorialScreen })));
 const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
 const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
+const AddCompanionsScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.AddCompanionsScreen })));
 const BiometricSetupScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
 
 // Enhanced loading component for lazy-loaded screens
@@ -104,6 +105,18 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <ConfirmProfileScreen />
+          </Suspense>
+        )}
+      </OnboardingStack.Screen>
+      <OnboardingStack.Screen
+        name="AddCompanions"
+        options={{
+          ...STANDARD_TRANSITIONS.slideFromRight,
+        }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <AddCompanionsScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
