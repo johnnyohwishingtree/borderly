@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { submissionCoordinator } from '../services/submission/submissionCoordinator';
 import type { PortalWebViewHandle } from '../components/submission/PortalWebView';
 import type { AutoFillFieldResult } from '../components/submission/AutoFillBanner';
@@ -39,6 +39,34 @@ export function usePortalAutoFill({
 }: UsePortalAutoFillOptions) {
   const [bannerState, setBannerState] = useState<BannerState | null>(null);
   const [showLowFillWarning, setShowLowFillWarning] = useState(false);
+
+  // ─── Form completion status ─────────────────────────────────────────────────
+
+  /**
+   * Derived state: true when all required fields in the schema have values
+   * (auto-filled from profile or manually filled by the user). Used to gate
+   * the "Submit in App" button so users cannot attempt portal submission with
+   * incomplete data.
+   */
+  const { isFormComplete, missingRequiredFields } = useMemo(() => {
+    if (!schema || !leg || !effectiveProfile) {
+      return { isFormComplete: false, missingRequiredFields: [] as string[] };
+    }
+
+    const filledForm = submissionCoordinator.generateFilledForm(effectiveProfile, leg, schema);
+    if (!filledForm) {
+      return { isFormComplete: false, missingRequiredFields: [] as string[] };
+    }
+
+    const missingRequired = filledForm.sections
+      .flatMap(s => s.fields)
+      .filter(f => f.required && f.source === 'empty');
+
+    return {
+      isFormComplete: missingRequired.length === 0,
+      missingRequiredFields: missingRequired.map(f => f.label),
+    };
+  }, [schema, leg, effectiveProfile]);
 
   const handleAutoFill = useCallback(() => {
     if (!schema?.submissionGuide || !leg || !effectiveProfile) return;
@@ -98,6 +126,8 @@ export function usePortalAutoFill({
   return {
     bannerState,
     showLowFillWarning,
+    isFormComplete,
+    missingRequiredFields,
     handleAutoFill,
     handleAutoFillResult,
     dismissBanner,
