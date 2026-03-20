@@ -159,14 +159,18 @@ describe('useAppStore — schema update tracking', () => {
 });
 
 // ---------------------------------------------------------------------------
-// loadSchemaFreshnessState — safe JSON.parse
+// loadPersistedAppState — safe JSON.parse + first-run prompt
 // ---------------------------------------------------------------------------
 
-describe('useAppStore — loadSchemaFreshnessState', () => {
+const HAS_SEEN_FIRST_RUN_PROMPT_KEY = 'has_seen_first_run_prompt';
+
+describe('useAppStore — loadPersistedAppState', () => {
   const { mmkvService } = jest.requireMock('@/services/storage') as {
     mmkvService: {
       getNumber: jest.Mock;
       getString: jest.Mock;
+      getBoolean: jest.Mock;
+      setBoolean: jest.Mock;
     };
   };
 
@@ -176,6 +180,7 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
       lastSchemaRefreshTime: null,
       schemaRefreshCountries: [],
       schemaBannerDismissedAt: null,
+      hasSeenFirstRunPrompt: false,
     });
   });
 
@@ -183,7 +188,7 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
     mmkvService.getNumber.mockReturnValue(12345);
     mmkvService.getString.mockReturnValue('["Japan","Malaysia"]');
 
-    useAppStore.getState().loadSchemaFreshnessState();
+    useAppStore.getState().loadPersistedAppState();
 
     expect(useAppStore.getState().schemaRefreshCountries).toEqual(['Japan', 'Malaysia']);
   });
@@ -192,7 +197,7 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
     mmkvService.getNumber.mockReturnValue(null);
     mmkvService.getString.mockReturnValue('not valid json {{');
 
-    expect(() => useAppStore.getState().loadSchemaFreshnessState()).not.toThrow();
+    expect(() => useAppStore.getState().loadPersistedAppState()).not.toThrow();
     expect(useAppStore.getState().schemaRefreshCountries).toEqual([]);
   });
 
@@ -200,9 +205,29 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
     mmkvService.getNumber.mockReturnValue(null);
     mmkvService.getString.mockReturnValue('"just a string"');
 
-    useAppStore.getState().loadSchemaFreshnessState();
+    useAppStore.getState().loadPersistedAppState();
 
     expect(useAppStore.getState().schemaRefreshCountries).toEqual([]);
+  });
+
+  it('reads hasSeenFirstRunPrompt from MMKV when true', () => {
+    mmkvService.getBoolean.mockReturnValue(true);
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue(null);
+
+    useAppStore.getState().loadPersistedAppState();
+
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(true);
+  });
+
+  it('defaults hasSeenFirstRunPrompt to false when not stored', () => {
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue(null);
+
+    useAppStore.getState().loadPersistedAppState();
+
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(false);
   });
 });
 
@@ -213,10 +238,7 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
 describe('useAppStore — first-run prompt', () => {
   const { mmkvService } = jest.requireMock('@/services/storage') as {
     mmkvService: {
-      getBoolean: jest.Mock;
       setBoolean: jest.Mock;
-      getNumber: jest.Mock;
-      getString: jest.Mock;
     };
   };
 
@@ -236,26 +258,6 @@ describe('useAppStore — first-run prompt', () => {
 
   it('dismissFirstRunPrompt persists the flag to MMKV', () => {
     useAppStore.getState().dismissFirstRunPrompt();
-    expect(mmkvService.setBoolean).toHaveBeenCalledWith('has_seen_first_run_prompt', true);
-  });
-
-  it('loadSchemaFreshnessState reads hasSeenFirstRunPrompt from MMKV when true', () => {
-    mmkvService.getBoolean.mockReturnValue(true);
-    mmkvService.getNumber.mockReturnValue(null);
-    mmkvService.getString.mockReturnValue(null);
-
-    useAppStore.getState().loadSchemaFreshnessState();
-
-    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(true);
-  });
-
-  it('loadSchemaFreshnessState defaults hasSeenFirstRunPrompt to false when not stored', () => {
-    mmkvService.getBoolean.mockReturnValue(undefined);
-    mmkvService.getNumber.mockReturnValue(null);
-    mmkvService.getString.mockReturnValue(null);
-
-    useAppStore.getState().loadSchemaFreshnessState();
-
-    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(false);
+    expect(mmkvService.setBoolean).toHaveBeenCalledWith(HAS_SEEN_FIRST_RUN_PROMPT_KEY, true);
   });
 });

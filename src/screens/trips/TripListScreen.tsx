@@ -29,7 +29,7 @@ export default function TripListScreen() {
     schemaRefreshCountries,
     schemaBannerDismissedAt,
     dismissSchemaBanner,
-    loadSchemaFreshnessState,
+    loadPersistedAppState,
     hasSeenFirstRunPrompt,
     dismissFirstRunPrompt,
   } = useAppStore();
@@ -54,8 +54,8 @@ export default function TripListScreen() {
 
   useEffect(() => {
     fetchTrips();
-    loadSchemaFreshnessState();
-  }, [fetchTrips, loadSchemaFreshnessState]);
+    loadPersistedAppState();
+  }, [fetchTrips, loadPersistedAppState]);
 
   /**
    * The "schemas updated" banner should show when:
