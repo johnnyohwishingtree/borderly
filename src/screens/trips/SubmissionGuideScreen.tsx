@@ -1,5 +1,3 @@
-import { useState, useEffect, useMemo } from 'react';
-import type { TravelerProfile } from '../../types/profile';
 import {
   View,
   Text,
@@ -11,18 +9,14 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Globe, CircleCheck, TriangleAlert, Clock } from 'lucide-react-native';
-import { 
-  GuideProgress, 
+import {
+  GuideProgress,
   StepCard,
 } from '../../components/guide';
 import { Button, Card, StatusBadge } from '../../components/ui';
-import { useTripStore } from '../../stores';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { generateFilledFormForTraveler } from '../../services/forms/formEngine';
-import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
+import TravelerTabs from '../../components/trips/TravelerTabs';
+import { useSubmissionGuide } from '../../hooks/useSubmissionGuide';
 import type { SubmissionStep } from '../../types/schema';
-import type { FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
-import { formatFieldValue } from '../../utils/fieldFormatters';
 
 type SubmissionGuideScreenProps = {
   route: {
@@ -30,7 +24,7 @@ type SubmissionGuideScreenProps = {
       tripId: string;
       legId: string;
       countryCode: string;
-      travelerId?: string; // Optional: specific traveler, defaults to current profile
+      travelerId?: string;
     };
   };
 };
@@ -40,124 +34,20 @@ export default function SubmissionGuideScreen() {
   const route = useRoute() as SubmissionGuideScreenProps['route'];
   const { tripId, legId, countryCode, travelerId } = route.params;
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentTraveler, setCurrentTraveler] = useState<TravelerProfile | null>(null);
-  const [schema, setSchema] = useState<any>(null);
-  const [filledForm, setFilledForm] = useState<any>(null);
-
-  // Store hooks
-  const { trips } = useTripStore();
-  const { profile, getAllProfiles } = useProfileStore();
-
-  // Find trip and leg
-  const trip = trips.find(t => t.id === tripId);
-  const leg = trip?.legs.find(l => l.id === legId);
-
-  // Load schema and generate form data for specific traveler
-  useEffect(() => {
-    const loadFormData = async () => {
-      if (!leg) {
-        setIsLoading(false);
-        return;
-      }
-
-      const resolvedCountryCode = countryCode || leg.destinationCountry;
-      const countrySchema = getSchemaByCountryCode(resolvedCountryCode);
-      if (!countrySchema) {
-        setIsLoading(false);
-        return;
-      }
-      setSchema(countrySchema);
-
-      // Determine which traveler to show form for
-      let targetTravelerId = travelerId;
-      if (!targetTravelerId) {
-        // Default to current profile if no specific traveler requested
-        targetTravelerId = profile?.id;
-      }
-
-      if (!targetTravelerId) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if this traveler is assigned to this leg
-      // Skip check when assignedTravelers is empty (single-user flow / backward compat)
-      const assignedTravelers = leg.assignedTravelers || [];
-      if (assignedTravelers.length > 0 && !assignedTravelers.includes(targetTravelerId)) {
-        console.warn(`Traveler ${targetTravelerId} is not assigned to leg ${legId}`);
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        // Load all profiles to get the target traveler
-        const profilesMap = await getAllProfiles();
-        const targetProfile = profilesMap.get(targetTravelerId);
-        if (!targetProfile) {
-          console.warn(`Profile for traveler ${targetTravelerId} not found`);
-          setIsLoading(false);
-          return;
-        }
-
-        setCurrentTraveler(targetProfile);
-
-        // Get existing form data for this traveler
-        const existingFormData = leg.travelerFormsData?.find(
-          t => t.travelerId === targetTravelerId
-        )?.formData;
-
-        const form = generateFilledFormForTraveler(
-          targetTravelerId,
-          Array.from(profilesMap.values()),
-          leg,
-          countrySchema,
-          existingFormData
-        );
-
-        setFilledForm(form);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Failed to load form data:', error);
-        setIsLoading(false);
-      }
-    };
-
-    loadFormData();
-  }, [leg, profile, countryCode, travelerId, getAllProfiles, legId]);
-
-  // Prepare field data for StepCard components
-  const fieldsData = useMemo(() => {
-    if (!filledForm) return {};
-
-    const data: { [fieldId: string]: { label: string; value: string; portalFieldName?: string } } = {};
-    
-    filledForm.sections.forEach((section: FilledFormSection) => {
-      section.fields.forEach((field: FilledFormField) => {
-        data[field.id] = {
-          label: field.label,
-          value: formatFieldValue(field.currentValue, field.type),
-          ...(field.portalFieldName !== undefined && { portalFieldName: field.portalFieldName }),
-        };
-      });
-    });
-
-    return data;
-  }, [filledForm]);
-
-
-  const handleStepComplete = (stepOrder: number) => {
-    if (!completedSteps.includes(stepOrder)) {
-      setCompletedSteps(prev => [...prev, stepOrder]);
-    }
-    
-    // Auto-advance to next step if not at the end
-    if (stepOrder < (schema?.submissionGuide.length || 0)) {
-      setCurrentStep(stepOrder + 1);
-    }
-  };
+  const {
+    isLoading,
+    schema,
+    filledForm,
+    currentTraveler,
+    completedSteps,
+    currentStep,
+    travelerTabs,
+    hasMultipleTravelers,
+    activeTravelerId,
+    fieldsData,
+    handleStepComplete,
+    handleSwitchTraveler,
+  } = useSubmissionGuide({ tripId, legId, countryCode, travelerId });
 
   const handleOpenPortal = async () => {
     if (!schema?.portalUrl) {
@@ -179,10 +69,8 @@ export default function SubmissionGuideScreen() {
 
   const getCompletionStatus = () => {
     if (!schema) return 'unknown';
-    
     const totalSteps = schema.submissionGuide.length;
     const completed = completedSteps.length;
-    
     if (completed === totalSteps) return 'complete';
     if (completed > 0) return 'in_progress';
     return 'not_started';
@@ -200,9 +88,12 @@ export default function SubmissionGuideScreen() {
 
   const totalSteps = schema.submissionGuide.length;
   const completionStatus = getCompletionStatus();
-  const badgeStatus = completionStatus === 'complete' ? 'success' as const
-    : completionStatus === 'in_progress' ? 'info' as const
-    : 'neutral' as const;
+  const badgeStatus =
+    completionStatus === 'complete'
+      ? ('success' as const)
+      : completionStatus === 'in_progress'
+      ? ('info' as const)
+      : ('neutral' as const);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
@@ -219,13 +110,15 @@ export default function SubmissionGuideScreen() {
               Back
             </Text>
           </Pressable>
-          
+
           <StatusBadge
             status={badgeStatus}
             text={
-              completionStatus === 'complete' ? 'Complete' :
-              completionStatus === 'in_progress' ? 'In Progress' :
-              'Not Started'
+              completionStatus === 'complete'
+                ? 'Complete'
+                : completionStatus === 'in_progress'
+                ? 'In Progress'
+                : 'Not Started'
             }
           />
         </View>
@@ -237,7 +130,8 @@ export default function SubmissionGuideScreen() {
           <Text className="text-sm text-gray-600 mt-1">
             {schema.portalName} • Step-by-step walkthrough
           </Text>
-          {currentTraveler && (
+          {/* Show current traveler name inline when no tabs (single traveler) */}
+          {!hasMultipleTravelers && currentTraveler && (
             <View className="mt-2 flex-row items-center">
               <View className="w-2 h-2 bg-blue-500 rounded-full mr-2" />
               <Text className="text-sm font-medium text-gray-700">
@@ -247,6 +141,16 @@ export default function SubmissionGuideScreen() {
           )}
         </View>
       </View>
+
+      {/* Traveler selector tabs – shown only when multiple travelers are assigned */}
+      {hasMultipleTravelers && activeTravelerId && (
+        <TravelerTabs
+          tabs={travelerTabs}
+          activeTabId={activeTravelerId}
+          onTabPress={handleSwitchTraveler}
+          testID="submission-guide-traveler-tabs"
+        />
+      )}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="p-4">
@@ -284,7 +188,7 @@ export default function SubmissionGuideScreen() {
                   testID="open-in-browser-button"
                 />
               </View>
-              
+
               {/* Timing Information */}
               <View className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <View className="flex-row items-center mb-2">
@@ -295,13 +199,16 @@ export default function SubmissionGuideScreen() {
                 </View>
                 <View className="space-y-1">
                   <Text className="text-sm text-blue-800">
-                    <Text className="font-medium">Recommended:</Text> Submit {schema.submission.recommended} before arrival
+                    <Text className="font-medium">Recommended:</Text> Submit{' '}
+                    {schema.submission.recommended} before arrival
                   </Text>
                   <Text className="text-sm text-blue-800">
-                    <Text className="font-medium">Earliest:</Text> {schema.submission.earliestBeforeArrival} before arrival
+                    <Text className="font-medium">Earliest:</Text>{' '}
+                    {schema.submission.earliestBeforeArrival} before arrival
                   </Text>
                   <Text className="text-sm text-blue-800">
-                    <Text className="font-medium">Latest:</Text> {schema.submission.latestBeforeArrival} before arrival
+                    <Text className="font-medium">Latest:</Text>{' '}
+                    {schema.submission.latestBeforeArrival} before arrival
                   </Text>
                 </View>
               </View>
@@ -309,11 +216,14 @@ export default function SubmissionGuideScreen() {
               {/* Form Completion Summary */}
               <View className="mt-4">
                 <Text className="text-sm font-medium text-gray-900 mb-2">
-                  Your Form Status:
+                  {hasMultipleTravelers && currentTraveler
+                    ? `${currentTraveler.givenNames}'s Form Status:`
+                    : 'Your Form Status:'}
                 </Text>
                 <View className="flex-row items-center justify-between">
                   <Text className="text-sm text-gray-600">
-                    {filledForm.stats.autoFilled + filledForm.stats.userFilled} of {filledForm.stats.totalFields} fields complete
+                    {filledForm.stats.autoFilled + filledForm.stats.userFilled} of{' '}
+                    {filledForm.stats.totalFields} fields complete
                   </Text>
                   <View className="bg-green-100 px-2 py-1 rounded-full">
                     <Text className="text-sm font-medium text-green-700">
@@ -330,7 +240,9 @@ export default function SubmissionGuideScreen() {
             totalSteps={totalSteps}
             currentStep={currentStep}
             completedSteps={completedSteps}
-            stepTitles={schema.submissionGuide.map((step: SubmissionStep) => step.title)}
+            stepTitles={schema.submissionGuide.map(
+              (step: SubmissionStep) => step.title,
+            )}
             variant="horizontal"
             showLabels={false}
           />
@@ -346,7 +258,8 @@ export default function SubmissionGuideScreen() {
                   </Text>
                 </View>
                 <Text className="text-sm text-yellow-700 mt-2">
-                  You have {filledForm.stats.remaining} fields that need attention before starting the submission guide.
+                  You have {filledForm.stats.remaining} fields that need
+                  attention before starting the submission guide.
                 </Text>
                 <Button
                   title="Complete Form"
@@ -384,28 +297,31 @@ export default function SubmissionGuideScreen() {
                   </Text>
                 </View>
                 <Text className="text-sm text-green-800 mb-4">
-                  You've successfully completed all submission steps for {schema.countryName}. 
-                  Don't forget to save any QR codes to your wallet for easy access at the airport.
+                  You've successfully completed all submission steps for{' '}
+                  {schema.countryName}. Don't forget to save any QR codes to
+                  your wallet for easy access at the airport.
                 </Text>
                 <View className="flex-row space-x-3">
                   <Button
                     title="Save QR Code"
                     onPress={() => {
-                      // Navigate to QR capture/save screen
                       (navigation as any).navigate('AddQR', {
                         tripId,
                         legId,
                         countryCode: schema.countryCode,
-                        travelerId: currentTraveler?.id
+                        travelerId: currentTraveler?.id,
                       });
                     }}
                     variant="primary"
                     size="medium"
                     fullWidth={false}
+                    testID="save-qr-button"
                   />
                   <Button
                     title="Back to Trip"
-                    onPress={() => (navigation as any).navigate('TripDetail', { tripId })}
+                    onPress={() =>
+                      (navigation as any).navigate('TripDetail', { tripId })
+                    }
                     variant="secondary"
                     size="medium"
                     fullWidth={false}
