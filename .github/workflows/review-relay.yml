@@ -94,22 +94,22 @@ jobs:
           COUNT=$(echo "$COMMENTS" | jq 'length')
           echo "Found $COUNT inline comments from $REVIEWER"
 
-          # Build the review summary
-          SUMMARY=""
-          if [ "$COUNT" -gt 0 ]; then
-            SUMMARY=$(echo "$COMMENTS" | jq -r '.[] | "- **\(.path)** (line \(.line // "N/A")): \(.body)"' | head -15)
+          # Only dispatch review-fix when there are actual inline comments.
+          # A review body summary alone (which Gemini always includes) is not
+          # actionable and causes a deadlock: request-approval defers because
+          # review-fix is "active", but review-fix produces no changes.
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No inline comments to fix — skipping review-fix dispatch"
+            echo "has_feedback=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
+
+          SUMMARY=$(echo "$COMMENTS" | jq -r '.[] | "- **\(.path)** (line \(.line // "N/A")): \(.body)"' | head -15)
 
           if [ -n "$REVIEW_BODY" ]; then
             SUMMARY="General feedback: ${REVIEW_BODY}
 
           ${SUMMARY}"
-          fi
-
-          if [ -z "$SUMMARY" ]; then
-            echo "No review comments or body to relay"
-            echo "has_feedback=false" >> $GITHUB_OUTPUT
-            exit 0
           fi
 
           echo "has_feedback=true" >> $GITHUB_OUTPUT
