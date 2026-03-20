@@ -7,6 +7,7 @@ import {
   extractLinkedIssue,
   getWorkflowSlots,
   getOpenClaudePRs,
+  getOpenPRs,
   getPRMergeability,
   getPRCIConclusion,
   countCommentsByContent,
@@ -198,13 +199,27 @@ describe('watcher', () => {
   });
 
   describe('getPRCIConclusion', () => {
-    it('returns SUCCESS', () => {
-      mockExec('SUCCESS');
+    it('returns SUCCESS when both test and test-chromium pass', () => {
+      mockExec(JSON.stringify([
+        { name: 'test', conclusion: 'SUCCESS' },
+        { name: 'test-chromium', conclusion: 'SUCCESS' },
+      ]));
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('SUCCESS');
     });
 
-    it('returns FAILURE', () => {
-      mockExec('FAILURE');
+    it('returns FAILURE when test-chromium fails (E2E)', () => {
+      mockExec(JSON.stringify([
+        { name: 'test', conclusion: 'SUCCESS' },
+        { name: 'test-chromium', conclusion: 'FAILURE' },
+      ]));
+      expect(getPRCIConclusion(42, 'owner/repo')).toBe('FAILURE');
+    });
+
+    it('returns FAILURE when test fails', () => {
+      mockExec(JSON.stringify([
+        { name: 'test', conclusion: 'FAILURE' },
+        { name: 'test-chromium', conclusion: 'SUCCESS' },
+      ]));
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('FAILURE');
     });
 
@@ -296,6 +311,40 @@ describe('watcher', () => {
   });
 
   // ─── Epic helpers ────────────────────────────────────────────────
+
+  // Bug: watcher only checked `claude/` branches, missing human-created PRs
+  // like `fix/verify-and-fix-pipefail` that also need pipeline monitoring.
+  describe('getOpenPRs (all branches, not just claude/)', () => {
+    it('returns PRs from all branches including non-claude ones', () => {
+      mockExec(JSON.stringify([
+        { number: 1, headRefName: 'claude/issue-42', createdAt: '2026-03-01T00:00:00Z' },
+        { number: 2, headRefName: 'fix/some-bug', createdAt: '2026-03-02T00:00:00Z' },
+      ]));
+      const prs = getOpenPRs('owner/repo');
+      expect(prs).toHaveLength(2);
+      expect(prs[1].branch).toBe('fix/some-bug');
+    });
+  });
+
+  // Bug: getPRCIConclusion only checked the "test" check, ignoring E2E failures.
+  // PRs #488 and #491 had failing E2E but watcher reported CI: SUCCESS.
+  describe('getPRCIConclusion includes E2E checks', () => {
+    it('should check both test and E2E check conclusions', () => {
+      // Read the source to verify it checks more than just "test"
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const fnMatch = src.match(/getPRCIConclusion[\s\S]*?^}/m);
+      expect(fnMatch, 'getPRCIConclusion function not found').toBeTruthy();
+      const fnBody = fnMatch![0];
+
+      // Must check for E2E checks (test-chromium, test-performance, etc), not just "test"
+      expect(
+        fnBody,
+        'getPRCIConclusion must check E2E results, not just the "test" check',
+      ).toMatch(/test-chromium|e2e|E2E|statusCheckRollup.*FAILURE/i);
+    });
+  });
 
   describe('getOpenEpicLabels', () => {
     it('parses epic labels', () => {

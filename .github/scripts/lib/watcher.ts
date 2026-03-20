@@ -115,15 +115,42 @@ export function getOpenClaudePRs(repo: string): PRInfo[] {
   }
 }
 
+/** Returns ALL open PRs (not just claude/ branches). */
+export function getOpenPRs(repo: string): PRInfo[] {
+  const raw = execOrDefault('gh', ['pr', 'list', '--repo', repo, '--state', 'open',
+    '--json', 'number,headRefName,createdAt'], '[]');
+  try {
+    return JSON.parse(raw).map((r: { number: number; headRefName: string; createdAt: string }) => ({
+      number: r.number,
+      branch: r.headRefName,
+      createdAt: r.createdAt,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export function getPRMergeability(pr: number, repo: string): string {
   return execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'mergeable', '-q', '.mergeable'], 'UNKNOWN');
 }
 
 export function getPRCIConclusion(pr: number, repo: string): string {
-  return execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
+  // Check ALL required CI checks (test + E2E test-chromium), not just "test".
+  // If any required check failed, return FAILURE.
+  const raw = execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'statusCheckRollup',
-    '-q', '[.statusCheckRollup[] | select(.name == "test")] | .[0].conclusion'], '');
+    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium") | {name: .name, conclusion: .conclusion}]'], '[]');
+  try {
+    const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
+    if (checks.length === 0) return '';
+    const anyFailure = checks.some(c => c.conclusion === 'FAILURE');
+    if (anyFailure) return 'FAILURE';
+    const allSuccess = checks.every(c => c.conclusion === 'SUCCESS');
+    return allSuccess ? 'SUCCESS' : '';
+  } catch {
+    return '';
+  }
 }
 
 export function getLastCommitTime(pr: number, repo: string): string {
