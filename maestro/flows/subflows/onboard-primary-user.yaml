@@ -25,7 +25,7 @@ appId: com.borderly.app
     visible: "Step 1 of 3"
     timeout: 10000
 - tapOn:
-    id: "skip-tutorial-button"
+    id: "tutorial-skip-button"
 
 # === PASSPORT SCAN SCREEN ===
 - extendedWaitUntil:
@@ -127,7 +127,7 @@ appId: com.borderly.app
 - tapOn:
     id: "dob-input"
 # Confirm the default date (today) — we accept any valid DOB for testing
-- runFlow: subflows/pick-date.yaml
+- runFlow: pick-date.yaml
 
 # Gender
 - scrollUntilVisible:
@@ -147,7 +147,7 @@ appId: com.borderly.app
 - tapOn:
     id: "passport-expiry-input"
 # Confirm the default date — we accept any valid expiry for testing
-- runFlow: subflows/pick-date.yaml
+- runFlow: pick-date.yaml
 
 # Issuing country (searchable dropdown)
 - scrollUntilVisible:

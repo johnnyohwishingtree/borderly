@@ -51,12 +51,11 @@ function findTestIDInSource(testID: string): boolean {
         // Check for static testID="exact-match" or dynamic testID={`prefix-${var}`}
         if (content.includes(`"${testID}"`) || content.includes(`'${testID}'`)) return true;
         // Check for dynamic patterns like testID={`leg-${index}-arrival-date`}
-        // by verifying each static part (split on digits) individually exists in the file
+        // by looking for the static part of the ID
         const parts = testID.split(/\d+/);
         if (parts.length > 1) {
-          const nonEmptyParts = parts.filter(Boolean);
-          const allPartsFound = nonEmptyParts.every(part => content.includes(part));
-          if (allPartsFound) return true;
+          const pattern = parts.filter(Boolean).join('');
+          if (pattern.length > 5 && content.includes(pattern)) return true;
         }
       }
     }
@@ -76,7 +75,7 @@ describe('Maestro flow drift detection', () => {
   const criticalTestIDs = [
     // Onboarding
     'take-tutorial-button',
-    'skip-tutorial-button',
+    'tutorial-skip-button',
     'enter-manually-button',
     'passport-number-input',
     'surname-input',

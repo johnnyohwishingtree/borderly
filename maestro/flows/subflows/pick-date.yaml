@@ -17,7 +17,7 @@
 #   - tapOn:
 #       id: "leg-0-arrival-date"
 #   # Then run this subflow to confirm the default date
-#   - runFlow: subflows/pick-date.yaml
+#   - runFlow: pick-date.yaml
 #
 # For a specific date, tap the column items before running this subflow.
 appId: com.borderly.app
