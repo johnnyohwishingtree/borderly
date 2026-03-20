@@ -75,7 +75,7 @@ describe('Maestro flow drift detection', () => {
   const criticalTestIDs = [
     // Onboarding
     'take-tutorial-button',
-    'skip-tutorial-button',
+    'tutorial-skip-button',
     'enter-manually-button',
     'passport-number-input',
     'surname-input',
