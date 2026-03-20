@@ -479,26 +479,15 @@ async function main() {
         slotsAvailable--;
       }
 
-      // 5. Close orphan PRs
-      console.log('\n--- Checking for orphan PRs ---');
-      for (const pr of claudePRs) {
-        const body = watcher.getPRBody(pr.number, repo);
-        const linkedIssue = watcher.extractLinkedIssue(body);
-        if (linkedIssue) { continue; }
-
-        const prAge = watcher.minutesAgo(pr.createdAt);
-        console.log(`PR #${pr.number} has no linked story, age: ${prAge}m`);
-
-        if (prAge < graceMinutes) { console.log('  Too new — skipping'); continue; }
-
-        const lastComment = watcher.getLastCommentTime(pr.number, repo);
-        if (lastComment) {
-          const commentAgo = watcher.minutesAgo(lastComment);
-          if (commentAgo < graceMinutes) { console.log(`  Recent activity (${commentAgo}m) — skipping`); continue; }
-        }
-
-        console.log(`  Closing orphan PR #${pr.number}`);
-        watcher.closeOrphanPR(pr.number, pr.branch, repo);
+      // 5. Clean up orphan branches (no open PR)
+      // Never close PRs — only delete stale claude/ branches with no associated PR.
+      console.log('\n--- Checking for orphan branches ---');
+      const openPRBranches = new Set(claudePRs.map(pr => pr.branch));
+      const remoteBranches = watcher.getClaudeBranches(repo);
+      for (const branch of remoteBranches) {
+        if (openPRBranches.has(branch)) continue;
+        console.log(`  Orphan branch: ${branch} (no open PR) — deleting`);
+        try { exec('gh', ['api', `repos/${repo}/git/refs/heads/${branch}`, '--method', 'DELETE']); } catch (e) { console.warn(`  Failed to delete branch ${branch}:`, e); }
       }
 
       console.log(`\n=== Watcher complete — slots used: ${maxConcurrent - slotsAvailable}/${maxConcurrent} ===`);

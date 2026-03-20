@@ -45,14 +45,17 @@ export class GitHubClient {
       (r) => r.name === 'test' && r.conclusion === 'success'
     );
 
+    // E2E checks: treat both 'success' and 'skipped' as passing.
+    // 'skipped' happens when check-changes detects a pipeline-only PR.
+    const e2ePassConclusions = ['success', 'skipped'];
     const e2eChromium = runs.some(
-      (r) => r.name === 'test-chromium' && r.conclusion === 'success'
+      (r) => r.name === 'test-chromium' && e2ePassConclusions.includes(r.conclusion ?? '')
     );
     const e2ePerf = runs.some(
-      (r) => r.name === 'test-performance' && r.conclusion === 'success'
+      (r) => r.name === 'test-performance' && e2ePassConclusions.includes(r.conclusion ?? '')
     );
     const e2eCross = runs.some(
-      (r) => r.name === 'test-cross-browser' && r.conclusion === 'success'
+      (r) => r.name === 'test-cross-browser' && e2ePassConclusions.includes(r.conclusion ?? '')
     );
     const e2ePass = e2eChromium && e2ePerf && e2eCross;
 
