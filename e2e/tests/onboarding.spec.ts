@@ -32,10 +32,11 @@ test.describe('Onboarding Flow', () => {
 
     for (let i = 0; i < slides.length; i++) {
       const slide = slides[i];
-      await expect(page.getByText(slide.title)).toBeVisible();
-      await expect(page.getByText(slide.step)).toBeVisible();
+      // Use testID locators to avoid strict-mode violations from WelcomeScreen elements still in DOM
+      await expect(page.getByTestId('tutorial-slide-title')).toHaveText(slide.title);
+      await expect(page.getByTestId('tutorial-step-indicator')).toHaveText(slide.step);
       // Skip button is available on every slide
-      await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
+      await expect(page.getByTestId('tutorial-skip-button')).toBeVisible();
       await page.getByTestId('next-step-button').click();
     }
 

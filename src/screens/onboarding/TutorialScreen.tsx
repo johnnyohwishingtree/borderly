@@ -132,7 +132,7 @@ export default function TutorialScreen() {
             size="small"
             accessibilityLabel="Skip tutorial"
             accessibilityHint="Skip the tutorial and go directly to passport scanning"
-            testID="skip-tutorial-button"
+            testID="tutorial-skip-button"
           />
         </View>
 
@@ -154,7 +154,7 @@ export default function TutorialScreen() {
           {/* Text content */}
           <View className="bg-white border border-gray-200 rounded-xl p-4">
             <View className="items-center text-center">
-              <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
+              <Text className="text-2xl font-bold text-gray-900 text-center mb-2" testID="tutorial-slide-title">
                 {step.title}
               </Text>
               <Text className="text-lg text-gray-500 font-semibold text-center mb-4">
@@ -198,7 +198,7 @@ export default function TutorialScreen() {
         </View>
 
         {/* Step indicator text */}
-        <Text className="text-center text-sm text-gray-500 mt-4">
+        <Text className="text-center text-sm text-gray-500 mt-4" testID="tutorial-step-indicator">
           Step {currentStep + 1} of {tutorialSteps.length}
         </Text>
       </View>
