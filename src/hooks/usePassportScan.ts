@@ -82,8 +82,7 @@ export function usePassportScan() {
       setMode('manual');
     });
     return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileId]);
+  }, [profileId, form, getProfile]);
 
   const generateProfileId = useCallback(() => {
     const timestamp = Date.now();

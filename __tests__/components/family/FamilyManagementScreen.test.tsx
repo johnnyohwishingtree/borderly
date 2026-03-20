@@ -336,11 +336,12 @@ describe('FamilyManagementScreen', () => {
 
       const { Alert } = require('react-native');
       const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(
-        (_title: string, _msg: string, buttons: any[]) => {
+        ((...args: unknown[]) => {
+          const buttons = args[2] as any[];
           // Simulate pressing "Remove" (destructive button)
           const destructive = buttons.find((b: any) => b.style === 'destructive');
           if (destructive?.onPress) destructive.onPress();
-        }
+        }) as (...args: unknown[]) => any
       );
 
       const { getByTestId } = render(<FamilyManagementScreen />);
