@@ -51,11 +51,12 @@ function findTestIDInSource(testID: string): boolean {
         // Check for static testID="exact-match" or dynamic testID={`prefix-${var}`}
         if (content.includes(`"${testID}"`) || content.includes(`'${testID}'`)) return true;
         // Check for dynamic patterns like testID={`leg-${index}-arrival-date`}
-        // by looking for the static part of the ID
+        // by verifying each static part (split on digits) individually exists in the file
         const parts = testID.split(/\d+/);
         if (parts.length > 1) {
-          const pattern = parts.filter(Boolean).join('');
-          if (pattern.length > 5 && content.includes(pattern)) return true;
+          const nonEmptyParts = parts.filter(Boolean);
+          const allPartsFound = nonEmptyParts.every(part => content.includes(part));
+          if (allPartsFound) return true;
         }
       }
     }

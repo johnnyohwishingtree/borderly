@@ -51,10 +51,6 @@ appId: com.borderly.app
 - tapOn:
     id: "leg-0-arrival-date"
 - runFlow: subflows/pick-date.yaml
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
 
 - scrollUntilVisible:
     element:
@@ -64,10 +60,6 @@ appId: com.borderly.app
 - tapOn:
     id: "leg-0-departure-date"
 - runFlow: subflows/pick-date.yaml
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
 
 - scrollUntilVisible:
     element:
