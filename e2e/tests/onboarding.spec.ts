@@ -24,28 +24,22 @@ test.describe('Onboarding Flow', () => {
     // Enter tutorial
     await page.getByRole('button', { name: 'Take quick tutorial' }).click();
 
-    // Slide 1: core value prop
-    await expect(page.getByText('Fill Once, Travel Everywhere')).toBeVisible();
-    await expect(page.getByText('Step 1 of 3')).toBeVisible();
-    // Skip button is available
-    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
-    await page.getByTestId('next-step-button').click();
+    const slides = [
+      { title: 'Fill Once, Travel Everywhere', step: 'Step 1 of 3' },
+      { title: 'Your Data Stays on Your Phone', step: 'Step 2 of 3' },
+      { title: "Let's Scan Your Passport", step: 'Step 3 of 3' },
+    ];
 
-    // Slide 2: privacy/security
-    await expect(page.getByText('Your Data Stays on Your Phone')).toBeVisible();
-    await expect(page.getByText('Step 2 of 3')).toBeVisible();
-    // Skip button is available
-    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
-    await page.getByTestId('next-step-button').click();
+    for (let i = 0; i < slides.length; i++) {
+      const slide = slides[i];
+      await expect(page.getByText(slide.title)).toBeVisible();
+      await expect(page.getByText(slide.step)).toBeVisible();
+      // Skip button is available on every slide
+      await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
+      await page.getByTestId('next-step-button').click();
+    }
 
-    // Slide 3: passport scan CTA
-    await expect(page.getByText("Let's Scan Your Passport")).toBeVisible();
-    await expect(page.getByText('Step 3 of 3')).toBeVisible();
-    // Skip button is available
-    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
-
-    // Final slide CTA navigates to PassportScan
-    await page.getByTestId('next-step-button').click();
+    // Final slide CTA (clicking next on last slide) navigates to PassportScan
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
   });
 
