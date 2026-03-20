@@ -30,7 +30,7 @@ tags:
 
 # Tutorial Screen
 - extendedWaitUntil:
-    visible: "Step 1 of 5"
+    visible: "Step 1 of 3"
     timeout: 10000
 - takeScreenshot: maestro/output/02-tutorial-screen
 - tapOn:
@@ -128,11 +128,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "dob-input"
-- inputText: "1985-06-15"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 # Gender
 - scrollUntilVisible:
@@ -151,11 +147,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "passport-expiry-input"
-- inputText: "2032-03-20"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 # Issuing country
 - scrollUntilVisible:
