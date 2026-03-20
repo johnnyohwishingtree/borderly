@@ -36,6 +36,7 @@ function createMockGitHub(
     countUnresolvedThreads: vi
       .fn()
       .mockResolvedValue(config.unresolvedThreads),
+    getIssueLabels: vi.fn().mockResolvedValue([]),
     isWorkflowActive: vi.fn().mockResolvedValue(config.reviewFixActive),
     compareBranches: vi.fn().mockResolvedValue(config.branchStatus),
   } as unknown as GitHubClient;
