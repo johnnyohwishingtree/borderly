@@ -5,7 +5,7 @@ import { Lock, TriangleAlert, Lightbulb } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Input, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
+import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete } from '@/components/ui';
 import { Address } from '@/types/profile';
 
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
@@ -28,20 +28,6 @@ export default function EditProfileScreen() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  const countryOptions: SelectOption[] = [
-    { label: 'Select Country', value: '' },
-    { label: 'United States', value: 'USA' },
-    { label: 'Canada', value: 'CAN' },
-    { label: 'United Kingdom', value: 'GBR' },
-    { label: 'Australia', value: 'AUS' },
-    { label: 'Japan', value: 'JPN' },
-    { label: 'Singapore', value: 'SGP' },
-    { label: 'Malaysia', value: 'MYS' },
-    { label: 'Germany', value: 'DEU' },
-    { label: 'France', value: 'FRA' },
-    { label: 'Italy', value: 'ITA' },
-  ];
 
   useEffect(() => {
     if (profile) {
@@ -132,24 +118,6 @@ export default function EditProfileScreen() {
     setFormData(prev => ({
       ...prev,
       [field]: value,
-    }));
-    setHasUnsavedChanges(true);
-
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
-  };
-
-  const updateAddressData = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      homeAddress: {
-        ...prev.homeAddress,
-        [field]: value,
-      },
     }));
     setHasUnsavedChanges(true);
 
@@ -272,66 +240,31 @@ export default function EditProfileScreen() {
             </Text>
           </View>
 
-          <View className="space-y-4">
-            <Input
-              label="Address Line 1"
-              value={formData.homeAddress.line1}
-              onChangeText={(value) => updateAddressData('line1', value)}
-              placeholder="123 Main Street"
-              error={errors.line1}
-            />
-
-            <Input
-              label="Address Line 2 (Optional)"
-              value={formData.homeAddress.line2}
-              onChangeText={(value) => updateAddressData('line2', value)}
-              placeholder="Apt 4B"
-              error={errors.line2}
-            />
-
-            <View className="flex-row space-x-3">
-              <View className="flex-1">
-                <Input
-                  label="City"
-                  value={formData.homeAddress.city}
-                  onChangeText={(value) => updateAddressData('city', value)}
-                  placeholder="New York"
-                  error={errors.city}
-                />
-              </View>
-              <View className="flex-1">
-                <Input
-                  label="State/Province"
-                  value={formData.homeAddress.state}
-                  onChangeText={(value) => updateAddressData('state', value)}
-                  placeholder="NY"
-                  error={errors.state}
-                />
-              </View>
-            </View>
-
-            <View className="flex-row space-x-3">
-              <View className="flex-1">
-                <Input
-                  label="Postal Code"
-                  value={formData.homeAddress.postalCode}
-                  onChangeText={(value) => updateAddressData('postalCode', value)}
-                  placeholder="10001"
-                  error={errors.postalCode}
-                />
-              </View>
-              <View className="flex-1">
-                <Select
-                  label="Country"
-                  options={countryOptions}
-                  value={formData.homeAddress.country}
-                  onValueChange={(value) => updateAddressData('country', value)}
-                  placeholder="Select Country"
-                  error={errors.country}
-                />
-              </View>
-            </View>
-          </View>
+          <AddressAutocomplete
+            value={formData.homeAddress}
+            onAddressChange={(address) => {
+              setFormData(prev => ({ ...prev, homeAddress: address }));
+              setHasUnsavedChanges(true);
+              // Clear address-level errors when user updates
+              setErrors(prev => {
+                const next = { ...prev };
+                delete next.line1;
+                delete next.city;
+                delete next.state;
+                delete next.postalCode;
+                delete next.country;
+                return next;
+              });
+            }}
+            errors={{
+              line1: errors.line1,
+              city: errors.city,
+              state: errors.state,
+              postalCode: errors.postalCode,
+              country: errors.country,
+            }}
+            testID="home-address"
+          />
         </Card>
 
         {/* Passport Information Notice */}

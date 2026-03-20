@@ -1,3 +1,7 @@
+// Address autocomplete
+export { default as AddressAutocomplete } from './AddressAutocomplete';
+export type { AddressAutocompleteProps } from './AddressAutocomplete';
+
 // Enhanced accessible components
 export { default as AccessibleInput, EmailInput, PasswordInput, PhoneInput, NumericInput, SearchInput } from './AccessibleInput';
 
