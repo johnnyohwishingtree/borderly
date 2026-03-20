@@ -1,2 +1,4 @@
+packages:
+  - '.github/scripts'
 patchedDependencies:
   react-native-screens@4.24.0: patches/react-native-screens@4.24.0.patch
