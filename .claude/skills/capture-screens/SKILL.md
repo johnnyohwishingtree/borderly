@@ -24,61 +24,29 @@ Must use `--workers=1` — parallel runs cause webpack-dev-server race condition
 
 ## Output
 
-**Screenshots** saved to `e2e/screenshots/` (gitignored):
+**Screenshots** saved to `e2e/screenshots/` — currently **36 screens** across 5 domains:
 
-| # | File | Screen | Domain |
-|---|------|--------|--------|
-| 01 | `01-welcome-screen.png` | WelcomeScreen | onboarding |
-| 02 | `02-tutorial-screen.png` | TutorialScreen | onboarding |
-| 03 | `03-passport-scan-method.png` | PassportScanScreen | onboarding |
-| 04 | `04-passport-manual-form-empty.png` | PassportScanScreen | onboarding |
-| 05 | `05-passport-manual-form-filled.png` | PassportScanScreen | onboarding |
-| 06 | `06-confirm-profile.png` | ConfirmProfileScreen | onboarding |
-| 07 | `07-biometric-setup.png` | BiometricSetupScreen | onboarding |
-| 08 | `08-trip-list-empty.png` | TripListScreen | trips |
-| 09 | `09-create-trip.png` | CreateTripScreen | trips |
-| 10 | `10-trip-list-with-trip.png` | TripListScreen | trips |
-| 11 | `11-trip-detail.png` | TripDetailScreen | trips |
-| 12 | `12-leg-form.png` | LegFormScreen | trips |
-| 13 | `13-wallet-empty.png` | QRWalletScreen | wallet |
-| 14 | `14-add-qr.png` | AddQRScreen | wallet |
-| 15 | `15-profile.png` | ProfileScreen | profile |
-| 16 | `16-edit-profile.png` | EditProfileScreen | profile |
-| 17 | `17-family-management.png` | FamilyManagementScreen | profile |
-| 18 | `18-settings.png` | SettingsScreen | settings |
-| 19 | `19-help.png` | HelpScreen | settings |
-| 20 | `20-feedback.png` | FeedbackScreen | settings |
-| 21 | `21-bug-report.png` | BugReportScreen | settings |
-| 22 | `22-privacy-policy.png` | PrivacyPolicyScreen | settings |
+| Domain | Screens | Count |
+|--------|---------|-------|
+| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, BiometricSetup | 7 |
+| trips | TripList (empty/with-trip), CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN) | 15 |
+| wallet | QRWallet, AddQR, QRDetail | 3 |
+| profile | Profile, EditProfile, FamilyManagement, AddFamilyMember | 4 |
+| settings | Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy | 7 |
 
-**Manifest** at `e2e/screenshots/manifest.json`:
-```json
-{
-  "capturedAt": "2026-03-18T...",
-  "screenshotDir": "e2e/screenshots/",
-  "totalScreens": 22,
-  "screens": [
-    {
-      "id": "01-welcome-screen",
-      "file": "01-welcome-screen.png",
-      "screen": "WelcomeScreen",
-      "domain": "onboarding",
-      "description": "First screen shown to new users...",
-      "state": "Fresh install, no profile"
-    }
-  ]
-}
-```
+**Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screen name, domain, description, state).
 
-## Screens NOT Captured (and why)
+## Playwright vs Native Screenshots
 
-These screens require native functionality or complex state that can't be simulated on web:
+**Playwright screenshots** (this skill) render via React Native Web in Chromium. They capture layout, content, and navigation but have limitations:
+- Portal screens show iframe-blocked content (government portals block `X-Frame-Options`)
+- Some native-only components render as web approximations
 
-- **PortalSubmissionScreen** — Requires WebView with government portal (native only)
-- **SubmissionGuideScreen** — Requires completed form data with submission steps
-- **QRDetailScreen** — Requires a saved QR code with image data
-- **AddFamilyMemberScreen** — Shares PassportScanScreen with `familyMode` flag
-- **FAQScreen** / **TroubleshootingScreen** — Sub-screens of HelpScreen
+**Native screenshots** are captured post-merge by `screenshot-capture.yml` using an Android emulator + Maestro. These show true native rendering but are slower (~30min) and run only after merges to master.
+
+## Portal Screenshots Note
+
+Portal submission screenshots (MYS, SGP, VNM, CAN) captured via Playwright show loading/blocked states because government portals reject iframe embedding. This is expected — the native app uses real WebViews that bypass this restriction. Native-fidelity portal screenshots come from the post-merge Android emulator workflow.
 
 ## When to Re-Run
 
@@ -87,6 +55,13 @@ Re-capture screenshots whenever:
 - New screens are added
 - Navigation flow changes
 - After a visual audit implements fixes (before/after comparison)
+
+## CI Auto-Capture
+
+Screenshots are automatically captured in CI:
+- **On PRs** (`e2e-smoke.yml`): When UI files change, captures Playwright screenshots and commits them to the PR branch
+- **On verify-and-fix**: After E2E tests pass, captures screenshots if UI files changed
+- **Post-merge** (`screenshot-capture.yml`): Native-fidelity capture on Android emulator; creates a PR if screenshots differ
 
 ## Integration with Other Skills
 
