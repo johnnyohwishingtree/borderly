@@ -152,11 +152,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "dob-input"
-- inputText: "${DOB}"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 # Gender
 - scrollUntilVisible:
@@ -175,11 +171,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "passport-expiry-input"
-- inputText: "${EXPIRY}"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- runFlow: subflows/pick-date.yaml
 
 # Issuing country
 - scrollUntilVisible:
