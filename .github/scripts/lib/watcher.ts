@@ -71,23 +71,15 @@ export function getWorkflowSlots(repo: string, maxConcurrent: number): WorkflowS
 
   const busyIssues = new Set<number>();
 
-  // Collect issues from active/queued claude.yml runs
-  for (const status of ['in_progress', 'queued']) {
-    const titles = execOrDefault('gh', ['run', 'list', '--repo', repo, '--workflow', 'claude.yml',
-      '--status', status, '--json', 'displayTitle', '-q', '.[].displayTitle'], '');
-    for (const title of titles.split('\n').filter(Boolean)) {
-      const issue = extractIssueFromTitle(title);
-      if (issue) busyIssues.add(issue);
-    }
-  }
-
-  // Collect issues from active/queued verify-and-fix.yml runs
-  for (const status of ['in_progress', 'queued']) {
-    const titles = execOrDefault('gh', ['run', 'list', '--repo', repo, '--workflow', 'verify-and-fix.yml',
-      '--status', status, '--json', 'displayTitle', '-q', '.[].displayTitle'], '');
-    for (const title of titles.split('\n').filter(Boolean)) {
-      const issue = extractIssueFromTitle(title);
-      if (issue) busyIssues.add(issue);
+  // Collect issues from active/queued claude.yml and verify-and-fix.yml runs
+  for (const workflow of ['claude.yml', 'verify-and-fix.yml']) {
+    for (const status of ['in_progress', 'queued']) {
+      const titles = execOrDefault('gh', ['run', 'list', '--repo', repo, '--workflow', workflow,
+        '--status', status, '--json', 'displayTitle', '-q', '.[].displayTitle'], '');
+      for (const title of titles.split('\n').filter(Boolean)) {
+        const issue = extractIssueFromTitle(title);
+        if (issue) busyIssues.add(issue);
+      }
     }
   }
 
