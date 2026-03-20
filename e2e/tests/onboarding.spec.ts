@@ -17,6 +17,38 @@ test.describe('Onboarding Flow', () => {
     await expect(skipButton).toBeEnabled();
   });
 
+  test('tutorial has exactly 3 slides with correct content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Welcome to')).toBeVisible();
+
+    // Enter tutorial
+    await page.getByRole('button', { name: 'Take quick tutorial' }).click();
+
+    // Slide 1: core value prop
+    await expect(page.getByText('Fill Once, Travel Everywhere')).toBeVisible();
+    await expect(page.getByText('Step 1 of 3')).toBeVisible();
+    // Skip button is available
+    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
+    await page.getByTestId('next-step-button').click();
+
+    // Slide 2: privacy/security
+    await expect(page.getByText('Your Data Stays on Your Phone')).toBeVisible();
+    await expect(page.getByText('Step 2 of 3')).toBeVisible();
+    // Skip button is available
+    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
+    await page.getByTestId('next-step-button').click();
+
+    // Slide 3: passport scan CTA
+    await expect(page.getByText("Let's Scan Your Passport")).toBeVisible();
+    await expect(page.getByText('Step 3 of 3')).toBeVisible();
+    // Skip button is available
+    await expect(page.getByTestId('skip-tutorial-button')).toBeVisible();
+
+    // Final slide CTA navigates to PassportScan
+    await page.getByTestId('next-step-button').click();
+    await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
+  });
+
   test('completes manual onboarding flow', async ({ page }) => {
     await page.goto('/');
 
