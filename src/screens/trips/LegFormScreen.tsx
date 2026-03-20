@@ -7,6 +7,7 @@ import { ErrorMessage } from '../../components/ui/ErrorMessage';
 import { DynamicForm } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import CountryFlag from '../../components/trips/CountryFlag';
+import TravelerTabs from '../../components/trips/TravelerTabs';
 import { schemaRegistry } from '../../services/schemas/schemaRegistry';
 import { TripStackParamList } from '../../app/navigation/types';
 import { useLegForm } from '../../hooks/useLegForm';
@@ -37,6 +38,11 @@ export default function LegFormScreen() {
     retryLastOperation,
     reloadForm,
     dismissError,
+    // Multi-traveler
+    hasMultipleTravelers,
+    activeTravelerId,
+    travelerTabs,
+    switchToTraveler,
   } = useLegForm({ tripId, legId });
 
   if (isLoading) {
@@ -119,6 +125,16 @@ export default function LegFormScreen() {
           </View>
         </View>
       </View>
+
+      {/* Traveler Tabs — only shown for multi-traveler legs */}
+      {hasMultipleTravelers && (
+        <TravelerTabs
+          tabs={travelerTabs}
+          activeTabId={activeTravelerId ?? ''}
+          onTabPress={switchToTraveler}
+          testID="leg-form-traveler-tabs"
+        />
+      )}
 
       <ScrollView className="flex-1" keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
       {/* Error Messages */}
