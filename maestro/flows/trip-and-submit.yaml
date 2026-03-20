@@ -131,9 +131,11 @@ tags:
     timeout: 10000
 - tapOn: "OK"
 
-# Navigate back to trip detail
-- tapOn:
-    point: "15%,7%"
+# Navigate back to trip detail (iOS back swipe gesture)
+- swipe:
+    start: "1%,50%"
+    end: "70%,50%"
+    duration: 300
 - extendedWaitUntil:
     visible: "Smith Family Asia"
     timeout: 10000
