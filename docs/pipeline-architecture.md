@@ -8,23 +8,23 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `daily-planner.yml` | Cron (weekends) / manual | Creates epics with stories |
+| `daily-planner.yml` | Manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
 | `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
-| `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
+| `test.yml` | Push/PR to master / manual | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | Push/PR to master / manual | E2E tests (Playwright); dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
 | `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate (6 conditions) |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
-| `watcher.yml` | Cron (every 20min) | Unsticks stories, fixes PRs, cleans up |
+| `watcher.yml` | Cron (every 20min) / manual | Unsticks stories, fixes PRs, cleans up |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
-| `build-ios.yml` | Push to master / manual | iOS build |
+| `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
 | `build-android.yml` | Push to master / manual | Android debug build (master only) |
 | `screenshot-capture.yml` | Push to master (UI paths) / manual | Native-fidelity screenshots on Android emulator; creates PR if changed |
 | `release.yml` | Tag push / manual | Release workflow |
@@ -47,6 +47,10 @@ The primary pipeline logic is implemented in TypeScript with full type safety an
 | `state-machine.ts` | Pipeline state persistence in GitHub issue comments | `lib/cli/state-machine.ts` |
 | `workflow.ts` | Temporal-like activity runner: start, success, fail, retry | `lib/cli/activity.ts` |
 | `merge-gate.ts` | Evaluates 6 merge conditions → `merge\|update_branch\|wait\|skip` | `lib/cli/evaluate-merge-gate.ts` |
+| `ci-dispatch.ts` | CI failure dispatch (label check, failed items, verify-and-fix dispatch) | `lib/cli/pipeline.ts` |
+| `watcher.ts` | Pipeline watcher (slot counting, PR health, story retrigger, orphan cleanup) | `lib/cli/pipeline.ts` |
+| `doctor.ts` | Pipeline doctor evidence collection and failure reproduction | `lib/cli/pipeline.ts` |
+| `review-guardian.ts` | Review guardian auto-approve and review decision logic | `lib/cli/pipeline.ts` |
 | `types.ts` | Shared types, state transitions, activity limits | — (library) |
 | `env.ts` | Environment validation and typed access | — (library) |
 
@@ -71,7 +75,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 +---------------------------------------------------------------------+
 | 1. PLANNING                                                         |
 |                                                                     |
-|   daily-planner.yml (weekends)                                      |
+|   daily-planner.yml (manual dispatch)                                |
 |     +-- Gate: <=3 open epics, <=10 open stories                     |
 |     +-- Claude creates Epic issue + 3-6 Story issues                |
 |     +-- Labels: epic, epic:<slug>, story, pending                   |
@@ -166,7 +170,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |   Merges only when ALL 6 conditions are met:                        |
 |     1. Tests workflow passed                                        |
 |     2. E2E passed (all 3 jobs: chromium, performance, cross-browser)|
-|     3. PR has at least one approval                                 |
+|     3. PR has at least one approval (owner PRs implicitly approved) |
 |     4. No unresolved review threads                                 |
 |     5. No active review-fix runs                                    |
 |     6. Branch up to date with master                                |
@@ -221,7 +225,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 
 All watcher logic is implemented in `lib/watcher.ts` (testable TypeScript) and invoked via `watcher-run` CLI command. The workflow YAML is a thin shell that calls:
 ```
-npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run <maxSlots> <staleMin> <epicStaleH>
+npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run <maxConcurrent> <graceMinutes> <maxRetries>
 ```
 
 ---
@@ -280,8 +284,8 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 Callers dispatch it with configurable check mode and retry count:
 - `claude.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (implement → verify → merge → PR)
 - `review-fix.yml` → `checks: "all"`, `max_attempts: 3` (after addressing review feedback)
-- `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure for claude/ branches)
-- `e2e-smoke.yml` → `checks: "e2e"`, `max_attempts: 3` (on E2E failure for claude/ branches)
+- `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure, via `ci-dispatch-pr`/`ci-dispatch-master` CLI)
+- `e2e-smoke.yml` → `checks: "e2e"`, `max_attempts: 3` (on E2E failure, via `ci-dispatch-pr`/`ci-dispatch-master` CLI)
 - `watcher.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (unstick stories with existing work)
 
 The workflow self-dispatches with `attempt+1` for retry (since `workflow_call` can't self-dispatch).

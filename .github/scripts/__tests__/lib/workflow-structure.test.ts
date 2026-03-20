@@ -263,6 +263,7 @@ describe('workflow structure regressions', () => {
   });
 
   // Ensure the pipeline TS package.json has required dependencies
+  // and the lockfile includes the .github/scripts workspace.
   describe('pipeline TypeScript dependencies', () => {
     it('package.json exists with octokit dependencies', () => {
       const pkgPath = join(SCRIPTS_DIR, 'package.json');
@@ -271,6 +272,44 @@ describe('workflow structure regressions', () => {
       expect(pkg.dependencies).toBeDefined();
       expect(pkg.dependencies['@octokit/rest']).toBeDefined();
       expect(pkg.dependencies['@octokit/graphql']).toBeDefined();
+    });
+
+    // Bug: commit e41d208 regenerated pnpm-lock.yaml and silently dropped
+    // the .github/scripts workspace entry. All pipeline CLI commands crashed
+    // with "Cannot find package '@octokit/rest'". Fixed by adding explicit
+    // packages: ['.github/scripts'] to pnpm-workspace.yaml.
+    it('pnpm-workspace.yaml lists .github/scripts as a workspace package', () => {
+      const wsPath = join(SCRIPTS_DIR, '../../pnpm-workspace.yaml');
+      const ws = yaml.load(readFileSync(wsPath, 'utf-8')) as any;
+
+      expect(ws.packages, 'pnpm-workspace.yaml must have a packages field').toBeDefined();
+      expect(
+        ws.packages.some((p: string) => p.includes('.github/scripts')),
+        'pnpm-workspace.yaml packages must include .github/scripts',
+      ).toBe(true);
+    });
+
+    it('pnpm-lock.yaml includes .github/scripts workspace with @octokit/rest', () => {
+      const lockPath = join(SCRIPTS_DIR, '../../pnpm-lock.yaml');
+      const lockContent = readFileSync(lockPath, 'utf-8');
+
+      // The lockfile must have a ".github/scripts:" workspace section
+      expect(
+        lockContent,
+        'pnpm-lock.yaml must contain .github/scripts workspace entry',
+      ).toContain('.github/scripts:');
+
+      // Parse just the importers section to verify @octokit/rest is listed
+      const lock = yaml.load(lockContent) as any;
+      const scriptsImporter = lock.importers?.['.github/scripts'];
+      expect(
+        scriptsImporter,
+        'pnpm-lock.yaml importers must include .github/scripts',
+      ).toBeDefined();
+      expect(
+        scriptsImporter?.dependencies?.['@octokit/rest'],
+        '.github/scripts must have @octokit/rest in lockfile',
+      ).toBeDefined();
     });
 
     it('pipeline CLI entry point exists', () => {
