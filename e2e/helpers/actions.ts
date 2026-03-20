@@ -28,7 +28,9 @@ export async function completeOnboarding(page: Page) {
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-  await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
+  await page.getByTestId('continue-to-security-button').click();
+  await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('companions-continue-button').click();
   await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
   await page.getByRole('button', { name: 'Skip for Now' }).click();
   await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
