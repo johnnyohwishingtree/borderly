@@ -129,10 +129,7 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
 
     // Single summary row is present
     const summaryRow = page.locator('[data-testid="family-summary-row"]');
-    const summaryCount = await summaryRow.count();
-    if (summaryCount > 0) {
-      await expect(summaryRow.first()).toBeVisible({ timeout: 5000 });
-    }
+    await expect(summaryRow).toBeVisible({ timeout: 5000 });
 
     // Duplicate buttons must not exist
     const manageBtn = page.locator('[data-testid="manage-family-button"]');
@@ -147,12 +144,10 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
     await navigateToProfile(page);
 
     const summaryRow = page.locator('[data-testid="family-summary-row"]');
-    if (await summaryRow.count() > 0) {
-      await summaryRow.first().click();
-      // FamilyManagement screen should render its heading
-      await page.getByText('Family Members').first().waitFor({ timeout: 5000 }).catch(() => {});
-      await expect(page.getByText('Family Members').first()).toBeVisible({ timeout: 5000 });
-    }
+    await expect(summaryRow).toBeVisible({ timeout: 5000 });
+    await summaryRow.click();
+    // FamilyManagement screen should render its heading
+    await expect(page.getByText('Family Members').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('summary row shows correct member count for single profile', async ({ page }) => {
@@ -161,10 +156,9 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
     await navigateToProfile(page);
 
     const summaryRow = page.locator('[data-testid="family-summary-row"]');
-    if (await summaryRow.count() > 0) {
-      const text = await summaryRow.first().innerText();
-      expect(text).toMatch(/1 family member/);
-    }
+    await expect(summaryRow).toBeVisible({ timeout: 5000 });
+    const text = await summaryRow.innerText();
+    expect(text).toMatch(/1 family member/);
   });
 
   test('summary row shows correct member count for multiple profiles', async ({ page }) => {
@@ -173,9 +167,8 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
     await navigateToProfile(page);
 
     const summaryRow = page.locator('[data-testid="family-summary-row"]');
-    if (await summaryRow.count() > 0) {
-      const text = await summaryRow.first().innerText();
-      expect(text).toMatch(/3 family members/);
-    }
+    await expect(summaryRow).toBeVisible({ timeout: 5000 });
+    const text = await summaryRow.innerText();
+    expect(text).toMatch(/3 family members/);
   });
 });

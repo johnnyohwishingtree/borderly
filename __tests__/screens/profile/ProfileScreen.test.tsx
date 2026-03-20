@@ -102,17 +102,17 @@ function makeFamilyProfiles(size: number) {
   };
 }
 
-function setupMocks(overrides: { familySize?: number; profile?: any } = {}) {
+function setupMocks(overrides: { familySize?: number; profile?: any; isLoading?: boolean; error?: string | null } = {}) {
   (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
   (useAppStore as unknown as jest.Mock).mockReturnValue({
     preferences: { biometricEnabled: false },
   });
   (useProfileStore as unknown as jest.Mock).mockReturnValue({
-    profile: overrides.profile ?? DEFAULT_PROFILE,
+    profile: 'profile' in overrides ? overrides.profile : DEFAULT_PROFILE,
     familyProfiles: makeFamilyProfiles(overrides.familySize ?? 1),
     loadProfile: jest.fn(),
-    isLoading: false,
-    error: null,
+    isLoading: overrides.isLoading ?? false,
+    error: overrides.error ?? null,
   });
 }
 
@@ -162,43 +162,19 @@ describe('ProfileScreen', () => {
 
   describe('loading and error states', () => {
     it('shows a loading spinner when isLoading is true', () => {
-      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as unknown as jest.Mock).mockReturnValue({
-        profile: null,
-        familyProfiles: makeFamilyProfiles(0),
-        loadProfile: jest.fn(),
-        isLoading: true,
-        error: null,
-      });
+      setupMocks({ profile: null, familySize: 0, isLoading: true });
       const { getByText } = render(<ProfileScreen />);
       expect(getByText('Loading your profile...')).toBeTruthy();
     });
 
     it('shows an error state when error is set', () => {
-      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as unknown as jest.Mock).mockReturnValue({
-        profile: null,
-        familyProfiles: makeFamilyProfiles(0),
-        loadProfile: jest.fn(),
-        isLoading: false,
-        error: 'Failed to load',
-      });
+      setupMocks({ profile: null, familySize: 0, error: 'Failed to load' });
       const { getByText } = render(<ProfileScreen />);
       expect(getByText('Unable to load profile')).toBeTruthy();
     });
 
     it('shows an empty state when profile is null', () => {
-      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as unknown as jest.Mock).mockReturnValue({
-        profile: null,
-        familyProfiles: makeFamilyProfiles(0),
-        loadProfile: jest.fn(),
-        isLoading: false,
-        error: null,
-      });
+      setupMocks({ profile: null, familySize: 0 });
       const { getByText } = render(<ProfileScreen />);
       expect(getByText('No Profile Found')).toBeTruthy();
     });
