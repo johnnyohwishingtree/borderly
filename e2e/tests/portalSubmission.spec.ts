@@ -550,4 +550,52 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
     // No page errors means the auto-login service imports resolved correctly
     expect(criticalErrors).toEqual([]);
   });
+
+  test('Submit in App button renders and is accessible when portal screen is shown', async ({ page }) => {
+    // Verify the submit-in-app-button (form-completion gate) renders without
+    // crashing and exposes its testID for automation. The button's enabled/
+    // disabled state depends on form completeness which is computed at runtime
+    // from the filled form — here we just confirm the bundle includes the new
+    // UI elements and no JS errors occur.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      // The submit-in-app-button must be present in the component tree
+      const submitBtn = page.locator('[data-testid="submit-in-app-button"]');
+      await expect(submitBtn).toBeVisible();
+
+      // The section container wrapping the button must also be present
+      const submitSection = page.locator('[data-testid="submit-in-app-section"]');
+      await expect(submitSection).toBeVisible();
+
+      // On initial render the incomplete-form-message must NOT be visible
+      const incompleteMsg = page.locator('[data-testid="incomplete-form-message"]');
+      await expect(incompleteMsg).not.toBeVisible();
+    }
+  });
+
+  test('incomplete-form-message NOT shown on initial render (gating smoke test)', async ({ page }) => {
+    // Regression guard: the warning message that appears when the user taps
+    // Submit in App with an incomplete form must not appear on initial load —
+    // it is only shown after an explicit tap on the disabled button.
+    await navigateToPortalSubmission(page);
+
+    const screen = page.locator('[data-testid="portal-submission-screen"]');
+    const screenCount = await screen.count();
+
+    if (screenCount > 0) {
+      const incompleteMsg = page.locator('[data-testid="incomplete-form-message"]');
+      await expect(incompleteMsg).not.toBeVisible();
+
+      // Wait for async rendering to settle (profile loading, form generation)
+      await page.waitForTimeout(500);
+
+      // Still not visible — confirms the message is tap-triggered only
+      const stillHidden = !(await incompleteMsg.isVisible().catch(() => false));
+      expect(stillHidden).toBe(true);
+    }
+  });
 });
