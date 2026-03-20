@@ -41,6 +41,7 @@
  *   merge-master
  *   commit <message> [co-author]
  *   push <branch> [pre-push-head]
+ *   update-branch <pr>            — update PR branch + dispatch CI
  *
  * Environment:
  *   GH_PAT / GH_TOKEN      — GitHub token
@@ -662,6 +663,25 @@ async function main() {
       const [branch, prePushHead] = args;
       if (!branch) { console.error('Usage: pipeline push <branch> [pre-push-head]'); process.exit(1); }
       smartPush(branch, prePushHead);
+      break;
+    }
+
+    case 'update-branch': {
+      // Update a PR branch to latest master and dispatch CI.
+      // GitHub's pull_request event doesn't reliably fire after branch
+      // updates, so we explicitly dispatch test.yml + e2e-smoke.yml.
+      const [prStr] = args;
+      const pr = parseInt(prStr, 10);
+      if (isNaN(pr)) { console.error('Usage: pipeline update-branch <pr>'); process.exit(1); }
+      const github = getGitHub();
+      const prData = await github.getPR(pr);
+      const branchName = prData.head.ref;
+      console.log(`Updating branch ${branchName} to latest master...`);
+      await github.updateBranch(pr);
+      console.log('Branch updated — dispatching CI');
+      await github.dispatchWorkflow('test.yml', branchName);
+      await github.dispatchWorkflow('e2e-smoke.yml', branchName);
+      console.log('Dispatched test.yml + e2e-smoke.yml');
       break;
     }
 
