@@ -17,6 +17,33 @@ test.describe('Onboarding Flow', () => {
     await expect(skipButton).toBeEnabled();
   });
 
+  test('tutorial has exactly 3 slides with correct content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByText('Welcome to')).toBeVisible();
+
+    // Enter tutorial
+    await page.getByRole('button', { name: 'Take quick tutorial' }).click();
+
+    const slides = [
+      { title: 'Fill Once, Travel Everywhere', step: 'Step 1 of 3' },
+      { title: 'Your Data Stays on Your Phone', step: 'Step 2 of 3' },
+      { title: "Let's Scan Your Passport", step: 'Step 3 of 3' },
+    ];
+
+    for (let i = 0; i < slides.length; i++) {
+      const slide = slides[i];
+      // Use testID locators to avoid strict-mode violations from WelcomeScreen elements still in DOM
+      await expect(page.getByTestId('tutorial-slide-title')).toHaveText(slide.title);
+      await expect(page.getByTestId('tutorial-step-indicator')).toHaveText(slide.step);
+      // Skip button is available on every slide
+      await expect(page.getByTestId('tutorial-skip-button')).toBeVisible();
+      await page.getByTestId('next-step-button').click();
+    }
+
+    // Final slide CTA (clicking next on last slide) navigates to PassportScan
+    await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
+  });
+
   test('completes manual onboarding flow', async ({ page }) => {
     await page.goto('/');
 

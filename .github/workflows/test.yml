@@ -13,22 +13,21 @@ permissions:
   actions: write
 
 jobs:
-  test:
+  typecheck:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup pipeline TypeScript
-        uses: ./.github/actions/setup-pipeline-ts
-
-      - name: Set up Node and pnpm
-        uses: ./.github/actions/setup-node
-
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
       - name: Type check
         run: pnpm typecheck
 
+  bundle-ios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
       - name: Metro bundle check (iOS)
         run: |
           npx react-native bundle \
@@ -39,6 +38,12 @@ jobs:
             --assets-dest /tmp/ios-assets 2>&1 | tee /tmp/bundle_output.txt
           exit ${PIPESTATUS[0]}
 
+  bundle-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
       - name: Metro bundle check (Android)
         run: |
           npx react-native bundle \
@@ -49,14 +54,29 @@ jobs:
             --assets-dest /tmp/android-assets 2>&1 | tee /tmp/android_bundle_output.txt
           exit ${PIPESTATUS[0]}
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
       - name: Run tests
         id: tests
         run: |
           pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
           exit ${PIPESTATUS[0]}
 
+  # Dispatch auto-fix on failure
+  notify:
+    needs: [typecheck, bundle-ios, bundle-android, test]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pipeline-ts
       - name: Dispatch verify-and-fix on PR failure
-        if: failure() && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -68,7 +88,7 @@ jobs:
             "ci"
 
       - name: Dispatch verify-and-fix on master push failure
-        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
