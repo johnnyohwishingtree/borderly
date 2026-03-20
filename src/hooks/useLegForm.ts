@@ -19,6 +19,29 @@ interface UseLegFormOptions {
   legId: string;
 }
 
+/**
+ * Upserts a traveler's form entry in the travelerFormsData array.
+ * If an entry for the traveler already exists, it is updated in-place;
+ * otherwise a new entry is appended.
+ */
+function upsertTravelerFormData(
+  existingForms: TravelerFormData[],
+  travelerId: string,
+  formData: Record<string, unknown>,
+  formStatus: TravelerFormData['formStatus'],
+  completionPercentage: number,
+): TravelerFormData[] {
+  const updated = existingForms.map<TravelerFormData>(tf =>
+    tf.travelerId === travelerId
+      ? { ...tf, formData, formStatus, completionPercentage }
+      : tf
+  );
+  if (!existingForms.find(tf => tf.travelerId === travelerId)) {
+    updated.push({ travelerId, formData, formStatus, completionPercentage });
+  }
+  return updated;
+}
+
 /** Combined traveler state — updated atomically to avoid split renders */
 interface TravelerState {
   activeTravelerId: string | null;
@@ -235,19 +258,15 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     // Save current traveler's form data before switching
     if (activeTravelerId) {
       const currentFormData = getFormData();
+      const completionPct = currentForm?.stats.completionPercentage ?? 0;
       const existingForms: TravelerFormData[] = leg.travelerFormsData ?? [];
-      const updatedForms = existingForms.map<TravelerFormData>(tf =>
-        tf.travelerId === activeTravelerId
-          ? { ...tf, formData: currentFormData, formStatus: isValid ? 'ready' : 'in_progress' }
-          : tf
+      const updatedForms = upsertTravelerFormData(
+        existingForms,
+        activeTravelerId,
+        currentFormData,
+        isValid ? 'ready' : 'in_progress',
+        completionPct,
       );
-      if (!existingForms.find(tf => tf.travelerId === activeTravelerId)) {
-        updatedForms.push({
-          travelerId: activeTravelerId,
-          formData: currentFormData,
-          formStatus: isValid ? 'ready' : 'in_progress',
-        });
-      }
       try {
         await updateTripLeg(leg.id, { travelerFormsData: updatedForms });
       } catch {
@@ -290,20 +309,16 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
 
       if (hasMultipleTravelers && activeTravelerId) {
         // Save per-traveler form data
+        const completionPct = currentForm?.stats.completionPercentage ?? 0;
         const freshLeg = getLegById(legId);
         const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
-        const updatedForms = existingForms.map<TravelerFormData>(tf =>
-          tf.travelerId === activeTravelerId
-            ? { ...tf, formData: formDataToSave, formStatus: isValid ? 'ready' : 'in_progress' }
-            : tf
+        const updatedForms = upsertTravelerFormData(
+          existingForms,
+          activeTravelerId,
+          formDataToSave,
+          isValid ? 'ready' : 'in_progress',
+          completionPct,
         );
-        if (!existingForms.find(tf => tf.travelerId === activeTravelerId)) {
-          updatedForms.push({
-            travelerId: activeTravelerId,
-            formData: formDataToSave,
-            formStatus: isValid ? 'ready' : 'in_progress',
-          });
-        }
         await updateTripLeg(leg.id, { travelerFormsData: updatedForms });
       } else {
         // Legacy single-traveler save
@@ -371,18 +386,13 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
         // Mark this specific traveler as ready
         const freshLeg = getLegById(legId);
         const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
-        const updatedForms = existingForms.map<TravelerFormData>(tf =>
-          tf.travelerId === activeTravelerId
-            ? { ...tf, formData: formDataToSave, formStatus: 'ready' }
-            : tf
+        const updatedForms = upsertTravelerFormData(
+          existingForms,
+          activeTravelerId,
+          formDataToSave,
+          'ready',
+          100,
         );
-        if (!existingForms.find(tf => tf.travelerId === activeTravelerId)) {
-          updatedForms.push({
-            travelerId: activeTravelerId,
-            formData: formDataToSave,
-            formStatus: 'ready',
-          });
-        }
         await updateTripLeg(leg!.id, { travelerFormsData: updatedForms });
       } else {
         // Legacy single-traveler mark-as-ready
@@ -470,11 +480,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
           if (storedFormEntry.formStatus === 'ready' || storedFormEntry.formStatus === 'submitted') {
             completionPercentage = 100;
           } else if (storedFormEntry.formStatus === 'in_progress') {
-            // Estimate from stored field count
-            completionPercentage = Math.min(
-              Math.round((Object.keys(storedFormEntry.formData).length / 5) * 20),
-              90
-            );
+            completionPercentage = storedFormEntry.completionPercentage;
           }
         }
 

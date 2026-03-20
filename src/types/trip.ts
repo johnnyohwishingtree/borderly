@@ -22,6 +22,7 @@ export interface TravelerFormData {
   travelerId: string;
   formData: Record<string, unknown>;
   formStatus: 'not_started' | 'in_progress' | 'ready' | 'submitted';
+  completionPercentage: number;
   qrCodes?: SavedQRCode[];
 }
 

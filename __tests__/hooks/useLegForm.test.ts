@@ -83,11 +83,13 @@ const mockMultiTravelerLeg = {
       travelerId: 'profile_1',
       formData: { surname: 'Doe' },
       formStatus: 'in_progress' as const,
+      completionPercentage: 40,
     },
     {
       travelerId: 'profile_2',
       formData: {},
       formStatus: 'not_started' as const,
+      completionPercentage: 0,
     },
   ],
 };

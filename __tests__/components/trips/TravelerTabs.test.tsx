@@ -89,7 +89,7 @@ describe('TravelerTabs', () => {
     expect(onTabPress).toHaveBeenCalledWith('profile_2');
   });
 
-  it('does not call onTabPress with the active traveler when pressing active tab', () => {
+  it('calls onTabPress with the active traveler id when pressing the active tab', () => {
     const onTabPress = jest.fn();
     const tabs = makeTabs();
     const { getByTestId } = render(

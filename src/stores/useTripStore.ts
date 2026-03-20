@@ -504,6 +504,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
                       travelerId,
                       formData: {},
                       formStatus: 'not_started' as const,
+                      completionPercentage: 0,
                     };
                   }),
                 }
@@ -556,6 +557,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
                 travelerId,
                 formData: { [fieldId]: value },
                 formStatus: 'in_progress',
+                completionPercentage: 0,
               });
             }
 
@@ -598,6 +600,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
                 travelerId,
                 formData: {},
                 formStatus: status,
+                completionPercentage: 0,
               });
             }
 
