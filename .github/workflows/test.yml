@@ -60,48 +60,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          PR_NUM=${{ github.event.pull_request.number }}
-          BRANCH="${{ github.head_ref }}"
-
-          # Opt out with the "no-autofix" label
-          LABELS=$(gh pr view "$PR_NUM" --repo "${{ github.repository }}" --json labels -q '[.labels[].name] | join(",")' 2>/dev/null || echo "")
-          if [[ "$LABELS" == *"no-autofix"* ]]; then
-            echo "PR has no-autofix label — skipping"
-            exit 0
-          fi
-
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
-            -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
-
-          npx tsx .github/scripts/lib/cli/pipeline.ts comment "$PR_NUM" "CI checks failed (${FAILED_STEPS}). Dispatching verify-and-fix with auto-retry. [View run]($RUN_URL)"
-
-          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
-            -f branch="$BRANCH" \
-            -f issue_number="$PR_NUM" \
-            -f checks="ci" \
-            -f fix_enabled="true" \
-            -f max_attempts="3" \
-            -f fix_context="CI failed on PR #${PR_NUM}. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}"
+          npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr \
+            "${{ github.event.pull_request.number }}" \
+            "${{ github.head_ref }}" \
+            "${{ github.run_id }}" \
+            "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "ci"
 
       - name: Dispatch verify-and-fix on master push failure
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/master'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          FIX_BRANCH="fix/master-ci-$(date +%Y%m%d-%H%M)"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          FAILED_STEPS=$(gh run view ${{ github.run_id }} --json jobs \
-            -q '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")' 2>/dev/null || echo "unknown")
-
-          # Create fix branch from master
-          git checkout -b "$FIX_BRANCH"
-          git push -u origin "$FIX_BRANCH"
-
-          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "verify-and-fix.yml" \
-            -f branch="$FIX_BRANCH" \
-            -f checks="ci" \
-            -f fix_enabled="true" \
-            -f max_attempts="3" \
-            -f create_pr="true" \
-            -f fix_context="CI failed on master after merge. Failed steps: ${FAILED_STEPS}. Run: ${RUN_URL}. Fix the issue and create a PR back to master."
+          npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master \
+            "${{ github.run_id }}" \
+            "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "ci" \
+            "fix/master-ci"

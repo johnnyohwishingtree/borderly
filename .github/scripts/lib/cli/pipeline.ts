@@ -19,6 +19,10 @@
  *   get-next-pending-story <epic_label> [repo]
  *   trigger-story-agent <issue> [agent] [suffix]
  *
+ * Commands (CI Dispatch):
+ *   ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
+ *   ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
+ *
  * Commands (Git):
  *   setup-git-auth
  *   merge-master
@@ -32,6 +36,7 @@
 
 import { GitHubClient } from '../github.js';
 import { setupGitAuth, mergeMasterIntoBranch, checkChangesAndCommit, smartPush } from '../git.js';
+import { dispatchPRFix, dispatchMasterFix } from '../ci-dispatch.js';
 
 function getToken(): string {
   const token = process.env['GH_PAT'] ?? process.env['GH_TOKEN'];
@@ -235,6 +240,54 @@ async function main() {
       if (isNaN(issue)) { console.error('Usage: pipeline trigger-story-agent <issue> [agent] [suffix]'); process.exit(1); }
       const github = getGitHub();
       await github.triggerStoryAgent(issue, (agent as 'claude' | 'gemini') ?? 'claude', suffix);
+      break;
+    }
+
+    // ─── CI Dispatch Commands ──────────────────────────────────────────
+
+    case 'ci-dispatch-pr': {
+      // Usage: pipeline ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
+      const [prStr, branch, runId, runUrl, checks, ...extraParts] = args;
+      const pr = parseInt(prStr, 10);
+      if (isNaN(pr) || !branch || !runId || !runUrl || !checks) {
+        console.error('Usage: pipeline ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]');
+        process.exit(1);
+      }
+      const github = getGitHub();
+      const result = await dispatchPRFix(github, {
+        pr,
+        branch,
+        runId,
+        runUrl,
+        repo: getRepo(),
+        checks: checks as 'ci' | 'e2e',
+        extraContext: extraParts.length > 0 ? extraParts.join(' ') : undefined,
+      });
+      if (result.skipped) {
+        console.log('Skipped: PR has no-autofix label');
+      } else {
+        console.log(`Dispatched verify-and-fix for ${checks} failures: ${result.failedItems}`);
+      }
+      break;
+    }
+
+    case 'ci-dispatch-master': {
+      // Usage: pipeline ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
+      const [runId, runUrl, checks, branchPrefix, ...extraParts] = args;
+      if (!runId || !runUrl || !checks || !branchPrefix) {
+        console.error('Usage: pipeline ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]');
+        process.exit(1);
+      }
+      const github = getGitHub();
+      const result = await dispatchMasterFix(github, {
+        runId,
+        runUrl,
+        repo: getRepo(),
+        checks: checks as 'ci' | 'e2e',
+        branchPrefix,
+        extraContext: extraParts.length > 0 ? extraParts.join(' ') : undefined,
+      });
+      console.log(`Created branch ${result.branch} and dispatched verify-and-fix: ${result.failedItems}`);
       break;
     }
 
