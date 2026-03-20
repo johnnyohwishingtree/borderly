@@ -357,7 +357,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await screenshot(page, '02-tutorial-screen', {
       screen: 'TutorialScreen',
       domain: 'onboarding',
-      description: 'Step-by-step tutorial explaining the app workflow (scan, create, fill, submit).',
+      description: 'Streamlined 3-slide tutorial: core value prop, privacy/security, passport scan CTA.',
       state: 'After clicking Get Started from Welcome',
     });
   });

@@ -176,6 +176,26 @@ describe('auto-merge uses --admin for owner PRs', () => {
   });
 });
 
+describe('auto-merge dispatches CI after update_branch', () => {
+  it('update_branch path uses pipeline CLI update-branch command', () => {
+    const content = readWorkflow('auto-merge.yml');
+    const updateSection = content.match(/update_branch"\s*\][\s\S]*?(?=\n\s+elif|\n\s+else\b)/);
+    expect(updateSection, 'update_branch section not found').toBeTruthy();
+    expect(updateSection![0], 'must use pipeline update-branch command').toContain('update-branch');
+  });
+
+  it('pipeline update-branch command dispatches both test.yml and e2e-smoke.yml', () => {
+    const pipelineSrc = readFileSync(
+      join(__dirname, '../../lib/cli/pipeline.ts'), 'utf-8',
+    );
+    const caseMatch = pipelineSrc.match(/case\s+'update-branch':\s*\{([\s\S]*?)\n {4}\}/);
+    expect(caseMatch, 'update-branch case not found in pipeline.ts').toBeTruthy();
+    const body = caseMatch![1];
+    expect(body, 'must dispatch test.yml').toContain('test.yml');
+    expect(body, 'must dispatch e2e-smoke.yml').toContain('e2e-smoke.yml');
+  });
+});
+
 describe('approve-and-merge self-approval safety', () => {
   it('pipeline.ts approve-and-merge wraps approvePR in try-catch', () => {
     const pipelineSrc = readFileSync(
