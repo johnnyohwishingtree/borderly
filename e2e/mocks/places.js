@@ -34,25 +34,41 @@ function alpha2ToAlpha3(alpha2) {
 }
 
 /**
- * Parse address components — minimal implementation for tests that
- * might call this directly.
+ * Parse address components — mirrors the logic in placesService.ts,
+ * including the sublocality_level_1 fallback when locality is absent.
  */
 function parseAddressComponents(components) {
-  const result = {};
+  let streetNumber = '';
+  let route = '';
+  let city = '';
+  let state = '';
+  let postalCode = '';
+  let country = '';
+
   for (const component of components) {
     const types = component.types || [];
-    if (types.includes('street_number') || types.includes('route')) {
-      result.line1 = (result.line1 ? result.line1 + ' ' : '') + component.long_name;
-    } else if (types.includes('locality')) {
-      result.city = component.long_name;
+    if (types.includes('street_number')) {
+      streetNumber = component.long_name;
+    } else if (types.includes('route')) {
+      route = component.long_name;
+    } else if (types.includes('locality') || (types.includes('sublocality_level_1') && !city)) {
+      city = component.long_name;
     } else if (types.includes('administrative_area_level_1')) {
-      result.state = component.short_name;
+      state = component.short_name;
     } else if (types.includes('postal_code')) {
-      result.postalCode = component.long_name;
+      postalCode = component.long_name;
     } else if (types.includes('country')) {
-      result.country = component.short_name;
+      country = alpha2ToAlpha3(component.short_name);
     }
   }
+
+  const line1 = [streetNumber, route].filter(Boolean).join(' ');
+  const result = {};
+  if (line1) result.line1 = line1;
+  if (city) result.city = city;
+  if (state) result.state = state;
+  if (postalCode) result.postalCode = postalCode;
+  if (country) result.country = country;
   return result;
 }
 
