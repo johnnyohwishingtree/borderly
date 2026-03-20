@@ -1,7 +1,7 @@
 {
-  "capturedAt": "2026-03-19T05:45:14.685Z",
+  "capturedAt": "2026-03-20T02:00:41.858Z",
   "screenshotDir": "e2e/screenshots/",
-  "totalScreens": 28,
+  "totalScreens": 36,
   "screens": [
     {
       "id": "01-welcome-screen",
@@ -226,6 +226,70 @@
       "domain": "settings",
       "description": "Privacy policy — data handling, local-first architecture, security details.",
       "state": "Navigated from Settings"
+    },
+    {
+      "id": "29-submission-guide-mys",
+      "file": "29-submission-guide-mys.png",
+      "screen": "SubmissionGuideScreen",
+      "domain": "trips",
+      "description": "Malaysia MDAC submission guide with step-by-step portal walkthrough.",
+      "state": "Viewing MYS submission guide via imperative navigation"
+    },
+    {
+      "id": "30-submission-guide-sgp",
+      "file": "30-submission-guide-sgp.png",
+      "screen": "SubmissionGuideScreen",
+      "domain": "trips",
+      "description": "Singapore SG Arrival Card submission guide with step-by-step portal walkthrough.",
+      "state": "Viewing SGP submission guide via imperative navigation"
+    },
+    {
+      "id": "31-submission-guide-vnm",
+      "file": "31-submission-guide-vnm.png",
+      "screen": "SubmissionGuideScreen",
+      "domain": "trips",
+      "description": "Vietnam e-Visa submission guide with step-by-step portal walkthrough.",
+      "state": "Viewing VNM submission guide via imperative navigation"
+    },
+    {
+      "id": "32-submission-guide-can",
+      "file": "32-submission-guide-can.png",
+      "screen": "SubmissionGuideScreen",
+      "domain": "trips",
+      "description": "Canada eTA submission guide with step-by-step portal walkthrough.",
+      "state": "Viewing CAN submission guide via imperative navigation"
+    },
+    {
+      "id": "33-portal-submission-mys",
+      "file": "33-portal-submission-mys.png",
+      "screen": "PortalSubmissionScreen",
+      "domain": "trips",
+      "description": "Malaysia MDAC portal submission screen with WebView and Borderly toolbar.",
+      "state": "Viewing MYS portal (iframe blocked, showing Borderly UI chrome)"
+    },
+    {
+      "id": "34-portal-submission-sgp",
+      "file": "34-portal-submission-sgp.png",
+      "screen": "PortalSubmissionScreen",
+      "domain": "trips",
+      "description": "Singapore SG Arrival Card portal submission screen with WebView and Borderly toolbar.",
+      "state": "Viewing SGP portal (iframe blocked, showing Borderly UI chrome)"
+    },
+    {
+      "id": "35-portal-submission-vnm",
+      "file": "35-portal-submission-vnm.png",
+      "screen": "PortalSubmissionScreen",
+      "domain": "trips",
+      "description": "Vietnam e-Visa portal submission screen with WebView and Borderly toolbar.",
+      "state": "Viewing VNM portal (iframe blocked, showing Borderly UI chrome)"
+    },
+    {
+      "id": "36-portal-submission-can",
+      "file": "36-portal-submission-can.png",
+      "screen": "PortalSubmissionScreen",
+      "domain": "trips",
+      "description": "Canada eTA portal submission screen with WebView and Borderly toolbar.",
+      "state": "Viewing CAN portal (iframe blocked, showing Borderly UI chrome)"
     }
   ]
 }
