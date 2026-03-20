@@ -28,6 +28,16 @@ async function getPlaceDetails(_placeId, _sessionToken) {
   return null;
 }
 
+/** Returns empty lodging suggestions — triggers offline fallback in AccommodationAutocomplete */
+async function getLodgingSuggestions(_input, _sessionToken) {
+  return [];
+}
+
+/** Returns null — triggers fallback behavior in AccommodationAutocomplete */
+async function getLodgingDetails(_placeId, _sessionToken) {
+  return null;
+}
+
 /** Convert ISO alpha-2 to alpha-3 (identity function for mock) */
 function alpha2ToAlpha3(alpha2) {
   return alpha2;
@@ -78,6 +88,8 @@ module.exports = {
   setPlacesApiKey,
   getAutocompleteSuggestions,
   getPlaceDetails,
+  getLodgingSuggestions,
+  getLodgingDetails,
   alpha2ToAlpha3,
   parseAddressComponents,
 };

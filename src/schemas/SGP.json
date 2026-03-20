@@ -247,10 +247,12 @@
         {
           "id": "accommodationName",
           "label": "Name of Accommodation",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "accommodations",
           "required": true,
           "autoFillSource": "leg.accommodation.name",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "helpText": "Search for your hotel or accommodation in Singapore"
         },
         {
           "id": "accommodationAddress",

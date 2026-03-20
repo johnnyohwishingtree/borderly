@@ -13,6 +13,8 @@ import {
   alpha2ToAlpha3,
   getAutocompleteSuggestions,
   getPlaceDetails,
+  getLodgingSuggestions,
+  getLodgingDetails,
   getPlacesApiKey,
   setPlacesApiKey,
   PLACES_API_KEY_MMKV_KEY,
@@ -341,5 +343,212 @@ describe('getPlaceDetails', () => {
     expect(url).toContain('sessiontoken=my-session-token');
     expect(url).toContain('key=my-api-key');
     expect(url).toContain('place_id=place-1');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getLodgingSuggestions
+// ---------------------------------------------------------------------------
+
+describe('getLodgingSuggestions', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns empty array when no API key is configured', async () => {
+    mockMmkv.getString.mockReturnValue(undefined);
+    const results = await getLodgingSuggestions('Hilton', 'session-1');
+    expect(results).toEqual([]);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('returns empty array for empty input', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    const results = await getLodgingSuggestions('', 'session-1');
+    expect(results).toEqual([]);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('uses types=lodging in the request URL', async () => {
+    mockMmkv.getString.mockReturnValue('test-api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ status: 'ZERO_RESULTS', predictions: [] }),
+    });
+
+    await getLodgingSuggestions('Marriott', 'session-tok');
+
+    const url = mockFetch.mock.calls[0][0] as string;
+    expect(url).toContain('types=lodging');
+    expect(url).toContain('key=test-api-key');
+    expect(url).toContain('sessiontoken=session-tok');
+  });
+
+  it('returns mapped lodging suggestions on OK response', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 'OK',
+        predictions: [
+          {
+            place_id: 'hotel-place-1',
+            description: 'Park Hyatt Tokyo, 3-7-1-2 Nishi Shinjuku, Tokyo, Japan',
+            structured_formatting: {
+              main_text: 'Park Hyatt Tokyo',
+              secondary_text: '3-7-1-2 Nishi Shinjuku, Tokyo, Japan',
+            },
+          },
+          {
+            place_id: 'hotel-place-2',
+            description: 'Hilton Tokyo, 6-6-2 Nishi Shinjuku, Tokyo, Japan',
+            structured_formatting: {
+              main_text: 'Hilton Tokyo',
+              secondary_text: '6-6-2 Nishi Shinjuku, Tokyo, Japan',
+            },
+          },
+        ],
+      }),
+    });
+
+    const results = await getLodgingSuggestions('Tokyo hotel', 'session-1');
+
+    expect(results).toHaveLength(2);
+    expect(results[0]).toEqual({
+      placeId: 'hotel-place-1',
+      description: 'Park Hyatt Tokyo, 3-7-1-2 Nishi Shinjuku, Tokyo, Japan',
+      mainText: 'Park Hyatt Tokyo',
+      secondaryText: '3-7-1-2 Nishi Shinjuku, Tokyo, Japan',
+    });
+    expect(results[1].mainText).toBe('Hilton Tokyo');
+  });
+
+  it('returns empty array on ZERO_RESULTS', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ status: 'ZERO_RESULTS', predictions: [] }),
+    });
+
+    const results = await getLodgingSuggestions('xyzxyzxyz', 'session-1');
+    expect(results).toEqual([]);
+  });
+
+  it('returns empty array on network error (offline fallback)', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockRejectedValueOnce(new TypeError('Network request failed'));
+
+    const results = await getLodgingSuggestions('Hilton', 'session-1');
+    expect(results).toEqual([]);
+  });
+
+  it('returns empty array on API error status', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ status: 'REQUEST_DENIED' }),
+    });
+
+    const results = await getLodgingSuggestions('Hilton', 'session-1');
+    expect(results).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getLodgingDetails
+// ---------------------------------------------------------------------------
+
+describe('getLodgingDetails', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns null when no API key is configured', async () => {
+    mockMmkv.getString.mockReturnValue(undefined);
+    const result = await getLodgingDetails('hotel-place-1', 'session-1');
+    expect(result).toBeNull();
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('returns null for empty placeId', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    const result = await getLodgingDetails('', 'session-1');
+    expect(result).toBeNull();
+  });
+
+  it('includes name field in the Place Details request', async () => {
+    mockMmkv.getString.mockReturnValue('my-api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 'OK',
+        result: {
+          place_id: 'hotel-place-1',
+          name: 'Park Hyatt Tokyo',
+          formatted_address: '3-7-1-2 Nishi Shinjuku, Shinjuku, Tokyo 163-1055, Japan',
+          address_components: [],
+        },
+      }),
+    });
+
+    await getLodgingDetails('hotel-place-1', 'session-tok');
+
+    const url = mockFetch.mock.calls[0][0] as string;
+    expect(url).toContain('fields=');
+    expect(url).toContain('name');
+    expect(url).toContain('formatted_address');
+    expect(url).toContain('place_id=hotel-place-1');
+    expect(url).toContain('key=my-api-key');
+  });
+
+  it('returns parsed LodgingDetails with name on success', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 'OK',
+        result: {
+          place_id: 'hotel-place-1',
+          name: 'Park Hyatt Tokyo',
+          formatted_address: '3-7-1-2 Nishi Shinjuku, Shinjuku, Tokyo 163-1055, Japan',
+          address_components: [
+            { long_name: 'Shinjuku', short_name: 'Shinjuku', types: ['locality', 'political'] },
+            { long_name: '163-1055', short_name: '163-1055', types: ['postal_code'] },
+            { long_name: 'Japan', short_name: 'JP', types: ['country', 'political'] },
+          ],
+        },
+      }),
+    });
+
+    const result = await getLodgingDetails('hotel-place-1', 'session-1');
+
+    expect(result).not.toBeNull();
+    expect(result?.placeId).toBe('hotel-place-1');
+    expect(result?.name).toBe('Park Hyatt Tokyo');
+    expect(result?.formattedAddress).toBe('3-7-1-2 Nishi Shinjuku, Shinjuku, Tokyo 163-1055, Japan');
+    expect(result?.address.city).toBe('Shinjuku');
+    expect(result?.address.postalCode).toBe('163-1055');
+    expect(result?.address.country).toBe('JPN');
+  });
+
+  it('returns null on NOT_FOUND status', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ status: 'NOT_FOUND' }),
+    });
+
+    const result = await getLodgingDetails('bad-place-id', 'session-1');
+    expect(result).toBeNull();
+  });
+
+  it('returns null on network error (offline fallback)', async () => {
+    mockMmkv.getString.mockReturnValue('api-key');
+    mockFetch.mockRejectedValueOnce(new TypeError('Network request failed'));
+
+    const result = await getLodgingDetails('hotel-place-1', 'session-1');
+    expect(result).toBeNull();
   });
 });
