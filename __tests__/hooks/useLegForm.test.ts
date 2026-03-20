@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-native';
+import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useLegForm } from '@/hooks/useLegForm';
 import { useFormStore } from '@/stores/useFormStore';
 
@@ -8,7 +8,16 @@ jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ goBack: mockGoBack }),
 }));
 
-// Mock stores
+// Shared mock data
+const mockDefaultDeclarations = {
+  hasItemsToDeclar: false,
+  carryingCurrency: false,
+  carryingProhibitedItems: false,
+  visitedFarm: false,
+  hasCriminalRecord: false,
+  carryingCommercialGoods: false,
+};
+
 const mockProfile = {
   id: 'profile_1',
   givenNames: 'John',
@@ -21,34 +30,110 @@ const mockProfile = {
   issuingCountry: 'USA',
   email: 'john@test.com',
   phoneNumber: '+1234567890',
+  defaultDeclarations: mockDefaultDeclarations,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
 };
 
-const mockLeg = {
+const mockFamilyProfile = {
+  id: 'profile_2',
+  givenNames: 'Jane',
+  surname: 'Doe',
+  passportNumber: 'CD9876543',
+  nationality: 'USA',
+  dateOfBirth: '1992-05-15',
+  gender: 'F',
+  passportExpiry: '2031-06-01',
+  issuingCountry: 'USA',
+  email: 'jane@test.com',
+  phoneNumber: '+1234567891',
+  defaultDeclarations: mockDefaultDeclarations,
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+};
+
+const mockSingleTravelerLeg = {
   id: 'leg_1',
   tripId: 'trip_1',
   destinationCountry: 'JPN',
   arrivalDate: '2026-06-01',
   departureDate: '2026-06-07',
-  formStatus: 'not_started',
+  formStatus: 'not_started' as const,
   order: 0,
   formData: {},
+  assignedTravelers: [],
+  travelerFormsData: [],
+  accommodation: {
+    name: 'Hotel Tokyo',
+    address: {
+      line1: '1-1-1 Shinjuku',
+      city: 'Tokyo',
+      postalCode: '160-0022',
+      country: 'JPN',
+    },
+  },
+};
+
+const mockMultiTravelerLeg = {
+  ...mockSingleTravelerLeg,
+  id: 'leg_2',
+  assignedTravelers: ['profile_1', 'profile_2'],
+  travelerFormsData: [
+    {
+      travelerId: 'profile_1',
+      formData: { surname: 'Doe' },
+      formStatus: 'in_progress' as const,
+      completionPercentage: 40,
+    },
+    {
+      travelerId: 'profile_2',
+      formData: {},
+      formStatus: 'not_started' as const,
+      completionPercentage: 0,
+    },
+  ],
 };
 
 const mockTrip = {
   id: 'trip_1',
   name: 'Japan Trip',
-  legs: [mockLeg],
+  legs: [mockSingleTravelerLeg, mockMultiTravelerLeg],
 };
 
+const mockUpdateTripLeg = jest.fn().mockResolvedValue({});
+const mockGetTravelerFormData = jest.fn((legId: string, travelerId: string) => {
+  if (legId === 'leg_2' && travelerId === 'profile_1') {
+    return mockMultiTravelerLeg.travelerFormsData[0];
+  }
+  if (legId === 'leg_2' && travelerId === 'profile_2') {
+    return mockMultiTravelerLeg.travelerFormsData[1];
+  }
+  return undefined;
+});
+
+const mockGetProfile = jest.fn(async (profileId: string) => {
+  if (profileId === 'profile_1') return mockProfile;
+  if (profileId === 'profile_2') return mockFamilyProfile;
+  return null;
+});
+
 jest.mock('../../src/stores/useProfileStore', () => ({
-  useProfileStore: () => ({ profile: mockProfile }),
+  useProfileStore: () => ({
+    profile: mockProfile,
+    getProfile: mockGetProfile,
+  }),
 }));
 
 jest.mock('../../src/stores/useTripStore', () => ({
   useTripStore: () => ({
     getTripById: (id: string) => (id === 'trip_1' ? mockTrip : undefined),
-    getLegById: (id: string) => (id === 'leg_1' ? mockLeg : undefined),
-    updateTripLeg: jest.fn().mockResolvedValue({}),
+    getLegById: (id: string) => {
+      if (id === 'leg_1') return mockSingleTravelerLeg;
+      if (id === 'leg_2') return mockMultiTravelerLeg;
+      return undefined;
+    },
+    updateTripLeg: mockUpdateTripLeg,
+    getTravelerFormData: mockGetTravelerFormData,
   }),
 }));
 
@@ -77,13 +162,15 @@ describe('useLegForm', () => {
     useFormStore.getState().resetForm();
   });
 
+  // ─── Existing single-traveler tests ──────────────────────────────────────
+
   it('returns trip and leg data', () => {
     const { result } = renderHook(() =>
       useLegForm({ tripId: 'trip_1', legId: 'leg_1' })
     );
 
     expect(result.current.trip).toEqual(mockTrip);
-    expect(result.current.leg).toEqual(mockLeg);
+    expect(result.current.leg).toEqual(mockSingleTravelerLeg);
   });
 
   it('sets loadError when trip is not found', () => {
@@ -117,5 +204,155 @@ describe('useLegForm', () => {
     });
 
     expect(result.current.formError).toBeNull();
+  });
+
+  // ─── Single-traveler: hasMultipleTravelers flag ───────────────────────────
+
+  it('hasMultipleTravelers is false for single-traveler leg', () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_1' })
+    );
+
+    expect(result.current.hasMultipleTravelers).toBe(false);
+    expect(result.current.travelerTabs).toHaveLength(0);
+    expect(result.current.activeTravelerId).toBeNull();
+  });
+
+  // ─── Multi-traveler tests ─────────────────────────────────────────────────
+
+  it('hasMultipleTravelers is true for multi-traveler leg', () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    expect(result.current.hasMultipleTravelers).toBe(true);
+  });
+
+  it('loads traveler profiles and sets active traveler for multi-traveler leg', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    // Wait for the profiles to be loaded (combined atomic update)
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    expect(mockGetProfile).toHaveBeenCalledWith('profile_1');
+    expect(mockGetProfile).toHaveBeenCalledWith('profile_2');
+  });
+
+  it('travelerTabs has correct number of entries for multi-traveler leg', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    expect(result.current.travelerTabs).toHaveLength(2);
+  });
+
+  it('travelerTabs shows traveler first names once profiles are loaded', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    // Wait for atomic state update: profiles + activeTravelerId set together
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    const names = result.current.travelerTabs.map((t) => t.name);
+    expect(names).toContain('John');
+    expect(names).toContain('Jane');
+  });
+
+  it('travelerTabs active tab id matches activeTravelerId', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    const activeTab = result.current.travelerTabs.find(
+      (t) => t.id === result.current.activeTravelerId
+    );
+    expect(activeTab).toBeDefined();
+    expect(activeTab?.id).toBe('profile_1');
+  });
+
+  it('inactive traveler tab has correct formStatus from stored data', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    // profile_2 has not_started status in stored data
+    const janeTab = result.current.travelerTabs.find((t) => t.id === 'profile_2');
+    expect(janeTab?.formStatus).toBe('not_started');
+  });
+
+  it('switchToTraveler changes the active traveler', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    // Wait for profiles to load
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    // Switch to the second traveler
+    await act(async () => {
+      await result.current.switchToTraveler('profile_2');
+    });
+
+    expect(result.current.activeTravelerId).toBe('profile_2');
+  });
+
+  it('switchToTraveler calls updateTripLeg to save current traveler data before switching', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    await act(async () => {
+      await result.current.switchToTraveler('profile_2');
+    });
+
+    expect(mockUpdateTripLeg).toHaveBeenCalledWith(
+      'leg_2',
+      expect.objectContaining({
+        travelerFormsData: expect.any(Array),
+      })
+    );
+  });
+
+  it('switchToTraveler is a no-op when switching to the already-active traveler', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    // Switch to same traveler
+    await act(async () => {
+      await result.current.switchToTraveler('profile_1');
+    });
+
+    // updateTripLeg should NOT have been called (no save needed for same traveler)
+    expect(mockUpdateTripLeg).not.toHaveBeenCalled();
   });
 });

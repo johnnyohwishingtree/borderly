@@ -550,6 +550,7 @@ export function updateTravelerFormData(
       travelerId,
       formData: { [fieldId]: value },
       formStatus: 'in_progress',
+      completionPercentage: 0,
     });
   }
 
@@ -585,6 +586,7 @@ export function updateTravelerFormStatus(
       travelerId,
       formData: {},
       formStatus: status,
+      completionPercentage: 0,
     });
   }
 
