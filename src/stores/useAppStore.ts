@@ -3,6 +3,8 @@ import { mmkvService, AppPreferences } from '@/services/storage';
 import { schemaUpdateService } from '@/services/schemas/schemaUpdateService';
 import { schemaRegistry } from '@/services/schemas/schemaRegistry';
 
+const HAS_SEEN_FIRST_RUN_PROMPT_KEY = 'has_seen_first_run_prompt';
+
 interface AppStore {
   // App preferences
   preferences: AppPreferences;
@@ -59,8 +61,14 @@ interface AppStore {
   schemaBannerDismissedAt: number | null;
   /** Dismiss the "schemas updated" informational banner. */
   dismissSchemaBanner: () => void;
-  /** Load schema-freshness persisted state from MMKV (call once at startup). */
-  loadSchemaFreshnessState: () => void;
+  /** Load all persisted app state from MMKV (call once at startup). */
+  loadPersistedAppState: () => void;
+
+  // First-run prompt — shown once after onboarding on the TripList screen
+  /** Whether the user has already dismissed the post-onboarding "create your first trip" prompt. */
+  hasSeenFirstRunPrompt: boolean;
+  /** Mark the first-run prompt as seen; persists to MMKV so it never shows again. */
+  dismissFirstRunPrompt: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -87,6 +95,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   lastSchemaRefreshTime: null,
   schemaRefreshCountries: [],
   schemaBannerDismissedAt: null,
+  hasSeenFirstRunPrompt: false,
 
   // App preferences
   updatePreference: <K extends keyof AppPreferences>(key: K, value: AppPreferences[K]) => {
@@ -221,7 +230,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ schemaBannerDismissedAt: now });
   },
 
-  loadSchemaFreshnessState: () => {
+  loadPersistedAppState: () => {
     const refreshTime = mmkvService.getNumber('schema_refresh_time') ?? null;
     const countriesJson = mmkvService.getString('schema_refresh_countries');
     let refreshCountries: string[] = [];
@@ -236,11 +245,19 @@ export const useAppStore = create<AppStore>((set, get) => ({
       }
     }
     const dismissedAt = mmkvService.getNumber('schema_banner_dismissed_at') ?? null;
+    const hasSeenFirstRunPrompt = mmkvService.getBoolean(HAS_SEEN_FIRST_RUN_PROMPT_KEY) ?? false;
 
     set({
       lastSchemaRefreshTime: refreshTime,
       schemaRefreshCountries: refreshCountries,
       schemaBannerDismissedAt: dismissedAt,
+      hasSeenFirstRunPrompt,
     });
+  },
+
+  // First-run prompt actions
+  dismissFirstRunPrompt: () => {
+    mmkvService.setBoolean(HAS_SEEN_FIRST_RUN_PROMPT_KEY, true);
+    set({ hasSeenFirstRunPrompt: true });
   },
 }));
