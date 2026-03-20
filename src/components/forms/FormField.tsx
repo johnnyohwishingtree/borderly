@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { Input, Select, Toggle, SearchableSelect, DatePickerField, AddressAutocomplete } from '../ui';
+import { Input, Select, Toggle, SearchableSelect, DatePickerField, AddressAutocomplete, AccommodationAutocomplete } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
@@ -77,6 +77,25 @@ export default function FormField({
         );
 
       case 'searchable_select': {
+        // Accommodation lodging autocomplete — handled before generic SearchableSelect
+        if (field.optionsSource === 'accommodations') {
+          // Derive the related address field ID: e.g. hotelName → hotelAddress,
+          // accommodationName → accommodationAddress
+          const addressFieldId = field.id
+            .replace(/Name$/, 'Address')
+            .replace(/name$/, 'address');
+          return (
+            <AccommodationAutocomplete
+              value={String(fieldValue || '')}
+              onNameChange={(name) => onValueChange(field.id, name)}
+              onAddressResolved={(address) => onValueChange(addressFieldId, address)}
+              disabled={baseProps.disabled}
+              testID={`accommodation-${field.id}`}
+              {...(hasError && error ? { error } : {})}
+            />
+          );
+        }
+
         let resolvedOptions: { value: string; label: string }[];
         switch (field.optionsSource) {
           case 'countries':
