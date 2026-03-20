@@ -24,7 +24,7 @@ export type TripStackParamList = {
   CreateTrip: undefined;
   TripDetail: { tripId: string };
   LegForm: { tripId: string; legId: string };
-  SubmissionGuide: { tripId: string; legId: string; countryCode: string };
+  SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
   PortalSubmission: {
     url: string;
     countryCode: string;
@@ -36,7 +36,7 @@ export type TripStackParamList = {
 export type WalletStackParamList = {
   QRWallet: undefined;
   QRDetail: { qrId: string };
-  AddQR: undefined;
+  AddQR: { tripId?: string; legId?: string; countryCode?: string; travelerId?: string } | undefined;
 };
 
 export type ProfileStackParamList = {
