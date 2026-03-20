@@ -19,6 +19,12 @@ interface UseLegFormOptions {
   legId: string;
 }
 
+/** Combined traveler state — updated atomically to avoid split renders */
+interface TravelerState {
+  activeTravelerId: string | null;
+  profiles: Map<string, TravelerProfile>;
+}
+
 /**
  * Encapsulates the business logic for LegFormScreen:
  * - Loads the trip/leg/profile and generates the form
@@ -46,9 +52,12 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
   const [loadError, setLoadError] = useState<AppError | string | null>(null);
   const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'markReady' } | null>(null);
 
-  // Multi-traveler state
-  const [activeTravelerId, setActiveTravelerId] = useState<string | null>(null);
-  const [travelerProfiles, setTravelerProfiles] = useState<Map<string, TravelerProfile>>(new Map());
+  // Multi-traveler state: combined so that profiles + activeId are always in sync
+  const [travelerState, setTravelerState] = useState<TravelerState>({
+    activeTravelerId: null,
+    profiles: new Map(),
+  });
+  const { activeTravelerId, profiles: travelerProfiles } = travelerState;
 
   const trip = getTripById(tripId);
   const leg = getLegById(legId);
@@ -68,8 +77,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
   // Load traveler profiles for multi-traveler legs
   useEffect(() => {
     if (!hasMultipleTravelers || !leg) {
-      setTravelerProfiles(new Map());
-      setActiveTravelerId(null);
+      setTravelerState({ activeTravelerId: null, profiles: new Map() });
       return;
     }
 
@@ -90,13 +98,16 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       }
 
       if (!cancelled) {
-        setTravelerProfiles(profileMap);
-
         // Default active traveler: current profile if in list, otherwise first
         const currentProfileInList =
           profile?.id && assignedTravelers.includes(profile.id) ? profile.id : null;
-        const defaultTravelerId = currentProfileInList ?? assignedTravelers[0];
-        setActiveTravelerId(defaultTravelerId ?? null);
+        const defaultTravelerId = currentProfileInList ?? assignedTravelers[0] ?? null;
+
+        // Atomic update: both profiles and activeTravelerId in one render
+        setTravelerState({
+          profiles: profileMap,
+          activeTravelerId: defaultTravelerId,
+        });
       }
     };
 
@@ -203,7 +214,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       resetForm();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId, legId, profile, trip, leg, generateForm, resetForm, activeTravelerId, travelerProfiles, hasMultipleTravelers]);
+  }, [tripId, legId, profile, trip, leg, generateForm, resetForm, activeTravelerId, travelerState, hasMultipleTravelers]);
 
   // Reset form on unmount
   useEffect(() => {
@@ -244,8 +255,8 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       }
     }
 
-    // Switch to the new traveler
-    setActiveTravelerId(travelerId);
+    // Switch to the new traveler (keep profiles unchanged, only update active id)
+    setTravelerState(prev => ({ ...prev, activeTravelerId: travelerId }));
 
     // Generate form for the new traveler
     const newProfile = travelerProfiles.get(travelerId);
