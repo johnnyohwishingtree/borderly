@@ -57,7 +57,7 @@ function validateLeg(leg: LegFormData): Record<string, string> {
  * LegFormData object and returns the updated copy.
  */
 function applyFieldUpdate(data: LegFormData, field: string, value: string): LegFormData {
-  const updated = structuredClone(data);
+  const updated = JSON.parse(JSON.stringify(data)) as LegFormData;
   const keys = field.split('.');
   let current: Record<string, unknown> = updated as unknown as Record<string, unknown>;
   for (let i = 0; i < keys.length - 1; i++) {

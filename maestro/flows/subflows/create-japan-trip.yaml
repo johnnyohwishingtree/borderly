@@ -14,8 +14,12 @@ appId: com.borderly.app
 - extendedWaitUntil:
     visible: "Create New Trip"
     timeout: 10000
-- extendedWaitUntil:
-    visible: "No destinations added yet"
+
+# Scroll to Add Destination button (below Trip Details + Who's Traveling sections)
+- scrollUntilVisible:
+    element:
+      id: "add-destination-button"
+    direction: DOWN
     timeout: 5000
 
 # Add Japan destination
