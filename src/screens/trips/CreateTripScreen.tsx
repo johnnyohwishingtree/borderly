@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
-import { Plane, MapPin, Globe } from 'lucide-react-native';
+import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
 import { Button, Input, Card } from '../../components/ui';
 import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
@@ -22,6 +22,7 @@ export default function CreateTripScreen() {
     tripData,
     setTripData,
     legs,
+    tripTravelers,
     isCreating,
     errors,
     showScanner,
@@ -32,6 +33,7 @@ export default function CreateTripScreen() {
     addLeg,
     removeLeg,
     updateLeg,
+    handleTripTravelerToggle,
     handleTravelerToggle,
     handleScanSuccess,
     handleScanCancel,
@@ -267,6 +269,27 @@ export default function CreateTripScreen() {
               </View>
             </View>
           </Card>
+
+          {/* Trip-level traveler selector — only shown when family members exist */}
+          {familyMembers.length > 0 && (
+            <Card className="mb-6" variant="outlined">
+              <View className="p-5">
+                <View className="flex-row items-center mb-4">
+                  <Users size={32} color="#374151" style={{ marginRight: 12 }} />
+                  <Text className="text-xl font-bold text-gray-900">Who's Traveling?</Text>
+                </View>
+                <TravelerSelector
+                  travelers={familyMembers}
+                  selectedTravelerIds={tripTravelers}
+                  onToggleTraveler={handleTripTravelerToggle}
+                  title="Select all travelers for this trip"
+                  subtitle="Primary traveler is always included. Per-destination overrides can be set below."
+                  showCompact={false}
+                  minSelection={1}
+                />
+              </View>
+            </Card>
+          )}
 
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-4">

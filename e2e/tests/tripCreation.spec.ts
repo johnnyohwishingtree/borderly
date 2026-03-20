@@ -143,4 +143,17 @@ test.describe('Trip Creation and Management', () => {
     // Trips tab should be selected
     await expect(page.getByRole('tab', { name: 'Trips tab', selected: true })).toBeVisible();
   });
+
+  test('solo traveler: "Who\'s Traveling?" section is not shown when no family members exist', async ({ page }) => {
+    // The default beforeEach state has no family members — only a solo profile.
+    await page.getByRole('button', { name: 'Create Your First Trip' }).click();
+    await expect(page.getByText('Create New Trip')).toBeVisible();
+
+    // Trip-level traveler selector must NOT appear for solo travelers.
+    await expect(page.getByText("Who's Traveling?")).not.toBeVisible();
+
+    // The rest of the form should still be functional.
+    await expect(page.getByText('Trip Details')).toBeVisible();
+    await expect(page.getByText('Destinations', { exact: true })).toBeVisible();
+  });
 });
