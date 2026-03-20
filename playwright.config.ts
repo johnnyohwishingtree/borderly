@@ -36,6 +36,7 @@ const allProjects = [
     testMatch: [
       'smoke.spec.ts',
       'onboarding.spec.ts',
+      'addCompanions.spec.ts',
       'completeUserFlow.spec.ts',
       'tripCreation.spec.ts',
       'passportScanning.spec.ts',

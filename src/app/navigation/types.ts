@@ -13,8 +13,9 @@ export type MainTabParamList = {
 export type OnboardingStackParamList = {
   Welcome: undefined;
   Tutorial: undefined;
-  PassportScan: { familyMode?: boolean; relationship?: string; profileId?: string } | undefined;
+  PassportScan: { familyMode?: boolean; relationship?: string; profileId?: string; returnTo?: 'AddCompanions' } | undefined;
   ConfirmProfile: undefined;
+  AddCompanions: undefined;
   BiometricSetup: undefined;
 };
 
