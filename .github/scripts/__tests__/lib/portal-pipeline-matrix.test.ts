@@ -16,7 +16,7 @@
  * the relevant lists below and create the corresponding spec files.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -176,7 +176,7 @@ describe('portal pipeline matrix — all 8 country schemas covered in CI', () =>
     it('all 7 portal-validation specs are present (THA deferred, CAN uses graceful-degradation spec)', () => {
       // THA portal validation is deferred (no published automation portal yet).
       // CAN is archived — its spec uses graceful degradation instead of live validation.
-      const activeCountries: CountryCode[] = ['CAN', 'GBR', 'JPN', 'MYS', 'SGP', 'USA', 'VNM'];
+      const activeCountries = ALL_COUNTRY_CODES.filter(code => code !== 'THA');
       const missing: string[] = [];
       for (const code of activeCountries) {
         const spec = PORTAL_VALIDATION_SPECS[code];
@@ -193,11 +193,13 @@ describe('portal pipeline matrix — all 8 country schemas covered in CI', () =>
   describe('CAN archived-status graceful degradation', () => {
     let canSchema: Record<string, unknown>;
 
-    try {
-      canSchema = readSchemaJson('CAN');
-    } catch {
-      canSchema = {};
-    }
+    beforeAll(() => {
+      try {
+        canSchema = readSchemaJson('CAN');
+      } catch {
+        canSchema = {};
+      }
+    });
 
     it('CAN schema countryCode is CAN', () => {
       expect(canSchema.countryCode).toBe('CAN');
