@@ -10,16 +10,53 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import FamilyManagementScreen from '@/screens/profile/FamilyManagementScreen';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { FamilyMember } from '@/types/profile';
+import { FamilyProfileCollection } from '@/types/family';
 
 // Mock the profile store
 jest.mock('@/stores/useProfileStore');
 const mockUseProfileStore = useProfileStore as jest.MockedFunction<typeof useProfileStore>;
 
-// Helper to set up the store mock with getState support
-function setupProfileStoreMock(profile: FamilyMember | null, loadProfile: jest.Mock) {
-  const storeValue = { profile, loadProfile };
-  mockUseProfileStore.mockReturnValue(storeValue);
+const makeFamilyProfiles = (primaryId: string): FamilyProfileCollection => ({
+  profiles: new Map([
+    [primaryId, {
+      id: primaryId,
+      relationship: 'self',
+      isPrimary: true,
+      isActive: true,
+      biometricEnabled: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+    }],
+  ]),
+  primaryProfileId: primaryId,
+  maxProfiles: 8,
+  version: 1,
+  lastModified: '2024-01-01T00:00:00Z',
+});
+
+// Helper to set up the store mock with the new multi-profile API
+function setupProfileStoreMock(
+  members: FamilyMember[],
+  opts: {
+    loadFamilyProfiles?: jest.Mock;
+    getAllFamilyProfiles?: jest.Mock;
+    deleteProfile?: jest.Mock;
+    primaryId?: string;
+  } = {}
+) {
+  const primaryId = opts.primaryId || (members[0]?.id ?? 'primary-123');
+  const storeValue = {
+    familyProfiles: makeFamilyProfiles(primaryId),
+    loadFamilyProfiles: opts.loadFamilyProfiles ?? jest.fn().mockResolvedValue(undefined),
+    getAllFamilyProfiles: opts.getAllFamilyProfiles ?? jest.fn().mockResolvedValue(members),
+    deleteProfile: opts.deleteProfile ?? jest.fn().mockResolvedValue(undefined),
+    // Legacy
+    profile: members[0] ?? null,
+    loadProfile: jest.fn().mockResolvedValue(undefined),
+  };
+  mockUseProfileStore.mockReturnValue(storeValue as any);
   (mockUseProfileStore as any).getState = () => storeValue;
+  return storeValue;
 }
 
 // Mock navigation fully to avoid NavigationContainer getConstants error
@@ -69,12 +106,12 @@ jest.mock('@/components/ui', () => {
 jest.mock('@/components/profile', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
-    FamilyMemberCard: ({ member, onEdit, onRemove }: any) => (
-      <View testID={`family-member-${member.id}`}>
+    FamilyMemberCard: ({ member, onEdit, onRemove, testID }: any) => (
+      <View testID={testID ?? `family-member-${member.id}`}>
         <Text>{member.givenNames} {member.surname}</Text>
         <Text>{member.relationship}</Text>
-        {onEdit && <TouchableOpacity onPress={onEdit}><Text>Edit</Text></TouchableOpacity>}
-        {onRemove && <TouchableOpacity onPress={onRemove}><Text>Remove</Text></TouchableOpacity>}
+        {onEdit && <TouchableOpacity onPress={onEdit} testID={`edit-${member.id}`}><Text>Edit</Text></TouchableOpacity>}
+        {onRemove && <TouchableOpacity onPress={onRemove} testID={`remove-${member.id}`}><Text>Remove</Text></TouchableOpacity>}
       </View>
     ),
   };
@@ -97,11 +134,34 @@ describe('FamilyManagementScreen', () => {
       carryingProhibitedItems: false,
       visitedFarm: false,
       hasCriminalRecord: false,
-      carryingCommercialGoods: false
+      carryingCommercialGoods: false,
     },
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
-    relationship: 'self'
+    relationship: 'self',
+  };
+
+  const mockSpouseProfile: FamilyMember = {
+    id: 'spouse-456',
+    givenNames: 'Bob',
+    surname: 'Johnson',
+    passportNumber: 'US9876543',
+    nationality: 'USA',
+    dateOfBirth: '1983-07-20',
+    gender: 'M',
+    passportExpiry: '2029-05-15',
+    issuingCountry: 'USA',
+    defaultDeclarations: {
+      hasItemsToDeclar: false,
+      carryingCurrency: false,
+      carryingProhibitedItems: false,
+      visitedFarm: false,
+      hasCriminalRecord: false,
+      carryingCommercialGoods: false,
+    },
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    relationship: 'spouse',
   };
 
   beforeEach(() => {
@@ -111,7 +171,10 @@ describe('FamilyManagementScreen', () => {
 
   describe('Loading State', () => {
     it('should show loading spinner while loading family members', () => {
-      setupProfileStoreMock(null, jest.fn().mockReturnValue(new Promise(() => {}))); // Never resolves
+      setupProfileStoreMock([], {
+        loadFamilyProfiles: jest.fn().mockReturnValue(new Promise(() => {})), // Never resolves
+        getAllFamilyProfiles: jest.fn().mockReturnValue(new Promise(() => {})),
+      });
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -121,7 +184,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Empty State', () => {
     it('should show empty state when no family members exist', async () => {
-      setupProfileStoreMock(null, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([]);
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -133,7 +196,7 @@ describe('FamilyManagementScreen', () => {
     });
 
     it('should navigate to add family member from empty state', async () => {
-      setupProfileStoreMock(null, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([]);
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -148,30 +211,54 @@ describe('FamilyManagementScreen', () => {
 
   describe('Family Members Display', () => {
     it('should display primary profile as self relationship', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([mockPrimaryProfile]);
 
       const { getByText, getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('family-member-primary-123')).toBeTruthy();
+        expect(getByTestId('family-member-card-primary-123')).toBeTruthy();
         expect(getByText('Alice Johnson')).toBeTruthy();
         expect(getByText('self')).toBeTruthy();
       });
     });
 
-    it('should load family members on screen focus', () => {
-      const mockLoadProfile = jest.fn().mockResolvedValue(undefined);
-      setupProfileStoreMock(mockPrimaryProfile, mockLoadProfile);
+    it('should display all family members including non-primary', async () => {
+      setupProfileStoreMock([mockPrimaryProfile, mockSpouseProfile]);
+
+      const { getByText, getByTestId } = render(<FamilyManagementScreen />);
+
+      await waitFor(() => {
+        expect(getByTestId('family-member-card-primary-123')).toBeTruthy();
+        expect(getByTestId('family-member-card-spouse-456')).toBeTruthy();
+        expect(getByText('Alice Johnson')).toBeTruthy();
+        expect(getByText('Bob Johnson')).toBeTruthy();
+      });
+    });
+
+    it('should load family members on screen focus using loadFamilyProfiles', () => {
+      const mockLoadFamilyProfiles = jest.fn().mockResolvedValue(undefined);
+      setupProfileStoreMock([mockPrimaryProfile], { loadFamilyProfiles: mockLoadFamilyProfiles });
 
       render(<FamilyManagementScreen />);
 
-      expect(mockLoadProfile).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+    });
+
+    it('should call getAllFamilyProfiles to get all members', async () => {
+      const mockGetAll = jest.fn().mockResolvedValue([mockPrimaryProfile]);
+      setupProfileStoreMock([mockPrimaryProfile], { getAllFamilyProfiles: mockGetAll });
+
+      render(<FamilyManagementScreen />);
+
+      await waitFor(() => {
+        expect(mockGetAll).toHaveBeenCalled();
+      });
     });
   });
 
   describe('Navigation Actions', () => {
     it('should navigate to add family member screen when add button is pressed', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([mockPrimaryProfile]);
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -183,40 +270,99 @@ describe('FamilyManagementScreen', () => {
       expect(mockNavigate).toHaveBeenCalledWith('AddFamilyMember');
     });
 
-    it('should navigate to edit profile when editing primary member', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+    it('should navigate to EditProfile when editing primary (self) member', async () => {
+      setupProfileStoreMock([mockPrimaryProfile]);
 
-      const { getAllByText } = render(<FamilyManagementScreen />);
+      const { getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        const editButtons = getAllByText('Edit');
-        expect(editButtons.length).toBeGreaterThan(0);
+        expect(getByTestId('edit-primary-123')).toBeTruthy();
       });
 
-      const editButtons = getAllByText('Edit');
-      fireEvent.press(editButtons[0]);
-
+      fireEvent.press(getByTestId('edit-primary-123'));
       expect(mockNavigate).toHaveBeenCalledWith('EditProfile');
+    });
+
+    it('should navigate to PassportScan with familyMode and profileId when editing non-self member', async () => {
+      setupProfileStoreMock([mockPrimaryProfile, mockSpouseProfile]);
+
+      const { getByTestId } = render(<FamilyManagementScreen />);
+
+      await waitFor(() => {
+        expect(getByTestId('edit-spouse-456')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-spouse-456'));
+      expect(mockNavigate).toHaveBeenCalledWith('PassportScan', {
+        familyMode: true,
+        relationship: 'spouse',
+        profileId: 'spouse-456',
+      });
     });
   });
 
   describe('Family Member Removal', () => {
     it('should not show remove button for primary profile', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([mockPrimaryProfile], { primaryId: 'primary-123' });
 
-      const { queryByText } = render(<FamilyManagementScreen />);
+      const { queryByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        // Primary profile mock only renders Edit, not Remove
-        // (the mock renders Remove only when onRemove is provided)
-        expect(queryByText('Remove')).toBeFalsy();
+        expect(queryByTestId('remove-primary-123')).toBeFalsy();
       });
+    });
+
+    it('should show remove button for non-primary members', async () => {
+      setupProfileStoreMock([mockPrimaryProfile, mockSpouseProfile], { primaryId: 'primary-123' });
+
+      const { getByTestId } = render(<FamilyManagementScreen />);
+
+      await waitFor(() => {
+        expect(getByTestId('remove-spouse-456')).toBeTruthy();
+      });
+    });
+
+    it('should call deleteProfile after confirming removal of a non-primary member', async () => {
+      const mockDeleteProfile = jest.fn().mockResolvedValue(undefined);
+      const mockGetAll = jest.fn()
+        .mockResolvedValueOnce([mockPrimaryProfile, mockSpouseProfile])
+        .mockResolvedValueOnce([mockPrimaryProfile]);
+
+      setupProfileStoreMock([mockPrimaryProfile, mockSpouseProfile], {
+        primaryId: 'primary-123',
+        deleteProfile: mockDeleteProfile,
+        getAllFamilyProfiles: mockGetAll,
+      });
+
+      const { Alert } = require('react-native');
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(
+        ((...args: unknown[]) => {
+          const buttons = args[2] as any[];
+          // Simulate pressing "Remove" (destructive button)
+          const destructive = buttons.find((b: any) => b.style === 'destructive');
+          if (destructive?.onPress) destructive.onPress();
+        }) as (...args: unknown[]) => any
+      );
+
+      const { getByTestId } = render(<FamilyManagementScreen />);
+
+      await waitFor(() => {
+        expect(getByTestId('remove-spouse-456')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('remove-spouse-456'));
+
+      await waitFor(() => {
+        expect(mockDeleteProfile).toHaveBeenCalledWith('spouse-456');
+      });
+
+      alertSpy.mockRestore();
     });
   });
 
   describe('Information Section', () => {
     it('should display family profiles information card', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([mockPrimaryProfile]);
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -232,7 +378,7 @@ describe('FamilyManagementScreen', () => {
 
   describe('Screen Header', () => {
     it('should display correct header information', async () => {
-      setupProfileStoreMock(mockPrimaryProfile, jest.fn().mockResolvedValue(undefined));
+      setupProfileStoreMock([mockPrimaryProfile]);
 
       const { getByText } = render(<FamilyManagementScreen />);
 
@@ -246,7 +392,9 @@ describe('FamilyManagementScreen', () => {
   describe('Error Handling', () => {
     it('should handle profile loading errors gracefully', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      setupProfileStoreMock(null, jest.fn().mockRejectedValue(new Error('Loading failed')));
+      setupProfileStoreMock([], {
+        loadFamilyProfiles: jest.fn().mockRejectedValue(new Error('Loading failed')),
+      });
 
       render(<FamilyManagementScreen />);
 
@@ -258,7 +406,9 @@ describe('FamilyManagementScreen', () => {
     });
 
     it('should stop loading state after error', async () => {
-      setupProfileStoreMock(null, jest.fn().mockRejectedValue(new Error('Loading failed')));
+      setupProfileStoreMock([], {
+        loadFamilyProfiles: jest.fn().mockRejectedValue(new Error('Loading failed')),
+      });
 
       const { queryByText } = render(<FamilyManagementScreen />);
 

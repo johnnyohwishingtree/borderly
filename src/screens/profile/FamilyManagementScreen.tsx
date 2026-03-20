@@ -13,32 +13,19 @@ type FamilyManagementScreenNavigationProp = NativeStackNavigationProp<ProfileSta
 
 export default function FamilyManagementScreen() {
   const navigation = useNavigation<FamilyManagementScreenNavigationProp>();
-  const { loadProfile } = useProfileStore();
+  const { loadFamilyProfiles, getAllFamilyProfiles, deleteProfile, familyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load family members on screen focus
+  // Load all family members on screen focus
   useFocusEffect(
     useCallback(() => {
       const load = async () => {
         setIsLoading(true);
         try {
-          await loadProfile();
-
-          // Read the latest profile from the store (not the stale closure value)
-          const currentProfile = useProfileStore.getState().profile;
-
-          // Create family members list with primary profile as 'self'
-          if (currentProfile) {
-            const primaryMember: FamilyMember = {
-              ...currentProfile,
-              relationship: 'self'
-            };
-
-            // TODO: Load additional family members from storage
-            // For now, just show the primary profile
-            setFamilyMembers([primaryMember]);
-          }
+          await loadFamilyProfiles();
+          const members = await getAllFamilyProfiles();
+          setFamilyMembers(members);
         } catch (error) {
           console.error('Failed to load family members:', error);
         } finally {
@@ -46,7 +33,7 @@ export default function FamilyManagementScreen() {
         }
       };
       load();
-    }, [loadProfile])
+    }, [loadFamilyProfiles, getAllFamilyProfiles])
   );
 
   const handleAddFamilyMember = () => {
@@ -58,8 +45,12 @@ export default function FamilyManagementScreen() {
       // Navigate to edit primary profile
       navigation.navigate('EditProfile');
     } else {
-      // TODO: Navigate to edit family member screen
-      Alert.alert('Edit Family Member', 'Family member editing coming soon!');
+      // Navigate to PassportScan in familyMode with existing profile pre-filled
+      navigation.navigate('PassportScan', {
+        familyMode: true,
+        relationship: member.relationship,
+        profileId: member.id,
+      });
     }
   };
 
@@ -76,14 +67,28 @@ export default function FamilyManagementScreen() {
         {
           text: 'Remove',
           style: 'destructive',
-          onPress: () => {
-            // TODO: Implement family member removal
-            Alert.alert('Remove Family Member', 'Family member removal coming soon!');
-          }
-        }
+          onPress: async () => {
+            try {
+              await deleteProfile(member.id);
+              // Refresh the list after deletion
+              const updated = await getAllFamilyProfiles();
+              setFamilyMembers(updated);
+            } catch (error) {
+              console.error('Failed to remove family member:', error);
+              Alert.alert(
+                'Remove Failed',
+                'Could not remove the family member. Please try again.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
       ]
     );
   };
+
+  // Determine which member is the primary (for hiding delete button)
+  const primaryProfileId = familyProfiles.primaryProfileId;
 
   if (isLoading) {
     return (
@@ -129,15 +134,19 @@ export default function FamilyManagementScreen() {
         {/* Family Members List */}
         {familyMembers.length > 0 ? (
           <View className="space-y-4">
-            {familyMembers.map((member) => (
-              <FamilyMemberCard
-                key={member.id}
-                member={member}
-                onEdit={() => handleEditMember(member)}
-                isActive={false}
-                {...(member.relationship !== 'self' ? { onRemove: () => handleRemoveMember(member) } : {})}
-              />
-            ))}
+            {familyMembers.map((member) => {
+              const isPrimary = member.id === primaryProfileId;
+              return (
+                <FamilyMemberCard
+                  key={member.id}
+                  member={member}
+                  onEdit={() => handleEditMember(member)}
+                  isActive={false}
+                  testID={`family-member-card-${member.id}`}
+                  {...(!isPrimary ? { onRemove: () => handleRemoveMember(member) } : {})}
+                />
+              );
+            })}
           </View>
         ) : (
           <EmptyState

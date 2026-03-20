@@ -36,10 +36,11 @@ type PassportFormData = z.infer<typeof passportSchema>;
 export function usePassportScan() {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>>();
   const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
-  const { saveProfile } = useProfileStore();
+  const { saveProfile, getProfile, updateProfileById } = useProfileStore();
 
   const familyMode = route.params?.familyMode || false;
   const relationship = route.params?.relationship || 'self';
+  const profileId = route.params?.profileId || null;
 
   const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
@@ -64,6 +65,25 @@ export function usePassportScan() {
     }
   }, []);
 
+  // Pre-fill form when editing an existing profile
+  useEffect(() => {
+    if (!profileId) return;
+    let cancelled = false;
+    getProfile(profileId).then((existing) => {
+      if (cancelled || !existing) return;
+      form.setValue('passportNumber', existing.passportNumber || '');
+      form.setValue('surname', existing.surname || '');
+      form.setValue('givenNames', existing.givenNames || '');
+      form.setValue('nationality', existing.nationality || '');
+      form.setValue('dateOfBirth', existing.dateOfBirth || '');
+      form.setValue('gender', existing.gender || 'M');
+      form.setValue('passportExpiry', existing.passportExpiry || '');
+      form.setValue('issuingCountry', existing.issuingCountry || '');
+      setMode('manual');
+    });
+    return () => { cancelled = true; };
+  }, [profileId, form, getProfile]);
+
   const generateProfileId = useCallback(() => {
     const timestamp = Date.now();
     const randomPart1 = Math.random().toString(36).substring(2, 10);
@@ -75,40 +95,57 @@ export function usePassportScan() {
     setIsSubmitting(true);
     setStorageError(null);
 
-    try {
-      const completeProfile: TravelerProfile = {
-        id: generateProfileId(),
-        passportNumber: profileData.passportNumber || '',
-        surname: profileData.surname || '',
-        givenNames: profileData.givenNames || '',
-        nationality: profileData.nationality || '',
-        dateOfBirth: profileData.dateOfBirth || '',
-        gender: profileData.gender || 'X',
-        passportExpiry: profileData.passportExpiry || '',
-        issuingCountry: profileData.issuingCountry || '',
-        email: profileData.email || '',
-        phoneNumber: profileData.phoneNumber || '',
-        relationship: familyMode ? (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other') : 'self',
-        defaultDeclarations: {
-          hasItemsToDeclar: false,
-          carryingCurrency: false,
-          carryingProhibitedItems: false,
-          visitedFarm: false,
-          hasCriminalRecord: false,
-          carryingCommercialGoods: false,
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      await saveProfile(completeProfile);
-      setLastFailedOperation(null);
-
+    const navigateAfterSave = () => {
       if (familyMode) {
         navigation.navigate('FamilyManagement' as any);
       } else {
         navigation.navigate('ConfirmProfile');
       }
+    };
+
+    try {
+      if (profileId) {
+        // Editing an existing family member profile
+        await updateProfileById(profileId, {
+          passportNumber: profileData.passportNumber || '',
+          surname: profileData.surname || '',
+          givenNames: profileData.givenNames || '',
+          nationality: profileData.nationality || '',
+          dateOfBirth: profileData.dateOfBirth || '',
+          gender: profileData.gender || 'X',
+          passportExpiry: profileData.passportExpiry || '',
+          issuingCountry: profileData.issuingCountry || '',
+        });
+      } else {
+        const completeProfile: TravelerProfile = {
+          id: generateProfileId(),
+          passportNumber: profileData.passportNumber || '',
+          surname: profileData.surname || '',
+          givenNames: profileData.givenNames || '',
+          nationality: profileData.nationality || '',
+          dateOfBirth: profileData.dateOfBirth || '',
+          gender: profileData.gender || 'X',
+          passportExpiry: profileData.passportExpiry || '',
+          issuingCountry: profileData.issuingCountry || '',
+          email: profileData.email || '',
+          phoneNumber: profileData.phoneNumber || '',
+          relationship: familyMode ? (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other') : 'self',
+          defaultDeclarations: {
+            hasItemsToDeclar: false,
+            carryingCurrency: false,
+            carryingProhibitedItems: false,
+            visitedFarm: false,
+            hasCriminalRecord: false,
+            carryingCommercialGoods: false,
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await saveProfile(completeProfile);
+      }
+
+      setLastFailedOperation(null);
+      navigateAfterSave();
     } catch (error) {
       setLastFailedOperation({ type: 'save', data: profileData });
 
@@ -124,11 +161,7 @@ export function usePassportScan() {
         onRecoverySuccess: () => {
           setStorageError(null);
           setLastFailedOperation(null);
-          if (familyMode) {
-            navigation.navigate('FamilyManagement' as any);
-          } else {
-            navigation.navigate('ConfirmProfile');
-          }
+          navigateAfterSave();
         }
       };
 
@@ -142,7 +175,7 @@ export function usePassportScan() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [generateProfileId, saveProfile, familyMode, relationship, navigation]);
+  }, [generateProfileId, saveProfile, updateProfileById, profileId, familyMode, relationship, navigation]);
 
   const handleScanSuccess = useCallback((result: MRZParseResult) => {
     setScanError(null);
