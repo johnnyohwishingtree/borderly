@@ -12,6 +12,7 @@ import {
   getUnsupportedDestinationMessage,
 } from '../services/boarding/boardingPassParser';
 import { getCountryName } from '../constants/countries';
+import { deepCopy } from '../utils/deepCopy';
 
 interface LegFormData {
   destinationCountry: string;
@@ -177,7 +178,7 @@ export function useTripCreation() {
   const updateLeg = useCallback((index: number, field: string, value: unknown) => {
     setLegs(prev => {
       const newLegs = [...prev];
-      newLegs[index] = JSON.parse(JSON.stringify(newLegs[index]));
+      newLegs[index] = deepCopy(newLegs[index]);
       const keys = field.split('.');
       let current: Record<string, unknown> = newLegs[index] as unknown as Record<string, unknown>;
       for (let i = 0; i < keys.length - 1; i++) {
