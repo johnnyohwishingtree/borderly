@@ -1,0 +1,125 @@
+name: Screenshot Capture
+
+# Captures native-fidelity screenshots on an Android emulator after merges
+# that touch UI files. Creates a PR if screenshots changed.
+#
+# Runs post-merge only — never blocks PRs.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/screens/**'
+      - 'src/components/**'
+      - 'src/schemas/**'
+      - 'src/app/navigation/**'
+      - 'e2e/tests/captureScreenshots.spec.ts'
+      - 'maestro/flows/capture-screenshots.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Android debug APK
+        run: cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run screenshot capture on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            # Install the app
+            adb install android/app/build/outputs/apk/debug/app-debug.apk
+
+            # Wait for app to be installable
+            sleep 5
+
+            # Run Maestro screenshot capture
+            maestro test maestro/flows/capture-screenshots.yaml \
+              --output maestro/output/ \
+              --format junit \
+              || true
+
+            # Copy screenshots to the committed directory
+            if ls maestro/output/*.png 1>/dev/null 2>&1; then
+              cp maestro/output/*.png e2e/screenshots/
+              echo "Screenshots captured successfully"
+            else
+              echo "::warning::No screenshots were captured"
+            fi
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git add e2e/screenshots/
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            CHANGED_FILES=$(git diff --cached --name-only | wc -l | tr -d ' ')
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed_count=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR with updated screenshots
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          BRANCH="chore/update-screenshots-$(date +%Y%m%d-%H%M)"
+          npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
+          git checkout -b "$BRANCH"
+          git commit -m "chore: update native screenshots from Android emulator"
+          npx tsx .github/scripts/lib/cli/pipeline.ts push "$BRANCH"
+
+          gh pr create \
+            --head "$BRANCH" \
+            --base master \
+            --title "chore: update native screenshots (${{ steps.diff.outputs.changed_count }} files changed)" \
+            --body "$(cat <<'PREOF'
+          ## Auto-captured native screenshots
+
+          Triggered by a merge to master that changed UI files. Screenshots were
+          captured on an Android emulator (Pixel 6, API 34) using Maestro.
+
+          Review the screenshot diffs to verify UI changes look correct.
+          PREOF
+          )"
