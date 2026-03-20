@@ -306,7 +306,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) and on master push failures (creates fix/master-* branch + PR) |
 | Auto screenshot capture | Both e2e-smoke.yml (parallel job on PRs) and verify-and-fix.yml (after E2E passes) auto-capture Playwright screenshots when UI files change. Commits updated PNGs + manifest back to the branch. |
-| Native screenshot capture | `screenshot-capture.yml` runs post-merge on master when UI files change. Boots Android emulator (Pixel 6, API 34), builds debug APK, runs Maestro capture flow, and creates a PR if screenshots differ. Never blocks PRs. |
+| Native screenshot capture | `screenshot-capture.yml` runs post-merge on master when UI files change. Boots an Android emulator, builds a debug APK, runs the Maestro capture flow, and creates a PR if screenshots differ. Never blocks PRs. |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Event-driven approval | ensure-review checks thread resolution AND all CI checks (tests, e2e) after a workflow_run passes; approves only when all threads resolved AND all CI passed (self-healing after review-fix) |
