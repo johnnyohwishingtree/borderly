@@ -11,6 +11,7 @@
 
 import { Address } from '../../types/profile';
 import { mmkvService } from '../storage/mmkv';
+import { logger } from '../../utils/logger';
 
 /** MMKV key for the Google Places API key */
 export const PLACES_API_KEY_MMKV_KEY = 'google_places_api_key';
@@ -146,7 +147,7 @@ export async function getLodgingSuggestions(
     };
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.warn('[PlacesService] Lodging autocomplete error:', data.status);
+      logger.warn('[PlacesService] Lodging autocomplete error:', data.status);
       return [];
     }
 
@@ -158,7 +159,7 @@ export async function getLodgingSuggestions(
     }));
   } catch (error) {
     // Network error / offline — return empty gracefully
-    console.warn('[PlacesService] Network error in lodging autocomplete:', error);
+    logger.warn('[PlacesService] Network error in lodging autocomplete:', error);
     return [];
   }
 }
@@ -207,7 +208,7 @@ export async function getLodgingDetails(
     };
 
     if (data.status !== 'OK' || !data.result) {
-      console.warn('[PlacesService] Lodging Details error:', data.status);
+      logger.warn('[PlacesService] Lodging Details error:', data.status);
       return null;
     }
 
@@ -218,7 +219,7 @@ export async function getLodgingDetails(
       address: parseAddressComponents(data.result.address_components),
     };
   } catch (error) {
-    console.warn('[PlacesService] Network error in lodging details:', error);
+    logger.warn('[PlacesService] Network error in lodging details:', error);
     return null;
   }
 }
@@ -264,7 +265,7 @@ export async function getAutocompleteSuggestions(
     };
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.warn('[PlacesService] Autocomplete error:', data.status);
+      logger.warn('[PlacesService] Autocomplete error:', data.status);
       return [];
     }
 
@@ -276,7 +277,7 @@ export async function getAutocompleteSuggestions(
     }));
   } catch (error) {
     // Network error / offline — return empty gracefully
-    console.warn('[PlacesService] Network error in autocomplete:', error);
+    logger.warn('[PlacesService] Network error in autocomplete:', error);
     return [];
   }
 }
@@ -323,7 +324,7 @@ export async function getPlaceDetails(
     };
 
     if (data.status !== 'OK' || !data.result) {
-      console.warn('[PlacesService] Place Details error:', data.status);
+      logger.warn('[PlacesService] Place Details error:', data.status);
       return null;
     }
 
@@ -333,7 +334,7 @@ export async function getPlaceDetails(
       address: parseAddressComponents(data.result.address_components),
     };
   } catch (error) {
-    console.warn('[PlacesService] Network error in place details:', error);
+    logger.warn('[PlacesService] Network error in place details:', error);
     return null;
   }
 }
