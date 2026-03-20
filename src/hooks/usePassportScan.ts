@@ -41,6 +41,7 @@ export function usePassportScan() {
   const familyMode = route.params?.familyMode || false;
   const relationship = route.params?.relationship || 'self';
   const profileId = route.params?.profileId || null;
+  const returnTo = route.params?.returnTo || null;
 
   const [mode, setMode] = useState<'method' | 'scanning' | 'preview' | 'manual'>('method');
   const [scanResult, setScanResult] = useState<MRZParseResult | null>(null);
@@ -97,7 +98,11 @@ export function usePassportScan() {
 
     const navigateAfterSave = () => {
       if (familyMode) {
-        navigation.navigate('FamilyManagement' as any);
+        if (returnTo === 'AddCompanions') {
+          navigation.navigate('AddCompanions');
+        } else {
+          navigation.navigate('FamilyManagement' as any);
+        }
       } else {
         navigation.navigate('ConfirmProfile');
       }

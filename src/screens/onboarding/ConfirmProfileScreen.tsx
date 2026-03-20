@@ -23,7 +23,7 @@ export default function ConfirmProfileScreen() {
   }, [loadProfile]);
 
   const handleContinue = () => {
-    navigation.navigate('BiometricSetup');
+    navigation.navigate('AddCompanions');
   };
 
   const handleBack = () => {
@@ -154,7 +154,7 @@ export default function ConfirmProfileScreen() {
 
         <View className="space-y-4">
           <Button
-            title="Continue to Security Setup"
+            title="Continue"
             onPress={handleContinue}
             size="large"
             fullWidth
