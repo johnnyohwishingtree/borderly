@@ -124,11 +124,15 @@ test.describe('Trip Creation and Management', () => {
     // Fill other fields
     await page.getByTestId('leg-0-flight-number').fill('NH101');
     await page.getByTestId('leg-0-airline-code').fill('NH');
-    await page.getByTestId('leg-0-arrival-airport').fill('NRT');
+
+    // Arrival airport is a SearchableSelect — open it, search for NRT, select the option
+    await page.getByTestId('leg-0-arrival-airport-trigger').click();
+    await page.getByTestId('leg-0-arrival-airport-search').fill('NRT');
+    await page.getByTestId('leg-0-arrival-airport-option-NRT').click();
 
     await expect(page.getByTestId('leg-0-flight-number')).toHaveValue('NH101');
     await expect(page.getByTestId('leg-0-airline-code')).toHaveValue('NH');
-    await expect(page.getByTestId('leg-0-arrival-airport')).toHaveValue('NRT');
+    await expect(page.getByTestId('leg-0-arrival-airport-trigger')).toContainText('Tokyo Narita');
   });
 
   test('tab bar shows all navigation options', async ({ page }) => {
