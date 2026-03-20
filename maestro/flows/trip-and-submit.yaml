@@ -131,24 +131,11 @@ tags:
     timeout: 10000
 - tapOn: "OK"
 
-# Mark as Ready (may be disabled if form isn't fully valid)
-- runFlow:
-    when:
-      visible:
-        id: "mark-ready-button"
-    commands:
-      - tapOn:
-          id: "mark-ready-button"
-      # Dismiss success/validation alert if present
-      - runFlow:
-          when:
-            visible: "OK"
-          commands:
-            - tapOn: "OK"
-
-# Verify we're back on the trip detail screen
+# Navigate back to trip detail
+- tapOn:
+    point: "15%,7%"
 - extendedWaitUntil:
-    visible: "Itinerary"
+    visible: "Smith Family Asia"
     timeout: 10000
 
 # ============================================================
