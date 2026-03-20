@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
-import { Button, Input, Card, DatePickerField } from '../../components/ui';
+import { Button, Input, Card, DatePickerField, SearchableSelect } from '../../components/ui';
 import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { BoardingPassScanner } from '../../components/boarding';
 import { SmartImportSheet } from '../../components/import';
 import { SUPPORTED_COUNTRIES } from '../../constants/countries';
+import { ALL_AIRPORTS } from '../../constants/airports';
 import { useTripCreation } from '../../hooks/useTripCreation';
 import type { LegFormData } from '../../hooks/useTripCreation';
 
@@ -133,11 +134,11 @@ export default function CreateTripScreen() {
 
             <View>
               <FieldHeader label="Arrival Airport" autoFilled={!!leg.autoFilledFields?.arrivalAirport} />
-              <Input
+              <SearchableSelect
                 value={leg.arrivalAirport}
-                onChangeText={(text) => updateLeg(index, 'arrivalAirport', text)}
-                placeholder="e.g., NRT"
-                autoCapitalize="characters"
+                onValueChange={(val) => updateLeg(index, 'arrivalAirport', val)}
+                options={ALL_AIRPORTS}
+                placeholder="Search airport..."
                 testID={`leg-${index}-arrival-airport`}
               />
             </View>
