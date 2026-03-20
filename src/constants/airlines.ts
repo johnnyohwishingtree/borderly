@@ -25,3 +25,18 @@ export const getAirlineByCode = (
  */
 export const getAirlineLabel = (code: string): string =>
   ALL_AIRLINES.find(a => a.value === code)?.label ?? code;
+
+/**
+ * Filter the airline list by a search query.
+ * Matches against both the airline name and the IATA code (case-insensitive).
+ * Returns the full list when the query is empty.
+ */
+export const filterAirlines = (
+  query: string,
+): { value: string; label: string }[] => {
+  if (!query.trim()) return ALL_AIRLINES;
+  const q = query.toLowerCase();
+  return ALL_AIRLINES.filter(
+    o => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q),
+  );
+};

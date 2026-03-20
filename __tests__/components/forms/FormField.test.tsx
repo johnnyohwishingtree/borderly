@@ -449,18 +449,7 @@ describe('FormField — country autocomplete (regression)', () => {
 // FormField — airline autocomplete rendering
 // ---------------------------------------------------------------------------
 
-import { ALL_AIRLINES, getAirlineByCode, getAirlineLabel } from '../../../src/constants/airlines';
-
-/**
- * Simulate the SearchableSelect filter algorithm for airline search tests.
- */
-function filterAirlines(query: string): { value: string; label: string }[] {
-  if (!query.trim()) return ALL_AIRLINES;
-  const q = query.toLowerCase();
-  return ALL_AIRLINES.filter(
-    o => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q),
-  );
-}
+import { ALL_AIRLINES, filterAirlines, getAirlineByCode, getAirlineLabel } from '../../../src/constants/airlines';
 
 describe('ALL_AIRLINES database', () => {
   it('contains at least 150 airlines', () => {

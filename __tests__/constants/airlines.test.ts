@@ -1,17 +1,4 @@
-import { ALL_AIRLINES, getAirlineByCode, getAirlineLabel } from '../../src/constants/airlines';
-
-// ---------------------------------------------------------------------------
-// Simulate the SearchableSelect filter algorithm for unit testing search
-// without relying on FlatList rendering (FlatList is mocked in tests).
-// ---------------------------------------------------------------------------
-
-function filterAirlines(query: string): { value: string; label: string }[] {
-  if (!query.trim()) return ALL_AIRLINES;
-  const q = query.toLowerCase();
-  return ALL_AIRLINES.filter(
-    o => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q),
-  );
-}
+import { ALL_AIRLINES, filterAirlines, getAirlineByCode, getAirlineLabel } from '../../src/constants/airlines';
 
 // ---------------------------------------------------------------------------
 // Airline database unit tests
