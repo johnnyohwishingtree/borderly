@@ -138,44 +138,28 @@ appId: com.borderly.app
     end: "50%,35%"
     duration: 200
 
-# City and Postal Code are at the bottom of the form — scroll extra to clear the tab bar
-- scrollUntilVisible:
-    element:
-      id: "leg-0-accommodation-city"
-    direction: DOWN
-    timeout: 5000
+# City and Postal Code — deep in hierarchy, XCTest can't find by testID
+# Use swipe to expose fields, then tap by hint text
 - swipe:
-    start: "50%,50%"
+    start: "50%,60%"
     end: "50%,30%"
     duration: 300
-- tapOn:
-    id: "leg-0-accommodation-city"
+- tapOn: "City"
 - inputText: "Tokyo"
 
-# Postal Code is in the same row as City
-- tapOn:
-    id: "leg-0-accommodation-postal-code"
+# Postal Code
+- tapOn: "Postal code"
 - inputText: "163-1055"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
 
-# Dismiss keyboard and scroll to Create Trip
+# Dismiss keyboard and scroll to Create Trip button
 - swipe:
     start: "50%,40%"
     end: "50%,35%"
     duration: 200
-- scrollUntilVisible:
-    element: "Hotel phone number"
-    direction: DOWN
-    timeout: 5000
 - swipe:
-    direction: UP
-    duration: 500
-- swipe:
-    direction: UP
-    duration: 500
+    start: "50%,60%"
+    end: "50%,30%"
+    duration: 300
 - tapOn:
     id: "create-trip-button"
 
