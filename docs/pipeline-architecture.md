@@ -289,7 +289,13 @@ All fix attempts work on `tmp/vf-*` branches — never pushing broken code to th
 - Early bail-out if Claude produces no changes
 
 ### Post-Merge Native Screenshot Capture
-`screenshot-capture.yml` runs after merges to master when UI-related files change (`src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or Maestro/Playwright capture files). It boots an Android emulator (Pixel 6, API 34), builds the debug APK, runs the Maestro capture flow, and creates a PR if screenshots differ. This provides native-fidelity screenshots without blocking PRs.
+`screenshot-capture.yml` runs after merges to master when UI-related files change (`src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or Maestro/Playwright capture files). This process:
+
+- Boots an Android emulator (Pixel 6, API 34) and builds the debug APK.
+- Runs the Maestro capture flow for native-fidelity screenshots.
+- Creates a pull request if any screenshot differences are detected.
+
+This provides native-fidelity screenshots without blocking PRs.
 
 ---
 

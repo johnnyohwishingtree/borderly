@@ -58,7 +58,13 @@ Re-capture screenshots whenever:
 
 ## CI Auto-Capture
 
-Screenshots are automatically captured post-merge by `screenshot-capture.yml` when UI files change on master. It boots an Android emulator, runs Maestro capture, and creates a PR if screenshots differ. This replaces the previous in-PR Playwright capture — screenshots are no longer captured during PRs or verify-and-fix runs.
+Screenshots are now captured exclusively post-merge on the `master` branch by the `screenshot-capture.yml` workflow. This process:
+
+- Boots an Android emulator to run the app.
+- Executes the Maestro capture flow for native-fidelity screenshots.
+- Creates a pull request if any screenshot differences are detected.
+
+This replaces the previous in-PR Playwright captures; screenshots are no longer generated during PR or verify-and-fix runs.
 
 ## Integration with Other Skills
 
