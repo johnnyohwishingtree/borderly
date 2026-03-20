@@ -444,3 +444,257 @@ describe('FormField — country autocomplete (regression)', () => {
     expect(screen.getByText('Foo')).toBeTruthy();
   });
 });
+
+// ---------------------------------------------------------------------------
+// FormField — airline autocomplete rendering
+// ---------------------------------------------------------------------------
+
+import { ALL_AIRLINES, filterAirlines, getAirlineByCode, getAirlineLabel } from '../../../src/constants/airlines';
+
+describe('ALL_AIRLINES database', () => {
+  it('contains at least 150 airlines', () => {
+    expect(ALL_AIRLINES.length).toBeGreaterThan(150);
+  });
+
+  it('every entry has a non-empty value (IATA code) and label', () => {
+    ALL_AIRLINES.forEach(airline => {
+      expect(airline.value.trim()).not.toBe('');
+      expect(airline.label.trim()).not.toBe('');
+    });
+  });
+
+  it('IATA code appears inside the label so search-by-code works', () => {
+    ALL_AIRLINES.forEach(airline => {
+      expect(airline.label).toContain(`(${airline.value})`);
+    });
+  });
+
+  it('has no duplicate IATA codes', () => {
+    const codes = ALL_AIRLINES.map(a => a.value);
+    const unique = new Set(codes);
+    expect(unique.size).toBe(codes.length);
+  });
+
+  it('includes key airlines for supported destinations', () => {
+    const codes = new Set(ALL_AIRLINES.map(a => a.value));
+    // Japan
+    expect(codes.has('NH')).toBe(true);
+    expect(codes.has('JL')).toBe(true);
+    // Malaysia
+    expect(codes.has('MH')).toBe(true);
+    expect(codes.has('AK')).toBe(true);
+    // Singapore
+    expect(codes.has('SQ')).toBe(true);
+    expect(codes.has('TR')).toBe(true);
+    // Global hubs
+    expect(codes.has('EK')).toBe(true);
+    expect(codes.has('QR')).toBe(true);
+    expect(codes.has('QF')).toBe(true);
+  });
+});
+
+describe('airline search logic', () => {
+  it('returns all airlines when query is empty', () => {
+    expect(filterAirlines('').length).toBe(ALL_AIRLINES.length);
+  });
+
+  it('finds Singapore Airlines by IATA code (SQ)', () => {
+    const results = filterAirlines('SQ');
+    expect(results.some(a => a.value === 'SQ')).toBe(true);
+  });
+
+  it('finds Singapore Airlines by lowercase code (sq)', () => {
+    const results = filterAirlines('sq');
+    expect(results.some(a => a.value === 'SQ')).toBe(true);
+  });
+
+  it('finds All Nippon Airways by name (nippon)', () => {
+    const results = filterAirlines('nippon');
+    expect(results.some(a => a.value === 'NH')).toBe(true);
+  });
+
+  it('finds Malaysia Airlines by name', () => {
+    const results = filterAirlines('malaysia');
+    expect(results.some(a => a.value === 'MH')).toBe(true);
+  });
+
+  it('finds Emirates by name', () => {
+    const results = filterAirlines('emirates');
+    expect(results.some(a => a.value === 'EK')).toBe(true);
+  });
+
+  it('returns empty array for a nonsense query', () => {
+    expect(filterAirlines('XXXXXXXXXX').length).toBe(0);
+  });
+});
+
+describe('getAirlineByCode', () => {
+  it('returns the airline for a known IATA code', () => {
+    const airline = getAirlineByCode('SQ');
+    expect(airline).toBeDefined();
+    expect(airline?.value).toBe('SQ');
+    expect(airline?.label).toContain('Singapore');
+    expect(airline?.label).toContain('SQ');
+  });
+
+  it('returns undefined for an unknown code', () => {
+    expect(getAirlineByCode('ZZ')).toBeUndefined();
+  });
+});
+
+describe('getAirlineLabel', () => {
+  it('returns a human-readable label for a known code', () => {
+    const label = getAirlineLabel('SQ');
+    expect(label).toContain('Singapore');
+    expect(label).toContain('SQ');
+  });
+
+  it('falls back to the raw code for an unknown IATA code', () => {
+    expect(getAirlineLabel('ZZ')).toBe('ZZ');
+  });
+});
+
+describe('FormField — airline autocomplete rendering', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  it('renders a SearchableSelect when type is searchable_select + optionsSource airlines', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByTestId('searchable-select-airlineCode-trigger')).toBeTruthy();
+  });
+
+  it('shows the field label in the form', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    const matches = screen.getAllByText('Airline');
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('opens the search panel when the trigger is pressed', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    fireEvent.press(screen.getByTestId('searchable-select-airlineCode-trigger'));
+
+    expect(screen.getByTestId('searchable-select-airlineCode-panel')).toBeTruthy();
+    expect(screen.getByTestId('searchable-select-airlineCode-search')).toBeTruthy();
+  });
+
+  it('displays a placeholder hint for the trigger button', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Search Airline...')).toBeTruthy();
+  });
+
+  it('displays the selected airline label when a value is already set', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+      currentValue: 'SQ',
+    });
+
+    render(
+      <FormField
+        field={field}
+        value="SQ"
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Singapore Airlines (SQ)')).toBeTruthy();
+  });
+
+  it('shows help text when provided', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+      helpText: 'Search by airline name or IATA code',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Search by airline name or IATA code')).toBeTruthy();
+  });
+
+  it('is disabled when the disabled prop is true', () => {
+    const field = makeField({
+      id: 'airlineCode',
+      label: 'Airline',
+      type: 'searchable_select',
+      optionsSource: 'airlines',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+        disabled
+      />,
+    );
+
+    const trigger = screen.getByTestId('searchable-select-airlineCode-trigger');
+    // Pressing a disabled trigger should NOT open the panel
+    fireEvent.press(trigger);
+    expect(screen.queryByTestId('searchable-select-airlineCode-panel')).toBeNull();
+  });
+});

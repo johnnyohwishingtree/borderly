@@ -184,10 +184,12 @@
         {
           "id": "airlineCode",
           "label": "Airline Company",
-          "type": "text",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "leg.airlineCode",
-          "countrySpecific": false
+          "countrySpecific": false,
+          "optionsSource": "airlines",
+          "helpText": "Search by airline name or IATA code (e.g. NH, JL, SQ)"
         },
         {
           "id": "arrivalAirport",

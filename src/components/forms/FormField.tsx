@@ -4,6 +4,7 @@ import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
 import { ALL_AIRPORTS } from '../../constants/airports';
+import { ALL_AIRLINES } from '../../constants/airlines';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -75,12 +76,20 @@ export default function FormField({
         );
 
       case 'searchable_select': {
-        const resolvedOptions =
-          field.optionsSource === 'countries'
-            ? ALL_COUNTRIES
-            : field.optionsSource === 'airports'
-              ? ALL_AIRPORTS
-              : field.options || [];
+        let resolvedOptions: { value: string; label: string }[];
+        switch (field.optionsSource) {
+          case 'countries':
+            resolvedOptions = ALL_COUNTRIES;
+            break;
+          case 'airports':
+            resolvedOptions = ALL_AIRPORTS;
+            break;
+          case 'airlines':
+            resolvedOptions = ALL_AIRLINES;
+            break;
+          default:
+            resolvedOptions = field.options || [];
+        }
         return (
           <SearchableSelect
             value={fieldValue as string}
