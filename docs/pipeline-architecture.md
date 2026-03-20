@@ -321,6 +321,38 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 
 ---
 
+## Country Schema CI Coverage
+
+All **8 country schemas** bundled in the app are covered in CI on every PR:
+
+| Country | Code | CI Coverage | Portal Validation |
+|---------|------|-------------|-------------------|
+| Canada | CAN | `country-submissions` E2E project | Graceful-degradation spec (archived — ArriveCAN discontinued Oct 2023) |
+| United Kingdom | GBR | `country-submissions` E2E project | `e2e/portal-validation/gbr.spec.ts` |
+| Japan | JPN | `portal-submission` E2E project | `e2e/portal-validation/jpn.spec.ts` |
+| Malaysia | MYS | `country-submissions` E2E project | `e2e/portal-validation/mys.spec.ts` |
+| Singapore | SGP | `country-submissions` E2E project | `e2e/portal-validation/sgp.spec.ts` |
+| Thailand | THA | `country-submissions` E2E project | Deferred (no automation portal yet) |
+| United States | USA | `country-submissions` E2E project | `e2e/portal-validation/usa.spec.ts` |
+| Vietnam | VNM | `country-submissions` E2E project | `e2e/portal-validation/vnm.spec.ts` |
+
+### CI layers for country schemas
+
+1. **Unit tests** (`pnpm test`): Schema structure and field validation for each country in `__tests__/schemas/`.
+2. **In-app E2E** (`e2e-smoke.yml` — `country-submissions` project): Playwright tests verify trip leg cards render and DynamicForm loads for each country.
+3. **Portal validation** (`e2e/portal-validation/` — run on-demand, not in CI): Verifies CSS selectors in field mappings resolve to real DOM elements on live government portals. CAN uses a graceful-degradation spec (automation disabled); THA is deferred.
+
+### CAN archived-status handling
+
+Canada's eTA schema (`CAN.json`) has `metadata.implementationStatus = "archived"` and `automation.enabled = false` because ArriveCAN was discontinued by the CBSA in October 2023. The pipeline:
+- Runs CAN in-app submission tests normally (trip leg, DynamicForm render)
+- Runs `e2e/portal-validation/can.spec.ts` which asserts archived status and skips live portal navigation
+- The submission guide for CAN shows a manual-only fallback message to the traveller
+
+Matrix coverage is validated by `.github/scripts/__tests__/lib/portal-pipeline-matrix.test.ts` (22 vitest tests).
+
+---
+
 ## Token/Cost Efficiency
 
 - PR context skips verify-and-fix (direct push to PR branch)
