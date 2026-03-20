@@ -408,6 +408,173 @@ export function getPreviousDiagnosticIssues(repo: string): string {
 
 // ─── Known bug patterns ────────────────────────────────────────────
 
+// ─── Pipeline flow diagnosis ──────────────────────────────────────
+
+export interface FlowDiagnosis {
+  prNumber: number;
+  stuckReason: string;
+  flowPath: string[];
+  action: 'dispatch-auto-merge' | 'dispatch-ci' | 'resolve-conflicts' | 'dispatch-review-fix' | 'needs-code-fix' | 'unknown';
+  detail: string;
+}
+
+/**
+ * Diagnose WHY a PR is stuck by tracing the pipeline flow.
+ *
+ * This does what a human would do: check each gate condition, trace
+ * which workflow should have fired, and identify the gap.
+ */
+export function diagnosePipelineFlow(prNum: number, repo: string): FlowDiagnosis {
+  const path: string[] = [];
+
+  // Step 1: Check merge state
+  const mergeable = safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'mergeable', '-q', '.mergeable'], 'UNKNOWN');
+  path.push(`mergeable: ${mergeable}`);
+
+  if (mergeable === 'CONFLICTING') {
+    return {
+      prNumber: prNum, stuckReason: 'Merge conflict with master',
+      flowPath: path, action: 'resolve-conflicts',
+      detail: 'PR has merge conflicts. Dispatching resolve-conflicts.yml.',
+    };
+  }
+
+  // Step 2: Check CI status
+  const ciRaw = safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'statusCheckRollup',
+    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium" or .name == "typecheck" or .name == "bundle-ios" or .name == "bundle-android") | {name: .name, conclusion: (.conclusion // "pending")}]'], '[]');
+
+  let checks: Array<{ name: string; conclusion: string }> = [];
+  try { checks = JSON.parse(ciRaw); } catch { /* empty */ }
+  path.push(`ci checks: ${checks.map(c => `${c.name}=${c.conclusion}`).join(', ') || 'none'}`);
+
+  const hasFailure = checks.some(c => c.conclusion === 'FAILURE' || c.conclusion === 'failure');
+  const hasPending = checks.some(c => c.conclusion === 'pending' || c.conclusion === '');
+  const allPassed = checks.length > 0 && checks.every(c => c.conclusion === 'SUCCESS' || c.conclusion === 'success');
+
+  if (checks.length === 0) {
+    return {
+      prNumber: prNum, stuckReason: 'No CI checks found',
+      flowPath: path, action: 'dispatch-ci',
+      detail: 'No CI checks registered on the PR. GitHub pull_request events may not have fired. Dispatching CI explicitly.',
+    };
+  }
+
+  if (hasFailure) {
+    const failed = checks.filter(c => c.conclusion === 'FAILURE').map(c => c.name);
+    return {
+      prNumber: prNum, stuckReason: `CI failing: ${failed.join(', ')}`,
+      flowPath: path, action: 'needs-code-fix',
+      detail: `CI checks failing: ${failed.join(', ')}. verify-and-fix should handle this. If it already ran, check if it produced changes.`,
+    };
+  }
+
+  if (hasPending) {
+    return {
+      prNumber: prNum, stuckReason: 'CI still pending',
+      flowPath: path, action: 'dispatch-ci',
+      detail: 'Some CI checks are still pending or were never reported. Dispatching CI to fill the gap.',
+    };
+  }
+
+  // Step 3: CI passed — check approval
+  path.push('ci: all passed');
+
+  const approvals = parseInt(safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'reviews', '-q', '[.reviews[] | select(.state == "APPROVED")] | length'], '0'), 10);
+  path.push(`approvals: ${approvals}`);
+
+  // Step 4: Check PR author vs repo owner (personal repo self-approval)
+  const prAuthor = safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'author', '-q', '.author.login'], '');
+  const repoOwner = repo.split('/')[0];
+  const isOwnerPR = prAuthor === repoOwner;
+  path.push(`author: ${prAuthor}, owner: ${repoOwner}, isOwnerPR: ${isOwnerPR}`);
+
+  // Step 5: Check unresolved threads
+  const [owner, name] = repo.split('/');
+  const unresolvedRaw = safeExec('gh', ['api', 'graphql', '-f', `query={
+    repository(owner: "${owner}", name: "${name}") {
+      pullRequest(number: ${prNum}) {
+        reviewThreads(first: 100) { nodes { isResolved } }
+      }
+    }
+  }`, '--jq', '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length'], '0');
+  const unresolved = parseInt(unresolvedRaw, 10);
+  path.push(`unresolved threads: ${unresolved}`);
+
+  if (unresolved > 0) {
+    return {
+      prNumber: prNum, stuckReason: `${unresolved} unresolved review threads`,
+      flowPath: path, action: 'dispatch-review-fix',
+      detail: `${unresolved} unresolved review threads. review-fix should resolve them, or watcher should resolve and dispatch auto-merge.`,
+    };
+  }
+
+  // Step 6: Check branch up-to-date
+  const branchName = safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'headRefName', '-q', '.headRefName'], '');
+  const comparison = safeExec('gh', ['api', `repos/${repo}/compare/master...${branchName}`,
+    '--jq', '.status'], 'unknown');
+  path.push(`branch status: ${comparison}`);
+
+  // Step 7: All conditions met — should be merging
+  if (allPassed && (approvals > 0 || isOwnerPR) && unresolved === 0) {
+    return {
+      prNumber: prNum, stuckReason: 'All conditions met but not merging',
+      flowPath: path, action: 'dispatch-auto-merge',
+      detail: `CI passed, ${isOwnerPR ? 'owner-approved (implicit)' : `${approvals} approvals`}, 0 unresolved threads, branch ${comparison}. Dispatching auto-merge — the merge gate should handle update_branch if needed.`,
+    };
+  }
+
+  // Fallback
+  return {
+    prNumber: prNum, stuckReason: 'Unknown pipeline state',
+    flowPath: path, action: 'unknown',
+    detail: `Could not determine why PR is stuck. Flow path: ${path.join(' → ')}`,
+  };
+}
+
+/**
+ * Act on a diagnosis — dispatch the appropriate workflow.
+ */
+export async function actOnDiagnosis(
+  diagnosis: FlowDiagnosis,
+  github: import('./github.js').GitHubClient,
+  repo: string,
+): Promise<string> {
+  const prNum = diagnosis.prNumber;
+  const branchName = safeExec('gh', ['pr', 'view', String(prNum), '--repo', repo,
+    '--json', 'headRefName', '-q', '.headRefName'], '');
+
+  switch (diagnosis.action) {
+    case 'dispatch-auto-merge':
+      await github.dispatchWorkflow('auto-merge.yml', 'master', { pr_number: String(prNum) });
+      return `Dispatched auto-merge for PR #${prNum}`;
+
+    case 'dispatch-ci':
+      await github.dispatchWorkflow('test.yml', branchName);
+      await github.dispatchWorkflow('e2e-smoke.yml', branchName);
+      return `Dispatched test.yml + e2e-smoke.yml for PR #${prNum}`;
+
+    case 'resolve-conflicts':
+      await github.dispatchWorkflow('resolve-conflicts.yml', 'master', { pr_number: String(prNum) });
+      return `Dispatched resolve-conflicts for PR #${prNum}`;
+
+    case 'dispatch-review-fix':
+      exec('npx', ['tsx', '.github/scripts/lib/cli/pipeline.ts', 'resolve-all-threads', String(prNum), repo]);
+      await github.dispatchWorkflow('auto-merge.yml', 'master', { pr_number: String(prNum) });
+      return `Resolved threads and dispatched auto-merge for PR #${prNum}`;
+
+    case 'needs-code-fix':
+      return `PR #${prNum} has failing CI — verify-and-fix should handle this`;
+
+    default:
+      return `PR #${prNum}: unknown state, no action taken`;
+  }
+}
+
 export const KNOWN_BUG_PATTERNS = `These are patterns from previous pipeline bugs. Check if the current failure matches any:
 
 1. **Missing allowedTools**: Claude's fix job couldn't run git commands (fetch, merge, checkout, rebase) because they weren't in allowedTools. Symptom: "Claude produced no changes" across all attempts.
