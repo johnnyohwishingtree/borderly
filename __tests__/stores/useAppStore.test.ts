@@ -205,3 +205,57 @@ describe('useAppStore — loadSchemaFreshnessState', () => {
     expect(useAppStore.getState().schemaRefreshCountries).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// First-run prompt
+// ---------------------------------------------------------------------------
+
+describe('useAppStore — first-run prompt', () => {
+  const { mmkvService } = jest.requireMock('@/services/storage') as {
+    mmkvService: {
+      getBoolean: jest.Mock;
+      setBoolean: jest.Mock;
+      getNumber: jest.Mock;
+      getString: jest.Mock;
+    };
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useAppStore.setState({ hasSeenFirstRunPrompt: false });
+  });
+
+  it('defaults hasSeenFirstRunPrompt to false', () => {
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(false);
+  });
+
+  it('dismissFirstRunPrompt sets hasSeenFirstRunPrompt to true in-memory', () => {
+    useAppStore.getState().dismissFirstRunPrompt();
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(true);
+  });
+
+  it('dismissFirstRunPrompt persists the flag to MMKV', () => {
+    useAppStore.getState().dismissFirstRunPrompt();
+    expect(mmkvService.setBoolean).toHaveBeenCalledWith('has_seen_first_run_prompt', true);
+  });
+
+  it('loadSchemaFreshnessState reads hasSeenFirstRunPrompt from MMKV when true', () => {
+    mmkvService.getBoolean.mockReturnValue(true);
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue(null);
+
+    useAppStore.getState().loadSchemaFreshnessState();
+
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(true);
+  });
+
+  it('loadSchemaFreshnessState defaults hasSeenFirstRunPrompt to false when not stored', () => {
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+    mmkvService.getString.mockReturnValue(null);
+
+    useAppStore.getState().loadSchemaFreshnessState();
+
+    expect(useAppStore.getState().hasSeenFirstRunPrompt).toBe(false);
+  });
+});
