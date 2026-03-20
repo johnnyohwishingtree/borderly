@@ -224,6 +224,20 @@ describe('watcher', () => {
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('FAILURE');
     });
 
+    it('returns empty string when only test is present (test-chromium not yet started)', () => {
+      mockExec(JSON.stringify([
+        { name: 'test', conclusion: 'SUCCESS' },
+      ]));
+      expect(getPRCIConclusion(42, 'owner/repo')).toBe('');
+    });
+
+    it('returns empty string when only test-chromium is present (test not yet started)', () => {
+      mockExec(JSON.stringify([
+        { name: 'test-chromium', conclusion: 'SUCCESS' },
+      ]));
+      expect(getPRCIConclusion(42, 'owner/repo')).toBe('');
+    });
+
     it('returns empty string on failure', () => {
       mockExecThrow();
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('');

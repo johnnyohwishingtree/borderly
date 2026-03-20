@@ -144,10 +144,14 @@ export function getPRCIConclusion(pr: number, repo: string): string {
   try {
     const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
     if (checks.length === 0) return '';
-    const anyFailure = checks.some(c => c.conclusion === 'FAILURE');
-    if (anyFailure) return 'FAILURE';
-    const allSuccess = checks.every(c => c.conclusion === 'SUCCESS');
-    return allSuccess ? 'SUCCESS' : '';
+    if (checks.some(c => c.conclusion === 'FAILURE')) return 'FAILURE';
+    // Only return SUCCESS when both required checks are present and succeeded.
+    // If one hasn't started yet it won't appear in the list — don't prematurely
+    // declare success based only on the checks that have run so far.
+    const requiredChecks = ['test', 'test-chromium'];
+    const allPresent = requiredChecks.every(name => checks.some(c => c.name === name));
+    if (!allPresent) return '';
+    return checks.every(c => c.conclusion === 'SUCCESS') ? 'SUCCESS' : '';
   } catch {
     return '';
   }
