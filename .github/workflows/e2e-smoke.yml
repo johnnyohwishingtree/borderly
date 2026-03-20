@@ -13,8 +13,51 @@ permissions:
   actions: write
 
 jobs:
+  # Check if app code changed — skip E2E for pipeline-only PRs
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      skip_e2e: ${{ steps.check.outputs.skip_e2e }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check if only pipeline files changed
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "skip_e2e=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          BASE="${{ github.event.before || github.event.pull_request.base.sha }}"
+          HEAD="${{ github.sha }}"
+
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || echo "")
+
+          if [ -z "$CHANGED" ]; then
+            echo "skip_e2e=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if ALL changed files are pipeline/docs only
+          SKIP_E2E=true
+          while IFS= read -r file; do
+            case "$file" in
+              .github/*|.claude/*|docs/*|*.md) ;;
+              *) SKIP_E2E=false; break ;;
+            esac
+          done <<< "$CHANGED"
+
+          echo "skip_e2e=$SKIP_E2E" >> $GITHUB_OUTPUT
+          if [ "$SKIP_E2E" = "true" ]; then
+            echo "Only pipeline/docs files changed — skipping E2E"
+          fi
+
   # Shared webpack build — cached and reused by all test jobs
   build:
+    needs: check-changes
+    if: needs.check-changes.outputs.skip_e2e != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
