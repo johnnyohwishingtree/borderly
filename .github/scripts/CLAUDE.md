@@ -12,6 +12,7 @@ This folder contains shared TypeScript modules for GitHub Actions workflows, fol
 | `lib/state-machine.ts` | Pipeline state persistence (JSON in GitHub issue comments) |
 | `lib/workflow.ts` | Temporal-like activity runner with state tracking and retry policies |
 | `lib/verify-checks.ts` | CI check verification (lint, typecheck, bundle, test, native deps) |
+| `lib/ci-dispatch.ts` | CI failure dispatch (label check, failed items extraction, verify-and-fix dispatch) |
 | `lib/cli/pipeline.ts` | Unified CLI — replaces all lib.sh functions |
 | `lib/cli/verify-checks.ts` | CLI wrapper for verify-checks |
 | `lib/cli/evaluate-merge-gate.ts` | CLI wrapper for merge-gate evaluation |
@@ -39,6 +40,8 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | `gh pr review --approve` + dispatch | `npx tsx .github/scripts/lib/cli/pipeline.ts approve-and-merge N "body" [repo]` |
 | `gh issue list --label story ...` | `npx tsx .github/scripts/lib/cli/pipeline.ts get-next-pending-story "label" [repo]` |
 | Comment with @agent ... | `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" [suffix]` |
+| Inline CI failure dispatch (label check + failed items + comment + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr N branch run_id run_url checks [extra]` |
+| Inline master failure dispatch (create branch + push + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master run_id run_url checks prefix [extra]` |
 
 ### How to use the pipeline CLI in a workflow
 
@@ -83,6 +86,10 @@ GitHub API:
   count-critical-comments <pr> [repo]
   get-next-pending-story <epic_label> [repo]
   trigger-story-agent <issue> [agent] [suffix]
+
+CI Dispatch:
+  ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
+  ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
 
 Git:
   setup-git-auth
