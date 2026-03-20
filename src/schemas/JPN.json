@@ -354,7 +354,7 @@
       "order": 4,
       "title": "Register Your Trip",
       "description": "Click 'Register new planned entry/return' and enter your travel details.",
-      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "durationOfStay"],
+      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "arrivalAirport", "departureCity", "purposeOfVisit", "durationOfStay"],
       "tips": [
         "If connecting, enter the flight number of the plane landing in Japan",
         "Departure city is where your FIRST flight departs"

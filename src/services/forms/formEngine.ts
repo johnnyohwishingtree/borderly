@@ -263,6 +263,7 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
       return typeof value === 'boolean';
 
     case 'select':
+    case 'searchable_select':
       return typeof value === 'string' && value.length > 0;
 
     default:
@@ -282,6 +283,7 @@ function getDefaultValue(field: FormField): unknown {
       return field.validation?.min ?? 0;
 
     case 'select':
+    case 'searchable_select':
       return field.options?.[0]?.value ?? '';
 
     case 'text':

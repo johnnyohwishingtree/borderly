@@ -372,7 +372,7 @@
       "order": 3,
       "title": "Travel Information",
       "description": "Provide details about your flight and travel purpose.",
-      "fieldsOnThisScreen": ["arrivalDate", "arrivalTime", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "intendedLengthOfStay"],
+      "fieldsOnThisScreen": ["arrivalDate", "arrivalTime", "flightNumber", "airlineCode", "arrivalAirport", "departureCity", "purposeOfVisit", "intendedLengthOfStay"],
       "tips": [
         "Check your boarding pass for correct flight details",
         "If transiting, select 'Transit' as purpose of visit"

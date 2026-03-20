@@ -40,19 +40,25 @@ describe('Malaysia (MYS) Schema', () => {
     expect(fieldIds).toContain('passportExpiry');
   });
 
-  test('travel section should have Malaysia-specific ports of entry', () => {
+  test('travel section should have Malaysia-specific port of entry airport autocomplete', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     expect(travelSection).toBeDefined();
 
     const airportField = travelSection!.fields.find(f => f.id === 'arrivalAirport');
     expect(airportField).toBeDefined();
     expect(airportField!.countrySpecific).toBe(true);
-    expect((airportField as any).options!.length).toBeGreaterThan(5);
+    // Field now uses the bundled airport database rather than inline options
+    expect(airportField!.type).toBe('searchable_select');
+    expect((airportField as any).optionsSource).toBe('airports');
 
-    const airportCodes = (airportField as any).options!.map((o: any) => o.value);
-    expect(airportCodes).toContain('KUL');
-    expect(airportCodes).toContain('KUA');
-    expect(airportCodes).toContain('PEN');
+    // Verify that Malaysian airports KUL, KUA, PEN are present in the bundled database
+    const { ALL_AIRPORTS } = require('../../src/constants/airports');
+    const codes = new Set(ALL_AIRPORTS.map((a: { value: string }) => a.value));
+    expect(codes.has('KUL')).toBe(true);
+    expect(codes.has('KUA')).toBe(true);
+    expect(codes.has('PEN')).toBe(true);
+    expect(codes.has('BKI')).toBe(true);
+    expect(codes.has('JHB')).toBe(true);
   });
 
   test('purpose of visit should have Malaysia-specific options', () => {

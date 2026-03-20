@@ -114,6 +114,12 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
       'input[name="flightNumber"], input[name="flight_no"], input[id="flight_no"], input[name="flightNo"]',
     inputType: 'text',
   },
+  arrivalAirport: {
+    fieldId: 'arrivalAirport',
+    selector:
+      'select[name="arrivalAirport"], select[name="arrival_airport"], select[id="arrivalAirport"], input[name="arrivalAirport"]',
+    inputType: 'select',
+  },
   purposeOfVisit: {
     fieldId: 'purposeOfVisit',
     selector:

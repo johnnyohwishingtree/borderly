@@ -402,7 +402,8 @@ describe('Family Form Pipeline — No-Account Countries', () => {
       });
 
       it('should report accurate stats', () => {
-        expect(form.stats.totalFields).toBe(28);
+        // SGP has 29 fields after adding arrivalAirport with optionsSource: 'airports'
+        expect(form.stats.totalFields).toBe(29);
         expect(form.stats.autoFilled).toBeGreaterThanOrEqual(16);
       });
     });
