@@ -341,6 +341,77 @@ describe('workflow structure regressions', () => {
     });
   });
 
+  // Guard: workflows that have been extracted to TypeScript must stay thin.
+  // If you need to add logic, put it in the TypeScript module, not inline shell.
+  describe('extracted workflows have no large inline shell blocks', () => {
+    // These workflows had their logic extracted into TypeScript modules.
+    // The YAML should only contain thin CLI calls, not business logic.
+    // Max lines per run: block — keeps YAML as orchestration, not implementation.
+    const extractedWorkflows: Record<string, { maxRunLines: number; module: string }> = {
+      'watcher.yml': { maxRunLines: 5, module: 'lib/watcher.ts' },
+      'pipeline-doctor.yml': { maxRunLines: 10, module: 'lib/doctor.ts' },
+    };
+
+    for (const [wfName, { maxRunLines, module }] of Object.entries(extractedWorkflows)) {
+      it(`${wfName}: no run: block exceeds ${maxRunLines} lines (logic belongs in ${module})`, () => {
+        const wf = workflows.find((w) => w.name === wfName);
+        expect(wf, `${wfName} not found`).toBeDefined();
+        if (!wf) return;
+
+        const failures: string[] = [];
+        for (const [jobName, job] of Object.entries(wf.workflow.jobs ?? {})) {
+          for (const step of job.steps ?? []) {
+            if (typeof step.run !== 'string') continue;
+
+            // Skip claude-code-action prompt blocks (they're not shell logic)
+            if (step.uses?.includes('claude-code-action')) continue;
+
+            const lineCount = step.run.trim().split('\n').length;
+            if (lineCount > maxRunLines) {
+              failures.push(
+                `${wfName} → job "${jobName}" → step "${step.name}": ${lineCount} lines (max ${maxRunLines}). Move logic to ${module}.`
+              );
+            }
+          }
+        }
+
+        expect(failures, failures.join('\n')).toHaveLength(0);
+      });
+    }
+
+    // Review-guardian has more complex YAML (case statements parsing JSON output),
+    // but individual decision logic must stay in lib/review-guardian.ts.
+    // We enforce that no single run: block has raw gh/git calls doing business logic.
+    it('review-guardian.yml: no run: block calls gh api with inline jq queries > 2 lines', () => {
+      const wf = workflows.find((w) => w.name === 'review-guardian.yml');
+      expect(wf, 'review-guardian.yml not found').toBeDefined();
+      if (!wf) return;
+
+      const failures: string[] = [];
+      for (const [jobName, job] of Object.entries(wf.workflow.jobs ?? {})) {
+        for (const step of job.steps ?? []) {
+          if (typeof step.run !== 'string') continue;
+
+          // Count lines that are raw gh api/gh pr view calls with -q/--jq filters
+          // (these should be in review-guardian.ts, not inline)
+          const lines = step.run.split('\n');
+          const rawGhQueryLines = lines.filter(
+            (l) => /^\s*gh\s+(api|pr\s+view|run\s+list)\s+.*(-q|--jq)/.test(l)
+          );
+
+          // Allow up to 2 simple gh calls per step (e.g., getting branch name + review summary)
+          if (rawGhQueryLines.length > 2) {
+            failures.push(
+              `${wfName} → job "${jobName}" → step "${step.name}": ${rawGhQueryLines.length} raw gh query calls. Move decision logic to lib/review-guardian.ts.`
+            );
+          }
+        }
+      }
+
+      expect(failures, failures.join('\n')).toHaveLength(0);
+    });
+  });
+
   // Bug: review-relay dispatches review-fix for clean reviews (no inline
   // comments, just a summary body). This causes a deadlock: request-approval
   // defers because review-fix is "active", but review-fix produces no changes,
