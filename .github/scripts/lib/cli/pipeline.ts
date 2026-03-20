@@ -487,7 +487,7 @@ async function main() {
       for (const branch of remoteBranches) {
         if (openPRBranches.has(branch)) continue;
         console.log(`  Orphan branch: ${branch} (no open PR) — deleting`);
-        try { exec('gh', ['api', `repos/${repo}/git/refs/heads/${branch}`, '--method', 'DELETE']); } catch { /* already deleted */ }
+        try { exec('gh', ['api', `repos/${repo}/git/refs/heads/${branch}`, '--method', 'DELETE']); } catch (e) { console.warn(`  Failed to delete branch ${branch}:`, e); }
       }
 
       console.log(`\n=== Watcher complete — slots used: ${maxConcurrent - slotsAvailable}/${maxConcurrent} ===`);
