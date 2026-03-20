@@ -80,13 +80,13 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `review-fix.yml` | workflow_dispatch | Apply review feedback fixes, dispatch verify-and-fix |
 | `resolve-conflicts.yml` | workflow_dispatch | Merge conflict resolution |
 | `pipeline-doctor.yml` | workflow_dispatch | Diagnose stuck pipelines |
-| `watcher.yml` | schedule (every 20min), workflow_dispatch | Monitor stale PRs and issues |
-| `test.yml` | push, PR, workflow_dispatch | Unit tests + typecheck + lint; dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | push, PR, workflow_dispatch | Playwright E2E tests; dispatches verify-and-fix on failure |
-| `build-ios.yml` | push to master (ios/pkg paths), workflow_dispatch | iOS build |
-| `build-android.yml` | push to master, workflow_dispatch | Android debug build + lint |
+| `watcher.yml` | schedule (every 20min) | Monitor stale PRs and issues |
+| `test.yml` | push, PR | Unit tests + typecheck + lint; dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | push, PR | Playwright E2E tests; dispatches verify-and-fix on failure |
+| `build-ios.yml` | workflow_dispatch | iOS build |
+| `build-android.yml` | push, PR, workflow_dispatch | Android debug build + lint |
 | `screenshot-capture.yml` | push to master (UI paths), workflow_dispatch | Native screenshots on Android emulator; creates PR if changed |
 | `release.yml` | tags | Release pipeline |
-| `daily-planner.yml` | workflow_dispatch | Story planning (manual) |
+| `daily-planner.yml` | schedule | Daily story planning |
 | `agent-switcher.yml` | workflow_dispatch | Switch between Claude/Gemini |
 | `pipeline-toggle.yml` | workflow_dispatch | Enable/disable pipeline |
