@@ -27,7 +27,9 @@ const passportSchema = z.object({
 type PassportFormData = z.infer<typeof passportSchema>;
 
 // Demo scan profiles for E2E testing (Maestro/development)
-const DEMO_PROFILES: Record<string, MRZParseResult> = {
+type DemoPersona = 'adult' | 'spouse' | 'child';
+
+const DEMO_PROFILES: Record<DemoPersona, MRZParseResult> = {
   adult: {
     success: true,
     errors: [],
@@ -318,7 +320,7 @@ export function usePassportScan() {
     setMode('manual');
   }, []);
 
-  const handleDemoScan = useCallback((persona: string = 'adult') => {
+  const handleDemoScan = useCallback((persona: DemoPersona = 'adult') => {
     const demoResult = DEMO_PROFILES[persona] ?? DEMO_PROFILES.adult;
     handleScanSuccess(demoResult);
   }, [handleScanSuccess]);

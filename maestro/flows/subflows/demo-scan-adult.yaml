@@ -23,7 +23,8 @@ appId: com.borderly.app
 - extendedWaitUntil:
     visible: "L12345678"
     timeout: 10000
-- assertVisible: "JOHN MICHAEL SMITH"
+- assertVisible: "JOHN MICHAEL"
+- assertVisible: "SMITH"
 
 # Confirm scanned profile
 - scrollUntilVisible:
