@@ -451,12 +451,16 @@ export function getLastCommentTime(pr: number, repo: string): string {
     '--json', 'comments', '-q', '.comments | last | .createdAt'], '');
 }
 
-export function closeOrphanPR(pr: number, branch: string, repo: string): void {
-  try {
-    exec('gh', ['pr', 'close', String(pr), '--repo', repo, '--comment',
-      'Closing: this PR has no linked story issue (`Closes #N`) and appears to be orphaned. If this work is still needed, reopen and add a `Closes #N` reference.']);
-  } catch { /* ignore */ }
-  try {
-    exec('gh', ['api', `repos/${repo}/git/refs/heads/${branch}`, '--method', 'DELETE']);
-  } catch { /* ignore */ }
+/** @deprecated Never close PRs automatically — use branch cleanup instead */
+export function closeOrphanPR(_pr: number, _branch: string, _repo: string): void {
+  // Disabled — closing PRs destroys work (PR #505 was killed by this).
+}
+
+/** Returns list of claude/ and tmp/claude- branch names on the remote. */
+export function getClaudeBranches(repo: string): string[] {
+  const raw = execOrDefault('gh', ['api', `repos/${repo}/git/matching-refs/heads/claude/`,
+    '--jq', '[.[].ref | sub("refs/heads/"; "")] | join("\\n")'], '');
+  const tmpRaw = execOrDefault('gh', ['api', `repos/${repo}/git/matching-refs/heads/tmp/claude-`,
+    '--jq', '[.[].ref | sub("refs/heads/"; "")] | join("\\n")'], '');
+  return [...raw.split('\n'), ...tmpRaw.split('\n')].filter(Boolean);
 }
