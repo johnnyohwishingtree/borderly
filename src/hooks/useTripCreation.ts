@@ -22,12 +22,7 @@ interface LegFormData {
   arrivalAirport: string;
   accommodation: {
     name: string;
-    address: {
-      line1: string;
-      city: string;
-      country: string;
-      postalCode: string;
-    };
+    address: Address;
     phone: string;
   };
   assignedTravelers: string[];
@@ -156,7 +151,7 @@ export function useTripCreation() {
       arrivalAirport: '',
       accommodation: {
         name: '',
-        address: { line1: '', city: '', country: '', postalCode: '' },
+        address: { line1: '', line2: '', city: '', state: '', country: '', postalCode: '' },
         phone: '',
       },
       assignedTravelers: defaultTravelers,
@@ -179,7 +174,7 @@ export function useTripCreation() {
     });
   }, []);
 
-  const updateLeg = useCallback((index: number, field: string, value: string) => {
+  const updateLeg = useCallback((index: number, field: string, value: unknown) => {
     setLegs(prev => {
       const newLegs = [...prev];
       newLegs[index] = structuredClone(newLegs[index]);
@@ -288,7 +283,7 @@ export function useTripCreation() {
       arrivalAirport: parsedPass.arrivalAirport,
       accommodation: {
         name: '',
-        address: { line1: '', city: '', country: parsedPass.destinationCountry || '', postalCode: '' },
+        address: { line1: '', line2: '', city: '', state: '', country: parsedPass.destinationCountry || '', postalCode: '' },
         phone: '',
       },
       assignedTravelers: defaultTravelers,
@@ -354,14 +349,7 @@ export function useTripCreation() {
           arrivalAirport: leg.arrivalAirport,
           accommodation: {
             name: leg.accommodation.name,
-            address: {
-              line1: leg.accommodation.address.line1,
-              line2: '',
-              city: leg.accommodation.address.city,
-              state: '',
-              postalCode: leg.accommodation.address.postalCode,
-              country: leg.accommodation.address.country,
-            } as Address,
+            address: leg.accommodation.address,
             phone: leg.accommodation.phone,
           } as Accommodation,
           formStatus: 'not_started',
@@ -403,7 +391,7 @@ export function useTripCreation() {
         arrivalAirport: flight.arrivalAirport || '',
         accommodation: {
           name: '',
-          address: { line1: '', city: '', country: flight.destinationCountry || '', postalCode: '' },
+          address: { line1: '', line2: '', city: '', state: '', country: flight.destinationCountry || '', postalCode: '' },
           phone: '',
         },
         assignedTravelers: defaultTravelers,
@@ -438,7 +426,7 @@ export function useTripCreation() {
         arrivalAirport: '',
         accommodation: {
           name: hotel.name,
-          address: { line1: hotel.address || '', city: hotel.city || '', country: '', postalCode: hotel.postalCode || '' },
+          address: { line1: hotel.address || '', line2: '', city: hotel.city || '', state: '', country: '', postalCode: hotel.postalCode || '' },
           phone: hotel.phone || '',
         },
         assignedTravelers: defaultTravelers,

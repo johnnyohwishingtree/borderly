@@ -27,6 +27,7 @@
  *   watcher-run [max_concurrent] [grace_minutes] [max_retries]
  *
  * Commands (Doctor):
+ *   doctor-diagnose <pr>             — diagnose why PR is stuck + auto-fix
  *   doctor-collect-evidence <issue_number> [failed_run_ids]
  *   doctor-reproduce <work_branch>
  *
@@ -505,6 +506,27 @@ async function main() {
     }
 
     // ─── Doctor Commands ───────────────────────────────────────────────
+
+    case 'doctor-diagnose': {
+      // Diagnose why a PR is stuck and take action to unblock it.
+      // Usage: pipeline doctor-diagnose <pr_number>
+      const [prStr] = args;
+      const pr = parseInt(prStr, 10);
+      if (isNaN(pr)) { console.error('Usage: pipeline doctor-diagnose <pr>'); process.exit(1); }
+
+      const diagnosis = doctor.diagnosePipelineFlow(pr, getRepo());
+      console.log(`\n=== Pipeline Diagnosis for PR #${pr} ===`);
+      console.log(`Stuck reason: ${diagnosis.stuckReason}`);
+      console.log(`Flow path: ${diagnosis.flowPath.join(' → ')}`);
+      console.log(`Action: ${diagnosis.action}`);
+      console.log(`Detail: ${diagnosis.detail}`);
+
+      // Act on the diagnosis
+      const github = getGitHub();
+      const result = await doctor.actOnDiagnosis(diagnosis, github, getRepo());
+      console.log(`\nResult: ${result}`);
+      break;
+    }
 
     case 'doctor-collect-evidence': {
       const [issueNumStr, failedRunIds] = args;

@@ -51,6 +51,8 @@ module.exports = (env, argv) => {
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/Schema/migrations': path.resolve(__dirname, 'e2e/mocks/watermelondb-migrations.js'),
       '@nozbe/watermelondb': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
+      // Places service: no real API calls in E2E/web builds
+      'src/services/places/placesService': path.resolve(__dirname, 'e2e/mocks/places.js'),
       '@': path.resolve(__dirname, 'src'),
     },
     extensions: ['.web.tsx', '.web.ts', '.web.js', '.tsx', '.ts', '.js'],
