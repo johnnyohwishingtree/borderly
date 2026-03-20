@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { TriangleAlert, Lock, User } from 'lucide-react-native';
+import { TriangleAlert, Lock, User, ChevronRight } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -13,7 +13,7 @@ type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamLi
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { profile, loadProfile, isLoading, error } = useProfileStore();
+  const { profile, familyProfiles, loadProfile, isLoading, error } = useProfileStore();
   const { preferences } = useAppStore();
   const [secureProfile, setSecureProfile] = useState<TravelerProfile | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -362,34 +362,23 @@ export default function ProfileScreen() {
 
         {/* Family Management */}
         <Card>
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Family Members
-            </Text>
-            <Button
-              title="Manage"
-              onPress={() => navigation.navigate('FamilyManagement')}
-              variant="outline"
-              size="small"
-              testID="manage-family-button"
-            />
-          </View>
-
-          <View className="bg-gray-50 p-4 rounded-lg">
-            <View className="flex-row items-center justify-center py-2">
-              <Text className="text-sm text-gray-600 text-center">
-                Add and manage family member profiles for easier travel form completion
+          <Text className="text-lg font-semibold text-gray-900 mb-4">
+            Family Members
+          </Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('FamilyManagement')}
+            testID="family-summary-row"
+            activeOpacity={0.7}
+          >
+            <View className="flex-row items-center justify-between bg-gray-50 p-4 rounded-lg">
+              <Text className="text-sm text-gray-700">
+                {familyProfiles.profiles.size === 1
+                  ? '1 family member'
+                  : `${familyProfiles.profiles.size} family members`}
               </Text>
+              <ChevronRight size={16} color="#6b7280" />
             </View>
-            <Button
-              title="Add Family Member"
-              onPress={() => navigation.navigate('FamilyManagement')}
-              variant="primary"
-              size="medium"
-              fullWidth
-              testID="add-family-member-button"
-            />
-          </View>
+          </TouchableOpacity>
         </Card>
 
         {/* Profile Metadata */}
