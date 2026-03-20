@@ -325,6 +325,16 @@ IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\`
         await github.dispatchWorkflow('auto-merge.yml', 'master', { pr_number: String(pr.number) });
         return { action: 'resolve-threads', detail: `Resolved ${unresolved} threads, dispatched auto-merge` };
       }
+
+      // No approvals, no unresolved threads, CI passing — dispatch auto-merge.
+      // The merge gate handles owner-approval for personal repos (no formal
+      // GitHub approval possible when GITHUB_TOKEN = repo owner).
+      const dispatchAttempts = countCommentsByContent(pr.number, repo, 'Watcher: dispatched auto-merge');
+      if (dispatchAttempts < 3) {
+        await github.dispatchWorkflow('auto-merge.yml', 'master', { pr_number: String(pr.number) });
+        await github.commentOnIssue(pr.number, `Watcher: dispatched auto-merge (attempt ${dispatchAttempts + 1}/3) — CI passed, no unresolved threads.`);
+        return { action: 'dispatch-merge', detail: `Auto-merge dispatched (no formal approval, attempt ${dispatchAttempts + 1}/3)` };
+      }
     }
   }
 

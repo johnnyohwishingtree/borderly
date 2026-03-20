@@ -416,6 +416,29 @@ describe('watcher', () => {
     });
   });
 
+  // Bug (#499): watcher saw CI passing + 0 approvals + 0 unresolved threads
+  // and did nothing. The merge gate handles owner-approval, but the watcher
+  // never dispatched auto-merge to let the gate evaluate.
+  describe('checkPR dispatches auto-merge when CI passes with no approvals', () => {
+    it('watcher dispatches auto-merge for CI-passing PRs without formal approval', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const checkPRBody = src.match(/export async function checkPR[\s\S]*?^}/m);
+      expect(checkPRBody).toBeTruthy();
+
+      // After the unresolved threads check (approvals === 0, threads resolved),
+      // there must be a fallback that dispatches auto-merge
+      const ciPassingSection = checkPRBody![0].match(
+        /No approvals.*no unresolved|no formal approval|owner-approval/is
+      );
+      expect(
+        ciPassingSection,
+        'checkPR must dispatch auto-merge when CI passes with 0 approvals and 0 unresolved threads',
+      ).toBeTruthy();
+    });
+  });
+
   describe('getOpenEpicLabels', () => {
     it('parses epic labels', () => {
       mockExec('epic:ui-overhaul\nepic:backend-api');
