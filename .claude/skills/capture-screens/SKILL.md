@@ -22,6 +22,22 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 
 Must use `--workers=1` — parallel runs cause webpack-dev-server race conditions.
 
+## Flow Graph Generation
+
+After capturing screenshots, generate the navigation flow graph:
+
+```bash
+npx tsx e2e/scripts/generate-flow-graph.ts
+```
+
+This statically analyzes `src/app/navigation/types.ts` and all screen files to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
+- **Stacks**: Which screens belong to which navigation stacks
+- **Tabs**: Bottom tab structure
+- **Edges**: Every `navigate()`, `goBack()`, and tab switch with source file + line number
+- **Screen files**: Screen name to source file mapping
+
+The flow graph is consumed by `/ux-review` to reason about navigation paths and tap counts without re-reading all screen source files.
+
 ## Output
 
 **Screenshots** saved to `e2e/screenshots/` — currently **36 screens** across 5 domains:
@@ -35,6 +51,8 @@ Must use `--workers=1` — parallel runs cause webpack-dev-server race condition
 | settings | Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy | 7 |
 
 **Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screen name, domain, description, state).
+
+**Flow graph** at `e2e/screenshots/flow-graph.json` — static analysis of navigation structure (stacks, tabs, edges, screen files).
 
 ## Playwright vs Native Screenshots
 
@@ -70,3 +88,5 @@ This replaces the previous in-PR Playwright captures; screenshots are no longer 
 
 - **`/visual-audit`** — Reads screenshots from `e2e/screenshots/` and manifest for analysis
 - **`/visual-implement`** — Updates UI based on audit findings, then re-captures to verify
+- **`/ux-review`** — Reads flow graph to analyze navigation paths, tap counts, and flow efficiency
+- **`/ux-implement`** — Uses flow graph to understand current structure before restructuring
