@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -104,11 +103,11 @@ function makeFamilyProfiles(size: number) {
 }
 
 function setupMocks(overrides: { familySize?: number; profile?: any } = {}) {
-  (useNavigation as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-  (useAppStore as jest.Mock).mockReturnValue({
+  (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
+  (useAppStore as unknown as jest.Mock).mockReturnValue({
     preferences: { biometricEnabled: false },
   });
-  (useProfileStore as jest.Mock).mockReturnValue({
+  (useProfileStore as unknown as jest.Mock).mockReturnValue({
     profile: overrides.profile ?? DEFAULT_PROFILE,
     familyProfiles: makeFamilyProfiles(overrides.familySize ?? 1),
     loadProfile: jest.fn(),
@@ -163,9 +162,9 @@ describe('ProfileScreen', () => {
 
   describe('loading and error states', () => {
     it('shows a loading spinner when isLoading is true', () => {
-      (useNavigation as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
+      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         profile: null,
         familyProfiles: makeFamilyProfiles(0),
         loadProfile: jest.fn(),
@@ -177,9 +176,9 @@ describe('ProfileScreen', () => {
     });
 
     it('shows an error state when error is set', () => {
-      (useNavigation as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
+      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         profile: null,
         familyProfiles: makeFamilyProfiles(0),
         loadProfile: jest.fn(),
@@ -191,9 +190,9 @@ describe('ProfileScreen', () => {
     });
 
     it('shows an empty state when profile is null', () => {
-      (useNavigation as jest.Mock).mockReturnValue({ navigate: mockNavigate });
-      (useAppStore as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
-      (useProfileStore as jest.Mock).mockReturnValue({
+      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
+      (useAppStore as unknown as jest.Mock).mockReturnValue({ preferences: { biometricEnabled: false } });
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
         profile: null,
         familyProfiles: makeFamilyProfiles(0),
         loadProfile: jest.fn(),
