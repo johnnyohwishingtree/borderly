@@ -46,10 +46,19 @@ interface TripFormData {
 }
 
 /**
+ * Returns the ID of the primary traveler (relationship === 'self'),
+ * falling back to the first family member.
+ */
+function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
+  return (members.find(m => m.relationship === 'self') ?? members[0])?.id;
+}
+
+/**
  * Encapsulates trip creation business logic:
  * - Trip/leg form state management
  * - Boarding pass scan handling
  * - Family member loading and traveler assignment
+ * - Trip-level traveler selection with propagation to legs
  * - Validation and trip creation
  */
 export function useTripCreation() {
@@ -68,6 +77,18 @@ export function useTripCreation() {
   const [showSmartImport, setShowSmartImport] = useState(false);
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
 
+  /**
+   * Trip-level selected traveler IDs. These are propagated to all legs
+   * that have not been manually overridden.
+   */
+  const [tripTravelers, setTripTravelers] = useState<string[]>([]);
+
+  /**
+   * Set of leg indices that have been manually overridden by the user.
+   * Trip-level changes do NOT propagate to overridden legs.
+   */
+  const [legOverrides, setLegOverrides] = useState<Set<number>>(new Set());
+
   useEffect(() => {
     const loadProfiles = async () => {
       try {
@@ -85,6 +106,17 @@ export function useTripCreation() {
     loadProfiles();
   }, [getAllProfiles, loadFamilyProfiles]);
 
+  // Initialize tripTravelers with the primary traveler once family members are loaded.
+  useEffect(() => {
+    if (familyMembers.length > 0 && tripTravelers.length === 0) {
+      const primaryId = getPrimaryTravelerId(familyMembers);
+      if (primaryId) {
+        setTripTravelers([primaryId]);
+      }
+    }
+  }, [familyMembers, tripTravelers.length]);
+
+  // Back-fill assignedTravelers on any leg that has none (e.g., loaded before profiles).
   useEffect(() => {
     if (familyMembers.length > 0 && legs.length > 0) {
       const needsUpdate = legs.some(leg => leg.assignedTravelers.length === 0);
@@ -100,6 +132,14 @@ export function useTripCreation() {
   }, [familyMembers, legs]);
 
   const addLeg = useCallback(() => {
+    // New legs inherit the current trip-level traveler selection.
+    const defaultTravelers =
+      tripTravelers.length > 0
+        ? tripTravelers
+        : familyMembers.length > 0
+          ? [familyMembers[0].id]
+          : [];
+
     const newLeg: LegFormData = {
       destinationCountry: '',
       arrivalDate: '',
@@ -112,13 +152,24 @@ export function useTripCreation() {
         address: { line1: '', city: '', country: '', postalCode: '' },
         phone: '',
       },
-      assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [],
+      assignedTravelers: defaultTravelers,
     };
     setLegs(prev => [...prev, newLeg]);
-  }, [familyMembers]);
+    // New legs are NOT added to legOverrides — they follow trip-level changes.
+  }, [familyMembers, tripTravelers]);
 
   const removeLeg = useCallback((index: number) => {
     setLegs(prev => prev.filter((_, i) => i !== index));
+    // Shift override indices: remove the deleted index, decrement those above it.
+    setLegOverrides(prev => {
+      const next = new Set<number>();
+      prev.forEach(i => {
+        if (i < index) next.add(i);
+        else if (i > index) next.add(i - 1);
+        // i === index is removed
+      });
+      return next;
+    });
   }, []);
 
   const updateLeg = useCallback((index: number, field: string, value: string) => {
@@ -126,9 +177,9 @@ export function useTripCreation() {
       const newLegs = [...prev];
       newLegs[index] = structuredClone(newLegs[index]);
       const keys = field.split('.');
-      let current: any = newLegs[index];
+      let current: Record<string, unknown> = newLegs[index] as unknown as Record<string, unknown>;
       for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
+        current = current[keys[i]] as Record<string, unknown>;
       }
       current[keys[keys.length - 1]] = value;
 
@@ -143,7 +194,40 @@ export function useTripCreation() {
     });
   }, []);
 
+  /**
+   * Toggle a traveler at the trip level.
+   * - The primary traveler (relationship === 'self') can never be deselected.
+   * - Changes propagate to all legs that have NOT been manually overridden.
+   */
+  const handleTripTravelerToggle = useCallback((travelerId: string) => {
+    const primaryId = getPrimaryTravelerId(familyMembers);
+    // Primary traveler cannot be removed from the trip.
+    if (travelerId === primaryId && tripTravelers.includes(travelerId)) return;
+
+    const newTravelers = tripTravelers.includes(travelerId)
+      ? tripTravelers.filter(id => id !== travelerId)
+      : [...tripTravelers, travelerId];
+
+    setTripTravelers(newTravelers);
+
+    // Propagate to legs that have not been manually overridden.
+    setLegs(prev =>
+      prev.map((leg, index) => {
+        if (legOverrides.has(index)) return leg;
+        return { ...leg, assignedTravelers: newTravelers };
+      }),
+    );
+  }, [familyMembers, tripTravelers, legOverrides]);
+
+  /**
+   * Toggle a traveler on a specific leg.
+   * Marks that leg as manually overridden so trip-level changes no longer
+   * propagate to it automatically.
+   */
   const handleTravelerToggle = useCallback((legIndex: number, travelerId: string) => {
+    // Mark this leg as manually overridden.
+    setLegOverrides(prev => new Set([...prev, legIndex]));
+
     setLegs(prev => {
       const newLegs = [...prev];
       const leg = newLegs[legIndex];
@@ -185,6 +269,14 @@ export function useTripCreation() {
       return;
     }
 
+    // Scanned legs inherit the trip-level traveler selection.
+    const defaultTravelers =
+      tripTravelers.length > 0
+        ? tripTravelers
+        : familyMembers.length > 0
+          ? [familyMembers[0].id]
+          : [];
+
     const newLeg: LegFormData = {
       destinationCountry: parsedPass.destinationCountry || '',
       arrivalDate: parsedPass.flightDate,
@@ -197,7 +289,7 @@ export function useTripCreation() {
         address: { line1: '', city: '', country: parsedPass.destinationCountry || '', postalCode: '' },
         phone: '',
       },
-      assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [],
+      assignedTravelers: defaultTravelers,
       autoFilledFields: {
         destinationCountry: 'auto',
         arrivalDate: 'auto',
@@ -213,7 +305,7 @@ export function useTripCreation() {
       const suggestedName = generateTripName([newLeg]);
       setTripData(prev => ({ ...prev, name: suggestedName }));
     }
-  }, [familyMembers, legs.length, tripData.name, generateTripName, addLeg]);
+  }, [familyMembers, tripTravelers, legs.length, tripData.name, generateTripName, addLeg]);
 
   const validateTrip = useCallback((): Record<string, string> => {
     const newErrors: Record<string, string> = {};
@@ -294,6 +386,14 @@ export function useTripCreation() {
   const handleSmartImport = useCallback((result: SmartImportResult) => {
     setShowSmartImport(false);
 
+    // Imported legs inherit the trip-level traveler selection.
+    const defaultTravelers =
+      tripTravelers.length > 0
+        ? tripTravelers
+        : familyMembers.length > 0
+          ? [familyMembers[0].id]
+          : [];
+
     const newLegs: LegFormData[] = [];
 
     for (const flight of result.flights) {
@@ -309,7 +409,7 @@ export function useTripCreation() {
           address: { line1: '', city: '', country: flight.destinationCountry || '', postalCode: '' },
           phone: '',
         },
-        assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [],
+        assignedTravelers: defaultTravelers,
         autoFilledFields: {
           ...(flight.destinationCountry ? { destinationCountry: 'auto' as const } : {}),
           ...(flight.flightDate ? { arrivalDate: 'auto' as const } : {}),
@@ -344,7 +444,7 @@ export function useTripCreation() {
           address: { line1: hotel.address || '', city: hotel.city || '', country: '', postalCode: hotel.postalCode || '' },
           phone: hotel.phone || '',
         },
-        assignedTravelers: familyMembers.length > 0 ? [familyMembers[0].id] : [],
+        assignedTravelers: defaultTravelers,
       });
     }
 
@@ -356,12 +456,14 @@ export function useTripCreation() {
         setTripData(prev => ({ ...prev, name: suggestedName }));
       }
     }
-  }, [familyMembers, legs, tripData.name, generateTripName]);
+  }, [familyMembers, tripTravelers, legs, tripData.name, generateTripName]);
 
   return {
     tripData,
     setTripData,
     legs,
+    tripTravelers,
+    legOverrides,
     isCreating,
     errors,
     showScanner,
@@ -370,6 +472,7 @@ export function useTripCreation() {
     addLeg,
     removeLeg,
     updateLeg,
+    handleTripTravelerToggle,
     handleTravelerToggle,
     handleScanSuccess,
     handleScanCancel: useCallback(() => setShowScanner(false), []),
