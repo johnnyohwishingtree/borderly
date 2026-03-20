@@ -190,6 +190,16 @@
           "countrySpecific": false
         },
         {
+          "id": "arrivalAirport",
+          "label": "Arrival Airport in Japan",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "leg.arrivalAirport",
+          "countrySpecific": false,
+          "optionsSource": "airports",
+          "helpText": "Search by airport name, city, or IATA code (e.g. NRT, HND, KIX)"
+        },
+        {
           "id": "departureCity",
           "label": "City of Departure",
           "type": "text",
@@ -344,7 +354,7 @@
       "order": 4,
       "title": "Register Your Trip",
       "description": "Click 'Register new planned entry/return' and enter your travel details.",
-      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "departureCity", "purposeOfVisit", "durationOfStay"],
+      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "arrivalAirport", "departureCity", "purposeOfVisit", "durationOfStay"],
       "tips": [
         "If connecting, enter the flight number of the plane landing in Japan",
         "Departure city is where your FIRST flight departs"

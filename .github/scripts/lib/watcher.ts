@@ -237,8 +237,7 @@ export async function checkPR(
     if (commitAgo >= graceMinutes) {
       await github.dispatchWorkflow('test.yml', pr.branch);
       await github.dispatchWorkflow('e2e-smoke.yml', pr.branch);
-      closeAndReopenPR(pr.number, repo);
-      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — retriggered test + e2e-smoke` };
+      return { action: 'retrigger-ci', detail: `No CI check, ${commitAgo}m stale — dispatched test + e2e-smoke` };
     }
     return { action: 'none', detail: `No CI check, ${commitAgo}m ago — within grace period` };
   }
@@ -320,11 +319,11 @@ IMPORTANT: After fixing, run \`pnpm typecheck\`, \`pnpm test\`, and \`pnpm e2e\`
           return { action: 'escalate-threads', detail: `Resolved threads ${watcherAttempts} times — escalating to doctor` };
         }
 
-        // Resolve threads and retrigger
+        // Resolve threads and dispatch auto-merge to re-evaluate
         exec('npx', ['tsx', '.github/scripts/lib/cli/pipeline.ts', 'resolve-all-threads', String(pr.number), repo]);
-        await github.commentOnIssue(pr.number, `Pipeline watcher: resolved ${unresolved} stale review threads (review-fix ran but didn't resolve them). Retriggering approval flow.`);
-        closeAndReopenPR(pr.number, repo);
-        return { action: 'resolve-threads', detail: `Resolved ${unresolved} threads, retriggered approval` };
+        await github.commentOnIssue(pr.number, `Pipeline watcher: resolved ${unresolved} stale review threads. Dispatching auto-merge to re-evaluate.`);
+        await github.dispatchWorkflow('auto-merge.yml', 'master', { pr_number: String(pr.number) });
+        return { action: 'resolve-threads', detail: `Resolved ${unresolved} threads, dispatched auto-merge` };
       }
     }
   }

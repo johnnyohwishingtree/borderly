@@ -79,7 +79,10 @@ export async function createJapanTrip(page: Page) {
   await page.getByTestId('leg-0-departure-date').fill('2026-07-07');
   await page.getByTestId('leg-0-flight-number').fill('NH101');
   await page.getByTestId('leg-0-airline-code').fill('NH');
-  await page.getByTestId('leg-0-arrival-airport').fill('NRT');
+  // Arrival airport is a SearchableSelect — open, search, select
+  await page.getByTestId('leg-0-arrival-airport-trigger').click();
+  await page.getByTestId('leg-0-arrival-airport-search').fill('NRT');
+  await page.getByTestId('leg-0-arrival-airport-option-NRT').click();
   await page.getByTestId('leg-0-accommodation-name').fill('Park Hyatt Tokyo');
   await page.getByTestId('leg-0-accommodation-address').fill('3-7-1-2 Nishi Shinjuku');
   await page.getByTestId('leg-0-accommodation-city').fill('Tokyo');

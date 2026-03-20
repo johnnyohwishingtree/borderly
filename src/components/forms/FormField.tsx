@@ -3,6 +3,7 @@ import { Input, Select, Toggle, SearchableSelect, DatePickerField } from '../ui'
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
+import { ALL_AIRPORTS } from '../../constants/airports';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -74,9 +75,12 @@ export default function FormField({
         );
 
       case 'searchable_select': {
-        const resolvedOptions = field.optionsSource === 'countries'
-          ? ALL_COUNTRIES
-          : field.options || [];
+        const resolvedOptions =
+          field.optionsSource === 'countries'
+            ? ALL_COUNTRIES
+            : field.optionsSource === 'airports'
+              ? ALL_AIRPORTS
+              : field.options || [];
         return (
           <SearchableSelect
             value={fieldValue as string}

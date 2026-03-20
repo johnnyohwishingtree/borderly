@@ -114,6 +114,12 @@ const fieldMappings: Record<string, PortalFieldMapping> = {
       'input[name="airlineCode"], input[name="airline_code"], input[name="airline"], input[id="airline_code"]',
     inputType: 'text',
   },
+  arrivalAirport: {
+    fieldId: 'arrivalAirport',
+    selector:
+      'select[name="arrivalAirport"], select[name="arrival_airport"], select[id="arrivalAirport"], input[name="arrivalAirport"]',
+    inputType: 'select',
+  },
   departureCity: {
     fieldId: 'departureCity',
     // ICA calls this "port of departure" or "last city"

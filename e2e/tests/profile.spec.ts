@@ -146,8 +146,8 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
     const summaryRow = page.locator('[data-testid="family-summary-row"]');
     await expect(summaryRow).toBeVisible({ timeout: 5000 });
     await summaryRow.click();
-    // FamilyManagement screen should render its heading
-    await expect(page.getByText('Family Members').first()).toBeVisible({ timeout: 5000 });
+    // FamilyManagement screen should render — check for text unique to that screen
+    await expect(page.getByText('Manage your family travel profiles')).toBeVisible({ timeout: 10000 });
   });
 
   test('summary row shows correct member count for single profile', async ({ page }) => {

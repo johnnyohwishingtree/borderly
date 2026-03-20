@@ -190,8 +190,8 @@ test.describe('Full User Journey', () => {
     await expect(page.getByTestId('country-JPN')).toBeVisible({ timeout: 5000 });
 
     // Verify auto-filled flight data from the BCBP demo string
-    // Flight number: 0834 → the input should have this value
-    await expect(page.getByTestId('leg-0-arrival-airport')).toHaveValue('NRT');
+    // Arrival airport is a SearchableSelect — check the trigger shows the airport label
+    await expect(page.getByTestId('leg-0-arrival-airport-trigger')).toContainText('Tokyo Narita', { timeout: 5000 });
     await expect(page.getByTestId('leg-0-airline-code')).toHaveValue('AC');
 
     // Verify no "Destination Not Supported" dialog fired

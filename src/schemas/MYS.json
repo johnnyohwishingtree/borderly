@@ -149,21 +149,13 @@
         },
         {
           "id": "arrivalAirport",
-          "label": "Port of Entry",
-          "type": "select",
+          "label": "Port of Entry (Airport)",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "leg.arrivalAirport",
           "countrySpecific": true,
-          "options": [
-            { "value": "KUL", "label": "Kuala Lumpur International Airport (KLIA)" },
-            { "value": "KUA", "label": "Kuala Lumpur International Airport 2 (KLIA2)" },
-            { "value": "PEN", "label": "Penang International Airport" },
-            { "value": "JHB", "label": "Johor Bahru Sultan Ismail Airport" },
-            { "value": "LGK", "label": "Langkawi International Airport" },
-            { "value": "KCH", "label": "Kuching Airport" },
-            { "value": "BKI", "label": "Kota Kinabalu International Airport" },
-            { "value": "other", "label": "Other" }
-          ]
+          "optionsSource": "airports",
+          "helpText": "Search by airport name, city, or IATA code (e.g. KUL, PEN, BKI)"
         },
         {
           "id": "flightNumber",
@@ -303,6 +295,7 @@
       "title": "Travel Details",
       "description": "Provide your flight and travel information for entry into Malaysia.",
       "fieldsOnThisScreen": ["arrivalDate", "arrivalAirport", "flightNumber", "purposeOfVisit", "durationOfStay"],
+
       "tips": [
         "Select the correct airport - KLIA and KLIA2 are different",
         "Duration of stay affects your visa validity"

@@ -128,6 +128,13 @@
         label: 'Flight Number',
         nearbyText: 'Flight No'
       },
+      arrivalAirport: {
+        selector: 'select[name="arrivalAirport"], select[name="arrival_airport"], select[id="arrivalAirport"], input[name="arrivalAirport"]',
+        id: 'arrivalAirport',
+        name: 'arrivalAirport',
+        label: 'Arrival Airport',
+        nearbyText: 'Arrival Airport'
+      },
       airlineCode: {
         selector: '[name="airlineCode"], [name="airline"], #airlineCode, #airline',
         id: 'airlineCode',

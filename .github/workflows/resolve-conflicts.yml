@@ -150,13 +150,19 @@ jobs:
             fi
           fi
 
-      - name: Push resolved branch
+      - name: Push resolved branch and dispatch CI
         if: steps.merge.outputs.resolved == 'auto' || steps.merge.outputs.resolved == 'clean'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           git push origin HEAD
           echo "Pushed conflict resolution for PR #${{ matrix.pr.number }}"
+          # Dispatch CI explicitly — GitHub pull_request events are unreliable
+          BRANCH="${{ matrix.pr.branch }}"
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "test.yml" --ref "$BRANCH"
+          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "e2e-smoke.yml" --ref "$BRANCH"
+          echo "Dispatched CI for $BRANCH"
 
       - name: Comment on PR (resolved)
         if: steps.merge.outputs.resolved == 'auto' || steps.merge.outputs.resolved == 'clean'

@@ -1,0 +1,446 @@
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import FormField from '../../../src/components/forms/FormField';
+import { ALL_AIRPORTS, getAirportByCode, getAirportLabel } from '../../../src/constants/airports';
+import type { FilledFormField } from '../../../src/services/forms/formEngine';
+
+// ---------------------------------------------------------------------------
+// Test helpers
+// ---------------------------------------------------------------------------
+
+function makeField(overrides: Partial<FilledFormField> = {}): FilledFormField {
+  return {
+    id: 'testField',
+    label: 'Test Field',
+    type: 'text',
+    required: false,
+    countrySpecific: false,
+    currentValue: '',
+    source: 'empty',
+    needsUserInput: true,
+    ...overrides,
+  };
+}
+
+/**
+ * Simulate the SearchableSelect filter algorithm so we can unit-test search
+ * without relying on FlatList rendering (FlatList is mocked in tests).
+ */
+function filterAirports(query: string): { value: string; label: string }[] {
+  if (!query.trim()) return ALL_AIRPORTS;
+  const q = query.toLowerCase();
+  return ALL_AIRPORTS.filter(
+    o => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Airport database unit tests
+// ---------------------------------------------------------------------------
+
+describe('ALL_AIRPORTS database', () => {
+  it('contains more than 400 airports', () => {
+    expect(ALL_AIRPORTS.length).toBeGreaterThan(400);
+  });
+
+  it('every entry has a non-empty value (IATA code) and label', () => {
+    ALL_AIRPORTS.forEach(airport => {
+      expect(airport.value.trim()).not.toBe('');
+      expect(airport.label.trim()).not.toBe('');
+    });
+  });
+
+  it('every IATA code is exactly 3 uppercase letters', () => {
+    ALL_AIRPORTS.forEach(airport => {
+      expect(airport.value).toMatch(/^[A-Z]{3}$/);
+    });
+  });
+
+  it('IATA code appears inside the label so search-by-code works', () => {
+    ALL_AIRPORTS.forEach(airport => {
+      expect(airport.label).toContain(`(${airport.value})`);
+    });
+  });
+
+  it('has no duplicate IATA codes', () => {
+    const codes = ALL_AIRPORTS.map(a => a.value);
+    const unique = new Set(codes);
+    expect(unique.size).toBe(codes.length);
+  });
+
+  it('includes key airports for supported destinations', () => {
+    const codes = new Set(ALL_AIRPORTS.map(a => a.value));
+    // Japan
+    expect(codes.has('NRT')).toBe(true);
+    expect(codes.has('HND')).toBe(true);
+    expect(codes.has('KIX')).toBe(true);
+    // Malaysia
+    expect(codes.has('KUL')).toBe(true);
+    expect(codes.has('KUA')).toBe(true);
+    expect(codes.has('PEN')).toBe(true);
+    expect(codes.has('BKI')).toBe(true);
+    expect(codes.has('JHB')).toBe(true);
+    expect(codes.has('LGK')).toBe(true);
+    expect(codes.has('KCH')).toBe(true);
+    // Singapore
+    expect(codes.has('SIN')).toBe(true);
+    // Global hubs
+    expect(codes.has('LHR')).toBe(true);
+    expect(codes.has('JFK')).toBe(true);
+    expect(codes.has('DXB')).toBe(true);
+    expect(codes.has('SYD')).toBe(true);
+    expect(codes.has('DOH')).toBe(true);
+    expect(codes.has('FRA')).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Airport search / filter logic
+// ---------------------------------------------------------------------------
+
+describe('airport search logic', () => {
+  it('returns all airports when query is empty', () => {
+    expect(filterAirports('').length).toBe(ALL_AIRPORTS.length);
+  });
+
+  it('finds Tokyo Narita by IATA code (NRT)', () => {
+    const results = filterAirports('NRT');
+    expect(results.some(a => a.value === 'NRT')).toBe(true);
+  });
+
+  it('finds Tokyo Narita by lowercase iata code', () => {
+    const results = filterAirports('nrt');
+    expect(results.some(a => a.value === 'NRT')).toBe(true);
+  });
+
+  it('finds Tokyo Narita by city name', () => {
+    const results = filterAirports('tokyo');
+    expect(results.some(a => a.value === 'NRT')).toBe(true);
+    expect(results.some(a => a.value === 'HND')).toBe(true);
+  });
+
+  it('finds Tokyo Narita by airport name', () => {
+    const results = filterAirports('narita');
+    expect(results.some(a => a.value === 'NRT')).toBe(true);
+  });
+
+  it('finds Singapore Changi by city name', () => {
+    const results = filterAirports('singapore');
+    expect(results.some(a => a.value === 'SIN')).toBe(true);
+  });
+
+  it('finds Singapore Changi by airport name', () => {
+    const results = filterAirports('changi');
+    expect(results.some(a => a.value === 'SIN')).toBe(true);
+  });
+
+  it('finds Kuala Lumpur KLIA by IATA code', () => {
+    const results = filterAirports('KUL');
+    expect(results.some(a => a.value === 'KUL')).toBe(true);
+  });
+
+  it('finds Kuala Lumpur KLIA by city', () => {
+    const results = filterAirports('kuala lumpur');
+    expect(results.some(a => a.value === 'KUL')).toBe(true);
+  });
+
+  it('finds Penang airport', () => {
+    const results = filterAirports('penang');
+    expect(results.some(a => a.value === 'PEN')).toBe(true);
+  });
+
+  it('returns empty array for a nonsense query', () => {
+    expect(filterAirports('XXXXXXXXXX').length).toBe(0);
+  });
+
+  it('partial matching works — "london" returns multiple London airports', () => {
+    const results = filterAirports('london');
+    const londonCodes = results.map(a => a.value);
+    expect(londonCodes).toContain('LHR');
+    expect(londonCodes).toContain('LGW');
+    expect(londonCodes).toContain('STN');
+    expect(londonCodes).toContain('LTN');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getAirportByCode helper
+// ---------------------------------------------------------------------------
+
+describe('getAirportByCode', () => {
+  it('returns the airport for a known IATA code', () => {
+    const airport = getAirportByCode('NRT');
+    expect(airport).toBeDefined();
+    expect(airport?.value).toBe('NRT');
+    expect(airport?.label).toContain('Tokyo');
+    expect(airport?.label).toContain('NRT');
+  });
+
+  it('returns the airport for Singapore Changi', () => {
+    const airport = getAirportByCode('SIN');
+    expect(airport).toBeDefined();
+    expect(airport?.label).toContain('Singapore');
+    expect(airport?.label).toContain('SIN');
+  });
+
+  it('returns undefined for an unknown code', () => {
+    expect(getAirportByCode('ZZZ')).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getAirportLabel helper
+// ---------------------------------------------------------------------------
+
+describe('getAirportLabel', () => {
+  it('returns a human-readable label for a known code', () => {
+    const label = getAirportLabel('SIN');
+    expect(label).toContain('Singapore');
+    expect(label).toContain('SIN');
+  });
+
+  it('returns a label for KUL', () => {
+    const label = getAirportLabel('KUL');
+    expect(label).toContain('Kuala Lumpur');
+    expect(label).toContain('KUL');
+  });
+
+  it('falls back to the raw code for an unknown IATA code', () => {
+    expect(getAirportLabel('ZZZ')).toBe('ZZZ');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FormField rendering with optionsSource: 'airports'
+// ---------------------------------------------------------------------------
+
+describe('FormField — airport autocomplete rendering', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  it('renders a SearchableSelect when type is searchable_select + optionsSource airports', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByTestId('searchable-select-arrivalAirport-trigger')).toBeTruthy();
+  });
+
+  it('shows the field label in the form', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    // getAllByText handles the label appearing in both FormField and SearchableSelect
+    const matches = screen.getAllByText('Arrival Airport');
+    expect(matches.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('opens the search panel when the trigger is pressed', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    fireEvent.press(screen.getByTestId('searchable-select-arrivalAirport-trigger'));
+
+    expect(screen.getByTestId('searchable-select-arrivalAirport-panel')).toBeTruthy();
+    expect(screen.getByTestId('searchable-select-arrivalAirport-search')).toBeTruthy();
+  });
+
+  it('displays a placeholder hint for the trigger button', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    // Default SearchableSelect placeholder contains the label
+    expect(screen.getByText('Search Arrival Airport...')).toBeTruthy();
+  });
+
+  it('displays the selected airport label when a value is already set', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+      currentValue: 'KUL',
+    });
+
+    render(
+      <FormField
+        field={field}
+        value="KUL"
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Kuala Lumpur KLIA (KUL)')).toBeTruthy();
+  });
+
+  it('shows required asterisk when field is required', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+      required: true,
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('*')).toBeTruthy();
+  });
+
+  it('renders an error message when error prop is provided', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+        error="Please select an airport"
+      />,
+    );
+
+    // getAllByText because error may appear in both the FormField and SearchableSelect
+    const errorTexts = screen.getAllByText('Please select an airport');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('is disabled when the disabled prop is true', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+        disabled
+      />,
+    );
+
+    const trigger = screen.getByTestId('searchable-select-arrivalAirport-trigger');
+    // Pressing a disabled trigger should NOT open the panel
+    fireEvent.press(trigger);
+    expect(screen.queryByTestId('searchable-select-arrivalAirport-panel')).toBeNull();
+  });
+
+  it('shows help text when provided', () => {
+    const field = makeField({
+      id: 'arrivalAirport',
+      label: 'Arrival Airport',
+      type: 'searchable_select',
+      optionsSource: 'airports',
+      helpText: 'Search by airport name or IATA code',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={mockOnValueChange}
+      />,
+    );
+
+    expect(screen.getByText('Search by airport name or IATA code')).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FormField — country optionsSource still works (regression guard)
+// ---------------------------------------------------------------------------
+
+describe('FormField — country autocomplete (regression)', () => {
+  it('still renders SearchableSelect for optionsSource: countries', () => {
+    const field = makeField({
+      id: 'nationality',
+      label: 'Nationality',
+      type: 'searchable_select',
+      optionsSource: 'countries',
+    });
+
+    render(
+      <FormField
+        field={field}
+        onValueChange={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('searchable-select-nationality-trigger')).toBeTruthy();
+  });
+
+  it('falls back to inline options when optionsSource is unrecognised', () => {
+    const field = makeField({
+      id: 'testSelect',
+      label: 'Test',
+      type: 'searchable_select',
+      options: [{ value: 'foo', label: 'Foo' }],
+      optionsSource: 'unknown_source',
+    });
+
+    render(
+      <FormField
+        field={field}
+        value="foo"
+        onValueChange={jest.fn()}
+      />,
+    );
+
+    // "Foo" is in the inline options so the selected label should display
+    expect(screen.getByText('Foo')).toBeTruthy();
+  });
+});
