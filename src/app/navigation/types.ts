@@ -13,7 +13,7 @@ export type MainTabParamList = {
 export type OnboardingStackParamList = {
   Welcome: undefined;
   Tutorial: undefined;
-  PassportScan: { familyMode?: boolean; relationship?: string } | undefined;
+  PassportScan: { familyMode?: boolean; relationship?: string; profileId?: string } | undefined;
   ConfirmProfile: undefined;
   BiometricSetup: undefined;
 };
@@ -43,7 +43,7 @@ export type ProfileStackParamList = {
   EditProfile: undefined;
   FamilyManagement: undefined;
   AddFamilyMember: { relationship?: string } | undefined;
-  PassportScan: { familyMode?: boolean; relationship?: string } | undefined;
+  PassportScan: { familyMode?: boolean; relationship?: string; profileId?: string } | undefined;
 };
 
 export type SettingsStackParamList = {

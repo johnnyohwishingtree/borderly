@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { TravelerProfile } from '@/types/profile';
-import { 
-  FamilyProfileCollection, 
-  ProfileMetadata, 
-  FamilyRelationship, 
+import { TravelerProfile, FamilyMember } from '@/types/profile';
+import {
+  FamilyProfileCollection,
+  ProfileMetadata,
+  FamilyRelationship,
   SerializableFamilyProfileCollection,
-  FamilyProfileStats 
+  FamilyProfileStats
 } from '@/types/family';
 import { keychainService, mmkvService } from '@/services/storage';
 
@@ -70,6 +70,7 @@ interface ProfileStore {
   // Profile access
   getProfile: (profileId: string) => Promise<TravelerProfile | null>;
   getAllProfiles: () => Promise<Map<string, TravelerProfile>>;
+  getAllFamilyProfiles: () => Promise<FamilyMember[]>;
   getProfileMetadata: (profileId: string) => ProfileMetadata | null;
   
   // Family management
@@ -461,6 +462,32 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     }
 
     return profileMap;
+  },
+
+  getAllFamilyProfiles: async () => {
+    const { familyProfiles } = get();
+    const profileMap = await get().getAllProfiles();
+    const members: FamilyMember[] = [];
+
+    for (const [profileId, metadata] of familyProfiles.profiles) {
+      const profile = profileMap.get(profileId);
+      if (profile) {
+        members.push({
+          ...profile,
+          relationship: metadata.relationship as FamilyMember['relationship'],
+        });
+      }
+    }
+
+    // Sort: primary profile first, then others
+    const primaryId = familyProfiles.primaryProfileId;
+    members.sort((a, b) => {
+      if (a.id === primaryId) return -1;
+      if (b.id === primaryId) return 1;
+      return 0;
+    });
+
+    return members;
   },
 
   getProfileMetadata: (profileId: string) => {

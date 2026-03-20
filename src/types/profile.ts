@@ -16,7 +16,7 @@ export interface DeclarationDefaults {
   carryingCommercialGoods: boolean; // usually false
 }
 
-export type FamilyRelationship = 'self' | 'spouse' | 'child' | 'parent' | 'other';
+export type FamilyRelationship = 'self' | 'spouse' | 'child' | 'parent' | 'sibling' | 'other';
 
 export interface TravelerProfile {
   id: string; // UUID
