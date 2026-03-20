@@ -240,6 +240,8 @@ Available skills (invoke with `/<skill-name>`):
 - `/capture-screens` — Capture screenshots of every screen + generate manifest
 - `/visual-audit` — Audit UI/UX using screenshots (read-only analysis)
 - `/visual-implement` — Apply UI fixes from an audit, then re-capture to verify
+- `/ux-review` — Evaluate user journeys, flow efficiency, and information architecture
+- `/ux-implement` — Implement flow-level UX changes (new screens, navigation restructuring)
 - `/epic-planner` — Break a goal into Epic + Story GitHub Issues
 - `/plan-feature` — Plan and implement a new feature
 - `/test-suite` — Find and fix test coverage gaps

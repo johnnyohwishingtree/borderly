@@ -1,0 +1,408 @@
+{
+  "generatedAt": "2026-03-20T06:16:15.558Z",
+  "stacks": [
+    {
+      "name": "RootStackParamList",
+      "screens": [
+        "Onboarding",
+        "Main"
+      ]
+    },
+    {
+      "name": "MainTabParamList",
+      "screens": [
+        "Trips",
+        "Wallet",
+        "Profile",
+        "Settings"
+      ]
+    },
+    {
+      "name": "OnboardingStackParamList",
+      "screens": [
+        "Welcome",
+        "Tutorial",
+        "PassportScan",
+        "ConfirmProfile",
+        "BiometricSetup"
+      ]
+    },
+    {
+      "name": "TripStackParamList",
+      "screens": [
+        "TripList",
+        "CreateTrip",
+        "TripDetail",
+        "LegForm",
+        "SubmissionGuide",
+        "PortalSubmission"
+      ]
+    },
+    {
+      "name": "WalletStackParamList",
+      "screens": [
+        "QRWallet",
+        "QRDetail",
+        "AddQR"
+      ]
+    },
+    {
+      "name": "ProfileStackParamList",
+      "screens": [
+        "Profile",
+        "EditProfile",
+        "FamilyManagement",
+        "AddFamilyMember",
+        "PassportScan"
+      ]
+    },
+    {
+      "name": "SettingsStackParamList",
+      "screens": [
+        "Settings",
+        "Feedback",
+        "BugReport",
+        "Help",
+        "FAQ",
+        "Troubleshooting",
+        "PrivacyPolicy"
+      ]
+    }
+  ],
+  "tabs": [
+    "Trips",
+    "Wallet",
+    "Profile",
+    "Settings"
+  ],
+  "edges": [
+    {
+      "from": "BiometricSetup",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/onboarding/BiometricSetupScreen.tsx",
+      "line": 111
+    },
+    {
+      "from": "ConfirmProfile",
+      "to": "BiometricSetup",
+      "type": "navigate",
+      "file": "src/screens/onboarding/ConfirmProfileScreen.tsx",
+      "line": 26
+    },
+    {
+      "from": "ConfirmProfile",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/onboarding/ConfirmProfileScreen.tsx",
+      "line": 30
+    },
+    {
+      "from": "Tutorial",
+      "to": "PassportScan",
+      "type": "navigate",
+      "file": "src/screens/onboarding/TutorialScreen.tsx",
+      "line": 136
+    },
+    {
+      "from": "Welcome",
+      "to": "Tutorial",
+      "type": "navigate",
+      "file": "src/screens/onboarding/WelcomeScreen.tsx",
+      "line": 28
+    },
+    {
+      "from": "Welcome",
+      "to": "PassportScan",
+      "type": "navigate",
+      "file": "src/screens/onboarding/WelcomeScreen.tsx",
+      "line": 32
+    },
+    {
+      "from": "AddFamilyMember",
+      "to": "PassportScan",
+      "type": "navigate",
+      "file": "src/screens/profile/AddFamilyMemberScreen.tsx",
+      "line": 31
+    },
+    {
+      "from": "EditProfile",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/profile/EditProfileScreen.tsx",
+      "line": 124
+    },
+    {
+      "from": "FamilyManagement",
+      "to": "AddFamilyMember",
+      "type": "navigate",
+      "file": "src/screens/profile/FamilyManagementScreen.tsx",
+      "line": 53
+    },
+    {
+      "from": "FamilyManagement",
+      "to": "EditProfile",
+      "type": "navigate",
+      "file": "src/screens/profile/FamilyManagementScreen.tsx",
+      "line": 59
+    },
+    {
+      "from": "Profile",
+      "to": "EditProfile",
+      "type": "navigate",
+      "file": "src/screens/profile/ProfileScreen.tsx",
+      "line": 300
+    },
+    {
+      "from": "Profile",
+      "to": "FamilyManagement",
+      "type": "navigate",
+      "file": "src/screens/profile/ProfileScreen.tsx",
+      "line": 371
+    },
+    {
+      "from": "Settings",
+      "to": "Help",
+      "type": "navigate",
+      "file": "src/screens/settings/SettingsScreen.tsx",
+      "line": 750
+    },
+    {
+      "from": "Settings",
+      "to": "Feedback",
+      "type": "navigate",
+      "file": "src/screens/settings/SettingsScreen.tsx",
+      "line": 757
+    },
+    {
+      "from": "Settings",
+      "to": "BugReport",
+      "type": "navigate",
+      "file": "src/screens/settings/SettingsScreen.tsx",
+      "line": 764
+    },
+    {
+      "from": "Settings",
+      "to": "PrivacyPolicy",
+      "type": "navigate",
+      "file": "src/screens/settings/SettingsScreen.tsx",
+      "line": 771
+    },
+    {
+      "from": "BugReport",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/support/BugReportScreen.tsx",
+      "line": 121
+    },
+    {
+      "from": "Feedback",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/support/FeedbackScreen.tsx",
+      "line": 77
+    },
+    {
+      "from": "Help",
+      "to": "Feedback",
+      "type": "navigate",
+      "file": "src/screens/support/HelpScreen.tsx",
+      "line": 133
+    },
+    {
+      "from": "Help",
+      "to": "BugReport",
+      "type": "navigate",
+      "file": "src/screens/support/HelpScreen.tsx",
+      "line": 139
+    },
+    {
+      "from": "Help",
+      "to": "FAQ",
+      "type": "navigate",
+      "file": "src/screens/support/HelpScreen.tsx",
+      "line": 156
+    },
+    {
+      "from": "Help",
+      "to": "Troubleshooting",
+      "type": "navigate",
+      "file": "src/screens/support/HelpScreen.tsx",
+      "line": 159
+    },
+    {
+      "from": "LegForm",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/trips/LegFormScreen.tsx",
+      "line": 61
+    },
+    {
+      "from": "LegForm",
+      "to": "PortalSubmission",
+      "type": "navigate",
+      "file": "src/screens/trips/LegFormScreen.tsx",
+      "line": 180
+    },
+    {
+      "from": "LegForm",
+      "to": "SubmissionGuide",
+      "type": "navigate",
+      "file": "src/screens/trips/LegFormScreen.tsx",
+      "line": 199
+    },
+    {
+      "from": "PortalSubmission",
+      "to": "SubmissionGuide",
+      "type": "navigate",
+      "file": "src/screens/trips/PortalSubmissionScreen.tsx",
+      "line": 161
+    },
+    {
+      "from": "PortalSubmission",
+      "to": "TripDetail",
+      "type": "navigate",
+      "file": "src/screens/trips/PortalSubmissionScreen.tsx",
+      "line": 272
+    },
+    {
+      "from": "PortalSubmission",
+      "to": "Main",
+      "type": "navigate",
+      "file": "src/screens/trips/PortalSubmissionScreen.tsx",
+      "line": 300
+    },
+    {
+      "from": "SubmissionGuide",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/trips/SubmissionGuideScreen.tsx",
+      "line": 213
+    },
+    {
+      "from": "SubmissionGuide",
+      "to": "PortalSubmission",
+      "type": "navigate",
+      "file": "src/screens/trips/SubmissionGuideScreen.tsx",
+      "line": 268
+    },
+    {
+      "from": "SubmissionGuide",
+      "to": "AddQR",
+      "type": "navigate",
+      "file": "src/screens/trips/SubmissionGuideScreen.tsx",
+      "line": 395
+    },
+    {
+      "from": "SubmissionGuide",
+      "to": "TripDetail",
+      "type": "navigate",
+      "file": "src/screens/trips/SubmissionGuideScreen.tsx",
+      "line": 408
+    },
+    {
+      "from": "TripDetail",
+      "to": "LegForm",
+      "type": "navigate",
+      "file": "src/screens/trips/TripDetailScreen.tsx",
+      "line": 52
+    },
+    {
+      "from": "TripDetail",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/trips/TripDetailScreen.tsx",
+      "line": 72
+    },
+    {
+      "from": "TripList",
+      "to": "TripDetail",
+      "type": "navigate",
+      "file": "src/screens/trips/TripListScreen.tsx",
+      "line": 83
+    },
+    {
+      "from": "TripList",
+      "to": "CreateTrip",
+      "type": "navigate",
+      "file": "src/screens/trips/TripListScreen.tsx",
+      "line": 88
+    },
+    {
+      "from": "AddQR",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/wallet/AddQRScreen.tsx",
+      "line": 327
+    },
+    {
+      "from": "QRDetail",
+      "to": "(back)",
+      "type": "goBack",
+      "file": "src/screens/wallet/QRDetailScreen.tsx",
+      "line": 48
+    },
+    {
+      "from": "QRWallet",
+      "to": "AddQR",
+      "type": "navigate",
+      "file": "src/screens/wallet/QRWalletScreen.tsx",
+      "line": 199
+    },
+    {
+      "from": "(tabs)",
+      "to": "TripList",
+      "type": "tab",
+      "file": "src/app/navigation/MainTabNavigator.tsx",
+      "line": 0
+    },
+    {
+      "from": "(tabs)",
+      "to": "QRWallet",
+      "type": "tab",
+      "file": "src/app/navigation/MainTabNavigator.tsx",
+      "line": 0
+    },
+    {
+      "from": "(tabs)",
+      "to": "Profile",
+      "type": "tab",
+      "file": "src/app/navigation/MainTabNavigator.tsx",
+      "line": 0
+    },
+    {
+      "from": "(tabs)",
+      "to": "Settings",
+      "type": "tab",
+      "file": "src/app/navigation/MainTabNavigator.tsx",
+      "line": 0
+    }
+  ],
+  "screenFiles": {
+    "FAQ": "src/screens/help/FAQScreen.tsx",
+    "Troubleshooting": "src/screens/help/TroubleshootingScreen.tsx",
+    "BiometricSetup": "src/screens/onboarding/BiometricSetupScreen.tsx",
+    "ConfirmProfile": "src/screens/onboarding/ConfirmProfileScreen.tsx",
+    "PassportScan": "src/screens/onboarding/PassportScanScreen.tsx",
+    "Tutorial": "src/screens/onboarding/TutorialScreen.tsx",
+    "Welcome": "src/screens/onboarding/WelcomeScreen.tsx",
+    "AddFamilyMember": "src/screens/profile/AddFamilyMemberScreen.tsx",
+    "EditProfile": "src/screens/profile/EditProfileScreen.tsx",
+    "FamilyManagement": "src/screens/profile/FamilyManagementScreen.tsx",
+    "Profile": "src/screens/profile/ProfileScreen.tsx",
+    "PrivacyPolicy": "src/screens/settings/PrivacyPolicy.tsx",
+    "Settings": "src/screens/settings/SettingsScreen.tsx",
+    "BugReport": "src/screens/support/BugReportScreen.tsx",
+    "Feedback": "src/screens/support/FeedbackScreen.tsx",
+    "Help": "src/screens/support/HelpScreen.tsx",
+    "CreateTrip": "src/screens/trips/CreateTripScreen.tsx",
+    "LegForm": "src/screens/trips/LegFormScreen.tsx",
+    "PortalSubmission": "src/screens/trips/PortalSubmissionScreen.tsx",
+    "SubmissionGuide": "src/screens/trips/SubmissionGuideScreen.tsx",
+    "TripDetail": "src/screens/trips/TripDetailScreen.tsx",
+    "TripList": "src/screens/trips/TripListScreen.tsx",
+    "AddQR": "src/screens/wallet/AddQRScreen.tsx",
+    "QRDetail": "src/screens/wallet/QRDetailScreen.tsx",
+    "QRWallet": "src/screens/wallet/QRWalletScreen.tsx"
+  }
+}
