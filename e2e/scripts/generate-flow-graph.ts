@@ -7,10 +7,14 @@
  * 3. Navigator files for tab/stack containment
  *
  * Output: e2e/screenshots/flow-graph.json
+ *
+ * Uses the TypeScript Compiler API for robust AST-based parsing of types.ts,
+ * avoiding fragile regex/brace-counting approaches.
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as ts from 'typescript';
 
 const ROOT = path.resolve(__dirname, '../..');
 const TYPES_FILE = path.join(ROOT, 'src/app/navigation/types.ts');
@@ -38,45 +42,38 @@ interface FlowGraph {
   screenFiles: Record<string, string>;
 }
 
-/** Extract balanced brace block starting at the given open-brace index. */
-function extractBraceBlock(content: string, openIndex: number): string {
-  let depth = 0;
-  for (let i = openIndex; i < content.length; i++) {
-    if (content[i] === '{') depth++;
-    else if (content[i] === '}') {
-      depth--;
-      if (depth === 0) return content.slice(openIndex + 1, i);
-    }
-  }
-  return content.slice(openIndex + 1);
-}
+/**
+ * Parse types.ts using the TypeScript Compiler API to extract stack param lists
+ * and their screen names. This is robust against formatting changes and complex
+ * type expressions that would trip up regex-based parsers.
+ */
+function parseStacks(typesFilePath: string): StackDefinition[] {
+  const content = fs.readFileSync(typesFilePath, 'utf-8');
+  const sourceFile = ts.createSourceFile(
+    typesFilePath,
+    content,
+    ts.ScriptTarget.Latest,
+    /* setParentNodes */ true,
+  );
 
-/** Parse types.ts to extract stack param lists and their screens. */
-function parseStacks(typesContent: string): StackDefinition[] {
   const stacks: StackDefinition[] = [];
-  // Find each: export type XxxParamList = {
-  const headerRegex = /export\s+type\s+(\w+ParamList)\s*=\s*\{/g;
-  let match;
 
-  while ((match = headerRegex.exec(typesContent)) !== null) {
-    const stackName = match[1];
-    const braceStart = match.index + match[0].length - 1; // index of '{'
-    const body = extractBraceBlock(typesContent, braceStart);
-    // Extract screen names — top-level keys (depth 0 when the key appears)
-    const screens: string[] = [];
-    let depth = 0;
-    for (const line of body.split('\n')) {
-      // Check for key at current depth before processing braces on this line
-      if (depth === 0) {
-        const keyMatch = line.match(/^\s*(\w+)\s*:/);
-        if (keyMatch) screens.push(keyMatch[1]);
+  for (const statement of sourceFile.statements) {
+    // Look for: export type XxxParamList = { ... }
+    if (
+      ts.isTypeAliasDeclaration(statement) &&
+      statement.name.text.endsWith('ParamList') &&
+      ts.isTypeLiteralNode(statement.type)
+    ) {
+      const screens: string[] = [];
+      for (const member of statement.type.members) {
+        // Each member is a route: PropertySignature with an Identifier name
+        if (ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
+          screens.push(member.name.text);
+        }
       }
-      for (const ch of line) {
-        if (ch === '{') depth++;
-        else if (ch === '}') depth--;
-      }
+      stacks.push({ name: statement.name.text, screens });
     }
-    stacks.push({ name: stackName, screens });
   }
 
   return stacks;
@@ -86,6 +83,21 @@ function parseStacks(typesContent: string): StackDefinition[] {
 function parseTabs(stacks: StackDefinition[]): string[] {
   const mainTab = stacks.find(s => s.name === 'MainTabParamList');
   return mainTab ? mainTab.screens : [];
+}
+
+/**
+ * Derive the initial screen for a tab from the parsed stacks.
+ * Looks up the stack named `${tab}StackParamList` and returns its first screen.
+ * Also tries stripping a trailing 's' to handle pluralised tab names like
+ * "Trips" → "TripStackParamList". Falls back to the tab name if nothing matches.
+ */
+function resolveTabInitialScreen(tab: string, stacks: StackDefinition[]): string {
+  const candidates = [tab, tab.replace(/s$/, '')];
+  for (const candidate of candidates) {
+    const stack = stacks.find(s => s.name === `${candidate}StackParamList`);
+    if (stack && stack.screens.length > 0) return stack.screens[0];
+  }
+  return tab;
 }
 
 /** Recursively find all .tsx files in a directory. */
@@ -157,9 +169,8 @@ function buildScreenFileMap(screenFiles: string[]): Record<string, string> {
 }
 
 function main() {
-  // 1. Parse navigation types
-  const typesContent = fs.readFileSync(TYPES_FILE, 'utf-8');
-  const stacks = parseStacks(typesContent);
+  // 1. Parse navigation types using TypeScript Compiler API
+  const stacks = parseStacks(TYPES_FILE);
   const tabs = parseTabs(stacks);
 
   // 2. Find and parse all screen files
@@ -171,11 +182,12 @@ function main() {
   }
 
   // 3. Add tab edges (each tab is reachable from any other tab)
-  // We represent this as edges from a virtual "(tabs)" node
+  // We represent this as edges from a virtual "(tabs)" node.
+  // The initial screen for each tab is derived from its corresponding stack.
   for (const tab of tabs) {
     edges.push({
       from: '(tabs)',
-      to: tab === 'Trips' ? 'TripList' : tab === 'Wallet' ? 'QRWallet' : tab,
+      to: resolveTabInitialScreen(tab, stacks),
       type: 'tab',
       file: 'src/app/navigation/MainTabNavigator.tsx',
       line: 0,
