@@ -210,7 +210,8 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
       expect(needsInputIds).toContain('religion');              // country-specific, no autoFill
       expect(needsInputIds).toContain('purposeOfVisit');        // country-specific, no autoFill
       expect(needsInputIds).toContain('entryPort');             // country-specific, no autoFill
-      expect(needsInputIds).toContain('previousVietnamVisit');  // country-specific, no autoFill
+      // previousVietnamVisit is boolean — false default is a valid answer
+      expect(needsInputIds).not.toContain('previousVietnamVisit');
       expect(needsInputIds).toContain('accommodationType');     // country-specific, no autoFill
       expect(needsInputIds).toContain('cityOfStay');            // country-specific, no autoFill
       expect(needsInputIds).toContain('emergencyContactName');  // country-specific, no autoFill

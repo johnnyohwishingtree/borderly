@@ -18,6 +18,19 @@ export async function evaluateMergeGate(
   const pr = await github.getPR(prNumber);
   const sha = pr.head.sha;
 
+  // Check for no-auto-merge label — skip merge entirely
+  const labels = await github.getIssueLabels(prNumber);
+  if (labels.includes('no-auto-merge')) {
+    return {
+      action: 'wait',
+      conditions: {
+        testsPass: false, e2ePass: false, approved: false,
+        threadsResolved: false, noActiveReviewFix: false, branchUpToDate: false,
+      },
+      failingConditions: ['no-auto-merge label present'],
+    };
+  }
+
   // Condition 1-2: CI status
   const ci = await github.checkCIStatus(sha);
 

@@ -230,13 +230,14 @@ describe('FormEngine — Canada (CAN) Integration', () => {
       const needsInputIds = fieldsNeedingInput.map(f => f.id);
 
       // CAN-specific fields without an autoFillSource:
-      expect(needsInputIds).toContain('previousNames');    // personal — has no autoFillSource
+      // previousNames, dualCitizenship, criminalOffence are boolean — false default is a valid answer
+      expect(needsInputIds).not.toContain('previousNames');
+      expect(needsInputIds).not.toContain('dualCitizenship');
+      expect(needsInputIds).not.toContain('criminalOffence');
       expect(needsInputIds).toContain('maritalStatus');    // personal — country-specific
-      expect(needsInputIds).toContain('dualCitizenship');  // nationality — country-specific
       expect(needsInputIds).toContain('immigrationStatus'); // nationality — country-specific
       expect(needsInputIds).toContain('purposeOfVisit');   // travel — country-specific
       expect(needsInputIds).toContain('fundingSource');    // travel — country-specific
-      expect(needsInputIds).toContain('criminalOffence');  // background — country-specific
     });
 
     it('should report correct fill statistics (autoFilled vs requiredManualCount)', () => {
@@ -373,10 +374,11 @@ describe('FormEngine — United Kingdom (GBR) Integration', () => {
       // GBR-specific required fields without autoFillSource:
       expect(needsInputIds).toContain('employmentStatus');      // employment — country-specific
       expect(needsInputIds).toContain('visitPurpose');          // travel — country-specific
-      expect(needsInputIds).toContain('criminalRecord');        // security — country-specific
-      expect(needsInputIds).toContain('immigrationBreach');     // security — country-specific
-      expect(needsInputIds).toContain('ukRefusal');             // security — country-specific
-      expect(needsInputIds).toContain('terrorismAssociation');  // security — country-specific
+      // criminalRecord, immigrationBreach, ukRefusal, terrorismAssociation are boolean — false default is a valid answer
+      expect(needsInputIds).not.toContain('criminalRecord');
+      expect(needsInputIds).not.toContain('immigrationBreach');
+      expect(needsInputIds).not.toContain('ukRefusal');
+      expect(needsInputIds).not.toContain('terrorismAssociation');
     });
 
     it('should report correct fill statistics (autoFilled vs requiredManualCount)', () => {
@@ -499,12 +501,13 @@ describe('FormEngine — United States (USA) Integration', () => {
       const needsInputIds = fieldsNeedingInput.map(f => f.id);
 
       // USA-specific required fields without autoFillSource:
-      expect(needsInputIds).toContain('aliases');               // applicant — country-specific
+      // aliases, mentalDisorder, terrorism are boolean — false default is a valid answer
+      expect(needsInputIds).not.toContain('aliases');
+      expect(needsInputIds).not.toContain('mentalDisorder');
+      expect(needsInputIds).not.toContain('terrorism');
       expect(needsInputIds).toContain('emergencyContactName');  // emergency — country-specific
       expect(needsInputIds).toContain('emergencyContactPhone'); // emergency — country-specific
       expect(needsInputIds).toContain('purposeOfTravel');       // travel — country-specific
-      expect(needsInputIds).toContain('mentalDisorder');        // eligibility — country-specific
-      expect(needsInputIds).toContain('terrorism');             // eligibility — country-specific
     });
 
     it('should report correct fill statistics (autoFilled vs requiredManualCount)', () => {

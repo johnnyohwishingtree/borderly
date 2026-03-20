@@ -277,7 +277,7 @@ describe('FormEngine', () => {
 
       const currencyField = result.sections[3].fields[1];
       expect(currencyField.id).toBe('currencyOver1M');
-      expect(currencyField.needsUserInput).toBe(true);
+      expect(currencyField.needsUserInput).toBe(false); // Boolean false is a valid default answer
       expect(currencyField.source).toBe('default');
       expect(currencyField.currentValue).toBe(false); // Boolean default
     });
@@ -376,7 +376,8 @@ describe('FormEngine', () => {
 
       expect(result.isComplete).toBe(false);
       expect(result.missingFields).toContain('purposeOfVisit');
-      expect(result.missingFields).toContain('currencyOver1M');
+      // currencyOver1M is boolean — false default is a valid answer, so it's not missing
+      expect(result.missingFields).not.toContain('currencyOver1M');
     });
 
     it('should validate complete form correctly', () => {
@@ -398,8 +399,9 @@ describe('FormEngine', () => {
       const filledForm = generateFilledForm(mockProfile, mockTripLeg, mockSchema);
       const countrySpecific = getCountrySpecificFields(filledForm);
 
-      expect(countrySpecific).toHaveLength(2);
-      expect(countrySpecific.map(f => f.id)).toEqual(['purposeOfVisit', 'currencyOver1M']);
+      // currencyOver1M is boolean — false default is a valid answer, so only purposeOfVisit remains
+      expect(countrySpecific).toHaveLength(1);
+      expect(countrySpecific.map(f => f.id)).toEqual(['purposeOfVisit']);
 
       countrySpecific.forEach(field => {
         expect(field.countrySpecific).toBe(true);
@@ -450,7 +452,7 @@ describe('FormEngine', () => {
       const progress = calculateFormProgress(filledForm);
 
       expect(progress.totalSections).toBe(4);
-      expect(progress.completedSections).toBe(2); // personal and accommodation sections are complete
+      expect(progress.completedSections).toBe(3); // personal, accommodation, and customs sections are complete (boolean defaults count as answered)
 
       expect(progress.sectionProgress).toHaveLength(4);
 

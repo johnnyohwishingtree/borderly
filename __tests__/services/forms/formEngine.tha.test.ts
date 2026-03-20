@@ -190,7 +190,8 @@ describe('FormEngine — Thailand (THA) Integration', () => {
       expect(needsInputIds).toContain('purposeOfVisit');   // country-specific, no autoFill
       expect(needsInputIds).toContain('accommodationType'); // country-specific, no autoFill
       expect(needsInputIds).toContain('vaccinationStatus'); // health/country-specific
-      expect(needsInputIds).toContain('hasInsurance');      // health/country-specific
+      // hasInsurance is boolean — false default is a valid answer
+      expect(needsInputIds).not.toContain('hasInsurance');
       expect(needsInputIds).toContain('emergencyContact');  // health/country-specific
     });
 
