@@ -45,7 +45,7 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | Comment with @agent ... | `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" [suffix]` |
 | Inline CI failure dispatch (label check + failed items + comment + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr N branch run_id run_url checks [extra]` |
 | Inline master failure dispatch (create branch + push + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master run_id run_url checks prefix [extra]` |
-| Inline watcher shell (~530 lines of health checks) | `npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run maxSlots staleMin epicStaleH` |
+| Inline watcher shell (~530 lines of health checks) | `npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run maxConcurrent graceMinutes maxRetries` |
 | Inline doctor evidence collection (~330 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-collect-evidence issueNum [failedRunIds]` |
 | Inline doctor failure reproduction (~60 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-reproduce workBranch` |
 | Inline review-guardian bot review decision (~60 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts guardian-bot-review pr reviewer` |
@@ -102,7 +102,7 @@ CI Dispatch:
   ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
 
 Watcher:
-  watcher-run <max_slots> <stale_minutes> <epic_stale_hours>
+  watcher-run <max_concurrent> <grace_minutes> <max_retries>
 
 Doctor:
   doctor-collect-evidence <issue_number> [failed_run_ids]
