@@ -1,4 +1,5 @@
 export { useAccountSetup } from './useAccountSetup';
+export { useEditTrip } from './useEditTrip';
 export { useAppLock } from './useAppLock';
 export { useLoadTimeout } from './useLoadTimeout';
 export { useLegForm } from './useLegForm';
