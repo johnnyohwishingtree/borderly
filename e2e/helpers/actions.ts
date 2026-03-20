@@ -28,10 +28,40 @@ export async function completeOnboarding(page: Page) {
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-  await page.getByRole('button', { name: 'Continue to Security Setup' }).click();
+  await page.getByTestId('continue-to-security-button').click();
+  await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('companions-continue-button').click();
   await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
   await page.getByRole('button', { name: 'Skip for Now' }).click();
   await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+}
+
+// ── Navigate through onboarding up to the AddCompanions screen ──
+
+export async function navigateToAddCompanions(page: Page) {
+  await page.goto('/');
+  await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
+  await page.getByRole('button', { name: 'Skip tutorial' }).click();
+  await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
+  await page.getByRole('button', { name: 'Or enter manually' }).click();
+
+  await page.getByTestId('passport-number-input').fill('AB1234567');
+  await page.getByTestId('surname-input').fill('SMITH');
+  await page.getByTestId('given-names-input').fill('JOHN');
+  await page.getByTestId('nationality-input-trigger').click();
+  await page.getByTestId('nationality-input-search').fill('United States');
+  await page.getByTestId('nationality-input-option-USA').click();
+  await page.getByTestId('dob-input').fill('1990-01-15');
+  await page.getByTestId('gender-Male-button').click();
+  await page.getByTestId('passport-expiry-input').fill('2030-12-31');
+  await page.getByTestId('issuing-country-input-trigger').click();
+  await page.getByTestId('issuing-country-input-search').fill('United States');
+  await page.getByTestId('issuing-country-input-option-USA').click();
+
+  await page.getByTestId('passport-continue-button').click();
+  await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('continue-to-security-button').click();
+  await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
 }
 
 // ── Create a Japan trip (from the My Trips screen) ──
