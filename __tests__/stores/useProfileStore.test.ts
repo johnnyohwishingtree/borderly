@@ -592,4 +592,65 @@ describe('useProfileStore', () => {
       expect(clearedState.familyProfiles.profiles.size).toBe(0);
     });
   });
+
+  describe('saveProfile in family mode', () => {
+    it('should NOT overwrite primary profile when saving a companion', async () => {
+      const store = useProfileStore.getState();
+
+      // First, save the primary profile
+      mockKeychainService.getProfileById.mockResolvedValue(mockProfile);
+      await store.saveProfile(mockProfile);
+
+      // Verify primary profile is saved and currentProfileId is set
+      const stateAfterPrimary = useProfileStore.getState();
+      expect(stateAfterPrimary.currentProfileId).toBe(mockProfile.id);
+      expect(stateAfterPrimary.familyProfiles.profiles.size).toBe(1);
+
+      // Now save a companion — this simulates what usePassportScan does in familyMode
+      const companionProfile: TravelerProfile = {
+        id: 'companion-1',
+        passportNumber: 'M98765432',
+        surname: 'SMITH',
+        givenNames: 'JANE MARIE',
+        nationality: 'USA',
+        dateOfBirth: '1987-09-22',
+        gender: 'F',
+        passportExpiry: '2031-11-15',
+        issuingCountry: 'USA',
+        email: '',
+        phoneNumber: '',
+        relationship: 'spouse',
+        defaultDeclarations: {
+          hasItemsToDeclar: false,
+          carryingCurrency: false,
+          carryingProhibitedItems: false,
+          visitedFarm: false,
+          hasCriminalRecord: false,
+          carryingCommercialGoods: false,
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // FIX: familyMode should use addProfile, not saveProfile
+      // saveProfile would overwrite the primary profile
+      await store.addProfile(companionProfile, {
+        relationship: 'spouse',
+        isPrimary: false,
+        isActive: true,
+        biometricEnabled: false,
+        nickname: 'JANE MARIE SMITH',
+      });
+
+      const stateAfterCompanion = useProfileStore.getState();
+
+      // Should have 2 profiles, not 1
+      expect(stateAfterCompanion.familyProfiles.profiles.size).toBe(2);
+
+      // Primary profile should still be the original user
+      const primaryProfile = await keychainService.getProfileById(mockProfile.id);
+      expect(primaryProfile?.passportNumber).toBe('A12345678');
+      expect(primaryProfile?.givenNames).toBe('John');
+    });
+  });
 });

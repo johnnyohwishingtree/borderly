@@ -87,7 +87,7 @@ const DEMO_PROFILES: Record<DemoPersona, MRZParseResult> = {
 export function usePassportScan() {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>>();
   const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
-  const { saveProfile, getProfile, updateProfileById } = useProfileStore();
+  const { saveProfile, addProfile, getProfile, updateProfileById } = useProfileStore();
 
   const familyMode = route.params?.familyMode || false;
   const relationship = route.params?.relationship || 'self';
@@ -197,7 +197,17 @@ export function usePassportScan() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        await saveProfile(completeProfile);
+        if (familyMode) {
+          await addProfile(completeProfile, {
+            relationship: (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other'),
+            isPrimary: false,
+            isActive: true,
+            biometricEnabled: false,
+            nickname: `${completeProfile.givenNames} ${completeProfile.surname}`,
+          });
+        } else {
+          await saveProfile(completeProfile);
+        }
       }
 
       setLastFailedOperation(null);
@@ -231,7 +241,7 @@ export function usePassportScan() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [generateProfileId, saveProfile, updateProfileById, profileId, familyMode, relationship, returnTo, navigation]);
+  }, [generateProfileId, saveProfile, addProfile, updateProfileById, profileId, familyMode, relationship, returnTo, navigation]);
 
   const handleScanSuccess = useCallback((result: MRZParseResult) => {
     setScanError(null);
