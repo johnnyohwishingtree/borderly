@@ -14,7 +14,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
 | `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
 | `test.yml` | Push/PR to master | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | Push/PR to master | E2E tests (Playwright); auto-captures screenshots on UI changes; dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
@@ -301,6 +301,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Give-up comment safety | Neutral language, no `@claude`/`@gemini` triggers |
 | Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) and on master push failures (creates fix/master-* branch + PR) |
+| Auto screenshot capture | e2e-smoke.yml runs `capture-screenshots` job in parallel on PRs when `src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or `e2e/tests/captureScreenshots.spec.ts` change. Commits updated PNGs + manifest back to the PR branch. |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Event-driven approval | ensure-review checks thread resolution AND all CI checks (tests, e2e) after a workflow_run passes; approves only when all threads resolved AND all CI passed (self-healing after review-fix) |
