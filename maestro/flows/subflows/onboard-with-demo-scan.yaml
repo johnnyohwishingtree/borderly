@@ -1,0 +1,115 @@
+# Shared subflow: Onboard using demo passport scan (dev mode only)
+#
+# Uses the "Demo: Adult" button instead of manual entry or real camera.
+# Much faster than manual entry — simulates a passport scan instantly.
+#
+# Precondition: App launched with clearState: true
+# Postcondition: On "Your Trips" main screen, onboarding complete
+appId: com.borderly.app
+---
+
+# === WELCOME SCREEN ===
+- extendedWaitUntil:
+    visible: "Borderly"
+    timeout: 15000
+- assertVisible: "Welcome to"
+- scrollUntilVisible:
+    element:
+      id: "take-tutorial-button"
+    direction: DOWN
+- tapOn:
+    id: "take-tutorial-button"
+
+# === TUTORIAL SCREEN — SKIP ===
+- extendedWaitUntil:
+    visible: "Step 1 of 3"
+    timeout: 10000
+- tapOn:
+    id: "tutorial-skip-button"
+
+# === PASSPORT SCAN SCREEN ===
+- extendedWaitUntil:
+    visible: "Passport Information"
+    timeout: 15000
+
+# Dismiss performance optimization hint if present
+- runFlow:
+    when:
+      visible: "Performance Optimization Enabled"
+    commands:
+      - tapOn: "Dismiss"
+
+# Use demo scan (dev mode only)
+- scrollUntilVisible:
+    element:
+      id: "demo-scan-adult"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "demo-scan-adult"
+
+# === PASSPORT PREVIEW — CONFIRM ===
+- extendedWaitUntil:
+    visible: "L12345678"
+    timeout: 10000
+- assertVisible: "JOHN MICHAEL SMITH"
+- scrollUntilVisible:
+    element:
+      id: "confirm-scan-button"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "confirm-scan-button"
+
+# === CONFIRM PROFILE SCREEN ===
+- extendedWaitUntil:
+    visible: "Confirm Your Profile"
+    timeout: 30000
+- assertVisible: "L12345678"
+- assertVisible: "JOHN MICHAEL SMITH"
+
+- scrollUntilVisible:
+    element:
+      id: "continue-to-security-button"
+    direction: DOWN
+- tapOn:
+    id: "continue-to-security-button"
+
+# Retry if button tap didn't register
+- runFlow:
+    when:
+      visible:
+        id: "continue-to-security-button"
+    commands:
+      - tapOn:
+          id: "continue-to-security-button"
+
+# === ADD COMPANIONS - SKIP ===
+- extendedWaitUntil:
+    visible: "Traveling with family?"
+    timeout: 15000
+- tapOn: "Continue — just me"
+
+# === BIOMETRIC SETUP - SKIP ===
+- extendedWaitUntil:
+    visible: "Secure Your Profile"
+    timeout: 15000
+- tapOn:
+    id: "skip-biometric-button"
+- extendedWaitUntil:
+    visible: "Skip"
+    timeout: 5000
+- tapOn: "Skip"
+
+# Handle welcome alert if present
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+
+# === MAIN SCREEN ===
+- extendedWaitUntil:
+    visible: "Your Trips"
+    timeout: 15000
+- assertVisible: "No trips yet"

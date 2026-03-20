@@ -269,6 +269,60 @@ export function usePassportScan() {
     setMode('manual');
   }, []);
 
+  // Demo scan profiles for E2E testing (Maestro/development)
+  const DEMO_PROFILES: Record<string, MRZParseResult> = {
+    adult: {
+      success: true,
+      errors: [],
+      confidence: 1.0,
+      profile: {
+        passportNumber: 'L12345678',
+        surname: 'SMITH',
+        givenNames: 'JOHN MICHAEL',
+        nationality: 'USA',
+        dateOfBirth: '1985-06-15',
+        gender: 'M',
+        passportExpiry: '2032-03-20',
+        issuingCountry: 'USA',
+      },
+    },
+    spouse: {
+      success: true,
+      errors: [],
+      confidence: 1.0,
+      profile: {
+        passportNumber: 'M98765432',
+        surname: 'SMITH',
+        givenNames: 'JANE MARIE',
+        nationality: 'USA',
+        dateOfBirth: '1987-09-22',
+        gender: 'F',
+        passportExpiry: '2031-11-15',
+        issuingCountry: 'USA',
+      },
+    },
+    child: {
+      success: true,
+      errors: [],
+      confidence: 1.0,
+      profile: {
+        passportNumber: 'N55512345',
+        surname: 'SMITH',
+        givenNames: 'EMMA',
+        nationality: 'USA',
+        dateOfBirth: '2015-03-10',
+        gender: 'F',
+        passportExpiry: '2030-03-10',
+        issuingCountry: 'USA',
+      },
+    },
+  };
+
+  const handleDemoScan = useCallback((persona: string = 'adult') => {
+    const demoResult = DEMO_PROFILES[persona] ?? DEMO_PROFILES.adult;
+    handleScanSuccess(demoResult);
+  }, [handleScanSuccess]);
+
   return {
     mode,
     scanResult,
@@ -296,6 +350,7 @@ export function usePassportScan() {
     retrySave,
     retryScan,
     fallbackToManual,
+    handleDemoScan,
   };
 }
 
