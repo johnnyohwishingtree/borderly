@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe } from 'lucide-react-native';
-import { Button, Input, Card } from '../../components/ui';
+import { Button, Input, Card, DatePickerField } from '../../components/ui';
 import { CountryFlag, TravelerSelector } from '../../components/trips';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
@@ -87,25 +87,21 @@ export default function CreateTripScreen() {
             <View className="flex-row space-x-3">
               <View className="flex-1">
                 <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
-                <Input
+                <DatePickerField
                   value={leg.arrivalDate}
-                  onChangeText={(text) => updateLeg(index, 'arrivalDate', text)}
-                  placeholder="YYYY-MM-DD"
-                  keyboardType="default"
+                  onChange={(date) => updateLeg(index, 'arrivalDate', date)}
                   testID={`leg-${index}-arrival-date`}
+                  placeholder="Arrival date"
+                  error={errors[`leg${index}.arrival`]}
                 />
-                {errors[`leg${index}.arrival`] && (
-                  <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.arrival`]}</Text>
-                )}
               </View>
               <View className="flex-1">
                 <Text className="text-sm font-medium text-gray-700 mb-1">Departure Date</Text>
-                <Input
+                <DatePickerField
                   value={leg.departureDate}
-                  onChangeText={(text) => updateLeg(index, 'departureDate', text)}
-                  placeholder="YYYY-MM-DD"
-                  keyboardType="default"
+                  onChange={(date) => updateLeg(index, 'departureDate', date)}
                   testID={`leg-${index}-departure-date`}
+                  placeholder="Departure date"
                 />
               </View>
             </View>
