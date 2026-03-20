@@ -91,6 +91,11 @@ const allProjects = [
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
   {
+    name: 'profile',
+    testMatch: 'profile.spec.ts',
+    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
+  },
+  {
     name: 'country-submissions',
     testMatch: [
       'canadaSubmission.spec.ts',
