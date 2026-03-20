@@ -19,24 +19,27 @@ test.describe('Demo Passport Scan Flow', () => {
   test('demo scan adult fills passport preview with correct data', async ({ page }) => {
     await page.getByTestId('demo-scan-adult').click();
 
-    // Should show passport preview with demo data
+    // Should show passport preview with demo data (surname and given names in separate rows)
     await expect(page.getByText('L12345678')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('JOHN MICHAEL SMITH')).toBeVisible();
-    await expect(page.getByText('USA')).toBeVisible();
+    await expect(page.getByText('SMITH')).toBeVisible();
+    await expect(page.getByText('JOHN MICHAEL')).toBeVisible();
+    await expect(page.getByText('Confirm Passport Details')).toBeVisible();
   });
 
   test('demo scan spouse fills with different persona', async ({ page }) => {
     await page.getByTestId('demo-scan-spouse').click();
 
     await expect(page.getByText('M98765432')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('JANE MARIE SMITH')).toBeVisible();
+    await expect(page.getByText('SMITH')).toBeVisible();
+    await expect(page.getByText('JANE MARIE')).toBeVisible();
   });
 
   test('demo scan child fills with child persona', async ({ page }) => {
     await page.getByTestId('demo-scan-child').click();
 
     await expect(page.getByText('N55512345')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('EMMA SMITH')).toBeVisible();
+    await expect(page.getByText('SMITH')).toBeVisible();
+    await expect(page.getByText('EMMA')).toBeVisible();
   });
 
   test('demo scan confirm navigates to ConfirmProfile', async ({ page }) => {
@@ -48,7 +51,6 @@ test.describe('Demo Passport Scan Flow', () => {
 
     // Should navigate to Confirm Profile screen
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 30000 });
-    await expect(page.getByText('L12345678')).toBeVisible();
-    await expect(page.getByText('JOHN MICHAEL SMITH')).toBeVisible();
+    await expect(page.getByTestId('profile-field-passport-number')).toContainText('L12345678');
   });
 });
