@@ -124,7 +124,6 @@ test.describe('Trip Creation and Management', () => {
     // Fill other fields
     await page.getByTestId('leg-0-flight-number').fill('NH101');
     await page.getByTestId('leg-0-airline-code').fill('NH');
-
     // Arrival airport is a SearchableSelect — open it, search for NRT, select the option
     await page.getByTestId('leg-0-arrival-airport-trigger').click();
     await page.getByTestId('leg-0-arrival-airport-search').fill('NRT');
