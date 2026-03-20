@@ -253,6 +253,10 @@ async function main() {
         console.error('Usage: pipeline ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]');
         process.exit(1);
       }
+      if (checks !== 'ci' && checks !== 'e2e') {
+        console.error(`Invalid checks value "${checks}": must be "ci" or "e2e"`);
+        process.exit(1);
+      }
       const github = getGitHub();
       const result = await dispatchPRFix(github, {
         pr,
@@ -276,6 +280,10 @@ async function main() {
       const [runId, runUrl, checks, branchPrefix, ...extraParts] = args;
       if (!runId || !runUrl || !checks || !branchPrefix) {
         console.error('Usage: pipeline ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]');
+        process.exit(1);
+      }
+      if (checks !== 'ci' && checks !== 'e2e') {
+        console.error(`Invalid checks value "${checks}": must be "ci" or "e2e"`);
         process.exit(1);
       }
       const github = getGitHub();

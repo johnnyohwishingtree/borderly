@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { hasLabel, getFailedItems, dispatchPRFix, dispatchMasterFix } from '../../lib/ci-dispatch.js';
 
 // Mock child_process
 vi.mock('node:child_process', () => ({
-  execSync: vi.fn().mockReturnValue(''),
+  execFileSync: vi.fn().mockReturnValue(''),
 }));
 
 // Mock github client
@@ -12,25 +12,33 @@ vi.mock('../../lib/github.js', () => ({
   GitHubClient: vi.fn(),
 }));
 
-const mockExecSync = execSync as unknown as ReturnType<typeof vi.fn>;
+const mockExecFileSync = execFileSync as unknown as ReturnType<typeof vi.fn>;
 
 function mockExec(returnValue: string) {
-  mockExecSync.mockReturnValue(returnValue);
+  mockExecFileSync.mockReturnValue(returnValue);
 }
 
 function mockExecSequence(values: string[]) {
-  mockExecSync.mockReset();
-  values.forEach((val) => mockExecSync.mockReturnValueOnce(val));
+  mockExecFileSync.mockReset();
+  values.forEach((val) => mockExecFileSync.mockReturnValueOnce(val));
 }
 
 function mockExecThrow() {
-  mockExecSync.mockImplementation(() => {
+  mockExecFileSync.mockImplementation(() => {
     throw new Error('command failed');
   });
 }
 
-function getExecCalls(): string[] {
-  return mockExecSync.mock.calls.map((call: unknown[]) => call[0] as string);
+interface ExecCall {
+  cmd: string;
+  args: string[];
+}
+
+function getExecCalls(): ExecCall[] {
+  return mockExecFileSync.mock.calls.map((call: unknown[]) => ({
+    cmd: call[0] as string,
+    args: call[1] as string[],
+  }));
 }
 
 describe('ci-dispatch', () => {
@@ -68,8 +76,10 @@ describe('ci-dispatch', () => {
       mockExec('');
       hasLabel(99, 'my-label', 'org/my-repo');
       const calls = getExecCalls();
-      expect(calls[0]).toContain('gh pr view 99');
-      expect(calls[0]).toContain('--repo "org/my-repo"');
+      expect(calls[0].cmd).toBe('gh');
+      expect(calls[0].args).toContain('99');
+      expect(calls[0].args).toContain('--repo');
+      expect(calls[0].args).toContain('org/my-repo');
     });
   });
 
@@ -79,9 +89,10 @@ describe('ci-dispatch', () => {
       const result = getFailedItems('12345', 'jobs');
       expect(result).toBe('test-chromium, test-performance');
       const calls = getExecCalls();
-      expect(calls[0]).toContain('select(.conclusion == "failure") | .name');
-      expect(calls[0]).toContain('.jobs[]');
-      expect(calls[0]).not.toContain('.steps[]');
+      const allArgs = calls[0].args.join(' ');
+      expect(allArgs).toContain('select(.conclusion == "failure") | .name');
+      expect(allArgs).toContain('.jobs[]');
+      expect(allArgs).not.toContain('.steps[]');
     });
 
     it('returns failed step names in steps mode', () => {
@@ -89,7 +100,16 @@ describe('ci-dispatch', () => {
       const result = getFailedItems('12345', 'steps');
       expect(result).toBe('Type check, Run tests');
       const calls = getExecCalls();
-      expect(calls[0]).toContain('.steps[]');
+      const allArgs = calls[0].args.join(' ');
+      expect(allArgs).toContain('.steps[]');
+    });
+
+    it('deduplicates step names across jobs', () => {
+      mockExec('Type check');
+      getFailedItems('12345', 'steps');
+      const calls = getExecCalls();
+      const allArgs = calls[0].args.join(' ');
+      expect(allArgs).toContain('unique');
     });
 
     it('returns "unknown" when gh command fails', () => {
@@ -222,8 +242,8 @@ describe('ci-dispatch', () => {
       expect(result.failedItems).toBe('test-chromium');
 
       const calls = getExecCalls();
-      expect(calls.some((c) => c.startsWith('git checkout -b'))).toBe(true);
-      expect(calls.some((c) => c.startsWith('git push -u origin'))).toBe(true);
+      expect(calls.some((c) => c.cmd === 'git' && c.args.includes('checkout'))).toBe(true);
+      expect(calls.some((c) => c.cmd === 'git' && c.args.includes('push'))).toBe(true);
 
       expect(mockGitHub.dispatchWorkflow).toHaveBeenCalledWith(
         'verify-and-fix.yml',

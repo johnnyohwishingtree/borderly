@@ -8,11 +8,11 @@
  * - Dispatching verify-and-fix for master push failures
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { GitHubClient } from './github.js';
 
-function exec(cmd: string): string {
-  return execSync(cmd, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+function exec(command: string, args: string[]): string {
+  return execFileSync(command, args, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
 /**
@@ -20,9 +20,12 @@ function exec(cmd: string): string {
  */
 export function hasLabel(pr: number, label: string, repo: string): boolean {
   try {
-    const raw = exec(
-      `gh pr view ${pr} --repo "${repo}" --json labels -q '[.labels[].name] | join(",")'`
-    );
+    const raw = exec('gh', [
+      'pr', 'view', String(pr),
+      '--repo', repo,
+      '--json', 'labels',
+      '-q', '[.labels[].name] | join(",")',
+    ]);
     return raw.split(',').includes(label);
   } catch {
     return false;
@@ -40,8 +43,8 @@ export function getFailedItems(runId: string, mode: 'jobs' | 'steps'): string {
     const jqFilter =
       mode === 'jobs'
         ? '[.jobs[] | select(.conclusion == "failure") | .name] | join(", ")'
-        : '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(", ")';
-    return exec(`gh run view ${runId} --json jobs -q '${jqFilter}'`) || 'unknown';
+        : '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | unique | join(", ")';
+    return exec('gh', ['run', 'view', runId, '--json', 'jobs', '-q', jqFilter]) || 'unknown';
   } catch {
     return 'unknown';
   }
@@ -129,8 +132,8 @@ export async function dispatchMasterFix(
   const itemMode = opts.checks === 'e2e' ? 'jobs' : 'steps';
   const failedItems = getFailedItems(opts.runId, itemMode);
 
-  exec(`git checkout -b "${branch}"`);
-  exec(`git push -u origin "${branch}"`);
+  exec('git', ['checkout', '-b', branch]);
+  exec('git', ['push', '-u', 'origin', branch]);
 
   const label = opts.checks === 'e2e' ? 'E2E failed' : 'CI failed';
   const fixContext = `${label} on master after merge. Failed ${itemMode}: ${failedItems}. Run: ${opts.runUrl}.`;
