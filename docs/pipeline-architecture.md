@@ -217,6 +217,11 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 +---------------------------------------------------------------------+
 ```
 
+All watcher logic is implemented in `lib/watcher.ts` (testable TypeScript) and invoked via `watcher-run` CLI command. The workflow YAML is a thin shell that calls:
+```
+npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run <maxSlots> <staleMin> <epicStaleH>
+```
+
 ---
 
 ## Temporal-like Activity Model

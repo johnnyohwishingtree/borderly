@@ -23,6 +23,9 @@
  *   ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
  *   ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
  *
+ * Commands (Watcher):
+ *   watcher-run [max_concurrent] [grace_minutes] [max_retries]
+ *
  * Commands (Git):
  *   setup-git-auth
  *   merge-master
@@ -34,9 +37,15 @@
  *   GITHUB_REPOSITORY       — owner/repo
  */
 
+import { execFileSync } from 'node:child_process';
 import { GitHubClient } from '../github.js';
 import { setupGitAuth, mergeMasterIntoBranch, checkChangesAndCommit, smartPush } from '../git.js';
 import { dispatchPRFix, dispatchMasterFix } from '../ci-dispatch.js';
+import * as watcher from '../watcher.js';
+
+function exec(command: string, args: string[]): string {
+  return execFileSync(command, args, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+}
 
 function getToken(): string {
   const token = process.env['GH_PAT'] ?? process.env['GH_TOKEN'];
@@ -296,6 +305,189 @@ async function main() {
         extraContext: extraParts.length > 0 ? extraParts.join(' ') : undefined,
       });
       console.log(`Created branch ${result.branch} and dispatched verify-and-fix: ${result.failedItems}`);
+      break;
+    }
+
+    // ─── Watcher Commands ────────────────────────────────────────────
+
+    case 'watcher-run': {
+      // Usage: pipeline watcher-run [max_concurrent] [grace_minutes] [max_retries]
+      const maxConcurrent = parseInt(args[0] ?? '3', 10);
+      const graceMinutes = parseInt(args[1] ?? '15', 10);
+      const maxRetries = parseInt(args[2] ?? '5', 10);
+      const repo = getRepo();
+      const github = getGitHub();
+
+      console.log(`=== Pipeline Watcher ${new Date().toISOString()} ===`);
+
+      // 1. Count active workflows
+      const slots = watcher.getWorkflowSlots(repo, maxConcurrent);
+      console.log(`Claude workflows: ${slots.activeRuns} running, ${slots.queuedRuns} queued (${slots.totalActive} total, limit ${maxConcurrent})`);
+
+      if (slots.totalActive >= maxConcurrent) {
+        console.log('At concurrency limit — nothing to do');
+        break;
+      }
+      console.log(`Slots available: ${slots.slotsAvailable}`);
+
+      let slotsAvailable = slots.slotsAvailable;
+      const busyEpics = new Set<string>();
+      const prIssueNums = new Set<number>();
+
+      // 2. Check open claude/ PRs
+      console.log('\n--- Checking open claude/ PRs ---');
+      const claudePRs = watcher.getOpenClaudePRs(repo);
+
+      for (const pr of claudePRs) {
+        console.log(`PR #${pr.number} (${pr.branch}):`);
+
+        const issueNum = watcher.extractIssueFromBranch(pr.branch);
+        if (issueNum) {
+          prIssueNums.add(issueNum);
+          const epicLabel = watcher.getEpicLabel(issueNum, repo);
+          if (epicLabel) {
+            busyEpics.add(epicLabel);
+            console.log(`  Epic: ${epicLabel} (busy)`);
+          }
+        }
+
+        const result = await watcher.checkPR(github, pr, repo, graceMinutes, maxRetries);
+        console.log(`  ${result.detail}`);
+      }
+
+      // 3. Check in-progress stories
+      console.log('\n--- Checking in-progress stories ---');
+      const inProgress = watcher.getInProgressStories(repo);
+
+      for (const issueNum of inProgress) {
+        console.log(`Story #${issueNum} is in-progress`);
+
+        if (slotsAvailable <= 0) { console.log('  No slots available — skipping'); continue; }
+
+        const storyEpic = watcher.getEpicLabel(issueNum, repo);
+        if (storyEpic && busyEpics.has(storyEpic)) { console.log(`  Epic ${storyEpic} is busy — skipping`); continue; }
+        if (slots.busyIssues.has(issueNum)) { console.log('  Active workflow running — skipping'); continue; }
+        if (prIssueNums.has(issueNum)) { console.log('  Open PR exists — skipping'); continue; }
+
+        // Check for existing work branch
+        const existingBranch = watcher.findExistingWorkBranch(issueNum, repo);
+        if (existingBranch) {
+          console.log(`  Found existing work: ${existingBranch}`);
+          const giveups = watcher.countVFGiveups(issueNum, repo);
+
+          if (giveups >= 2) {
+            console.log(`  verify-and-fix gave up ${giveups} times — triggering doctor`);
+            let doctorActive = false;
+            try { exec('npx', ['tsx', '.github/scripts/lib/cli/pipeline.ts', 'is-workflow-active', 'pipeline-doctor.yml', String(issueNum), repo]); doctorActive = true; } catch { /* not active */ }
+            if (!doctorActive && !watcher.isDoctorAlreadyRan(issueNum, repo)) {
+              await github.dispatchWorkflow('pipeline-doctor.yml', 'master', { issue_number: String(issueNum), trigger_source: 'watcher' });
+              console.log(`  Triggered pipeline doctor for #${issueNum}`);
+            }
+          } else {
+            const existingPR = watcher.checkExistingPRForBranch(issueNum, repo);
+            if (existingPR) {
+              console.log(`  PR #${existingPR} already exists — skipping`);
+            } else {
+              console.log('  Triggering verify-and-fix with existing work');
+              await github.dispatchWorkflow('verify-and-fix.yml', 'master', {
+                branch: existingBranch,
+                merge_into: `claude/issue-${issueNum}`,
+                create_pr: 'true',
+                issue_number: String(issueNum),
+                checks: 'ci',
+                fix_enabled: 'true',
+                max_attempts: '6',
+              });
+            }
+          }
+
+          if (storyEpic) busyEpics.add(storyEpic);
+          slotsAvailable--;
+          continue;
+        }
+
+        // No existing work — check retry count
+        const retryCount = watcher.countSuccessfulClaudeRuns(issueNum, repo);
+        console.log(`  Retries: ${retryCount} successful claude.yml runs`);
+
+        if (retryCount >= maxRetries) {
+          console.log(`  ${retryCount} attempts — triggering doctor`);
+          let doctorActive = false;
+          try { exec('npx', ['tsx', '.github/scripts/lib/cli/pipeline.ts', 'is-workflow-active', 'pipeline-doctor.yml', String(issueNum), repo]); doctorActive = true; } catch { /* not active */ }
+          if (!doctorActive && !watcher.isDoctorAlreadyRan(issueNum, repo)) {
+            await github.dispatchWorkflow('pipeline-doctor.yml', 'master', { issue_number: String(issueNum), trigger_source: 'watcher' });
+          }
+          continue;
+        }
+
+        const lastTrigger = watcher.getLastTriggerTime(issueNum, repo);
+        if (lastTrigger) {
+          const ago = watcher.minutesAgo(lastTrigger);
+          console.log(`  Last trigger: ${ago}m ago`);
+          if (ago < graceMinutes) { console.log(`  Within grace period — skipping`); continue; }
+        }
+
+        console.log(`  Re-triggering claude.yml (attempt ${retryCount + 1}/${maxRetries})`);
+        await github.triggerStoryAgent(issueNum, 'claude', `(Retry #${retryCount + 1} by pipeline watcher)`);
+        if (storyEpic) busyEpics.add(storyEpic);
+        slotsAvailable--;
+      }
+
+      // 4. Check stalled epics
+      console.log('\n--- Checking for stalled epics ---');
+      const epicLabels = watcher.getOpenEpicLabels(repo);
+
+      for (const epicLabel of epicLabels) {
+        console.log(`Epic: ${epicLabel}`);
+        if (slotsAvailable <= 0) { console.log('  No slots — skipping'); continue; }
+        if (busyEpics.has(epicLabel)) { console.log('  Already busy — skipping'); continue; }
+
+        if (watcher.hasInProgressStory(repo, epicLabel)) { console.log('  Has in-progress story — handled above'); continue; }
+
+        const nextPending = await github.getNextPendingStory(epicLabel);
+        if (!nextPending) {
+          console.log('  No pending stories — checking if epic is complete');
+          if (watcher.countOpenStories(repo, epicLabel) === 0) {
+            const epicNum = watcher.getEpicNumber(repo, epicLabel);
+            if (epicNum) {
+              console.log(`  Closing epic #${epicNum} — all stories complete`);
+              await github.commentOnIssue(epicNum, 'All stories in this epic have been completed. (Detected by pipeline watcher)');
+              try { exec('gh', ['issue', 'close', String(epicNum), '--repo', repo]); } catch { /* ignore */ }
+            }
+          }
+          continue;
+        }
+
+        console.log(`  STALLED — triggering story #${nextPending}`);
+        try { exec('gh', ['issue', 'edit', String(nextPending), '--repo', repo, '--remove-label', 'pending', '--add-label', 'in-progress']); } catch { /* ignore */ }
+        await github.triggerStoryAgent(nextPending, 'claude', '(Pipeline watcher: orchestrator missed handoff)');
+        busyEpics.add(epicLabel);
+        slotsAvailable--;
+      }
+
+      // 5. Close orphan PRs
+      console.log('\n--- Checking for orphan PRs ---');
+      for (const pr of claudePRs) {
+        const body = watcher.getPRBody(pr.number, repo);
+        const linkedIssue = watcher.extractLinkedIssue(body);
+        if (linkedIssue) { continue; }
+
+        const prAge = watcher.minutesAgo(pr.createdAt);
+        console.log(`PR #${pr.number} has no linked story, age: ${prAge}m`);
+
+        if (prAge < graceMinutes) { console.log('  Too new — skipping'); continue; }
+
+        const lastComment = watcher.getLastCommentTime(pr.number, repo);
+        if (lastComment) {
+          const commentAgo = watcher.minutesAgo(lastComment);
+          if (commentAgo < graceMinutes) { console.log(`  Recent activity (${commentAgo}m) — skipping`); continue; }
+        }
+
+        console.log(`  Closing orphan PR #${pr.number}`);
+        watcher.closeOrphanPR(pr.number, pr.branch, repo);
+      }
+
+      console.log(`\n=== Watcher complete — slots used: ${maxConcurrent - slotsAvailable}/${maxConcurrent} ===`);
       break;
     }
 

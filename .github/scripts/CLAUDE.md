@@ -13,6 +13,7 @@ This folder contains shared TypeScript modules for GitHub Actions workflows, fol
 | `lib/workflow.ts` | Temporal-like activity runner with state tracking and retry policies |
 | `lib/verify-checks.ts` | CI check verification (lint, typecheck, bundle, test, native deps) |
 | `lib/ci-dispatch.ts` | CI failure dispatch (label check, failed items extraction, verify-and-fix dispatch) |
+| `lib/watcher.ts` | Pipeline watcher logic (slot counting, PR health, story retrigger, epic staleness, orphan cleanup) |
 | `lib/cli/pipeline.ts` | Unified CLI — replaces all lib.sh functions |
 | `lib/cli/verify-checks.ts` | CLI wrapper for verify-checks |
 | `lib/cli/evaluate-merge-gate.ts` | CLI wrapper for merge-gate evaluation |
@@ -42,6 +43,7 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | Comment with @agent ... | `npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent N "agent" [suffix]` |
 | Inline CI failure dispatch (label check + failed items + comment + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr N branch run_id run_url checks [extra]` |
 | Inline master failure dispatch (create branch + push + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master run_id run_url checks prefix [extra]` |
+| Inline watcher shell (~530 lines of health checks) | `npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run maxSlots staleMin epicStaleH` |
 
 ### How to use the pipeline CLI in a workflow
 
@@ -90,6 +92,9 @@ GitHub API:
 CI Dispatch:
   ci-dispatch-pr <pr> <branch> <run_id> <run_url> <checks> [extra_context]
   ci-dispatch-master <run_id> <run_url> <checks> <branch_prefix> [extra_context]
+
+Watcher:
+  watcher-run <max_slots> <stale_minutes> <epic_stale_hours>
 
 Git:
   setup-git-auth
