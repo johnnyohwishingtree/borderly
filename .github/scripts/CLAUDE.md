@@ -14,6 +14,7 @@ This folder contains shared TypeScript modules for GitHub Actions workflows, fol
 | `lib/verify-checks.ts` | CI check verification (lint, typecheck, bundle, test, native deps) |
 | `lib/ci-dispatch.ts` | CI failure dispatch (label check, failed items extraction, verify-and-fix dispatch) |
 | `lib/watcher.ts` | Pipeline watcher logic (slot counting, PR health, story retrigger, epic staleness, orphan cleanup) |
+| `lib/doctor.ts` | Pipeline doctor evidence collection and failure reproduction |
 | `lib/cli/pipeline.ts` | Unified CLI — replaces all lib.sh functions |
 | `lib/cli/verify-checks.ts` | CLI wrapper for verify-checks |
 | `lib/cli/evaluate-merge-gate.ts` | CLI wrapper for merge-gate evaluation |
@@ -44,6 +45,8 @@ When writing workflow steps, **never** use raw `gh` or `git` commands for operat
 | Inline CI failure dispatch (label check + failed items + comment + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr N branch run_id run_url checks [extra]` |
 | Inline master failure dispatch (create branch + push + dispatch) | `npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master run_id run_url checks prefix [extra]` |
 | Inline watcher shell (~530 lines of health checks) | `npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run maxSlots staleMin epicStaleH` |
+| Inline doctor evidence collection (~330 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-collect-evidence issueNum [failedRunIds]` |
+| Inline doctor failure reproduction (~60 lines) | `npx tsx .github/scripts/lib/cli/pipeline.ts doctor-reproduce workBranch` |
 
 ### How to use the pipeline CLI in a workflow
 
@@ -95,6 +98,10 @@ CI Dispatch:
 
 Watcher:
   watcher-run <max_slots> <stale_minutes> <epic_stale_hours>
+
+Doctor:
+  doctor-collect-evidence <issue_number> [failed_run_ids]
+  doctor-reproduce <work_branch>
 
 Git:
   setup-git-auth

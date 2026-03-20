@@ -26,6 +26,10 @@
  * Commands (Watcher):
  *   watcher-run [max_concurrent] [grace_minutes] [max_retries]
  *
+ * Commands (Doctor):
+ *   doctor-collect-evidence <issue_number> [failed_run_ids]
+ *   doctor-reproduce <work_branch>
+ *
  * Commands (Git):
  *   setup-git-auth
  *   merge-master
@@ -42,6 +46,7 @@ import { GitHubClient } from '../github.js';
 import { setupGitAuth, mergeMasterIntoBranch, checkChangesAndCommit, smartPush } from '../git.js';
 import { dispatchPRFix, dispatchMasterFix } from '../ci-dispatch.js';
 import * as watcher from '../watcher.js';
+import * as doctor from '../doctor.js';
 
 function exec(command: string, args: string[]): string {
   return execFileSync(command, args, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
@@ -488,6 +493,104 @@ async function main() {
       }
 
       console.log(`\n=== Watcher complete — slots used: ${maxConcurrent - slotsAvailable}/${maxConcurrent} ===`);
+      break;
+    }
+
+    // ─── Doctor Commands ───────────────────────────────────────────────
+
+    case 'doctor-collect-evidence': {
+      const [issueNumStr, failedRunIds] = args;
+      if (!issueNumStr) { console.error('Usage: pipeline doctor-collect-evidence <issue_number> [failed_run_ids]'); process.exit(1); }
+      const issueNum = parseInt(issueNumStr, 10);
+      const repo = getRepo();
+      const workflowDir = '.github/workflows';
+
+      console.log(`=== Pipeline Doctor: collecting evidence for issue #${issueNum} ===`);
+      const { evidence, workBranch } = doctor.collectEvidence({
+        issueNum,
+        repo,
+        failedRunIds: failedRunIds ?? '',
+        workflowDir,
+      });
+
+      const evidenceFile = '/tmp/pipeline-doctor-evidence.md';
+      const fs = await import('node:fs');
+      fs.writeFileSync(evidenceFile, evidence);
+      console.log(`Evidence written to ${evidenceFile} (${evidence.split('\n').length} lines)`);
+
+      // Output for GitHub Actions
+      if (process.env['GITHUB_OUTPUT']) {
+        fs.appendFileSync(process.env['GITHUB_OUTPUT'], `evidence_file=${evidenceFile}\n`);
+      }
+      if (workBranch && process.env['GITHUB_ENV']) {
+        fs.appendFileSync(process.env['GITHUB_ENV'], `WORK_BRANCH=${workBranch}\n`);
+      }
+      break;
+    }
+
+    case 'doctor-reproduce': {
+      const [workBranch] = args;
+      if (!workBranch) { console.error('Usage: pipeline doctor-reproduce <work_branch>'); process.exit(1); }
+
+      console.log(`=== Reproducing failures on branch: ${workBranch} ===`);
+      const result = doctor.reproduceFailures(workBranch);
+
+      const lines: string[] = [];
+      lines.push('## Reproduced Test Failures');
+      lines.push('');
+      lines.push(`Checked out \`${workBranch}\`, merged master, and ran checks to capture actual error output.`);
+      lines.push('');
+
+      if (result.mergeConflict) {
+        lines.push('**Merge conflict with master** — this may be the root cause.');
+        lines.push('');
+      }
+
+      lines.push('### Typecheck output');
+      lines.push('```');
+      lines.push(result.typecheckOutput);
+      lines.push('```');
+      lines.push('');
+      lines.push('### Test failure details');
+      lines.push('```');
+      lines.push(result.testFailures);
+      lines.push('```');
+      lines.push('');
+
+      if (result.failingTestFiles.length > 0) {
+        lines.push('### Failing test file contents');
+        lines.push('');
+        lines.push('These are the test files that fail. Compare their assertions against the commit diffs above.');
+        lines.push('');
+        const fsModule = await import('node:fs');
+        for (const testFile of result.failingTestFiles) {
+          try {
+            if (fsModule.existsSync(testFile)) {
+              const content = fsModule.readFileSync(testFile, 'utf-8');
+              lines.push(`<details><summary>${testFile}</summary>`);
+              lines.push('');
+              lines.push('```typescript');
+              lines.push(content);
+              lines.push('```');
+              lines.push('</details>');
+              lines.push('');
+            }
+          } catch {
+            // skip
+          }
+        }
+      }
+
+      // Append to evidence file
+      const evidenceFile = '/tmp/pipeline-doctor-evidence.md';
+      const fsAppend = await import('node:fs');
+      if (fsAppend.existsSync(evidenceFile)) {
+        fsAppend.appendFileSync(evidenceFile, '\n' + lines.join('\n'));
+        console.log(`Appended reproduction results to ${evidenceFile}`);
+      } else {
+        fsAppend.writeFileSync(evidenceFile, lines.join('\n'));
+        console.log(`Wrote reproduction results to ${evidenceFile}`);
+      }
       break;
     }
 
