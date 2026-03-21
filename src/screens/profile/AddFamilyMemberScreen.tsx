@@ -15,6 +15,7 @@ const relationshipOptions = [
   { label: 'Spouse', value: 'spouse' },
   { label: 'Child', value: 'child' },
   { label: 'Parent', value: 'parent' },
+  { label: 'Sibling', value: 'sibling' },
   { label: 'Other Family', value: 'other' },
 ];
 
@@ -51,6 +52,8 @@ export default function AddFamilyMemberScreen() {
         return 'Add your child to your family profile';
       case 'parent':
         return 'Add your parent to your family profile';
+      case 'sibling':
+        return 'Add your sibling to your family profile';
       case 'other':
         return 'Add another family member to your profile';
       default:
@@ -104,8 +107,9 @@ export default function AddFamilyMemberScreen() {
               </Text>
               <Text className="text-sm text-gray-600 text-center mb-4">
                 Quickly add {selectedRelationship === 'spouse' ? 'your spouse' : 
-                           selectedRelationship === 'child' ? 'your child' : 
-                           selectedRelationship === 'parent' ? 'your parent' : 
+                           selectedRelationship === 'child' ? 'your child' :
+                           selectedRelationship === 'parent' ? 'your parent' :
+                           selectedRelationship === 'sibling' ? 'your sibling' :
                            'your family member'} by scanning their passport
               </Text>
               <Button
