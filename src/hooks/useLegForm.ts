@@ -41,12 +41,9 @@ export function deriveLegFormStatus(
   if (allReady) return 'ready';
 
   const anyStarted = assignedTravelers.some(id => {
-    const form = updatedForms.find(f => f.travelerId === id);
-    return (
-      form?.formStatus === 'in_progress' ||
-      form?.formStatus === 'ready' ||
-      form?.formStatus === 'submitted'
-    );
+    const formStatus = updatedForms.find(f => f.travelerId === id)?.formStatus;
+    // Any status other than 'not_started' implies the form has been touched.
+    return formStatus && formStatus !== 'not_started';
   });
 
   return anyStarted ? 'in_progress' : 'not_started';

@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { useLegForm } from '@/hooks/useLegForm';
+import { useLegForm, deriveLegFormStatus } from '@/hooks/useLegForm';
 import { useFormStore } from '@/stores/useFormStore';
 
 // Mock navigation
@@ -452,9 +452,6 @@ describe('useLegForm', () => {
 });
 
 // ─── deriveLegFormStatus unit tests ──────────────────────────────────────────
-// Import the exported helper to test derived status logic directly
-
-import { deriveLegFormStatus } from '@/hooks/useLegForm';
 
 describe('deriveLegFormStatus', () => {
   it('returns not_started when no travelers have started', () => {
