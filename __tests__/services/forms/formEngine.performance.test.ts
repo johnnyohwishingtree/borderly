@@ -71,6 +71,9 @@ const mockSchema: CountryFormSchema = {
   lastUpdated: '2024-01-01',
   portalUrl: 'https://www.vjw.digital.go.jp/',
   portalName: 'Visit Japan Web',
+  submissionDeadlineHours: 24,
+  recommendedLeadTimeHours: 72,
+  submissionWindowNote: 'Submit 24-72 h before arrival',
   metadata: {
     priority: 1,
     complexity: 'medium',

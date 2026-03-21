@@ -36,6 +36,9 @@ function makeSchema(countryCode: string, version: string) {
     lastUpdated: '2026-01-01T00:00:00Z',
     portalUrl: `https://portal.example.com/${countryCode}`,
     portalName: `${countryCode} Portal`,
+    submissionDeadlineHours: 24,
+    recommendedLeadTimeHours: 72,
+    submissionWindowNote: `Submit before arrival in ${countryCode}`,
     submission: {
       earliestBeforeArrival: '14d',
       latestBeforeArrival: '0h',
