@@ -53,7 +53,7 @@ test.describe('Trip and Submit Flow', () => {
 
     await expect(page.getByText('Submission Guide')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Submission Timing')).toBeVisible();
-    await expect(page.getByText(/JOHN MICHAEL SMITH/)).toBeVisible();
+    await expect(page.getByText('For: JOHN MICHAEL SMITH')).toBeVisible();
 
     // === PHASE 6: Open Portal Submission ===
     await page.getByRole('button', { name: 'Submit in App' }).click();
