@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  AccessibilityInfo,
-  findNodeHandle,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Upload, ClipboardList, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
@@ -47,8 +45,8 @@ export default function TripDetailScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Accessibility: focus management for modals
-  const editTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
-  const addTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+  const { ref: editTriggerRef, focusElement: focusEditTrigger } = useAccessibilityFocus();
+  const { ref: addTriggerRef, focusElement: focusAddTrigger } = useAccessibilityFocus();
   const { ref: editModalTitleRef } = useAccessibilityFocus({ shouldFocus: showEditModal, delay: 350 });
   const { ref: addModalTitleRef } = useAccessibilityFocus({ shouldFocus: showAddModal, delay: 350 });
 
@@ -114,20 +112,14 @@ export default function TripDetailScreen() {
     editHook.cancelEditLeg();
     setShowEditModal(false);
     // Return focus to the Edit button that opened the modal
-    setTimeout(() => {
-      const tag = findNodeHandle(editTriggerRef.current as unknown as React.Component<unknown, unknown>);
-      if (tag != null) AccessibilityInfo.setAccessibilityFocus(tag);
-    }, 100);
+    setTimeout(focusEditTrigger, 100);
   };
 
   const handleCloseAddModal = () => {
     editHook.cancelAddDestination();
     setShowAddModal(false);
     // Return focus to the Add Destination button that opened the modal
-    setTimeout(() => {
-      const tag = findNodeHandle(addTriggerRef.current as unknown as React.Component<unknown, unknown>);
-      if (tag != null) AccessibilityInfo.setAccessibilityFocus(tag);
-    }, 100);
+    setTimeout(focusAddTrigger, 100);
   };
 
   const handleSaveTripName = async () => {
