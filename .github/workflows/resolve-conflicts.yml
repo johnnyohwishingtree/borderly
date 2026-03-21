@@ -90,6 +90,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          # Register the "ours" merge driver so .gitattributes merge=ours works
+          git config merge.ours.driver true
           git fetch origin master
           PR_NUM="${{ matrix.pr.number }}"
           BRANCH="${{ matrix.pr.branch }}"
@@ -158,11 +160,8 @@ jobs:
         run: |
           git push origin HEAD
           echo "Pushed conflict resolution for PR #${{ matrix.pr.number }}"
-          # Dispatch CI explicitly — GitHub pull_request events are unreliable
-          BRANCH="${{ matrix.pr.branch }}"
-          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "test.yml" --ref "$BRANCH"
-          npx tsx .github/scripts/lib/cli/pipeline.ts dispatch "e2e-smoke.yml" --ref "$BRANCH"
-          echo "Dispatched CI for $BRANCH"
+          # The push triggers pull_request synchronize, which attaches CI checks.
+          # No need to dispatch CI separately (workflow_dispatch doesn't attach checks).
 
       - name: Comment on PR (resolved)
         if: steps.merge.outputs.resolved == 'auto' || steps.merge.outputs.resolved == 'clean'
