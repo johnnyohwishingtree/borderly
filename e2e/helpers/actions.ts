@@ -89,7 +89,8 @@ export async function createJapanTrip(page: Page) {
   await page.getByTestId('leg-0-accommodation-address-postal-code').fill('163-1055');
 
   await page.getByTestId('create-trip-button').click();
-  await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
+  // After trip creation the app navigates directly to TripDetail (issue #525)
+  await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 15000 });
 }
 
 // ── Navigate from trip list to a specific leg form ──

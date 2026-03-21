@@ -350,7 +350,7 @@ describe('getUrgencyLevel', () => {
     expect(getUrgencyLevel(deadline)).toBe('normal');
   });
 
-  it('returns "critical" when hoursRemaining is exactly 25', () => {
+  it('returns "warning" when hoursRemaining is exactly 25', () => {
     const deadline = makeDeadlineWithHours(25);
     expect(getUrgencyLevel(deadline)).toBe('warning');
   });
