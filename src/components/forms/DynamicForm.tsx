@@ -191,6 +191,7 @@ export default function DynamicForm({
 
     return (
       <View
+        testID="validation-summary"
         className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"
         accessibilityLiveRegion="polite"
         accessible={true}
