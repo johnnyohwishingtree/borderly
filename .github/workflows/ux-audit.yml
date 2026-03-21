@@ -188,21 +188,28 @@ jobs:
             gh label create "epic:ux-audit" --color "D93F0B" --description "Epic: UX Flow Audit findings" 2>/dev/null || true
             ```
 
-            Epic format:
+            **Step 4a: Create the epic first (placeholder body):**
             ```bash
             gh issue create \
               --title "Epic: UX Flow Audit $(date +%Y-%m-%d) — N issues found" \
               --label "epic" \
               --label "epic:ux-audit" \
-              --body "..."
+              --body "## Goal
+            UX flow audit findings. Stories will be listed below once created.
+
+            ## Stories
+            (creating...)
+
+            ## Success Criteria
+            - All state transition bugs fixed with unit tests
+            - pnpm typecheck && pnpm test && pnpm e2e all pass"
             ```
 
-            **CRITICAL: Story labels must include ALL THREE of these:**
-            - `story` — identifies it as a story for the orchestrator
-            - `pending` — marks it as ready to be picked up by the pipeline
+            **Step 4b: Create each story.** CRITICAL — labels must include ALL THREE:
+            - `story` — identifies it for the orchestrator
+            - `pending` — marks it as ready for the pipeline
             - `epic:ux-audit` — links it to this epic
 
-            Story format:
             ```bash
             gh issue create \
               --title "Story: <specific task>" \
@@ -236,7 +243,26 @@ jobs:
             )"
             ```
 
-            After creating all stories, update the epic body with actual issue numbers.
+            **Step 4c: Update the epic body** with actual story issue numbers.
+            You MUST use `gh issue edit <epic_number>` to replace the body with
+            the real checklist. Use this exact format:
+
+            ```bash
+            gh issue edit <epic_number> --body "$(cat <<'EOF'
+            ## Goal
+            UX flow audit findings — N issues across [areas].
+
+            ## Stories
+            - [ ] #<story1_number> Story: <title>
+            - [ ] #<story2_number> Story: <title>
+            ...
+
+            ## Success Criteria
+            - All state transition bugs fixed with unit tests
+            - pnpm typecheck && pnpm test && pnpm e2e all pass
+            EOF
+            )"
+            ```
 
             ## Step 5: Report
 
