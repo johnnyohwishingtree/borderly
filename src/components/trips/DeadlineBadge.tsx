@@ -108,7 +108,7 @@ export default function DeadlineBadge({ deadline, testID }: DeadlineBadgeProps) 
   }
 
   const config = resolveBadgeConfig(deadline);
-  const countdown = countdownLabel(deadline.hoursRemaining);
+  const countdown = deadline.status === 'ready' ? '' : countdownLabel(deadline.hoursRemaining);
 
   return (
     <View

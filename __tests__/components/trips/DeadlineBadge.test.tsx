@@ -169,10 +169,8 @@ describe('DeadlineBadge', () => {
       const { queryByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'ready', hoursRemaining: 48 })} />,
       );
-      // "Ready" with no countdown — hours are irrelevant once ready
-      // (countdownLabel still fires but the badge says Ready · X days left
-      //  — that is acceptable; we just verify "Ready" is shown)
       expect(queryByText('Ready')).toBeTruthy();
+      expect(queryByText(/left/)).toBeNull();
     });
   });
 
