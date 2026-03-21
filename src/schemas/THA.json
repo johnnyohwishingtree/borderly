@@ -5,6 +5,9 @@
   "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://tp.consular.go.th/",
   "portalName": "Thailand Digital Arrival Card (Coming Soon)",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 168,
+  "submissionWindowNote": "Submit 3 days before arrival",
   "metadata": {
     "priority": 4,
     "complexity": "medium",

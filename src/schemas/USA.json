@@ -5,6 +5,9 @@
   "lastUpdated": "2026-03-15T00:00:00Z",
   "portalUrl": "https://cbpone.cbp.dhs.gov/",
   "portalName": "CBP One (Customs Declaration)",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 168,
+  "submissionWindowNote": "Submit at least 72 h before boarding",
   "metadata": {
     "priority": 5,
     "complexity": "high",

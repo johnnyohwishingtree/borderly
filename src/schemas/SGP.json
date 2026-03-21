@@ -5,6 +5,9 @@
   "lastUpdated": "2025-06-01T00:00:00Z",
   "portalUrl": "https://eservices.ica.gov.sg/sgarrivalcard",
   "portalName": "SG Arrival Card",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 168,
+  "submissionWindowNote": "Submit up to 3 days before arrival",
   "metadata": {
     "priority": 2,
     "complexity": "low",

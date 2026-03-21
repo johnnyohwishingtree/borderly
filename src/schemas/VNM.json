@@ -5,6 +5,9 @@
   "lastUpdated": "2026-03-07T00:00:00Z",
   "portalUrl": "https://evisa.xuatnhapcanh.gov.vn/",
   "portalName": "Vietnam e-Visa Portal",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 168,
+  "submissionWindowNote": "Submit at least 3 business days before",
   "metadata": {
     "priority": 7,
     "complexity": "medium",
