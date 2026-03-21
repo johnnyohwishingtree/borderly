@@ -54,6 +54,18 @@ jobs:
             exit 0
           fi
 
+          # Skip if already at max open epics (shared limit with planner)
+          MAX_OPEN_EPICS=3
+          OPEN_EPICS=$(gh issue list --repo "$REPO" \
+            --label "epic" --state open \
+            --json number -q 'length' 2>/dev/null || echo "0")
+
+          if [ "$OPEN_EPICS" -ge "$MAX_OPEN_EPICS" ]; then
+            echo "Already $OPEN_EPICS open epics (max $MAX_OPEN_EPICS) — skipping"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           # Skip if too many open stories (pipeline is backed up)
           OPEN_STORIES=$(gh issue list --repo "$REPO" \
             --label "story" --state open \
