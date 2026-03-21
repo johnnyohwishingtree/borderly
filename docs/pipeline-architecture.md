@@ -194,7 +194,7 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 
 ---
 
-## Recovery & Health (watcher.yml — every 20 min)
+## Recovery & Health (watcher.yml — every 10 min)
 
 ```
 +---------------------------------------------------------------------+
