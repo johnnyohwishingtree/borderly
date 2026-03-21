@@ -240,7 +240,11 @@ export default function QRWalletScreen() {
             
             <TouchableOpacity
               onPress={handleAddQR}
-              className="bg-blue-600 rounded-full p-2"
+              className="bg-blue-600 rounded-full items-center justify-center"
+              style={{ width: 44, height: 44 }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Add QR code"
             >
               <Text className="text-white text-xl font-bold">+</Text>
             </TouchableOpacity>
@@ -293,9 +297,13 @@ export default function QRWalletScreen() {
               }
             </Text>
             {selectedTravelerFilter && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setSelectedTravelerFilter(null)}
                 className="mt-1 flex-row items-center"
+                style={{ minHeight: 44 }}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Clear traveler filter"
               >
                 <Text className="text-sm text-blue-600 mr-1">Clear filter</Text>
                 <X size={14} color="#2563eb" />
@@ -304,9 +312,13 @@ export default function QRWalletScreen() {
           </View>
           
           {travelers.size > 1 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowFilterModal(true)}
-              className="bg-gray-100 rounded-full p-2 mr-3"
+              className="bg-gray-100 rounded-full items-center justify-center mr-3"
+              style={{ width: 44, height: 44 }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Filter QR codes by traveler"
             >
               <Filter size={20} color="#6b7280" />
             </TouchableOpacity>
@@ -320,7 +332,11 @@ export default function QRWalletScreen() {
           
           <TouchableOpacity
             onPress={handleAddQR}
-            className="bg-blue-600 rounded-full p-2"
+            className="bg-blue-600 rounded-full items-center justify-center"
+            style={{ width: 44, height: 44 }}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Add QR code"
           >
             <Text className="text-white text-xl font-bold">+</Text>
           </TouchableOpacity>
@@ -371,7 +387,11 @@ export default function QRWalletScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => setShowFilterModal(false)}
-                className="p-2"
+                className="items-center justify-center"
+                style={{ width: 44, height: 44 }}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Close filter"
               >
                 <X size={24} color="#6b7280" />
               </TouchableOpacity>

@@ -115,7 +115,11 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
         <View className="flex-row items-center justify-between px-4 py-2">
           <TouchableOpacity
             onPress={onClose}
-            className="p-2 rounded-full bg-gray-800 bg-opacity-50"
+            className="rounded-full bg-gray-800 bg-opacity-50 items-center justify-center"
+            style={{ width: 44, height: 44 }}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
           >
             <Text className="text-white text-lg font-semibold">✕</Text>
           </TouchableOpacity>
@@ -129,7 +133,11 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
           {onDelete && (
             <TouchableOpacity
               onPress={handleDeletePress}
-              className="p-2 rounded-full bg-red-600 bg-opacity-50"
+              className="rounded-full bg-red-600 bg-opacity-50 items-center justify-center"
+              style={{ width: 44, height: 44 }}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Delete QR code"
             >
               <Text className="text-white text-lg">🗑</Text>
             </TouchableOpacity>
