@@ -39,8 +39,6 @@ const allProjects = [
       'addCompanions.spec.ts',
       'completeUserFlow.spec.ts',
       'tripCreation.spec.ts',
-      'trip-detail.spec.ts',
-      'deadline-reminders.spec.ts',
       'passportScanning.spec.ts',
       'fullJourney.spec.ts',
       'tripAndSubmit.spec.ts',
@@ -57,8 +55,15 @@ const allProjects = [
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
   {
+    // Performance tests + deadline/trip-detail smoke tests.
+    // deadline-reminders and trip-detail moved here from the chromium project
+    // to keep the test-chromium CI job within its 5-minute timeout.
     name: 'performance',
-    testMatch: 'performance.spec.ts',
+    testMatch: [
+      'performance.spec.ts',
+      'deadline-reminders.spec.ts',
+      'trip-detail.spec.ts',
+    ],
     timeout: 45000,
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
