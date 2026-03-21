@@ -139,17 +139,9 @@ describe('DynamicForm validation summary live region', () => {
       <DynamicForm form={form} onFormDataChange={jest.fn()} showFormStats={false} />
     );
 
-    // Traverse rendered tree to find element with polite live region
-    const allViews = screen.toJSON();
-    const findLiveRegion = (node: any): boolean => {
-      if (!node) return false;
-      if (node.props?.accessibilityLiveRegion === 'polite') return true;
-      if (Array.isArray(node.children)) {
-        return node.children.some(findLiveRegion);
-      }
-      return false;
-    };
-    expect(findLiveRegion(allViews)).toBe(true);
+    // Query by testID and verify the live region prop directly (RNTL idiomatic approach).
+    const summary = screen.getByTestId('validation-summary');
+    expect(summary.props.accessibilityLiveRegion).toBe('polite');
   });
 
   it('validation summary announces missing required fields', () => {
