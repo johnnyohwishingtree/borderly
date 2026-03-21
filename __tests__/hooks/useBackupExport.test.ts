@@ -251,6 +251,28 @@ describe('useBackupExport', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
+  it('sets error when Share.share throws', async () => {
+    const fakeContent = 'BORDERLY_BACKUP_V1\nABCDEF==';
+    backupService.export.mockResolvedValueOnce(fakeContent);
+    jest
+      .spyOn(Share, 'share')
+      .mockRejectedValueOnce(new Error('Share unavailable'));
+
+    const { result } = renderHook(() => useBackupExport());
+
+    act(() => {
+      result.current.setPassphrase('GoodPass12!');
+      result.current.setConfirmPassphrase('GoodPass12!');
+    });
+
+    await act(async () => {
+      await result.current.handleExport();
+    });
+
+    expect(result.current.error).toBe('Export failed: Share unavailable');
+    expect(result.current.isLoading).toBe(false);
+  });
+
   // ---------------------------------------------------------------------------
   // reset()
   // ---------------------------------------------------------------------------

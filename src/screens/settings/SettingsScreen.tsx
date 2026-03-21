@@ -603,7 +603,7 @@ export default function SettingsScreen() {
 
             <View>
               <Button
-                title="Clear Cache ({storageStats?.cacheSize})"
+                title={`Clear Cache (${storageStats?.cacheSize ?? ''})`}
                 onPress={handleClearCache}
                 variant="outline"
                 fullWidth

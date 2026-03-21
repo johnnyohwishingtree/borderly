@@ -107,13 +107,21 @@ export function useBackupExport(): UseBackupExportResult {
       const dateStr = formatBackupDate(new Date());
       const fileName = `borderly-backup-${dateStr}.borderly`;
 
-      // Invoke OS share sheet
+      // TODO: To share a true named file (so iOS "Save to Files" and Android
+      // both receive a `.borderly` attachment), write fileContent to a temp path
+      // using react-native-fs and share via { url: `file://${tempPath}` }.
+      // The current implementation shares the encrypted content as text, which
+      // is functionally correct but won't carry the filename through every share
+      // target. This is tracked for a future native dependency addition.
       const result = await Share.share(
         {
+          // `title` sets the share-sheet dialog title on Android.
+          // The file name is communicated to the user via the dialog title
+          // until native file writing (react-native-fs) is integrated.
           title: fileName,
           message: fileContent,
         },
-        { dialogTitle: 'Save Backup File' },
+        { dialogTitle: `Save ${fileName}` },
       );
 
       if (result.action === Share.dismissedAction) {

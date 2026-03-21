@@ -163,7 +163,7 @@ export default function ExportBackupModal({
             required
             accessibilityLabel="Passphrase, required, minimum 8 characters"
             autoCapitalize="none"
-            autoComplete="new-password"
+            autoComplete="password-new"
             testID="passphrase-input"
           />
 
@@ -183,7 +183,7 @@ export default function ExportBackupModal({
             required
             accessibilityLabel="Confirm passphrase, required"
             autoCapitalize="none"
-            autoComplete="new-password"
+            autoComplete="password-new"
             testID="confirm-passphrase-input"
           />
 
@@ -239,7 +239,6 @@ export default function ExportBackupModal({
               variant="primary"
               size="large"
               fullWidth
-              disabled={isLoading}
               accessibilityLabel="Export encrypted backup file"
               accessibilityHint="Encrypts your data and opens the share sheet"
               testID="export-backup-submit-button"
