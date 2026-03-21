@@ -1,0 +1,6 @@
+# Generated files — auto-resolve merge conflicts by keeping ours.
+# These are regenerated post-merge by screenshot-capture.yml and
+# generate-flow-graph.ts, so conflicts on them are meaningless.
+e2e/screenshots/flow-graph.json merge=ours
+e2e/screenshots/manifest.json merge=ours
+e2e/screenshots/*.png merge=ours binary
