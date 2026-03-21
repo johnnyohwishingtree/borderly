@@ -1,6 +1,8 @@
 name: Planner
 
 on:
+  schedule:
+    - cron: '0 */3 * * *'  # every ~2.5h (GitHub rounds to nearest: every 3h)
   workflow_dispatch:
     inputs:
       topic:
@@ -35,23 +37,6 @@ jobs:
           REPO: ${{ github.repository }}
           MAX_OPEN_EPICS: 3
         run: |
-          # For scheduled runs, enforce the weekend window
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            DOW=$(date -u +%w)
-            HOUR=$(date -u +%H)
-
-            IN_WINDOW=false
-            if [ "$DOW" -eq 6 ] && [ "$HOUR" -ge 1 ]; then IN_WINDOW=true; fi
-            if [ "$DOW" -eq 0 ]; then IN_WINDOW=true; fi
-            if [ "$DOW" -eq 1 ] && [ "$HOUR" -lt 3 ]; then IN_WINDOW=true; fi
-
-            if [ "$IN_WINDOW" = "false" ]; then
-              echo "Outside planning window — skipping"
-              echo "needed=false" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          fi
-
           OPEN_EPICS=$(gh issue list --repo "$REPO" --label "epic" --state open --json number -q 'length')
           echo "Open epics: $OPEN_EPICS"
 

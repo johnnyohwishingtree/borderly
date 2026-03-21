@@ -8,7 +8,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `daily-planner.yml` | Manual | Creates epics with stories |
+| `daily-planner.yml` | Cron (every 3h) / manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
@@ -27,7 +27,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
 | `build-android.yml` | Push to master / manual | Android debug build (master only) |
 | `screenshot-capture.yml` | Push to master (UI paths) / manual | Native-fidelity screenshots on Android emulator; creates PR if changed |
-| `ux-audit.yml` | Daily cron (midnight PST) / manual | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
+| `ux-audit.yml` | Cron (twice daily: midnight + noon PST) / manual | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
 | `release.yml` | Tag push / manual | Release workflow |
 
 ---
