@@ -144,7 +144,7 @@ export default function FamilyManagementScreen() {
                   key={member.id}
                   member={member}
                   onEdit={() => handleEditMember(member)}
-                  isActive={false}
+                  isActive={isPrimary}
                   testID={`family-member-card-${member.id}`}
                   {...(!isPrimary ? { onRemove: () => handleRemoveMember(member) } : {})}
                 />
