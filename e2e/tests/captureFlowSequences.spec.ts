@@ -19,44 +19,37 @@ import * as fs from 'fs';
 
 const FLOWS_DIR = path.resolve(__dirname, '../screenshots/flows');
 
-// Flow manifest — written at the end
-const flowManifest: Array<{
-  flow: string;
-  description: string;
-  steps: Array<{
-    id: string;
-    file: string;
-    label: string;
-    expectedState: string;
-  }>;
-}> = [];
-
-let currentFlow: (typeof flowManifest)[0] | null = null;
-
-function startFlow(name: string, description: string) {
-  currentFlow = { flow: name, description, steps: [] };
-  flowManifest.push(currentFlow);
-  fs.mkdirSync(path.join(FLOWS_DIR, name), { recursive: true });
-}
-
-async function flowScreenshot(page: Page, stepId: string, meta: {
-  label: string;
-  expectedState: string;
-}) {
-  if (!currentFlow) throw new Error('No flow started');
-  const file = `${stepId}.png`;
-  const filePath = path.join(FLOWS_DIR, currentFlow.flow, file);
-  await page.screenshot({ path: filePath, fullPage: true });
-  currentFlow.steps.push({
-    id: stepId,
-    file: `flows/${currentFlow.flow}/${file}`,
-    label: meta.label,
-    expectedState: meta.expectedState,
-  });
-}
+type FlowStep = { id: string; file: string; label: string; expectedState: string };
+type FlowEntry = { flow: string; description: string; steps: FlowStep[] };
 
 test.describe('Flow Sequence Capture for UX Audit', () => {
   test.setTimeout(120000);
+
+  // Scoped to this describe block — not shared across workers
+  const flowManifest: FlowEntry[] = [];
+  let currentFlow: FlowEntry | null = null;
+
+  function startFlow(name: string, description: string) {
+    currentFlow = { flow: name, description, steps: [] };
+    flowManifest.push(currentFlow);
+    fs.mkdirSync(path.join(FLOWS_DIR, name), { recursive: true });
+  }
+
+  async function flowScreenshot(page: Page, stepId: string, meta: {
+    label: string;
+    expectedState: string;
+  }) {
+    if (!currentFlow) throw new Error('No flow started');
+    const file = `${stepId}.png`;
+    const filePath = path.join(FLOWS_DIR, currentFlow.flow, file);
+    await page.screenshot({ path: filePath, fullPage: true });
+    currentFlow.steps.push({
+      id: stepId,
+      file: `flows/${currentFlow.flow}/${file}`,
+      label: meta.label,
+      expectedState: meta.expectedState,
+    });
+  }
 
   test.beforeEach(async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
