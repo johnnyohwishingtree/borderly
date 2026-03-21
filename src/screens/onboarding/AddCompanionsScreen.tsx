@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Users, UserPlus, ChevronRight, CheckCircle } from 'lucide-react-native';
+import { Users, UserPlus, ChevronRight, CheckCircle, X } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, ProgressBar } from '../../components/ui';
 import { useProfileStore } from '../../stores/useProfileStore';
-import { FamilyMember } from '../../types/profile';
+import { FamilyMember, FamilyRelationship } from '../../types/profile';
 
 type AddCompanionsScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'AddCompanions'>;
 
@@ -17,7 +17,7 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
   child: 'Child',
   parent: 'Parent',
   sibling: 'Sibling',
-  other: 'Companion',
+  other: 'Other',
 };
 
 const RELATIONSHIP_COLORS: Record<string, { bg: string; text: string }> = {
@@ -29,10 +29,19 @@ const RELATIONSHIP_COLORS: Record<string, { bg: string; text: string }> = {
   other: { bg: 'bg-gray-100', text: 'text-gray-700' },
 };
 
+const RELATIONSHIP_OPTIONS: { value: FamilyRelationship; label: string; emoji: string }[] = [
+  { value: 'spouse', label: 'Spouse', emoji: '💑' },
+  { value: 'child', label: 'Child', emoji: '👶' },
+  { value: 'parent', label: 'Parent', emoji: '👨‍👩‍👦' },
+  { value: 'sibling', label: 'Sibling', emoji: '👫' },
+  { value: 'other', label: 'Other', emoji: '👤' },
+];
+
 export default function AddCompanionsScreen() {
   const navigation = useNavigation<AddCompanionsScreenNavigationProp>();
   const { getAllFamilyProfiles, familyProfiles } = useProfileStore();
   const [companions, setCompanions] = useState<FamilyMember[]>([]);
+  const [showRelationshipPicker, setShowRelationshipPicker] = useState(false);
 
   useEffect(() => {
     loadCompanions();
@@ -47,9 +56,14 @@ export default function AddCompanionsScreen() {
   };
 
   const handleAddCompanion = () => {
+    setShowRelationshipPicker(true);
+  };
+
+  const handleRelationshipSelect = (relationship: FamilyRelationship) => {
+    setShowRelationshipPicker(false);
     navigation.navigate('PassportScan', {
       familyMode: true,
-      relationship: 'other',
+      relationship,
       returnTo: 'AddCompanions',
     });
   };
@@ -64,117 +78,176 @@ export default function AddCompanionsScreen() {
     : 'Continue — just me';
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-indigo-50 to-white">
-      <View className="px-6 py-8">
-        {/* Progress indicator */}
-        <ProgressBar progress={88} className="mb-6" />
+    <>
+      <ScrollView className="flex-1 bg-gradient-to-b from-indigo-50 to-white">
+        <View className="px-6 py-8">
+          {/* Progress indicator */}
+          <ProgressBar progress={88} className="mb-6" />
 
-        {/* Header */}
-        <View className="mb-8 items-center">
-          <View className="w-20 h-20 bg-indigo-100 rounded-full items-center justify-center mb-4">
-            <Users size={40} color="#4f46e5" />
+          {/* Header */}
+          <View className="mb-8 items-center">
+            <View className="w-20 h-20 bg-indigo-100 rounded-full items-center justify-center mb-4">
+              <Users size={40} color="#4f46e5" />
+            </View>
+            <Text
+              className="text-2xl font-bold text-gray-900 mb-2 text-center"
+              testID="add-companions-title"
+            >
+              Traveling with family?
+            </Text>
+            <Text className="text-base text-gray-600 text-center">
+              Scan their passports now so forms auto-fill for everyone
+            </Text>
           </View>
-          <Text
-            className="text-2xl font-bold text-gray-900 mb-2 text-center"
-            testID="add-companions-title"
-          >
-            Traveling with family?
-          </Text>
-          <Text className="text-base text-gray-600 text-center">
-            Scan their passports now so forms auto-fill for everyone
-          </Text>
-        </View>
 
-        {/* Companion list */}
-        {hasCompanions && (
-          <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
-            <View className="bg-gradient-to-r from-indigo-500 to-indigo-600 -m-6 mb-6 p-6 rounded-t-xl">
-              <Text className="text-lg font-bold text-white mb-1">
-                Travel Companions Added
+          {/* Companion list */}
+          {hasCompanions && (
+            <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
+              <View className="bg-gradient-to-r from-indigo-500 to-indigo-600 -m-6 mb-6 p-6 rounded-t-xl">
+                <Text className="text-lg font-bold text-white mb-1">
+                  Travel Companions Added
+                </Text>
+                <Text className="text-indigo-100 text-sm">
+                  {companions.length} companion{companions.length !== 1 ? 's' : ''} ready for auto-fill
+                </Text>
+              </View>
+
+              <View className="space-y-3">
+                {companions.map((companion) => {
+                  const rel = companion.relationship || 'other';
+                  const colors = RELATIONSHIP_COLORS[rel] || RELATIONSHIP_COLORS.other;
+                  const label = RELATIONSHIP_LABELS[rel] || 'Other';
+
+                  return (
+                    <View
+                      key={companion.id}
+                      className="flex-row items-center py-3 border-b border-gray-100 last:border-b-0"
+                      testID={`companion-item-${companion.id}`}
+                    >
+                      <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
+                        <CheckCircle size={20} color="#4f46e5" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 font-semibold">
+                          {companion.givenNames} {companion.surname}
+                        </Text>
+                        <Text className="text-gray-500 text-sm">
+                          {companion.nationality} · Passport {companion.passportNumber}
+                        </Text>
+                      </View>
+                      <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
+                        <Text className={`text-xs font-medium ${colors.text}`}>{label}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </Card>
+          )}
+
+          {/* Add companion button */}
+          <TouchableOpacity
+            onPress={handleAddCompanion}
+            className="flex-row items-center p-4 border-2 border-dashed border-indigo-300 rounded-xl mb-6 bg-indigo-50/50"
+            testID="add-companion-button"
+          >
+            <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
+              <UserPlus size={20} color="#4f46e5" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-indigo-700 font-semibold">
+                {hasCompanions ? 'Add another companion' : 'Add a travel companion'}
               </Text>
-              <Text className="text-indigo-100 text-sm">
-                {companions.length} companion{companions.length !== 1 ? 's' : ''} ready for auto-fill
+              <Text className="text-indigo-500 text-sm">
+                Scan passport or enter manually
               </Text>
             </View>
+            <ChevronRight size={20} color="#4f46e5" />
+          </TouchableOpacity>
 
-            <View className="space-y-3">
-              {companions.map((companion) => {
-                const rel = companion.relationship || 'other';
-                const colors = RELATIONSHIP_COLORS[rel] || RELATIONSHIP_COLORS.other;
-                const label = RELATIONSHIP_LABELS[rel] || 'Companion';
+          {/* Info card */}
+          <Card variant="outlined" className="mb-8 border-2 border-indigo-200 bg-indigo-50/50">
+            <View className="flex-row items-start">
+              <Users size={24} color="#4f46e5" style={{ marginRight: 12, marginTop: 2 }} />
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-gray-900 mb-1">
+                  Smart auto-fill for everyone
+                </Text>
+                <Text className="text-sm text-gray-600">
+                  Each companion's passport data is stored securely on your device. Declaration
+                  forms will be auto-filled for all travelers at once.
+                </Text>
+              </View>
+            </View>
+          </Card>
 
+          {/* Continue button */}
+          <Button
+            title={continueLabel}
+            onPress={handleContinue}
+            size="large"
+            fullWidth
+            testID="companions-continue-button"
+          />
+        </View>
+      </ScrollView>
+
+      {/* Relationship Picker Modal */}
+      <Modal
+        visible={showRelationshipPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowRelationshipPicker(false)}
+        testID="relationship-picker-modal"
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+          onPress={() => setShowRelationshipPicker(false)}
+          testID="relationship-picker-backdrop"
+        >
+          <Pressable
+            style={{ backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 40 }}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <View style={{ width: 48, height: 4, backgroundColor: '#d1d5db', borderRadius: 2, alignSelf: 'center', marginBottom: 24 }} />
+
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#111827' }} testID="relationship-picker-title">
+                Who are you adding?
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowRelationshipPicker(false)}
+                testID="relationship-picker-close"
+              >
+                <X size={24} color="#6b7280" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Relationship options */}
+            <View style={{ gap: 12 }}>
+              {RELATIONSHIP_OPTIONS.map(({ value, label, emoji }) => {
+                const colors = RELATIONSHIP_COLORS[value];
                 return (
-                  <View
-                    key={companion.id}
-                    className="flex-row items-center py-3 border-b border-gray-100 last:border-b-0"
-                    testID={`companion-item-${companion.id}`}
+                  <TouchableOpacity
+                    key={value}
+                    onPress={() => handleRelationshipSelect(value)}
+                    style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb' }}
+                    testID={`relationship-option-${value}`}
                   >
-                    <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
-                      <CheckCircle size={20} color="#4f46e5" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-gray-900 font-semibold">
-                        {companion.givenNames} {companion.surname}
-                      </Text>
-                      <Text className="text-gray-500 text-sm">
-                        {companion.nationality} · Passport {companion.passportNumber}
-                      </Text>
-                    </View>
+                    <Text style={{ fontSize: 24, marginRight: 16 }}>{emoji}</Text>
+                    <Text style={{ color: '#111827', fontWeight: '500', fontSize: 16, flex: 1 }}>{label}</Text>
                     <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
                       <Text className={`text-xs font-medium ${colors.text}`}>{label}</Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
-          </Card>
-        )}
-
-        {/* Add companion button */}
-        <TouchableOpacity
-          onPress={handleAddCompanion}
-          className="flex-row items-center p-4 border-2 border-dashed border-indigo-300 rounded-xl mb-6 bg-indigo-50/50"
-          testID="add-companion-button"
-        >
-          <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
-            <UserPlus size={20} color="#4f46e5" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-indigo-700 font-semibold">
-              {hasCompanions ? 'Add another companion' : 'Add a travel companion'}
-            </Text>
-            <Text className="text-indigo-500 text-sm">
-              Scan passport or enter manually
-            </Text>
-          </View>
-          <ChevronRight size={20} color="#4f46e5" />
-        </TouchableOpacity>
-
-        {/* Info card */}
-        <Card variant="outlined" className="mb-8 border-2 border-indigo-200 bg-indigo-50/50">
-          <View className="flex-row items-start">
-            <Users size={24} color="#4f46e5" style={{ marginRight: 12, marginTop: 2 }} />
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-900 mb-1">
-                Smart auto-fill for everyone
-              </Text>
-              <Text className="text-sm text-gray-600">
-                Each companion's passport data is stored securely on your device. Declaration
-                forms will be auto-filled for all travelers at once.
-              </Text>
-            </View>
-          </View>
-        </Card>
-
-        {/* Continue button */}
-        <Button
-          title={continueLabel}
-          onPress={handleContinue}
-          size="large"
-          fullWidth
-          testID="companions-continue-button"
-        />
-      </View>
-    </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
