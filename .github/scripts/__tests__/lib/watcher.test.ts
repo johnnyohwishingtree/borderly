@@ -381,22 +381,48 @@ describe('watcher', () => {
     });
   });
 
-  // Bug: missing CI handler only dispatched test.yml, not e2e-smoke.yml.
-  // E2E failures were invisible even after retrigger.
-  describe('checkPR missing CI triggers both test and e2e', () => {
-    it('dispatches both test.yml and e2e-smoke.yml when CI is missing', () => {
+  // Fix: auto-generated PRs (screenshots) with conflicts should be closed,
+  // not sent to resolve-conflicts — they'll be regenerated on next merge.
+  describe('checkPR closes conflicting auto-generated PRs', () => {
+    it('closes screenshot PRs with conflicts instead of resolving', () => {
       const src = require('fs').readFileSync(
         require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
       );
       const checkPRBody = src.match(/export async function checkPR[\s\S]*?^}/m);
       expect(checkPRBody).toBeTruthy();
 
-      const missingCISection = checkPRBody![0].match(/Missing CI[\s\S]*?retrigger/);
+      // Must check for auto-generated branch prefixes
+      expect(checkPRBody![0]).toContain('chore/update-screenshots');
+      // Must close instead of resolving conflicts
+      expect(checkPRBody![0]).toContain('close-stale');
+    });
+  });
+
+  // Fix: missing CI handler must use updateBranch (triggers pull_request
+  // synchronize event that attaches checks to the PR). workflow_dispatch
+  // runs don't update PR check status, causing PRs to get stuck with
+  // "Waiting for status" forever.
+  describe('checkPR missing CI uses updateBranch', () => {
+    it('calls updateBranch first to trigger synchronize event', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const checkPRBody = src.match(/export async function checkPR[\s\S]*?^}/m);
+      expect(checkPRBody).toBeTruthy();
+
+      const missingCISection = checkPRBody![0].match(/Missing CI[\s\S]*?grace period/s);
       expect(missingCISection).toBeTruthy();
 
+      // Must try updateBranch first (attaches checks to PR)
       expect(
         missingCISection![0],
-        'Missing CI handler must dispatch e2e-smoke.yml too',
+        'Missing CI handler must call updateBranch to trigger synchronize event',
+      ).toContain('updateBranch');
+
+      // Must still have dispatch fallback for when branch is already up-to-date
+      expect(
+        missingCISection![0],
+        'Missing CI handler must fall back to dispatch when updateBranch fails',
       ).toContain('e2e-smoke.yml');
     });
   });
