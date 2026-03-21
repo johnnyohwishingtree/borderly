@@ -1327,8 +1327,83 @@ Dedicated accessibility test suites verify screen-reader props for all key UI co
 - `__tests__/components/forms/DynamicForm.a11y.test.tsx` — 10 tests covering country heading, field labels, required indicators, validation live regions, auto-fill badge labels
 - `__tests__/components/forms/accessibility.test.tsx` — 11 tests covering FormField, FormSection (collapsible a11y), AutoFilledBadge
 - `__tests__/components/trips/TripCard.a11y.test.tsx` — 12 tests covering label, interactive role, decorative flag hiding, multi-status variants
+- `__tests__/components/settings/ExportBackupModal.a11y.test.tsx` — 15 tests covering modal a11y props, heading role, close/cancel labels, passphrase input labels, export button label and hint, strength indicator, error live region, loading state
+- `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` — 18 tests covering modal a11y props, heading role, close/cancel labels, file content input label, passphrase input label, restore button label and hint, error live region, success state, loading state
 
 All tests use `@testing-library/react-native` a11y queries (`getByRole`, `getByLabelText`, `getByTestId`) and run as part of `pnpm test`.
+
+---
+
+## Backup & Restore
+
+Borderly includes an encrypted backup system that lets users export all their data to a `.borderly` file and restore it on the same or a different device. The backup/restore feature follows the same local-first, zero-server privacy model as the rest of the app.
+
+### Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Export (backup creation)                       │
+│                                                                  │
+│  1. Collect data from all three storage tiers:                   │
+│     - OS Keychain  → traveler profiles (passport data)          │
+│     - WatermelonDB → trips, legs, QR codes                      │
+│     - MMKV         → app preferences (excl. ephemeral state)    │
+│                                                                  │
+│  2. Serialise to a versioned BackupEnvelope (JSON):             │
+│     { version, createdAt, payload: { profiles, trips, ... } }   │
+│                                                                  │
+│  3. Encrypt with AES-256-GCM:                                   │
+│     - PBKDF2 key derivation (100 000 iterations, SHA-256)       │
+│     - Random 32-byte salt + 12-byte IV per export               │
+│     - Pack: [salt][IV][ciphertext] → Base64                     │
+│                                                                  │
+│  4. File format:                                                 │
+│     BORDERLY_BACKUP_V1\n<Base64-encoded binary>                 │
+│                                                                  │
+│  5. Share via OS share sheet (iOS Share / Android Share)        │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                   Import (backup restore)                        │
+│                                                                  │
+│  1. User pastes .borderly file content + enters passphrase      │
+│  2. Validate header (BORDERLY_BACKUP_V1)                        │
+│  3. Base64-decode → unpack salt + IV + ciphertext               │
+│  4. Derive key from passphrase via PBKDF2                       │
+│  5. Decrypt with AES-256-GCM (wrong passphrase → throws)        │
+│  6. JSON-parse → validate version field                         │
+│  7. Return BackupEnvelope to caller for data restoration        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/services/backup/backupService.ts` | `BackupServiceImpl` with `export()` and `import()` methods |
+| `src/services/backup/backupTypes.ts` | `BackupEnvelope`, `BackupPayload`, `ProfileBackupEntry`, `TripBackupData`, `QRCodeBackupData` type definitions |
+| `src/services/backup/index.ts` | Barrel export (`backupService` singleton) |
+| `src/hooks/useBackupExport.ts` | React hook for export workflow: passphrase state, strength calculation, `handleExport()` |
+| `src/hooks/useBackupRestore.ts` | React hook for restore workflow: file content + passphrase state, `handleRestore()` |
+| `src/screens/settings/ExportBackupModal.tsx` | Full-screen modal for creating an encrypted backup |
+| `src/screens/settings/RestoreBackupModal.tsx` | Full-screen modal for restoring from an encrypted backup |
+
+### Security Properties
+
+- **Encryption:** AES-256-GCM with a PBKDF2-derived key (100 000 iterations, SHA-256 HMAC)
+- **Key material:** Cleared from memory after each export/import via `finally` block
+- **Unique ciphertext:** Fresh random salt + IV generated for every export, so the same data encrypted twice produces different output
+- **Wrong passphrase:** Causes AES-GCM authentication tag verification to fail → descriptive `Error` thrown, no data leaked
+- **Version safety:** `import()` validates the `version` field and rejects unsupported versions
+- **No server involvement:** The entire encrypt/decrypt cycle runs on-device using the Web Crypto API
+
+### Test Coverage
+
+- `__tests__/services/backupService.test.ts` — unit tests: round-trip, wrong passphrase, corrupted data, version mismatch, empty profiles, family members, optional leg fields
+- `__tests__/hooks/useBackupExport.test.ts` — hook unit tests: passphrase strength, validation, success/dismiss/error paths
+- `__tests__/components/settings/ExportBackupModal.a11y.test.tsx` — accessibility props for the export modal
+- `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` — accessibility props for the restore modal
+- `e2e/tests/backup-restore.spec.ts` — E2E smoke tests: export modal opens/closes, restore modal renders without crash
 
 ---
 
