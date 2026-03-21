@@ -479,14 +479,23 @@ async function main() {
         slotsAvailable--;
       }
 
-      // 5. Clean up orphan branches (no open PR)
+      // 5. Clean up orphan branches (no open PR, no in-progress story)
       // Never close PRs — only delete stale claude/ branches with no associated PR.
+      // Must NOT delete branches belonging to in-progress stories — they may need
+      // retrigger via verify-and-fix (story #527 was killed by this).
       console.log('\n--- Checking for orphan branches ---');
       const openPRBranches = new Set(claudePRs.map(pr => pr.branch));
+      const inProgressIssueNums = new Set(inProgress);
       const remoteBranches = watcher.getClaudeBranches(repo);
       for (const branch of remoteBranches) {
         if (openPRBranches.has(branch)) continue;
-        console.log(`  Orphan branch: ${branch} (no open PR) — deleting`);
+        // Extract issue number from branch name (claude/issue-N or claude/issue-N-YYYYMMDD-HHMM)
+        const issueMatch = branch.match(/claude\/issue-(\d+)/);
+        if (issueMatch && inProgressIssueNums.has(parseInt(issueMatch[1], 10))) {
+          console.log(`  Branch ${branch} belongs to in-progress story #${issueMatch[1]} — keeping`);
+          continue;
+        }
+        console.log(`  Orphan branch: ${branch} (no open PR, no in-progress story) — deleting`);
         try { exec('gh', ['api', `repos/${repo}/git/refs/heads/${branch}`, '--method', 'DELETE']); } catch (e) { console.warn(`  Failed to delete branch ${branch}:`, e); }
       }
 

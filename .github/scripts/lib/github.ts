@@ -41,21 +41,21 @@ export class GitHubClient {
 
     const runs = data.check_runs;
 
-    const testsPass = runs.some(
-      (r) => r.name === 'test' && r.conclusion === 'success'
-    );
+    // Treat both 'success' and 'skipped' as passing.
+    // 'skipped' happens when check-changes detects a pipeline/docs/screenshot-only PR.
+    const passConclusions = ['success', 'skipped'];
 
-    // E2E checks: treat both 'success' and 'skipped' as passing.
-    // 'skipped' happens when check-changes detects a pipeline-only PR.
-    const e2ePassConclusions = ['success', 'skipped'];
+    const testsPass = runs.some(
+      (r) => r.name === 'test' && passConclusions.includes(r.conclusion ?? '')
+    );
     const e2eChromium = runs.some(
-      (r) => r.name === 'test-chromium' && e2ePassConclusions.includes(r.conclusion ?? '')
+      (r) => r.name === 'test-chromium' && passConclusions.includes(r.conclusion ?? '')
     );
     const e2ePerf = runs.some(
-      (r) => r.name === 'test-performance' && e2ePassConclusions.includes(r.conclusion ?? '')
+      (r) => r.name === 'test-performance' && passConclusions.includes(r.conclusion ?? '')
     );
     const e2eCross = runs.some(
-      (r) => r.name === 'test-cross-browser' && e2ePassConclusions.includes(r.conclusion ?? '')
+      (r) => r.name === 'test-cross-browser' && passConclusions.includes(r.conclusion ?? '')
     );
     const e2ePass = e2eChromium && e2ePerf && e2eCross;
 

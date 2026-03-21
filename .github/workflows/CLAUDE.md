@@ -74,7 +74,7 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `claude.yml` | Issue/PR comments, workflow_dispatch | Claude agent implementation |
 | `gemini.yml` | Issue/PR comments | Gemini agent implementation |
 | `verify-and-fix.yml` | workflow_dispatch | Reusable verify + fix loop (configurable attempts) |
-| `auto-merge.yml` | workflow_dispatch, workflow_run | Merge gate evaluator |
+| `auto-merge.yml` | workflow_dispatch, workflow_run, push to master | Merge gate evaluator; evaluates all open PRs on master push |
 | `review-guardian.yml` | workflow_run, issue_comment, PR review | Review + auto-approve |
 | `review-relay.yml` | PR review submitted | Relay review feedback to fix workflow |
 | `review-fix.yml` | workflow_dispatch | Apply review feedback fixes, dispatch verify-and-fix |

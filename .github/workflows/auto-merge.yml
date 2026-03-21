@@ -23,6 +23,10 @@ on:
   pull_request:
     types: [synchronize]
 
+  # Re-evaluate all open PRs when master advances (PRs may now be behind)
+  push:
+    branches: [master]
+
   # Allow watcher or other workflows to request a merge evaluation
   workflow_dispatch:
     inputs:
@@ -36,7 +40,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: auto-merge-${{ inputs.pr_number || github.event.workflow_run.head_branch || github.event.pull_request.head.ref || github.event.pull_request_review.pull_request.head.ref }}
+  group: auto-merge-${{ github.event_name == 'push' && 'all-prs' || inputs.pr_number || github.event.workflow_run.head_branch || github.event.pull_request.head.ref || github.event.pull_request_review.pull_request.head.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,7 +50,8 @@ jobs:
       (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request') ||
       github.event_name == 'pull_request_review' ||
       github.event_name == 'pull_request' ||
-      github.event_name == 'workflow_dispatch'
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -62,6 +67,19 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
+          # On push to master, evaluate all open PRs (they may now be behind)
+          if [ "${{ github.event_name }}" = "push" ]; then
+            ALL_PRS=$(gh pr list --repo "$GITHUB_REPOSITORY" --base master --state open --json number -q '.[].number' | tr '\n' ',' | sed 's/,$//')
+            if [ -z "$ALL_PRS" ]; then
+              echo "No open PRs — skipping"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "number=$ALL_PRS" >> "$GITHUB_OUTPUT"
+            echo "multi=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           export INPUT_PR_NUMBER="${{ inputs.pr_number }}"
           export WORKFLOW_RUN_HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
           export PR_NUMBER_FROM_EVENT="${{ github.event.pull_request.number || github.event.pull_request_review.pull_request.number }}"
@@ -73,19 +91,7 @@ jobs:
           fi
           echo "number=$PR_NUM" >> "$GITHUB_OUTPUT"
 
-      - name: Evaluate merge readiness
-        if: steps.pr.outputs.skip != 'true'
-        id: gate
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          RESULT=$(npx tsx .github/scripts/lib/cli/evaluate-merge-gate.ts "${{ steps.pr.outputs.number }}")
-          ACTION=$(echo "$RESULT" | jq -r '.action')
-          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
-          echo "$RESULT" | jq .
-
-      - name: Execute merge action
+      - name: Evaluate and execute merge action
         if: steps.pr.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -93,33 +99,44 @@ jobs:
           REPO: ${{ github.repository }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          PR_NUM="${{ steps.pr.outputs.number }}"
-          ACTION="${{ steps.gate.outputs.action }}"
+          evaluate_pr() {
+            local PR_NUM="$1"
+            echo "=== Evaluating PR #$PR_NUM ==="
 
-          if [ "$ACTION" = "merge" ]; then
-            echo "All conditions met — merging PR #$PR_NUM"
-            if gh pr merge "$PR_NUM" --repo "$REPO" --squash --admin; then
-              echo "PR #$PR_NUM merged successfully"
+            RESULT=$(npx tsx .github/scripts/lib/cli/evaluate-merge-gate.ts "$PR_NUM" 2>/dev/null || echo '{"action":"wait"}')
+            ACTION=$(echo "$RESULT" | jq -r '.action')
+            echo "$RESULT" | jq .
 
-              # Track state → merged (find linked issue from PR body)
-              ISSUE_NUM=$(gh pr view "$PR_NUM" --repo "$REPO" --json body \
-                -q '.body' 2>/dev/null | grep -oE '(Closes|Fixes|Resolves)\s+#[0-9]+' | grep -oE '[0-9]+' | head -1 || true)
-              if [ -n "$ISSUE_NUM" ]; then
-                export ACTIVITY_NAME="merge"
-                export ACTIVITY_LOCK_ID="merge-${GITHUB_RUN_ID}"
-                npx tsx .github/scripts/lib/cli/activity.ts success "$ISSUE_NUM" "merged" 2>/dev/null || true
+            if [ "$ACTION" = "merge" ]; then
+              echo "All conditions met — merging PR #$PR_NUM"
+              if gh pr merge "$PR_NUM" --repo "$REPO" --squash --admin; then
+                echo "PR #$PR_NUM merged successfully"
+                ISSUE_NUM=$(gh pr view "$PR_NUM" --repo "$REPO" --json body \
+                  -q '.body' 2>/dev/null | grep -oE '(Closes|Fixes|Resolves)\s+#[0-9]+' | grep -oE '[0-9]+' | head -1 || true)
+                if [ -n "$ISSUE_NUM" ]; then
+                  export ACTIVITY_NAME="merge"
+                  export ACTIVITY_LOCK_ID="merge-${GITHUB_RUN_ID}"
+                  npx tsx .github/scripts/lib/cli/activity.ts success "$ISSUE_NUM" "merged" 2>/dev/null || true
+                fi
+              else
+                echo "Failed to merge PR #$PR_NUM (may already be merged)"
               fi
+            elif [ "$ACTION" = "update_branch" ]; then
+              echo "Branch is behind master — updating and dispatching CI"
+              npx tsx .github/scripts/lib/cli/pipeline.ts update-branch "$PR_NUM"
+            elif [ "$ACTION" = "skip" ]; then
+              echo "PR does not target master — skipping"
             else
-              echo "Failed to merge PR #$PR_NUM (may already be merged)"
+              echo "Not ready to merge — waiting for all conditions"
             fi
+          }
 
-          elif [ "$ACTION" = "update_branch" ]; then
-            echo "Branch is behind master — updating and dispatching CI"
-            npx tsx .github/scripts/lib/cli/pipeline.ts update-branch "$PR_NUM"
-
-          elif [ "$ACTION" = "skip" ]; then
-            echo "PR does not target master — skipping"
-
+          # Handle single PR or multiple PRs (push to master evaluates all)
+          if [ "${{ steps.pr.outputs.multi }}" = "true" ]; then
+            IFS=',' read -ra PR_NUMS <<< "${{ steps.pr.outputs.number }}"
+            for pr in "${PR_NUMS[@]}"; do
+              evaluate_pr "$pr"
+            done
           else
-            echo "Not ready to merge — waiting for all conditions"
+            evaluate_pr "${{ steps.pr.outputs.number }}"
           fi
