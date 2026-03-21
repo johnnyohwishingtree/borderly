@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -20,6 +20,12 @@ import { FamilyMember } from '../../types/profile';
 import { useEditTrip } from '../../hooks/useEditTrip';
 import { useAccessibilityFocus } from '../../hooks/useAccessibilityFocus';
 import { SUPPORTED_COUNTRIES } from '../../constants/countries';
+import {
+  computeTripDeadlines,
+  LegDeadline,
+} from '../../services/deadline/deadlineService';
+import { getSchemaByCountryCode } from '../../schemas';
+import { CountryFormSchema } from '../../types/schema';
 
 interface RouteParams {
   tripId: string;
@@ -43,6 +49,45 @@ export default function TripDetailScreen() {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [deadlineMap, setDeadlineMap] = useState<Record<string, LegDeadline>>({});
+
+  // Compute deadlines whenever the trip changes
+  useEffect(() => {
+    if (!trip || trip.legs.length === 0) {
+      setDeadlineMap({});
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      const uniqueCodes = Array.from(new Set(trip.legs.map(l => l.destinationCountry)));
+      const schemaEntries = await Promise.all(
+        uniqueCodes.map(async code => {
+          const schema = await getSchemaByCountryCode(code);
+          return [code, schema] as [string, CountryFormSchema | null];
+        }),
+      );
+      const schemas: Record<string, CountryFormSchema> = {};
+      for (const [code, schema] of schemaEntries) {
+        if (schema) {
+          schemas[code] = schema;
+        }
+      }
+      const deadlines = computeTripDeadlines(trip, schemas);
+      if (!cancelled) {
+        const record: Record<string, LegDeadline> = {};
+        for (const d of deadlines) {
+          record[d.legId] = d;
+        }
+        setDeadlineMap(record);
+      }
+    };
+    load().catch(err =>
+      console.error('TripDetailScreen: failed to compute deadlines', err),
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [trip]);
 
   // Accessibility: focus management for modals
   const { ref: editTriggerRef, focusElement: focusEditTrigger } = useAccessibilityFocus();
@@ -141,11 +186,11 @@ export default function TripDetailScreen() {
   };
 
   const getOverallProgress = () => {
-    if (!trip || trip.legs.length === 0) return { completed: 0, total: 0, percentage: 0 };
+    if (!trip || trip.legs.length === 0) return { completed: 0, total: 0, percentage: 0, readyCount: 0 };
     const completed = trip.legs.filter(
       leg => leg.formStatus === 'submitted' || leg.formStatus === 'ready'
     ).length;
-    return { completed, total: trip.legs.length, percentage: (completed / trip.legs.length) * 100 };
+    return { completed, total: trip.legs.length, percentage: (completed / trip.legs.length) * 100, readyCount: completed };
   };
 
   const getStatusColor = (status: Trip['status']) => {
@@ -229,6 +274,13 @@ export default function TripDetailScreen() {
                   style={{ width: `${progress.percentage}%` }}
                 />
               </View>
+              {/* Trip Readiness summary */}
+              <Text
+                className="text-xs text-gray-500 mt-2"
+                testID="trip-readiness-summary"
+              >
+                Trip Readiness: {progress.readyCount} of {progress.total} leg{progress.total !== 1 ? 's' : ''} ready
+              </Text>
             </View>
           )}
         </View>
@@ -282,20 +334,27 @@ export default function TripDetailScreen() {
             <View>
               {trip.legs
                 .sort((a, b) => a.order - b.order)
-                .map((leg, index) => (
-                  <View key={leg.id} className="relative">
-                    <LegCard
-                      leg={leg}
-                      onPress={() => handleLegPress(leg)}
-                      showFormStatus
-                      familyMembers={familyMembers}
-                      showTravelerDetails
-                    />
-                    {index < trip.legs.length - 1 && (
-                      <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 z-10" />
-                    )}
-                  </View>
-                ))}
+                .map((leg, index) => {
+                  const legDeadline = deadlineMap[leg.id];
+                  const legCardProps = legDeadline !== undefined
+                    ? { deadline: legDeadline }
+                    : {};
+                  return (
+                    <View key={leg.id} className="relative">
+                      <LegCard
+                        leg={leg}
+                        onPress={() => handleLegPress(leg)}
+                        showFormStatus
+                        familyMembers={familyMembers}
+                        showTravelerDetails
+                        {...legCardProps}
+                      />
+                      {index < trip.legs.length - 1 && (
+                        <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 z-10" />
+                      )}
+                    </View>
+                  );
+                })}
             </View>
           )}
         </View>
