@@ -21,17 +21,9 @@ describe('Japan (JPN) Schema', () => {
   });
 
   test('should have submission deadline metadata', () => {
-    expect((schema as any).submissionDeadlineHours).toBeDefined();
-    expect((schema as any).submissionDeadlineHours).toBe(24);
-    expect((schema as any).submissionDeadlineHours).toBeGreaterThanOrEqual(0);
-
-    expect((schema as any).recommendedLeadTimeHours).toBeDefined();
-    expect((schema as any).recommendedLeadTimeHours).toBe(72);
-    expect((schema as any).recommendedLeadTimeHours).toBeGreaterThan(0);
-
-    expect((schema as any).submissionWindowNote).toBeDefined();
-    expect(typeof (schema as any).submissionWindowNote).toBe('string');
-    expect((schema as any).submissionWindowNote.length).toBeGreaterThan(0);
+    expect(schema.submissionDeadlineHours).toBe(24);
+    expect(schema.recommendedLeadTimeHours).toBe(72);
+    expect(schema.submissionWindowNote).toBe('Submit 24-72 h before arrival');
   });
 
   test('should have all required sections', () => {
