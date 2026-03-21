@@ -347,6 +347,9 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Event-driven branch updates | `auto-merge.yml` triggers on push to master and evaluates all open PRs — PRs behind master get `updateBranch` immediately instead of waiting for watcher polling |
 | Pipeline vitest in CI | `test.yml` runs pipeline vitest when `.github/scripts/` files change — catches pipeline TS breakages before they hit watcher/doctor at runtime |
 | App test skip for pipeline PRs | `test.yml` skips typecheck/bundle/unit tests for PRs that only change `.github/*`, `docs/*`, `e2e/screenshots/*` — merge gate accepts skipped checks as passing |
+| Cross-epic story chaining | `orchestrate.yml` checks all open epics for pending stories after completing an epic — no watcher delay |
+| Merge failure visibility | `verify-and-fix` merge job comments on issue on failure — makes silent merge failures visible immediately |
+| Claude failure visibility | `claude.yml` comments on issue on failure — watcher can pick up retrigger faster |
 
 ---
 
