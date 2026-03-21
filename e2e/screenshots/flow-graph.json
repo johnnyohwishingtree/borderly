@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-21T10:42:55.242Z",
+  "generatedAt": "2026-03-21T16:53:11.459Z",
   "stacks": [
     {
       "name": "RootStackParamList",
@@ -327,14 +327,14 @@
       "to": "LegForm",
       "type": "navigate",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 70
+      "line": 122
     },
     {
       "from": "TripDetail",
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 89
+      "line": 141
     },
     {
       "from": "TripList",
@@ -369,7 +369,7 @@
       "to": "AddQR",
       "type": "navigate",
       "file": "src/screens/wallet/QRWalletScreen.tsx",
-      "line": 199
+      "line": 215
     },
     {
       "from": "(tabs)",
