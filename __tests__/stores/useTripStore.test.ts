@@ -155,6 +155,168 @@ describe('useTripStore', () => {
     });
   });
 
+  describe('updateTravelerFormData', () => {
+    it('calls databaseService.updateTripLeg with updated travelerFormsData for a new traveler', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormData('leg-1', 'traveler-1', 'passport_number', 'AB123456');
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(1);
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-1', {
+        travelerFormsData: [
+          {
+            travelerId: 'traveler-1',
+            formData: { passport_number: 'AB123456' },
+            formStatus: 'in_progress',
+            completionPercentage: 0,
+          },
+        ],
+      });
+    });
+
+    it('calls databaseService.updateTripLeg merging data for an existing traveler entry', async () => {
+      const trip = makeTrip({
+        legs: [
+          makeLeg({
+            travelerFormsData: [
+              {
+                travelerId: 'traveler-1',
+                formData: { full_name: 'Jane Doe' },
+                formStatus: 'in_progress',
+                completionPercentage: 10,
+              },
+            ],
+          }),
+        ],
+      });
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormData('leg-1', 'traveler-1', 'passport_number', 'AB123456');
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(1);
+      const [calledLegId, calledUpdates] = mockUpdateTripLeg.mock.calls[0] as [string, { travelerFormsData: unknown[] }];
+      expect(calledLegId).toBe('leg-1');
+      expect(calledUpdates.travelerFormsData).toHaveLength(1);
+      expect((calledUpdates.travelerFormsData[0] as Record<string, unknown>).formData).toEqual({
+        full_name: 'Jane Doe',
+        passport_number: 'AB123456',
+      });
+    });
+
+    it('updates in-memory state after database write', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormData('leg-1', 'traveler-1', 'passport_number', 'AB123456');
+      });
+
+      const { trips } = useTripStore.getState();
+      const leg = trips[0].legs[0];
+      expect(leg.travelerFormsData).toHaveLength(1);
+      expect(leg.travelerFormsData![0].formData).toEqual({ passport_number: 'AB123456' });
+    });
+
+    it('does not update in-memory state if database write throws', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+      mockUpdateTripLeg.mockRejectedValue(new Error('DB error'));
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormData('leg-1', 'traveler-1', 'passport_number', 'AB123456');
+      });
+
+      const { trips, error } = useTripStore.getState();
+      expect(trips[0].legs[0].travelerFormsData).toBeUndefined();
+      expect(error).toBe('DB error');
+    });
+  });
+
+  describe('updateTravelerFormStatus', () => {
+    it('calls databaseService.updateTripLeg with updated formStatus for a new traveler', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormStatus('leg-1', 'traveler-1', 'ready');
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(1);
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-1', {
+        travelerFormsData: [
+          {
+            travelerId: 'traveler-1',
+            formData: {},
+            formStatus: 'ready',
+            completionPercentage: 0,
+          },
+        ],
+      });
+    });
+
+    it('calls databaseService.updateTripLeg updating status for an existing traveler entry', async () => {
+      const trip = makeTrip({
+        legs: [
+          makeLeg({
+            travelerFormsData: [
+              {
+                travelerId: 'traveler-1',
+                formData: { passport_number: 'AB123456' },
+                formStatus: 'in_progress',
+                completionPercentage: 50,
+              },
+            ],
+          }),
+        ],
+      });
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormStatus('leg-1', 'traveler-1', 'ready');
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(1);
+      const [calledLegId, calledUpdates] = mockUpdateTripLeg.mock.calls[0] as [string, { travelerFormsData: unknown[] }];
+      expect(calledLegId).toBe('leg-1');
+      expect((calledUpdates.travelerFormsData[0] as Record<string, unknown>).formStatus).toBe('ready');
+      // Existing formData must be preserved
+      expect((calledUpdates.travelerFormsData[0] as Record<string, unknown>).formData).toEqual({ passport_number: 'AB123456' });
+    });
+
+    it('updates in-memory state after database write', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormStatus('leg-1', 'traveler-1', 'submitted');
+      });
+
+      const { trips } = useTripStore.getState();
+      const leg = trips[0].legs[0];
+      expect(leg.travelerFormsData).toHaveLength(1);
+      expect(leg.travelerFormsData![0].formStatus).toBe('submitted');
+    });
+
+    it('does not update in-memory state if database write throws', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+      mockUpdateTripLeg.mockRejectedValue(new Error('DB error'));
+
+      await act(async () => {
+        await useTripStore.getState().updateTravelerFormStatus('leg-1', 'traveler-1', 'ready');
+      });
+
+      const { trips, error } = useTripStore.getState();
+      expect(trips[0].legs[0].travelerFormsData).toBeUndefined();
+      expect(error).toBe('DB error');
+    });
+  });
+
   describe('reorderTripLegs', () => {
     it('calls databaseService.updateTripLeg for each leg with its new order index', async () => {
       const trip = makeTrip({
