@@ -3,8 +3,9 @@ import { useTripCreation } from '@/hooks/useTripCreation';
 
 // Mock navigation
 const mockGoBack = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({ goBack: mockGoBack }),
+  useNavigation: () => ({ goBack: mockGoBack, navigate: mockNavigate }),
 }));
 
 // Mock stores
@@ -373,5 +374,68 @@ describe('useTripCreation — trip-level traveler propagation', () => {
 
     // Leg 1 (formerly leg 2) WAS overridden — does NOT receive child.
     expect(result.current.legs[1].assignedTravelers).not.toContain(CHILD_ID);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Navigation after trip creation
+// ─────────────────────────────────────────────────────────────────────────────
+describe('useTripCreation — navigation after trip creation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    getProfileMock().__reset();
+  });
+
+  it('navigates to TripDetail with the new trip id on success', async () => {
+    const { Alert } = require('react-native') as { Alert: { alert: jest.Mock } };
+    const { result } = renderHook(() => useTripCreation());
+
+    // Set up a valid trip with all required fields
+    act(() => {
+      result.current.setTripData({ name: 'Test Trip', status: 'upcoming' });
+      result.current.addLeg();
+    });
+
+    act(() => {
+      result.current.updateLeg(0, 'destinationCountry', 'JPN');
+      result.current.updateLeg(0, 'arrivalDate', '2025-04-01');
+      result.current.updateLeg(0, 'accommodation.name', 'Hotel Tokyo');
+      result.current.handleTravelerToggle(0, 'traveler_1');
+    });
+
+    await act(async () => {
+      await result.current.handleCreateTrip();
+    });
+
+    // The success alert should have been called with a buttons array
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Success',
+      'Trip created successfully!',
+      expect.arrayContaining([expect.objectContaining({ text: 'OK' })]),
+    );
+
+    // Simulate the user pressing OK on the success alert
+    const successCall = Alert.alert.mock.calls.find(
+      (c: unknown[]) => c[0] === 'Success',
+    ) as [string, string, Array<{ text: string; onPress: () => void }>] | undefined;
+    const okButton = successCall?.[2]?.[0];
+    act(() => {
+      okButton?.onPress();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip_1' });
+    expect(mockGoBack).not.toHaveBeenCalled();
+  });
+
+  it('does not navigate when validation fails', async () => {
+    const { result } = renderHook(() => useTripCreation());
+
+    // Leave tripData.name empty to trigger validation failure
+    await act(async () => {
+      await result.current.handleCreateTrip();
+    });
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockGoBack).not.toHaveBeenCalled();
   });
 });
