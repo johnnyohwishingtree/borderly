@@ -19,6 +19,7 @@
 import { keychainService } from '@/services/storage/keychain';
 import { databaseService } from '@/services/storage/database';
 import { mmkvService } from '@/services/storage/mmkv';
+import { Trip, TripLeg, SavedQRCode } from '@/services/storage/models';
 import { SerializableFamilyProfileCollection } from '@/types/family';
 import {
   deriveKeyFromPassphrase,
@@ -241,40 +242,41 @@ class BackupServiceImpl {
     for (const trip of trips) {
       const legs = await databaseService.getTripLegs(trip.id);
 
-      const legData: TripLegBackupData[] = (legs as any[]).map((leg): TripLegBackupData => {
+      const typedLegs = legs as unknown as TripLeg[];
+      const legData: TripLegBackupData[] = typedLegs.map((leg): TripLegBackupData => {
         const entry: TripLegBackupData = {
-          id: leg.id as string,
-          tripId: leg.tripId as string,
-          destinationCountry: leg.destinationCountry as string,
+          id: leg.id,
+          tripId: leg.tripId,
+          destinationCountry: leg.destinationCountry,
           arrivalDate: leg.arrivalDate instanceof Date
             ? leg.arrivalDate.toISOString()
             : String(leg.arrivalDate),
-          accommodationData: leg.accommodationData as string,
-          formStatus: leg.formStatus as string,
-          order: leg.order as number,
+          accommodationData: leg.accommodationData,
+          formStatus: leg.formStatus,
+          order: leg.order,
         };
         if (leg.departureDate != null) {
           entry.departureDate = leg.departureDate instanceof Date
             ? leg.departureDate.toISOString()
             : String(leg.departureDate);
         }
-        if (leg.flightNumber != null) { entry.flightNumber = leg.flightNumber as string; }
-        if (leg.airlineCode != null) { entry.airlineCode = leg.airlineCode as string; }
-        if (leg.arrivalAirport != null) { entry.arrivalAirport = leg.arrivalAirport as string; }
-        if (leg.formDataString != null) { entry.formDataString = leg.formDataString as string; }
+        if (leg.flightNumber != null) { entry.flightNumber = leg.flightNumber; }
+        if (leg.airlineCode != null) { entry.airlineCode = leg.airlineCode; }
+        if (leg.arrivalAirport != null) { entry.arrivalAirport = leg.arrivalAirport; }
+        if (leg.formDataString != null) { entry.formDataString = leg.formDataString; }
         return entry;
       });
 
-      const t = trip as any;
+      const typedTrip = trip as unknown as Trip;
       result.push({
-        id: trip.id,
-        name: t.name as string,
-        status: t.status as string,
-        createdAt: t.createdAt instanceof Date
-          ? t.createdAt.toISOString()
+        id: typedTrip.id,
+        name: typedTrip.name,
+        status: typedTrip.status,
+        createdAt: typedTrip.createdAt instanceof Date
+          ? typedTrip.createdAt.toISOString()
           : new Date().toISOString(),
-        updatedAt: t.updatedAt instanceof Date
-          ? t.updatedAt.toISOString()
+        updatedAt: typedTrip.updatedAt instanceof Date
+          ? typedTrip.updatedAt.toISOString()
           : new Date().toISOString(),
         legs: legData,
       });
@@ -286,18 +288,18 @@ class BackupServiceImpl {
   /** Retrieve all saved QR codes from WatermelonDB. */
   private async _collectQRCodes(): Promise<QRCodeBackupData[]> {
     const qrCodes = await databaseService.getQRCodes();
-    return (qrCodes as any[]).map((qr): QRCodeBackupData => {
+    return (qrCodes as unknown as SavedQRCode[]).map((qr): QRCodeBackupData => {
       const entry: QRCodeBackupData = {
-        id: qr.id as string,
-        legId: qr.legId as string,
-        type: qr.type as string,
-        imageBase64: qr.imageBase64 as string,
+        id: qr.id,
+        legId: qr.legId,
+        type: qr.type,
+        imageBase64: qr.imageBase64,
         savedAt: qr.savedAt instanceof Date
           ? qr.savedAt.toISOString()
           : String(qr.savedAt),
-        label: qr.label as string,
+        label: qr.label,
       };
-      if (qr.travelerId != null) { entry.travelerId = qr.travelerId as string; }
+      if (qr.travelerId != null) { entry.travelerId = qr.travelerId; }
       return entry;
     });
   }
