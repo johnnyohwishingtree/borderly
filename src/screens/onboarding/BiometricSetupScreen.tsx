@@ -52,15 +52,13 @@ export default function BiometricSetupScreen() {
       // Request notification permission so deadline reminders can fire
       await requestNotificationPermission();
 
-      // Complete onboarding
-      setOnboardingComplete(true);
-
       Alert.alert(
         'Setup Complete!',
         'Your profile has been created and secured with biometric authentication.',
         [
           {
             text: 'Get Started',
+            onPress: () => setOnboardingComplete(true),
           },
         ]
       );
