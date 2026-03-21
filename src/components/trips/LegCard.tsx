@@ -5,10 +5,12 @@ import { TripLeg } from '../../types/trip';
 import { FamilyMember } from '../../types/profile';
 import { getCountryName } from '../../constants/countries';
 import CountryFlag from './CountryFlag';
-import { 
-  getTravelerFormStatus, 
-  getOverallLegFormStatus 
+import DeadlineBadge from './DeadlineBadge';
+import {
+  getTravelerFormStatus,
+  getOverallLegFormStatus
 } from '../../services/forms/formEngine';
+import { LegDeadline } from '../../services/deadline/deadlineService';
 
 export interface LegCardProps {
   leg: TripLeg;
@@ -16,14 +18,17 @@ export interface LegCardProps {
   showFormStatus?: boolean;
   familyMembers?: FamilyMember[];
   showTravelerDetails?: boolean;
+  /** Deadline info for this leg. When provided, a DeadlineBadge is rendered. */
+  deadline?: LegDeadline;
 }
 
-export default function LegCard({ 
-  leg, 
-  onPress, 
+export default function LegCard({
+  leg,
+  onPress,
   showFormStatus = true,
   familyMembers = [],
-  showTravelerDetails = false
+  showTravelerDetails = false,
+  deadline,
 }: LegCardProps) {
   const formatDate = (dateStr: string) => {
     try {
@@ -107,13 +112,18 @@ export default function LegCard({
                 </Text>
               </View>
             </View>
-            {showFormStatus && (
-              <StatusBadge 
-                status={getStatusColor(displayStatus)}
-                text={getStatusText(displayStatus)}
-                size="small"
-              />
-            )}
+            <View className="items-end space-y-1">
+              {showFormStatus && (
+                <StatusBadge
+                  status={getStatusColor(displayStatus)}
+                  text={getStatusText(displayStatus)}
+                  size="small"
+                />
+              )}
+              {deadline && (
+                <DeadlineBadge deadline={deadline} />
+              )}
+            </View>
           </View>
 
           {leg.flightNumber && (
