@@ -110,14 +110,22 @@ describe('EditProfileScreen', () => {
   });
 
   describe('handleSave — alert-then-navigate pattern', () => {
+    let alertSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      alertSpy.mockRestore();
+    });
+
     it('calls navigation.goBack() inside the Alert OK callback, not before it', async () => {
       let capturedButtons: AlertButton[] | undefined;
 
-      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(
-        (_title, _message, buttons) => {
-          capturedButtons = buttons;
-        },
-      );
+      alertSpy.mockImplementation((_title, _message, buttons) => {
+        capturedButtons = buttons;
+      });
 
       setupMocks();
       await renderAndSave();
@@ -138,13 +146,9 @@ describe('EditProfileScreen', () => {
       // Simulate tapping OK
       capturedButtons![0].onPress!();
       expect(mockGoBack).toHaveBeenCalledTimes(1);
-
-      alertSpy.mockRestore();
     });
 
     it('shows the success alert with correct title before navigating', async () => {
-      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-
       setupMocks();
       await renderAndSave();
 
@@ -158,13 +162,9 @@ describe('EditProfileScreen', () => {
 
       // navigation.goBack() should not be called synchronously
       expect(mockGoBack).not.toHaveBeenCalled();
-
-      alertSpy.mockRestore();
     });
 
     it('does not call navigation.goBack() synchronously after updateProfile resolves', async () => {
-      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-
       setupMocks();
       await renderAndSave();
 
@@ -174,8 +174,6 @@ describe('EditProfileScreen', () => {
 
       // Even after updateProfile resolves, goBack must not have been called
       expect(mockGoBack).not.toHaveBeenCalled();
-
-      alertSpy.mockRestore();
     });
   });
 
