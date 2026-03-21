@@ -81,9 +81,16 @@ jobs:
           if git diff --cached --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
-            CHANGED_FILES=$(git diff --cached --name-only | wc -l | tr -d ' ')
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "changed_count=$CHANGED_FILES" >> $GITHUB_OUTPUT
+            # Only create a PR if actual screenshots changed, not just metadata
+            PNG_CHANGED=$(git diff --cached --name-only -- '*.png' | wc -l | tr -d ' ')
+            if [ "$PNG_CHANGED" -eq 0 ]; then
+              echo "Only metadata files changed (flow-graph.json, manifest.json) — skipping PR"
+              git reset HEAD -- e2e/screenshots/
+              echo "changed=false" >> $GITHUB_OUTPUT
+            else
+              echo "changed=true" >> $GITHUB_OUTPUT
+              echo "changed_count=$PNG_CHANGED" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Create PR with updated screenshots
