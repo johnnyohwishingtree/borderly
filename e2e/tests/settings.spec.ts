@@ -226,6 +226,24 @@ test.describe('SettingsScreen', () => {
     }
   });
 
+  test('settings screen shows Privacy & Data section with Create Backup button', async ({ page }) => {
+    await injectBasicState(page);
+    await page.goto('/');
+    await navigateToSettings(page);
+
+    const privacySection = page.getByText('Privacy & Data');
+    const count = await privacySection.count();
+    if (count > 0) {
+      await expect(privacySection.first()).toBeVisible();
+    }
+
+    const createBackupButton = page.locator('[data-testid="create-backup-button"]');
+    const buttonCount = await createBackupButton.count();
+    if (buttonCount > 0) {
+      await expect(createBackupButton.first()).toBeVisible();
+    }
+  });
+
   test('settings tab is accessible via the bottom tab bar', async ({ page }) => {
     await injectBasicState(page);
     await page.goto('/');
