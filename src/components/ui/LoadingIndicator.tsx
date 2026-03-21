@@ -224,9 +224,12 @@ export default function LoadingIndicator({
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       className={getContainerStyles()}
       style={{ opacity: fadeAnim }}
+      accessibilityLiveRegion="polite"
+      accessibilityLabel={text ?? 'Loading'}
+      accessible={true}
     >
       {renderLoadingIndicator()}
       
