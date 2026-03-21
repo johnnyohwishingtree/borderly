@@ -521,6 +521,14 @@ describe('watcher', () => {
       expect(content, 'test.yml must skip for e2e/screenshots').toContain('e2e/screenshots/*');
     });
 
+    it('auto-merge.yml triggers on push to master to update behind PRs', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/auto-merge.yml'), 'utf-8'
+      );
+      expect(content, 'auto-merge must trigger on push to master').toMatch(/push:\s*\n\s*branches:.*master/);
+      expect(content, 'must handle multiple PRs on push event').toContain('multi');
+    });
+
     it('test.yml runs pipeline vitest when .github/scripts/ changes', () => {
       const content = require('fs').readFileSync(
         require('path').join(__dirname, '../../../workflows/test.yml'), 'utf-8'
