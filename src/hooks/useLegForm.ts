@@ -20,6 +20,39 @@ interface UseLegFormOptions {
 }
 
 /**
+ * Derives the leg-level formStatus from the individual travelers' statuses.
+ * - 'ready'       if ALL assigned travelers have formStatus 'ready' or 'submitted'
+ * - 'in_progress' if at least one traveler has started ('in_progress', 'ready', or 'submitted')
+ * - 'not_started' otherwise
+ *
+ * Exported for unit testing.
+ */
+export function deriveLegFormStatus(
+  assignedTravelers: string[],
+  updatedForms: TravelerFormData[],
+): 'not_started' | 'in_progress' | 'ready' {
+  if (assignedTravelers.length === 0) return 'not_started';
+
+  const allReady = assignedTravelers.every(id => {
+    const form = updatedForms.find(f => f.travelerId === id);
+    return form?.formStatus === 'ready' || form?.formStatus === 'submitted';
+  });
+
+  if (allReady) return 'ready';
+
+  const anyStarted = assignedTravelers.some(id => {
+    const form = updatedForms.find(f => f.travelerId === id);
+    return (
+      form?.formStatus === 'in_progress' ||
+      form?.formStatus === 'ready' ||
+      form?.formStatus === 'submitted'
+    );
+  });
+
+  return anyStarted ? 'in_progress' : 'not_started';
+}
+
+/**
  * Upserts a traveler's form entry in the travelerFormsData array.
  * If an entry for the traveler already exists, it is updated in-place;
  * otherwise a new entry is appended.
@@ -319,7 +352,8 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
           isValid ? 'ready' : 'in_progress',
           completionPct,
         );
-        await updateTripLeg(leg.id, { travelerFormsData: updatedForms });
+        const derivedFormStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
+        await updateTripLeg(leg.id, { travelerFormsData: updatedForms, formStatus: derivedFormStatus });
       } else {
         // Legacy single-traveler save
         await updateTripLeg(leg.id, {
@@ -393,7 +427,8 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
           'ready',
           100,
         );
-        await updateTripLeg(leg!.id, { travelerFormsData: updatedForms });
+        const derivedFormStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
+        await updateTripLeg(leg!.id, { travelerFormsData: updatedForms, formStatus: derivedFormStatus });
       } else {
         // Legacy single-traveler mark-as-ready
         await updateTripLeg(leg!.id, {

@@ -355,4 +355,164 @@ describe('useLegForm', () => {
     // updateTripLeg should NOT have been called (no save needed for same traveler)
     expect(mockUpdateTripLeg).not.toHaveBeenCalled();
   });
+
+  // ─── Multi-traveler derived formStatus tests ──────────────────────────────
+
+  it('handleSaveForm for multi-traveler leg passes formStatus in updateTripLeg call', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    await act(async () => {
+      await result.current.handleSaveForm();
+    });
+
+    // updateTripLeg must be called with formStatus (not just travelerFormsData)
+    expect(mockUpdateTripLeg).toHaveBeenCalledWith(
+      'leg_2',
+      expect.objectContaining({
+        travelerFormsData: expect.any(Array),
+        formStatus: expect.stringMatching(/^(not_started|in_progress|ready)$/),
+      })
+    );
+  });
+
+  it('handleSaveForm for multi-traveler leg sets formStatus in_progress when traveler saves with partial form', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    // isValid is false (form not complete) — save should produce in_progress
+    await act(async () => {
+      await result.current.handleSaveForm();
+    });
+
+    // profile_1 is saved as in_progress, profile_2 is not_started → leg is in_progress
+    const lastCall = mockUpdateTripLeg.mock.calls[mockUpdateTripLeg.mock.calls.length - 1];
+    expect(lastCall[1].formStatus).toBe('in_progress');
+  });
+
+  it('handleMarkAsReady for multi-traveler leg passes formStatus in updateTripLeg call', async () => {
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    act(() => {
+      useFormStore.setState({ isValid: true });
+    });
+
+    await act(async () => {
+      await result.current.handleMarkAsReady();
+    });
+
+    // updateTripLeg must be called with formStatus
+    const lastCall = mockUpdateTripLeg.mock.calls[mockUpdateTripLeg.mock.calls.length - 1];
+    expect(lastCall[0]).toBe('leg_2');
+    expect(lastCall[1]).toMatchObject({
+      travelerFormsData: expect.any(Array),
+      formStatus: expect.stringMatching(/^(not_started|in_progress|ready)$/),
+    });
+  });
+
+  it('handleMarkAsReady for multi-traveler leg sets formStatus in_progress when second traveler is not_started', async () => {
+    // mockMultiTravelerLeg has profile_2 as 'not_started'
+    // When profile_1 marks ready, derived status should be in_progress (not all ready)
+    const { result } = renderHook(() =>
+      useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
+    );
+
+    await waitFor(() => {
+      expect(result.current.activeTravelerId).toBe('profile_1');
+    });
+
+    act(() => {
+      useFormStore.setState({ isValid: true });
+    });
+
+    await act(async () => {
+      await result.current.handleMarkAsReady();
+    });
+
+    const lastCall = mockUpdateTripLeg.mock.calls[mockUpdateTripLeg.mock.calls.length - 1];
+    // profile_1 is now ready, profile_2 is not_started → not all ready → in_progress
+    expect(lastCall[1].formStatus).toBe('in_progress');
+  });
+});
+
+// ─── deriveLegFormStatus unit tests ──────────────────────────────────────────
+// Import the exported helper to test derived status logic directly
+
+import { deriveLegFormStatus } from '@/hooks/useLegForm';
+
+describe('deriveLegFormStatus', () => {
+  it('returns not_started when no travelers have started', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'not_started' as const, completionPercentage: 0 },
+      { travelerId: 'b', formData: {}, formStatus: 'not_started' as const, completionPercentage: 0 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('not_started');
+  });
+
+  it('returns not_started when all travelers have no form entry', () => {
+    expect(deriveLegFormStatus(['a', 'b'], [])).toBe('not_started');
+  });
+
+  it('returns in_progress when at least one traveler is in_progress', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'in_progress' as const, completionPercentage: 50 },
+      { travelerId: 'b', formData: {}, formStatus: 'not_started' as const, completionPercentage: 0 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('in_progress');
+  });
+
+  it('returns in_progress when one traveler is ready but the other is not_started', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'ready' as const, completionPercentage: 100 },
+      { travelerId: 'b', formData: {}, formStatus: 'not_started' as const, completionPercentage: 0 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('in_progress');
+  });
+
+  it('returns ready when all travelers are ready', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'ready' as const, completionPercentage: 100 },
+      { travelerId: 'b', formData: {}, formStatus: 'ready' as const, completionPercentage: 100 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('ready');
+  });
+
+  it('returns ready when all travelers are submitted', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'submitted' as const, completionPercentage: 100 },
+      { travelerId: 'b', formData: {}, formStatus: 'submitted' as const, completionPercentage: 100 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('ready');
+  });
+
+  it('returns ready when one traveler is ready and the other is submitted', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'ready' as const, completionPercentage: 100 },
+      { travelerId: 'b', formData: {}, formStatus: 'submitted' as const, completionPercentage: 100 },
+    ];
+    expect(deriveLegFormStatus(['a', 'b'], forms)).toBe('ready');
+  });
+
+  it('returns not_started when assigned traveler list is empty', () => {
+    const forms = [
+      { travelerId: 'a', formData: {}, formStatus: 'ready' as const, completionPercentage: 100 },
+    ];
+    expect(deriveLegFormStatus([], forms)).toBe('not_started');
+  });
 });
