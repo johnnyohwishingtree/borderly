@@ -502,17 +502,35 @@ describe('watcher', () => {
     });
   });
 
-  // Bug (#563): e2e-smoke ran full suite for screenshot-only PRs.
+  // Bug (#563): e2e-smoke and test.yml ran full suite for screenshot-only PRs.
   // Screenshot/flow-graph changes should be skipped like pipeline files.
-  describe('e2e-smoke skips for screenshot-only changes', () => {
-    it('check-changes skip list includes e2e/screenshots', () => {
+  describe('CI skips for non-app changes', () => {
+    it('e2e-smoke check-changes skip list includes e2e/screenshots', () => {
       const content = require('fs').readFileSync(
         require('path').join(__dirname, '../../../workflows/e2e-smoke.yml'), 'utf-8'
       );
+      expect(content).toContain('e2e/screenshots/*');
+    });
+
+    it('test.yml has check-changes job that skips for pipeline-only PRs', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/test.yml'), 'utf-8'
+      );
+      expect(content, 'test.yml must have check-changes job').toContain('check-changes');
+      expect(content, 'test.yml must output skip_tests').toContain('skip_tests');
+      expect(content, 'test.yml must skip for e2e/screenshots').toContain('e2e/screenshots/*');
+    });
+
+    it('merge gate treats skipped tests as passing', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/github.ts'), 'utf-8'
+      );
+      const ciSection = content.match(/checkCIStatus[\s\S]*?testsPass/);
+      expect(ciSection).toBeTruthy();
       expect(
-        content,
-        'e2e-smoke check-changes must skip for e2e/screenshots/* changes',
-      ).toContain('e2e/screenshots/*');
+        ciSection![0],
+        'testsPass must accept skipped conclusion for pipeline-only PRs',
+      ).toContain('skipped');
     });
   });
 
