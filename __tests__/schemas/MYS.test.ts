@@ -20,6 +20,12 @@ describe('Malaysia (MYS) Schema', () => {
     expect(schema.submission.recommended).toBe('24h');
   });
 
+  test('should have submission deadline metadata', () => {
+    expect(schema.submissionDeadlineHours).toBe(0);
+    expect(schema.recommendedLeadTimeHours).toBe(24);
+    expect(schema.submissionWindowNote).toBe('Submit any time before arrival');
+  });
+
   test('should have all required sections', () => {
     expect(schema.sections).toHaveLength(4);
 

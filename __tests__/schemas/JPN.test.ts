@@ -20,6 +20,12 @@ describe('Japan (JPN) Schema', () => {
     expect(schema.submission.recommended).toBe('72h');
   });
 
+  test('should have submission deadline metadata', () => {
+    expect(schema.submissionDeadlineHours).toBe(24);
+    expect(schema.recommendedLeadTimeHours).toBe(72);
+    expect(schema.submissionWindowNote).toBe('Submit 24-72 h before arrival');
+  });
+
   test('should have all required sections', () => {
     expect(schema.sections).toHaveLength(5);
 

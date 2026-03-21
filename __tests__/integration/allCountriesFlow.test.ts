@@ -83,9 +83,12 @@ describe('All Countries Integration Flow', () => {
             lastUpdated: '2024-01-01',
             portalUrl: `https://${countryCode.toLowerCase()}.gov/portal`,
             portalName: `${countryCode} Portal`,
+            submissionDeadlineHours: 24,
+            recommendedLeadTimeHours: 72,
+            submissionWindowNote: `Submit before arrival in ${countryCode}`,
             submission: {
               earliestBeforeArrival: '90 days',
-              latestBeforeArrival: '3 days', 
+              latestBeforeArrival: '3 days',
               recommended: '7 days'
             },
             sections: [],
@@ -259,6 +262,9 @@ describe('All Countries Integration Flow', () => {
           lastUpdated: '2024-01-01',
           portalUrl: `https://${leg.destinationCountry.toLowerCase()}.gov/portal`,
           portalName: `${leg.destinationCountry} Portal`,
+          submissionDeadlineHours: 24,
+          recommendedLeadTimeHours: 72,
+          submissionWindowNote: `Submit before arrival in ${leg.destinationCountry}`,
           submission: { earliestBeforeArrival: '90 days', latestBeforeArrival: '3 days', recommended: '7 days' },
           sections: [],
           submissionGuide: []
@@ -326,6 +332,9 @@ describe('All Countries Integration Flow', () => {
         lastUpdated: '2024-01-01',
         portalUrl: 'https://jpn.gov/portal',
         portalName: 'Japan Portal',
+        submissionDeadlineHours: 24,
+        recommendedLeadTimeHours: 72,
+        submissionWindowNote: 'Submit 24-72 h before arrival',
         submission: { earliestBeforeArrival: '90 days', latestBeforeArrival: '3 days', recommended: '7 days' },
         sections: [],
         submissionGuide: []
@@ -373,6 +382,9 @@ describe('All Countries Integration Flow', () => {
         lastUpdated: '2024-01-01',
         portalUrl: 'https://sgp.gov/portal',
         portalName: 'Singapore Portal',
+        submissionDeadlineHours: 72,
+        recommendedLeadTimeHours: 168,
+        submissionWindowNote: 'Submit up to 3 days before arrival',
         submission: { earliestBeforeArrival: '90 days', latestBeforeArrival: '3 days', recommended: '7 days' },
         sections: [],
         submissionGuide: []
@@ -407,12 +419,15 @@ describe('All Countries Integration Flow', () => {
           lastUpdated: '2024-01-01',
           portalUrl: `https://${countryCode.toLowerCase()}.gov/portal`,
           portalName: `${countryCode} Portal`,
+          submissionDeadlineHours: 24,
+          recommendedLeadTimeHours: 72,
+          submissionWindowNote: `Submit before arrival in ${countryCode}`,
           submission: { earliestBeforeArrival: '90 days', latestBeforeArrival: '3 days', recommended: '7 days' },
           sections: [],
           submissionGuide: []
         };
         const schema = validateSchema(mockSchema, countryCode);
-        
+
         // Required schema properties
         expect(schema.countryCode).toBe(countryCode);
         expect(schema.countryName).toBeTruthy();
@@ -457,6 +472,9 @@ describe('All Countries Integration Flow', () => {
           lastUpdated: '2024-01-01',
           portalUrl: `https://${country.toLowerCase()}.gov/portal`,
           portalName: `${country} Portal`,
+          submissionDeadlineHours: 24,
+          recommendedLeadTimeHours: 72,
+          submissionWindowNote: `Submit before arrival in ${country}`,
           submission: { earliestBeforeArrival: '90 days', latestBeforeArrival: '3 days', recommended: '7 days' },
           sections: [],
           submissionGuide: []

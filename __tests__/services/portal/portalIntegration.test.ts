@@ -72,6 +72,9 @@ describe('PortalIntegrationService', () => {
       lastUpdated: '2025-06-01T00:00:00Z',
       portalUrl: 'https://vjw-lp.digital.go.jp/en/',
       portalName: 'Visit Japan Web',
+      submissionDeadlineHours: 24,
+      recommendedLeadTimeHours: 72,
+      submissionWindowNote: 'Submit 24-72 h before arrival',
       metadata: {
         priority: 1,
         complexity: 'low',

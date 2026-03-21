@@ -5,6 +5,9 @@
   "lastUpdated": "2026-03-07T00:00:00Z",
   "portalUrl": "https://www.gov.uk/apply-electronic-travel-authorisation",
   "portalName": "UK Electronic Travel Authorisation (ETA)",
+  "submissionDeadlineHours": 0,
+  "recommendedLeadTimeHours": 48,
+  "submissionWindowNote": "Submit before travel",
   "metadata": {
     "priority": 6,
     "complexity": "medium",

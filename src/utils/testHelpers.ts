@@ -130,6 +130,9 @@ export class TestDataFactory {
       portalUrl: 'https://vjw-lp.digital.go.jp/en/',
       schemaVersion: '1.0.0',
       lastUpdated: '2026-01-01',
+      submissionDeadlineHours: 24,
+      recommendedLeadTimeHours: 72,
+      submissionWindowNote: 'Submit 24-72 h before arrival',
       metadata: {
         priority: 1,
         complexity: 'medium',
