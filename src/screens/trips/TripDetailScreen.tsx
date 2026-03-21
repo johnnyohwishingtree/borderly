@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Upload, ClipboardList, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
 import { useProfileStore } from '../../stores/useProfileStore';
@@ -43,24 +43,26 @@ export default function TripDetailScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Load family members for traveler details
-  useMemo(() => {
-    const load = async () => {
-      try {
-        await loadFamilyProfiles();
-        const profiles = await getAllProfiles();
-        const members: FamilyMember[] = Array.from(profiles.values()).map(p => ({
-          ...p,
-          relationship: p.relationship ?? 'self',
-        }));
-        setFamilyMembers(members);
-      } catch (err) {
-        console.error('TripDetailScreen: failed to load profiles', err);
-      }
-    };
-    load();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Load family members for traveler details — re-run whenever the screen comes into focus
+  // so that newly added family members appear without an app restart.
+  useFocusEffect(
+    useCallback(() => {
+      const load = async () => {
+        try {
+          await loadFamilyProfiles();
+          const profiles = await getAllProfiles();
+          const members: FamilyMember[] = Array.from(profiles.values()).map(p => ({
+            ...p,
+            relationship: p.relationship ?? 'self',
+          }));
+          setFamilyMembers(members);
+        } catch (err) {
+          console.error('TripDetailScreen: failed to load profiles', err);
+        }
+      };
+      load();
+    }, [loadFamilyProfiles, getAllProfiles]),
+  );
 
   const editHook = useEditTrip({ trip });
 

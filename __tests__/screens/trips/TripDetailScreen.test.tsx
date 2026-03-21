@@ -4,7 +4,7 @@
  * Covers rendering and user interaction: trip name display, leg list,
  * Edit modal visibility, Add Destination modal visibility, and delete flow.
  */
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import TripDetailScreen from '@/screens/trips/TripDetailScreen';
 import type { Trip } from '@/types/trip';
 
@@ -16,6 +16,8 @@ const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ goBack: mockGoBack, navigate: mockNavigate }),
   useRoute: () => ({ params: { tripId: 'trip_1' } }),
+  // Call the callback immediately to simulate screen gaining focus
+  useFocusEffect: (cb: () => void) => cb(),
 }));
 
 const mockDeleteTrip = jest.fn().mockResolvedValue(undefined);
@@ -66,10 +68,13 @@ jest.mock('../../../src/stores/useTripStore', () => ({
   },
 }));
 
+const mockLoadFamilyProfiles = jest.fn(() => Promise.resolve(undefined));
+const mockGetAllProfiles = jest.fn(() => Promise.resolve(new Map()));
+
 jest.mock('../../../src/stores/useProfileStore', () => ({
   useProfileStore: () => ({
-    getAllProfiles: jest.fn(() => Promise.resolve(new Map())),
-    loadFamilyProfiles: jest.fn(() => Promise.resolve(undefined)),
+    getAllProfiles: mockGetAllProfiles,
+    loadFamilyProfiles: mockLoadFamilyProfiles,
     currentProfileId: null,
   }),
 }));
@@ -311,5 +316,42 @@ describe('TripDetailScreen — delete trip', () => {
   it('renders the Delete Trip button', () => {
     render(<TripDetailScreen />);
     expect(screen.getByText('Delete Trip')).toBeTruthy();
+  });
+});
+
+// ── Family member loading ─────────────────────────────────────────────────────
+
+describe('TripDetailScreen — family member loading via useFocusEffect', () => {
+  it('calls loadFamilyProfiles on screen focus (not via useMemo)', async () => {
+    render(<TripDetailScreen />);
+    // useFocusEffect fires the callback immediately in the test mock.
+    // Use waitFor to let the async load() complete.
+    await waitFor(() => {
+      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+    });
+  });
+
+  it('calls getAllProfiles on screen focus to populate family members', async () => {
+    render(<TripDetailScreen />);
+    await waitFor(() => {
+      expect(mockGetAllProfiles).toHaveBeenCalled();
+    });
+  });
+
+  it('calls loadFamilyProfiles again when the screen regains focus', async () => {
+    // First mount — focus fires and load runs
+    const { unmount } = render(<TripDetailScreen />);
+    await waitFor(() => {
+      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+    });
+    unmount();
+
+    jest.clearAllMocks();
+
+    // Second mount (simulates returning to TripDetailScreen) — focus fires again
+    render(<TripDetailScreen />);
+    await waitFor(() => {
+      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+    });
   });
 });
