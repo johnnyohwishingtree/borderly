@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skip_tests: ${{ steps.check.outputs.skip_tests }}
+      pipeline_changed: ${{ steps.check.outputs.pipeline_changed }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,6 +58,13 @@ jobs:
           if [ "$SKIP_TESTS" = "true" ]; then
             echo "Only pipeline/docs/screenshot files changed — skipping app tests"
           fi
+
+          # Check if pipeline scripts changed (need vitest)
+          PIPELINE_CHANGED=false
+          if echo "$CHANGED" | grep -q '^\.github/scripts/'; then
+            PIPELINE_CHANGED=true
+          fi
+          echo "pipeline_changed=$PIPELINE_CHANGED" >> $GITHUB_OUTPUT
 
   typecheck:
     needs: check-changes
@@ -119,9 +127,21 @@ jobs:
           pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
           exit ${PIPESTATUS[0]}
 
+  # Pipeline TypeScript tests — runs when .github/scripts/ files change
+  pipeline-test:
+    needs: check-changes
+    if: needs.check-changes.outputs.pipeline_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-pipeline-ts
+      - name: Run pipeline vitest
+        run: cd .github/scripts && npx vitest run
+
   # Dispatch auto-fix on failure
   notify:
-    needs: [typecheck, bundle-ios, bundle-android, test]
+    needs: [typecheck, bundle-ios, bundle-android, test, pipeline-test]
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 2

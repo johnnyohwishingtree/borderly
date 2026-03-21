@@ -521,6 +521,15 @@ describe('watcher', () => {
       expect(content, 'test.yml must skip for e2e/screenshots').toContain('e2e/screenshots/*');
     });
 
+    it('test.yml runs pipeline vitest when .github/scripts/ changes', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/test.yml'), 'utf-8'
+      );
+      expect(content, 'test.yml must have pipeline-test job').toContain('pipeline-test');
+      expect(content, 'test.yml must detect pipeline_changed').toContain('pipeline_changed');
+      expect(content, 'pipeline-test must run vitest').toContain('npx vitest run');
+    });
+
     it('merge gate treats skipped tests as passing', () => {
       const content = require('fs').readFileSync(
         require('path').join(__dirname, '../../lib/github.ts'), 'utf-8'
