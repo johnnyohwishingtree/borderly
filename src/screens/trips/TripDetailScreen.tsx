@@ -66,12 +66,9 @@ export default function TripDetailScreen() {
           return [code, schema] as [string, CountryFormSchema | null];
         }),
       );
-      const schemas: Record<string, CountryFormSchema> = {};
-      for (const [code, schema] of schemaEntries) {
-        if (schema) {
-          schemas[code] = schema;
-        }
-      }
+      const schemas: Record<string, CountryFormSchema> = Object.fromEntries(
+        schemaEntries.filter((entry): entry is [string, CountryFormSchema] => entry[1] !== null)
+      );
       const deadlines = computeTripDeadlines(trip, schemas);
       if (!cancelled) {
         const record: Record<string, LegDeadline> = {};
@@ -334,12 +331,7 @@ export default function TripDetailScreen() {
             <View>
               {trip.legs
                 .sort((a, b) => a.order - b.order)
-                .map((leg, index) => {
-                  const legDeadline = deadlineMap[leg.id];
-                  const legCardProps = legDeadline !== undefined
-                    ? { deadline: legDeadline }
-                    : {};
-                  return (
+                .map((leg, index) => (
                     <View key={leg.id} className="relative">
                       <LegCard
                         leg={leg}
@@ -347,14 +339,13 @@ export default function TripDetailScreen() {
                         showFormStatus
                         familyMembers={familyMembers}
                         showTravelerDetails
-                        {...legCardProps}
+                        deadline={deadlineMap[leg.id]}
                       />
                       {index < trip.legs.length - 1 && (
                         <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 z-10" />
                       )}
                     </View>
-                  );
-                })}
+                ))}
             </View>
           )}
         </View>
