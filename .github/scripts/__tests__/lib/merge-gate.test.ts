@@ -7,6 +7,7 @@ function createMockGitHub(
     testsPass: boolean;
     e2ePass: boolean;
     approvals: number;
+    reviews: number;
     unresolvedThreads: number;
     reviewFixActive: boolean;
     branchStatus: 'ahead' | 'behind' | 'diverged' | 'identical';
@@ -16,6 +17,7 @@ function createMockGitHub(
     testsPass: true,
     e2ePass: true,
     approvals: 1,
+    reviews: 1,
     unresolvedThreads: 0,
     reviewFixActive: false,
     branchStatus: 'ahead' as const,
@@ -33,6 +35,7 @@ function createMockGitHub(
       e2ePass: config.e2ePass,
     }),
     countApprovals: vi.fn().mockResolvedValue(config.approvals),
+    countReviews: vi.fn().mockResolvedValue(config.reviews),
     countUnresolvedThreads: vi
       .fn()
       .mockResolvedValue(config.unresolvedThreads),
@@ -52,6 +55,7 @@ describe('evaluateMergeGate', () => {
     expect(result.conditions).toEqual({
       testsPass: true,
       e2ePass: true,
+      reviewed: true,
       approved: true,
       threadsResolved: true,
       noActiveReviewFix: true,
@@ -164,9 +168,40 @@ describe('evaluateMergeGate', () => {
 
     const result = await evaluateMergeGate(github, 42);
 
-    // Should merge — owner's PR is implicitly approved
+    // Should merge — owner's PR is implicitly approved (and has a review)
     expect(result.action).toBe('merge');
     expect(result.conditions.approved).toBe(true);
     expect(result.failingConditions).not.toContain('approved');
+  });
+
+  // Bug (#579): PR merged before any code review happened. The owner-approval
+  // bypass skipped the review requirement entirely. Auto-merge should wait
+  // until at least one formal review (COMMENTED/CHANGES_REQUESTED/APPROVED)
+  // has been submitted, even on owner PRs.
+  it('returns "wait" when no reviews exist, even with owner-approval', async () => {
+    const github = createMockGitHub({ approvals: 0, reviews: 0 });
+    (github.getPR as ReturnType<typeof vi.fn>).mockResolvedValue({
+      head: { sha: 'abc123', ref: 'fix/something' },
+      user: { login: 'testowner' },
+    });
+
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).not.toBe('merge');
+    expect(result.conditions.reviewed).toBe(false);
+    expect(result.failingConditions).toContain('reviewed');
+  });
+
+  it('returns "merge" when owner PR has at least one review', async () => {
+    const github = createMockGitHub({ approvals: 0, reviews: 1 });
+    (github.getPR as ReturnType<typeof vi.fn>).mockResolvedValue({
+      head: { sha: 'abc123', ref: 'fix/something' },
+      user: { login: 'testowner' },
+    });
+
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('merge');
+    expect(result.conditions.reviewed).toBe(true);
   });
 });
