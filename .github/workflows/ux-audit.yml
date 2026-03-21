@@ -1,0 +1,211 @@
+name: UX Audit
+
+# Daily UX flow audit — captures screenshots, analyzes state transitions,
+# and creates epics with stories for any issues found.
+#
+# Runs at midnight PST (08:00 UTC) so fixes can be implemented overnight.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # midnight PST = 08:00 UTC
+  workflow_dispatch:
+    inputs:
+      flow:
+        description: 'Optional: specific flow to audit (e.g. "companion", "trip creation")'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: ux-audit
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    if: vars.PIPELINE_ENABLED != 'false'
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check if audit is needed
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Skip if there's already an open UX audit epic
+          OPEN_AUDITS=$(gh issue list --repo "$REPO" \
+            --label "epic:ux-audit" --state open \
+            --json number -q 'length' 2>/dev/null || echo "0")
+
+          if [ "$OPEN_AUDITS" -gt 0 ]; then
+            echo "Open UX audit epic exists — skipping"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Skip if too many open stories (pipeline is backed up)
+          OPEN_STORIES=$(gh issue list --repo "$REPO" \
+            --label "story" --state open \
+            --json number -q 'length' 2>/dev/null || echo "0")
+
+          if [ "$OPEN_STORIES" -ge 15 ]; then
+            echo "Too many open stories ($OPEN_STORIES) — skipping audit"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "should_run=true" >> $GITHUB_OUTPUT
+
+  capture:
+    needs: gate
+    if: needs.gate.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Build webpack bundle
+        run: npx webpack --config webpack.config.js --mode production
+
+      - name: Capture screenshots
+        run: |
+          # Capture individual screen screenshots
+          E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots \
+            --project=screenshot-capture --workers=1 || true
+
+          # Capture flow sequences (before/after state transitions)
+          E2E_PROJECT=screenshot-capture npx playwright test captureFlowSequences \
+            --project=screenshot-capture --workers=1 || true
+
+      - name: Update flow graph
+        run: npx tsx e2e/scripts/generate-flow-graph.ts
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ux-audit-screenshots
+          path: e2e/screenshots/
+          retention-days: 7
+
+  audit:
+    needs: capture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+
+      - name: Setup pipeline TypeScript
+        uses: ./.github/actions/setup-pipeline-ts
+
+      - name: Download screenshots
+        uses: actions/download-artifact@v4
+        with:
+          name: ux-audit-screenshots
+          path: e2e/screenshots/
+
+      - name: Run Claude flow audit
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh label create:*),Bash(cat:*),Bash(npx tsx:*)"
+          prompt: |
+            You are a UX quality engineer for Borderly, a universal travel
+            declaration app. Your job is to find UI/UX flow bugs and create
+            GitHub issues to fix them.
+
+            ## Context
+
+            Read CLAUDE.md for full project context.
+            Read `.claude/skills/flow-audit/SKILL.md` for the full audit methodology.
+
+            ## Specific Flow (if requested)
+
+            ${{ github.event.inputs.flow || 'No specific flow — audit all critical flows.' }}
+
+            ## Step 1: Load Data
+
+            1. Read `e2e/screenshots/manifest.json` for screen metadata
+            2. Read `e2e/screenshots/flow-graph.json` for navigation structure
+            3. Read flow sequence screenshots from `e2e/screenshots/flows/` (if they exist)
+            4. Read individual screenshots from `e2e/screenshots/`
+
+            ## Step 2: Analyze Flows
+
+            For each critical user flow, trace the data path:
+
+            1. **Read the screen source code** — what state does it display?
+            2. **Read the hook** — does it read and write state correctly?
+            3. **Read the store** — does the write method actually persist data?
+            4. **Check the return path** — when the user navigates back, does the
+               screen re-read the updated state?
+
+            Critical flows to check:
+            - Onboarding → add companion → return to companion list
+            - Create trip → trip appears in list
+            - Fill leg form → form status updates on trip detail
+            - Edit profile → changes visible on profile screen
+            - Delete family member → removed from list
+            - Switch profiles → correct data shown everywhere
+
+            ## Step 3: Visual Analysis
+
+            Read the screenshot PNG files and check:
+            - Does the UI match the underlying state?
+            - Are action results visible (toasts, list updates, badge changes)?
+            - Are button labels contextually correct?
+            - Is there visual feedback for every user action?
+
+            ## Step 4: Create Epic (if issues found)
+
+            If you find issues, create a GitHub epic with stories.
+
+            Create the label first:
+            ```bash
+            gh label create "epic:ux-audit" --color "D93F0B" --description "Epic: UX Flow Audit findings" 2>/dev/null || true
+            ```
+
+            Epic format:
+            ```bash
+            gh issue create \
+              --title "Epic: UX Flow Audit $(date +%Y-%m-%d) — N issues found" \
+              --label "epic" \
+              --label "epic:ux-audit" \
+              --body "..."
+            ```
+
+            Each story must include:
+            - **Current behavior** with screenshot reference
+            - **Expected behavior** described precisely
+            - **Root cause** (which file/function is broken)
+            - **Files to modify** with specific guidance
+            - **Acceptance criteria** that can be verified with a test
+            - Use skill: `/plan-feature`
+
+            ## Step 5: Report
+
+            If no issues found, output: "UX Flow Audit: All critical flows pass."
+            If issues found, output the epic number and story count.
+
+            ## Rules
+
+            - Do NOT fix code — only create issues
+            - Be specific — "button says wrong text" not "UI is confusing"
+            - Include file paths and line numbers
+            - Each story must be completable in a single Claude session
+            - Maximum 6 stories per epic (batch if more issues exist)
+            - Check existing open issues to avoid duplicates
