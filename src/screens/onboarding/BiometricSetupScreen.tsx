@@ -61,7 +61,6 @@ export default function BiometricSetupScreen() {
         [
           {
             text: 'Get Started',
-            onPress: handleComplete,
           },
         ]
       );
@@ -86,25 +85,6 @@ export default function BiometricSetupScreen() {
           text: 'Skip',
           onPress: () => {
             setOnboardingComplete(true);
-            handleComplete();
-          },
-        },
-      ]
-    );
-  };
-
-  const handleComplete = () => {
-    // This would normally navigate to the main app
-    // For now, we'll show an alert since the main app navigation is controlled by RootNavigator
-    Alert.alert(
-      'Welcome to Borderly!',
-      'You can now start creating trips and filling out travel declarations.',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // The RootNavigator will handle the transition to the main app
-            // based on the onboarding completion state
           },
         },
       ]
