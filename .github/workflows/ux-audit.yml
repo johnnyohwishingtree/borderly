@@ -7,7 +7,7 @@ name: UX Audit
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # midnight PST = 08:00 UTC
+    - cron: '0 8,20 * * *'  # twice daily: midnight + noon PST (08:00 + 20:00 UTC)
   workflow_dispatch:
     inputs:
       flow:
