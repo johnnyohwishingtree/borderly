@@ -107,8 +107,9 @@ export default function EditProfileScreen() {
 
       await updateProfile(updates);
       setHasUnsavedChanges(false);
-      navigation.goBack();
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert('Success', 'Profile updated successfully.', [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     } catch {
       Alert.alert('Error', 'Failed to update profile. Please try again.');
     }
