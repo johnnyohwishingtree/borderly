@@ -338,6 +338,10 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Pipeline doctor | Diagnoses failures, checks out work branch, reproduces errors |
 | Orphan PR cleanup | Watcher closes stale PRs with no linked story |
 | Stale check recovery | verify-and-fix retrigger job: when verify passes with no merge needed, merges master into PR branch and pushes (triggers fresh CI), or re-runs failed checks if already up-to-date |
+| Missing target branch | verify-and-fix merge job checks if target branch exists remotely; creates it from source if missing (handles claude-code-action timestamped branches vs claude.yml non-timestamped names) |
+| Watcher updateBranch | Watcher uses GitHub update-branch API (triggers `pull_request synchronize`) instead of `workflow_dispatch` for missing CI — dispatch runs don't attach checks to PRs |
+| Auto-close stale screenshots | Watcher auto-closes `chore/update-screenshots-*` PRs with merge conflicts — they regenerate on next master merge |
+| Generated file conflicts | `.gitattributes` marks screenshots, flow-graph.json, manifest.json as `merge=ours` — auto-resolves conflicts on generated files |
 
 ---
 
