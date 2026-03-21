@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  Modal, 
-  TouchableOpacity, 
-  StatusBar, 
+import {
+  View,
+  Text,
+  Image,
+  Modal,
+  TouchableOpacity,
+  StatusBar,
   SafeAreaView,
   Dimensions,
   Alert
 } from 'react-native';
+import { X, Trash2 } from 'lucide-react-native';
 import { SavedQRCode } from '../../services/storage/models';
 
 interface QRFullScreenProps {
@@ -121,7 +122,7 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
             accessibilityRole="button"
             accessibilityLabel="Close"
           >
-            <Text className="text-white text-lg font-semibold">✕</Text>
+            <X size={24} color="white" />
           </TouchableOpacity>
 
           <View className="flex-1 mx-4">
@@ -139,7 +140,7 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
               accessibilityRole="button"
               accessibilityLabel="Delete QR code"
             >
-              <Text className="text-white text-lg">🗑</Text>
+              <Trash2 size={20} color="white" />
             </TouchableOpacity>
           )}
         </View>
