@@ -1,4 +1,5 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
+import { AccessibilityInfo } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -32,6 +33,42 @@ const ScreenLoader = () => (
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
+
+/** Maps navigator route names to human-readable screen titles for VoiceOver announcements. */
+const SCREEN_TITLES: Record<string, string> = {
+  // Onboarding
+  Welcome: 'Welcome',
+  Tutorial: 'Tutorial',
+  PassportScan: 'Passport Scan',
+  ConfirmProfile: 'Confirm Profile',
+  AddCompanions: 'Add Companions',
+  BiometricSetup: 'Biometric Setup',
+  // Main tabs
+  Trips: 'Trips',
+  Wallet: 'QR Wallet',
+  Profile: 'Profile',
+  Settings: 'Settings',
+  // Trip screens
+  TripDetail: 'Trip Details',
+  CreateTrip: 'Create Trip',
+  LegForm: 'Destination Form',
+  SubmissionGuide: 'Submission Guide',
+  PortalSubmission: 'Portal Submission',
+  // Profile screens
+  FamilyManagement: 'Family Members',
+  AddFamilyMember: 'Add Family Member',
+  EditProfile: 'Edit Profile',
+  // Wallet screens
+  AddQR: 'Add QR Code',
+  QRDetail: 'QR Code Detail',
+  // Root
+  Main: 'Home',
+  Onboarding: 'Onboarding',
+};
+
+function getScreenTitle(routeName: string): string {
+  return SCREEN_TITLES[routeName] ?? routeName;
+}
 
 // Expose navigation ref globally for E2E tests in web/browser environment.
 // This allows Playwright tests to imperatively navigate without going through
@@ -139,11 +176,26 @@ function OnboardingNavigator() {
 
 export default function RootNavigator() {
   const { isOnboardingComplete, loadProfile } = useProfileStore();
+  const routeNameRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     // Load profile and onboarding state on app start
     loadProfile();
   }, [loadProfile]);
+
+  /**
+   * Called by NavigationContainer whenever navigation state changes.
+   * Announces the new screen name via AccessibilityInfo so VoiceOver /
+   * TalkBack users know which screen they have navigated to.
+   */
+  const handleNavigationStateChange = useCallback(() => {
+    const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+    if (currentRouteName && currentRouteName !== routeNameRef.current) {
+      routeNameRef.current = currentRouteName;
+      const title = getScreenTitle(currentRouteName);
+      AccessibilityInfo.announceForAccessibility(`${title} screen`);
+    }
+  }, []);
 
   return (
     <ErrorBoundary
@@ -158,7 +210,7 @@ export default function RootNavigator() {
         />
       )}
     >
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer ref={navigationRef} onStateChange={handleNavigationStateChange}>
         <RootStack.Navigator
           screenOptions={{
             ...STANDARD_TRANSITIONS.fade,
