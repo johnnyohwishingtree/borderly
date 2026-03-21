@@ -496,11 +496,11 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // TRIPS TAB
   // ═══════════════════════════════════════════
 
-  test('08 - Trip List (empty)', async ({ page }) => {
+  test('09 - Trip List (empty)', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    await screenshot(page, '08-trip-list-empty', {
+    await screenshot(page, '09-trip-list-empty', {
       screen: 'TripListScreen',
       domain: 'trips',
       description: 'Empty trip list with "Create Your First Trip" CTA.',
@@ -508,13 +508,13 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('09 - Create Trip Screen', async ({ page }) => {
+  test('10 - Create Trip Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByTestId('create-first-trip-button').click();
     await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '09-create-trip', {
+    await screenshot(page, '10-create-trip', {
       screen: 'CreateTripScreen',
       domain: 'trips',
       description: 'Trip creation form — name, destinations, dates, flight info, accommodation.',
@@ -522,12 +522,12 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('10 - Trip List (with trip)', async ({ page }) => {
+  test('11 - Trip List (with trip)', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(2000);
-    await screenshot(page, '10-trip-list-with-trip', {
+    await screenshot(page, '11-trip-list-with-trip', {
       screen: 'TripListScreen',
       domain: 'trips',
       description: 'Trip list showing a trip card with destination flags and status.',
@@ -535,7 +535,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('11 - Trip Detail Screen', async ({ page }) => {
+  test('12 - Trip Detail Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -546,7 +546,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await tripCard.click();
       await page.waitForTimeout(2000);
     }
-    await screenshot(page, '11-trip-detail', {
+    await screenshot(page, '12-trip-detail', {
       screen: 'TripDetailScreen',
       domain: 'trips',
       description: 'Trip detail with itinerary legs, form status, and submission actions.',
@@ -554,7 +554,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('12 - Leg Form Screen', async ({ page }) => {
+  test('13 - Leg Form Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -570,7 +570,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
         await page.waitForTimeout(2000);
       }
     }
-    await screenshot(page, '12-leg-form', {
+    await screenshot(page, '13-leg-form', {
       screen: 'LegFormScreen',
       domain: 'trips',
       description: 'Country-specific form (Japan) with auto-filled fields and remaining questions.',
@@ -578,7 +578,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('13 - Submission Guide Screen', async ({ page }) => {
+  test('14 - Submission Guide Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -599,7 +599,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       }
     });
     await page.waitForTimeout(3000);
-    await screenshot(page, '13-submission-guide', {
+    await screenshot(page, '14-submission-guide', {
       screen: 'SubmissionGuideScreen',
       domain: 'trips',
       description: 'Step-by-step portal walkthrough with pre-filled values ready to copy/paste.',
@@ -607,7 +607,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('14 - Portal Submission Screen', async ({ page }) => {
+  test('15 - Portal Submission Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -629,7 +629,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
     // Wait for screen to render (iframe will fail but chrome will show)
     await page.waitForTimeout(3000);
-    await screenshot(page, '14-portal-submission', {
+    await screenshot(page, '15-portal-submission', {
       screen: 'PortalSubmissionScreen',
       domain: 'trips',
       description: 'Portal submission screen with WebView, toolbar, progress bar, and copy-paste fields panel.',
@@ -641,14 +641,14 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // WALLET TAB
   // ═══════════════════════════════════════════
 
-  test('15 - Wallet Screen (empty)', async ({ page }) => {
+  test('16 - Wallet Screen (empty)', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
     // Wait for actual screen content (not just navigator header)
     await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '15-wallet-empty', {
+    await screenshot(page, '16-wallet-empty', {
       screen: 'QRWalletScreen',
       domain: 'wallet',
       description: 'Empty QR wallet with "Add QR Code" button. For storing submission QR codes.',
@@ -656,7 +656,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('16 - Add QR Screen', async ({ page }) => {
+  test('17 - Add QR Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -666,7 +666,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     // Click the Add QR Code button
     await page.getByRole('button', { name: 'Add QR Code' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '16-add-qr', {
+    await screenshot(page, '17-add-qr', {
       screen: 'AddQRScreen',
       domain: 'wallet',
       description: 'Add QR code screen — scan or import QR from camera/gallery.',
@@ -674,7 +674,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('17 - QR Detail Screen', async ({ page }) => {
+  test('18 - QR Detail Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -691,7 +691,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       }
     });
     await page.waitForTimeout(2000);
-    await screenshot(page, '17-qr-detail', {
+    await screenshot(page, '18-qr-detail', {
       screen: 'QRDetailScreen',
       domain: 'wallet',
       description: 'QR code detail view — shows not-found state (no QR codes in E2E database).',
@@ -703,13 +703,13 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // PROFILE TAB
   // ═══════════════════════════════════════════
 
-  test('18 - Profile Screen', async ({ page }) => {
+  test('19 - Profile Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '18-profile', {
+    await screenshot(page, '19-profile', {
       screen: 'ProfileScreen',
       domain: 'profile',
       description: 'Profile overview — passport info (masked), completeness, contact details, family.',
@@ -717,7 +717,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('19 - Edit Profile Screen', async ({ page }) => {
+  test('20 - Edit Profile Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -729,7 +729,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await editBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '19-edit-profile', {
+    await screenshot(page, '20-edit-profile', {
       screen: 'EditProfileScreen',
       domain: 'profile',
       description: 'Edit profile form — contact info, home address, default declarations.',
@@ -737,7 +737,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('20 - Family Management Screen', async ({ page }) => {
+  test('21 - Family Management Screen', async ({ page }) => {
     await injectStateWithTrip(page); // Has 2 family members
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -748,7 +748,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await familyBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '20-family-management', {
+    await screenshot(page, '21-family-management', {
       screen: 'FamilyManagementScreen',
       domain: 'profile',
       description: 'Family member list with primary profile and spouse. Add/remove members.',
@@ -756,7 +756,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('21 - Add Family Member Screen', async ({ page }) => {
+  test('22 - Add Family Member Screen', async ({ page }) => {
     await injectStateWithTrip(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -772,7 +772,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await addBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '21-add-family-member', {
+    await screenshot(page, '22-add-family-member', {
       screen: 'AddFamilyMemberScreen',
       domain: 'profile',
       description: 'Add family member — select relationship, scan or enter passport manually.',
@@ -784,14 +784,14 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   // SETTINGS TAB
   // ═══════════════════════════════════════════
 
-  test('22 - Settings Screen', async ({ page }) => {
+  test('23 - Settings Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Settings tab' }).click();
     // Wait for actual screen content (not just navigator header)
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '22-settings', {
+    await screenshot(page, '23-settings', {
       screen: 'SettingsScreen',
       domain: 'settings',
       description: 'App settings — security, privacy, portal accounts, data management, help links.',
@@ -799,7 +799,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('23 - Help Screen', async ({ page }) => {
+  test('24 - Help Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -807,7 +807,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '23-help', {
+    await screenshot(page, '24-help', {
       screen: 'HelpScreen',
       domain: 'settings',
       description: 'Help & support hub — FAQ categories, troubleshooting, contact options.',
@@ -815,7 +815,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('24 - FAQ Screen', async ({ page }) => {
+  test('25 - FAQ Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -825,7 +825,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Frequently Asked Questions' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '24-faq', {
+    await screenshot(page, '25-faq', {
       screen: 'FAQScreen',
       domain: 'settings',
       description: 'FAQ screen with searchable questions organized by category.',
@@ -833,7 +833,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('25 - Troubleshooting Screen', async ({ page }) => {
+  test('26 - Troubleshooting Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -843,7 +843,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Troubleshooting Guide' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '25-troubleshooting', {
+    await screenshot(page, '26-troubleshooting', {
       screen: 'TroubleshootingScreen',
       domain: 'settings',
       description: 'Troubleshooting guide with common issues, symptoms, and solutions.',
@@ -851,7 +851,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('26 - Feedback Screen', async ({ page }) => {
+  test('27 - Feedback Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -859,7 +859,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Send Feedback' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '26-feedback', {
+    await screenshot(page, '27-feedback', {
       screen: 'FeedbackScreen',
       domain: 'settings',
       description: 'Feedback form — rating, category, message text for user feedback.',
@@ -867,7 +867,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('27 - Bug Report Screen', async ({ page }) => {
+  test('28 - Bug Report Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -875,7 +875,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Report Bug' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '27-bug-report', {
+    await screenshot(page, '28-bug-report', {
       screen: 'BugReportScreen',
       domain: 'settings',
       description: 'Bug report form with auto-collected diagnostics (device, OS, app version).',
@@ -883,7 +883,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
   });
 
-  test('28 - Privacy Policy Screen', async ({ page }) => {
+  test('29 - Privacy Policy Screen', async ({ page }) => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -891,7 +891,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Privacy Policy' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '28-privacy-policy', {
+    await screenshot(page, '29-privacy-policy', {
       screen: 'PrivacyPolicyScreen',
       domain: 'settings',
       description: 'Privacy policy — data handling, local-first architecture, security details.',
@@ -912,10 +912,10 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   };
 
   const portalCountries = [
-    { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC', num: 29 },
-    { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card', num: 30 },
-    { code: 'VNM', legId: 'leg-vnm', name: 'Vietnam e-Visa', num: 31 },
-    { code: 'CAN', legId: 'leg-can', name: 'Canada eTA', num: 32 },
+    { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC', num: 30 },
+    { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card', num: 31 },
+    { code: 'VNM', legId: 'leg-vnm', name: 'Vietnam e-Visa', num: 32 },
+    { code: 'CAN', legId: 'leg-can', name: 'Canada eTA', num: 33 },
   ];
 
   for (const country of portalCountries) {
