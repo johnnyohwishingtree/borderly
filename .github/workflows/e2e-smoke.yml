@@ -44,7 +44,7 @@ jobs:
           SKIP_E2E=true
           while IFS= read -r file; do
             case "$file" in
-              .github/*|.claude/*|docs/*|*.md) ;;
+              .github/*|.claude/*|docs/*|*.md|e2e/screenshots/*|maestro/*) ;;
               *) SKIP_E2E=false; break ;;
             esac
           done <<< "$CHANGED"

@@ -18,7 +18,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
-| `auto-merge.yml` | CI complete / review / PR sync / dispatch | Single merge gate (6 conditions) |
+| `auto-merge.yml` | CI complete / review / PR sync / push to master / dispatch | Single merge gate (6 conditions); evaluates all open PRs on master push |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) / manual | Unsticks stories, fixes PRs, cleans up |
@@ -342,6 +342,11 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Watcher updateBranch | Watcher uses GitHub update-branch API (triggers `pull_request synchronize`) instead of `workflow_dispatch` for missing CI — dispatch runs don't attach checks to PRs |
 | Auto-close stale screenshots | Watcher auto-closes `chore/update-screenshots-*` PRs with merge conflicts — they regenerate on next master merge |
 | Generated file conflicts | `.gitattributes` marks screenshots, flow-graph.json, manifest.json as `merge=ours` — auto-resolves conflicts on generated files |
+| Orphan branch safety | Branch cleanup skips branches belonging to in-progress stories — prevents deleting work before verify-and-fix can use it |
+| E2E skip for screenshots | `e2e-smoke.yml` skips full E2E suite for screenshot/maestro-only PRs (same as pipeline-only skip) |
+| Event-driven branch updates | `auto-merge.yml` triggers on push to master and evaluates all open PRs — PRs behind master get `updateBranch` immediately instead of waiting for watcher polling |
+| Pipeline vitest in CI | `test.yml` runs pipeline vitest when `.github/scripts/` files change — catches pipeline TS breakages before they hit watcher/doctor at runtime |
+| App test skip for pipeline PRs | `test.yml` skips typecheck/bundle/unit tests for PRs that only change `.github/*`, `docs/*`, `e2e/screenshots/*` — merge gate accepts skipped checks as passing |
 
 ---
 

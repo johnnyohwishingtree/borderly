@@ -482,6 +482,75 @@ describe('watcher', () => {
     });
   });
 
+  // Bug (#527): watcher deleted orphan branches belonging to in-progress stories.
+  // Story #527's work branch was deleted before verify-and-fix could use it.
+  describe('orphan branch cleanup preserves in-progress story branches', () => {
+    it('must check in-progress stories before deleting branches', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/cli/pipeline.ts'), 'utf-8'
+      );
+      const orphanSection = src.match(/orphan branches[\s\S]*?deleting/s);
+      expect(orphanSection, 'orphan cleanup section must exist').toBeTruthy();
+      expect(
+        orphanSection![0],
+        'orphan cleanup must check in-progress stories before deleting',
+      ).toContain('inProgressIssueNums');
+      expect(
+        orphanSection![0],
+        'orphan cleanup must extract issue number from branch name',
+      ).toContain('claude/issue-');
+    });
+  });
+
+  // Bug (#563): e2e-smoke and test.yml ran full suite for screenshot-only PRs.
+  // Screenshot/flow-graph changes should be skipped like pipeline files.
+  describe('CI skips for non-app changes', () => {
+    it('e2e-smoke check-changes skip list includes e2e/screenshots', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/e2e-smoke.yml'), 'utf-8'
+      );
+      expect(content).toContain('e2e/screenshots/*');
+    });
+
+    it('test.yml has check-changes job that skips for pipeline-only PRs', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/test.yml'), 'utf-8'
+      );
+      expect(content, 'test.yml must have check-changes job').toContain('check-changes');
+      expect(content, 'test.yml must output skip_tests').toContain('skip_tests');
+      expect(content, 'test.yml must skip for e2e/screenshots').toContain('e2e/screenshots/*');
+    });
+
+    it('auto-merge.yml triggers on push to master to update behind PRs', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/auto-merge.yml'), 'utf-8'
+      );
+      expect(content, 'auto-merge must trigger on push to master').toMatch(/push:\s*\n\s*branches:.*master/);
+      expect(content, 'must handle multiple PRs on push event').toContain('multi');
+    });
+
+    it('test.yml runs pipeline vitest when .github/scripts/ changes', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/test.yml'), 'utf-8'
+      );
+      expect(content, 'test.yml must have pipeline-test job').toContain('pipeline-test');
+      expect(content, 'test.yml must detect pipeline_changed').toContain('pipeline_changed');
+      expect(content, 'pipeline-test must run vitest').toContain('npx vitest run');
+    });
+
+    it('merge gate treats skipped tests as passing', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/github.ts'), 'utf-8'
+      );
+      const ciSection = content.match(/checkCIStatus[\s\S]*?testsPass/);
+      expect(ciSection).toBeTruthy();
+      expect(
+        ciSection![0],
+        'testsPass must accept skipped conclusion for pipeline-only PRs',
+      ).toContain('skipped');
+    });
+  });
+
   describe('getOpenEpicLabels', () => {
     it('parses epic labels', () => {
       mockExec('epic:ui-overhaul\nepic:backend-api');
