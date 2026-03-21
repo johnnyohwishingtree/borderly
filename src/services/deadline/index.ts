@@ -19,3 +19,8 @@ export type {
   NotificationProvider,
   ScheduleRequest,
 } from './notificationScheduler';
+
+export {
+  PushNotificationProvider,
+  pushNotificationProvider,
+} from './pushNotificationProvider';
