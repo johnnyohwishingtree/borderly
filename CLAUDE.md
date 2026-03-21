@@ -233,6 +233,53 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 - [x] Implementation status documentation
 - [x] Final polish and error handling improvements
 
+## Accessibility Standards
+
+Borderly follows React Native accessibility (a11y) standards to ensure the app is usable with screen readers (VoiceOver on iOS, TalkBack on Android).
+
+### Core Principles
+
+- **Every interactive element must be accessible**: Buttons, inputs, toggles, and links must have `accessible={true}` and an `accessibilityRole`.
+- **Labels describe intent, not appearance**: Use `accessibilityLabel` to describe what a control does, not what it looks like (e.g., "Submit customs declaration form" not "Blue button").
+- **Errors are announced via live regions**: Error messages must use `accessibilityLiveRegion="polite"` so screen readers announce them automatically.
+- **Decorative elements are hidden**: Visual-only elements (flag icons, dividers, illustrations) must use `accessibilityElementsHidden={true}` or `importantForAccessibility="no-hide-descendants"`.
+- **State is communicated**: Disabled, loading (busy), and selected states must be reflected in `accessibilityState`.
+
+### Required Props by Component Type
+
+| Component type | Required a11y props |
+|----------------|---------------------|
+| Pressable / TouchableOpacity | `accessible={true}`, `accessibilityRole`, `accessibilityLabel` |
+| TextInput | `accessibilityLabel` (includes field name + "required" if required) |
+| Toggle / Switch | `accessibilityRole="switch"`, `accessibilityLabel`, `accessibilityState.checked` |
+| Error text | `accessibilityLiveRegion="polite"`, `accessibilityRole="text"` |
+| Progress bar | `accessibilityRole="progressbar"`, `accessibilityValue` |
+| Collapsible section header | `accessibilityRole="button"`, `accessibilityState.expanded` |
+
+### Utility Helpers (`src/utils/accessibility.ts`)
+
+- `ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET` — minimum 44×44pt touch target size
+- `TouchTargetUtils.getHitSlop()` — expands touch area without changing visual layout
+- `AccessibilityStateHelpers.createButtonState(disabled, loading, selected)` — creates correct `accessibilityState` object
+- `SemanticUtils.generateFieldLabel(label, required, hasError, errorMsg)` — generates screen-reader-friendly input labels
+
+### Testing Accessibility
+
+All UI components must have corresponding a11y tests in `__tests__/components/<domain>/<Component>.a11y.test.tsx`.
+
+Use RNTL queries in this order of preference:
+1. `getByRole` — when RNTL recognizes the host component (Pressable with `accessibilityRole`)
+2. `getByLabelText` — for any element with `accessibilityLabel`
+3. `getByTestId` + `.props.accessibilityRole` — when host component is mocked (e.g., TouchableOpacity)
+
+**Do not use** `getByRole` on mocked native components (TouchableOpacity, etc.) — use `getByTestId` and check `.props.accessibilityRole` directly instead.
+
+Existing a11y test files:
+- `__tests__/components/ui/Button.a11y.test.tsx` — role, label, disabled/busy state, hint
+- `__tests__/components/forms/DynamicForm.a11y.test.tsx` — field labels, required, live regions
+- `__tests__/components/forms/accessibility.test.tsx` — FormField, FormSection, AutoFilledBadge
+- `__tests__/components/trips/TripCard.a11y.test.tsx` — label, role, decorative elements
+
 ## Skills Reference
 
 Available skills (invoke with `/<skill-name>`):
