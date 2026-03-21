@@ -5,7 +5,7 @@
  * to prevent CI failures. Each test documents the bug it prevents.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
@@ -496,32 +496,33 @@ describe('workflow structure regressions', () => {
   // Fix: merge job must not checkout a potentially non-existent ref directly.
   // Instead, checkout the source (work_branch/tmp), then create/push the target.
   describe('verify-and-fix merge job handles non-existent target branch', () => {
-    it('merge job must not use actions/checkout with merge_into ref directly', () => {
+    let parsed: any;
+
+    beforeAll(() => {
       const content = readFileSync(join(WORKFLOWS_DIR, 'verify-and-fix.yml'), 'utf-8');
-      const parsed = yaml.load(content) as Record<string, unknown>;
-      const jobs = (parsed as any).jobs;
-      const mergeJob = jobs?.merge;
+      parsed = yaml.load(content) as any;
+    });
+
+    it('merge job must not use actions/checkout with merge_into ref directly', () => {
+      const mergeJob = parsed.jobs?.merge;
       expect(mergeJob, 'merge job must exist').toBeTruthy();
 
       const steps = mergeJob.steps as WorkflowStep[];
       const checkoutStep = steps.find((s: WorkflowStep) => s.uses?.startsWith('actions/checkout') && s.name?.toLowerCase().includes('checkout'));
 
-      // The checkout step must NOT use the final target ref directly,
+      // The checkout step must exist and must NOT use the final target ref directly,
       // because it may not exist yet (claude-code-action creates timestamped branches).
       // Instead it should checkout the source branch (which always exists).
-      if (checkoutStep) {
-        const ref = (checkoutStep as any).with?.ref || '';
-        expect(
-          ref,
-          'Checkout ref must not be the merge target (it may not exist). Use the source branch instead.',
-        ).not.toContain('target.outputs.final');
-      }
+      expect(checkoutStep, 'checkout step must exist in merge job').toBeTruthy();
+      const ref = (checkoutStep as any).with?.ref || '';
+      expect(
+        ref,
+        'Checkout ref must not be the merge target (it may not exist). Use the source branch instead.',
+      ).not.toContain('target.outputs.final');
     });
 
     it('merge job must create target branch if it does not exist', () => {
-      const content = readFileSync(join(WORKFLOWS_DIR, 'verify-and-fix.yml'), 'utf-8');
       // The merge step run: block must handle non-existent target branches
-      const parsed = yaml.load(content) as any;
       const mergeSteps = parsed.jobs.merge.steps as WorkflowStep[];
       const mergeStep = mergeSteps.find((s: WorkflowStep) =>
         s.name?.includes('Merge verified code'));
