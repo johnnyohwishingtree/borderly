@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { TripStackParamList } from '../app/navigation/types';
 import { useTripStore } from '../stores/useTripStore';
 import { useProfileStore } from '../stores/useProfileStore';
 import { TripLeg, Accommodation } from '../types/trip';
@@ -58,7 +60,7 @@ function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
  * - Validation and trip creation
  */
 export function useTripCreation() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { createTrip, addTripLeg } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
 
@@ -365,7 +367,7 @@ export function useTripCreation() {
       }
 
       Alert.alert('Success', 'Trip created successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() },
+        { text: 'OK', onPress: () => navigation.navigate('TripDetail', { tripId: trip.id }) },
       ]);
     } catch {
       Alert.alert('Error', 'Failed to create trip. Please try again.');
