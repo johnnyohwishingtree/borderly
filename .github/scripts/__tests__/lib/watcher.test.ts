@@ -482,6 +482,40 @@ describe('watcher', () => {
     });
   });
 
+  // Bug (#527): watcher deleted orphan branches belonging to in-progress stories.
+  // Story #527's work branch was deleted before verify-and-fix could use it.
+  describe('orphan branch cleanup preserves in-progress story branches', () => {
+    it('must check in-progress stories before deleting branches', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/cli/pipeline.ts'), 'utf-8'
+      );
+      const orphanSection = src.match(/orphan branches[\s\S]*?deleting/s);
+      expect(orphanSection, 'orphan cleanup section must exist').toBeTruthy();
+      expect(
+        orphanSection![0],
+        'orphan cleanup must check in-progress stories before deleting',
+      ).toContain('inProgressIssueNums');
+      expect(
+        orphanSection![0],
+        'orphan cleanup must extract issue number from branch name',
+      ).toContain('claude/issue-');
+    });
+  });
+
+  // Bug (#563): e2e-smoke ran full suite for screenshot-only PRs.
+  // Screenshot/flow-graph changes should be skipped like pipeline files.
+  describe('e2e-smoke skips for screenshot-only changes', () => {
+    it('check-changes skip list includes e2e/screenshots', () => {
+      const content = require('fs').readFileSync(
+        require('path').join(__dirname, '../../../workflows/e2e-smoke.yml'), 'utf-8'
+      );
+      expect(
+        content,
+        'e2e-smoke check-changes must skip for e2e/screenshots/* changes',
+      ).toContain('e2e/screenshots/*');
+    });
+  });
+
   describe('getOpenEpicLabels', () => {
     it('parses epic labels', () => {
       mockExec('epic:ui-overhaul\nepic:backend-api');

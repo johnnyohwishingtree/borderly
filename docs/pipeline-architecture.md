@@ -342,6 +342,8 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Watcher updateBranch | Watcher uses GitHub update-branch API (triggers `pull_request synchronize`) instead of `workflow_dispatch` for missing CI — dispatch runs don't attach checks to PRs |
 | Auto-close stale screenshots | Watcher auto-closes `chore/update-screenshots-*` PRs with merge conflicts — they regenerate on next master merge |
 | Generated file conflicts | `.gitattributes` marks screenshots, flow-graph.json, manifest.json as `merge=ours` — auto-resolves conflicts on generated files |
+| Orphan branch safety | Branch cleanup skips branches belonging to in-progress stories — prevents deleting work before verify-and-fix can use it |
+| E2E skip for screenshots | `e2e-smoke.yml` skips full E2E suite for screenshot/maestro-only PRs (same as pipeline-only skip) |
 
 ---
 
