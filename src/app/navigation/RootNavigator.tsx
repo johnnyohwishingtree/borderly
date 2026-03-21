@@ -19,6 +19,7 @@ const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => (
 const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
 const AddCompanionsScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.AddCompanionsScreen })));
 const BiometricSetupScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
+const RestoreBackupModal = lazy(() => import('@/screens/settings').then(m => ({ default: m.RestoreBackupModal })));
 
 // Enhanced loading component for lazy-loaded screens
 const ScreenLoader = () => (
@@ -43,6 +44,7 @@ const SCREEN_TITLES: Record<string, string> = {
   ConfirmProfile: 'Confirm Profile',
   AddCompanions: 'Add Companions',
   BiometricSetup: 'Biometric Setup',
+  RestoreBackup: 'Restore from Backup',
   // Main tabs
   Trips: 'Trips',
   Wallet: 'QR Wallet',
@@ -166,6 +168,19 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <BiometricSetupScreen />
+          </Suspense>
+        )}
+      </OnboardingStack.Screen>
+      <OnboardingStack.Screen
+        name="RestoreBackup"
+        options={{
+          ...STANDARD_TRANSITIONS.slideFromRight,
+          title: 'Restore from Backup',
+        }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <RestoreBackupModal />
           </Suspense>
         )}
       </OnboardingStack.Screen>

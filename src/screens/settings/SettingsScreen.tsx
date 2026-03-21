@@ -571,6 +571,22 @@ export default function SettingsScreen() {
 
             <View>
               <Button
+                title="Restore from Backup"
+                onPress={() => navigation.navigate('RestoreBackup')}
+                variant="outline"
+                fullWidth
+                testID="restore-backup-button"
+                accessibilityRole="button"
+                accessibilityLabel="Restore from backup"
+                accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
+              />
+              <Text className="text-xs text-gray-500 mt-1 text-center">
+                Import a .borderly backup file to restore your data
+              </Text>
+            </View>
+
+            <View>
+              <Button
                 title="Clear Cache ({storageStats?.cacheSize})"
                 onPress={handleClearCache}
                 variant="outline"

@@ -17,6 +17,7 @@ export type OnboardingStackParamList = {
   ConfirmProfile: undefined;
   AddCompanions: undefined;
   BiometricSetup: undefined;
+  RestoreBackup: undefined;
 };
 
 export type TripStackParamList = {
@@ -55,4 +56,5 @@ export type SettingsStackParamList = {
   FAQ: { highlightId?: string } | undefined;
   Troubleshooting: { highlightId?: string } | undefined;
   PrivacyPolicy: undefined;
+  RestoreBackup: undefined;
 };
