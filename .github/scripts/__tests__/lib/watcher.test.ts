@@ -361,6 +361,23 @@ describe('watcher', () => {
     });
   });
 
+  // Bug: getPRCIConclusion didn't treat CANCELLED as a failure.
+  // PR #563 had test-chromium CANCELLED (concurrency group conflict) but
+  // the watcher saw it as "missing CI" instead of "failing CI".
+  describe('getPRCIConclusion treats CANCELLED as FAILURE', () => {
+    it('should treat CANCELLED conclusion as FAILURE', () => {
+      const src = require('fs').readFileSync(
+        require('path').join(__dirname, '../../lib/watcher.ts'), 'utf-8'
+      );
+      const fnMatch = src.match(/getPRCIConclusion[\s\S]*?^}/m);
+      expect(fnMatch, 'getPRCIConclusion function not found').toBeTruthy();
+      expect(
+        fnMatch![0],
+        'getPRCIConclusion must treat CANCELLED as FAILURE',
+      ).toContain('CANCELLED');
+    });
+  });
+
   // Bug: watcher handled conflicts by posting @claude comment, which relies
   // on claude.yml triggering (broken). Should dispatch resolve-conflicts.yml.
   describe('checkPR conflict handling', () => {
