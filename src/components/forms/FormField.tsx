@@ -6,6 +6,7 @@ import { ALL_COUNTRIES } from '../../constants/countries';
 import { ALL_AIRPORTS } from '../../constants/airports';
 import { ALL_AIRLINES } from '../../constants/airlines';
 import { Address } from '../../types/profile';
+import { SemanticUtils } from '../../utils/accessibility';
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -47,8 +48,7 @@ export default function FormField({
         return (
           <Input
             {...baseProps}
-            label={field.label}
-            required={isRequired}
+            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
             keyboardType="default"
@@ -60,8 +60,7 @@ export default function FormField({
         return (
           <Input
             {...baseProps}
-            label={field.label}
-            required={isRequired}
+            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
             onChangeText={(text: string) => handleValueChange(text)}
             keyboardType="numeric"
             placeholder={field.label}
