@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-21T16:53:11.459Z",
+  "generatedAt": "2026-03-21T17:21:24.380Z",
   "stacks": [
     {
       "name": "RootStackParamList",
@@ -96,7 +96,7 @@
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/onboarding/BiometricSetupScreen.tsx",
-      "line": 111
+      "line": 115
     },
     {
       "from": "ConfirmProfile",
