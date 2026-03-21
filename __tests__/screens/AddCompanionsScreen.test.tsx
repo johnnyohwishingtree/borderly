@@ -2,7 +2,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
 import AddCompanionsScreen from '@/screens/onboarding/AddCompanionsScreen';
-import { FamilyMember } from '@/types/profile';
+import { FamilyMember, FamilyRelationship } from '@/types/profile';
 
 // Mock dependencies
 jest.mock('@react-navigation/native', () => ({
@@ -100,92 +100,22 @@ describe('AddCompanionsScreen', () => {
     });
   });
 
-  it('navigates to PassportScan with relationship: spouse when Spouse is selected', async () => {
+  const relationships: FamilyRelationship[] = ['spouse', 'child', 'parent', 'sibling', 'other'];
+
+  it.each(relationships)('navigates to PassportScan with relationship: %s when %s option is selected', async (relationship) => {
     const { getByTestId } = render(<AddCompanionsScreen />);
 
     fireEvent.press(getByTestId('add-companion-button'));
 
     await waitFor(() => {
-      expect(getByTestId('relationship-option-spouse')).toBeTruthy();
+      expect(getByTestId(`relationship-option-${relationship}`)).toBeTruthy();
     });
 
-    fireEvent.press(getByTestId('relationship-option-spouse'));
+    fireEvent.press(getByTestId(`relationship-option-${relationship}`));
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan', {
       familyMode: true,
-      relationship: 'spouse',
-      returnTo: 'AddCompanions',
-    });
-  });
-
-  it('navigates to PassportScan with relationship: child when Child is selected', async () => {
-    const { getByTestId } = render(<AddCompanionsScreen />);
-
-    fireEvent.press(getByTestId('add-companion-button'));
-
-    await waitFor(() => {
-      expect(getByTestId('relationship-option-child')).toBeTruthy();
-    });
-
-    fireEvent.press(getByTestId('relationship-option-child'));
-
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan', {
-      familyMode: true,
-      relationship: 'child',
-      returnTo: 'AddCompanions',
-    });
-  });
-
-  it('navigates to PassportScan with relationship: parent when Parent is selected', async () => {
-    const { getByTestId } = render(<AddCompanionsScreen />);
-
-    fireEvent.press(getByTestId('add-companion-button'));
-
-    await waitFor(() => {
-      expect(getByTestId('relationship-option-parent')).toBeTruthy();
-    });
-
-    fireEvent.press(getByTestId('relationship-option-parent'));
-
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan', {
-      familyMode: true,
-      relationship: 'parent',
-      returnTo: 'AddCompanions',
-    });
-  });
-
-  it('navigates to PassportScan with relationship: sibling when Sibling is selected', async () => {
-    const { getByTestId } = render(<AddCompanionsScreen />);
-
-    fireEvent.press(getByTestId('add-companion-button'));
-
-    await waitFor(() => {
-      expect(getByTestId('relationship-option-sibling')).toBeTruthy();
-    });
-
-    fireEvent.press(getByTestId('relationship-option-sibling'));
-
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan', {
-      familyMode: true,
-      relationship: 'sibling',
-      returnTo: 'AddCompanions',
-    });
-  });
-
-  it('navigates to PassportScan with relationship: other when Other is selected', async () => {
-    const { getByTestId } = render(<AddCompanionsScreen />);
-
-    fireEvent.press(getByTestId('add-companion-button'));
-
-    await waitFor(() => {
-      expect(getByTestId('relationship-option-other')).toBeTruthy();
-    });
-
-    fireEvent.press(getByTestId('relationship-option-other'));
-
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan', {
-      familyMode: true,
-      relationship: 'other',
+      relationship,
       returnTo: 'AddCompanions',
     });
   });

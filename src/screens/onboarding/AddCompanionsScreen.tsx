@@ -201,20 +201,20 @@ export default function AddCompanionsScreen() {
         testID="relationship-picker-modal"
       >
         <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+          className="flex-1 bg-black/50 justify-end"
           onPress={() => setShowRelationshipPicker(false)}
           testID="relationship-picker-backdrop"
         >
           <Pressable
-            style={{ backgroundColor: 'white', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 24, paddingTop: 24, paddingBottom: 40 }}
+            className="bg-white rounded-t-3xl px-6 pt-6 pb-10"
             onPress={(e) => e.stopPropagation()}
           >
             {/* Handle */}
-            <View style={{ width: 48, height: 4, backgroundColor: '#d1d5db', borderRadius: 2, alignSelf: 'center', marginBottom: 24 }} />
+            <View className="w-12 h-1 bg-gray-300 rounded-full self-center mb-6" />
 
             {/* Header */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#111827' }} testID="relationship-picker-title">
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-xl font-bold text-gray-900" testID="relationship-picker-title">
                 Who are you adding?
               </Text>
               <TouchableOpacity
@@ -226,18 +226,18 @@ export default function AddCompanionsScreen() {
             </View>
 
             {/* Relationship options */}
-            <View style={{ gap: 12 }}>
+            <View className="gap-3">
               {RELATIONSHIP_OPTIONS.map(({ value, label, emoji }) => {
                 const colors = RELATIONSHIP_COLORS[value];
                 return (
                   <TouchableOpacity
                     key={value}
                     onPress={() => handleRelationshipSelect(value)}
-                    style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb' }}
+                    className="flex-row items-center p-4 rounded-xl border border-gray-200"
                     testID={`relationship-option-${value}`}
                   >
-                    <Text style={{ fontSize: 24, marginRight: 16 }}>{emoji}</Text>
-                    <Text style={{ color: '#111827', fontWeight: '500', fontSize: 16, flex: 1 }}>{label}</Text>
+                    <Text className="text-2xl mr-4">{emoji}</Text>
+                    <Text className="text-gray-900 font-medium text-base flex-1">{label}</Text>
                     <View className={`px-3 py-1 rounded-full ${colors.bg}`}>
                       <Text className={`text-xs font-medium ${colors.text}`}>{label}</Text>
                     </View>
