@@ -14,6 +14,11 @@ on:
         description: 'Optional: specific flow to audit (e.g. "companion", "trip creation")'
         required: false
         type: string
+      use_stitch:
+        description: 'Generate Stitch UI mockups for each story'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -122,7 +127,7 @@ jobs:
           github_token: ${{ secrets.GH_PAT }}
           claude_args: |
             --max-turns 40
-            --allowedTools "Read,Glob,Grep,Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh label create:*),Bash(cat:*),Bash(npx tsx:*)"
+            --allowedTools "Read,Glob,Grep,Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh label create:*),Bash(cat:*),Bash(npx tsx:*),mcp__stitch__create_project,mcp__stitch__generate_screen_from_text,mcp__stitch__get_screen,mcp__stitch__list_projects"
           prompt: |
             You are a UX quality engineer for Borderly, a universal travel
             declaration app. Your job is to find UI/UX flow bugs and create
@@ -136,6 +141,10 @@ jobs:
             ## Specific Flow (if requested)
 
             ${{ github.event.inputs.flow || 'No specific flow — audit all critical flows.' }}
+
+            ## Stitch Mockups
+
+            ${{ github.event.inputs.use_stitch == 'true' && 'ENABLED: For each story, generate a Stitch mockup showing the FIXED UI state. Use mcp__stitch__create_project to create a project (or reuse existing "Borderly UX Audit" project), then mcp__stitch__generate_screen_from_text for each screen mockup. Include the screenshot URL from the Stitch response in the story body under a "## Mockup" section.' || 'DISABLED: Do not generate Stitch mockups. Describe the expected UI in text.' }}
 
             ## Step 1: Load Data
 
@@ -188,13 +197,46 @@ jobs:
               --body "..."
             ```
 
-            Each story must include:
-            - **Current behavior** with screenshot reference
-            - **Expected behavior** described precisely
-            - **Root cause** (which file/function is broken)
-            - **Files to modify** with specific guidance
-            - **Acceptance criteria** that can be verified with a test
-            - Use skill: `/plan-feature`
+            **CRITICAL: Story labels must include ALL THREE of these:**
+            - `story` — identifies it as a story for the orchestrator
+            - `pending` — marks it as ready to be picked up by the pipeline
+            - `epic:ux-audit` — links it to this epic
+
+            Story format:
+            ```bash
+            gh issue create \
+              --title "Story: <specific task>" \
+              --label "story" \
+              --label "pending" \
+              --label "epic:ux-audit" \
+              --body "$(cat <<'EOF'
+            **Parent Epic:** #<epic_number>
+            **Skill:** /plan-feature
+
+            ## Description
+            <what needs to be fixed>
+
+            ## Current Behavior
+            <what happens now, with screenshot reference if available>
+
+            ## Expected Behavior
+            <what should happen after the fix>
+
+            ## Root Cause
+            <which file/function is broken and why>
+
+            ## Files to Modify
+            - <file paths with specific guidance>
+
+            ## Acceptance Criteria
+            - [ ] Implementation complete
+            - [ ] Unit test verifying the fix
+            - [ ] Tests pass (pnpm typecheck && pnpm test && pnpm e2e)
+            EOF
+            )"
+            ```
+
+            After creating all stories, update the epic body with actual issue numbers.
 
             ## Step 5: Report
 
@@ -209,3 +251,45 @@ jobs:
             - Each story must be completable in a single Claude session
             - Maximum 6 stories per epic (batch if more issues exist)
             - Check existing open issues to avoid duplicates
+        env:
+          STITCH_API_KEY: ${{ secrets.STITCH_API_KEY }}
+
+      - name: Trigger first story
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Find the newest open UX audit epic
+          EPIC=$(gh issue list --repo "$REPO" --label "epic:ux-audit" --state open \
+            --json number -q '[.[] | .number] | sort | last')
+
+          if [ -z "$EPIC" ] || [ "$EPIC" = "null" ]; then
+            echo "No open UX audit epic found — audit found no issues"
+            exit 0
+          fi
+
+          # Find first pending story for this epic
+          FIRST_STORY=$(gh issue list --repo "$REPO" \
+            --label "story" --label "pending" --label "epic:ux-audit" \
+            --state open --json number \
+            -q '[.[] | .number] | sort | .[0]')
+
+          if [ -z "$FIRST_STORY" ] || [ "$FIRST_STORY" = "null" ]; then
+            echo "No pending stories found for epic #$EPIC"
+            exit 0
+          fi
+
+          # Check if another story is already in progress
+          ANY_IN_PROGRESS=$(gh issue list --repo "$REPO" \
+            --label "story" --label "in-progress" \
+            --state open --json number -q 'length')
+
+          if [ "$ANY_IN_PROGRESS" -gt 0 ]; then
+            echo "Another story is already in-progress — pipeline will pick up audit stories next"
+            exit 0
+          fi
+
+          echo "Triggering first audit story: #$FIRST_STORY"
+          gh issue edit "$FIRST_STORY" --repo "$REPO" \
+            --remove-label "pending" --add-label "in-progress" || true
+          npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent "$FIRST_STORY" "claude"
