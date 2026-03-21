@@ -233,6 +233,17 @@ Unit tests mock all native modules, so they **cannot** catch missing dependencie
 - [x] Implementation status documentation
 - [x] Final polish and error handling improvements
 
+### ✅ Sprint 5: Pre-Trip Deadline Reminders (Complete)
+Part of Epic #529 — Pre-Trip Deadline Reminders and Submission Readiness
+
+- [x] **DeadlineService** (`src/services/deadline/deadlineService.ts`) — Computes per-leg deadline status (5 states: not-started, in-progress, ready, overdue, no-deadline) and urgency level (normal, warning, critical, overdue) from departure date and country schema hours
+- [x] **NotificationScheduler** (`src/services/deadline/notificationScheduler.ts`) — Pluggable notification provider interface; schedules 3 triggers per leg (7-day, 48-h, 24-h before submission deadline); persists notification IDs in MMKV for cancellation across app restarts; integrates with TripStore CRUD lifecycle
+- [x] **DeadlineBadge component** (`src/components/trips/DeadlineBadge.tsx`) — Pill badge with 6 display states and countdown label; returns null only for no-deadline + normal urgency legs; full accessibility labels
+- [x] **LegCard integration** — DeadlineBadge rendered alongside form StatusBadge when deadline data is available
+- [x] **TripDetailScreen integration** — Asynchronously computes deadlines for all legs via `computeTripDeadlines`; passes deadline to each LegCard; displays "Trip Readiness: X of N legs ready" summary
+- [x] **Unit tests** — `__tests__/services/deadlineService.test.ts` (all 5 statuses, boundary values, overdue path with negative hoursRemaining); `__tests__/services/notificationScheduler.test.ts` (3-trigger scheduling, past-trigger skipping, all-past-triggers path, cancellation, idempotency)
+- [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` verifies DeadlineBadge visibility and trip readiness summary. `e2e/tests/trip-detail.spec.ts` also covers readiness summary and leg card rendering
+
 ## Accessibility Standards
 
 Borderly follows React Native accessibility (a11y) standards to ensure the app is usable with screen readers (VoiceOver on iOS, TalkBack on Android).

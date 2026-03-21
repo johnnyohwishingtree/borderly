@@ -202,6 +202,29 @@ describe('computeLegDeadline', () => {
     expect(result.status).toBe<DeadlineStatus>('overdue');
   });
 
+  it('overdue path: hoursRemaining is negative when departure is in the past', () => {
+    // departure was 5 days ago, submissionDeadlineHours = 72 → deadline was 8 days ago
+    const leg = makeLegWithDeparture(-5, { formStatus: 'not_started' });
+    const schema = makeSchema({ submissionDeadlineHours: 72 });
+
+    const result = computeLegDeadline(leg, schema);
+
+    expect(result.status).toBe<DeadlineStatus>('overdue');
+    expect(result.hoursRemaining).toBeLessThan(0);
+  });
+
+  it('overdue path: submissionDeadline is set and in the past when departure has passed', () => {
+    // departure was 3 days ago, submissionDeadlineHours = 24 → deadline was 4 days ago
+    const leg = makeLegWithDeparture(-3, { formStatus: 'in_progress' });
+    const schema = makeSchema({ submissionDeadlineHours: 24 });
+
+    const result = computeLegDeadline(leg, schema);
+
+    expect(result.status).toBe<DeadlineStatus>('overdue');
+    expect(result.submissionDeadline).toBeDefined();
+    expect(result.submissionDeadline!.getTime()).toBeLessThan(Date.now());
+  });
+
   it('returns status "no-deadline" when submissionDeadlineHours is 0 and no departureDate', () => {
     const leg = makeLegNoDeparture();
     const schema = makeSchema({ submissionDeadlineHours: 0 });

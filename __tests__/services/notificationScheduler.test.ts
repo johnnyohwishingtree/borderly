@@ -183,6 +183,21 @@ describe('scheduleDeadlineNotifications', () => {
     expect(scheduled).toHaveLength(0);
   });
 
+  it('schedules zero notifications when the deadline itself is in the past (all 3 triggers are past)', async () => {
+    const { provider, scheduled } = makeMockProvider();
+    setNotificationProvider(provider);
+
+    // Deadline was 5 hours ago — the deadline has already passed, so all 3 triggers
+    // (7 days, 48 hours, 24 hours before the deadline) are also in the past
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(-5); // negative = past deadline
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    expect(scheduled).toHaveLength(0);
+    expect(provider.schedule).not.toHaveBeenCalled();
+  });
+
   it('skips legs with no submissionDeadline (no-deadline status)', async () => {
     const { provider, scheduled } = makeMockProvider();
     setNotificationProvider(provider);
