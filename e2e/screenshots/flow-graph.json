@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-21T17:21:24.380Z",
+  "generatedAt": "2026-03-21T18:20:27.923Z",
   "stacks": [
     {
       "name": "RootStackParamList",
@@ -138,7 +138,7 @@
       "to": "PassportScan",
       "type": "navigate",
       "file": "src/screens/profile/AddFamilyMemberScreen.tsx",
-      "line": 31
+      "line": 32
     },
     {
       "from": "EditProfile",
@@ -327,14 +327,14 @@
       "to": "LegForm",
       "type": "navigate",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 122
+      "line": 119
     },
     {
       "from": "TripDetail",
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 141
+      "line": 138
     },
     {
       "from": "TripList",
