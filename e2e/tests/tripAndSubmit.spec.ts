@@ -29,8 +29,7 @@ test.describe('Trip and Submit Flow', () => {
     // === PHASE 2: Create Japan trip ===
     await createJapanTrip(page);
 
-    // === PHASE 3: Open trip detail and navigate to leg form ===
-    await page.getByTestId('trip-card-Smith Family Asia').click();
+    // === PHASE 3: Navigate to leg form (already on TripDetail after creation) ===
     await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
     await page.getByTestId('leg-card-JPN').click();
 
