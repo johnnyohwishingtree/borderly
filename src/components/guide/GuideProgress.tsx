@@ -59,10 +59,11 @@ export default function GuideProgress({
   };
 
   const getStepTextColor = (status: 'completed' | 'current' | 'upcoming') => {
+    // text-gray-400 on bg-gray-100 fails WCAG AA (~2.18:1); use text-gray-600 (~7.17:1) instead
     return {
       completed: 'text-white',
       current: 'text-white',
-      upcoming: 'text-gray-400',
+      upcoming: 'text-gray-600',
     }[status];
   };
 
