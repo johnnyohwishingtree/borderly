@@ -86,6 +86,7 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `build-ios.yml` | push to master (ios/pkg paths), workflow_dispatch | iOS build |
 | `build-android.yml` | push to master, workflow_dispatch | Android debug build + lint |
 | `screenshot-capture.yml` | push to master (UI paths), workflow_dispatch | Native screenshots on Android emulator; creates PR if changed |
+| `ux-audit.yml` | schedule (daily midnight PST), workflow_dispatch | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
 | `release.yml` | tags | Release pipeline |
 | `daily-planner.yml` | workflow_dispatch | Story planning (manual) |
 | `agent-switcher.yml` | workflow_dispatch | Switch between Claude/Gemini |
