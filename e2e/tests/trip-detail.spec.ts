@@ -165,12 +165,10 @@ test.describe('TripDetailScreen — DeadlineBadge integration', () => {
     await injectState(page, tripWithOneLeg());
     await goToTripDetail(page, 'Detail Test Trip');
 
-    // Core UI elements are present
-    await expect(page.getByText('Detail Test Trip')).toBeVisible();
-    await expect(page.getByText('Itinerary', { exact: true })).toBeVisible();
+    // goToTripDetail already confirms we are on TripDetailScreen ('Itinerary' is visible)
     await expect(page.getByTestId('leg-card-JPN')).toBeVisible({ timeout: 5000 });
 
-    // Overall progress section
-    await expect(page.getByText('Overall Progress')).toBeVisible();
+    // Overall progress section — use the readiness summary testID to avoid ambiguous text matches
+    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
   });
 });
