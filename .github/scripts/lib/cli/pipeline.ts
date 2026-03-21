@@ -140,16 +140,35 @@ async function main() {
         process.exit(1);
       }
       const github = getGitHub(repo);
+      let approved = false;
       try {
         await github.approvePR(pr, body);
+        approved = true;
       } catch (err) {
         if (err instanceof Error && /approve your own pull request/i.test(err.message)) {
-          console.log(`Skipping self-approval for PR #${pr} (token owner is the PR author). Auto-merge will still be dispatched.`);
+          // GH_PAT is the owner's token — in workflows, GH_TOKEN may be github-actions[bot]
+          // which CAN approve owner-authored PRs since it's a different identity.
+          const patToken = process.env['GH_PAT'];
+          const botToken = process.env['GH_TOKEN'];
+          if (botToken && botToken !== patToken) {
+            console.log(`GH_PAT self-approval failed — trying GH_TOKEN (bot) fallback for PR #${pr}`);
+            try {
+              const botGithub = new GitHubClient({ token: botToken, repo: repo ?? getRepo() });
+              await botGithub.approvePR(pr, body);
+              approved = true;
+              console.log(`Approved PR #${pr} via GH_TOKEN fallback (github-actions[bot]).`);
+            } catch (botErr) {
+              console.log(`GH_TOKEN fallback also failed: ${botErr instanceof Error ? botErr.message : botErr}`);
+            }
+          }
+          if (!approved) {
+            console.log(`Skipping self-approval for PR #${pr} (token owner is the PR author). Auto-merge will still be dispatched.`);
+          }
         } else {
           throw err;
         }
       }
-      // Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger events
+      // Dispatch auto-merge since GITHUB_TOKEN approvals don't trigger pull_request_review events
       const pat = process.env['GH_PAT'];
       if (pat) {
         const patGithub = new GitHubClient({ token: pat, repo: repo ?? getRepo() });

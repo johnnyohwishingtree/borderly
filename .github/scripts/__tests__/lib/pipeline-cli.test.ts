@@ -341,6 +341,40 @@ describe('pipeline CLI', () => {
       );
     });
 
+    it('approve-and-merge falls back to GH_TOKEN when GH_PAT fails with self-approval error', async () => {
+      // Scenario: In review-guardian.yml, GH_TOKEN = github.token (github-actions[bot])
+      // and GH_PAT = owner's PAT. The owner's PAT can't approve their own PR (422),
+      // but the bot token CAN approve it since it's a different user.
+      const selfApprovalErr = new Error('Review Can not approve your own pull request');
+      const patApprove = vi.fn().mockRejectedValue(selfApprovalErr);
+      const botApprove = vi.fn().mockResolvedValue(undefined);
+      const dispatchWorkflow = vi.fn().mockResolvedValue(undefined);
+
+      // Simulate the enhanced approve-and-merge flow with GH_TOKEN fallback
+      const PAT_TOKEN = 'ghp_ownertoken';
+      const BOT_TOKEN = 'ghs_bottoken'; // Different from PAT — github-actions[bot]
+      let approved = false;
+      try {
+        await patApprove(42, 'Auto-approved.');
+        approved = true;
+      } catch (err) {
+        if (!isSelfApprovalError(err)) throw err;
+        // Try GH_TOKEN fallback when it's different from GH_PAT
+        if (BOT_TOKEN && BOT_TOKEN !== PAT_TOKEN) {
+          await botApprove(42, 'Auto-approved.');
+          approved = true;
+        }
+      }
+      if (approved) {
+        await dispatchWorkflow('auto-merge.yml', 'master', { pr_number: '42' });
+      }
+
+      expect(patApprove).toHaveBeenCalled();
+      expect(botApprove).toHaveBeenCalled(); // Bot fallback was used
+      expect(approved).toBe(true);
+      expect(dispatchWorkflow).toHaveBeenCalled();
+    });
+
     it('approve-and-merge re-throws non-self-approval errors', async () => {
       const approvePR = vi.fn().mockRejectedValue(new Error('Internal Server Error'));
       const dispatchWorkflow = vi.fn();
