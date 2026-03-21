@@ -232,10 +232,10 @@ jobs:
             echo "source=${{ inputs.branch }}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout final target
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.target.outputs.final }}
+          ref: ${{ steps.target.outputs.source }}
           fetch-depth: 0
 
       - name: Setup pipeline TypeScript
@@ -253,15 +253,27 @@ jobs:
           SOURCE="${{ steps.target.outputs.source }}"
           FINAL="${{ steps.target.outputs.final }}"
 
-          if [ "$SOURCE" != "$FINAL" ]; then
-            git fetch origin "$SOURCE"
-            git merge "origin/$SOURCE" --no-edit
+          # Switch to target branch — create it if it doesn't exist.
+          # claude-code-action creates timestamped branches (claude/issue-N-YYYYMMDD),
+          # but claude.yml may pass a non-timestamped name (claude/issue-N) as merge_into.
+          # The pre-push of that name can fail silently, so we must handle both cases.
+          REMOTE_EXISTS=$(git ls-remote --heads origin "$FINAL" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$REMOTE_EXISTS" -gt 0 ]; then
+            git checkout "$FINAL"
+            if [ "$SOURCE" != "$FINAL" ]; then
+              git merge "origin/$SOURCE" --no-edit
+            fi
+          else
+            # Target doesn't exist — create it from the source branch
+            echo "Target branch $FINAL does not exist — creating from $SOURCE"
+            git checkout -b "$FINAL"
           fi
 
           # Merge master so the target branch is up to date
           git fetch origin master
           git merge origin/master --no-edit || {
             echo "::warning::Merge conflict with master — taking master for infra files"
+            git config merge.ours.driver true
             CONFLICTING=$(git diff --name-only --diff-filter=U || true)
             for file in $CONFLICTING; do
               if echo "$file" | grep -qE '^\.(github|claude)/|^docs/pipeline|^CLAUDE\.md|lock\.(yaml|json)$|Podfile\.lock$'; then
@@ -280,13 +292,7 @@ jobs:
             git commit -m "chore: remove fix context log"
           fi
 
-          REMOTE_EXISTS=$(git ls-remote --heads origin "$FINAL" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$REMOTE_EXISTS" -eq 0 ]; then
-            git push -u origin HEAD
-          else
-            npx tsx .github/scripts/lib/cli/pipeline.ts push "$FINAL"
-          fi
-
+          git push -u origin HEAD:"$FINAL"
           echo "Merged $SOURCE into $FINAL"
 
       - name: Clean up source branches
