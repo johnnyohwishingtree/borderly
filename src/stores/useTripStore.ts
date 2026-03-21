@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { Trip, TripLeg, SavedQRCode, TravelerFormData } from '@/types/trip';
 import { databaseService, TripQueryOptions } from '@/services/storage';
+import {
+  scheduleDeadlineNotifications,
+  cancelLegNotifications,
+  cancelTripNotifications,
+} from '@/services/deadline/notificationScheduler';
+import { computeLegDeadline } from '@/services/deadline/deadlineService';
+import { SchemaRegistry } from '@/services/schemas/schemaRegistry';
 
 interface TripStore {
   // State
@@ -274,6 +281,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
     try {
       await databaseService.deleteTrip(tripId);
 
+      // Cancel all scheduled notifications for this trip before removing state
+      cancelTripNotifications(tripId).catch(() => {/* fire-and-forget */});
+
       set(state => ({
         trips: state.trips.filter(trip => trip.id !== tripId),
         currentTrip: state.currentTrip?.id === tripId ? null : state.currentTrip,
@@ -319,6 +329,16 @@ export const useTripStore = create<TripStore>((set, get) => ({
         ),
         isLoading: false,
       }));
+
+      // Schedule deadline notifications for the new leg (fire-and-forget)
+      const updatedTrip = get().getTripById(tripId);
+      if (updatedTrip) {
+        const schema = SchemaRegistry.getInstance().getSchema(newLeg.destinationCountry);
+        if (schema) {
+          const deadline = computeLegDeadline(newLeg, schema);
+          scheduleDeadlineNotifications(updatedTrip, [deadline]).catch(() => {/* fire-and-forget */});
+        }
+      }
     } catch (error) {
       console.error('Failed to add trip leg:', error);
       set({
@@ -346,6 +366,29 @@ export const useTripStore = create<TripStore>((set, get) => ({
         })),
         isLoading: false,
       }));
+
+      // Post-update notification logic (fire-and-forget)
+      const updatedLeg = get().getLegById(legId);
+      if (updatedLeg) {
+        if (updates.formStatus === 'ready' || updates.formStatus === 'submitted') {
+          // Leg is complete — cancel its pending notifications
+          cancelLegNotifications(legId).catch(() => {/* fire-and-forget */});
+        } else if (updates.departureDate !== undefined) {
+          // Departure date changed — reschedule (cancel then re-schedule)
+          const trip = get().trips.find(t => t.legs.some(l => l.id === legId));
+          if (trip) {
+            const schema = SchemaRegistry.getInstance().getSchema(updatedLeg.destinationCountry);
+            if (schema) {
+              cancelLegNotifications(legId)
+                .then(() => {
+                  const deadline = computeLegDeadline(updatedLeg, schema);
+                  return scheduleDeadlineNotifications(trip, [deadline]);
+                })
+                .catch(() => {/* fire-and-forget */});
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Failed to update trip leg:', error);
       set({
@@ -356,6 +399,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
   },
 
   removeTripLeg: async (legId) => {
+    // Cancel notifications before removing from state
+    cancelLegNotifications(legId).catch(() => {/* fire-and-forget */});
+
     // Implementation would delete the leg from database
     // For now, just remove from state
     set(state => ({
