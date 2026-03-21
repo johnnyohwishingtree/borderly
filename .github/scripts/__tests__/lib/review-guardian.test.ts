@@ -221,14 +221,33 @@ describe('review-guardian', () => {
       expect(result.action).toBe('dispatch-review-fix');
     });
 
-    it('returns already-requested when fallback review already asked for', () => {
+    it('returns already-requested when fallback review already asked for but CI not yet passing', () => {
       mockExecSequence([
         '0', // count-approvals
         '0', // review count (no formal reviews)
         '1', // existing review request count
+        '0', // unresolved threads
+        'abc123', // headRefOid
+        'TESTS_PASS=false\nE2E_PASS=false', // check-ci-status — CI not yet passing
       ]);
       const result = decideEnsureReviewAction(10, 'owner/repo');
       expect(result.action).toBe('already-requested');
+    });
+
+    it('approves when fallback review was requested and CI now passes with no unresolved threads', () => {
+      // Scenario: Gemini was at quota, review-guardian requested a fallback review,
+      // Claude posted the review as a comment (not a formal GitHub review), fixed the issues,
+      // and CI now passes. The PR should be approved so it can merge.
+      mockExecSequence([
+        '0', // count-approvals
+        '0', // review count (no formal GitHub reviews — Claude reviewed via comment)
+        '1', // existing review request count (fallback was requested)
+        '0', // unresolved threads
+        'abc123', // headRefOid
+        'TESTS_PASS=true\nE2E_PASS=true', // check-ci-status — CI passes
+      ]);
+      const result = decideEnsureReviewAction(10, 'owner/repo');
+      expect(result.action).toBe('approve');
     });
 
     it('requests review when no reviews and no fallback requested', () => {

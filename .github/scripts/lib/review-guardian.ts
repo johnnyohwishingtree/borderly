@@ -220,6 +220,25 @@ export function decideEnsureReviewAction(
   );
 
   if (existingRequest > 0) {
+    // A fallback review was requested. Check whether the review has landed and
+    // CI now passes with no unresolved threads — if so, we can approve.
+    const unresolved = parseInt(safePipelineCli('0', 'count-unresolved-threads', String(prNum), repo), 10);
+    if (unresolved === 0) {
+      const headSha = safeExec('gh', [
+        'pr', 'view', String(prNum), '--repo', repo, '--json', 'headRefOid',
+        '-q', '.headRefOid',
+      ]);
+
+      if (headSha) {
+        const ciOutput = safePipelineCli('', 'check-ci-status', headSha, repo);
+        const testsPass = ciOutput.includes('TESTS_PASS=true');
+        const e2ePass = ciOutput.includes('E2E_PASS=true');
+
+        if (testsPass && e2ePass) {
+          return { action: 'approve', reason: 'fallback review was requested and CI now passes with all threads resolved' };
+        }
+      }
+    }
     return { action: 'already-requested' };
   }
 
