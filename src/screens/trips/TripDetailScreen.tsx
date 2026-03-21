@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  AccessibilityInfo,
+  findNodeHandle,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Upload, ClipboardList, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
@@ -18,6 +20,7 @@ import { Button, StatusBadge, Input } from '../../components/ui';
 import { Trip, TripLeg } from '../../types/trip';
 import { FamilyMember } from '../../types/profile';
 import { useEditTrip } from '../../hooks/useEditTrip';
+import { useAccessibilityFocus } from '../../hooks/useAccessibilityFocus';
 import { SUPPORTED_COUNTRIES } from '../../constants/countries';
 
 interface RouteParams {
@@ -42,6 +45,12 @@ export default function TripDetailScreen() {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Accessibility: focus management for modals
+  const editTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+  const addTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+  const { ref: editModalTitleRef } = useAccessibilityFocus({ shouldFocus: showEditModal, delay: 350 });
+  const { ref: addModalTitleRef } = useAccessibilityFocus({ shouldFocus: showAddModal, delay: 350 });
 
   // Load family members for traveler details — re-run whenever the screen comes into focus
   // so that newly added family members appear without an app restart.
@@ -104,11 +113,21 @@ export default function TripDetailScreen() {
   const handleCloseEditModal = () => {
     editHook.cancelEditLeg();
     setShowEditModal(false);
+    // Return focus to the Edit button that opened the modal
+    setTimeout(() => {
+      const tag = findNodeHandle(editTriggerRef.current as unknown as React.Component<unknown, unknown>);
+      if (tag != null) AccessibilityInfo.setAccessibilityFocus(tag);
+    }, 100);
   };
 
   const handleCloseAddModal = () => {
     editHook.cancelAddDestination();
     setShowAddModal(false);
+    // Return focus to the Add Destination button that opened the modal
+    setTimeout(() => {
+      const tag = findNodeHandle(addTriggerRef.current as unknown as React.Component<unknown, unknown>);
+      if (tag != null) AccessibilityInfo.setAccessibilityFocus(tag);
+    }, 100);
   };
 
   const handleSaveTripName = async () => {
@@ -191,10 +210,13 @@ export default function TripDetailScreen() {
               />
             </View>
             <TouchableOpacity
+              ref={editTriggerRef}
               onPress={handleEditTrip}
               className="ml-4 p-2"
               activeOpacity={0.7}
               testID="edit-trip-button"
+              accessibilityLabel="Edit trip"
+              accessibilityRole="button"
             >
               <Text className="text-blue-600 font-medium">Edit</Text>
             </TouchableOpacity>
@@ -238,10 +260,13 @@ export default function TripDetailScreen() {
           <View className="flex-row items-center justify-between mb-4">
             <Text className="text-xl font-bold text-gray-900">Itinerary</Text>
             <TouchableOpacity
+              ref={addTriggerRef}
               onPress={handleOpenAddDestination}
               className="bg-blue-50 px-3 py-2 rounded-lg"
               activeOpacity={0.7}
               testID="add-destination-button"
+              accessibilityLabel="Add destination"
+              accessibilityRole="button"
             >
               <Text className="text-blue-600 font-medium text-sm">+ Add Destination</Text>
             </TouchableOpacity>
@@ -348,7 +373,11 @@ export default function TripDetailScreen() {
                 <Text className="text-blue-600 font-medium">Cancel</Text>
               </TouchableOpacity>
             )}
-            <Text className="text-lg font-bold text-gray-900">
+            <Text
+              ref={editModalTitleRef}
+              className="text-lg font-bold text-gray-900"
+              accessibilityRole="header"
+            >
               {editHook.editingLegId ? 'Edit Destination' : 'Edit Trip'}
             </Text>
             {editHook.editingLegId ? (
@@ -471,7 +500,13 @@ export default function TripDetailScreen() {
             <TouchableOpacity onPress={handleCloseAddModal} activeOpacity={0.7} testID="add-modal-cancel">
               <Text className="text-blue-600 font-medium">Cancel</Text>
             </TouchableOpacity>
-            <Text className="text-lg font-bold text-gray-900">Add Destination</Text>
+            <Text
+              ref={addModalTitleRef}
+              className="text-lg font-bold text-gray-900"
+              accessibilityRole="header"
+            >
+              Add Destination
+            </Text>
             <TouchableOpacity
               onPress={handleConfirmAddDestination}
               activeOpacity={0.7}

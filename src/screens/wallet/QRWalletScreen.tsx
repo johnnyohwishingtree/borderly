@@ -1,14 +1,16 @@
-import { useState, useCallback, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  TouchableOpacity, 
+import { useState, useCallback, useMemo, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
   Alert,
   ActionSheetIOS,
   Platform,
   ScrollView,
   RefreshControl,
   Modal,
+  AccessibilityInfo,
+  findNodeHandle,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Smartphone, Filter, Users, X } from 'lucide-react-native';
@@ -22,6 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import { databaseService } from '../../services/storage';
 import { useProfileStore } from '../../stores/useProfileStore';
 import type { TravelerProfile } from '../../types/profile';
+import { useAccessibilityFocus } from '../../hooks/useAccessibilityFocus';
 
 export default function QRWalletScreen() {
   const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);
@@ -33,6 +36,10 @@ export default function QRWalletScreen() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const navigation = useNavigation();
   const { getAllProfiles } = useProfileStore();
+
+  // Accessibility: focus management for filter modal
+  const filterTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+  const { ref: filterModalTitleRef } = useAccessibilityFocus({ shouldFocus: showFilterModal, delay: 350 });
   
   const {
     state,
@@ -93,6 +100,15 @@ export default function QRWalletScreen() {
     retry();
     loadQRCodes(true);
   }, [retry, loadQRCodes]);
+
+  // Close filter modal and return focus to the trigger button
+  const handleCloseFilterModal = useCallback(() => {
+    setShowFilterModal(false);
+    setTimeout(() => {
+      const tag = findNodeHandle(filterTriggerRef.current as unknown as React.Component<unknown, unknown>);
+      if (tag != null) AccessibilityInfo.setAccessibilityFocus(tag);
+    }, 100);
+  }, []);
 
   // Filter QR codes by selected traveler
   const filteredQRCodes = useMemo(() => {
@@ -313,6 +329,7 @@ export default function QRWalletScreen() {
           
           {travelers.size > 1 && (
             <TouchableOpacity
+              ref={filterTriggerRef}
               onPress={() => setShowFilterModal(true)}
               className="bg-gray-100 rounded-full items-center justify-center mr-3"
               style={{ width: 44, height: 44 }}
@@ -377,16 +394,20 @@ export default function QRWalletScreen() {
         visible={showFilterModal}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setShowFilterModal(false)}
+        onRequestClose={handleCloseFilterModal}
       >
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-xl p-4">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-semibold text-gray-900">
+              <Text
+                ref={filterModalTitleRef}
+                className="text-lg font-semibold text-gray-900"
+                accessibilityRole="header"
+              >
                 Filter by Traveler
               </Text>
               <TouchableOpacity
-                onPress={() => setShowFilterModal(false)}
+                onPress={handleCloseFilterModal}
                 className="items-center justify-center"
                 style={{ width: 44, height: 44 }}
                 accessible={true}
@@ -402,7 +423,7 @@ export default function QRWalletScreen() {
               <TouchableOpacity
                 onPress={() => {
                   setSelectedTravelerFilter(null);
-                  setShowFilterModal(false);
+                  handleCloseFilterModal();
                 }}
                 className={`p-4 rounded-lg border mb-2 ${
                   !selectedTravelerFilter 
@@ -433,7 +454,7 @@ export default function QRWalletScreen() {
                     key={traveler.id}
                     onPress={() => {
                       setSelectedTravelerFilter(traveler.id);
-                      setShowFilterModal(false);
+                      handleCloseFilterModal();
                     }}
                     className={`p-4 rounded-lg border mb-2 ${
                       isSelected 
@@ -476,7 +497,7 @@ export default function QRWalletScreen() {
                 <TouchableOpacity
                   onPress={() => {
                     setSelectedTravelerFilter('unassigned');
-                    setShowFilterModal(false);
+                    handleCloseFilterModal();
                   }}
                   className={`p-4 rounded-lg border mb-2 ${
                     selectedTravelerFilter === 'unassigned'
