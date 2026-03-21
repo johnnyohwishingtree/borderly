@@ -144,7 +144,7 @@ export function getPRCIConclusion(pr: number, repo: string): string {
   try {
     const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
     if (checks.length === 0) return '';
-    if (checks.some(c => c.conclusion === 'FAILURE')) return 'FAILURE';
+    if (checks.some(c => c.conclusion === 'FAILURE' || c.conclusion === 'CANCELLED')) return 'FAILURE';
     // Only return SUCCESS when both required checks are present and succeeded.
     // If one hasn't started yet it won't appear in the list — don't prematurely
     // declare success based only on the checks that have run so far.
