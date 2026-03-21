@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-20T06:16:15.558Z",
+  "generatedAt": "2026-03-21T06:46:08.610Z",
   "stacks": [
     {
       "name": "RootStackParamList",
@@ -24,6 +24,7 @@
         "Tutorial",
         "PassportScan",
         "ConfirmProfile",
+        "AddCompanions",
         "BiometricSetup"
       ]
     },
@@ -77,6 +78,20 @@
   ],
   "edges": [
     {
+      "from": "AddCompanions",
+      "to": "PassportScan",
+      "type": "navigate",
+      "file": "src/screens/onboarding/AddCompanionsScreen.tsx",
+      "line": 64
+    },
+    {
+      "from": "AddCompanions",
+      "to": "BiometricSetup",
+      "type": "navigate",
+      "file": "src/screens/onboarding/AddCompanionsScreen.tsx",
+      "line": 72
+    },
+    {
       "from": "BiometricSetup",
       "to": "(back)",
       "type": "goBack",
@@ -85,7 +100,7 @@
     },
     {
       "from": "ConfirmProfile",
-      "to": "BiometricSetup",
+      "to": "AddCompanions",
       "type": "navigate",
       "file": "src/screens/onboarding/ConfirmProfileScreen.tsx",
       "line": 26
@@ -102,7 +117,7 @@
       "to": "PassportScan",
       "type": "navigate",
       "file": "src/screens/onboarding/TutorialScreen.tsx",
-      "line": 136
+      "line": 98
     },
     {
       "from": "Welcome",
@@ -130,21 +145,28 @@
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/profile/EditProfileScreen.tsx",
-      "line": 124
+      "line": 111
     },
     {
       "from": "FamilyManagement",
       "to": "AddFamilyMember",
       "type": "navigate",
       "file": "src/screens/profile/FamilyManagementScreen.tsx",
-      "line": 53
+      "line": 40
     },
     {
       "from": "FamilyManagement",
       "to": "EditProfile",
       "type": "navigate",
       "file": "src/screens/profile/FamilyManagementScreen.tsx",
-      "line": 59
+      "line": 46
+    },
+    {
+      "from": "FamilyManagement",
+      "to": "PassportScan",
+      "type": "navigate",
+      "file": "src/screens/profile/FamilyManagementScreen.tsx",
+      "line": 49
     },
     {
       "from": "Profile",
@@ -158,7 +180,7 @@
       "to": "FamilyManagement",
       "type": "navigate",
       "file": "src/screens/profile/ProfileScreen.tsx",
-      "line": 371
+      "line": 369
     },
     {
       "from": "Settings",
@@ -235,98 +257,98 @@
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/LegFormScreen.tsx",
-      "line": 61
+      "line": 67
     },
     {
       "from": "LegForm",
       "to": "PortalSubmission",
       "type": "navigate",
       "file": "src/screens/trips/LegFormScreen.tsx",
-      "line": 180
+      "line": 196
     },
     {
       "from": "LegForm",
       "to": "SubmissionGuide",
       "type": "navigate",
       "file": "src/screens/trips/LegFormScreen.tsx",
-      "line": 199
+      "line": 215
     },
     {
       "from": "PortalSubmission",
       "to": "SubmissionGuide",
       "type": "navigate",
       "file": "src/screens/trips/PortalSubmissionScreen.tsx",
-      "line": 161
+      "line": 165
     },
     {
       "from": "PortalSubmission",
       "to": "TripDetail",
       "type": "navigate",
       "file": "src/screens/trips/PortalSubmissionScreen.tsx",
-      "line": 272
+      "line": 276
     },
     {
       "from": "PortalSubmission",
       "to": "Main",
       "type": "navigate",
       "file": "src/screens/trips/PortalSubmissionScreen.tsx",
-      "line": 300
+      "line": 321
     },
     {
       "from": "SubmissionGuide",
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/SubmissionGuideScreen.tsx",
-      "line": 213
+      "line": 104
     },
     {
       "from": "SubmissionGuide",
       "to": "PortalSubmission",
       "type": "navigate",
       "file": "src/screens/trips/SubmissionGuideScreen.tsx",
-      "line": 268
+      "line": 172
     },
     {
       "from": "SubmissionGuide",
       "to": "AddQR",
       "type": "navigate",
       "file": "src/screens/trips/SubmissionGuideScreen.tsx",
-      "line": 395
+      "line": 308
     },
     {
       "from": "SubmissionGuide",
       "to": "TripDetail",
       "type": "navigate",
       "file": "src/screens/trips/SubmissionGuideScreen.tsx",
-      "line": 408
+      "line": 323
     },
     {
       "from": "TripDetail",
       "to": "LegForm",
       "type": "navigate",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 52
+      "line": 70
     },
     {
       "from": "TripDetail",
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/TripDetailScreen.tsx",
-      "line": 72
+      "line": 89
     },
     {
       "from": "TripList",
       "to": "TripDetail",
       "type": "navigate",
       "file": "src/screens/trips/TripListScreen.tsx",
-      "line": 83
+      "line": 85
     },
     {
       "from": "TripList",
       "to": "CreateTrip",
       "type": "navigate",
       "file": "src/screens/trips/TripListScreen.tsx",
-      "line": 88
+      "line": 90
     },
     {
       "from": "AddQR",
@@ -381,6 +403,7 @@
   "screenFiles": {
     "FAQ": "src/screens/help/FAQScreen.tsx",
     "Troubleshooting": "src/screens/help/TroubleshootingScreen.tsx",
+    "AddCompanions": "src/screens/onboarding/AddCompanionsScreen.tsx",
     "BiometricSetup": "src/screens/onboarding/BiometricSetupScreen.tsx",
     "ConfirmProfile": "src/screens/onboarding/ConfirmProfileScreen.tsx",
     "PassportScan": "src/screens/onboarding/PassportScanScreen.tsx",

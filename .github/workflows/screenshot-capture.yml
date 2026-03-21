@@ -1,7 +1,8 @@
 name: Screenshot Capture
 
-# Captures native-fidelity screenshots on an Android emulator after merges
-# that touch UI files. Creates a PR if screenshots changed.
+# Captures screenshots after merges that touch UI files.
+# Tries Android emulator first (native fidelity), falls back to Playwright
+# if emulator fails. Creates a PR if screenshots changed.
 #
 # Runs post-merge only — never blocks PRs.
 
@@ -34,30 +35,9 @@ jobs:
       - name: Setup pipeline TypeScript
         uses: ./.github/actions/setup-pipeline-ts
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Build Android debug APK
-        run: cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Install Maestro
-        run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-
-      - name: Run screenshot capture on Android emulator
+      - name: Try Android emulator capture
+        id: android
+        continue-on-error: true
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -67,25 +47,32 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
           script: |
-            # Install the app
-            adb install android/app/build/outputs/apk/debug/app-debug.apk
+            curl -Ls "https://get.maestro.mobile.dev" | bash
+            export PATH="$PATH:$HOME/.maestro/bin"
 
-            # Wait for app to be installable
+            cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64 && cd ..
+            adb install android/app/build/outputs/apk/debug/app-debug.apk
             sleep 5
 
-            # Run Maestro screenshot capture
             maestro test maestro/flows/capture-screenshots.yaml \
               --output maestro/output/ \
-              --format junit \
-              || true
+              --format junit
 
-            # Copy screenshots to the committed directory
             if ls maestro/output/*.png 1>/dev/null 2>&1; then
               cp maestro/output/*.png e2e/screenshots/
-              echo "Screenshots captured successfully"
-            else
-              echo "::warning::No screenshots were captured"
+              echo "ANDROID_SCREENSHOTS=true" >> $GITHUB_ENV
             fi
+
+      - name: Fallback to Playwright capture
+        if: steps.android.outcome == 'failure' || env.ANDROID_SCREENSHOTS != 'true'
+        run: |
+          echo "Android emulator failed — falling back to Playwright"
+          npx webpack --config webpack.config.js --mode production
+          E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots \
+            --project=screenshot-capture --workers=1 || true
+
+      - name: Update flow graph
+        run: npx tsx e2e/scripts/generate-flow-graph.ts
 
       - name: Check for changes
         id: diff
@@ -104,21 +91,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          SOURCE="Android emulator (Maestro)"
+          if [ "${{ steps.android.outcome }}" = "failure" ] || [ "$ANDROID_SCREENSHOTS" != "true" ]; then
+            SOURCE="Playwright (Android emulator unavailable)"
+          fi
+
           BRANCH="chore/update-screenshots-$(date +%Y%m%d-%H%M)"
           npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
           git checkout -b "$BRANCH"
-          git commit -m "chore: update native screenshots from Android emulator"
+          git commit -m "chore: update screenshots via $SOURCE"
           npx tsx .github/scripts/lib/cli/pipeline.ts push "$BRANCH"
 
           gh pr create \
             --head "$BRANCH" \
             --base master \
-            --title "chore: update native screenshots (${{ steps.diff.outputs.changed_count }} files changed)" \
-            --body "$(cat <<'PREOF'
-          ## Auto-captured native screenshots
+            --title "chore: update screenshots (${{ steps.diff.outputs.changed_count }} files changed)" \
+            --body "$(cat <<PREOF
+          ## Auto-captured screenshots
 
-          Triggered by a merge to master that changed UI files. Screenshots were
-          captured on an Android emulator (Pixel 6, API 34) using Maestro.
+          **Source:** $SOURCE
+          Triggered by a merge to master that changed UI files.
 
           Review the screenshot diffs to verify UI changes look correct.
           PREOF

@@ -1,7 +1,7 @@
 {
-  "capturedAt": "2026-03-20T02:00:41.858Z",
+  "capturedAt": "2026-03-21T06:45:59.010Z",
   "screenshotDir": "e2e/screenshots/",
-  "totalScreens": 36,
+  "totalScreens": 37,
   "screens": [
     {
       "id": "01-welcome-screen",
@@ -16,7 +16,7 @@
       "file": "02-tutorial-screen.png",
       "screen": "TutorialScreen",
       "domain": "onboarding",
-      "description": "Step-by-step tutorial explaining the app workflow (scan, create, fill, submit).",
+      "description": "Streamlined 3-slide tutorial: core value prop, privacy/security, passport scan CTA.",
       "state": "After clicking Get Started from Welcome"
     },
     {
@@ -52,240 +52,248 @@
       "state": "After completing passport form, reviewing data before saving"
     },
     {
-      "id": "07-biometric-setup",
-      "file": "07-biometric-setup.png",
+      "id": "07-add-companions-empty",
+      "file": "07-add-companions-empty.png",
+      "screen": "AddCompanionsScreen",
+      "domain": "onboarding",
+      "description": "Add travel companions screen — empty state with CTA to scan family passports.",
+      "state": "After confirming profile, no companions added yet"
+    },
+    {
+      "id": "08-biometric-setup",
+      "file": "08-biometric-setup.png",
       "screen": "BiometricSetupScreen",
       "domain": "onboarding",
       "description": "Biometric authentication setup — enable Face ID/Touch ID or skip.",
-      "state": "After confirming profile, before completing onboarding"
+      "state": "After skipping companions, before completing onboarding"
     },
     {
-      "id": "08-trip-list-empty",
-      "file": "08-trip-list-empty.png",
+      "id": "09-trip-list-empty",
+      "file": "09-trip-list-empty.png",
       "screen": "TripListScreen",
       "domain": "trips",
       "description": "Empty trip list with \"Create Your First Trip\" CTA.",
       "state": "Onboarded, no trips created"
     },
     {
-      "id": "09-create-trip",
-      "file": "09-create-trip.png",
+      "id": "10-create-trip",
+      "file": "10-create-trip.png",
       "screen": "CreateTripScreen",
       "domain": "trips",
       "description": "Trip creation form — name, destinations, dates, flight info, accommodation.",
       "state": "Onboarded, creating first trip, form empty"
     },
     {
-      "id": "10-trip-list-with-trip",
-      "file": "10-trip-list-with-trip.png",
+      "id": "11-trip-list-with-trip",
+      "file": "11-trip-list-with-trip.png",
       "screen": "TripListScreen",
       "domain": "trips",
       "description": "Trip list showing a trip card with destination flags and status.",
       "state": "Onboarded, one trip to Japan exists"
     },
     {
-      "id": "11-trip-detail",
-      "file": "11-trip-detail.png",
+      "id": "12-trip-detail",
+      "file": "12-trip-detail.png",
       "screen": "TripDetailScreen",
       "domain": "trips",
       "description": "Trip detail with itinerary legs, form status, and submission actions.",
       "state": "Viewing Japan trip with one leg"
     },
     {
-      "id": "12-leg-form",
-      "file": "12-leg-form.png",
+      "id": "13-leg-form",
+      "file": "13-leg-form.png",
       "screen": "LegFormScreen",
       "domain": "trips",
       "description": "Country-specific form (Japan) with auto-filled fields and remaining questions.",
       "state": "Viewing Japan leg form with profile auto-fill applied"
     },
     {
-      "id": "13-submission-guide",
-      "file": "13-submission-guide.png",
+      "id": "14-submission-guide",
+      "file": "14-submission-guide.png",
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Step-by-step portal walkthrough with pre-filled values ready to copy/paste.",
       "state": "Viewing Japan submission guide via imperative navigation"
     },
     {
-      "id": "14-portal-submission",
-      "file": "14-portal-submission.png",
+      "id": "15-portal-submission",
+      "file": "15-portal-submission.png",
       "screen": "PortalSubmissionScreen",
       "domain": "trips",
       "description": "Portal submission screen with WebView, toolbar, progress bar, and copy-paste fields panel.",
       "state": "Viewing Visit Japan Web portal (iframe blocked, showing Borderly UI chrome)"
     },
     {
-      "id": "15-wallet-empty",
-      "file": "15-wallet-empty.png",
+      "id": "16-wallet-empty",
+      "file": "16-wallet-empty.png",
       "screen": "QRWalletScreen",
       "domain": "wallet",
       "description": "Empty QR wallet with \"Add QR Code\" button. For storing submission QR codes.",
       "state": "Onboarded, no QR codes saved"
     },
     {
-      "id": "16-add-qr",
-      "file": "16-add-qr.png",
+      "id": "17-add-qr",
+      "file": "17-add-qr.png",
       "screen": "AddQRScreen",
       "domain": "wallet",
       "description": "Add QR code screen — scan or import QR from camera/gallery.",
       "state": "Adding a new QR code to wallet"
     },
     {
-      "id": "17-qr-detail",
-      "file": "17-qr-detail.png",
+      "id": "18-qr-detail",
+      "file": "18-qr-detail.png",
       "screen": "QRDetailScreen",
       "domain": "wallet",
       "description": "QR code detail view — shows not-found state (no QR codes in E2E database).",
       "state": "Navigated to QR detail with non-existent ID"
     },
     {
-      "id": "18-profile",
-      "file": "18-profile.png",
+      "id": "19-profile",
+      "file": "19-profile.png",
       "screen": "ProfileScreen",
       "domain": "profile",
       "description": "Profile overview — passport info (masked), completeness, contact details, family.",
       "state": "Onboarded with full profile data"
     },
     {
-      "id": "19-edit-profile",
-      "file": "19-edit-profile.png",
+      "id": "20-edit-profile",
+      "file": "20-edit-profile.png",
       "screen": "EditProfileScreen",
       "domain": "profile",
       "description": "Edit profile form — contact info, home address, default declarations.",
       "state": "Editing existing profile"
     },
     {
-      "id": "20-family-management",
-      "file": "20-family-management.png",
+      "id": "21-family-management",
+      "file": "21-family-management.png",
       "screen": "FamilyManagementScreen",
       "domain": "profile",
       "description": "Family member list with primary profile and spouse. Add/remove members.",
       "state": "2 family members (self + spouse)"
     },
     {
-      "id": "21-add-family-member",
-      "file": "21-add-family-member.png",
+      "id": "22-add-family-member",
+      "file": "22-add-family-member.png",
       "screen": "AddFamilyMemberScreen",
       "domain": "profile",
       "description": "Add family member — select relationship, scan or enter passport manually.",
       "state": "Adding a new family member from Family Management"
     },
     {
-      "id": "22-settings",
-      "file": "22-settings.png",
+      "id": "23-settings",
+      "file": "23-settings.png",
       "screen": "SettingsScreen",
       "domain": "settings",
       "description": "App settings — security, privacy, portal accounts, data management, help links.",
       "state": "Onboarded, default settings"
     },
     {
-      "id": "23-help",
-      "file": "23-help.png",
+      "id": "24-help",
+      "file": "24-help.png",
       "screen": "HelpScreen",
       "domain": "settings",
       "description": "Help & support hub — FAQ categories, troubleshooting, contact options.",
       "state": "Navigated from Settings"
     },
     {
-      "id": "24-faq",
-      "file": "24-faq.png",
+      "id": "25-faq",
+      "file": "25-faq.png",
       "screen": "FAQScreen",
       "domain": "settings",
       "description": "FAQ screen with searchable questions organized by category.",
       "state": "Navigated from Help screen"
     },
     {
-      "id": "25-troubleshooting",
-      "file": "25-troubleshooting.png",
+      "id": "26-troubleshooting",
+      "file": "26-troubleshooting.png",
       "screen": "TroubleshootingScreen",
       "domain": "settings",
       "description": "Troubleshooting guide with common issues, symptoms, and solutions.",
       "state": "Navigated from Help screen"
     },
     {
-      "id": "26-feedback",
-      "file": "26-feedback.png",
+      "id": "27-feedback",
+      "file": "27-feedback.png",
       "screen": "FeedbackScreen",
       "domain": "settings",
       "description": "Feedback form — rating, category, message text for user feedback.",
       "state": "Navigated from Settings"
     },
     {
-      "id": "27-bug-report",
-      "file": "27-bug-report.png",
+      "id": "28-bug-report",
+      "file": "28-bug-report.png",
       "screen": "BugReportScreen",
       "domain": "settings",
       "description": "Bug report form with auto-collected diagnostics (device, OS, app version).",
       "state": "Navigated from Settings"
     },
     {
-      "id": "28-privacy-policy",
-      "file": "28-privacy-policy.png",
+      "id": "29-privacy-policy",
+      "file": "29-privacy-policy.png",
       "screen": "PrivacyPolicyScreen",
       "domain": "settings",
       "description": "Privacy policy — data handling, local-first architecture, security details.",
       "state": "Navigated from Settings"
     },
     {
-      "id": "29-submission-guide-mys",
-      "file": "29-submission-guide-mys.png",
+      "id": "30-submission-guide-mys",
+      "file": "30-submission-guide-mys.png",
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Malaysia MDAC submission guide with step-by-step portal walkthrough.",
       "state": "Viewing MYS submission guide via imperative navigation"
     },
     {
-      "id": "30-submission-guide-sgp",
-      "file": "30-submission-guide-sgp.png",
+      "id": "31-submission-guide-sgp",
+      "file": "31-submission-guide-sgp.png",
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Singapore SG Arrival Card submission guide with step-by-step portal walkthrough.",
       "state": "Viewing SGP submission guide via imperative navigation"
     },
     {
-      "id": "31-submission-guide-vnm",
-      "file": "31-submission-guide-vnm.png",
+      "id": "32-submission-guide-vnm",
+      "file": "32-submission-guide-vnm.png",
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Vietnam e-Visa submission guide with step-by-step portal walkthrough.",
       "state": "Viewing VNM submission guide via imperative navigation"
     },
     {
-      "id": "32-submission-guide-can",
-      "file": "32-submission-guide-can.png",
+      "id": "33-submission-guide-can",
+      "file": "33-submission-guide-can.png",
       "screen": "SubmissionGuideScreen",
       "domain": "trips",
       "description": "Canada eTA submission guide with step-by-step portal walkthrough.",
       "state": "Viewing CAN submission guide via imperative navigation"
     },
     {
-      "id": "33-portal-submission-mys",
-      "file": "33-portal-submission-mys.png",
+      "id": "34-portal-submission-mys",
+      "file": "34-portal-submission-mys.png",
       "screen": "PortalSubmissionScreen",
       "domain": "trips",
       "description": "Malaysia MDAC portal submission screen with WebView and Borderly toolbar.",
       "state": "Viewing MYS portal (iframe blocked, showing Borderly UI chrome)"
     },
     {
-      "id": "34-portal-submission-sgp",
-      "file": "34-portal-submission-sgp.png",
+      "id": "35-portal-submission-sgp",
+      "file": "35-portal-submission-sgp.png",
       "screen": "PortalSubmissionScreen",
       "domain": "trips",
       "description": "Singapore SG Arrival Card portal submission screen with WebView and Borderly toolbar.",
       "state": "Viewing SGP portal (iframe blocked, showing Borderly UI chrome)"
     },
     {
-      "id": "35-portal-submission-vnm",
-      "file": "35-portal-submission-vnm.png",
+      "id": "36-portal-submission-vnm",
+      "file": "36-portal-submission-vnm.png",
       "screen": "PortalSubmissionScreen",
       "domain": "trips",
       "description": "Vietnam e-Visa portal submission screen with WebView and Borderly toolbar.",
       "state": "Viewing VNM portal (iframe blocked, showing Borderly UI chrome)"
     },
     {
-      "id": "36-portal-submission-can",
-      "file": "36-portal-submission-can.png",
+      "id": "37-portal-submission-can",
+      "file": "37-portal-submission-can.png",
       "screen": "PortalSubmissionScreen",
       "domain": "trips",
       "description": "Canada eTA portal submission screen with WebView and Borderly toolbar.",
