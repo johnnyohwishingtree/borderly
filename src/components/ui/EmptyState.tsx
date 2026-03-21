@@ -74,21 +74,31 @@ export default function EmptyState({
   return (
     <View className={getContainerStyles()}>
       {icon && (
-        <View className={getIconContainerStyles()}>
+        <View
+          className={getIconContainerStyles()}
+          accessible={false}
+          importantForAccessibility="no"
+        >
           {icon}
         </View>
       )}
-      
-      <Text className={getTitleStyles()}>
+
+      <Text
+        className={getTitleStyles()}
+        accessibilityRole="header"
+      >
         {title}
       </Text>
-      
+
       {bodyText && (
-        <Text className={getDescriptionStyles()}>
+        <Text
+          className={getDescriptionStyles()}
+          accessible={true}
+        >
           {bodyText}
         </Text>
       )}
-      
+
       {buttonProps && (
         <Button {...buttonProps} />
       )}

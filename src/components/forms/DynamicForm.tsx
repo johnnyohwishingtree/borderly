@@ -190,7 +190,12 @@ export default function DynamicForm({
     if (validationResult.isComplete) {return null;}
 
     return (
-      <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+      <View
+        testID="validation-summary"
+        className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+        accessibilityLiveRegion="polite"
+        accessible={true}
+      >
         <Text className="text-red-800 font-medium">
           {validationResult.missingFields.length} required fields need attention
         </Text>

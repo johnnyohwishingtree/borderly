@@ -44,11 +44,20 @@ export default function AutoFilledBadge({
     return isAuto ? 'Auto-filled' : 'User entered';
   };
 
+  const accessibilityDescription = isAuto
+    ? 'Auto-filled from your passport profile'
+    : 'Filled from your previous entries';
+
   return (
-    <View className={containerClasses}>
+    <View
+      className={containerClasses}
+      accessible={true}
+      accessibilityRole="text"
+      accessibilityLabel={accessibilityDescription}
+    >
       <View className={dotClasses} />
       {showLabel && (
-        <Text className={textClasses}>
+        <Text className={textClasses} accessible={false}>
           {getLabel()}
         </Text>
       )}

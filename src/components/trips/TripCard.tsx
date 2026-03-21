@@ -83,7 +83,14 @@ const TripCard = memo<TripCardProps>(({
   const CardComponent = onPress ? TouchableOpacity : View;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} testID={`trip-card-${trip.name}`} accessibilityLabel={trip.name}>
+    <CardComponent
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      testID={`trip-card-${trip.name}`}
+      accessibilityLabel={trip.name}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityHint={onPress ? 'Opens trip details' : undefined}
+    >
       <Card variant="elevated" className="mb-4">
         <View className="p-5">
           {/* Header */}
@@ -107,7 +114,7 @@ const TripCard = memo<TripCardProps>(({
 
           {/* Countries - Optimized rendering for large leg lists */}
           {trip.legs.length > 0 && (
-            <View className="mb-4">
+            <View className="mb-4" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
               <View className="flex-row items-center space-x-1">
                 {trip.legs.slice(0, 4).map((leg, index) => (
                   <React.Fragment key={leg.id}>

@@ -97,9 +97,17 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
   } = memberMetrics;
 
   const CardComponent = onPress ? TouchableOpacity : View;
+  const memberFullName = `${member.givenNames} ${member.surname}`;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} {...viewProps}>
+    <CardComponent
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={onPress ? memberFullName : undefined}
+      accessibilityHint={onPress ? 'Opens family member details' : undefined}
+      {...viewProps}
+    >
       <Card 
         variant={isActive ? "outlined" : "elevated"} 
         className={`mb-4 ${isActive ? 'border-blue-500 bg-blue-50' : ''}`}
@@ -108,7 +116,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
-              <View className="w-12 h-12 bg-gray-200 rounded-full items-center justify-center mr-3">
+              <View className="w-12 h-12 bg-gray-200 rounded-full items-center justify-center mr-3" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
                 <User size={24} color="#6b7280" />
               </View>
               <View className="flex-1">
@@ -166,6 +174,8 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
                   onPress={onEdit}
                   variant="outline"
                   size="small"
+                  accessibilityLabel={`Edit ${memberFullName}`}
+                  accessibilityHint="Opens edit form for this family member"
                 />
               </View>
             )}
@@ -176,6 +186,8 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
                   onPress={onRemove}
                   variant="outline"
                   size="small"
+                  accessibilityLabel={`Remove ${memberFullName}`}
+                  accessibilityHint="Removes this family member from your profile"
                 />
               </View>
             )}

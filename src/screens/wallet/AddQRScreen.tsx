@@ -403,7 +403,11 @@ export default function AddQRScreen() {
                   </Text>
                   <TouchableOpacity
                     onPress={handleReset}
-                    className="px-3 py-1 bg-gray-100 rounded-full"
+                    className="px-4 bg-gray-100 rounded-full items-center justify-center"
+                    style={{ minHeight: 44 }}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel="Reset captured image"
                   >
                     <Text className="text-sm text-gray-600">Reset</Text>
                   </TouchableOpacity>

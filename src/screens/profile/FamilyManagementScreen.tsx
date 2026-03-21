@@ -111,9 +111,12 @@ export default function FamilyManagementScreen() {
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
-              <Users size={24} color="#111827" style={{ marginRight: 8 }} />
+              <Users size={24} color="#111827" style={{ marginRight: 8 }} importantForAccessibility="no" />
               <View>
-                <Text className="text-2xl font-bold text-gray-900">
+                <Text
+                  className="text-2xl font-bold text-gray-900"
+                  accessibilityRole="header"
+                >
                   Family Members
                 </Text>
                 <Text className="text-base text-gray-600">
