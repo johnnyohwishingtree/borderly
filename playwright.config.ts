@@ -46,6 +46,7 @@ const allProjects = [
       'formCompletion.spec.ts',
       'settings.spec.ts',
       'demoScan.spec.ts',
+      'backup-restore.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
