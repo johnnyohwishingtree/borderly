@@ -415,6 +415,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
   },
 
   reorderTripLegs: async (tripId, legIds) => {
+    // Persist new order to database before updating in-memory state
+    await Promise.all(
+      legIds.map((legId, index) => databaseService.updateTripLeg(legId, { order: index }))
+    );
+
     set(state => ({
       trips: state.trips.map(trip => {
         if (trip.id !== tripId) {return trip;}
