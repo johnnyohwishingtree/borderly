@@ -381,6 +381,28 @@ jobs:
             echo "PR created — waiting for reviews before merge"
           fi
 
+  # When merge fails (e.g. target branch doesn't exist, git conflict),
+  # comment on the issue so the watcher or a human can see it immediately.
+  merge-failed:
+    needs: merge
+    if: failure() && inputs.issue_number != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/scripts
+            .github/actions
+          sparse-checkout-cone-mode: false
+      - uses: ./.github/actions/setup-pipeline-ts
+      - name: Comment merge failure
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          npx tsx .github/scripts/lib/cli/pipeline.ts comment "${{ inputs.issue_number }}" \
+            "verify-and-fix merge failed ([view logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})). Branch: \`${{ inputs.branch }}\`. The watcher will retry."
+
   # When verify passes but there's no merge job to run (no work_branch,
   # no merge_into), the verify job may have merged master locally to pass.
   # The PR branch on GitHub is still behind master and CI still shows failure.

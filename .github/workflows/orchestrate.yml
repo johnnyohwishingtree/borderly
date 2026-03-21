@@ -89,6 +89,30 @@ jobs:
                 --body "All stories in this epic have been completed. Review the merged PRs for the full implementation."
               gh issue close "$EPIC_NUM" --repo ${{ github.repository }}
             fi
+
+            # Cross-epic chaining: check other open epics for pending stories
+            OTHER_EPIC=$(gh issue list --repo ${{ github.repository }} \
+              --label "epic" --state open --json labels,number \
+              -q '[.[] | {num: .number, label: [.labels[].name | select(startswith("epic:"))][0]}] | .[0]' 2>/dev/null || echo "null")
+
+            if [ "$OTHER_EPIC" != "null" ] && [ -n "$OTHER_EPIC" ]; then
+              OTHER_LABEL=$(echo "$OTHER_EPIC" | jq -r '.label')
+              if [ -n "$OTHER_LABEL" ] && [ "$OTHER_LABEL" != "null" ]; then
+                NEXT_IN_OTHER=$(npx tsx .github/scripts/lib/cli/pipeline.ts get-next-pending-story "$OTHER_LABEL" "${{ github.repository }}" 2>/dev/null || echo "")
+                if [ -n "$NEXT_IN_OTHER" ] && [ "$NEXT_IN_OTHER" != "null" ]; then
+                  ANY_ACTIVE=$(gh issue list --repo ${{ github.repository }} \
+                    --label "story" --label "in-progress" --state open \
+                    --json number -q 'length' 2>/dev/null || echo "0")
+                  if [ "$ANY_ACTIVE" -eq 0 ]; then
+                    echo "Cross-epic: triggering #$NEXT_IN_OTHER from $OTHER_LABEL"
+                    npx tsx .github/scripts/lib/cli/state-machine.ts transition "$NEXT_IN_OTHER" "planned" 2>/dev/null || true
+                    gh issue edit "$NEXT_IN_OTHER" --repo ${{ github.repository }} \
+                      --remove-label "pending" --add-label "in-progress" || true
+                    npx tsx .github/scripts/lib/cli/pipeline.ts trigger-story-agent "$NEXT_IN_OTHER" "${{ vars.PREFERRED_AGENT || 'claude' }}"
+                  fi
+                fi
+              fi
+            fi
             exit 0
           fi
 
