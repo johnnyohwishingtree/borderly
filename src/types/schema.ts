@@ -79,6 +79,11 @@ export interface CountryFormSchema {
   portalUrl: string; // Government portal URL
   portalName: string; // e.g., "Visit Japan Web"
 
+  // Submission deadline metadata (used by DeadlineService)
+  submissionDeadlineHours: number; // Hours before arrival that form must be submitted (0 = any time before arrival)
+  recommendedLeadTimeHours: number; // Recommended buffer time in hours before the hard deadline
+  submissionWindowNote: string; // Short human-readable string shown in the UI
+
   // Schema metadata
   metadata: {
     priority: number; // Implementation priority (1 = highest)
