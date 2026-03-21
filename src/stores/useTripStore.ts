@@ -403,8 +403,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
     const legTrip = get().trips.find(t => t.legs.some(l => l.id === legId));
     cancelLegNotifications(legId, legTrip?.id).catch(() => {/* fire-and-forget */});
 
-    // Implementation would delete the leg from database
-    // For now, just remove from state
+    // Persist deletion to database before updating in-memory state
+    await databaseService.deleteTripLeg(legId);
+
     set(state => ({
       trips: state.trips.map(trip => ({
         ...trip,
