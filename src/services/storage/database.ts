@@ -334,6 +334,14 @@ class DatabaseService {
     });
   }
 
+  async deleteTripLeg(legId: string) {
+    const db = await this.getDatabase();
+    return await db.write(async () => {
+      const leg = await db.collections.get('trip_legs').find(legId);
+      await leg.markAsDeleted();
+    });
+  }
+
   // QR Code operations with proper filtering
   async getQRCodes(legId?: string) {
     const db = await this.getDatabase();
