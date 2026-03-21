@@ -247,6 +247,7 @@ export default function PassportPreview({
           fullWidth
           disabled={isLoading}
           loading={isLoading}
+          testID="confirm-scan-button"
         />
         
         <View className="flex-row space-x-3">

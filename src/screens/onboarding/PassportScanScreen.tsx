@@ -37,6 +37,7 @@ export default function PassportScanScreen() {
     retrySave,
     retryScan,
     fallbackToManual,
+    handleDemoScan,
   } = usePassportScan();
 
   const { control, handleSubmit, formState: { errors } } = form;
@@ -189,6 +190,35 @@ export default function PassportScanScreen() {
                 testID="enter-manually-button"
               />
             </View>
+
+            {__DEV__ && (
+              <View className="items-center py-2 mt-2 border-t border-gray-200">
+                <Text className="text-xs text-gray-400 mb-2">Development Only</Text>
+                <View className="flex-row gap-2">
+                  <Button
+                    title="Demo: Adult"
+                    onPress={() => handleDemoScan('adult')}
+                    variant="outline"
+                    size="small"
+                    testID="demo-scan-adult"
+                  />
+                  <Button
+                    title="Demo: Spouse"
+                    onPress={() => handleDemoScan('spouse')}
+                    variant="outline"
+                    size="small"
+                    testID="demo-scan-spouse"
+                  />
+                  <Button
+                    title="Demo: Child"
+                    onPress={() => handleDemoScan('child')}
+                    variant="outline"
+                    size="small"
+                    testID="demo-scan-child"
+                  />
+                </View>
+              </View>
+            )}
           </>
         )}
 

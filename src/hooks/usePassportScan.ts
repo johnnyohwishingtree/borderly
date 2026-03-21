@@ -26,6 +26,57 @@ const passportSchema = z.object({
 
 type PassportFormData = z.infer<typeof passportSchema>;
 
+// Demo scan profiles for E2E testing (Maestro/development)
+type DemoPersona = 'adult' | 'spouse' | 'child';
+
+const DEMO_PROFILES: Record<DemoPersona, MRZParseResult> = {
+  adult: {
+    success: true,
+    errors: [],
+    confidence: 1.0,
+    profile: {
+      passportNumber: 'L12345678',
+      surname: 'SMITH',
+      givenNames: 'JOHN MICHAEL',
+      nationality: 'USA',
+      dateOfBirth: '1985-06-15',
+      gender: 'M',
+      passportExpiry: '2032-03-20',
+      issuingCountry: 'USA',
+    },
+  },
+  spouse: {
+    success: true,
+    errors: [],
+    confidence: 1.0,
+    profile: {
+      passportNumber: 'M98765432',
+      surname: 'SMITH',
+      givenNames: 'JANE MARIE',
+      nationality: 'USA',
+      dateOfBirth: '1987-09-22',
+      gender: 'F',
+      passportExpiry: '2031-11-15',
+      issuingCountry: 'USA',
+    },
+  },
+  child: {
+    success: true,
+    errors: [],
+    confidence: 1.0,
+    profile: {
+      passportNumber: 'N55512345',
+      surname: 'SMITH',
+      givenNames: 'EMMA',
+      nationality: 'USA',
+      dateOfBirth: '2015-03-10',
+      gender: 'F',
+      passportExpiry: '2030-03-10',
+      issuingCountry: 'USA',
+    },
+  },
+};
+
 /**
  * Encapsulates passport scanning and profile creation logic:
  * - Mode management (method selection, scanning, preview, manual)
@@ -36,7 +87,7 @@ type PassportFormData = z.infer<typeof passportSchema>;
 export function usePassportScan() {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>>();
   const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
-  const { saveProfile, getProfile, updateProfileById } = useProfileStore();
+  const { saveProfile, addProfile, getProfile, updateProfileById } = useProfileStore();
 
   const familyMode = route.params?.familyMode || false;
   const relationship = route.params?.relationship || 'self';
@@ -146,7 +197,17 @@ export function usePassportScan() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        await saveProfile(completeProfile);
+        if (familyMode) {
+          await addProfile(completeProfile, {
+            relationship: (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other'),
+            isPrimary: false,
+            isActive: true,
+            biometricEnabled: false,
+            nickname: `${completeProfile.givenNames} ${completeProfile.surname}`,
+          });
+        } else {
+          await saveProfile(completeProfile);
+        }
       }
 
       setLastFailedOperation(null);
@@ -180,7 +241,7 @@ export function usePassportScan() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [generateProfileId, saveProfile, updateProfileById, profileId, familyMode, relationship, returnTo, navigation]);
+  }, [generateProfileId, saveProfile, addProfile, updateProfileById, profileId, familyMode, relationship, returnTo, navigation]);
 
   const handleScanSuccess = useCallback((result: MRZParseResult) => {
     setScanError(null);
@@ -269,6 +330,11 @@ export function usePassportScan() {
     setMode('manual');
   }, []);
 
+  const handleDemoScan = useCallback((persona: DemoPersona = 'adult') => {
+    const demoResult = DEMO_PROFILES[persona] ?? DEMO_PROFILES.adult;
+    handleScanSuccess(demoResult);
+  }, [handleScanSuccess]);
+
   return {
     mode,
     scanResult,
@@ -296,6 +362,7 @@ export function usePassportScan() {
     retrySave,
     retryScan,
     fallbackToManual,
+    handleDemoScan,
   };
 }
 

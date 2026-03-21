@@ -1,0 +1,36 @@
+# Shared subflow: Demo scan an adult passport (dev mode only)
+#
+# Simulates a successful passport scan using pre-defined test data.
+# The "Demo: Adult" button is only visible in __DEV__ mode.
+#
+# Profile: JOHN MICHAEL SMITH, USA, DOB 1985-06-15, Passport L12345678
+#
+# Precondition: On PassportScanScreen, method selection visible
+# Postcondition: On ConfirmProfile screen with scanned data
+appId: com.borderly.app
+---
+
+# Scroll to demo buttons and tap
+- scrollUntilVisible:
+    element:
+      id: "demo-scan-adult"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "demo-scan-adult"
+
+# Preview screen — confirm the scan
+- extendedWaitUntil:
+    visible: "L12345678"
+    timeout: 10000
+- assertVisible: "JOHN MICHAEL"
+- assertVisible: "SMITH"
+
+# Confirm scanned profile
+- scrollUntilVisible:
+    element:
+      id: "confirm-scan-button"
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: "confirm-scan-button"
