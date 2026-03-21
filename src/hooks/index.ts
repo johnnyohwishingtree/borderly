@@ -1,3 +1,4 @@
+export { useAccessibilityFocus } from './useAccessibilityFocus';
 export { useAccountSetup } from './useAccountSetup';
 export { useEditTrip } from './useEditTrip';
 export { useAppLock } from './useAppLock';
