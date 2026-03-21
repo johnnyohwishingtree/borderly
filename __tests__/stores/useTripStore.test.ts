@@ -12,6 +12,7 @@ import { act } from '@testing-library/react-native';
 // ---------------------------------------------------------------------------
 
 const mockDeleteTripLeg = jest.fn();
+const mockUpdateTripLeg = jest.fn();
 const mockCancelLegNotifications = jest.fn().mockResolvedValue(undefined);
 
 jest.mock('@/services/storage', () => ({
@@ -23,7 +24,7 @@ jest.mock('@/services/storage', () => ({
     updateTrip: jest.fn(),
     deleteTrip: jest.fn(),
     createTripLeg: jest.fn(),
-    updateTripLeg: jest.fn(),
+    updateTripLeg: (...args: unknown[]) => mockUpdateTripLeg(...args),
     deleteTripLeg: (...args: unknown[]) => mockDeleteTripLeg(...args),
     getQRCodes: jest.fn().mockResolvedValue([]),
     saveQRCode: jest.fn(),
@@ -97,6 +98,7 @@ describe('useTripStore', () => {
     useTripStore.setState({ trips: [], currentTrip: null, isLoading: false, error: null });
     jest.clearAllMocks();
     mockDeleteTripLeg.mockResolvedValue(undefined);
+    mockUpdateTripLeg.mockResolvedValue(undefined);
     mockCancelLegNotifications.mockResolvedValue(undefined);
   });
 
@@ -150,6 +152,70 @@ describe('useTripStore', () => {
       });
 
       expect(mockCancelLegNotifications).toHaveBeenCalledWith('leg-1', 'trip-1');
+    });
+  });
+
+  describe('reorderTripLegs', () => {
+    it('calls databaseService.updateTripLeg for each leg with its new order index', async () => {
+      const trip = makeTrip({
+        legs: [
+          makeLeg({ id: 'leg-1', order: 0 }),
+          makeLeg({ id: 'leg-2', order: 1 }),
+          makeLeg({ id: 'leg-3', order: 2 }),
+        ],
+      });
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().reorderTripLegs('trip-1', ['leg-3', 'leg-1', 'leg-2']);
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(3);
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-3', { order: 0 });
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-1', { order: 1 });
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-2', { order: 2 });
+    });
+
+    it('updates in-memory state to reflect the new order', async () => {
+      const trip = makeTrip({
+        legs: [
+          makeLeg({ id: 'leg-1', order: 0 }),
+          makeLeg({ id: 'leg-2', order: 1 }),
+        ],
+      });
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().reorderTripLegs('trip-1', ['leg-2', 'leg-1']);
+      });
+
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].id).toBe('leg-2');
+      expect(trips[0].legs[0].order).toBe(0);
+      expect(trips[0].legs[1].id).toBe('leg-1');
+      expect(trips[0].legs[1].order).toBe(1);
+    });
+
+    it('does not update in-memory state if a database write throws', async () => {
+      const trip = makeTrip({
+        legs: [
+          makeLeg({ id: 'leg-1', order: 0 }),
+          makeLeg({ id: 'leg-2', order: 1 }),
+        ],
+      });
+      useTripStore.setState({ trips: [trip] });
+      mockUpdateTripLeg.mockRejectedValue(new Error('DB error'));
+
+      await expect(
+        act(async () => {
+          await useTripStore.getState().reorderTripLegs('trip-1', ['leg-2', 'leg-1']);
+        })
+      ).rejects.toThrow('DB error');
+
+      // State should be unchanged — original order preserved
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].id).toBe('leg-1');
+      expect(trips[0].legs[0].order).toBe(0);
     });
   });
 });
