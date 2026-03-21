@@ -342,8 +342,7 @@ describe('getUrgencyLevel', () => {
 
   it('returns "normal" for no-deadline status with 0 hoursRemaining', () => {
     const deadline = makeDeadlineWithHours(0, 'no-deadline');
-    // hoursRemaining = 0, status = 'no-deadline' (not 'overdue') → critical threshold (≤24)
-    expect(getUrgencyLevel(deadline)).toBe('critical');
+    expect(getUrgencyLevel(deadline)).toBe('normal');
   });
 
   it('returns "normal" when hoursRemaining is exactly 49', () => {

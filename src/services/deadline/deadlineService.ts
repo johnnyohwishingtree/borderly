@@ -151,6 +151,9 @@ export function computeTripDeadlines(
  *  - exactly 48 h remaining → 'warning'
  */
 export function getUrgencyLevel(deadline: LegDeadline): UrgencyLevel {
+  if (deadline.status === 'no-deadline') {
+    return 'normal';
+  }
   if (deadline.status === 'overdue' || deadline.hoursRemaining < 0) {
     return 'overdue';
   }
