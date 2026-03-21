@@ -3,8 +3,8 @@
  *
  * Evaluates 6 merge conditions and returns an action:
  * - All pass + up to date → merge (squash)
- * - All pass + behind → update branch
- * - Any fail → wait (re-evaluated on next event)
+ * - Behind master (any other conditions) → update branch (triggers fresh CI)
+ * - Other conditions fail + up to date → wait (re-evaluated on next event)
  * - PR doesn't target master → skip
  */
 
@@ -78,14 +78,17 @@ export async function evaluateMergeGate(
     .map(([k]) => k);
 
   const allConditionsMet = failingConditions.length === 0;
-  const allExceptBranch =
-    failingConditions.length === 1 &&
-    failingConditions[0] === 'branchUpToDate';
+
+  // Update branch whenever it's behind master, even if other conditions fail.
+  // updateBranch triggers pull_request synchronize which attaches fresh CI checks.
+  // Without this, PRs with no checks get stuck: can't pass tests without
+  // updating, can't update without passing tests (PR #574 chicken-and-egg).
+  const needsBranchUpdate = !conditions.branchUpToDate;
 
   let action: MergeGateResult['action'];
   if (allConditionsMet) {
     action = 'merge';
-  } else if (allExceptBranch) {
+  } else if (needsBranchUpdate) {
     action = 'update_branch';
   } else {
     action = 'wait';

@@ -107,17 +107,31 @@ describe('evaluateMergeGate', () => {
     expect(result.failingConditions).toContain('noActiveReviewFix');
   });
 
-  it('returns "wait" when multiple conditions fail', async () => {
+  it('returns "wait" when multiple conditions fail but branch is up to date', async () => {
     const github = createMockGitHub({
       testsPass: false,
       approvals: 0,
-      branchStatus: 'behind',
     });
     const result = await evaluateMergeGate(github, 42);
 
     expect(result.action).toBe('wait');
     expect(result.failingConditions).toContain('testsPass');
     expect(result.failingConditions).toContain('approved');
+  });
+
+  // Bug (#574): PR behind master with no CI checks → gate returned "wait"
+  // instead of "update_branch". updateBranch triggers pull_request synchronize
+  // which attaches CI checks. Without it, the PR sits in limbo — can't pass
+  // tests without updating, can't update without passing tests.
+  it('returns "update_branch" when behind master even if CI has not run', async () => {
+    const github = createMockGitHub({
+      testsPass: false,
+      e2ePass: false,
+      branchStatus: 'behind',
+    });
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('update_branch');
     expect(result.failingConditions).toContain('branchUpToDate');
   });
 
