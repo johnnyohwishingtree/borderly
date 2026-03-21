@@ -156,6 +156,8 @@ export default function StepCard({
                   className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
                   style={({ pressed }) => ({
                     opacity: pressed ? 0.8 : 1,
+                    minHeight: 44,
+                    minWidth: 44,
                   })}
                 >
                   <CircleCheck size={18} color="white" />
