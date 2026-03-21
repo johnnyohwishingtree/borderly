@@ -192,8 +192,10 @@ export default function Select({
           ...accessibilityState,
           expanded: isOpen,
         }}
+        // Note: accessibilityRequired is not in the RN types for this project version.
+        // Required status is conveyed via accessibilityLabel (semanticLabel includes ", required" suffix).
         // Note: accessibilityLabelledBy and accessibilityDescribedBy not supported in React Native
-        
+
         // Enhanced accessibility
         importantForAccessibility="yes"
         hitSlop={TouchTargetUtils.getHitSlop(100, ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET)}
@@ -215,7 +217,7 @@ export default function Select({
           nativeID={errorId}
           accessible={true}
           accessibilityRole="text"
-          accessibilityLiveRegion="assertive"
+          accessibilityLiveRegion="polite"
           testID={errorTestID}
         >
           {error}

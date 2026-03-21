@@ -13,6 +13,9 @@ export default function StatusBadge({
   variant = 'soft',
   text,
   className,
+  accessible = true,
+  accessibilityRole = 'text',
+  accessibilityLabel,
   ...viewProps
 }: StatusBadgeProps) {
   const getBadgeStyles = () => {
@@ -96,8 +99,14 @@ export default function StatusBadge({
   };
 
   return (
-    <View className={getBadgeStyles()} {...viewProps}>
-      <Text className={getTextStyles()}>{text}</Text>
+    <View
+      className={getBadgeStyles()}
+      accessible={accessible}
+      accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel ?? text}
+      {...viewProps}
+    >
+      <Text className={getTextStyles()} accessible={false}>{text}</Text>
     </View>
   );
 }

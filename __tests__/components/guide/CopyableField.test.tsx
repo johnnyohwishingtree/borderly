@@ -232,4 +232,54 @@ describe('CopyableField', () => {
 
     expect(getByLabelText('Copy Test Field: Test Value')).toBeTruthy();
   });
+
+  it('copy status area has accessibilityLiveRegion polite for screen reader announcement', () => {
+    const { getByTestId } = render(
+      <CopyableField
+        label="Test Field"
+        value="Test Value"
+      />
+    );
+
+    // The View wrapping the copy icon + text should have accessibilityLiveRegion="polite"
+    // so screen readers announce the state change when "Copied!" appears.
+    const statusArea = getByTestId('copy-status-area');
+    expect(statusArea.props.accessibilityLiveRegion).toBe('polite');
+  });
+
+  it('copy status area has no accessibilityLabel before copying', () => {
+    const { getByTestId } = render(
+      <CopyableField
+        label="Test Field"
+        value="Test Value"
+      />
+    );
+
+    const statusArea = getByTestId('copy-status-area');
+    // Before copying, the label is undefined (no announcement needed)
+    expect(statusArea.props.accessibilityLabel).toBeUndefined();
+  });
+
+  it('copy status area announces "Copied to clipboard" after copy', async () => {
+    // Reset any throwing mock implementation from prior tests
+    mockedClipboard.setString.mockReset();
+    mockedClipboard.setString.mockImplementation(() => undefined);
+
+    const { getByLabelText, getByText, getByTestId } = render(
+      <CopyableField
+        label="Test Field"
+        value="Test Value"
+      />
+    );
+
+    const copyButton = getByLabelText('Copy Test Field: Test Value');
+    fireEvent.press(copyButton);
+
+    // First wait for the "Copied!" text to confirm state updated
+    await waitFor(() => expect(getByText('Copied!')).toBeTruthy());
+
+    // Now verify the status area View has the screen-reader announcement label
+    const statusArea = getByTestId('copy-status-area');
+    expect(statusArea.props.accessibilityLabel).toBe('Copied to clipboard');
+  });
 });

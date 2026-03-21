@@ -118,17 +118,22 @@ export default function CopyableField({
           </Text>
         </View>
 
-        <View className="flex-row items-center">
+        <View
+          className="flex-row items-center"
+          accessibilityLiveRegion="polite"
+          accessibilityLabel={copied ? 'Copied to clipboard' : undefined}
+          testID="copy-status-area"
+        >
           {copied ? (
             <>
-              <Check size={20} color="#10B981" />
+              <Check size={20} color="#10B981" accessible={false} />
               <Text className="text-sm font-medium text-green-600 ml-2">
                 Copied!
               </Text>
             </>
           ) : (
             <>
-              <Copy size={20} color="#6B7280" />
+              <Copy size={20} color="#6B7280" accessible={false} />
               <Text className="text-sm font-medium text-gray-600 ml-2">
                 Copy
               </Text>
