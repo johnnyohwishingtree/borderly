@@ -47,6 +47,8 @@ export default function FormField({
         return (
           <Input
             {...baseProps}
+            label={field.label}
+            required={isRequired}
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
             keyboardType="default"
@@ -58,6 +60,8 @@ export default function FormField({
         return (
           <Input
             {...baseProps}
+            label={field.label}
+            required={isRequired}
             onChangeText={(text: string) => handleValueChange(text)}
             keyboardType="numeric"
             placeholder={field.label}
@@ -139,6 +143,8 @@ export default function FormField({
             onValueChange={handleValueChange}
             options={field.options}
             placeholder={`Select ${field.label}`}
+            label={field.label}
+            required={isRequired}
             disabled={baseProps.disabled}
             testID={`select-${field.id}`}
             {...(hasError && error ? { error } : {})}
@@ -176,6 +182,7 @@ export default function FormField({
             onValueChange={handleValueChange}
             disabled={baseProps.disabled}
             testID={`field-${field.id}`}
+            accessibilityLabel={isRequired ? `${field.label}, required` : field.label}
           />
         );
 
@@ -220,7 +227,12 @@ export default function FormField({
 
       {/* Error Message */}
       {hasError && (
-        <Text className="text-sm text-red-600 mt-1">
+        <Text
+          className="text-sm text-red-600 mt-1"
+          accessibilityLiveRegion="polite"
+          accessible={true}
+          accessibilityRole="text"
+        >
           {error}
         </Text>
       )}

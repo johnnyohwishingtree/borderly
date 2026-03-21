@@ -136,17 +136,19 @@ export default function Input({
         onFocus={handleFocus}
         onBlur={handleBlur}
         placeholderTextColor={highContrastMode ? '#666666' : '#9CA3AF'}
-        
+
         // Core accessibility props
         accessible={true}
         accessibilityLabel={semanticLabel}
         accessibilityHint={accessibilityHint || helperText}
         accessibilityState={accessibilityState}
+        // Note: accessibilityRequired is not in the RN types for this project version.
+        // Required status is conveyed via accessibilityLabel (includes ", required" suffix).
         // Note: accessibilityLabelledBy and accessibilityDescribedBy not supported in React Native
-        
+
         // Testing
         testID={testID}
-        
+
         {...textInputProps}
       />
 
@@ -156,7 +158,7 @@ export default function Input({
           nativeID={errorId}
           accessible={true}
           accessibilityRole="text"
-          accessibilityLiveRegion="assertive"
+          accessibilityLiveRegion="polite"
           testID={errorTestID}
         >
           {error}

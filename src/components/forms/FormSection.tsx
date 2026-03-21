@@ -65,10 +65,21 @@ export default function FormSection({
     );
 
     if (collapsible) {
+      const completionLabel = totalFields > 0
+        ? `${filledFields} of ${totalFields} fields completed`
+        : '';
+      const errorsLabel = hasErrors ? ', has errors' : '';
+      const expandedLabel = isExpanded ? ', expanded' : ', collapsed';
       return (
         <Pressable
           onPress={() => setIsExpanded(!isExpanded)}
           className="p-4 bg-white border-b border-gray-200"
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: isExpanded }}
+          accessibilityLabel={`${section.title}${completionLabel ? ', ' + completionLabel : ''}${errorsLabel}${expandedLabel}`}
+          accessibilityHint="Double tap to toggle section"
+          testID={`section-header-${section.id}`}
         >
           {headerContent}
         </Pressable>
