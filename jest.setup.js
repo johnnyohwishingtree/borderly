@@ -487,9 +487,14 @@ jest.mock('@notifee/react-native', () => {
     DEFAULT: 3,
     HIGH: 4,
   };
+  const TriggerType = {
+    TIMESTAMP: 0,
+    INTERVAL: 1,
+  };
   const notifee = {
     requestPermission: jest.fn().mockResolvedValue({ authorizationStatus: AuthorizationStatus.AUTHORIZED }),
     createChannel: jest.fn().mockResolvedValue('default-channel'),
+    createTriggerNotification: jest.fn().mockResolvedValue('mock-trigger-notification-id'),
     displayNotification: jest.fn().mockResolvedValue('mock-notification-id'),
     cancelNotification: jest.fn().mockResolvedValue(undefined),
     cancelAllNotifications: jest.fn().mockResolvedValue(undefined),
@@ -506,6 +511,7 @@ jest.mock('@notifee/react-native', () => {
     AuthorizationStatus,
     EventType,
     AndroidImportance,
+    TriggerType,
   };
 });
 
