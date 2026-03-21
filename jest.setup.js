@@ -108,6 +108,15 @@ jest.mock('react-native', () => {
       currentState: 'active',
       addEventListener: jest.fn(() => ({ remove: jest.fn() })),
     },
+    AccessibilityInfo: {
+      announceForAccessibility: jest.fn(),
+      setAccessibilityFocus: jest.fn(),
+      isScreenReaderEnabled: jest.fn().mockResolvedValue(false),
+      isReduceMotionEnabled: jest.fn().mockResolvedValue(false),
+      addEventListener: jest.fn(() => ({ remove: jest.fn() })),
+      removeEventListener: jest.fn(),
+    },
+    findNodeHandle: jest.fn(() => null),
   };
 });
 
