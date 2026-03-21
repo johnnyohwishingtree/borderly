@@ -40,6 +40,7 @@ const allProjects = [
       'completeUserFlow.spec.ts',
       'tripCreation.spec.ts',
       'trip-detail.spec.ts',
+      'deadline-reminders.spec.ts',
       'passportScanning.spec.ts',
       'fullJourney.spec.ts',
       'tripAndSubmit.spec.ts',
