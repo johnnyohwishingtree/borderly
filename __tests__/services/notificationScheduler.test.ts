@@ -334,6 +334,50 @@ describe('cancelLegNotifications', () => {
     expect(provider.cancel).not.toHaveBeenCalled();
   });
 
+  it('removes cancelled leg IDs from the trip-level key when tripId is provided', async () => {
+    const { provider } = makeMockProvider();
+    setNotificationProvider(provider);
+
+    const legIds = ['id-a', 'id-b'];
+    const otherIds = ['id-c', 'id-d'];
+    mockStore[legKey('leg-1')] = JSON.stringify(legIds);
+    // Trip key contains both the leg's IDs and IDs from another leg
+    mockStore[tripKey('trip-1')] = JSON.stringify([...legIds, ...otherIds]);
+
+    await cancelLegNotifications('leg-1', 'trip-1');
+
+    // Trip-level key should only contain the other leg's IDs
+    const remaining = JSON.parse(mockStore[tripKey('trip-1')]);
+    expect(remaining).toEqual(otherIds);
+  });
+
+  it('deletes the trip-level key when all IDs belong to the cancelled leg', async () => {
+    const { provider } = makeMockProvider();
+    setNotificationProvider(provider);
+
+    const ids = ['id-a', 'id-b'];
+    mockStore[legKey('leg-1')] = JSON.stringify(ids);
+    mockStore[tripKey('trip-1')] = JSON.stringify(ids);
+
+    await cancelLegNotifications('leg-1', 'trip-1');
+
+    expect(mockStore[tripKey('trip-1')]).toBeUndefined();
+  });
+
+  it('does not modify trip-level key when tripId is omitted', async () => {
+    const { provider } = makeMockProvider();
+    setNotificationProvider(provider);
+
+    const ids = ['id-a'];
+    mockStore[legKey('leg-1')] = JSON.stringify(ids);
+    mockStore[tripKey('trip-1')] = JSON.stringify(ids);
+
+    await cancelLegNotifications('leg-1'); // no tripId
+
+    // Trip key unchanged
+    expect(JSON.parse(mockStore[tripKey('trip-1')])).toEqual(ids);
+  });
+
   it('continues gracefully when provider.cancel throws', async () => {
     const provider: NotificationProvider = {
       schedule: jest.fn().mockResolvedValue(undefined),

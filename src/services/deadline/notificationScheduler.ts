@@ -212,9 +212,10 @@ export async function scheduleDeadlineNotifications(
 
 /**
  * Cancel all scheduled notifications for a specific trip leg and remove
- * the persisted IDs from MMKV.
+ * the persisted IDs from MMKV. If `tripId` is provided, the cancelled IDs
+ * are also pruned from the trip-level key to prevent stale entries.
  */
-export async function cancelLegNotifications(legId: string): Promise<void> {
+export async function cancelLegNotifications(legId: string, tripId?: string): Promise<void> {
   const ids = readIds(legKey(legId));
   for (const id of ids) {
     try {
@@ -226,6 +227,17 @@ export async function cancelLegNotifications(legId: string): Promise<void> {
     }
   }
   deleteKey(legKey(legId));
+
+  // Prune cancelled IDs from the trip-level key to prevent stale entries
+  if (tripId && ids.length > 0) {
+    const tripIds = readIds(tripKey(tripId));
+    const remaining = tripIds.filter(id => !ids.includes(id));
+    if (remaining.length === 0) {
+      deleteKey(tripKey(tripId));
+    } else {
+      writeIds(tripKey(tripId), remaining);
+    }
+  }
 }
 
 /**

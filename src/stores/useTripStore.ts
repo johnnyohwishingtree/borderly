@@ -369,17 +369,17 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
       // Post-update notification logic (fire-and-forget)
       const updatedLeg = get().getLegById(legId);
+      const trip = get().trips.find(t => t.legs.some(l => l.id === legId));
       if (updatedLeg) {
         if (updates.formStatus === 'ready' || updates.formStatus === 'submitted') {
           // Leg is complete — cancel its pending notifications
-          cancelLegNotifications(legId).catch(() => {/* fire-and-forget */});
+          cancelLegNotifications(legId, trip?.id).catch(() => {/* fire-and-forget */});
         } else if (updates.departureDate !== undefined) {
           // Departure date changed — reschedule (cancel then re-schedule)
-          const trip = get().trips.find(t => t.legs.some(l => l.id === legId));
           if (trip) {
             const schema = SchemaRegistry.getInstance().getSchema(updatedLeg.destinationCountry);
             if (schema) {
-              cancelLegNotifications(legId)
+              cancelLegNotifications(legId, trip.id)
                 .then(() => {
                   const deadline = computeLegDeadline(updatedLeg, schema);
                   return scheduleDeadlineNotifications(trip, [deadline]);
@@ -400,7 +400,8 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   removeTripLeg: async (legId) => {
     // Cancel notifications before removing from state
-    cancelLegNotifications(legId).catch(() => {/* fire-and-forget */});
+    const legTrip = get().trips.find(t => t.legs.some(l => l.id === legId));
+    cancelLegNotifications(legId, legTrip?.id).catch(() => {/* fire-and-forget */});
 
     // Implementation would delete the leg from database
     // For now, just remove from state
