@@ -73,6 +73,15 @@ export class GitHubClient {
     return data.filter((r) => r.state === 'APPROVED').length;
   }
 
+  async countReviews(prNumber: number): Promise<number> {
+    const { data } = await this.octokit.pulls.listReviews({
+      owner: this.owner,
+      repo: this.repo,
+      pull_number: prNumber,
+    });
+    return data.length;
+  }
+
   async countUnresolvedThreads(prNumber: number): Promise<number> {
     const result = await this.graphqlClient<{
       repository: {

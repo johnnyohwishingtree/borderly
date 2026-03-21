@@ -24,7 +24,7 @@ export async function evaluateMergeGate(
     return {
       action: 'wait',
       conditions: {
-        testsPass: false, e2ePass: false, approved: false,
+        testsPass: false, e2ePass: false, reviewed: false, approved: false,
         threadsResolved: false, noActiveReviewFix: false, branchUpToDate: false,
       },
       failingConditions: ['no-auto-merge label present'],
@@ -34,7 +34,12 @@ export async function evaluateMergeGate(
   // Condition 1-2: CI status
   const ci = await github.checkCIStatus(sha);
 
-  // Condition 3: Approved
+  // Condition 3: Reviewed (at least one formal review submitted)
+  // Prevents PRs from merging before code review happens.
+  const reviewCount = await github.countReviews(prNumber);
+  const reviewed = reviewCount >= 1;
+
+  // Condition 4: Approved
   // In personal repos, the owner's GITHUB_TOKEN and GH_PAT cannot approve
   // their own PRs (GitHub returns 422 "Can not approve your own pull request").
   // Treat owner-authored PRs as implicitly approved.
@@ -67,6 +72,7 @@ export async function evaluateMergeGate(
   const conditions = {
     testsPass: ci.testsPass,
     e2ePass: ci.e2ePass,
+    reviewed,
     approved,
     threadsResolved,
     noActiveReviewFix,

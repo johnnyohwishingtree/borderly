@@ -88,6 +88,7 @@ export interface MergeGateResult {
   conditions: {
     testsPass: boolean;
     e2ePass: boolean;
+    reviewed: boolean;
     approved: boolean;
     threadsResolved: boolean;
     noActiveReviewFix: boolean;
