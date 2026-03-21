@@ -242,7 +242,7 @@ Part of Epic #529 — Pre-Trip Deadline Reminders and Submission Readiness
 - [x] **LegCard integration** — DeadlineBadge rendered alongside form StatusBadge when deadline data is available
 - [x] **TripDetailScreen integration** — Asynchronously computes deadlines for all legs via `computeTripDeadlines`; passes deadline to each LegCard; displays "Trip Readiness: X of N legs ready" summary
 - [x] **Unit tests** — `__tests__/services/deadlineService.test.ts` (all 5 statuses, boundary values, overdue path with negative hoursRemaining); `__tests__/services/notificationScheduler.test.ts` (3-trigger scheduling, past-trigger skipping, all-past-triggers path, cancellation, idempotency)
-- [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` verifies DeadlineBadge visibility and trip readiness summary in TripDetailScreen with future departure dates; `e2e/tests/trip-detail.spec.ts` covers readiness summary and leg card rendering
+- [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` verifies DeadlineBadge visibility and trip readiness summary. `e2e/tests/trip-detail.spec.ts` also covers readiness summary and leg card rendering
 
 ## Accessibility Standards
 

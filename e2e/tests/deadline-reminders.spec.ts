@@ -8,7 +8,7 @@
  * - DeadlineBadge shows "Not Started" when leg formStatus is not_started
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { baseState, injectState } from '../helpers/fixtures';
 
 // ---------------------------------------------------------------------------
@@ -22,7 +22,12 @@ function deadlineReminderTrip({
   tripId = 'trip-dr-test',
   legId = 'leg-dr-test',
   countryCode = 'JPN',
-  formStatus = 'not_started' as 'not_started' | 'in_progress' | 'ready' | 'submitted',
+  formStatus = 'not_started',
+}: {
+  tripId?: string;
+  legId?: string;
+  countryCode?: string;
+  formStatus?: 'not_started' | 'in_progress' | 'ready' | 'submitted';
 } = {}) {
   return baseState({
     trips: [
@@ -117,7 +122,7 @@ function deadlineReminderTwoLegTrip() {
 // Helper: navigate to the trip detail screen
 // ---------------------------------------------------------------------------
 
-async function goToTripDetail(page: any, tripName: string) {
+async function goToTripDetail(page: Page, tripName: string) {
   await page.goto('/');
   await expect(page.getByText('My Trips')).toBeVisible({ timeout: 10000 });
   await page.getByText(tripName).click();
@@ -133,9 +138,10 @@ test.describe('Deadline Reminders — TripDetailScreen', () => {
     await injectState(page, deadlineReminderTrip());
     await goToTripDetail(page, 'Deadline Reminder Trip');
 
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('Trip Readiness:');
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('of 1 leg');
+    const summaryLocator = page.getByTestId('trip-readiness-summary');
+    await expect(summaryLocator).toBeVisible({ timeout: 5000 });
+    await expect(summaryLocator).toContainText('Trip Readiness:');
+    await expect(summaryLocator).toContainText('of 1 leg');
   });
 
   test('DeadlineBadge is visible for a leg with a future departure date', async ({ page }) => {
