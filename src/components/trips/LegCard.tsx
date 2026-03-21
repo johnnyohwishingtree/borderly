@@ -91,12 +91,19 @@ export default function LegCard({
   const CardComponent = onPress ? TouchableOpacity : View;
 
   return (
-    <CardComponent onPress={onPress} activeOpacity={onPress ? 0.7 : 1} testID={`leg-card-${leg.destinationCountry}`} accessibilityLabel={getCountryName(leg.destinationCountry)}>
+    <CardComponent
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+      testID={`leg-card-${leg.destinationCountry}`}
+      accessibilityLabel={getCountryName(leg.destinationCountry)}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityHint={onPress ? 'Opens destination form details' : undefined}
+    >
       <Card variant="outlined" className="mb-3">
         <View className="p-4">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
-              <CountryFlag countryCode={leg.destinationCountry} size="medium" />
+              <CountryFlag countryCode={leg.destinationCountry} size="medium" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants" />
               <View className="ml-3">
                 <Text className="text-lg font-semibold text-gray-900">
                   {getCountryName(leg.destinationCountry)}

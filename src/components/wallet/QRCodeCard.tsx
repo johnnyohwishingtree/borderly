@@ -64,16 +64,21 @@ export function QRCodeCard({
         onPress={() => onPress?.(qrCode)}
         onLongPress={() => onLongPress?.(qrCode)}
         className="active:opacity-70"
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={qrCode.label}
+        accessibilityHint="Opens QR code full screen"
       >
         <View className="bg-white rounded-lg p-3 border border-gray-200 mb-2">
           <View className="flex-row items-center space-x-3">
             {/* QR Code Thumbnail */}
-            <View className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
+            <View className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
               {qrCode.imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/png;base64,${qrCode.imageBase64}` }}
                   className="w-full h-full"
                   resizeMode="cover"
+                  accessible={false}
                 />
               ) : (
                 <View className="w-full h-full bg-gray-200 items-center justify-center">
@@ -110,6 +115,10 @@ export function QRCodeCard({
         onPress={() => onPress?.(qrCode)}
         onLongPress={() => onLongPress?.(qrCode)}
         className="active:opacity-70"
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={qrCode.label}
+        accessibilityHint="Tap to view full screen, long press for options"
       >
         <View className="p-4">
           {/* Header */}
@@ -142,13 +151,14 @@ export function QRCodeCard({
           </View>
 
           {/* QR Code Preview */}
-          <View className="items-center py-4">
+          <View className="items-center py-4" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
             <View className="w-32 h-32 bg-gray-100 rounded-lg overflow-hidden">
               {qrCode.imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/png;base64,${qrCode.imageBase64}` }}
                   className="w-full h-full"
                   resizeMode="contain"
+                  accessible={false}
                 />
               ) : (
                 <View className="w-full h-full bg-gray-200 items-center justify-center">
