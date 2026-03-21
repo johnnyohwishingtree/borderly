@@ -39,6 +39,7 @@ const allProjects = [
       'addCompanions.spec.ts',
       'completeUserFlow.spec.ts',
       'tripCreation.spec.ts',
+      'trip-detail.spec.ts',
       'passportScanning.spec.ts',
       'fullJourney.spec.ts',
       'tripAndSubmit.spec.ts',
