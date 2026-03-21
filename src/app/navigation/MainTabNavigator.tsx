@@ -398,6 +398,7 @@ export default function MainTabNavigator() {
               <TouchableOpacity
                 {...safeProps}
                 testID="tab-trips"
+                accessibilityRole="tab"
                 accessibilityLabel="Trips tab"
                 accessibilityHint="Navigate to trips and travel forms"
                 style={[safeProps.style, { minHeight: 44 }]}
@@ -418,6 +419,7 @@ export default function MainTabNavigator() {
               <TouchableOpacity
                 {...safeProps}
                 testID="tab-wallet"
+                accessibilityRole="tab"
                 accessibilityLabel="QR Wallet tab"
                 accessibilityHint="Navigate to saved QR codes and travel documents"
                 style={[safeProps.style, { minHeight: 44 }]}
@@ -438,6 +440,7 @@ export default function MainTabNavigator() {
               <TouchableOpacity
                 {...safeProps}
                 testID="tab-profile"
+                accessibilityRole="tab"
                 accessibilityLabel="Profile tab"
                 accessibilityHint="Navigate to profile and passport information"
                 style={[safeProps.style, { minHeight: 44 }]}
@@ -458,6 +461,7 @@ export default function MainTabNavigator() {
               <TouchableOpacity
                 {...safeProps}
                 testID="tab-settings"
+                accessibilityRole="tab"
                 accessibilityLabel="Settings tab"
                 accessibilityHint="Navigate to app settings and preferences"
                 style={[safeProps.style, { minHeight: 44 }]}
