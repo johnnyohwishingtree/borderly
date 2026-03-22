@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Onboarding Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    page.on('dialog', dialog => dialog.accept());
+  });
+
   test('welcome screen renders and CTA is interactive', async ({ page }) => {
     await page.goto('/');
 
