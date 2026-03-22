@@ -3,61 +3,43 @@ import { AppState, AppStateStatus } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 import { useAppStore } from '@/stores/useAppStore';
 
-/** Inactivity timeout before the app locks (5 minutes in milliseconds). */
-export const APP_LOCK_TIMEOUT_MS = 5 * 60 * 1000;
+/** Default inactivity timeout in milliseconds (5 minutes). */
+export const DEFAULT_LOCK_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
- * Hook that monitors app activity and enforces the 5-minute inactivity lock
- * described in CLAUDE.md security rules.
+ * Derives the lock timeout in milliseconds from a minutes value.
+ * Exported for use in tests.
+ */
+export function minutesToMs(minutes: number): number {
+  return minutes * 60 * 1000;
+}
+
+/**
+ * Hook that monitors app activity and enforces an inactivity lock.
  *
- * - Tracks the timestamp when the app moves to the background.
- * - On returning to the foreground, checks whether more than
- *   {@link APP_LOCK_TIMEOUT_MS} have elapsed and locks the app if so.
- * - Exposes `unlockWithBiometrics` so the lock screen can request re-auth.
+ * Behaviour:
+ * - Locks **immediately** when AppState changes to 'background' or 'inactive'.
+ * - Starts a foreground inactivity timer when the app is active; locks the app
+ *   when the timer fires.
+ * - `resetTimer()` resets the inactivity timer (call from touch handlers).
+ * - Timeout duration is read from `useAppStore.lockTimeoutMinutes`
+ *   (default 5 minutes).
+ * - All lifecycle effects are cleaned up on unmount to prevent memory leaks.
+ *
+ * Security rule from CLAUDE.md: App lock after 5 minutes of inactivity.
  */
 export function useAppLock() {
-  const { isAppLocked, setAppLocked, updateLastActiveTime, preferences } = useAppStore();
-  const backgroundTimeRef = useRef<number | null>(null);
+  const { isAppLocked, lock, unlock, updateLastActiveTime, isLockEnabled, lockTimeoutMinutes } =
+    useAppStore();
+
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** Attempt biometric unlock and clear the locked state on success. */
-  const unlockWithBiometrics = useCallback(async (): Promise<boolean> => {
-    try {
-      const result = await Keychain.getGenericPassword({
-        service: 'borderly_lock_check',
-        authenticationPrompt: {
-          title: 'Unlock Borderly',
-          subtitle: 'Authenticate to continue',
-          cancel: 'Cancel',
-        },
-      });
-      // Any successful keychain access (result or false-y but no throw) means auth passed.
-      // react-native-keychain returns false when no credentials stored but auth succeeded,
-      // or an object with username/password when credentials exist.
-      if (result !== null && result !== undefined) {
-        setAppLocked(false);
-        updateLastActiveTime();
-        return true;
-      }
-      // If the service has no stored credentials that's still an auth success path.
-      setAppLocked(false);
-      updateLastActiveTime();
-      return true;
-    } catch {
-      // User cancelled or biometrics failed — keep locked.
-      return false;
-    }
-  }, [setAppLocked, updateLastActiveTime]);
-
-  /** Schedule an in-foreground inactivity lock timer. */
-  const scheduleLockTimer = useCallback(() => {
-    if (lockTimerRef.current !== null) {
-      clearTimeout(lockTimerRef.current);
-    }
-    lockTimerRef.current = setTimeout(() => {
-      setAppLocked(true);
-    }, APP_LOCK_TIMEOUT_MS);
-  }, [setAppLocked]);
+  // Keep a ref to the latest timeout so the timer callback always uses the
+  // current value without requiring re-registration of effects.
+  const lockTimeoutMsRef = useRef<number>(minutesToMs(lockTimeoutMinutes));
+  useEffect(() => {
+    lockTimeoutMsRef.current = minutesToMs(lockTimeoutMinutes);
+  }, [lockTimeoutMinutes]);
 
   const cancelLockTimer = useCallback(() => {
     if (lockTimerRef.current !== null) {
@@ -66,32 +48,41 @@ export function useAppLock() {
     }
   }, []);
 
+  /** (Re)start the foreground inactivity timer. */
+  const scheduleLockTimer = useCallback(() => {
+    cancelLockTimer();
+    lockTimerRef.current = setTimeout(() => {
+      lock();
+    }, lockTimeoutMsRef.current);
+  }, [cancelLockTimer, lock]);
+
+  /**
+   * Reset the inactivity timer — call this on any user interaction.
+   * Also updates the last-active timestamp in the store.
+   */
+  const resetTimer = useCallback(() => {
+    updateLastActiveTime();
+    scheduleLockTimer();
+  }, [updateLastActiveTime, scheduleLockTimer]);
+
   useEffect(() => {
-    // Only enforce the lock when biometric is enabled.
-    if (!preferences.biometricEnabled) {
+    // Only enforce the lock when the feature is enabled.
+    if (!isLockEnabled) {
       return;
     }
 
     const handleAppStateChange = (nextState: AppStateStatus) => {
       if (nextState === 'background' || nextState === 'inactive') {
-        // Record when we went to background and cancel the foreground timer.
-        backgroundTimeRef.current = Date.now();
+        // Lock immediately when the app moves to the background.
         cancelLockTimer();
+        lock();
       } else if (nextState === 'active') {
-        // Back in the foreground — check elapsed time.
-        if (backgroundTimeRef.current !== null) {
-          const elapsed = Date.now() - backgroundTimeRef.current;
-          if (elapsed >= APP_LOCK_TIMEOUT_MS) {
-            setAppLocked(true);
-          }
-          backgroundTimeRef.current = null;
-        }
-        // (Re)start the foreground inactivity timer.
+        // App came back to the foreground — (re)start the inactivity timer.
         scheduleLockTimer();
       }
     };
 
-    // Start foreground timer immediately.
+    // Start the inactivity timer immediately on mount.
     scheduleLockTimer();
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
@@ -100,7 +91,35 @@ export function useAppLock() {
       subscription.remove();
       cancelLockTimer();
     };
-  }, [preferences.biometricEnabled, setAppLocked, scheduleLockTimer, cancelLockTimer]);
+  }, [isLockEnabled, lock, scheduleLockTimer, cancelLockTimer]);
 
-  return { isAppLocked, unlockWithBiometrics };
+  /** Attempt biometric unlock and clear the locked state on success. */
+  const unlockWithBiometrics = useCallback(async (): Promise<boolean> => {
+    try {
+      await Keychain.getGenericPassword({
+        service: 'borderly_lock_check',
+        authenticationPrompt: {
+          title: 'Unlock Borderly',
+          subtitle: 'Authenticate to continue',
+          cancel: 'Cancel',
+        },
+      });
+      // Any non-throwing result means authentication succeeded.
+      unlock();
+      updateLastActiveTime();
+      scheduleLockTimer();
+      return true;
+    } catch {
+      // User cancelled or biometrics failed — keep locked.
+      return false;
+    }
+  }, [unlock, updateLastActiveTime, scheduleLockTimer]);
+
+  return {
+    isAppLocked,
+    lock,
+    unlock,
+    resetTimer,
+    unlockWithBiometrics,
+  };
 }
