@@ -64,6 +64,7 @@ const allProjects = [
       'performance.spec.ts',
       'deadline-reminders.spec.ts',
       'trip-detail.spec.ts',
+      'readiness-checklist.spec.ts',
     ],
     timeout: 45000,
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
