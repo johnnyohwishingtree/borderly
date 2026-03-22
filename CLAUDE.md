@@ -266,6 +266,20 @@ Part of Epic #589 — Pre-Trip Deadline Reminders and Submission Readiness
 - [x] **Unit tests** — `__tests__/services/pushNotificationProvider.test.ts` (16 tests covering schedule, cancel, past triggers, permission denied, channel creation, PROVISIONAL status, error resilience); `__tests__/services/notificationScheduler.test.ts` updated with 7 additional integration tests using real `PushNotificationProvider` (backed by mocked notifee)
 - [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` updated with 2 new tests verifying notification permission screen is reachable from the onboarding flow and the Allow Notifications button is present and enabled
 
+### ✅ Sprint 8: Passport & Document Validity (Complete)
+Part of Epic #608 — Passport & Document Validity
+
+- [x] **DocumentValidityCard** (`src/components/profile/DocumentValidityCard.tsx`) — Card shown on ProfileScreen displaying passport expiry with colour-coded status pill and an 8-country validity grid; returns null when no passport expiry is set
+- [x] **PassportExpiryBadge** (`src/components/profile/PassportExpiryBadge.tsx`) — Compact status pill (Valid / Expiring Soon / Expired) with accessible label and days-remaining count
+- [x] **PassportValidityWarning** (`src/components/trips/PassportValidityWarning.tsx`) — Inline amber banner shown in LegFormScreen when the active profile's passport does not meet the destination country's minimum validity requirement; `accessibilityRole="alert"` and `accessibilityLiveRegion="polite"` for screen-reader announcement
+- [x] **usePassportValidity hook** (`src/hooks/usePassportValidity.ts`) — Reads the active profile from Zustand, resolves the country schema's `passportValidityMonths`, and returns `PassportValidityWarningData | null`; integrated into LegFormScreen
+- [x] **checkPassportValidity service** (`src/services/passport/passportValidity.ts`) — Pure function computing `PassportValidityStatus` (isValid, daysUntilExpiry, requiredValidityDays, shortfallDays)
+- [x] **ProfileScreen integration** — `DocumentValidityCard` rendered after the profile completeness section using `profile.passportExpiry`
+- [x] **LegFormScreen integration** — `PassportValidityWarning` rendered conditionally when `usePassportValidity` returns warning data; uses stable testID `"leg-form-passport-validity-warning"` for E2E testing
+- [x] **Unit tests** — `__tests__/components/profile/DocumentValidityCard.test.tsx`; `__tests__/components/trips/PassportValidityWarning.test.tsx`; `__tests__/services/passportValidity.test.ts`; `__tests__/hooks/usePassportValidity.test.ts`
+- [x] **Accessibility tests** — `__tests__/components/profile/DocumentValidityCard.a11y.test.tsx` (PassportExpiryBadge + DocumentValidityCard: roles, labels, decorative icon hiding, country grid labels, all statuses); `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` (alert role, live region, label content, singular/plural, hidden text nodes)
+- [x] **E2E smoke tests** — `e2e/tests/document-validity.spec.ts` verifies DocumentValidityCard renders in ProfileScreen and PassportValidityWarning renders in LegFormScreen when expiry is near; `e2e/tests/profile.spec.ts` also covers the Document Validity section
+
 ## Accessibility Standards
 
 Borderly follows React Native accessibility (a11y) standards to ensure the app is usable with screen readers (VoiceOver on iOS, TalkBack on Android).
@@ -314,6 +328,8 @@ Existing a11y test files:
 - `__tests__/components/trips/TripCard.a11y.test.tsx` — label, role, decorative elements
 - `__tests__/components/settings/ExportBackupModal.a11y.test.tsx` — modal props, heading role, close/cancel labels, passphrase input labels, export button label/hint, strength indicator, error live region, loading state
 - `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` — modal props, heading role, close/cancel labels, file input label, passphrase label, restore button label/hint, error live region, success state, loading state
+- `__tests__/components/profile/DocumentValidityCard.a11y.test.tsx` — PassportExpiryBadge (role, label, all statuses); DocumentValidityCard (null render, header role, expiry row combined label, country grid roles and labels, decorative icons hidden, accessible=false on text nodes)
+- `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` — null when valid, alert role, polite live region, accessible=true, label content (country, required months, shortfall days, expiry date, guidance), singular/plural month and day, custom testID, decorative elements hidden
 
 ## Skills Reference
 
