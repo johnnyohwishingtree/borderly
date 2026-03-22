@@ -547,4 +547,23 @@ describe('workflow structure regressions', () => {
       expect(content, 'build job must check skip_e2e').toMatch(/build:[\s\S]*?skip_e2e/);
     });
   });
+
+  // Bug (#602): Gemini posted "daily quota limit" warning but gemini-failed
+  // job only matched "unable to generate a summary". The fallback to Claude
+  // review never triggered, leaving the PR with no code review.
+  describe('review-guardian gemini-failed matches quota limit', () => {
+    it('gemini-failed condition must match both failure messages', () => {
+      const content = readFileSync(join(WORKFLOWS_DIR, 'review-guardian.yml'), 'utf-8');
+      const geminiFailedJob = content.match(/gemini-failed:[\s\S]*?runs-on/);
+      expect(geminiFailedJob, 'gemini-failed job must exist').toBeTruthy();
+      expect(
+        geminiFailedJob![0],
+        'must match "unable to generate" message',
+      ).toContain('unable to generate');
+      expect(
+        geminiFailedJob![0],
+        'must match "daily quota limit" message',
+      ).toContain('quota');
+    });
+  });
 });
