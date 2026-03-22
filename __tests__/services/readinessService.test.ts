@@ -739,6 +739,7 @@ describe('computeTripReadiness — AUS leg', () => {
 
     const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-aus');
     expect(deadlineItem).toBeDefined();
+    expect(deadlineItem!.detail).toBe('Submit within 72 hours before arrival');
   });
 
   it('overallStatus is "ok" for AUS leg with submitted form, valid passport, no QR required', async () => {
@@ -795,6 +796,7 @@ describe('computeTripReadiness — NZL leg', () => {
 
     const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-nzl');
     expect(deadlineItem).toBeDefined();
+    expect(deadlineItem!.detail).toBe('Submit at least 24 hours before arrival');
   });
 
   it('overallStatus is "ok" for NZL leg with submitted form and valid passport', async () => {
