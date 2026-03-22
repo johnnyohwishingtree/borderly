@@ -1,10 +1,14 @@
 /**
- * E2E smoke tests for TripDetailScreen deadline badge and readiness checklist features.
+ * E2E smoke tests for TripDetailScreen deadline badge, readiness checklist,
+ * and submission progress features.
  *
  * Verifies:
  * - DeadlineBadge renders on LegCards when deadline data is available
  * - ReadinessChecklist renders and is visible on the trip detail screen
  * - LegCard still renders correctly when no deadline applies
+ * - Submission progress summary ("X of N") renders in the progress overview
+ * - SubmissionStatusBadge renders on each LegCard
+ * - "Mark as Submitted" button renders on each non-submitted LegCard
  */
 
 import { test, expect } from '@playwright/test';
@@ -195,5 +199,84 @@ test.describe('TripDetailScreen — DeadlineBadge integration', () => {
 
     // Delete Trip action (the real action) should still be present
     await expect(page.getByText('Delete Trip')).toBeVisible({ timeout: 5000 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Submission progress features (Story #691)
+// ---------------------------------------------------------------------------
+
+test.describe('TripDetailScreen — Submission Progress (Story #691)', () => {
+  test('submission progress summary renders in progress overview', async ({ page }) => {
+    await injectState(page, tripWithOneLeg());
+    await goToTripDetail(page, 'Detail Test Trip');
+
+    // The "Submitted to portals" label should appear in the progress overview
+    await expect(page.getByTestId('submission-progress-summary')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Submitted to portals')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('SubmissionStatusBadge renders on each LegCard', async ({ page }) => {
+    await injectState(page, tripWithTwoLegs());
+    await goToTripDetail(page, 'Two Leg Trip');
+
+    // Both leg cards should have a SubmissionStatusBadge
+    await expect(page.getByTestId('submission-status-badge-JPN')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('submission-status-badge-SGP')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('"Mark as Submitted" button renders on a non-submitted leg', async ({ page }) => {
+    await injectState(page, tripWithOneLeg({ formStatus: 'ready' }));
+    await goToTripDetail(page, 'Detail Test Trip');
+
+    // The mark-as-submitted button should be visible for the JPN leg (not yet submitted)
+    await expect(page.getByTestId('mark-submitted-JPN')).toBeVisible({ timeout: 5000 });
+  });
+
+  test('"Mark as Submitted" button is absent when leg submissionStatus is submitted', async ({ page }) => {
+    // Inject a trip where the leg already has submissionStatus: 'submitted'
+    const tripId = 'trip-submitted-test';
+    const state = baseState({
+      trips: [{ id: tripId, name: 'Submitted Trip', status: 'upcoming' }],
+      tripLegs: {
+        [tripId]: [
+          {
+            id: 'leg-submitted',
+            destinationCountry: 'JPN',
+            arrivalDateISO: '2027-08-01',
+            departureDateISO: '2027-08-10',
+            flightNumber: 'NH101',
+            airlineCode: 'NH',
+            formStatus: 'submitted',
+            submissionStatus: 'submitted',
+            order: 0,
+            accommodation: {
+              name: 'Park Hyatt Tokyo',
+              address: {
+                street: '3-7-1-2 Nishi-Shinjuku',
+                city: 'Shinjuku',
+                country: 'Japan',
+                postalCode: '163-1055',
+              },
+            },
+          },
+        ],
+      },
+    });
+    await injectState(page, state);
+    await goToTripDetail(page, 'Submitted Trip');
+
+    // The badge should show submitted status
+    await expect(page.getByTestId('submission-status-badge-JPN')).toBeVisible({ timeout: 5000 });
+    // The mark-as-submitted button should NOT be present
+    await expect(page.getByTestId('mark-submitted-JPN')).not.toBeVisible();
+  });
+
+  test('submission progress summary shows 0/N for fresh trip', async ({ page }) => {
+    await injectState(page, tripWithTwoLegs());
+    await goToTripDetail(page, 'Two Leg Trip');
+
+    // The "0/2" count should appear next to "Submitted to portals"
+    await expect(page.getByText('0/2')).toBeVisible({ timeout: 5000 });
   });
 });
