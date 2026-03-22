@@ -110,6 +110,7 @@ src/
 │   ├── settings/                  # Settings, PrivacyPolicy, ExportBackupModal, RestoreBackupModal
 │   ├── support/                   # Feedback, BugReport, Help
 │   └── help/                      # FAQ, Troubleshooting
+│   # Each screen folder may contain __screenshots__/<variant>.png (git-tracked)
 ├── components/
 │   ├── ui/                        # Button, Card, Input, Select, Toggle, StatusBadge, LoadingState
 │   ├── passport/                  # MRZScanner, PassportPreview
