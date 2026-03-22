@@ -105,27 +105,27 @@ export default function PassportPreview({
   const expiryStatus = getExpiryStatus(profile.passportExpiry);
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ padding: 16 }}>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16 }}>
       {/* Header */}
       <View className="mb-6">
-        <Text className="text-2xl font-bold text-gray-900 mb-2">
+        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Confirm Passport Details
         </Text>
-        <Text className="text-gray-600 leading-6">
+        <Text className="text-gray-600 dark:text-gray-400 leading-6">
           Please review your passport information. This data will be stored securely 
           on your device and used to auto-fill travel forms.
         </Text>
       </View>
 
       {/* Security indicator */}
-      <Card className="mb-4 bg-blue-50 border-blue-200">
+      <Card className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <View className="flex-row items-center">
           <Lock size={20} color="#2563eb" style={{ marginRight: 8 }} />
           <View className="flex-1">
-            <Text className="font-medium text-blue-900 mb-1">
+            <Text className="font-medium text-blue-900 dark:text-blue-100 mb-1">
               Secure Local Storage
             </Text>
-            <Text className="text-sm text-blue-700">
+            <Text className="text-sm text-blue-700 dark:text-blue-300">
               Your passport data is encrypted and stored only on this device. 
               It never leaves your phone without your explicit action.
             </Text>
@@ -137,14 +137,14 @@ export default function PassportPreview({
       {scanResult && (
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-medium text-gray-900">Scan Quality</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">Scan Quality</Text>
             <StatusBadge
               text={`${Math.round(scanResult.confidence * 100)}% Confident`}
               status={scanResult.confidence >= 0.8 ? 'success' : 
                       scanResult.confidence >= 0.6 ? 'warning' : 'error'}
             />
           </View>
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm text-gray-600 dark:text-gray-400">
             Data was automatically extracted from your passport using optical scanning.
           </Text>
         </Card>
@@ -152,15 +152,15 @@ export default function PassportPreview({
 
       {/* Validation warnings */}
       {validation && validation.warnings.length > 0 && (
-        <Card className="mb-4 bg-yellow-50 border-yellow-200">
+        <Card className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
           <View className="flex-row items-start">
             <TriangleAlert size={20} color="#ca8a04" style={{ marginRight: 8 }} />
             <View className="flex-1">
-              <Text className="font-medium text-yellow-900 mb-2">
+              <Text className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">
                 Validation Warnings
               </Text>
               {validation.warnings.map((warning, index) => (
-                <Text key={index} className="text-sm text-yellow-800 mb-1">
+                <Text key={index} className="text-sm text-yellow-800 dark:text-yellow-200 mb-1">
                   • {warning}
                 </Text>
               ))}
@@ -171,7 +171,7 @@ export default function PassportPreview({
 
       {/* Passport Information */}
       <Card className="mb-4">
-        <Text className="text-lg font-semibold text-gray-900 mb-4">
+        <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Passport Information
         </Text>
         
@@ -186,9 +186,9 @@ export default function PassportPreview({
             value={profile.issuingCountry || 'Not provided'}
           />
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-medium text-gray-500">Expiry Date</Text>
+            <Text className="text-sm font-medium text-gray-500 dark:text-gray-400">Expiry Date</Text>
             <View className="flex-row items-center">
-              <Text className="text-gray-900 mr-2">
+              <Text className="text-gray-900 dark:text-white mr-2">
                 {formatDate(profile.passportExpiry)}
               </Text>
               <StatusBadge
@@ -208,7 +208,7 @@ export default function PassportPreview({
 
       {/* Personal Information */}
       <Card className="mb-6">
-        <Text className="text-lg font-semibold text-gray-900 mb-4">
+        <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           Personal Information
         </Text>
         
@@ -282,19 +282,19 @@ interface DataRowProps {
 
 function DataRow({ label, value, important }: DataRowProps) {
   const isEmpty = !value || value === 'Not provided';
-  
+
   return (
     <View className="flex-row items-center justify-between">
-      <Text className="text-sm font-medium text-gray-500 flex-shrink-0">
+      <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 flex-shrink-0">
         {label}
       </Text>
-      <Text 
+      <Text
         className={`flex-1 text-right ml-4 ${
-          isEmpty 
-            ? 'text-red-500' 
-            : important 
-            ? 'text-gray-900 font-medium' 
-            : 'text-gray-900'
+          isEmpty
+            ? 'text-red-500 dark:text-red-400'
+            : important
+            ? 'text-gray-900 dark:text-white font-medium'
+            : 'text-gray-900 dark:text-white'
         }`}
       >
         {value}

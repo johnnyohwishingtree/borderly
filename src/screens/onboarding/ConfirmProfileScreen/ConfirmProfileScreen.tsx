@@ -36,22 +36,22 @@ export default function ConfirmProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-white">
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-white dark:bg-gray-900">
         <View className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <Text className="text-lg text-gray-700 font-medium">Loading profile...</Text>
-        <Text className="text-sm text-gray-500">Retrieving your secure data</Text>
+        <Text className="text-lg text-gray-700 dark:text-gray-300 font-medium">Loading profile...</Text>
+        <Text className="text-sm text-gray-500 dark:text-gray-500">Retrieving your secure data</Text>
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-b from-red-50 to-white px-6">
-        <View className="w-20 h-20 bg-red-100 rounded-full items-center justify-center mb-4">
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-red-50 to-white dark:bg-gray-900 px-6">
+        <View className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center mb-4">
           <CircleAlert size={40} color="#dc2626" />
         </View>
-        <Text className="text-xl font-bold text-gray-900 mb-2">No Profile Found</Text>
-        <Text className="text-base text-gray-600 text-center mb-6">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Profile Found</Text>
+        <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-6">
           We couldn't find your profile data. Please go back and enter your passport information again.
         </Text>
         <Button
@@ -77,7 +77,7 @@ export default function ConfirmProfileScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-green-50 to-white">
+    <ScrollView className="flex-1 bg-gradient-to-b from-green-50 to-white dark:bg-gray-900">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={75} className="mb-6" />
@@ -86,13 +86,13 @@ export default function ConfirmProfileScreen() {
           <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-4">
             <ShieldCheck size={40} color="#16a34a" />
           </View>
-          <Text 
-            className="text-2xl font-bold text-gray-900 mb-2 text-center"
+          <Text
+            className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center"
             testID="confirm-profile-title"
           >
             Confirm Your Profile
           </Text>
-          <Text className="text-base text-gray-600 text-center">
+          <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
             Review your passport information before proceeding. Everything looks good!
           </Text>
         </View>
@@ -114,9 +114,9 @@ export default function ConfirmProfileScreen() {
                   <field.icon size={24} color={field.color} />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-sm font-medium text-gray-500 mb-1">{field.label}</Text>
-                  <Text 
-                    className="text-lg font-semibold text-gray-900"
+                  <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{field.label}</Text>
+                  <Text
+                    className="text-lg font-semibold text-gray-900 dark:text-white"
                     testID={`profile-field-${field.label.toLowerCase().replace(/ /g, '-')}`}
                   >
                     {field.value}
@@ -127,26 +127,26 @@ export default function ConfirmProfileScreen() {
           </View>
         </Card>
 
-        <Card variant="outlined" className="mb-8 border-2 border-green-200 bg-green-50/50">
+        <Card variant="outlined" className="mb-8 border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
           <View className="flex-row items-start">
-            <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4 mt-1">
+            <View className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg items-center justify-center mr-4 mt-1">
               <Lock size={24} color="#16a34a" />
             </View>
             <View className="flex-1">
               <View className="flex-row items-center mb-2">
                 <ShieldCheck size={20} color="#374151" />
-                <Text className="text-lg font-semibold text-gray-900 ml-2">
+                <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
                   Security Notice
                 </Text>
               </View>
-              <Text className="text-sm text-gray-700 mb-3">
+              <Text className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                 This information is stored securely on your device using your device's keychain.
                 It will never be transmitted to our servers and remains under your control.
               </Text>
               <View className="flex-row items-center">
-                <Text className="text-green-600 font-medium text-sm">Encrypted</Text>
-                <Text className="text-green-600 font-medium text-sm ml-4">Local Storage</Text>
-                <Text className="text-green-600 font-medium text-sm ml-4">No Server</Text>
+                <Text className="text-green-600 dark:text-green-400 font-medium text-sm">Encrypted</Text>
+                <Text className="text-green-600 dark:text-green-400 font-medium text-sm ml-4">Local Storage</Text>
+                <Text className="text-green-600 dark:text-green-400 font-medium text-sm ml-4">No Server</Text>
               </View>
             </View>
           </View>

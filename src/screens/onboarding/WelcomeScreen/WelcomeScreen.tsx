@@ -36,8 +36,8 @@ export default function WelcomeScreen() {
   const { height } = Dimensions.get('window');
 
   return (
-    <ScrollView 
-      className="flex-1 bg-gray-50"
+    <ScrollView
+      className="flex-1 bg-gray-50 dark:bg-gray-900"
       contentContainerStyle={{ minHeight: height }}
       accessibilityLabel="Welcome to Borderly screen"
       accessibilityHint="Swipe up to read about features and get started"
@@ -60,13 +60,13 @@ export default function WelcomeScreen() {
             <Icon as={Globe} size={40} color="white" />
           </View>
 
-          <Text className="text-3xl font-bold text-gray-900 text-center mb-1" accessibilityRole="header">
+          <Text className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-1" accessibilityRole="header">
             Welcome to
           </Text>
           <Text className="text-3xl font-bold text-primary-600 text-center mb-3" accessibilityRole="header">
             Borderly
           </Text>
-          <Text className="text-lg text-gray-600 text-center max-w-sm">
+          <Text className="text-lg text-gray-600 dark:text-gray-400 text-center max-w-sm">
             Your universal travel declaration companion. Fill once, travel everywhere.
           </Text>
         </View>
@@ -87,40 +87,40 @@ export default function WelcomeScreen() {
 
           <View className="p-6 space-y-6">
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-green-100 rounded-full items-center justify-center mr-4">
+              <View className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mr-4">
                 <Icon as={Lock} size={20} color="#16a34a" />
               </View>
               <View>
-                <Text className="text-gray-900 font-semibold">Private & Secure</Text>
-                <Text className="text-gray-600 text-sm">Data stays on your device</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">Private & Secure</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">Data stays on your device</Text>
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+              <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
                 <Icon as={Smartphone} size={20} color="#2563eb" />
               </View>
               <View>
-                <Text className="text-gray-900 font-semibold">Works Offline</Text>
-                <Text className="text-gray-600 text-sm">No internet required</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">Works Offline</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">No internet required</Text>
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-blue-100 rounded-full items-center justify-center mr-4">
+              <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
                 <Icon as={Zap} size={20} color="#2563eb" />
               </View>
               <View>
-                <Text className="text-gray-900 font-semibold">Lightning Fast</Text>
-                <Text className="text-gray-600 text-sm">Fill forms in seconds</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">Lightning Fast</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">Fill forms in seconds</Text>
               </View>
             </View>
           </View>
         </Card>
 
         {/* Countries supported section */}
-        <Card variant="outlined" className="mb-4 bg-blue-50/30 border-blue-100">
+        <Card variant="outlined" className="mb-4 bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800">
           <View className="flex-row items-center mb-4">
             <Icon as={Globe} size={20} color="#374151" className="mr-2" />
-            <Text className="text-lg font-semibold text-gray-900">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white">
               Supported Countries
             </Text>
           </View>
@@ -128,21 +128,21 @@ export default function WelcomeScreen() {
             {SUPPORTED_COUNTRIES.map((country) => (
               <View key={country.code} className="items-center mb-3 w-1/4">
                 <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
-                <Text className="text-xs text-gray-600">{country.name}</Text>
+                <Text className="text-xs text-gray-600 dark:text-gray-400">{country.name}</Text>
               </View>
             ))}
           </View>
         </Card>
 
         {/* Privacy notice */}
-        <Card variant="outlined" className="mb-4 border-green-200 bg-green-50/30">
+        <Card variant="outlined" className="mb-4 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10">
           <View className="flex-row items-start">
             <Icon as={ShieldCheck} size={24} color="#16a34a" className="mr-3" />
             <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-900 mb-1">
+              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
                 Privacy First
               </Text>
-              <Text className="text-sm text-gray-600 leading-5">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 leading-5">
                 Your passport data is encrypted and stored only in your device's secure keychain.
               </Text>
             </View>
@@ -182,7 +182,7 @@ export default function WelcomeScreen() {
             className="mt-6 flex-row items-center justify-center py-3"
           >
             <Icon as={UploadCloud} size={16} color="#6b7280" />
-            <Text className="text-sm text-gray-500 ml-2">
+            <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
               Already have a backup?{' '}
               <Text className="text-primary-600 font-medium">Restore from backup</Text>
             </Text>
