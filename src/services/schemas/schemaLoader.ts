@@ -12,7 +12,7 @@ const SCHEMA_CACHE_TTL = 10 * 60 * 1000; // 10 minutes - schemas change infreque
 const FormFieldSchema = z.object({
   id: z.string(),
   label: z.string(),
-  type: z.enum(['text', 'date', 'select', 'searchable_select', 'boolean', 'number', 'textarea']),
+  type: z.enum(['text', 'date', 'select', 'searchable_select', 'boolean', 'number', 'textarea', 'address']),
   required: z.boolean(),
   autoFillSource: z.string().optional(),
   countrySpecific: z.boolean(),

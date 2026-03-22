@@ -270,6 +270,9 @@ function isValidFieldValue(value: unknown, fieldType: string): boolean {
     case 'searchable_select':
       return typeof value === 'string' && value.length > 0;
 
+    case 'address':
+      return typeof value === 'string' && value.trim().length > 0;
+
     default:
       return false;
   }

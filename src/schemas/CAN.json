@@ -307,7 +307,7 @@
         {
           "id": "homeAddress",
           "label": "Home address",
-          "type": "textarea",
+          "type": "address",
           "required": true,
           "autoFillSource": "profile.address._formatted",
           "countrySpecific": false,
