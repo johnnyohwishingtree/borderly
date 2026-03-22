@@ -50,7 +50,7 @@ const primaryProfile: TravelerProfile = {
   occupation: 'Software Engineer',
   relationship: 'self',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -84,7 +84,7 @@ const spouseProfile: TravelerProfile = {
   occupation: 'Teacher',
   relationship: 'spouse',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -115,7 +115,7 @@ const childProfile: TravelerProfile = {
   },
   relationship: 'child',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

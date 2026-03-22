@@ -69,7 +69,7 @@ const mockProfile = {
   passportExpiry: '2030-01-15',
   issuingCountry: 'GBR',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

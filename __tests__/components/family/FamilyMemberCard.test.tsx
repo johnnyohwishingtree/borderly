@@ -21,7 +21,7 @@ describe('FamilyMemberCard', () => {
     passportExpiry: '2030-12-31',
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -44,7 +44,7 @@ describe('FamilyMemberCard', () => {
     passportExpiry: '2029-06-15',
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -67,7 +67,7 @@ describe('FamilyMemberCard', () => {
     passportExpiry: '2025-12-03', // Expires in 1 year
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
