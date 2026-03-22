@@ -1123,7 +1123,7 @@ describe('FormField — numeric field validation constraints', () => {
       id: 'durationOfStay',
       label: 'Duration of Stay',
       type: 'number',
-      validation,
+      ...(validation !== undefined ? { validation } : {}),
     });
   }
 
