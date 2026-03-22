@@ -136,20 +136,18 @@ export function getPRMergeability(pr: number, repo: string): string {
 }
 
 export function getPRCIConclusion(pr: number, repo: string): string {
-  // Check ALL required CI checks (test + E2E test-chromium shards), not just "test".
-  // test-chromium uses a matrix, so checks are named "test-chromium (core)", etc.
-  // If any required check failed, return FAILURE.
+  // Check required CI checks: "test" (unit) and "test-chromium" (E2E rollup).
+  // test-chromium is a rollup job that gates on all matrix shards.
   const raw = execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'statusCheckRollup',
-    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium" or (.name | startswith("test-chromium ("))) | {name: .name, conclusion: .conclusion}]'], '[]');
+    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium") | {name: .name, conclusion: .conclusion}]'], '[]');
   try {
     const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
     if (checks.length === 0) return '';
     if (checks.some(c => c.conclusion === 'FAILURE' || c.conclusion === 'CANCELLED')) return 'FAILURE';
-    // Only return SUCCESS when both required check groups are present and succeeded.
-    // "test" must be present, plus at least one "test-chromium*" check.
+    // Both required checks must be present and succeeded.
     const hasTest = checks.some(c => c.name === 'test');
-    const hasChromium = checks.some(c => c.name === 'test-chromium' || c.name.startsWith('test-chromium ('));
+    const hasChromium = checks.some(c => c.name === 'test-chromium');
     if (!hasTest || !hasChromium) return '';
     return checks.every(c => c.conclusion === 'SUCCESS') ? 'SUCCESS' : '';
   } catch {
