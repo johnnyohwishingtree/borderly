@@ -14,8 +14,10 @@ import { useAppStore } from '@/stores/useAppStore';
 import {
   setNotificationProvider,
   requestNotificationPermission,
+  scheduleAllProfilePassportExpiry,
 } from '@/services/deadline';
 import { pushNotificationProvider } from '@/services/deadline/pushNotificationProvider';
+import { keychainService } from '@/services/storage';
 
 // Suppress all LogBox overlays in dev builds so banners like
 // "Fast Refresh disconnected" and "Open debugger to view warnings"
@@ -82,6 +84,23 @@ function App(): React.JSX.Element {
       requestNotificationPermission().catch(() => {
         /* non-critical — app continues without notifications */
       });
+
+      // Schedule passport expiry reminders for all stored profiles (non-blocking).
+      // Loads profile IDs from keychain and schedules up to 4 notifications per
+      // profile (6mo, 3mo, 1mo, 1wk before expiry).
+      keychainService.getAllProfileIds()
+        .then(async (ids) => {
+          const profiles = await Promise.all(
+            ids.map(id => keychainService.getProfileById(id)),
+          );
+          const validProfiles = profiles.filter(
+            (p): p is NonNullable<typeof p> => p !== null,
+          );
+          return scheduleAllProfilePassportExpiry(validProfiles);
+        })
+        .catch(() => {
+          /* non-critical — app continues without passport expiry notifications */
+        });
 
       // Fire background schema update check — non-blocking, never throws.
       // Uses void to explicitly discard the promise; errors are swallowed
