@@ -2,6 +2,7 @@ import { CountryFormSchema } from '../../src/types/schema';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import AUS from '../../src/schemas/AUS.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Australia (AUS) Schema', () => {
   const schema = AUS as CountryFormSchema;
@@ -390,4 +391,8 @@ describe('Australia (AUS) Schema', () => {
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
+
+  // ── 16. Auto-fill coverage & countrySpecific declarations ───────────────────
+
+  runSharedSchemaTests(schema);
 });

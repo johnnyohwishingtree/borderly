@@ -2,6 +2,7 @@ import { CountryFormSchema } from '../../src/types/schema';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import NZL from '../../src/schemas/NZL.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('New Zealand (NZL) Schema', () => {
   const schema = NZL as CountryFormSchema;
@@ -369,4 +370,8 @@ describe('New Zealand (NZL) Schema', () => {
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
+
+  // ── 16. Auto-fill coverage & countrySpecific declarations ───────────────────
+
+  runSharedSchemaTests(schema);
 });
