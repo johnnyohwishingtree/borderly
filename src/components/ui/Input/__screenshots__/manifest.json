@@ -1,0 +1,15 @@
+{
+  "component": "Input",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:09.446Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    },
+    {
+      "file": "with-value.png",
+      "variant": "with-value"
+    }
+  ]
+}

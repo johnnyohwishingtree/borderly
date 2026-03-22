@@ -1,0 +1,23 @@
+{
+  "component": "LoadingIndicator",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:15.313Z",
+  "variants": [
+    {
+      "file": "spinner.png",
+      "variant": "spinner"
+    },
+    {
+      "file": "dots.png",
+      "variant": "dots"
+    },
+    {
+      "file": "pulse.png",
+      "variant": "pulse"
+    },
+    {
+      "file": "with-progress.png",
+      "variant": "with-progress"
+    }
+  ]
+}

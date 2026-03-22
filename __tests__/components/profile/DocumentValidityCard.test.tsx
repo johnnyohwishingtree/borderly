@@ -19,10 +19,10 @@ import {
 // Helpers
 // -------------------------------------------------------------------------
 
-/** Build a date that is `days` days from `base` (or today). */
+/** Build a date that is `days` days from `base` (or today). Uses UTC to avoid timezone drift. */
 function daysFrom(days: number, base: Date = new Date()): Date {
   const d = new Date(base);
-  d.setDate(d.getDate() + days);
+  d.setUTCDate(d.getUTCDate() + days);
   return d;
 }
 
@@ -201,7 +201,7 @@ describe('DocumentValidityCard — per-country validity grid', () => {
   it('marks countries valid exactly at the 6-month boundary', () => {
     // Exactly 6 months from today: the passport meets the minimum requirement
     const sixMonthsOut = new Date(
-      Date.UTC(today.getFullYear(), today.getMonth() + 6, today.getDate()),
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 6, today.getUTCDate()),
     );
     const expiry = toISO(sixMonthsOut);
     render(<DocumentValidityCard passportExpiry={expiry} today={today} />);
@@ -211,7 +211,7 @@ describe('DocumentValidityCard — per-country validity grid', () => {
 
   it('marks countries invalid when passport expires one day before 6-month boundary', () => {
     const sixMonthsOut = new Date(
-      Date.UTC(today.getFullYear(), today.getMonth() + 6, today.getDate()),
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 6, today.getUTCDate()),
     );
     sixMonthsOut.setUTCDate(sixMonthsOut.getUTCDate() - 1);
     const expiry = toISO(sixMonthsOut);

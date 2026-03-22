@@ -1,0 +1,19 @@
+{
+  "component": "ProgressBar",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:11.754Z",
+  "variants": [
+    {
+      "file": "empty.png",
+      "variant": "empty"
+    },
+    {
+      "file": "half.png",
+      "variant": "half"
+    },
+    {
+      "file": "full.png",
+      "variant": "full"
+    }
+  ]
+}

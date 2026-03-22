@@ -1,0 +1,43 @@
+{
+  "component": "Button",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:06.463Z",
+  "variants": [
+    {
+      "file": "primary.png",
+      "variant": "primary"
+    },
+    {
+      "file": "secondary.png",
+      "variant": "secondary"
+    },
+    {
+      "file": "outline.png",
+      "variant": "outline"
+    },
+    {
+      "file": "disabled.png",
+      "variant": "disabled"
+    },
+    {
+      "file": "loading.png",
+      "variant": "loading"
+    },
+    {
+      "file": "full-width.png",
+      "variant": "full-width"
+    },
+    {
+      "file": "small.png",
+      "variant": "small"
+    },
+    {
+      "file": "large.png",
+      "variant": "large"
+    },
+    {
+      "file": "high-contrast.png",
+      "variant": "high-contrast"
+    }
+  ]
+}

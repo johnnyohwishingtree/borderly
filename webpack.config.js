@@ -50,6 +50,7 @@ module.exports = (env, argv) => {
       '@nozbe/watermelondb/decorators': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/Schema/migrations': path.resolve(__dirname, 'e2e/mocks/watermelondb-migrations.js'),
+      '@notifee/react-native': path.resolve(__dirname, 'e2e/mocks/notifee.ts'),
       '@nozbe/watermelondb': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       // Places service: no real API calls in E2E/web builds
       'src/services/places/placesService': path.resolve(__dirname, 'e2e/mocks/places.js'),

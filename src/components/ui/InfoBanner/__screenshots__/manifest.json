@@ -1,0 +1,11 @@
+{
+  "component": "InfoBanner",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:10.721Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    }
+  ]
+}
