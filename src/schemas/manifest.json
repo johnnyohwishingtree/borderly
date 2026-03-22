@@ -41,6 +41,11 @@
       "version": "2.1.0",
       "checksum": "sha256:922bbd36bd5cd3514496a75f593bcad27cf4e78f9d4dac4ccfb93ba074b2d0d0",
       "url": "https://schemas.borderly.app/v1/CAN.json"
+    },
+    "AUS": {
+      "version": "1.0.0",
+      "checksum": "sha256:3d96ca1f68e1d2277c14a63d98a836adcc7a7dada949471911808dd8733566c4",
+      "url": "https://schemas.borderly.app/v1/AUS.json"
     }
   }
 }
