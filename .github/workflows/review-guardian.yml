@@ -20,12 +20,15 @@ permissions:
   pull-requests: write
 
 jobs:
-  # Fallback when Gemini posts "unable to generate" message
+  # Fallback when Gemini fails — matches both error types:
+  # 1. "Gemini is unable to generate a summary" (API/content error)
+  # 2. "daily quota limit" (rate limiting)
   gemini-failed:
     if: |
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
-      contains(github.event.comment.body, 'Gemini is unable to generate a summary for this pull request')
+      (contains(github.event.comment.body, 'Gemini is unable to generate a summary for this pull request') ||
+       contains(github.event.comment.body, 'daily quota limit'))
     runs-on: ubuntu-latest
     steps:
       - name: Request fallback review
