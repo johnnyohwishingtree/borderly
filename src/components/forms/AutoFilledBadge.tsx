@@ -22,20 +22,20 @@ export default function AutoFilledBadge({
     'flex-row items-center rounded-full px-2 py-1',
     isSmall ? 'px-2 py-1' : 'px-3 py-1.5',
     isAuto
-      ? 'bg-green-50 border border-green-200'
-      : 'bg-blue-50 border border-blue-200',
+      ? 'bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700'
+      : 'bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700',
   ].join(' ');
 
   const textClasses = [
     'font-medium',
     isSmall ? 'text-xs' : 'text-sm',
-    isAuto ? 'text-green-700' : 'text-blue-700',
+    isAuto ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300',
   ].join(' ');
 
   const dotClasses = [
     'rounded-full mr-1.5',
     isSmall ? 'w-1.5 h-1.5' : 'w-2 h-2',
-    isAuto ? 'bg-green-500' : 'bg-blue-500',
+    isAuto ? 'bg-green-500 dark:bg-green-400' : 'bg-blue-500 dark:bg-blue-400',
   ].join(' ');
 
   const getLabel = () => {

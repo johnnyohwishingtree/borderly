@@ -55,7 +55,7 @@ export default function PassportValidityWarning({
   return (
     <View
       testID={testID ?? `passport-validity-warning-${countryName}`}
-      className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 mb-3"
+      className="bg-amber-50 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 rounded-lg px-4 py-3 mb-3"
       accessible={true}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
@@ -70,12 +70,12 @@ export default function PassportValidityWarning({
         />
         <View className="flex-1">
           <Text
-            className="text-amber-800 font-semibold text-sm mb-1"
+            className="text-amber-800 dark:text-amber-200 font-semibold text-sm mb-1"
             accessibilityElementsHidden
           >
             Passport Validity Warning
           </Text>
-          <Text className="text-amber-700 text-sm" accessibilityElementsHidden>
+          <Text className="text-amber-700 dark:text-amber-300 text-sm" accessibilityElementsHidden>
             <Text className="font-semibold">{countryName}</Text> requires your passport to be
             valid for at least{' '}
             <Text className="font-semibold">
@@ -83,7 +83,7 @@ export default function PassportValidityWarning({
             </Text>{' '}
             beyond your departure date.
           </Text>
-          <Text className="text-amber-700 text-sm mt-1" accessibilityElementsHidden>
+          <Text className="text-amber-700 dark:text-amber-300 text-sm mt-1" accessibilityElementsHidden>
             Your passport expires{' '}
             <Text className="font-semibold">{expiryDisplay}</Text>, which is{' '}
             <Text className="font-semibold">
@@ -91,7 +91,7 @@ export default function PassportValidityWarning({
             </Text>{' '}
             of the requirement.
           </Text>
-          <Text className="text-amber-600 text-xs mt-2" accessibilityElementsHidden>
+          <Text className="text-amber-600 dark:text-amber-400 text-xs mt-2" accessibilityElementsHidden>
             You may still proceed, but entry could be denied.
           </Text>
         </View>
