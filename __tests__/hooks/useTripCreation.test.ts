@@ -4,8 +4,9 @@ import { useTripCreation } from '@/hooks/useTripCreation';
 // Mock navigation
 const mockGoBack = jest.fn();
 const mockNavigate = jest.fn();
+const mockReplace = jest.fn();
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({ goBack: mockGoBack, navigate: mockNavigate }),
+  useNavigation: () => ({ goBack: mockGoBack, navigate: mockNavigate, replace: mockReplace }),
 }));
 
 // Mock stores
@@ -423,7 +424,9 @@ describe('useTripCreation — navigation after trip creation', () => {
       okButton?.onPress();
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip_1' });
+    // navigation.replace should be used (not navigate) so CreateTrip is removed from the stack
+    expect(mockReplace).toHaveBeenCalledWith('TripDetail', { tripId: 'trip_1' });
+    expect(mockNavigate).not.toHaveBeenCalled();
     expect(mockGoBack).not.toHaveBeenCalled();
   });
 
@@ -435,6 +438,7 @@ describe('useTripCreation — navigation after trip creation', () => {
       await result.current.handleCreateTrip();
     });
 
+    expect(mockReplace).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(mockGoBack).not.toHaveBeenCalled();
   });

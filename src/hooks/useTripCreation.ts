@@ -367,7 +367,7 @@ export function useTripCreation() {
       }
 
       Alert.alert('Success', 'Trip created successfully!', [
-        { text: 'OK', onPress: () => navigation.navigate('TripDetail', { tripId: trip.id }) },
+        { text: 'OK', onPress: () => navigation.replace('TripDetail', { tripId: trip.id }) },
       ]);
     } catch {
       Alert.alert('Error', 'Failed to create trip. Please try again.');
