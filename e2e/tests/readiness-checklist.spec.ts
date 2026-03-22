@@ -171,16 +171,24 @@ async function goToTripDetail(page: Page, tripName: string) {
 // ---------------------------------------------------------------------------
 
 test.describe('ReadinessChecklist — renders on TripDetailScreen', () => {
-  test('ReadinessChecklist is visible (or loading) for a trip with critical items', async ({
-    page,
-  }) => {
-    await injectState(page, tripWithCriticalItems());
-    await goToTripDetail(page, 'Readiness Test Trip');
+  const visibilityTestCases = [
+    { label: 'critical items', state: tripWithCriticalItems(), tripName: 'Readiness Test Trip' },
+    { label: 'ready items', state: tripWithReadyItems(), tripName: 'Ready Trip' },
+    { label: 'multi-leg trip', state: tripWithTwoLegs(), tripName: 'Two Leg Readiness Trip' },
+  ];
 
-    const checklist = page.getByTestId('readiness-checklist');
-    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
-    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
-  });
+  for (const { label, state, tripName } of visibilityTestCases) {
+    test(`ReadinessChecklist is visible (or loading) for a trip with ${label}`, async ({
+      page,
+    }) => {
+      await injectState(page, state);
+      await goToTripDetail(page, tripName);
+
+      const checklist = page.getByTestId('readiness-checklist');
+      const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+      await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
+    });
+  }
 
   test('ReadinessChecklist shows "Action required" or "Ready to travel" summary text', async ({
     page,
@@ -197,24 +205,6 @@ test.describe('ReadinessChecklist — renders on TripDetailScreen', () => {
       timeout: 8000,
     });
   });
-
-  test('ReadinessChecklist is visible for a trip with ready items', async ({ page }) => {
-    await injectState(page, tripWithReadyItems());
-    await goToTripDetail(page, 'Ready Trip');
-
-    const checklist = page.getByTestId('readiness-checklist');
-    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
-    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
-  });
-
-  test('ReadinessChecklist renders for a multi-leg trip', async ({ page }) => {
-    await injectState(page, tripWithTwoLegs());
-    await goToTripDetail(page, 'Two Leg Readiness Trip');
-
-    const checklist = page.getByTestId('readiness-checklist');
-    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
-    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -222,14 +212,15 @@ test.describe('ReadinessChecklist — renders on TripDetailScreen', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('ReadinessChecklist — expand and item visibility', () => {
-  test('ReadinessChecklist header is tappable and expands to show items', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await injectState(page, tripWithCriticalItems());
     await goToTripDetail(page, 'Readiness Test Trip');
 
     // Wait for the checklist to fully load (not the loading placeholder)
-    const checklist = page.getByTestId('readiness-checklist');
-    await expect(checklist).toBeVisible({ timeout: 8000 });
+    await expect(page.getByTestId('readiness-checklist')).toBeVisible({ timeout: 8000 });
+  });
 
+  test('ReadinessChecklist header is tappable and expands to show items', async ({ page }) => {
     // Tap the header to expand
     const header = page.getByTestId('readiness-checklist-header');
     await expect(header).toBeVisible({ timeout: 3000 });
@@ -241,12 +232,6 @@ test.describe('ReadinessChecklist — expand and item visibility', () => {
   });
 
   test('At least one checklist item row is visible after expanding', async ({ page }) => {
-    await injectState(page, tripWithCriticalItems());
-    await goToTripDetail(page, 'Readiness Test Trip');
-
-    const checklist = page.getByTestId('readiness-checklist');
-    await expect(checklist).toBeVisible({ timeout: 8000 });
-
     // Expand the checklist
     await page.getByTestId('readiness-checklist-header').click();
 
@@ -259,12 +244,6 @@ test.describe('ReadinessChecklist — expand and item visibility', () => {
   test('ReadinessChecklist shows form-related item after expanding for Japan trip', async ({
     page,
   }) => {
-    await injectState(page, tripWithCriticalItems());
-    await goToTripDetail(page, 'Readiness Test Trip');
-
-    const checklist = page.getByTestId('readiness-checklist');
-    await expect(checklist).toBeVisible({ timeout: 8000 });
-
     // Expand the checklist
     await page.getByTestId('readiness-checklist-header').click();
 
@@ -274,12 +253,6 @@ test.describe('ReadinessChecklist — expand and item visibility', () => {
   });
 
   test('ReadinessChecklist collapses body after second header tap', async ({ page }) => {
-    await injectState(page, tripWithCriticalItems());
-    await goToTripDetail(page, 'Readiness Test Trip');
-
-    const checklist = page.getByTestId('readiness-checklist');
-    await expect(checklist).toBeVisible({ timeout: 8000 });
-
     const header = page.getByTestId('readiness-checklist-header');
 
     // Expand
