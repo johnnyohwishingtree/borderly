@@ -102,12 +102,14 @@ src/
 │       ├── RootNavigator.tsx       # Auth/Onboarding/Main routing
 │       ├── MainTabNavigator.tsx    # Bottom tabs
 │       └── types.ts
-├── screens/
-│   ├── onboarding/                # Welcome, PassportScan, ConfirmProfile, BiometricSetup
+├── screens/                         # Each screen in a named folder: <ScreenName>/<ScreenName>.tsx
+│   ├── onboarding/                # Welcome, Tutorial, PassportScan, ConfirmProfile, BiometricSetup
 │   ├── trips/                     # TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide
 │   ├── wallet/                    # QRWallet, QRDetail, AddQR
 │   ├── profile/                   # Profile, EditProfile, FamilyManagement, AddFamilyMember
-│   └── settings/                  # Settings
+│   ├── settings/                  # Settings, PrivacyPolicy, ExportBackupModal, RestoreBackupModal
+│   ├── support/                   # Feedback, BugReport, Help
+│   └── help/                      # FAQ, Troubleshooting
 ├── components/
 │   ├── ui/                        # Button, Card, Input, Select, Toggle, StatusBadge, LoadingState
 │   ├── passport/                  # MRZScanner, PassportPreview

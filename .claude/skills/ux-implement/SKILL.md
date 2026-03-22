@@ -40,13 +40,15 @@ Follow the project's standard patterns for each type of change:
 
 #### New Screens
 
-1. Create the screen in `src/screens/<domain>/<ScreenName>.tsx`
-2. Add the route to `src/app/navigation/types.ts`
-3. Wire into the appropriate navigator (`RootNavigator.tsx`, `MainTabNavigator.tsx`, or a stack)
-4. Use NativeWind `className` for styling
-5. Use existing `src/components/ui/` components
-6. Extract business logic into hooks in `src/hooks/` if > 3 useState calls
-7. Add a Playwright E2E test in `e2e/tests/`
+1. Create a named folder: `src/screens/<domain>/<ScreenName>/`
+2. Create the screen file: `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`
+3. Export from the domain barrel: `src/screens/<domain>/index.ts`
+4. Add the route to `src/app/navigation/types.ts`
+5. Wire into the appropriate navigator (`RootNavigator.tsx`, `MainTabNavigator.tsx`, or a stack)
+6. Use NativeWind `className` for styling, `@/` path aliases for imports
+7. Use existing `src/components/ui/` components
+8. Extract business logic into hooks in `src/hooks/` if > 3 useState calls
+9. Add a Playwright E2E test in `e2e/tests/`
 
 #### Navigation Changes
 
@@ -71,11 +73,12 @@ Welcome → Tutorial → PassportScan → ConfirmProfile → BiometricSetup
 ```
 
 To add a screen to onboarding:
-1. Create the screen in `src/screens/onboarding/`
-2. Add to `OnboardingStackParamList` in `types.ts`
-3. Add a lazy import and `<OnboardingStack.Screen>` entry in `RootNavigator.tsx`
-4. Update the screen that navigates TO and FROM the new screen
-5. Export from `src/screens/onboarding/index.ts`
+1. Create folder: `src/screens/onboarding/<ScreenName>/`
+2. Create file: `src/screens/onboarding/<ScreenName>/<ScreenName>.tsx`
+3. Add to `OnboardingStackParamList` in `types.ts`
+4. Add a lazy import and `<OnboardingStack.Screen>` entry in `RootNavigator.tsx`
+5. Update the screen that navigates TO and FROM the new screen
+6. Export from `src/screens/onboarding/index.ts`
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 
@@ -130,7 +133,7 @@ Present what was implemented:
 
 ## Project-Specific Rules
 
-- **Screens** go in `src/screens/<domain>/` and are exported from domain barrel files
+- **Screens** go in `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx` and are exported from domain barrel files
 - **Hooks** go in `src/hooks/` and are exported from `src/hooks/index.ts`
 - **Components** use props only — no direct store imports (see `.claude/rules/store-boundaries.md`)
 - **Styling** uses NativeWind `className` everywhere — no inline styles

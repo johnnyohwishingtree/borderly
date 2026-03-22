@@ -53,7 +53,7 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 - Follow existing Tailwind class patterns in the codebase
 - Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px, etc). Never arbitrary values.
 
-**Screen files are in:** `src/screens/<domain>/<ScreenName>.tsx`
+**Screen files are in:** `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`
 
 **Component files are in:** `src/components/<domain>/` or `src/components/ui/`
 

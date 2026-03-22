@@ -30,7 +30,7 @@ After capturing screenshots, generate the navigation flow graph:
 npx tsx e2e/scripts/generate-flow-graph.ts
 ```
 
-This statically analyzes `src/app/navigation/types.ts` and all screen files to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
+This statically analyzes `src/app/navigation/types.ts` and all screen files (found in `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`) to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
 - **Stacks**: Which screens belong to which navigation stacks
 - **Tabs**: Bottom tab structure
 - **Edges**: Every `navigate()`, `goBack()`, and tab switch with source file + line number

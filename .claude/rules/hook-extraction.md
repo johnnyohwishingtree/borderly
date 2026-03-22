@@ -22,7 +22,7 @@ Screens must be thin render layers. Business logic belongs in custom hooks under
 
 ## Barrel export:
 - All hooks must be exported from `src/hooks/index.ts`
-- Import from `../../hooks/useXxx` in screens (not the barrel) to keep tree-shaking clean
+- Import from `@/hooks/useXxx` in screens (not the barrel) to keep tree-shaking clean
 
 ## Testing:
 - Every extracted hook should have a corresponding test in `__tests__/hooks/`
