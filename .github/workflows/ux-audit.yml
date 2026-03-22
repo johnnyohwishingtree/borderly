@@ -95,22 +95,33 @@ jobs:
 
       - name: Capture screenshots
         run: |
-          # Capture individual screen screenshots
+          # Capture individual screen screenshots (serial — shares navigation state)
           E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots \
             --project=screenshot-capture --workers=1 || true
 
-          # Capture flow sequences (before/after state transitions)
+          # Capture flow sequences (serial — before/after state transitions)
           E2E_PROJECT=screenshot-capture npx playwright test captureFlowSequences \
             --project=screenshot-capture --workers=1 || true
+
+          # Capture component screenshots (parallel — stateless harness)
+          E2E_PROJECT=screenshot-capture npx playwright test captureComponents \
+            --project=screenshot-capture || true
 
       - name: Update flow graph
         run: npx tsx e2e/scripts/generate-flow-graph.ts
 
-      - name: Upload screenshots
+      - name: Upload screen screenshots
         uses: actions/upload-artifact@v4
         with:
           name: ux-audit-screenshots
           path: e2e/screenshots/
+          retention-days: 7
+
+      - name: Upload component screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ux-audit-component-screenshots
+          path: src/components/**/__screenshots__/
           retention-days: 7
 
   audit:
@@ -126,11 +137,17 @@ jobs:
       - name: Setup pipeline TypeScript
         uses: ./.github/actions/setup-pipeline-ts
 
-      - name: Download screenshots
+      - name: Download screen screenshots
         uses: actions/download-artifact@v4
         with:
           name: ux-audit-screenshots
           path: e2e/screenshots/
+
+      - name: Download component screenshots
+        uses: actions/download-artifact@v4
+        with:
+          name: ux-audit-component-screenshots
+          path: src/components/
 
       - name: Run Claude flow audit
         uses: anthropics/claude-code-action@v1
@@ -164,6 +181,7 @@ jobs:
             2. Read `e2e/screenshots/flow-graph.json` for navigation structure
             3. Read flow sequence screenshots from `e2e/screenshots/flows/` (if they exist)
             4. Read individual screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/`
+            5. Read component screenshots from `src/components/<domain>/<Component>/__screenshots__/` — these show isolated component variants (button states, badge colors, loading states, etc.)
 
             ## Step 2: Analyze Flows
 

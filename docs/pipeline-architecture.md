@@ -27,7 +27,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
 | `build-android.yml` | Push to master / manual | Android debug build (master only) |
 | ~~`screenshot-capture.yml`~~ | _(removed)_ | Screenshots are now colocated in source tree, updated in-PR via `/capture-screens` |
-| `ux-audit.yml` | Cron (twice daily: midnight + noon PST) / manual | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
+| `ux-audit.yml` | Cron (twice daily: midnight + noon PST) / manual | Captures screen + component screenshots (parallel), runs flow audit, creates epic with stories for UX issues |
 | `release.yml` | Tag push / manual | Release workflow |
 
 ---
