@@ -31,21 +31,32 @@ If the user specifies a flow (e.g., "review onboarding"), focus on that. Otherwi
 6. **Profile management** — Editing profile, updating passport data
 7. **Settings & help** — Finding help, reporting bugs, managing preferences
 
-### Step 2: Load Flow Graph & Manifest
+### Step 2: Load Screen Registry, Flow Graph & Manifests
 
-1. **Read `e2e/screenshots/flow-graph.json`** — the primary data source. It contains:
+1. **Read `maestro/generator/screenRegistry.ts`** — the primary screen metadata source. It contains per-screen:
+   - `waitFor` — text that identifies this screen
+   - `fields` — ordered list of interactive fields with testIDs, component types, required/optional status
+   - `alerts` — every Alert.alert() with titles, buttons, triggers, and outcomes
+   - `actionButtons` — buttons with testIDs and descriptions
+   - `navigatesTo` — navigation targets
+   - `notes` — important context for test authors
+
+2. **Read `maestro/generator/componentCatalog.ts`** — interaction patterns for each UI component type:
+   - `subTestIDs` — derived testIDs (e.g., SearchableSelect generates `-trigger`, `-search`, `-option-{CODE}`)
+   - `interactionSequence` — step-by-step interaction for Maestro
+   - `dslHelper` — recommended DSL function
+   - `maestroNotes` — gotchas and platform-specific issues
+
+3. **Read `e2e/screenshots/flow-graph.json`** — navigation graph:
    - `stacks` — which screens belong to which navigation stacks
    - `tabs` — bottom tab structure
    - `edges` — every `navigate()`, `goBack()`, and tab switch with source file + line
-   - `screenFiles` — screen name → source file path mapping
 
    If the flow graph doesn't exist, generate it: `npx tsx e2e/scripts/generate-flow-graph.ts`
 
-2. **Read per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json` for screenshot metadata. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
+4. **Read per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json` for screenshot metadata.
 
-3. **Read screen source files** only when you need deeper context (e.g., understanding what triggers a navigation, what data gates a flow). The flow graph gives you the full navigation structure without reading every screen file.
-
-4. **Read store/hook files** when evaluating state transitions and data flow for specific journeys.
+5. **Read screen source files** only when you need deeper context beyond what the registry provides.
 
 ### Step 3: Analyze User Journeys
 

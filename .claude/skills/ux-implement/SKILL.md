@@ -16,6 +16,8 @@ Takes findings from a `/ux-review` report and implements the flow changes in cod
 
 - A completed `/ux-review` report (from the current session or provided by the user)
 - Understanding of the current navigation structure
+- **Screen registry**: Read `maestro/generator/screenRegistry.ts` for per-screen metadata (fields, alerts, action buttons, navigation targets)
+- **Component catalog**: Read `maestro/generator/componentCatalog.ts` for component interaction patterns
 
 ## Steps
 
