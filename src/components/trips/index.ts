@@ -7,6 +7,7 @@ export { default as AccountSetupChecklist } from './AccountSetupChecklist';
 export { default as DeadlineBadge } from './DeadlineBadge';
 export { default as PassportValidityWarning } from './PassportValidityWarning';
 export { default as ReadinessChecklist } from './ReadinessChecklist';
+export { default as SubmissionStatusBadge } from './SubmissionStatusBadge';
 
 export type { TripCardProps } from './TripCard';
 export type { LegCardProps } from './LegCard';
@@ -17,3 +18,4 @@ export type { AccountSetupChecklistProps } from './AccountSetupChecklist';
 export type { DeadlineBadgeProps } from './DeadlineBadge';
 export type { PassportValidityWarningProps } from './PassportValidityWarning';
 export type { ReadinessChecklistProps } from './ReadinessChecklist';
+export type { SubmissionStatusBadgeProps } from './SubmissionStatusBadge';
