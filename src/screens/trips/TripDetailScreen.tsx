@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { Map, Upload, ClipboardList, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
+import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '../../stores/useTripStore';
 import { useProfileStore } from '../../stores/useProfileStore';
 import { LegCard, AccountSetupChecklist } from '../../components/trips';
@@ -352,31 +352,7 @@ export default function TripDetailScreen() {
 
         {/* Actions */}
         <View className="px-4 pb-8">
-          <View className="bg-white rounded-lg p-4 space-y-3">
-            <TouchableOpacity
-              onPress={() => Alert.alert('Export', 'Export functionality coming soon')}
-              className="flex-row items-center py-3 border-b border-gray-100"
-              activeOpacity={0.7}
-            >
-              <Upload size={28} color="#374151" style={{ marginRight: 12 }} />
-              <View>
-                <Text className="text-base font-medium text-gray-900">Export Trip</Text>
-                <Text className="text-sm text-gray-600">Save your trip data</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => Alert.alert('Share', 'Share functionality coming soon')}
-              className="flex-row items-center py-3 border-b border-gray-100"
-              activeOpacity={0.7}
-            >
-              <ClipboardList size={28} color="#374151" style={{ marginRight: 12 }} />
-              <View>
-                <Text className="text-base font-medium text-gray-900">Share Itinerary</Text>
-                <Text className="text-sm text-gray-600">Copy trip details</Text>
-              </View>
-            </TouchableOpacity>
-
+          <View className="bg-white rounded-lg p-4">
             <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
