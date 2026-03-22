@@ -52,7 +52,10 @@ export default function LockScreen() {
   useEffect(() => {
     Keychain.getSupportedBiometryType()
       .then(type => setBiometryType(type))
-      .catch(() => setBiometryType(null));
+      .catch((err: unknown) => {
+        console.warn('[LockScreen] getSupportedBiometryType failed:', err);
+        setBiometryType(null);
+      });
   }, []);
 
   // Derive the button label from the detected biometry type.

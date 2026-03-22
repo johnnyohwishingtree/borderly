@@ -100,51 +100,36 @@ describe('LockScreen — biometry label', () => {
   it('shows "Unlock with Face ID" when biometryType is FaceID', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('FaceID');
     renderLockScreen();
-    await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button').props.accessibilityLabel).toBe(
-        'Unlock with Face ID',
-      );
-    });
+    const button = await screen.findByRole('button', { name: 'Unlock with Face ID' });
+    expect(button).toBeTruthy();
   });
 
   it('shows "Unlock with Touch ID" when biometryType is TouchID', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('TouchID');
     renderLockScreen();
-    await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button').props.accessibilityLabel).toBe(
-        'Unlock with Touch ID',
-      );
-    });
+    const button = await screen.findByRole('button', { name: 'Unlock with Touch ID' });
+    expect(button).toBeTruthy();
   });
 
   it('shows "Unlock with Fingerprint" when biometryType is Fingerprint', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('Fingerprint');
     renderLockScreen();
-    await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button').props.accessibilityLabel).toBe(
-        'Unlock with Fingerprint',
-      );
-    });
+    const button = await screen.findByRole('button', { name: 'Unlock with Fingerprint' });
+    expect(button).toBeTruthy();
   });
 
   it('shows "Unlock with Biometrics" when biometryType is null (no biometrics)', async () => {
     mockGetSupportedBiometryType.mockResolvedValue(null);
     renderLockScreen();
-    await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button').props.accessibilityLabel).toBe(
-        'Unlock with Biometrics',
-      );
-    });
+    const button = await screen.findByRole('button', { name: 'Unlock with Biometrics' });
+    expect(button).toBeTruthy();
   });
 
   it('shows "Unlock with Biometrics" when getSupportedBiometryType rejects', async () => {
     mockGetSupportedBiometryType.mockRejectedValue(new Error('unavailable'));
     renderLockScreen();
-    await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button').props.accessibilityLabel).toBe(
-        'Unlock with Biometrics',
-      );
-    });
+    const button = await screen.findByRole('button', { name: 'Unlock with Biometrics' });
+    expect(button).toBeTruthy();
   });
 });
 
