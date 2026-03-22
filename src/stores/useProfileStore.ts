@@ -8,6 +8,10 @@ import {
   FamilyProfileStats
 } from '@/types/family';
 import { keychainService, mmkvService } from '@/services/storage';
+import {
+  schedulePassportExpiryNotifications,
+  cancelPassportExpiryNotifications,
+} from '@/services/deadline/passportExpiryNotifications';
 
 // Constants
 const FAMILY_PROFILES_KEY = 'family_profiles';
@@ -197,6 +201,13 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       await keychainService.storeProfileById(profile.id, profile);
       await keychainService.generateProfileEncryptionKey(profile.id);
 
+      // Schedule passport expiry notifications for the new profile
+      schedulePassportExpiryNotifications(profile).catch(err => {
+        if (__DEV__) {
+          console.warn('[useProfileStore] Failed to schedule passport expiry notifications:', err);
+        }
+      });
+
       // Create metadata
       const profileMetadata = createProfileMetadata(profile.id, metadata);
 
@@ -263,6 +274,13 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       // Store updated profile
       await keychainService.storeProfileById(profileId, updatedProfile);
 
+      // Reschedule passport expiry notifications for updated passport data
+      schedulePassportExpiryNotifications(updatedProfile).catch(err => {
+        if (__DEV__) {
+          console.warn('[useProfileStore] Failed to reschedule passport expiry notifications:', err);
+        }
+      });
+
       // Update metadata timestamp
       const metadata = familyProfiles.profiles.get(profileId)!;
       metadata.updatedAt = new Date().toISOString();
@@ -310,6 +328,13 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     try {
       // Delete from keychain
       await keychainService.deleteProfileById(profileId);
+
+      // Cancel passport expiry notifications for the deleted profile
+      cancelPassportExpiryNotifications(profileId).catch(err => {
+        if (__DEV__) {
+          console.warn('[useProfileStore] Failed to cancel passport expiry notifications:', err);
+        }
+      });
 
       // Remove from family collection
       const updatedProfiles = new Map(familyProfiles.profiles);
