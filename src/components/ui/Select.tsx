@@ -276,9 +276,7 @@ export default function Select({
                     className={`p-4 ${
                       highContrastMode
                         ? (isSelected ? 'bg-gray-200 border-b-2 border-black' : 'border-b border-gray-400')
-                        : (isSelected
-                            ? 'bg-blue-50 dark:bg-blue-900/30 border-b border-gray-100 dark:border-gray-700'
-                            : 'border-b border-gray-100 dark:border-gray-700')
+                        : `border-b border-gray-100 dark:border-gray-700${isSelected ? ' bg-blue-50 dark:bg-blue-900/30' : ''}`
                     }`}
                     onPress={() => !isDisabled && handleSelect(item.value)}
                     disabled={isDisabled}

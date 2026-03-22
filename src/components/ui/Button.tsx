@@ -139,9 +139,9 @@ export default function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={highContrastMode
-            ? (variant === 'outline' ? '#000000' : '#FFFFFF')
-            : (variant === 'outline' ? (isDark ? '#E5E7EB' : '#374151') : 'white')
+          color={variant === 'outline'
+            ? (highContrastMode ? '#000000' : (isDark ? '#E5E7EB' : '#374151'))
+            : (highContrastMode ? '#FFFFFF' : 'white')
           }
           style={{ marginRight: 8 }}
           accessibilityLabel="Loading"
