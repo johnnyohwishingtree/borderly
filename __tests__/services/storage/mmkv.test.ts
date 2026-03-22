@@ -34,7 +34,7 @@ describe('MMKVService', () => {
       const prefs = mmkvService.getPreferences();
 
       expect(prefs).toEqual({
-        theme: 'auto',
+        theme: 'system',
         language: 'en',
         onboardingComplete: false,
         biometricEnabled: false,
@@ -75,7 +75,7 @@ describe('MMKVService', () => {
       const prefs = mmkvService.getPreferences();
 
       expect(prefs).toEqual({
-        theme: 'auto',
+        theme: 'system',
         language: 'en',
         onboardingComplete: false,
         biometricEnabled: false,
@@ -94,7 +94,7 @@ describe('MMKVService', () => {
     });
 
     it('should set individual preference', () => {
-      const existingPrefs = { theme: 'auto', language: 'en', onboardingComplete: false };
+      const existingPrefs = { theme: 'system', language: 'en', onboardingComplete: false };
       mockStorage.getString.mockReturnValue(JSON.stringify(existingPrefs));
 
       mmkvService.setPreference('theme', 'dark');

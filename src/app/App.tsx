@@ -11,6 +11,7 @@ import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
 import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
 import { useAppStore } from '@/stores/useAppStore';
+import { useTheme } from '@/utils/theme';
 import {
   setNotificationProvider,
   requestNotificationPermission,
@@ -44,6 +45,7 @@ function AppContent(): React.JSX.Element {
 
 function App(): React.JSX.Element {
   const triggerSchemaUpdateCheck = useAppStore(s => s.triggerSchemaUpdateCheck);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     // Initialize monitoring services
@@ -138,7 +140,7 @@ function App(): React.JSX.Element {
   }, [triggerSchemaUpdateCheck]);
 
   return (
-    <GluestackUIProvider mode="light">
+    <GluestackUIProvider mode={resolvedTheme}>
       <ErrorBoundary>
         <AppContent />
       </ErrorBoundary>

@@ -1,7 +1,7 @@
 import { MMKV } from 'react-native-mmkv';
 
 export interface AppPreferences {
-  theme: 'light' | 'dark' | 'auto';
+  theme: 'light' | 'dark' | 'system';
   language: string;
   onboardingComplete: boolean;
   biometricEnabled: boolean;
@@ -53,7 +53,7 @@ class MMKVServiceImpl implements MMKVService {
   // Preferences
   getPreferences(): AppPreferences {
     const defaultPrefs: AppPreferences = {
-      theme: 'auto',
+      theme: 'system',
       language: 'en',
       onboardingComplete: false,
       biometricEnabled: false,
