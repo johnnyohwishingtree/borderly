@@ -13,7 +13,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, relative } from 'path';
 import { emitJourney } from './emitter';
 import { validateJourney } from './validator';
-import { extractAllScreenMetadata } from './screenMetadata';
+import { SCREENS } from './screenRegistry';
+import { COMPONENT_CATALOG } from './componentCatalog';
 import type { FlowGraph, Journey } from './types';
 import * as journeys from './journeys';
 
@@ -93,14 +94,23 @@ function generate() {
     console.log(`\n${totalWarnings} warning(s) — see above for details.`);
   }
 
-  // Generate screen metadata JSON for journey authoring
-  if (Object.keys(flowGraph.screenFiles).length > 0) {
-    const metadata = extractAllScreenMetadata(flowGraph);
-    const metadataPath = resolve(__dirname, 'screen-metadata.json');
-    const serializable = Object.fromEntries(metadata);
-    writeFileSync(metadataPath, JSON.stringify(serializable, null, 2));
-    console.log(`\nScreen metadata: ${relative(ROOT, metadataPath)} (${metadata.size} screens)`);
-  }
+  // Write combined metadata (screen registry + component catalog) for skills
+  const metadataPath = resolve(__dirname, 'screen-metadata.json');
+  const metadata = {
+    screens: SCREENS,
+    components: Object.fromEntries(
+      Object.entries(COMPONENT_CATALOG).map(([k, v]) => [k, {
+        subTestIDs: v.subTestIDs,
+        dslHelper: v.dslHelper,
+        showsKeyboard: v.showsKeyboard,
+        usesModal: v.usesModal,
+        maestroNotes: v.maestroNotes,
+      }]),
+    ),
+  };
+  writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+  console.log(`\nScreen registry: ${Object.keys(SCREENS).length} screens, ${Object.keys(COMPONENT_CATALOG).length} component types`);
+  console.log(`Metadata written to: ${relative(ROOT, metadataPath)}`);
 
   console.log('\nTo run the generated flows:');
   console.log('  maestro test maestro/flows/generated/');
