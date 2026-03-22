@@ -1655,6 +1655,61 @@ Borderly protects stored passport and travel data with an inactivity-based app l
 
 ---
 
+## Submission Status Tracking
+
+Borderly allows travelers to track whether they have actually submitted each leg's government portal declaration. This is separate from form completion (`formStatus`): a form can be filled out (ready) but not yet submitted to the government portal. Submission tracking gives users a clear per-leg and per-trip view of what has been submitted.
+
+### Status State Machine
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Leg Submission Status State Machine              │
+│                                                               │
+│  not_started ──► in_progress ──► submitted                    │
+│       │                               ▲                       │
+│       └───────────────────────────────┘                       │
+│                 (direct transition allowed)                    │
+│                                                               │
+│  not_started  → grey pill   ("Not Started")                   │
+│  in_progress  → amber pill  ("In Progress")                   │
+│  submitted    → green pill  ("Submitted")                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+1. Each `TripLeg` has a `submissionStatus: LegSubmissionStatus` field (`'not_started' | 'in_progress' | 'submitted'`), separate from `formStatus` which tracks form completion.
+2. `useTripStore.updateLegSubmissionStatus(legId, status)` persists the new status to WatermelonDB and updates in-memory state atomically.
+3. `TripDetailScreen` derives a reactive `submissionProgress` via `useMemo` — counting legs where `submissionStatus === 'submitted'`.
+4. The "Mark as Submitted" button on each `LegCard` calls `handleMarkAsSubmitted(legId)` in `TripDetailScreen`, which calls `updateLegSubmissionStatus(legId, 'submitted')`.
+5. The button is hidden once `leg.submissionStatus === 'submitted'`.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/types/trip.ts` | `LegSubmissionStatus` type and `TripLeg.submissionStatus` field |
+| `src/stores/useTripStore.ts` | `updateLegSubmissionStatus()` and `markLegAsSubmitted()` store actions |
+| `src/components/trips/SubmissionStatusBadge.tsx` | Colour-coded pill badge (grey / amber / green) for each `LegSubmissionStatus` |
+| `src/components/trips/LegCard.tsx` | Renders `SubmissionStatusBadge` and the "Mark as Submitted" button per leg |
+| `src/screens/trips/TripDetailScreen/TripDetailScreen.tsx` | `submissionProgress` summary, `handleMarkAsSubmitted` callback, passes `onMarkAsSubmitted` to each `LegCard` |
+
+### Accessibility
+
+- **SubmissionStatusBadge** uses `accessibilityRole="text"` and an `accessibilityLabel` describing the status (`"Submission not started"`, `"Submission in progress"`, `"Submission complete"`). The visible text node is hidden from screen readers to prevent double-announcement.
+- **"Mark as Submitted" button** uses `accessibilityRole="button"` with a label that names the destination (`"Mark Japan leg as submitted"`) and an `accessibilityHint` describing the effect.
+- **Submission progress summary** uses `accessibilityRole="text"` with a combined label (`"X of N legs submitted"`); the decorative `X/N` text node is hidden from screen readers.
+
+### Test Coverage
+
+- `__tests__/components/trips/SubmissionStatusBadge.a11y.test.tsx` — accessibility tests: all three states, roles, labels, hidden text nodes
+- `__tests__/components/trips/TripCard.test.tsx` — unit tests: zero / partial / full submission count display
+- `__tests__/integration/submissionTracking.test.ts` — integration tests: full mark-as-submitted lifecycle using real `useTripStore`; covers `not_started → submitted`, intermediate `in_progress` state, multi-leg isolation, database error handling, sequential submissions, and `markLegAsSubmitted` delegation
+- `e2e/tests/trip-detail.spec.ts` — E2E smoke tests (Story #691): `SubmissionStatusBadge` renders, "Mark as Submitted" button renders, submission progress summary displays correct fractions
+- `e2e/tests/submission-tracking.spec.ts` — E2E smoke tests (Story #694): dedicated submission-tracking suite covering not-started / submitted / multi-leg scenarios, badge visibility, button presence/absence, progress fractions
+
+---
+
 ## 10. Key Libraries & Versions
 
 ```json
