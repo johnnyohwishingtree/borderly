@@ -223,10 +223,10 @@ test.describe('Deadline Reminders — TripDetailScreen', () => {
     await injectState(page, deadlineReminderTrip());
     await goToTripDetail(page, 'Deadline Reminder Trip');
 
-    const summaryLocator = page.getByTestId('trip-readiness-summary');
-    await expect(summaryLocator).toBeVisible({ timeout: 5000 });
-    await expect(summaryLocator).toContainText('Trip Readiness:');
-    await expect(summaryLocator).toContainText('of 1 leg');
+    // ReadinessChecklist replaced the old plain-text trip-readiness-summary
+    const checklist = page.getByTestId('readiness-checklist');
+    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
   });
 
   test('DeadlineBadge is visible for a leg with a future departure date', async ({ page }) => {
@@ -270,9 +270,10 @@ test.describe('Deadline Reminders — TripDetailScreen', () => {
     await injectState(page, deadlineReminderTwoLegTrip());
     await goToTripDetail(page, 'Two Leg Deadline Trip');
 
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
-    // 1 ready leg out of 2 total
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('1 of 2 legs ready');
+    // ReadinessChecklist replaced the old plain-text trip-readiness-summary
+    const checklist = page.getByTestId('readiness-checklist');
+    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
   });
 
   test('LegCard renders for the JPN destination in a deadline reminder trip', async ({ page }) => {

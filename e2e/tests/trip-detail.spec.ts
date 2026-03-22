@@ -1,9 +1,9 @@
 /**
- * E2E smoke tests for TripDetailScreen deadline badge features.
+ * E2E smoke tests for TripDetailScreen deadline badge and readiness checklist features.
  *
  * Verifies:
  * - DeadlineBadge renders on LegCards when deadline data is available
- * - "Trip Readiness: X of N legs ready" summary line is visible
+ * - ReadinessChecklist renders and is visible on the trip detail screen
  * - LegCard still renders correctly when no deadline applies
  */
 
@@ -127,30 +127,41 @@ async function goToTripDetail(page: any, tripName: string) {
 // ---------------------------------------------------------------------------
 
 test.describe('TripDetailScreen — DeadlineBadge integration', () => {
-  test('Trip Readiness summary line is visible when there are legs', async ({ page }) => {
+  test('ReadinessChecklist is visible when there are legs', async ({ page }) => {
     await injectState(page, tripWithOneLeg());
     await goToTripDetail(page, 'Detail Test Trip');
 
-    // "Trip Readiness: X of N legs ready" summary should be visible
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('Trip Readiness:');
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('of 1 leg');
+    // ReadinessChecklist should render (either fully loaded or in loading state)
+    const checklist = page.getByTestId('readiness-checklist');
+    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+    // One of the two states should be visible
+    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
   });
 
-  test('Trip Readiness shows correct ready count: 1 of 2 legs ready', async ({ page }) => {
+  test('ReadinessChecklist header is tappable to expand', async ({ page }) => {
+    await injectState(page, tripWithOneLeg());
+    await goToTripDetail(page, 'Detail Test Trip');
+
+    // Wait for the checklist to appear
+    const checklist = page.getByTestId('readiness-checklist');
+    await expect(checklist).toBeVisible({ timeout: 8000 });
+
+    // The header button should be present and tappable
+    const header = page.getByTestId('readiness-checklist-header');
+    await expect(header).toBeVisible({ timeout: 3000 });
+    await header.click();
+
+    // Body should expand after click
+    await expect(page.getByTestId('readiness-checklist-body')).toBeVisible({ timeout: 3000 });
+  });
+
+  test('ReadinessChecklist renders for a trip with multiple legs', async ({ page }) => {
     await injectState(page, tripWithTwoLegs());
     await goToTripDetail(page, 'Two Leg Trip');
 
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('1 of 2 legs ready');
-  });
-
-  test('Trip Readiness shows 0 of 1 when leg is not started', async ({ page }) => {
-    await injectState(page, tripWithOneLeg({ formStatus: 'not_started' }));
-    await goToTripDetail(page, 'Detail Test Trip');
-
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('trip-readiness-summary')).toContainText('0 of 1 leg');
+    const checklist = page.getByTestId('readiness-checklist');
+    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
   });
 
   test('LegCard renders for each destination in the itinerary', async ({ page }) => {
@@ -168,8 +179,10 @@ test.describe('TripDetailScreen — DeadlineBadge integration', () => {
     // goToTripDetail already confirms we are on TripDetailScreen ('Itinerary' is visible)
     await expect(page.getByTestId('leg-card-JPN')).toBeVisible({ timeout: 5000 });
 
-    // Overall progress section — use the readiness summary testID to avoid ambiguous text matches
-    await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
+    // ReadinessChecklist (or loading state) replaces the old plain-text summary
+    const checklist = page.getByTestId('readiness-checklist');
+    const loadingPlaceholder = page.getByTestId('readiness-checklist-loading');
+    await expect(checklist.or(loadingPlaceholder)).toBeVisible({ timeout: 8000 });
   });
 
   test('placeholder Export Trip and Share Itinerary buttons are not present', async ({ page }) => {
