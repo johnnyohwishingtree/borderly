@@ -193,6 +193,22 @@ describe('scheduleReadinessCheck', () => {
 
       expect(mockProvider.cancelled).toHaveLength(0);
     });
+
+    it('preserves the MMKV key when cancel throws so the ID can be retried later', async () => {
+      const trip = makeTrip();
+      const notifId = buildReadinessNotificationId(trip.id);
+      mockStore[readinessKey(trip.id)] = notifId;
+
+      (mockProvider.provider.cancel as jest.Mock).mockRejectedValueOnce(
+        new Error('OS error'),
+      );
+
+      const readiness = makeReadiness(trip.id, 'ok', 7 * MS_PER_DAY);
+      await scheduleReadinessCheck(trip, readiness);
+
+      // Key must still be present so the app can retry cancellation later
+      expect(mockStore[readinessKey(trip.id)]).toBe(notifId);
+    });
   });
 
   describe('when overallStatus is warning', () => {
@@ -269,6 +285,21 @@ describe('cancelReadinessNotification', () => {
     await cancelReadinessNotification('trip-no-notif');
 
     expect(mockProvider.cancelled).toHaveLength(0);
+  });
+
+  it('preserves the MMKV key when cancel throws so the ID can be retried later', async () => {
+    const tripId = 'trip-cancel-fail';
+    const notifId = buildReadinessNotificationId(tripId);
+    mockStore[readinessKey(tripId)] = notifId;
+
+    (mockProvider.provider.cancel as jest.Mock).mockRejectedValueOnce(
+      new Error('OS error'),
+    );
+
+    await cancelReadinessNotification(tripId);
+
+    // Key must still be present so the app can retry cancellation later
+    expect(mockStore[readinessKey(tripId)]).toBe(notifId);
   });
 });
 

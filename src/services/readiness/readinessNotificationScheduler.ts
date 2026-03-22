@@ -73,6 +73,7 @@ export async function scheduleReadinessCheck(
     if (existingId) {
       try {
         await provider.cancel(existingId);
+        mmkvService.delete(key);
       } catch (err) {
         if (__DEV__) {
           console.warn(
@@ -81,7 +82,6 @@ export async function scheduleReadinessCheck(
           );
         }
       }
-      mmkvService.delete(key);
     }
     return;
   }
@@ -135,6 +135,7 @@ export async function cancelReadinessNotification(tripId: string): Promise<void>
 
   try {
     await provider.cancel(existingId);
+    mmkvService.delete(key);
   } catch (err) {
     if (__DEV__) {
       console.warn(
@@ -143,6 +144,4 @@ export async function cancelReadinessNotification(tripId: string): Promise<void>
       );
     }
   }
-
-  mmkvService.delete(key);
 }
