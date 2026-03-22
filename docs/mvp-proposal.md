@@ -214,6 +214,7 @@ Read path (form generation):
 |-----|-------|
 | `schema:<COUNTRY_CODE>` | JSON string of the OTA-fetched schema (e.g. `schema:JPN`) |
 | `schema_manifest_cache` | JSON string of the last fetched manifest |
+| `app_theme` | User's colour-scheme preference: `"system"` \| `"light"` \| `"dark"` (default: `"system"`). Absent key means system default. Written by `useAppStore.setTheme()`, read at startup by `loadPersistedAppState()`. |
 
 #### Security Properties
 
