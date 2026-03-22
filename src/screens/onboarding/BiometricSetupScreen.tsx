@@ -7,14 +7,11 @@ import { Fingerprint, ShieldCheck, Zap, KeyRound, Lightbulb } from 'lucide-react
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
 import { Button, Card, ProgressBar } from '../../components/ui';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { requestNotificationPermission } from '../../services/deadline/notificationScheduler';
 
 type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'BiometricSetup'>;
 
 export default function BiometricSetupScreen() {
   const navigation = useNavigation<BiometricSetupScreenNavigationProp>();
-  const { setOnboardingComplete } = useProfileStore();
   const [isEnabling, setIsEnabling] = useState(false);
   const pulseAnimation = useRef(new Animated.Value(1)).current;
 
@@ -49,16 +46,13 @@ export default function BiometricSetupScreen() {
       // For now, simulate the process
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000));
 
-      // Request notification permission so deadline reminders can fire
-      await requestNotificationPermission();
-
       Alert.alert(
         'Setup Complete!',
         'Your profile has been created and secured with biometric authentication.',
         [
           {
             text: 'Get Started',
-            onPress: () => setOnboardingComplete(true),
+            onPress: () => navigation.navigate('NotificationPermission'),
           },
         ]
       );
@@ -82,7 +76,7 @@ export default function BiometricSetupScreen() {
         {
           text: 'Skip',
           onPress: () => {
-            setOnboardingComplete(true);
+            navigation.navigate('NotificationPermission');
           },
         },
       ]
