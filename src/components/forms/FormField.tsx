@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Input, Select, Toggle, SearchableSelect, DatePickerField, AddressAutocomplete, AccommodationAutocomplete } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
@@ -90,9 +91,13 @@ export default function FormField({
   disabled = false,
   showAutoFillBadge = true,
 }: FormFieldProps) {
+  const [numericError, setNumericError] = useState<string | undefined>(undefined);
+
   const fieldValue = value ?? field.currentValue;
   const isRequired = field.required;
-  const hasError = !!error;
+  // Combine parent-provided error with locally computed numeric validation error
+  const effectiveError = error || numericError;
+  const hasError = !!effectiveError;
 
   const handleValueChange = (newValue: unknown) => {
     onValueChange(field.id, newValue);
@@ -104,7 +109,7 @@ export default function FormField({
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
       testID: `input-${field.id}`,
-      ...(hasError && error ? { error } : {}),
+      ...(hasError && effectiveError ? { error: effectiveError } : {}),
     };
 
     // Determine keyboard type and autoCapitalize based on field semantics
@@ -141,7 +146,7 @@ export default function FormField({
         return (
           <Input
             {...baseProps}
-            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
+            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, effectiveError)}
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
             keyboardType={textKeyboardType}
@@ -151,16 +156,48 @@ export default function FormField({
           />
         );
 
-      case 'number':
+      case 'number': {
+        const numMin = field.validation?.min;
+        const numMax = field.validation?.max;
+        // Derive maxLength from the digit count of the max value so the keyboard
+        // dismisses at the right length (e.g. max=90 → maxLength=2).
+        const numMaxLength =
+          numMax !== undefined ? String(Math.abs(numMax)).length : undefined;
+
+        const handleNumericChange = (text: string) => {
+          if (text === '' || text === '-') {
+            setNumericError(undefined);
+            handleValueChange(text);
+            return;
+          }
+          const parsed = Number(text);
+          if (!isNaN(parsed)) {
+            if (numMin !== undefined && numMax !== undefined && (parsed < numMin || parsed > numMax)) {
+              setNumericError(`Must be between ${numMin} and ${numMax}`);
+            } else if (numMin !== undefined && numMax === undefined && parsed < numMin) {
+              setNumericError(`Must be at least ${numMin}`);
+            } else if (numMax !== undefined && numMin === undefined && parsed > numMax) {
+              setNumericError(`Must be at most ${numMax}`);
+            } else {
+              setNumericError(undefined);
+            }
+          } else {
+            setNumericError(undefined);
+          }
+          handleValueChange(text);
+        };
+
         return (
           <Input
             {...baseProps}
-            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
-            onChangeText={(text: string) => handleValueChange(text)}
+            accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, effectiveError)}
+            onChangeText={handleNumericChange}
             keyboardType="numeric"
             placeholder={field.label}
+            {...(numMaxLength !== undefined ? { maxLength: numMaxLength } : {})}
           />
         );
+      }
 
       case 'date':
         return (
@@ -327,7 +364,7 @@ export default function FormField({
           accessible={true}
           accessibilityRole="text"
         >
-          {error}
+          {effectiveError}
         </Text>
       )}
 
