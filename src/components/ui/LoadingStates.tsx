@@ -73,24 +73,24 @@ export default function LoadingStates({
     );
   }
 
-  const containerClasses = fullScreen 
-    ? 'absolute inset-0 bg-white/95 z-50 items-center justify-center px-6'
+  const containerClasses = fullScreen
+    ? 'absolute inset-0 bg-white/95 dark:bg-gray-900/95 z-50 items-center justify-center px-6'
     : `py-8 px-6 items-center ${className}`;
 
   if (state === 'success') {
     return (
       <View className={containerClasses}>
-        <View className="w-16 h-16 bg-green-100 rounded-full items-center justify-center mb-4">
-          <Text className="text-green-600 text-2xl font-bold">✓</Text>
+        <View className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full items-center justify-center mb-4">
+          <Text className="text-green-600 dark:text-green-400 text-2xl font-bold">✓</Text>
         </View>
-        <Text 
-          className="text-lg font-semibold text-gray-900 text-center mb-2"
+        <Text
+          className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2"
           accessibilityRole="text"
         >
           Success!
         </Text>
-        <Text 
-          className="text-base text-gray-600 text-center"
+        <Text
+          className="text-base text-gray-600 dark:text-gray-400 text-center"
           accessibilityRole="text"
         >
           {successMessage}
@@ -102,19 +102,19 @@ export default function LoadingStates({
   if (state === 'error' || state === 'timeout') {
     return (
       <View className={containerClasses}>
-        <View className="w-16 h-16 bg-red-100 rounded-full items-center justify-center mb-4">
-          <Text className="text-red-600 text-2xl font-bold">!</Text>
+        <View className="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full items-center justify-center mb-4">
+          <Text className="text-red-600 dark:text-red-400 text-2xl font-bold">!</Text>
         </View>
-        
-        <Text 
-          className="text-lg font-semibold text-gray-900 text-center mb-2"
+
+        <Text
+          className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2"
           accessibilityRole="text"
         >
           {state === 'timeout' ? 'Request Timed Out' : 'Error'}
         </Text>
-        
-        <Text 
-          className="text-base text-gray-600 text-center mb-6 max-w-sm leading-6"
+
+        <Text
+          className="text-base text-gray-600 dark:text-gray-400 text-center mb-6 max-w-sm leading-6"
           accessibilityRole="text"
         >
           {state === 'timeout' 

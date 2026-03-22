@@ -97,15 +97,17 @@ export default function Select({
 
   const getSelectStyles = () => {
     const baseStyles = `border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center transition-all duration-150 shadow-sm min-h-[${ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET}px]`;
-    
+
     let errorStyles, disabledStyles;
-    
+
     if (highContrastMode) {
       errorStyles = error ? 'border-black bg-white' : 'border-gray-800';
       disabledStyles = disabled ? 'bg-gray-200 opacity-60 border-gray-600' : 'bg-white';
     } else {
-      errorStyles = error ? 'border-red-500 bg-red-50/30' : 'border-gray-200';
-      disabledStyles = disabled ? 'bg-gray-100 opacity-60' : 'bg-white';
+      errorStyles = error ? 'border-red-500 bg-red-50/30 dark:bg-red-900/20' : 'border-gray-200 dark:border-gray-600';
+      disabledStyles = disabled
+        ? 'bg-gray-100 dark:bg-gray-700 opacity-60'
+        : 'bg-white dark:bg-gray-800';
     }
 
     return `${baseStyles} ${errorStyles} ${disabledStyles} ${className || ''}`;
@@ -113,12 +115,14 @@ export default function Select({
 
   const getTextStyles = () => {
     const baseStyles = 'text-base';
-    
+
     let valueStyles;
     if (highContrastMode) {
       valueStyles = selectedOption ? 'text-black' : 'text-gray-700';
     } else {
-      valueStyles = selectedOption ? 'text-gray-900' : 'text-gray-500';
+      valueStyles = selectedOption
+        ? 'text-gray-900 dark:text-gray-100'
+        : 'text-gray-500 dark:text-gray-400';
     }
 
     return `${baseStyles} ${valueStyles}`;
@@ -126,13 +130,13 @@ export default function Select({
 
   const getLabelStyles = () => {
     const baseStyles = 'text-sm font-semibold mb-2';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-gray-700';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-gray-700 dark:text-gray-300';
     return `${baseStyles} ${colorStyles}`;
   };
 
   const getErrorStyles = () => {
     const baseStyles = 'text-sm mt-2 font-medium';
-    const colorStyles = highContrastMode ? 'text-black' : 'text-red-600';
+    const colorStyles = highContrastMode ? 'text-black' : 'text-red-600 dark:text-red-400';
     return `${baseStyles} ${colorStyles}`;
   };
 
@@ -168,8 +172,8 @@ export default function Select({
         >
           {label}
           {required && (
-            <Text 
-              className={highContrastMode ? 'text-black' : 'text-red-500'}
+            <Text
+              className={highContrastMode ? 'text-black' : 'text-red-500 dark:text-red-400'}
               accessibilityLabel="required"
             >
               {' *'}
@@ -203,8 +207,8 @@ export default function Select({
         <Text className={getTextStyles()} accessible={false}>
           {selectedOption?.label || placeholder}
         </Text>
-        <Text 
-          className={highContrastMode ? 'text-black text-lg' : 'text-gray-400 text-lg'}
+        <Text
+          className={highContrastMode ? 'text-black text-lg' : 'text-gray-400 dark:text-gray-500 text-lg'}
           accessible={false}
         >
           {isOpen ? '▲' : '▼'}
@@ -242,19 +246,19 @@ export default function Select({
           accessibilityLabel="Close options menu"
           accessibilityHint="Tap to close the options menu"
         >
-          <View 
+          <View
             className={`rounded-2xl mx-4 max-h-80 w-full max-w-sm shadow-2xl ${
-              highContrastMode 
-                ? 'bg-white border-2 border-black' 
-                : 'bg-white shadow-gray-900/25'
+              highContrastMode
+                ? 'bg-white border-2 border-black'
+                : 'bg-white dark:bg-gray-800 shadow-gray-900/25'
             }`}
             accessible={false}
           >
             <View className={`p-4 ${
-              highContrastMode ? 'border-b-2 border-black' : 'border-b border-gray-100'
+              highContrastMode ? 'border-b-2 border-black' : 'border-b border-gray-100 dark:border-gray-700'
             }`}>
               <Text className={`text-lg font-semibold ${
-                highContrastMode ? 'text-black' : 'text-gray-900'
+                highContrastMode ? 'text-black' : 'text-gray-900 dark:text-gray-100'
               }`}>
                 {label || 'Select an option'}
               </Text>
@@ -272,7 +276,7 @@ export default function Select({
                     className={`p-4 ${
                       highContrastMode
                         ? (isSelected ? 'bg-gray-200 border-b-2 border-black' : 'border-b border-gray-400')
-                        : (isSelected ? 'bg-blue-50 border-b border-gray-100' : 'border-b border-gray-100')
+                        : `border-b border-gray-100 dark:border-gray-700${isSelected ? ' bg-blue-50 dark:bg-blue-900/30' : ''}`
                     }`}
                     onPress={() => !isDisabled && handleSelect(item.value)}
                     disabled={isDisabled}
@@ -294,11 +298,11 @@ export default function Select({
                     }}
                   >
                     <Text className={`text-base ${
-                      isDisabled 
-                        ? (highContrastMode ? 'text-gray-600' : 'text-gray-400')
-                        : isSelected 
-                          ? (highContrastMode ? 'text-black font-bold' : 'text-blue-600 font-medium')
-                          : (highContrastMode ? 'text-black' : 'text-gray-900')
+                      isDisabled
+                        ? (highContrastMode ? 'text-gray-600' : 'text-gray-400 dark:text-gray-500')
+                        : isSelected
+                          ? (highContrastMode ? 'text-black font-bold' : 'text-blue-600 dark:text-blue-400 font-medium')
+                          : (highContrastMode ? 'text-black' : 'text-gray-900 dark:text-gray-100')
                     }`}>
                       {item.label}
                       {isSelected && ' ✓'}

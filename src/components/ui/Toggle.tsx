@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Pressable, Animated } from 'react-native';
+import { Pressable, Animated, useColorScheme } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
 import {
   AccessibilityStateHelpers,
@@ -42,6 +42,8 @@ export default function Toggle({
   highContrastMode = false,
   testID,
 }: ToggleProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -70,13 +72,14 @@ export default function Toggle({
   const thumbOffset = sizeConfig.width - sizeConfig.thumbSize - 2;
 
   const getTrackColors = () => {
-    if (disabled) return ['#e5e7eb', '#e5e7eb'];
-    
+    if (disabled) return [isDark ? '#374151' : '#e5e7eb', isDark ? '#374151' : '#e5e7eb'];
+
     if (highContrastMode) {
       return ['#ffffff', '#000000']; // High contrast colors
     }
-    
-    return ['#e5e7eb', '#3b82f6']; // Default colors
+
+    // Default: off = gray, on = blue (lighter blue in dark mode for contrast)
+    return [isDark ? '#4B5563' : '#e5e7eb', isDark ? '#60a5fa' : '#3b82f6'];
   };
 
   const trackStyle = {
@@ -96,7 +99,9 @@ export default function Toggle({
     width: sizeConfig.thumbSize,
     height: sizeConfig.thumbSize,
     borderRadius: sizeConfig.thumbSize / 2,
-    backgroundColor: highContrastMode ? (value ? '#ffffff' : '#000000') : '#ffffff',
+    backgroundColor: highContrastMode
+      ? (value ? '#ffffff' : '#000000')
+      : (isDark ? '#f9fafb' : '#ffffff'),
     borderWidth: highContrastMode ? 2 : 0,
     borderColor: highContrastMode ? (value ? '#000000' : '#ffffff') : 'transparent',
     shadowColor: '#000000',

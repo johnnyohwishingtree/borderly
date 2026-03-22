@@ -127,16 +127,16 @@ export default function LoadingIndicator({
 
   const getContainerStyles = () => {
     const baseStyles = 'items-center justify-center';
-    
+
     if (fullScreen) {
-      return `${baseStyles} absolute inset-0 bg-white/90 z-50`;
+      return `${baseStyles} absolute inset-0 bg-white/90 dark:bg-gray-900/90 z-50`;
     }
-    
+
     return `${baseStyles} py-8`;
   };
 
   const getTextStyles = () => {
-    const baseStyles = 'text-gray-600 font-medium mt-3';
+    const baseStyles = 'text-gray-600 dark:text-gray-400 font-medium mt-3';
     
     const sizeStyles = {
       small: 'text-sm',
@@ -154,13 +154,13 @@ export default function LoadingIndicator({
     
     return (
       <View className="w-48 mt-4">
-        <View className="w-full bg-gray-200 rounded-full h-2">
-          <View 
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+        <View className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <View
+            className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
           />
         </View>
-        <Text className="text-xs text-gray-500 mt-1 text-center">
+        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
           {progressPercentage}%
         </Text>
       </View>
@@ -192,15 +192,15 @@ export default function LoadingIndicator({
           transform: [{ scale: pulseAnim }],
         }}
       >
-        <Animated.View 
-          className="absolute w-12 h-12 bg-blue-100 rounded-full"
+        <Animated.View
+          className="absolute w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full"
           style={{ opacity: 0.6 }}
         />
-        <Animated.View 
-          className="absolute inset-1 w-10 h-10 bg-blue-200 rounded-full"
+        <Animated.View
+          className="absolute inset-1 w-10 h-10 bg-blue-200 dark:bg-blue-800/60 rounded-full"
           style={{ opacity: 0.8 }}
         />
-        <View className="absolute inset-3 w-6 h-6 bg-blue-600 rounded-full" />
+        <View className="absolute inset-3 w-6 h-6 bg-blue-600 dark:bg-blue-500 rounded-full" />
       </Animated.View>
     );
   };
@@ -242,19 +242,19 @@ export default function LoadingIndicator({
       {renderProgressIndicator()}
       
       {showTimeout && (
-        <Text className="text-orange-600 text-sm mt-2 text-center max-w-sm">
+        <Text className="text-orange-600 dark:text-orange-400 text-sm mt-2 text-center max-w-sm">
           This is taking longer than expected...
         </Text>
       )}
-      
+
       {cancelable && onCancel && (
         <Pressable
           onPress={onCancel}
-          className="mt-4 py-2 px-4 bg-gray-100 rounded-lg"
+          className="mt-4 py-2 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg"
           accessibilityLabel="Cancel loading"
           accessibilityHint="Cancel the current operation"
         >
-          <Text className="text-gray-700 text-center font-medium">
+          <Text className="text-gray-700 dark:text-gray-200 text-center font-medium">
             Cancel
           </Text>
         </Pressable>
