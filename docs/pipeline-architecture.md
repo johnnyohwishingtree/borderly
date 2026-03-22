@@ -18,7 +18,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |
-| `auto-merge.yml` | CI complete / review / PR sync / push to master / dispatch | Single merge gate (6 conditions); evaluates all open PRs on master push |
+| `auto-merge.yml` | CI complete / review / PR sync / push to master / dispatch | Single merge gate (7 conditions); evaluates all open PRs on master push |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
 | `watcher.yml` | Cron (every 20min) / manual | Unsticks stories, fixes PRs, cleans up |
@@ -47,7 +47,7 @@ The primary pipeline logic is implemented in TypeScript with full type safety an
 | `verify-checks.ts` | Runs lint, typecheck, metro bundle, tests, native dep checks → JSON output | `lib/cli/verify-checks.ts` |
 | `state-machine.ts` | Pipeline state persistence in GitHub issue comments | `lib/cli/state-machine.ts` |
 | `workflow.ts` | Temporal-like activity runner: start, success, fail, retry | `lib/cli/activity.ts` |
-| `merge-gate.ts` | Evaluates 6 merge conditions → `merge\|update_branch\|wait\|skip` | `lib/cli/evaluate-merge-gate.ts` |
+| `merge-gate.ts` | Evaluates 7 merge conditions → `merge\|update_branch\|wait\|skip` | `lib/cli/evaluate-merge-gate.ts` |
 | `ci-dispatch.ts` | CI failure dispatch (label check, failed items, verify-and-fix dispatch) | `lib/cli/pipeline.ts` |
 | `watcher.ts` | Pipeline watcher (slot counting, PR health, story retrigger, orphan cleanup) | `lib/cli/pipeline.ts` |
 | `doctor.ts` | Pipeline doctor evidence collection and failure reproduction | `lib/cli/pipeline.ts` |
@@ -168,13 +168,14 @@ Run `cd .github/scripts && pnpm test` for the TypeScript test suite.
 |   Triggers: workflow_run, pull_request_review,                      |
 |             pull_request (synchronize), workflow_dispatch            |
 |                                                                     |
-|   Merges only when ALL 6 conditions are met:                        |
+|   Merges only when ALL 7 conditions are met:                        |
 |     1. Tests workflow passed                                        |
 |     2. E2E passed (chromium rollup, performance, cross-browser)     |
 |     3. PR has at least one approval (owner PRs implicitly approved) |
 |     4. No unresolved review threads                                 |
 |     5. No active review-fix runs                                    |
-|     6. Branch up to date with master                                |
+|     6. No code review in progress ("Code Review in Progress" check) |
+|     7. Branch up to date with master                                |
 |                                                                     |
 |   If branch behind → merge master into PR branch → re-evaluate     |
 +----------------------------+----------------------------------------+

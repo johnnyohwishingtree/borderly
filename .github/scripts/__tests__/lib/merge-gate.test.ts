@@ -11,6 +11,7 @@ function createMockGitHub(
     unresolvedThreads: number;
     reviewFixActive: boolean;
     branchStatus: 'ahead' | 'behind' | 'diverged' | 'identical';
+    comments: { body: string }[];
   }> = {}
 ): GitHubClient {
   const defaults = {
@@ -21,6 +22,7 @@ function createMockGitHub(
     unresolvedThreads: 0,
     reviewFixActive: false,
     branchStatus: 'ahead' as const,
+    comments: [] as { body: string }[],
   };
   const config = { ...defaults, ...overrides };
 
@@ -40,6 +42,7 @@ function createMockGitHub(
       .fn()
       .mockResolvedValue(config.unresolvedThreads),
     getIssueLabels: vi.fn().mockResolvedValue([]),
+    getIssueComments: vi.fn().mockResolvedValue(config.comments),
     isWorkflowActive: vi.fn().mockResolvedValue(config.reviewFixActive),
     compareBranches: vi.fn().mockResolvedValue(config.branchStatus),
   } as unknown as GitHubClient;
@@ -59,6 +62,7 @@ describe('evaluateMergeGate', () => {
       approved: true,
       threadsResolved: true,
       noActiveReviewFix: true,
+      noReviewInProgress: true,
       branchUpToDate: true,
     });
   });
@@ -203,5 +207,42 @@ describe('evaluateMergeGate', () => {
 
     expect(result.action).toBe('merge');
     expect(result.conditions.reviewed).toBe(true);
+  });
+
+  // Bug (#684): PR merged while a code review was still in progress.
+  // Claude posts a "Code Review in Progress" checklist comment at the start
+  // of a review. The merge gate should wait until that review completes
+  // (the comment is edited to remove the "in Progress" marker).
+  it('returns "wait" when a code review is in progress', async () => {
+    const github = createMockGitHub({
+      comments: [
+        { body: '### Code Review in Progress\n\n- [ ] Read core files\n- [ ] Review changes' },
+      ],
+    });
+
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('wait');
+    expect(result.failingConditions).toContain('noReviewInProgress');
+  });
+
+  it('returns "merge" when code review has completed (no in-progress marker)', async () => {
+    const github = createMockGitHub({
+      comments: [
+        { body: '### Code Review Complete\n\nLooks good!' },
+      ],
+    });
+
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('merge');
+  });
+
+  it('returns "merge" when no comments exist at all', async () => {
+    const github = createMockGitHub({ comments: [] });
+
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('merge');
   });
 });
