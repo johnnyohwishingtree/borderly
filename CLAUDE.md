@@ -286,8 +286,8 @@ Part of Epic #608 — Passport & Document Validity
 ### ✅ Sprint 9: App Lock Tests, A11y Audit, and Architecture Docs Update (Complete)
 Part of Epic #671 — App Lock (Story #676)
 
-- [x] **LockScreen a11y tests** (`__tests__/components/lock/LockScreen.a11y.test.tsx`) — 21 tests covering: unlock button `accessibilityRole="button"` and label including biometric type; biometric type label variations (Face ID, Touch ID, Fingerprint, fallback "Biometrics"); error container `accessibilityRole="alert"` and `accessibilityLiveRegion="polite"`; error `accessibilityLabel` starts with "Error:" and contains the message; PIN retry button role/label/hint; decorative logo hidden (`accessible={false}` on root); title `accessibilityRole="header"`
-- [x] **App Lock integration tests** (`__tests__/integration/appLock.test.ts`) — 8 tests covering the full lifecycle: app starts unlocked; background transition immediately locks; foreground return stays locked; inactivity timeout fires and locks; `unlockWithBiometrics()` success unlocks the app; `unlockWithBiometrics()` failure keeps app locked; `isLockEnabled=false` prevents all locking; complete cycle (background→biometric unlock)
+- [x] **LockScreen a11y tests** (`__tests__/components/lock/LockScreen.a11y.test.tsx`) — 21 tests covering unlock button role/label (biometric type variations), error live region (alert role, polite liveRegion), PIN retry button, decorative logo hidden, and title header role
+- [x] **App Lock integration tests** (`__tests__/integration/appLock.test.ts`) — 8 tests covering the full lock/unlock lifecycle: background locks, foreground stays locked, inactivity timeout, biometric success/failure, lock disabled, and complete cycle
 - [x] **E2E smoke tests** — `e2e/tests/app-lock.spec.ts` verifies LockScreen renders when `isAppLocked=true` after onboarding, is not shown during onboarding, and normal navigation reappears after unlock
 - [x] **Architecture docs** — `docs/mvp-proposal.md` updated with App Lock section describing the security state machine, key behaviours (immediate background lock, onboarding gate, NavigationContainer preservation), key files, accessibility annotations, and full test coverage inventory
 
@@ -341,7 +341,7 @@ Existing a11y test files:
 - `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` — modal props, heading role, close/cancel labels, file input label, passphrase label, restore button label/hint, error live region, success state, loading state
 - `__tests__/components/profile/DocumentValidityCard.a11y.test.tsx` — PassportExpiryBadge (role, label, all statuses); DocumentValidityCard (null render, header role, expiry row combined label, country grid roles and labels, decorative icons hidden, accessible=false on text nodes)
 - `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` — null when valid, alert role, polite live region, accessible=true, label content (country, required months, shortfall days, expiry date, guidance), singular/plural month and day, custom testID, decorative elements hidden
-- `__tests__/components/lock/LockScreen.a11y.test.tsx` — unlock button role/label (biometric type label variations: Face ID, Touch ID, Fingerprint, fallback), error live region (alert role, polite liveRegion, "Error:" prefix), PIN retry button role/label/hint, decorative logo hidden, title header role
+- `__tests__/components/lock/LockScreen.a11y.test.tsx` — unlock button role/label/biometric-type variations, error live region, PIN retry button, decorative logo hidden, title header role
 
 ## Skills Reference
 

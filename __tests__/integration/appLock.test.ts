@@ -16,6 +16,7 @@
 
 import { renderHook, act } from '@testing-library/react-native';
 import { AppState } from 'react-native';
+import type { AppStateStatus } from 'react-native';
 import * as Keychain from 'react-native-keychain';
 import { useAppLock } from '@/hooks/useAppLock';
 import { useAppStore } from '@/stores/useAppStore';
@@ -27,14 +28,14 @@ jest.useFakeTimers();
 // ---------------------------------------------------------------------------
 
 /** Get the most recently registered AppState change listener. */
-function getAppStateListener(): ((state: string) => void) | null {
+function getAppStateListener(): ((state: AppStateStatus) => void) | null {
   const mock = jest.mocked(AppState.addEventListener);
   const calls = mock.mock.calls;
   const last = calls[calls.length - 1];
-  return last ? (last[1] as (state: string) => void) : null;
+  return last ? last[1] : null;
 }
 
-function simulateAppState(state: string) {
+function simulateAppState(state: AppStateStatus) {
   act(() => {
     getAppStateListener()?.(state);
   });

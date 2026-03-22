@@ -1614,6 +1614,7 @@ Borderly protects stored passport and travel data with an inactivity-based app l
 │       │                                                          │
 │       └─ User presses "Use PIN Instead"                         │
 │            → Alert: PIN unlock coming in a future version       │
+│              (Phase 2 placeholder — not yet implemented)        │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1623,7 +1624,7 @@ Borderly protects stored passport and travel data with an inactivity-based app l
 - **Foreground inactivity timer:** If the user leaves the app open and idle, it locks after the configured timeout (1, 5, 15, or 30 minutes, default 5).
 - **Onboarding gate:** `showLockScreen = isOnboardingComplete && isAppLocked` — the lock screen is never shown during onboarding, so fresh installs are never blocked.
 - **NavigationContainer never unmounts:** The lock overlay is rendered on top of the normal navigator, preserving deep-link state and navigation stack while locked.
-- **biometric auth required to disable:** In Settings, disabling the lock requires a successful biometric prompt — the user must prove identity before weakening security.
+- **biometric auth required to disable:** In Settings, disabling the lock requires a successful biometric prompt — the user must prove identity before weakening security. Enabling the lock does **not** require biometric authentication.
 - **Lock configuration persisted:** `isLockEnabled` and `lockTimeoutMinutes` are written to MMKV so they survive app restarts.
 
 ### Key Files
