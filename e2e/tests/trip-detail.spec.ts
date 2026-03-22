@@ -277,6 +277,6 @@ test.describe('TripDetailScreen — Submission Progress (Story #691)', () => {
     await goToTripDetail(page, 'Two Leg Trip');
 
     // The "0/2" count should appear next to "Submitted to portals"
-    await expect(page.getByText('0/2')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('submission-progress-summary').getByText('0/2')).toBeVisible({ timeout: 5000 });
   });
 });

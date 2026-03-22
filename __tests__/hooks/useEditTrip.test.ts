@@ -278,6 +278,40 @@ describe('useEditTrip — leg editing', () => {
     expect(result.current.errors.country).toBeTruthy();
   });
 
+  it('handleSaveLeg persists assignedTravelers changes', async () => {
+    const trip = makeTrip();
+    const { result } = renderHook(() => useEditTrip({ trip }));
+
+    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    // Add a second traveler
+    act(() => { result.current.handleEditLegTravelerToggle('traveler_2'); });
+
+    let success = false;
+    await act(async () => { success = await result.current.handleSaveLeg(); });
+
+    expect(success).toBe(true);
+    expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg_1', expect.objectContaining({
+      assignedTravelers: expect.arrayContaining([PRIMARY_ID, 'traveler_2']),
+    }));
+  });
+
+  it('handleSaveLeg persists traveler removal', async () => {
+    const trip = makeTrip();
+    const { result } = renderHook(() => useEditTrip({ trip }));
+
+    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    // Remove the primary traveler
+    act(() => { result.current.handleEditLegTravelerToggle(PRIMARY_ID); });
+
+    let success = false;
+    await act(async () => { success = await result.current.handleSaveLeg(); });
+
+    expect(success).toBe(true);
+    expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg_1', expect.objectContaining({
+      assignedTravelers: [],
+    }));
+  });
+
   it('handleSaveLeg returns false when editingLegId is null', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 

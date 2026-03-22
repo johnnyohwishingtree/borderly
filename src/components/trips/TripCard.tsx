@@ -44,6 +44,15 @@ const TripCard = memo<TripCardProps>(({
       return { completed, total, percentage };
     })();
 
+    const submittedCount = trip.legs.filter(
+      leg => leg.submissionStatus === 'submitted'
+    ).length;
+    const submissionIndicator = {
+      submitted: submittedCount,
+      total: trip.legs.length,
+      allSubmitted: trip.legs.length > 0 && submittedCount === trip.legs.length,
+    };
+
     const getStatusColor = (status: Trip['status']): 'error' | 'success' | 'warning' | 'info' | 'neutral' => {
       switch (status) {
         case 'upcoming':
@@ -75,6 +84,7 @@ const TripCard = memo<TripCardProps>(({
 
     return {
       progress,
+      submissionIndicator,
       statusColor: getStatusColor(trip.status),
       statusText: getStatusText(trip.status),
       firstLeg,
@@ -82,7 +92,7 @@ const TripCard = memo<TripCardProps>(({
     };
   }, [trip.legs, trip.status]);
 
-  const { progress, statusColor, statusText, firstLeg, lastLeg } = tripMetrics;
+  const { progress, submissionIndicator, statusColor, statusText, firstLeg, lastLeg } = tripMetrics;
 
   const hasContextMenu = onDuplicate !== undefined || onDelete !== undefined;
 
@@ -206,6 +216,27 @@ const TripCard = memo<TripCardProps>(({
                 size="small"
                 color="blue"
               />
+              {/* Submission indicator */}
+              <View
+                accessible={true}
+                accessibilityLabel={
+                  submissionIndicator.allSubmitted
+                    ? 'All legs submitted'
+                    : `${submissionIndicator.submitted} of ${submissionIndicator.total} legs submitted`
+                }
+                testID="trip-card-submission-indicator"
+                className="mt-2"
+              >
+                {submissionIndicator.allSubmitted ? (
+                  <Text className="text-sm font-semibold text-green-600 dark:text-green-400">
+                    ✓ All submitted
+                  </Text>
+                ) : (
+                  <Text className="text-sm text-gray-600 dark:text-gray-400">
+                    {submissionIndicator.submitted}/{submissionIndicator.total} submitted
+                  </Text>
+                )}
+              </View>
             </View>
           )}
 
