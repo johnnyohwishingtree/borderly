@@ -35,7 +35,7 @@ function makePassport(passportExpiry: string): TravelerProfile {
     passportExpiry,
     issuingCountry: 'AUS',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,

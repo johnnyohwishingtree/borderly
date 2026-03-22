@@ -200,17 +200,7 @@ describe('watcher', () => {
   });
 
   describe('getPRCIConclusion', () => {
-    it('returns SUCCESS when test and all test-chromium shards pass', () => {
-      mockExec(JSON.stringify([
-        { name: 'test', conclusion: 'SUCCESS' },
-        { name: 'test-chromium (core)', conclusion: 'SUCCESS' },
-        { name: 'test-chromium (submissions)', conclusion: 'SUCCESS' },
-        { name: 'test-chromium (workflows)', conclusion: 'SUCCESS' },
-      ]));
-      expect(getPRCIConclusion(42, 'owner/repo')).toBe('SUCCESS');
-    });
-
-    it('returns SUCCESS with legacy non-matrix test-chromium name', () => {
+    it('returns SUCCESS when test and test-chromium rollup pass', () => {
       mockExec(JSON.stringify([
         { name: 'test', conclusion: 'SUCCESS' },
         { name: 'test-chromium', conclusion: 'SUCCESS' },
@@ -218,12 +208,10 @@ describe('watcher', () => {
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('SUCCESS');
     });
 
-    it('returns FAILURE when a test-chromium shard fails', () => {
+    it('returns FAILURE when test-chromium rollup fails', () => {
       mockExec(JSON.stringify([
         { name: 'test', conclusion: 'SUCCESS' },
-        { name: 'test-chromium (core)', conclusion: 'SUCCESS' },
-        { name: 'test-chromium (submissions)', conclusion: 'FAILURE' },
-        { name: 'test-chromium (workflows)', conclusion: 'SUCCESS' },
+        { name: 'test-chromium', conclusion: 'FAILURE' },
       ]));
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('FAILURE');
     });
@@ -231,7 +219,7 @@ describe('watcher', () => {
     it('returns FAILURE when test fails', () => {
       mockExec(JSON.stringify([
         { name: 'test', conclusion: 'FAILURE' },
-        { name: 'test-chromium (core)', conclusion: 'SUCCESS' },
+        { name: 'test-chromium', conclusion: 'SUCCESS' },
       ]));
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('FAILURE');
     });
@@ -245,7 +233,7 @@ describe('watcher', () => {
 
     it('returns empty string when only test-chromium is present (test not yet started)', () => {
       mockExec(JSON.stringify([
-        { name: 'test-chromium (core)', conclusion: 'SUCCESS' },
+        { name: 'test-chromium', conclusion: 'SUCCESS' },
       ]));
       expect(getPRCIConclusion(42, 'owner/repo')).toBe('');
     });

@@ -8,7 +8,7 @@ export interface Address {
 }
 
 export interface DeclarationDefaults {
-  hasItemsToDeclar: boolean; // usually false
+  hasItemsToDeclare: boolean; // usually false
   carryingCurrency: boolean; // usually false
   carryingProhibitedItems: boolean; // usually false
   visitedFarm: boolean; // usually false

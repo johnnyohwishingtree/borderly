@@ -246,7 +246,7 @@
         {
           "id": "homeAddress",
           "label": "Home Address",
-          "type": "textarea",
+          "type": "address",
           "required": true,
           "autoFillSource": "profile.address._formatted",
           "countrySpecific": false,
@@ -418,7 +418,7 @@
         {
           "id": "addressInUS",
           "label": "Address in the United States",
-          "type": "textarea",
+          "type": "address",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
           "countrySpecific": false,
