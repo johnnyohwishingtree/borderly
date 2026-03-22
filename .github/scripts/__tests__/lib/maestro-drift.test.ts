@@ -105,7 +105,7 @@ describe('Maestro flow drift detection', () => {
   }
 
   it('tutorial step count in flows matches source', () => {
-    const tutorialSrc = readFileSync(join(SRC_DIR, 'screens/onboarding/TutorialScreen.tsx'), 'utf-8');
+    const tutorialSrc = readFileSync(join(SRC_DIR, 'screens/onboarding/TutorialScreen/TutorialScreen.tsx'), 'utf-8');
     const stepCount = (tutorialSrc.match(/id:\s*\d+,\s*\n\s*title:/g) || []).length;
 
     for (const file of maestroFiles) {
