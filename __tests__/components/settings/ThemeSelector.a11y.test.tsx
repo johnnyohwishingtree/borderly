@@ -97,63 +97,16 @@ describe('ThemeSelector — accessibilityLabel', () => {
 // accessibilityState.selected
 // ---------------------------------------------------------------------------
 
-describe('ThemeSelector — accessibilityState.selected when value="system"', () => {
-  it('System option is selected', () => {
-    renderSelector('system');
-    const btn = screen.getByTestId('theme-selector-option-system');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: true });
-  });
+describe('ThemeSelector — accessibilityState.selected', () => {
+  const themes: ThemePreference[] = ['system', 'light', 'dark'];
 
-  it('Light option is NOT selected', () => {
-    renderSelector('system');
-    const btn = screen.getByTestId('theme-selector-option-light');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
-  });
-
-  it('Dark option is NOT selected', () => {
-    renderSelector('system');
-    const btn = screen.getByTestId('theme-selector-option-dark');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
-  });
-});
-
-describe('ThemeSelector — accessibilityState.selected when value="light"', () => {
-  it('Light option is selected', () => {
-    renderSelector('light');
-    const btn = screen.getByTestId('theme-selector-option-light');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: true });
-  });
-
-  it('System option is NOT selected', () => {
-    renderSelector('light');
-    const btn = screen.getByTestId('theme-selector-option-system');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
-  });
-
-  it('Dark option is NOT selected', () => {
-    renderSelector('light');
-    const btn = screen.getByTestId('theme-selector-option-dark');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
-  });
-});
-
-describe('ThemeSelector — accessibilityState.selected when value="dark"', () => {
-  it('Dark option is selected', () => {
-    renderSelector('dark');
-    const btn = screen.getByTestId('theme-selector-option-dark');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: true });
-  });
-
-  it('System option is NOT selected', () => {
-    renderSelector('dark');
-    const btn = screen.getByTestId('theme-selector-option-system');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
-  });
-
-  it('Light option is NOT selected', () => {
-    renderSelector('dark');
-    const btn = screen.getByTestId('theme-selector-option-light');
-    expect(btn.props.accessibilityState).toMatchObject({ selected: false });
+  it.each(themes)('sets selected state correctly when value is "%s"', (value) => {
+    renderSelector(value);
+    for (const theme of themes) {
+      expect(
+        screen.getByTestId(`theme-selector-option-${theme}`).props.accessibilityState,
+      ).toMatchObject({ selected: theme === value });
+    }
   });
 });
 

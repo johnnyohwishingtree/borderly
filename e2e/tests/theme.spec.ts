@@ -57,39 +57,24 @@ test.describe('Theme Selector — Settings screen', () => {
     await expect(page.getByText('Theme')).toBeVisible({ timeout: 5000 });
   });
 
-  test('System option is visible in the theme selector', async ({ page }) => {
+  test('all theme options are visible in the theme selector', async ({ page }) => {
     await expect(page.getByText('System')).toBeVisible({ timeout: 5000 });
-  });
-
-  test('Light option is visible in the theme selector', async ({ page }) => {
     await expect(page.getByText('Light').first()).toBeVisible({ timeout: 5000 });
-  });
-
-  test('Dark option is visible in the theme selector', async ({ page }) => {
     await expect(page.getByText('Dark').first()).toBeVisible({ timeout: 5000 });
   });
 
-  test('tapping Light option does not crash the app', async ({ page }) => {
-    const lightBtn = page.getByTestId('settings-theme-selector-option-light');
-    await lightBtn.waitFor({ timeout: 5000 });
-    await lightBtn.click();
+  for (const theme of ['light', 'dark'] as const) {
+    test(`tapping ${theme} option does not crash the app`, async ({ page }) => {
+      const themeBtn = page.getByTestId(`settings-theme-selector-option-${theme}`);
+      await themeBtn.waitFor({ timeout: 5000 });
+      await themeBtn.click();
 
-    // App should still be functional — Settings heading remains visible
-    await expect(page.getByText('Appearance & Language')).toBeVisible({
-      timeout: 3000,
+      // App should still be functional — Settings heading remains visible
+      await expect(page.getByText('Appearance & Language')).toBeVisible({
+        timeout: 3000,
+      });
     });
-  });
-
-  test('tapping Dark option does not crash the app', async ({ page }) => {
-    const darkBtn = page.getByTestId('settings-theme-selector-option-dark');
-    await darkBtn.waitFor({ timeout: 5000 });
-    await darkBtn.click();
-
-    // App should still be functional — Settings heading remains visible
-    await expect(page.getByText('Appearance & Language')).toBeVisible({
-      timeout: 3000,
-    });
-  });
+  }
 
   test('tapping System option after Dark does not crash the app', async ({ page }) => {
     // Switch to dark first
