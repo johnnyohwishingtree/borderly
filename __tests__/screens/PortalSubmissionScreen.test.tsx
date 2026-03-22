@@ -173,7 +173,7 @@ import { resolvePortalCredential } from '@/services/submission/credentialResolve
 import { buildLoginScript } from '@/services/submission/autoLogin';
 
 // Import screen AFTER all mocks
-import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen';
+import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen';
 
 // ── Typed mock helpers ────────────────────────────────────────────────────────
 

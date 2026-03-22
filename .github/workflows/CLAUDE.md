@@ -85,7 +85,7 @@ When modifying any workflow file, update `docs/pipeline-architecture.md` to matc
 | `e2e-smoke.yml` | push, PR, workflow_dispatch | Playwright E2E tests; dispatches verify-and-fix on failure |
 | `build-ios.yml` | push to master (ios/pkg paths), workflow_dispatch | iOS build |
 | `build-android.yml` | push to master, workflow_dispatch | Android debug build + lint |
-| `screenshot-capture.yml` | push to master (UI paths), workflow_dispatch | Native screenshots on Android emulator; creates PR if changed |
+| ~~`screenshot-capture.yml`~~ | _(removed)_ | Screenshots are now colocated in source tree, updated in-PR via `/capture-screens` |
 | `ux-audit.yml` | schedule (daily midnight PST), workflow_dispatch | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
 | `release.yml` | tags | Release pipeline |
 | `daily-planner.yml` | workflow_dispatch | Story planning (manual) |

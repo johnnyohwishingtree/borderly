@@ -9,7 +9,7 @@ Borderly is a **local-first** React Native app. All PII stays on-device. See `do
 | Folder | Purpose |
 |--------|---------|
 | `app/` | Root component + navigation bootstrap |
-| `screens/` | Full-screen navigation targets (one per route) |
+| `screens/` | Full-screen navigation targets (one per route, each in a named folder) |
 | `components/` | Reusable UI components (organized by domain) |
 | `services/` | Business logic, storage, APIs (no React dependencies) |
 | `stores/` | Zustand state management |
@@ -68,11 +68,16 @@ Services are plain TypeScript modules (no React). They:
 
 ### Adding a New Screen
 
-1. Create the screen in `screens/<domain>/`
-2. Add the route to `navigation/types.ts`
-3. Wire it into the appropriate navigator
-4. Add a Playwright E2E test in `e2e/tests/`
-5. If the screen uses a new native module, add a mock in `e2e/mocks/`
+1. Create a named folder: `screens/<domain>/<ScreenName>/`
+2. Create the screen file: `screens/<domain>/<ScreenName>/<ScreenName>.tsx`
+3. Export from the domain barrel: `screens/<domain>/index.ts`
+4. Add the route to `navigation/types.ts`
+5. Wire it into the appropriate navigator
+6. Add a Playwright E2E test in `e2e/tests/`
+7. If the screen uses a new native module, add a mock in `e2e/mocks/`
+8. Use `@/` path aliases for all imports (not relative `../../`)
+
+The named folder convention enables colocated `__screenshots__/` directories for visual auditing. A structural test in `__tests__/structure/screen-folder-convention.test.ts` enforces this — flat screen files will fail CI.
 
 ### Adding a New Country
 

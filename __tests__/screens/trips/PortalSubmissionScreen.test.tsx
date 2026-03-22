@@ -176,7 +176,7 @@ jest.mock('lucide-react-native', () => {
 
 // Import after mocks
 import { submissionCoordinator } from '@/services/submission/submissionCoordinator';
-import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen';
+import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen';
 import { usePortalAutoFill } from '@/hooks/usePortalAutoFill';
 
 // Typed mock helpers

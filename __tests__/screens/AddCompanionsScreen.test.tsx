@@ -1,7 +1,7 @@
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
-import AddCompanionsScreen from '@/screens/onboarding/AddCompanionsScreen';
+import AddCompanionsScreen from '@/screens/onboarding/AddCompanionsScreen/AddCompanionsScreen';
 import { FamilyMember, FamilyRelationship } from '@/types/profile';
 
 // Mock dependencies

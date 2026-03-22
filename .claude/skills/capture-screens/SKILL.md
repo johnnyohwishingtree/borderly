@@ -10,9 +10,26 @@ Captures screenshots of every screen in the app via Playwright and generates a m
 ## What It Does
 
 1. Runs the Playwright screenshot capture test against React Native Web
-2. Saves numbered screenshots to `e2e/screenshots/`
-3. Generates `e2e/screenshots/manifest.json` with metadata for each screen
-4. The manifest describes each screen's purpose, domain, and current state
+2. Saves screenshots to colocated `__screenshots__/` folders next to each screen's source code
+3. Generates a per-screen `manifest.json` inside each `__screenshots__/` folder
+4. Each manifest describes the screen's variants, descriptions, and captured states
+
+## Screenshot Location
+
+Screenshots are colocated with their screen source files:
+
+```
+src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png
+```
+
+Examples:
+- `src/screens/trips/TripListScreen/__screenshots__/empty.png`
+- `src/screens/trips/TripListScreen/__screenshots__/with-trip.png`
+- `src/screens/onboarding/PassportScanScreen/__screenshots__/method-selection.png`
+
+The variant name describes the screen state (e.g., `default`, `empty`, `with-trip`, `manual-entry-filled`).
+
+To find all screenshots: `find src/screens -path "*/__screenshots__/*.png"`
 
 ## Usage
 
@@ -30,7 +47,7 @@ After capturing screenshots, generate the navigation flow graph:
 npx tsx e2e/scripts/generate-flow-graph.ts
 ```
 
-This statically analyzes `src/app/navigation/types.ts` and all screen files to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
+This statically analyzes `src/app/navigation/types.ts` and all screen files (found in `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`) to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
 - **Stacks**: Which screens belong to which navigation stacks
 - **Tabs**: Bottom tab structure
 - **Edges**: Every `navigate()`, `goBack()`, and tab switch with source file + line number
@@ -40,31 +57,27 @@ The flow graph is consumed by `/ux-review` to reason about navigation paths and 
 
 ## Output
 
-**Screenshots** saved to `e2e/screenshots/` — currently **36 screens** across 5 domains:
+**Screenshots** saved to colocated `__screenshots__/` folders — currently **37 screens** across 7 domains:
 
 | Domain | Screens | Count |
 |--------|---------|-------|
-| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, BiometricSetup | 7 |
+| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, AddCompanions, BiometricSetup | 8 |
 | trips | TripList (empty/with-trip), CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN) | 15 |
 | wallet | QRWallet, AddQR, QRDetail | 3 |
 | profile | Profile, EditProfile, FamilyManagement, AddFamilyMember | 4 |
-| settings | Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy | 7 |
+| settings | Settings, PrivacyPolicy | 2 |
+| support | Help, Feedback, BugReport | 3 |
+| help | FAQ, Troubleshooting | 2 |
 
-**Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screen name, domain, description, state).
+**Per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json` — each describes that screen's variants with description and state metadata.
 
 **Flow graph** at `e2e/screenshots/flow-graph.json` — static analysis of navigation structure (stacks, tabs, edges, screen files).
 
-## Playwright vs Native Screenshots
+## Playwright Limitations
 
-**Playwright screenshots** (this skill) render via React Native Web in Chromium. They capture layout, content, and navigation but have limitations:
+Screenshots render via React Native Web in Chromium. Limitations:
 - Portal screens show iframe-blocked content (government portals block `X-Frame-Options`)
 - Some native-only components render as web approximations
-
-**Native screenshots** are captured post-merge by `screenshot-capture.yml` using an Android emulator + Maestro. These show true native rendering but are slower (~30min) and run only after merges to master.
-
-## Portal Screenshots Note
-
-Portal submission screenshots (MYS, SGP, VNM, CAN) captured via Playwright show loading/blocked states because government portals reject iframe embedding. This is expected — the native app uses real WebViews that bypass this restriction. Native-fidelity portal screenshots come from the post-merge Android emulator workflow.
 
 ## When to Re-Run
 
@@ -74,19 +87,11 @@ Re-capture screenshots whenever:
 - Navigation flow changes
 - After a visual audit implements fixes (before/after comparison)
 
-## CI Auto-Capture
-
-Screenshots are now captured exclusively post-merge on the `master` branch by the `screenshot-capture.yml` workflow. This process:
-
-- Boots an Android emulator to run the app.
-- Executes the Maestro capture flow for native-fidelity screenshots.
-- Creates a pull request if any screenshot differences are detected.
-
-This replaces the previous in-PR Playwright captures; screenshots are no longer generated during PR or verify-and-fix runs.
+Screenshots are part of the source tree — update them in the same PR as the code change.
 
 ## Integration with Other Skills
 
-- **`/visual-audit`** — Reads screenshots from `e2e/screenshots/` and manifest for analysis
+- **`/visual-audit`** — Reads screenshots from `src/screens/**/__screenshots__/` and manifest for analysis
 - **`/visual-implement`** — Updates UI based on audit findings, then re-captures to verify
 - **`/ux-review`** — Reads flow graph to analyze navigation paths, tap counts, and flow efficiency
 - **`/ux-implement`** — Uses flow graph to understand current structure before restructuring
