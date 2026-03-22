@@ -446,7 +446,7 @@
         {
           "id": "ukAddress",
           "label": "Address where you'll be staying in the UK",
-          "type": "textarea",
+          "type": "address",
           "required": true,
           "autoFillSource": "leg.accommodation.address._formatted",
           "countrySpecific": false,

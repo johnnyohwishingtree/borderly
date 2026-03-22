@@ -76,7 +76,7 @@ jobs:
           retention-days: 1
 
   # Chromium E2E tests — split into 3 parallel shards via matrix
-  test-chromium:
+  test-chromium-shard:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -108,6 +108,23 @@ jobs:
         env:
           CI: true
           E2E_PROJECT: ${{ matrix.projects }}
+
+  # Rollup gate — satisfies the "test-chromium" required status check
+  test-chromium:
+    needs: test-chromium-shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Check shard results
+        run: |
+          RESULT="${{ needs.test-chromium-shard.result }}"
+          if [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]; then
+            echo "Chromium shards: $RESULT"
+          else
+            echo "One or more chromium shards failed: $RESULT"
+            exit 1
+          fi
 
   # Performance tests (9 tests) — run in parallel with chromium
   test-performance:

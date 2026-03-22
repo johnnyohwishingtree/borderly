@@ -231,7 +231,7 @@ class SchemaValidator {
     }
 
     const fieldIds = new Set<string>();
-    const validTypes = ['text', 'date', 'select', 'boolean', 'number', 'textarea'];
+    const validTypes = ['text', 'date', 'select', 'searchable_select', 'boolean', 'number', 'textarea', 'address'];
     
     fields.forEach((field, fieldIndex) => {
       const fieldPath = `${fieldsPath}[${fieldIndex}]`;
