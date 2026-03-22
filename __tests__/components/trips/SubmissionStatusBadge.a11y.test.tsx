@@ -28,23 +28,14 @@ describe('SubmissionStatusBadge a11y — null when status is undefined', () => {
 // ---------------------------------------------------------------------------
 
 describe('SubmissionStatusBadge a11y — accessibilityRole', () => {
-  it('has accessibilityRole="text" for not_started', () => {
-    render(<SubmissionStatusBadge status="not_started" />);
-    const badge = screen.getByTestId('submission-status-badge-not_started');
-    expect(badge.props.accessibilityRole).toBe('text');
-  });
-
-  it('has accessibilityRole="text" for in_progress', () => {
-    render(<SubmissionStatusBadge status="in_progress" />);
-    const badge = screen.getByTestId('submission-status-badge-in_progress');
-    expect(badge.props.accessibilityRole).toBe('text');
-  });
-
-  it('has accessibilityRole="text" for submitted', () => {
-    render(<SubmissionStatusBadge status="submitted" />);
-    const badge = screen.getByTestId('submission-status-badge-submitted');
-    expect(badge.props.accessibilityRole).toBe('text');
-  });
+  it.each(['not_started', 'in_progress', 'submitted'] as const)(
+    'has accessibilityRole="text" for %s',
+    status => {
+      render(<SubmissionStatusBadge status={status} />);
+      const badge = screen.getByTestId(`submission-status-badge-${status}`);
+      expect(badge.props.accessibilityRole).toBe('text');
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -52,23 +43,14 @@ describe('SubmissionStatusBadge a11y — accessibilityRole', () => {
 // ---------------------------------------------------------------------------
 
 describe('SubmissionStatusBadge a11y — accessible prop', () => {
-  it('has accessible={true} for not_started', () => {
-    render(<SubmissionStatusBadge status="not_started" />);
-    const badge = screen.getByTestId('submission-status-badge-not_started');
-    expect(badge.props.accessible).toBe(true);
-  });
-
-  it('has accessible={true} for in_progress', () => {
-    render(<SubmissionStatusBadge status="in_progress" />);
-    const badge = screen.getByTestId('submission-status-badge-in_progress');
-    expect(badge.props.accessible).toBe(true);
-  });
-
-  it('has accessible={true} for submitted', () => {
-    render(<SubmissionStatusBadge status="submitted" />);
-    const badge = screen.getByTestId('submission-status-badge-submitted');
-    expect(badge.props.accessible).toBe(true);
-  });
+  it.each(['not_started', 'in_progress', 'submitted'] as const)(
+    'has accessible={true} for %s',
+    status => {
+      render(<SubmissionStatusBadge status={status} />);
+      const badge = screen.getByTestId(`submission-status-badge-${status}`);
+      expect(badge.props.accessible).toBe(true);
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -76,37 +58,23 @@ describe('SubmissionStatusBadge a11y — accessible prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('SubmissionStatusBadge a11y — accessibilityLabel', () => {
-  it('label is "Submission not started" for not_started', () => {
-    render(<SubmissionStatusBadge status="not_started" />);
-    const badge = screen.getByTestId('submission-status-badge-not_started');
-    expect(badge.props.accessibilityLabel).toBe('Submission not started');
+  it.each([
+    ['not_started', 'Submission not started'],
+    ['in_progress', 'Submission in progress'],
+    ['submitted', 'Submission complete'],
+  ] as const)('label is "%s" for %s', (status, expectedLabel) => {
+    render(<SubmissionStatusBadge status={status} />);
+    const badge = screen.getByTestId(`submission-status-badge-${status}`);
+    expect(badge.props.accessibilityLabel).toBe(expectedLabel);
   });
 
-  it('label is "Submission in progress" for in_progress', () => {
-    render(<SubmissionStatusBadge status="in_progress" />);
-    const badge = screen.getByTestId('submission-status-badge-in_progress');
-    expect(badge.props.accessibilityLabel).toBe('Submission in progress');
-  });
-
-  it('label is "Submission complete" for submitted', () => {
-    render(<SubmissionStatusBadge status="submitted" />);
-    const badge = screen.getByTestId('submission-status-badge-submitted');
-    expect(badge.props.accessibilityLabel).toBe('Submission complete');
-  });
-
-  it('is findable by accessibilityLabel for not_started', () => {
-    render(<SubmissionStatusBadge status="not_started" />);
-    expect(screen.getByLabelText('Submission not started')).toBeTruthy();
-  });
-
-  it('is findable by accessibilityLabel for in_progress', () => {
-    render(<SubmissionStatusBadge status="in_progress" />);
-    expect(screen.getByLabelText('Submission in progress')).toBeTruthy();
-  });
-
-  it('is findable by accessibilityLabel for submitted', () => {
-    render(<SubmissionStatusBadge status="submitted" />);
-    expect(screen.getByLabelText('Submission complete')).toBeTruthy();
+  it.each([
+    ['not_started', 'Submission not started'],
+    ['in_progress', 'Submission in progress'],
+    ['submitted', 'Submission complete'],
+  ] as const)('is findable by accessibilityLabel for %s', (status, expectedLabel) => {
+    render(<SubmissionStatusBadge status={status} />);
+    expect(screen.getByLabelText(expectedLabel)).toBeTruthy();
   });
 });
 
@@ -131,18 +99,11 @@ describe('SubmissionStatusBadge a11y — inner text hidden from screen readers',
     return false;
   }
 
-  it('inner Text node for not_started has accessibilityElementsHidden', () => {
-    const { toJSON } = render(<SubmissionStatusBadge status="not_started" />);
-    expect(findHiddenNode(toJSON())).toBe(true);
-  });
-
-  it('inner Text node for in_progress has accessibilityElementsHidden', () => {
-    const { toJSON } = render(<SubmissionStatusBadge status="in_progress" />);
-    expect(findHiddenNode(toJSON())).toBe(true);
-  });
-
-  it('inner Text node for submitted has accessibilityElementsHidden', () => {
-    const { toJSON } = render(<SubmissionStatusBadge status="submitted" />);
-    expect(findHiddenNode(toJSON())).toBe(true);
-  });
+  it.each(['not_started', 'in_progress', 'submitted'] as const)(
+    'inner Text node for %s has accessibilityElementsHidden',
+    status => {
+      const { toJSON } = render(<SubmissionStatusBadge status={status} />);
+      expect(findHiddenNode(toJSON())).toBe(true);
+    },
+  );
 });
