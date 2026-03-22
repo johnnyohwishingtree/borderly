@@ -5,7 +5,6 @@ import './global.css';
 
 import RootNavigator from './navigation/RootNavigator';
 import { ErrorBoundary } from '@/components/ui';
-import AppLockScreen from '@/components/ui/AppLockScreen';
 import { useAppLock } from '@/hooks/useAppLock';
 import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
@@ -28,13 +27,14 @@ if (__DEV__) {
   LogBox.ignoreAllLogs(true);
 }
 
+// Expose the app store on window in non-production builds so Playwright E2E
+// tests can imperatively set state (e.g. lock the app) without going through
+// the full UI flow. Mirrors the __navigationRef pattern in RootNavigator.
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__borderlyAppStore = useAppStore;
+}
+
 function AppContent(): React.JSX.Element {
-  const { isAppLocked, unlockWithBiometrics } = useAppLock();
-
-  if (isAppLocked) {
-    return <AppLockScreen onUnlock={unlockWithBiometrics} />;
-  }
-
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -44,6 +44,11 @@ function AppContent(): React.JSX.Element {
 }
 
 function App(): React.JSX.Element {
+  // Mount useAppLock at the root so inactivity detection and background-lock
+  // logic runs for the entire app lifecycle, not just when a specific screen
+  // is active. The actual lock gate is rendered inside RootNavigator.
+  useAppLock();
+
   const triggerSchemaUpdateCheck = useAppStore(s => s.triggerSchemaUpdateCheck);
   const { resolvedTheme } = useTheme();
 

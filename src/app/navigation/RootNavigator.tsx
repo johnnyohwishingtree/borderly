@@ -1,16 +1,22 @@
 import { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { AccessibilityInfo } from 'react-native';
+import { AccessibilityInfo, View, StyleSheet } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { RootStackParamList, OnboardingStackParamList } from './types';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useAppStore } from '@/stores/useAppStore';
 import { CONTEXT_TRANSITIONS, STANDARD_TRANSITIONS } from './transitions';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import LoadingStates from '@/components/ui/LoadingStates';
 
 // Lazy load navigators for better code splitting
 const MainTabNavigator = lazy(() => import('./MainTabNavigator').then(m => ({ default: m.default })));
+
+// Lazy load lock screen
+const LockScreen = lazy(() =>
+  import('@/screens/lock').then(m => ({ default: m.LockScreen })),
+);
 
 // Lazy load onboarding screens
 const WelcomeScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.WelcomeScreen })));
@@ -205,7 +211,13 @@ function OnboardingNavigator() {
 
 export default function RootNavigator() {
   const { isOnboardingComplete, loadProfile } = useProfileStore();
+  const isAppLocked = useAppStore(s => s.isAppLocked);
   const routeNameRef = useRef<string | undefined>(undefined);
+
+  // Show the lock screen only after onboarding is complete.
+  // During onboarding (isOnboardingComplete === false) or on a fresh install,
+  // the lock gate never activates so setup flows are never blocked.
+  const showLockScreen = isOnboardingComplete && isAppLocked;
 
   useEffect(() => {
     // Load profile and onboarding state on app start
@@ -239,38 +251,64 @@ export default function RootNavigator() {
         />
       )}
     >
-      <NavigationContainer ref={navigationRef} onStateChange={handleNavigationStateChange}>
-        <RootStack.Navigator
-          screenOptions={{
-            ...STANDARD_TRANSITIONS.fade,
-          }}
-        >
-        {isOnboardingComplete ? (
-          <RootStack.Screen
-            name="Main"
-            options={{
+      {/*
+       * Keep NavigationContainer always mounted so navigation state (current
+       * screen, stack history) is fully preserved while the app is locked.
+       * When the user unlocks, they are returned to exactly where they were.
+       * The LockScreen is rendered as an absolute-fill overlay on top.
+       */}
+      <View style={styles.root}>
+        <NavigationContainer ref={navigationRef} onStateChange={handleNavigationStateChange}>
+          <RootStack.Navigator
+            screenOptions={{
               ...STANDARD_TRANSITIONS.fade,
-              headerShown: false,
             }}
           >
-            {() => (
-              <Suspense fallback={<ScreenLoader />}>
-                <MainTabNavigator />
-              </Suspense>
-            )}
-          </RootStack.Screen>
-        ) : (
-          <RootStack.Screen 
-            name="Onboarding"
-            component={OnboardingNavigator}
-            options={{
-              ...STANDARD_TRANSITIONS.fade,
-              headerShown: false,
-            }}
-          />
-        )}
-      </RootStack.Navigator>
-    </NavigationContainer>
+          {isOnboardingComplete ? (
+            <RootStack.Screen
+              name="Main"
+              options={{
+                ...STANDARD_TRANSITIONS.fade,
+                headerShown: false,
+              }}
+            >
+              {() => (
+                <Suspense fallback={<ScreenLoader />}>
+                  <MainTabNavigator />
+                </Suspense>
+              )}
+            </RootStack.Screen>
+          ) : (
+            <RootStack.Screen
+              name="Onboarding"
+              component={OnboardingNavigator}
+              options={{
+                ...STANDARD_TRANSITIONS.fade,
+                headerShown: false,
+              }}
+            />
+          )}
+        </RootStack.Navigator>
+      </NavigationContainer>
+
+      {/* Lock gate — overlays the full navigation tree when active */}
+      {showLockScreen && (
+        <View style={styles.lockOverlay} testID="lock-screen-overlay">
+          <Suspense fallback={<ScreenLoader />}>
+            <LockScreen />
+          </Suspense>
+        </View>
+      )}
+      </View>
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+});
