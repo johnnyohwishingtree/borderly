@@ -8,6 +8,7 @@ export { default as DeadlineBadge } from './DeadlineBadge';
 export { default as PassportValidityWarning } from './PassportValidityWarning';
 export { default as ReadinessChecklist } from './ReadinessChecklist';
 export { default as SubmissionStatusBadge } from './SubmissionStatusBadge';
+export { default as DuplicateTripModal } from './DuplicateTripModal';
 
 export type { TripCardProps } from './TripCard';
 export type { LegCardProps } from './LegCard';
@@ -19,3 +20,4 @@ export type { DeadlineBadgeProps } from './DeadlineBadge';
 export type { PassportValidityWarningProps } from './PassportValidityWarning';
 export type { ReadinessChecklistProps } from './ReadinessChecklist';
 export type { SubmissionStatusBadgeProps } from './SubmissionStatusBadge';
+export type { DuplicateTripModalProps } from './DuplicateTripModal';
