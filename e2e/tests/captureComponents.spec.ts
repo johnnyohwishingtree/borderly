@@ -18,26 +18,38 @@ import * as fs from 'fs';
 
 const SRC_COMPONENTS_DIR = path.resolve(__dirname, '../../src/components');
 
-// Build the component list at file parse time by scanning for existing
-// __screenshots__/ directories. This avoids a runtime page load to discover
-// components, allowing Playwright to generate parallel tests statically.
-// On a fresh repo (no screenshots yet), fall back to a single serial test.
+// Build the component list at file parse time by scanning the components
+// directory. This avoids a runtime page load to discover components, allowing
+// Playwright to generate parallel tests statically.
+// On a fresh repo (no components yet), fall back to a single serial test.
+//
+// Handles two layouts:
+//   - File-based:      src/components/<domain>/<ComponentName>.tsx
+//   - Directory-based: src/components/<domain>/<ComponentName>/<ComponentName>.tsx
+// Results are deduplicated (a component may have both a .tsx file and a
+// sibling directory for __screenshots__) and sorted for deterministic output.
 function discoverComponents(): string[] {
-  const components: string[] = [];
+  const componentSet = new Set<string>();
   for (const domain of fs.readdirSync(SRC_COMPONENTS_DIR, { withFileTypes: true })) {
     if (!domain.isDirectory()) continue;
     const domainPath = path.join(SRC_COMPONENTS_DIR, domain.name);
-    for (const comp of fs.readdirSync(domainPath, { withFileTypes: true })) {
-      if (!comp.isDirectory()) continue;
-      // Check if this directory has a .tsx file (is a component, not just __screenshots__)
-      const hasTsx = fs.readdirSync(path.join(domainPath, comp.name))
-        .some(f => f.endsWith('.tsx'));
-      if (hasTsx) {
-        components.push(comp.name);
+    for (const item of fs.readdirSync(domainPath, { withFileTypes: true })) {
+      if (item.isFile()) {
+        // File-based component: PascalCase .tsx file (skip .web.tsx platform overrides)
+        if (item.name.endsWith('.tsx') && !item.name.includes('.web.') && /^[A-Z]/.test(item.name)) {
+          componentSet.add(item.name.slice(0, -4)); // strip .tsx
+        }
+      } else if (item.isDirectory() && /^[A-Z]/.test(item.name)) {
+        // Directory-based component: PascalCase dir containing a .tsx file
+        const hasTsx = fs.readdirSync(path.join(domainPath, item.name))
+          .some(f => f.endsWith('.tsx') && !f.includes('.web.'));
+        if (hasTsx) {
+          componentSet.add(item.name);
+        }
       }
     }
   }
-  return components;
+  return [...componentSet].sort();
 }
 
 function getDomain(componentName: string): string {
