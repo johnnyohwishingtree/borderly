@@ -1,0 +1,444 @@
+{
+  "countryCode": "NZL",
+  "countryName": "New Zealand",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2026-03-22T00:00:00Z",
+  "portalUrl": "https://www.nztravellerdeclaration.govt.nz",
+  "portalName": "New Zealand Traveller Declaration (NZTD)",
+  "submissionDeadlineHours": 24,
+  "recommendedLeadTimeHours": 72,
+  "submissionWindowNote": "Submit up to 24h before arrival; recommended 24-72h in advance",
+  "passportValidityMonths": 3,
+  "metadata": {
+    "priority": 3,
+    "complexity": "medium",
+    "popularity": 65,
+    "lastVerified": "2026-03-22T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "quarterly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": ["#nztd-form", ".nztd-section", ".submit-button", ".declaration-section"],
+    "changeThreshold": 15,
+    "fallbackActions": [
+      {
+        "trigger": "form_structure_changed",
+        "action": "notify",
+        "message": "New Zealand NZTD form structure has changed. Manual verification required."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "72h",
+    "latestBeforeArrival": "24h",
+    "recommended": "48h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "familyPolicy": {
+      "type": "none",
+      "description": "No account required — submit as a guest with your email address to receive a reference code"
+    },
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport with at least 3 months validity beyond your intended stay",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Confirmed flight details including flight number and arrival date",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Address or accommodation details in New Zealand",
+        "required": true
+      },
+      {
+        "type": "info",
+        "description": "Email address to receive your NZTD reference code",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "familyName",
+          "label": "Family Name (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Names (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false
+        },
+        {
+          "id": "gender",
+          "label": "Sex",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" },
+            { "value": "X", "label": "Another gender" }
+          ]
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality (as on passport)",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "optionsSource": "countries"
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "validation": {
+            "minLength": 5,
+            "maxLength": 20
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportCountry",
+          "label": "Country of Issue (Passport)",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.issuingCountry",
+          "countrySpecific": false,
+          "optionsSource": "countries",
+          "helpText": "The country that issued your passport"
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$"
+          },
+          "helpText": "You will receive your NZTD reference code at this email address"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "validation": {
+            "minLength": 2,
+            "maxLength": 10
+          }
+        },
+        {
+          "id": "arrivalDate",
+          "label": "Date of Arrival in New Zealand",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false
+        },
+        {
+          "id": "arrivalAirport",
+          "label": "Arrival Airport",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "leg.arrivalAirport",
+          "countrySpecific": false,
+          "optionsSource": "airports",
+          "helpText": "The New Zealand airport where you will arrive"
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "holiday", "label": "Holiday / Vacation" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_family_friends", "label": "Visiting Family / Friends" },
+            { "value": "education", "label": "Education / Study" },
+            { "value": "employment", "label": "Employment" },
+            { "value": "transit", "label": "In Transit" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "intendedLengthOfStay",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "countrySpecific": false,
+          "autoFillSource": "leg._calculatedDuration",
+          "validation": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "id": "departureCountry",
+          "label": "Country You Are Travelling From",
+          "type": "searchable_select",
+          "required": true,
+          "countrySpecific": true,
+          "optionsSource": "countries",
+          "helpText": "The country where your flight to New Zealand departs from"
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "title": "Address in New Zealand",
+      "fields": [
+        {
+          "id": "nzAddressLine1",
+          "label": "Street Address",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.line1",
+          "helpText": "Street number and name of your accommodation in New Zealand"
+        },
+        {
+          "id": "nzAddressCity",
+          "label": "City / Town",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.city",
+          "helpText": "City or town of your accommodation"
+        },
+        {
+          "id": "nzAddressPostcode",
+          "label": "Postcode",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.postalCode",
+          "validation": {
+            "pattern": "^[0-9]{4}$"
+          },
+          "helpText": "4-digit New Zealand postcode"
+        }
+      ]
+    },
+    {
+      "id": "biosecurity",
+      "title": "Biosecurity Declarations",
+      "fields": [
+        {
+          "id": "hasFoodItems",
+          "label": "Are you carrying food of any kind (fruits, vegetables, meat, fish, eggs, dairy, honey, nuts, seeds)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes all food items in hand luggage or checked baggage, including packaged and commercially prepared food"
+        },
+        {
+          "id": "hasPlantItems",
+          "label": "Are you carrying plant material (flowers, seeds, bulbs, straw, wood, bark, leaves, soil)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes cut flowers, pot plants, seeds, timber, bark, cane, bamboo, and similar biological material"
+        },
+        {
+          "id": "hasAnimalItems",
+          "label": "Are you carrying animal products (meat, fish, dairy, eggs, feathers, fur, bones, shells, horns, insects)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes live animals, raw or processed animal products, animal medicines, and equipment used with animals"
+        },
+        {
+          "id": "hasSoilOrWaterItems",
+          "label": "Are you carrying or have used equipment that has been in contact with soil, fresh water, or outdoor environments?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes outdoor gear, hiking boots, camping equipment, and water sports equipment that may carry soil, seeds, or pests"
+        }
+      ]
+    },
+    {
+      "id": "goods",
+      "title": "Goods Declarations",
+      "fields": [
+        {
+          "id": "hasCurrencyOver10000",
+          "label": "Are you carrying NZD 10,000 or more in currency (cash, traveller's cheques, or negotiable instruments)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes New Zealand dollars or equivalent in foreign currency. This is a reporting requirement, not a restriction."
+        },
+        {
+          "id": "hasControlledItems",
+          "label": "Are you carrying controlled or prohibited items (weapons, drugs, endangered species products, objectionable material)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes firearms, prohibited weapons, illicit drugs, certain medications over personal-use quantities, CITES-protected species products, and objectionable material"
+        },
+        {
+          "id": "hasGoodsExceedingAllowance",
+          "label": "Are you carrying dutiable or taxable goods (new items, gifts, samples, or commercial goods) exceeding your allowance?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "NZ duty-free allowance: NZD 700 goods, 3L alcohol (18+), 50 cigarettes or 50g tobacco (18+). All commercial goods must be declared."
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Open the NZTD Portal",
+      "description": "Visit nztravellerdeclaration.govt.nz or open the NZTD app. No account registration is required — you will submit as a guest. Complete your declaration up to 24 hours before your flight arrives in New Zealand.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "The NZTD replaced the old paper arrival card",
+        "Submit 24-72 hours before your flight for best results",
+        "Have your passport, flight details, and NZ accommodation address ready",
+        "You will receive a reference code by email after submission"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Personal Details",
+      "description": "Fill in your personal information exactly as it appears on your passport, including family name, given names, date of birth, and gender.",
+      "fieldsOnThisScreen": ["familyName", "givenNames", "dateOfBirth", "gender", "nationality"],
+      "tips": [
+        "Use the exact spelling as shown on your passport — no abbreviations",
+        "If your passport shows only one name, enter it as your family name"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Enter Passport Details",
+      "description": "Enter your passport number, expiry date, the country that issued your passport, and your email address for your NZTD reference code.",
+      "fieldsOnThisScreen": ["passportNumber", "passportExpiry", "passportCountry", "email"],
+      "tips": [
+        "Double-check your passport number carefully",
+        "New Zealand requires your passport to be valid for at least 3 months beyond your intended stay",
+        "Your reference code will be emailed — use the same email you can access during your trip"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Enter Travel Details",
+      "description": "Provide your flight number, arrival date, New Zealand arrival airport, purpose of visit, and the country you are travelling from.",
+      "fieldsOnThisScreen": ["flightNumber", "arrivalDate", "arrivalAirport", "purposeOfVisit", "intendedLengthOfStay", "departureCountry"],
+      "tips": [
+        "Your flight number is on your boarding pass or e-ticket",
+        "Select the correct arrival airport — NZ has multiple international airports (AKL, CHC, WLG, ZQN)",
+        "Transit passengers should select 'In Transit' as the purpose of visit"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Enter New Zealand Address",
+      "description": "Provide the address where you will be staying in New Zealand. Use your first accommodation address if visiting multiple places.",
+      "fieldsOnThisScreen": ["nzAddressLine1", "nzAddressCity", "nzAddressPostcode"],
+      "tips": [
+        "If staying in multiple locations, enter the first address",
+        "Transit passengers may use the transit area or hotel address",
+        "Hotel name and city is acceptable if the full street address is unknown"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Biosecurity Declarations",
+      "description": "Declare whether you are carrying any food, plant material, animal products, or equipment that has been in contact with soil or fresh water. New Zealand has strict biosecurity laws to protect its unique environment — when in doubt, declare it.",
+      "fieldsOnThisScreen": ["hasFoodItems", "hasPlantItems", "hasAnimalItems", "hasSoilOrWaterItems"],
+      "tips": [
+        "New Zealand biosecurity is among the strictest in the world — always declare if unsure",
+        "Officers can inspect and allow permitted items through at the border",
+        "Failure to declare can result in fines of up to NZD 400",
+        "Hiking boots with soil residue must be declared and will be cleaned by biosecurity staff",
+        "Packaged commercially prepared food generally is allowed but must still be declared"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Goods Declarations",
+      "description": "Declare any currency over NZD 10,000, controlled or prohibited items, or dutiable goods exceeding the duty-free allowance.",
+      "fieldsOnThisScreen": ["hasCurrencyOver10000", "hasControlledItems", "hasGoodsExceedingAllowance"],
+      "tips": [
+        "Declare all currency — this is a reporting requirement, not a restriction or tax",
+        "The personal duty-free allowance is NZD 700 total value (per person)",
+        "Gifts and souvenirs are included in the duty-free allowance",
+        "Declaring goods does not automatically mean you will pay duty — border officers will assess"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Review and Submit",
+      "description": "Review all your answers carefully before submitting. Once submitted, you will receive a reference code by email. Border officers will confirm your declaration by scanning your passport on arrival.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Check all details match your passport exactly",
+        "Save your reference code email — you may be asked to show it",
+        "No QR code is issued — border officers verify via passport scan",
+        "Keep a screenshot of your confirmation as backup"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://www.nztravellerdeclaration.govt.nz",
+    "testMode": true,
+    "successIndicators": [".confirmation-message", "#submission-reference", ".nztd-complete"],
+    "failureIndicators": [".error-message", ".form-error", ".validation-error"]
+  }
+}
