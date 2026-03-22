@@ -378,11 +378,7 @@ export default function SettingsScreen() {
                 label="Theme"
                 options={themeOptions}
                 value={themePreference}
-                onValueChange={(value) => {
-                  const t = value as 'light' | 'dark' | 'system';
-                  setTheme(t);
-                  updatePreference('theme', t);
-                }}
+                onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
               />
               <Text className="text-xs text-gray-500 mt-1">
                 Choose how the app appears on your device

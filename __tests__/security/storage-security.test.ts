@@ -166,7 +166,6 @@ describe('Storage Security Tests', () => {
     it('should store non-sensitive preferences in MMKV', () => {
       const preferences = mmkvService.getPreferences();
 
-      expect(preferences).toHaveProperty('theme');
       expect(preferences).toHaveProperty('language');
       expect(preferences).toHaveProperty('onboardingComplete');
       expect(preferences).toHaveProperty('analyticsEnabled');
