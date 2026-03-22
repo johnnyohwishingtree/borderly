@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, TextInputProps } from 'react-native';
 import { Input, Select, Toggle, SearchableSelect, DatePickerField, AddressAutocomplete, AccommodationAutocomplete } from '../ui';
 import { FilledFormField } from '../../services/forms/formEngine';
 import AutoFilledBadge from './AutoFilledBadge';
@@ -7,6 +7,137 @@ import { ALL_AIRPORTS } from '../../constants/airports';
 import { ALL_AIRLINES } from '../../constants/airlines';
 import { Address } from '../../types/profile';
 import { SemanticUtils } from '../../utils/accessibility';
+
+/** Platform-specific input props derived from field metadata. */
+function getInputHints(field: FilledFormField): Pick<
+  TextInputProps,
+  'textContentType' | 'autoComplete' | 'keyboardType' | 'autoCapitalize'
+> {
+  const src = field.autoFillSource ?? '';
+  const id = field.id;
+
+  // --- Email fields ---
+  if (src.includes('email') || id.includes('email') || id.includes('Email')) {
+    return {
+      textContentType: 'emailAddress',
+      autoComplete: 'email',
+      keyboardType: 'email-address',
+      autoCapitalize: 'none',
+    };
+  }
+
+  // --- Phone fields ---
+  if (src.includes('phone') || id.includes('phone') || id.includes('Phone')) {
+    return {
+      textContentType: 'telephoneNumber',
+      autoComplete: 'tel',
+      keyboardType: 'phone-pad',
+      autoCapitalize: 'none',
+    };
+  }
+
+  // --- Name fields ---
+  if (src === 'profile.surname' || id === 'surname') {
+    return {
+      textContentType: 'familyName',
+      autoComplete: 'name-family',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src === 'profile.givenNames' || id === 'givenNames') {
+    return {
+      textContentType: 'givenName',
+      autoComplete: 'name-given',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src === 'profile.middleNames' || id === 'middleNames') {
+    return {
+      textContentType: 'middleName',
+      autoComplete: 'name-middle',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+
+  // --- Occupation / employer ---
+  if (src === 'profile.occupation' || id === 'occupation' || id === 'jobTitle') {
+    return {
+      textContentType: 'jobTitle',
+      autoComplete: 'name',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src === 'profile.employerName' || id === 'employerName' || id === 'employer') {
+    return {
+      textContentType: 'organizationName',
+      autoComplete: 'name',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+
+  // --- Address sub-fields ---
+  if (src.includes('address.city') || id === 'homeCity' || id === 'city') {
+    return {
+      textContentType: 'addressCity',
+      autoComplete: 'postal-address-locality',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src.includes('address.state') || id === 'county') {
+    return {
+      textContentType: 'addressState',
+      autoComplete: 'postal-address-region',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src.includes('address.postalCode') || id === 'postalCode') {
+    return {
+      textContentType: 'postalCode',
+      autoComplete: 'postal-code',
+      keyboardType: 'default',
+      autoCapitalize: 'characters',
+    };
+  }
+  if (src.includes('address.line1') || id === 'addressLine1') {
+    return {
+      textContentType: 'streetAddressLine1',
+      autoComplete: 'street-address',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+  if (src.includes('address.line2') || id === 'addressLine2') {
+    return {
+      textContentType: 'streetAddressLine2',
+      autoComplete: 'postal-address-extended',
+      keyboardType: 'default',
+      autoCapitalize: 'words',
+    };
+  }
+
+  // --- Passport / flight (uppercase identifiers) ---
+  if (src === 'profile.passportNumber' || id === 'passportNumber') {
+    return { keyboardType: 'default', autoCapitalize: 'characters' };
+  }
+  if (src === 'leg.flightNumber' || id === 'flightNumber') {
+    return { keyboardType: 'default', autoCapitalize: 'characters' };
+  }
+
+  // --- Generic name-like fields (emergency contacts, etc.) ---
+  if (id.includes('Name') || id.includes('name')) {
+    return { keyboardType: 'default', autoCapitalize: 'words' };
+  }
+
+  // Default
+  return { keyboardType: 'default', autoCapitalize: 'sentences' };
+}
 
 interface FormFieldProps {
   field: FilledFormField;
@@ -51,8 +182,7 @@ export default function FormField({
             accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
-            keyboardType="default"
-            autoCapitalize="sentences"
+            {...getInputHints(field)}
           />
         );
 
