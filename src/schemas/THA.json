@@ -8,6 +8,7 @@
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 168,
   "submissionWindowNote": "Submit 3 days before arrival",
+  "passportValidityMonths": 6,
   "metadata": {
     "priority": 4,
     "complexity": "medium",

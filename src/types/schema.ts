@@ -84,6 +84,11 @@ export interface CountryFormSchema {
   recommendedLeadTimeHours: number; // Recommended buffer time in hours before the hard deadline
   submissionWindowNote: string; // Short human-readable string shown in the UI
 
+  // Passport validity requirement (used by DocumentValidityService)
+  // Number of months a passport must remain valid beyond the departure date.
+  // Undefined means no validity buffer required beyond the trip duration.
+  passportValidityMonths?: number;
+
   // Schema metadata
   metadata: {
     priority: number; // Implementation priority (1 = highest)

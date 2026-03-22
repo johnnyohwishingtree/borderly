@@ -8,6 +8,7 @@
   "submissionDeadlineHours": 72,
   "recommendedLeadTimeHours": 168,
   "submissionWindowNote": "Submit at least 72 h before boarding",
+  "passportValidityMonths": 6,
   "metadata": {
     "priority": 5,
     "complexity": "high",
