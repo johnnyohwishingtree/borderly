@@ -18,6 +18,7 @@ import {
   buildPassportNotificationId,
   profilePassportKey,
   PASSPORT_TRIGGERS,
+  computeFireDate,
 } from '../../src/services/deadline/passportExpiryNotifications';
 import {
   setNotificationProvider,
@@ -139,10 +140,15 @@ describe('PASSPORT_TRIGGERS', () => {
     expect(labels).toContain('1 week');
   });
 
-  it('offsets are in descending order (furthest first)', () => {
-    const offsets = PASSPORT_TRIGGERS.map(t => t.offsetMs);
-    for (let i = 1; i < offsets.length; i++) {
-      expect(offsets[i - 1]).toBeGreaterThan(offsets[i]);
+  it('fire dates are in ascending order for a given expiry (furthest-out trigger fires first)', () => {
+    // Use a fixed reference expiry 2 years from now
+    const refExpiry = new Date(Date.now() + 730 * 24 * 60 * 60 * 1000);
+    const fireDates = PASSPORT_TRIGGERS.map(t =>
+      computeFireDate(refExpiry, t.amount, t.unit).getTime(),
+    );
+    for (let i = 1; i < fireDates.length; i++) {
+      // Each successive trigger fires later (closer to expiry)
+      expect(fireDates[i]).toBeGreaterThan(fireDates[i - 1]);
     }
   });
 });
@@ -175,8 +181,8 @@ describe('schedulePassportExpiryNotifications', () => {
     const { provider, scheduled } = makeMockProvider();
     setNotificationProvider(provider);
 
-    // 60 days out: 6mo (180d) trigger is 120d in the past, 3mo (90d) is 30d in the past
-    // Only 1mo (30d) and 1wk (7d) triggers are in the future
+    // 60 days out: 6mo and 3mo calendar triggers are in the past
+    // Only 1mo and 1wk triggers are in the future
     const profile = makeFutureProfile(60);
 
     await schedulePassportExpiryNotifications(profile);

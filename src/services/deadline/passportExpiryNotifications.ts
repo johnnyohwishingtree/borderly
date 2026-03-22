@@ -51,18 +51,42 @@ function deleteKey(key: string): void {
 }
 
 // ---------------------------------------------------------------------------
-// Trigger offsets (milliseconds before passport expiry)
+// Trigger offsets (calendar-accurate, subtracted from passport expiry date)
 // ---------------------------------------------------------------------------
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+type OffsetUnit = 'months' | 'weeks';
+
+export interface PassportTrigger {
+  label: string;
+  amount: number;
+  unit: OffsetUnit;
+}
 
 /** The 4 reminder triggers fired before passport expiry. */
-export const PASSPORT_TRIGGERS: ReadonlyArray<{ label: string; offsetMs: number }> = [
-  { label: '6 months', offsetMs: 180 * MS_PER_DAY },
-  { label: '3 months', offsetMs: 90 * MS_PER_DAY },
-  { label: '1 month',  offsetMs: 30 * MS_PER_DAY },
-  { label: '1 week',   offsetMs: 7 * MS_PER_DAY },
+export const PASSPORT_TRIGGERS: ReadonlyArray<PassportTrigger> = [
+  { label: '6 months', amount: 6, unit: 'months' },
+  { label: '3 months', amount: 3, unit: 'months' },
+  { label: '1 month',  amount: 1, unit: 'months' },
+  { label: '1 week',   amount: 1, unit: 'weeks'  },
 ];
+
+/**
+ * Compute the notification fire date by subtracting a calendar-accurate
+ * offset from the passport expiry date.
+ *
+ * - months: uses `Date.setMonth` so February, 31-day months, etc. are
+ *   handled correctly by the JS engine.
+ * - weeks: subtracts an exact multiple of 7 days.
+ */
+export function computeFireDate(expiryDate: Date, amount: number, unit: OffsetUnit): Date {
+  const fire = new Date(expiryDate);
+  if (unit === 'months') {
+    fire.setMonth(fire.getMonth() - amount);
+  } else {
+    fire.setDate(fire.getDate() - amount * 7);
+  }
+  return fire;
+}
 
 /** Build a stable, unique notification ID for a given profile + trigger label. */
 export function buildPassportNotificationId(profileId: string, label: string): string {
@@ -90,11 +114,10 @@ export async function schedulePassportExpiryNotifications(
   await cancelPassportExpiryNotifications(profile.id);
 
   const expiryDate = new Date(profile.passportExpiry);
-  const expiryMs = expiryDate.getTime();
   const now = Date.now();
 
   // Passport is already expired — nothing to schedule
-  if (expiryMs <= now) {
+  if (expiryDate.getTime() <= now) {
     return;
   }
 
@@ -102,8 +125,8 @@ export async function schedulePassportExpiryNotifications(
   const scheduledIds: string[] = [];
   const displayName = [profile.givenNames, profile.surname].filter(Boolean).join(' ') || 'Your passport';
 
-  for (const { label, offsetMs } of PASSPORT_TRIGGERS) {
-    const fireDate = new Date(expiryMs - offsetMs);
+  for (const { label, amount, unit } of PASSPORT_TRIGGERS) {
+    const fireDate = computeFireDate(expiryDate, amount, unit);
 
     // Skip triggers already in the past
     if (fireDate.getTime() <= now) {continue;}
