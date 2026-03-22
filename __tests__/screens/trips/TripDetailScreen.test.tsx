@@ -121,19 +121,10 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('TextInput', { value, onChangeText, testID, placeholder });
   const DatePickerField = ({ value, onChange, testID, placeholder }: { value?: string; onChange?: (v: string) => void; testID?: string; placeholder?: string }) =>
     React.createElement('TextInput', { value, onChangeText: onChange, testID, placeholder });
-  const SearchableSelect = ({ value, onValueChange, testID, placeholder }: { value?: string; onValueChange?: (v: string) => void; testID?: string; placeholder?: string; options?: unknown[] }) =>
-    React.createElement('TextInput', { value, onChangeText: onValueChange, testID, placeholder, accessibilityRole: 'combobox' });
-  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, SearchableSelect };
+  const AddressAutocomplete = ({ testID }: { value?: any; onAddressChange?: (a: any) => void; testID?: string }) =>
+    React.createElement('View', { testID });
+  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete };
 });
-
-jest.mock('../../../src/constants/airports', () => ({
-  ALL_AIRPORTS: [
-    { value: 'NRT', label: 'Tokyo Narita (NRT)' },
-    { value: 'HND', label: 'Tokyo Haneda (HND)' },
-    { value: 'KUL', label: 'Kuala Lumpur (KUL)' },
-    { value: 'SIN', label: 'Singapore Changi (SIN)' },
-  ],
-}));
 
 jest.mock('../../../src/constants/countries', () => ({
   SUPPORTED_COUNTRIES: [
@@ -283,32 +274,6 @@ describe('TripDetailScreen — Edit Trip modal', () => {
     );
   });
 
-  it('Edit Destination modal uses SearchableSelect (not plain Input) for arrival airport', () => {
-    render(<TripDetailScreen />);
-
-    fireEvent.press(screen.getByTestId('edit-trip-button'));
-    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
-
-    const airportField = screen.getByTestId('edit-leg-arrival-airport');
-    // SearchableSelect mock renders with accessibilityRole="combobox"; plain Input does not
-    expect(airportField.props.accessibilityRole).toBe('combobox');
-  });
-
-  it('arrival airport value is persisted correctly when saved via SearchableSelect', () => {
-    render(<TripDetailScreen />);
-
-    fireEvent.press(screen.getByTestId('edit-trip-button'));
-    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
-
-    fireEvent.changeText(screen.getByTestId('edit-leg-arrival-airport'), 'HND');
-    fireEvent.press(screen.getByTestId('save-leg-button'));
-
-    expect(mockUpdateTripLeg).toHaveBeenCalledWith(
-      'leg_1',
-      expect.objectContaining({ arrivalAirport: 'HND' })
-    );
-  });
-
   it('Edit Destination modal uses DatePickerField (not plain YYYY-MM-DD Input) for arrival date', () => {
     render(<TripDetailScreen />);
 
@@ -407,6 +372,37 @@ describe('TripDetailScreen — Add Destination modal', () => {
         arrivalDate: '2026-05-01',
       })
     );
+  });
+});
+
+// ── AddressAutocomplete in Edit/Add Destination modals ────────────────────────
+
+describe('TripDetailScreen — AddressAutocomplete in accommodation section', () => {
+  it('Edit Destination modal renders AddressAutocomplete instead of individual address Inputs', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    // AddressAutocomplete is rendered with testID "edit-leg-accommodation-address"
+    expect(screen.getByTestId('edit-leg-accommodation-address')).toBeTruthy();
+
+    // Individual sub-field inputs (city, postal) should NOT be present
+    expect(screen.queryByTestId('edit-leg-accommodation-city')).toBeNull();
+    expect(screen.queryByTestId('edit-leg-accommodation-postal')).toBeNull();
+  });
+
+  it('Add Destination modal renders AddressAutocomplete instead of individual address Inputs', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('add-destination-button'));
+
+    // AddressAutocomplete is rendered with testID "new-leg-accommodation-address"
+    expect(screen.getByTestId('new-leg-accommodation-address')).toBeTruthy();
+
+    // Individual sub-field inputs (city, postal) should NOT be present
+    expect(screen.queryByTestId('new-leg-accommodation-city')).toBeNull();
+    expect(screen.queryByTestId('new-leg-accommodation-postal')).toBeNull();
   });
 });
 
