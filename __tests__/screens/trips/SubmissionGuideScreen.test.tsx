@@ -1,24 +1,105 @@
 /**
- * Unit tests for the traveler switching logic in SubmissionGuideScreen.
+ * Unit tests for SubmissionGuideScreen.
  *
- * Tested via pure helper functions from src/utils/submissionGuideHelpers.ts
- * which owns all derivation logic. This avoids the memory overhead of
- * full React Native component or hook rendering.
+ * Section 1: Pure helper function tests (submissionGuideHelpers.ts)
+ *   Covers traveler tabs, step completion tracking, and travelerId resolution.
  *
- * Covers:
- * - Traveler tabs built from assigned traveler profiles
- * - hasMultipleTravelers behaviour (tabs empty for single traveler)
- * - Per-traveler step completion tracking (markStepComplete / get)
- * - Step completion is isolated per traveler
- * - activeTravelerId resolution from route param / current profile / fallback
+ * Section 2: "Mark as Submitted" CTA — component rendering tests
+ *   Covers:
+ *   - CTA renders in the completion card when all steps are done
+ *   - CTA is absent when steps are not all complete
+ *   - Pressing CTA calls updateLegSubmissionStatus(legId, 'submitted')
+ *   - Pressing CTA navigates to TripDetail screen
  */
 
+import { render, fireEvent, act } from '@testing-library/react-native';
 import {
   buildSubmissionGuideTabs,
   markStepComplete,
   getCompletedStepsForTraveler,
   resolveInitialTravelerId,
 } from '../../../src/utils/submissionGuideHelpers';
+
+// ── Module mocks for component rendering tests ────────────────────────────────
+
+const mockNavigate = jest.fn();
+const mockGoBack = jest.fn();
+
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: jest.fn(() => ({ navigate: mockNavigate, goBack: mockGoBack })),
+  useRoute: jest.fn(() => ({
+    params: { tripId: 'trip-1', legId: 'leg-1', countryCode: 'JPN' },
+  })),
+}));
+
+const mockUpdateLegSubmissionStatus = jest.fn(() => Promise.resolve());
+
+jest.mock('@/stores/useTripStore', () => ({
+  useTripStore: jest.fn(() => ({
+    updateLegSubmissionStatus: mockUpdateLegSubmissionStatus,
+  })),
+}));
+
+// Controlled hook mock — can be overridden per test
+const defaultGuideResult = {
+  isLoading: false,
+  schema: {
+    countryCode: 'JPN',
+    countryName: 'Japan',
+    portalName: 'Visit Japan Web',
+    portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+    submissionGuide: [
+      { order: 1, title: 'Step 1', fieldsOnThisScreen: [] },
+      { order: 2, title: 'Step 2', fieldsOnThisScreen: [] },
+    ],
+    submission: { recommended: '3 days', earliestBeforeArrival: '14 days', latestBeforeArrival: '24 hours' },
+  },
+  filledForm: {
+    sections: [],
+    stats: { totalFields: 2, autoFilled: 2, userFilled: 0, remaining: 0, completionPercentage: 100 },
+  },
+  currentTraveler: { id: 'profile-1', givenNames: 'John', surname: 'Doe' },
+  completedSteps: [1, 2],
+  currentStep: 2,
+  travelerTabs: [],
+  hasMultipleTravelers: false,
+  activeTravelerId: 'profile-1',
+  fieldsData: {},
+  handleStepComplete: jest.fn(),
+  handleSwitchTraveler: jest.fn(),
+};
+
+const mockUseSubmissionGuide = jest.fn(() => defaultGuideResult);
+
+jest.mock('@/hooks/useSubmissionGuide', () => ({
+  useSubmissionGuide: () => mockUseSubmissionGuide(),
+}));
+
+jest.mock('@/components/guide', () => {
+  const { View } = require('react-native');
+  return {
+    GuideProgress: () => <View testID="guide-progress" />,
+    StepCard: (props: any) => <View testID={`step-card-${props.step?.order}`} />,
+    CopyableField: () => <View />,
+  };
+});
+
+jest.mock('@/components/trips/TravelerTabs', () => {
+  const { View } = require('react-native');
+  return () => <View testID="traveler-tabs" />;
+});
+
+jest.mock('lucide-react-native', () => {
+  const { View } = require('react-native');
+  const Icon = () => <View />;
+  return {
+    ArrowLeft: Icon,
+    Globe: Icon,
+    CircleCheck: Icon,
+    TriangleAlert: Icon,
+    Clock: Icon,
+  };
+});
 
 // ── Shared fixtures ───────────────────────────────────────────────────────────
 
@@ -225,5 +306,59 @@ describe('resolveInitialTravelerId', () => {
 
   it('returns null when nothing can be resolved', () => {
     expect(resolveInitialTravelerId(undefined, undefined, [])).toBeNull();
+  });
+});
+
+// ── SubmissionGuideScreen — Mark as Submitted CTA ────────────────────────────
+
+import SubmissionGuideScreen from '../../../src/screens/trips/SubmissionGuideScreen/SubmissionGuideScreen';
+
+describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseSubmissionGuide.mockReturnValue(defaultGuideResult);
+    mockUpdateLegSubmissionStatus.mockResolvedValue(undefined);
+  });
+
+  it('renders the mark-as-submitted-button when all steps are complete', () => {
+    const { getByTestId } = render(<SubmissionGuideScreen />);
+    expect(getByTestId('mark-as-submitted-button')).toBeTruthy();
+  });
+
+  it('does not render mark-as-submitted-button when steps are not all complete', () => {
+    mockUseSubmissionGuide.mockReturnValue({
+      ...defaultGuideResult,
+      completedSteps: [1], // only 1 of 2 steps complete
+    });
+    const { queryByTestId } = render(<SubmissionGuideScreen />);
+    expect(queryByTestId('mark-as-submitted-button')).toBeNull();
+  });
+
+  it('calls updateLegSubmissionStatus with (legId, submitted) when pressed', async () => {
+    const { getByTestId } = render(<SubmissionGuideScreen />);
+    await act(async () => {
+      fireEvent.press(getByTestId('mark-as-submitted-button'));
+    });
+    expect(mockUpdateLegSubmissionStatus).toHaveBeenCalledWith('leg-1', 'submitted');
+  });
+
+  it('navigates to TripDetail with tripId after marking as submitted', async () => {
+    const { getByTestId } = render(<SubmissionGuideScreen />);
+    await act(async () => {
+      fireEvent.press(getByTestId('mark-as-submitted-button'));
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip-1' });
+  });
+
+  it('has accessibilityRole button on mark-as-submitted-button', () => {
+    const { getByTestId } = render(<SubmissionGuideScreen />);
+    const btn = getByTestId('mark-as-submitted-button');
+    expect(btn.props.accessibilityRole).toBe('button');
+  });
+
+  it('has correct accessibilityLabel on mark-as-submitted-button', () => {
+    const { getByTestId } = render(<SubmissionGuideScreen />);
+    const btn = getByTestId('mark-as-submitted-button');
+    expect(btn.props.accessibilityLabel).toBe('Mark as submitted');
   });
 });

@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Linking,
 } from 'react-native';
+import { useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Globe, CircleCheck, TriangleAlert, Clock } from 'lucide-react-native';
 import {
@@ -16,6 +17,7 @@ import {
 import { Button, Card, StatusBadge, ScreenContainer } from '@/components/ui';
 import TravelerTabs from '@/components/trips/TravelerTabs';
 import { useSubmissionGuide } from '@/hooks/useSubmissionGuide';
+import { useTripStore } from '@/stores/useTripStore';
 import type { SubmissionStep } from '@/types/schema';
 
 type SubmissionGuideScreenProps = {
@@ -34,6 +36,9 @@ export default function SubmissionGuideScreen() {
   const route = useRoute() as SubmissionGuideScreenProps['route'];
   const { tripId, legId, countryCode, travelerId } = route.params;
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updateLegSubmissionStatus } = useTripStore();
+
   const {
     isLoading,
     schema,
@@ -48,6 +53,16 @@ export default function SubmissionGuideScreen() {
     handleStepComplete,
     handleSwitchTraveler,
   } = useSubmissionGuide({ tripId, legId, countryCode, travelerId });
+
+  const handleMarkAsSubmitted = async () => {
+    setIsSubmitting(true);
+    try {
+      await updateLegSubmissionStatus(legId, 'submitted');
+    } finally {
+      setIsSubmitting(false);
+    }
+    (navigation as any).navigate('TripDetail', { tripId });
+  };
 
   const handleOpenPortal = async () => {
     if (!schema?.portalUrl) {
@@ -304,7 +319,18 @@ export default function SubmissionGuideScreen() {
                   {schema.countryName}. Don't forget to save any QR codes to
                   your wallet for easy access at the airport.
                 </Text>
-                <View className="flex-row space-x-3">
+                <Button
+                  title="Mark as Submitted"
+                  onPress={handleMarkAsSubmitted}
+                  variant="primary"
+                  size="medium"
+                  fullWidth={true}
+                  loading={isSubmitting}
+                  accessibilityLabel="Mark as submitted"
+                  accessibilityRole="button"
+                  testID="mark-as-submitted-button"
+                />
+                <View className="flex-row space-x-3 mt-3">
                   <Button
                     title="Save QR Code"
                     onPress={() => {
@@ -315,7 +341,7 @@ export default function SubmissionGuideScreen() {
                         travelerId: currentTraveler?.id,
                       });
                     }}
-                    variant="primary"
+                    variant="outline"
                     size="medium"
                     fullWidth={false}
                     testID="save-qr-button"
