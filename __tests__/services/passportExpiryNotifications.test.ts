@@ -64,7 +64,7 @@ function makeFutureProfile(daysUntilExpiry: number, id = 'profile-1'): TravelerP
     passportExpiry: expiry.toISOString().split('T')[0],
     issuingCountry: 'AUS',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,

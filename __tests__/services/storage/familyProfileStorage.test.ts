@@ -83,7 +83,7 @@ describe('Family Profile Storage', () => {
         issuingCountry: 'USA',
         updatedAt: '2024-01-01T00:00:00Z',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,
@@ -115,7 +115,7 @@ describe('Family Profile Storage', () => {
         issuingCountry: 'USA',
         updatedAt: '2024-01-01T00:00:00Z',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,
@@ -232,7 +232,7 @@ describe('Family Profile Storage', () => {
         passportExpiry: '2025-01-01',
         issuingCountry: 'USA',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,

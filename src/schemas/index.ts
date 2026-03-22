@@ -19,6 +19,7 @@ const schemaLoaders = {
   CAN: () => import('./CAN.json').then(m => m.default as CountryFormSchema),
   AUS: () => import('./AUS.json').then(m => m.default as CountryFormSchema),
   NZL: () => import('./NZL.json').then(m => m.default as CountryFormSchema),
+  KOR: () => import('./KOR.json').then(m => m.default as CountryFormSchema),
 } as const;
 
 // Get schema by country code (lazy loaded)

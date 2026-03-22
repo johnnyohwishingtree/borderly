@@ -321,7 +321,7 @@
           "label": "Are you carrying goods exceeding duty-free allowances?",
           "type": "boolean",
           "required": true,
-          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclare",
           "countrySpecific": false,
           "helpText": "Alcohol (1L wine + 1L spirits), tobacco (200 cigarettes), chocolate/confectionery (worth ≤S$150)"
         },

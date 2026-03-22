@@ -78,7 +78,7 @@ describe('Privacy Compliance Audit', () => {
         gender: 'M',
         issuingCountry: 'US',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,
@@ -113,7 +113,7 @@ describe('Privacy Compliance Audit', () => {
         gender: 'M',
         issuingCountry: 'US',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,

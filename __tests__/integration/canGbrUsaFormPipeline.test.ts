@@ -56,7 +56,7 @@ const mockProfile: TravelerProfile = {
   },
   occupation: 'Software Engineer',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

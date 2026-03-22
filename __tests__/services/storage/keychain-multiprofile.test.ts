@@ -13,7 +13,7 @@ const mockProfile1: TravelerProfile = {
   issuingCountry: 'USA',
   email: 'john@example.com',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

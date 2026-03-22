@@ -129,7 +129,7 @@ describe('FamilyManagementScreen', () => {
     passportExpiry: '2030-12-31',
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -152,7 +152,7 @@ describe('FamilyManagementScreen', () => {
     passportExpiry: '2029-05-15',
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
