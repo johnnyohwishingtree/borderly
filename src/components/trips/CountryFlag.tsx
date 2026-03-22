@@ -52,6 +52,9 @@ export default function CountryFlag({
   };
 
   const renderFlag = () => {
+    const gbrCountry = getCountryByCode('GBR');
+    const gbrColors = gbrCountry?.colors ?? ['#012169', '#C8102E', '#FFFFFF'];
+
     switch (countryCode) {
       case 'JPN':
         return (
@@ -191,6 +194,95 @@ export default function CountryFlag({
               <Text style={{ fontSize: flagSize.height * 0.5, color: '#FF0000' }}>🍁</Text>
             </View>
             <View style={{ flex: 1, backgroundColor: '#FF0000' }} />
+          </View>
+        );
+      case 'AUS':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: country.colors[0],
+            }}
+          >
+            {/* Union Jack canton (simplified) */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.5,
+                height: flagSize.height * 0.5,
+                backgroundColor: gbrColors[0],
+              }}
+            >
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 1, left: 0, right: 0, height: 2, backgroundColor: gbrColors[2] }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 1, width: 2, backgroundColor: gbrColors[2] }} />
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 0.5, left: 0, right: 0, height: 1, backgroundColor: gbrColors[1] }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 0.5, width: 1, backgroundColor: gbrColors[1] }} />
+            </View>
+            {/* Commonwealth Star (below canton) */}
+            <View style={{ position: 'absolute', bottom: flagSize.height * 0.1, left: flagSize.width * 0.18, width: 5, height: 5, borderRadius: 2.5, backgroundColor: country.colors[1] }} />
+            {/* Southern Cross stars */}
+            <View style={{ position: 'absolute', top: flagSize.height * 0.2, right: flagSize.width * 0.15, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[1] }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.45, right: flagSize.width * 0.08, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[1] }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.7, right: flagSize.width * 0.15, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[1] }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.45, right: flagSize.width * 0.28, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[1] }} />
+          </View>
+        );
+      case 'NZL':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: country.colors[0],
+            }}
+          >
+            {/* Union Jack canton (simplified) */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.5,
+                height: flagSize.height * 0.5,
+                backgroundColor: gbrColors[0],
+              }}
+            >
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 1, left: 0, right: 0, height: 2, backgroundColor: gbrColors[2] }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 1, width: 2, backgroundColor: gbrColors[2] }} />
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 0.5, left: 0, right: 0, height: 1, backgroundColor: gbrColors[1] }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 0.5, width: 1, backgroundColor: gbrColors[1] }} />
+            </View>
+            {/* 4 red stars with white border (Southern Cross) */}
+            <View style={{ position: 'absolute', top: flagSize.height * 0.15, right: flagSize.width * 0.2, width: 5, height: 5, borderRadius: 2.5, backgroundColor: country.colors[1] }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[2] }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.4, right: flagSize.width * 0.08, width: 5, height: 5, borderRadius: 2.5, backgroundColor: country.colors[1] }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[2] }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.65, right: flagSize.width * 0.15, width: 5, height: 5, borderRadius: 2.5, backgroundColor: country.colors[1] }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[2] }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.35, right: flagSize.width * 0.3, width: 5, height: 5, borderRadius: 2.5, backgroundColor: country.colors[1] }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: country.colors[2] }} />
+            </View>
+          </View>
+        );
+      case 'KOR':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: country.colors[0],
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {/* Taegeuk (yin-yang) — simplified as two half-circles */}
+            <View style={{ width: flagSize.height * 0.5, height: flagSize.height * 0.5, borderRadius: flagSize.height * 0.25, overflow: 'hidden', flexDirection: 'row' }}>
+              <View style={{ flex: 1, backgroundColor: country.colors[2] }} />
+              <View style={{ flex: 1, backgroundColor: country.colors[1] }} />
+            </View>
           </View>
         );
     }

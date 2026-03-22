@@ -99,21 +99,14 @@ export default function CreateTripScreen() {
           <View className="space-y-3">
             <View>
               <FieldHeader label="Country" autoFilled={!!leg.autoFilledFields?.destinationCountry} />
-              <View className="flex-row flex-wrap gap-2">
-                {SUPPORTED_COUNTRIES.map((countryOption) => (
-                  <Button
-                    key={countryOption.code}
-                    title={countryOption.name}
-                    onPress={() => updateLeg(index, 'destinationCountry', countryOption.code)}
-                    variant={leg.destinationCountry === countryOption.code ? 'primary' : 'outline'}
-                    size="small"
-                    testID={`country-${countryOption.code}`}
-                  />
-                ))}
-              </View>
-              {errors[`leg${index}.country`] && (
-                <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.country`]}</Text>
-              )}
+              <SearchableSelect
+                options={SUPPORTED_COUNTRIES.map(c => ({ value: c.code, label: c.name }))}
+                value={leg.destinationCountry}
+                onValueChange={(val) => updateLeg(index, 'destinationCountry', val)}
+                placeholder="Search country..."
+                testID={`country-select-${index}`}
+                error={errors[`leg${index}.country`]}
+              />
             </View>
 
             {/* Passport validity warning — only shown once departure date is entered */}

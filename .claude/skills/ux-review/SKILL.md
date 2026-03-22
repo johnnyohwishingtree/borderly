@@ -92,6 +92,11 @@ For each flow, evaluate against these criteria:
 - Are advanced features hidden until needed?
 - Is the learning curve appropriate for the target user?
 
+**Scalability of UI Patterns**
+- Do selection controls (country pickers, category lists) scale as the data set grows? Pill button grids break past 6-8 items — prefer searchable dropdowns.
+- Do list screens handle 0, 1, 10, and 50+ items without layout degradation?
+- Are form fields responsive — do they still look correct on narrow and wide viewports?
+
 ### Step 4: Map Tap Counts
 
 For key tasks, document the exact navigation path and tap count:

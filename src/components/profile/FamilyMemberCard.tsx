@@ -1,8 +1,17 @@
 import { memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ViewProps } from 'react-native';
-import { User } from 'lucide-react-native';
+import { User, Heart, Baby, ShieldCheck, Users, UserCircle } from 'lucide-react-native';
 import { Card, StatusBadge, Button } from '../ui';
 import { FamilyMember, FamilyRelationship } from '../../types/profile';
+
+const RELATIONSHIP_ICON = {
+  self: User,
+  spouse: Heart,
+  child: Baby,
+  parent: ShieldCheck,
+  sibling: Users,
+  other: UserCircle,
+} as const;
 
 export interface FamilyMemberCardProps extends Pick<ViewProps, 'testID' | 'accessibilityLabel'> {
   member: FamilyMember;
@@ -117,7 +126,10 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
               <View className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full items-center justify-center mr-3" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
-                <User size={24} color="#6b7280" />
+                {(() => {
+                  const Icon = RELATIONSHIP_ICON[member.relationship];
+                  return <Icon size={24} color="#6b7280" />;
+                })()}
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-bold text-gray-900 dark:text-white">
