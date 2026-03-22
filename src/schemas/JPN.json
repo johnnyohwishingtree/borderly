@@ -323,7 +323,7 @@
           "label": "Are you carrying items exceeding duty-free allowances?",
           "type": "boolean",
           "required": true,
-          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclare",
           "countrySpecific": false,
           "helpText": "Duty-free: 3 bottles of alcohol (760ml each), 400 cigarettes, ¥200,000 worth of goods."
         }

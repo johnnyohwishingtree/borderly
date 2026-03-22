@@ -285,7 +285,7 @@ planned → implementing → verifying ←→ fix-loop → verified → reviewin
 Callers dispatch it with configurable check mode and retry count:
 - `claude.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (implement → verify → merge → PR)
 - `review-fix.yml` → `checks: "all"`, `max_attempts: 3` (after addressing review feedback)
-- `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure, via `ci-dispatch-pr`/`ci-dispatch-master` CLI)
+- `test.yml` → `checks: "ci"`, `max_attempts: 3` (on CI failure, via `ci-dispatch-pr`/`ci-dispatch-master` CLI; pipeline-test always runs on master push to catch breakage from file moves)
 - `e2e-smoke.yml` → `checks: "e2e"`, `max_attempts: 3` (on E2E failure, via `ci-dispatch-pr`/`ci-dispatch-master` CLI)
 - `watcher.yml` → `checks: "ci"`, `max_attempts: 6`, `merge_into` + `create_pr` (unstick stories with existing work)
 

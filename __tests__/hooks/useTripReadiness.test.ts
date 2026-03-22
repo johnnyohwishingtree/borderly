@@ -42,11 +42,13 @@ jest.mock('../../src/schemas', () => ({
   }),
 }));
 
-// Mock computeTripReadiness
+// Mock computeTripReadiness and scheduleReadinessCheck
 const mockComputeTripReadiness = jest.fn();
+const mockScheduleReadinessCheck = jest.fn((_trip: unknown, _readiness: unknown) => Promise.resolve());
 jest.mock('../../src/services/readiness', () => ({
   computeTripReadiness: (...args: any[]) => mockComputeTripReadiness(...args),
   getOverallStatus: jest.fn(() => 'ok'),
+  scheduleReadinessCheck: (trip: unknown, readiness: unknown) => mockScheduleReadinessCheck(trip, readiness),
 }));
 
 // ---------------------------------------------------------------------------

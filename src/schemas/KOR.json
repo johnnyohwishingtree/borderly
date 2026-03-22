@@ -1,0 +1,523 @@
+{
+  "countryCode": "KOR",
+  "countryName": "South Korea",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2025-03-22T00:00:00Z",
+  "portalUrl": "https://www.k-eta.go.kr/portal/apply/index.do",
+  "portalName": "Korea K-ETA",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 168,
+  "submissionWindowNote": "Apply at least 72 hours before departure — processing takes up to 72 hours",
+  "passportValidityMonths": 6,
+  "metadata": {
+    "priority": 4,
+    "complexity": "medium",
+    "popularity": 85,
+    "lastVerified": "2025-03-22T00:00:00Z",
+    "supportedLanguages": ["en", "ko"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".k-eta-form", ".apply-form", "#submit-btn"],
+    "changeThreshold": 10,
+    "fallbackActions": [
+      {
+        "trigger": "form_structure_changed",
+        "action": "notify",
+        "message": "Korea K-ETA form structure has changed. Manual verification required."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "3m",
+    "latestBeforeArrival": "72h",
+    "recommended": "7d"
+  },
+  "portalFlow": {
+    "requiresAccount": true,
+    "signupUrl": "https://www.k-eta.go.kr/portal/apply/index.do",
+    "familyPolicy": {
+      "type": "individual",
+      "description": "Each traveler must submit a separate K-ETA application using their own email-based account"
+    },
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport",
+        "required": true
+      },
+      {
+        "type": "account",
+        "description": "Email-based account on K-ETA portal",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "passport",
+      "title": "Passport Details",
+      "fields": [
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "helpText": "Enter your passport number exactly as printed (e.g., AB1234567)",
+          "portalFieldName": "Passport No."
+        },
+        {
+          "id": "surname",
+          "label": "Surname (Family Name)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "helpText": "As printed on your passport — all caps",
+          "portalFieldName": "Surname"
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Name(s)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "helpText": "As printed on your passport",
+          "portalFieldName": "Given Name"
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "portalFieldName": "Nationality",
+          "optionsSource": "countries"
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "portalFieldName": "Date of Birth"
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ],
+          "portalFieldName": "Sex"
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "portalFieldName": "Date of Expiry",
+          "helpText": "Passport must be valid for at least 6 months from your entry date"
+        },
+        {
+          "id": "passportIssuingCountry",
+          "label": "Country of Passport Issuance",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "portalFieldName": "Issuing Country",
+          "optionsSource": "countries",
+          "helpText": "The country that issued your passport"
+        }
+      ]
+    },
+    {
+      "id": "personal_info",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "portalFieldName": "E-mail",
+          "validation": {
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$"
+          },
+          "helpText": "This is your K-ETA account email — you'll receive your approval notice here"
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Mobile Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phoneNumber",
+          "countrySpecific": false,
+          "portalFieldName": "Mobile Phone No.",
+          "helpText": "Include country code (e.g., +1 for US)"
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": true,
+          "portalFieldName": "Occupation",
+          "options": [
+            { "value": "employed", "label": "Employed (private sector)" },
+            { "value": "government", "label": "Government / Public servant" },
+            { "value": "self_employed", "label": "Self-employed / Business owner" },
+            { "value": "student", "label": "Student" },
+            { "value": "homemaker", "label": "Homemaker" },
+            { "value": "retired", "label": "Retired" },
+            { "value": "unemployed", "label": "Unemployed" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "homeCountry",
+          "label": "Country of Residence",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.homeAddress.country",
+          "countrySpecific": false,
+          "portalFieldName": "Country/Region of Residence",
+          "optionsSource": "countries"
+        },
+        {
+          "id": "homeAddress",
+          "label": "Home Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.homeAddress._formatted",
+          "countrySpecific": false,
+          "portalFieldName": "Address",
+          "helpText": "Your permanent home address"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "portalFieldName": "Purpose of Visit",
+          "options": [
+            { "value": "tourism", "label": "Tourism / Sightseeing" },
+            { "value": "visiting_family", "label": "Visiting Family / Friends" },
+            { "value": "business", "label": "Business (meetings, negotiations)" },
+            { "value": "conference", "label": "Conference / Seminar / Exhibition" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "medical", "label": "Medical Treatment" },
+            { "value": "education", "label": "Short-term Study / Language program" },
+            { "value": "cultural", "label": "Cultural / Sports Events" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "id": "arrivalDate",
+          "label": "Planned Arrival Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "portalFieldName": "Arrival Date"
+        },
+        {
+          "id": "durationOfStay",
+          "label": "Intended Duration of Stay (days)",
+          "type": "number",
+          "required": true,
+          "autoFillSource": "leg._calculatedDuration",
+          "countrySpecific": false,
+          "portalFieldName": "Duration of Stay",
+          "validation": {
+            "min": 1,
+            "max": 90
+          },
+          "helpText": "Maximum 90 days per visit for most visa-exempt nationals"
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "portalFieldName": "Flight No.",
+          "helpText": "e.g., KE001 or OZ201"
+        },
+        {
+          "id": "airlineCode",
+          "label": "Airline",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "leg.airlineCode",
+          "countrySpecific": false,
+          "portalFieldName": "Airline",
+          "optionsSource": "airlines",
+          "helpText": "Search by airline name or IATA code (e.g. KE, OZ, SQ)"
+        },
+        {
+          "id": "arrivalAirport",
+          "label": "Port of Entry (Airport)",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "leg.arrivalAirport",
+          "countrySpecific": true,
+          "portalFieldName": "Port of Entry",
+          "optionsSource": "airports",
+          "helpText": "Incheon (ICN) handles most international flights; Gimpo (GMP) for some regional routes"
+        },
+        {
+          "id": "departureCountry",
+          "label": "Country of Departure",
+          "type": "searchable_select",
+          "required": true,
+          "countrySpecific": false,
+          "portalFieldName": "Departure Country",
+          "optionsSource": "countries",
+          "helpText": "The country where you board your flight to Korea"
+        }
+      ]
+    },
+    {
+      "id": "accommodation",
+      "title": "Accommodation in Korea",
+      "fields": [
+        {
+          "id": "hotelName",
+          "label": "Accommodation Name",
+          "type": "searchable_select",
+          "optionsSource": "accommodations",
+          "required": true,
+          "autoFillSource": "leg.accommodation.name",
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Name",
+          "helpText": "Hotel, hostel, guesthouse, or private address where you will stay"
+        },
+        {
+          "id": "hotelAddress",
+          "label": "Accommodation Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Address",
+          "helpText": "Full Korean address including city and postal code"
+        },
+        {
+          "id": "hotelPhone",
+          "label": "Accommodation Phone Number",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "leg.accommodation.phone",
+          "countrySpecific": false,
+          "portalFieldName": "Accommodation Phone No."
+        }
+      ]
+    },
+    {
+      "id": "health_declaration",
+      "title": "Health Declaration",
+      "fields": [
+        {
+          "id": "hasSymptoms",
+          "label": "Do you currently have fever, cough, shortness of breath, or other respiratory symptoms?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Answer truthfully — false declarations may result in penalties"
+        },
+        {
+          "id": "hasInfectiousDisease",
+          "label": "Have you been diagnosed with or treated for a communicable disease in the past 30 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true
+        },
+        {
+          "id": "visitedOutbreakArea",
+          "label": "Have you visited any area with an active infectious disease outbreak in the past 21 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Areas designated as high-risk by the Korea Disease Control and Prevention Agency (KDCA)"
+        }
+      ]
+    },
+    {
+      "id": "customs_declaration",
+      "title": "Customs Declaration",
+      "fields": [
+        {
+          "id": "carryingProhibitedItems",
+          "label": "Are you carrying any prohibited or restricted items? (narcotics, firearms, etc.)",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingProhibitedItems",
+          "countrySpecific": false,
+          "helpText": "Prohibited items include narcotics, psychotropic substances, firearms, explosives, and counterfeit goods"
+        },
+        {
+          "id": "exceedsDutyFreeAllowance",
+          "label": "Are you carrying goods with a total value exceeding USD 800 (approx. KRW 1,000,000)?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclare",
+          "countrySpecific": true,
+          "helpText": "Korea's duty-free allowance is USD 800. Items exceeding this limit must be declared and may be subject to customs duties."
+        },
+        {
+          "id": "carryingCurrencyOverLimit",
+          "label": "Are you carrying currency or monetary instruments exceeding USD 10,000 (or equivalent)?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCurrency",
+          "countrySpecific": false,
+          "helpText": "Includes cash, traveller's cheques, and other monetary instruments in any currency"
+        },
+        {
+          "id": "carryingAnimalPlantProducts",
+          "label": "Are you carrying any animals, plants, fresh fruits, vegetables, or animal/plant products?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Korea strictly controls agricultural and animal imports to prevent disease. Declare all such items."
+        },
+        {
+          "id": "carryingCommercialGoods",
+          "label": "Are you carrying commercial goods, samples, or goods intended for sale or distribution?",
+          "type": "boolean",
+          "required": true,
+          "autoFillSource": "profile.defaultDeclarations.carryingCommercialGoods",
+          "countrySpecific": false
+        },
+        {
+          "id": "carryingMedications",
+          "label": "Are you carrying any prescription medications or controlled substances for personal use?",
+          "type": "boolean",
+          "required": false,
+          "countrySpecific": true,
+          "helpText": "Bring a copy of your prescription. Some medications legal in your country may be controlled in Korea."
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Create Your K-ETA Account",
+      "description": "Visit the K-ETA portal at k-eta.go.kr and create an account using your email address. Each traveler must have their own account.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use an email you will have access to while traveling — approval notice is sent here",
+        "Keep your login credentials safe; you'll need them to check your application status",
+        "Apply at least 72 hours before your departure — processing can take up to 72 hours"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Passport Details",
+      "description": "Enter your passport information exactly as it appears on your passport.",
+      "fieldsOnThisScreen": ["passportNumber", "surname", "givenNames", "nationality", "dateOfBirth", "gender", "passportExpiry", "passportIssuingCountry"],
+      "tips": [
+        "Double-check your passport number — errors can cause denial at immigration",
+        "Your passport must be valid for at least 6 months from your planned entry date",
+        "Names must match your passport exactly, including any hyphens or special characters"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Personal Information",
+      "description": "Provide your contact details and personal background information.",
+      "fieldsOnThisScreen": ["email", "phoneNumber", "occupation", "homeCountry", "homeAddress"],
+      "tips": [
+        "Use the same email as your K-ETA account for consistency",
+        "Select the occupation category that best matches your current status",
+        "Include your full residential address, not a P.O. box"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Travel Details",
+      "description": "Enter your trip information including your flight, intended stay, and entry point.",
+      "fieldsOnThisScreen": ["purposeOfVisit", "arrivalDate", "durationOfStay", "flightNumber", "airlineCode", "arrivalAirport", "departureCountry"],
+      "tips": [
+        "Most international flights arrive at Incheon International Airport (ICN)",
+        "Select the purpose that best matches your primary reason for visiting",
+        "If connecting through Korea, select 'Transit' as your purpose"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Accommodation in Korea",
+      "description": "Provide the address and details of where you will be staying in South Korea.",
+      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "tips": [
+        "If staying at multiple places, enter the first accommodation",
+        "Airbnb and private rentals are accepted — enter the full address",
+        "Hotel confirmation emails include the complete Korean address"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Health Declaration",
+      "description": "Answer the health screening questions required for entry into South Korea.",
+      "fieldsOnThisScreen": ["hasSymptoms", "hasInfectiousDisease", "visitedOutbreakArea"],
+      "tips": [
+        "Answer honestly — false health declarations are a criminal offense",
+        "If you answer 'Yes', you may be subject to additional health screening upon arrival",
+        "Conditions change; check the KDCA website for current health advisories"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Customs Declaration",
+      "description": "Declare any goods, cash, or items that may be subject to customs regulations.",
+      "fieldsOnThisScreen": ["carryingProhibitedItems", "exceedsDutyFreeAllowance", "carryingCurrencyOverLimit", "carryingAnimalPlantProducts", "carryingCommercialGoods", "carryingMedications"],
+      "tips": [
+        "Korea's duty-free limit is USD 800 per person — gifts and souvenirs count toward this total",
+        "Strict penalties apply for undeclared currency exceeding USD 10,000",
+        "Korean Customs has strict biosecurity rules — declare all food, plant, and animal items",
+        "For prescription medications, carry a letter from your doctor and original packaging"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Submit & Await Approval",
+      "description": "Review all your information, pay the K-ETA fee (if applicable), and submit. You will receive an approval notice by email within 72 hours.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "K-ETA approval is typically granted within 72 hours but can be shorter",
+        "Save or screenshot your approval notice — present it at check-in and immigration",
+        "K-ETA is valid for 2 years (or until your passport expires) and covers multiple entries",
+        "If denied, you may need to apply for a visa at your nearest Korean embassy"
+      ]
+    }
+  ]
+}

@@ -143,7 +143,7 @@ function makeProfile(overrides: Partial<TravelerProfile> = {}): TravelerProfile 
     passportExpiry: '2050-06-30',
     issuingCountry: 'GBR',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -653,5 +653,264 @@ describe('computeTripReadiness — multiple legs', () => {
     const ids = result.items.map((i) => i.id);
     expect(ids.some((id) => id.startsWith('form-leg-001'))).toBe(true);
     expect(ids.some((id) => id.startsWith('form-leg-002'))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeTripReadiness — AUS, NZL, KOR leg support
+// ---------------------------------------------------------------------------
+
+function makeAUSSchema(overrides: Partial<CountryFormSchema> = {}): CountryFormSchema {
+  return makeSchema({
+    countryCode: 'AUS',
+    countryName: 'Australia',
+    portalName: 'ABF Digital Incoming Passenger Card (DIPC)',
+    submissionDeadlineHours: 0,
+    recommendedLeadTimeHours: 48,
+    submissionWindowNote: 'Submit within 72 hours before arrival',
+    passportValidityMonths: 6,
+    ...overrides,
+  });
+}
+
+function makeNZLSchema(overrides: Partial<CountryFormSchema> = {}): CountryFormSchema {
+  return makeSchema({
+    countryCode: 'NZL',
+    countryName: 'New Zealand',
+    portalName: 'NZeTA / New Zealand Traveller Declaration',
+    submissionDeadlineHours: 24,
+    recommendedLeadTimeHours: 72,
+    submissionWindowNote: 'Submit at least 24 hours before arrival',
+    passportValidityMonths: 3,
+    ...overrides,
+  });
+}
+
+function makeKORSchema(overrides: Partial<CountryFormSchema> = {}): CountryFormSchema {
+  return makeSchema({
+    countryCode: 'KOR',
+    countryName: 'South Korea',
+    portalName: 'Korea K-ETA',
+    submissionDeadlineHours: 72,
+    recommendedLeadTimeHours: 168,
+    submissionWindowNote: 'Submit at least 72 hours before arrival',
+    passportValidityMonths: 6,
+    ...overrides,
+  });
+}
+
+describe('computeTripReadiness — AUS leg', () => {
+  const ausSchemas: Record<string, CountryFormSchema> = { AUS: makeAUSSchema() };
+
+  it('emits form item for AUS leg', async () => {
+    const leg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS', formStatus: 'not_started' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, []);
+
+    const formItem = result.items.find((i) => i.id === 'form-leg-aus');
+    expect(formItem).toBeDefined();
+    expect(formItem!.status).toBe<ReadinessItemStatus>('critical');
+  });
+
+  it('emits passport item for AUS leg when profile and schema are present', async () => {
+    const leg = makeLeg({
+      id: 'leg-aus',
+      destinationCountry: 'AUS',
+      departureDate: '2030-06-01T00:00:00Z',
+    });
+    const profile = makeProfile({ passportExpiry: '2050-01-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, []);
+
+    const passportItem = result.items.find((i) => i.id === 'passport-leg-aus');
+    expect(passportItem).toBeDefined();
+    expect(passportItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+
+  it('does NOT emit a QR item for AUS leg (AUS does not require a QR code)', async () => {
+    const leg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, []);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-aus');
+    expect(qrItem).toBeUndefined();
+  });
+
+  it('emits deadline item for AUS leg when schema is present', async () => {
+    const leg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, []);
+
+    const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-aus');
+    expect(deadlineItem).toBeDefined();
+    expect(deadlineItem!.detail).toBe('Submit within 72 hours before arrival');
+  });
+
+  it('overallStatus is "ok" for AUS leg with submitted form, valid passport, no QR required', async () => {
+    const leg = makeLegWithDeparture(30, {
+      id: 'leg-aus',
+      destinationCountry: 'AUS',
+      formStatus: 'submitted',
+    });
+    const profile = makeProfile({ passportExpiry: '2050-01-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, []);
+
+    expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
+  });
+});
+
+describe('computeTripReadiness — NZL leg', () => {
+  const nzlSchemas: Record<string, CountryFormSchema> = { NZL: makeNZLSchema() };
+
+  it('emits form item for NZL leg', async () => {
+    const leg = makeLeg({ id: 'leg-nzl', destinationCountry: 'NZL', formStatus: 'ready' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
+
+    const formItem = result.items.find((i) => i.id === 'form-leg-nzl');
+    expect(formItem).toBeDefined();
+    expect(formItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+
+  it('emits passport warning for NZL when passport expires within 3 months of departure', async () => {
+    // departure 2030-06-01, expiry 2030-07-01 — within the 3-month NZL requirement
+    const leg = makeLeg({
+      id: 'leg-nzl',
+      destinationCountry: 'NZL',
+      departureDate: '2030-06-01T00:00:00Z',
+    });
+    const profile = makeProfile({ passportExpiry: '2030-07-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, []);
+
+    const passportItem = result.items.find((i) => i.id === 'passport-leg-nzl');
+    expect(passportItem).toBeDefined();
+    expect(passportItem!.status).toBe<ReadinessItemStatus>('warning');
+  });
+
+  it('does NOT emit a QR item for NZL leg (NZL does not require a QR code)', async () => {
+    const leg = makeLeg({ id: 'leg-nzl', destinationCountry: 'NZL' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-nzl');
+    expect(qrItem).toBeUndefined();
+  });
+
+  it('emits deadline item for NZL leg', async () => {
+    const leg = makeLeg({ id: 'leg-nzl', destinationCountry: 'NZL' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
+
+    const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-nzl');
+    expect(deadlineItem).toBeDefined();
+    expect(deadlineItem!.detail).toBe('Submit at least 24 hours before arrival');
+  });
+
+  it('overallStatus is "ok" for NZL leg with submitted form and valid passport', async () => {
+    const leg = makeLegWithDeparture(30, {
+      id: 'leg-nzl',
+      destinationCountry: 'NZL',
+      formStatus: 'submitted',
+    });
+    const profile = makeProfile({ passportExpiry: '2050-01-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, []);
+
+    expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
+  });
+});
+
+describe('computeTripReadiness — KOR leg', () => {
+  const korSchemas: Record<string, CountryFormSchema> = { KOR: makeKORSchema() };
+
+  it('emits form item for KOR leg', async () => {
+    const leg = makeLeg({ id: 'leg-kor', destinationCountry: 'KOR', formStatus: 'in_progress' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
+
+    const formItem = result.items.find((i) => i.id === 'form-leg-kor');
+    expect(formItem).toBeDefined();
+    expect(formItem!.status).toBe<ReadinessItemStatus>('warning');
+  });
+
+  it('emits passport item for KOR leg', async () => {
+    const leg = makeLeg({
+      id: 'leg-kor',
+      destinationCountry: 'KOR',
+      departureDate: '2030-06-01T00:00:00Z',
+    });
+    const profile = makeProfile({ passportExpiry: '2050-01-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, []);
+
+    const passportItem = result.items.find((i) => i.id === 'passport-leg-kor');
+    expect(passportItem).toBeDefined();
+    expect(passportItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+
+  it('does NOT emit a QR item for KOR leg (KOR does not require a QR code)', async () => {
+    const leg = makeLeg({ id: 'leg-kor', destinationCountry: 'KOR' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-kor');
+    expect(qrItem).toBeUndefined();
+  });
+
+  it('emits deadline item for KOR leg with 72h deadline', async () => {
+    const leg = makeLeg({ id: 'leg-kor', destinationCountry: 'KOR' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
+
+    const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-kor');
+    expect(deadlineItem).toBeDefined();
+  });
+
+  it('overallStatus is "ok" for KOR leg with submitted form and valid passport', async () => {
+    const leg = makeLegWithDeparture(30, {
+      id: 'leg-kor',
+      destinationCountry: 'KOR',
+      formStatus: 'submitted',
+    });
+    const profile = makeProfile({ passportExpiry: '2050-01-01' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, []);
+
+    expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
+  });
+});
+
+describe('computeTripReadiness — multi-country trip with AUS, NZL, KOR', () => {
+  it('correctly handles a trip spanning all three new countries', async () => {
+    const ausLeg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS', formStatus: 'submitted' });
+    const nzlLeg = makeLeg({ id: 'leg-nzl', destinationCountry: 'NZL', formStatus: 'ready' });
+    const korLeg = makeLeg({ id: 'leg-kor', destinationCountry: 'KOR', formStatus: 'in_progress' });
+
+    const schemas: Record<string, CountryFormSchema> = {
+      AUS: makeAUSSchema(),
+      NZL: makeNZLSchema(),
+      KOR: makeKORSchema(),
+    };
+
+    const result = await computeTripReadiness(makeTrip([ausLeg, nzlLeg, korLeg]), [], schemas, []);
+
+    const formItems = result.items.filter((i) => i.category === 'form');
+    expect(formItems).toHaveLength(3);
+
+    const ausForm = formItems.find((i) => i.id === 'form-leg-aus');
+    const nzlForm = formItems.find((i) => i.id === 'form-leg-nzl');
+    const korForm = formItems.find((i) => i.id === 'form-leg-kor');
+
+    expect(ausForm!.status).toBe<ReadinessItemStatus>('ok');
+    expect(nzlForm!.status).toBe<ReadinessItemStatus>('ok');
+    expect(korForm!.status).toBe<ReadinessItemStatus>('warning');
+  });
+
+  it('does not affect existing JPN/SGP leg handling when AUS/NZL/KOR are added', async () => {
+    const jpnLeg = makeLeg({ id: 'leg-jpn', destinationCountry: 'JPN', formStatus: 'not_started' });
+    const ausLeg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS', formStatus: 'submitted' });
+
+    const schemas: Record<string, CountryFormSchema> = {
+      JPN: makeSchema(),
+      AUS: makeAUSSchema(),
+    };
+
+    const result = await computeTripReadiness(makeTrip([jpnLeg, ausLeg]), [], schemas, []);
+
+    // JPN should still emit a QR missing item
+    const jpnQR = result.items.find((i) => i.id === 'qr-leg-jpn');
+    expect(jpnQR).toBeDefined();
+    expect(jpnQR!.status).toBe<ReadinessItemStatus>('missing');
+
+    // AUS should NOT emit a QR item
+    const ausQR = result.items.find((i) => i.id === 'qr-leg-aus');
+    expect(ausQR).toBeUndefined();
   });
 });

@@ -3,7 +3,7 @@ import { Trip } from '../types/trip';
 import { TravelerProfile } from '../types/profile';
 import { CountryFormSchema } from '../types/schema';
 import { TripReadiness } from '../services/readiness/readinessTypes';
-import { computeTripReadiness } from '../services/readiness';
+import { computeTripReadiness, scheduleReadinessCheck } from '../services/readiness';
 import { getSchemaByCountryCode } from '../schemas';
 import { useProfileStore } from '../stores/useProfileStore';
 
@@ -71,6 +71,15 @@ export function useTripReadiness(trip: Trip | null): UseTripReadinessResult {
         const qrCodes = trip.legs.flatMap(l => l.qrCodes ?? []);
 
         const readiness = await computeTripReadiness(trip, profiles, schemas, qrCodes);
+
+        // Schedule or cancel the departure-readiness notification based on
+        // the computed overall status. This is fire-and-forget — errors are
+        // handled inside the scheduler and must not block the UI update.
+        scheduleReadinessCheck(trip, readiness).catch(err => {
+          if (__DEV__) {
+            console.warn('useTripReadiness: scheduleReadinessCheck failed', err);
+          }
+        });
 
         if (!cancelled) {
           setTripReadiness(readiness);

@@ -52,7 +52,7 @@ const makeMember = (id: string, relationship: string, givenNames: string) => ({
   issuingCountry: 'GBR',
   relationship,
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
