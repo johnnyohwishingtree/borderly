@@ -54,18 +54,18 @@ export function computeExpiryStatus(daysRemaining: number): ExpiryStatus {
 const BADGE_CONFIG: Record<ExpiryStatus, BadgeConfig> = {
   valid: {
     label: 'Valid',
-    bgClass: 'bg-green-100',
-    textClass: 'text-green-800',
+    bgClass: 'bg-green-100 dark:bg-green-900/30',
+    textClass: 'text-green-800 dark:text-green-200',
   },
   'expiring-soon': {
     label: 'Expiring Soon',
-    bgClass: 'bg-amber-100',
-    textClass: 'text-amber-800',
+    bgClass: 'bg-amber-100 dark:bg-amber-900/30',
+    textClass: 'text-amber-800 dark:text-amber-200',
   },
   expired: {
     label: 'Expired',
-    bgClass: 'bg-red-100',
-    textClass: 'text-red-800',
+    bgClass: 'bg-red-100 dark:bg-red-900/30',
+    textClass: 'text-red-800 dark:text-red-200',
   },
 };
 

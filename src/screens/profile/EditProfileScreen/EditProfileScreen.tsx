@@ -132,21 +132,21 @@ export default function EditProfileScreen() {
 
   if (!profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">No profile to edit</Text>
+      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
+        <Text className="text-lg text-gray-600 dark:text-gray-400">No profile to edit</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900">Edit Profile</Text>
-              <Text className="text-base text-gray-600">
+              <Text className="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</Text>
+              <Text className="text-base text-gray-600 dark:text-gray-400">
                 Update your contact information and preferences
               </Text>
             </View>
@@ -163,7 +163,7 @@ export default function EditProfileScreen() {
         {/* Contact Information */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
               Contact Information
             </Text>
             <StatusBadge 
@@ -184,7 +184,7 @@ export default function EditProfileScreen() {
                 autoCapitalize="none"
                 error={errors.email}
               />
-              <Text className="text-xs text-gray-500 mt-1">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Required for form confirmations and travel updates
               </Text>
             </View>
@@ -198,7 +198,7 @@ export default function EditProfileScreen() {
                 keyboardType="phone-pad"
                 error={errors.phoneNumber}
               />
-              <Text className="text-xs text-gray-500 mt-1">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Include country code for international travel
               </Text>
             </View>
@@ -211,7 +211,7 @@ export default function EditProfileScreen() {
                 placeholder="Software Engineer"
                 error={errors.occupation}
               />
-              <Text className="text-xs text-gray-500 mt-1">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Required for some immigration forms
               </Text>
             </View>
@@ -221,7 +221,7 @@ export default function EditProfileScreen() {
         {/* Home Address */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
               Home Address
             </Text>
             <StatusBadge 
@@ -231,12 +231,12 @@ export default function EditProfileScreen() {
             />
           </View>
           
-          <View className="bg-blue-50 p-3 rounded-lg mb-4">
+          <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
             <View className="flex-row items-center">
               <Lightbulb size={14} color="#1e40af" />
-              <Text className="text-xs font-medium text-blue-800 ml-1">Tip</Text>
+              <Text className="text-xs font-medium text-blue-800 dark:text-blue-200 ml-1">Tip</Text>
             </View>
-            <Text className="text-xs text-blue-700 mt-1">
+            <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">
               Adding your home address helps automatically fill similar fields in country forms
             </Text>
           </View>
@@ -272,7 +272,7 @@ export default function EditProfileScreen() {
         <Card>
           <View className="flex-row items-center mb-3">
             <Lock size={18} color="#374151" />
-            <Text className="text-lg font-semibold text-gray-900 ml-2">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
               Passport Information
             </Text>
             <View className="ml-auto">
@@ -282,17 +282,17 @@ export default function EditProfileScreen() {
           
           <Divider className="mb-3" />
           
-          <Text className="text-sm text-gray-600 mb-3">
-            Passport information cannot be edited here for security reasons. Your passport data is 
+          <Text className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Passport information cannot be edited here for security reasons. Your passport data is
             encrypted and stored securely on this device only.
           </Text>
-          
-          <View className="bg-amber-50 p-3 rounded-lg">
+
+          <View className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
             <View className="flex-row items-center">
               <TriangleAlert size={12} color="#d97706" style={{ marginRight: 4 }} />
-              <Text className="text-xs font-medium text-amber-800">Need to update passport info?</Text>
+              <Text className="text-xs font-medium text-amber-800 dark:text-amber-200">Need to update passport info?</Text>
             </View>
-            <Text className="text-xs text-amber-700 mt-1">
+            <Text className="text-xs text-amber-700 dark:text-amber-300 mt-1">
               Contact support if your passport details have changed or if you need to rescan your passport.
             </Text>
           </View>
@@ -301,12 +301,12 @@ export default function EditProfileScreen() {
         {/* Action Buttons */}
         <View className="pt-6">
           {hasUnsavedChanges && (
-            <View className="bg-yellow-50 p-3 rounded-lg mb-4">
+            <View className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg mb-4">
               <View className="flex-row items-center">
                 <TriangleAlert size={12} color="#d97706" style={{ marginRight: 4 }} />
-                <Text className="text-xs font-medium text-yellow-800">Unsaved Changes</Text>
+                <Text className="text-xs font-medium text-yellow-800 dark:text-yellow-200">Unsaved Changes</Text>
               </View>
-              <Text className="text-xs text-yellow-700 mt-1">
+              <Text className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
                 You have unsaved changes. Make sure to save before leaving this screen.
               </Text>
             </View>

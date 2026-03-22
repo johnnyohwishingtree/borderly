@@ -56,7 +56,7 @@ export default function RestoreBackupModal() {
 
   return (
     <ScrollView
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-gray-50 dark:bg-gray-900"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
       testID="restore-backup-screen"
@@ -65,17 +65,17 @@ export default function RestoreBackupModal() {
       <View className="flex-1 p-6">
         {/* Header */}
         <View className="items-center mb-8" accessibilityRole="header">
-          <View className="w-16 h-16 bg-blue-100 rounded-2xl items-center justify-center mb-4">
+          <View className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl items-center justify-center mb-4">
             <UploadCloud size={32} color="#2563eb" accessibilityElementsHidden />
           </View>
           <Text
-            className="text-2xl font-bold text-gray-900 text-center mb-2"
+            className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2"
             accessibilityRole="header"
             testID="restore-backup-heading"
           >
             Restore from Backup
           </Text>
-          <Text className="text-base text-gray-600 text-center">
+          <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
             Restore your profiles, trips, and QR codes from a .borderly backup file.
           </Text>
         </View>
@@ -87,10 +87,10 @@ export default function RestoreBackupModal() {
               <View className="flex-row items-start mb-4">
                 <Shield size={20} color="#2563eb" accessibilityElementsHidden />
                 <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-gray-900 mb-1">
+                  <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
                     What gets restored
                   </Text>
-                  <Text className="text-sm text-gray-600">
+                  <Text className="text-sm text-gray-600 dark:text-gray-400">
                     • All traveler profiles and passport data{'\n'}
                     • Trips, legs, and form data{'\n'}
                     • Saved QR codes{'\n'}
@@ -111,7 +111,7 @@ export default function RestoreBackupModal() {
               accessibilityHint="Opens the document picker to select a .borderly backup file"
             />
 
-            <Text className="text-xs text-gray-500 text-center mt-3">
+            <Text className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
               Select a .borderly file from your device or cloud storage
             </Text>
           </View>
@@ -120,18 +120,18 @@ export default function RestoreBackupModal() {
         {/* ── Step: passphrase ── */}
         {step === 'passphrase' && (
           <View testID="restore-step-passphrase">
-            <View className="flex-row items-center mb-6 bg-green-50 p-4 rounded-xl">
+            <View className="flex-row items-center mb-6 bg-green-50 dark:bg-green-900/20 p-4 rounded-xl">
               <FileCheck size={20} color="#16a34a" accessibilityElementsHidden />
-              <Text className="ml-3 text-sm font-medium text-green-800">
+              <Text className="ml-3 text-sm font-medium text-green-800 dark:text-green-200">
                 Backup file selected successfully
               </Text>
             </View>
 
             <Card className="mb-6">
-              <Text className="text-base font-semibold text-gray-900 mb-2">
+              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-2">
                 Enter your backup passphrase
               </Text>
-              <Text className="text-sm text-gray-600 mb-4">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 This is the passphrase you chose when you created the backup.
               </Text>
 
@@ -148,7 +148,7 @@ export default function RestoreBackupModal() {
                   testID="passphrase-input"
                   accessibilityLabel="Backup passphrase, required"
                   accessibilityHint="Enter the passphrase used when this backup was created"
-                  className="border border-gray-300 rounded-lg px-4 py-3 text-base text-gray-900 bg-white pr-12"
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-base text-gray-900 dark:text-white bg-white dark:bg-gray-800 pr-12"
                 />
                 <TouchableOpacity
                   onPress={toggleSecureEntry}
@@ -191,7 +191,7 @@ export default function RestoreBackupModal() {
               accessibilityLabel="Cancel and go back to file selection"
               className="mt-4 items-center py-3"
             >
-              <Text className="text-base text-gray-500">Cancel</Text>
+              <Text className="text-base text-gray-500 dark:text-gray-400">Cancel</Text>
             </Pressable>
           </View>
         )}
@@ -206,22 +206,22 @@ export default function RestoreBackupModal() {
             accessibilityLiveRegion="polite"
           >
             <ActivityIndicator size="large" color="#2563eb" />
-            <Text className="text-base text-gray-600 mt-4">Restoring your data…</Text>
-            <Text className="text-sm text-gray-400 mt-1">This may take a moment</Text>
+            <Text className="text-base text-gray-600 dark:text-gray-400 mt-4">Restoring your data…</Text>
+            <Text className="text-sm text-gray-400 dark:text-gray-600 mt-1">This may take a moment</Text>
           </View>
         )}
 
         {/* ── Step: confirming-replace ── */}
         {step === 'confirming-replace' && (
           <View testID="restore-step-conflict">
-            <Card className="mb-6 border-amber-200 bg-amber-50">
+            <Card className="mb-6 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
               <View className="flex-row items-start">
                 <AlertCircle size={20} color="#d97706" accessibilityElementsHidden />
                 <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-amber-900 mb-2">
+                  <Text className="text-base font-semibold text-amber-900 dark:text-amber-100 mb-2">
                     Existing data detected
                   </Text>
-                  <Text className="text-sm text-amber-800">
+                  <Text className="text-sm text-amber-800 dark:text-amber-200">
                     Your device already has Borderly data. Restoring will{' '}
                     <Text className="font-semibold">replace all current data</Text> with the
                     backup contents. This cannot be undone.
@@ -249,7 +249,7 @@ export default function RestoreBackupModal() {
               accessibilityLabel="Cancel and keep existing data"
               className="mt-4 items-center py-3"
             >
-              <Text className="text-base text-gray-500">Cancel — keep my current data</Text>
+              <Text className="text-base text-gray-500 dark:text-gray-400">Cancel — keep my current data</Text>
             </Pressable>
           </View>
         )}
@@ -260,16 +260,16 @@ export default function RestoreBackupModal() {
             className="flex-1 items-center justify-center py-8"
             testID="restore-step-success"
           >
-            <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-6">
+            <View className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mb-6">
               <CheckCircle size={40} color="#16a34a" accessibilityElementsHidden />
             </View>
             <Text
-              className="text-2xl font-bold text-gray-900 mb-2 text-center"
+              className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center"
               accessibilityRole="header"
             >
               Restore complete!
             </Text>
-            <Text className="text-base text-gray-600 text-center mb-8">
+            <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-8">
               Your profiles, trips, and QR codes have been restored successfully.
             </Text>
 
@@ -288,15 +288,15 @@ export default function RestoreBackupModal() {
         {/* ── Step: error ── */}
         {step === 'error' && (
           <View testID="restore-step-error">
-            <Card className="mb-6 border-red-200 bg-red-50">
+            <Card className="mb-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
               <View className="flex-row items-start">
                 <AlertCircle size={20} color="#dc2626" accessibilityElementsHidden />
                 <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-red-900 mb-2">
+                  <Text className="text-base font-semibold text-red-900 dark:text-red-100 mb-2">
                     Restore failed
                   </Text>
                   <Text
-                    className="text-sm text-red-800"
+                    className="text-sm text-red-800 dark:text-red-200"
                     testID="error-message"
                     accessibilityRole="text"
                     accessibilityLiveRegion="polite"
