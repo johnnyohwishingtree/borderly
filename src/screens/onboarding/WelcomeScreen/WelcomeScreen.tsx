@@ -19,11 +19,13 @@ import { Icon } from '@/components/ui/gluestack/icon';
 import { ProgressBar } from '@/components/ui';
 import CountryFlag from '@/components/trips/CountryFlag';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import { useTheme } from '@/utils/theme';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen() {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
+  const { colors } = useTheme();
 
   const handleTutorial = () => {
     navigation.navigate('Tutorial');
@@ -88,7 +90,7 @@ export default function WelcomeScreen() {
           <View className="p-6 space-y-6">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Lock} size={20} color="#16a34a" />
+                <Icon as={Lock} size={20} color={colors.success} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Private & Secure</Text>
@@ -97,7 +99,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Smartphone} size={20} color="#2563eb" />
+                <Icon as={Smartphone} size={20} color={colors.accent} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Works Offline</Text>
@@ -106,7 +108,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Zap} size={20} color="#2563eb" />
+                <Icon as={Zap} size={20} color={colors.accent} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Lightning Fast</Text>
@@ -119,7 +121,7 @@ export default function WelcomeScreen() {
         {/* Countries supported section */}
         <Card variant="outlined" className="mb-4 bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800">
           <View className="flex-row items-center mb-4">
-            <Icon as={Globe} size={20} color="#374151" className="mr-2" />
+            <Icon as={Globe} size={20} color={colors.textPrimary} className="mr-2" />
             <Text className="text-lg font-semibold text-gray-900 dark:text-white">
               Supported Countries
             </Text>
@@ -137,7 +139,7 @@ export default function WelcomeScreen() {
         {/* Privacy notice */}
         <Card variant="outlined" className="mb-4 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10">
           <View className="flex-row items-start">
-            <Icon as={ShieldCheck} size={24} color="#16a34a" className="mr-3" />
+            <Icon as={ShieldCheck} size={24} color={colors.success} className="mr-3" />
             <View className="flex-1">
               <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
                 Privacy First

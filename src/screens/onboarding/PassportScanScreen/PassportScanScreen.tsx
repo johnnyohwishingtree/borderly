@@ -1,6 +1,7 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
+import { useTheme } from '@/utils/theme';
 import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField } from '@/components/ui';
 import { ALL_COUNTRIES } from '@/constants/countries';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
@@ -40,6 +41,7 @@ export default function PassportScanScreen() {
     handleDemoScan,
   } = usePassportScan();
 
+  const { colors } = useTheme();
   const { control, handleSubmit, formState: { errors } } = form;
 
   if (mode === 'scanning') {
@@ -84,7 +86,7 @@ export default function PassportScanScreen() {
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-row items-center flex-1">
-              <Camera size={24} color="#111827" style={{ marginRight: 8 }} />
+              <Camera size={24} color={colors.textPrimary} style={{ marginRight: 8 }} />
               <Text className="text-2xl font-bold text-gray-900 dark:text-white">
                 {familyMode ? 'Add Family Member' : 'Passport Information'}
               </Text>
@@ -226,7 +228,7 @@ export default function PassportScanScreen() {
         {mode === 'manual' && (
           <View className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
             <View className="flex-row items-center mb-2">
-              <Pencil size={20} color="#111827" style={{ marginRight: 8 }} />
+              <Pencil size={20} color={colors.textPrimary} style={{ marginRight: 8 }} />
               <Text className="text-lg font-semibold text-gray-900 dark:text-white">
                 Passport Details
               </Text>

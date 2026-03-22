@@ -8,11 +8,13 @@ import { Button, Card, EmptyState, LoadingStates } from '@/components/ui';
 import { FamilyMemberCard } from '@/components/profile';
 import { FamilyMember } from '@/types/profile';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useTheme } from '@/utils/theme';
 
 type FamilyManagementScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'FamilyManagement'>;
 
 export default function FamilyManagementScreen() {
   const navigation = useNavigation<FamilyManagementScreenNavigationProp>();
+  const { colors } = useTheme();
   const { loadFamilyProfiles, getAllFamilyProfiles, deleteProfile, familyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -111,7 +113,7 @@ export default function FamilyManagementScreen() {
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
-              <Users size={24} color="#111827" style={{ marginRight: 8 }} importantForAccessibility="no" />
+              <Users size={24} color={colors.textPrimary} style={{ marginRight: 8 }} importantForAccessibility="no" />
               <View>
                 <Text
                   className="text-2xl font-bold text-gray-900 dark:text-white"

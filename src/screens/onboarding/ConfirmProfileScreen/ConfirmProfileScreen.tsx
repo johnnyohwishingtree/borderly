@@ -83,7 +83,7 @@ export default function ConfirmProfileScreen() {
         <ProgressBar progress={75} className="mb-6" />
 
         <View className="mb-8 items-center">
-          <View className="w-20 h-20 bg-green-100 rounded-full items-center justify-center mb-4">
+          <View className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mb-4">
             <ShieldCheck size={40} color="#16a34a" />
           </View>
           <Text
