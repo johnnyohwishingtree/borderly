@@ -13,3 +13,5 @@ export { useTripCreation } from './useTripCreation';
 export { useSubmissionGuide } from './useSubmissionGuide';
 export { usePassportValidity } from './usePassportValidity';
 export type { PassportValidityWarningData } from './usePassportValidity';
+export { useTripReadiness } from './useTripReadiness';
+export type { UseTripReadinessResult } from './useTripReadiness';

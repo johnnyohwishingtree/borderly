@@ -13,12 +13,13 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
 import { Button, StatusBadge, Input } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
+import { useTripReadiness } from '@/hooks/useTripReadiness';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import {
   computeTripDeadlines,
@@ -114,6 +115,43 @@ export default function TripDetailScreen() {
   );
 
   const editHook = useEditTrip({ trip });
+  const { tripReadiness, isLoading: isReadinessLoading } = useTripReadiness(trip);
+
+  /**
+   * Navigation callback for ReadinessChecklist "Fix" links.
+   * Routes to the correct screen based on the actionScreen value set by the service.
+   */
+  const handleReadinessNavigate = useCallback(
+    (screenName: string) => {
+      switch (screenName) {
+        case 'LegForm': {
+          // Navigate to the first non-ready leg's form
+          const firstNonReadyLeg = trip?.legs.find(
+            l => l.formStatus !== 'ready' && l.formStatus !== 'submitted',
+          );
+          if (firstNonReadyLeg) {
+            (navigation as any).navigate('LegForm', {
+              tripId,
+              legId: firstNonReadyLeg.id,
+            });
+          }
+          break;
+        }
+        case 'QRWallet':
+          // Navigate to the QR Wallet tab
+          (navigation as any).navigate('Wallet');
+          break;
+        case 'Profile':
+          // Navigate to the Profile tab
+          (navigation as any).navigate('Profile');
+          break;
+        default:
+          // 'TripDetail' or unknown — stay on current screen
+          break;
+      }
+    },
+    [navigation, trip, tripId],
+  );
 
   const handleLegPress = (leg: TripLeg) => {
     (navigation as any).navigate('LegForm', { tripId, legId: leg.id });
@@ -271,16 +309,33 @@ export default function TripDetailScreen() {
                   style={{ width: `${progress.percentage}%` }}
                 />
               </View>
-              {/* Trip Readiness summary */}
-              <Text
-                className="text-xs text-gray-500 mt-2"
-                testID="trip-readiness-summary"
-              >
-                Trip Readiness: {progress.readyCount} of {progress.total} leg{progress.total !== 1 ? 's' : ''} ready
-              </Text>
+              {/* Removed plain-text Trip Readiness counter — replaced by ReadinessChecklist below */}
             </View>
           )}
         </View>
+
+        {/* Trip Readiness Checklist */}
+        {trip.legs.length > 0 && (
+          <View className="px-4 pt-4">
+            {isReadinessLoading ? (
+              <View
+                testID="readiness-checklist-loading"
+                className="rounded-xl border border-gray-200 bg-white px-4 py-3"
+                accessible={true}
+                accessibilityLabel="Loading trip readiness"
+                accessibilityRole="progressbar"
+              >
+                <View className="h-4 bg-gray-200 rounded w-2/3" />
+              </View>
+            ) : tripReadiness ? (
+              <ReadinessChecklist
+                tripReadiness={tripReadiness}
+                onNavigate={handleReadinessNavigate}
+                testID="readiness-checklist"
+              />
+            ) : null}
+          </View>
+        )}
 
         {/* Pre-trip Account Setup */}
         {trip.legs.length > 0 && currentProfileId && (
