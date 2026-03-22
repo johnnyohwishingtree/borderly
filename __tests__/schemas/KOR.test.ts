@@ -2,6 +2,7 @@ import { CountryFormSchema } from '../../src/types/schema';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import KOR from '../../src/schemas/KOR.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('South Korea (KOR) Schema', () => {
   const schema = KOR as CountryFormSchema;
@@ -381,5 +382,29 @@ describe('South Korea (KOR) Schema', () => {
     expect(schema.changeDetection).toBeDefined();
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
+  });
+
+  // ── 17. Auto-fill coverage & countrySpecific declarations ───────────────────
+
+  runSharedSchemaTests(schema);
+
+  // ── 18. K-ETA processing time ────────────────────────────────────────────────
+
+  test('K-ETA processing time should be documented as up to 72 hours', () => {
+    // K-ETA approval takes up to 72 hours — travellers must apply well in advance.
+    // This is captured in the submissionDeadlineHours and submissionWindowNote.
+    expect(schema.submissionDeadlineHours).toBe(72);
+    expect(schema.submissionWindowNote).toBeDefined();
+    expect(schema.submissionWindowNote.toLowerCase()).toContain('processing');
+    expect(schema.submissionWindowNote.toLowerCase()).toContain('72');
+  });
+
+  test('K-ETA processing time note should appear in submission guide', () => {
+    // At least one step in the submission guide should mention the 72-hour processing window
+    const guideText = schema.submissionGuide
+      .flatMap(step => [step.title, step.description, ...(step.tips ?? [])])
+      .join(' ')
+      .toLowerCase();
+    expect(guideText).toContain('72');
   });
 });

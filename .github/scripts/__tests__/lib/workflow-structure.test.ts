@@ -548,6 +548,72 @@ describe('workflow structure regressions', () => {
     });
   });
 
+  // Bug: e2e-smoke check-changes used `github.event.before || base.sha` for
+  // BASE and `github.sha` (merge commit) for HEAD. On pull_request synchronize
+  // events, `event.before` is the previous PR head SHA (not the base branch),
+  // so the diff included unrelated base branch changes and skip detection failed.
+  // Both test.yml and e2e-smoke.yml must use the same PR diff strategy:
+  // handle push events separately, use pull_request.base.sha + head.sha for PRs.
+  describe('check-changes uses correct git diff refs for PRs', () => {
+    const workflowsWithSkip = ['test.yml', 'e2e-smoke.yml'];
+
+    for (const wfName of workflowsWithSkip) {
+      describe(wfName, () => {
+        let checkScript: string;
+
+        beforeAll(() => {
+          const content = readFileSync(join(WORKFLOWS_DIR, wfName), 'utf-8');
+          const parsed = yaml.load(content) as any;
+          const checkJob = parsed.jobs['check-changes'];
+          expect(checkJob, `${wfName} must have check-changes job`).toBeTruthy();
+          const steps = checkJob.steps as WorkflowStep[];
+          const scriptStep = steps.find((s: WorkflowStep) => s.run?.includes('git diff'));
+          expect(scriptStep, `${wfName} check-changes must have a step with git diff`).toBeTruthy();
+          checkScript = scriptStep!.run!;
+        });
+
+        it('must NOT use github.event.before for PR base ref', () => {
+          // github.event.before is set on pull_request synchronize events
+          // to the previous PR head — NOT the base branch. Using it as BASE
+          // produces a diff that includes unrelated base branch changes.
+          expect(
+            checkScript,
+            `${wfName}: must not use github.event.before as diff base (breaks on synchronize events)`,
+          ).not.toContain('github.event.before');
+        });
+
+        it('must NOT use github.sha as PR head ref', () => {
+          // github.sha on PR events is a virtual merge commit, not the PR
+          // head. Use pull_request.head.sha for a clean diff.
+          expect(
+            checkScript,
+            `${wfName}: must not use github.sha as diff head (use pull_request.head.sha)`,
+          ).not.toContain('github.sha');
+        });
+
+        it('must use pull_request.base.sha and pull_request.head.sha', () => {
+          expect(
+            checkScript,
+            `${wfName}: must use pull_request.base.sha for diff base`,
+          ).toContain('pull_request.base.sha');
+          expect(
+            checkScript,
+            `${wfName}: must use pull_request.head.sha for diff head`,
+          ).toContain('pull_request.head.sha');
+        });
+
+        it('must handle push events separately (skip detection is PR-only)', () => {
+          // Push events (master merge) should either exit early or use
+          // event.before/github.sha — but NOT mix with PR refs.
+          expect(
+            checkScript,
+            `${wfName}: must handle push event_name separately`,
+          ).toContain('github.event_name');
+        });
+      });
+    }
+  });
+
   // Bug (#602): Gemini posted "daily quota limit" warning but gemini-failed
   // job only matched "unable to generate a summary". The fallback to Claude
   // review never triggered, leaving the PR with no code review.
