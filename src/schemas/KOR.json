@@ -2,7 +2,7 @@
   "countryCode": "KOR",
   "countryName": "South Korea",
   "schemaVersion": "1.0.0",
-  "lastUpdated": "2026-03-22T00:00:00Z",
+  "lastUpdated": "2025-03-22T00:00:00Z",
   "portalUrl": "https://www.k-eta.go.kr/portal/apply/index.do",
   "portalName": "Korea K-ETA",
   "submissionDeadlineHours": 72,
@@ -13,7 +13,7 @@
     "priority": 4,
     "complexity": "medium",
     "popularity": 85,
-    "lastVerified": "2026-03-22T00:00:00Z",
+    "lastVerified": "2025-03-22T00:00:00Z",
     "supportedLanguages": ["en", "ko"],
     "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
@@ -388,7 +388,7 @@
           "label": "Are you carrying goods with a total value exceeding USD 800 (approx. KRW 1,000,000)?",
           "type": "boolean",
           "required": true,
-          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclar",
+          "autoFillSource": "profile.defaultDeclarations.hasItemsToDeclare",
           "countrySpecific": true,
           "helpText": "Korea's duty-free allowance is USD 800. Items exceeding this limit must be declared and may be subject to customs duties."
         },

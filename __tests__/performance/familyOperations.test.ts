@@ -23,7 +23,7 @@ function createMockFamilyProfile(index: number): TravelerProfile {
     passportExpiry: `${2025 + (index % 10)}-12-31`,
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,

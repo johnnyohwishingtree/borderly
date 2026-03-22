@@ -143,7 +143,7 @@ function makeProfile(overrides: Partial<TravelerProfile> = {}): TravelerProfile 
     passportExpiry: '2050-06-30',
     issuingCountry: 'GBR',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,

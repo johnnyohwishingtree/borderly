@@ -41,7 +41,7 @@ const mockProfile: TravelerProfile = {
   },
   occupation: 'Teacher',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

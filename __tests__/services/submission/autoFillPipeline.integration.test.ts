@@ -54,7 +54,7 @@ const primaryProfile: TravelerProfile = {
   },
   occupation: 'Software Engineer',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -78,7 +78,7 @@ const childProfile: TravelerProfile = {
   issuingCountry: 'USA',
   relationship: 'child',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,

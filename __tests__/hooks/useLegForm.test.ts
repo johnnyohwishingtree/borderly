@@ -10,7 +10,7 @@ jest.mock('@react-navigation/native', () => ({
 
 // Shared mock data
 const mockDefaultDeclarations = {
-  hasItemsToDeclar: false,
+  hasItemsToDeclare: false,
   carryingCurrency: false,
   carryingProhibitedItems: false,
   visitedFarm: false,

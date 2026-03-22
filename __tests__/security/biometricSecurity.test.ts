@@ -230,7 +230,7 @@ describe('Biometric Security Validation', () => {
         gender: 'M',
         issuingCountry: 'US',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,
@@ -258,7 +258,7 @@ describe('Biometric Security Validation', () => {
         gender: 'M',
         issuingCountry: 'US',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,

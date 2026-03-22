@@ -58,7 +58,7 @@ const mockProfile: TravelerProfile = {
     country: 'USA',
   },
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -621,7 +621,7 @@ describe('useProfileStore', () => {
         phoneNumber: '',
         relationship: 'spouse',
         defaultDeclarations: {
-          hasItemsToDeclar: false,
+          hasItemsToDeclare: false,
           carryingCurrency: false,
           carryingProhibitedItems: false,
           visitedFarm: false,

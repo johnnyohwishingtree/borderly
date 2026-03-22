@@ -30,7 +30,7 @@ const mockProfile: TravelerProfile = {
   },
   occupation: 'Software Engineer',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: true,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -95,7 +95,7 @@ describe('FieldMapper', () => {
       });
 
       it('should resolve declaration defaults', () => {
-        expect(resolveAutoFillPath('profile.defaultDeclarations.hasItemsToDeclar', mockContext)).toBe(false);
+        expect(resolveAutoFillPath('profile.defaultDeclarations.hasItemsToDeclare', mockContext)).toBe(false);
         expect(resolveAutoFillPath('profile.defaultDeclarations.carryingCurrency', mockContext)).toBe(true);
         expect(resolveAutoFillPath('profile.defaultDeclarations.carryingProhibitedItems', mockContext)).toBe(false);
         expect(resolveAutoFillPath('profile.defaultDeclarations.visitedFarm', mockContext)).toBe(false);
@@ -311,7 +311,7 @@ describe('FieldMapper', () => {
       expect(paths).toContain('profile.homeAddress.line2');
       expect(paths).toContain('profile.homeAddress.city');
       expect(paths).toContain('profile.defaultDeclarations');
-      expect(paths).toContain('profile.defaultDeclarations.hasItemsToDeclar');
+      expect(paths).toContain('profile.defaultDeclarations.hasItemsToDeclare');
       expect(paths).toContain('profile.defaultDeclarations.carryingCurrency');
     });
 

@@ -187,7 +187,7 @@ export function usePassportScan() {
           phoneNumber: profileData.phoneNumber || '',
           relationship: familyMode ? (relationship as 'self' | 'spouse' | 'child' | 'parent' | 'other') : 'self',
           defaultDeclarations: {
-            hasItemsToDeclar: false,
+            hasItemsToDeclare: false,
             carryingCurrency: false,
             carryingProhibitedItems: false,
             visitedFarm: false,
