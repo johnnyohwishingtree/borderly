@@ -56,22 +56,19 @@ export default function FormField({
     const textAutoCapitalize = isEmailField ? 'none' : 'sentences';
 
     // Platform autofill hints: textContentType (iOS) + autoComplete (Android/Web)
-    const textContentType: 'emailAddress' | 'telephoneNumber' | 'none' | undefined =
-      isEmailField
-        ? 'emailAddress'
-        : isPhoneField
-          ? 'telephoneNumber'
-          : isPassportNumberField
-            ? 'none'
-            : undefined;
-    const autoComplete: 'email' | 'tel' | 'off' | undefined =
-      isEmailField
-        ? 'email'
-        : isPhoneField
-          ? 'tel'
-          : isPassportNumberField
-            ? 'off'
-            : undefined;
+    let textContentType: 'emailAddress' | 'telephoneNumber' | 'none' | undefined;
+    let autoComplete: 'email' | 'tel' | 'off' | undefined;
+
+    if (isEmailField) {
+      textContentType = 'emailAddress';
+      autoComplete = 'email';
+    } else if (isPhoneField) {
+      textContentType = 'telephoneNumber';
+      autoComplete = 'tel';
+    } else if (isPassportNumberField) {
+      textContentType = 'none';
+      autoComplete = 'off';
+    }
 
     switch (field.type) {
       case 'text':
