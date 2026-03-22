@@ -17,6 +17,7 @@ export type OnboardingStackParamList = {
   ConfirmProfile: undefined;
   AddCompanions: undefined;
   BiometricSetup: undefined;
+  NotificationPermission: undefined;
 };
 
 export type TripStackParamList = {

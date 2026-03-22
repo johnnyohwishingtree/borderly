@@ -36,6 +36,9 @@ const notifee = {
   requestPermission: () =>
     Promise.resolve({ authorizationStatus: AuthorizationStatus.AUTHORIZED }),
 
+  getNotificationSettings: () =>
+    Promise.resolve({ authorizationStatus: AuthorizationStatus.NOT_DETERMINED }),
+
   createChannel: (_channel: Record<string, unknown>): Promise<string> =>
     Promise.resolve('default-channel'),
 
