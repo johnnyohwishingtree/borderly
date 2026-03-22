@@ -1,35 +1,24 @@
-// Mock for @/services/backup — replaces the backup service layer for web E2E.
-// The real implementation uses native crypto APIs and WatermelonDB, which cannot
-// run in the Playwright browser environment.
+/**
+ * Web / E2E mock for src/services/backup.
+ *
+ * The real BackupService imports WatermelonDB models directly, which causes a
+ * Babel compilation error in the webpack E2E build (definite-assignment fields
+ * combined with legacy decorators).  This mock provides the same API surface
+ * with no-op implementations so the UI can be exercised in Playwright tests.
+ */
 
 const backupService = {
-  export: (passphrase) => {
-    if (!passphrase || passphrase.length < 8) {
-      return Promise.reject(new Error('Passphrase must be at least 8 characters.'));
-    }
-    // Return a mock .borderly file content for E2E testing
-    return Promise.resolve('BORDERLY_BACKUP_V1\nMOCK_ENCRYPTED_CONTENT==');
+  export: function() {
+    return Promise.reject(new Error('backupService.export is not available in web preview'));
   },
-  import: (fileContent, passphrase) => {
-    if (!fileContent || !fileContent.startsWith('BORDERLY_BACKUP_V1')) {
-      return Promise.reject(new Error('Invalid backup file'));
-    }
-    return Promise.resolve({
-      version: 1,
-      createdAt: new Date().toISOString(),
-      payload: {
-        profiles: [],
-        familyCollection: null,
-        trips: [],
-        qrCodes: [],
-        preferences: {},
-      },
-    });
+  import: function() {
+    return Promise.reject(new Error('backupService.import is not available in web preview'));
   },
 };
 
 module.exports = {
   backupService,
+  // Re-export constants so imports don't crash
   BACKUP_FILE_HEADER: 'BORDERLY_BACKUP_V1',
   BACKUP_CURRENT_VERSION: 1,
 };

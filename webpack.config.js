@@ -46,7 +46,6 @@ module.exports = (env, argv) => {
       // react-native-css-interop is NOT mocked — it's pure JS and needed for NativeWind v4 web styles
       'react-native-svg': path.resolve(__dirname, 'e2e/mocks/react-native-svg.js'),
       'lucide-react-native': path.resolve(__dirname, 'e2e/mocks/lucide-react-native.js'),
-      '@notifee/react-native': path.resolve(__dirname, 'e2e/mocks/notifee.ts'),
       'react-native-get-random-values': path.resolve(__dirname, 'e2e/mocks/random-values.js'),
       '@nozbe/watermelondb/decorators': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
       '@nozbe/watermelondb/adapters/sqlite': path.resolve(__dirname, 'e2e/mocks/watermelondb.js'),
@@ -124,7 +123,8 @@ module.exports = (env, argv) => {
       /src\/services\/storage\/index\.ts$/,
       path.resolve(__dirname, 'e2e/mocks/storage.js')
     ),
-    // Replace the backup service barrel to avoid native crypto / WatermelonDB imports
+    // Replace the backup barrel export to avoid WatermelonDB model imports in web builds
+    // (backupService.ts imports database.ts which imports models.ts with decorator syntax)
     new webpack.NormalModuleReplacementPlugin(
       /src\/services\/backup\/index\.ts$/,
       path.resolve(__dirname, 'e2e/mocks/backup.js')
