@@ -464,3 +464,118 @@ describe('setNotificationProvider / getNotificationProvider', () => {
     expect(getNotificationProvider()).toBe(provider);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Integration: scheduleDeadlineNotifications with real PushNotificationProvider
+// ---------------------------------------------------------------------------
+
+import notifee, { AuthorizationStatus } from '@notifee/react-native';
+import { PushNotificationProvider } from '../../src/services/deadline/pushNotificationProvider';
+
+describe('Integration: notificationScheduler with PushNotificationProvider', () => {
+  let pushProvider: PushNotificationProvider;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    Object.keys(mockStore).forEach(k => delete mockStore[k]);
+    pushProvider = new PushNotificationProvider();
+    setNotificationProvider(pushProvider);
+  });
+
+  it('schedules notifications via notifee.createTriggerNotification when permission granted', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.AUTHORIZED,
+    });
+
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(10 * 24); // 10 days out — all 3 triggers future
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    // All 3 triggers should have been sent to notifee
+    expect(notifee.createTriggerNotification).toHaveBeenCalledTimes(3);
+  });
+
+  it('does not call notifee.createTriggerNotification when permission denied', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.DENIED,
+    });
+
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(10 * 24);
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    expect(notifee.createTriggerNotification).not.toHaveBeenCalled();
+  });
+
+  it('creates the Android notification channel on first schedule', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.AUTHORIZED,
+    });
+
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(10 * 24);
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    expect(notifee.createChannel).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'deadline-reminders' }),
+    );
+  });
+
+  it('persists scheduled notification IDs in MMKV after real provider scheduling', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.AUTHORIZED,
+    });
+
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(10 * 24);
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    const raw = mockStore[legKey('leg-1')];
+    expect(raw).toBeDefined();
+    const ids: string[] = JSON.parse(raw);
+    expect(ids).toHaveLength(3);
+  });
+
+  it('cancels notifications via notifee.cancelTriggerNotification', async () => {
+    // Seed MMKV with IDs
+    const ids = ['id-a', 'id-b'];
+    mockStore[legKey('leg-1')] = JSON.stringify(ids);
+
+    await cancelLegNotifications('leg-1');
+
+    expect(notifee.cancelTriggerNotification).toHaveBeenCalledTimes(2);
+    expect(notifee.cancelTriggerNotification).toHaveBeenCalledWith('id-a');
+    expect(notifee.cancelTriggerNotification).toHaveBeenCalledWith('id-b');
+  });
+
+  it('skips past-date triggers — only future triggers reach notifee', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.AUTHORIZED,
+    });
+
+    // Deadline is 30h away: 7d and 48h triggers are past, only 24h is future
+    const trip = makeTrip();
+    const deadline = makeFutureDeadline(30);
+
+    await scheduleDeadlineNotifications(trip, [deadline]);
+
+    expect(notifee.createTriggerNotification).toHaveBeenCalledTimes(1);
+    const [notification] = (notifee.createTriggerNotification as jest.Mock).mock.calls[0];
+    expect(notification.body).toContain('24 hours');
+  });
+
+  it('requestNotificationPermission delegates to PushNotificationProvider', async () => {
+    (notifee.requestPermission as jest.Mock).mockResolvedValue({
+      authorizationStatus: AuthorizationStatus.AUTHORIZED,
+    });
+
+    const result = await requestNotificationPermission();
+
+    expect(result).toBe(true);
+    expect(notifee.requestPermission).toHaveBeenCalledTimes(1);
+  });
+});
