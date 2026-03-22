@@ -14,13 +14,14 @@ import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer, DatePickerField } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripReadiness } from '@/hooks/useTripReadiness';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import { ALL_AIRPORTS } from '@/constants/airports';
 import {
   computeTripDeadlines,
   LegDeadline,
@@ -753,11 +754,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
         </View>
         <View>
           <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Airport</Text>
-          <Input
+          <SearchableSelect
             value={legData.arrivalAirport}
-            onChangeText={text => onUpdateField('arrivalAirport', text)}
-            placeholder="e.g., NRT"
-            autoCapitalize="characters"
+            onValueChange={val => onUpdateField('arrivalAirport', val)}
+            options={ALL_AIRPORTS}
+            placeholder="Search airport..."
             testID={`${testIDPrefix}-arrival-airport`}
           />
         </View>
