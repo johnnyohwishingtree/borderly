@@ -7,7 +7,8 @@ name: Auto Merge
 #   3. PR has at least one approval
 #   4. No unresolved review threads
 #   5. No active review-fix runs
-#   6. Branch up to date with master
+#   6. No code review in progress (no "Code Review in Progress" comment)
+#   7. Branch up to date with master
 
 on:
   # Re-evaluate when CI completes

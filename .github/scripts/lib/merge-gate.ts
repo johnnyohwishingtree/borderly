@@ -52,7 +52,22 @@ export async function evaluateMergeGate(
   const unresolvedThreads = await github.countUnresolvedThreads(prNumber);
   const threadsResolved = unresolvedThreads === 0;
 
-  // Condition 5: No active review-fix runs
+  // Condition 6: No code review currently in progress
+  // Claude posts a "Code Review in Progress" checklist when starting a review.
+  // Wait until the review completes before merging.
+  let noReviewInProgress = true;
+  try {
+    const comments = await github.getIssueComments(prNumber);
+    noReviewInProgress = !comments.some(
+      (c: { body: string }) =>
+        c.body.includes('Code Review in Progress')
+    );
+  } catch {
+    // If we can't check comments, don't block the merge
+    noReviewInProgress = true;
+  }
+
+  // Condition 7: No active review-fix runs
   let noActiveReviewFix = false;
   try {
     noActiveReviewFix = !(await github.isWorkflowActive(
@@ -76,6 +91,7 @@ export async function evaluateMergeGate(
     approved,
     threadsResolved,
     noActiveReviewFix,
+    noReviewInProgress,
     branchUpToDate,
   };
 
