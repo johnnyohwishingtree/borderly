@@ -92,8 +92,9 @@ test.describe('Backup Restore – Welcome screen', () => {
     // Welcome screen should load
     await expect(page.getByText('Welcome to')).toBeVisible();
 
-    // Restore link should be visible
+    // Restore link should exist (may need scroll on mobile viewports)
     const restoreLink = page.getByTestId('restore-backup-link');
+    await restoreLink.scrollIntoViewIfNeeded();
     await expect(restoreLink).toBeVisible();
 
     // Link text should mention "backup"
@@ -105,9 +106,9 @@ test.describe('Backup Restore – Welcome screen', () => {
 
     await expect(page.getByText('Welcome to')).toBeVisible();
 
-    // Tap the restore link
+    // Scroll to the restore link (may be below the fold on mobile viewports)
     const restoreLink = page.getByTestId('restore-backup-link');
-    await restoreLink.waitFor({ timeout: 5000 });
+    await restoreLink.scrollIntoViewIfNeeded();
     await restoreLink.click();
 
     // Should navigate to the restore screen
@@ -201,9 +202,9 @@ test.describe('Backup Restore – RestoreBackupModal', () => {
   test('restore modal renders idle step with pick file button', async ({ page }) => {
     await page.goto('/');
 
-    // Navigate via the welcome restore link
+    // Navigate via the welcome restore link (scroll — may be below fold)
     const restoreLink = page.getByTestId('restore-backup-link');
-    await restoreLink.waitFor({ timeout: 5000 });
+    await restoreLink.scrollIntoViewIfNeeded();
     await restoreLink.click();
 
     // Modal header
