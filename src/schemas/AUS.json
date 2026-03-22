@@ -146,7 +146,7 @@
           "label": "Country of Issue (Passport)",
           "type": "searchable_select",
           "required": true,
-          "autoFillSource": "profile.nationality",
+          "autoFillSource": "profile.issuingCountry",
           "countrySpecific": false,
           "optionsSource": "countries",
           "helpText": "The country that issued your passport"
