@@ -13,7 +13,7 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector } from '@/components/trips';
 import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
@@ -515,6 +515,8 @@ export default function TripDetailScreen() {
                 onUpdateField={editHook.updateEditLegField}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
+                travelers={editHook.familyMembers}
+                onToggleTraveler={editHook.handleEditLegTravelerToggle}
               />
             ) : (
               /* ── Edit trip name + list of legs ── */
@@ -637,6 +639,8 @@ export default function TripDetailScreen() {
                 onUpdateField={editHook.updateNewLegField}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
+                travelers={editHook.familyMembers}
+                onToggleTraveler={editHook.handleNewLegTravelerToggle}
               />
             )}
           </ScrollView>
@@ -663,13 +667,16 @@ interface LegFormSectionProps {
       address: { line1: string; city: string; postalCode: string; country: string };
       phone: string;
     };
+    assignedTravelers?: string[];
   };
   onUpdateField: (field: string, value: string) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
+  travelers?: FamilyMember[];
+  onToggleTraveler?: (travelerId: string) => void;
 }
 
-function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -763,6 +770,19 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
           />
         </View>
       </View>
+
+      {/* Travelers */}
+      {travelers && travelers.length > 0 && onToggleTraveler && (
+        <TravelerSelector
+          travelers={travelers}
+          selectedTravelerIds={legData.assignedTravelers ?? []}
+          onToggleTraveler={onToggleTraveler}
+          title="Who is traveling to this destination?"
+          subtitle="Select which family members will visit this country."
+          showCompact={true}
+          minSelection={1}
+        />
+      )}
 
       {/* Accommodation */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
