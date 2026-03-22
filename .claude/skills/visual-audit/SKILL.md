@@ -17,9 +17,9 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ## Steps
 
-### Step 1: Load Manifest
+### Step 1: Load Screenshots
 
-1. **Read `e2e/screenshots/manifest.json`** — it describes each screen's purpose, state, domain, and colocated screenshot path.
+1. **Find per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json`. Each describes that screen's variants with description and state metadata. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
 
 2. **If no screenshots exist**, run the capture:
 ```bash
@@ -30,7 +30,7 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 
 ### Step 2: Batched Visual Critique
 
-Process screenshots **one domain at a time** to stay within context limits. Use the manifest's `screenshotPath` field to locate each screenshot (colocated at `src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png`).
+Process screenshots **one domain at a time** to stay within context limits. Screenshots are colocated at `src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png`.
 
 The domains are:
 - **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, AddCompanions, BiometricSetup
@@ -90,8 +90,8 @@ Rate each finding with severity:
 - **Minor**: Polish issue, good to fix
 
 Output a structured report with:
-- Screenshot reference (screenshotPath from manifest)
-- Screen name (from manifest)
+- Screenshot reference (path to `__screenshots__/<variant>.png`)
+- Screen name
 - Issue description
 - Severity
 - Specific fix suggestion (NativeWind classes, component changes, layout adjustments)

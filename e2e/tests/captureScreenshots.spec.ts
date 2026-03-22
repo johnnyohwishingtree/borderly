@@ -23,7 +23,6 @@ import CAN from '../../src/schemas/CAN.json';
  */
 
 const SRC_SCREENS_DIR = path.resolve(__dirname, '../../src/screens');
-const MANIFEST_DIR = path.resolve(__dirname, '../screenshots');
 
 // Screen name → domain mapping, built by scanning the folder structure
 const SCREEN_DOMAINS: Record<string, string> = {};
@@ -36,16 +35,12 @@ for (const domain of fs.readdirSync(SRC_SCREENS_DIR, { withFileTypes: true })) {
   }
 }
 
-// Manifest of all captured screenshots, written at the end
-const manifest: Array<{
-  id: string;
-  file: string;
-  screenshotPath: string;
+// Per-screen manifest tracking — keyed by screenshotsDir path
+const screenManifests: Map<string, {
   screen: string;
   domain: string;
-  description: string;
-  state: string;
-}> = [];
+  variants: Array<{ file: string; description: string; state: string }>;
+}> = new Map();
 
 async function screenshot(page: Page, variant: string, meta: {
   screen: string;
@@ -62,8 +57,13 @@ async function screenshot(page: Page, variant: string, meta: {
   const screenshotPath = path.join(screenshotsDir, file);
   await page.screenshot({ path: screenshotPath, fullPage: true });
 
-  const relPath = path.relative(path.resolve(__dirname, '../..'), screenshotPath);
-  manifest.push({ id: `${screenFolder}/${variant}`, file, screenshotPath: relPath, ...meta });
+  // Accumulate variant into this screen's manifest
+  let entry = screenManifests.get(screenshotsDir);
+  if (!entry) {
+    entry = { screen: screenFolder, domain, variants: [] };
+    screenManifests.set(screenshotsDir, entry);
+  }
+  entry.variants.push({ file, description: meta.description, state: meta.state });
 }
 
 // ── State injection helpers ──
@@ -991,24 +991,22 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   }
 
   // ═══════════════════════════════════════════
-  // WRITE MANIFEST
+  // WRITE PER-SCREEN MANIFESTS
   // ═══════════════════════════════════════════
 
-  test('99 - Write manifest', async () => {
-    // Sort manifest by ID
-    manifest.sort((a, b) => a.id.localeCompare(b.id));
-
-    const manifestContent = {
-      capturedAt: new Date().toISOString(),
-      screenshotDir: 'src/screens/**/__screenshots__/',
-      totalScreens: manifest.length,
-      screens: manifest,
-    };
-
-    fs.mkdirSync(MANIFEST_DIR, { recursive: true });
-    fs.writeFileSync(
-      path.join(MANIFEST_DIR, 'manifest.json'),
-      JSON.stringify(manifestContent, null, 2),
-    );
+  test('99 - Write per-screen manifests', async () => {
+    const capturedAt = new Date().toISOString();
+    for (const [dir, entry] of screenManifests) {
+      const content = {
+        screen: entry.screen,
+        domain: entry.domain,
+        capturedAt,
+        variants: entry.variants,
+      };
+      fs.writeFileSync(
+        path.join(dir, 'manifest.json'),
+        JSON.stringify(content, null, 2) + '\n',
+      );
+    }
   });
 });

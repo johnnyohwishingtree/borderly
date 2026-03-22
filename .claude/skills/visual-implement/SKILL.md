@@ -23,7 +23,7 @@ Takes findings from a `/visual-audit` report and implements the fixes in code. A
 
 ### Step 2: Read Before Screenshots
 
-Before making changes, read the current screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/` for the screens being modified. Use the manifest at `e2e/screenshots/manifest.json` to find exact paths. This establishes the "before" state.
+Before making changes, read the current screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/` for the screens being modified. Read the per-screen `manifest.json` in each `__screenshots__/` folder for variant descriptions. This establishes the "before" state.
 
 ### Step 3: Implement Fixes
 
@@ -89,9 +89,9 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
    - Which audit findings were addressed
    - Any remaining issues that need design decisions
 
-### Step 7: Update Manifest
+### Step 7: Verify Manifests
 
-The screenshot capture test automatically updates `e2e/screenshots/manifest.json`. Verify the manifest reflects the current state.
+The screenshot capture test automatically writes per-screen `manifest.json` files in each `__screenshots__/` folder. Verify they reflect the current state.
 
 ## What NOT to Do
 

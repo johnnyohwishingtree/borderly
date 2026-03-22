@@ -11,8 +11,8 @@ Captures screenshots of every screen in the app via Playwright and generates a m
 
 1. Runs the Playwright screenshot capture test against React Native Web
 2. Saves screenshots to colocated `__screenshots__/` folders next to each screen's source code
-3. Generates `e2e/screenshots/manifest.json` with metadata for each screen
-4. The manifest describes each screen's purpose, domain, and current state
+3. Generates a per-screen `manifest.json` inside each `__screenshots__/` folder
+4. Each manifest describes the screen's variants, descriptions, and captured states
 
 ## Screenshot Location
 
@@ -69,7 +69,7 @@ The flow graph is consumed by `/ux-review` to reason about navigation paths and 
 | support | Help, Feedback, BugReport | 3 |
 | help | FAQ, Troubleshooting | 2 |
 
-**Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screenshotPath, screen name, domain, description, state).
+**Per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json` — each describes that screen's variants with description and state metadata.
 
 **Flow graph** at `e2e/screenshots/flow-graph.json` — static analysis of navigation structure (stacks, tabs, edges, screen files).
 
