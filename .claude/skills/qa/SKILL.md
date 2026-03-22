@@ -10,8 +10,10 @@ Walk through the application's functionality like a real user would. Document ev
 ## Steps
 
 1. **Read CLAUDE.md** to understand the application
-2. **List all user-facing features** and create a test plan
-3. **Walk through each feature**, checking:
+2. **Read `maestro/generator/screenRegistry.ts`** for per-screen metadata: fields (with required/optional status), alerts, action buttons, and navigation targets. This tells you what each screen should contain and what interactions are possible.
+3. **Read `maestro/generator/componentCatalog.ts`** for component interaction patterns: how each component type works (modal vs inline, keyboard behavior, sub-testIDs).
+4. **List all user-facing features** and create a test plan
+5. **Walk through each feature**, checking:
    - Does it work as expected?
    - Are error states handled?
    - Is the UI/output consistent?
