@@ -25,6 +25,24 @@ Plan and implement a new feature for this project.
 - Keep changes focused — don't refactor unrelated code
 - Commit and push frequently (every 2-3 file changes)
 
+## Domain-Specific Checklists
+
+### Adding a New Country
+
+When adding a country to `SUPPORTED_COUNTRIES`, complete ALL of these:
+
+1. **Schema**: Create `src/schemas/<ISO>.json` and register in `schemaRegistry.ts`
+2. **Flag**: Add a `case '<ISO>':` in `src/components/trips/CountryFlag.tsx`'s `renderFlag()` switch — the `country-completeness` structural test enforces this
+3. **Schema tests**: Add `__tests__/schemas/<ISO>.test.ts`
+4. **Portal integration** (if applicable): Add portal config in `src/services/portal/portalIntegration.ts`
+
+### Adding a New Family Relationship
+
+When adding a relationship to `FamilyRelationship`:
+
+1. **Icon**: Add a mapping in `RELATIONSHIP_ICON` in `src/components/profile/FamilyMemberCard.tsx`
+2. **Display label**: Add a case in `getRelationshipDisplay()` in the same file
+
 ## After Implementation
 
 - Run the full test suite to verify nothing is broken
