@@ -133,6 +133,85 @@ async function goToTripDetail(page: Page, tripName: string) {
 // Tests
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Notification permission screen reachability from onboarding
+// ---------------------------------------------------------------------------
+
+test.describe('Deadline Reminders — Notification Permission Screen', () => {
+  test('notification permission screen is reachable from onboarding flow', async ({ page }) => {
+    // Start from a clean state (no injected profile) so onboarding shows
+    await page.goto('/');
+
+    // Welcome screen → skip tutorial
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
+
+    // Enter passport details manually
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
+    await page.getByTestId('passport-number-input').fill('X98765432');
+    await page.getByTestId('surname-input').fill('TANAKA');
+    await page.getByTestId('given-names-input').fill('YUKI');
+    await page.getByTestId('nationality-input-trigger').click();
+    await page.getByTestId('nationality-input-search').fill('Japan');
+    await page.getByTestId('nationality-input-option-JPN').click();
+    await page.getByTestId('dob-input').fill('1990-04-22');
+    await page.getByTestId('gender-Female-button').click();
+    await page.getByTestId('passport-expiry-input').fill('2033-04-21');
+    await page.getByTestId('issuing-country-input-trigger').click();
+    await page.getByTestId('issuing-country-input-search').fill('Japan');
+    await page.getByTestId('issuing-country-input-option-JPN').click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    // ConfirmProfile → AddCompanions → BiometricSetup
+    await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('continue-to-security-button').click();
+    await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('companions-continue-button').click();
+    await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
+
+    // Skip biometric → Notification Permission screen
+    await page.getByRole('button', { name: 'Skip for Now' }).click();
+
+    // Verify notification permission screen with deadline-reminder content
+    await expect(page.getByText('Stay on Top of Deadlines')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('allow-notifications-button')).toBeVisible();
+    await expect(page.getByTestId('skip-notifications-button')).toBeVisible();
+  });
+
+  test('notification permission screen: Allow Notifications button is present and enabled', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Skip tutorial' }).click();
+    await page.getByRole('button', { name: 'Or enter manually' }).click();
+    await page.getByTestId('passport-number-input').fill('X98765432');
+    await page.getByTestId('surname-input').fill('TANAKA');
+    await page.getByTestId('given-names-input').fill('YUKI');
+    await page.getByTestId('nationality-input-trigger').click();
+    await page.getByTestId('nationality-input-search').fill('Japan');
+    await page.getByTestId('nationality-input-option-JPN').click();
+    await page.getByTestId('dob-input').fill('1990-04-22');
+    await page.getByTestId('gender-Female-button').click();
+    await page.getByTestId('passport-expiry-input').fill('2033-04-21');
+    await page.getByTestId('issuing-country-input-trigger').click();
+    await page.getByTestId('issuing-country-input-search').fill('Japan');
+    await page.getByTestId('issuing-country-input-option-JPN').click();
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('continue-to-security-button').click();
+    await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
+    await page.getByTestId('companions-continue-button').click();
+    await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: 'Skip for Now' }).click();
+
+    await expect(page.getByText('Stay on Top of Deadlines')).toBeVisible({ timeout: 5000 });
+
+    // The allow button should be visible and enabled
+    const allowButton = page.getByTestId('allow-notifications-button');
+    await expect(allowButton).toBeVisible();
+    await expect(allowButton).toBeEnabled();
+  });
+});
+
 test.describe('Deadline Reminders — TripDetailScreen', () => {
   test('Trip Readiness summary is visible for a trip with a future departure', async ({ page }) => {
     await injectState(page, deadlineReminderTrip());
