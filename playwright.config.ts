@@ -120,6 +120,7 @@ const allProjects = [
       'vietnamSubmission.spec.ts',
       'vnm-leg.spec.ts',
       'can-gbr-usa-leg.spec.ts',
+      'aus-nzl-kor-leg.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
