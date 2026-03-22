@@ -50,8 +50,9 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await injectState(page, READY_LEG_STATE);
     await page.goto('/');
 
-    // Wait for app to be ready, then navigate directly to SubmissionGuideScreen
-    await page.waitForFunction(() => (window as any).__navigationRef?.isReady(), { timeout: 15000 });
+    // Wait for TripListScreen to load — this ensures loadTrips() has run and
+    // the trip store is populated before we navigate to SubmissionGuide.
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 15000 });
 
     await navigateImperatively(page, 'SubmissionGuide', {
       tripId: 'e2e-trip-jpn',
@@ -91,7 +92,9 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await injectState(page, READY_LEG_STATE);
     await page.goto('/');
 
-    await page.waitForFunction(() => (window as any).__navigationRef?.isReady(), { timeout: 15000 });
+    // Wait for TripListScreen to load — this ensures loadTrips() has run and
+    // the trip store is populated before we navigate to SubmissionGuide.
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 15000 });
 
     await navigateImperatively(page, 'SubmissionGuide', {
       tripId: 'e2e-trip-jpn',
