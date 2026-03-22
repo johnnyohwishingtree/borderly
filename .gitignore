@@ -85,6 +85,7 @@ playwright-report/
 .metro-health-check*
 
 # Generated
+maestro/generator/screen-metadata.json
 *.tmp
 *.bak
 *.log
