@@ -102,15 +102,19 @@ If screens were added or modified:
 pnpm e2e          # E2E tests must pass
 ```
 
-### Step 5: Re-Capture Screenshots (if screens changed)
+### Step 5: Re-Capture Screenshots (if screens/components changed)
 
 If new screens were added or existing screens were significantly modified:
 
 ```bash
+# Screen screenshots (serial)
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
+
+# Component screenshots (parallel) — only if components were modified
+E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=screenshot-capture
 ```
 
-Per-screen manifests at `__screenshots__/manifest.json` are auto-updated by the capture test.
+Per-screen and per-component manifests at `__screenshots__/manifest.json` are auto-updated by the capture tests. Component screenshots are also captured automatically in CI on every PR.
 
 ### Step 6: Update Architecture Docs
 

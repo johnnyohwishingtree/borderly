@@ -38,6 +38,7 @@ export default function PassportValidityWarning({
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   });
 
   const monthLabel = requiredMonths === 1 ? 'month' : 'months';

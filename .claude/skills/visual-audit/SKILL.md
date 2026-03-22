@@ -9,7 +9,7 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ## Prerequisites
 
-- **Screenshots**: Run `/capture-screens` first, or provide your own screenshots
+- **Screenshots**: Component screenshots are captured automatically in CI on every PR. Screen screenshots may need a manual `/capture-screens` run if they're stale.
   - Captured via Playwright + React Native Web — fast, local, but portal screens show iframe-blocked content
 - **Stitch MCP server** (optional): For AI-generated redesign alternatives. Requires `STITCH_API_KEY` env var.
 - **frontend-design-audit plugin** (optional): For code-level usability scanning
@@ -18,20 +18,24 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ### Step 1: Load Screenshots
 
-1. **Find per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json`. Each describes that screen's variants with description and state metadata. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
+1. **Find screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json`. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
 
-2. **If no screenshots exist**, run the capture:
+2. **Find component manifests** at `src/components/<domain>/<Component>/__screenshots__/manifest.json`. Find all: `find src/components -path "*/__screenshots__/manifest.json"`
+
+3. **If screen screenshots are missing or stale**, run the screen capture:
 ```bash
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
 ```
 
-3. If the user provided specific screenshots or screen names, focus on those instead of the full set.
+Component screenshots are captured automatically in CI — you usually don't need to capture them manually.
+
+4. If the user provided specific screenshots or screen names, focus on those instead of the full set.
 
 ### Step 2: Batched Visual Critique
 
-Process screenshots **one domain at a time** to stay within context limits. Screenshots are colocated at `src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png`.
+Process screenshots **one domain at a time** to stay within context limits.
 
-The domains are:
+**Screen domains** (at `src/screens/<domain>/<ScreenName>/__screenshots__/`):
 - **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, AddCompanions, BiometricSetup
 - **trips** — TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN)
 - **wallet** — QRWallet, AddQR, QRDetail
@@ -39,6 +43,14 @@ The domains are:
 - **settings** — Settings, PrivacyPolicy
 - **support** — Help, Feedback, BugReport
 - **help** — FAQ, Troubleshooting
+
+**Component domains** (at `src/components/<domain>/<Component>/__screenshots__/`):
+- **ui** — Button, Card, StatusBadge, Toggle, Input, Select, ProgressBar, LoadingStates, etc.
+- **trips** — TripCard, CountryFlag, DeadlineBadge, PassportValidityWarning
+- **guide** — StepCard, CopyableField, GuideProgress
+- **forms** — AutoFilledBadge
+- **profile** — DocumentValidityCard, FamilyMemberCard, PassportExpiryBadge
+- **submission** — AutoFillBanner
 
 For each domain batch:
 1. **Read all screenshots** in that domain using the Read tool (it supports image files)
@@ -81,6 +93,12 @@ Do NOT load all screenshots at once — this exhausts the context window.
 - Empty states have helpful messaging (not blank screens)
 - Error states show recovery actions
 
+**Component Consistency** (when reviewing component screenshots)
+- Variants are visually consistent (same component, different states look related)
+- Status colors match across components (success green, error red, warning amber)
+- Disabled states are clearly distinguishable from active states
+- Loading states provide visual feedback
+
 ### Step 3: Rate & Report
 
 Rate each finding with severity:
@@ -90,7 +108,7 @@ Rate each finding with severity:
 
 Output a structured report with:
 - Screenshot reference (path to `__screenshots__/<variant>.png`)
-- Screen name
+- Screen or component name
 - Issue description
 - Severity
 - Specific fix suggestion (NativeWind classes, component changes, layout adjustments)
@@ -116,8 +134,8 @@ If Stitch is NOT connected, include specific NativeWind fix suggestions in the r
 
 ## Running This Skill
 
-1. **Full audit** (recommended): `/capture-screens` first, then `/visual-audit`
-2. **With existing screenshots**: `/visual-audit` — reads manifest and colocated `__screenshots__/` folders
+1. **Full audit** (recommended): `/visual-audit` — reads existing screen + component screenshots
+2. **Fresh screenshots first**: `/capture-screens` then `/visual-audit` — if screenshots are stale
 3. **Specific screens**: `/visual-audit` then say "audit the Settings and Profile screens"
 4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
 
