@@ -1,7 +1,7 @@
 /**
- * Accessibility tests for RestoreBackupModal.
+ * Accessibility tests for RestoreBackupModal (now a full-screen component).
  *
- * Verifies that the modal and its interactive elements expose correct
+ * Verifies that the screen and its interactive elements expose correct
  * accessibility roles and labels to screen readers (VoiceOver / TalkBack).
  *
  * The useBackupRestore hook is mocked so tests run without native storage.
@@ -11,20 +11,35 @@ import { render, screen } from '@testing-library/react-native';
 import RestoreBackupModal from '../../../src/screens/settings/RestoreBackupModal';
 
 // ---------------------------------------------------------------------------
-// Default mock — isLoading=false, no error, not yet successful
+// Navigation + store mocks
+// ---------------------------------------------------------------------------
+
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({ goBack: jest.fn() }),
+}));
+
+jest.mock('../../../src/stores/useProfileStore', () => ({
+  useProfileStore: () => ({
+    loadFamilyProfiles: jest.fn(),
+    setOnboardingComplete: jest.fn(),
+  }),
+}));
+
+// ---------------------------------------------------------------------------
+// Default mock — step='idle', no error
 // ---------------------------------------------------------------------------
 
 jest.mock('../../../src/hooks/useBackupRestore', () => ({
   useBackupRestore: jest.fn(() => ({
-    fileContent: '',
+    step: 'idle',
     passphrase: '',
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-    envelope: null,
-    setFileContent: jest.fn(),
+    errorMessage: null,
+    secureTextEntry: true,
+    pickFile: jest.fn(),
     setPassphrase: jest.fn(),
-    handleRestore: jest.fn(),
+    toggleSecureEntry: jest.fn(),
+    submitPassphrase: jest.fn(),
+    confirmReplace: jest.fn(),
     reset: jest.fn(),
   })),
 }));
@@ -33,243 +48,209 @@ const { useBackupRestore } = require('../../../src/hooks/useBackupRestore') as {
   useBackupRestore: jest.Mock;
 };
 
-function defaultMockState() {
+function mockStep(step: string, overrides: Record<string, unknown> = {}) {
   useBackupRestore.mockReturnValue({
-    fileContent: '',
+    step,
     passphrase: '',
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-    envelope: null,
-    setFileContent: jest.fn(),
+    errorMessage: null,
+    secureTextEntry: true,
+    pickFile: jest.fn(),
     setPassphrase: jest.fn(),
-    handleRestore: jest.fn(),
+    toggleSecureEntry: jest.fn(),
+    submitPassphrase: jest.fn(),
+    confirmReplace: jest.fn(),
     reset: jest.fn(),
+    ...overrides,
   });
 }
 
 beforeEach(() => {
-  defaultMockState();
+  mockStep('idle');
 });
 
 // ---------------------------------------------------------------------------
-// Modal renders
+// Screen renders
 // ---------------------------------------------------------------------------
 
 describe('RestoreBackupModal — renders', () => {
-  it('renders the modal scroll view when visible', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.getByTestId('restore-backup-modal')).toBeTruthy();
+  it('renders the screen scroll view', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.getByTestId('restore-backup-screen')).toBeTruthy();
   });
 
-  it('has accessibilityViewIsModal on the Modal element', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const modal = screen.UNSAFE_getByType(require('react-native').Modal);
-    expect(modal.props.accessibilityViewIsModal).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
-
-describe('RestoreBackupModal — heading', () => {
-  it('renders "Restore Backup" heading with accessibilityRole="header"', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const heading = screen.getByTestId('restore-backup-heading');
+  it('renders the "Restore from Backup" heading with accessibilityRole="header"', () => {
+    render(<RestoreBackupModal />);
+    const heading = screen.getAllByText('Restore from Backup')[0];
     expect(heading.props.accessibilityRole).toBe('header');
   });
 });
 
 // ---------------------------------------------------------------------------
-// Close / Cancel buttons
+// Idle step — pick file button
 // ---------------------------------------------------------------------------
 
-describe('RestoreBackupModal — close button', () => {
-  it('has accessibilityRole="button"', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const btn = screen.getByTestId('restore-backup-close-button');
+describe('RestoreBackupModal — idle step', () => {
+  it('shows pick-file-button in idle step', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.getByTestId('pick-file-button')).toBeTruthy();
+  });
+
+  it('pick-file-button has accessibilityRole="button"', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('pick-file-button');
     expect(btn.props.accessibilityRole).toBe('button');
   });
 
-  it('has accessibilityLabel="Close restore modal"', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const btn = screen.getByTestId('restore-backup-close-button');
-    expect(btn.props.accessibilityLabel).toBe('Close restore modal');
-  });
-
-  it('bottom Cancel button has accessibilityLabel="Cancel and close restore modal"', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const btn = screen.getByTestId('restore-backup-cancel-button');
-    expect(btn.props.accessibilityLabel).toBe('Cancel and close restore modal');
+  it('pick-file-button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('pick-file-button');
+    expect(btn.props.accessibilityLabel).toBe('Pick a backup file from your device');
   });
 });
 
 // ---------------------------------------------------------------------------
-// File content input
+// Passphrase step
 // ---------------------------------------------------------------------------
 
-describe('RestoreBackupModal — file content input', () => {
-  it('file content input has correct accessibilityLabel', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('restore-file-content-input');
-    expect(input.props.accessibilityLabel).toBe(
-      'Backup file content, required. Paste your .borderly file contents here',
-    );
+describe('RestoreBackupModal — passphrase step', () => {
+  beforeEach(() => {
+    mockStep('passphrase', { passphrase: '' });
   });
 
-  it('file content input is accessible', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('restore-file-content-input');
-    expect(input.props.accessible).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Passphrase input
-// ---------------------------------------------------------------------------
-
-describe('RestoreBackupModal — passphrase input', () => {
   it('passphrase input has correct accessibilityLabel', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('restore-passphrase-input');
+    render(<RestoreBackupModal />);
+    const input = screen.getByTestId('passphrase-input');
     expect(input.props.accessibilityLabel).toBe('Backup passphrase, required');
   });
 
-  it('passphrase input has secureTextEntry', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('restore-passphrase-input');
+  it('passphrase input has secureTextEntry by default', () => {
+    render(<RestoreBackupModal />);
+    const input = screen.getByTestId('passphrase-input');
     expect(input.props.secureTextEntry).toBe(true);
   });
-});
 
-// ---------------------------------------------------------------------------
-// Restore submit button
-// ---------------------------------------------------------------------------
-
-describe('RestoreBackupModal — restore button', () => {
-  it('has accessibilityLabel="Restore backup from file"', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const btn = screen.getByTestId('restore-backup-submit-button');
-    expect(btn.props.accessibilityLabel).toBe('Restore backup from file');
+  it('submit button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('submit-passphrase-button');
+    expect(btn.props.accessibilityLabel).toBe('Decrypt and restore backup');
   });
 
-  it('has accessibilityHint describing the action', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const btn = screen.getByTestId('restore-backup-submit-button');
-    expect(btn.props.accessibilityHint).toBe(
-      'Decrypts your backup file and restores all data',
-    );
+  it('submit button has accessibilityRole="button"', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('submit-passphrase-button');
+    expect(btn.props.accessibilityRole).toBe('button');
+  });
+
+  it('cancel button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('cancel-passphrase-button');
+    expect(btn.props.accessibilityLabel).toBe('Cancel and go back to file selection');
   });
 });
 
 // ---------------------------------------------------------------------------
-// Error message live region
+// Error step — live region
 // ---------------------------------------------------------------------------
 
-describe('RestoreBackupModal — error live region', () => {
-  it('error message has accessibilityLiveRegion="polite" and accessibilityRole="text"', () => {
-    useBackupRestore.mockReturnValue({
-      fileContent: '',
-      passphrase: '',
-      isLoading: false,
-      error: 'Failed to decrypt backup: incorrect passphrase or corrupted data',
-      isSuccess: false,
-      envelope: null,
-      setFileContent: jest.fn(),
-      setPassphrase: jest.fn(),
-      handleRestore: jest.fn(),
-      reset: jest.fn(),
+describe('RestoreBackupModal — error step', () => {
+  it('error step shows error-message with live region', () => {
+    mockStep('error', {
+      errorMessage: 'Failed to decrypt backup: incorrect passphrase or corrupted data',
     });
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const errorView = screen.getByTestId('restore-error-message');
+    render(<RestoreBackupModal />);
+    const errorView = screen.getByTestId('error-message');
     expect(errorView.props.accessibilityLiveRegion).toBe('polite');
     expect(errorView.props.accessibilityRole).toBe('text');
   });
 
-  it('error is not shown when error is null', () => {
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.queryByTestId('restore-error-message')).toBeNull();
+  it('error-message is not shown in idle step', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.queryByTestId('error-message')).toBeNull();
+  });
+
+  it('try-again-button has correct accessibilityLabel', () => {
+    mockStep('error', { errorMessage: 'Something went wrong' });
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('try-again-button');
+    expect(btn.props.accessibilityLabel).toBe('Try restoring from backup again');
   });
 });
 
 // ---------------------------------------------------------------------------
-// Success state
+// Success step
 // ---------------------------------------------------------------------------
 
-describe('RestoreBackupModal — success state', () => {
-  it('shows success view after successful restore', () => {
-    useBackupRestore.mockReturnValue({
-      fileContent: '',
-      passphrase: '',
-      isLoading: false,
-      error: null,
-      isSuccess: true,
-      envelope: { version: 1, createdAt: '2026-01-01T00:00:00Z', payload: {} as any },
-      setFileContent: jest.fn(),
-      setPassphrase: jest.fn(),
-      handleRestore: jest.fn(),
-      reset: jest.fn(),
-    });
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.getByTestId('restore-success-view')).toBeTruthy();
+describe('RestoreBackupModal — success step', () => {
+  beforeEach(() => {
+    mockStep('success');
   });
 
-  it('Done button has correct accessibilityLabel in success state', () => {
-    useBackupRestore.mockReturnValue({
-      fileContent: '',
-      passphrase: '',
-      isLoading: false,
-      error: null,
-      isSuccess: true,
-      envelope: { version: 1, createdAt: '2026-01-01T00:00:00Z', payload: {} as any },
-      setFileContent: jest.fn(),
-      setPassphrase: jest.fn(),
-      handleRestore: jest.fn(),
-      reset: jest.fn(),
-    });
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    const doneBtn = screen.getByTestId('restore-done-button');
-    expect(doneBtn.props.accessibilityLabel).toBe('Finish restore and close modal');
+  it('shows restore-step-success after successful restore', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.getByTestId('restore-step-success')).toBeTruthy();
   });
 
-  it('hides input form in success state', () => {
-    useBackupRestore.mockReturnValue({
-      fileContent: '',
-      passphrase: '',
-      isLoading: false,
-      error: null,
-      isSuccess: true,
-      envelope: { version: 1, createdAt: '2026-01-01T00:00:00Z', payload: {} as any },
-      setFileContent: jest.fn(),
-      setPassphrase: jest.fn(),
-      handleRestore: jest.fn(),
-      reset: jest.fn(),
-    });
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.queryByTestId('restore-backup-submit-button')).toBeNull();
+  it('go-to-home-button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('go-to-home-button');
+    expect(btn.props.accessibilityLabel).toBe('Go to home screen');
+  });
+
+  it('go-to-home-button has accessibilityRole="button"', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('go-to-home-button');
+    expect(btn.props.accessibilityRole).toBe('button');
+  });
+
+  it('hides passphrase step in success state', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.queryByTestId('restore-step-passphrase')).toBeNull();
   });
 });
 
 // ---------------------------------------------------------------------------
-// Loading state
+// Loading step
 // ---------------------------------------------------------------------------
 
-describe('RestoreBackupModal — loading state', () => {
-  it('submit button is not shown when isLoading=true', () => {
-    useBackupRestore.mockReturnValue({
-      fileContent: 'BORDERLY_BACKUP_V1\nAGFiYw==',
-      passphrase: 'passphrase123!',
-      isLoading: true,
-      error: null,
-      isSuccess: false,
-      envelope: null,
-      setFileContent: jest.fn(),
-      setPassphrase: jest.fn(),
-      handleRestore: jest.fn(),
-      reset: jest.fn(),
-    });
-    render(<RestoreBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.queryByTestId('restore-backup-submit-button')).toBeNull();
+describe('RestoreBackupModal — loading step', () => {
+  it('shows restore-step-loading and hides passphrase step', () => {
+    mockStep('loading');
+    render(<RestoreBackupModal />);
+    expect(screen.getByTestId('restore-step-loading')).toBeTruthy();
+    expect(screen.queryByTestId('restore-step-passphrase')).toBeNull();
+  });
+
+  it('loading view has correct accessibilityLiveRegion', () => {
+    mockStep('loading');
+    render(<RestoreBackupModal />);
+    const loadingView = screen.getByTestId('restore-step-loading');
+    expect(loadingView.props.accessibilityLiveRegion).toBe('polite');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Conflict / confirming-replace step
+// ---------------------------------------------------------------------------
+
+describe('RestoreBackupModal — confirming-replace step', () => {
+  beforeEach(() => {
+    mockStep('confirming-replace');
+  });
+
+  it('shows restore-step-conflict', () => {
+    render(<RestoreBackupModal />);
+    expect(screen.getByTestId('restore-step-conflict')).toBeTruthy();
+  });
+
+  it('confirm-replace-button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('confirm-replace-button');
+    expect(btn.props.accessibilityLabel).toBe('Replace all existing data with backup');
+  });
+
+  it('cancel-replace-button has correct accessibilityLabel', () => {
+    render(<RestoreBackupModal />);
+    const btn = screen.getByTestId('cancel-replace-button');
+    expect(btn.props.accessibilityLabel).toBe('Cancel and keep existing data');
   });
 });

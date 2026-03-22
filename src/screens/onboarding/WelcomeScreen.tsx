@@ -1,14 +1,15 @@
-import { ScrollView, View, Text, Dimensions } from 'react-native';
+import { ScrollView, View, Text, Dimensions, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { 
-  Globe, 
-  Plane, 
-  Lock, 
-  Smartphone, 
-  Zap, 
-  ShieldCheck, 
-  HelpCircle 
+import {
+  Globe,
+  Plane,
+  Lock,
+  Smartphone,
+  Zap,
+  ShieldCheck,
+  HelpCircle,
+  UploadCloud,
 } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '../../app/navigation/types';
@@ -157,7 +158,7 @@ export default function WelcomeScreen() {
             className="mb-4"
             testID="take-tutorial-button"
           />
-          
+
           <View className="flex-row items-center justify-center">
             <Button
               title="Skip Tutorial"
@@ -169,6 +170,23 @@ export default function WelcomeScreen() {
             />
             <Icon as={HelpCircle} size={18} color="#9ca3af" className="ml-1" />
           </View>
+
+          {/* Restore from backup link for returning users on fresh installs */}
+          <Pressable
+            onPress={() => navigation.navigate('RestoreBackup')}
+            testID="restore-backup-link"
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Restore from backup"
+            accessibilityHint="If you have a .borderly backup file, tap here to restore your data"
+            className="mt-6 flex-row items-center justify-center py-3"
+          >
+            <Icon as={UploadCloud} size={16} color="#6b7280" />
+            <Text className="text-sm text-gray-500 ml-2">
+              Already have a backup?{' '}
+              <Text className="text-primary-600 font-medium">Restore from backup</Text>
+            </Text>
+          </Pressable>
         </View>
       </View>
     </ScrollView>
