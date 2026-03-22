@@ -2,13 +2,16 @@
  * Onboarding journey definitions.
  *
  * These define the test paths through onboarding.
- * The generator converts them to Maestro YAML.
+ * Screen metadata (waitFor, fields, alerts) is loaded from the screen registry —
+ * the journey builder auto-populates these at generation time.
  */
+import { journey } from '../dsl';
 import {
-  journey, step,
-  tap, fill, select, date, alert,
-  assertVisible, conditional, tapText,
+  assertVisible, conditional, tapText, tap,
 } from '../dsl';
+import {
+  screenStep, tapButton, handleAlert, fillField,
+} from '../journeyBuilder';
 
 /**
  * Shared onboarding steps that are reused across multiple journeys.
@@ -16,21 +19,19 @@ import {
  */
 
 /** Welcome screen — tap tutorial button */
-const welcomeStep = () => step('Welcome', {
+const welcomeStep = () => screenStep('Welcome', {
   comment: 'WELCOME SCREEN',
-  waitFor: 'Borderly',
   actions: [
     assertVisible('Welcome to'),
-    tap('take-tutorial-button'),
+    tapButton('Welcome', 'take-tutorial-button'),
   ],
 });
 
 /** Tutorial screen — skip to passport scan */
-const tutorialSkipStep = () => step('Tutorial', {
+const tutorialSkipStep = () => screenStep('Tutorial', {
   comment: 'TUTORIAL — SKIP',
-  waitFor: 'Step 1 of 3',
   actions: [
-    tap('tutorial-skip-button'),
+    tapButton('Tutorial', 'tutorial-skip-button'),
   ],
 });
 
@@ -40,66 +41,63 @@ const passportManualEntry = (data: {
   nationality: { search: string; code: string };
   gender: 'Male' | 'Female' | 'Other';
   issuingCountry: { search: string; code: string };
-}) => step('PassportScan', {
+}) => screenStep('PassportScan', {
   comment: 'PASSPORT — MANUAL ENTRY',
-  waitFor: 'Passport Information',
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
-    tap('enter-manually-button'),
-    fill('passport-number-input', data.number),
-    fill('surname-input', data.surname),
-    fill('given-names-input', data.givenNames),
-    select('nationality-input', data.nationality.search, data.nationality.code),
-    date('dob-input'),
+    tapButton('PassportScan', 'enter-manually-button'),
+    // Fill fields using registry-driven actions (componentType → DSL action)
+    ...fillField('PassportScan', 'passport-number-input', { text: data.number }),
+    ...fillField('PassportScan', 'surname-input', { text: data.surname }),
+    ...fillField('PassportScan', 'given-names-input', { text: data.givenNames }),
+    ...fillField('PassportScan', 'nationality-input', { search: data.nationality.search, code: data.nationality.code }),
+    ...fillField('PassportScan', 'dob-input'),
+    // Gender uses radio buttons (componentType 'other') — manual action
     tap(`gender-${data.gender}-button`),
-    date('passport-expiry-input'),
-    select('issuing-country-input', data.issuingCountry.search, data.issuingCountry.code),
-    tap('passport-continue-button'),
+    ...fillField('PassportScan', 'passport-expiry-input'),
+    ...fillField('PassportScan', 'issuing-country-input', { search: data.issuingCountry.search, code: data.issuingCountry.code }),
+    tapButton('PassportScan', 'passport-continue-button'),
   ],
 });
 
 /** Passport scan — demo scan (dev mode) */
-const passportDemoScan = () => step('PassportScan', {
+const passportDemoScan = () => screenStep('PassportScan', {
   comment: 'PASSPORT — DEMO SCAN',
-  waitFor: 'Passport Information',
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
-    tap('demo-scan-adult'),
+    tapButton('PassportScan', 'demo-scan-adult'),
     // Preview shows scanned data — confirm it
     assertVisible('SMITH'),
-    tap('confirm-scan-button'),
+    tapButton('PassportScan', 'confirm-scan-button'),
   ],
 });
 
 /** Confirm profile screen */
-const confirmProfileStep = (expectedName: string) => step('ConfirmProfile', {
+const confirmProfileStep = (expectedName: string) => screenStep('ConfirmProfile', {
   comment: 'CONFIRM PROFILE',
-  waitFor: 'Confirm Your Profile',
   waitTimeout: 30000,
   actions: [
     assertVisible(expectedName),
-    tap('continue-to-security-button'),
+    tapButton('ConfirmProfile', 'continue-to-security-button'),
     // Retry if tap didn't register (navigation stack race)
-    conditional('continue-to-security-button', tap('continue-to-security-button')),
+    conditional('continue-to-security-button', tapButton('ConfirmProfile', 'continue-to-security-button')),
   ],
 });
 
 /** Add companions screen — skip (solo traveler) */
-const addCompanionsSkipStep = () => step('AddCompanions', {
+const addCompanionsSkipStep = () => screenStep('AddCompanions', {
   comment: 'ADD COMPANIONS — SKIP',
-  waitFor: 'Traveling with family?',
   actions: [
     tapText('Continue \u2014 just me'),
   ],
 });
 
 /** Biometric setup screen — skip */
-const biometricSkipStep = () => step('BiometricSetup', {
+const biometricSkipStep = () => screenStep('BiometricSetup', {
   comment: 'BIOMETRIC SETUP — SKIP',
-  waitFor: 'Secure Your Profile',
   actions: [
-    tap('skip-biometric-button'),
-    alert('Skip Biometric Setup?', 'Skip'),
+    tapButton('BiometricSetup', 'skip-biometric-button'),
+    handleAlert('BiometricSetup', 'skip-biometric-button'),
   ],
 });
 
@@ -113,13 +111,14 @@ const biometricSkipStep = () => step('BiometricSetup', {
  *
  * We handle all three by trying to skip notifications, then waiting for trips.
  */
-const notificationAndTripListStep = () => step('NotificationPermission', {
+const notificationAndTripListStep = () => screenStep('NotificationPermission', {
   comment: 'NOTIFICATION PERMISSION + TRIP LIST',
+  waitFor: null,  // No waitFor — screen may auto-skip
   actions: [
     // If notification screen appears, skip it
-    conditional('Stay on Top of Deadlines', tap('skip-notifications-button')),
+    conditional('Stay on Top of Deadlines', tapButton('NotificationPermission', 'skip-notifications-button')),
     // If it doesn't appear yet, try the skip button directly (screen may be rendering)
-    conditional('skip-notifications-button', tap('skip-notifications-button')),
+    conditional('skip-notifications-button', tapButton('NotificationPermission', 'skip-notifications-button')),
     // Now wait for the main trip list
     assertVisible('Your Trips'),
     assertVisible('No trips yet'),
