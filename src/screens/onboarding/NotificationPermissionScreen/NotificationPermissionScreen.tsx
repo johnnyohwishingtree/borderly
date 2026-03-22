@@ -46,23 +46,23 @@ export default function NotificationPermissionScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-white"
+      className="flex-1 bg-white dark:bg-gray-900"
       accessibilityLabel="Notification permission screen"
     >
       <View className="px-6 py-10">
         {/* Decorative icon — hidden from screen readers */}
         <View
-          className="w-24 h-24 bg-blue-100 rounded-full items-center justify-center mb-8 self-center"
+          className="w-24 h-24 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mb-8 self-center"
           accessibilityElementsHidden={true}
           importantForAccessibility="no-hide-descendants"
         >
           <Bell size={48} color="#3b82f6" />
         </View>
 
-        <Text className="text-3xl font-bold text-gray-900 mb-3 text-center">
+        <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-3 text-center">
           Stay on Top of Deadlines
         </Text>
-        <Text className="text-base text-gray-600 text-center mb-8">
+        <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-8">
           Get reminded before your travel declarations are due — 7 days, 48 hours,
           and 24 hours in advance so you never miss a submission window.
         </Text>
@@ -77,8 +77,8 @@ export default function NotificationPermissionScreen() {
                 accessibilityElementsHidden={true}
               />
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold">Timely Reminders</Text>
-                <Text className="text-gray-600 text-sm">
+                <Text className="text-gray-900 dark:text-white font-semibold">Timely Reminders</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">
                   Never miss a submission deadline again
                 </Text>
               </View>
@@ -91,8 +91,8 @@ export default function NotificationPermissionScreen() {
                 accessibilityElementsHidden={true}
               />
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold">No Spam</Text>
-                <Text className="text-gray-600 text-sm">
+                <Text className="text-gray-900 dark:text-white font-semibold">No Spam</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">
                   Only deadline-related notifications, nothing else
                 </Text>
               </View>

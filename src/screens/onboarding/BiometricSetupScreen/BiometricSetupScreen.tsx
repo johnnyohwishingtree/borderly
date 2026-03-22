@@ -88,7 +88,7 @@ export default function BiometricSetupScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white">
+    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white dark:bg-gray-900">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={100} className="mb-6" />
@@ -102,10 +102,10 @@ export default function BiometricSetupScreen() {
           >
             <Fingerprint size={48} color="#ffffff" />
           </Animated.View>
-          <Text className="text-3xl font-bold text-gray-900 mb-2 text-center">
+          <Text className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
             Secure Your Profile
           </Text>
-          <Text className="text-base text-gray-600 text-center">
+          <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
             Enable biometric authentication to protect your passport data with an extra layer of security.
           </Text>
         </View>
@@ -125,43 +125,43 @@ export default function BiometricSetupScreen() {
 
           <View className="space-y-4">
             <View className="flex-row items-center">
-              <View className="w-12 h-12 bg-green-100 rounded-lg items-center justify-center mr-4">
+              <View className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg items-center justify-center mr-4">
                 <Zap size={24} color="#16a34a" />
               </View>
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold">Quick Access</Text>
-                <Text className="text-gray-600 text-sm">Instant access to your profile</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">Quick Access</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">Instant access to your profile</Text>
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
+              <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center mr-4">
                 <ShieldCheck size={24} color="#3b82f6" />
               </View>
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold">Additional Security</Text>
-                <Text className="text-gray-600 text-sm">Extra protection for your data</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">Additional Security</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">Extra protection for your data</Text>
               </View>
             </View>
             <View className="flex-row items-center">
-              <View className="w-12 h-12 bg-blue-100 rounded-lg items-center justify-center mr-4">
+              <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center mr-4">
                 <KeyRound size={24} color="#3b82f6" />
               </View>
               <View className="flex-1">
-                <Text className="text-gray-900 font-semibold">No Passwords</Text>
-                <Text className="text-gray-600 text-sm">Nothing to remember or forget</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold">No Passwords</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm">Nothing to remember or forget</Text>
               </View>
             </View>
           </View>
         </Card>
 
-        <Card variant="outlined" className="mb-8 border-2 border-blue-200 bg-blue-50/50">
+        <Card variant="outlined" className="mb-8 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10">
           <View className="flex-row items-start">
             <Lightbulb size={28} color="#3b82f6" style={{ marginRight: 12 }} />
             <View className="flex-1">
-              <Text className="text-lg font-semibold text-gray-900 mb-2">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Optional Setup
               </Text>
-              <Text className="text-sm text-gray-700">
+              <Text className="text-sm text-gray-700 dark:text-gray-300">
                 You can skip this step and enable biometric authentication later in the app settings.
                 Your profile will still be securely stored in your device's keychain.
               </Text>
@@ -179,7 +179,7 @@ export default function BiometricSetupScreen() {
             testID="enable-biometric-button"
           />
 
-          <View className="border-2 border-gray-300 rounded-xl">
+          <View className="border-2 border-gray-300 dark:border-gray-600 rounded-xl">
             <Button
               title="Skip for Now"
               onPress={handleSkip}

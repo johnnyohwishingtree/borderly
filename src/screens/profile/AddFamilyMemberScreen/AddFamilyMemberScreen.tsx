@@ -62,14 +62,14 @@ export default function AddFamilyMemberScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900">
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white">
             Add Family Member
           </Text>
-          <Text className="text-base text-gray-600">
+          <Text className="text-base text-gray-600 dark:text-gray-400">
             Create a new family travel profile
           </Text>
         </View>
@@ -77,7 +77,7 @@ export default function AddFamilyMemberScreen() {
         {/* Relationship Selection */}
         <Card className="mb-6">
           <View className="p-4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Relationship
             </Text>
             <Select
@@ -88,7 +88,7 @@ export default function AddFamilyMemberScreen() {
               placeholder="Select relationship"
               testID="relationship-select"
             />
-            <Text className="text-sm text-gray-600 mt-2">
+            <Text className="text-sm text-gray-600 dark:text-gray-400 mt-2">
               {getRelationshipDescription(selectedRelationship)}
             </Text>
           </View>
@@ -97,15 +97,15 @@ export default function AddFamilyMemberScreen() {
         {/* Input Methods */}
         <View className="space-y-4">
           {/* Passport Scanning */}
-          <Card variant="elevated" className="bg-gradient-to-br from-blue-50 to-indigo-50">
+          <Card variant="elevated" className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:bg-gray-800">
             <View className="items-center py-8 px-4">
-              <View className="w-32 h-32 border-4 border-dashed border-blue-300 rounded-lg mb-4 items-center justify-center">
+              <View className="w-32 h-32 border-4 border-dashed border-blue-300 dark:border-blue-700 rounded-lg mb-4 items-center justify-center">
                 <Camera size={40} color="#3b82f6" />
               </View>
-              <Text className="text-lg font-semibold text-gray-900 mb-2">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Scan Passport
               </Text>
-              <Text className="text-sm text-gray-600 text-center mb-4">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
                 Quickly add {selectedRelationship === 'spouse' ? 'your spouse' : 
                            selectedRelationship === 'child' ? 'your child' :
                            selectedRelationship === 'parent' ? 'your parent' :
@@ -123,15 +123,15 @@ export default function AddFamilyMemberScreen() {
           </Card>
 
           {/* Manual Entry */}
-          <Card variant="elevated" className="bg-white shadow-lg">
+          <Card variant="elevated" className="bg-white dark:bg-gray-800 shadow-lg">
             <View className="items-center py-6 px-4">
-              <View className="w-20 h-20 border-4 border-dashed border-gray-300 rounded-lg mb-4 items-center justify-center">
+              <View className="w-20 h-20 border-4 border-dashed border-gray-300 dark:border-gray-600 rounded-lg mb-4 items-center justify-center">
                 <Pencil size={28} color="#6b7280" />
               </View>
-              <Text className="text-lg font-semibold text-gray-900 mb-2">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Manual Entry
               </Text>
-              <Text className="text-sm text-gray-600 text-center mb-4">
+              <Text className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
                 Enter passport information manually if scanning isn't available
               </Text>
               <Button
@@ -148,20 +148,20 @@ export default function AddFamilyMemberScreen() {
         {/* Information */}
         <Card className="mt-6">
           <View className="p-4">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
               Privacy & Security
             </Text>
             <View className="space-y-2">
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • All family member data is encrypted and stored locally
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • No passport information is sent to external servers
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • Each family member can have their own biometric protection
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • You can remove family members at any time
               </Text>
             </View>

@@ -116,7 +116,7 @@ export default function ExportBackupModal({
       accessibilityViewIsModal={true}
     >
       <ScrollView
-        className="flex-1 bg-white"
+        className="flex-1 bg-white dark:bg-gray-900"
         contentContainerStyle={{ padding: 24 }}
         keyboardShouldPersistTaps="handled"
         testID="export-backup-modal"
@@ -124,7 +124,7 @@ export default function ExportBackupModal({
         {/* Header row */}
         <View className="flex-row items-center justify-between mb-6">
           <Text
-            className="text-2xl font-bold text-gray-900"
+            className="text-2xl font-bold text-gray-900 dark:text-white"
             accessibilityRole="header"
           >
             Create Backup
@@ -137,15 +137,15 @@ export default function ExportBackupModal({
             testID="export-backup-close-button"
             className="p-2"
           >
-            <Text className="text-base text-blue-600 font-medium">Cancel</Text>
+            <Text className="text-base text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
           </TouchableOpacity>
         </View>
 
         {/* Description */}
         <Card>
-          <View className="bg-blue-50 p-4 rounded-lg mb-2">
-            <Text className="text-sm font-semibold text-blue-900 mb-1">🔒 Encrypted Backup</Text>
-            <Text className="text-sm text-blue-800">
+          <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-2">
+            <Text className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">🔒 Encrypted Backup</Text>
+            <Text className="text-sm text-blue-800 dark:text-blue-200">
               Your backup is encrypted with AES-256-GCM. Choose a strong passphrase — you will need
               it to restore your data. There is no way to recover a forgotten passphrase.
             </Text>
@@ -190,29 +190,29 @@ export default function ExportBackupModal({
           {/* Inline error (live region so screen readers announce it) */}
           {error ? (
             <View
-              className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4"
+              className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4"
               accessible={true}
               accessibilityRole="text"
               accessibilityLiveRegion="polite"
               testID="export-error-message"
             >
-              <Text className="text-sm text-red-700">{error}</Text>
+              <Text className="text-sm text-red-700 dark:text-red-300">{error}</Text>
             </View>
           ) : null}
 
           {/* Validation hints */}
-          <View className="bg-gray-50 rounded-lg p-3 mb-6">
-            <Text className="text-xs text-gray-600 mb-1">Passphrase requirements:</Text>
+          <View className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-6">
+            <Text className="text-xs text-gray-600 dark:text-gray-400 mb-1">Passphrase requirements:</Text>
             <Text
-              className={`text-xs ${passphrase.length >= 8 ? 'text-green-600' : 'text-gray-500'}`}
+              className={`text-xs ${passphrase.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
             >
               {passphrase.length >= 8 ? '✓' : '○'} Minimum 8 characters
             </Text>
             <Text
               className={`text-xs ${
                 confirmPassphrase.length > 0 && passphrase === confirmPassphrase
-                  ? 'text-green-600'
-                  : 'text-gray-500'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               {confirmPassphrase.length > 0 && passphrase === confirmPassphrase
@@ -230,7 +230,7 @@ export default function ExportBackupModal({
                 color="#2563EB"
                 accessibilityLabel="Encrypting backup, please wait"
               />
-              <Text className="text-sm text-gray-600 ml-2">Encrypting backup…</Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-400 ml-2">Encrypting backup…</Text>
             </View>
           ) : (
             <Button

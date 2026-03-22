@@ -8,11 +8,13 @@ import { Button, Card, EmptyState, LoadingStates } from '@/components/ui';
 import { FamilyMemberCard } from '@/components/profile';
 import { FamilyMember } from '@/types/profile';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useTheme } from '@/utils/theme';
 
 type FamilyManagementScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'FamilyManagement'>;
 
 export default function FamilyManagementScreen() {
   const navigation = useNavigation<FamilyManagementScreenNavigationProp>();
+  const { colors } = useTheme();
   const { loadFamilyProfiles, getAllFamilyProfiles, deleteProfile, familyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +94,7 @@ export default function FamilyManagementScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
         <LoadingStates
           state="loading"
           variant="spinner"
@@ -105,21 +107,21 @@ export default function FamilyManagementScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
-              <Users size={24} color="#111827" style={{ marginRight: 8 }} importantForAccessibility="no" />
+              <Users size={24} color={colors.textPrimary} style={{ marginRight: 8 }} importantForAccessibility="no" />
               <View>
                 <Text
-                  className="text-2xl font-bold text-gray-900"
+                  className="text-2xl font-bold text-gray-900 dark:text-white"
                   accessibilityRole="header"
                 >
                   Family Members
                 </Text>
-                <Text className="text-base text-gray-600">
+                <Text className="text-base text-gray-600 dark:text-gray-400">
                   Manage your family travel profiles
                 </Text>
               </View>
@@ -168,20 +170,20 @@ export default function FamilyManagementScreen() {
         {/* Information Card */}
         <Card className="mt-6">
           <View className="p-4">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
               About Family Profiles
             </Text>
             <View className="space-y-2">
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • Each family member gets their own secure profile
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • All data is stored locally on your device
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • Scan multiple passports for quick setup
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 • Forms can be auto-filled for each family member
               </Text>
             </View>

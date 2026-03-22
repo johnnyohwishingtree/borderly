@@ -108,25 +108,25 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
       accessibilityHint={onPress ? 'Opens family member details' : undefined}
       {...viewProps}
     >
-      <Card 
-        variant={isActive ? "outlined" : "elevated"} 
-        className={`mb-4 ${isActive ? 'border-blue-500 bg-blue-50' : ''}`}
+      <Card
+        variant={isActive ? "outlined" : "elevated"}
+        className={`mb-4 ${isActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''}`}
       >
         <View className="p-5">
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center flex-1">
-              <View className="w-12 h-12 bg-gray-200 rounded-full items-center justify-center mr-3" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
+              <View className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full items-center justify-center mr-3" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
                 <User size={24} color="#6b7280" />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-bold text-gray-900">
+                <Text className="text-lg font-bold text-gray-900 dark:text-white">
                   {member.givenNames} {member.surname}
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
                   {relationshipDisplay}
                 </Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-500 dark:text-gray-400">
                   {member.nationality} • Born {new Date(member.dateOfBirth).getFullYear()}
                 </Text>
               </View>
@@ -139,22 +139,22 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
           </View>
 
           {/* Passport Information */}
-          <View className="bg-gray-50 p-3 rounded-lg mb-4">
+          <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg mb-4">
             <View className="flex-row justify-between items-center mb-1">
-              <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                 Passport
               </Text>
               {lastScanned && (
-                <Text className="text-xs text-gray-500">
+                <Text className="text-xs text-gray-500 dark:text-gray-400">
                   Last scanned: {lastScanned}
                 </Text>
               )}
             </View>
-            <Text className="text-sm font-mono text-gray-900 mb-1">
+            <Text className="text-sm font-mono text-gray-900 dark:text-white mb-1">
               {member.passportNumber}
             </Text>
             <View className="flex-row justify-between items-center">
-              <Text className="text-xs text-gray-600">
+              <Text className="text-xs text-gray-600 dark:text-gray-400">
                 Expires: {formattedExpiry}
               </Text>
               {isExpiringSoon && (

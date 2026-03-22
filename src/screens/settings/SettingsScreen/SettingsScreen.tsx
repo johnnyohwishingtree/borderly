@@ -282,18 +282,18 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900">Settings</Text>
-          <Text className="text-base text-gray-600">App preferences and data management</Text>
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white">Settings</Text>
+          <Text className="text-base text-gray-600 dark:text-gray-400">App preferences and data management</Text>
         </View>
 
         {/* Security Settings */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Security & Privacy</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Security & Privacy</Text>
             <StatusBadge 
               status={preferences.biometricEnabled ? "success" : "warning"} 
               size="small" 
@@ -302,7 +302,7 @@ export default function SettingsScreen() {
           </View>
 
           <View className="space-y-6">
-            <View className="bg-gray-50 p-4 rounded-lg">
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
@@ -333,9 +333,9 @@ export default function SettingsScreen() {
                 </View>
               </View>
               {preferences.biometricEnabled && (
-                <View className="bg-green-50 p-3 rounded-lg">
-                  <Text className="text-xs font-medium text-green-800">✓ Enhanced Security Active</Text>
-                  <Text className="text-xs text-green-700 mt-1">
+                <View className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                  <Text className="text-xs font-medium text-green-800 dark:text-green-200">✓ Enhanced Security Active</Text>
+                  <Text className="text-xs text-green-700 dark:text-green-300 mt-1">
                     Your passport data is protected by biometric authentication
                   </Text>
                 </View>
@@ -344,15 +344,15 @@ export default function SettingsScreen() {
             
             <Divider text="Data Privacy" />
             
-            <View className="bg-blue-50 p-4 rounded-lg">
+            <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <View className="flex-row items-center mb-2">
                 <Lock size={20} color="#1e3a5f" />
-                <Text className="text-base font-semibold text-blue-900 ml-2">Local-First Privacy</Text>
+                <Text className="text-base font-semibold text-blue-900 dark:text-blue-100 ml-2">Local-First Privacy</Text>
               </View>
-              <Text className="text-sm text-blue-800 mb-2">
+              <Text className="text-sm text-blue-800 dark:text-blue-200 mb-2">
                 Your data never leaves this device unless you explicitly share it.
               </Text>
-              <Text className="text-xs text-blue-700">
+              <Text className="text-xs text-blue-700 dark:text-blue-300">
                 • Passport data encrypted in device keychain
                 • No cloud storage or server sync
                 • You control all data sharing
@@ -364,7 +364,7 @@ export default function SettingsScreen() {
         {/* App Preferences */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Appearance & Language</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Appearance & Language</Text>
             <StatusBadge 
               status="info" 
               size="small" 
@@ -402,7 +402,7 @@ export default function SettingsScreen() {
         {/* Analytics & Diagnostics */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Analytics & Diagnostics</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Analytics & Diagnostics</Text>
             <StatusBadge 
               status={preferences.analyticsEnabled ? "info" : "neutral"} 
               size="small" 
@@ -411,14 +411,14 @@ export default function SettingsScreen() {
           </View>
 
           <View className="space-y-6">
-            <View className="bg-gray-50 p-4 rounded-lg">
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
-                  <Text className="text-base font-medium text-gray-900">Anonymous Analytics</Text>
-                  <Text className="text-sm text-gray-600 mt-1">
+                  <Text className="text-base font-medium text-gray-900 dark:text-white">Anonymous Analytics</Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Help improve the app by sharing anonymous usage data
                   </Text>
-                  <Text className="text-xs text-gray-500 mt-2">
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     • No personal or passport data is collected
                     • Only app usage patterns and performance metrics
                   </Text>
@@ -432,14 +432,14 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <View className="bg-gray-50 p-4 rounded-lg">
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
-                  <Text className="text-base font-medium text-gray-900">Crash Reporting</Text>
-                  <Text className="text-sm text-gray-600 mt-1">
+                  <Text className="text-base font-medium text-gray-900 dark:text-white">Crash Reporting</Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Send anonymous crash reports to help fix issues
                   </Text>
-                  <Text className="text-xs text-gray-500 mt-2">
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     • Helps identify and fix app crashes
                     • No personal data included in reports
                   </Text>
@@ -458,7 +458,7 @@ export default function SettingsScreen() {
         {/* Portal Accounts */}
         <Card testID="portal-accounts-card">
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Portal Accounts</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Portal Accounts</Text>
             <StatusBadge
               status={portalCredentials.length > 0 ? 'success' : 'neutral'}
               size="small"
@@ -466,17 +466,17 @@ export default function SettingsScreen() {
             />
           </View>
 
-          <View className="bg-blue-50 p-3 rounded-lg mb-4">
-            <Text className="text-xs text-blue-800">
+          <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
+            <Text className="text-xs text-blue-800 dark:text-blue-200">
               🔒 Portal login credentials are stored securely on this device with biometric
               protection. Passwords are never displayed.
             </Text>
           </View>
 
           {portalCredentials.length === 0 ? (
-            <View className="bg-gray-50 p-4 rounded-lg items-center">
-              <Text className="text-sm text-gray-500">No portal credentials saved yet.</Text>
-              <Text className="text-xs text-gray-400 mt-1">
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg items-center">
+              <Text className="text-sm text-gray-500 dark:text-gray-400">No portal credentials saved yet.</Text>
+              <Text className="text-xs text-gray-400 dark:text-gray-600 mt-1">
                 Credentials are saved automatically when you log in to a portal.
               </Text>
             </View>
@@ -486,13 +486,13 @@ export default function SettingsScreen() {
                 <View
                   key={cred.portalCode}
                   testID={`portal-credential-row-${cred.portalCode}`}
-                  className="bg-gray-50 p-3 rounded-lg flex-row items-center justify-between"
+                  className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex-row items-center justify-between"
                 >
                   <View className="flex-1 mr-3">
-                    <Text className="text-sm font-medium text-gray-900">
+                    <Text className="text-sm font-medium text-gray-900 dark:text-white">
                       {getPortalName(cred.portalCode)}
                     </Text>
-                    <Text className="text-xs text-gray-500 mt-0.5">{cred.username}</Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{cred.username}</Text>
                   </View>
                   {isDeletingCredential === cred.portalCode ? (
                     <ActivityIndicator size="small" color="#EF4444" />
@@ -525,7 +525,7 @@ export default function SettingsScreen() {
         {/* Data Management */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Data Management</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Data Management</Text>
             <StatusBadge 
               status="warning" 
               size="small" 
@@ -535,24 +535,24 @@ export default function SettingsScreen() {
 
           {/* Storage Usage */}
           {storageStats && (
-            <View className="bg-gray-50 p-4 rounded-lg mb-4">
-              <Text className="text-sm font-semibold text-gray-900 mb-3">📊 Storage Usage</Text>
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
+              <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">📊 Storage Usage</Text>
               <View className="space-y-2">
                 <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600">Profile Data:</Text>
-                  <Text className="text-xs text-gray-900">{storageStats.profileSize}</Text>
+                  <Text className="text-xs text-gray-600 dark:text-gray-400">Profile Data:</Text>
+                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.profileSize}</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600">Trips:</Text>
-                  <Text className="text-xs text-gray-900">{storageStats.tripsCount} saved</Text>
+                  <Text className="text-xs text-gray-600 dark:text-gray-400">Trips:</Text>
+                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.tripsCount} saved</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600">QR Codes:</Text>
-                  <Text className="text-xs text-gray-900">{storageStats.qrCodesCount} stored</Text>
+                  <Text className="text-xs text-gray-600 dark:text-gray-400">QR Codes:</Text>
+                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.qrCodesCount} stored</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600">Cache:</Text>
-                  <Text className="text-xs text-gray-900">{storageStats.cacheSize}</Text>
+                  <Text className="text-xs text-gray-600 dark:text-gray-400">Cache:</Text>
+                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.cacheSize}</Text>
                 </View>
               </View>
             </View>
@@ -566,7 +566,7 @@ export default function SettingsScreen() {
                 variant="outline"
                 fullWidth
               />
-              <Text className="text-xs text-gray-500 mt-1 text-center">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                 Save your data as a secure backup file
               </Text>
             </View>
@@ -582,7 +582,7 @@ export default function SettingsScreen() {
                 accessibilityLabel="Restore from backup"
                 accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
               />
-              <Text className="text-xs text-gray-500 mt-1 text-center">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                 Import a .borderly backup file to restore your data
               </Text>
             </View>
@@ -594,7 +594,7 @@ export default function SettingsScreen() {
                 variant="outline"
                 fullWidth
               />
-              <Text className="text-xs text-gray-500 mt-1 text-center">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
                 Free up space by clearing temporary files
               </Text>
             </View>
@@ -618,7 +618,7 @@ export default function SettingsScreen() {
         {/* Form Data */}
         <Card testID="form-data-card">
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Form Data</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Form Data</Text>
             <StatusBadge
               status="info"
               size="small"
@@ -626,14 +626,14 @@ export default function SettingsScreen() {
             />
           </View>
 
-          <Text className="text-xs text-gray-500 mb-4">
+          <Text className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             Country entry form definitions bundled with the app or refreshed over the air.
           </Text>
 
           {/* Per-country schema rows */}
           {schemaMetadata.length === 0 ? (
-            <View className="bg-gray-50 p-4 rounded-lg items-center mb-4">
-              <Text className="text-sm text-gray-500">No schema data available yet.</Text>
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg items-center mb-4">
+              <Text className="text-sm text-gray-500 dark:text-gray-400">No schema data available yet.</Text>
             </View>
           ) : (
             <View className="space-y-2 mb-4">
@@ -641,13 +641,13 @@ export default function SettingsScreen() {
                 <View
                   key={meta.countryCode}
                   testID={`schema-row-${meta.countryCode}`}
-                  className="bg-gray-50 p-3 rounded-lg"
+                  className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg"
                 >
                   <View className="flex-row items-center justify-between mb-1">
-                    <Text className="text-sm font-medium text-gray-900">{meta.countryName}</Text>
+                    <Text className="text-sm font-medium text-gray-900 dark:text-white">{meta.countryName}</Text>
                     <StatusBadge status="neutral" size="small" text={`v${meta.schemaVersion}`} />
                   </View>
-                  <Text className="text-xs text-gray-500">
+                  <Text className="text-xs text-gray-500 dark:text-gray-400">
                     Updated: {new Date(meta.lastUpdated).toLocaleDateString()}
                   </Text>
                 </View>
@@ -663,7 +663,7 @@ export default function SettingsScreen() {
             disabled={isRefreshingSchemas}
             testID="refresh-schemas-button"
           />
-          <Text className="text-xs text-gray-500 mt-1 text-center">
+          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
             Manually check for updated country form definitions
           </Text>
         </Card>
@@ -671,7 +671,7 @@ export default function SettingsScreen() {
         {/* App Information */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">App Information</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">App Information</Text>
             <StatusBadge
               status="info"
               size="small"
@@ -680,31 +680,31 @@ export default function SettingsScreen() {
           </View>
 
           <View className="space-y-4">
-            <View className="bg-gray-50 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">Version</Text>
-              <Text className="text-sm text-gray-900 mt-1">1.0.0 (MVP)</Text>
+            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Version</Text>
+              <Text className="text-sm text-gray-900 dark:text-white mt-1">1.0.0 (MVP)</Text>
             </View>
-            
-            <View className="bg-gray-50 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">Supported Countries</Text>
+
+            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Supported Countries</Text>
               <View className="mt-2">
-                <Text className="text-sm text-gray-900">{SUPPORTED_COUNTRIES.map(c => c.name).join(' • ')}</Text>
+                <Text className="text-sm text-gray-900 dark:text-white">{SUPPORTED_COUNTRIES.map(c => c.name).join(' • ')}</Text>
               </View>
             </View>
-            
-            <View className="bg-gray-50 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 uppercase tracking-wide">Schema Updates</Text>
-              <Text className="text-sm text-gray-900 mt-1">
+
+            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Schema Updates</Text>
+              <Text className="text-sm text-gray-900 dark:text-white mt-1">
                 {preferences.lastSchemaUpdateCheck || 'Never checked'}
               </Text>
-              <Text className="text-xs text-gray-500 mt-1">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Country form schemas are bundled with the app
               </Text>
             </View>
-            
-            <View className="bg-blue-50 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-blue-800">📱 Built for Privacy</Text>
-              <Text className="text-xs text-blue-700 mt-1">
+
+            <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+              <Text className="text-xs font-medium text-blue-800 dark:text-blue-200">📱 Built for Privacy</Text>
+              <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">
                 Local-first architecture ensures your travel data stays on your device
               </Text>
             </View>
@@ -713,7 +713,7 @@ export default function SettingsScreen() {
 
         {/* Quick Actions */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</Text>
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</Text>
           
           <View className="space-y-3">
             <View className="flex-row space-x-3">
@@ -755,11 +755,11 @@ export default function SettingsScreen() {
 
         {/* Help & Support */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Help & Support</Text>
-          
-          <View className="bg-gray-50 p-4 rounded-lg">
-            <Text className="text-sm font-medium text-gray-900 mb-2">📞 Need Help?</Text>
-            <Text className="text-xs text-gray-600 mb-3">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Help & Support</Text>
+
+          <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">📞 Need Help?</Text>
+            <Text className="text-xs text-gray-600 dark:text-gray-400 mb-3">
               Having issues with forms or need support with specific country requirements?
             </Text>
             <View className="space-y-2">
