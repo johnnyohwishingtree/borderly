@@ -76,6 +76,7 @@ playwright-report/
 !ios/**/*.png
 !android/**/*.png
 !e2e/screenshots/**/*.png
+!src/screens/**/__screenshots__/**/*.png
 
 # Metro
 .metro-health-check*
