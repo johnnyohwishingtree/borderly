@@ -382,4 +382,48 @@ describe('South Korea (KOR) Schema', () => {
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
+
+  // ── 17. Auto-fill coverage ───────────────────────────────────────────────────
+
+  test('auto-fill coverage should be >= 70% for non-country-specific fields', () => {
+    // Non-country-specific fields represent universal profile/leg data
+    // that the form engine should auto-fill from the traveler's stored profile.
+    // At least 70% of these fields must have an autoFillSource mapping.
+    const nonCountrySpecificFields = schema.sections.flatMap(s =>
+      s.fields.filter(f => !f.countrySpecific)
+    );
+    const autoFilledFields = nonCountrySpecificFields.filter(f => !!f.autoFillSource);
+    const coveragePct = (autoFilledFields.length / nonCountrySpecificFields.length) * 100;
+
+    expect(nonCountrySpecificFields.length).toBeGreaterThan(0);
+    expect(coveragePct).toBeGreaterThanOrEqual(70);
+  });
+
+  test('all fields should declare countrySpecific as a boolean', () => {
+    schema.sections.forEach(section => {
+      section.fields.forEach(field => {
+        expect(typeof field.countrySpecific).toBe('boolean');
+      });
+    });
+  });
+
+  // ── 18. K-ETA processing time ────────────────────────────────────────────────
+
+  test('K-ETA processing time should be documented as up to 72 hours', () => {
+    // K-ETA approval takes up to 72 hours — travellers must apply well in advance.
+    // This is captured in the submissionDeadlineHours and submissionWindowNote.
+    expect(schema.submissionDeadlineHours).toBe(72);
+    expect(schema.submissionWindowNote).toBeDefined();
+    expect(schema.submissionWindowNote.toLowerCase()).toContain('processing');
+    expect(schema.submissionWindowNote.toLowerCase()).toContain('72');
+  });
+
+  test('K-ETA processing time note should appear in submission guide', () => {
+    // At least one step in the submission guide should mention the 72-hour processing window
+    const guideText = schema.submissionGuide
+      .flatMap(step => [step.title, step.description, ...(step.tips ?? [])])
+      .join(' ')
+      .toLowerCase();
+    expect(guideText).toContain('72');
+  });
 });
