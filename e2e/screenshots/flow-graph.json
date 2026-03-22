@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-22T05:18:14.852Z",
+  "generatedAt": "2026-03-22T05:51:28.264Z",
   "stacks": [
     {
       "name": "RootStackParamList",
@@ -265,21 +265,21 @@
       "to": "(back)",
       "type": "goBack",
       "file": "src/screens/trips/LegFormScreen/LegFormScreen.tsx",
-      "line": 67
+      "line": 75
     },
     {
       "from": "LegForm",
       "to": "PortalSubmission",
       "type": "navigate",
       "file": "src/screens/trips/LegFormScreen/LegFormScreen.tsx",
-      "line": 196
+      "line": 217
     },
     {
       "from": "LegForm",
       "to": "SubmissionGuide",
       "type": "navigate",
       "file": "src/screens/trips/LegFormScreen/LegFormScreen.tsx",
-      "line": 215
+      "line": 236
     },
     {
       "from": "PortalSubmission",
