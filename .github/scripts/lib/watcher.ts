@@ -141,7 +141,7 @@ export function getPRCIConclusion(pr: number, repo: string): string {
   // If any required check failed, return FAILURE.
   const raw = execOrDefault('gh', ['pr', 'view', String(pr), '--repo', repo,
     '--json', 'statusCheckRollup',
-    '-q', '[.statusCheckRollup[] | select(.name == "test" or (.name | startswith("test-chromium"))) | {name: .name, conclusion: .conclusion}]'], '[]');
+    '-q', '[.statusCheckRollup[] | select(.name == "test" or .name == "test-chromium" or (.name | startswith("test-chromium ("))) | {name: .name, conclusion: .conclusion}]'], '[]');
   try {
     const checks = JSON.parse(raw) as Array<{ name: string; conclusion: string }>;
     if (checks.length === 0) return '';
