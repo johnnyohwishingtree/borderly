@@ -71,6 +71,7 @@ export default function RestoreBackupModal() {
           <Text
             className="text-2xl font-bold text-gray-900 text-center mb-2"
             accessibilityRole="header"
+            testID="restore-backup-heading"
           >
             Restore from Backup
           </Text>

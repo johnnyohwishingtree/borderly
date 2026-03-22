@@ -114,7 +114,7 @@ test.describe('Backup Restore – Welcome screen', () => {
     // Should navigate to the restore screen
     const restoreScreen = page.getByTestId('restore-backup-screen');
     await expect(restoreScreen).toBeVisible({ timeout: 5000 });
-    await expect(restoreScreen.getByText('Restore from Backup').first()).toBeVisible();
+    await expect(page.getByTestId('restore-backup-heading')).toBeVisible();
   });
 });
 
@@ -211,7 +211,7 @@ test.describe('Backup Restore – RestoreBackupModal', () => {
     // Modal header
     const restoreScreen = page.getByTestId('restore-backup-screen');
     await expect(restoreScreen).toBeVisible({ timeout: 5000 });
-    await expect(restoreScreen.getByText('Restore from Backup').first()).toBeVisible();
+    await expect(page.getByTestId('restore-backup-heading')).toBeVisible();
 
     // Idle step content
     await expect(page.getByTestId('restore-step-idle')).toBeVisible();
