@@ -608,7 +608,7 @@ describe('workflow structure regressions', () => {
           expect(
             checkScript,
             `${wfName}: must handle push event_name separately`,
-          ).toContain('push');
+          ).toContain('github.event_name');
         });
       });
     }
