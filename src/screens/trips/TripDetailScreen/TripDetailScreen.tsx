@@ -14,7 +14,7 @@ import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
@@ -706,20 +706,20 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
         <View className="flex-row space-x-3">
           <View className="flex-1">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Date *</Text>
-            <Input
+            <DatePickerField
               value={legData.arrivalDate}
-              onChangeText={text => onUpdateField('arrivalDate', text)}
-              placeholder="YYYY-MM-DD"
+              onChange={date => onUpdateField('arrivalDate', date)}
+              placeholder="Arrival date"
+              error={errors.arrivalDate}
               testID={`${testIDPrefix}-arrival-date`}
             />
-            {errors.arrivalDate && <Text className="text-red-500 text-sm mt-1">{errors.arrivalDate}</Text>}
           </View>
           <View className="flex-1">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure Date</Text>
-            <Input
+            <DatePickerField
               value={legData.departureDate}
-              onChangeText={text => onUpdateField('departureDate', text)}
-              placeholder="YYYY-MM-DD"
+              onChange={date => onUpdateField('departureDate', date)}
+              placeholder="Departure date"
               testID={`${testIDPrefix}-departure-date`}
             />
           </View>
