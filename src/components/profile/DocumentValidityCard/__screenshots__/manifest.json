@@ -1,0 +1,15 @@
+{
+  "component": "DocumentValidityCard",
+  "domain": "profile",
+  "capturedAt": "2026-03-22T07:18:25.081Z",
+  "variants": [
+    {
+      "file": "valid.png",
+      "variant": "valid"
+    },
+    {
+      "file": "expiring-soon.png",
+      "variant": "expiring-soon"
+    }
+  ]
+}

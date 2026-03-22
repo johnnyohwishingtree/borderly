@@ -1,0 +1,19 @@
+{
+  "component": "CountryFlag",
+  "domain": "trips",
+  "capturedAt": "2026-03-22T07:18:20.146Z",
+  "variants": [
+    {
+      "file": "japan.png",
+      "variant": "japan"
+    },
+    {
+      "file": "malaysia.png",
+      "variant": "malaysia"
+    },
+    {
+      "file": "singapore.png",
+      "variant": "singapore"
+    }
+  ]
+}

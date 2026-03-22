@@ -1,0 +1,35 @@
+{
+  "component": "StatusBadge",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:08.937Z",
+  "variants": [
+    {
+      "file": "success.png",
+      "variant": "success"
+    },
+    {
+      "file": "error.png",
+      "variant": "error"
+    },
+    {
+      "file": "warning.png",
+      "variant": "warning"
+    },
+    {
+      "file": "info.png",
+      "variant": "info"
+    },
+    {
+      "file": "neutral.png",
+      "variant": "neutral"
+    },
+    {
+      "file": "success-filled.png",
+      "variant": "success-filled"
+    },
+    {
+      "file": "error-outlined.png",
+      "variant": "error-outlined"
+    }
+  ]
+}

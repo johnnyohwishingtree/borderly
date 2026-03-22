@@ -1,0 +1,19 @@
+{
+  "component": "GuideProgress",
+  "domain": "guide",
+  "capturedAt": "2026-03-22T07:18:22.271Z",
+  "variants": [
+    {
+      "file": "step-1-of-5.png",
+      "variant": "step-1-of-5"
+    },
+    {
+      "file": "step-3-of-5.png",
+      "variant": "step-3-of-5"
+    },
+    {
+      "file": "complete.png",
+      "variant": "complete"
+    }
+  ]
+}

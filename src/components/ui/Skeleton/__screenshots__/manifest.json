@@ -1,0 +1,11 @@
+{
+  "component": "Skeleton",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:12.662Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    }
+  ]
+}
