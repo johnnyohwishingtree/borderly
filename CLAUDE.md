@@ -349,6 +349,7 @@ Available skills (invoke with `/<skill-name>`):
 - `/organize` — Reorganize file structure
 - `/cleanup` — Remove unused files
 - `/update-architecture` — Update architecture diagrams
+- `/form-optimize` — Audit form inputs for platform autofill hints, keyboard types, and autocomplete
 - `/refactor-design` — Audit and fix architecture issues
 - `/qa` — Walk through the app and document bugs
 
