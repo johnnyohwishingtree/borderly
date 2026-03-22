@@ -248,8 +248,8 @@ export default function TripDetailScreen() {
 
   if (!trip) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-lg text-gray-600">Trip not found</Text>
+      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
+        <Text className="text-lg text-gray-600 dark:text-gray-400">Trip not found</Text>
         <View className="mt-4">
           <Button
             title="Go Back"
@@ -265,14 +265,14 @@ export default function TripDetailScreen() {
   const progress = getOverallProgress();
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="bg-white px-4 py-6 border-b border-gray-100">
+        <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
           <View className="flex-row items-start justify-between mb-4">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900 mb-2">{trip.name}</Text>
-              <Text className="text-base text-gray-600 mb-3">
+              <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{trip.name}</Text>
+              <Text className="text-base text-gray-600 dark:text-gray-400 mb-3">
                 {trip.legs.length} destination{trip.legs.length > 1 ? 's' : ''}
               </Text>
               <StatusBadge
@@ -290,26 +290,25 @@ export default function TripDetailScreen() {
               accessibilityLabel="Edit trip"
               accessibilityRole="button"
             >
-              <Text className="text-blue-600 font-medium">Edit</Text>
+              <Text className="text-blue-600 dark:text-blue-400 font-medium">Edit</Text>
             </TouchableOpacity>
           </View>
 
           {/* Progress Overview */}
           {trip.legs.length > 0 && (
-            <View className="bg-gray-50 rounded-lg p-4">
+            <View className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-sm font-medium text-gray-700">Overall Progress</Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</Text>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
                   {progress.completed}/{progress.total} completed
                 </Text>
               </View>
-              <View className="bg-gray-200 rounded-full h-2">
+              <View className="bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                 <View
-                  className="bg-blue-600 h-2 rounded-full"
+                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full"
                   style={{ width: `${progress.percentage}%` }}
                 />
               </View>
-              {/* Removed plain-text Trip Readiness counter — replaced by ReadinessChecklist below */}
             </View>
           )}
         </View>
@@ -320,12 +319,12 @@ export default function TripDetailScreen() {
             {isReadinessLoading ? (
               <View
                 testID="readiness-checklist-loading"
-                className="rounded-xl border border-gray-200 bg-white px-4 py-3"
+                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3"
                 accessible={true}
                 accessibilityLabel="Loading trip readiness"
                 accessibilityRole="progressbar"
               >
-                <View className="h-4 bg-gray-200 rounded w-2/3" />
+                <View className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-2/3" />
               </View>
             ) : tripReadiness ? (
               <ReadinessChecklist
@@ -354,25 +353,25 @@ export default function TripDetailScreen() {
         {/* Trip Timeline */}
         <View className="px-4 py-6">
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-xl font-bold text-gray-900">Itinerary</Text>
+            <Text className="text-xl font-bold text-gray-900 dark:text-white">Itinerary</Text>
             <TouchableOpacity
               ref={addTriggerRef}
               onPress={handleOpenAddDestination}
-              className="bg-blue-50 px-3 py-2 rounded-lg"
+              className="bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-lg"
               activeOpacity={0.7}
               testID="add-destination-button"
               accessibilityLabel="Add destination"
               accessibilityRole="button"
             >
-              <Text className="text-blue-600 font-medium text-sm">+ Add Destination</Text>
+              <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">+ Add Destination</Text>
             </TouchableOpacity>
           </View>
 
           {trip.legs.length === 0 ? (
-            <View className="bg-white rounded-lg p-6 items-center">
+            <View className="bg-white dark:bg-gray-800 rounded-lg p-6 items-center">
               <Map size={40} color="#6b7280" style={{ marginBottom: 12 }} />
-              <Text className="text-lg font-semibold text-gray-900 mb-2">No destinations yet</Text>
-              <Text className="text-base text-gray-600 text-center mb-4">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No destinations yet</Text>
+              <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-4">
                 Add your first destination to start planning your forms
               </Text>
               <Button
@@ -387,19 +386,19 @@ export default function TripDetailScreen() {
               {trip.legs
                 .sort((a, b) => a.order - b.order)
                 .map((leg, index) => (
-                    <View key={leg.id} className="relative">
-                      <LegCard
-                        leg={leg}
-                        onPress={() => handleLegPress(leg)}
-                        showFormStatus
-                        familyMembers={familyMembers}
-                        showTravelerDetails
-                        deadline={deadlineMap[leg.id]}
-                      />
-                      {index < trip.legs.length - 1 && (
-                        <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 z-10" />
-                      )}
-                    </View>
+                  <View key={leg.id} className="relative">
+                    <LegCard
+                      leg={leg}
+                      onPress={() => handleLegPress(leg)}
+                      showFormStatus
+                      familyMembers={familyMembers}
+                      showTravelerDetails
+                      deadline={deadlineMap[leg.id]}
+                    />
+                    {index < trip.legs.length - 1 && (
+                      <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 dark:bg-gray-600 z-10" />
+                    )}
+                  </View>
                 ))}
             </View>
           )}
@@ -407,7 +406,7 @@ export default function TripDetailScreen() {
 
         {/* Actions */}
         <View className="px-4 pb-8">
-          <View className="bg-white rounded-lg p-4">
+          <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
             <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
@@ -415,8 +414,8 @@ export default function TripDetailScreen() {
             >
               <Trash2 size={28} color="#dc2626" style={{ marginRight: 12 }} />
               <View>
-                <Text className="text-base font-medium text-red-600">Delete Trip</Text>
-                <Text className="text-sm text-gray-600">Remove this trip permanently</Text>
+                <Text className="text-base font-medium text-red-600 dark:text-red-400">Delete Trip</Text>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Remove this trip permanently</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -432,23 +431,23 @@ export default function TripDetailScreen() {
         testID="edit-trip-modal"
       >
         <KeyboardAvoidingView
-          className="flex-1 bg-gray-50"
+          className="flex-1 bg-gray-50 dark:bg-gray-900"
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Modal header */}
-          <View className="bg-white px-4 pt-6 pb-4 border-b border-gray-100 flex-row items-center justify-between">
+          <View className="bg-white dark:bg-gray-800 px-4 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700 flex-row items-center justify-between">
             {editHook.editingLegId ? (
               <TouchableOpacity onPress={editHook.cancelEditLeg} activeOpacity={0.7}>
                 <ChevronLeft size={24} color="#2563eb" />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity onPress={handleCloseEditModal} activeOpacity={0.7} testID="edit-modal-cancel">
-                <Text className="text-blue-600 font-medium">Cancel</Text>
+                <Text className="text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
               </TouchableOpacity>
             )}
             <Text
               ref={editModalTitleRef}
-              className="text-lg font-bold text-gray-900"
+              className="text-lg font-bold text-gray-900 dark:text-white"
               accessibilityRole="header"
             >
               {editHook.editingLegId ? 'Edit Destination' : 'Edit Trip'}
@@ -460,7 +459,7 @@ export default function TripDetailScreen() {
                 testID="save-leg-button"
                 disabled={editHook.isUpdatingLeg}
               >
-                <Text className="text-blue-600 font-medium">
+                <Text className="text-blue-600 dark:text-blue-400 font-medium">
                   {editHook.isUpdatingLeg ? 'Saving…' : 'Save'}
                 </Text>
               </TouchableOpacity>
@@ -482,8 +481,8 @@ export default function TripDetailScreen() {
               /* ── Edit trip name + list of legs ── */
               <View className="p-4">
                 {/* Trip name */}
-                <View className="bg-white rounded-lg p-4 mb-4">
-                  <Text className="text-base font-semibold text-gray-900 mb-3">Trip Name</Text>
+                <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                  <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Trip Name</Text>
                   <Input
                     value={editHook.editName}
                     onChangeText={editHook.setEditName}
@@ -506,28 +505,28 @@ export default function TripDetailScreen() {
 
                 {/* Existing legs */}
                 {trip.legs.length > 0 && (
-                  <View className="bg-white rounded-lg p-4 mb-4">
-                    <Text className="text-base font-semibold text-gray-900 mb-3">Destinations</Text>
+                  <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+                    <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Destinations</Text>
                     {trip.legs
                       .sort((a, b) => a.order - b.order)
                       .map(leg => (
                         <View
                           key={leg.id}
-                          className="flex-row items-center justify-between py-3 border-b border-gray-100"
+                          className="flex-row items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700"
                         >
                           <View className="flex-1">
-                            <Text className="text-base font-medium text-gray-900">
+                            <Text className="text-base font-medium text-gray-900 dark:text-white">
                               {SUPPORTED_COUNTRIES.find(c => c.code === leg.destinationCountry)?.name ?? leg.destinationCountry}
                             </Text>
-                            <Text className="text-sm text-gray-600">{leg.arrivalDate}</Text>
+                            <Text className="text-sm text-gray-600 dark:text-gray-400">{leg.arrivalDate}</Text>
                           </View>
                           <TouchableOpacity
                             onPress={() => editHook.startEditLeg(leg)}
-                            className="bg-blue-50 px-3 py-1.5 rounded-lg ml-3"
+                            className="bg-blue-50 dark:bg-blue-950 px-3 py-1.5 rounded-lg ml-3"
                             activeOpacity={0.7}
                             testID={`edit-leg-${leg.id}-button`}
                           >
-                            <Text className="text-blue-600 font-medium text-sm">Edit</Text>
+                            <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">Edit</Text>
                           </TouchableOpacity>
                         </View>
                       ))}
@@ -543,12 +542,12 @@ export default function TripDetailScreen() {
                       setShowAddModal(true);
                     }, 300);
                   }}
-                  className="bg-blue-50 rounded-lg p-4 flex-row items-center"
+                  className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 flex-row items-center"
                   activeOpacity={0.7}
                   testID="edit-modal-add-destination"
                 >
                   <Plus size={20} color="#2563eb" style={{ marginRight: 8 }} />
-                  <Text className="text-blue-600 font-medium">Add New Destination</Text>
+                  <Text className="text-blue-600 dark:text-blue-400 font-medium">Add New Destination</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -565,17 +564,17 @@ export default function TripDetailScreen() {
         testID="add-destination-modal"
       >
         <KeyboardAvoidingView
-          className="flex-1 bg-gray-50"
+          className="flex-1 bg-gray-50 dark:bg-gray-900"
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {/* Modal header */}
-          <View className="bg-white px-4 pt-6 pb-4 border-b border-gray-100 flex-row items-center justify-between">
+          <View className="bg-white dark:bg-gray-800 px-4 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700 flex-row items-center justify-between">
             <TouchableOpacity onPress={handleCloseAddModal} activeOpacity={0.7} testID="add-modal-cancel">
-              <Text className="text-blue-600 font-medium">Cancel</Text>
+              <Text className="text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
             </TouchableOpacity>
             <Text
               ref={addModalTitleRef}
-              className="text-lg font-bold text-gray-900"
+              className="text-lg font-bold text-gray-900 dark:text-white"
               accessibilityRole="header"
             >
               Add Destination
@@ -586,7 +585,7 @@ export default function TripDetailScreen() {
               testID="confirm-add-destination-button"
               disabled={editHook.isAddingDestination}
             >
-              <Text className="text-blue-600 font-medium">
+              <Text className="text-blue-600 dark:text-blue-400 font-medium">
                 {editHook.isAddingDestination ? 'Adding…' : 'Add'}
               </Text>
             </TouchableOpacity>
@@ -635,8 +634,8 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
   return (
     <View className="p-4">
       {/* Country */}
-      <View className="bg-white rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 mb-3">Country</Text>
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Country</Text>
         <View className="flex-row flex-wrap gap-2">
           {SUPPORTED_COUNTRIES.map(country => (
             <TouchableOpacity
@@ -645,14 +644,14 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
               className={`px-3 py-2 rounded-lg border ${
                 legData.destinationCountry === country.code
                   ? 'bg-blue-600 border-blue-600'
-                  : 'bg-white border-gray-300'
+                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600'
               }`}
               activeOpacity={0.7}
               testID={`${testIDPrefix}-country-${country.code}`}
             >
               <Text
                 className={`font-medium text-sm ${
-                  legData.destinationCountry === country.code ? 'text-white' : 'text-gray-700'
+                  legData.destinationCountry === country.code ? 'text-white' : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
                 {country.name}
@@ -664,11 +663,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
       </View>
 
       {/* Dates */}
-      <View className="bg-white rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 mb-3">Dates</Text>
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Dates</Text>
         <View className="flex-row space-x-3">
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Date *</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Date *</Text>
             <Input
               value={legData.arrivalDate}
               onChangeText={text => onUpdateField('arrivalDate', text)}
@@ -678,7 +677,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
             {errors.arrivalDate && <Text className="text-red-500 text-sm mt-1">{errors.arrivalDate}</Text>}
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-1">Departure Date</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure Date</Text>
             <Input
               value={legData.departureDate}
               onChangeText={text => onUpdateField('departureDate', text)}
@@ -690,11 +689,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
       </View>
 
       {/* Flight */}
-      <View className="bg-white rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 mb-3">Flight (Optional)</Text>
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Flight (Optional)</Text>
         <View className="flex-row space-x-3 mb-3">
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-1">Flight Number</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flight Number</Text>
             <Input
               value={legData.flightNumber}
               onChangeText={text => onUpdateField('flightNumber', text)}
@@ -704,7 +703,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
             />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 mb-1">Airline Code</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Airline Code</Text>
             <Input
               value={legData.airlineCode}
               onChangeText={text => onUpdateField('airlineCode', text)}
@@ -715,7 +714,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
           </View>
         </View>
         <View>
-          <Text className="text-sm font-medium text-gray-700 mb-1">Arrival Airport</Text>
+          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Airport</Text>
           <Input
             value={legData.arrivalAirport}
             onChangeText={text => onUpdateField('arrivalAirport', text)}
@@ -727,11 +726,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
       </View>
 
       {/* Accommodation */}
-      <View className="bg-white rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 mb-3">Accommodation *</Text>
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation *</Text>
         <View className="space-y-3">
           <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Name</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</Text>
             <Input
               value={legData.accommodation.name}
               onChangeText={text => onUpdateField('accommodation.name', text)}
@@ -743,7 +742,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
             )}
           </View>
           <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Address</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</Text>
             <Input
               value={legData.accommodation.address.line1}
               onChangeText={text => onUpdateField('accommodation.address.line1', text)}
@@ -753,7 +752,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
           </View>
           <View className="flex-row space-x-3">
             <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 mb-1">City</Text>
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</Text>
               <Input
                 value={legData.accommodation.address.city}
                 onChangeText={text => onUpdateField('accommodation.address.city', text)}
@@ -762,7 +761,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
               />
             </View>
             <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Postal Code</Text>
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Postal Code</Text>
               <Input
                 value={legData.accommodation.address.postalCode}
                 onChangeText={text => onUpdateField('accommodation.address.postalCode', text)}
@@ -772,7 +771,7 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
             </View>
           </View>
           <View>
-            <Text className="text-sm font-medium text-gray-700 mb-1">Phone (Optional)</Text>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
             <Input
               value={legData.accommodation.phone}
               onChangeText={text => onUpdateField('accommodation.phone', text)}

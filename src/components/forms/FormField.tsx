@@ -225,8 +225,8 @@ export default function FormField({
       case 'select':
         if (!field.options) {
           return (
-            <View className="p-3 bg-gray-100 rounded-lg">
-              <Text className="text-gray-500">No options available</Text>
+            <View className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Text className="text-gray-500 dark:text-gray-400">No options available</Text>
             </View>
           );
         }
@@ -282,8 +282,8 @@ export default function FormField({
 
       default:
         return (
-          <View className="p-3 bg-gray-100 rounded-lg">
-            <Text className="text-gray-500">
+          <View className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <Text className="text-gray-500 dark:text-gray-400">
               Unsupported field type: {field.type}
             </Text>
           </View>
@@ -299,7 +299,7 @@ export default function FormField({
       {/* Field Label and Badge */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center flex-1">
-          <Text className="text-base font-medium text-gray-900">
+          <Text className="text-base font-medium text-gray-900 dark:text-white">
             {field.label}
             {isRequired && <Text className="text-red-500 ml-1">*</Text>}
           </Text>
@@ -311,7 +311,7 @@ export default function FormField({
 
       {/* Help Text */}
       {field.helpText && (
-        <Text className="text-sm text-gray-600 mb-2">
+        <Text className="text-sm text-gray-600 dark:text-gray-400 mb-2">
           {field.helpText}
         </Text>
       )}
@@ -322,7 +322,7 @@ export default function FormField({
       {/* Error Message */}
       {hasError && (
         <Text
-          className="text-sm text-red-600 mt-1"
+          className="text-sm text-red-600 dark:text-red-400 mt-1"
           accessibilityLiveRegion="polite"
           accessible={true}
           accessibilityRole="text"
@@ -334,7 +334,7 @@ export default function FormField({
       {/* Country-specific indicator */}
       {field.countrySpecific && (
         <View className="mt-2">
-          <Text className="text-xs text-orange-600 font-medium">
+          <Text className="text-xs text-orange-600 dark:text-orange-400 font-medium">
             ⚠️ Country-specific requirement
           </Text>
         </View>

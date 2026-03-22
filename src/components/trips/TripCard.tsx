@@ -10,10 +10,10 @@ export interface TripCardProps {
   showProgress?: boolean;
 }
 
-const TripCard = memo<TripCardProps>(({ 
-  trip, 
+const TripCard = memo<TripCardProps>(({
+  trip,
   onPress,
-  showProgress = true 
+  showProgress = true
 }) => {
   const formatDate = useMemo(() => (dateStr: string) => {
     try {
@@ -29,14 +29,14 @@ const TripCard = memo<TripCardProps>(({
   const tripMetrics = useMemo(() => {
     const progress = (() => {
       if (trip.legs.length === 0) return { completed: 0, total: 0, percentage: 0 };
-      
-      const completed = trip.legs.filter(leg => 
+
+      const completed = trip.legs.filter(leg =>
         leg.formStatus === 'submitted' || leg.formStatus === 'ready'
       ).length;
-      
+
       const total = trip.legs.length;
       const percentage = total > 0 ? (completed / total) * 100 : 0;
-      
+
       return { completed, total, percentage };
     })();
 
@@ -68,7 +68,7 @@ const TripCard = memo<TripCardProps>(({
 
     const firstLeg = trip.legs[0];
     const lastLeg = trip.legs[trip.legs.length - 1];
-    
+
     return {
       progress,
       statusColor: getStatusColor(trip.status),
@@ -77,7 +77,7 @@ const TripCard = memo<TripCardProps>(({
       lastLeg,
     };
   }, [trip.legs, trip.status]);
-  
+
   const { progress, statusColor, statusText, firstLeg, lastLeg } = tripMetrics;
 
   const CardComponent = onPress ? TouchableOpacity : View;
@@ -96,16 +96,16 @@ const TripCard = memo<TripCardProps>(({
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1">
-              <Text className="text-xl font-bold text-gray-900 mb-1">
+              <Text className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                 {trip.name}
               </Text>
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 {trip.legs.length} destination{trip.legs.length > 1 ? 's' : ''}
                 {firstLeg && ` • ${formatDate(firstLeg.arrivalDate)}`}
                 {lastLeg?.departureDate && ` - ${formatDate(lastLeg.departureDate)}`}
               </Text>
             </View>
-            <StatusBadge 
+            <StatusBadge
               status={statusColor}
               text={statusText}
               size="medium"
@@ -120,12 +120,12 @@ const TripCard = memo<TripCardProps>(({
                   <React.Fragment key={leg.id}>
                     <CountryFlag countryCode={leg.destinationCountry} size="medium" />
                     {index < Math.min(trip.legs.length - 1, 3) && (
-                      <Text className="mx-1 text-gray-400">→</Text>
+                      <Text className="mx-1 text-gray-400 dark:text-gray-500">→</Text>
                     )}
                   </React.Fragment>
                 ))}
                 {trip.legs.length > 4 && (
-                  <Text className="ml-2 text-sm text-gray-500">
+                  <Text className="ml-2 text-sm text-gray-500 dark:text-gray-400">
                     +{trip.legs.length - 4} more
                   </Text>
                 )}
@@ -137,15 +137,15 @@ const TripCard = memo<TripCardProps>(({
           {showProgress && progress.total > 0 && (
             <View>
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-sm font-medium text-gray-700">
+                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Form Progress
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
                   {progress.completed}/{progress.total} completed
                 </Text>
               </View>
-              <ProgressBar 
-                progress={progress.percentage} 
+              <ProgressBar
+                progress={progress.percentage}
                 size="small"
                 color="blue"
               />
@@ -155,7 +155,7 @@ const TripCard = memo<TripCardProps>(({
           {/* Empty state */}
           {trip.legs.length === 0 && (
             <View className="py-4 items-center">
-              <Text className="text-gray-500 text-center">
+              <Text className="text-gray-500 dark:text-gray-400 text-center">
                 No destinations added yet
               </Text>
             </View>

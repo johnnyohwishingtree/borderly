@@ -70,7 +70,7 @@ export default function QRDetailScreen() {
 
     try {
       const imageUri = `data:image/png;base64,${qrCode.imageBase64}`;
-      
+
       if (Platform.OS === 'ios') {
         await Share.share({
           url: imageUri,
@@ -108,7 +108,7 @@ export default function QRDetailScreen() {
               await db.write(async () => {
                 await qrCode.destroyPermanently();
               });
-              
+
               Alert.alert(
                 'Success',
                 'QR code deleted successfully',
@@ -132,15 +132,15 @@ export default function QRDetailScreen() {
   const getTypeColor = (type: SavedQRCode['type']) => {
     switch (type) {
       case 'immigration':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-700';
       case 'customs':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-200 dark:border-green-700';
       case 'health':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border-red-200 dark:border-red-700';
       case 'combined':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 border-purple-200 dark:border-purple-700';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600';
     }
   };
 
@@ -172,20 +172,20 @@ export default function QRDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-900 items-center justify-center">
         <LoadingSpinner />
-        <Text className="text-gray-600 mt-4">Loading QR code...</Text>
+        <Text className="text-gray-600 dark:text-gray-400 mt-4">Loading QR code...</Text>
       </View>
     );
   }
 
   if (!qrCode) {
     return (
-      <View className="flex-1 bg-gray-50 items-center justify-center px-4">
-        <Text className="text-xl font-semibold text-gray-900 mb-2">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-900 items-center justify-center px-4">
+        <Text className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           QR Code Not Found
         </Text>
-        <Text className="text-gray-600 text-center mb-6">
+        <Text className="text-gray-600 dark:text-gray-400 text-center mb-6">
           The requested QR code could not be found.
         </Text>
         <Button
@@ -198,10 +198,10 @@ export default function QRDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <View className="bg-white px-4 py-6 border-b border-gray-100">
-        <Text className="text-2xl font-bold text-gray-900" numberOfLines={1}>
+      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
+        <Text className="text-2xl font-bold text-gray-900 dark:text-white" numberOfLines={1}>
           {qrCode.label}
         </Text>
         <View className={`inline-flex px-3 py-1 rounded-full border mt-2 ${getTypeColor(qrCode.type)}`}>
@@ -216,15 +216,15 @@ export default function QRDetailScreen() {
           {/* QR Code Display */}
           <Card>
             <View className="p-6">
-              <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
                 QR Code
               </Text>
-              
+
               <TouchableOpacity
                 onPress={handleViewFullScreen}
                 className="items-center mb-4 active:opacity-70"
               >
-                <View className="w-64 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                <View className="w-64 h-64 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
                   {qrCode.imageBase64 ? (
                     <Image
                       source={{ uri: `data:image/png;base64,${qrCode.imageBase64}` }}
@@ -232,13 +232,13 @@ export default function QRDetailScreen() {
                       resizeMode="contain"
                     />
                   ) : (
-                    <View className="w-full h-full bg-gray-200 items-center justify-center">
-                      <Text className="text-gray-500 text-lg">No Image</Text>
+                    <View className="w-full h-full bg-gray-200 dark:bg-gray-600 items-center justify-center">
+                      <Text className="text-gray-500 dark:text-gray-400 text-lg">No Image</Text>
                     </View>
                   )}
                 </View>
-                
-                <Text className="text-sm text-blue-600 mt-3">
+
+                <Text className="text-sm text-blue-600 dark:text-blue-400 mt-3">
                   Tap for full screen view
                 </Text>
               </TouchableOpacity>
@@ -248,29 +248,29 @@ export default function QRDetailScreen() {
           {/* Details */}
           <Card>
             <View className="p-4">
-              <Text className="text-lg font-semibold text-gray-900 mb-4">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Details
               </Text>
-              
+
               <View className="space-y-3">
                 <View className="flex-row justify-between">
-                  <Text className="text-gray-600">Type:</Text>
-                  <Text className="text-gray-900 font-medium">
+                  <Text className="text-gray-600 dark:text-gray-400">Type:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium">
                     {getTypeLabel(qrCode.type)}
                   </Text>
                 </View>
-                
+
                 <View className="flex-row justify-between">
-                  <Text className="text-gray-600">Saved:</Text>
-                  <Text className="text-gray-900 font-medium">
+                  <Text className="text-gray-600 dark:text-gray-400">Saved:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium">
                     {formatDate(qrCode.savedAt)}
                   </Text>
                 </View>
-                
+
                 {qrCode.legId && (
                   <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Trip Leg:</Text>
-                    <Text className="text-gray-900 font-medium">
+                    <Text className="text-gray-600 dark:text-gray-400">Trip Leg:</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium">
                       Associated
                     </Text>
                   </View>
@@ -282,22 +282,22 @@ export default function QRDetailScreen() {
           {/* Actions */}
           <Card>
             <View className="p-4 space-y-3">
-              <Text className="text-lg font-semibold text-gray-900 mb-2">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Actions
               </Text>
-              
+
               <Button
                 title="View Full Screen"
                 onPress={handleViewFullScreen}
                 variant="primary"
               />
-              
+
               <Button
                 title="Share QR Code"
                 onPress={handleShare}
                 variant="outline"
               />
-              
+
               <Button
                 title="Delete QR Code"
                 onPress={handleDelete}
@@ -309,28 +309,28 @@ export default function QRDetailScreen() {
           {/* Usage Instructions */}
           <Card>
             <View className="p-4">
-              <Text className="text-lg font-semibold text-gray-900 mb-3">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 How to Use
               </Text>
-              
+
               <View className="space-y-3">
                 <View className="flex-row items-start space-x-3">
-                  <Text className="text-blue-600 font-bold">1.</Text>
-                  <Text className="text-sm text-gray-600 flex-1">
+                  <Text className="text-blue-600 dark:text-blue-400 font-bold">1.</Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Show this QR code to immigration or customs officers at the airport
                   </Text>
                 </View>
-                
+
                 <View className="flex-row items-start space-x-3">
-                  <Text className="text-blue-600 font-bold">2.</Text>
-                  <Text className="text-sm text-gray-600 flex-1">
+                  <Text className="text-blue-600 dark:text-blue-400 font-bold">2.</Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Use full-screen view for better scanning
                   </Text>
                 </View>
-                
+
                 <View className="flex-row items-start space-x-3">
-                  <Text className="text-blue-600 font-bold">3.</Text>
-                  <Text className="text-sm text-gray-600 flex-1">
+                  <Text className="text-blue-600 dark:text-blue-400 font-bold">3.</Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Keep your phone charged and ensure screen brightness is at maximum
                   </Text>
                 </View>

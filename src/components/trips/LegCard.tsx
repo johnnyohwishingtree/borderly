@@ -73,7 +73,7 @@ export default function LegCard({
   };
 
   // Use overall status if we have assigned travelers, otherwise use legacy status
-  const displayStatus = leg.assignedTravelers && leg.assignedTravelers.length > 0 
+  const displayStatus = leg.assignedTravelers && leg.assignedTravelers.length > 0
     ? getOverallLegFormStatus(leg)
     : leg.formStatus;
 
@@ -81,11 +81,11 @@ export default function LegCard({
     if (!leg.assignedTravelers || leg.assignedTravelers.length === 0) {
       return [];
     }
-    
+
     return leg.assignedTravelers.map(travelerId => {
       const member = familyMembers.find(m => m.id === travelerId);
       if (!member) return null;
-      
+
       return {
         member,
         status: getTravelerFormStatus(travelerId, leg)
@@ -110,10 +110,10 @@ export default function LegCard({
             <View className="flex-row items-center">
               <CountryFlag countryCode={leg.destinationCountry} size="medium" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants" />
               <View className="ml-3">
-                <Text className="text-lg font-semibold text-gray-900">
+                <Text className="text-lg font-semibold text-gray-900 dark:text-white">
                   {getCountryName(leg.destinationCountry)}
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
                   {formatDate(leg.arrivalDate)}
                   {leg.departureDate && ` - ${formatDate(leg.departureDate)}`}
                 </Text>
@@ -135,7 +135,7 @@ export default function LegCard({
 
           {leg.flightNumber && (
             <View className="mb-2">
-              <Text className="text-sm text-gray-600">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 Flight: {leg.flightNumber}
                 {leg.arrivalAirport && ` → ${leg.arrivalAirport}`}
               </Text>
@@ -143,31 +143,31 @@ export default function LegCard({
           )}
 
           <View>
-            <Text className="text-sm font-medium text-gray-700">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {leg.accommodation.name}
             </Text>
-            <Text className="text-sm text-gray-600">
+            <Text className="text-sm text-gray-600 dark:text-gray-400">
               {leg.accommodation.address.city}
             </Text>
           </View>
 
           {/* Multi-traveler details */}
           {showTravelerDetails && leg.assignedTravelers && leg.assignedTravelers.length > 0 && (
-            <View className="mt-3 pt-3 border-t border-gray-200">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
+            <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Travelers ({leg.assignedTravelers.length})
               </Text>
               <View className="space-y-1">
                 {getAssignedTravelers().map((travelerInfo) => {
                   if (!travelerInfo) return null;
                   const { member, status } = travelerInfo;
-                  
+
                   return (
                     <View key={member.id} className="flex-row items-center justify-between">
-                      <Text className="text-sm text-gray-600 flex-1">
+                      <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                         {member.givenNames.split(' ')[0]} {member.surname}
                       </Text>
-                      <StatusBadge 
+                      <StatusBadge
                         status={getStatusColor(status)}
                         text={getStatusText(status)}
                         size="small"
@@ -182,15 +182,15 @@ export default function LegCard({
           {/* Show traveler count even when details are hidden */}
           {!showTravelerDetails && leg.assignedTravelers && leg.assignedTravelers.length > 1 && (
             <View className="mt-2">
-              <Text className="text-xs text-gray-500">
+              <Text className="text-xs text-gray-500 dark:text-gray-400">
                 {leg.assignedTravelers.length} travelers assigned
               </Text>
             </View>
           )}
 
           {leg.qrCodes && leg.qrCodes.length > 0 && (
-            <View className="mt-3 pt-3 border-t border-gray-200">
-              <Text className="text-sm text-gray-600">
+            <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <Text className="text-sm text-gray-600 dark:text-gray-400">
                 {leg.qrCodes.length} QR code{leg.qrCodes.length > 1 ? 's' : ''} saved
               </Text>
             </View>
@@ -200,4 +200,3 @@ export default function LegCard({
     </CardComponent>
   );
 }
-

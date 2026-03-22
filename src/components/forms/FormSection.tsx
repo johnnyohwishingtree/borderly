@@ -35,11 +35,11 @@ export default function FormSection({
     const headerContent = (
       <View className="flex-row items-center justify-between">
         <View className="flex-1">
-          <Text className="text-lg font-semibold text-gray-900">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white">
             {section.title}
           </Text>
           {totalFields > 0 && (
-            <Text className="text-sm text-gray-600 mt-1">
+            <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
               {filledFields}/{totalFields} fields completed
             </Text>
           )}
@@ -50,13 +50,13 @@ export default function FormSection({
           {hasErrors && (
             <View className="w-3 h-3 bg-red-500 rounded-full mr-2" />
           )}
-          <View className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center">
-            <Text className="text-xs font-semibold text-gray-600">
+          <View className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full items-center justify-center">
+            <Text className="text-xs font-semibold text-gray-600 dark:text-gray-300">
               {Math.round((filledFields / totalFields) * 100) || 0}%
             </Text>
           </View>
           {collapsible && (
-            <Text className="text-gray-400 ml-2 text-xl">
+            <Text className="text-gray-400 dark:text-gray-500 ml-2 text-xl">
               {isExpanded ? '−' : '+'}
             </Text>
           )}
@@ -73,7 +73,7 @@ export default function FormSection({
       return (
         <Pressable
           onPress={() => setIsExpanded(!isExpanded)}
-          className="p-4 bg-white border-b border-gray-200"
+          className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
           accessible={true}
           accessibilityRole="button"
           accessibilityState={{ expanded: isExpanded }}
@@ -87,7 +87,7 @@ export default function FormSection({
     }
 
     return (
-      <View className="p-4 bg-white border-b border-gray-200">
+      <View className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         {headerContent}
       </View>
     );
@@ -99,7 +99,7 @@ export default function FormSection({
     }
 
     return (
-      <View className="p-4 bg-white">
+      <View className="p-4 bg-white dark:bg-gray-800">
         {section.fields.map((field) => (
           <FormField
             key={field.id}
@@ -115,7 +115,7 @@ export default function FormSection({
   };
 
   return (
-    <View className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <View className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
       {renderHeader()}
       {renderFields()}
     </View>
