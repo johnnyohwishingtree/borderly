@@ -13,14 +13,15 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector } from '@/components/trips';
 import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, AddressAutocomplete } from '@/components/ui';
-import { Address } from '@/types/profile';
+import { Address, FamilyMember } from '@/types/profile';
 import { Trip, TripLeg } from '@/types/trip';
-import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripReadiness } from '@/hooks/useTripReadiness';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import {
   computeTripDeadlines,
@@ -516,6 +517,8 @@ export default function TripDetailScreen() {
                 onUpdateAddress={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
+                travelers={editHook.familyMembers}
+                onToggleTraveler={editHook.handleEditLegTravelerToggle}
               />
             ) : (
               /* ── Edit trip name + list of legs ── */
@@ -639,12 +642,41 @@ export default function TripDetailScreen() {
                 onUpdateAddress={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
+                travelers={editHook.familyMembers}
+                onToggleTraveler={editHook.handleNewLegTravelerToggle}
               />
             )}
           </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
     </ScreenContainer>
+  );
+}
+
+// ── LegPassportWarning component ─────────────────────────────────────────────
+// Wraps usePassportValidity (a hook) so it can be called inside LegFormSection.
+// Hooks cannot be called inside plain functions — they must live at the top
+// level of a function component.
+
+function LegPassportWarning({
+  countryCode,
+  departureDate,
+  testID,
+}: {
+  countryCode: string;
+  departureDate?: string | undefined;
+  testID?: string;
+}) {
+  const warningData = usePassportValidity({ countryCode, departureDate });
+  if (!warningData) return null;
+  return (
+    <PassportValidityWarning
+      status={warningData.status}
+      countryName={warningData.countryName}
+      requiredMonths={warningData.requiredMonths}
+      passportExpiry={warningData.passportExpiry}
+      {...(testID !== undefined ? { testID } : {})}
+    />
   );
 }
 
@@ -665,14 +697,17 @@ interface LegFormSectionProps {
       address: { line1: string; city: string; postalCode: string; country: string };
       phone: string;
     };
+    assignedTravelers?: string[];
   };
   onUpdateField: (field: string, value: string) => void;
   onUpdateAddress: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
+  travelers?: FamilyMember[];
+  onToggleTraveler?: (travelerId: string) => void;
 }
 
-function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testIDPrefix }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -703,6 +738,15 @@ function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testI
         </View>
         {errors.country && <Text className="text-red-500 text-sm mt-2">{errors.country}</Text>}
       </View>
+
+      {/* Passport validity warning — shown when the selected country's requirements are not met */}
+      {legData.destinationCountry ? (
+        <LegPassportWarning
+          countryCode={legData.destinationCountry}
+          departureDate={legData.departureDate || undefined}
+          testID={`${testIDPrefix}-passport-validity-warning`}
+        />
+      ) : null}
 
       {/* Dates */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
@@ -766,6 +810,19 @@ function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testI
           />
         </View>
       </View>
+
+      {/* Travelers */}
+      {travelers && travelers.length > 0 && onToggleTraveler && (
+        <TravelerSelector
+          travelers={travelers}
+          selectedTravelerIds={legData.assignedTravelers ?? []}
+          onToggleTraveler={onToggleTraveler}
+          title="Who is traveling to this destination?"
+          subtitle="Select which family members will visit this country."
+          showCompact={true}
+          minSelection={1}
+        />
+      )}
 
       {/* Accommodation */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
