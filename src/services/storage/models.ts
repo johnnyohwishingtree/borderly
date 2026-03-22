@@ -1,6 +1,6 @@
 import { Model } from '@nozbe/watermelondb';
 import { field, date, readonly } from '@nozbe/watermelondb/decorators';
-import { Accommodation } from '@/types/trip';
+import { Accommodation, TravelerFormData } from '@/types/trip';
 
 export class Trip extends Model {
   static table = 'trips';
@@ -34,6 +34,8 @@ export class TripLeg extends Model {
   @field('form_status') formStatus!: 'not_started' | 'in_progress' | 'ready' | 'submitted';
   @field('form_data') formDataString?: string; // JSON string
   @field('order') order!: number;
+  @field('assigned_travelers') assignedTravelersString?: string; // JSON array of traveler profile IDs
+  @field('traveler_forms_data') travelerFormsDataString?: string; // JSON array of TravelerFormData
 
   // Helper getters for JSON fields
   get accommodation(): Accommodation {
@@ -58,6 +60,24 @@ export class TripLeg extends Model {
       return JSON.parse(this.formDataString);
     } catch {
       return undefined;
+    }
+  }
+
+  get assignedTravelers(): string[] {
+    if (!this.assignedTravelersString) {return [];}
+    try {
+      return JSON.parse(this.assignedTravelersString);
+    } catch {
+      return [];
+    }
+  }
+
+  get travelerFormsData(): TravelerFormData[] {
+    if (!this.travelerFormsDataString) {return [];}
+    try {
+      return JSON.parse(this.travelerFormsDataString);
+    } catch {
+      return [];
     }
   }
 

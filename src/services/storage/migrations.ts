@@ -1,4 +1,4 @@
-import { schemaMigrations } from '@nozbe/watermelondb/Schema/migrations';
+import { schemaMigrations, addColumns } from '@nozbe/watermelondb/Schema/migrations';
 
 export const migrations = schemaMigrations({
   migrations: [
@@ -10,6 +10,18 @@ export const migrations = schemaMigrations({
       steps: [
         // No explicit steps needed - WatermelonDB handles index creation automatically
         // when the schema is updated with isIndexed: true
+      ],
+    },
+    {
+      toVersion: 3,
+      steps: [
+        addColumns({
+          table: 'trip_legs',
+          columns: [
+            { name: 'assigned_travelers', type: 'string', isOptional: true },
+            { name: 'traveler_forms_data', type: 'string', isOptional: true },
+          ],
+        }),
       ],
     },
   ],
