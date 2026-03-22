@@ -8,6 +8,10 @@ import { baseState, injectState, createErrorTracker, navigateImperatively } from
  * - A single summary row (count + chevron) is the only way to reach FamilyManagement
  * - No duplicate "Manage" or "Add Family Member" buttons exist
  * - Tapping the summary row navigates to FamilyManagement
+ *
+ * Also verifies the Document Validity section (Story #611):
+ * - "Document Validity" section renders when passport expiry data is available
+ * - Per-country validity grid is visible
  */
 
 const SINGLE_PROFILE_STATE = baseState();
@@ -170,5 +174,44 @@ test.describe('ProfileScreen — consolidated family entry point', () => {
     await expect(summaryRow).toBeVisible({ timeout: 5000 });
     const text = await summaryRow.innerText();
     expect(text).toMatch(/3 family members/);
+  });
+});
+
+test.describe('ProfileScreen — Document Validity section', () => {
+  test.beforeEach(async ({ page }) => {
+    tracker.setup(page);
+  });
+
+  test.afterEach(() => {
+    tracker.assertNoCriticalErrors();
+  });
+
+  test('Document Validity section is visible when passport expiry is set', async ({ page }) => {
+    await injectState(page, SINGLE_PROFILE_STATE);
+    await page.goto('/');
+    await navigateToProfile(page);
+
+    await expect(page.getByText('Document Validity').first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('Document Validity section shows country validity grid', async ({ page }) => {
+    await injectState(page, SINGLE_PROFILE_STATE);
+    await page.goto('/');
+    await navigateToProfile(page);
+
+    // Per-country validity grid renders (all 8 countries; just check the section label)
+    await expect(page.getByText('Country Validity (today departure)').first()).toBeVisible({
+      timeout: 5000,
+    });
+  });
+
+  test('Document Validity section renders without crashing', async ({ page }) => {
+    await injectState(page, SINGLE_PROFILE_STATE);
+    await page.goto('/');
+    await navigateToProfile(page);
+
+    // The document-validity-card testID should be in the DOM
+    const card = page.locator('[data-testid="document-validity-card"]');
+    await expect(card).toBeVisible({ timeout: 5000 });
   });
 });

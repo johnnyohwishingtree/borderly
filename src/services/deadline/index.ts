@@ -24,3 +24,12 @@ export {
   PushNotificationProvider,
   pushNotificationProvider,
 } from './pushNotificationProvider';
+
+export {
+  schedulePassportExpiryNotifications,
+  cancelPassportExpiryNotifications,
+  scheduleAllProfilePassportExpiry,
+  buildPassportNotificationId,
+  profilePassportKey,
+  PASSPORT_TRIGGERS,
+} from './passportExpiryNotifications';
