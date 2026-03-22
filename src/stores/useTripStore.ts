@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Trip, TripLeg, SavedQRCode, TravelerFormData } from '@/types/trip';
+import { Trip, TripLeg, SavedQRCode, LegSubmissionStatus, TravelerFormData } from '@/types/trip';
 import { databaseService, TripQueryOptions } from '@/services/storage';
 import {
   scheduleDeadlineNotifications,
@@ -51,6 +51,7 @@ interface TripStore {
 
   // Submission status
   markLegAsSubmitted: (legId: string) => Promise<void>;
+  updateLegSubmissionStatus: (legId: string, status: LegSubmissionStatus) => Promise<void>;
 
   // Utilities
   getTripById: (tripId: string) => Trip | undefined;
@@ -126,6 +127,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
             arrivalAirport: (legModel as any).arrivalAirport,
             accommodation: (legModel as any).accommodation,
             formStatus: (legModel as any).formStatus,
+            submissionStatus: (legModel as any).submissionStatus || 'not_started',
             formData: (legModel as any).formData,
             order: (legModel as any).order,
             qrCodes: [], // Will be loaded if needed
@@ -137,11 +139,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
         };
         return trip;
       });
-      
-      set({ 
-        trips, 
-        isLoading: false, 
-        totalTrips, 
+
+      set({
+        trips,
+        isLoading: false,
+        totalTrips,
         currentPage: 1,
         hasMoreTrips: trips.length < totalTrips
       });
@@ -192,6 +194,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
             arrivalAirport: (legModel as any).arrivalAirport,
             accommodation: (legModel as any).accommodation,
             formStatus: (legModel as any).formStatus,
+            submissionStatus: (legModel as any).submissionStatus || 'not_started',
             formData: (legModel as any).formData,
             order: (legModel as any).order,
             qrCodes: [],
@@ -203,7 +206,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
         };
         return trip;
       });
-      
+
       set(currentState => ({
         trips: [...currentState.trips, ...newTrips],
         isLoadingMore: false,
@@ -317,6 +320,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
         id: legModel.id,
         tripId,
         ...legData,
+        submissionStatus: legData.submissionStatus || 'not_started',
         assignedTravelers: legData.assignedTravelers || [], // Default to empty array
         travelerFormsData: legData.travelerFormsData || [], // Default to empty array
       };
@@ -530,6 +534,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
   // Submission status
   markLegAsSubmitted: async (legId) => {
     await get().updateTripLeg(legId, { formStatus: 'submitted' });
+  },
+
+  updateLegSubmissionStatus: async (legId: string, status: LegSubmissionStatus) => {
+    set({ error: null });
+    try {
+      await databaseService.updateTripLeg(legId, { submissionStatus: status } as any);
+
+      set(state => ({
+        trips: state.trips.map(trip => ({
+          ...trip,
+          legs: trip.legs.map(leg =>
+            leg.id === legId ? { ...leg, submissionStatus: status } : leg
+          ),
+        })),
+      }));
+    } catch (error) {
+      console.error('Failed to update leg submission status:', error);
+      set({ error: error instanceof Error ? error.message : 'Failed to update submission status' });
+    }
   },
 
   // Multi-traveler operations

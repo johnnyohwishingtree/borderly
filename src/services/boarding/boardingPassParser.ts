@@ -262,6 +262,7 @@ export function createTripLegFromBoardingPass(
     airlineCode: parsedPass.airlineCode,
     arrivalAirport: parsedPass.arrivalAirport,
     formStatus: 'not_started' as const,
+    submissionStatus: 'not_started' as const,
     order,
     // Note: accommodation needs to be provided separately as it's not in boarding pass data
   };
