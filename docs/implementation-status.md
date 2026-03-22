@@ -4,9 +4,9 @@
 
 Borderly is a local-first mobile app for auto-generating travel declaration forms. This document tracks the current implementation status of all planned features.
 
-**Current Version**: MVP Phase 1 - Extended  
-**Last Updated**: March 2026  
-**Implementation**: 100% Complete (8 countries supported, Sprint 4 finalized)
+**Current Version**: MVP Phase 1 - Extended
+**Last Updated**: March 2026
+**Implementation**: 100% Complete (8 countries supported, Sprint 7 finalized)
 
 ## Core Features Implementation
 
@@ -64,6 +64,16 @@ Borderly is a local-first mobile app for auto-generating travel declaration form
 - [x] **QR Deletion**: Remove expired or invalid QR codes
 
 **Test Coverage**: 95% unit tests, 100% E2E coverage
+
+### ✅ Push Notifications & Deadline Reminders
+- [x] **DeadlineService**: Computes per-leg deadline status and urgency from departure date and country schema
+- [x] **NotificationScheduler**: Schedules 3 reminder triggers (7-day, 48-h, 24-h) per leg; persists IDs in MMKV for cancellation across restarts
+- [x] **PushNotificationProvider**: Production provider backed by `@notifee/react-native`; Android channel creation; OS permission request with graceful degradation
+- [x] **NotificationPermissionScreen**: Onboarding step requesting push notification permission with accessible "Allow" and "Skip" CTAs
+- [x] **DeadlineBadge component**: Pill badge with 6 display states and countdown label; integrated into LegCard and TripDetailScreen
+- [x] **Trip Readiness summary**: "X of N legs ready" indicator on TripDetailScreen
+
+**Test Coverage**: 100% unit tests (pushNotificationProvider: 16 tests; notificationScheduler: 35 tests including 7 integration tests with real provider); E2E smoke tests verify notification permission screen reachability and deadline badge rendering
 
 ## Country Support Status
 
@@ -231,12 +241,12 @@ Borderly is a local-first mobile app for auto-generating travel declaration form
 ## Testing Coverage
 
 ### ✅ Unit Tests (Jest + React Native Testing Library)
-- [x] **Services**: 100% coverage (15 test suites)
-- [x] **Components**: 95% coverage (25 test suites)  
+- [x] **Services**: 100% coverage (17 test suites)
+- [x] **Components**: 95% coverage (25 test suites)
 - [x] **Utils**: 100% coverage (8 test suites)
 - [x] **Stores**: 95% coverage (4 test suites)
 
-**Total**: 52 test suites, 340+ individual tests
+**Total**: 54 test suites, 370+ individual tests
 
 ### ✅ Integration Tests
 - [x] **Form Generation Flow**: Complete workflow testing

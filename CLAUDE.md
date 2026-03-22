@@ -258,6 +258,14 @@ Part of Epic #566 — Backup/Restore Data Flow
 - [x] **E2E smoke tests** — `e2e/tests/backup-restore.spec.ts` verifies export modal opens/closes and restore modal renders without crashing
 - [x] **Architecture documentation** — `docs/mvp-proposal.md` updated with Backup & Restore section describing data flow, key files, security properties, and test coverage
 
+### ✅ Sprint 7: Push Notifications & Deadline Reminders Coverage (Complete)
+Part of Epic #589 — Pre-Trip Deadline Reminders and Submission Readiness
+
+- [x] **PushNotificationProvider** (`src/services/deadline/pushNotificationProvider.ts`) — Production `NotificationProvider` backed by `@notifee/react-native`; creates Android channel on first call; requests OS permission before scheduling; cancels by ID; graceful degradation when permission denied
+- [x] **NotificationPermissionScreen** (`src/screens/onboarding/NotificationPermissionScreen.tsx`) — Onboarding screen requesting push notification permission; auto-skips when already granted; "Allow Notifications" and "Skip for Now" CTAs; accessible with proper roles and labels
+- [x] **Unit tests** — `__tests__/services/pushNotificationProvider.test.ts` (16 tests covering schedule, cancel, past triggers, permission denied, channel creation, PROVISIONAL status, error resilience); `__tests__/services/notificationScheduler.test.ts` updated with 7 additional integration tests using real `PushNotificationProvider` (backed by mocked notifee)
+- [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` updated with 2 new tests verifying notification permission screen is reachable from the onboarding flow and the Allow Notifications button is present and enabled
+
 ## Accessibility Standards
 
 Borderly follows React Native accessibility (a11y) standards to ensure the app is usable with screen readers (VoiceOver on iOS, TalkBack on Android).
