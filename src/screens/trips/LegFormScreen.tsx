@@ -8,9 +8,11 @@ import { DynamicForm } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import CountryFlag from '../../components/trips/CountryFlag';
 import TravelerTabs from '../../components/trips/TravelerTabs';
+import PassportValidityWarning from '../../components/trips/PassportValidityWarning';
 import { schemaRegistry } from '../../services/schemas/schemaRegistry';
 import { TripStackParamList } from '../../app/navigation/types';
 import { useLegForm } from '../../hooks/useLegForm';
+import { usePassportValidity } from '../../hooks/usePassportValidity';
 
 type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
 
@@ -44,6 +46,12 @@ export default function LegFormScreen() {
     travelerTabs,
     switchToTraveler,
   } = useLegForm({ tripId, legId });
+
+  // Passport validity check — called unconditionally (hooks rule)
+  const passportWarning = usePassportValidity({
+    countryCode: leg?.destinationCountry ?? '',
+    departureDate: leg?.departureDate,
+  });
 
   if (isLoading) {
     return (
@@ -148,6 +156,19 @@ export default function LegFormScreen() {
           className="mt-4"
         />
       </View>
+
+      {/* Passport Validity Warning */}
+      {passportWarning && (
+        <View className="px-4 mt-3">
+          <PassportValidityWarning
+            status={passportWarning.status}
+            countryName={passportWarning.countryName}
+            requiredMonths={passportWarning.requiredMonths}
+            passportExpiry={passportWarning.passportExpiry}
+            testID="leg-form-passport-validity-warning"
+          />
+        </View>
+      )}
 
       {/* Form Content */}
       <DynamicForm
