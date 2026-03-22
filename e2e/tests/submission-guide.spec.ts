@@ -67,11 +67,13 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await expect(page.getByText('Submission Guide')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Submission Timing')).toBeVisible({ timeout: 10000 });
 
-    // Complete all steps by clicking "Mark as Complete" buttons sequentially
+    // Complete all steps by clicking "Mark as Complete" buttons sequentially.
+    // StepCard's Pressable renders as a generic element (no role="button") in
+    // React Native Web, so we locate by text content rather than role.
     let stepButtonVisible = true;
     let safetyCounter = 0;
     while (stepButtonVisible && safetyCounter < 20) {
-      const markCompleteBtn = page.getByRole('button', { name: 'Mark as Complete' });
+      const markCompleteBtn = page.getByText('Mark as Complete').first();
       const isVisible = await markCompleteBtn.isVisible().catch(() => false);
       if (!isVisible) {
         stepButtonVisible = false;
@@ -109,7 +111,7 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     });
 
     await expect(page.getByText('Japan Submission Guide')).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText('Visit Japan Web')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Visit Japan Web', { exact: true })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Submission Timing')).toBeVisible();
     // Submit in App and Open in Browser buttons should be present
     await expect(page.getByTestId('submit-in-app-button')).toBeVisible({ timeout: 5000 });
