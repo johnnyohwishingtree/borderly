@@ -1,9 +1,9 @@
-import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { Pressable, Text, ActivityIndicator, useColorScheme } from 'react-native';
 import { HapticFeedback } from './HapticFeedback';
-import { 
-  TouchTargetUtils, 
+import {
+  TouchTargetUtils,
   ACCESSIBILITY_CONSTANTS,
-  AccessibilityStateHelpers 
+  AccessibilityStateHelpers
 } from '@/utils/accessibility';
 
 export interface ButtonProps {
@@ -35,6 +35,9 @@ export default function Button({
   highContrastMode = false,
   testID,
 }: ButtonProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const getButtonStyles = () => {
     const baseStyles = 'rounded-xl flex-row items-center justify-center transition-all duration-150';
 
@@ -50,9 +53,9 @@ export default function Button({
       secondary: 'bg-gray-800 border-2 border-white',
       outline: 'bg-transparent border-2 border-black',
     } : {
-      primary: 'bg-blue-600 shadow-lg shadow-blue-600/25',
-      secondary: 'bg-gray-600 shadow-lg shadow-gray-600/20',
-      outline: 'bg-transparent border-2 border-gray-300 shadow-sm',
+      primary: 'bg-blue-600 dark:bg-blue-500 shadow-lg shadow-blue-600/25',
+      secondary: 'bg-gray-600 dark:bg-gray-500 shadow-lg shadow-gray-600/20',
+      outline: 'bg-transparent border-2 border-gray-300 dark:border-gray-600 shadow-sm',
     };
 
     const disabledStyles = disabled || loading ? 'opacity-50 shadow-none' : '';
@@ -77,7 +80,7 @@ export default function Button({
     } : {
       primary: 'text-white',
       secondary: 'text-white',
-      outline: 'text-gray-700',
+      outline: 'text-gray-700 dark:text-gray-200',
     };
 
     return `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]}`;
@@ -136,9 +139,9 @@ export default function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={highContrastMode 
+          color={highContrastMode
             ? (variant === 'outline' ? '#000000' : '#FFFFFF')
-            : (variant === 'outline' ? '#374151' : 'white')
+            : (variant === 'outline' ? (isDark ? '#E5E7EB' : '#374151') : 'white')
           }
           style={{ marginRight: 8 }}
           accessibilityLabel="Loading"

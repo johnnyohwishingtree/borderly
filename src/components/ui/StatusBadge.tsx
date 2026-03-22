@@ -29,29 +29,29 @@ export default function StatusBadge({
 
     const statusStyles = {
       success: {
-        filled: 'bg-green-600',
-        outlined: 'bg-transparent border-2 border-green-600',
-        soft: 'bg-green-100',
+        filled: 'bg-green-600 dark:bg-green-500',
+        outlined: 'bg-transparent border-2 border-green-600 dark:border-green-500',
+        soft: 'bg-green-100 dark:bg-green-900/40',
       },
       error: {
-        filled: 'bg-red-600',
-        outlined: 'bg-transparent border-2 border-red-600',
-        soft: 'bg-red-100',
+        filled: 'bg-red-600 dark:bg-red-500',
+        outlined: 'bg-transparent border-2 border-red-600 dark:border-red-500',
+        soft: 'bg-red-100 dark:bg-red-900/40',
       },
       warning: {
-        filled: 'bg-yellow-600',
-        outlined: 'bg-transparent border-2 border-yellow-600',
-        soft: 'bg-yellow-100',
+        filled: 'bg-yellow-600 dark:bg-yellow-500',
+        outlined: 'bg-transparent border-2 border-yellow-600 dark:border-yellow-500',
+        soft: 'bg-yellow-100 dark:bg-yellow-900/40',
       },
       info: {
-        filled: 'bg-blue-600',
-        outlined: 'bg-transparent border-2 border-blue-600',
-        soft: 'bg-blue-100',
+        filled: 'bg-blue-600 dark:bg-blue-500',
+        outlined: 'bg-transparent border-2 border-blue-600 dark:border-blue-500',
+        soft: 'bg-blue-100 dark:bg-blue-900/40',
       },
       neutral: {
-        filled: 'bg-gray-600',
-        outlined: 'bg-transparent border-2 border-gray-600',
-        soft: 'bg-gray-100',
+        filled: 'bg-gray-600 dark:bg-gray-500',
+        outlined: 'bg-transparent border-2 border-gray-600 dark:border-gray-500',
+        soft: 'bg-gray-100 dark:bg-gray-700/60',
       },
     };
 
@@ -70,28 +70,28 @@ export default function StatusBadge({
     const textColors = {
       success: {
         filled: 'text-white',
-        outlined: 'text-green-600',
-        soft: 'text-green-800',
+        outlined: 'text-green-600 dark:text-green-400',
+        soft: 'text-green-800 dark:text-green-300',
       },
       error: {
         filled: 'text-white',
-        outlined: 'text-red-600',
-        soft: 'text-red-800',
+        outlined: 'text-red-600 dark:text-red-400',
+        soft: 'text-red-800 dark:text-red-300',
       },
       warning: {
         filled: 'text-white',
-        outlined: 'text-yellow-600',
-        soft: 'text-yellow-800',
+        outlined: 'text-yellow-600 dark:text-yellow-400',
+        soft: 'text-yellow-800 dark:text-yellow-300',
       },
       info: {
         filled: 'text-white',
-        outlined: 'text-blue-600',
-        soft: 'text-blue-800',
+        outlined: 'text-blue-600 dark:text-blue-400',
+        soft: 'text-blue-800 dark:text-blue-300',
       },
       neutral: {
         filled: 'text-white',
-        outlined: 'text-gray-600',
-        soft: 'text-gray-800',
+        outlined: 'text-gray-600 dark:text-gray-400',
+        soft: 'text-gray-800 dark:text-gray-200',
       },
     };
 
