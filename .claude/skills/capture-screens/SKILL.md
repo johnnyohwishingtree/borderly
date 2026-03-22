@@ -73,17 +73,11 @@ The flow graph is consumed by `/ux-review` to reason about navigation paths and 
 
 **Flow graph** at `e2e/screenshots/flow-graph.json` — static analysis of navigation structure (stacks, tabs, edges, screen files).
 
-## Playwright vs Native Screenshots
+## Playwright Limitations
 
-**Playwright screenshots** (this skill) render via React Native Web in Chromium. They capture layout, content, and navigation but have limitations:
+Screenshots render via React Native Web in Chromium. Limitations:
 - Portal screens show iframe-blocked content (government portals block `X-Frame-Options`)
 - Some native-only components render as web approximations
-
-**Native screenshots** are captured post-merge by `screenshot-capture.yml` using an Android emulator + Maestro. These show true native rendering but are slower (~30min) and run only after merges to master.
-
-## Portal Screenshots Note
-
-Portal submission screenshots (MYS, SGP, VNM, CAN) captured via Playwright show loading/blocked states because government portals reject iframe embedding. This is expected — the native app uses real WebViews that bypass this restriction. Native-fidelity portal screenshots come from the post-merge Android emulator workflow.
 
 ## When to Re-Run
 
@@ -93,15 +87,7 @@ Re-capture screenshots whenever:
 - Navigation flow changes
 - After a visual audit implements fixes (before/after comparison)
 
-## CI Auto-Capture
-
-Screenshots are now captured exclusively post-merge on the `master` branch by the `screenshot-capture.yml` workflow. This process:
-
-- Boots an Android emulator to run the app.
-- Executes the Maestro capture flow for native-fidelity screenshots.
-- Creates a pull request if any screenshot differences are detected.
-
-This replaces the previous in-PR Playwright captures; screenshots are no longer generated during PR or verify-and-fix runs.
+Screenshots are part of the source tree — update them in the same PR as the code change.
 
 ## Integration with Other Skills
 

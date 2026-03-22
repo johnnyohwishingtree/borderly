@@ -10,8 +10,7 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 ## Prerequisites
 
 - **Screenshots**: Run `/capture-screens` first, or provide your own screenshots
-  - **Playwright screenshots** (default): Captured via React Native Web — fast, local, but portal screens show iframe-blocked content
-  - **Native screenshots**: Captured post-merge by `screenshot-capture.yml` on Android emulator via Maestro — true native rendering
+  - Captured via Playwright + React Native Web — fast, local, but portal screens show iframe-blocked content
 - **Stitch MCP server** (optional): For AI-generated redesign alternatives. Requires `STITCH_API_KEY` env var.
 - **frontend-design-audit plugin** (optional): For code-level usability scanning
 
