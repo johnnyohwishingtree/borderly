@@ -261,3 +261,96 @@ describe('useAppStore — first-run prompt', () => {
     expect(mmkvService.setBoolean).toHaveBeenCalledWith(HAS_SEEN_FIRST_RUN_PROMPT_KEY, true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Theme persistence
+// ---------------------------------------------------------------------------
+
+describe('useAppStore — theme persistence', () => {
+  const { mmkvService } = jest.requireMock('@/services/storage') as {
+    mmkvService: {
+      setString: jest.Mock;
+      getString: jest.Mock;
+      getBoolean: jest.Mock;
+      getNumber: jest.Mock;
+    };
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    useAppStore.setState({ theme: 'system' });
+  });
+
+  it('defaults to "system" theme', () => {
+    expect(useAppStore.getState().theme).toBe('system');
+  });
+
+  it('setTheme() updates in-memory theme', () => {
+    useAppStore.getState().setTheme('dark');
+    expect(useAppStore.getState().theme).toBe('dark');
+  });
+
+  it('setTheme() persists theme to MMKV under "app_theme" key', () => {
+    useAppStore.getState().setTheme('light');
+    expect(mmkvService.setString).toHaveBeenCalledWith('app_theme', 'light');
+  });
+
+  it('setTheme() persists "dark" to MMKV', () => {
+    useAppStore.getState().setTheme('dark');
+    expect(mmkvService.setString).toHaveBeenCalledWith('app_theme', 'dark');
+  });
+
+  it('setTheme() persists "system" to MMKV', () => {
+    useAppStore.getState().setTheme('system');
+    expect(mmkvService.setString).toHaveBeenCalledWith('app_theme', 'system');
+  });
+
+  it('loadPersistedAppState() restores "dark" theme from MMKV', () => {
+    mmkvService.getString.mockImplementation((key: string) =>
+      key === 'app_theme' ? 'dark' : null,
+    );
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+
+    useAppStore.getState().loadPersistedAppState();
+
+    expect(useAppStore.getState().theme).toBe('dark');
+  });
+
+  it('loadPersistedAppState() restores "light" theme from MMKV', () => {
+    mmkvService.getString.mockImplementation((key: string) =>
+      key === 'app_theme' ? 'light' : null,
+    );
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+
+    useAppStore.getState().loadPersistedAppState();
+
+    expect(useAppStore.getState().theme).toBe('light');
+  });
+
+  it('loadPersistedAppState() leaves theme as "system" when MMKV has no value', () => {
+    mmkvService.getString.mockReturnValue(null);
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+
+    useAppStore.setState({ theme: 'system' });
+    useAppStore.getState().loadPersistedAppState();
+
+    expect(useAppStore.getState().theme).toBe('system');
+  });
+
+  it('loadPersistedAppState() ignores invalid theme values from MMKV', () => {
+    mmkvService.getString.mockImplementation((key: string) =>
+      key === 'app_theme' ? 'invalid-value' : null,
+    );
+    mmkvService.getBoolean.mockReturnValue(undefined);
+    mmkvService.getNumber.mockReturnValue(null);
+
+    useAppStore.setState({ theme: 'system' });
+    useAppStore.getState().loadPersistedAppState();
+
+    // An invalid stored value should not overwrite the in-memory theme
+    expect(useAppStore.getState().theme).toBe('system');
+  });
+});
