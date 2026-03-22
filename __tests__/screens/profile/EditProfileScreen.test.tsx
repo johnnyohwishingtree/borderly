@@ -16,6 +16,7 @@ jest.mock('@/stores/useProfileStore', () => ({
 jest.mock('@/components/ui', () => {
   const { View, Text, TouchableOpacity, TextInput } = require('react-native');
   return {
+    ScreenContainer: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     Button: ({ title, onPress, disabled, loading, testID }: any) => (
       <TouchableOpacity
         onPress={onPress}

@@ -6,7 +6,7 @@ import { Lock, Unlock } from 'lucide-react-native';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
+import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider, ScreenContainer } from '@/components/ui';
 import ThemeSelector from '@/components/settings/ThemeSelector';
 import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
 import { schemaRegistry } from '@/services/schemas/schemaRegistry';
@@ -277,7 +277,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
@@ -796,5 +797,6 @@ export default function SettingsScreen() {
         <View className="h-8" />
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

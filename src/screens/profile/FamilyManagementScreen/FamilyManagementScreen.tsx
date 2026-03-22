@@ -4,7 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users } from 'lucide-react-native';
 import { ProfileStackParamList } from '@/app/navigation/types';
-import { Button, Card, EmptyState, LoadingStates } from '@/components/ui';
+import { Button, Card, EmptyState, LoadingStates, ScreenContainer } from '@/components/ui';
 import { FamilyMemberCard } from '@/components/profile';
 import { FamilyMember } from '@/types/profile';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -107,7 +107,8 @@ export default function FamilyManagementScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
@@ -191,5 +192,6 @@ export default function FamilyManagementScreen() {
         </Card>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

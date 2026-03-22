@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { Camera, Pencil } from 'lucide-react-native';
 import { ProfileStackParamList } from '@/app/navigation/types';
-import { Button, Card, Select } from '@/components/ui';
+import { Button, Card, Select, ScreenContainer } from '@/components/ui';
 import { FamilyRelationship } from '@/types/profile';
 
 type AddFamilyMemberScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'AddFamilyMember'>;
@@ -62,7 +62,8 @@ export default function AddFamilyMemberScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
@@ -169,5 +170,6 @@ export default function AddFamilyMemberScreen() {
         </Card>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

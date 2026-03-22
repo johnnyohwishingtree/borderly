@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Fingerprint, ShieldCheck, Zap, KeyRound, Lightbulb } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 
 type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'BiometricSetup'>;
 
@@ -88,7 +88,8 @@ export default function BiometricSetupScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-blue-50 to-white dark:bg-gray-900">
+    <ScreenContainer className="bg-gradient-to-b from-blue-50 to-white dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={100} className="mb-6" />
@@ -203,5 +204,6 @@ export default function BiometricSetupScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

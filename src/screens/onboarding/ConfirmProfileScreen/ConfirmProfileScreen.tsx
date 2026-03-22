@@ -9,7 +9,7 @@ import {
 } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 
 type ConfirmProfileScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'ConfirmProfile'>;
@@ -77,7 +77,8 @@ export default function ConfirmProfileScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-gradient-to-b from-green-50 to-white dark:bg-gray-900">
+    <ScreenContainer className="bg-gradient-to-b from-green-50 to-white dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="px-6 py-8">
         {/* Progress indicator */}
         <ProgressBar progress={75} className="mb-6" />
@@ -172,5 +173,6 @@ export default function ConfirmProfileScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

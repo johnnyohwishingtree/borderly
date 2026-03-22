@@ -82,6 +82,7 @@ jest.mock('lucide-react-native', () => {
 jest.mock('@/components/ui', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
+    ScreenContainer: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     Button: ({ title, onPress, testID }: any) => (
       <TouchableOpacity onPress={onPress} testID={testID}><Text>{title}</Text></TouchableOpacity>
     ),

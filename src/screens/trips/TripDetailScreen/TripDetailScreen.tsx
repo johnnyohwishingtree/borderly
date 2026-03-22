@@ -14,7 +14,7 @@ import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist } from '@/components/trips';
-import { Button, StatusBadge, Input } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
@@ -265,7 +265,7 @@ export default function TripDetailScreen() {
   const progress = getOverallProgress();
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
@@ -603,7 +603,7 @@ export default function TripDetailScreen() {
           </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </ScreenContainer>
   );
 }
 
