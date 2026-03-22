@@ -280,114 +280,34 @@ describe('FormField — autoCapitalize per field type', () => {
     mockOnValueChange.mockClear();
   });
 
-  // ── characters: passport numbers and country/nationality codes ───────────
+  const testCases: [string, 'characters' | 'words' | 'none' | 'sentences'][] = [
+    // ── characters: passport numbers and country/nationality codes ───────────
+    ['passportNumber', 'characters'],
+    ['documentNumber', 'characters'],
+    ['issuingCountry', 'characters'],
+    ['nationality', 'characters'],
+    ['countryOfBirth', 'characters'],
+    ['destinationCountry', 'characters'],
+    // ── words: name fields ────────────────────────────────────────────────────
+    ['surname', 'words'],
+    ['givenNames', 'words'],
+    ['lastName', 'words'],
+    ['middleName', 'words'],
+    ['fullName', 'words'],
+    // ── none: email and phone ─────────────────────────────────────────────────
+    ['email', 'none'],
+    ['mobile', 'none'],
+    ['phoneNumber', 'none'],
+    // ── sentences: free-text fields ───────────────────────────────────────────
+    ['occupation', 'sentences'],
+    ['purposeOfVisit', 'sentences'],
+    ['accommodationAddress', 'sentences'],
+  ];
 
-  it('passportNumber uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'passportNumber', type: 'text' });
+  it.each(testCases)('%s uses autoCapitalize=%s', (fieldId, expected) => {
+    const field = makeField({ id: fieldId, type: 'text' });
     render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-passportNumber').props.autoCapitalize).toBe('characters');
-  });
-
-  it('documentNumber uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'documentNumber', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-documentNumber').props.autoCapitalize).toBe('characters');
-  });
-
-  it('issuingCountry uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'issuingCountry', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-issuingCountry').props.autoCapitalize).toBe('characters');
-  });
-
-  it('nationality uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'nationality', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-nationality').props.autoCapitalize).toBe('characters');
-  });
-
-  it('countryOfBirth uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'countryOfBirth', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-countryOfBirth').props.autoCapitalize).toBe('characters');
-  });
-
-  it('destinationCountry uses autoCapitalize=characters', () => {
-    const field = makeField({ id: 'destinationCountry', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-destinationCountry').props.autoCapitalize).toBe('characters');
-  });
-
-  // ── words: name fields ────────────────────────────────────────────────────
-
-  it('surname uses autoCapitalize=words', () => {
-    const field = makeField({ id: 'surname', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-surname').props.autoCapitalize).toBe('words');
-  });
-
-  it('givenNames uses autoCapitalize=words', () => {
-    const field = makeField({ id: 'givenNames', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-givenNames').props.autoCapitalize).toBe('words');
-  });
-
-  it('lastName uses autoCapitalize=words', () => {
-    const field = makeField({ id: 'lastName', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-lastName').props.autoCapitalize).toBe('words');
-  });
-
-  it('middleName uses autoCapitalize=words', () => {
-    const field = makeField({ id: 'middleName', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-middleName').props.autoCapitalize).toBe('words');
-  });
-
-  it('fullName uses autoCapitalize=words', () => {
-    const field = makeField({ id: 'fullName', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-fullName').props.autoCapitalize).toBe('words');
-  });
-
-  // ── none: email and phone ─────────────────────────────────────────────────
-
-  it('email uses autoCapitalize=none', () => {
-    const field = makeField({ id: 'email', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-email').props.autoCapitalize).toBe('none');
-  });
-
-  it('mobile uses autoCapitalize=none', () => {
-    const field = makeField({ id: 'mobile', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-mobile').props.autoCapitalize).toBe('none');
-  });
-
-  it('phoneNumber uses autoCapitalize=none', () => {
-    const field = makeField({ id: 'phoneNumber', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-phoneNumber').props.autoCapitalize).toBe('none');
-  });
-
-  // ── sentences: free-text fields ───────────────────────────────────────────
-
-  it('occupation uses autoCapitalize=sentences', () => {
-    const field = makeField({ id: 'occupation', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-occupation').props.autoCapitalize).toBe('sentences');
-  });
-
-  it('purposeOfVisit uses autoCapitalize=sentences', () => {
-    const field = makeField({ id: 'purposeOfVisit', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-purposeOfVisit').props.autoCapitalize).toBe('sentences');
-  });
-
-  it('accommodationAddress uses autoCapitalize=sentences', () => {
-    const field = makeField({ id: 'accommodationAddress', type: 'text' });
-    render(<FormField field={field} onValueChange={mockOnValueChange} />);
-    expect(screen.getByTestId('input-accommodationAddress').props.autoCapitalize).toBe('sentences');
+    expect(screen.getByTestId(`input-${fieldId}`).props.autoCapitalize).toBe(expected);
   });
 });
 
