@@ -222,7 +222,7 @@ describe('Airport Lookup Service', () => {
   });
 
   describe('SUPPORTED_COUNTRIES constant', () => {
-    it('should contain all 8 supported countries', () => {
+    it('should contain all supported countries', () => {
       expect(SUPPORTED_COUNTRIES).toContain('JPN');
       expect(SUPPORTED_COUNTRIES).toContain('MYS');
       expect(SUPPORTED_COUNTRIES).toContain('SGP');
@@ -231,11 +231,12 @@ describe('Airport Lookup Service', () => {
       expect(SUPPORTED_COUNTRIES).toContain('GBR');
       expect(SUPPORTED_COUNTRIES).toContain('USA');
       expect(SUPPORTED_COUNTRIES).toContain('CAN');
+      expect(SUPPORTED_COUNTRIES).toContain('AUS');
     });
 
     it('should be an array matching constants/countries.ts', () => {
       expect(Array.isArray(SUPPORTED_COUNTRIES)).toBe(true);
-      expect(SUPPORTED_COUNTRIES.length).toBe(8);
+      expect(SUPPORTED_COUNTRIES.length).toBe(9);
     });
   });
 });
