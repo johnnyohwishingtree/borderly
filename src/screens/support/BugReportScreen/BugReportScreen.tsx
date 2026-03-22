@@ -13,7 +13,7 @@ interface BugReportScreenProps {
 
 export default function BugReportScreen({ route: _route }: BugReportScreenProps) {
   const navigation = useNavigation();
-  const { preferences } = useAppStore();
+  const { preferences, theme } = useAppStore();
   const { profile } = useProfileStore();
   const { trips } = useTripStore();
   const [severity, setSeverity] = useState<string>('medium');
@@ -50,7 +50,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
       platformVersion: Platform.Version,
       appVersion: '1.0.0',
       language: preferences.language,
-      theme: preferences.theme,
+      theme,
       biometricEnabled: preferences.biometricEnabled,
       analyticsEnabled: preferences.analyticsEnabled,
       deviceInfo: {

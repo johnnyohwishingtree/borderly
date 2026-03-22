@@ -34,7 +34,6 @@ describe('MMKVService', () => {
       const prefs = mmkvService.getPreferences();
 
       expect(prefs).toEqual({
-        theme: 'auto',
         language: 'en',
         onboardingComplete: false,
         biometricEnabled: false,
@@ -48,7 +47,6 @@ describe('MMKVService', () => {
 
     it('should return stored preferences merged with defaults', () => {
       const storedPrefs = {
-        theme: 'dark',
         onboardingComplete: true,
       };
       mockStorage.getString.mockReturnValue(JSON.stringify(storedPrefs));
@@ -56,7 +54,6 @@ describe('MMKVService', () => {
       const prefs = mmkvService.getPreferences();
 
       expect(prefs).toEqual({
-        theme: 'dark',
         language: 'en',
         onboardingComplete: true,
         biometricEnabled: false,
@@ -75,7 +72,6 @@ describe('MMKVService', () => {
       const prefs = mmkvService.getPreferences();
 
       expect(prefs).toEqual({
-        theme: 'auto',
         language: 'en',
         onboardingComplete: false,
         biometricEnabled: false,
@@ -94,16 +90,16 @@ describe('MMKVService', () => {
     });
 
     it('should set individual preference', () => {
-      const existingPrefs = { theme: 'auto', language: 'en', onboardingComplete: false };
+      const existingPrefs = { language: 'en', onboardingComplete: false };
       mockStorage.getString.mockReturnValue(JSON.stringify(existingPrefs));
 
-      mmkvService.setPreference('theme', 'dark');
+      mmkvService.setPreference('language', 'fr');
 
       expect(mockStorage.set).toHaveBeenCalledWith(
         'app_preferences',
         JSON.stringify({
           ...existingPrefs,
-          theme: 'dark',
+          language: 'fr',
           biometricEnabled: false,
           lastSchemaUpdateCheck: '',
           analyticsEnabled: false,
@@ -126,7 +122,7 @@ describe('MMKVService', () => {
       });
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      mmkvService.setPreference('theme', 'dark');
+      mmkvService.setPreference('language', 'fr');
 
       expect(consoleSpy).toHaveBeenCalledWith('Failed to save preference:', expect.any(Error));
       consoleSpy.mockRestore();

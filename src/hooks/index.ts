@@ -15,3 +15,5 @@ export { usePassportValidity } from './usePassportValidity';
 export type { PassportValidityWarningData } from './usePassportValidity';
 export { useTripReadiness } from './useTripReadiness';
 export type { UseTripReadinessResult } from './useTripReadiness';
+export { useTheme } from '@/utils/theme';
+export type { UseThemeResult, ResolvedTheme, ColorTokens } from '@/utils/theme';

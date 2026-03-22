@@ -3,6 +3,10 @@ import { mmkvService, AppPreferences } from '@/services/storage';
 import { schemaUpdateService } from '@/services/schemas/schemaUpdateService';
 import { schemaRegistry } from '@/services/schemas/schemaRegistry';
 
+const APP_THEME_KEY = 'app_theme';
+
+export type ThemePreference = 'system' | 'light' | 'dark';
+
 const HAS_SEEN_FIRST_RUN_PROMPT_KEY = 'has_seen_first_run_prompt';
 
 interface AppStore {
@@ -31,6 +35,10 @@ interface AppStore {
   // Network state
   isOnline: boolean;
   setOnline: (online: boolean) => void;
+
+  // Theme preference (persisted under app_theme MMKV key)
+  theme: ThemePreference;
+  setTheme: (theme: ThemePreference) => void;
 
   // Cache management
   clearCache: () => void;
@@ -73,8 +81,9 @@ interface AppStore {
 
 export const useAppStore = create<AppStore>((set, get) => ({
   // Initial state
+  theme: 'system' as ThemePreference,
   preferences: {
-    theme: 'auto',
+    theme: 'system',
     language: 'en',
     onboardingComplete: false,
     biometricEnabled: false,
@@ -161,6 +170,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({ isOnline: online });
   },
 
+  // Theme preference
+  setTheme: (theme: ThemePreference) => {
+    mmkvService.setString(APP_THEME_KEY, theme);
+    set({ theme });
+  },
+
   // Cache management
   clearCache: () => {
     mmkvService.clearCache();
@@ -231,6 +246,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
 
   loadPersistedAppState: () => {
+    // Load theme preference from dedicated app_theme key.
+    const storedTheme = mmkvService.getString(APP_THEME_KEY) as ThemePreference | undefined;
+    if (storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system') {
+      set({ theme: storedTheme });
+    }
+
     const refreshTime = mmkvService.getNumber('schema_refresh_time') ?? null;
     const countriesJson = mmkvService.getString('schema_refresh_countries');
     let refreshCountries: string[] = [];

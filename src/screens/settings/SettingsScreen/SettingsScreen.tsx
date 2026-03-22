@@ -27,6 +27,8 @@ export default function SettingsScreen() {
     setBiometricAvailable,
     clearCache,
     triggerSchemaUpdateCheck,
+    theme: themePreference,
+    setTheme,
   } = useAppStore();
   const { familyProfiles, setOnboardingComplete } = useProfileStore();
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
@@ -109,7 +111,7 @@ export default function SettingsScreen() {
   }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials, loadSchemaMetadata]);
 
   const themeOptions: SelectOption[] = [
-    { label: 'Auto (System)', value: 'auto' },
+    { label: 'Auto (System)', value: 'system' },
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
   ];
@@ -375,8 +377,8 @@ export default function SettingsScreen() {
               <Select
                 label="Theme"
                 options={themeOptions}
-                value={preferences.theme}
-                onValueChange={(value) => updatePreference('theme', value as 'light' | 'dark' | 'auto')}
+                value={themePreference}
+                onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
               />
               <Text className="text-xs text-gray-500 mt-1">
                 Choose how the app appears on your device

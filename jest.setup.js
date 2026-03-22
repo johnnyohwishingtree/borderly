@@ -117,6 +117,7 @@ jest.mock('react-native', () => {
       removeEventListener: jest.fn(),
     },
     findNodeHandle: jest.fn(() => null),
+    useColorScheme: jest.fn(() => 'light'),
   };
 });
 
