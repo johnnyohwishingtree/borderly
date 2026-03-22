@@ -101,7 +101,10 @@ const allProjects = [
   },
   {
     name: 'profile',
-    testMatch: 'profile.spec.ts',
+    testMatch: [
+      'profile.spec.ts',
+      'document-validity.spec.ts',
+    ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
   {

@@ -1407,6 +1407,101 @@ Borderly includes an encrypted backup system that lets users export all their da
 
 ---
 
+## Passport & Document Validity
+
+Borderly surfaces passport validity information proactively so travelers discover expiry problems before they affect their trip — not at the immigration desk.
+
+### Feature Overview
+
+Two complementary UI surfaces work together:
+
+1. **DocumentValidityCard** (ProfileScreen) — A persistent card showing the passport expiry date, a colour-coded status pill, and an 8-country validity grid that answers "Can I depart today and still be admitted?" for every supported destination.
+
+2. **PassportValidityWarning** (LegFormScreen) — An inline amber banner that appears only when the active traveler's passport does not meet the specific destination country's minimum validity requirement for the chosen departure date. Non-blocking — travelers can still proceed but are clearly warned of the potential entry risk.
+
+### Data Flow
+
+```
+OS Keychain (passport expiry)
+    │
+    ▼
+usePassportValidity hook
+    │  reads active profile from ProfileStore
+    │  reads country schema via schemaRegistry
+    │
+    ▼
+checkPassportValidity() ── pure function
+    │  computes isValid, daysUntilExpiry, shortfallDays
+    │
+    ├──► PassportValidityWarningData | null
+    │         │
+    │         ▼
+    │   PassportValidityWarning (LegFormScreen)
+    │   renders only when passport does NOT meet requirement
+    │
+    └──► (expiry used directly)
+              │
+              ▼
+        DocumentValidityCard (ProfileScreen)
+        renders always when passportExpiry is set
+```
+
+### Country Validity Rules
+
+All 8 currently supported countries require **6 months** of passport validity beyond the intended departure date:
+
+| Country | Code | Required validity |
+|---------|------|-------------------|
+| Japan   | JPN  | 6 months          |
+| Malaysia| MYS  | 6 months          |
+| Singapore| SGP | 6 months          |
+| Thailand| THA  | 6 months          |
+| Vietnam | VNM  | 6 months          |
+| United Kingdom| GBR | 6 months    |
+| United States | USA | 6 months    |
+| Canada  | CAN  | 6 months          |
+
+The `passportValidityMonths` field in each country's JSON schema (`src/schemas/<ISO>.json`) drives the validation.
+
+### Status Thresholds
+
+`PassportExpiryBadge` uses `computeExpiryStatus()` to colour-code the expiry pill:
+
+| Days remaining | Status        | Colour |
+|----------------|---------------|--------|
+| ≥ 180          | Valid         | Green  |
+| 30–179         | Expiring Soon | Amber  |
+| < 30           | Expired       | Red    |
+
+### Accessibility
+
+Both components follow the project's accessibility standards:
+
+- **DocumentValidityCard**: Section title has `accessibilityRole="header"`. Expiry row has a combined `accessibilityLabel` (date + days remaining). Each country row has `accessibilityRole="text"` with label `"<Country>: Valid"` or `"<Country>: Invalid"`. Decorative icons are hidden with `accessibilityElementsHidden`.
+- **PassportValidityWarning**: Container uses `accessibilityRole="alert"` and `accessibilityLiveRegion="polite"` so screen readers announce the warning when it appears. All child text nodes use `accessibilityElementsHidden` to prevent double-reading.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/components/profile/DocumentValidityCard.tsx` | Card component shown on ProfileScreen |
+| `src/components/profile/PassportExpiryBadge.tsx` | Colour-coded status pill |
+| `src/components/trips/PassportValidityWarning.tsx` | Inline warning banner in LegFormScreen |
+| `src/hooks/usePassportValidity.ts` | React hook — resolves active profile + country schema → warning data |
+| `src/services/passport/passportValidity.ts` | Pure `checkPassportValidity()` function |
+| `src/types/document.ts` | `PassportValidityStatus` interface |
+| `src/constants/countries.ts` | `SUPPORTED_COUNTRIES` array driving the validity grid |
+
+### Test Coverage
+
+- `__tests__/components/profile/DocumentValidityCard.test.tsx` — unit tests (null render, expiry status thresholds, country grid, 8 countries)
+- `__tests__/components/trips/PassportValidityWarning.test.tsx` — unit tests (null when valid, a11y props, singular/plural labels, different countries)
+- `__tests__/components/profile/DocumentValidityCard.a11y.test.tsx` — accessibility tests for DocumentValidityCard and PassportExpiryBadge
+- `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` — accessibility tests for PassportValidityWarning
+- `e2e/tests/document-validity.spec.ts` — E2E smoke tests: DocumentValidityCard in ProfileScreen; PassportValidityWarning in LegFormScreen when passport expires near departure
+
+---
+
 ## 10. Key Libraries & Versions
 
 ```json
