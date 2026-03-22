@@ -17,39 +17,29 @@ import * as fs from 'fs';
 
 const SRC_COMPONENTS_DIR = path.resolve(__dirname, '../../src/components');
 
-// Import the registry at runtime via the page — we can't import TSX directly
-// in Playwright. Instead, we fetch the registry structure from the harness.
+// Serialisable shape exposed by the harness via window.__componentRegistry.
+type RegistryInfo = Record<string, { domain: string; variants: string[] }>;
 
 test.describe('Component Screenshot Capture', () => {
   test.setTimeout(120000);
 
   test('capture all component variants', async ({ page }) => {
-    // First, get the list of all components and variants from the harness
+    // Load the harness once to read the registry from the window object.
     await page.goto('/component-harness');
-    await expect(page.getByText('Registered components:')).toBeVisible({ timeout: 15000 });
+    await page.waitForLoadState('networkidle');
 
-    // Get component list from the page
-    const registeredText = await page.getByText('Registered components:').textContent();
-    const componentNames = registeredText!
-      .replace('Registered components: ', '')
-      .split(', ')
-      .map(s => s.trim())
-      .filter(Boolean);
+    // Read the registry metadata that component-harness.tsx exposes on window.
+    const registry: RegistryInfo = await page.evaluate(() =>
+      (window as unknown as Record<string, RegistryInfo>).__componentRegistry,
+    );
 
+    const componentNames = Object.keys(registry);
     expect(componentNames.length).toBeGreaterThan(0);
 
     let totalCaptured = 0;
 
     for (const componentName of componentNames) {
-      // Navigate to the component with no variant to get the variant list
-      await page.goto(`/component-harness?component=${componentName}&variant=__list__`);
-      // The harness shows "Unknown variant: __list__ for X\nAvailable: v1, v2, ..."
-      const availableText = await page.locator('text=Available:').textContent();
-      const variants = availableText!
-        .replace('Available: ', '')
-        .split(', ')
-        .map(s => s.trim())
-        .filter(Boolean);
+      const { domain, variants } = registry[componentName];
 
       for (const variant of variants) {
         await page.goto(`/component-harness?component=${componentName}&variant=${variant}`);
@@ -57,7 +47,7 @@ test.describe('Component Screenshot Capture', () => {
         await expect(page.getByTestId('component-harness')).toBeVisible({ timeout: 5000 });
 
         // Determine the screenshot output path
-        const screenshotsDir = path.join(SRC_COMPONENTS_DIR, getDomain(componentName), componentName, '__screenshots__');
+        const screenshotsDir = path.join(SRC_COMPONENTS_DIR, domain, componentName, '__screenshots__');
         fs.mkdirSync(screenshotsDir, { recursive: true });
 
         const screenshotPath = path.join(screenshotsDir, `${variant}.png`);
@@ -70,11 +60,11 @@ test.describe('Component Screenshot Capture', () => {
       }
 
       // Write per-component manifest
-      const screenshotsDir = path.join(SRC_COMPONENTS_DIR, getDomain(componentName), componentName, '__screenshots__');
+      const screenshotsDir = path.join(SRC_COMPONENTS_DIR, domain, componentName, '__screenshots__');
       const manifestPath = path.join(screenshotsDir, 'manifest.json');
       const manifest = {
         component: componentName,
-        domain: getDomain(componentName),
+        domain,
         capturedAt: new Date().toISOString(),
         variants: variants.map(v => ({
           file: `${v}.png`,
@@ -87,17 +77,3 @@ test.describe('Component Screenshot Capture', () => {
     console.log(`Captured ${totalCaptured} component screenshots across ${componentNames.length} components`);
   });
 });
-
-// Domain mapping — matches the registry structure
-// We derive this from the filesystem since the registry isn't importable in Playwright
-function getDomain(componentName: string): string {
-  const SRC = path.resolve(__dirname, '../../src/components');
-  for (const domain of fs.readdirSync(SRC, { withFileTypes: true })) {
-    if (!domain.isDirectory()) continue;
-    const files = fs.readdirSync(path.join(SRC, domain.name));
-    if (files.includes(`${componentName}.tsx`)) {
-      return domain.name;
-    }
-  }
-  return 'ui'; // fallback
-}

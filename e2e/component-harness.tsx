@@ -11,6 +11,18 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { componentRegistry } from './component-registry';
 
+// Expose registry metadata for Playwright to read via page.evaluate().
+// Only serialisable fields (name, domain, variant names) — render functions
+// cannot cross the evaluate boundary.
+if (typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__componentRegistry = Object.fromEntries(
+    Object.entries(componentRegistry).map(([name, entry]) => [
+      name,
+      { domain: entry.domain, variants: Object.keys(entry.variants) },
+    ]),
+  );
+}
+
 export default function ComponentHarness() {
   const params = new URLSearchParams(window.location.search);
   const componentName = params.get('component');
