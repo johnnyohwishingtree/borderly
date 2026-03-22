@@ -14,37 +14,56 @@ import CAN from '../../src/schemas/CAN.json';
  * Run manually with:
  *   E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
  *
- * Captures numbered screenshots of every screen to e2e/screenshots/
+ * Captures screenshots of every screen to colocated __screenshots__/ folders
+ * (e.g., src/screens/trips/TripListScreen/__screenshots__/default.png)
  * for use with the /visual-audit and /capture-screens skills.
  *
  * Each test is independent — loads the page fresh with injected state.
  * Must run with --workers=1 (parallel runs cause webpack-dev-server race conditions).
  */
 
-const SCREENSHOT_DIR = path.resolve(__dirname, '../screenshots');
+const SRC_SCREENS_DIR = path.resolve(__dirname, '../../src/screens');
 
-// Manifest of all captured screenshots, written at the end
-const manifest: Array<{
-  id: string;
-  file: string;
+// Screen name → domain mapping, built by scanning the folder structure
+const SCREEN_DOMAINS: Record<string, string> = {};
+for (const domain of fs.readdirSync(SRC_SCREENS_DIR, { withFileTypes: true })) {
+  if (!domain.isDirectory()) continue;
+  const domainPath = path.join(SRC_SCREENS_DIR, domain.name);
+  for (const screen of fs.readdirSync(domainPath, { withFileTypes: true })) {
+    if (!screen.isDirectory() || screen.name === '__screenshots__') continue;
+    SCREEN_DOMAINS[screen.name] = domain.name;
+  }
+}
+
+// Per-screen manifest tracking — keyed by screenshotsDir path
+const screenManifests: Map<string, {
   screen: string;
   domain: string;
-  description: string;
-  state: string;
-}> = [];
+  variants: Array<{ file: string; description: string; state: string }>;
+}> = new Map();
 
-async function screenshot(page: Page, name: string, meta: {
+async function screenshot(page: Page, variant: string, meta: {
   screen: string;
   domain: string;
   description: string;
   state: string;
 }) {
-  const file = `${name}.png`;
-  await page.screenshot({
-    path: path.join(SCREENSHOT_DIR, file),
-    fullPage: true,
-  });
-  manifest.push({ id: name, file, ...meta });
+  const screenFolder = meta.screen;
+  const domain = SCREEN_DOMAINS[screenFolder] ?? meta.domain;
+  const screenshotsDir = path.join(SRC_SCREENS_DIR, domain, screenFolder, '__screenshots__');
+  fs.mkdirSync(screenshotsDir, { recursive: true });
+
+  const file = `${variant}.png`;
+  const screenshotPath = path.join(screenshotsDir, file);
+  await page.screenshot({ path: screenshotPath, fullPage: true });
+
+  // Accumulate variant into this screen's manifest
+  let entry = screenManifests.get(screenshotsDir);
+  if (!entry) {
+    entry = { screen: screenFolder, domain, variants: [] };
+    screenManifests.set(screenshotsDir, entry);
+  }
+  entry.variants.push({ file, description: meta.description, state: meta.state });
 }
 
 // ── State injection helpers ──
@@ -341,7 +360,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   test('01 - Welcome Screen', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
-    await screenshot(page, '01-welcome-screen', {
+    await screenshot(page, 'default', {
       screen: 'WelcomeScreen',
       domain: 'onboarding',
       description: 'First screen shown to new users. App intro with Get Started button.',
@@ -354,7 +373,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: /get started|take.*tutorial/i }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '02-tutorial-screen', {
+    await screenshot(page, 'default', {
       screen: 'TutorialScreen',
       domain: 'onboarding',
       description: 'Streamlined 3-slide tutorial: core value prop, privacy/security, passport scan CTA.',
@@ -367,7 +386,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '03-passport-scan-method', {
+    await screenshot(page, 'method-selection', {
       screen: 'PassportScanScreen',
       domain: 'onboarding',
       description: 'Choose between camera scan or manual passport entry. Shows MRZ explanation.',
@@ -382,7 +401,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Or enter manually' }).click();
     await expect(page.getByText('Passport Details')).toBeVisible({ timeout: 5000 });
-    await screenshot(page, '04-passport-manual-form-empty', {
+    await screenshot(page, 'manual-entry-empty', {
       screen: 'PassportScanScreen',
       domain: 'onboarding',
       description: 'Manual passport entry form with all fields empty.',
@@ -410,7 +429,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.getByTestId('issuing-country-input-trigger').click();
     await page.getByTestId('issuing-country-input-search').fill('United States');
     await page.getByTestId('issuing-country-input-option-USA').click();
-    await screenshot(page, '05-passport-manual-form-filled', {
+    await screenshot(page, 'manual-entry-filled', {
       screen: 'PassportScanScreen',
       domain: 'onboarding',
       description: 'Manual passport entry form with all fields filled in.',
@@ -440,7 +459,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
 
     await page.getByTestId('passport-continue-button').click();
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '06-confirm-profile', {
+    await screenshot(page, 'default', {
       screen: 'ConfirmProfileScreen',
       domain: 'onboarding',
       description: 'Profile confirmation screen showing all parsed passport data for review.',
@@ -472,7 +491,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
     await page.getByTestId('continue-to-security-button').click();
     await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '07-add-companions-empty', {
+    await screenshot(page, 'default', {
       screen: 'AddCompanionsScreen',
       domain: 'onboarding',
       description: 'Add travel companions screen — empty state with CTA to scan family passports.',
@@ -484,7 +503,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await navigateToAddCompanions(page);
     await page.getByTestId('companions-continue-button').click();
     await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
-    await screenshot(page, '08-biometric-setup', {
+    await screenshot(page, 'default', {
       screen: 'BiometricSetupScreen',
       domain: 'onboarding',
       description: 'Biometric authentication setup — enable Face ID/Touch ID or skip.',
@@ -500,7 +519,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await injectOnboardedState(page);
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
-    await screenshot(page, '09-trip-list-empty', {
+    await screenshot(page, 'empty', {
       screen: 'TripListScreen',
       domain: 'trips',
       description: 'Empty trip list with "Create Your First Trip" CTA.',
@@ -514,7 +533,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByTestId('create-first-trip-button').click();
     await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '10-create-trip', {
+    await screenshot(page, 'default', {
       screen: 'CreateTripScreen',
       domain: 'trips',
       description: 'Trip creation form — name, destinations, dates, flight info, accommodation.',
@@ -527,7 +546,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.goto('/');
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.waitForTimeout(2000);
-    await screenshot(page, '11-trip-list-with-trip', {
+    await screenshot(page, 'with-trip', {
       screen: 'TripListScreen',
       domain: 'trips',
       description: 'Trip list showing a trip card with destination flags and status.',
@@ -546,7 +565,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await tripCard.click();
       await page.waitForTimeout(2000);
     }
-    await screenshot(page, '12-trip-detail', {
+    await screenshot(page, 'default', {
       screen: 'TripDetailScreen',
       domain: 'trips',
       description: 'Trip detail with itinerary legs, form status, and submission actions.',
@@ -570,7 +589,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
         await page.waitForTimeout(2000);
       }
     }
-    await screenshot(page, '13-leg-form', {
+    await screenshot(page, 'default', {
       screen: 'LegFormScreen',
       domain: 'trips',
       description: 'Country-specific form (Japan) with auto-filled fields and remaining questions.',
@@ -599,7 +618,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       }
     });
     await page.waitForTimeout(3000);
-    await screenshot(page, '14-submission-guide', {
+    await screenshot(page, 'default', {
       screen: 'SubmissionGuideScreen',
       domain: 'trips',
       description: 'Step-by-step portal walkthrough with pre-filled values ready to copy/paste.',
@@ -629,7 +648,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     });
     // Wait for screen to render (iframe will fail but chrome will show)
     await page.waitForTimeout(3000);
-    await screenshot(page, '15-portal-submission', {
+    await screenshot(page, 'default', {
       screen: 'PortalSubmissionScreen',
       domain: 'trips',
       description: 'Portal submission screen with WebView, toolbar, progress bar, and copy-paste fields panel.',
@@ -648,7 +667,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
     // Wait for actual screen content (not just navigator header)
     await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '16-wallet-empty', {
+    await screenshot(page, 'default', {
       screen: 'QRWalletScreen',
       domain: 'wallet',
       description: 'Empty QR wallet with "Add QR Code" button. For storing submission QR codes.',
@@ -663,10 +682,10 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.getByRole('tab', { name: 'QR Wallet tab' }).click();
     // Wait for actual screen content
     await expect(page.getByText('No QR codes saved')).toBeVisible({ timeout: 10000 });
-    // Click the Add QR Code button
-    await page.getByRole('button', { name: 'Add QR Code' }).click();
+    // Click the Add QR Code button (use last — the CTA button, not the FAB)
+    await page.getByRole('button', { name: 'Add QR Code' }).last().click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '17-add-qr', {
+    await screenshot(page, 'default', {
       screen: 'AddQRScreen',
       domain: 'wallet',
       description: 'Add QR code screen — scan or import QR from camera/gallery.',
@@ -691,7 +710,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       }
     });
     await page.waitForTimeout(2000);
-    await screenshot(page, '18-qr-detail', {
+    await screenshot(page, 'default', {
       screen: 'QRDetailScreen',
       domain: 'wallet',
       description: 'QR code detail view — shows not-found state (no QR codes in E2E database).',
@@ -709,7 +728,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '19-profile', {
+    await screenshot(page, 'default', {
       screen: 'ProfileScreen',
       domain: 'profile',
       description: 'Profile overview — passport info (masked), completeness, contact details, family.',
@@ -729,7 +748,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await editBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '20-edit-profile', {
+    await screenshot(page, 'default', {
       screen: 'EditProfileScreen',
       domain: 'profile',
       description: 'Edit profile form — contact info, home address, default declarations.',
@@ -748,7 +767,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await familyBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '21-family-management', {
+    await screenshot(page, 'default', {
       screen: 'FamilyManagementScreen',
       domain: 'profile',
       description: 'Family member list with primary profile and spouse. Add/remove members.',
@@ -772,7 +791,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       await addBtn.click();
       await page.waitForTimeout(1500);
     }
-    await screenshot(page, '22-add-family-member', {
+    await screenshot(page, 'default', {
       screen: 'AddFamilyMemberScreen',
       domain: 'profile',
       description: 'Add family member — select relationship, scan or enter passport manually.',
@@ -791,7 +810,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.getByRole('tab', { name: 'Settings tab' }).click();
     // Wait for actual screen content (not just navigator header)
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
-    await screenshot(page, '23-settings', {
+    await screenshot(page, 'default', {
       screen: 'SettingsScreen',
       domain: 'settings',
       description: 'App settings — security, privacy, portal accounts, data management, help links.',
@@ -807,7 +826,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Help & FAQ' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '24-help', {
+    await screenshot(page, 'default', {
       screen: 'HelpScreen',
       domain: 'settings',
       description: 'Help & support hub — FAQ categories, troubleshooting, contact options.',
@@ -825,7 +844,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Frequently Asked Questions' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '25-faq', {
+    await screenshot(page, 'default', {
       screen: 'FAQScreen',
       domain: 'settings',
       description: 'FAQ screen with searchable questions organized by category.',
@@ -843,7 +862,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await page.waitForTimeout(1500);
     await page.getByRole('button', { name: 'Troubleshooting Guide' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '26-troubleshooting', {
+    await screenshot(page, 'default', {
       screen: 'TroubleshootingScreen',
       domain: 'settings',
       description: 'Troubleshooting guide with common issues, symptoms, and solutions.',
@@ -859,7 +878,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Send Feedback' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '27-feedback', {
+    await screenshot(page, 'default', {
       screen: 'FeedbackScreen',
       domain: 'settings',
       description: 'Feedback form — rating, category, message text for user feedback.',
@@ -875,7 +894,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Report Bug' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '28-bug-report', {
+    await screenshot(page, 'default', {
       screen: 'BugReportScreen',
       domain: 'settings',
       description: 'Bug report form with auto-collected diagnostics (device, OS, app version).',
@@ -891,7 +910,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByText('Security & Privacy')).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Privacy Policy' }).click();
     await page.waitForTimeout(1500);
-    await screenshot(page, '29-privacy-policy', {
+    await screenshot(page, 'default', {
       screen: 'PrivacyPolicyScreen',
       domain: 'settings',
       description: 'Privacy policy — data handling, local-first architecture, security details.',
@@ -912,14 +931,14 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   };
 
   const portalCountries = [
-    { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC', num: 30 },
-    { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card', num: 31 },
-    { code: 'VNM', legId: 'leg-vnm', name: 'Vietnam e-Visa', num: 32 },
-    { code: 'CAN', legId: 'leg-can', name: 'Canada eTA', num: 33 },
+    { code: 'MYS', legId: 'leg-mys', name: 'Malaysia MDAC' },
+    { code: 'SGP', legId: 'leg-sgp', name: 'Singapore SG Arrival Card' },
+    { code: 'VNM', legId: 'leg-vnm', name: 'Vietnam e-Visa' },
+    { code: 'CAN', legId: 'leg-can', name: 'Canada eTA' },
   ];
 
   for (const country of portalCountries) {
-    test(`${country.num} - Submission Guide (${country.code})`, async ({ page }) => {
+    test(`Submission Guide (${country.code})`, async ({ page }) => {
       await injectStateWithMultiCountryTrip(page);
       await page.goto('/');
       await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -934,7 +953,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
         }
       }, { code: country.code, legId: country.legId });
       await page.waitForTimeout(3000);
-      await screenshot(page, `${country.num}-submission-guide-${country.code.toLowerCase()}`, {
+      await screenshot(page, country.code.toLowerCase(), {
         screen: 'SubmissionGuideScreen',
         domain: 'trips',
         description: `${country.name} submission guide with step-by-step portal walkthrough.`,
@@ -942,7 +961,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
       });
     });
 
-    test(`${country.num + 4} - Portal Submission (${country.code})`, async ({ page }) => {
+    test(`Portal Submission (${country.code})`, async ({ page }) => {
       await injectStateWithMultiCountryTrip(page);
       await page.goto('/');
       await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
@@ -962,7 +981,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
         }
       }, { code: country.code, legId: country.legId, urlMap: portalUrlMap });
       await page.waitForTimeout(3000);
-      await screenshot(page, `${country.num + 4}-portal-submission-${country.code.toLowerCase()}`, {
+      await screenshot(page, country.code.toLowerCase(), {
         screen: 'PortalSubmissionScreen',
         domain: 'trips',
         description: `${country.name} portal submission screen with WebView and Borderly toolbar.`,
@@ -972,24 +991,22 @@ test.describe('Screenshot Capture for Visual Audit', () => {
   }
 
   // ═══════════════════════════════════════════
-  // WRITE MANIFEST
+  // WRITE PER-SCREEN MANIFESTS
   // ═══════════════════════════════════════════
 
-  test('99 - Write manifest', async () => {
-    // Sort manifest by ID
-    manifest.sort((a, b) => a.id.localeCompare(b.id));
-
-    const manifestContent = {
-      capturedAt: new Date().toISOString(),
-      screenshotDir: 'e2e/screenshots/',
-      totalScreens: manifest.length,
-      screens: manifest,
-    };
-
-    fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
-    fs.writeFileSync(
-      path.join(SCREENSHOT_DIR, 'manifest.json'),
-      JSON.stringify(manifestContent, null, 2),
-    );
+  test('99 - Write per-screen manifests', async () => {
+    const capturedAt = new Date().toISOString();
+    for (const [dir, entry] of screenManifests) {
+      const content = {
+        screen: entry.screen,
+        domain: entry.domain,
+        capturedAt,
+        variants: entry.variants,
+      };
+      fs.writeFileSync(
+        path.join(dir, 'manifest.json'),
+        JSON.stringify(content, null, 2) + '\n',
+      );
+    }
   });
 });

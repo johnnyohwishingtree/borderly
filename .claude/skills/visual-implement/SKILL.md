@@ -10,7 +10,7 @@ Takes findings from a `/visual-audit` report and implements the fixes in code. A
 ## Prerequisites
 
 - A completed `/visual-audit` report (either from the current session or a previous one)
-- Screenshots in `e2e/screenshots/` (from `/capture-screens`)
+- Screenshots in colocated `__screenshots__/` folders (from `/capture-screens`)
 
 ## Steps
 
@@ -23,7 +23,7 @@ Takes findings from a `/visual-audit` report and implements the fixes in code. A
 
 ### Step 2: Read Before Screenshots
 
-Before making changes, read the current screenshots from `e2e/screenshots/` for the screens being modified. This establishes the "before" state.
+Before making changes, read the current screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/` for the screens being modified. Read the per-screen `manifest.json` in each `__screenshots__/` folder for variant descriptions. This establishes the "before" state.
 
 ### Step 3: Implement Fixes
 
@@ -53,7 +53,7 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 - Follow existing Tailwind class patterns in the codebase
 - Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px, etc). Never arbitrary values.
 
-**Screen files are in:** `src/screens/<domain>/<ScreenName>.tsx`
+**Screen files are in:** `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`
 
 **Component files are in:** `src/components/<domain>/` or `src/components/ui/`
 
@@ -82,16 +82,16 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 
 ### Step 6: Before/After Comparison
 
-1. Read the new screenshots from `e2e/screenshots/`
+1. Read the new screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/`
 2. Compare with the "before" screenshots from Step 2
 3. Present a summary to the user:
    - What changed on each screen
    - Which audit findings were addressed
    - Any remaining issues that need design decisions
 
-### Step 7: Update Manifest
+### Step 7: Verify Manifests
 
-The screenshot capture test automatically updates `e2e/screenshots/manifest.json`. Verify the manifest reflects the current state.
+The screenshot capture test automatically writes per-screen `manifest.json` files in each `__screenshots__/` folder. Verify they reflect the current state.
 
 ## What NOT to Do
 

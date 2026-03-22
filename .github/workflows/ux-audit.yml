@@ -160,10 +160,10 @@ jobs:
 
             ## Step 1: Load Data
 
-            1. Read `e2e/screenshots/manifest.json` for screen metadata
+            1. Read per-screen manifests: `find src/screens -path "*/__screenshots__/manifest.json"` for screen metadata
             2. Read `e2e/screenshots/flow-graph.json` for navigation structure
             3. Read flow sequence screenshots from `e2e/screenshots/flows/` (if they exist)
-            4. Read individual screenshots from `e2e/screenshots/`
+            4. Read individual screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/`
 
             ## Step 2: Analyze Flows
 

@@ -366,7 +366,7 @@ describe('checkPassportValidity — daysUntilExpiry', () => {
 
   it('daysUntilExpiry is 0 when passport expires today', () => {
     const today = new Date();
-    const expiryStr = today.toISOString().split('T')[0];
+    const expiryStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     const passport = makePassport(expiryStr);
     const schema = makeSchema(0);

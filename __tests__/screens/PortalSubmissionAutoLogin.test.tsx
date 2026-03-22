@@ -169,7 +169,7 @@ jest.mock('lucide-react-native', () => {
 
 import { pageDetector } from '@/services/submission/pageDetection';
 import { resolvePortalCredential } from '@/services/submission/credentialResolver';
-import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen';
+import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen';
 
 // ── Typed mock helpers ─────────────────────────────────────────────────────────
 

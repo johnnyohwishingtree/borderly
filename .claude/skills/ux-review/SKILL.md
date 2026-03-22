@@ -41,7 +41,7 @@ If the user specifies a flow (e.g., "review onboarding"), focus on that. Otherwi
 
    If the flow graph doesn't exist, generate it: `npx tsx e2e/scripts/generate-flow-graph.ts`
 
-2. **Read `e2e/screenshots/manifest.json`** — maps screenshots to screens with domain/state metadata.
+2. **Read per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json` for screenshot metadata. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
 
 3. **Read screen source files** only when you need deeper context (e.g., understanding what triggers a navigation, what data gates a flow). The flow graph gives you the full navigation structure without reading every screen file.
 

@@ -16,6 +16,7 @@ __tests__/
 ├── integration/     → Cross-module integration tests
 ├── performance/     → Performance benchmarks
 ├── security/        → Security-focused tests
+├── structure/       → Structural convention enforcement tests
 ├── fixtures/        → Shared test data
 └── lint/            → Lint rule tests
 ```
