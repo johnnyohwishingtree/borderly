@@ -7,6 +7,7 @@ import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider } from '@/components/ui';
+import ThemeSelector from '@/components/settings/ThemeSelector';
 import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
 import { schemaRegistry } from '@/services/schemas/schemaRegistry';
 import type { SchemaMetadata } from '@/services/schemas/schemaRegistry';
@@ -109,12 +110,6 @@ export default function SettingsScreen() {
     loadPortalCredentials();
     loadSchemaMetadata();
   }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials, loadSchemaMetadata]);
-
-  const themeOptions: SelectOption[] = [
-    { label: 'Auto (System)', value: 'system' },
-    { label: 'Light', value: 'light' },
-    { label: 'Dark', value: 'dark' },
-  ];
 
   const languageOptions: SelectOption[] = [
     { label: 'English', value: 'en' },
@@ -374,13 +369,15 @@ export default function SettingsScreen() {
 
           <View className="space-y-4">
             <View>
-              <Select
-                label="Theme"
-                options={themeOptions}
+              <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Theme
+              </Text>
+              <ThemeSelector
                 value={themePreference}
-                onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
+                onValueChange={setTheme}
+                testID="settings-theme-selector"
               />
-              <Text className="text-xs text-gray-500 mt-1">
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Choose how the app appears on your device
               </Text>
             </View>
