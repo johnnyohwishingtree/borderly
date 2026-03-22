@@ -32,6 +32,14 @@ interface AppStore {
   lastActiveTime: number;
   updateLastActiveTime: () => void;
 
+  // App-lock configuration
+  /** Whether the inactivity/background lock is enabled. Defaults to false. */
+  isLockEnabled: boolean;
+  setLockEnabled: (enabled: boolean) => void;
+  /** Minutes of inactivity before the app auto-locks. Defaults to 5. */
+  lockTimeoutMinutes: number;
+  setLockTimeoutMinutes: (minutes: number) => void;
+
   // Biometric availability
   isBiometricAvailable: boolean;
   setBiometricAvailable: (available: boolean) => void;
@@ -100,6 +108,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   featureFlags: {},
   isAppLocked: false,
   lastActiveTime: Date.now(),
+  isLockEnabled: false,
+  lockTimeoutMinutes: 5,
   isBiometricAvailable: false,
   isOnline: true,
   lastError: null,
@@ -170,6 +180,17 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   updateLastActiveTime: () => {
     set({ lastActiveTime: Date.now() });
+  },
+
+  // App-lock configuration
+  setLockEnabled: (enabled: boolean) => {
+    mmkvService.setBoolean('app_lock_enabled', enabled);
+    set({ isLockEnabled: enabled });
+  },
+
+  setLockTimeoutMinutes: (minutes: number) => {
+    mmkvService.setNumber('app_lock_timeout_minutes', minutes);
+    set({ lockTimeoutMinutes: minutes });
   },
 
   // Biometric availability
@@ -279,12 +300,16 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     const dismissedAt = mmkvService.getNumber('schema_banner_dismissed_at') ?? null;
     const hasSeenFirstRunPrompt = mmkvService.getBoolean(HAS_SEEN_FIRST_RUN_PROMPT_KEY) ?? false;
+    const isLockEnabled = mmkvService.getBoolean('app_lock_enabled') ?? false;
+    const lockTimeoutMinutes = mmkvService.getNumber('app_lock_timeout_minutes') ?? 5;
 
     set({
       lastSchemaRefreshTime: refreshTime,
       schemaRefreshCountries: refreshCountries,
       schemaBannerDismissedAt: dismissedAt,
       hasSeenFirstRunPrompt,
+      isLockEnabled,
+      lockTimeoutMinutes,
     });
   },
 
