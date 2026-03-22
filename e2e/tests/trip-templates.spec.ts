@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { baseState, injectState, DEFAULT_PROFILE } from '../helpers/fixtures';
+import { baseState, injectState } from '../helpers/fixtures';
 
 // ---------------------------------------------------------------------------
 // Fixture helpers

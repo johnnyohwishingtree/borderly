@@ -132,6 +132,7 @@ describe('saveTemplateFromTrip', () => {
     const trip = makeTrip();
     // Remove departure date from first leg (omit the key entirely for exactOptionalPropertyTypes)
     const { departureDate: _removed, ...legWithoutDeparture } = trip.legs[0];
+    void _removed;
     trip.legs[0] = legWithoutDeparture;
     const template = saveTemplateFromTrip(trip);
     expect(template.legs[0].typicalDurationDays).toBe(1);
