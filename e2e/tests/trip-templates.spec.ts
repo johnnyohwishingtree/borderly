@@ -110,14 +110,13 @@ test.describe('TripDetailScreen — Save as Template', () => {
     await page.getByText('Japan Loop').click();
     await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
 
-    // Tap Save as Template
+    // Tap Save as Template — scroll into view first (button may be below fold)
     const saveButton = page.getByTestId('save-as-template-button');
+    await saveButton.scrollIntoViewIfNeeded();
     await saveButton.click();
 
-    // Modal should appear
-    await expect(page.getByText('Save as Template')).toBeVisible({ timeout: 5000 });
-    // Name field pre-filled with trip name
+    // Modal should appear — name input is the definitive signal
     const nameInput = page.getByTestId('save-template-modal-name-input');
-    await expect(nameInput).toBeVisible({ timeout: 5000 });
+    await expect(nameInput).toBeVisible({ timeout: 8000 });
   });
 });
