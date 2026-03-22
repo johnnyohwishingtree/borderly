@@ -28,6 +28,8 @@ import {
 } from '@/services/deadline/deadlineService';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CountryFormSchema } from '@/types/schema';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 
 interface RouteParams {
   tripId: string;
@@ -723,8 +725,17 @@ interface LegFormSectionProps {
 }
 
 function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFormSectionProps) {
+  const passportWarning = usePassportValidity({ countryCode: legData.destinationCountry });
+
   return (
     <View className="p-4">
+      {/* Passport validity warning */}
+      {passportWarning && (
+        <PassportValidityWarning
+          {...passportWarning}
+          testID={`${testIDPrefix}-passport-validity-warning`}
+        />
+      )}
       {/* Country */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Country</Text>
