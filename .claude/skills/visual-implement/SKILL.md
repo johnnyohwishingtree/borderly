@@ -10,7 +10,7 @@ Takes findings from a `/visual-audit` report and implements the fixes in code. A
 ## Prerequisites
 
 - A completed `/visual-audit` report (either from the current session or a previous one)
-- Screenshots in colocated `__screenshots__/` folders (from `/capture-screens`)
+- Screenshots in colocated `__screenshots__/` folders (component screenshots are captured automatically in CI; screen screenshots may need a manual `/capture-screens` run)
 
 ## Steps
 
@@ -77,7 +77,11 @@ pnpm lint         # No new errors
 After all fixes are applied and checks pass, re-capture screenshots:
 
 ```bash
+# Screen screenshots (serial)
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
+
+# Component screenshots (parallel) — only if components were modified
+E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=screenshot-capture
 ```
 
 ### Step 6: Before/After Comparison
