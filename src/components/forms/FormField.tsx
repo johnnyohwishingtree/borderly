@@ -11,7 +11,7 @@ import { SemanticUtils } from '../../utils/accessibility';
 /** Platform-specific input props derived from field metadata. */
 function getInputHints(field: FilledFormField): Pick<
   TextInputProps,
-  'textContentType' | 'autoComplete' | 'keyboardType' | 'autoCapitalize'
+  'textContentType' | 'autoComplete' | 'keyboardType' | 'autoCapitalize' | 'maxLength' | 'returnKeyType'
 > {
   const src = field.autoFillSource ?? '';
   const id = field.id;
@@ -139,6 +139,36 @@ function getInputHints(field: FilledFormField): Pick<
   return { keyboardType: 'default', autoCapitalize: 'sentences' };
 }
 
+/** maxLength + returnKeyType derived from field schema and field semantics. */
+function getFieldConstraints(field: FilledFormField): Pick<
+  TextInputProps,
+  'maxLength' | 'returnKeyType'
+> {
+  const result: Pick<TextInputProps, 'maxLength' | 'returnKeyType'> = {};
+
+  // Explicit schema maxLength takes priority
+  if (field.validation?.maxLength) {
+    result.maxLength = field.validation.maxLength;
+  } else {
+    // Infer sensible maxLength from field semantics
+    const src = field.autoFillSource ?? '';
+    const id = field.id;
+    if (src === 'profile.passportNumber' || id === 'passportNumber') {
+      result.maxLength = 20;
+    } else if (src === 'leg.flightNumber' || id === 'flightNumber') {
+      result.maxLength = 10;
+    } else if (src.includes('address.postalCode') || id === 'postalCode') {
+      result.maxLength = 12;
+    } else if (src.includes('phone') || id.includes('phone') || id.includes('Phone')) {
+      result.maxLength = 20;
+    }
+  }
+
+  // textarea uses default (Enter creates newline), single-line fields use "next"
+  result.returnKeyType = field.type === 'textarea' ? 'default' : 'next';
+  return result;
+}
+
 interface FormFieldProps {
   field: FilledFormField;
   value?: unknown;
@@ -183,6 +213,7 @@ export default function FormField({
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
             {...getInputHints(field)}
+            {...getFieldConstraints(field)}
           />
         );
 
@@ -193,7 +224,9 @@ export default function FormField({
             accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
             onChangeText={(text: string) => handleValueChange(text)}
             keyboardType="numeric"
+            returnKeyType="next"
             placeholder={field.label}
+            {...(field.validation?.maxLength ? { maxLength: field.validation.maxLength } : {})}
           />
         );
 
