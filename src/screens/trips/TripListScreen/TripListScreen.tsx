@@ -5,7 +5,7 @@ import { Plane } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { TripCard } from '@/components/trips';
-import { EmptyState, InfoBanner } from '@/components/ui';
+import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
 import { Trip } from '@/types/trip';
@@ -150,7 +150,7 @@ export default function TripListScreen() {
 
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* First-run welcome banner — shown once after onboarding completes */}
       {!hasSeenFirstRunPrompt && (
         <InfoBanner
@@ -272,6 +272,6 @@ export default function TripListScreen() {
           <Text className="text-white text-2xl font-light">+</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </ScreenContainer>
   );
 }

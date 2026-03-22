@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, Alert, TextInput, Platform } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Lock } from 'lucide-react-native';
-import { Button, Card, StatusBadge, Select, SelectOption, Toggle } from '@/components/ui';
+import { Button, Card, StatusBadge, Select, SelectOption, Toggle, ScreenContainer } from '@/components/ui';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripStore } from '@/stores/useTripStore';
@@ -152,7 +152,8 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScreenContainer className="bg-gray-50">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
@@ -331,5 +332,6 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         <View className="h-8" />
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

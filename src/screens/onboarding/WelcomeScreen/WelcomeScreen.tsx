@@ -16,7 +16,7 @@ import { OnboardingStackParamList } from '@/app/navigation/types';
 import { Button } from '@/components/ui/gluestack/button';
 import { Card } from '@/components/ui/gluestack/card';
 import { Icon } from '@/components/ui/gluestack/icon';
-import { ProgressBar } from '@/components/ui';
+import { ProgressBar, ScreenContainer } from '@/components/ui';
 import CountryFlag from '@/components/trips/CountryFlag';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useTheme } from '@/utils/theme';
@@ -38,8 +38,9 @@ export default function WelcomeScreen() {
   const { height } = Dimensions.get('window');
 
   return (
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
     <ScrollView
-      className="flex-1 bg-gray-50 dark:bg-gray-900"
+      className="flex-1"
       contentContainerStyle={{ minHeight: height }}
       accessibilityLabel="Welcome to Borderly screen"
       accessibilityHint="Swipe up to read about features and get started"
@@ -192,5 +193,6 @@ export default function WelcomeScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

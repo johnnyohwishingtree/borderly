@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, Alert, TextInput } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Lock } from 'lucide-react-native';
-import { Button, Card, StatusBadge, Select, SelectOption } from '@/components/ui';
+import { Button, Card, StatusBadge, Select, SelectOption, ScreenContainer } from '@/components/ui';
 import { useAppStore } from '@/stores/useAppStore';
 
 interface FeedbackScreenProps {
@@ -110,7 +110,8 @@ export default function FeedbackScreen({ route: _route }: FeedbackScreenProps) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScreenContainer className="bg-gray-50">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
@@ -244,5 +245,6 @@ export default function FeedbackScreen({ route: _route }: FeedbackScreenProps) {
         <View className="h-8" />
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

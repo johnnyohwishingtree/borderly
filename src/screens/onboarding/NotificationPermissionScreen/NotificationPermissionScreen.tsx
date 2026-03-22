@@ -3,7 +3,7 @@ import { View, Text, ScrollView } from 'react-native';
 import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import { Bell, Clock, CheckCircle } from 'lucide-react-native';
 
-import { Button, Card } from '@/components/ui';
+import { Button, Card, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 
 export default function NotificationPermissionScreen() {
@@ -45,8 +45,9 @@ export default function NotificationPermissionScreen() {
   };
 
   return (
+    <ScreenContainer className="bg-white dark:bg-gray-900">
     <ScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1"
       accessibilityLabel="Notification permission screen"
     >
       <View className="px-6 py-10">
@@ -127,5 +128,6 @@ export default function NotificationPermissionScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

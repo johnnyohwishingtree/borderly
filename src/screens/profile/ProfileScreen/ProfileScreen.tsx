@@ -6,7 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useAppStore } from '@/stores/useAppStore';
-import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState } from '@/components/ui';
+import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState, ScreenContainer } from '@/components/ui';
 import { DocumentValidityCard } from '@/components/profile';
 import { TravelerProfile } from '@/types/profile';
 
@@ -145,7 +145,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
@@ -419,5 +420,6 @@ export default function ProfileScreen() {
         </Card>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

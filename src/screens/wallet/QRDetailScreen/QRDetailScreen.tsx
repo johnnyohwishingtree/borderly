@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import { Card, Button, LoadingSpinner } from '@/components/ui';
+import { Card, Button, LoadingSpinner, ScreenContainer } from '@/components/ui';
 import { QRFullScreen } from '@/components/wallet';
 import { SavedQRCode } from '@/services/storage/models';
 import { databaseService } from '@/services/storage';
@@ -198,7 +198,7 @@ export default function QRDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <Text className="text-2xl font-bold text-gray-900 dark:text-white" numberOfLines={1}>
@@ -350,6 +350,6 @@ export default function QRDetailScreen() {
         onClose={() => setFullScreenVisible(false)}
         onDelete={handleDelete}
       />
-    </View>
+    </ScreenContainer>
   );
 }

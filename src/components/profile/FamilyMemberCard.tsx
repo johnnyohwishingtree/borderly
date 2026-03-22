@@ -127,7 +127,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
             <View className="flex-row items-center flex-1">
               <View className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full items-center justify-center mr-3" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
                 {(() => {
-                  const Icon = RELATIONSHIP_ICON[member.relationship];
+                  const Icon = RELATIONSHIP_ICON[member.relationship] ?? User;
                   return <Icon size={24} color="#6b7280" />;
                 })()}
               </View>

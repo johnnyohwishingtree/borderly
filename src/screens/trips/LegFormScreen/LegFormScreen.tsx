@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Button } from '@/components/ui';
+import { Button, ScreenContainer } from '@/components/ui';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { DynamicForm } from '@/components/forms';
 import { ContextualHelp, HelpContent } from '@/components/help';
@@ -83,7 +83,7 @@ export default function LegFormScreen() {
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <View className="flex-row items-center justify-between">
@@ -252,7 +252,7 @@ export default function LegFormScreen() {
           </View>
         )}
       </View>
-    </View>
+    </ScreenContainer>
     </KeyboardAvoidingView>
   );
 }

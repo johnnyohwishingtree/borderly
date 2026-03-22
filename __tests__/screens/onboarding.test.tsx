@@ -45,6 +45,7 @@ jest.mock('@hookform/resolvers/zod', () => ({
 jest.mock('@/components/ui', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
+    ScreenContainer: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     Button: ({ title, onPress, disabled, loading, ...props }: any) => (
       <TouchableOpacity onPress={disabled || loading ? undefined : onPress} testID={props.testID}>
         <Text>{title}</Text>

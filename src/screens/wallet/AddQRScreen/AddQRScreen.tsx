@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Smartphone } from 'lucide-react-native';
-import { Card, Button, LoadingSpinner, Select } from '@/components/ui';
+import { Card, Button, LoadingSpinner, Select, ScreenContainer } from '@/components/ui';
 import { QRCaptureService } from '@/services/camera/qrCapture';
 import { databaseService } from '@/services/storage';
 import { SavedQRCode } from '@/services/storage/models';
@@ -354,7 +354,7 @@ export default function AddQRScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <Text className="text-2xl font-bold text-gray-900 dark:text-white">Add QR Code</Text>
@@ -575,6 +575,6 @@ export default function AddQRScreen() {
         {/* Bottom spacing */}
         <View className="h-20" />
       </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 }
