@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, Check, Globe, Shield } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
-import { Button, ProgressIndicator } from '@/components/ui';
+import { Button, ProgressIndicator, ScreenContainer } from '@/components/ui';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
 
@@ -112,8 +112,9 @@ export default function TutorialScreen() {
   const step = tutorialSteps[currentStep];
 
   return (
+    <ScreenContainer className="bg-white">
     <ScrollView
-      className="flex-1 bg-white"
+      className="flex-1"
       contentContainerStyle={{ minHeight: height * 0.9 }}
     >
       <View className="flex-1 px-6 pt-12 pb-8">
@@ -203,5 +204,6 @@ export default function TutorialScreen() {
         </Text>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

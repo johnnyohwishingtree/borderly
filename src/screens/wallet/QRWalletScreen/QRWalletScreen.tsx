@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Smartphone, Filter, Users, X } from 'lucide-react-native';
-import { EmptyState, Button } from '@/components/ui';
+import { EmptyState, Button, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
 import { QRCodeCard, QRFullScreen } from '@/components/wallet';
@@ -243,7 +243,7 @@ export default function QRWalletScreen() {
 
   if (qrCodes.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
         {/* Header */}
         <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
           <View className="flex-row items-center justify-between">
@@ -295,12 +295,12 @@ export default function QRWalletScreen() {
             </View>
           </View>
         </ScrollView>
-      </View>
+      </ScreenContainer>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between">
@@ -548,6 +548,6 @@ export default function QRWalletScreen() {
         }}
         onDelete={handleDeleteQR}
       />
-    </View>
+    </ScreenContainer>
   );
 }

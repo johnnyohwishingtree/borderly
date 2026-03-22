@@ -105,6 +105,8 @@ jest.mock('../../../src/components/trips', () => {
 
 jest.mock('../../../src/components/ui', () => {
   const React = require('react');
+  const ScreenContainer = ({ children, ...props }: any) =>
+    React.createElement('View', props, children);
   const Button = ({ title, onPress, testID }: { title: string; onPress?: () => void; testID?: string }) =>
     React.createElement('TouchableOpacity', { onPress, testID },
       React.createElement('Text', null, title));
@@ -112,7 +114,7 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('Text', null, text);
   const Input = ({ value, onChangeText, testID, placeholder }: { value?: string; onChangeText?: (v: string) => void; testID?: string; placeholder?: string }) =>
     React.createElement('TextInput', { value, onChangeText, testID, placeholder });
-  return { Button, StatusBadge, Input };
+  return { ScreenContainer, Button, StatusBadge, Input };
 });
 
 jest.mock('../../../src/constants/countries', () => ({

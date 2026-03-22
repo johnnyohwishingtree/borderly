@@ -2,7 +2,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
 import { useTheme } from '@/utils/theme';
-import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField } from '@/components/ui';
+import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField, ScreenContainer } from '@/components/ui';
 import { ALL_COUNTRIES } from '@/constants/countries';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '@/components/passport';
@@ -73,7 +73,8 @@ export default function PassportScanScreen() {
   const totalSteps = 3;
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-gray-900" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
+    <ScreenContainer className="bg-white dark:bg-gray-900">
+    <ScrollView className="flex-1" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
       <View className="px-6 py-8">
         <ProgressIndicator
           currentStep={currentStep}
@@ -410,5 +411,6 @@ export default function PassportScanScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

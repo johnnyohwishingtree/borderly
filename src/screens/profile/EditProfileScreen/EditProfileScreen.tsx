@@ -5,7 +5,7 @@ import { Lock, TriangleAlert, Lightbulb } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete } from '@/components/ui';
+import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete, ScreenContainer } from '@/components/ui';
 import { Address } from '@/types/profile';
 
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
@@ -139,7 +139,8 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
@@ -348,5 +349,6 @@ export default function EditProfileScreen() {
         </View>
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Alert, Linking } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { CircleAlert } from 'lucide-react-native';
 import { formatSupportedCountryList } from '@/constants/countries';
-import { Button, Card, StatusBadge } from '@/components/ui';
+import { Button, Card, StatusBadge, ScreenContainer } from '@/components/ui';
 import { SearchableHelp } from '@/components/help';
 
 interface HelpScreenProps {
@@ -177,7 +177,8 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScreenContainer className="bg-gray-50">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
@@ -384,5 +385,6 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         onNavigate={handleSearchNavigate}
       />
     </ScrollView>
+    </ScreenContainer>
   );
 }

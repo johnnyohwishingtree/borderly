@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users, UserPlus, ChevronRight, CheckCircle, X } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
-import { Button, Card, ProgressBar } from '@/components/ui';
+import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { FamilyMember, FamilyRelationship } from '@/types/profile';
 
@@ -79,7 +79,8 @@ export default function AddCompanionsScreen() {
 
   return (
     <>
-      <ScrollView className="flex-1 bg-gradient-to-b from-indigo-50 to-white">
+      <ScreenContainer className="bg-gradient-to-b from-indigo-50 to-white">
+      <ScrollView className="flex-1">
         <View className="px-6 py-8">
           {/* Progress indicator */}
           <ProgressBar progress={88} className="mb-6" />
@@ -191,6 +192,7 @@ export default function AddCompanionsScreen() {
           />
         </View>
       </ScrollView>
+      </ScreenContainer>
 
       {/* Relationship Picker Modal */}
       <Modal

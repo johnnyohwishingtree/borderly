@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, TextInput, Alert, Linking } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
-import { Button, Card, StatusBadge } from '@/components/ui';
+import { Button, Card, StatusBadge, ScreenContainer } from '@/components/ui';
 import HelpHint from '@/components/ui/HelpHint';
 
 interface TroubleshootingScreenProps {
@@ -260,7 +260,8 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScreenContainer className="bg-gray-50">
+    <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
@@ -465,5 +466,6 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
         <View className="h-8" />
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

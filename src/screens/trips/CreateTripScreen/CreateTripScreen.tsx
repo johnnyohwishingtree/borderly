@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
+import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, ScreenContainer } from '@/components/ui';
 import { CountryFlag, TravelerSelector } from '@/components/trips';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { AutoFilledBadge } from '@/components/forms';
@@ -233,7 +233,7 @@ export default function CreateTripScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between mb-2">
@@ -402,6 +402,6 @@ export default function CreateTripScreen() {
           onClose={() => setShowSmartImport(false)}
         />
       </Modal>
-    </View>
+    </ScreenContainer>
   );
 }

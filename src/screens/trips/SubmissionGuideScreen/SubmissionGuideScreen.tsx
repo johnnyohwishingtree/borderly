@@ -13,7 +13,7 @@ import {
   GuideProgress,
   StepCard,
 } from '@/components/guide';
-import { Button, Card, StatusBadge } from '@/components/ui';
+import { Button, Card, StatusBadge, ScreenContainer } from '@/components/ui';
 import TravelerTabs from '@/components/trips/TravelerTabs';
 import { useSubmissionGuide } from '@/hooks/useSubmissionGuide';
 import type { SubmissionStep } from '@/types/schema';
@@ -78,11 +78,13 @@ export default function SubmissionGuideScreen() {
 
   if (isLoading || !schema || !filledForm) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+      <SafeAreaView className="flex-1">
         <View className="flex-1 justify-center items-center">
           <Text className="text-lg text-gray-600 dark:text-gray-400">Loading submission guide...</Text>
         </View>
       </SafeAreaView>
+      </ScreenContainer>
     );
   }
 
@@ -96,7 +98,8 @@ export default function SubmissionGuideScreen() {
       : ('neutral' as const);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <SafeAreaView className="flex-1">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <View className="flex-row items-center justify-between">
@@ -336,5 +339,6 @@ export default function SubmissionGuideScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </ScreenContainer>
   );
 }
