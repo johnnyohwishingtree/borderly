@@ -294,7 +294,30 @@ jobs:
             )"
             ```
 
-            ## Step 5: Report
+            ## Step 5: Form Input Optimization Audit
+
+            Read `.claude/skills/form-optimize/SKILL.md` for the full methodology.
+
+            Scan all country schemas (`src/schemas/*.json`) and form components
+            (`src/components/forms/FormField.tsx`, `src/components/ui/AccessibleInput.tsx`)
+            for:
+
+            1. **Missing platform autofill hints** — fields like surname, email,
+               phone, address that lack `textContentType` (iOS) / `autoComplete`
+               (Android/Web) props. Users must type these manually when the OS
+               could auto-fill them.
+            2. **Wrong keyboard types** — email fields without `email-address`
+               keyboard, phone fields without `phone-pad`, etc.
+            3. **Missed autocomplete components** — fields that should use
+               `AccommodationAutocomplete` or `AddressAutocomplete` but render
+               as plain text inputs.
+            4. **Missing input constraints** — `autoCapitalize`, `maxLength`,
+               `returnKeyType` gaps that hurt the typing experience.
+
+            Create stories for any gaps found, with the field IDs, affected
+            schemas, and the specific props to add.
+
+            ## Step 6: Report
 
             If no issues found, output: "UX Flow Audit: All critical flows pass."
             If issues found, output the epic number and story count.
