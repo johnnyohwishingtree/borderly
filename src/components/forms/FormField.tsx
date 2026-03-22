@@ -44,13 +44,31 @@ export default function FormField({
 
     // Determine keyboard type and autoCapitalize based on field semantics
     const isEmailField = field.id.toLowerCase().endsWith('email');
-    const isPhoneField = ['phoneNumber', 'mobile', 'phone'].includes(field.id);
+    const isPhoneField =
+      field.id === 'mobile' ||
+      field.id.toLowerCase().includes('phone');
+    const isPassportNumberField = field.id === 'passportNumber';
     const textKeyboardType = isEmailField
       ? 'email-address'
       : isPhoneField
         ? 'phone-pad'
         : 'default';
     const textAutoCapitalize = isEmailField ? 'none' : 'sentences';
+
+    // Platform autofill hints: textContentType (iOS) + autoComplete (Android/Web)
+    let textContentType: 'emailAddress' | 'telephoneNumber' | 'none' | undefined;
+    let autoComplete: 'email' | 'tel' | 'off' | undefined;
+
+    if (isEmailField) {
+      textContentType = 'emailAddress';
+      autoComplete = 'email';
+    } else if (isPhoneField) {
+      textContentType = 'telephoneNumber';
+      autoComplete = 'tel';
+    } else if (isPassportNumberField) {
+      textContentType = 'none';
+      autoComplete = 'off';
+    }
 
     switch (field.type) {
       case 'text':
@@ -63,6 +81,8 @@ export default function FormField({
             multiline={field.type === 'textarea'}
             keyboardType={textKeyboardType}
             autoCapitalize={textAutoCapitalize}
+            textContentType={textContentType}
+            autoComplete={autoComplete}
           />
         );
 
