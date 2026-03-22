@@ -24,6 +24,7 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@notifee/react-native$': '<rootDir>/__mocks__/@notifee/react-native.js',
   },
   testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/android/', '<rootDir>/ios/', '<rootDir>/.claude/', '<rootDir>/__tests__/e2e/', '<rootDir>/.github/scripts/__tests__/lib/'],
   collectCoverageFrom: [

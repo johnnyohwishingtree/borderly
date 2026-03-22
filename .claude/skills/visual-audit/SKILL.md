@@ -10,16 +10,15 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 ## Prerequisites
 
 - **Screenshots**: Run `/capture-screens` first, or provide your own screenshots
-  - **Playwright screenshots** (default): Captured via React Native Web — fast, local, but portal screens show iframe-blocked content
-  - **Native screenshots**: Captured post-merge by `screenshot-capture.yml` on Android emulator via Maestro — true native rendering
+  - Captured via Playwright + React Native Web — fast, local, but portal screens show iframe-blocked content
 - **Stitch MCP server** (optional): For AI-generated redesign alternatives. Requires `STITCH_API_KEY` env var.
 - **frontend-design-audit plugin** (optional): For code-level usability scanning
 
 ## Steps
 
-### Step 1: Load Manifest
+### Step 1: Load Screenshots
 
-1. **Read `e2e/screenshots/manifest.json`** — it describes each screen's purpose, state, and domain.
+1. **Find per-screen manifests** at `src/screens/<domain>/<ScreenName>/__screenshots__/manifest.json`. Each describes that screen's variants with description and state metadata. Find all: `find src/screens -path "*/__screenshots__/manifest.json"`
 
 2. **If no screenshots exist**, run the capture:
 ```bash
@@ -30,12 +29,16 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 
 ### Step 2: Batched Visual Critique
 
-Process screenshots **one domain at a time** to stay within context limits. The domains are:
-- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, BiometricSetup
+Process screenshots **one domain at a time** to stay within context limits. Screenshots are colocated at `src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png`.
+
+The domains are:
+- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, AddCompanions, BiometricSetup
 - **trips** — TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN)
 - **wallet** — QRWallet, AddQR, QRDetail
 - **profile** — Profile, EditProfile, FamilyManagement, AddFamilyMember
-- **settings** — Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy
+- **settings** — Settings, PrivacyPolicy
+- **support** — Help, Feedback, BugReport
+- **help** — FAQ, Troubleshooting
 
 For each domain batch:
 1. **Read all screenshots** in that domain using the Read tool (it supports image files)
@@ -86,8 +89,8 @@ Rate each finding with severity:
 - **Minor**: Polish issue, good to fix
 
 Output a structured report with:
-- Screenshot reference (filename from manifest)
-- Screen name (from manifest)
+- Screenshot reference (path to `__screenshots__/<variant>.png`)
+- Screen name
 - Issue description
 - Severity
 - Specific fix suggestion (NativeWind classes, component changes, layout adjustments)
@@ -114,7 +117,7 @@ If Stitch is NOT connected, include specific NativeWind fix suggestions in the r
 ## Running This Skill
 
 1. **Full audit** (recommended): `/capture-screens` first, then `/visual-audit`
-2. **With existing screenshots**: `/visual-audit` — reads from `e2e/screenshots/`
+2. **With existing screenshots**: `/visual-audit` — reads manifest and colocated `__screenshots__/` folders
 3. **Specific screens**: `/visual-audit` then say "audit the Settings and Profile screens"
 4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
 

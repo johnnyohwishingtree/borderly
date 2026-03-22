@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native';
-import PrivacyPolicyScreen from '@/screens/settings/PrivacyPolicy';
+import PrivacyPolicyScreen from '@/screens/settings/PrivacyPolicyScreen/PrivacyPolicy';
 
 describe('PrivacyPolicyScreen', () => {
   it('renders without crashing', () => {

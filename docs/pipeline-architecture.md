@@ -26,7 +26,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
 | `build-android.yml` | Push to master / manual | Android debug build (master only) |
-| `screenshot-capture.yml` | Push to master (UI paths) / manual | Native-fidelity screenshots on Android emulator; creates PR if changed |
+| ~~`screenshot-capture.yml`~~ | _(removed)_ | Screenshots are now colocated in source tree, updated in-PR via `/capture-screens` |
 | `ux-audit.yml` | Cron (twice daily: midnight + noon PST) / manual | Captures screenshots, runs flow audit, creates epic with stories for UX issues |
 | `release.yml` | Tag push / manual | Release workflow |
 
@@ -300,15 +300,6 @@ All fix attempts work on `tmp/vf-*` branches — never pushing broken code to th
 - Milestone pushes for timeout safety
 - Early bail-out if Claude produces no changes
 
-### Post-Merge Native Screenshot Capture
-`screenshot-capture.yml` runs after merges to master when UI-related files change (`src/screens/`, `src/components/`, `src/schemas/`, `src/app/navigation/`, or Maestro/Playwright capture files). This process:
-
-- Boots an Android emulator (Pixel 6, API 34) and builds the debug APK.
-- Runs the Maestro capture flow for native-fidelity screenshots.
-- Creates a pull request if any screenshot differences are detected.
-
-This provides native-fidelity screenshots without blocking PRs.
-
 ---
 
 ## Edge Cases & Safety Mechanisms
@@ -323,7 +314,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Give-up comment safety | Neutral language, no `@claude`/`@gemini` triggers |
 | Review-fix → verify-and-fix | Review-fix pushes then dispatches verify-and-fix for quality gate with retry |
 | CI failure → verify-and-fix | test.yml and e2e-smoke.yml dispatch verify-and-fix on any PR branch (opt out with `no-autofix` label) and on master push failures (creates fix/master-* branch + PR) |
-| Native screenshot capture | `screenshot-capture.yml` runs post-merge on master when UI files change. Boots an Android emulator (Pixel 6, API 34), builds a debug APK, runs the Maestro capture flow, and creates a PR if screenshots differ. Never blocks PRs. |
+| Colocated screenshots | Screenshots live in `src/screens/<domain>/<ScreenName>/__screenshots__/` and are updated in the same PR as code changes via `/capture-screens`. No post-merge workflow needed. |
 | Review thread resolution | Threads resolved before push so auto-merge gate passes on first eval |
 | Review-guardian badge check | Checks inline `![critical]`/`![high]` badges before auto-approving |
 | Event-driven approval | ensure-review checks thread resolution AND all CI checks (tests, e2e) after a workflow_run passes; approves only when all threads resolved AND all CI passed (self-healing after review-fix) |
@@ -340,7 +331,7 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Stale check recovery | verify-and-fix retrigger job: when verify passes with no merge needed, merges master into PR branch and pushes (triggers fresh CI), or re-runs failed checks if already up-to-date |
 | Missing target branch | verify-and-fix merge job checks if target branch exists remotely; creates it from source if missing (handles claude-code-action timestamped branches vs claude.yml non-timestamped names) |
 | Watcher updateBranch | Watcher uses GitHub update-branch API (triggers `pull_request synchronize`) instead of `workflow_dispatch` for missing CI — dispatch runs don't attach checks to PRs |
-| Auto-close stale screenshots | Watcher auto-closes `chore/update-screenshots-*` PRs with merge conflicts — they regenerate on next master merge |
+| Auto-close stale screenshots | _(legacy, inactive)_ Watcher auto-closes `chore/update-screenshots-*` PRs — no longer generated since screenshots are colocated in source tree |
 | Generated file conflicts | `.gitattributes` marks screenshots, flow-graph.json, manifest.json as `merge=ours` — auto-resolves conflicts on generated files |
 | Orphan branch safety | Branch cleanup skips branches belonging to in-progress stories — prevents deleting work before verify-and-fix can use it |
 | E2E skip for screenshots | `e2e-smoke.yml` skips full E2E suite for screenshot/maestro-only PRs (same as pipeline-only skip) |

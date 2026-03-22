@@ -8,7 +8,7 @@
  */
 
 import { render, screen } from '@testing-library/react-native';
-import ExportBackupModal from '../../../src/screens/settings/ExportBackupModal';
+import ExportBackupModal from '../../../src/screens/settings/ExportBackupModal/ExportBackupModal';
 
 // ---------------------------------------------------------------------------
 // Default mock — isLoading=false, no error

@@ -5,7 +5,7 @@
  * Edit modal visibility, Add Destination modal visibility, and delete flow.
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import TripDetailScreen from '@/screens/trips/TripDetailScreen';
+import TripDetailScreen from '@/screens/trips/TripDetailScreen/TripDetailScreen';
 import type { Trip } from '@/types/trip';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────

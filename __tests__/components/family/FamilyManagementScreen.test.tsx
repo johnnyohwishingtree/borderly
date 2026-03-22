@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import FamilyManagementScreen from '@/screens/profile/FamilyManagementScreen';
+import FamilyManagementScreen from '@/screens/profile/FamilyManagementScreen/FamilyManagementScreen';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { FamilyMember } from '@/types/profile';
 import { FamilyProfileCollection } from '@/types/family';

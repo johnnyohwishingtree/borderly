@@ -110,7 +110,7 @@ If new screens were added or existing screens were significantly modified:
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
 ```
 
-Update `e2e/screenshots/manifest.json` if the capture test doesn't auto-update it.
+Per-screen manifests at `__screenshots__/manifest.json` are auto-updated by the capture test.
 
 ### Step 6: Update Architecture Docs
 
