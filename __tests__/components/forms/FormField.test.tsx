@@ -236,36 +236,78 @@ describe('FormField — keyboard type for text fields', () => {
     expect(input.props.autoCapitalize).toBe('none');
   });
 
-  it('uses phone-pad keyboard for phoneNumber field', () => {
+  it('uses phone-pad keyboard and no auto-capitalization for phoneNumber field', () => {
     const field = makeField({ id: 'phoneNumber', label: 'Phone Number', type: 'text' });
     render(<FormField field={field} onValueChange={mockOnValueChange} />);
     const input = screen.getByTestId('input-phoneNumber');
     expect(input.props.keyboardType).toBe('phone-pad');
-    expect(input.props.autoCapitalize).toBe('sentences');
+    expect(input.props.autoCapitalize).toBe('none');
   });
 
-  it('uses phone-pad keyboard for mobile field', () => {
+  it('uses phone-pad keyboard and no auto-capitalization for mobile field', () => {
     const field = makeField({ id: 'mobile', label: 'Mobile', type: 'text' });
     render(<FormField field={field} onValueChange={mockOnValueChange} />);
     const input = screen.getByTestId('input-mobile');
     expect(input.props.keyboardType).toBe('phone-pad');
-    expect(input.props.autoCapitalize).toBe('sentences');
+    expect(input.props.autoCapitalize).toBe('none');
   });
 
-  it('uses phone-pad keyboard for phone field', () => {
+  it('uses phone-pad keyboard and no auto-capitalization for phone field', () => {
     const field = makeField({ id: 'phone', label: 'Phone', type: 'text' });
     render(<FormField field={field} onValueChange={mockOnValueChange} />);
     const input = screen.getByTestId('input-phone');
     expect(input.props.keyboardType).toBe('phone-pad');
-    expect(input.props.autoCapitalize).toBe('sentences');
+    expect(input.props.autoCapitalize).toBe('none');
   });
 
-  it('uses default keyboard and sentences auto-capitalization for a regular text field', () => {
+  it('uses default keyboard and words auto-capitalization for firstName field', () => {
     const field = makeField({ id: 'firstName', label: 'First Name', type: 'text' });
     render(<FormField field={field} onValueChange={mockOnValueChange} />);
     const input = screen.getByTestId('input-firstName');
     expect(input.props.keyboardType).toBe('default');
-    expect(input.props.autoCapitalize).toBe('sentences');
+    expect(input.props.autoCapitalize).toBe('words');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FormField — autoCapitalize per field semantic
+// ---------------------------------------------------------------------------
+
+describe('FormField — autoCapitalize per field type', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  const testCases: [string, 'characters' | 'words' | 'none' | 'sentences'][] = [
+    // ── characters: passport numbers and country/nationality codes ───────────
+    ['passportNumber', 'characters'],
+    ['documentNumber', 'characters'],
+    ['issuingCountry', 'characters'],
+    ['nationality', 'characters'],
+    ['countryOfBirth', 'characters'],
+    ['destinationCountry', 'characters'],
+    // ── words: name fields ────────────────────────────────────────────────────
+    ['surname', 'words'],
+    ['givenNames', 'words'],
+    ['lastName', 'words'],
+    ['middleName', 'words'],
+    ['fullName', 'words'],
+    // ── none: email and phone ─────────────────────────────────────────────────
+    ['email', 'none'],
+    ['mobile', 'none'],
+    ['phoneNumber', 'none'],
+    // ── sentences: free-text fields ───────────────────────────────────────────
+    ['occupation', 'sentences'],
+    ['purposeOfVisit', 'sentences'],
+    ['accommodationAddress', 'sentences'],
+  ];
+
+  it.each(testCases)('%s uses autoCapitalize=%s', (fieldId, expected) => {
+    const field = makeField({ id: fieldId, type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    expect(screen.getByTestId(`input-${fieldId}`).props.autoCapitalize).toBe(expected);
   });
 });
 
