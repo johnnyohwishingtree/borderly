@@ -7,6 +7,7 @@ import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState } from '@/components/ui';
+import { DocumentValidityCard } from '@/components/profile';
 import { TravelerProfile } from '@/types/profile';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
@@ -192,6 +193,9 @@ export default function ProfileScreen() {
             )}
           </Card>
         </View>
+
+        {/* Document Validity */}
+        <DocumentValidityCard passportExpiry={profile.passportExpiry} />
 
         {/* Passport Information */}
         <Card>
