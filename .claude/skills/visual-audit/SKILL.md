@@ -133,6 +133,13 @@ If Stitch is connected and there are Critical/Major issues:
 
 If Stitch is NOT connected, include specific NativeWind fix suggestions in the report.
 
+## Screen & Component Metadata
+
+Before auditing, read the metadata files for context on what each screen contains:
+
+- **`maestro/generator/screenRegistry.ts`** — Per-screen metadata: fields (with required/optional), alerts, action buttons, navigation targets, and notes. Helps understand what should be visible on each screen.
+- **`maestro/generator/componentCatalog.ts`** — Interaction patterns per component type: sub-testIDs, modal vs inline rendering, keyboard behavior. Helps understand expected component behavior.
+
 ## Project-Specific Guidelines
 
 - **NEVER** use raw `View` styles for complex components. Use `src/components/ui/` components.
