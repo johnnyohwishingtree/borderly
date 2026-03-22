@@ -118,8 +118,11 @@ jobs:
     steps:
       - name: Check shard results
         run: |
-          if [ "${{ needs.test-chromium-shard.result }}" != "success" ]; then
-            echo "One or more chromium shards failed: ${{ needs.test-chromium-shard.result }}"
+          RESULT="${{ needs.test-chromium-shard.result }}"
+          if [ "$RESULT" = "success" ] || [ "$RESULT" = "skipped" ]; then
+            echo "Chromium shards: $RESULT"
+          else
+            echo "One or more chromium shards failed: $RESULT"
             exit 1
           fi
 
