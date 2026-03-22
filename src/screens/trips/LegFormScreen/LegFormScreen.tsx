@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Alert, ScrollView } from 'react-native';
+import { View, Text, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button } from '@/components/ui';
@@ -79,6 +79,10 @@ export default function LegFormScreen() {
   }
 
   return (
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
     <View className="flex-1 bg-gray-50">
       {/* Header */}
       <View className="bg-white border-b border-gray-200 px-4 py-3">
@@ -180,8 +184,10 @@ export default function LegFormScreen() {
         showFormStats={!showOnlyCountrySpecific}
       />
 
-      {/* Action Buttons */}
-      <View className="bg-white border-t border-gray-200 px-4 py-3">
+    </ScrollView>
+
+      {/* Action Buttons — fixed bottom bar, always visible regardless of scroll position */}
+      <View testID="action-buttons-bar" className="bg-white border-t border-gray-200 px-4 py-3">
         <View className="space-y-2">
           <Button
             title="Save Progress"
@@ -246,7 +252,7 @@ export default function LegFormScreen() {
           </View>
         )}
       </View>
-    </ScrollView>
     </View>
+    </KeyboardAvoidingView>
   );
 }
