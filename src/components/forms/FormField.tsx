@@ -8,6 +8,71 @@ import { ALL_AIRLINES } from '../../constants/airlines';
 import { Address } from '../../types/profile';
 import { SemanticUtils } from '../../utils/accessibility';
 
+/**
+ * Returns the appropriate autoCapitalize value for a text input based on the
+ * field's semantic meaning (derived from its id).
+ *
+ * | Value        | When to use                                               |
+ * |--------------|-----------------------------------------------------------|
+ * | 'none'       | Email addresses, phone numbers                            |
+ * | 'characters' | Passport numbers, country codes, nationality codes        |
+ * | 'words'      | Surname and given-name fields                             |
+ * | 'sentences'  | Free-text fields (occupation, purpose of visit, etc.)     |
+ */
+function getAutoCapitalize(
+  fieldId: string,
+  isEmailField: boolean,
+  isPhoneField: boolean,
+): 'none' | 'sentences' | 'words' | 'characters' {
+  if (isEmailField || isPhoneField) {
+    return 'none';
+  }
+
+  const id = fieldId.toLowerCase();
+
+  // Passport numbers and document numbers are all-caps codes (e.g. AB1234567)
+  if (
+    id === 'passportnumber' ||
+    id === 'documentnumber' ||
+    id === 'traveldocumentnumber' ||
+    id.endsWith('passportnumber')
+  ) {
+    return 'characters';
+  }
+
+  // Country and nationality codes are 2–3 uppercase letters (e.g. SGP, MY)
+  if (
+    id === 'nationality' ||
+    id === 'issuingcountry' ||
+    id === 'countryofbirth' ||
+    id === 'countryofresidence' ||
+    id === 'destinationcountry' ||
+    id.includes('nationality') ||
+    id.endsWith('country') ||
+    id.endsWith('countrycode')
+  ) {
+    return 'characters';
+  }
+
+  // Name fields: capitalise each word (e.g. "John" / "Smith")
+  if (
+    id === 'surname' ||
+    id === 'givennames' ||
+    id === 'firstname' ||
+    id === 'lastname' ||
+    id === 'middlename' ||
+    id === 'fullname' ||
+    id.endsWith('surname') ||
+    id.endsWith('givennames') ||
+    id.endsWith('firstname') ||
+    id.endsWith('lastname')
+  ) {
+    return 'words';
+  }
+
+  return 'sentences';
+}
+
 interface FormFieldProps {
   field: FilledFormField;
   value?: unknown;
@@ -53,7 +118,7 @@ export default function FormField({
       : isPhoneField
         ? 'phone-pad'
         : 'default';
-    const textAutoCapitalize = isEmailField ? 'none' : 'sentences';
+    const textAutoCapitalize = getAutoCapitalize(field.id, isEmailField, isPhoneField);
 
     // Platform autofill hints: textContentType (iOS) + autoComplete (Android/Web)
     let textContentType: 'emailAddress' | 'telephoneNumber' | 'none' | undefined;
