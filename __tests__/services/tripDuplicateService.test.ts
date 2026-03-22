@@ -74,7 +74,8 @@ function makeTrip(overrides: Partial<Trip> = {}): Trip {
 /** Returns a TripLeg without the departureDate property (not even set to undefined). */
 function makeLegNoDeparture(): TripLeg {
   const leg = makeLeg();
-  const { departureDate: _removed, ...rest } = leg;
+  const rest: Partial<TripLeg> = { ...leg };
+  delete rest.departureDate;
   return rest as TripLeg;
 }
 
