@@ -31,8 +31,9 @@ export default function ProfileScreen() {
 
     try {
       await useProfileStore.getState().loadProfile();
-      if (profile) {
-        setSecureProfile(profile);
+      const freshProfile = useProfileStore.getState().profile;
+      if (freshProfile) {
+        setSecureProfile(freshProfile);
         setIsUnlocked(true);
       }
     } catch {
