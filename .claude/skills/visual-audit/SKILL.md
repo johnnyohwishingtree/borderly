@@ -93,6 +93,17 @@ Do NOT load all screenshots at once — this exhausts the context window.
 - Empty states have helpful messaging (not blank screens)
 - Error states show recovery actions
 
+**Responsive & Scalable Design**
+- Components use NativeWind responsive classes (not fixed widths) so they scale across screen sizes
+- Lists, grids, and selectors handle growing item counts gracefully (e.g., 11+ country buttons should use a searchable dropdown, not a wrapping pill grid)
+- Form layouts remain usable on both narrow mobile (375px) and wider web/tablet viewports
+- Text doesn't overflow or get truncated at any supported viewport width
+
+**Data Completeness**
+- Every supported country in `SUPPORTED_COUNTRIES` renders a real flag (no "??" fallback placeholders)
+- Every family relationship type shows a distinct, recognizable icon (not a generic placeholder)
+- All dynamic content (flags, icons, badges) has a rendered implementation — not just a data entry
+
 **Component Consistency** (when reviewing component screenshots)
 - Variants are visually consistent (same component, different states look related)
 - Status colors match across components (success green, error red, warning amber)

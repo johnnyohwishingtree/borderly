@@ -81,7 +81,8 @@ The named folder convention enables colocated `__screenshots__/` directories for
 
 ### Adding a New Country
 
-1. Create the schema JSON in `schemas/<ISO>.json`
-2. Register it in `services/schemas/schemaRegistry.ts`
-3. Add schema validation tests in `__tests__/schemas/<ISO>.test.ts`
-4. Add country flag asset in `assets/flags/`
+1. Add the country entry to `constants/countries.ts` (`SUPPORTED_COUNTRIES` array)
+2. Create the schema JSON in `schemas/<ISO>.json`
+3. Register it in `services/schemas/schemaRegistry.ts`
+4. Add a `case '<ISO>':` in `components/trips/CountryFlag.tsx`'s `renderFlag()` switch — the `country-completeness` structural test in `__tests__/structure/` enforces this
+5. Add schema validation tests in `__tests__/schemas/<ISO>.test.ts`
