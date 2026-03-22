@@ -48,9 +48,14 @@ export class GitHubClient {
     const testsPass = runs.some(
       (r) => r.name === 'test' && passConclusions.includes(r.conclusion ?? '')
     );
-    const e2eChromium = runs.some(
-      (r) => r.name === 'test-chromium' && passConclusions.includes(r.conclusion ?? '')
+    // test-chromium uses a matrix strategy, so check names are
+    // "test-chromium (core)", "test-chromium (submissions)", etc.
+    // Match any check starting with "test-chromium" and require all to pass.
+    const chromiumRuns = runs.filter(
+      (r) => r.name === 'test-chromium' || r.name.startsWith('test-chromium (')
     );
+    const e2eChromium = chromiumRuns.length > 0 &&
+      chromiumRuns.every((r) => passConclusions.includes(r.conclusion ?? ''));
     const e2ePerf = runs.some(
       (r) => r.name === 'test-performance' && passConclusions.includes(r.conclusion ?? '')
     );

@@ -59,6 +59,18 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
     fullName: 'Canada',
     colors: ['#FF0000', '#FFFFFF'],
   },
+  {
+    code: 'AUS',
+    name: 'Australia',
+    fullName: 'Australia',
+    colors: ['#00008B', '#FFFFFF', '#FF0000'],
+  },
+  {
+    code: 'NZL',
+    name: 'New Zealand',
+    fullName: 'New Zealand',
+    colors: ['#00247D', '#FFFFFF', '#CC142B'],
+  },
 ];
 
 /**

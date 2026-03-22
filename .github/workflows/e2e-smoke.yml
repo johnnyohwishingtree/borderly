@@ -75,11 +75,21 @@ jobs:
           path: e2e/dist/
           retention-days: 1
 
-  # Core chromium tests (24 tests) + QR workflow (7 tests)
+  # Chromium E2E tests — split into 3 parallel shards via matrix
   test-chromium:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: core
+            projects: chromium,qr-workflow
+          - shard: submissions
+            projects: portal-submission,country-submissions
+          - shard: workflows
+            projects: account-setup,family
     steps:
       - uses: actions/checkout@v4
       - name: Set up Node and pnpm
@@ -93,11 +103,11 @@ jobs:
         with:
           name: e2e-bundle
           path: e2e/dist/
-      - name: Run chromium + QR tests
+      - name: Run E2E tests (${{ matrix.shard }})
         run: npx playwright test --reporter=line
         env:
           CI: true
-          E2E_PROJECT: chromium,qr-workflow,account-setup,portal-submission,family,country-submissions
+          E2E_PROJECT: ${{ matrix.projects }}
 
   # Performance tests (9 tests) — run in parallel with chromium
   test-performance:
