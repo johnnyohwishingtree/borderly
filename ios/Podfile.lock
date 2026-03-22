@@ -2038,6 +2038,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - RNNotifee (9.1.8):
+    - React-Core
+    - RNNotifee/NotifeeCore (= 9.1.8)
+  - RNNotifee/NotifeeCore (9.1.8):
+    - React-Core
   - RNReactNativeHapticFeedback (2.3.3):
     - hermes-engine
     - RCTRequired
@@ -2409,6 +2414,7 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
+  - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -2585,6 +2591,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
+  RNNotifee:
+    :path: "../node_modules/@notifee/react-native"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
   RNReanimated:
@@ -2687,6 +2695,7 @@ SPEC CHECKSUMS:
   RNCClipboard: 88d7eeb555d1183915f0885bdbc5c97eb6f7f3ba
   RNGestureHandler: 07de6f059e0ee5744ae9a56feb07ee345338cc31
   RNKeychain: 667b7bd224f14055ae4cb52b41a82ad0ad70574f
+  RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
   RNReactNativeHapticFeedback: d7bc1bcfe68bb139c9919ea81d11d7c6e866e870
   RNReanimated: b18b23348b299d0f0b9bf9fc2688f6b4cff40152
   RNScreens: 6cb648bdad8fe9bee9259fe144df95b6d1d5b707
