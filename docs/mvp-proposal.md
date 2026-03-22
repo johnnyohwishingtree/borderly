@@ -1502,6 +1502,150 @@ Both components follow the project's accessibility standards:
 
 ---
 
+## Pre-Departure Readiness Checklist
+
+Borderly proactively surfaces unresolved travel requirements before departure so travelers never arrive at an airport with an incomplete form or an expired passport.
+
+### Feature Overview
+
+The **ReadinessChecklist** is an expandable card rendered on the `TripDetailScreen`. It aggregates up to four health signals per trip leg into a single `TripReadiness` snapshot:
+
+1. **Passport validity** — Is each traveler's passport valid for the country's required window beyond the departure date?
+2. **Form completion** — Has the declaration form for each destination been submitted or completed?
+3. **QR code presence** — For QR-required countries (e.g. Japan's Visit Japan Web e-Gate), does a saved QR code exist in the wallet?
+4. **Deadline status** — Is the submission deadline still in the future with sufficient lead time?
+
+Each signal maps to one of four severity levels: `ok`, `warning`, `critical`, or `missing`. The checklist header shows the worst aggregated status and a count of items requiring attention. Tapping the header expands a categorised list of all items with optional "Fix" links that navigate directly to the screen where the issue can be resolved.
+
+### Data Model
+
+```ts
+// readinessTypes.ts
+type ReadinessItemStatus = 'ok' | 'warning' | 'critical' | 'missing';
+
+interface ReadinessItem {
+  id: string;                         // e.g. "passport-leg-1", "form-leg-2"
+  category: 'passport' | 'form' | 'qr' | 'deadline';
+  label: string;                      // e.g. "Declaration form — Japan"
+  status: ReadinessItemStatus;
+  detail?: string;                    // Human-readable reason for non-ok status
+  actionScreen?: string;              // Screen name for the "Fix" navigation link
+}
+
+interface TripReadiness {
+  tripId: string;
+  overallStatus: ReadinessItemStatus; // Worst status across all items
+  items: ReadinessItem[];
+  readyCount: number;                 // Items with status === 'ok'
+  totalCount: number;
+  departureDate: Date;                // Earliest departure across all legs
+}
+```
+
+### Aggregation Logic (`ReadinessService`)
+
+`computeTripReadiness()` is a pure async function — no stores, no side effects:
+
+```
+Trip + Profiles + Schemas + QR Codes
+          │
+          ▼
+  for each leg:
+    1. Passport validity  → checkPassportValidity() per profile → worst status
+    2. Form completion    → leg.formStatus mapped to ReadinessItemStatus
+    3. QR code presence   → qrCodes.filter(qr => qr.legId === leg.id)
+    4. Deadline status    → computeLegDeadline() + getUrgencyLevel()
+          │
+          ▼
+  getOverallStatus(items) → worst-severity wins
+          │
+          ▼
+  TripReadiness snapshot
+```
+
+**Severity ordering:** `missing` (3) > `critical` (2) > `warning` (1) > `ok` (0). The highest numeric value wins when aggregating across profiles or items.
+
+**QR-required countries:** Currently only `JPN`. The set is defined in `readinessService.ts` as `QR_REQUIRED_COUNTRIES`. Non-QR countries only emit a QR item when a code already exists (and mark it `ok`).
+
+### ReadinessChecklist Component
+
+`ReadinessChecklist` (`src/components/trips/ReadinessChecklist.tsx`) is a stateless presentational component:
+
+```
+Props:
+  tripReadiness: TripReadiness   — computed snapshot from ReadinessService
+  onNavigate: (screen) => void   — called when user taps a "Fix" link
+  initialExpanded?: boolean      — expand on first render (default: false)
+  testID?: string
+```
+
+**Rendering structure:**
+- **Header row** (`readiness-checklist-header`): Overall status icon + summary label ("Ready to travel" / "N items need attention") + animated chevron. Tappable expand/collapse toggle.
+- **Expandable body** (`readiness-checklist-body`): Items grouped by category (`passport → form → qr → deadline`) using `CategorySection`. Each `ItemRow` shows a status icon, label, detail text, and an optional "Fix" `TouchableOpacity`.
+
+### TripDetailScreen Integration
+
+`TripDetailScreen` calls `computeTripReadiness()` asynchronously on mount using `useEffect`. While computing, a loading placeholder (`readiness-checklist-loading`) is shown. Once resolved, `ReadinessChecklist` replaces the placeholder.
+
+```
+TripDetailScreen
+  │  useEffect → computeTripReadiness(trip, profiles, schemas, qrCodes)
+  │
+  ├─► [loading]   <View testID="readiness-checklist-loading" />
+  │
+  └─► [ready]     <ReadinessChecklist tripReadiness={...} onNavigate={...} />
+```
+
+The `onNavigate` callback uses `navigation.navigate()` to push the target screen onto the stack.
+
+### Departure-Gap Notification Flow
+
+`readinessNotificationScheduler.ts` schedules a single push notification 48 hours before the trip's earliest departure when the overall status is `critical` or `missing`:
+
+```
+scheduleReadinessCheck(trip, readiness)
+  │
+  ├─ overallStatus is ok/warning  → cancel existing notification (if any)
+  │
+  └─ overallStatus is critical/missing
+       │
+       ├─ triggerTime = departureDate − 48h
+       ├─ triggerTime in the past?  → silently skip
+       └─ schedule via NotificationProvider
+            └─ persist notification ID in MMKV under "departure-readiness-<tripId>"
+```
+
+Cancellation (`cancelReadinessNotification`) removes both the OS notification and the MMKV key. The scheduler reuses the pluggable `NotificationProvider` interface registered by `setNotificationProvider()` in `notificationScheduler.ts`, so no additional wiring is needed at app start-up.
+
+### Accessibility
+
+- **Header button**: `accessibilityRole="button"`, `accessibilityState.expanded`, `accessibilityLabel` = summary text, `accessibilityHint` = "Tap to expand/collapse checklist".
+- **Item rows**: `accessibilityRole="text"`, `accessibilityLabel` = `"<label>, <status>[, <detail>]"` — combines all information into a single string for screen readers.
+- **Status icons / chevron**: `accessibilityElementsHidden={true}` + `importantForAccessibility="no-hide-descendants"` — purely decorative.
+- **Critical detail text**: `accessibilityLiveRegion="polite"` — screen readers announce the detail when it appears. Non-critical items use `"none"`.
+- **Fix buttons**: `accessibilityRole="button"`, `accessibilityLabel="Fix <item label>"`, `accessibilityHint="Navigate to resolve this issue"`.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/services/readiness/readinessTypes.ts` | `ReadinessItem`, `ReadinessItemStatus`, `TripReadiness` interfaces |
+| `src/services/readiness/readinessService.ts` | `computeTripReadiness()` and `getOverallStatus()` — pure functions |
+| `src/services/readiness/readinessNotificationScheduler.ts` | Departure-gap push notification scheduling and cancellation |
+| `src/services/readiness/index.ts` | Barrel export |
+| `src/components/trips/ReadinessChecklist.tsx` | Expandable checklist card component |
+
+### Test Coverage
+
+- `__tests__/services/readinessService.test.ts` — unit tests: all four signal categories, severity ordering, multi-profile aggregation, empty trip, QR filtering, deadline urgency mapping
+- `__tests__/services/readinessNotificationScheduler.test.ts` — unit tests: scheduling with critical/missing status, skipping ok/warning, past-window guard, cancellation, MMKV key helpers
+- `__tests__/components/trips/ReadinessChecklist.test.tsx` — component unit tests: header label variants, expand/collapse, category grouping, Fix link callbacks, empty items fallback, custom testID
+- `__tests__/components/trips/ReadinessChecklist.a11y.test.tsx` — accessibility tests: header role/state, accessibilityHint expand/collapse, item label composition, live regions on critical detail text, decorative elements hidden, Fix button role and label
+- `e2e/tests/readiness-checklist.spec.ts` — E2E smoke tests: checklist renders on TripDetailScreen, summary text visible, expand reveals item rows, category sections present, collapse works
+- `e2e/tests/trip-detail.spec.ts` — additional E2E coverage: checklist visible on single/multi-leg trips, header tap expands body
+
+---
+
 ## 10. Key Libraries & Versions
 
 ```json
