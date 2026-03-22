@@ -219,6 +219,7 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
             country: editLegData.accommodation.address.country,
           } as Address,
         } as Accommodation,
+        assignedTravelers: editLegData.assignedTravelers,
       };
       if (editLegData.departureDate) legUpdates.departureDate = editLegData.departureDate;
       if (editLegData.flightNumber) legUpdates.flightNumber = editLegData.flightNumber;

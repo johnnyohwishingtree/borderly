@@ -130,6 +130,22 @@ jest.mock('../../../src/constants/countries', () => ({
   ],
 }));
 
+// Default: hook returns null (valid passport or no data) — overridden per test as needed.
+const mockUsePassportValidity = jest.fn().mockReturnValue(null);
+jest.mock('../../../src/hooks/usePassportValidity', () => ({
+  usePassportValidity: (...args: unknown[]) => mockUsePassportValidity(...args),
+}));
+
+// Shallow mock so it doesn't pull in lucide-react-native's AlertTriangle icon.
+jest.mock('../../../src/components/trips/PassportValidityWarning', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ testID }: { testID?: string }) =>
+      React.createElement('View', { testID }),
+  };
+});
+
 // ── Test setup ────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
@@ -429,5 +445,65 @@ describe('TripDetailScreen — family member loading via useFocusEffect', () => 
     await waitFor(() => {
       expect(mockLoadFamilyProfiles).toHaveBeenCalled();
     });
+  });
+});
+
+// ── Passport validity warning in Edit Destination modal ───────────────────────
+
+describe('TripDetailScreen — passport validity warning in Edit Destination modal', () => {
+  afterEach(() => {
+    mockUsePassportValidity.mockReturnValue(null);
+  });
+
+  it('shows PassportValidityWarning when usePassportValidity returns warning data', () => {
+    mockUsePassportValidity.mockReturnValue({
+      status: { isValid: false, daysUntilExpiry: 60, requiredValidityDays: 180, shortfallDays: 30 },
+      countryName: 'Japan',
+      requiredMonths: 6,
+      passportExpiry: '2026-06-01',
+    });
+
+    render(<TripDetailScreen />);
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    expect(screen.getByTestId('edit-leg-passport-validity-warning')).toBeTruthy();
+  });
+
+  it('does not show PassportValidityWarning when usePassportValidity returns null (valid passport)', () => {
+    mockUsePassportValidity.mockReturnValue(null);
+
+    render(<TripDetailScreen />);
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    expect(screen.queryByTestId('edit-leg-passport-validity-warning')).toBeNull();
+  });
+
+  it('passes the correct countryCode to usePassportValidity', () => {
+    render(<TripDetailScreen />);
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    // The leg fixture has destinationCountry: 'JPN'
+    expect(mockUsePassportValidity).toHaveBeenCalledWith(
+      expect.objectContaining({ countryCode: 'JPN' }),
+    );
+  });
+
+  it('shows PassportValidityWarning in the Add Destination modal when hook returns warning data', () => {
+    mockUsePassportValidity.mockReturnValue({
+      status: { isValid: false, daysUntilExpiry: 45, requiredValidityDays: 180, shortfallDays: 45 },
+      countryName: 'Singapore',
+      requiredMonths: 6,
+      passportExpiry: '2026-05-01',
+    });
+
+    render(<TripDetailScreen />);
+    fireEvent.press(screen.getByTestId('add-destination-button'));
+    // Select a country in the add form
+    fireEvent.press(screen.getByTestId('new-leg-country-SGP'));
+
+    expect(screen.getByTestId('new-leg-passport-validity-warning')).toBeTruthy();
   });
 });
