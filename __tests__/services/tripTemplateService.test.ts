@@ -130,8 +130,9 @@ describe('saveTemplateFromTrip', () => {
 
   it('defaults typicalDurationDays to 1 when departure date is missing', () => {
     const trip = makeTrip();
-    // Remove departure date from first leg
-    trip.legs[0] = { ...trip.legs[0], departureDate: undefined };
+    // Remove departure date from first leg (omit the key entirely for exactOptionalPropertyTypes)
+    const { departureDate: _removed, ...legWithoutDeparture } = trip.legs[0];
+    trip.legs[0] = legWithoutDeparture;
     const template = saveTemplateFromTrip(trip);
     expect(template.legs[0].typicalDurationDays).toBe(1);
   });

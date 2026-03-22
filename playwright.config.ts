@@ -69,6 +69,7 @@ const allProjects = [
       'readiness-checklist.spec.ts',
       'leg-form-action-buttons.spec.ts',
       'submission-guide.spec.ts',
+      'trip-templates.spec.ts',
     ],
     timeout: 45000,
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
