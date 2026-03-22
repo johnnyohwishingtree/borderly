@@ -21,13 +21,21 @@ A local-first mobile app that stores your travel profile on-device, then auto-ge
 
 ### MVP Scope — Phase 1
 
-Support **3 countries** to prove the concept:
+Support **11 countries** across major travel corridors:
 
 1. **Japan** — Visit Japan Web (immigration + customs declaration → QR code)
 2. **Malaysia** — Malaysia Digital Arrival Card (MDAC)
 3. **Singapore** — SG Arrival Card (via ICA)
+4. **Thailand** — Thailand Digital Arrival Card (TDAC)
+5. **Vietnam** — E-declaration via Vietnam Customs
+6. **United Kingdom** — UK Electronic Travel Authorisation (ETA)
+7. **United States** — ESTA / CBP One
+8. **Canada** — Canada eTA
+9. **Australia** — ABF Digital Incoming Passenger Card (DIPC)
+10. **New Zealand** — New Zealand Traveller Declaration (NZTD)
+11. **South Korea** — Korea K-ETA
 
-These three form a common Asia travel corridor and all have digital submission systems.
+Phase 1 launched with Japan, Malaysia, and Singapore (common Asia travel corridor). The platform has since expanded to cover major English-speaking destinations and the full Asia-Pacific corridor.
 
 ### MVP Scope — What's NOT included in Phase 1
 
@@ -957,6 +965,14 @@ onepass/
 │   │   ├── JPN.json                   # Japan - Visit Japan Web
 │   │   ├── MYS.json                   # Malaysia - MDAC
 │   │   ├── SGP.json                   # Singapore - SG Arrival Card
+│   │   ├── THA.json                   # Thailand - TDAC
+│   │   ├── VNM.json                   # Vietnam - E-declaration
+│   │   ├── GBR.json                   # United Kingdom - ETA
+│   │   ├── USA.json                   # United States - ESTA
+│   │   ├── CAN.json                   # Canada - eTA
+│   │   ├── AUS.json                   # Australia - DIPC
+│   │   ├── NZL.json                   # New Zealand - NZTD
+│   │   ├── KOR.json                   # South Korea - K-ETA
 │   │   └── index.ts                   # Schema registry export
 │   │
 │   ├── types/
@@ -989,7 +1005,15 @@ onepass/
 │   └── schemas/
 │       ├── JPN.test.ts                # Validate Japan schema completeness
 │       ├── MYS.test.ts
-│       └── SGP.test.ts
+│       ├── SGP.test.ts
+│       ├── THA.test.ts
+│       ├── VNM.test.ts
+│       ├── GBR.test.ts
+│       ├── USA.test.ts
+│       ├── CAN.test.ts
+│       ├── AUS.test.ts                # Australia DIPC — auto-fill coverage >= 70%
+│       ├── NZL.test.ts                # New Zealand NZTD — auto-fill coverage >= 70%
+│       └── KOR.test.ts                # South Korea K-ETA — processing time verification
 │
 ├── android/
 ├── ios/
@@ -1415,7 +1439,7 @@ Borderly surfaces passport validity information proactively so travelers discove
 
 Two complementary UI surfaces work together:
 
-1. **DocumentValidityCard** (ProfileScreen) — A persistent card showing the passport expiry date, a colour-coded status pill, and an 8-country validity grid that answers "Can I depart today and still be admitted?" for every supported destination.
+1. **DocumentValidityCard** (ProfileScreen) — A persistent card showing the passport expiry date, a colour-coded status pill, and an 11-country validity grid that answers "Can I depart today and still be admitted?" for every supported destination.
 
 2. **PassportValidityWarning** (LegFormScreen) — An inline amber banner that appears only when the active traveler's passport does not meet the specific destination country's minimum validity requirement for the chosen departure date. Non-blocking — travelers can still proceed but are clearly warned of the potential entry risk.
 
@@ -1448,7 +1472,7 @@ checkPassportValidity() ── pure function
 
 ### Country Validity Rules
 
-All 8 currently supported countries require **6 months** of passport validity beyond the intended departure date:
+All 11 currently supported countries require passport validity beyond the intended departure date:
 
 | Country | Code | Required validity |
 |---------|------|-------------------|
@@ -1460,6 +1484,9 @@ All 8 currently supported countries require **6 months** of passport validity be
 | United Kingdom| GBR | 6 months    |
 | United States | USA | 6 months    |
 | Canada  | CAN  | 6 months          |
+| Australia | AUS | 6 months         |
+| New Zealand | NZL | 3 months       |
+| South Korea | KOR | 6 months       |
 
 The `passportValidityMonths` field in each country's JSON schema (`src/schemas/<ISO>.json`) drives the validation.
 
@@ -1494,11 +1521,62 @@ Both components follow the project's accessibility standards:
 
 ### Test Coverage
 
-- `__tests__/components/profile/DocumentValidityCard.test.tsx` — unit tests (null render, expiry status thresholds, country grid, 8 countries)
+- `__tests__/components/profile/DocumentValidityCard.test.tsx` — unit tests (null render, expiry status thresholds, country grid, 11 countries)
 - `__tests__/components/trips/PassportValidityWarning.test.tsx` — unit tests (null when valid, a11y props, singular/plural labels, different countries)
 - `__tests__/components/profile/DocumentValidityCard.a11y.test.tsx` — accessibility tests for DocumentValidityCard and PassportExpiryBadge
 - `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` — accessibility tests for PassportValidityWarning
 - `e2e/tests/document-validity.spec.ts` — E2E smoke tests: DocumentValidityCard in ProfileScreen; PassportValidityWarning in LegFormScreen when passport expires near departure
+
+---
+
+## Australia, New Zealand & South Korea (AUS/NZL/KOR) Schema Coverage
+
+These three schemas complete the Asia-Pacific corridor expansion, bringing the app to **11 supported countries**.
+
+### Australia — ABF Digital Incoming Passenger Card (DIPC)
+
+- **Portal:** `https://online.abf.gov.au/incoming-passenger-card/`
+- **Submission window:** Up to 72 hours before arrival; no strict deadline (submit any time)
+- **Passport validity required:** 6 months
+- **Key sections:** Personal (passport fields), Travel (DIPC-specific flight + seat class), Address (Australian accommodation), Health & Biosecurity (food/plant/animal/soil declarations), Customs (goods/currency declarations)
+- **Unique fields:** Biosecurity risk declarations (hasFoodItems, hasPlantItems, hasAnimalItems, hasBiosecurityRiskItems, hasSoilOrWater) and 8 Australian state/territory options for the address state field
+- **No account required** — each passenger submits independently; no registration needed
+- **Auto-fill coverage:** 100% of non-country-specific fields are auto-filled from profile/leg data (passport fields, flight number, arrival date, accommodation address)
+
+### New Zealand — New Zealand Traveller Declaration (NZTD)
+
+- **Portal:** `https://www.nztravellerdeclaration.govt.nz`
+- **Submission window:** Must be submitted **at least 24 hours before arrival**; recommended 48–72 hours
+- **Passport validity required:** 3 months (lower than most other countries)
+- **Key sections:** Personal (passport + email), Travel (NZTD-specific flight + purpose + departure country), Address (NZ accommodation), Biosecurity (food/plant/animal/soil declarations), Goods (currency/controlled items)
+- **Email field** is required and auto-fills from `profile.email` — NZL is one of the few schemas that captures the traveler's contact email
+- **No account required** — per-trip declarative submission; email used for confirmation only
+- **Auto-fill coverage:** 100% of non-country-specific fields have autoFillSource mappings
+
+### South Korea — Korea K-ETA (Electronic Travel Authorisation)
+
+- **Portal:** `https://www.k-eta.go.kr/portal/apply/index.do`
+- **Submission window:** Must be submitted **at least 72 hours before departure** — this is both the submission deadline AND the processing time
+- **Passport validity required:** 6 months
+- **Key sections:** Passport (full passport data), Personal Info (email, phone, occupation, home country), Travel (purpose, arrival date, duration, flight, airport), Accommodation (hotel name + address), Health Declaration (symptoms, infectious disease, outbreak area), Customs Declaration (prohibited items, duty-free, currency, commercial goods)
+- **Account required** — each traveler must register on the K-ETA portal with their own email address; `portalFlow.requiresAccount = true`
+- **Processing time:** Up to 72 hours — travelers must apply at least 1 week in advance (`recommendedLeadTimeHours: 168`). This is verified by the `submissionWindowNote` field which states "processing takes up to 72 hours"
+- **Auto-fill coverage:** 78.1% of all fields and 95.7% of non-country-specific fields have autoFillSource mappings — the highest coverage of all three new schemas
+- **Occupation field** is country-specific and required — the K-ETA portal requires travelers to select their occupation from a predefined list
+
+### Schema Tests
+
+| File | Tests | Key verifications |
+|------|-------|-------------------|
+| `__tests__/schemas/AUS.test.ts` | ~42 tests | Metadata, biosecurity section, 8 AU states, submission timing, auto-fill coverage |
+| `__tests__/schemas/NZL.test.ts` | ~40 tests | Metadata, biosecurity section, email field, 24h deadline, auto-fill coverage |
+| `__tests__/schemas/KOR.test.ts` | ~44 tests | Metadata, K-ETA account requirement, occupation field, 72h processing time, auto-fill coverage |
+
+### E2E Smoke Tests
+
+`e2e/tests/aus-nzl-kor-leg.spec.ts` — verifies that:
+1. Each country's leg card appears in the Trip Detail screen
+2. The Leg Form screen renders with `DynamicForm` for each country code
 
 ---
 
