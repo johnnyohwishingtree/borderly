@@ -19,7 +19,7 @@
 import { keychainService } from '@/services/storage/keychain';
 import { databaseService } from '@/services/storage/database';
 import { mmkvService } from '@/services/storage/mmkv';
-import { Trip, TripLeg, SavedQRCode } from '@/services/storage/models';
+import type { Trip, TripLeg, SavedQRCode } from '@/services/storage/models';
 import { SerializableFamilyProfileCollection } from '@/types/family';
 import {
   deriveKeyFromPassphrase,

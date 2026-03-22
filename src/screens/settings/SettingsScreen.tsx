@@ -13,7 +13,6 @@ import type { SchemaMetadata } from '@/services/schemas/schemaRegistry';
 import { getPortalName } from '@/utils/countryUtils';
 import type { PortalCredential } from '@/types/submission';
 import type { SettingsStackParamList } from '@/app/navigation/types';
-import ExportBackupModal from './ExportBackupModal';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
 
@@ -37,9 +36,6 @@ export default function SettingsScreen() {
     qrCodesCount: number;
     cacheSize: string;
   } | null>(null);
-
-  /** Controls the export backup modal visibility */
-  const [showExportModal, setShowExportModal] = useState(false);
 
   /** Stored portal credentials for the primary profile */
   const [portalCredentials, setPortalCredentials] = useState<PortalCredential[]>([]);
@@ -524,34 +520,6 @@ export default function SettingsScreen() {
           )}
         </Card>
 
-        {/* Privacy & Data */}
-        <Card testID="privacy-data-card">
-          <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Privacy & Data</Text>
-            <StatusBadge status="info" size="small" text="Backup" />
-          </View>
-
-          <View className="bg-blue-50 p-3 rounded-lg mb-4">
-            <Text className="text-xs text-blue-800">
-              🔒 Create an encrypted backup of all your profiles, trips, and QR codes. The backup is
-              protected with a passphrase you choose — only you can decrypt it.
-            </Text>
-          </View>
-
-          <Button
-            title="Create Backup"
-            onPress={() => setShowExportModal(true)}
-            variant="primary"
-            fullWidth
-            accessibilityLabel="Create encrypted backup of your data"
-            accessibilityHint="Opens a sheet to set a passphrase and export a .borderly backup file"
-            testID="create-backup-button"
-          />
-          <Text className="text-xs text-gray-500 mt-1 text-center">
-            Saves an encrypted .borderly file you can store in iCloud, Google Drive, or email
-          </Text>
-        </Card>
-
         {/* Data Management */}
         <Card>
           <View className="flex-row items-center mb-4">
@@ -603,7 +571,23 @@ export default function SettingsScreen() {
 
             <View>
               <Button
-                title={`Clear Cache (${storageStats?.cacheSize ?? ''})`}
+                title="Restore from Backup"
+                onPress={() => navigation.navigate('RestoreBackup')}
+                variant="outline"
+                fullWidth
+                testID="restore-backup-button"
+                accessibilityRole="button"
+                accessibilityLabel="Restore from backup"
+                accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
+              />
+              <Text className="text-xs text-gray-500 mt-1 text-center">
+                Import a .borderly backup file to restore your data
+              </Text>
+            </View>
+
+            <View>
+              <Button
+                title="Clear Cache ({storageStats?.cacheSize})"
                 onPress={handleClearCache}
                 variant="outline"
                 fullWidth
@@ -812,12 +796,6 @@ export default function SettingsScreen() {
         {/* Bottom spacing */}
         <View className="h-8" />
       </View>
-
-      {/* Export Backup Modal */}
-      <ExportBackupModal
-        visible={showExportModal}
-        onClose={() => setShowExportModal(false)}
-      />
     </ScrollView>
   );
 }
