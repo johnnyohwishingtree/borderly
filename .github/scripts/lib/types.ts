@@ -92,6 +92,7 @@ export interface MergeGateResult {
     approved: boolean;
     threadsResolved: boolean;
     noActiveReviewFix: boolean;
+    noReviewInProgress: boolean;
     branchUpToDate: boolean;
   };
   failingConditions: string[];
