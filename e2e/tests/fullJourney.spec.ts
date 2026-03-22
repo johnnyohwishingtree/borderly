@@ -40,6 +40,8 @@ async function completeManualOnboarding(page: Page, passport: {
   await page.getByTestId('companions-continue-button').click();
   await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
   await page.getByRole('button', { name: 'Skip for Now' }).click();
+  await expect(page.getByTestId('skip-notifications-button')).toBeVisible({ timeout: 5000 });
+  await page.getByTestId('skip-notifications-button').click();
   await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
 }
 
@@ -105,7 +107,11 @@ test.describe('Full User Journey', () => {
     await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: 'Skip for Now' }).click();
 
-    // === Step 6: Main App - Trip List ===
+    // === Step 6: Notification Permission Screen ===
+    await expect(page.getByTestId('skip-notifications-button')).toBeVisible({ timeout: 5000 });
+    await page.getByTestId('skip-notifications-button').click();
+
+    // === Step 7: Main App - Trip List ===
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
 
     // Verify no "Data Validation Warning" dialog fired during the flow
