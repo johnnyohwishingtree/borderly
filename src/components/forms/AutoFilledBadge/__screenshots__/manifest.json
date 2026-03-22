@@ -1,0 +1,19 @@
+{
+  "component": "AutoFilledBadge",
+  "domain": "forms",
+  "capturedAt": "2026-03-22T07:18:23.804Z",
+  "variants": [
+    {
+      "file": "auto.png",
+      "variant": "auto"
+    },
+    {
+      "file": "user.png",
+      "variant": "user"
+    },
+    {
+      "file": "auto-medium.png",
+      "variant": "auto-medium"
+    }
+  ]
+}

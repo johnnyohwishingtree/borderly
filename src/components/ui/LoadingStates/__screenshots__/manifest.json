@@ -1,0 +1,23 @@
+{
+  "component": "LoadingStates",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:16.282Z",
+  "variants": [
+    {
+      "file": "loading.png",
+      "variant": "loading"
+    },
+    {
+      "file": "success.png",
+      "variant": "success"
+    },
+    {
+      "file": "error.png",
+      "variant": "error"
+    },
+    {
+      "file": "timeout.png",
+      "variant": "timeout"
+    }
+  ]
+}

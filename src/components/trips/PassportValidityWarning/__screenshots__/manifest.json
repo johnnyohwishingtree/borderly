@@ -1,0 +1,11 @@
+{
+  "component": "PassportValidityWarning",
+  "domain": "trips",
+  "capturedAt": "2026-03-22T07:18:21.239Z",
+  "variants": [
+    {
+      "file": "warning.png",
+      "variant": "warning"
+    }
+  ]
+}

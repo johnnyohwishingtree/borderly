@@ -1,0 +1,23 @@
+{
+  "component": "ProgressIndicator",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:17.172Z",
+  "variants": [
+    {
+      "file": "horizontal.png",
+      "variant": "horizontal"
+    },
+    {
+      "file": "horizontal-labels.png",
+      "variant": "horizontal-labels"
+    },
+    {
+      "file": "dots.png",
+      "variant": "dots"
+    },
+    {
+      "file": "vertical.png",
+      "variant": "vertical"
+    }
+  ]
+}

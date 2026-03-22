@@ -1,0 +1,19 @@
+{
+  "component": "StepCard",
+  "domain": "guide",
+  "capturedAt": "2026-03-22T07:18:23.038Z",
+  "variants": [
+    {
+      "file": "current.png",
+      "variant": "current"
+    },
+    {
+      "file": "completed.png",
+      "variant": "completed"
+    },
+    {
+      "file": "upcoming.png",
+      "variant": "upcoming"
+    }
+  ]
+}

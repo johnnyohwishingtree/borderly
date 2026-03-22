@@ -1,0 +1,19 @@
+{
+  "component": "AnimatedCard",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:13.379Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    },
+    {
+      "file": "outlined.png",
+      "variant": "outlined"
+    },
+    {
+      "file": "elevated.png",
+      "variant": "elevated"
+    }
+  ]
+}

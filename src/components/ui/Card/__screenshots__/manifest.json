@@ -1,0 +1,23 @@
+{
+  "component": "Card",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:07.354Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    },
+    {
+      "file": "outlined.png",
+      "variant": "outlined"
+    },
+    {
+      "file": "elevated.png",
+      "variant": "elevated"
+    },
+    {
+      "file": "pressable.png",
+      "variant": "pressable"
+    }
+  ]
+}

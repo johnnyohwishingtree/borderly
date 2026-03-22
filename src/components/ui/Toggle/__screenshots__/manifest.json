@@ -1,0 +1,15 @@
+{
+  "component": "Toggle",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:12.346Z",
+  "variants": [
+    {
+      "file": "off.png",
+      "variant": "off"
+    },
+    {
+      "file": "on.png",
+      "variant": "on"
+    }
+  ]
+}
