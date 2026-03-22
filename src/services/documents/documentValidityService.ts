@@ -5,6 +5,15 @@ import { PassportValidityStatus } from '../../types/document';
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 /**
+ * Parses a date string as local midnight, avoiding the UTC vs local timezone
+ * pitfall where `new Date('YYYY-MM-DD')` is UTC but `setHours(0,0,0,0)` is local.
+ */
+function parseLocalDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('T')[0].split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/**
  * Adds N calendar months to a date, respecting month-end edge cases.
  *
  * Examples:
@@ -53,14 +62,11 @@ export function checkPassportValidity(
   departureDate: string,
   schema: CountryFormSchema,
 ): PassportValidityStatus {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Compare at day granularity
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const expiryDate = new Date(passport.passportExpiry);
-  expiryDate.setHours(0, 0, 0, 0);
-
-  const departure = new Date(departureDate);
-  departure.setHours(0, 0, 0, 0);
+  const expiryDate = parseLocalDate(passport.passportExpiry);
+  const departure = parseLocalDate(departureDate);
 
   const requiredMonths = schema.passportValidityMonths ?? 0;
 

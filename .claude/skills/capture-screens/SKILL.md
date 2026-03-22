@@ -10,9 +10,26 @@ Captures screenshots of every screen in the app via Playwright and generates a m
 ## What It Does
 
 1. Runs the Playwright screenshot capture test against React Native Web
-2. Saves numbered screenshots to `e2e/screenshots/`
+2. Saves screenshots to colocated `__screenshots__/` folders next to each screen's source code
 3. Generates `e2e/screenshots/manifest.json` with metadata for each screen
 4. The manifest describes each screen's purpose, domain, and current state
+
+## Screenshot Location
+
+Screenshots are colocated with their screen source files:
+
+```
+src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png
+```
+
+Examples:
+- `src/screens/trips/TripListScreen/__screenshots__/empty.png`
+- `src/screens/trips/TripListScreen/__screenshots__/with-trip.png`
+- `src/screens/onboarding/PassportScanScreen/__screenshots__/method-selection.png`
+
+The variant name describes the screen state (e.g., `default`, `empty`, `with-trip`, `manual-entry-filled`).
+
+To find all screenshots: `find src/screens -path "*/__screenshots__/*.png"`
 
 ## Usage
 
@@ -30,7 +47,7 @@ After capturing screenshots, generate the navigation flow graph:
 npx tsx e2e/scripts/generate-flow-graph.ts
 ```
 
-This statically analyzes `src/app/navigation/types.ts` and all screen files to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
+This statically analyzes `src/app/navigation/types.ts` and all screen files (found in `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`) to produce `e2e/screenshots/flow-graph.json` — a machine-readable map of:
 - **Stacks**: Which screens belong to which navigation stacks
 - **Tabs**: Bottom tab structure
 - **Edges**: Every `navigate()`, `goBack()`, and tab switch with source file + line number
@@ -40,17 +57,19 @@ The flow graph is consumed by `/ux-review` to reason about navigation paths and 
 
 ## Output
 
-**Screenshots** saved to `e2e/screenshots/` — currently **36 screens** across 5 domains:
+**Screenshots** saved to colocated `__screenshots__/` folders — currently **37 screens** across 7 domains:
 
 | Domain | Screens | Count |
 |--------|---------|-------|
-| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, BiometricSetup | 7 |
+| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, AddCompanions, BiometricSetup | 8 |
 | trips | TripList (empty/with-trip), CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN) | 15 |
 | wallet | QRWallet, AddQR, QRDetail | 3 |
 | profile | Profile, EditProfile, FamilyManagement, AddFamilyMember | 4 |
-| settings | Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy | 7 |
+| settings | Settings, PrivacyPolicy | 2 |
+| support | Help, Feedback, BugReport | 3 |
+| help | FAQ, Troubleshooting | 2 |
 
-**Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screen name, domain, description, state).
+**Manifest** at `e2e/screenshots/manifest.json` — auto-generated with metadata for each screen (id, file, screenshotPath, screen name, domain, description, state).
 
 **Flow graph** at `e2e/screenshots/flow-graph.json` — static analysis of navigation structure (stacks, tabs, edges, screen files).
 
@@ -86,7 +105,7 @@ This replaces the previous in-PR Playwright captures; screenshots are no longer 
 
 ## Integration with Other Skills
 
-- **`/visual-audit`** — Reads screenshots from `e2e/screenshots/` and manifest for analysis
+- **`/visual-audit`** — Reads screenshots from `src/screens/**/__screenshots__/` and manifest for analysis
 - **`/visual-implement`** — Updates UI based on audit findings, then re-captures to verify
 - **`/ux-review`** — Reads flow graph to analyze navigation paths, tap counts, and flow efficiency
 - **`/ux-implement`** — Uses flow graph to understand current structure before restructuring
