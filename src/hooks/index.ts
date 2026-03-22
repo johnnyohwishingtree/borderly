@@ -12,3 +12,5 @@ export { usePortalAutoLogin } from './usePortalAutoLogin';
 export { usePortalProfiles } from './usePortalProfiles';
 export { useTripCreation } from './useTripCreation';
 export { useSubmissionGuide } from './useSubmissionGuide';
+export { usePassportValidity } from './usePassportValidity';
+export type { PassportValidityWarningData } from './usePassportValidity';
