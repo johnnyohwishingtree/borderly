@@ -4,20 +4,12 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import {
   TripReadiness,
   ReadinessItem,
   ReadinessItemStatus,
 } from '../../services/readiness/readinessTypes';
-
-// Enable LayoutAnimation on Android
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 // ---------------------------------------------------------------------------
 // Public interface
@@ -239,8 +231,6 @@ export default function ReadinessChecklist({
 
   const toggleExpanded = useCallback(() => {
     const toValue = expanded ? 0 : 1;
-
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
     Animated.timing(chevronRotation, {
       toValue,
