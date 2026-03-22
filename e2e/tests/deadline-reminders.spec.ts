@@ -142,6 +142,9 @@ test.describe('Deadline Reminders — Notification Permission Screen', () => {
     // Start from a clean state (no injected profile) so onboarding shows
     await page.goto('/');
 
+    // BiometricSetup "Skip for Now" triggers Alert.alert → window.confirm; auto-accept it
+    page.on('dialog', dialog => dialog.accept());
+
     // Welcome screen → skip tutorial
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
 
@@ -181,6 +184,10 @@ test.describe('Deadline Reminders — Notification Permission Screen', () => {
     page,
   }) => {
     await page.goto('/');
+
+    // BiometricSetup "Skip for Now" triggers Alert.alert → window.confirm; auto-accept it
+    page.on('dialog', dialog => dialog.accept());
+
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await page.getByRole('button', { name: 'Or enter manually' }).click();
     await page.getByTestId('passport-number-input').fill('X98765432');
