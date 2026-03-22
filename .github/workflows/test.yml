@@ -127,10 +127,11 @@ jobs:
           pnpm test --ci --forceExit 2>&1 | tee /tmp/test_output.txt
           exit ${PIPESTATUS[0]}
 
-  # Pipeline TypeScript tests — runs when .github/scripts/ files change
+  # Pipeline TypeScript tests — always on master (catches breakage from file moves),
+  # on PRs only when .github/scripts/ changed
   pipeline-test:
     needs: check-changes
-    if: needs.check-changes.outputs.pipeline_changed == 'true'
+    if: github.event_name == 'push' || needs.check-changes.outputs.pipeline_changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
