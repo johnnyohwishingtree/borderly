@@ -45,6 +45,7 @@ const allProjects = [
       'boardingPassScan.spec.ts',
       'formCompletion.spec.ts',
       'settings.spec.ts',
+      'theme.spec.ts',
       'demoScan.spec.ts',
       'backup-restore.spec.ts',
       'app-lock.spec.ts',
