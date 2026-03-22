@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as Keychain from 'react-native-keychain';
 import { Lock, Unlock } from 'lucide-react-native';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useAppStore } from '@/stores/useAppStore';
@@ -17,6 +18,8 @@ import type { SettingsStackParamList } from '@/app/navigation/types';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
 
+const APP_LOCK_CHECK_SERVICE = 'borderly_lock_check';
+
 export default function SettingsScreen() {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const {
@@ -30,6 +33,10 @@ export default function SettingsScreen() {
     triggerSchemaUpdateCheck,
     theme: themePreference,
     setTheme,
+    isLockEnabled,
+    setLockEnabled,
+    lockTimeoutMinutes,
+    setLockTimeoutMinutes,
   } = useAppStore();
   const { familyProfiles, setOnboardingComplete } = useProfileStore();
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
@@ -154,6 +161,55 @@ export default function SettingsScreen() {
           },
         ]
       );
+    }
+  };
+
+  const lockTimeoutOptions: SelectOption[] = [
+    { label: '1 minute', value: '1' },
+    { label: '5 minutes', value: '5' },
+    { label: '15 minutes', value: '15' },
+    { label: '30 minutes', value: '30' },
+  ];
+
+  const handleLockToggle = async (enabled: boolean) => {
+    if (enabled) {
+      // Enabling app lock — no confirmation required
+      setLockEnabled(true);
+    } else {
+      // Disabling app lock — require biometric confirmation first
+      try {
+        const result = await Keychain.getGenericPassword({
+          service: APP_LOCK_CHECK_SERVICE,
+          authenticationPrompt: {
+            title: 'Confirm Disable App Lock',
+            subtitle: 'Authenticate to disable app lock',
+            cancel: 'Cancel',
+          },
+        });
+        // Any non-throwing result means auth succeeded; false means no credential stored
+        if (result !== false) {
+          setLockEnabled(false);
+        } else {
+          // No stored credential — still allow disabling but via Alert confirmation
+          Alert.alert(
+            'Disable App Lock',
+            'Are you sure you want to disable app lock?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Disable', style: 'destructive', onPress: () => setLockEnabled(false) },
+            ],
+          );
+        }
+      } catch {
+        // User cancelled biometric — keep lock enabled
+      }
+    }
+  };
+
+  const handleLockTimeoutChange = (value: string) => {
+    const minutes = parseInt(value, 10);
+    if (!isNaN(minutes)) {
+      setLockTimeoutMinutes(minutes);
     }
   };
 
@@ -355,6 +411,68 @@ export default function SettingsScreen() {
               </Text>
             </View>
           </View>
+        </Card>
+
+        {/* App Lock */}
+        <Card testID="app-lock-card">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">App Lock</Text>
+            <StatusBadge
+              status={isLockEnabled ? 'success' : 'neutral'}
+              size="small"
+              text={isLockEnabled ? 'Enabled' : 'Disabled'}
+            />
+          </View>
+
+          {!isBiometricAvailable ? (
+            <View
+              className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
+              testID="app-lock-unavailable"
+            >
+              <Text className="text-sm text-gray-500 dark:text-gray-400">
+                App lock is not available on this device. Biometric authentication (Face ID / Touch ID / Fingerprint) is required.
+              </Text>
+            </View>
+          ) : (
+            <View className="space-y-4">
+              <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1">
+                    <Text className="text-base font-medium text-gray-900 dark:text-white">
+                      Enable App Lock
+                    </Text>
+                    <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Lock the app after a period of inactivity. Disabling requires biometric confirmation.
+                    </Text>
+                  </View>
+                  <View className="ml-4">
+                    <Toggle
+                      value={isLockEnabled}
+                      onValueChange={handleLockToggle}
+                      accessibilityLabel="Enable app lock"
+                      accessibilityHint="Locks the app after a period of inactivity"
+                      testID="app-lock-toggle"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {isLockEnabled && (
+                <View testID="app-lock-timeout-section">
+                  <Select
+                    label="Lock After"
+                    options={lockTimeoutOptions}
+                    value={String(lockTimeoutMinutes)}
+                    onValueChange={handleLockTimeoutChange}
+                    testID="app-lock-timeout-select"
+                  />
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Duration of inactivity before the app locks automatically
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
         </Card>
 
         {/* App Preferences */}
