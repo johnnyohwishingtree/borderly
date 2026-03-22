@@ -539,7 +539,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
   updateLegSubmissionStatus: async (legId: string, status: LegSubmissionStatus) => {
     set({ error: null });
     try {
-      await databaseService.updateTripLeg(legId, { submissionStatus: status } as any);
+      await databaseService.updateTripLeg(legId, { submissionStatus: status });
 
       set(state => ({
         trips: state.trips.map(trip => ({
