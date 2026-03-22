@@ -115,7 +115,9 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('Text', null, text);
   const Input = ({ value, onChangeText, testID, placeholder }: { value?: string; onChangeText?: (v: string) => void; testID?: string; placeholder?: string }) =>
     React.createElement('TextInput', { value, onChangeText, testID, placeholder });
-  return { ScreenContainer, Button, StatusBadge, Input };
+  const DatePickerField = ({ value, onChange, testID, placeholder }: { value?: string; onChange?: (v: string) => void; testID?: string; placeholder?: string }) =>
+    React.createElement('TextInput', { value, onChangeText: onChange, testID, placeholder });
+  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField };
 });
 
 jest.mock('../../../src/constants/countries', () => ({
@@ -247,6 +249,44 @@ describe('TripDetailScreen — Edit Trip modal', () => {
     expect(mockUpdateTripLeg).toHaveBeenCalledWith(
       'leg_1',
       expect.objectContaining({ destinationCountry: 'JPN' })
+    );
+  });
+
+  it('Edit Destination modal uses DatePickerField (not plain YYYY-MM-DD Input) for arrival date', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    const arrivalField = screen.getByTestId('edit-leg-arrival-date');
+    // DatePickerField mock uses placeholder "Arrival date"; plain Input used "YYYY-MM-DD"
+    expect(arrivalField.props.placeholder).toBe('Arrival date');
+  });
+
+  it('Edit Destination modal uses DatePickerField for departure date', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    const departureField = screen.getByTestId('edit-leg-departure-date');
+    // DatePickerField mock uses placeholder "Departure date"; plain Input used "YYYY-MM-DD"
+    expect(departureField.props.placeholder).toBe('Departure date');
+  });
+
+  it('arrival date value is persisted when saved via DatePickerField onChange', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    // Simulate DatePickerField onChange callback updating the date
+    fireEvent.changeText(screen.getByTestId('edit-leg-arrival-date'), '2026-06-15');
+    fireEvent.press(screen.getByTestId('save-leg-button'));
+
+    expect(mockUpdateTripLeg).toHaveBeenCalledWith(
+      'leg_1',
+      expect.objectContaining({ arrivalDate: '2026-06-15' })
     );
   });
 });
