@@ -8,6 +8,7 @@ import {
 } from '@/services/deadline/notificationScheduler';
 import { computeLegDeadline } from '@/services/deadline/deadlineService';
 import { SchemaRegistry } from '@/services/schemas/schemaRegistry';
+import { cloneTrip } from '@/services/trips/tripDuplicateService';
 
 interface TripStore {
   // State
@@ -52,6 +53,9 @@ interface TripStore {
   // Submission status
   markLegAsSubmitted: (legId: string) => Promise<void>;
   updateLegSubmissionStatus: (legId: string, status: LegSubmissionStatus) => Promise<void>;
+
+  // Trip duplication
+  duplicateTrip: (sourceTripId: string, newDepartureDate: string) => Promise<Trip>;
 
   // Utilities
   getTripById: (tripId: string) => Trip | undefined;
@@ -529,6 +533,26 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  // Trip duplication
+  duplicateTrip: async (sourceTripId, newDepartureDate) => {
+    const sourceTrip = get().getTripById(sourceTripId);
+    if (!sourceTrip) {
+      throw new Error(`Trip not found: ${sourceTripId}`);
+    }
+
+    const { trip: clonedTripData, legs: clonedLegsData } = cloneTrip(sourceTrip, newDepartureDate);
+
+    // Persist the new trip (without legs first, then add each leg)
+    const newTrip = await get().createTrip({ ...clonedTripData, legs: [] });
+
+    for (const legData of clonedLegsData) {
+      await get().addTripLeg(newTrip.id, legData);
+    }
+
+    // Return the fully-populated trip (with legs attached by addTripLeg)
+    return get().getTripById(newTrip.id) ?? newTrip;
   },
 
   // Submission status
