@@ -44,7 +44,7 @@ export default function FormField({
 
     // Determine keyboard type and autoCapitalize based on field semantics
     const isEmailField = field.id.toLowerCase().endsWith('email');
-    const isPhoneField = field.id === 'phoneNumber' || field.id === 'mobile';
+    const isPhoneField = ['phoneNumber', 'mobile', 'phone'].includes(field.id);
     const textKeyboardType = isEmailField
       ? 'email-address'
       : isPhoneField
