@@ -1104,3 +1104,163 @@ describe('FormField — accommodation autocomplete rendering', () => {
     expect(mockOnValueChange).toHaveBeenCalledWith('accommodationName', 'Marina Bay Sands');
   });
 });
+
+// ---------------------------------------------------------------------------
+// FormField — numeric field validation constraints (min/max)
+// ---------------------------------------------------------------------------
+
+describe('FormField — numeric field validation constraints', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  function makeNumericField(
+    validation?: { min?: number; max?: number },
+  ): FilledFormField {
+    return makeField({
+      id: 'durationOfStay',
+      label: 'Duration of Stay',
+      type: 'number',
+      validation,
+    });
+  }
+
+  it('renders a numeric Input with keyboardType=numeric', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    expect(input.props.keyboardType).toBe('numeric');
+  });
+
+  it('sets maxLength equal to the digit count of max (e.g. max=90 → maxLength=2)', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    expect(input.props.maxLength).toBe(2);
+  });
+
+  it('sets maxLength=1 when max is a single digit (max=9)', () => {
+    const field = makeNumericField({ min: 1, max: 9 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    expect(input.props.maxLength).toBe(1);
+  });
+
+  it('sets maxLength=3 when max has three digits (max=365)', () => {
+    const field = makeNumericField({ min: 1, max: 365 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    expect(input.props.maxLength).toBe(3);
+  });
+
+  it('does not set maxLength when no max is defined', () => {
+    const field = makeNumericField({ min: 1 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    expect(input.props.maxLength).toBeUndefined();
+  });
+
+  it('shows "Must be between 1 and 90" error when value is below min', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '0');
+    // Error may appear in both the Input component and the FormField error section
+    const errorTexts = screen.getAllByText('Must be between 1 and 90');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows "Must be between 1 and 90" error when value exceeds max', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '91');
+    // Error may appear in both the Input component and the FormField error section
+    const errorTexts = screen.getAllByText('Must be between 1 and 90');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('clears the error when a valid value is entered', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    // First enter an invalid value to trigger the error
+    fireEvent.changeText(input, '0');
+    expect(screen.getAllByText('Must be between 1 and 90').length).toBeGreaterThanOrEqual(1);
+    // Then enter a valid value to clear it
+    fireEvent.changeText(input, '30');
+    expect(screen.queryAllByText('Must be between 1 and 90').length).toBe(0);
+  });
+
+  it('clears the error when the field is emptied', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '0');
+    expect(screen.getAllByText('Must be between 1 and 90').length).toBeGreaterThanOrEqual(1);
+    fireEvent.changeText(input, '');
+    expect(screen.queryAllByText('Must be between 1 and 90').length).toBe(0);
+  });
+
+  it('shows "Must be at least N" when only min is defined and value is below', () => {
+    const field = makeNumericField({ min: 1 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '0');
+    // Error may appear in both the Input component and the FormField error section
+    const errorTexts = screen.getAllByText('Must be at least 1');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows "Must be at most N" when only max is defined and value exceeds it', () => {
+    const field = makeNumericField({ max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '99');
+    // Error may appear in both the Input component and the FormField error section
+    const errorTexts = screen.getAllByText('Must be at most 90');
+    expect(errorTexts.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('does not show any error for a valid value within [1, 90]', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '45');
+    expect(screen.queryAllByText(/Must be/).length).toBe(0);
+  });
+
+  it('does not show any validation error when no validation object is defined', () => {
+    const field = makeNumericField(undefined);
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '999');
+    expect(screen.queryAllByText(/Must be/).length).toBe(0);
+  });
+
+  it('still calls onValueChange even when value is out of range', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '0');
+    expect(mockOnValueChange).toHaveBeenCalledWith('durationOfStay', '0');
+  });
+
+  it('boundary value min=1: entering exactly 1 shows no error', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '1');
+    expect(screen.queryAllByText(/Must be/).length).toBe(0);
+  });
+
+  it('boundary value max=90: entering exactly 90 shows no error', () => {
+    const field = makeNumericField({ min: 1, max: 90 });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-durationOfStay');
+    fireEvent.changeText(input, '90');
+    expect(screen.queryAllByText(/Must be/).length).toBe(0);
+  });
+});
