@@ -6,6 +6,7 @@ import { FamilyMember } from '../../types/profile';
 import { getCountryName } from '../../constants/countries';
 import CountryFlag from './CountryFlag';
 import DeadlineBadge from './DeadlineBadge';
+import SubmissionStatusBadge from './SubmissionStatusBadge';
 import {
   getTravelerFormStatus,
   getOverallLegFormStatus
@@ -20,6 +21,11 @@ export interface LegCardProps {
   showTravelerDetails?: boolean;
   /** Deadline info for this leg. When provided, a DeadlineBadge is rendered. */
   deadline?: LegDeadline;
+  /**
+   * Called when the user taps "Mark as Submitted".
+   * When provided, the button is shown (hidden when the leg is already submitted).
+   */
+  onMarkAsSubmitted?: () => void;
 }
 
 export default function LegCard({
@@ -29,6 +35,7 @@ export default function LegCard({
   familyMembers = [],
   showTravelerDetails = false,
   deadline,
+  onMarkAsSubmitted,
 }: LegCardProps) {
   const formatDate = (dateStr: string) => {
     try {
@@ -195,6 +202,28 @@ export default function LegCard({
               </Text>
             </View>
           )}
+
+          {/* Submission status row */}
+          <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex-row items-center justify-between">
+            <SubmissionStatusBadge
+              status={leg.submissionStatus ?? 'not_started'}
+              testID={`submission-status-badge-${leg.destinationCountry}`}
+            />
+            {onMarkAsSubmitted && leg.submissionStatus !== 'submitted' && (
+              <TouchableOpacity
+                onPress={onMarkAsSubmitted}
+                className="bg-green-600 dark:bg-green-700 px-3 py-1.5 rounded-lg"
+                activeOpacity={0.7}
+                testID={`mark-submitted-${leg.destinationCountry}`}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel={`Mark ${getCountryName(leg.destinationCountry)} leg as submitted`}
+                accessibilityHint="Updates the submission status to submitted"
+              >
+                <Text className="text-white font-semibold text-xs">Mark as Submitted</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </Card>
     </CardComponent>

@@ -38,7 +38,7 @@ export default function TripDetailScreen() {
   const { tripId } = route.params as RouteParams;
 
   const trips = useTripStore(state => state.trips);
-  const { deleteTrip } = useTripStore();
+  const { deleteTrip, updateLegSubmissionStatus } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles, currentProfileId } = useProfileStore();
 
   // Reactively derive the trip from the store so UI updates immediately after edits
@@ -228,6 +228,24 @@ export default function TripDetailScreen() {
     return { completed, total: trip.legs.length, percentage: (completed / trip.legs.length) * 100, readyCount: completed };
   };
 
+  /** Reactively derived submission progress — updates immediately when a leg is marked submitted. */
+  const submissionProgress = useMemo(() => {
+    if (!trip || trip.legs.length === 0) return { submitted: 0, total: 0 };
+    const submitted = trip.legs.filter(l => l.submissionStatus === 'submitted').length;
+    return { submitted, total: trip.legs.length };
+  }, [trip]);
+
+  const handleMarkAsSubmitted = useCallback(
+    async (legId: string) => {
+      try {
+        await updateLegSubmissionStatus(legId, 'submitted');
+      } catch {
+        Alert.alert('Error', 'Failed to mark leg as submitted');
+      }
+    },
+    [updateLegSubmissionStatus],
+  );
+
   const getStatusColor = (status: Trip['status']) => {
     switch (status) {
       case 'upcoming': return 'info';
@@ -308,6 +326,25 @@ export default function TripDetailScreen() {
                   className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full"
                   style={{ width: `${progress.percentage}%` }}
                 />
+              </View>
+              {/* Submission progress summary */}
+              <View
+                className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 flex-row items-center justify-between"
+                testID="submission-progress-summary"
+                accessible={true}
+                accessibilityRole="text"
+                accessibilityLabel={`${submissionProgress.submitted} of ${submissionProgress.total} leg${submissionProgress.total !== 1 ? 's' : ''} submitted`}
+              >
+                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Submitted to portals
+                </Text>
+                <Text
+                  className="text-sm text-gray-600 dark:text-gray-400"
+                  accessibilityElementsHidden={true}
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  {submissionProgress.submitted}/{submissionProgress.total}
+                </Text>
               </View>
             </View>
           )}
@@ -394,6 +431,7 @@ export default function TripDetailScreen() {
                       familyMembers={familyMembers}
                       showTravelerDetails
                       deadline={deadlineMap[leg.id]}
+                      onMarkAsSubmitted={() => handleMarkAsSubmitted(leg.id)}
                     />
                     {index < trip.legs.length - 1 && (
                       <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 dark:bg-gray-600 z-10" />
