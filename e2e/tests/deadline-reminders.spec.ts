@@ -138,6 +138,11 @@ async function goToTripDetail(page: Page, tripName: string) {
 // ---------------------------------------------------------------------------
 
 test.describe('Deadline Reminders — Notification Permission Screen', () => {
+  test.beforeEach(async ({ page }) => {
+    // Accept all browser dialogs (Alert.alert uses window.confirm on web)
+    page.on('dialog', dialog => dialog.accept());
+  });
+
   test('notification permission screen is reachable from onboarding flow', async ({ page }) => {
     // Start from a clean state (no injected profile) so onboarding shows
     await page.goto('/');
