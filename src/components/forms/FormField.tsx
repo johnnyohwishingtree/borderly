@@ -42,6 +42,16 @@ export default function FormField({
       ...(hasError && error ? { error } : {}),
     };
 
+    // Determine keyboard type and autoCapitalize based on field semantics
+    const isEmailField = field.id.toLowerCase().endsWith('email');
+    const isPhoneField = field.id === 'phoneNumber' || field.id === 'mobile';
+    const textKeyboardType = isEmailField
+      ? 'email-address'
+      : isPhoneField
+        ? 'phone-pad'
+        : 'default';
+    const textAutoCapitalize = isEmailField ? 'none' : 'sentences';
+
     switch (field.type) {
       case 'text':
       case 'textarea':
@@ -51,8 +61,8 @@ export default function FormField({
             accessibilityLabel={SemanticUtils.generateFieldLabel(field.label, isRequired, hasError, error)}
             onChangeText={(text: string) => handleValueChange(text)}
             multiline={field.type === 'textarea'}
-            keyboardType="default"
-            autoCapitalize="sentences"
+            keyboardType={textKeyboardType}
+            autoCapitalize={textAutoCapitalize}
           />
         );
 

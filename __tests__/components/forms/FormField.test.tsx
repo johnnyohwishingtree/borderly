@@ -210,6 +210,67 @@ describe('getAirportLabel', () => {
 });
 
 // ---------------------------------------------------------------------------
+// FormField — keyboard type and autoCapitalize for text fields
+// ---------------------------------------------------------------------------
+
+describe('FormField — keyboard type for text fields', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  it('uses email-address keyboard for a field id ending in "email"', () => {
+    const field = makeField({ id: 'email', label: 'Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-email');
+    expect(input.props.keyboardType).toBe('email-address');
+  });
+
+  it('uses autoCapitalize=none for an email field', () => {
+    const field = makeField({ id: 'email', label: 'Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-email');
+    expect(input.props.autoCapitalize).toBe('none');
+  });
+
+  it('uses email-address keyboard for contactEmail field', () => {
+    const field = makeField({ id: 'contactEmail', label: 'Contact Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-contactEmail');
+    expect(input.props.keyboardType).toBe('email-address');
+  });
+
+  it('uses phone-pad keyboard for phoneNumber field', () => {
+    const field = makeField({ id: 'phoneNumber', label: 'Phone Number', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-phoneNumber');
+    expect(input.props.keyboardType).toBe('phone-pad');
+  });
+
+  it('uses phone-pad keyboard for mobile field', () => {
+    const field = makeField({ id: 'mobile', label: 'Mobile', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-mobile');
+    expect(input.props.keyboardType).toBe('phone-pad');
+  });
+
+  it('uses default keyboard for a regular text field', () => {
+    const field = makeField({ id: 'firstName', label: 'First Name', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-firstName');
+    expect(input.props.keyboardType).toBe('default');
+  });
+
+  it('uses sentences autoCapitalize for a regular text field', () => {
+    const field = makeField({ id: 'firstName', label: 'First Name', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-firstName');
+    expect(input.props.autoCapitalize).toBe('sentences');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // FormField rendering with optionsSource: 'airports'
 // ---------------------------------------------------------------------------
 
