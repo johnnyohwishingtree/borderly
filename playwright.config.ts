@@ -70,6 +70,7 @@ const allProjects = [
       'leg-form-action-buttons.spec.ts',
       'submission-guide.spec.ts',
       'trip-templates.spec.ts',
+      'submission-tracking.spec.ts',
     ],
     timeout: 45000,
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
