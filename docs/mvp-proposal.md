@@ -1581,6 +1581,79 @@ These three schemas complete the Asia-Pacific corridor expansion, bringing the a
 
 ---
 
+## App Lock
+
+Borderly protects stored passport and travel data with an inactivity-based app lock. Once enabled, the app locks automatically when it moves to the background or after a configurable inactivity timeout in the foreground. Unlocking requires biometric authentication (Face ID, Touch ID, or Fingerprint) via the OS Keychain. This ensures that anyone who picks up an unattended device cannot access the app's sensitive data.
+
+### Security Flow
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                  App Lock State Machine                         │
+│                                                                 │
+│  App starts (onboarding complete)                              │
+│       │                                                         │
+│       ▼                                                         │
+│  isAppLocked = false  ◄─────────────────────────────────┐      │
+│       │                                                  │      │
+│       ├─ App goes to background/inactive                 │      │
+│       │    → lock() immediately                          │      │
+│       │                                                  │      │
+│       ├─ Inactivity timer fires (default: 5 minutes)     │      │
+│       │    → lock() on timeout                           │      │
+│       │                                                  │      │
+│       ▼                                                  │      │
+│  isAppLocked = true                                      │      │
+│       │                                                  │      │
+│       │  LockScreen rendered as full-screen overlay      │      │
+│       │                                                  │      │
+│       ├─ User presses "Unlock with Face ID / Touch ID"   │      │
+│       │    → Keychain.getGenericPassword() (biometric)   │      │
+│       │    → On success: unlock() ───────────────────────┘      │
+│       │    → On failure: show error, allow retry                │
+│       │                                                          │
+│       └─ User presses "Use PIN Instead"                         │
+│            → Alert: PIN unlock coming in a future version       │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Key Behaviours
+
+- **Immediate background lock:** When `AppState` transitions to `'background'` or `'inactive'`, the app locks at once — no grace period.
+- **Foreground inactivity timer:** If the user leaves the app open and idle, it locks after the configured timeout (1, 5, 15, or 30 minutes, default 5).
+- **Onboarding gate:** `showLockScreen = isOnboardingComplete && isAppLocked` — the lock screen is never shown during onboarding, so fresh installs are never blocked.
+- **NavigationContainer never unmounts:** The lock overlay is rendered on top of the normal navigator, preserving deep-link state and navigation stack while locked.
+- **biometric auth required to disable:** In Settings, disabling the lock requires a successful biometric prompt — the user must prove identity before weakening security.
+- **Lock configuration persisted:** `isLockEnabled` and `lockTimeoutMinutes` are written to MMKV so they survive app restarts.
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/hooks/useAppLock.ts` | Core hook — monitors `AppState`, manages inactivity timer, exports `unlockWithBiometrics()` |
+| `src/stores/useAppStore.ts` | `isAppLocked`, `lock()`, `unlock()`, `isLockEnabled`, `lockTimeoutMinutes` state |
+| `src/screens/lock/LockScreen/LockScreen.tsx` | Full-screen overlay shown when `isAppLocked = true` |
+| `src/app/navigation/RootNavigator.tsx` | Renders `LockScreen` as an `absoluteFillObject` overlay when locked |
+| `src/screens/settings/SettingsScreen/SettingsScreen.tsx` | App Lock settings card (enable/disable toggle + timeout select) |
+
+### Accessibility
+
+- **LockScreen title** uses `accessibilityRole="header"`.
+- **Unlock button** uses `accessibilityRole="button"` with a label that includes the detected biometric type (`"Unlock with Face ID"`, `"Unlock with Touch ID"`, etc.) and an `accessibilityHint` describing the action.
+- **PIN fallback button** uses `accessibilityRole="button"` with `accessibilityLabel="Use PIN to unlock"` and a hint.
+- **Error message** uses `accessibilityRole="alert"` and `accessibilityLiveRegion="polite"` so screen readers announce it automatically when it appears.
+- **App logo** is hidden from screen readers with `accessibilityElementsHidden={true}` and `importantForAccessibility="no-hide-descendants"`.
+
+### Test Coverage
+
+- `__tests__/components/lock/LockScreen.test.tsx` — unit tests: rendering, biometry label detection, successful/cancelled/failed unlock, PIN fallback, accessibility props
+- `__tests__/components/lock/LockScreen.a11y.test.tsx` — accessibility tests: unlock button role/label, biometric type label variations, error live region (`role="alert"`, `liveRegion="polite"`), PIN retry button role/label, decorative elements hidden, title heading role
+- `__tests__/hooks/useAppLock.test.ts` — hook unit tests: constants, AppState transitions, inactivity timer, custom timeout, `resetTimer()`, `unlockWithBiometrics()`, memory-leak prevention
+- `__tests__/integration/appLock.test.ts` — integration tests: full lock/unlock lifecycle using real store and hook with mocked AppState; verifies start-unlocked → background-locks → foreground-stays-locked → biometric-unlocks cycle
+- `e2e/tests/app-lock.spec.ts` — E2E smoke tests: LockScreen renders when locked, not shown during onboarding, navigation reappears after unlock
+
+---
+
 ## 10. Key Libraries & Versions
 
 ```json
