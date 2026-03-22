@@ -19,7 +19,7 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ### Step 1: Load Manifest
 
-1. **Read `e2e/screenshots/manifest.json`** — it describes each screen's purpose, state, domain, and colocated screenshot path.
+1. **Read `e2e/screenshots/manifest.json`** — it describes each screen's purpose, state, and domain.
 
 2. **If no screenshots exist**, run the capture:
 ```bash
@@ -30,16 +30,12 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 
 ### Step 2: Batched Visual Critique
 
-Process screenshots **one domain at a time** to stay within context limits. Use the manifest's `screenshotPath` field to locate each screenshot (colocated at `src/screens/<domain>/<ScreenName>/__screenshots__/<variant>.png`).
-
-The domains are:
-- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, AddCompanions, BiometricSetup
+Process screenshots **one domain at a time** to stay within context limits. The domains are:
+- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, BiometricSetup
 - **trips** — TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN)
 - **wallet** — QRWallet, AddQR, QRDetail
 - **profile** — Profile, EditProfile, FamilyManagement, AddFamilyMember
-- **settings** — Settings, PrivacyPolicy
-- **support** — Help, Feedback, BugReport
-- **help** — FAQ, Troubleshooting
+- **settings** — Settings, Help, FAQ, Troubleshooting, Feedback, BugReport, PrivacyPolicy
 
 For each domain batch:
 1. **Read all screenshots** in that domain using the Read tool (it supports image files)
@@ -90,7 +86,7 @@ Rate each finding with severity:
 - **Minor**: Polish issue, good to fix
 
 Output a structured report with:
-- Screenshot reference (screenshotPath from manifest)
+- Screenshot reference (filename from manifest)
 - Screen name (from manifest)
 - Issue description
 - Severity
@@ -118,7 +114,7 @@ If Stitch is NOT connected, include specific NativeWind fix suggestions in the r
 ## Running This Skill
 
 1. **Full audit** (recommended): `/capture-screens` first, then `/visual-audit`
-2. **With existing screenshots**: `/visual-audit` — reads manifest and colocated `__screenshots__/` folders
+2. **With existing screenshots**: `/visual-audit` — reads from `e2e/screenshots/`
 3. **Specific screens**: `/visual-audit` then say "audit the Settings and Profile screens"
 4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
 
