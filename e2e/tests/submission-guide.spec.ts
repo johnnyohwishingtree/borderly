@@ -50,8 +50,12 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await injectState(page, READY_LEG_STATE);
     await page.goto('/');
 
-    // Wait for app to be ready, then navigate directly to SubmissionGuideScreen
-    await page.waitForFunction(() => (window as any).__navigationRef?.isReady(), { timeout: 15000 });
+    // Navigate to TripDetail via UI — this ensures loadTrips() has completed
+    // (trip card is only rendered after loadTrips() returns) AND that
+    // loadFamilyProfiles() is called (TripDetailScreen calls it on focus).
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Japan Trip').click();
+    await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
 
     await navigateImperatively(page, 'SubmissionGuide', {
       tripId: 'e2e-trip-jpn',
@@ -63,11 +67,13 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await expect(page.getByText('Submission Guide')).toBeVisible({ timeout: 15000 });
     await expect(page.getByText('Submission Timing')).toBeVisible({ timeout: 10000 });
 
-    // Complete all steps by clicking "Mark as Complete" buttons sequentially
+    // Complete all steps by clicking "Mark as Complete" buttons sequentially.
+    // StepCard's Pressable renders as a generic element (no role="button") in
+    // React Native Web, so we locate by text content rather than role.
     let stepButtonVisible = true;
     let safetyCounter = 0;
     while (stepButtonVisible && safetyCounter < 20) {
-      const markCompleteBtn = page.getByRole('button', { name: 'Mark as Complete' });
+      const markCompleteBtn = page.getByText('Mark as Complete').first();
       const isVisible = await markCompleteBtn.isVisible().catch(() => false);
       if (!isVisible) {
         stepButtonVisible = false;
@@ -91,7 +97,12 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     await injectState(page, READY_LEG_STATE);
     await page.goto('/');
 
-    await page.waitForFunction(() => (window as any).__navigationRef?.isReady(), { timeout: 15000 });
+    // Navigate to TripDetail via UI — this ensures loadTrips() has completed
+    // (trip card is only rendered after loadTrips() returns) AND that
+    // loadFamilyProfiles() is called (TripDetailScreen calls it on focus).
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 15000 });
+    await page.getByText('Japan Trip').click();
+    await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
 
     await navigateImperatively(page, 'SubmissionGuide', {
       tripId: 'e2e-trip-jpn',
@@ -100,7 +111,7 @@ test.describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     });
 
     await expect(page.getByText('Japan Submission Guide')).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText('Visit Japan Web')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Visit Japan Web', { exact: true })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Submission Timing')).toBeVisible();
     // Submit in App and Open in Browser buttons should be present
     await expect(page.getByTestId('submit-in-app-button')).toBeVisible({ timeout: 5000 });
