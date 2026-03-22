@@ -171,4 +171,16 @@ test.describe('TripDetailScreen — DeadlineBadge integration', () => {
     // Overall progress section — use the readiness summary testID to avoid ambiguous text matches
     await expect(page.getByTestId('trip-readiness-summary')).toBeVisible({ timeout: 5000 });
   });
+
+  test('placeholder Export Trip and Share Itinerary buttons are not present', async ({ page }) => {
+    await injectState(page, tripWithOneLeg());
+    await goToTripDetail(page, 'Detail Test Trip');
+
+    // Confirm these dead-end placeholder actions have been removed from the UI
+    await expect(page.getByText('Export Trip')).not.toBeVisible();
+    await expect(page.getByText('Share Itinerary')).not.toBeVisible();
+
+    // Delete Trip action (the real action) should still be present
+    await expect(page.getByText('Delete Trip')).toBeVisible({ timeout: 5000 });
+  });
 });

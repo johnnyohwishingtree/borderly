@@ -1,4 +1,4 @@
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, act } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useAppStore } from '@/stores/useAppStore';
@@ -157,6 +157,50 @@ describe('ProfileScreen', () => {
       setupMocks({ familySize: 1 });
       const { getByTestId } = render(<ProfileScreen />);
       expect(getByTestId('icon-chevron-right')).toBeTruthy();
+    });
+  });
+
+  describe('handleUnlockProfile — biometric unlock', () => {
+    it('reads fresh profile from store and sets isUnlocked=true after biometric unlock', async () => {
+      const loadedProfile = { ...DEFAULT_PROFILE, passportNumber: 'XY9876543' };
+
+      (useNavigation as unknown as jest.Mock).mockReturnValue({ navigate: mockNavigate });
+      (useAppStore as unknown as jest.Mock).mockReturnValue({
+        preferences: { biometricEnabled: true },
+      });
+
+      const mockLoadProfile = jest.fn().mockResolvedValue(undefined);
+      // Hook returns stale closure value (profile before loadProfile ran)
+      (useProfileStore as unknown as jest.Mock).mockReturnValue({
+        profile: DEFAULT_PROFILE,
+        familyProfiles: makeFamilyProfiles(1),
+        loadProfile: jest.fn(),
+        isLoading: false,
+        error: null,
+      });
+      // getState() returns the fresh data that loadProfile populates
+      (useProfileStore as any).getState = jest.fn().mockReturnValue({
+        loadProfile: mockLoadProfile,
+        profile: loadedProfile,
+      });
+
+      const { getByTestId, getByText, queryByTestId } = render(<ProfileScreen />);
+
+      // Unlock button is visible before authentication
+      expect(getByTestId('unlock-biometrics-button')).toBeTruthy();
+
+      await act(async () => {
+        fireEvent.press(getByTestId('unlock-biometrics-button'));
+      });
+
+      // loadProfile was called via getState()
+      expect(mockLoadProfile).toHaveBeenCalled();
+
+      // The freshly-loaded passport number (from getState().profile) is now displayed
+      expect(getByText('XY9876543')).toBeTruthy();
+
+      // The unlock button is no longer shown (isUnlocked is true)
+      expect(queryByTestId('unlock-biometrics-button')).toBeNull();
     });
   });
 

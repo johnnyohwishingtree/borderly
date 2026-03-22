@@ -11,6 +11,11 @@ import { performanceMonitor } from '@/services/monitoring/performance';
 import { errorTracker } from '@/services/monitoring/errorTracking';
 import { initializeSchemaRegistry } from '@/services/schemas/schemaRegistry';
 import { useAppStore } from '@/stores/useAppStore';
+import {
+  setNotificationProvider,
+  requestNotificationPermission,
+} from '@/services/deadline';
+import { pushNotificationProvider } from '@/services/deadline/pushNotificationProvider';
 
 // Suppress all LogBox overlays in dev builds so banners like
 // "Fast Refresh disconnected" and "Open debugger to view warnings"
@@ -66,6 +71,17 @@ function App(): React.JSX.Element {
       initializeSchemaRegistry().catch(err =>
         console.warn('Failed to initialize schema registry:', err)
       );
+
+      // Register the production push notification provider so the scheduler
+      // uses real OS notifications instead of the default stub.
+      setNotificationProvider(pushNotificationProvider);
+
+      // Request OS permission for local notifications (non-blocking).
+      // Result is intentionally ignored here — the scheduler already logs
+      // a warning when permission is denied.
+      requestNotificationPermission().catch(() => {
+        /* non-critical — app continues without notifications */
+      });
 
       // Fire background schema update check — non-blocking, never throws.
       // Uses void to explicitly discard the promise; errors are swallowed

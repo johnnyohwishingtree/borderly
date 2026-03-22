@@ -304,13 +304,19 @@ class DatabaseService {
     const db = await this.getDatabase();
     return await db.write(async () => {
       return await db.collections.get('trip_legs').create((leg: any) => {
-        const { accommodation, formData, ...directFields } = legData as any;
+        const { accommodation, formData, assignedTravelers, travelerFormsData, ...directFields } = legData as any;
         Object.assign(leg, directFields);
         if (accommodation) {
           leg.accommodationData = typeof accommodation === 'string' ? accommodation : JSON.stringify(accommodation);
         }
         if (formData) {
           leg.formDataString = typeof formData === 'string' ? formData : JSON.stringify(formData);
+        }
+        if (assignedTravelers) {
+          leg.assignedTravelersString = JSON.stringify(assignedTravelers);
+        }
+        if (travelerFormsData) {
+          leg.travelerFormsDataString = JSON.stringify(travelerFormsData);
         }
         leg.formStatus = leg.formStatus || 'not_started';
       });
@@ -322,7 +328,7 @@ class DatabaseService {
     return await db.write(async () => {
       const leg = await db.collections.get('trip_legs').find(legId);
       return await leg.update((legRecord: any) => {
-        const { accommodation, formData, ...directFields } = updates as any;
+        const { accommodation, formData, assignedTravelers, travelerFormsData, ...directFields } = updates as any;
         Object.assign(legRecord, directFields);
         if (accommodation) {
           legRecord.accommodationData = typeof accommodation === 'string' ? accommodation : JSON.stringify(accommodation);
@@ -330,7 +336,21 @@ class DatabaseService {
         if (formData !== undefined) {
           legRecord.formDataString = formData ? (typeof formData === 'string' ? formData : JSON.stringify(formData)) : '';
         }
+        if (assignedTravelers !== undefined) {
+          legRecord.assignedTravelersString = assignedTravelers ? JSON.stringify(assignedTravelers) : '';
+        }
+        if (travelerFormsData !== undefined) {
+          legRecord.travelerFormsDataString = travelerFormsData ? JSON.stringify(travelerFormsData) : '';
+        }
       });
+    });
+  }
+
+  async deleteTripLeg(legId: string) {
+    const db = await this.getDatabase();
+    return await db.write(async () => {
+      const leg = await db.collections.get('trip_legs').find(legId);
+      await leg.markAsDeleted();
     });
   }
 

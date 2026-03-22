@@ -403,8 +403,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
     const legTrip = get().trips.find(t => t.legs.some(l => l.id === legId));
     cancelLegNotifications(legId, legTrip?.id).catch(() => {/* fire-and-forget */});
 
-    // Implementation would delete the leg from database
-    // For now, just remove from state
+    // Persist deletion to database before updating in-memory state
+    await databaseService.deleteTripLeg(legId);
+
     set(state => ({
       trips: state.trips.map(trip => ({
         ...trip,
@@ -414,6 +415,11 @@ export const useTripStore = create<TripStore>((set, get) => ({
   },
 
   reorderTripLegs: async (tripId, legIds) => {
+    // Persist new order to database before updating in-memory state
+    await Promise.all(
+      legIds.map((legId, index) => databaseService.updateTripLeg(legId, { order: index }))
+    );
+
     set(state => ({
       trips: state.trips.map(trip => {
         if (trip.id !== tripId) {return trip;}
@@ -580,44 +586,47 @@ export const useTripStore = create<TripStore>((set, get) => ({
   updateTravelerFormData: async (legId, travelerId, fieldId, value) => {
     set({ error: null });
     try {
-      // Update local state optimistically
+      const leg = get().getLegById(legId);
+      if (!leg) return;
+
+      const existingFormsData = leg.travelerFormsData || [];
+      const existingIndex = existingFormsData.findIndex(t => t.travelerId === travelerId);
+
+      let updatedTravelerFormsData: TravelerFormData[];
+      if (existingIndex >= 0) {
+        updatedTravelerFormsData = existingFormsData.map((t, i) =>
+          i === existingIndex
+            ? {
+                ...t,
+                formData: { ...t.formData, [fieldId]: value },
+                formStatus: 'in_progress' as const,
+              }
+            : t
+        );
+      } else {
+        updatedTravelerFormsData = [
+          ...existingFormsData,
+          {
+            travelerId,
+            formData: { [fieldId]: value },
+            formStatus: 'in_progress' as const,
+            completionPercentage: 0,
+          },
+        ];
+      }
+
+      // Persist to database
+      await databaseService.updateTripLeg(legId, { travelerFormsData: updatedTravelerFormsData });
+
+      // Update in-memory state
       set(state => ({
         trips: state.trips.map(trip => ({
           ...trip,
-          legs: trip.legs.map(leg => {
-            if (leg.id !== legId) return leg;
-            
-            const updatedTravelerFormsData = leg.travelerFormsData || [];
-            const existingIndex = updatedTravelerFormsData.findIndex(t => t.travelerId === travelerId);
-            
-            if (existingIndex >= 0) {
-              updatedTravelerFormsData[existingIndex] = {
-                ...updatedTravelerFormsData[existingIndex],
-                formData: {
-                  ...updatedTravelerFormsData[existingIndex].formData,
-                  [fieldId]: value,
-                },
-                formStatus: 'in_progress',
-              };
-            } else {
-              updatedTravelerFormsData.push({
-                travelerId,
-                formData: { [fieldId]: value },
-                formStatus: 'in_progress',
-                completionPercentage: 0,
-              });
-            }
-
-            return {
-              ...leg,
-              travelerFormsData: updatedTravelerFormsData,
-            };
-          })
-        }))
+          legs: trip.legs.map(l =>
+            l.id !== legId ? l : { ...l, travelerFormsData: updatedTravelerFormsData }
+          ),
+        })),
       }));
-
-      // TODO: Persist to database when needed
-      // For now, we rely on the form data being persisted when the user navigates away
     } catch (error) {
       console.error('Failed to update traveler form data:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to update form data' });
@@ -627,39 +636,41 @@ export const useTripStore = create<TripStore>((set, get) => ({
   updateTravelerFormStatus: async (legId, travelerId, status) => {
     set({ error: null });
     try {
-      // Update local state
+      const leg = get().getLegById(legId);
+      if (!leg) return;
+
+      const existingFormsData = leg.travelerFormsData || [];
+      const existingIndex = existingFormsData.findIndex(t => t.travelerId === travelerId);
+
+      let updatedTravelerFormsData: TravelerFormData[];
+      if (existingIndex >= 0) {
+        updatedTravelerFormsData = existingFormsData.map((t, i) =>
+          i === existingIndex ? { ...t, formStatus: status } : t
+        );
+      } else {
+        updatedTravelerFormsData = [
+          ...existingFormsData,
+          {
+            travelerId,
+            formData: {},
+            formStatus: status,
+            completionPercentage: 0,
+          },
+        ];
+      }
+
+      // Persist to database
+      await databaseService.updateTripLeg(legId, { travelerFormsData: updatedTravelerFormsData });
+
+      // Update in-memory state
       set(state => ({
         trips: state.trips.map(trip => ({
           ...trip,
-          legs: trip.legs.map(leg => {
-            if (leg.id !== legId) return leg;
-            
-            const updatedTravelerFormsData = leg.travelerFormsData || [];
-            const existingIndex = updatedTravelerFormsData.findIndex(t => t.travelerId === travelerId);
-            
-            if (existingIndex >= 0) {
-              updatedTravelerFormsData[existingIndex] = {
-                ...updatedTravelerFormsData[existingIndex],
-                formStatus: status,
-              };
-            } else {
-              updatedTravelerFormsData.push({
-                travelerId,
-                formData: {},
-                formStatus: status,
-                completionPercentage: 0,
-              });
-            }
-
-            return {
-              ...leg,
-              travelerFormsData: updatedTravelerFormsData,
-            };
-          })
-        }))
+          legs: trip.legs.map(l =>
+            l.id !== legId ? l : { ...l, travelerFormsData: updatedTravelerFormsData }
+          ),
+        })),
       }));
-
-      // TODO: Persist to database when needed
     } catch (error) {
       console.error('Failed to update traveler form status:', error);
       set({ error: error instanceof Error ? error.message : 'Failed to update form status' });

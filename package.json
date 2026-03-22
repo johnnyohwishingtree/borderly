@@ -28,6 +28,7 @@
     "test:pipeline": "bats .github/scripts/__tests__/*.test.bats"
   },
   "dependencies": {
+    "@notifee/react-native": "^9.1.8",
     "@hookform/resolvers": "^3.10.0",
     "@nozbe/simdjson": "^3.9.4",
     "@nozbe/watermelondb": "^0.28.0",
