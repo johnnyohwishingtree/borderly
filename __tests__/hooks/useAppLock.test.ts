@@ -273,7 +273,7 @@ describe('useAppLock', () => {
 
     unmount();
 
-    expect(clearTimeoutSpy.mock.calls.length).toBeGreaterThan(0);
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
     clearTimeoutSpy.mockRestore();
   });
 
@@ -287,6 +287,6 @@ describe('useAppLock', () => {
 
     unmount();
 
-    expect(removeMock).toHaveBeenCalled();
+    expect(removeMock).toHaveBeenCalledTimes(1);
   });
 });
