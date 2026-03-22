@@ -26,6 +26,10 @@ async function lockApp(page: Page): Promise<void> {
 }
 
 async function unlockApp(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => typeof (window as any).__borderlyAppStore?.getState === 'function',
+    { timeout: 10000 },
+  );
   await page.evaluate(() => {
     (window as any).__borderlyAppStore.setState({ isAppLocked: false });
   });
