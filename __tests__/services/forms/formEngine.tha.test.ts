@@ -74,6 +74,7 @@ const mockThaLeg: TripLeg = {
     phone: '+66-2-659-9000',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

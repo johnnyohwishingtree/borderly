@@ -123,6 +123,7 @@ describe('All Countries Integration Flow', () => {
               phone: '+1234567890'
             },
             formStatus: 'not_started',
+            submissionStatus: 'not_started',
             order: 0
           };
         });
@@ -244,6 +245,7 @@ describe('All Countries Integration Flow', () => {
             phone: `+${i + 1}234567890`
           },
           formStatus: 'not_started',
+          submissionStatus: 'not_started',
           order: i
         });
       }
@@ -318,6 +320,7 @@ describe('All Countries Integration Flow', () => {
         arrivalDate: '2024-07-15',
         departureDate: '2024-07-25',
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         accommodation: {
           name: 'Test Hotel',
           address: { line1: '123 Test St', city: 'Tokyo', country: 'JPN', postalCode: '12345' }
@@ -368,6 +371,7 @@ describe('All Countries Integration Flow', () => {
         arrivalDate: '2024-07-15',
         departureDate: '2024-07-25',
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         accommodation: {
           name: 'Test Hotel',
           address: { line1: '123 Test St', city: 'Singapore', country: 'SGP', postalCode: '12345' }
@@ -458,6 +462,7 @@ describe('All Countries Integration Flow', () => {
           arrivalDate: new Date().toISOString(),
           departureDate: new Date().toISOString(),
           formStatus: 'not_started',
+          submissionStatus: 'not_started',
           accommodation: {
             name: 'Test Hotel',
             address: { line1: '123 Test St', city: 'Test City', country, postalCode: '12345' }

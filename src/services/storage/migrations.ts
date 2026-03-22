@@ -24,5 +24,16 @@ export const migrations = schemaMigrations({
         }),
       ],
     },
+    {
+      toVersion: 4,
+      steps: [
+        addColumns({
+          table: 'trip_legs',
+          columns: [
+            { name: 'submission_status', type: 'string', isOptional: true },
+          ],
+        }),
+      ],
+    },
   ],
 });

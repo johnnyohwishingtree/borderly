@@ -39,6 +39,7 @@ const makeTripLeg = () => ({
     address: { line1: '3-7-1-2 Nishi-Shinjuku', line2: '', city: 'Tokyo', state: '', postalCode: '163-1055', country: 'JPN' },
   },
   formStatus: 'not_started' as const,
+  submissionStatus: 'not_started' as const,
   order: 0,
   assignedTravelers: [],
   travelerFormsData: [],

@@ -100,6 +100,7 @@ function makeLeg(overrides: Partial<TripLeg> = {}): TripLeg {
       },
     },
     formStatus: 'not_started',
+    submissionStatus: 'not_started',
     order: 0,
     ...overrides,
   };
@@ -562,6 +563,7 @@ describe('computeTripReadiness — deadline signal', () => {
       departureDate: departure.toISOString(),
       arrivalDate: departure.toISOString(),
       formStatus: 'not_started',
+      submissionStatus: 'not_started',
     });
     const result = await computeTripReadiness(makeTrip([leg]), [], defaultSchemas, []);
 
@@ -583,6 +585,7 @@ describe('computeTripReadiness — deadline signal', () => {
       departureDate: departure.toISOString(),
       arrivalDate: departure.toISOString(),
       formStatus: 'not_started',
+      submissionStatus: 'not_started',
     });
     const result = await computeTripReadiness(makeTrip([leg]), [], defaultSchemas, []);
 
@@ -642,6 +645,7 @@ describe('computeTripReadiness — multiple legs', () => {
       id: 'leg-002',
       destinationCountry: 'SGP',
       formStatus: 'in_progress',
+      submissionStatus: 'not_started',
     });
     const schemas: Record<string, CountryFormSchema> = {
       JPN: makeSchema(),
@@ -747,6 +751,7 @@ describe('computeTripReadiness — AUS leg', () => {
       id: 'leg-aus',
       destinationCountry: 'AUS',
       formStatus: 'submitted',
+      submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
     const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, []);
@@ -804,6 +809,7 @@ describe('computeTripReadiness — NZL leg', () => {
       id: 'leg-nzl',
       destinationCountry: 'NZL',
       formStatus: 'submitted',
+      submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
     const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, []);
@@ -859,6 +865,7 @@ describe('computeTripReadiness — KOR leg', () => {
       id: 'leg-kor',
       destinationCountry: 'KOR',
       formStatus: 'submitted',
+      submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
     const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, []);

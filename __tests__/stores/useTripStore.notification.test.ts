@@ -119,6 +119,7 @@ function makeLeg(overrides: Partial<TripLeg> = {}): TripLeg {
       address: { line1: '1 Main St', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' },
     },
     formStatus: 'not_started',
+    submissionStatus: 'not_started',
     order: 0,
     assignedTravelers: [],
     travelerFormsData: [],
@@ -181,6 +182,7 @@ describe('useTripStore — notification scheduler integration', () => {
           address: { line1: '1 Main St', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' },
         },
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         order: 0,
         assignedTravelers: [],
         travelerFormsData: [],
@@ -208,6 +210,7 @@ describe('useTripStore — notification scheduler integration', () => {
           address: { line1: '1 Main St', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' },
         },
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         order: 0,
         assignedTravelers: [],
         travelerFormsData: [],
@@ -237,6 +240,7 @@ describe('useTripStore — notification scheduler integration', () => {
           address: { line1: '1 Main St', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' },
         },
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         order: 0,
         assignedTravelers: [],
         travelerFormsData: [],
@@ -390,6 +394,7 @@ describe('useTripStore — notification scheduler integration', () => {
       await act(async () => {
         await useTripStore.getState().updateTripLeg('leg-1', {
           formStatus: 'ready',
+          submissionStatus: 'not_started',
         });
         await Promise.resolve();
       });
@@ -404,6 +409,7 @@ describe('useTripStore — notification scheduler integration', () => {
       await act(async () => {
         await useTripStore.getState().updateTripLeg('leg-1', {
           formStatus: 'submitted',
+          submissionStatus: 'not_started',
         });
         await Promise.resolve();
       });
@@ -418,6 +424,7 @@ describe('useTripStore — notification scheduler integration', () => {
       await act(async () => {
         await useTripStore.getState().updateTripLeg('leg-1', {
           formStatus: 'ready',
+          submissionStatus: 'not_started',
         });
         await Promise.resolve();
       });

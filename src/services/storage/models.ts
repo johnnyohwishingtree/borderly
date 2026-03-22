@@ -1,6 +1,6 @@
 import { Model } from '@nozbe/watermelondb';
 import { field, date, readonly } from '@nozbe/watermelondb/decorators';
-import { Accommodation, TravelerFormData } from '@/types/trip';
+import { Accommodation, LegSubmissionStatus, TravelerFormData } from '@/types/trip';
 
 export class Trip extends Model {
   static table = 'trips';
@@ -32,6 +32,7 @@ export class TripLeg extends Model {
   @field('arrival_airport') arrivalAirport?: string;
   @field('accommodation') accommodationData!: string; // JSON string
   @field('form_status') formStatus!: 'not_started' | 'in_progress' | 'ready' | 'submitted';
+  @field('submission_status') submissionStatus!: LegSubmissionStatus;
   @field('form_data') formDataString?: string; // JSON string
   @field('order') order!: number;
   @field('assigned_travelers') assignedTravelersString?: string; // JSON array of traveler profile IDs

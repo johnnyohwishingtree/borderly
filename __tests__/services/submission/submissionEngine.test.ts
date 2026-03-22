@@ -163,6 +163,7 @@ describe('SubmissionEngine', () => {
         }
       },
       formStatus: 'ready',
+      submissionStatus: 'not_started',
       order: 1
     };
 
@@ -253,6 +254,7 @@ describe('SubmissionEngine', () => {
           }
         },
         formStatus: 'ready',
+        submissionStatus: 'not_started',
         order: 1
       };
 

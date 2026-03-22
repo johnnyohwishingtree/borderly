@@ -319,6 +319,7 @@ class DatabaseService {
           leg.travelerFormsDataString = JSON.stringify(travelerFormsData);
         }
         leg.formStatus = leg.formStatus || 'not_started';
+        leg.submissionStatus = leg.submissionStatus || 'not_started';
       });
     });
   }

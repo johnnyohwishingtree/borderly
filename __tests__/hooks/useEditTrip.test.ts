@@ -81,6 +81,7 @@ const makeTrip = (overrides: Partial<Trip> = {}): Trip => ({
         phone: '+81-3-5322-1234',
       },
       formStatus: 'not_started',
+      submissionStatus: 'not_started',
       order: 0,
       assignedTravelers: [PRIMARY_ID],
       travelerFormsData: [],

@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb';
 
 export const schema = appSchema({
-  version: 3,
+  version: 4,
   tables: [
     tableSchema({
       name: 'trips',
@@ -24,6 +24,7 @@ export const schema = appSchema({
         { name: 'arrival_airport', type: 'string', isOptional: true }, // IATA 3-letter
         { name: 'accommodation', type: 'string' }, // JSON string
         { name: 'form_status', type: 'string', isIndexed: true }, // 'not_started' | 'in_progress' | 'ready' | 'submitted' - indexed for form status filtering
+        { name: 'submission_status', type: 'string', isIndexed: true }, // 'not_started' | 'in_progress' | 'submitted' - indexed for submission status filtering
         { name: 'form_data', type: 'string', isOptional: true }, // JSON string
         { name: 'order', type: 'number', isIndexed: true }, // Leg ordering within trip - indexed for sorting
         { name: 'assigned_travelers', type: 'string', isOptional: true }, // JSON array of traveler profile IDs

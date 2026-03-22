@@ -40,6 +40,7 @@ export class TestDataFactory {
         }
       },
       formStatus: 'ready',
+      submissionStatus: 'not_started',
       order: 1,
       ...overrides
     };

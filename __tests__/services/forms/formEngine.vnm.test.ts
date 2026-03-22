@@ -74,6 +74,7 @@ const mockVnmLeg: TripLeg = {
     phone: '+84-28-3824-1234',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

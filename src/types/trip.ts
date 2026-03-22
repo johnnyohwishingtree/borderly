@@ -1,5 +1,7 @@
 import { Address } from './profile';
 
+export type LegSubmissionStatus = 'not_started' | 'in_progress' | 'submitted';
+
 export interface Accommodation {
   name: string;
   address: Address;
@@ -37,6 +39,7 @@ export interface TripLeg {
   arrivalAirport?: string; // IATA 3-letter code
   accommodation: Accommodation;
   formStatus: 'not_started' | 'in_progress' | 'ready' | 'submitted';
+  submissionStatus: LegSubmissionStatus; // Tracks overall submission state; defaults to 'not_started'
   formData?: Record<string, unknown>; // Legacy: Country-specific form answers for single traveler
   qrCodes?: SavedQRCode[];
   order: number; // Leg ordering within trip

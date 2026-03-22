@@ -28,6 +28,7 @@ export const japanLeg: TripLeg = {
     bookingReference: 'PH123456789',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -54,6 +55,7 @@ export const malaysiaLeg: TripLeg = {
     bookingReference: 'MO789012345',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 2,
 };
 
@@ -79,6 +81,7 @@ export const singaporeLeg: TripLeg = {
     bookingReference: 'MBS345678901',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 3,
 };
 
@@ -114,6 +117,7 @@ export const japanBusinessLeg: TripLeg = {
     phone: '+81-3-3265-1111',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -149,6 +153,7 @@ export const malaysiaLongStayLeg: TripLeg = {
     phone: '+60-3-7967-3200',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -182,6 +187,7 @@ export const singaporeTransitLeg: TripLeg = {
     phone: '+65-6543-0300',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -215,6 +221,7 @@ export const openEndedMalaysiaLeg: TripLeg = {
     },
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -248,6 +255,7 @@ export const minimalAccommodationLeg: TripLeg = {
     // No phone number
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

@@ -63,6 +63,7 @@ const mockTripLeg: TripLeg = {
     bookingReference: 'PH123456',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
