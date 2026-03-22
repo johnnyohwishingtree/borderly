@@ -78,9 +78,9 @@ export default function SubmissionGuideScreen() {
 
   if (isLoading || !schema || !filledForm) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50">
+      <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
         <View className="flex-1 justify-center items-center">
-          <Text className="text-lg text-gray-600">Loading submission guide...</Text>
+          <Text className="text-lg text-gray-600 dark:text-gray-400">Loading submission guide...</Text>
         </View>
       </SafeAreaView>
     );
@@ -96,9 +96,9 @@ export default function SubmissionGuideScreen() {
       : ('neutral' as const);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-3">
+      <View className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <View className="flex-row items-center justify-between">
           <Pressable
             onPress={() => navigation.goBack()}
@@ -106,7 +106,7 @@ export default function SubmissionGuideScreen() {
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <ArrowLeft size={24} color="#374151" />
-            <Text className="text-lg font-semibold text-gray-900 ml-2">
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
               Back
             </Text>
           </Pressable>
@@ -124,17 +124,17 @@ export default function SubmissionGuideScreen() {
         </View>
 
         <View className="mt-3">
-          <Text className="text-xl font-bold text-gray-900">
+          <Text className="text-xl font-bold text-gray-900 dark:text-white">
             {schema.countryName} Submission Guide
           </Text>
-          <Text className="text-sm text-gray-600 mt-1">
+          <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             {schema.portalName} • Step-by-step walkthrough
           </Text>
           {/* Show current traveler name inline when no tabs (single traveler) */}
           {!hasMultipleTravelers && currentTraveler && (
             <View className="mt-2 flex-row items-center">
               <View className="w-2 h-2 bg-blue-500 rounded-full mr-2" />
-              <Text className="text-sm font-medium text-gray-700">
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 For: {currentTraveler.givenNames} {currentTraveler.surname}
               </Text>
             </View>
@@ -160,7 +160,7 @@ export default function SubmissionGuideScreen() {
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-row items-center">
                   <Globe size={24} color="#3B82F6" />
-                  <Text className="text-lg font-semibold text-gray-900 ml-3">
+                  <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-3">
                     {schema.portalName}
                   </Text>
                 </View>
@@ -190,23 +190,23 @@ export default function SubmissionGuideScreen() {
               </View>
 
               {/* Timing Information */}
-              <View className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <View className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                 <View className="flex-row items-center mb-2">
                   <Clock size={18} color="#3B82F6" />
-                  <Text className="text-sm font-medium text-blue-900 ml-2">
+                  <Text className="text-sm font-medium text-blue-900 dark:text-blue-100 ml-2">
                     Submission Timing
                   </Text>
                 </View>
                 <View className="space-y-1">
-                  <Text className="text-sm text-blue-800">
+                  <Text className="text-sm text-blue-800 dark:text-blue-200">
                     <Text className="font-medium">Recommended:</Text> Submit{' '}
                     {schema.submission.recommended} before arrival
                   </Text>
-                  <Text className="text-sm text-blue-800">
+                  <Text className="text-sm text-blue-800 dark:text-blue-200">
                     <Text className="font-medium">Earliest:</Text>{' '}
                     {schema.submission.earliestBeforeArrival} before arrival
                   </Text>
-                  <Text className="text-sm text-blue-800">
+                  <Text className="text-sm text-blue-800 dark:text-blue-200">
                     <Text className="font-medium">Latest:</Text>{' '}
                     {schema.submission.latestBeforeArrival} before arrival
                   </Text>
@@ -215,18 +215,18 @@ export default function SubmissionGuideScreen() {
 
               {/* Form Completion Summary */}
               <View className="mt-4">
-                <Text className="text-sm font-medium text-gray-900 mb-2">
+                <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                   {hasMultipleTravelers && currentTraveler
                     ? `${currentTraveler.givenNames}'s Form Status:`
                     : 'Your Form Status:'}
                 </Text>
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-sm text-gray-600">
+                  <Text className="text-sm text-gray-600 dark:text-gray-400">
                     {filledForm.stats.autoFilled + filledForm.stats.userFilled} of{' '}
                     {filledForm.stats.totalFields} fields complete
                   </Text>
-                  <View className="bg-green-100 px-2 py-1 rounded-full">
-                    <Text className="text-sm font-medium text-green-700">
+                  <View className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded-full">
+                    <Text className="text-sm font-medium text-green-700 dark:text-green-200">
                       {filledForm.stats.completionPercentage}% Ready
                     </Text>
                   </View>
@@ -249,15 +249,15 @@ export default function SubmissionGuideScreen() {
 
           {/* Warning for Incomplete Form */}
           {filledForm.stats.remaining > 0 && (
-            <Card className="mb-4 bg-yellow-50 border-yellow-200">
+            <Card className="mb-4 bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
               <View className="p-4">
                 <View className="flex-row items-center">
                   <TriangleAlert size={20} color="#F59E0B" />
-                  <Text className="text-sm font-medium text-yellow-800 ml-2">
+                  <Text className="text-sm font-medium text-yellow-800 dark:text-yellow-200 ml-2">
                     Complete your form first
                   </Text>
                 </View>
-                <Text className="text-sm text-yellow-700 mt-2">
+                <Text className="text-sm text-yellow-700 dark:text-yellow-300 mt-2">
                   You have {filledForm.stats.remaining} fields that need
                   attention before starting the submission guide.
                 </Text>
@@ -288,15 +288,15 @@ export default function SubmissionGuideScreen() {
 
           {/* Completion Actions */}
           {completedSteps.length === totalSteps && (
-            <Card className="mt-6 bg-green-50 border-green-200">
+            <Card className="mt-6 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
               <View className="p-4">
                 <View className="flex-row items-center mb-3">
                   <CircleCheck size={24} color="#10B981" />
-                  <Text className="text-lg font-semibold text-green-900 ml-3">
+                  <Text className="text-lg font-semibold text-green-900 dark:text-green-100 ml-3">
                     Submission Complete!
                   </Text>
                 </View>
-                <Text className="text-sm text-green-800 mb-4">
+                <Text className="text-sm text-green-800 dark:text-green-200 mb-4">
                   You've successfully completed all submission steps for{' '}
                   {schema.countryName}. Don't forget to save any QR codes to
                   your wallet for easy access at the airport.

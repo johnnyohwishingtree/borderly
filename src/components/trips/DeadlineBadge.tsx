@@ -50,48 +50,48 @@ function resolveBadgeConfig(deadline: LegDeadline): BadgeConfig {
   if (deadline.status === 'ready') {
     return {
       label: 'Ready',
-      bgClass: 'bg-green-100',
-      textClass: 'text-green-800',
+      bgClass: 'bg-green-100 dark:bg-green-900',
+      textClass: 'text-green-800 dark:text-green-200',
     };
   }
 
   if (deadline.status === 'overdue' || urgency === 'overdue') {
     return {
       label: 'Overdue',
-      bgClass: 'bg-red-100',
-      textClass: 'text-red-800',
+      bgClass: 'bg-red-100 dark:bg-red-900',
+      textClass: 'text-red-800 dark:text-red-200',
     };
   }
 
   if (urgency === 'critical') {
     return {
       label: 'Act Now',
-      bgClass: 'bg-orange-100',
-      textClass: 'text-orange-800',
+      bgClass: 'bg-orange-100 dark:bg-orange-900',
+      textClass: 'text-orange-800 dark:text-orange-200',
     };
   }
 
   if (urgency === 'warning') {
     return {
       label: 'Due Soon',
-      bgClass: 'bg-amber-100',
-      textClass: 'text-amber-800',
+      bgClass: 'bg-amber-100 dark:bg-amber-900',
+      textClass: 'text-amber-800 dark:text-amber-200',
     };
   }
 
   if (deadline.status === 'in-progress') {
     return {
       label: 'In Progress',
-      bgClass: 'bg-blue-100',
-      textClass: 'text-blue-800',
+      bgClass: 'bg-blue-100 dark:bg-blue-900',
+      textClass: 'text-blue-800 dark:text-blue-200',
     };
   }
 
   // not-started or no-deadline without urgency
   return {
     label: 'Not Started',
-    bgClass: 'bg-gray-100',
-    textClass: 'text-gray-700',
+    bgClass: 'bg-gray-100 dark:bg-gray-700',
+    textClass: 'text-gray-700 dark:text-gray-300',
   };
 }
 
