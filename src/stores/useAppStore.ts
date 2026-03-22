@@ -25,6 +25,10 @@ interface AppStore {
   // App state
   isAppLocked: boolean;
   setAppLocked: (locked: boolean) => void;
+  /** Convenience: lock the app (same as setAppLocked(true)) */
+  lock: () => void;
+  /** Convenience: unlock the app (same as setAppLocked(false)) */
+  unlock: () => void;
   lastActiveTime: number;
   updateLastActiveTime: () => void;
 
@@ -154,6 +158,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
   // App state
   setAppLocked: (locked: boolean) => {
     set({ isAppLocked: locked });
+  },
+
+  lock: () => {
+    set({ isAppLocked: true });
+  },
+
+  unlock: () => {
+    set({ isAppLocked: false });
   },
 
   updateLastActiveTime: () => {
