@@ -73,7 +73,9 @@ export async function createJapanTrip(page: Page) {
   await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
 
   await page.getByTestId('add-destination-button').click();
-  await page.getByTestId('country-JPN').click();
+  await page.getByTestId('country-select-0-trigger').click();
+  await page.getByTestId('country-select-0-search').fill('Japan');
+  await page.getByTestId('country-select-0-option-JPN').click();
 
   await page.getByTestId('trip-name-input').fill('Smith Family Asia');
 

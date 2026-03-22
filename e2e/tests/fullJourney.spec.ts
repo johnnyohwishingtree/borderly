@@ -192,8 +192,8 @@ test.describe('Full User Journey', () => {
     // The "No destinations added yet" should be gone, replaced by a leg card
     await expect(page.getByText('No destinations added yet')).not.toBeVisible({ timeout: 15000 });
 
-    // Verify Japan was selected as the destination
-    await expect(page.getByTestId('country-JPN')).toBeVisible({ timeout: 5000 });
+    // Verify Japan was selected as the destination (SearchableSelect trigger shows "Japan")
+    await expect(page.getByTestId('country-select-0-trigger')).toContainText('Japan', { timeout: 5000 });
 
     // Verify auto-filled flight data from the BCBP demo string
     // Arrival airport is a SearchableSelect — check the trigger shows the airport label

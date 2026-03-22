@@ -193,6 +193,95 @@ export default function CountryFlag({
             <View style={{ flex: 1, backgroundColor: '#FF0000' }} />
           </View>
         );
+      case 'AUS':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: '#00008B',
+            }}
+          >
+            {/* Union Jack canton (simplified) */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.5,
+                height: flagSize.height * 0.5,
+                backgroundColor: '#012169',
+              }}
+            >
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 1, left: 0, right: 0, height: 2, backgroundColor: '#FFFFFF' }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 1, width: 2, backgroundColor: '#FFFFFF' }} />
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 0.5, left: 0, right: 0, height: 1, backgroundColor: '#C8102E' }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 0.5, width: 1, backgroundColor: '#C8102E' }} />
+            </View>
+            {/* Commonwealth Star (below canton) */}
+            <View style={{ position: 'absolute', bottom: flagSize.height * 0.1, left: flagSize.width * 0.18, width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#FFFFFF' }} />
+            {/* Southern Cross stars */}
+            <View style={{ position: 'absolute', top: flagSize.height * 0.2, right: flagSize.width * 0.15, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF' }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.45, right: flagSize.width * 0.08, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF' }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.7, right: flagSize.width * 0.15, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF' }} />
+            <View style={{ position: 'absolute', top: flagSize.height * 0.45, right: flagSize.width * 0.28, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#FFFFFF' }} />
+          </View>
+        );
+      case 'NZL':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: '#00247D',
+            }}
+          >
+            {/* Union Jack canton (simplified) */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: flagSize.width * 0.5,
+                height: flagSize.height * 0.5,
+                backgroundColor: '#012169',
+              }}
+            >
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 1, left: 0, right: 0, height: 2, backgroundColor: '#FFFFFF' }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 1, width: 2, backgroundColor: '#FFFFFF' }} />
+              <View style={{ position: 'absolute', top: flagSize.height * 0.25 - 0.5, left: 0, right: 0, height: 1, backgroundColor: '#C8102E' }} />
+              <View style={{ position: 'absolute', top: 0, bottom: 0, left: flagSize.width * 0.25 - 0.5, width: 1, backgroundColor: '#C8102E' }} />
+            </View>
+            {/* 4 red stars with white border (Southern Cross) */}
+            <View style={{ position: 'absolute', top: flagSize.height * 0.15, right: flagSize.width * 0.2, width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#FFFFFF' }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#CC142B' }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.4, right: flagSize.width * 0.08, width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#FFFFFF' }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#CC142B' }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.65, right: flagSize.width * 0.15, width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#FFFFFF' }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#CC142B' }} />
+            </View>
+            <View style={{ position: 'absolute', top: flagSize.height * 0.35, right: flagSize.width * 0.3, width: 5, height: 5, borderRadius: 2.5, backgroundColor: '#FFFFFF' }}>
+              <View style={{ position: 'absolute', top: 1, left: 1, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#CC142B' }} />
+            </View>
+          </View>
+        );
+      case 'KOR':
+        return (
+          <View
+            style={{
+              ...baseFlagStyle,
+              backgroundColor: '#FFFFFF',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {/* Taegeuk (yin-yang) — simplified as two half-circles */}
+            <View style={{ width: flagSize.height * 0.5, height: flagSize.height * 0.5, borderRadius: flagSize.height * 0.25, overflow: 'hidden', flexDirection: 'row' }}>
+              <View style={{ flex: 1, backgroundColor: '#CD2E3A' }} />
+              <View style={{ flex: 1, backgroundColor: '#003478' }} />
+            </View>
+          </View>
+        );
     }
 
     return null;
