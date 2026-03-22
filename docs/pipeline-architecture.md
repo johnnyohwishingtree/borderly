@@ -14,7 +14,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
 | `pipeline-doctor.yml` | verify-and-fix give-up / watcher / manual | Diagnoses failures, creates fix PRs |
 | `test.yml` | Push/PR to master / manual | CI checks (lint, typecheck, test); dispatches verify-and-fix on failure |
-| `e2e-smoke.yml` | Push/PR to master / manual | E2E tests (Playwright); dispatches verify-and-fix on failure |
+| `e2e-smoke.yml` | Push/PR to master / manual | E2E tests (Playwright) + component screenshot capture; dispatches verify-and-fix on failure |
 | `review-relay.yml` | Bot review submitted | Detects bot reviews, dispatches review-fix |
 | `review-fix.yml` | Dispatched by review-relay | Fixes review feedback, dispatches verify-and-fix for quality gate |
 | `review-guardian.yml` | CI complete / bot comment / review | Ensures PRs get reviewed and approved |

@@ -147,6 +147,38 @@ jobs:
           CI: true
           E2E_PROJECT: firefox-smoke,mobile-smoke
 
+  # Component screenshots — runs in parallel with tests, upload-only (no pass/fail gate)
+  capture-components:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node and pnpm
+        uses: ./.github/actions/setup-node
+        with:
+          cache: 'true'
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-bundle
+          path: e2e/dist/
+      - name: Capture component screenshots
+        run: |
+          E2E_PROJECT=screenshot-capture npx playwright test captureComponents \
+            --project=screenshot-capture --reporter=line
+        env:
+          CI: true
+      - name: Upload component screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-screenshots
+          path: src/components/**/__screenshots__/
+          retention-days: 3
+
   # Auto-fix on failure (runs after all test jobs)
   notify:
     needs: [test-chromium, test-performance, test-cross-browser]
