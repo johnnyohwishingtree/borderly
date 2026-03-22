@@ -165,6 +165,24 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
     setEditLegData(prev => (prev ? applyFieldUpdate(prev, field, value) : prev));
   }, []);
 
+  const updateEditLegAddress = useCallback((address: Address) => {
+    setEditLegData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        accommodation: {
+          ...prev.accommodation,
+          address: {
+            line1: address.line1,
+            city: address.city,
+            postalCode: address.postalCode,
+            country: address.country,
+          },
+        },
+      };
+    });
+  }, []);
+
   const handleEditLegTravelerToggle = useCallback((travelerId: string) => {
     setEditLegData(prev => {
       if (!prev) return prev;
@@ -253,6 +271,24 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
     setNewLegData(prev => (prev ? applyFieldUpdate(prev, field, value) : prev));
   }, []);
 
+  const updateNewLegAddress = useCallback((address: Address) => {
+    setNewLegData(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        accommodation: {
+          ...prev.accommodation,
+          address: {
+            line1: address.line1,
+            city: address.city,
+            postalCode: address.postalCode,
+            country: address.country,
+          },
+        },
+      };
+    });
+  }, []);
+
   const handleNewLegTravelerToggle = useCallback((travelerId: string) => {
     setNewLegData(prev => {
       if (!prev) return prev;
@@ -331,6 +367,7 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
     startEditLeg,
     cancelEditLeg,
     updateEditLegField,
+    updateEditLegAddress,
     handleEditLegTravelerToggle,
     handleSaveLeg,
 
@@ -340,6 +377,7 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
     startAddDestination,
     cancelAddDestination,
     updateNewLegField,
+    updateNewLegAddress,
     handleNewLegTravelerToggle,
     handleAddDestination,
 

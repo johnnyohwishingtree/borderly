@@ -117,7 +117,9 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('TextInput', { value, onChangeText, testID, placeholder });
   const DatePickerField = ({ value, onChange, testID, placeholder }: { value?: string; onChange?: (v: string) => void; testID?: string; placeholder?: string }) =>
     React.createElement('TextInput', { value, onChangeText: onChange, testID, placeholder });
-  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField };
+  const AddressAutocomplete = ({ testID }: { value?: any; onAddressChange?: (a: any) => void; testID?: string }) =>
+    React.createElement('View', { testID });
+  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete };
 });
 
 jest.mock('../../../src/constants/countries', () => ({
@@ -350,6 +352,37 @@ describe('TripDetailScreen — Add Destination modal', () => {
         arrivalDate: '2026-05-01',
       })
     );
+  });
+});
+
+// ── AddressAutocomplete in Edit/Add Destination modals ────────────────────────
+
+describe('TripDetailScreen — AddressAutocomplete in accommodation section', () => {
+  it('Edit Destination modal renders AddressAutocomplete instead of individual address Inputs', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('edit-trip-button'));
+    fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
+
+    // AddressAutocomplete is rendered with testID "edit-leg-accommodation-address"
+    expect(screen.getByTestId('edit-leg-accommodation-address')).toBeTruthy();
+
+    // Individual sub-field inputs (city, postal) should NOT be present
+    expect(screen.queryByTestId('edit-leg-accommodation-city')).toBeNull();
+    expect(screen.queryByTestId('edit-leg-accommodation-postal')).toBeNull();
+  });
+
+  it('Add Destination modal renders AddressAutocomplete instead of individual address Inputs', () => {
+    render(<TripDetailScreen />);
+
+    fireEvent.press(screen.getByTestId('add-destination-button'));
+
+    // AddressAutocomplete is rendered with testID "new-leg-accommodation-address"
+    expect(screen.getByTestId('new-leg-accommodation-address')).toBeTruthy();
+
+    // Individual sub-field inputs (city, postal) should NOT be present
+    expect(screen.queryByTestId('new-leg-accommodation-city')).toBeNull();
+    expect(screen.queryByTestId('new-leg-accommodation-postal')).toBeNull();
   });
 });
 
