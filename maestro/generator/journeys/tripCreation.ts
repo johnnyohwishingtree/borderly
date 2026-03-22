@@ -2,12 +2,15 @@
  * Trip creation journey definitions.
  *
  * These assume onboarding is already complete (reuse onboarding steps).
+ * Screen metadata is loaded from the screen registry at generation time.
  */
+import { journey } from '../dsl';
 import {
-  journey, step,
-  tap, fill, select, date, alert, swipe, inputText,
-  assertVisible, assertVisibleID, conditional, tapText,
+  tap, inputText, assertVisibleID, swipe,
 } from '../dsl';
+import {
+  screenStep, tapButton, handleAlert, fillField,
+} from '../journeyBuilder';
 
 // Import shared onboarding steps
 import { onboardingManual } from './onboarding';
@@ -15,23 +18,24 @@ import { onboardingManual } from './onboarding';
 /**
  * Create a Japan trip from the empty trip list.
  *
+ * Uses fillField to auto-determine the correct interaction pattern for each
+ * field based on its componentType in the registry (Input → fill, SearchableSelect
+ * → select, DatePickerField → date).
+ *
  * Only fills required fields (country, arrival date, accommodation)
  * to keep the flow short and avoid deep-scroll issues in Maestro.
- * Optional fields (flight number, airport, departure date) are skipped.
  */
-const createJapanTrip = () => step('CreateTrip', {
+const createJapanTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — JAPAN',
-  waitFor: 'Create New Trip',
   actions: [
-    // Fill trip name first (at top, no scrolling needed)
-    fill('trip-name-input', 'Japan Trip 2026'),
+    // Fill trip name (Input → fill DSL action)
+    ...fillField('CreateTrip', 'trip-name-input', { text: 'Japan Trip 2026' }),
     // Add a destination leg
-    tap('add-destination-button'),
-    // Select Japan: open dropdown, type search, select first result.
-    // The SearchableSelect inline dropdown renders below the trigger.
-    // At this nesting depth, Maestro can't reliably tap FlatList items
-    // by id or text, so we use pressKey Enter to dismiss the keyboard
-    // then tap the filtered option which should be the only visible one.
+    tapButton('CreateTrip', 'add-destination-button'),
+    // Country select: SearchableSelect requires raw actions at this nesting depth
+    // because Maestro's XCTest driver can't reliably find FlatList items.
+    // The select() DSL works for shallower nesting, but CreateTrip is deep
+    // (Tab > Stack > Screen > ScrollView > Form), so we use manual actions.
     tap('country-select-0-trigger'),
     tap('country-select-0-search'),
     inputText('Jap'),
@@ -39,21 +43,20 @@ const createJapanTrip = () => step('CreateTrip', {
     swipe('50%,40%', '50%,38%', 150),
     // Tap the Japan option by id
     tap('country-select-0-option-JPN'),
-    // Arrival date (required) — tap field then confirm default date
-    date('leg-0-arrival-date'),
-    // Accommodation name (required)
-    fill('leg-0-accommodation-name', 'Park Hyatt Tokyo'),
+    // Arrival date (required) — DatePickerField → date DSL action
+    ...fillField('CreateTrip', 'leg-${index}-arrival-date', 'default', { index: 0 }),
+    // Accommodation name (required) — Input → fill DSL action
+    ...fillField('CreateTrip', 'leg-${index}-accommodation-name', { text: 'Park Hyatt Tokyo' }, { index: 0 }),
     // Create the trip
-    tap('create-trip-button'),
-    // Dismiss success alert
-    alert('Success', 'OK'),
+    tapButton('CreateTrip', 'create-trip-button'),
+    // Dismiss success alert using registry's happy-path button
+    handleAlert('CreateTrip', 'success'),
   ],
 });
 
 /** Verify trip detail screen after creation */
-const tripDetailStep = () => step('TripDetail', {
+const tripDetailStep = () => screenStep('TripDetail', {
   comment: 'TRIP DETAIL — VERIFY',
-  waitFor: 'Itinerary',
   waitTimeout: 15000,
   actions: [
     assertVisibleID('leg-card-JPN'),
@@ -70,12 +73,11 @@ export const fullJourneyWithTrip = journey('full-journey-trip', {
     // Reuse onboarding steps (minus the trip list assertion)
     ...onboardingManual.steps.slice(0, -1),
     // From trip list, create a trip
-    step('TripList', {
+    screenStep('TripList', {
       comment: 'TRIP LIST — CREATE FIRST TRIP',
-      waitFor: 'Your Trips',
       waitTimeout: 30000,
       actions: [
-        tap('create-first-trip-button'),
+        tapButton('TripList', 'create-first-trip-button'),
       ],
     }),
     createJapanTrip(),
