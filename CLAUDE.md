@@ -244,6 +244,20 @@ Part of Epic #529 — Pre-Trip Deadline Reminders and Submission Readiness
 - [x] **Unit tests** — `__tests__/services/deadlineService.test.ts` (all 5 statuses, boundary values, overdue path with negative hoursRemaining); `__tests__/services/notificationScheduler.test.ts` (3-trigger scheduling, past-trigger skipping, all-past-triggers path, cancellation, idempotency)
 - [x] **E2E smoke tests** — `e2e/tests/deadline-reminders.spec.ts` verifies DeadlineBadge visibility and trip readiness summary. `e2e/tests/trip-detail.spec.ts` also covers readiness summary and leg card rendering
 
+### ✅ Sprint 6: Encrypted Backup & Restore (Complete)
+Part of Epic #566 — Backup/Restore Data Flow
+
+- [x] **BackupService** (`src/services/backup/backupService.ts`) — Collects all user data from three storage tiers (OS Keychain, WatermelonDB, MMKV), serialises to a versioned `BackupEnvelope`, encrypts with AES-256-GCM (PBKDF2 key derivation, 100 000 iterations, random salt/IV per export), and packs into a `.borderly` file format
+- [x] **BackupTypes** (`src/services/backup/backupTypes.ts`) — `BackupEnvelope`, `BackupPayload`, `ProfileBackupEntry`, `TripBackupData`, `TripLegBackupData`, `QRCodeBackupData` interfaces plus file format constants
+- [x] **useBackupExport hook** (`src/hooks/useBackupExport.ts`) — Passphrase + confirm-passphrase state, strength calculation, validation, `handleExport()` calling `backupService.export()` and OS share sheet
+- [x] **useBackupRestore hook** (`src/hooks/useBackupRestore.ts`) — File content + passphrase state, validation, `handleRestore()` calling `backupService.import()`, success/error state
+- [x] **ExportBackupModal** (`src/screens/settings/ExportBackupModal.tsx`) — Full-screen modal with passphrase inputs, strength indicator, error live region, export button, loading state; fully accessible
+- [x] **RestoreBackupModal** (`src/screens/settings/RestoreBackupModal.tsx`) — Full-screen modal with file content textarea, passphrase input, error live region, restore button, success state; fully accessible
+- [x] **Unit tests** — `__tests__/services/backupService.test.ts` (round-trip, wrong passphrase, corrupted data, version mismatch, empty profiles, family members, optional fields); `__tests__/hooks/useBackupExport.test.ts`
+- [x] **Accessibility tests** — `__tests__/components/settings/ExportBackupModal.a11y.test.tsx` (15 tests); `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` (18 tests)
+- [x] **E2E smoke tests** — `e2e/tests/backup-restore.spec.ts` verifies export modal opens/closes and restore modal renders without crashing
+- [x] **Architecture documentation** — `docs/mvp-proposal.md` updated with Backup & Restore section describing data flow, key files, security properties, and test coverage
+
 ## Accessibility Standards
 
 Borderly follows React Native accessibility (a11y) standards to ensure the app is usable with screen readers (VoiceOver on iOS, TalkBack on Android).
@@ -290,6 +304,8 @@ Existing a11y test files:
 - `__tests__/components/forms/DynamicForm.a11y.test.tsx` — field labels, required, live regions
 - `__tests__/components/forms/accessibility.test.tsx` — FormField, FormSection, AutoFilledBadge
 - `__tests__/components/trips/TripCard.a11y.test.tsx` — label, role, decorative elements
+- `__tests__/components/settings/ExportBackupModal.a11y.test.tsx` — modal props, heading role, close/cancel labels, passphrase input labels, export button label/hint, strength indicator, error live region, loading state
+- `__tests__/components/settings/RestoreBackupModal.a11y.test.tsx` — modal props, heading role, close/cancel labels, file input label, passphrase label, restore button label/hint, error live region, success state, loading state
 
 ## Skills Reference
 
