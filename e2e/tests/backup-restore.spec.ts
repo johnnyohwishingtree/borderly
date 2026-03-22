@@ -112,7 +112,7 @@ test.describe('Backup Restore – Welcome screen', () => {
 
     // Should navigate to the restore screen
     await expect(page.getByTestId('restore-backup-screen')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('Restore from Backup')).toBeVisible();
+    await expect(page.getByText('Restore from Backup').first()).toBeVisible();
   });
 });
 
@@ -149,7 +149,7 @@ test.describe('Backup Restore – Settings screen', () => {
     await page.waitForTimeout(500);
 
     // The Data Management heading should be visible
-    await expect(page.getByText('Data Management')).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText('Data Management').first()).toBeVisible({ timeout: 3000 });
 
     // The restore button should be visible
     const restoreButton = page.getByTestId('restore-backup-button');
@@ -208,7 +208,7 @@ test.describe('Backup Restore – RestoreBackupModal', () => {
 
     // Modal header
     await expect(page.getByTestId('restore-backup-screen')).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText('Restore from Backup')).toBeVisible();
+    await expect(page.getByText('Restore from Backup').first()).toBeVisible();
 
     // Idle step content
     await expect(page.getByTestId('restore-step-idle')).toBeVisible();

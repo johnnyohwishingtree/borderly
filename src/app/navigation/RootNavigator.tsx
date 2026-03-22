@@ -19,6 +19,7 @@ const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => (
 const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
 const AddCompanionsScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.AddCompanionsScreen })));
 const BiometricSetupScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
+const NotificationPermissionScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.NotificationPermissionScreen })));
 const RestoreBackupModal = lazy(() => import('@/screens/settings').then(m => ({ default: m.RestoreBackupModal })));
 
 // Enhanced loading component for lazy-loaded screens
@@ -44,6 +45,7 @@ const SCREEN_TITLES: Record<string, string> = {
   ConfirmProfile: 'Confirm Profile',
   AddCompanions: 'Add Companions',
   BiometricSetup: 'Biometric Setup',
+  NotificationPermission: 'Notification Permission',
   RestoreBackup: 'Restore from Backup',
   // Main tabs
   Trips: 'Trips',
@@ -168,6 +170,18 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <BiometricSetupScreen />
+          </Suspense>
+        )}
+      </OnboardingStack.Screen>
+      <OnboardingStack.Screen
+        name="NotificationPermission"
+        options={{
+          ...STANDARD_TRANSITIONS.slideFromRight,
+        }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <NotificationPermissionScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
