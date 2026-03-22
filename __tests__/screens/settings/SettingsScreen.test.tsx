@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -209,6 +208,8 @@ function setupMocks(
 // ---------------------------------------------------------------------------
 
 describe('SettingsScreen — App Lock section', () => {
+  const Keychain = require('react-native-keychain'); // eslint-disable-line @typescript-eslint/no-require-imports
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -254,7 +255,6 @@ describe('SettingsScreen — App Lock section', () => {
   });
 
   it('triggers biometric auth when disabling lock', async () => {
-    const Keychain = require('react-native-keychain');
     Keychain.getGenericPassword.mockResolvedValue({ username: 'test', password: 'pass' });
 
     const setLockEnabled = jest.fn();
@@ -275,7 +275,6 @@ describe('SettingsScreen — App Lock section', () => {
   });
 
   it('does NOT disable lock if biometric auth is cancelled (getGenericPassword throws)', async () => {
-    const Keychain = require('react-native-keychain');
     Keychain.getGenericPassword.mockRejectedValue(new Error('User cancelled'));
 
     const setLockEnabled = jest.fn();
@@ -291,7 +290,6 @@ describe('SettingsScreen — App Lock section', () => {
   });
 
   it('shows Alert confirmation when no stored credential (getGenericPassword returns false)', async () => {
-    const Keychain = require('react-native-keychain');
     Keychain.getGenericPassword.mockResolvedValue(false);
 
     const alertSpy = jest.spyOn(Alert, 'alert');

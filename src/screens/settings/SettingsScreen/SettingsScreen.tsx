@@ -18,6 +18,8 @@ import type { SettingsStackParamList } from '@/app/navigation/types';
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
 
+const APP_LOCK_CHECK_SERVICE = 'borderly_lock_check';
+
 export default function SettingsScreen() {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
   const {
@@ -177,7 +179,7 @@ export default function SettingsScreen() {
       // Disabling app lock — require biometric confirmation first
       try {
         const result = await Keychain.getGenericPassword({
-          service: 'borderly_lock_check',
+          service: APP_LOCK_CHECK_SERVICE,
           authenticationPrompt: {
             title: 'Confirm Disable App Lock',
             subtitle: 'Authenticate to disable app lock',
