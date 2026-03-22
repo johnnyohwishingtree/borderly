@@ -133,26 +133,26 @@ describe('Boarding Pass Parser Service', () => {
           ...mockSingleLegData.data,
           legs: [{
             ...mockSingleLegData.data.legs[0],
-            toCity: 'ICN', // Korea - not supported
-            operatingCarrierDesignator: 'KE',
-            flightNumber: 'KE0001',
+            toCity: 'CGK', // Indonesia - not a supported destination
+            operatingCarrierDesignator: 'GA',
+            flightNumber: 'GA0001',
           }],
         },
       };
-      
+
       mockDecode.mockReturnValue(unsupportedData);
 
       const result = parseBoardingPass('M1DOE/JOHN...', 2024);
-      
+
       // Should still parse but with warning logged
       expect(result).toEqual(expect.objectContaining({
-        arrivalAirport: 'ICN',
-        destinationCountry: 'KOR',
-        airlineCode: 'KE',
-        flightNumber: 'KE0001',
+        arrivalAirport: 'CGK',
+        destinationCountry: 'IDN',
+        airlineCode: 'GA',
+        flightNumber: 'GA0001',
       }));
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Destination airport ICN (KOR) is not in supported countries');
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Destination airport CGK (IDN) is not in supported countries');
       consoleWarnSpy.mockRestore();
     });
 
@@ -522,17 +522,17 @@ describe('Boarding Pass Parser Service', () => {
     });
 
     it('should return false for unsupported destinations', () => {
-      const koreaPass: ParsedBoardingPass = {
+      const indonesiaPass: ParsedBoardingPass = {
         passengerName: 'DOE/JOHN',
-        airlineCode: 'KE',
-        flightNumber: 'KE001',
+        airlineCode: 'GA',
+        flightNumber: 'GA001',
         departureAirport: 'LAX',
-        arrivalAirport: 'ICN',
+        arrivalAirport: 'CGK',
         flightDate: '2024-05-02',
-        destinationCountry: 'KOR',
+        destinationCountry: 'IDN',
       };
 
-      expect(isBoardingPassSupported(koreaPass)).toBe(false);
+      expect(isBoardingPassSupported(indonesiaPass)).toBe(false);
     });
 
     it('should return false when destination country is missing', () => {

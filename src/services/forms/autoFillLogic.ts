@@ -426,7 +426,7 @@ function getSmartDeclarationDefault(field: FormField, context: FormContext): boo
       return defaults.hasCriminalRecord;
     }
     if (fieldId.includes('declare') || fieldId.includes('duty')) {
-      return defaults.hasItemsToDeclar;
+      return defaults.hasItemsToDeclare;
     }
   }
 

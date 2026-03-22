@@ -27,7 +27,7 @@ export const usaProfile: TravelerProfile = {
   },
   occupation: 'Software Engineer',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -59,7 +59,7 @@ export const ukProfile: TravelerProfile = {
   },
   occupation: 'Marketing Director',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: true, // Business traveler with cash
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -92,7 +92,7 @@ export const australianProfile: TravelerProfile = {
   },
   occupation: 'Doctor',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: true, // Medical professional who visited rural clinics
@@ -124,7 +124,7 @@ export const studentProfile: TravelerProfile = {
   },
   occupation: 'Student',
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -147,7 +147,7 @@ export const minimialProfile: TravelerProfile = {
   issuingCountry: 'USA',
   // No optional fields provided
   defaultDeclarations: {
-    hasItemsToDeclar: false,
+    hasItemsToDeclare: false,
     carryingCurrency: false,
     carryingProhibitedItems: false,
     visitedFarm: false,
@@ -179,7 +179,7 @@ export const businessTravelerProfile: TravelerProfile = {
   },
   occupation: 'Sales Manager',
   defaultDeclarations: {
-    hasItemsToDeclar: true, // Carrying expensive electronics for demos
+    hasItemsToDeclare: true, // Carrying expensive electronics for demos
     carryingCurrency: true, // Business expenses in cash
     carryingProhibitedItems: false,
     visitedFarm: false,

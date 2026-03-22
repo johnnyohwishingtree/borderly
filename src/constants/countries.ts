@@ -71,6 +71,12 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
     fullName: 'New Zealand',
     colors: ['#00247D', '#FFFFFF', '#CC142B'],
   },
+  {
+    code: 'KOR',
+    name: 'South Korea',
+    fullName: 'South Korea',
+    colors: ['#FFFFFF', '#003478', '#CD2E3A'],
+  },
 ];
 
 /**

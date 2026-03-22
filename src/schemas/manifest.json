@@ -51,6 +51,11 @@
       "version": "1.0.0",
       "checksum": "sha256:1d54c29fdb4256d0e6549a3940ccc5795a8031923a6513468686115857356048",
       "url": "https://schemas.borderly.app/v1/NZL.json"
+    },
+    "KOR": {
+      "version": "1.0.0",
+      "checksum": "sha256:693b25f6886d0cce4edceed58a2d9b88c368230ee92b7b761b933df7d3d8ce69",
+      "url": "https://schemas.borderly.app/v1/KOR.json"
     }
   }
 }

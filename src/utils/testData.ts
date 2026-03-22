@@ -32,7 +32,7 @@ export const demoProfiles = {
     },
     occupation: 'Senior Manager',
     defaultDeclarations: {
-      hasItemsToDeclar: true, // Often carries business equipment
+      hasItemsToDeclare: true, // Often carries business equipment
       carryingCurrency: true, // Business expense cash
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -64,7 +64,7 @@ export const demoProfiles = {
     },
     occupation: 'Teacher',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -96,7 +96,7 @@ export const demoProfiles = {
     },
     occupation: 'Software Developer',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
@@ -128,7 +128,7 @@ export const demoProfiles = {
     },
     occupation: 'Retired',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false, // Mostly uses cards
       carryingProhibitedItems: false,
       visitedFarm: false,

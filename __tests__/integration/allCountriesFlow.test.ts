@@ -27,7 +27,7 @@ describe('All Countries Integration Flow', () => {
     passportExpiry: '2030-06-15',
     issuingCountry: 'USA',
     defaultDeclarations: {
-      hasItemsToDeclar: false,
+      hasItemsToDeclare: false,
       carryingCurrency: false,
       carryingProhibitedItems: false,
       visitedFarm: false,
