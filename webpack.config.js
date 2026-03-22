@@ -123,6 +123,12 @@ module.exports = (env, argv) => {
       /src\/services\/storage\/index\.ts$/,
       path.resolve(__dirname, 'e2e/mocks/storage.js')
     ),
+    // Replace the backup barrel export to avoid WatermelonDB model imports in web builds
+    // (backupService.ts imports database.ts which imports models.ts with decorator syntax)
+    new webpack.NormalModuleReplacementPlugin(
+      /src\/services\/backup\/index\.ts$/,
+      path.resolve(__dirname, 'e2e/mocks/backup.js')
+    ),
     // Replace RN Web's no-op Alert with native browser dialog implementation
     new webpack.NormalModuleReplacementPlugin(
       /react-native-web\/dist\/exports\/Alert\/index\.js$/,
