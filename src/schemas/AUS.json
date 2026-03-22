@@ -1,0 +1,471 @@
+{
+  "countryCode": "AUS",
+  "countryName": "Australia",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2026-03-22T00:00:00Z",
+  "portalUrl": "https://online.abf.gov.au/incoming-passenger-card/",
+  "portalName": "ABF Digital Incoming Passenger Card (DIPC)",
+  "submissionDeadlineHours": 0,
+  "recommendedLeadTimeHours": 48,
+  "submissionWindowNote": "Complete before arrival (opens 72h before flight)",
+  "passportValidityMonths": 6,
+  "metadata": {
+    "priority": 3,
+    "complexity": "medium",
+    "popularity": 85,
+    "lastVerified": "2026-03-22T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "complete",
+    "maintenanceFrequency": "quarterly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": ["#dipc-form", ".form-section", ".submit-button", ".declaration-section"],
+    "changeThreshold": 15,
+    "fallbackActions": [
+      {
+        "trigger": "form_structure_changed",
+        "action": "notify",
+        "message": "Australian DIPC form structure has changed. Manual verification required."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "72h",
+    "latestBeforeArrival": "0h",
+    "recommended": "48h"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "familyPolicy": {
+      "type": "none",
+      "description": "No account required — each traveller submits their own DIPC directly without registration"
+    },
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Valid passport with at least 6 months validity beyond your stay",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Confirmed flight details including flight number and arrival date",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Address or accommodation details in Australia",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "familyName",
+          "label": "Family Name (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false
+        },
+        {
+          "id": "givenNames",
+          "label": "Given Names (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false
+        },
+        {
+          "id": "gender",
+          "label": "Sex",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" },
+            { "value": "X", "label": "Unspecified" }
+          ]
+        },
+        {
+          "id": "countryOfBirth",
+          "label": "Country of Birth",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.countryOfBirth",
+          "countrySpecific": false,
+          "optionsSource": "countries"
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality (as on passport)",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "optionsSource": "countries"
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "validation": {
+            "minLength": 5,
+            "maxLength": 20
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false
+        },
+        {
+          "id": "passportCountry",
+          "label": "Country of Issue (Passport)",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.issuingCountry",
+          "countrySpecific": false,
+          "optionsSource": "countries",
+          "helpText": "The country that issued your passport"
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "validation": {
+            "minLength": 2,
+            "maxLength": 10
+          }
+        },
+        {
+          "id": "arrivalDate",
+          "label": "Date of Arrival in Australia",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false
+        },
+        {
+          "id": "seatClass",
+          "label": "Seat Class",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "economy", "label": "Economy" },
+            { "value": "premium_economy", "label": "Premium Economy" },
+            { "value": "business", "label": "Business" },
+            { "value": "first", "label": "First" }
+          ],
+          "helpText": "Select the class of your seat on the aircraft"
+        },
+        {
+          "id": "lastCountryVisited",
+          "label": "Last Country Visited Before Australia",
+          "type": "searchable_select",
+          "required": true,
+          "countrySpecific": true,
+          "optionsSource": "countries",
+          "helpText": "The last country you were in before boarding your flight to Australia"
+        },
+        {
+          "id": "intendedLengthOfStay",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "countrySpecific": false,
+          "autoFillSource": "leg._calculatedDuration",
+          "validation": {
+            "min": 1,
+            "max": 365
+          }
+        },
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "holiday", "label": "Holiday / Vacation" },
+            { "value": "business", "label": "Business" },
+            { "value": "visiting_family_friends", "label": "Visiting Family / Friends" },
+            { "value": "education", "label": "Education / Study" },
+            { "value": "employment", "label": "Employment" },
+            { "value": "transit", "label": "In Transit" },
+            { "value": "other", "label": "Other" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "address",
+      "title": "Address in Australia",
+      "fields": [
+        {
+          "id": "australianAddressLine1",
+          "label": "Street Address",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.line1",
+          "helpText": "Street number and name of your accommodation in Australia"
+        },
+        {
+          "id": "australianAddressCity",
+          "label": "City / Suburb",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.city",
+          "helpText": "City or suburb of your accommodation"
+        },
+        {
+          "id": "australianAddressState",
+          "label": "State / Territory",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "ACT", "label": "Australian Capital Territory (ACT)" },
+            { "value": "NSW", "label": "New South Wales (NSW)" },
+            { "value": "NT", "label": "Northern Territory (NT)" },
+            { "value": "QLD", "label": "Queensland (QLD)" },
+            { "value": "SA", "label": "South Australia (SA)" },
+            { "value": "TAS", "label": "Tasmania (TAS)" },
+            { "value": "VIC", "label": "Victoria (VIC)" },
+            { "value": "WA", "label": "Western Australia (WA)" }
+          ]
+        },
+        {
+          "id": "australianAddressPostcode",
+          "label": "Postcode",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "autoFillSource": "leg.accommodation.address.postalCode",
+          "validation": {
+            "pattern": "^[0-9]{4}$"
+          },
+          "helpText": "4-digit Australian postcode"
+        }
+      ]
+    },
+    {
+      "id": "health_biosecurity",
+      "title": "Biosecurity Declarations",
+      "fields": [
+        {
+          "id": "hasFoodItems",
+          "label": "Are you carrying food of any kind (fruits, vegetables, meat, fish, eggs, dairy, nuts, seeds)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes food in your hand luggage or checked baggage, including packaged foods, snacks, and meals"
+        },
+        {
+          "id": "hasPlantItems",
+          "label": "Are you carrying plants or plant material (flowers, bulbs, seeds, straw, bamboo, wood)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes cut flowers, pot plants, timber, bark, cane, bamboo, and similar items"
+        },
+        {
+          "id": "hasAnimalItems",
+          "label": "Are you carrying animals or animal products (including insects, birds, feathers, fur, bones, shells, horns)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes live animals, raw or processed animal products, animal medicines, and animal-derived equipment"
+        },
+        {
+          "id": "hasBiosecurityRiskItems",
+          "label": "Have you been in contact with farms, bushland, or fresh waterways in the last 30 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes hiking, camping, farming, fishing, or visiting national parks. Footwear and outdoor equipment may carry soil or seeds."
+        },
+        {
+          "id": "hasSoilOrWater",
+          "label": "Are you carrying soil or have had contact with soil or fresh water (including water sports equipment)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes diving/snorkelling gear, hiking boots with soil residue, freshwater fishing equipment"
+        }
+      ]
+    },
+    {
+      "id": "customs",
+      "title": "Customs Declarations",
+      "fields": [
+        {
+          "id": "hasControlledGoods",
+          "label": "Are you carrying controlled substances, weapons, or restricted goods?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes firearms, prohibited weapons, illicit drugs, steroids, certain medications (in quantities exceeding personal use), and counterfeit goods"
+        },
+        {
+          "id": "hasCurrencyOver10000",
+          "label": "Are you carrying AUD 10,000 or more in currency (cash, traveller's cheques, money orders, or bearer negotiable instruments)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "This includes the combined total of all currencies you are carrying. Equivalent amounts in foreign currency must be declared."
+        },
+        {
+          "id": "hasGoodsExceedingAllowance",
+          "label": "Are you carrying goods that may be subject to customs duty or tax (new or commercial goods, gifts, samples)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Australia has a duty-free allowance. Adults: AUD 900 (includes alcohol and tobacco within limits). Duty-free alcohol: 2.25L per adult aged 18+. Tobacco: 25 cigarettes or 25g of tobacco per adult 18+."
+        },
+        {
+          "id": "hasCommercialGoods",
+          "label": "Are you carrying commercial goods, samples, or goods intended for sale or business use?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Includes goods you are importing for sale, business samples, or goods belonging to others"
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Open the ABF DIPC Portal",
+      "description": "Visit online.abf.gov.au and select 'Incoming Passenger Card'. No account or registration is required. You can complete the card from 72 hours before your arrival.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "The DIPC replaces the old paper Incoming Passenger Card (IPC)",
+        "You can submit from 72 hours before your flight",
+        "Have your passport and flight details ready",
+        "Save your submission reference number at the end"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Personal Details",
+      "description": "Fill in your personal information exactly as it appears on your passport, including your family name, given names, date of birth, sex, and country of birth.",
+      "fieldsOnThisScreen": ["familyName", "givenNames", "dateOfBirth", "gender", "countryOfBirth", "nationality"],
+      "tips": [
+        "Use the same spelling as your passport — no abbreviations",
+        "If your passport shows only one name, enter it as your family name"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Enter Passport Details",
+      "description": "Enter your passport number, expiry date, and the country that issued your passport.",
+      "fieldsOnThisScreen": ["passportNumber", "passportExpiry", "passportCountry"],
+      "tips": [
+        "Double-check your passport number carefully",
+        "Ensure your passport is valid for at least 6 months beyond your intended stay"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Enter Travel Details",
+      "description": "Provide your flight number, arrival date, seat class, and the last country you visited before Australia.",
+      "fieldsOnThisScreen": ["flightNumber", "arrivalDate", "seatClass", "lastCountryVisited", "intendedLengthOfStay", "purposeOfVisit"],
+      "tips": [
+        "Your flight number is on your boarding pass or e-ticket",
+        "The last country visited is where your flight to Australia departed from",
+        "Transit passengers should select 'In Transit' as the purpose of visit"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Enter Australian Address",
+      "description": "Provide the address where you will be staying in Australia. Use your first accommodation address if you are visiting multiple places.",
+      "fieldsOnThisScreen": ["australianAddressLine1", "australianAddressCity", "australianAddressState", "australianAddressPostcode"],
+      "tips": [
+        "If staying in multiple locations, enter the first address",
+        "Transit passengers may use the transit area or hotel address",
+        "Hotel/hostel names are acceptable as street addresses if the full address is not known"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Biosecurity Declarations",
+      "description": "Declare whether you are carrying any food, plants, animals, or animal products, or have been in contact with farms or bushland. Australia has strict biosecurity laws — when in doubt, declare it.",
+      "fieldsOnThisScreen": ["hasFoodItems", "hasPlantItems", "hasAnimalItems", "hasBiosecurityRiskItems", "hasSoilOrWater"],
+      "tips": [
+        "Always declare if unsure — ABF officers can inspect and allow permitted items through",
+        "Failure to declare biosecurity risk items can result in fines of up to AUD 420 on the spot",
+        "Sealed, commercially packaged food is generally permitted but must still be declared",
+        "Walking boots with soil residue should be declared — biosecurity officers will clean them"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Customs Declarations",
+      "description": "Declare any controlled substances, weapons, currency over AUD 10,000, or goods exceeding duty-free allowances.",
+      "fieldsOnThisScreen": ["hasControlledGoods", "hasCurrencyOver10000", "hasGoodsExceedingAllowance", "hasCommercialGoods"],
+      "tips": [
+        "Declare all currency — this is not a tax, just a reporting requirement",
+        "The duty-free allowance for adults is AUD 900 (excluding alcohol and tobacco)",
+        "Gifts and souvenirs are included in the duty-free allowance",
+        "Declaring goods does not automatically mean you will pay duty"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Review and Submit",
+      "description": "Review all your answers carefully before submitting. Once submitted you will receive a confirmation with a reference number. Save or screenshot this for your records.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Check all details match your passport exactly",
+        "Note your confirmation reference number",
+        "No QR code is issued — ABF officers will verify your submission via passport scan at arrival",
+        "You may be asked biosecurity or customs questions at the border regardless of your declarations"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://online.abf.gov.au/incoming-passenger-card/",
+    "testMode": true,
+    "successIndicators": [".confirmation-message", "#submission-reference", ".dipc-complete"],
+    "failureIndicators": [".error-message", ".form-error", ".validation-error"]
+  }
+}
