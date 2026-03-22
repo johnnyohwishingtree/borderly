@@ -108,6 +108,7 @@ const jpnLeg: TripLeg = {
     phone: '+81312345678',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 0,
 };
 
@@ -130,6 +131,7 @@ const mysLeg: TripLeg = {
     phone: '+60321345678',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

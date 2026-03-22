@@ -117,6 +117,7 @@ const mockLeg = {
   arrivalAirport: 'NRT',
   accommodationData: JSON.stringify({ name: 'Hotel Tokyo', address: { line1: '1-1 Tokyo', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' } }),
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   formDataString: undefined,
   order: 0,
 };

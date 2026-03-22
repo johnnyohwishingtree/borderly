@@ -82,6 +82,7 @@ function makeLeg(overrides: Partial<TripLeg> = {}): TripLeg {
       },
     },
     formStatus: 'not_started',
+    submissionStatus: 'not_started',
     order: 0,
   };
   return { ...base, ...overrides };

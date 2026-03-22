@@ -56,7 +56,9 @@ function makeLeg(
   return {
     id: 'leg-1', tripId: 'trip-1', destinationCountry: 'JPN',
     arrivalDate: '2026-04-01', departureDate: '2026-04-10',
-    formStatus: 'ready' as const, order: 0, qrCodes: [],
+    formStatus: 'ready' as const,
+    submissionStatus: 'not_started' as const,
+    order: 0, qrCodes: [],
     accommodation: baseAccommodation,
     assignedTravelers,
     travelerFormsData: assignedTravelers.map(id => ({

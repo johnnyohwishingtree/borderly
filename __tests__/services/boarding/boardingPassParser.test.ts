@@ -490,6 +490,7 @@ describe('Boarding Pass Parser Service', () => {
         airlineCode: 'JL',
         arrivalAirport: 'NRT',
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         order: 1,
       });
     });

@@ -61,6 +61,7 @@ const mockLeg: TripLeg = {
     phone: '+81-3-1234-5678',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

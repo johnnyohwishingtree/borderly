@@ -72,6 +72,7 @@ export const sampleJapanLeg: TripLeg = {
     bookingReference: 'SGH20260701',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -97,6 +98,7 @@ export const sampleMalaysiaLeg: TripLeg = {
     bookingReference: 'KLM20260708',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 2,
 };
 
@@ -121,6 +123,7 @@ export const sampleSingaporeLeg: TripLeg = {
     bookingReference: 'RHS20260714',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 3,
 };
 
@@ -146,6 +149,7 @@ export const sampleUSALeg: TripLeg = {
     bookingReference: 'PLZ20260801',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -171,6 +175,7 @@ export const sampleCanadaLeg: TripLeg = {
     bookingReference: 'FRY20260901',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -196,6 +201,7 @@ export const sampleGBRLeg: TripLeg = {
     bookingReference: 'SAV20261001',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -221,6 +227,7 @@ export const sampleThailandLeg: TripLeg = {
     bookingReference: 'MOB20261101',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -246,6 +253,7 @@ export const sampleVietnamLeg: TripLeg = {
     bookingReference: 'PHS20261201',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

@@ -99,6 +99,7 @@ const mockCanLeg: TripLeg = {
     phone: '+1-416-368-2511',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -123,6 +124,7 @@ const mockGbrLeg: TripLeg = {
     phone: '+44-20-7836-4343',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 
@@ -147,6 +149,7 @@ const mockUsaLeg: TripLeg = {
     phone: '+1-212-759-3000',
   },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 1,
 };
 

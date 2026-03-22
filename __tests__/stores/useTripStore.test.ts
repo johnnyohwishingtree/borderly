@@ -74,6 +74,7 @@ const makeLeg = (overrides: Partial<TripLeg> = {}): TripLeg => ({
   arrivalDate: '2026-04-01',
   accommodation: { name: 'Hotel', address: { line1: '1 Main St', city: 'Tokyo', postalCode: '100-0001', country: 'JPN' } },
   formStatus: 'not_started',
+  submissionStatus: 'not_started',
   order: 0,
   ...overrides,
 });
@@ -378,6 +379,59 @@ describe('useTripStore', () => {
       const { trips } = useTripStore.getState();
       expect(trips[0].legs[0].id).toBe('leg-1');
       expect(trips[0].legs[0].order).toBe(0);
+    });
+  });
+
+  describe('updateLegSubmissionStatus', () => {
+    it('calls databaseService.updateTripLeg with the new submissionStatus', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateLegSubmissionStatus('leg-1', 'in_progress');
+      });
+
+      expect(mockUpdateTripLeg).toHaveBeenCalledTimes(1);
+      expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg-1', { submissionStatus: 'in_progress' });
+    });
+
+    it('updates in-memory state after database write', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateLegSubmissionStatus('leg-1', 'submitted');
+      });
+
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].submissionStatus).toBe('submitted');
+    });
+
+    it('sets submissionStatus to not_started', async () => {
+      const trip = makeTrip({ legs: [makeLeg({ submissionStatus: 'submitted' })] });
+      useTripStore.setState({ trips: [trip] });
+
+      await act(async () => {
+        await useTripStore.getState().updateLegSubmissionStatus('leg-1', 'not_started');
+      });
+
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].submissionStatus).toBe('not_started');
+    });
+
+    it('sets error and does not update in-memory state if database write throws', async () => {
+      const trip = makeTrip();
+      useTripStore.setState({ trips: [trip] });
+      mockUpdateTripLeg.mockRejectedValue(new Error('DB error'));
+
+      await act(async () => {
+        await useTripStore.getState().updateLegSubmissionStatus('leg-1', 'submitted');
+      });
+
+      const { trips, error } = useTripStore.getState();
+      // State should be unchanged
+      expect(trips[0].legs[0].submissionStatus).toBe('not_started');
+      expect(error).toBe('DB error');
     });
   });
 });

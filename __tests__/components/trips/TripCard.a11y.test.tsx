@@ -25,6 +25,7 @@ function makeTrip(overrides?: Partial<Trip>): Trip {
         arrivalDate: '2025-08-01',
         departureDate: '2025-08-10',
         formStatus: 'not_started',
+        submissionStatus: 'not_started',
         order: 0,
         accommodation: {
           name: 'Tokyo Hotel',

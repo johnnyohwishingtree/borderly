@@ -189,6 +189,7 @@ function makeLeg(country: string, overrides?: Partial<TripLeg>): TripLeg {
   return {
     tripId: 'trip-family-asia',
     formStatus: 'not_started',
+    submissionStatus: 'not_started',
     order: 0,
     assignedTravelers: family.map(p => p.id),
     ...defaults[country],
