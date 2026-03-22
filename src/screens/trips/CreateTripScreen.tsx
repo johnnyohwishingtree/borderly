@@ -2,6 +2,7 @@ import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
 import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete } from '../../components/ui';
 import { CountryFlag, TravelerSelector } from '../../components/trips';
+import PassportValidityWarning from '../../components/trips/PassportValidityWarning';
 import { AutoFilledBadge } from '../../components/forms';
 import { ContextualHelp, HelpContent } from '../../components/help';
 import { BoardingPassScanner } from '../../components/boarding';
@@ -9,6 +10,7 @@ import { SmartImportSheet } from '../../components/import';
 import { SUPPORTED_COUNTRIES } from '../../constants/countries';
 import { ALL_AIRPORTS } from '../../constants/airports';
 import { useTripCreation } from '../../hooks/useTripCreation';
+import { usePassportValidity } from '../../hooks/usePassportValidity';
 import type { LegFormData } from '../../hooks/useTripCreation';
 
 const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
@@ -17,6 +19,33 @@ const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolea
     {autoFilled && <AutoFilledBadge source="auto" size="small" />}
   </View>
 );
+
+/**
+ * Small sub-component so we can call `usePassportValidity` (a hook) once per
+ * leg card. Hooks cannot be called inside plain functions — they must live at
+ * the top level of a function component.
+ */
+function LegPassportWarning({
+  countryCode,
+  departureDate,
+  legIndex,
+}: {
+  countryCode: string;
+  departureDate?: string | undefined;
+  legIndex: number;
+}) {
+  const warningData = usePassportValidity({ countryCode, departureDate });
+  if (!warningData) return null;
+  return (
+    <PassportValidityWarning
+      status={warningData.status}
+      countryName={warningData.countryName}
+      requiredMonths={warningData.requiredMonths}
+      passportExpiry={warningData.passportExpiry}
+      testID={`create-trip-passport-validity-warning-${legIndex}`}
+    />
+  );
+}
 
 export default function CreateTripScreen() {
   const {
@@ -86,6 +115,15 @@ export default function CreateTripScreen() {
                 <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.country`]}</Text>
               )}
             </View>
+
+            {/* Passport validity warning — only shown once departure date is entered */}
+            {leg.destinationCountry ? (
+              <LegPassportWarning
+                countryCode={leg.destinationCountry}
+                departureDate={leg.departureDate || undefined}
+                legIndex={index}
+              />
+            ) : null}
 
             <View className="flex-row space-x-3">
               <View className="flex-1">
