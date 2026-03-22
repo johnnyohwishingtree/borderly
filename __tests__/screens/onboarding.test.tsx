@@ -1,8 +1,8 @@
 import { render, fireEvent } from '@testing-library/react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
-import WelcomeScreen from '@/screens/onboarding/WelcomeScreen';
-import PassportScanScreen from '@/screens/onboarding/PassportScanScreen';
+import WelcomeScreen from '@/screens/onboarding/WelcomeScreen/WelcomeScreen';
+import PassportScanScreen from '@/screens/onboarding/PassportScanScreen/PassportScanScreen';
 
 // Mock dependencies
 jest.mock('@react-navigation/native', () => ({

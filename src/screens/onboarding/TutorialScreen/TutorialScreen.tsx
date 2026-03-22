@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, Check, Globe, Shield } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, ProgressIndicator } from '../../components/ui';
+import { OnboardingStackParamList } from '@/app/navigation/types';
+import { Button, ProgressIndicator } from '@/components/ui';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
 

@@ -8,9 +8,9 @@ import {
   CircleAlert,
 } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, ProgressBar } from '../../components/ui';
-import { useProfileStore } from '../../stores/useProfileStore';
+import { OnboardingStackParamList } from '@/app/navigation/types';
+import { Button, Card, ProgressBar } from '@/components/ui';
+import { useProfileStore } from '@/stores/useProfileStore';
 
 type ConfirmProfileScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'ConfirmProfile'>;
 

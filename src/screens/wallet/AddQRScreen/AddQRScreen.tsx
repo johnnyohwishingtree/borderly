@@ -10,10 +10,10 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Smartphone } from 'lucide-react-native';
-import { Card, Button, LoadingSpinner, Select } from '../../components/ui';
-import { QRCaptureService } from '../../services/camera/qrCapture';
-import { databaseService } from '../../services/storage';
-import { SavedQRCode } from '../../services/storage/models';
+import { Card, Button, LoadingSpinner, Select } from '@/components/ui';
+import { QRCaptureService } from '@/services/camera/qrCapture';
+import { databaseService } from '@/services/storage';
+import { SavedQRCode } from '@/services/storage/models';
 import {
   compressBase64Image,
   analyzeImageQuality,
@@ -22,7 +22,7 @@ import {
   detectDevicePerformance,
   ImageProcessor,
   type ImageQualityMetrics,
-} from '../../utils/imageUtils';
+} from '@/utils/imageUtils';
 
 interface QRFormData {
   label: string;

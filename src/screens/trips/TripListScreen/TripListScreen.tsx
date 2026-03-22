@@ -2,13 +2,13 @@ import { useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Plane } from 'lucide-react-native';
-import { useTripStore } from '../../stores/useTripStore';
-import { useAppStore } from '../../stores/useAppStore';
-import { TripCard } from '../../components/trips';
-import { EmptyState, InfoBanner } from '../../components/ui';
-import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
-import { HapticFeedback } from '../../components/ui/HapticFeedback';
-import { Trip } from '../../types/trip';
+import { useTripStore } from '@/stores/useTripStore';
+import { useAppStore } from '@/stores/useAppStore';
+import { TripCard } from '@/components/trips';
+import { EmptyState, InfoBanner } from '@/components/ui';
+import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
+import { HapticFeedback } from '@/components/ui/HapticFeedback';
+import { Trip } from '@/types/trip';
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 

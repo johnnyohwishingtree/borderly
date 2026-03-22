@@ -12,11 +12,11 @@ import { ArrowLeft, Globe, CircleCheck, TriangleAlert, Clock } from 'lucide-reac
 import {
   GuideProgress,
   StepCard,
-} from '../../components/guide';
-import { Button, Card, StatusBadge } from '../../components/ui';
-import TravelerTabs from '../../components/trips/TravelerTabs';
-import { useSubmissionGuide } from '../../hooks/useSubmissionGuide';
-import type { SubmissionStep } from '../../types/schema';
+} from '@/components/guide';
+import { Button, Card, StatusBadge } from '@/components/ui';
+import TravelerTabs from '@/components/trips/TravelerTabs';
+import { useSubmissionGuide } from '@/hooks/useSubmissionGuide';
+import type { SubmissionStep } from '@/types/schema';
 
 type SubmissionGuideScreenProps = {
   route: {

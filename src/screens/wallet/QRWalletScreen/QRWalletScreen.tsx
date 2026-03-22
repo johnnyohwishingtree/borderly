@@ -14,17 +14,17 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Smartphone, Filter, Users, X } from 'lucide-react-native';
-import { EmptyState, Button } from '../../components/ui';
-import LoadingStates, { useLoadingState } from '../../components/ui/LoadingStates';
-import { HapticFeedback } from '../../components/ui/HapticFeedback';
-import { QRCodeCard, QRFullScreen } from '../../components/wallet';
-import { ContextualHelp, HelpContent } from '../../components/help';
-import { SavedQRCode } from '../../services/storage/models';
+import { EmptyState, Button } from '@/components/ui';
+import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
+import { HapticFeedback } from '@/components/ui/HapticFeedback';
+import { QRCodeCard, QRFullScreen } from '@/components/wallet';
+import { ContextualHelp, HelpContent } from '@/components/help';
+import { SavedQRCode } from '@/services/storage/models';
 import { useNavigation } from '@react-navigation/native';
-import { databaseService } from '../../services/storage';
-import { useProfileStore } from '../../stores/useProfileStore';
-import type { TravelerProfile } from '../../types/profile';
-import { useAccessibilityFocus } from '../../hooks/useAccessibilityFocus';
+import { databaseService } from '@/services/storage';
+import { useProfileStore } from '@/stores/useProfileStore';
+import type { TravelerProfile } from '@/types/profile';
+import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 
 export default function QRWalletScreen() {
   const [qrCodes, setQrCodes] = useState<SavedQRCode[]>([]);

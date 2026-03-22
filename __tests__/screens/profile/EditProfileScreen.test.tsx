@@ -2,7 +2,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert, AlertButton } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useProfileStore } from '@/stores/useProfileStore';
-import EditProfileScreen from '@/screens/profile/EditProfileScreen';
+import EditProfileScreen from '@/screens/profile/EditProfileScreen/EditProfileScreen';
 
 // Mock dependencies
 jest.mock('@react-navigation/native', () => ({

@@ -2,17 +2,17 @@ import { useState } from 'react';
 import { View, Text, Alert, ScrollView } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Button } from '../../components/ui';
-import { ErrorMessage } from '../../components/ui/ErrorMessage';
-import { DynamicForm } from '../../components/forms';
-import { ContextualHelp, HelpContent } from '../../components/help';
-import CountryFlag from '../../components/trips/CountryFlag';
-import TravelerTabs from '../../components/trips/TravelerTabs';
-import PassportValidityWarning from '../../components/trips/PassportValidityWarning';
-import { schemaRegistry } from '../../services/schemas/schemaRegistry';
-import { TripStackParamList } from '../../app/navigation/types';
-import { useLegForm } from '../../hooks/useLegForm';
-import { usePassportValidity } from '../../hooks/usePassportValidity';
+import { Button } from '@/components/ui';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { DynamicForm } from '@/components/forms';
+import { ContextualHelp, HelpContent } from '@/components/help';
+import CountryFlag from '@/components/trips/CountryFlag';
+import TravelerTabs from '@/components/trips/TravelerTabs';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
+import { schemaRegistry } from '@/services/schemas/schemaRegistry';
+import { TripStackParamList } from '@/app/navigation/types';
+import { useLegForm } from '@/hooks/useLegForm';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
 
 type LegFormScreenRouteProp = RouteProp<TripStackParamList, 'LegForm'>;
 

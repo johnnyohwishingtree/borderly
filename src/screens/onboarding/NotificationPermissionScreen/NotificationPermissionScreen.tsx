@@ -3,8 +3,8 @@ import { View, Text, ScrollView } from 'react-native';
 import notifee, { AuthorizationStatus } from '@notifee/react-native';
 import { Bell, Clock, CheckCircle } from 'lucide-react-native';
 
-import { Button, Card } from '../../components/ui';
-import { useProfileStore } from '../../stores/useProfileStore';
+import { Button, Card } from '@/components/ui';
+import { useProfileStore } from '@/stores/useProfileStore';
 
 export default function NotificationPermissionScreen() {
   const { setOnboardingComplete } = useProfileStore();

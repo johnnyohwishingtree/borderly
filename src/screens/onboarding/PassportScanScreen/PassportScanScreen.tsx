@@ -1,13 +1,13 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
 import { Camera, Pencil, Zap } from 'lucide-react-native';
-import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField } from '../../components/ui';
-import { ALL_COUNTRIES } from '../../constants/countries';
-import { ErrorMessage } from '../../components/ui/ErrorMessage';
-import { MRZScanner, PassportPreview } from '../../components/passport';
-import { ContextualHelp, HelpContent } from '../../components/help';
-import { usePassportScan } from '../../hooks/usePassportScan';
-import { getTodayISO } from '../../utils/dateUtils';
+import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField } from '@/components/ui';
+import { ALL_COUNTRIES } from '@/constants/countries';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { MRZScanner, PassportPreview } from '@/components/passport';
+import { ContextualHelp, HelpContent } from '@/components/help';
+import { usePassportScan } from '@/hooks/usePassportScan';
+import { getTodayISO } from '@/utils/dateUtils';
 
 export default function PassportScanScreen() {
   const {

@@ -1,17 +1,17 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete } from '../../components/ui';
-import { CountryFlag, TravelerSelector } from '../../components/trips';
-import PassportValidityWarning from '../../components/trips/PassportValidityWarning';
-import { AutoFilledBadge } from '../../components/forms';
-import { ContextualHelp, HelpContent } from '../../components/help';
-import { BoardingPassScanner } from '../../components/boarding';
-import { SmartImportSheet } from '../../components/import';
-import { SUPPORTED_COUNTRIES } from '../../constants/countries';
-import { ALL_AIRPORTS } from '../../constants/airports';
-import { useTripCreation } from '../../hooks/useTripCreation';
-import { usePassportValidity } from '../../hooks/usePassportValidity';
-import type { LegFormData } from '../../hooks/useTripCreation';
+import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
+import { CountryFlag, TravelerSelector } from '@/components/trips';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
+import { AutoFilledBadge } from '@/components/forms';
+import { ContextualHelp, HelpContent } from '@/components/help';
+import { BoardingPassScanner } from '@/components/boarding';
+import { SmartImportSheet } from '@/components/import';
+import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import { ALL_AIRPORTS } from '@/constants/airports';
+import { useTripCreation } from '@/hooks/useTripCreation';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import type { LegFormData } from '@/hooks/useTripCreation';
 
 const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
   <View className="flex-row items-center justify-between mb-2">

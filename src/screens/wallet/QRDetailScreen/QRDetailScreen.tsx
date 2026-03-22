@@ -10,10 +10,10 @@ import {
   Platform,
 } from 'react-native';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import { Card, Button, LoadingSpinner } from '../../components/ui';
-import { QRFullScreen } from '../../components/wallet';
-import { SavedQRCode } from '../../services/storage/models';
-import { databaseService } from '../../services/storage';
+import { Card, Button, LoadingSpinner } from '@/components/ui';
+import { QRFullScreen } from '@/components/wallet';
+import { SavedQRCode } from '@/services/storage/models';
+import { databaseService } from '@/services/storage';
 
 type QRDetailRouteParams = {
   QRDetail: {

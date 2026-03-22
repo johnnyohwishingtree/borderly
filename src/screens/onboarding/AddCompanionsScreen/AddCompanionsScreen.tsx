@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users, UserPlus, ChevronRight, CheckCircle, X } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button, Card, ProgressBar } from '../../components/ui';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { FamilyMember, FamilyRelationship } from '../../types/profile';
+import { OnboardingStackParamList } from '@/app/navigation/types';
+import { Button, Card, ProgressBar } from '@/components/ui';
+import { useProfileStore } from '@/stores/useProfileStore';
+import { FamilyMember, FamilyRelationship } from '@/types/profile';
 
 type AddCompanionsScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'AddCompanions'>;
 

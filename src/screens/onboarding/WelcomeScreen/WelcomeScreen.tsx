@@ -12,13 +12,13 @@ import {
   UploadCloud,
 } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '../../app/navigation/types';
-import { Button } from '../../components/ui/gluestack/button';
-import { Card } from '../../components/ui/gluestack/card';
-import { Icon } from '../../components/ui/gluestack/icon';
-import { ProgressBar } from '../../components/ui';
-import CountryFlag from '../../components/trips/CountryFlag';
-import { SUPPORTED_COUNTRIES } from '../../constants/countries';
+import { OnboardingStackParamList } from '@/app/navigation/types';
+import { Button } from '@/components/ui/gluestack/button';
+import { Card } from '@/components/ui/gluestack/card';
+import { Icon } from '@/components/ui/gluestack/icon';
+import { ProgressBar } from '@/components/ui';
+import CountryFlag from '@/components/trips/CountryFlag';
+import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
 

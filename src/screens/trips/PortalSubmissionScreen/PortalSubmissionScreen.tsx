@@ -17,28 +17,28 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native';
-import { PortalWebView, PortalWebViewHandle } from '../../components/submission/PortalWebView';
-import type { NavigationState } from '../../components/submission/PortalWebView';
-import { AutoFillBanner } from '../../components/submission/AutoFillBanner';
-import { QRSaveOverlay } from '../../components/submission/QRSaveOverlay';
-import type { QRPageDetectedPayload } from '../../components/submission/QRSaveOverlay';
-import { AutoFillPill } from '../../components/submission/AutoFillPill';
-import { CredentialPrompt } from '../../components/submission/CredentialPrompt';
-import { CopyableField } from '../../components/guide';
-import { getSchemaByCountryCode } from '../../services/schemas/schemaRegistry';
-import { submissionCoordinator } from '../../services/submission/submissionCoordinator';
-import type { PageType } from '../../services/submission/submissionCoordinator';
-import { getPortalName } from '../../utils/countryUtils';
-import { formatFieldValue } from '../../utils/fieldFormatters';
-import { useTripStore } from '../../stores';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { TripStackParamList } from '../../app/navigation/types';
-import type { FilledFormSection, FilledFormField } from '../../services/forms/formEngine';
+import { PortalWebView, PortalWebViewHandle } from '@/components/submission/PortalWebView';
+import type { NavigationState } from '@/components/submission/PortalWebView';
+import { AutoFillBanner } from '@/components/submission/AutoFillBanner';
+import { QRSaveOverlay } from '@/components/submission/QRSaveOverlay';
+import type { QRPageDetectedPayload } from '@/components/submission/QRSaveOverlay';
+import { AutoFillPill } from '@/components/submission/AutoFillPill';
+import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
+import { CopyableField } from '@/components/guide';
+import { getSchemaByCountryCode } from '@/services/schemas/schemaRegistry';
+import { submissionCoordinator } from '@/services/submission/submissionCoordinator';
+import type { PageType } from '@/services/submission/submissionCoordinator';
+import { getPortalName } from '@/utils/countryUtils';
+import { formatFieldValue } from '@/utils/fieldFormatters';
+import { useTripStore } from '@/stores';
+import { useProfileStore } from '@/stores/useProfileStore';
+import { TripStackParamList } from '@/app/navigation/types';
+import type { FilledFormSection, FilledFormField } from '@/services/forms/formEngine';
 
-import { usePortalProfiles } from '../../hooks/usePortalProfiles';
-import { useLoadTimeout } from '../../hooks/useLoadTimeout';
-import { usePortalAutoLogin } from '../../hooks/usePortalAutoLogin';
-import { usePortalAutoFill } from '../../hooks/usePortalAutoFill';
+import { usePortalProfiles } from '@/hooks/usePortalProfiles';
+import { useLoadTimeout } from '@/hooks/useLoadTimeout';
+import { usePortalAutoLogin } from '@/hooks/usePortalAutoLogin';
+import { usePortalAutoFill } from '@/hooks/usePortalAutoFill';
 
 type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
 

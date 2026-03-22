@@ -11,21 +11,21 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
-import { useTripStore } from '../../stores/useTripStore';
-import { useProfileStore } from '../../stores/useProfileStore';
-import { LegCard, AccountSetupChecklist } from '../../components/trips';
-import { Button, StatusBadge, Input } from '../../components/ui';
-import { Trip, TripLeg } from '../../types/trip';
-import { FamilyMember } from '../../types/profile';
-import { useEditTrip } from '../../hooks/useEditTrip';
-import { useAccessibilityFocus } from '../../hooks/useAccessibilityFocus';
-import { SUPPORTED_COUNTRIES } from '../../constants/countries';
+import { useTripStore } from '@/stores/useTripStore';
+import { useProfileStore } from '@/stores/useProfileStore';
+import { LegCard, AccountSetupChecklist } from '@/components/trips';
+import { Button, StatusBadge, Input } from '@/components/ui';
+import { Trip, TripLeg } from '@/types/trip';
+import { FamilyMember } from '@/types/profile';
+import { useEditTrip } from '@/hooks/useEditTrip';
+import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
+import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import {
   computeTripDeadlines,
   LegDeadline,
-} from '../../services/deadline/deadlineService';
-import { getSchemaByCountryCode } from '../../schemas';
-import { CountryFormSchema } from '../../types/schema';
+} from '@/services/deadline/deadlineService';
+import { getSchemaByCountryCode } from '@/schemas';
+import { CountryFormSchema } from '@/types/schema';
 
 interface RouteParams {
   tripId: string;

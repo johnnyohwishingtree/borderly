@@ -8,7 +8,7 @@
  */
 
 import { render, screen } from '@testing-library/react-native';
-import RestoreBackupModal from '../../../src/screens/settings/RestoreBackupModal';
+import RestoreBackupModal from '../../../src/screens/settings/RestoreBackupModal/RestoreBackupModal';
 
 // ---------------------------------------------------------------------------
 // Navigation + store mocks
