@@ -2,6 +2,7 @@ import { CountryFormSchema } from '../../src/types/schema';
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import AUS from '../../src/schemas/AUS.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Australia (AUS) Schema', () => {
   const schema = AUS as CountryFormSchema;
@@ -391,27 +392,7 @@ describe('Australia (AUS) Schema', () => {
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
 
-  // ── 16. Auto-fill coverage ───────────────────────────────────────────────────
+  // ── 16. Auto-fill coverage & countrySpecific declarations ───────────────────
 
-  test('auto-fill coverage should be >= 70% for non-country-specific fields', () => {
-    // Non-country-specific fields represent universal profile/leg data
-    // that the form engine should auto-fill from the traveler's stored profile.
-    // At least 70% of these fields must have an autoFillSource mapping.
-    const nonCountrySpecificFields = schema.sections.flatMap(s =>
-      s.fields.filter(f => !f.countrySpecific)
-    );
-    const autoFilledFields = nonCountrySpecificFields.filter(f => !!f.autoFillSource);
-    const coveragePct = (autoFilledFields.length / nonCountrySpecificFields.length) * 100;
-
-    expect(nonCountrySpecificFields.length).toBeGreaterThan(0);
-    expect(coveragePct).toBeGreaterThanOrEqual(70);
-  });
-
-  test('all fields should declare countrySpecific as a boolean', () => {
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(typeof field.countrySpecific).toBe('boolean');
-      });
-    });
-  });
+  runSharedSchemaTests(schema);
 });

@@ -6,6 +6,17 @@ import PassportExpiryBadge, {
   computeExpiryStatus,
 } from './PassportExpiryBadge';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import JPN from '@/schemas/JPN.json';
+import MYS from '@/schemas/MYS.json';
+import SGP from '@/schemas/SGP.json';
+import THA from '@/schemas/THA.json';
+import VNM from '@/schemas/VNM.json';
+import GBR from '@/schemas/GBR.json';
+import USA from '@/schemas/USA.json';
+import CAN from '@/schemas/CAN.json';
+import AUS from '@/schemas/AUS.json';
+import NZL from '@/schemas/NZL.json';
+import KOR from '@/schemas/KOR.json';
 
 export interface DocumentValidityCardProps {
   /** ISO 8601 passport expiry date string. Returns null when falsy. */
@@ -19,19 +30,14 @@ export interface DocumentValidityCardProps {
  * Number of months of passport validity that each supported country requires
  * beyond the hypothetical departure date.
  *
- * Source: per-country JSON schemas (`passportValidityMonths`).
- * All 8 countries currently require 6 months; stored explicitly for clarity.
+ * Derived directly from per-country JSON schemas (`passportValidityMonths`)
+ * so this map stays in sync automatically when schemas are updated.
  */
-const COUNTRY_VALIDITY_MONTHS: Record<string, number> = {
-  JPN: 6,
-  MYS: 6,
-  SGP: 6,
-  THA: 6,
-  VNM: 6,
-  GBR: 6,
-  USA: 6,
-  CAN: 6,
-};
+const COUNTRY_VALIDITY_MONTHS: Record<string, number> = Object.fromEntries(
+  [JPN, MYS, SGP, THA, VNM, GBR, USA, CAN, AUS, NZL, KOR].map(
+    (s) => [s.countryCode, s.passportValidityMonths ?? 6],
+  ),
+);
 
 /**
  * Check whether the passport is valid for a given destination country based on
@@ -71,7 +77,7 @@ function formatExpiryDate(dateString: string): string {
  * Shows:
  * - Passport expiry date and days remaining
  * - Colour-coded status pill (PassportExpiryBadge)
- * - Per-country validity grid for all 8 supported countries
+ * - Per-country validity grid for all supported countries
  *
  * Returns null when `passportExpiry` is not available.
  */
