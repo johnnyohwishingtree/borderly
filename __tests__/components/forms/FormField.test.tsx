@@ -210,6 +210,158 @@ describe('getAirportLabel', () => {
 });
 
 // ---------------------------------------------------------------------------
+// FormField — keyboard type and autoCapitalize for text fields
+// ---------------------------------------------------------------------------
+
+describe('FormField — keyboard type for text fields', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  it('uses email-address keyboard and no auto-capitalization for an email field', () => {
+    const field = makeField({ id: 'email', label: 'Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-email');
+    expect(input.props.keyboardType).toBe('email-address');
+    expect(input.props.autoCapitalize).toBe('none');
+  });
+
+  it('uses email-address keyboard and no auto-capitalization for contactEmail field', () => {
+    const field = makeField({ id: 'contactEmail', label: 'Contact Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-contactEmail');
+    expect(input.props.keyboardType).toBe('email-address');
+    expect(input.props.autoCapitalize).toBe('none');
+  });
+
+  it('uses phone-pad keyboard for phoneNumber field', () => {
+    const field = makeField({ id: 'phoneNumber', label: 'Phone Number', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-phoneNumber');
+    expect(input.props.keyboardType).toBe('phone-pad');
+    expect(input.props.autoCapitalize).toBe('sentences');
+  });
+
+  it('uses phone-pad keyboard for mobile field', () => {
+    const field = makeField({ id: 'mobile', label: 'Mobile', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-mobile');
+    expect(input.props.keyboardType).toBe('phone-pad');
+    expect(input.props.autoCapitalize).toBe('sentences');
+  });
+
+  it('uses phone-pad keyboard for phone field', () => {
+    const field = makeField({ id: 'phone', label: 'Phone', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-phone');
+    expect(input.props.keyboardType).toBe('phone-pad');
+    expect(input.props.autoCapitalize).toBe('sentences');
+  });
+
+  it('uses default keyboard and sentences auto-capitalization for a regular text field', () => {
+    const field = makeField({ id: 'firstName', label: 'First Name', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-firstName');
+    expect(input.props.keyboardType).toBe('default');
+    expect(input.props.autoCapitalize).toBe('sentences');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FormField — autofill hints (textContentType / autoComplete)
+// ---------------------------------------------------------------------------
+
+describe('FormField — autofill hints for text fields', () => {
+  const mockOnValueChange = jest.fn();
+
+  beforeEach(() => {
+    mockOnValueChange.mockClear();
+  });
+
+  // ── Email fields ──────────────────────────────────────────────────────────
+
+  it('email field receives textContentType=emailAddress and autoComplete=email', () => {
+    const field = makeField({ id: 'email', label: 'Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-email');
+    expect(input.props.textContentType).toBe('emailAddress');
+    expect(input.props.autoComplete).toBe('email');
+  });
+
+  it('confirmEmail field receives email autofill hints', () => {
+    const field = makeField({ id: 'confirmEmail', label: 'Confirm Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-confirmEmail');
+    expect(input.props.textContentType).toBe('emailAddress');
+    expect(input.props.autoComplete).toBe('email');
+  });
+
+  it('emergencyContactEmail field receives email autofill hints', () => {
+    const field = makeField({ id: 'emergencyContactEmail', label: 'Emergency Contact Email', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-emergencyContactEmail');
+    expect(input.props.textContentType).toBe('emailAddress');
+    expect(input.props.autoComplete).toBe('email');
+  });
+
+  // ── Phone fields ──────────────────────────────────────────────────────────
+
+  it('phoneNumber field receives textContentType=telephoneNumber and autoComplete=tel', () => {
+    const field = makeField({ id: 'phoneNumber', label: 'Phone Number', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-phoneNumber');
+    expect(input.props.textContentType).toBe('telephoneNumber');
+    expect(input.props.autoComplete).toBe('tel');
+  });
+
+  it('mobile field receives phone autofill hints', () => {
+    const field = makeField({ id: 'mobile', label: 'Mobile', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-mobile');
+    expect(input.props.textContentType).toBe('telephoneNumber');
+    expect(input.props.autoComplete).toBe('tel');
+  });
+
+  it('phone field receives phone autofill hints', () => {
+    const field = makeField({ id: 'phone', label: 'Phone', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-phone');
+    expect(input.props.textContentType).toBe('telephoneNumber');
+    expect(input.props.autoComplete).toBe('tel');
+  });
+
+  it('hotelPhone field receives phone autofill hints', () => {
+    const field = makeField({ id: 'hotelPhone', label: 'Hotel Phone', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-hotelPhone');
+    expect(input.props.textContentType).toBe('telephoneNumber');
+    expect(input.props.autoComplete).toBe('tel');
+  });
+
+  // ── Passport number field ─────────────────────────────────────────────────
+
+  it('passportNumber field receives textContentType=none and autoComplete=off', () => {
+    const field = makeField({ id: 'passportNumber', label: 'Passport Number', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-passportNumber');
+    expect(input.props.textContentType).toBe('none');
+    expect(input.props.autoComplete).toBe('off');
+  });
+
+  // ── Generic fields — no autofill hints ───────────────────────────────────
+
+  it('regular text field (firstName) has no autofill hints', () => {
+    const field = makeField({ id: 'firstName', label: 'First Name', type: 'text' });
+    render(<FormField field={field} onValueChange={mockOnValueChange} />);
+    const input = screen.getByTestId('input-firstName');
+    expect(input.props.textContentType).toBeUndefined();
+    expect(input.props.autoComplete).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // FormField rendering with optionsSource: 'airports'
 // ---------------------------------------------------------------------------
 
