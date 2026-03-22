@@ -11,13 +11,14 @@ import { SemanticUtils } from '../../utils/accessibility';
 /** Platform-specific input props derived from field metadata. */
 function getInputHints(field: FilledFormField): Pick<
   TextInputProps,
-  'textContentType' | 'autoComplete' | 'keyboardType' | 'autoCapitalize' | 'maxLength' | 'returnKeyType'
+  'textContentType' | 'autoComplete' | 'keyboardType' | 'autoCapitalize'
 > {
   const src = field.autoFillSource ?? '';
   const id = field.id;
+  const idLower = id.toLowerCase();
 
   // --- Email fields ---
-  if (src.includes('email') || id.includes('email') || id.includes('Email')) {
+  if (src.includes('email') || idLower.includes('email')) {
     return {
       textContentType: 'emailAddress',
       autoComplete: 'email',
@@ -27,7 +28,7 @@ function getInputHints(field: FilledFormField): Pick<
   }
 
   // --- Phone fields ---
-  if (src.includes('phone') || id.includes('phone') || id.includes('Phone')) {
+  if (src.includes('phone') || idLower.includes('phone')) {
     return {
       textContentType: 'telephoneNumber',
       autoComplete: 'tel',
@@ -131,7 +132,7 @@ function getInputHints(field: FilledFormField): Pick<
   }
 
   // --- Generic name-like fields (emergency contacts, etc.) ---
-  if (id.includes('Name') || id.includes('name')) {
+  if (idLower.includes('name')) {
     return { keyboardType: 'default', autoCapitalize: 'words' };
   }
 
@@ -159,7 +160,7 @@ function getFieldConstraints(field: FilledFormField): Pick<
       result.maxLength = 10;
     } else if (src.includes('address.postalCode') || id === 'postalCode') {
       result.maxLength = 12;
-    } else if (src.includes('phone') || id.includes('phone') || id.includes('Phone')) {
+    } else if (src.includes('phone') || id.toLowerCase().includes('phone')) {
       result.maxLength = 20;
     }
   }
