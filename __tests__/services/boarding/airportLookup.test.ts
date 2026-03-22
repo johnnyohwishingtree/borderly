@@ -82,7 +82,7 @@ describe('Airport Lookup Service', () => {
     });
 
     it('should return false for unsupported countries', () => {
-      expect(isSupportedDestination('ICN')).toBe(false); // Korea
+      expect(isSupportedDestination('CGK')).toBe(false); // Indonesia - not a supported destination
     });
 
     it('should return false for unknown airports', () => {
@@ -166,8 +166,8 @@ describe('Airport Lookup Service', () => {
       const supportedAirports = getSupportedDestinationAirports();
       const codes = supportedAirports.map(a => a.code);
 
-      // Korea is not supported
-      expect(codes).not.toContain('ICN');
+      // Indonesia is not a supported destination
+      expect(codes).not.toContain('CGK');
     });
   });
 
@@ -236,7 +236,7 @@ describe('Airport Lookup Service', () => {
 
     it('should be an array matching constants/countries.ts', () => {
       expect(Array.isArray(SUPPORTED_COUNTRIES)).toBe(true);
-      expect(SUPPORTED_COUNTRIES.length).toBe(10);
+      expect(SUPPORTED_COUNTRIES.length).toBe(11);
     });
   });
 });
