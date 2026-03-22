@@ -28,6 +28,8 @@ import {
 } from '@/services/deadline/deadlineService';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CountryFormSchema } from '@/types/schema';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 
 interface RouteParams {
   tripId: string;
@@ -650,6 +652,33 @@ export default function TripDetailScreen() {
   );
 }
 
+// ── LegPassportWarning component ─────────────────────────────────────────────
+// Wraps usePassportValidity (a hook) so it can be called inside LegFormSection.
+// Hooks cannot be called inside plain functions — they must live at the top
+// level of a function component.
+
+function LegPassportWarning({
+  countryCode,
+  departureDate,
+  testID,
+}: {
+  countryCode: string;
+  departureDate?: string | undefined;
+  testID?: string;
+}) {
+  const warningData = usePassportValidity({ countryCode, departureDate });
+  if (!warningData) return null;
+  return (
+    <PassportValidityWarning
+      status={warningData.status}
+      countryName={warningData.countryName}
+      requiredMonths={warningData.requiredMonths}
+      passportExpiry={warningData.passportExpiry}
+      {...(testID !== undefined ? { testID } : {})}
+    />
+  );
+}
+
 // ── LegFormSection component ─────────────────────────────────────────────────
 // Renders the common leg form fields (country, dates, flight, accommodation).
 // Kept here (not in components/) because it's tightly coupled to the edit flow.
@@ -707,6 +736,15 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix, traveler
         </View>
         {errors.country && <Text className="text-red-500 text-sm mt-2">{errors.country}</Text>}
       </View>
+
+      {/* Passport validity warning — shown when the selected country's requirements are not met */}
+      {legData.destinationCountry ? (
+        <LegPassportWarning
+          countryCode={legData.destinationCountry}
+          departureDate={legData.departureDate || undefined}
+          testID={`${testIDPrefix}-passport-validity-warning`}
+        />
+      ) : null}
 
       {/* Dates */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
