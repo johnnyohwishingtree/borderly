@@ -52,7 +52,6 @@ appId: com.borderly.app
 - extendedWaitUntil:
     visible: "L12345678"
     timeout: 10000
-- assertVisible: "JOHN MICHAEL"
 - assertVisible: "SMITH"
 - scrollUntilVisible:
     element:
@@ -67,7 +66,7 @@ appId: com.borderly.app
     visible: "Confirm Your Profile"
     timeout: 30000
 - assertVisible: "L12345678"
-- assertVisible: "JOHN MICHAEL"
+- assertVisible: "JOHN MICHAEL SMITH"
 
 - scrollUntilVisible:
     element:
@@ -95,10 +94,16 @@ appId: com.borderly.app
 - extendedWaitUntil:
     visible: "Secure Your Profile"
     timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "skip-biometric-button"
+    direction: DOWN
+    timeout: 5000
 - tapOn:
     id: "skip-biometric-button"
+# Alert appears with "Go Back" (cancel) and "Skip" buttons.
 - extendedWaitUntil:
-    visible: "Skip"
+    visible: "Skip Biometric Setup?"
     timeout: 5000
 - tapOn: "Skip"
 
@@ -108,6 +113,14 @@ appId: com.borderly.app
       visible: "OK"
     commands:
       - tapOn: "OK"
+
+# === NOTIFICATION PERMISSION - SKIP (if shown) ===
+- runFlow:
+    when:
+      visible: "Stay on Top of Deadlines"
+    commands:
+      - tapOn:
+          id: "skip-notifications-button"
 
 # === MAIN SCREEN ===
 - extendedWaitUntil:

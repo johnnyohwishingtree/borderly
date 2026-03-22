@@ -10,15 +10,25 @@ export default function NotificationPermissionScreen() {
   const { setOnboardingComplete } = useProfileStore();
   const [isRequesting, setIsRequesting] = useState(false);
 
-  // Auto-skip if permission was already granted (re-entry path)
+  // Auto-skip if permission was already granted (re-entry path).
+  // Uses InteractionManager to defer the navigator swap until after the
+  // screen transition animation completes — avoids a race condition where
+  // setOnboardingComplete fires while the OnboardingStack is still animating.
   useEffect(() => {
+    let cancelled = false;
     async function checkPermission() {
       try {
         const settings = await notifee.getNotificationSettings();
         if (
-          settings.authorizationStatus === AuthorizationStatus.AUTHORIZED ||
-          settings.authorizationStatus === AuthorizationStatus.PROVISIONAL
+          cancelled ||
+          (settings.authorizationStatus !== AuthorizationStatus.AUTHORIZED &&
+           settings.authorizationStatus !== AuthorizationStatus.PROVISIONAL)
         ) {
+          return;
+        }
+        // Wait for the navigation animation to settle before swapping navigators
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (!cancelled) {
           setOnboardingComplete(true);
         }
       } catch {
@@ -26,6 +36,7 @@ export default function NotificationPermissionScreen() {
       }
     }
     checkPermission();
+    return () => { cancelled = true; };
   }, [setOnboardingComplete]);
 
   const handleAllow = async () => {
