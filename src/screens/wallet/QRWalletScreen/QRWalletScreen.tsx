@@ -40,7 +40,7 @@ export default function QRWalletScreen() {
   // Accessibility: focus management for filter modal
   const filterTriggerRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
   const { ref: filterModalTitleRef } = useAccessibilityFocus({ shouldFocus: showFilterModal, delay: 350 });
-  
+
   const {
     state,
     error,
@@ -194,10 +194,10 @@ export default function QRWalletScreen() {
               await db.write(async () => {
                 await qrCode.destroyPermanently();
               });
-              
+
               // Reload QR codes
               await loadQRCodes();
-              
+
               Alert.alert('Success', 'QR code deleted successfully');
             } catch (err) {
               console.error('Error deleting QR code:', err);
@@ -243,20 +243,20 @@ export default function QRWalletScreen() {
 
   if (qrCodes.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <View className="bg-white px-4 py-6 border-b border-gray-100">
+        <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
-              <Text className="text-base text-gray-600 mt-1">
+              <Text className="text-2xl font-bold text-gray-900 dark:text-white">QR Wallet</Text>
+              <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
                 Your saved entry codes
               </Text>
             </View>
-            
+
             <TouchableOpacity
               onPress={handleAddQR}
-              className="bg-blue-600 rounded-full items-center justify-center"
+              className="bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center"
               style={{ width: 44, height: 44 }}
               accessible={true}
               accessibilityRole="button"
@@ -285,7 +285,7 @@ export default function QRWalletScreen() {
               description="Add QR codes from your travel submissions for quick access at border crossings"
               variant="illustration"
             />
-            
+
             <View className="mt-6">
               <Button
                 title="Add QR Code"
@@ -300,14 +300,14 @@ export default function QRWalletScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <View className="bg-white px-4 py-6 border-b border-gray-100">
+      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-2xl font-bold text-gray-900">QR Wallet</Text>
-            <Text className="text-base text-gray-600 mt-1">
-              {selectedTravelerFilter 
+            <Text className="text-2xl font-bold text-gray-900 dark:text-white">QR Wallet</Text>
+            <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
+              {selectedTravelerFilter
                 ? `${filteredQRCodes.length} code${filteredQRCodes.length !== 1 ? 's' : ''} for ${travelers.get(selectedTravelerFilter)?.givenNames || 'Unknown'}`
                 : `${qrCodes.length} saved code${qrCodes.length !== 1 ? 's' : ''}`
               }
@@ -321,17 +321,17 @@ export default function QRWalletScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Clear traveler filter"
               >
-                <Text className="text-sm text-blue-600 mr-1">Clear filter</Text>
+                <Text className="text-sm text-blue-600 dark:text-blue-400 mr-1">Clear filter</Text>
                 <X size={14} color="#2563eb" />
               </TouchableOpacity>
             )}
           </View>
-          
+
           {travelers.size > 1 && (
             <TouchableOpacity
               ref={filterTriggerRef}
               onPress={() => setShowFilterModal(true)}
-              className="bg-gray-100 rounded-full items-center justify-center mr-3"
+              className="bg-gray-100 dark:bg-gray-700 rounded-full items-center justify-center mr-3"
               style={{ width: 44, height: 44 }}
               accessible={true}
               accessibilityRole="button"
@@ -341,15 +341,15 @@ export default function QRWalletScreen() {
             </TouchableOpacity>
           )}
 
-          <ContextualHelp 
+          <ContextualHelp
             content={HelpContent.qrWallet}
             variant="icon"
             size="medium"
           />
-          
+
           <TouchableOpacity
             onPress={handleAddQR}
-            className="bg-blue-600 rounded-full items-center justify-center"
+            className="bg-blue-600 dark:bg-blue-500 rounded-full items-center justify-center"
             style={{ width: 44, height: 44 }}
             accessible={true}
             accessibilityRole="button"
@@ -397,11 +397,11 @@ export default function QRWalletScreen() {
         onRequestClose={handleCloseFilterModal}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-xl p-4">
+          <View className="bg-white dark:bg-gray-800 rounded-t-xl p-4">
             <View className="flex-row items-center justify-between mb-4">
               <Text
                 ref={filterModalTitleRef}
-                className="text-lg font-semibold text-gray-900"
+                className="text-lg font-semibold text-gray-900 dark:text-white"
                 accessibilityRole="header"
               >
                 Filter by Traveler
@@ -426,19 +426,19 @@ export default function QRWalletScreen() {
                   handleCloseFilterModal();
                 }}
                 className={`p-4 rounded-lg border mb-2 ${
-                  !selectedTravelerFilter 
-                    ? 'bg-blue-50 border-blue-500' 
-                    : 'bg-gray-50 border-gray-200'
+                  !selectedTravelerFilter
+                    ? 'bg-blue-50 dark:bg-blue-950 border-blue-500'
+                    : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                 }`}
               >
                 <View className="flex-row items-center">
                   <Users size={20} color={!selectedTravelerFilter ? "#3B82F6" : "#6b7280"} />
                   <Text className={`ml-3 font-medium ${
-                    !selectedTravelerFilter ? 'text-blue-700' : 'text-gray-900'
+                    !selectedTravelerFilter ? 'text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'
                   }`}>
                     All Travelers
                   </Text>
-                  <Text className="ml-auto text-sm text-gray-500">
+                  <Text className="ml-auto text-sm text-gray-500 dark:text-gray-400">
                     {qrCodes.length} codes
                   </Text>
                 </View>
@@ -448,7 +448,7 @@ export default function QRWalletScreen() {
               {Array.from(travelers.values()).map((traveler) => {
                 const travelerQRCount = qrCodes.filter(qr => qr.travelerId === traveler.id).length;
                 const isSelected = selectedTravelerFilter === traveler.id;
-                
+
                 return (
                   <TouchableOpacity
                     key={traveler.id}
@@ -457,41 +457,41 @@ export default function QRWalletScreen() {
                       handleCloseFilterModal();
                     }}
                     className={`p-4 rounded-lg border mb-2 ${
-                      isSelected 
-                        ? 'bg-blue-50 border-blue-500' 
-                        : 'bg-gray-50 border-gray-200'
+                      isSelected
+                        ? 'bg-blue-50 dark:bg-blue-950 border-blue-500'
+                        : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                   >
                     <View className="flex-row items-center">
                       <View className={`w-8 h-8 rounded-full items-center justify-center ${
-                        isSelected ? 'bg-blue-500' : 'bg-gray-300'
+                        isSelected ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-500'
                       }`}>
                         <Text className={`text-sm font-bold ${
-                          isSelected ? 'text-white' : 'text-gray-600'
+                          isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-200'
                         }`}>
                           {traveler.givenNames.charAt(0)}
                         </Text>
                       </View>
                       <View className="ml-3 flex-1">
                         <Text className={`font-medium ${
-                          isSelected ? 'text-blue-700' : 'text-gray-900'
+                          isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'
                         }`}>
                           {traveler.givenNames} {traveler.surname}
                         </Text>
                         <Text className={`text-sm ${
-                          isSelected ? 'text-blue-600' : 'text-gray-500'
+                          isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                         }`}>
                           {traveler.relationship === 'self' ? 'Primary' : traveler.relationship}
                         </Text>
                       </View>
-                      <Text className="text-sm text-gray-500">
+                      <Text className="text-sm text-gray-500 dark:text-gray-400">
                         {travelerQRCount} code{travelerQRCount !== 1 ? 's' : ''}
                       </Text>
                     </View>
                   </TouchableOpacity>
                 );
               })}
-              
+
               {/* Unassigned QR codes */}
               {qrCodes.some(qr => !qr.travelerId) && (
                 <TouchableOpacity
@@ -501,33 +501,33 @@ export default function QRWalletScreen() {
                   }}
                   className={`p-4 rounded-lg border mb-2 ${
                     selectedTravelerFilter === 'unassigned'
-                      ? 'bg-blue-50 border-blue-500' 
-                      : 'bg-gray-50 border-gray-200'
+                      ? 'bg-blue-50 dark:bg-blue-950 border-blue-500'
+                      : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
                   }`}
                 >
                   <View className="flex-row items-center">
                     <View className={`w-8 h-8 rounded-full items-center justify-center ${
-                      selectedTravelerFilter === 'unassigned' ? 'bg-blue-500' : 'bg-gray-300'
+                      selectedTravelerFilter === 'unassigned' ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-500'
                     }`}>
                       <Text className={`text-sm font-bold ${
-                        selectedTravelerFilter === 'unassigned' ? 'text-white' : 'text-gray-600'
+                        selectedTravelerFilter === 'unassigned' ? 'text-white' : 'text-gray-600 dark:text-gray-200'
                       }`}>
                         ?
                       </Text>
                     </View>
                     <View className="ml-3 flex-1">
                       <Text className={`font-medium ${
-                        selectedTravelerFilter === 'unassigned' ? 'text-blue-700' : 'text-gray-900'
+                        selectedTravelerFilter === 'unassigned' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-900 dark:text-white'
                       }`}>
                         Unassigned
                       </Text>
                       <Text className={`text-sm ${
-                        selectedTravelerFilter === 'unassigned' ? 'text-blue-600' : 'text-gray-500'
+                        selectedTravelerFilter === 'unassigned' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                       }`}>
                         No traveler specified
                       </Text>
                     </View>
-                    <Text className="text-sm text-gray-500">
+                    <Text className="text-sm text-gray-500 dark:text-gray-400">
                       {qrCodes.filter(qr => !qr.travelerId).length} codes
                     </Text>
                   </View>

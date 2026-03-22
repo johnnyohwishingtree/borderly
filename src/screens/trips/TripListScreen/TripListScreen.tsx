@@ -33,7 +33,7 @@ export default function TripListScreen() {
     hasSeenFirstRunPrompt,
     dismissFirstRunPrompt,
   } = useAppStore();
-  
+
   const {
     state,
     setLoading,
@@ -96,7 +96,7 @@ export default function TripListScreen() {
   };
 
   const renderTripCard = ({ item }: { item: Trip }) => (
-    <TripCard 
+    <TripCard
       trip={item}
       onPress={() => handleTripPress(item)}
       showProgress={true}
@@ -150,7 +150,7 @@ export default function TripListScreen() {
 
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* First-run welcome banner — shown once after onboarding completes */}
       {!hasSeenFirstRunPrompt && (
         <InfoBanner
@@ -170,13 +170,13 @@ export default function TripListScreen() {
       )}
 
       {/* Header */}
-      <View className="bg-white px-4 py-6 border-b border-gray-100">
+      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold text-gray-900">Your Trips</Text>
-            <Text className="text-base text-gray-600 mt-1">
-              {trips.length === 0 
-                ? 'Manage your travel itineraries' 
+            <Text className="text-2xl font-bold text-gray-900 dark:text-white">Your Trips</Text>
+            <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
+              {trips.length === 0
+                ? 'Manage your travel itineraries'
                 : `${trips.length} trip${trips.length > 1 ? 's' : ''}`
               }
             </Text>
@@ -184,7 +184,7 @@ export default function TripListScreen() {
           {trips.length > 0 && (
             <TouchableOpacity
               onPress={handleCreateTrip}
-              className="bg-blue-600 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
+              className="bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel="Add new trip"
@@ -235,7 +235,7 @@ export default function TripListScreen() {
             if (!hasMoreTrips && trips.length >= 5) {
               return (
                 <View className="py-4 items-center">
-                  <Text className="text-gray-500 text-sm">No more trips to show</Text>
+                  <Text className="text-gray-500 dark:text-gray-400 text-sm">No more trips to show</Text>
                 </View>
               );
             }
@@ -259,7 +259,7 @@ export default function TripListScreen() {
       {trips.length > 0 && (
         <TouchableOpacity
           onPress={handleCreateTrip}
-          className="absolute bottom-20 right-6 bg-blue-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          className="absolute bottom-20 right-6 bg-blue-600 dark:bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="Create new trip"
