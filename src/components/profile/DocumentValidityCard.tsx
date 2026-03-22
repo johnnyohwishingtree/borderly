@@ -47,11 +47,11 @@ function isValidForCountry(
 ): boolean {
   const validityMonths = COUNTRY_VALIDITY_MONTHS[countryCode] ?? 6;
   const required = new Date(
-    Date.UTC(today.getFullYear(), today.getMonth() + validityMonths, today.getDate()),
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + validityMonths, today.getUTCDate()),
   );
   const expiry = new Date(passportExpiry);
   const expiryUtc = new Date(
-    Date.UTC(expiry.getFullYear(), expiry.getMonth(), expiry.getDate()),
+    Date.UTC(expiry.getUTCFullYear(), expiry.getUTCMonth(), expiry.getUTCDate()),
   );
   return expiryUtc >= required;
 }
@@ -61,6 +61,7 @@ function formatExpiryDate(dateString: string): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   });
 }
 

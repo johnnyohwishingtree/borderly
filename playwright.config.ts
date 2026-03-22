@@ -18,7 +18,7 @@ const targetProjects = process.env.E2E_PROJECT?.split(',').filter(Boolean);
 // Usage: npx playwright test captureScreenshots --project=screenshot-capture
 const screenshotProject = {
   name: 'screenshot-capture',
-  testMatch: ['captureScreenshots.spec.ts', 'captureFlowSequences.spec.ts'],
+  testMatch: ['captureScreenshots.spec.ts', 'captureFlowSequences.spec.ts', 'captureComponents.spec.ts'],
   fullyParallel: false,
   use: {
     ...devices['Desktop Chrome'],

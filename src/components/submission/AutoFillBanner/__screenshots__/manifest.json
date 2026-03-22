@@ -1,0 +1,15 @@
+{
+  "component": "AutoFillBanner",
+  "domain": "submission",
+  "capturedAt": "2026-03-22T07:18:26.196Z",
+  "variants": [
+    {
+      "file": "success.png",
+      "variant": "success"
+    },
+    {
+      "file": "partial.png",
+      "variant": "partial"
+    }
+  ]
+}

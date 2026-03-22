@@ -1,0 +1,23 @@
+{
+  "component": "HelpHint",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:14.413Z",
+  "variants": [
+    {
+      "file": "info.png",
+      "variant": "info"
+    },
+    {
+      "file": "tip.png",
+      "variant": "tip"
+    },
+    {
+      "file": "warning.png",
+      "variant": "warning"
+    },
+    {
+      "file": "success.png",
+      "variant": "success"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "component": "EmptyState",
+  "domain": "ui",
+  "capturedAt": "2026-03-22T07:18:10.105Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    }
+  ]
+}

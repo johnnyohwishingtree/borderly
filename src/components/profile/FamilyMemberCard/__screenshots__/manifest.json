@@ -1,0 +1,15 @@
+{
+  "component": "FamilyMemberCard",
+  "domain": "profile",
+  "capturedAt": "2026-03-22T07:18:25.672Z",
+  "variants": [
+    {
+      "file": "default.png",
+      "variant": "default"
+    },
+    {
+      "file": "child.png",
+      "variant": "child"
+    }
+  ]
+}

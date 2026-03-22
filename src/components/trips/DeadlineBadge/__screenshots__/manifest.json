@@ -1,0 +1,23 @@
+{
+  "component": "DeadlineBadge",
+  "domain": "trips",
+  "capturedAt": "2026-03-22T07:18:19.479Z",
+  "variants": [
+    {
+      "file": "ready.png",
+      "variant": "ready"
+    },
+    {
+      "file": "overdue.png",
+      "variant": "overdue"
+    },
+    {
+      "file": "due-soon.png",
+      "variant": "due-soon"
+    },
+    {
+      "file": "in-progress.png",
+      "variant": "in-progress"
+    }
+  ]
+}

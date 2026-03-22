@@ -1,0 +1,19 @@
+{
+  "component": "PassportExpiryBadge",
+  "domain": "profile",
+  "capturedAt": "2026-03-22T07:18:24.537Z",
+  "variants": [
+    {
+      "file": "valid.png",
+      "variant": "valid"
+    },
+    {
+      "file": "expiring-soon.png",
+      "variant": "expiring-soon"
+    },
+    {
+      "file": "expired.png",
+      "variant": "expired"
+    }
+  ]
+}
