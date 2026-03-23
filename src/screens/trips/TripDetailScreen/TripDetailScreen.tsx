@@ -844,7 +844,7 @@ function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testI
       {/* Dates */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Dates</Text>
-        <View className="flex-row space-x-3">
+        <View className="flex-row gap-3">
           <View className="flex-1">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Date *</Text>
             <DatePickerField
@@ -870,7 +870,7 @@ function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testI
       {/* Flight */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Flight (Optional)</Text>
-        <View className="flex-row space-x-3 mb-3">
+        <View className="flex-row gap-3 mb-3">
           <View className="flex-1">
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flight Number</Text>
             <Input

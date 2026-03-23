@@ -182,7 +182,7 @@ const TripCard = memo<TripCardProps>(({
           {/* Countries - Optimized rendering for large leg lists */}
           {trip.legs.length > 0 && (
             <View className="mb-4" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
-              <View className="flex-row items-center space-x-1">
+              <View className="flex-row items-center gap-1">
                 {trip.legs.slice(0, 4).map((leg, index) => (
                   <React.Fragment key={leg.id}>
                     <CountryFlag countryCode={leg.destinationCountry} size="medium" />

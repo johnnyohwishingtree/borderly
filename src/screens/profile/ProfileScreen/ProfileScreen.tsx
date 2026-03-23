@@ -250,7 +250,7 @@ export default function ProfileScreen() {
                   </Text>
                 </View>
                 
-                <View className="flex-row space-x-3">
+                <View className="flex-row gap-3">
                   <View className="flex-1 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                     <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nationality</Text>
                     <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.nationality}</Text>
