@@ -110,3 +110,4 @@ maestro/.env
 
 # Claude Code worktrees
 .claude/worktrees/
+.claude/scheduled_tasks.lock
