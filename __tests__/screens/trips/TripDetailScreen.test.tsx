@@ -56,14 +56,17 @@ const baseTrip: Trip = {
 
 let mockTrips: Trip[] = [baseTrip];
 
+const mockDuplicateTrip = jest.fn().mockResolvedValue({ id: 'duplicated_trip' });
+
 jest.mock('../../../src/stores/useTripStore', () => ({
-  useTripStore: (selector?: (s: { trips: Trip[]; deleteTrip: typeof mockDeleteTrip; updateTrip: typeof mockUpdateTrip; updateTripLeg: typeof mockUpdateTripLeg; addTripLeg: typeof mockAddTripLeg }) => unknown) => {
+  useTripStore: (selector?: (s: { trips: Trip[]; deleteTrip: typeof mockDeleteTrip; updateTrip: typeof mockUpdateTrip; updateTripLeg: typeof mockUpdateTripLeg; addTripLeg: typeof mockAddTripLeg; duplicateTrip: typeof mockDuplicateTrip }) => unknown) => {
     const state = {
       trips: mockTrips,
       deleteTrip: mockDeleteTrip,
       updateTrip: mockUpdateTrip,
       updateTripLeg: mockUpdateTripLeg,
       addTripLeg: mockAddTripLeg,
+      duplicateTrip: mockDuplicateTrip,
     };
     return selector ? selector(state) : state;
   },
@@ -91,6 +94,7 @@ jest.mock('lucide-react-native', () => {
     Trash2: Icon,
     ChevronLeft: Icon,
     Plus: Icon,
+    Copy: Icon,
     BookmarkPlus: Icon,
   };
 });
@@ -105,6 +109,8 @@ jest.mock('../../../src/components/trips', () => {
     SaveTemplateModal: () => React.createElement('View', { testID: 'save-template-modal' }),
     ReadinessChecklist: () => React.createElement('View', { testID: 'readiness-checklist' }),
     TravelerSelector: () => React.createElement('View', { testID: 'traveler-selector' }),
+    DuplicateTripModal: ({ testID, visible }: { testID?: string; visible?: boolean }) =>
+      React.createElement('View', { testID: testID ?? 'duplicate-trip-modal', 'aria-hidden': !visible }),
   };
 });
 

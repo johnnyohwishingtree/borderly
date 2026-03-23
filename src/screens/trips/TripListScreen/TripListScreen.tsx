@@ -1,10 +1,10 @@
-import { useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { useEffect, useCallback, useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList, RefreshControl, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Plane } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAppStore } from '@/stores/useAppStore';
-import { TripCard } from '@/components/trips';
+import { TripCard, DuplicateTripModal } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
@@ -21,8 +21,14 @@ export default function TripListScreen() {
     error,
     hasMoreTrips,
     loadTrips,
-    loadMoreTrips
+    loadMoreTrips,
+    deleteTrip,
+    duplicateTrip,
   } = useTripStore();
+
+  const [duplicateTargetId, setDuplicateTargetId] = useState<string | null>(null);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
 
   const {
     lastSchemaRefreshTime,
@@ -100,10 +106,58 @@ export default function TripListScreen() {
     await fetchTrips();
   };
 
+  const handleDeleteTrip = useCallback((trip: Trip) => {
+    Alert.alert(
+      'Delete Trip',
+      `Are you sure you want to delete "${trip.name}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTrip(trip.id);
+            } catch {
+              Alert.alert('Error', 'Failed to delete trip');
+            }
+          },
+        },
+      ],
+    );
+  }, [deleteTrip]);
+
+  const handleOpenDuplicateModal = useCallback((trip: Trip) => {
+    setDuplicateError(null);
+    setDuplicateTargetId(trip.id);
+  }, []);
+
+  const handleCloseDuplicateModal = useCallback(() => {
+    setDuplicateTargetId(null);
+    setDuplicateError(null);
+  }, []);
+
+  const handleConfirmDuplicate = useCallback(async (newDepartureDate: string) => {
+    if (!duplicateTargetId) {return;}
+    setIsDuplicating(true);
+    setDuplicateError(null);
+    try {
+      const newTrip = await duplicateTrip(duplicateTargetId, newDepartureDate);
+      setDuplicateTargetId(null);
+      (navigation as any).navigate('TripDetail', { tripId: newTrip.id });
+    } catch {
+      setDuplicateError('Failed to duplicate trip. Please try again.');
+    } finally {
+      setIsDuplicating(false);
+    }
+  }, [duplicateTargetId, duplicateTrip, navigation]);
+
   const renderTripCard = ({ item }: { item: Trip }) => (
     <TripCard
       trip={item}
       onPress={() => handleTripPress(item)}
+      onDuplicate={() => handleOpenDuplicateModal(item)}
+      onDelete={() => handleDeleteTrip(item)}
       showProgress={true}
     />
   );
@@ -310,6 +364,15 @@ export default function TripListScreen() {
           </TouchableOpacity>
         </View>
       )}
+      {/* Duplicate Trip Modal */}
+      <DuplicateTripModal
+        visible={duplicateTargetId !== null}
+        onClose={handleCloseDuplicateModal}
+        onConfirm={handleConfirmDuplicate}
+        loading={isDuplicating}
+        error={duplicateError}
+        testID="trip-list-duplicate-trip-modal"
+      />
     </ScreenContainer>
   );
 }

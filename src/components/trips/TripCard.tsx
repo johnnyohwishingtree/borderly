@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ActionSheetIOS, Alert, Platform } from 'react-native';
 import { Card, StatusBadge, ProgressBar } from '../ui';
 import { Trip } from '../../types/trip';
 import CountryFlag from './CountryFlag';
@@ -7,12 +7,16 @@ import CountryFlag from './CountryFlag';
 export interface TripCardProps {
   trip: Trip;
   onPress?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
   showProgress?: boolean;
 }
 
 const TripCard = memo<TripCardProps>(({
   trip,
   onPress,
+  onDuplicate,
+  onDelete,
   showProgress = true
 }) => {
   const formatDate = useMemo(() => (dateStr: string) => {
@@ -90,16 +94,69 @@ const TripCard = memo<TripCardProps>(({
 
   const { progress, submissionIndicator, statusColor, statusText, firstLeg, lastLeg } = tripMetrics;
 
-  const CardComponent = onPress ? TouchableOpacity : View;
+  const hasContextMenu = onDuplicate !== undefined || onDelete !== undefined;
+
+  const handleLongPress = () => {
+    if (!hasContextMenu) {
+      return;
+    }
+
+    const options: string[] = [];
+    if (onDuplicate) {options.push('Duplicate');}
+    if (onDelete) {options.push('Delete');}
+    options.push('Cancel');
+
+    const cancelButtonIndex = options.length - 1;
+    const destructiveButtonIndex = onDelete ? options.indexOf('Delete') : undefined;
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex,
+          destructiveButtonIndex,
+          title: trip.name,
+        },
+        buttonIndex => {
+          if (onDuplicate && options[buttonIndex] === 'Duplicate') {
+            onDuplicate();
+          } else if (onDelete && options[buttonIndex] === 'Delete') {
+            onDelete();
+          }
+        },
+      );
+    } else {
+      const alertButtons: Parameters<typeof Alert.alert>[2] = [];
+      if (onDuplicate) {
+        alertButtons.push({ text: 'Duplicate', onPress: onDuplicate });
+      }
+      if (onDelete) {
+        alertButtons.push({ text: 'Delete', style: 'destructive', onPress: onDelete });
+      }
+      alertButtons.push({ text: 'Cancel', style: 'cancel' });
+      Alert.alert(trip.name, 'Choose an action', alertButtons);
+    }
+  };
+
+  const CardComponent = onPress || hasContextMenu ? TouchableOpacity : View;
 
   return (
     <CardComponent
       onPress={onPress}
-      activeOpacity={onPress ? 0.7 : 1}
+      onLongPress={hasContextMenu ? handleLongPress : undefined}
+      activeOpacity={onPress || hasContextMenu ? 0.7 : 1}
       testID={`trip-card-${trip.name}`}
       accessibilityLabel={trip.name}
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityHint={onPress ? 'Opens trip details' : undefined}
+      accessibilityRole={onPress || hasContextMenu ? 'button' : undefined}
+      accessibilityHint={
+        onPress && hasContextMenu
+          ? 'Opens trip details. Long press for more options'
+          : onPress
+          ? 'Opens trip details'
+          : hasContextMenu
+          ? 'Long press for more options'
+          : undefined
+      }
     >
       <Card variant="elevated" className="mb-4">
         <View className="p-5">
