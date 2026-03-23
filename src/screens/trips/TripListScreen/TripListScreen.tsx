@@ -252,7 +252,7 @@ export default function TripListScreen() {
               onPress={handleCreateFromTemplate}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
               activeOpacity={0.7}
-              testID="from-template-button"
+              testID="templates-nav-button"
               accessibilityRole="button"
               accessibilityLabel="Create trip from template"
               accessibilityHint="Choose a saved template to pre-fill destinations"
