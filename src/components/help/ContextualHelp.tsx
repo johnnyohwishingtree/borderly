@@ -58,7 +58,7 @@ export default function ContextualHelp({
       case 'text':
         return (
           <TouchableOpacity
-            className={`${baseClasses} flex-row items-center space-x-1`}
+            className={`${baseClasses} flex-row items-center gap-1`}
             onPress={() => setIsVisible(true)}
             accessibilityRole="button"
             accessibilityLabel="Get help"

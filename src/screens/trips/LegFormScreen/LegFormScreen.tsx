@@ -99,7 +99,7 @@ export default function LegFormScreen() {
             </Text>
           </View>
 
-          <View className="flex-row space-x-2">
+          <View className="flex-row gap-2">
             <ContextualHelp
               content={HelpContent.autoFill}
               variant="icon"
@@ -117,7 +117,7 @@ export default function LegFormScreen() {
 
         {/* Form Status */}
         <View className="mt-3">
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-2">
             <View
               className={`w-3 h-3 rounded-full ${
                 leg.formStatus === 'ready' ? 'bg-green-500' :
@@ -212,7 +212,7 @@ export default function LegFormScreen() {
         </View>
 
         {isValid && (
-          <View className="mt-2 flex-row space-x-3">
+          <View className="mt-2 flex-row gap-3">
             <View className="flex-1">
               <Button
                 title="Submit in App"

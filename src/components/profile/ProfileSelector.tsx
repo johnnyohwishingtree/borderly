@@ -57,7 +57,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
-            className="space-x-2"
+            className="gap-2"
           >
             {profiles.map((profile) => {
               const isSelected = profile.id === activeProfileId;
@@ -146,7 +146,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
                     }`}>
                       {profile.givenNames} {profile.surname}
                     </Text>
-                    <View className="flex-row items-center space-x-2 mt-1">
+                    <View className="flex-row items-center gap-2 mt-1">
                       <Text className={`text-sm ${
                         isSelected ? 'text-blue-600' : 'text-gray-500'
                       }`}>

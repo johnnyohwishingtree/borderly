@@ -54,7 +54,7 @@ function StrengthIndicator({ strength, visible }: StrengthIndicatorProps) {
       testID="passphrase-strength-indicator"
     >
       {/* Bar segments */}
-      <View className="flex-row space-x-1 mb-1">
+      <View className="flex-row gap-1 mb-1">
         {[1, 2, 3].map((bar) => (
           <View
             key={bar}
