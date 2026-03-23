@@ -87,7 +87,7 @@ export async function createJapanTrip(page: Page) {
   await page.getByTestId('leg-0-arrival-airport-trigger').click();
   await page.getByTestId('leg-0-arrival-airport-search').fill('NRT');
   await page.getByTestId('leg-0-arrival-airport-option-NRT').click();
-  await page.getByTestId('leg-0-accommodation-name').fill('Park Hyatt Tokyo');
+  await page.getByTestId('leg-0-accommodation-name-input').fill('Park Hyatt Tokyo');
   await page.getByTestId('leg-0-accommodation-address-line1').fill('3-7-1-2 Nishi Shinjuku');
   await page.getByTestId('leg-0-accommodation-address-city').fill('Tokyo');
   await page.getByTestId('leg-0-accommodation-address-postal-code').fill('163-1055');

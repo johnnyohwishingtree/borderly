@@ -103,6 +103,12 @@ For each flow, evaluate against these criteria:
 - Are advanced features hidden until needed?
 - Is the learning curve appropriate for the target user?
 
+**Smart Component Usage**
+- Are all hotel/accommodation name fields using `AccommodationAutocomplete` (not plain `Input`)? This provides Google Places lodging suggestions.
+- Are all address fields using `AddressAutocomplete` (not individual `Input` fields for line1/city/postal)? This provides Google Places address suggestions with structured parsing.
+- See `.claude/rules/smart-components.md` for the full list of required smart component mappings.
+- If a plain `Input` is used where a smart component exists, flag it as a **Major** finding.
+
 **Scalability of UI Patterns**
 - Do selection controls (country pickers, category lists) scale as the data set grows? Pill button grids break past 6-8 items — prefer searchable dropdowns.
 - Do list screens handle 0, 1, 10, and 50+ items without layout degradation?
