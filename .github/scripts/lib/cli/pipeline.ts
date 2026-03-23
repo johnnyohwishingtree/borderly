@@ -343,6 +343,18 @@ async function main() {
 
     // ─── Watcher Commands ────────────────────────────────────────────
 
+    case 'watcher-preflight': {
+      // Usage: pipeline watcher-preflight
+      // Exits 0 if there's work to do, exits 1 if nothing to watch.
+      const repo = getRepo();
+      if (!watcher.hasPendingWork(repo)) {
+        console.log('Nothing to watch — exiting early');
+        process.exit(1);
+      }
+      console.log('Work found — proceeding');
+      break;
+    }
+
     case 'watcher-run': {
       // Usage: pipeline watcher-run [max_concurrent] [grace_minutes] [max_retries]
       const maxConcurrent = parseInt(args[0] ?? '3', 10);
