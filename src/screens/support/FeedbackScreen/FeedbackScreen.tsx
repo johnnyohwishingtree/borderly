@@ -135,7 +135,7 @@ export default function FeedbackScreen({ route: _route }: FeedbackScreenProps) {
               How would you rate your overall experience with Borderly?
             </Text>
             
-            <View className="flex-row justify-center space-x-4 mb-3">
+            <View className="flex-row flex-wrap justify-center gap-3 mb-3">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Button
                   key={star}

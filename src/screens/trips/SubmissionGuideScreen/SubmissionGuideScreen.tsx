@@ -183,7 +183,7 @@ export default function SubmissionGuideScreen() {
                   </Text>
                 </View>
               </View>
-              <View className="flex-row space-x-2 mb-3">
+              <View className="flex-row flex-wrap gap-2 mb-3">
                 <Button
                   title="Submit in App"
                   onPress={() => {
@@ -330,7 +330,7 @@ export default function SubmissionGuideScreen() {
                   accessibilityRole="button"
                   testID="mark-as-submitted-button"
                 />
-                <View className="flex-row space-x-3 mt-3">
+                <View className="flex-row flex-wrap gap-3 mt-3">
                   <Button
                     title="Save QR Code"
                     onPress={() => {

@@ -329,7 +329,7 @@ export default function PassportScanScreen() {
                   <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Gender
                   </Text>
-                  <View className="flex-row space-x-4">
+                  <View className="flex-row flex-wrap gap-3">
                     {[
                       { value: 'M', label: 'Male' },
                       { value: 'F', label: 'Female' },
