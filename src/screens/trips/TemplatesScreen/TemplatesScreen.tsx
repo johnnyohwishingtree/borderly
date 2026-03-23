@@ -151,14 +151,14 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
 // TemplateCard — renders a single template row
 // ---------------------------------------------------------------------------
 
-interface TemplateCardProps {
+export interface TemplateCardProps {
   template: TripTemplate;
   onRename: () => void;
   onDelete: () => void;
   onUseTemplate: () => void;
 }
 
-function TemplateCard({ template, onRename, onDelete, onUseTemplate }: TemplateCardProps) {
+export function TemplateCard({ template, onRename, onDelete, onUseTemplate }: TemplateCardProps) {
   const uniqueCodes = Array.from(new Set(template.legs.map(l => l.countryCode)));
   const legCount = template.legs.length;
 
