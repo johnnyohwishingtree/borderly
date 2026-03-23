@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, ScreenContainer } from '@/components/ui';
+import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete, ScreenContainer } from '@/components/ui';
 import { CountryFlag, TravelerSelector } from '@/components/trips';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { AutoFilledBadge } from '@/components/forms';
@@ -204,16 +204,12 @@ export default function CreateTripScreen() {
 
               <View className="space-y-3">
                 <View>
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hotel/Accommodation Name</Text>
-                  <Input
+                  <AccommodationAutocomplete
                     value={leg.accommodation.name}
-                    onChangeText={(text) => updateLeg(index, 'accommodation.name', text)}
-                    placeholder="e.g., Park Hyatt Tokyo"
+                    onNameChange={(text) => updateLeg(index, 'accommodation.name', text)}
                     testID={`leg-${index}-accommodation-name`}
+                    error={errors[`leg${index}.accommodation`]}
                   />
-                  {errors[`leg${index}.accommodation`] && (
-                    <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.accommodation`]}</Text>
-                  )}
                 </View>
 
                 <AddressAutocomplete

@@ -15,7 +15,7 @@ import { Map, Trash2, ChevronLeft, Plus, Copy, BookmarkPlus } from 'lucide-react
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { Address, FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
@@ -909,16 +909,12 @@ function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testI
         <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation *</Text>
         <View className="space-y-3">
           <View>
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</Text>
-            <Input
+            <AccommodationAutocomplete
               value={legData.accommodation.name}
-              onChangeText={text => onUpdateField('accommodation.name', text)}
-              placeholder="e.g., Park Hyatt Tokyo"
+              onNameChange={text => onUpdateField('accommodation.name', text)}
               testID={`${testIDPrefix}-accommodation-name`}
+              error={errors.accommodationName}
             />
-            {errors.accommodationName && (
-              <Text className="text-red-500 text-sm mt-1">{errors.accommodationName}</Text>
-            )}
           </View>
           <AddressAutocomplete
             value={legData.accommodation.address}
