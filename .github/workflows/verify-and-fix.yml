@@ -566,6 +566,11 @@ jobs:
             ERRORS:
             ${{ needs.verify.outputs.error_summary }}
 
+            RULES:
+            - Do NOT delete or revert files in `.claude/rules/`, `.claude/skills/`, or `CLAUDE.md` — these are project configuration, not the source of errors.
+            - Do NOT delete structural tests (`__tests__/structure/`) to make errors go away — fix the source code they're testing.
+            - Fix the actual error, not the thing that detects it.
+
             STEPS:
             1. If .claude-fix-log.md exists, read it first — do NOT repeat failed approaches.
             2. If resolving merge conflicts, always take master's version for files not related to the story (e.g. .github/workflows/*, docs/pipeline-architecture.md). Use `git checkout origin/master -- <file>` for those.
@@ -679,8 +684,8 @@ jobs:
           WORK_BRANCH="${{ steps.work.outputs.branch }}"
           npx tsx .github/scripts/lib/cli/pipeline.ts setup-git-auth
 
-          # Commit any uncommitted work
-          git add -A -- ':!output.txt' ':!node_modules'
+          # Commit any uncommitted work (only tracked files — never stage untracked junk)
+          git add -u -- ':!output.txt' ':!node_modules'
           if [ -n "$(git diff --cached --name-only)" ]; then
             git commit -m "wip: rescue work from timed-out fix attempt ${{ inputs.attempt }}
 
