@@ -15,6 +15,7 @@ import {
 } from '../services/boarding/boardingPassParser';
 import { getCountryName } from '../constants/countries';
 import { deepCopy } from '../utils/deepCopy';
+import { tripTemplateService } from '../services/trips/tripTemplateService';
 
 interface LegFormData {
   destinationCountry: string;
@@ -51,6 +52,11 @@ function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
   return (members.find(m => m.relationship === 'self') ?? members[0])?.id;
 }
 
+export interface UseTripCreationOptions {
+  /** When provided, legs are pre-populated from the matching template. */
+  templateId?: string;
+}
+
 /**
  * Encapsulates trip creation business logic:
  * - Trip/leg form state management
@@ -58,8 +64,10 @@ function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
  * - Family member loading and traveler assignment
  * - Trip-level traveler selection with propagation to legs
  * - Validation and trip creation
+ * - Optional pre-population from a saved TripTemplate
  */
-export function useTripCreation() {
+export function useTripCreation(options: UseTripCreationOptions = {}) {
+  const { templateId } = options;
   const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { createTrip, addTripLeg } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
@@ -86,6 +94,36 @@ export function useTripCreation() {
    * Trip-level changes do NOT propagate to overridden legs.
    */
   const [legOverrides, setLegOverrides] = useState<Set<number>>(new Set());
+
+  /**
+   * Pre-populate legs (and trip name) from a saved template when `templateId`
+   * is provided.  Only runs once on mount.
+   */
+  useEffect(() => {
+    if (!templateId) return;
+    const template = tripTemplateService.getById(templateId);
+    if (!template) return;
+
+    const sortedLegs = [...template.legs].sort((a, b) => a.order - b.order);
+    const prefilledLegs: LegFormData[] = sortedLegs.map(templateLeg => ({
+      destinationCountry: templateLeg.countryCode,
+      arrivalDate: '',
+      departureDate: '',
+      flightNumber: '',
+      airlineCode: '',
+      arrivalAirport: '',
+      accommodation: {
+        name: '',
+        address: { line1: '', line2: '', city: '', state: '', country: templateLeg.countryCode, postalCode: '' },
+        phone: '',
+      },
+      assignedTravelers: [],
+    }));
+
+    setLegs(prefilledLegs);
+    setTripData(prev => ({ ...prev, name: template.name }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const loadProfiles = async () => {
