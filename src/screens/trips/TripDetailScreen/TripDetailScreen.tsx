@@ -8,27 +8,30 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ToastAndroid,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { Map, Trash2, ChevronLeft, Plus } from 'lucide-react-native';
+import { Map, Trash2, ChevronLeft, Plus, BookmarkPlus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, AddressAutocomplete } from '@/components/ui';
-import { Address, FamilyMember } from '@/types/profile';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal } from '@/components/trips';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
+import { Address, FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripReadiness } from '@/hooks/useTripReadiness';
-import { usePassportValidity } from '@/hooks/usePassportValidity';
-import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import { ALL_AIRPORTS } from '@/constants/airports';
 import {
   computeTripDeadlines,
   LegDeadline,
 } from '@/services/deadline/deadlineService';
+import { tripTemplateService } from '@/services/trips/tripTemplateService';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CountryFormSchema } from '@/types/schema';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 
 interface RouteParams {
   tripId: string;
@@ -52,6 +55,7 @@ export default function TripDetailScreen() {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [deadlineMap, setDeadlineMap] = useState<Record<string, LegDeadline>>({});
 
   // Compute deadlines whenever the trip changes
@@ -183,6 +187,21 @@ export default function TripDetailScreen() {
         },
       ]
     );
+  };
+
+  const handleSaveAsTemplate = async (name: string) => {
+    if (!trip) return;
+    try {
+      tripTemplateService.saveFromTrip(trip, name);
+      setShowSaveTemplateModal(false);
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Template saved!', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Template Saved', `"${name}" has been saved as a template.`);
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to save template. Please try again.');
+    }
   };
 
   const handleOpenAddDestination = () => {
@@ -447,6 +466,25 @@ export default function TripDetailScreen() {
         {/* Actions */}
         <View className="px-4 pb-8">
           <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
+            {/* Save as Template */}
+            <TouchableOpacity
+              onPress={() => setShowSaveTemplateModal(true)}
+              className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
+              activeOpacity={0.7}
+              testID="save-as-template-button"
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Save as Template"
+              accessibilityHint="Save this trip as a reusable template"
+            >
+              <BookmarkPlus size={28} color="#2563eb" style={{ marginRight: 12 }} />
+              <View>
+                <Text className="text-base font-medium text-blue-600 dark:text-blue-400">Save as Template</Text>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Reuse destinations for future trips</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Delete Trip */}
             <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
@@ -461,6 +499,15 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* ── Save as Template Modal ──────────────────────────────────────────── */}
+      <SaveTemplateModal
+        visible={showSaveTemplateModal}
+        initialName={trip.name}
+        onSave={handleSaveAsTemplate}
+        onCancel={() => setShowSaveTemplateModal(false)}
+        testID="save-template-modal"
+      />
 
       {/* ── Edit Trip Modal ──────────────────────────────────────────────────── */}
       <Modal
@@ -514,7 +561,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.editLegData}
                 onUpdateField={editHook.updateEditLegField}
-                onUpdateAddress={editHook.updateEditLegAddress}
+                onAddressChange={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
                 travelers={editHook.familyMembers}
@@ -639,7 +686,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.newLegData}
                 onUpdateField={editHook.updateNewLegField}
-                onUpdateAddress={editHook.updateNewLegAddress}
+                onAddressChange={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
                 travelers={editHook.familyMembers}
@@ -700,14 +747,14 @@ interface LegFormSectionProps {
     assignedTravelers?: string[];
   };
   onUpdateField: (field: string, value: string) => void;
-  onUpdateAddress: (address: Address) => void;
+  onAddressChange?: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
   travelers?: FamilyMember[];
   onToggleTraveler?: (travelerId: string) => void;
 }
 
-function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -801,11 +848,11 @@ function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testI
         </View>
         <View>
           <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Airport</Text>
-          <Input
+          <SearchableSelect
             value={legData.arrivalAirport}
-            onChangeText={text => onUpdateField('arrivalAirport', text)}
-            placeholder="e.g., NRT"
-            autoCapitalize="characters"
+            onValueChange={val => onUpdateField('arrivalAirport', val)}
+            options={ALL_AIRPORTS}
+            placeholder="Search airport..."
             testID={`${testIDPrefix}-arrival-airport`}
           />
         </View>
@@ -841,14 +888,8 @@ function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testI
             )}
           </View>
           <AddressAutocomplete
-            value={{
-              line1: legData.accommodation.address.line1,
-              city: legData.accommodation.address.city,
-              postalCode: legData.accommodation.address.postalCode,
-              country: legData.accommodation.address.country,
-            }}
-            onAddressChange={onUpdateAddress}
-            label="Address"
+            value={legData.accommodation.address}
+            onAddressChange={addr => onAddressChange?.(addr)}
             testID={`${testIDPrefix}-accommodation-address`}
           />
           <View>

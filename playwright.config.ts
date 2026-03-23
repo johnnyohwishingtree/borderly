@@ -70,6 +70,7 @@ const allProjects = [
       'readiness-checklist.spec.ts',
       'leg-form-action-buttons.spec.ts',
       'submission-guide.spec.ts',
+      'trip-templates.spec.ts',
       'submission-tracking.spec.ts',
     ],
     timeout: 45000,
