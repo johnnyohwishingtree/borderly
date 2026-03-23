@@ -90,6 +90,11 @@ export default function TripListScreen() {
     (navigation as any).navigate('CreateTrip');
   };
 
+  const handleCreateFromTemplate = () => {
+    HapticFeedback.button('medium');
+    (navigation as any).navigate('Templates');
+  };
+
   const handleRefresh = async () => {
     HapticFeedback.refresh();
     await fetchTrips();
@@ -114,6 +119,13 @@ export default function TripListScreen() {
         variant: "primary",
         size: "large",
         testID: "create-first-trip-button",
+      }}
+      secondaryButtonProps={{
+        title: "Use a Template",
+        onPress: handleCreateFromTemplate,
+        variant: "outline",
+        size: "large",
+        testID: "use-template-button",
       }}
       variant="illustration"
     />
@@ -183,15 +195,15 @@ export default function TripListScreen() {
           </View>
           <View className="flex-row items-center space-x-2">
             <TouchableOpacity
-              onPress={() => (navigation as any).navigate('Templates')}
+              onPress={handleCreateFromTemplate}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
               activeOpacity={0.7}
-              testID="templates-nav-button"
+              testID="from-template-button"
               accessibilityRole="button"
-              accessibilityLabel="View trip templates"
-              accessibilityHint="Navigate to saved trip templates"
+              accessibilityLabel="Create trip from template"
+              accessibilityHint="Choose a saved template to pre-fill destinations"
             >
-              <Text className="text-gray-700 dark:text-gray-300 font-medium text-sm">Templates</Text>
+              <Text className="text-gray-700 dark:text-gray-300 font-medium text-sm">From Template</Text>
             </TouchableOpacity>
             {trips.length > 0 && (
               <TouchableOpacity
@@ -268,22 +280,35 @@ export default function TripListScreen() {
         />
       )}
 
-      {/* Floating Action Button */}
+      {/* Floating Action Buttons */}
       {trips.length > 0 && (
-        <TouchableOpacity
-          onPress={handleCreateTrip}
-          className="absolute bottom-20 right-6 bg-blue-600 dark:bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel="Create new trip"
-          accessibilityHint="Add a new travel itinerary"
-          style={{
-            minHeight: 56, // Minimum 56x56 for floating action button
-            minWidth: 56,
-          }}
-        >
-          <Text className="text-white text-2xl font-light">+</Text>
-        </TouchableOpacity>
+        <View className="absolute bottom-20 right-6 items-end space-y-3">
+          <TouchableOpacity
+            onPress={handleCreateFromTemplate}
+            className="bg-white dark:bg-gray-700 px-4 h-11 rounded-full items-center justify-center shadow-md flex-row"
+            activeOpacity={0.8}
+            testID="fab-from-template-button"
+            accessibilityRole="button"
+            accessibilityLabel="Create trip from template"
+            accessibilityHint="Choose a saved template to pre-fill destinations"
+          >
+            <Text className="text-gray-700 dark:text-gray-200 font-medium text-sm">From Template</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleCreateTrip}
+            className="bg-blue-600 dark:bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Create new trip"
+            accessibilityHint="Add a new travel itinerary"
+            style={{
+              minHeight: 56, // Minimum 56x56 for floating action button
+              minWidth: 56,
+            }}
+          >
+            <Text className="text-white text-2xl font-light">+</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </ScreenContainer>
   );

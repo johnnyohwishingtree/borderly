@@ -10,6 +10,8 @@ export interface EmptyStateProps {
   /** Alias for description — use whichever reads more naturally at the call site */
   subtitle?: string;
   buttonProps?: ButtonProps;
+  /** Optional secondary CTA rendered below the primary button */
+  secondaryButtonProps?: ButtonProps;
   variant?: 'default' | 'compact' | 'illustration';
 }
 
@@ -19,6 +21,7 @@ export default function EmptyState({
   description,
   subtitle,
   buttonProps,
+  secondaryButtonProps,
   variant = 'default',
 }: EmptyStateProps) {
   // Support both `description` and `subtitle` — subtitle takes precedence when both are provided
@@ -101,6 +104,12 @@ export default function EmptyState({
 
       {buttonProps && (
         <Button {...buttonProps} />
+      )}
+
+      {secondaryButtonProps && (
+        <View className="mt-3">
+          <Button {...secondaryButtonProps} />
+        </View>
       )}
     </View>
   );

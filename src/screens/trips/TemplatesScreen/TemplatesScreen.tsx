@@ -19,7 +19,7 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BookmarkPlus, Pencil, Trash2 } from 'lucide-react-native';
 import { TripTemplate } from '@/types/trip';
 import { tripTemplateService } from '@/services/trips/tripTemplateService';
@@ -155,9 +155,10 @@ interface TemplateCardProps {
   template: TripTemplate;
   onRename: () => void;
   onDelete: () => void;
+  onUse: () => void;
 }
 
-function TemplateCard({ template, onRename, onDelete }: TemplateCardProps) {
+function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCardProps) {
   const uniqueCodes = Array.from(new Set(template.legs.map(l => l.countryCode)));
   const legCount = template.legs.length;
 
@@ -225,6 +226,20 @@ function TemplateCard({ template, onRename, onDelete }: TemplateCardProps) {
         </Text>
         {/* Combined a11y label on the card container */}
         <Text className="sr-only" accessibilityLabel={`${legCount} leg${legCount !== 1 ? 's' : ''}: ${uniqueCodes.join(', ')}`} />
+
+        {/* Use This Template CTA */}
+        <TouchableOpacity
+          onPress={onUse}
+          activeOpacity={0.7}
+          testID={`use-template-${template.id}`}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={`Use template ${template.name}`}
+          accessibilityHint="Create a new trip pre-filled with these destinations"
+          className="mt-4 bg-blue-600 dark:bg-blue-500 rounded-lg py-2.5 items-center"
+        >
+          <Text className="text-white font-semibold text-sm">Use This Template</Text>
+        </TouchableOpacity>
       </View>
     </Card>
   );
@@ -235,6 +250,7 @@ function TemplateCard({ template, onRename, onDelete }: TemplateCardProps) {
 // ---------------------------------------------------------------------------
 
 export default function TemplatesScreen() {
+  const navigation = useNavigation();
   const [templates, setTemplates] = useState<TripTemplate[]>([]);
   const [renameTarget, setRenameTarget] = useState<TripTemplate | null>(null);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -262,6 +278,10 @@ export default function TemplatesScreen() {
         },
       ],
     );
+  };
+
+  const handleUseTemplate = (template: TripTemplate) => {
+    (navigation as any).navigate('CreateTrip', { templateId: template.id });
   };
 
   const handleRenameConfirm = (newName: string) => {
@@ -311,6 +331,7 @@ export default function TemplatesScreen() {
               template={item}
               onRename={() => setRenameTarget(item)}
               onDelete={() => handleDelete(item)}
+              onUse={() => handleUseTemplate(item)}
             />
           )}
           contentContainerStyle={{ padding: 16 }}
