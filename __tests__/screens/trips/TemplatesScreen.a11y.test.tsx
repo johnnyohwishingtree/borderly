@@ -347,9 +347,9 @@ describe('TemplateCard — Use Template button accessibility', () => {
     expect(screen.getByTestId('use-template-tpl-002').props.accessibilityLabel).toMatch(/SEA Trip/);
   });
 
-  it('shows "Use Template" text on the button', () => {
+  it('shows "Use This Template" text on the button', () => {
     render(<TemplateCard {...DEFAULT_CARD_PROPS} />);
-    expect(screen.getByText('Use Template')).toBeTruthy();
+    expect(screen.getByText('Use This Template')).toBeTruthy();
   });
 });
 
