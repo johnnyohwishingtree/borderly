@@ -8,7 +8,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `daily-planner.yml` | Cron (every 3h) / manual | Creates epics with stories |
+| `daily-planner.yml` | Cron (twice daily) / manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
@@ -21,7 +21,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `auto-merge.yml` | CI complete / review / PR sync / push to master / dispatch | Single merge gate (7 conditions); evaluates all open PRs on master push |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
-| `watcher.yml` | Cron (every 20min) / manual | Unsticks stories, fixes PRs, cleans up |
+| `watcher.yml` | Cron (daily) / manual | Unsticks stories, fixes PRs, cleans up; early-exits when nothing to watch |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
