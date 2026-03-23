@@ -49,6 +49,7 @@ const allProjects = [
       'demoScan.spec.ts',
       'backup-restore.spec.ts',
       'app-lock.spec.ts',
+      'overflow-detection.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
