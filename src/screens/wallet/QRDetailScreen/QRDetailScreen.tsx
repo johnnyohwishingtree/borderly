@@ -314,21 +314,21 @@ export default function QRDetailScreen() {
               </Text>
 
               <View className="space-y-3">
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">1.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Show this QR code to immigration or customs officers at the airport
                   </Text>
                 </View>
 
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">2.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Use full-screen view for better scanning
                   </Text>
                 </View>
 
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">3.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Keep your phone charged and ensure screen brightness is at maximum

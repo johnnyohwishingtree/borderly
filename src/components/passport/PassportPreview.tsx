@@ -250,7 +250,7 @@ export default function PassportPreview({
           testID="confirm-scan-button"
         />
         
-        <View className="flex-row space-x-3">
+        <View className="flex-row gap-3">
           <Button
             title="Edit Details"
             onPress={onEdit}

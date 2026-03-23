@@ -75,7 +75,7 @@ export function SkeletonCard({
 
   return (
     <View className={`p-4 bg-white rounded-lg ${className}`}>
-      <View className="flex-row items-start space-x-3">
+      <View className="flex-row items-start gap-3">
         {showAvatar && (
           <SkeletonLine 
             width={40} 

@@ -178,7 +178,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
           </View>
 
           {/* Action Buttons */}
-          <View className="flex-row space-x-2">
+          <View className="flex-row gap-2">
             {onEdit && (
               <View className="flex-1">
                 <Button

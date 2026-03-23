@@ -118,7 +118,7 @@ export default function CreateTripScreen() {
               />
             ) : null}
 
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
                 <DatePickerField
@@ -140,7 +140,7 @@ export default function CreateTripScreen() {
               </View>
             </View>
 
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
                 <Input
