@@ -110,9 +110,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'passport-expiry-input', label: 'Passport Expiry', componentType: 'DatePickerField', required: true },
       { testID: 'issuing-country-input', label: 'Issuing Country', componentType: 'SearchableSelect', required: true, exampleValue: 'USA' },
     ],
-    alerts: [
-      { title: 'Profile Saved', buttons: ['Continue'], happyPathButton: 'Continue', trigger: 'passport-continue-button', outcome: 'Navigate to ConfirmProfile' },
-    ],
+    alerts: [],
     actionButtons: [
       { testID: 'start-camera-scan-button', label: 'Scan Passport', description: 'Open camera for MRZ scan' },
       { testID: 'enter-manually-button', label: 'Enter Manually', description: 'Show manual entry form' },
@@ -283,12 +281,11 @@ export const SCREENS: Record<string, ScreenSpec> = {
     waitFor: 'Itinerary',
     fields: [],
     alerts: [
-      { title: 'Delete Trip', buttons: ['Cancel', 'Delete'], happyPathButton: 'Cancel', trigger: 'delete-trip-button', outcome: 'Delete → navigate to TripList' },
+      { title: 'Delete Trip', buttons: ['Cancel', 'Delete'], happyPathButton: 'Cancel', trigger: 'delete trip action', outcome: 'Delete → navigate to TripList' },
       { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Mark as submitted (error)', outcome: 'Stay on screen' },
     ],
     actionButtons: [
-      { testID: 'delete-trip-button', label: 'Delete Trip', description: 'Delete the entire trip' },
-      { testID: 'edit-trip-name-button', label: 'Edit', description: 'Edit trip name' },
+      { testID: 'edit-trip-button', label: 'Edit', description: 'Toggle edit mode for trip' },
       { testID: 'add-destination-button', label: 'Add Destination', description: 'Add another leg' },
     ],
     navigatesTo: ['LegForm', 'SubmissionGuide', 'PortalSubmission'],
@@ -334,8 +331,8 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { title: 'Authentication Failed', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Biometric auth fails', outcome: 'Stay on screen' },
     ],
     actionButtons: [
-      { testID: 'edit-profile-button', label: 'Edit Profile', description: 'Navigate to EditProfile' },
-      { testID: 'family-management-button', label: 'Family', description: 'Navigate to FamilyManagement' },
+      { testID: 'edit-contact-button', label: 'Edit Contact Info', description: 'Navigate to EditProfile' },
+      { testID: 'family-summary-row', label: 'Family', description: 'Navigate to FamilyManagement' },
     ],
     navigatesTo: ['EditProfile', 'FamilyManagement'],
   },
@@ -345,9 +342,6 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/profile/EditProfileScreen/EditProfileScreen.tsx',
     waitFor: 'Edit Profile',
     fields: [
-      { testID: 'email-input', label: 'Email Address', componentType: 'Input', required: false, placeholder: 'your.email@example.com' },
-      { testID: 'phone-input', label: 'Phone Number', componentType: 'Input', required: false, placeholder: '+1 (555) 123-4567' },
-      { testID: 'occupation-input', label: 'Occupation', componentType: 'Input', required: false, placeholder: 'Software Engineer' },
       { testID: 'home-address', label: 'Home Address', componentType: 'AddressAutocomplete', required: false },
     ],
     alerts: [
@@ -355,10 +349,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-profile-button (success)', outcome: 'Navigate back' },
       { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-profile-button (error)', outcome: 'Stay on screen' },
     ],
-    actionButtons: [
-      { testID: 'save-profile-button', label: 'Save Changes', description: 'Save profile edits' },
-      { testID: 'discard-button', label: 'Discard', description: 'Discard unsaved changes' },
-    ],
+    actionButtons: [],
     navigatesTo: [],
     notes: ['All fields are optional. Passport info is read-only on this screen.'],
   },
@@ -369,10 +360,10 @@ export const SCREENS: Record<string, ScreenSpec> = {
     waitFor: 'Family Members',
     fields: [],
     alerts: [
-      { title: 'Delete Family Member', buttons: ['Cancel', 'Delete'], happyPathButton: 'Cancel', trigger: 'Delete button on member card', outcome: 'Delete → remove member' },
+      { title: 'Remove Family Member', buttons: ['Cancel', 'Remove'], happyPathButton: 'Cancel', trigger: 'Delete button on member card', outcome: 'Remove member from family' },
     ],
     actionButtons: [
-      { testID: 'add-family-member-button', label: 'Add Member', description: 'Navigate to AddFamilyMember' },
+      { testID: 'add-member-button', label: 'Add Member', description: 'Navigate to AddFamilyMember' },
     ],
     navigatesTo: ['AddFamilyMember'],
   },
@@ -390,10 +381,10 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { title: 'Disable Biometric Authentication', buttons: ['Cancel', 'Disable'], happyPathButton: 'Cancel', trigger: 'Biometric toggle OFF', outcome: 'Disable biometric' },
     ],
     actionButtons: [
-      { testID: 'export-data-button', label: 'Export Data', description: 'Open ExportBackupModal' },
-      { testID: 'restore-data-button', label: 'Restore Data', description: 'Open RestoreBackupModal' },
-      { testID: 'clear-cache-button', label: 'Clear Cache', description: 'Clear app cache' },
-      { testID: 'delete-all-data-button', label: 'Delete All Data', description: 'Delete everything (double confirm)' },
+      { testID: 'restore-backup-button', label: 'Restore from Backup', description: 'Open RestoreBackupModal' },
+      { testID: 'refresh-schemas-button', label: 'Refresh Schemas', description: 'Refresh country form schemas' },
+      { testID: 'app-lock-toggle', label: 'App Lock', description: 'Toggle app lock on/off' },
+      { testID: 'settings-theme-selector', label: 'Theme', description: 'Select light/dark/system theme' },
     ],
     navigatesTo: ['PrivacyPolicy', 'Help', 'Feedback', 'BugReport'],
     notes: ['Delete All Data requires TWO confirmation alerts.'],
