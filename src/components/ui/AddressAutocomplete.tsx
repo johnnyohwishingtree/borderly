@@ -257,7 +257,7 @@ export default function AddressAutocomplete({
       />
 
       {/* City and State row */}
-      <View className="flex-row space-x-3">
+      <View className="flex-row gap-3">
         <View className="flex-1">
           <Input
             label="City"
@@ -285,7 +285,7 @@ export default function AddressAutocomplete({
       </View>
 
       {/* Postal code and Country row */}
-      <View className="flex-row space-x-3">
+      <View className="flex-row gap-3">
         <View className="flex-1">
           <Input
             label="Postal Code"

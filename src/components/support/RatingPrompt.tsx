@@ -167,7 +167,7 @@ export default function RatingPrompt({
 
               {/* Rating Stars */}
               <View className="mb-6">
-                <View className="flex-row justify-center space-x-3 mb-4">
+                <View className="flex-row justify-center gap-3 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Button
                       key={star}

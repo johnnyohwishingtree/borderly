@@ -274,7 +274,7 @@ function FlightTab({
         />
       </View>
 
-      <View className="flex-row space-x-3 mb-3">
+      <View className="flex-row gap-3 mb-3">
         <View className="flex-1">
           <Text className="text-sm font-medium text-gray-700 mb-1">
             From (Optional)

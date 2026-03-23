@@ -521,7 +521,7 @@ export default function BoardingPassScanner({
             disabled={isImporting}
           />
 
-          <View className="flex-row space-x-3">
+          <View className="flex-row gap-3">
             {cameraStatus !== 'demo' && (
               <TouchableOpacity
                 onPress={toggleFlash}

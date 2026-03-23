@@ -70,7 +70,7 @@ export function QRCodeCard({
         accessibilityHint="Opens QR code full screen"
       >
         <View className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 mb-2">
-          <View className="flex-row items-center space-x-3">
+          <View className="flex-row items-center gap-3">
             {/* QR Code Thumbnail */}
             <View className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
               {qrCode.imageBase64 ? (

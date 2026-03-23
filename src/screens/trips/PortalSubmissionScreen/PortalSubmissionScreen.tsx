@@ -379,7 +379,7 @@ export default function PortalSubmissionScreen() {
       )}
 
       {/* Toolbar */}
-      <View className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex-row items-center space-x-4">
+      <View className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex-row items-center gap-4">
         <Pressable
           onPress={handleGoBack}
           disabled={!navState.canGoBack}

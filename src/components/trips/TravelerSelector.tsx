@@ -92,7 +92,7 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
-            className="space-x-2"
+            className="gap-2"
           >
             {travelers.map((traveler) => {
               const isSelected = selectedTravelerIds.includes(traveler.id);
@@ -232,7 +232,7 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                     }`}>
                       {traveler.givenNames} {traveler.surname}
                     </Text>
-                    <View className="flex-row items-center space-x-2 mt-1">
+                    <View className="flex-row items-center gap-2 mt-1">
                       <Text className={`text-sm ${
                         isSelected 
                           ? 'text-green-600' 
