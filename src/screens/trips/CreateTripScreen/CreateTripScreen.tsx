@@ -295,12 +295,12 @@ export default function CreateTripScreen() {
           )}
 
           <View className="mb-6">
-            <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row flex-wrap items-center justify-between mb-4 gap-2">
               <View className="flex-row items-center">
                 <MapPin size={32} color="#374151" style={{ marginRight: 12 }} />
                 <Text className="text-xl font-bold text-gray-900 dark:text-white">Destinations</Text>
               </View>
-              <View className="flex-row space-x-2">
+              <View className="flex-row flex-wrap gap-2">
                 <Button
                   title="Import"
                   onPress={() => setShowSmartImport(true)}
@@ -337,7 +337,7 @@ export default function CreateTripScreen() {
                   <Text className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
                     Add your travel destinations to plan your customs declarations
                   </Text>
-                  <View className="flex-row space-x-3">
+                  <View className="flex-row flex-wrap gap-3 justify-center">
                     <Button
                       title="Scan Boarding Pass"
                       onPress={() => setShowScanner(true)}
