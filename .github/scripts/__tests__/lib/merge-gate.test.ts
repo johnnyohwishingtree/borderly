@@ -11,6 +11,7 @@ function createMockGitHub(
     unresolvedThreads: number;
     reviewFixActive: boolean;
     branchStatus: 'ahead' | 'behind' | 'diverged' | 'identical';
+    mergeableState: string;
     comments: { body: string }[];
   }> = {}
 ): GitHubClient {
@@ -22,6 +23,7 @@ function createMockGitHub(
     unresolvedThreads: 0,
     reviewFixActive: false,
     branchStatus: 'ahead' as const,
+    mergeableState: 'clean',
     comments: [] as { body: string }[],
   };
   const config = { ...defaults, ...overrides };
@@ -31,6 +33,7 @@ function createMockGitHub(
     getPR: vi.fn().mockResolvedValue({
       head: { sha: 'abc123', ref: 'claude/issue-42' },
       user: { login: 'bot-user' },
+      mergeable_state: config.mergeableState,
     }),
     checkCIStatus: vi.fn().mockResolvedValue({
       testsPass: config.testsPass,
@@ -244,5 +247,34 @@ describe('evaluateMergeGate', () => {
     const result = await evaluateMergeGate(github, 42);
 
     expect(result.action).toBe('merge');
+  });
+
+  // Bug (#721): PR stuck in loop — auto-merge returned update_branch but
+  // GitHub's update-branch API silently fails on content conflicts. The PR
+  // stayed CONFLICTING and auto-merge kept retrying update_branch forever.
+  it('returns "resolve_conflicts" when branch is behind and has merge conflicts', async () => {
+    const github = createMockGitHub({ branchStatus: 'behind', mergeableState: 'dirty' });
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('resolve_conflicts');
+  });
+
+  it('returns "resolve_conflicts" when multiple conditions fail and PR has conflicts', async () => {
+    const github = createMockGitHub({
+      testsPass: false,
+      branchStatus: 'diverged',
+      mergeableState: 'dirty',
+    });
+    const result = await evaluateMergeGate(github, 42);
+
+    // Conflicts take priority over update_branch — resolve them first
+    expect(result.action).toBe('resolve_conflicts');
+  });
+
+  it('returns "update_branch" when behind but no conflicts', async () => {
+    const github = createMockGitHub({ branchStatus: 'behind', mergeableState: 'clean' });
+    const result = await evaluateMergeGate(github, 42);
+
+    expect(result.action).toBe('update_branch');
   });
 });
