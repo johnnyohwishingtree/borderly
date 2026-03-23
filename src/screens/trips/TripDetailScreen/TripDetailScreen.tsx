@@ -15,9 +15,9 @@ import { Map, Trash2, ChevronLeft, Plus, BookmarkPlus } from 'lucide-react-nativ
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
-import { FamilyMember } from '@/types/profile';
+import { Address, FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripReadiness } from '@/hooks/useTripReadiness';
@@ -561,6 +561,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.editLegData}
                 onUpdateField={editHook.updateEditLegField}
+                onAddressChange={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
                 travelers={editHook.familyMembers}
@@ -685,6 +686,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.newLegData}
                 onUpdateField={editHook.updateNewLegField}
+                onAddressChange={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
                 travelers={editHook.familyMembers}
@@ -745,13 +747,14 @@ interface LegFormSectionProps {
     assignedTravelers?: string[];
   };
   onUpdateField: (field: string, value: string) => void;
+  onAddressChange?: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
   travelers?: FamilyMember[];
   onToggleTraveler?: (travelerId: string) => void;
 }
 
-function LegFormSection({ legData, onUpdateField, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -884,35 +887,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix, traveler
               <Text className="text-red-500 text-sm mt-1">{errors.accommodationName}</Text>
             )}
           </View>
-          <View>
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</Text>
-            <Input
-              value={legData.accommodation.address.line1}
-              onChangeText={text => onUpdateField('accommodation.address.line1', text)}
-              placeholder="Street address"
-              testID={`${testIDPrefix}-accommodation-address`}
-            />
-          </View>
-          <View className="flex-row space-x-3">
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</Text>
-              <Input
-                value={legData.accommodation.address.city}
-                onChangeText={text => onUpdateField('accommodation.address.city', text)}
-                placeholder="City"
-                testID={`${testIDPrefix}-accommodation-city`}
-              />
-            </View>
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Postal Code</Text>
-              <Input
-                value={legData.accommodation.address.postalCode}
-                onChangeText={text => onUpdateField('accommodation.address.postalCode', text)}
-                placeholder="Postal code"
-                testID={`${testIDPrefix}-accommodation-postal`}
-              />
-            </View>
-          </View>
+          <AddressAutocomplete
+            value={legData.accommodation.address}
+            onAddressChange={addr => onAddressChange?.(addr)}
+            testID={`${testIDPrefix}-accommodation-address`}
+          />
           <View>
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
             <Input

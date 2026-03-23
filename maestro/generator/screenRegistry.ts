@@ -368,6 +368,23 @@ export const SCREENS: Record<string, ScreenSpec> = {
     navigatesTo: ['AddFamilyMember'],
   },
 
+  Templates: {
+    name: 'Templates',
+    sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
+    waitFor: 'Trip Templates',
+    fields: [
+      { testID: 'rename-template-input', label: 'Template Name', componentType: 'Input', required: true },
+    ],
+    alerts: [],
+    actionButtons: [
+      { testID: 'templates-list', label: 'Templates List', description: 'List of saved trip templates' },
+      { testID: 'rename-template-modal', label: 'Rename Template Modal', description: 'Modal for renaming a template' },
+      { testID: 'rename-modal-cancel', label: 'Cancel Rename', description: 'Cancel renaming' },
+      { testID: 'rename-modal-confirm', label: 'Confirm Rename', description: 'Save renamed template' },
+    ],
+    navigatesTo: ['CreateTrip'],
+  },
+
   Settings: {
     name: 'Settings',
     sourceFile: 'src/screens/settings/SettingsScreen/SettingsScreen.tsx',
