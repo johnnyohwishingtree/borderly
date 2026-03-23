@@ -323,7 +323,8 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Merge conflict resolution | `resolve-conflicts.yml` auto-resolves on push to master |
 | Branch behind detection | Auto-merge merges master into PR branch when behind |
 | Watcher race prevention | Checks active/queued workflows before retriggering |
-| Timeout rescue | `if: cancelled()` commits + pushes work on timeout |
+| Fix scope guard | Fix prompt forbids deleting `.claude/rules/`, `.claude/skills/`, `CLAUDE.md`, and `__tests__/structure/` — prevents fixing errors by removing the detection mechanism |
+| Timeout rescue | `if: cancelled()` commits + pushes only tracked files (`git add -u`, not `git add -A`) on timeout |
 | Lint scope | verify-and-fix only lints changed files vs master |
 | Native dep check | Verifies react-native packages are in Podfile.lock |
 | Consecutive failure detection | >=3 unmerged PRs pauses pipeline; >=5 runs triggers doctor |
