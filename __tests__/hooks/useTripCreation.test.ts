@@ -1,5 +1,27 @@
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useTripCreation } from '@/hooks/useTripCreation';
+import type { TripTemplate } from '@/types/trip';
+
+// ── tripTemplateService mock ──────────────────────────────────────────────────
+
+const TEMPLATE_FIXTURE: TripTemplate = {
+  id: 'tpl_hook_test',
+  name: 'Asia Loop',
+  legs: [
+    { countryCode: 'JPN', typicalDurationDays: 7, order: 0 },
+    { countryCode: 'SGP', typicalDurationDays: 3, order: 1 },
+  ],
+  createdAt: '2026-01-01T00:00:00.000Z',
+};
+
+jest.mock('../../src/services/trips/tripTemplateService', () => ({
+  tripTemplateService: {
+    getById: jest.fn((id: string) => {
+      if (id === 'tpl_hook_test') return TEMPLATE_FIXTURE;
+      return null;
+    }),
+  },
+}));
 
 // Mock navigation
 const mockGoBack = jest.fn();
@@ -441,5 +463,98 @@ describe('useTripCreation — navigation after trip creation', () => {
     expect(mockReplace).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(mockGoBack).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Template pre-fill tests
+// ─────────────────────────────────────────────────────────────────────────────
+describe('useTripCreation — template pre-fill', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    getProfileMock().__reset();
+  });
+
+  it('starts with empty legs when no templateId is provided', () => {
+    const { result } = renderHook(() => useTripCreation());
+    expect(result.current.legs).toHaveLength(0);
+    expect(result.current.tripData.name).toBe('');
+  });
+
+  it('pre-populates legs from the template when templateId matches', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    expect(result.current.legs).toHaveLength(2);
+    expect(result.current.legs[0].destinationCountry).toBe('JPN');
+    expect(result.current.legs[1].destinationCountry).toBe('SGP');
+  });
+
+  it('pre-fills the trip name from the template', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    expect(result.current.tripData.name).toBe('Asia Loop');
+  });
+
+  it('leaves arrival and departure dates empty (user must set them)', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    expect(result.current.legs[0].arrivalDate).toBe('');
+    expect(result.current.legs[0].departureDate).toBe('');
+    expect(result.current.legs[1].arrivalDate).toBe('');
+    expect(result.current.legs[1].departureDate).toBe('');
+  });
+
+  it('respects template leg ordering (sorted by order field)', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    // Template fixture has order 0 = JPN, order 1 = SGP
+    expect(result.current.legs[0].destinationCountry).toBe('JPN');
+    expect(result.current.legs[1].destinationCountry).toBe('SGP');
+  });
+
+  it('falls back to empty legs when templateId is not found', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_nonexistent' }),
+    );
+
+    expect(result.current.legs).toHaveLength(0);
+    expect(result.current.tripData.name).toBe('');
+  });
+
+  it('user can add a leg after loading from template', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    expect(result.current.legs).toHaveLength(2);
+
+    act(() => {
+      result.current.addLeg();
+    });
+
+    expect(result.current.legs).toHaveLength(3);
+  });
+
+  it('user can remove a leg after loading from template', () => {
+    const { result } = renderHook(() =>
+      useTripCreation({ templateId: 'tpl_hook_test' }),
+    );
+
+    expect(result.current.legs).toHaveLength(2);
+
+    act(() => {
+      result.current.removeLeg(0);
+    });
+
+    expect(result.current.legs).toHaveLength(1);
+    expect(result.current.legs[0].destinationCountry).toBe('SGP');
   });
 });

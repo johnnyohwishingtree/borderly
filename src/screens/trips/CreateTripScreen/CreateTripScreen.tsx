@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Plane, MapPin, Globe, Users } from 'lucide-react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, ScreenContainer } from '@/components/ui';
 import { CountryFlag, TravelerSelector } from '@/components/trips';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
@@ -12,6 +13,9 @@ import { ALL_AIRPORTS } from '@/constants/airports';
 import { useTripCreation } from '@/hooks/useTripCreation';
 import { usePassportValidity } from '@/hooks/usePassportValidity';
 import type { LegFormData } from '@/hooks/useTripCreation';
+import type { TripStackParamList } from '@/app/navigation/types';
+
+type CreateTripRouteProp = RouteProp<TripStackParamList, 'CreateTrip'>;
 
 const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
   <View className="flex-row items-center justify-between mb-2">
@@ -48,6 +52,9 @@ function LegPassportWarning({
 }
 
 export default function CreateTripScreen() {
+  const route = useRoute<CreateTripRouteProp>();
+  const templateId = route.params?.templateId;
+
   const {
     tripData,
     setTripData,
@@ -70,7 +77,7 @@ export default function CreateTripScreen() {
     handleManualEntry,
     handleCreateTrip,
     handleSmartImport,
-  } = useTripCreation();
+  } = useTripCreation(templateId ? { templateId } : {});
 
   const renderLegCard = (leg: LegFormData, index: number) => {
     return (
@@ -118,7 +125,7 @@ export default function CreateTripScreen() {
               />
             ) : null}
 
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
                 <DatePickerField
@@ -140,7 +147,7 @@ export default function CreateTripScreen() {
               </View>
             </View>
 
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
                 <Input
@@ -237,14 +244,20 @@ export default function CreateTripScreen() {
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white flex-1">Create New Trip</Text>
+          <Text className="text-2xl font-bold text-gray-900 dark:text-white flex-1">
+            {templateId ? 'Trip from Template' : 'Create New Trip'}
+          </Text>
           <ContextualHelp
             content={HelpContent.tripManagement}
             variant="icon"
             size="medium"
           />
         </View>
-        <Text className="text-base text-gray-600 dark:text-gray-400">Plan your multi-country journey</Text>
+        <Text className="text-base text-gray-600 dark:text-gray-400">
+          {templateId
+            ? 'Destinations pre-filled from template — set your dates to continue'
+            : 'Plan your multi-country journey'}
+        </Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">

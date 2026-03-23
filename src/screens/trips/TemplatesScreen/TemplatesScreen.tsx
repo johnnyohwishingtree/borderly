@@ -155,10 +155,10 @@ export interface TemplateCardProps {
   template: TripTemplate;
   onRename: () => void;
   onDelete: () => void;
-  onUseTemplate: () => void;
+  onUse: () => void;
 }
 
-export function TemplateCard({ template, onRename, onDelete, onUseTemplate }: TemplateCardProps) {
+export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCardProps) {
   const uniqueCodes = Array.from(new Set(template.legs.map(l => l.countryCode)));
   const legCount = template.legs.length;
 
@@ -173,7 +173,7 @@ export function TemplateCard({ template, onRename, onDelete, onUseTemplate }: Te
           >
             {template.name}
           </Text>
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-x-2">
             <TouchableOpacity
               onPress={onRename}
               activeOpacity={0.7}
@@ -227,20 +227,18 @@ export function TemplateCard({ template, onRename, onDelete, onUseTemplate }: Te
         {/* Combined a11y label on the card container */}
         <Text className="sr-only" accessibilityLabel={`${legCount} leg${legCount !== 1 ? 's' : ''}: ${uniqueCodes.join(', ')}`} />
 
-        {/* Use Template button */}
+        {/* Use This Template CTA */}
         <TouchableOpacity
-          onPress={onUseTemplate}
+          onPress={onUse}
           activeOpacity={0.7}
           testID={`use-template-${template.id}`}
           accessible={true}
           accessibilityRole="button"
           accessibilityLabel={`Use template ${template.name}`}
-          accessibilityHint="Creates a new trip pre-filled with destinations from this template"
-          className="mt-3 bg-blue-50 dark:bg-blue-950 rounded-lg py-2 px-3 items-center"
+          accessibilityHint="Create a new trip pre-filled with these destinations"
+          className="mt-4 bg-blue-600 dark:bg-blue-500 rounded-lg py-2.5 items-center"
         >
-          <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">
-            Use Template
-          </Text>
+          <Text className="text-white font-semibold text-sm">Use This Template</Text>
         </TouchableOpacity>
       </View>
     </Card>
@@ -282,8 +280,8 @@ export default function TemplatesScreen() {
     );
   };
 
-  const handleUseTemplate = (_template: TripTemplate) => {
-    (navigation as any).navigate('CreateTrip');
+  const handleUseTemplate = (template: TripTemplate) => {
+    (navigation as any).navigate('CreateTrip', { templateId: template.id });
   };
 
   const handleRenameConfirm = (newName: string) => {
@@ -333,7 +331,7 @@ export default function TemplatesScreen() {
               template={item}
               onRename={() => setRenameTarget(item)}
               onDelete={() => handleDelete(item)}
-              onUseTemplate={() => handleUseTemplate(item)}
+              onUse={() => handleUseTemplate(item)}
             />
           )}
           contentContainerStyle={{ padding: 16 }}

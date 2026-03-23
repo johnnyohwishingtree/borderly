@@ -141,7 +141,7 @@ export default function PassportScanScreen() {
         {/* Performance hint for low-end devices */}
         {showPerformanceHint && (
           <View className="mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
-            <View className="flex-row items-start space-x-3">
+            <View className="flex-row items-start gap-3">
               <Zap size={20} color="#ea580c" />
               <View className="flex-1">
                 <Text className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">

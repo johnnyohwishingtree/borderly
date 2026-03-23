@@ -832,7 +832,7 @@ export default function SettingsScreen() {
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</Text>
           
           <View className="space-y-3">
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-3">
               <View className="flex-1">
                 <Button
                   title="Refresh"

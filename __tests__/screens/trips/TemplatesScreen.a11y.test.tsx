@@ -115,7 +115,7 @@ const DEFAULT_CARD_PROPS = {
   template: makeTemplate(),
   onRename: jest.fn(),
   onDelete: jest.fn(),
-  onUseTemplate: jest.fn(),
+  onUse: jest.fn(),
 };
 
 // ---------------------------------------------------------------------------

@@ -540,28 +540,28 @@ export default function AddQRScreen() {
               </Text>
 
               <View className="space-y-3">
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">1.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Make sure the QR code is clearly visible and not blurry
                   </Text>
                 </View>
 
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">2.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Ensure good lighting when taking the photo
                   </Text>
                 </View>
 
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">3.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     Keep the QR code flat and avoid shadows
                   </Text>
                 </View>
 
-                <View className="flex-row items-start space-x-3">
+                <View className="flex-row items-start gap-3">
                   <Text className="text-blue-600 dark:text-blue-400 font-bold">4.</Text>
                   <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
                     QR codes work best when captured straight-on
