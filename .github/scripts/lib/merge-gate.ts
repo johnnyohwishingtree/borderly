@@ -101,6 +101,11 @@ export async function evaluateMergeGate(
 
   const allConditionsMet = failingConditions.length === 0;
 
+  // Check if the PR has merge conflicts. GitHub's update-branch API silently
+  // fails on content conflicts, so we need to dispatch resolve-conflicts instead.
+  const mergeable = (pr as any).mergeable_state ?? (pr as any).mergeable;
+  const hasConflicts = mergeable === 'dirty' || mergeable === 'CONFLICTING' || mergeable === false;
+
   // Update branch whenever it's behind master, even if other conditions fail.
   // updateBranch triggers pull_request synchronize which attaches fresh CI checks.
   // Without this, PRs with no checks get stuck: can't pass tests without
@@ -110,6 +115,8 @@ export async function evaluateMergeGate(
   let action: MergeGateResult['action'];
   if (allConditionsMet) {
     action = 'merge';
+  } else if (hasConflicts) {
+    action = 'resolve_conflicts';
   } else if (needsBranchUpdate) {
     action = 'update_branch';
   } else {
