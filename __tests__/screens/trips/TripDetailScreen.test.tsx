@@ -95,6 +95,7 @@ jest.mock('lucide-react-native', () => {
     ChevronLeft: Icon,
     Plus: Icon,
     Copy: Icon,
+    BookmarkPlus: Icon,
   };
 });
 
@@ -105,7 +106,9 @@ jest.mock('../../../src/components/trips', () => {
     LegCard: ({ leg }: { leg: { destinationCountry: string } }) =>
       React.createElement('View', { testID: `leg-card-${leg.destinationCountry}` }),
     AccountSetupChecklist: () => React.createElement('View', { testID: 'account-setup-checklist' }),
+    SaveTemplateModal: () => React.createElement('View', { testID: 'save-template-modal' }),
     ReadinessChecklist: () => React.createElement('View', { testID: 'readiness-checklist' }),
+    TravelerSelector: () => React.createElement('View', { testID: 'traveler-selector' }),
     DuplicateTripModal: ({ testID, visible }: { testID?: string; visible?: boolean }) =>
       React.createElement('View', { testID: testID ?? 'duplicate-trip-modal', 'aria-hidden': !visible }),
   };

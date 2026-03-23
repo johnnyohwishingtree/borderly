@@ -235,18 +235,31 @@ export default function TripListScreen() {
               }
             </Text>
           </View>
-          {trips.length > 0 && (
+          <View className="flex-row items-center space-x-2">
             <TouchableOpacity
-              onPress={handleCreateTrip}
-              className="bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
+              onPress={() => (navigation as any).navigate('Templates')}
+              className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
               activeOpacity={0.7}
+              testID="templates-nav-button"
               accessibilityRole="button"
-              accessibilityLabel="Add new trip"
-              accessibilityHint="Create a new travel itinerary"
+              accessibilityLabel="View trip templates"
+              accessibilityHint="Navigate to saved trip templates"
             >
-              <Text className="text-white font-semibold">+ Add Trip</Text>
+              <Text className="text-gray-700 dark:text-gray-300 font-medium text-sm">Templates</Text>
             </TouchableOpacity>
-          )}
+            {trips.length > 0 && (
+              <TouchableOpacity
+                onPress={handleCreateTrip}
+                className="bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Add new trip"
+                accessibilityHint="Create a new travel itinerary"
+              >
+                <Text className="text-white font-semibold">+ Add Trip</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </View>
 

@@ -8,15 +8,16 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ToastAndroid,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { Map, Trash2, ChevronLeft, Plus, Copy } from 'lucide-react-native';
+import { Map, Trash2, ChevronLeft, Plus, Copy, BookmarkPlus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, DuplicateTripModal } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
 import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
-import { FamilyMember } from '@/types/profile';
+import { Address, FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripReadiness } from '@/hooks/useTripReadiness';
@@ -26,6 +27,7 @@ import {
   computeTripDeadlines,
   LegDeadline,
 } from '@/services/deadline/deadlineService';
+import { tripTemplateService } from '@/services/trips/tripTemplateService';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CountryFormSchema } from '@/types/schema';
 import { usePassportValidity } from '@/hooks/usePassportValidity';
@@ -53,6 +55,7 @@ export default function TripDetailScreen() {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [duplicateError, setDuplicateError] = useState<string | null>(null);
@@ -188,6 +191,21 @@ export default function TripDetailScreen() {
         },
       ]
     );
+  };
+
+  const handleSaveAsTemplate = async (name: string) => {
+    if (!trip) return;
+    try {
+      tripTemplateService.saveFromTrip(trip, name);
+      setShowSaveTemplateModal(false);
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Template saved!', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Template Saved', `"${name}" has been saved as a template.`);
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to save template. Please try again.');
+    }
   };
 
   const handleOpenDuplicateModal = () => {
@@ -491,6 +509,25 @@ export default function TripDetailScreen() {
         {/* Actions */}
         <View className="px-4 pb-8">
           <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
+            {/* Save as Template */}
+            <TouchableOpacity
+              onPress={() => setShowSaveTemplateModal(true)}
+              className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
+              activeOpacity={0.7}
+              testID="save-as-template-button"
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Save as Template"
+              accessibilityHint="Save this trip as a reusable template"
+            >
+              <BookmarkPlus size={28} color="#2563eb" style={{ marginRight: 12 }} />
+              <View>
+                <Text className="text-base font-medium text-blue-600 dark:text-blue-400">Save as Template</Text>
+                <Text className="text-sm text-gray-600 dark:text-gray-400">Reuse destinations for future trips</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Delete Trip */}
             <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
@@ -505,6 +542,15 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* ── Save as Template Modal ──────────────────────────────────────────── */}
+      <SaveTemplateModal
+        visible={showSaveTemplateModal}
+        initialName={trip.name}
+        onSave={handleSaveAsTemplate}
+        onCancel={() => setShowSaveTemplateModal(false)}
+        testID="save-template-modal"
+      />
 
       {/* ── Edit Trip Modal ──────────────────────────────────────────────────── */}
       <Modal
@@ -558,7 +604,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.editLegData}
                 onUpdateField={editHook.updateEditLegField}
-                onUpdateAddress={editHook.updateEditLegAddress}
+                onAddressChange={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
               />
@@ -681,7 +727,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.newLegData}
                 onUpdateField={editHook.updateNewLegField}
-                onUpdateAddress={editHook.updateNewLegAddress}
+                onAddressChange={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
               />
@@ -749,12 +795,12 @@ interface LegFormSectionProps {
     };
   };
   onUpdateField: (field: string, value: string) => void;
-  onUpdateAddress: (address: { line1: string; line2?: string; city: string; state?: string; postalCode: string; country: string }) => void;
+  onAddressChange?: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
 }
 
-function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testIDPrefix }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -874,14 +920,11 @@ function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testI
               <Text className="text-red-500 text-sm mt-1">{errors.accommodationName}</Text>
             )}
           </View>
-          <View>
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</Text>
-            <AddressAutocomplete
-              value={legData.accommodation.address}
-              onAddressChange={onUpdateAddress}
-              testID={`${testIDPrefix}-accommodation-address`}
-            />
-          </View>
+          <AddressAutocomplete
+            value={legData.accommodation.address}
+            onAddressChange={addr => onAddressChange?.(addr)}
+            testID={`${testIDPrefix}-accommodation-address`}
+          />
           <View>
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
             <Input
