@@ -22,8 +22,6 @@ import type { TripTemplate } from '../../../src/types/trip';
 // Mocks
 // ---------------------------------------------------------------------------
 
-const mockNavigate = jest.fn();
-
 jest.mock('@react-navigation/native', () => {
   // WeakMap prevents the infinite re-render loop: useFocusEffect's callback
   // calls setState → re-render → useFocusEffect(sameRef) → skip.
@@ -48,9 +46,9 @@ const mockRename = jest.fn();
 
 jest.mock('../../../src/services/trips/tripTemplateService', () => ({
   tripTemplateService: {
-    list: (...args: unknown[]) => mockList(...args),
-    delete: (...args: unknown[]) => mockDelete(...args),
-    rename: (...args: unknown[]) => mockRename(...args),
+    list: () => mockList(),
+    delete: (id: string) => mockDelete(id),
+    rename: (id: string, name: string) => mockRename(id, name),
   },
 }));
 

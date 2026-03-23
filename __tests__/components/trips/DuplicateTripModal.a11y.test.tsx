@@ -14,7 +14,7 @@ import DuplicateTripModal from '../../../src/components/trips/DuplicateTripModal
 // ---------------------------------------------------------------------------
 
 jest.mock('@/components/ui', () => {
-  const { View, TouchableOpacity, Text } = require('react-native');
+  const { TouchableOpacity, Text } = require('react-native');
   return {
     DatePickerField: ({
       label,

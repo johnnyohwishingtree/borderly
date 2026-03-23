@@ -164,7 +164,6 @@ describe('SaveTemplateModal — error live region', () => {
       <SaveTemplateModal {...DEFAULT_PROPS} initialName="" />,
     );
     // Trigger the error by attempting to save with empty name
-    const { fireEvent } = require('@testing-library/react-native');
     const saveButton = getByTestId('save-template-modal-save');
     // Initially empty name — Save is disabled so error won't fire via press.
     // We verify that when the error element IS rendered it has the correct props.

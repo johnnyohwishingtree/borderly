@@ -84,6 +84,67 @@ test.describe('TemplatesScreen', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Helper: state with a saved template
+// ---------------------------------------------------------------------------
+
+function stateWithTemplate() {
+  const template = {
+    id: 'tpl_e2e_001',
+    name: 'Japan Loop',
+    legs: [
+      { countryCode: 'JPN', typicalDurationDays: 7, order: 0 },
+      { countryCode: 'SGP', typicalDurationDays: 3, order: 1 },
+    ],
+    createdAt: '2026-01-01T00:00:00Z',
+  };
+  return baseState({
+    mmkv: {
+      trip_templates: JSON.stringify([template]),
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Tests: Use Template — navigates to CreateTrip
+// ---------------------------------------------------------------------------
+
+test.describe('TemplatesScreen — Use Template flow', () => {
+  test('Use Template button is visible when templates exist', async ({ page }) => {
+    await injectState(page, stateWithTemplate());
+    await page.goto('/');
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 10000 });
+
+    // Navigate to TemplatesScreen
+    const templatesButton = page.getByTestId('templates-nav-button');
+    await expect(templatesButton).toBeVisible({ timeout: 5000 });
+    await templatesButton.click();
+
+    // Should show the template name and Use Template button
+    await expect(page.getByText('Trip Templates')).toBeVisible({ timeout: 8000 });
+    const useButton = page.getByTestId('use-template-tpl_e2e_001');
+    await expect(useButton).toBeVisible({ timeout: 8000 });
+  });
+
+  test('tapping Use Template navigates to CreateTrip screen', async ({ page }) => {
+    await injectState(page, stateWithTemplate());
+    await page.goto('/');
+    await expect(page.getByText('My Trips')).toBeVisible({ timeout: 10000 });
+
+    // Navigate to TemplatesScreen
+    await page.getByTestId('templates-nav-button').click();
+    await expect(page.getByText('Trip Templates')).toBeVisible({ timeout: 8000 });
+
+    // Tap Use Template
+    const useButton = page.getByTestId('use-template-tpl_e2e_001');
+    await expect(useButton).toBeVisible({ timeout: 8000 });
+    await useButton.click();
+
+    // Should land on CreateTrip screen
+    await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Tests: Save as Template from TripDetailScreen
 // ---------------------------------------------------------------------------
 

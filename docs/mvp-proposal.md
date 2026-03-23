@@ -1710,6 +1710,90 @@ Borderly allows travelers to track whether they have actually submitted each leg
 
 ---
 
+## Trip Duplication & Templates
+
+Borderly lets travelers reuse their best itineraries. Two complementary features cover this:
+
+1. **Trip Duplication** (`DuplicateTripModal`) — Copy an existing trip with a new departure date. Useful when a traveler makes the same journey (e.g., quarterly business trip) and wants to start from their last filled-in form.
+2. **Trip Templates** (`TemplatesScreen`, `SaveTemplateModal`) — Save the country-routing structure of any trip as a named template. Future trips can be started from a template, pre-populating the leg order, country codes, and typical durations.
+
+### Trip Duplication Data Flow
+
+```
+TripDetailScreen
+  └── "Duplicate Trip" button ──► DuplicateTripModal
+        │  departure date picker
+        │  confirm / cancel
+        └──► useTripStore.duplicateTrip(tripId, newDepartureDate)
+               └──► creates new Trip + cloned legs with shifted dates
+                    └──► navigates to TripDetailScreen for the new trip
+```
+
+### Trip Templates Data Flow
+
+```
+TripDetailScreen
+  └── "Save as Template" button ──► SaveTemplateModal
+        │  name input (pre-filled with trip name)
+        │  save / cancel
+        └──► tripTemplateService.saveFromTrip(trip, name)
+               └──► serialises TripTemplate to MMKV ("trip_templates" key)
+
+TripListScreen header
+  └── "Templates" button ──► TemplatesScreen
+        │  FlatList of TripTemplate items (TemplateCard)
+        │  empty state when no templates exist
+        └── TemplateCard actions:
+              ├── Rename ──► rename modal ──► tripTemplateService.rename(id, newName)
+              ├── Delete ──► Alert confirm ──► tripTemplateService.delete(id)
+              └── Use Template ──► navigate('CreateTrip')
+                                   (future: pre-fill legs from template)
+```
+
+### Storage
+
+Templates are non-sensitive config data stored in **MMKV** under the key `trip_templates` as a JSON-serialised `TripTemplate[]`. No passport PII is stored in templates — only country codes and typical durations.
+
+```typescript
+interface TripTemplate {
+  id: string;            // "tpl_<timestamp>_<random>"
+  name: string;          // user-visible name
+  legs: TripTemplateLeg[];
+  createdAt: string;     // ISO 8601
+}
+
+interface TripTemplateLeg {
+  countryCode: string;   // ISO 3-letter, e.g. "JPN"
+  typicalDurationDays: number;
+  order: number;
+}
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/services/trips/tripTemplateService.ts` | CRUD operations for `TripTemplate` objects (MMKV-backed) |
+| `src/screens/trips/TemplatesScreen/TemplatesScreen.tsx` | FlatList of templates; exports `TemplateCard` for direct testability |
+| `src/components/trips/SaveTemplateModal.tsx` | Modal for naming + saving a trip as a template |
+| `src/components/trips/DuplicateTripModal.tsx` | Modal for duplicating a trip with a new departure date |
+
+### Accessibility
+
+- **DuplicateTripModal**: `accessibilityViewIsModal={true}`, title `accessibilityRole="header"`, cancel/confirm `accessibilityRole="button"` with descriptive labels (`"Cancel duplicate trip"` / `"Confirm duplicate trip"`), `accessibilityState.disabled` mirrors the `loading` prop, error live region uses `accessibilityLiveRegion="polite"` + `accessibilityRole="text"`.
+- **SaveTemplateModal**: `accessibilityViewIsModal={true}`, title `accessibilityRole="header"`, save button exposes `accessibilityHint` describing the save action, name input has `accessibilityLabel="Template name, required"`, BookmarkPlus icon is hidden from screen readers via `accessibilityElementsHidden={true}`.
+- **TemplateCard**: Rename and Delete buttons have `accessibilityLabel` including the template name (e.g., `"Rename template Japan Loop"`). Use Template button has `accessibilityHint="Creates a new trip pre-filled with destinations from this template"`. Decorative flag row and leg count text use `accessibilityElementsHidden={true}` + `importantForAccessibility="no-hide-descendants"`.
+- **TemplatesScreen FlatList**: `accessibilityLabel="List of saved trip templates"` for screen-reader list navigation.
+
+### Test Coverage
+
+- `__tests__/components/trips/DuplicateTripModal.a11y.test.tsx` — 23 tests: modal `accessibilityViewIsModal`, title header role, cancel/confirm button roles, labels and disabled state, date picker accessibility, error live region, custom testID
+- `__tests__/components/trips/SaveTemplateModal.a11y.test.tsx` — 24 tests: modal props, heading role, cancel/save button labels/hints/states, name input label/hint/pre-fill, error live region absence, decorative icon hidden, custom testID prefix propagation
+- `__tests__/screens/trips/TemplatesScreen.a11y.test.tsx` — 23 tests: empty state text, FlatList accessible label, template count header, Rename/Delete/Use Template button roles/labels/hints, decorative elements hidden
+- `e2e/tests/trip-templates.spec.ts` — 6 E2E smoke tests: templates nav button visible, empty state, Use Template button visible, Use Template navigates to CreateTrip, Save as Template button visible, SaveTemplateModal opens
+
+---
+
 ## 10. Key Libraries & Versions
 
 ```json

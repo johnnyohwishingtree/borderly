@@ -14,7 +14,7 @@ import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/nativ
 import { Map, Trash2, ChevronLeft, Plus, Copy, BookmarkPlus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
 import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { Address, FamilyMember } from '@/types/profile';
@@ -800,7 +800,7 @@ interface LegFormSectionProps {
   testIDPrefix: string;
 }
 
-function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
