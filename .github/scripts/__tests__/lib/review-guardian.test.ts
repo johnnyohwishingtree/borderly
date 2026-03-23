@@ -53,26 +53,41 @@ describe('review-guardian', () => {
       }
     });
 
-    it('approves when critical comments but all threads resolved', () => {
+    it('approves when critical comments but all threads resolved and CI passes', () => {
       mockExecSequence([
         '0', // count-approvals
         '2', // count-critical-comments
         '0', // count-unresolved-threads
+        'abc123', // headRefOid
+        'TESTS_PASS=true\nE2E_PASS=true', // check-ci-status
       ]);
       const result = decideBotReviewAction(10, 'gemini-code-assist[bot]', 'owner/repo');
       expect(result.action).toBe('approve');
     });
 
-    it('approves when no critical comments', () => {
+    it('approves when no critical comments and CI passes', () => {
       mockExecSequence([
         '0', // count-approvals
         '0', // count-critical-comments
+        'abc123', // headRefOid
+        'TESTS_PASS=true\nE2E_PASS=true', // check-ci-status
       ]);
       const result = decideBotReviewAction(10, 'copilot[bot]', 'owner/repo');
       expect(result.action).toBe('approve');
       if (result.action === 'approve') {
         expect(result.reviewer).toBe('copilot[bot]');
       }
+    });
+
+    it('defers when CI is failing', () => {
+      mockExecSequence([
+        '0', // count-approvals
+        '0', // count-critical-comments
+        'abc123', // headRefOid
+        'TESTS_PASS=false\nE2E_PASS=true', // check-ci-status — tests failing
+      ]);
+      const result = decideBotReviewAction(10, 'gemini-code-assist[bot]', 'owner/repo');
+      expect(result.action).toBe('defer-ci-failing');
     });
   });
 
@@ -155,14 +170,28 @@ describe('review-guardian', () => {
       expect(result.action).toBe('has-issues');
     });
 
-    it('approves clean review', () => {
+    it('approves clean review when CI passes', () => {
       mockExecSequence([
         '1', // review request count
         '0', // count-approvals
         '0', // count-critical-comments
+        'abc123', // headRefOid
+        'TESTS_PASS=true\nE2E_PASS=true', // check-ci-status
       ]);
       const result = decideClaudeReviewAction(10, 'Looks good, well-structured code', 'owner/repo');
       expect(result.action).toBe('approve');
+    });
+
+    it('defers when review is clean but CI is failing', () => {
+      mockExecSequence([
+        '1', // review request count
+        '0', // count-approvals
+        '0', // count-critical-comments
+        'abc123', // headRefOid
+        'TESTS_PASS=false\nE2E_PASS=true', // check-ci-status — typecheck failing
+      ]);
+      const result = decideClaudeReviewAction(10, 'Looks good, well-structured code', 'owner/repo');
+      expect(result.action).toBe('defer-ci-failing');
     });
   });
 

@@ -36,6 +36,7 @@ function safePipelineCli(fallback: string, ...cliArgs: string[]): string {
 export type BotReviewAction =
   | { action: 'already-approved' }
   | { action: 'defer-critical'; criticalCount: number; unresolvedCount: number }
+  | { action: 'defer-ci-failing' }
   | { action: 'defer-review-fix-active' }
   | { action: 'defer-relay-posted' }
   | { action: 'approve'; reviewer: string };
@@ -59,6 +60,20 @@ export function decideBotReviewAction(
       return { action: 'defer-critical', criticalCount, unresolvedCount };
     }
     // All threads resolved — feedback was addressed, continue to approve
+  }
+
+  // Gate on CI status — don't approve if checks are failing or incomplete.
+  const headSha = safeExec('gh', [
+    'pr', 'view', String(prNum), '--repo', repo, '--json', 'headRefOid',
+    '-q', '.headRefOid',
+  ]);
+  if (headSha) {
+    const ciOutput = safePipelineCli('', 'check-ci-status', headSha, repo);
+    const testsPass = ciOutput.includes('TESTS_PASS=true');
+    const e2ePass = ciOutput.includes('E2E_PASS=true');
+    if (!testsPass || !e2ePass) {
+      return { action: 'defer-ci-failing' };
+    }
   }
 
   return { action: 'approve', reviewer };
@@ -103,6 +118,7 @@ export type ClaudeReviewAction =
   | { action: 'already-approved' }
   | { action: 'has-critical-inline'; count: number }
   | { action: 'has-issues' }
+  | { action: 'defer-ci-failing' }
   | { action: 'approve' };
 
 export function decideClaudeReviewAction(
@@ -138,6 +154,22 @@ export function decideClaudeReviewAction(
   // Check Claude's comment for red flags
   if (/request.?changes|critical.?(bug|issue|problem)|do not merge/i.test(commentBody)) {
     return { action: 'has-issues' };
+  }
+
+  // Gate on CI status — don't approve if checks are failing or incomplete.
+  // Without this, a race condition allows approval while verify-and-fix is
+  // still running (PR #734).
+  const headSha = safeExec('gh', [
+    'pr', 'view', String(prNum), '--repo', repo, '--json', 'headRefOid',
+    '-q', '.headRefOid',
+  ]);
+  if (headSha) {
+    const ciOutput = safePipelineCli('', 'check-ci-status', headSha, repo);
+    const testsPass = ciOutput.includes('TESTS_PASS=true');
+    const e2ePass = ciOutput.includes('E2E_PASS=true');
+    if (!testsPass || !e2ePass) {
+      return { action: 'defer-ci-failing' };
+    }
   }
 
   return { action: 'approve' };

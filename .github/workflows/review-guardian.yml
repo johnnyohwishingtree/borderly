@@ -88,6 +88,10 @@ jobs:
               npx tsx .github/scripts/lib/cli/pipeline.ts comment "$PR_NUM" "Auto-approve skipped: found $CRITICAL inline review comment(s) with high/critical priority badges and $UNRESOLVED unresolved thread(s). These must be addressed before the PR can be approved. review-relay.yml will handle triggering fixes." "$REPO"
               exit 0
               ;;
+            defer-ci-failing)
+              echo "CI is not passing for PR #$PR_NUM — deferring approval until checks pass"
+              exit 0
+              ;;
           esac
 
           # Phase 2: Wait for review-relay
@@ -167,6 +171,11 @@ jobs:
             has-issues)
               echo "Claude flagged issues — NOT auto-approving"
               echo "has_issues=true" >> $GITHUB_OUTPUT
+              exit 0
+              ;;
+            defer-ci-failing)
+              echo "CI is not passing for PR #$PR_NUM — deferring approval until checks pass"
+              echo "has_issues=false" >> $GITHUB_OUTPUT
               exit 0
               ;;
             approve)
