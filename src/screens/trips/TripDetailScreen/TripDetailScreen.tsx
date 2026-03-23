@@ -11,10 +11,10 @@ import {
   ToastAndroid,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { Map, Trash2, ChevronLeft, Plus, BookmarkPlus } from 'lucide-react-native';
+import { Map, Trash2, ChevronLeft, Plus, Copy, BookmarkPlus } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, TravelerSelector, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
 import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { Address, FamilyMember } from '@/types/profile';
@@ -43,7 +43,7 @@ export default function TripDetailScreen() {
   const { tripId } = route.params as RouteParams;
 
   const trips = useTripStore(state => state.trips);
-  const { deleteTrip, updateLegSubmissionStatus } = useTripStore();
+  const { deleteTrip, updateLegSubmissionStatus, duplicateTrip } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles, currentProfileId } = useProfileStore();
 
   // Reactively derive the trip from the store so UI updates immediately after edits
@@ -56,6 +56,9 @@ export default function TripDetailScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicateError, setDuplicateError] = useState<string | null>(null);
   const [deadlineMap, setDeadlineMap] = useState<Record<string, LegDeadline>>({});
 
   // Compute deadlines whenever the trip changes
@@ -96,6 +99,7 @@ export default function TripDetailScreen() {
   // Accessibility: focus management for modals
   const { ref: editTriggerRef, focusElement: focusEditTrigger } = useAccessibilityFocus();
   const { ref: addTriggerRef, focusElement: focusAddTrigger } = useAccessibilityFocus();
+  const { ref: duplicateTriggerRef, focusElement: focusDuplicateTrigger } = useAccessibilityFocus();
   const { ref: editModalTitleRef } = useAccessibilityFocus({ shouldFocus: showEditModal, delay: 350 });
   const { ref: addModalTitleRef } = useAccessibilityFocus({ shouldFocus: showAddModal, delay: 350 });
 
@@ -201,6 +205,32 @@ export default function TripDetailScreen() {
       }
     } catch {
       Alert.alert('Error', 'Failed to save template. Please try again.');
+    }
+  };
+
+  const handleOpenDuplicateModal = () => {
+    setDuplicateError(null);
+    setShowDuplicateModal(true);
+  };
+
+  const handleCloseDuplicateModal = () => {
+    setShowDuplicateModal(false);
+    setDuplicateError(null);
+    // Return focus to the duplicate button that opened the modal
+    setTimeout(focusDuplicateTrigger, 100);
+  };
+
+  const handleConfirmDuplicate = async (newDepartureDate: string) => {
+    setIsDuplicating(true);
+    setDuplicateError(null);
+    try {
+      const newTrip = await duplicateTrip(tripId, newDepartureDate);
+      setShowDuplicateModal(false);
+      (navigation as any).navigate('TripDetail', { tripId: newTrip.id });
+    } catch {
+      setDuplicateError('Failed to duplicate trip. Please try again.');
+    } finally {
+      setIsDuplicating(false);
     }
   };
 
@@ -320,17 +350,30 @@ export default function TripDetailScreen() {
                 size="medium"
               />
             </View>
-            <TouchableOpacity
-              ref={editTriggerRef}
-              onPress={handleEditTrip}
-              className="ml-4 p-2"
-              activeOpacity={0.7}
-              testID="edit-trip-button"
-              accessibilityLabel="Edit trip"
-              accessibilityRole="button"
-            >
-              <Text className="text-blue-600 dark:text-blue-400 font-medium">Edit</Text>
-            </TouchableOpacity>
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                ref={duplicateTriggerRef}
+                onPress={handleOpenDuplicateModal}
+                className="ml-2 p-2"
+                activeOpacity={0.7}
+                testID="duplicate-trip-button"
+                accessibilityLabel="Duplicate trip"
+                accessibilityRole="button"
+              >
+                <Copy size={20} color="#2563eb" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                ref={editTriggerRef}
+                onPress={handleEditTrip}
+                className="ml-2 p-2"
+                activeOpacity={0.7}
+                testID="edit-trip-button"
+                accessibilityLabel="Edit trip"
+                accessibilityRole="button"
+              >
+                <Text className="text-blue-600 dark:text-blue-400 font-medium">Edit</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Progress Overview */}
@@ -564,8 +607,6 @@ export default function TripDetailScreen() {
                 onAddressChange={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
-                travelers={editHook.familyMembers}
-                onToggleTraveler={editHook.handleEditLegTravelerToggle}
               />
             ) : (
               /* ── Edit trip name + list of legs ── */
@@ -689,13 +730,21 @@ export default function TripDetailScreen() {
                 onAddressChange={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
-                travelers={editHook.familyMembers}
-                onToggleTraveler={editHook.handleNewLegTravelerToggle}
               />
             )}
           </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* ── Duplicate Trip Modal ─────────────────────────────────────────────── */}
+      <DuplicateTripModal
+        visible={showDuplicateModal}
+        onClose={handleCloseDuplicateModal}
+        onConfirm={handleConfirmDuplicate}
+        loading={isDuplicating}
+        error={duplicateError}
+        testID="duplicate-trip-modal"
+      />
     </ScreenContainer>
   );
 }
@@ -744,14 +793,11 @@ interface LegFormSectionProps {
       address: { line1: string; city: string; postalCode: string; country: string };
       phone: string;
     };
-    assignedTravelers?: string[];
   };
   onUpdateField: (field: string, value: string) => void;
   onAddressChange?: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
-  travelers?: FamilyMember[];
-  onToggleTraveler?: (travelerId: string) => void;
 }
 
 function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, travelers, onToggleTraveler }: LegFormSectionProps) {
@@ -857,19 +903,6 @@ function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testI
           />
         </View>
       </View>
-
-      {/* Travelers */}
-      {travelers && travelers.length > 0 && onToggleTraveler && (
-        <TravelerSelector
-          travelers={travelers}
-          selectedTravelerIds={legData.assignedTravelers ?? []}
-          onToggleTraveler={onToggleTraveler}
-          title="Who is traveling to this destination?"
-          subtitle="Select which family members will visit this country."
-          showCompact={true}
-          minSelection={1}
-        />
-      )}
 
       {/* Accommodation */}
       <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
