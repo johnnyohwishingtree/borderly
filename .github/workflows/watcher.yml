@@ -2,7 +2,7 @@ name: Pipeline Watcher
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
+    - cron: '0 8 * * *'  # Once daily at midnight PST (08:00 UTC)
   workflow_dispatch:
 
 permissions:
@@ -12,8 +12,25 @@ permissions:
   actions: write
 
 jobs:
-  watch:
+  preflight:
     if: vars.PIPELINE_ENABLED != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      has_work: ${{ steps.check.outputs.has_work }}
+    steps:
+      - name: Check for pending work
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          REPO="${{ github.repository }}"
+          TOTAL=$(( $(gh pr list --repo "$REPO" --state open -q 'length' --json number) + $(gh issue list --repo "$REPO" --label story --label in-progress --state open -q 'length' --json number) + $(gh issue list --repo "$REPO" --label epic --state open -q 'length' --json number) ))
+          echo "has_work=$( [ "$TOTAL" -gt 0 ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+  watch:
+    needs: preflight
+    if: needs.preflight.outputs.has_work == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -32,5 +49,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run 3 15 5
+        run: npx tsx .github/scripts/lib/cli/pipeline.ts watcher-run 3 15 5

@@ -8,7 +8,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `daily-planner.yml` | Cron (every 3h) / manual | Creates epics with stories |
+| `daily-planner.yml` | Cron (twice daily) / manual | Creates epics with stories |
 | `claude.yml` | `@claude` comment | Runs Claude on issue or PR |
 | `gemini.yml` | `@gemini` comment | Runs Gemini on issue or PR |
 | `verify-and-fix.yml` | Dispatched by workflows | Reusable verify + fix loop + merge + PR creation |
@@ -21,7 +21,7 @@ The pipeline autonomously implements GitHub issues using Claude (or Gemini), wit
 | `auto-merge.yml` | CI complete / review / PR sync / push to master / dispatch | Single merge gate (7 conditions); evaluates all open PRs on master push |
 | `resolve-conflicts.yml` | Push to master / manual | Auto-resolves merge conflicts on open PRs |
 | `orchestrate.yml` | PR merged to master | Closes story, triggers next one |
-| `watcher.yml` | Cron (every 20min) / manual | Unsticks stories, fixes PRs, cleans up |
+| `watcher.yml` | Cron (daily) / manual | Unsticks stories, fixes PRs, cleans up; early-exits when nothing to watch |
 | `agent-switcher.yml` | Manual / comment | Switches preferred agent |
 | `pipeline-toggle.yml` | Manual | Enables/disables pipeline |
 | `build-ios.yml` | Push to master (ios/pkg paths) / manual | iOS build |
@@ -323,7 +323,8 @@ Historical bugs and their fixes are tracked as regression tests in `.github/scri
 | Merge conflict resolution | `resolve-conflicts.yml` auto-resolves on push to master |
 | Branch behind detection | Auto-merge merges master into PR branch when behind |
 | Watcher race prevention | Checks active/queued workflows before retriggering |
-| Timeout rescue | `if: cancelled()` commits + pushes work on timeout |
+| Fix scope guard | Fix prompt forbids deleting `.claude/rules/`, `.claude/skills/`, `CLAUDE.md`, and `__tests__/structure/` — prevents fixing errors by removing the detection mechanism |
+| Timeout rescue | `if: cancelled()` commits + pushes only tracked files (`git add -u`, not `git add -A`) on timeout |
 | Lint scope | verify-and-fix only lints changed files vs master |
 | Native dep check | Verifies react-native packages are in Podfile.lock |
 | Consecutive failure detection | >=3 unmerged PRs pauses pipeline; >=5 runs triggers doctor |

@@ -1,7 +1,7 @@
 /**
  * Pipeline Watcher — extracts inline shell logic from watcher.yml.
  *
- * The watcher runs every 20 minutes and:
+ * The watcher runs daily and:
  * 1. Counts active Claude workflows and available slots
  * 2. Checks open claude/ PRs for merge conflicts, CI failures, stuck merges
  * 3. Checks in-progress stories and retriggers if stuck
@@ -47,6 +47,22 @@ export function extractIssueFromBranch(branch: string): number | null {
 export function extractLinkedIssue(body: string): number | null {
   const match = body.match(/(?:Closes|Fixes|Resolves)\s+#(\d+)/i);
   return match ? parseInt(match[1], 10) : null;
+}
+
+// ─── Section 0: Preflight check ────────────────────────────────────
+
+/** Quick check if there's anything for the watcher to do. Returns true if the watcher should run. */
+export function hasPendingWork(repo: string): boolean {
+  const openPRs = parseInt(
+    execOrDefault('gh', ['pr', 'list', '--repo', repo, '--state', 'open', '--json', 'number', '-q', 'length'], '0'), 10);
+  const inProgress = parseInt(
+    execOrDefault('gh', ['issue', 'list', '--repo', repo, '--label', 'story', '--label', 'in-progress',
+      '--state', 'open', '--json', 'number', '-q', 'length'], '0'), 10);
+  const openEpics = parseInt(
+    execOrDefault('gh', ['issue', 'list', '--repo', repo, '--label', 'epic',
+      '--state', 'open', '--json', 'number', '-q', 'length'], '0'), 10);
+  console.log(`Preflight: ${openPRs} open PRs, ${inProgress} in-progress stories, ${openEpics} open epics`);
+  return openPRs > 0 || inProgress > 0 || openEpics > 0;
 }
 
 // ─── Section 1: Active workflow counting ───────────────────────────
