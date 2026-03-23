@@ -33,6 +33,7 @@ export type TripStackParamList = {
     tripId: string;
     legId: string;
   };
+  Templates: undefined;
 };
 
 export type WalletStackParamList = {

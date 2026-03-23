@@ -91,6 +91,7 @@ jest.mock('lucide-react-native', () => {
     Trash2: Icon,
     ChevronLeft: Icon,
     Plus: Icon,
+    BookmarkPlus: Icon,
   };
 });
 
@@ -101,6 +102,9 @@ jest.mock('../../../src/components/trips', () => {
     LegCard: ({ leg }: { leg: { destinationCountry: string } }) =>
       React.createElement('View', { testID: `leg-card-${leg.destinationCountry}` }),
     AccountSetupChecklist: () => React.createElement('View', { testID: 'account-setup-checklist' }),
+    SaveTemplateModal: () => React.createElement('View', { testID: 'save-template-modal' }),
+    ReadinessChecklist: () => React.createElement('View', { testID: 'readiness-checklist' }),
+    TravelerSelector: () => React.createElement('View', { testID: 'traveler-selector' }),
   };
 });
 
@@ -119,7 +123,9 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('TextInput', { value, onChangeText: onChange, testID, placeholder });
   const AddressAutocomplete = ({ testID }: { value?: any; onAddressChange?: (a: any) => void; testID?: string }) =>
     React.createElement('View', { testID });
-  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete };
+  const SearchableSelect = ({ testID }: { value?: string; onValueChange?: (v: string) => void; options?: any[]; placeholder?: string; testID?: string }) =>
+    React.createElement('View', { testID });
+  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete, SearchableSelect };
 });
 
 jest.mock('../../../src/constants/countries', () => ({
