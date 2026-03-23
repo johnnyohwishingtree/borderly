@@ -8,9 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+  contents: read
 
 jobs:
   # Check if app code changed — skip E2E for pipeline-only PRs
@@ -179,39 +177,3 @@ jobs:
           CI: true
           E2E_PROJECT: firefox-smoke,mobile-smoke
 
-  # Auto-fix on failure (runs after all test jobs)
-  notify:
-    needs: [test-chromium, test-performance, test-cross-browser]
-    if: failure()
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup pipeline TypeScript
-        uses: ./.github/actions/setup-pipeline-ts
-
-      - name: Dispatch verify-and-fix on PR failure
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-pr \
-            "${{ github.event.pull_request.number }}" \
-            "${{ github.head_ref }}" \
-            "${{ github.run_id }}" \
-            "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            "e2e" \
-            "Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js."
-
-      - name: Dispatch verify-and-fix on master push failure
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          npx tsx .github/scripts/lib/cli/pipeline.ts ci-dispatch-master \
-            "${{ github.run_id }}" \
-            "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            "e2e" \
-            "fix/master-e2e" \
-            "Common E2E issues: native modules need web mocks in e2e/mocks/ + aliases in webpack.config.js."
