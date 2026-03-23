@@ -181,7 +181,7 @@ export default function TripListScreen() {
               }
             </Text>
           </View>
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-x-2">
             <TouchableOpacity
               onPress={() => (navigation as any).navigate('Templates')}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"

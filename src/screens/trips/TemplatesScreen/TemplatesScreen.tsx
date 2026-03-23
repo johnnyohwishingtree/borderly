@@ -172,7 +172,7 @@ function TemplateCard({ template, onRename, onDelete }: TemplateCardProps) {
           >
             {template.name}
           </Text>
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-x-2">
             <TouchableOpacity
               onPress={onRename}
               activeOpacity={0.7}
