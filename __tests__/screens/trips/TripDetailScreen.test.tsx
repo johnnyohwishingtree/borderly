@@ -126,7 +126,9 @@ jest.mock('../../../src/components/ui', () => {
     React.createElement('TextInput', { value, onChangeText: onChange, testID, placeholder });
   const AddressAutocomplete = ({ testID }: { value?: any; onAddressChange?: (a: any) => void; testID?: string }) =>
     React.createElement('View', { testID });
-  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete };
+  const SearchableSelect = ({ testID }: { value?: string; onValueChange?: (v: string) => void; options?: any[]; placeholder?: string; testID?: string }) =>
+    React.createElement('View', { testID });
+  return { ScreenContainer, Button, StatusBadge, Input, DatePickerField, AddressAutocomplete, SearchableSelect };
 });
 
 jest.mock('../../../src/constants/countries', () => ({

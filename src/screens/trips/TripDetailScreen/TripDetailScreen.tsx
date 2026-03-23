@@ -14,7 +14,7 @@ import { Map, Trash2, ChevronLeft, Plus, Copy } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { LegCard, AccountSetupChecklist, ReadinessChecklist, DuplicateTripModal } from '@/components/trips';
-import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect } from '@/components/ui';
+import { Button, StatusBadge, Input, ScreenContainer, DatePickerField, SearchableSelect, AddressAutocomplete } from '@/components/ui';
 import { Trip, TripLeg } from '@/types/trip';
 import { FamilyMember } from '@/types/profile';
 import { useEditTrip } from '@/hooks/useEditTrip';
@@ -558,6 +558,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.editLegData}
                 onUpdateField={editHook.updateEditLegField}
+                onUpdateAddress={editHook.updateEditLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="edit-leg"
               />
@@ -680,6 +681,7 @@ export default function TripDetailScreen() {
               <LegFormSection
                 legData={editHook.newLegData}
                 onUpdateField={editHook.updateNewLegField}
+                onUpdateAddress={editHook.updateNewLegAddress}
                 errors={editHook.errors}
                 testIDPrefix="new-leg"
               />
@@ -747,11 +749,12 @@ interface LegFormSectionProps {
     };
   };
   onUpdateField: (field: string, value: string) => void;
+  onUpdateAddress: (address: { line1: string; line2?: string; city: string; state?: string; postalCode: string; country: string }) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
 }
 
-function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFormSectionProps) {
+function LegFormSection({ legData, onUpdateField, onUpdateAddress, errors, testIDPrefix }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -873,32 +876,11 @@ function LegFormSection({ legData, onUpdateField, errors, testIDPrefix }: LegFor
           </View>
           <View>
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</Text>
-            <Input
-              value={legData.accommodation.address.line1}
-              onChangeText={text => onUpdateField('accommodation.address.line1', text)}
-              placeholder="Street address"
+            <AddressAutocomplete
+              value={legData.accommodation.address}
+              onAddressChange={onUpdateAddress}
               testID={`${testIDPrefix}-accommodation-address`}
             />
-          </View>
-          <View className="flex-row space-x-3">
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</Text>
-              <Input
-                value={legData.accommodation.address.city}
-                onChangeText={text => onUpdateField('accommodation.address.city', text)}
-                placeholder="City"
-                testID={`${testIDPrefix}-accommodation-city`}
-              />
-            </View>
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Postal Code</Text>
-              <Input
-                value={legData.accommodation.address.postalCode}
-                onChangeText={text => onUpdateField('accommodation.address.postalCode', text)}
-                placeholder="Postal code"
-                testID={`${testIDPrefix}-accommodation-postal`}
-              />
-            </View>
           </View>
           <View>
             <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
