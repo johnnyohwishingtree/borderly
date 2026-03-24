@@ -52,12 +52,9 @@ See `patterns/README.md` for the full pattern system. Patterns are added as recu
 | `skills/cleanup/` | Remove unused files | `/cleanup` |
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
 
-## CI (GitHub Actions — event-driven, not pipeline)
+## GitHub
 
-| Workflow | Trigger | What it checks |
-|----------|---------|---------------|
-| `test.yml` | push, PR | Typecheck, Metro bundle, unit tests |
-| `e2e-smoke.yml` | push, PR | Playwright E2E (Chromium shards, performance, cross-browser) |
-| `build-ios.yml` | push to master (ios/) | iOS native build |
-| `build-android.yml` | push to master | Android debug build |
-| `release.yml` | tags | Release automation |
+| Path | Purpose |
+|------|---------|
+| `ISSUE_TEMPLATE/epic.yml` | Epic issue form template |
+| `ISSUE_TEMPLATE/story.yml` | Story issue form template |

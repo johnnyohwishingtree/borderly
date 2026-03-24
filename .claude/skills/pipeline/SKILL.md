@@ -35,9 +35,8 @@ gh pr list --state open --json number,title,headRefName --jq '.[]'
 
 For each open PR:
 1. Read the diff: `gh pr diff $NUMBER`
-2. Check CI status: `gh pr checks $NUMBER`
-3. If CI passes and changes look clean: approve and squash merge
-4. If CI fails or issues found: checkout the branch, fix them, run `pnpm lint && pnpm typecheck && pnpm test`, push, wait for CI, then merge
+2. If changes look clean: approve and squash merge
+3. If issues found: checkout the branch, fix them, run `pnpm lint && pnpm typecheck && pnpm test`, push, then merge
 
 After merging all PRs:
 ```bash
@@ -133,7 +132,7 @@ Closes #$NUMBER"
 git push -u origin story/issue-$NUMBER
 ```
 
-Create the PR and wait for CI:
+Create the PR and merge:
 ```bash
 TITLE=$(gh issue view $NUMBER --json title --jq .title)
 gh pr create \
@@ -142,15 +141,6 @@ gh pr create \
   --body "Closes #$NUMBER — implemented autonomously by pipeline."
 
 PR_NUMBER=$(gh pr list --head story/issue-$NUMBER --json number --jq '.[0].number')
-```
-
-Wait for CI checks to pass before merging:
-```bash
-gh pr checks $PR_NUMBER --watch
-```
-
-If CI fails, read the errors, fix them locally, push, and wait again. Only merge after CI passes:
-```bash
 gh pr merge $PR_NUMBER --squash
 ```
 

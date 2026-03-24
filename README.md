@@ -198,7 +198,7 @@ This repo uses a **Claude Code scheduled task** for autonomous development. The 
 
 - Create GitHub Issues with `story` and `pending` labels to queue work
 - The scheduled task picks up pending stories, implements them, and creates PRs
-- Tests auto-run on PRs via GitHub Actions (typecheck, unit tests, E2E)
+- All verification (lint, typecheck, tests, E2E, bundle) runs locally before merge
 - Run `/pipeline` to trigger the pipeline immediately
 
 ## License

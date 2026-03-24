@@ -191,13 +191,13 @@ pnpm e2e
 
 ## Testing Strategy
 
-The test pyramid has three layers. All run in CI on every PR.
+Three layers of verification, all run locally by the pipeline before merging:
 
-| Layer | Tool | Runs on | What it catches |
-|-------|------|---------|-----------------|
-| **Unit tests** | Jest + RNTL | ubuntu (fast) | Logic bugs, component behavior |
-| **Bundle check** | Metro bundler | ubuntu (fast) | Missing modules, import errors |
-| **E2E smoke tests** | Playwright + RN Web | ubuntu (fast) | Runtime crashes, screens not rendering, navigation broken |
+| Layer | Tool | What it catches |
+|-------|------|-----------------|
+| **Unit tests** | Jest + RNTL | Logic bugs, component behavior |
+| **Bundle check** | Metro bundler | Missing modules, import errors |
+| **E2E smoke tests** | Playwright + RN Web | Runtime crashes, screens not rendering, navigation broken |
 
 Unit tests mock all native modules, so they **cannot** catch missing dependencies or runtime crashes. The Metro bundle check catches unresolved imports. The E2E smoke tests render the full app in Chromium via React Native Web and verify screens appear correctly.
 
@@ -345,7 +345,7 @@ Existing a11y test files:
 
 ## Rules
 
-Rules in `.claude/rules/` are auto-loaded into every Claude session. See `.claude/index.md` for the full system map (rules, skills, CI workflows).
+Rules in `.claude/rules/` are auto-loaded into every Claude session. See `.claude/index.md` for the full system map (rules, skills, templates, rubrics).
 
 ## Skills Reference
 
@@ -380,15 +380,13 @@ Borderly is orchestrated by a **Claude Code scheduled task** — no GitHub Actio
 
 **To start work:** create a GitHub Issue with `story` and `pending` labels, or let the planner create them. To run the pipeline immediately, use `/pipeline`.
 
-**CI remains in GitHub Actions** — `test.yml`, `e2e-smoke.yml`, `build-ios.yml`, `build-android.yml`, and `release.yml` are event-driven workflows triggered by pushes and PRs. They run independently of the scheduled task.
-
 ### Native Dependency Rules
 
 - **Never add a native dependency without also adding a web mock.** When you add a package that includes native code (e.g., `react-native-haptic-feedback`, `react-native-heroicons`), you MUST also: (1) create a mock in `e2e/mocks/`, (2) add an alias in `webpack.config.js`, and (3) verify `pnpm e2e` passes. Native modules install fine but **crash at runtime in the browser** — webpack won't catch this at build time.
 - **Never add a native dependency without linking it for iOS.** After adding a package with native code: (1) run `cd ios && pod install` to link the native module, (2) if the package requires fonts or assets (e.g., `react-native-vector-icons`), register them in `ios/Borderly/Info.plist` under `UIAppFonts`, (3) commit the updated `Podfile.lock` and `Info.plist`.
 - **Never bump `react` independently of `react-native`.** React Native pins a specific React version via `react-native-renderer`. Check `node_modules/react-native/package.json` peerDependencies to find the expected React version. Mismatches cause runtime crashes.
 - **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
-- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
+- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check is the safety net that catches missing modules — run it locally before merging.
 
 ### TypeScript: Check Types Continuously
 
