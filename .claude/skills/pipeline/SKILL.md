@@ -133,7 +133,7 @@ Closes #$NUMBER"
 git push -u origin story/issue-$NUMBER
 ```
 
-Create and merge the PR:
+Create the PR and wait for CI:
 ```bash
 TITLE=$(gh issue view $NUMBER --json title --jq .title)
 gh pr create \
@@ -142,13 +142,39 @@ gh pr create \
   --body "Closes #$NUMBER — implemented autonomously by pipeline."
 
 PR_NUMBER=$(gh pr list --head story/issue-$NUMBER --json number --jq '.[0].number')
+```
+
+Wait for CI checks to pass before merging:
+```bash
+gh pr checks $PR_NUMBER --watch
+```
+
+If CI fails, read the errors, fix them locally, push, and wait again. Only merge after CI passes:
+```bash
 gh pr merge $PR_NUMBER --squash
 ```
 
-Close the issue:
+### Step 5b: Close story and advance epic
+
+Close the story:
 ```bash
 gh issue edit $NUMBER --remove-label "in-progress" --add-label "completed"
 gh issue close $NUMBER
+```
+
+Check if there are more stories in the same epic:
+```bash
+EPIC_LABEL=$(gh issue view $NUMBER --json labels --jq '[.labels[].name | select(startswith("epic:"))] | .[0]')
+if [ -n "$EPIC_LABEL" ]; then
+  NEXT=$(gh issue list --label "$EPIC_LABEL" --label "pending" --state open --json number --jq 'sort_by(.number) | .[0].number')
+  if [ -z "$NEXT" ]; then
+    # All stories in epic complete — close the epic
+    EPIC_NUM=$(gh issue list --label "epic" --label "$EPIC_LABEL" --state open --json number --jq '.[0].number')
+    if [ -n "$EPIC_NUM" ]; then
+      gh issue close $EPIC_NUM
+    fi
+  fi
+fi
 ```
 
 ### Step 6: Plan next epic (when queue is empty)
@@ -169,20 +195,28 @@ Analyze the project to identify the highest-impact improvement:
    ```
 3. Look for: features mentioned in CLAUDE.md but not implemented, test coverage gaps, UX improvements, accessibility issues
 
-Read `.claude/index.md` to see available templates, then create an epic and stories:
+Read `.claude/index.md` to see available templates, then read the specific ones you need:
+- `.claude/templates/epic.md` — structure for epic bodies
+- `.claude/templates/story.md` — structure for story bodies (populate ALL sections to minimize token waste during implementation)
+
+Create an epic and stories following the templates:
 ```bash
 # Create label
 gh label create "epic:<slug>" --color "0E8A16" --description "Epic: <title>" 2>/dev/null || true
 
-# Create epic
+# Create epic (body follows .claude/templates/epic.md structure)
 gh issue create \
   --title "Epic: <goal>" --label "epic" --label "epic:<slug>" \
-  --body "<goal, story checklist, success criteria>"
+  --body "<follow epic template: goal, context, story checklist, success criteria, out of scope>"
 
-# Create stories (each with: story, pending, epic:<slug> labels)
+# Create stories (body follows .claude/templates/story.md structure)
+# IMPORTANT: populate ALL template sections to minimize token waste during implementation:
+#   - Context: list the minimum files/line-ranges needed
+#   - Patterns & Templates: which patterns apply
+#   - Key Types: inline the relevant type definitions
 gh issue create \
   --title "Story: <task>" --label "story" --label "pending" --label "epic:<slug>" \
-  --body "<description, acceptance criteria, files, dependencies>"
+  --body "<follow story template — every section>"
 
 # Update epic body with actual issue numbers
 gh issue edit <epic_number> --body "..."

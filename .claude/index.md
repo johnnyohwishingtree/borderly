@@ -17,6 +17,20 @@ Read this file first. It maps every artifact in the pipeline system. Only read i
 | `rules/smart-components.md` | Use smart components (AccommodationAutocomplete, AddressAutocomplete) instead of plain Input |
 | `rules/store-boundaries.md` | Screens -> Hooks -> Stores -> Services dependency direction |
 
+## Templates + Rubric Pairs
+
+| Template | Rubric | What it structures |
+|----------|--------|--------------------|
+| `templates/module.md` | `rubrics/code-quality.md` | TypeScript source modules |
+| `templates/test.md` | `rubrics/test-quality.md` | Test files |
+| `templates/skill.md` | `rubrics/skill-quality.md` | Skill definitions |
+| `templates/epic.md` | -- | Epic issues |
+| `templates/story.md` | -- | Story issues |
+
+## Patterns
+
+See `patterns/README.md` for the full pattern system. Patterns are added as recurring change types emerge.
+
 ## Skills
 
 | Skill | Purpose | Invocation |
