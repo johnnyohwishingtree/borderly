@@ -9,7 +9,7 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 
 ## Prerequisites
 
-- **Screenshots**: Component screenshots are captured automatically in CI on every PR. Screen screenshots may need a manual `/capture-screens` run if they're stale.
+- **Screenshots**: Run `/capture-screens` if screenshots are stale or missing.
   - Captured via Playwright + React Native Web — fast, local, but portal screens show iframe-blocked content
 - **Stitch MCP server** (optional): For AI-generated redesign alternatives. Requires `STITCH_API_KEY` env var.
 - **frontend-design-audit plugin** (optional): For code-level usability scanning
@@ -27,7 +27,7 @@ Analyze the app's visual state and produce a structured report of UI/UX issues. 
 E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
 ```
 
-Component screenshots are captured automatically in CI — you usually don't need to capture them manually.
+Component screenshots can be captured in parallel and are quick to regenerate when needed.
 
 4. If the user provided specific screenshots or screen names, focus on those instead of the full set.
 

@@ -51,10 +51,3 @@ See `patterns/README.md` for the full pattern system. Patterns are added as recu
 | `skills/organize/` | Reorganize file structure | `/organize` |
 | `skills/cleanup/` | Remove unused files | `/cleanup` |
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
-
-## GitHub
-
-| Path | Purpose |
-|------|---------|
-| `ISSUE_TEMPLATE/epic.yml` | Epic issue form template |
-| `ISSUE_TEMPLATE/story.yml` | Story issue form template |

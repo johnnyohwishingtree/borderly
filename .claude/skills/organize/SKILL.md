@@ -1,16 +1,79 @@
 ---
 name: organize
-description: Reorganize file structure so tests mirror source
+description: Reorganize file structure so tests mirror source layout
 ---
 
-# Organize
+# /organize — Reorganize File Structure
 
-Reorganize the file structure so that tests mirror the source layout and files are in their correct locations.
+Ensure the test directory mirrors the source structure and files are in their correct domain locations.
+
+## Usage
+```
+/organize              # Full reorganization audit
+```
 
 ## Steps
 
-1. **Map source to test files** — every source module should have a corresponding test file
-2. **Identify misplaced files** — files in the wrong directory
-3. **Move files** using `git mv` to preserve history
-4. **Update imports** in all files that reference moved modules
-5. **Run tests** to verify nothing is broken
+### Step 1: Map Source to Test Structure
+
+The project convention is:
+
+| Source path | Test path |
+|------------|-----------|
+| `src/services/<domain>/<file>.ts` | `__tests__/services/<domain>/<file>.test.ts` |
+| `src/components/<domain>/<Component>.tsx` | `__tests__/components/<domain>/<Component>.test.tsx` |
+| `src/hooks/<hook>.ts` | `__tests__/hooks/<hook>.test.ts` |
+| `src/stores/<store>.ts` | `__tests__/stores/<store>.test.ts` |
+| `src/utils/<util>.ts` | `__tests__/utils/<util>.test.ts` |
+| `src/screens/<domain>/<Screen>.tsx` | `__tests__/screens/<domain>/<Screen>.test.tsx` |
+| `src/components/<domain>/<C>.tsx` (a11y) | `__tests__/components/<domain>/<C>.a11y.test.tsx` |
+
+Scan for:
+- Test files in flat directories that should be in subdirectories
+- Test files whose source file moved but the test didn't follow
+- Duplicate test files (same source, two test locations)
+
+### Step 2: Check Domain Placement
+
+Source files should be in their correct domain:
+- Storage services in `src/services/storage/`
+- Form engine in `src/services/forms/`
+- Submission logic in `src/services/submission/`
+- Error handling in `src/services/error/`
+- Monitoring in `src/services/monitoring/`
+- Navigation in `src/app/navigation/`
+
+Look for files in `src/utils/` that belong in a service domain.
+
+### Step 3: Move Files
+
+Use `git mv` to preserve history:
+```bash
+git mv old/path/file.ts new/path/file.ts
+```
+
+After each move:
+1. Update all imports that referenced the old path
+2. Update barrel `index.ts` files
+3. Run `pnpm typecheck` to catch broken imports
+
+### Step 4: Remove Duplicates
+
+If duplicate test files exist (same tests, different locations):
+1. Keep the one at the correct path
+2. Delete the other with `git rm`
+3. Run `pnpm test` to verify
+
+### Step 5: Verify
+
+```bash
+pnpm lint && pnpm typecheck && pnpm test
+```
+
+### Step 6: Summary
+
+Report:
+- Files moved (old path -> new path)
+- Duplicates removed
+- Import updates made
+- Test count before/after (should be equal — reorganizing, not deleting)

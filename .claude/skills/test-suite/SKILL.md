@@ -1,43 +1,81 @@
 ---
 name: test-suite
 description: Find and fix gaps in the test suite
-argument-hint: "[target area]"
+argument-hint: "[target area, e.g. 'services/forms', 'components/trips']"
 ---
 
-# Test Suite
+# /test-suite — Audit and Fix Test Coverage
 
-Audit the test suite for gaps, write missing tests, and fix any bugs the tests reveal.
+Find untested code, write missing tests, and fix any bugs the new tests reveal.
 
-Target area (optional): $ARGUMENTS
+## Usage
+```
+/test-suite                        # Audit entire test suite
+/test-suite services/forms         # Focus on form engine tests
+/test-suite components/trips       # Focus on trip component tests
+```
 
 ## Steps
 
-1. **Run existing tests** to establish baseline:
-   ```
-   # TODO: Replace with your test command
-   python -m pytest tests/ -v
-   ```
+### Step 1: Establish Baseline
 
-2. **Identify gaps** — check for:
-   - Source files without corresponding test files
-   - Functions/classes without test coverage
-   - Edge cases not tested
-   - Error handling paths not tested
+```bash
+pnpm test --coverage --coverageDirectory=coverage
+```
 
-3. **Write missing tests** following existing test patterns
+Read the coverage summary to identify low-coverage files. Target: >80% line coverage.
 
-4. **Fix bugs** found by new tests
+### Step 2: Identify Gaps
 
-5. **Run full suite** to verify everything passes
+Cross-reference source files against test files:
 
-## Test Structure Convention
+| Source path | Expected test path |
+|------------|-------------------|
+| `src/services/<domain>/<file>.ts` | `__tests__/services/<domain>/<file>.test.ts` |
+| `src/components/<domain>/<Component>.tsx` | `__tests__/components/<domain>/<Component>.test.tsx` |
+| `src/hooks/<hook>.ts` | `__tests__/hooks/<hook>.test.ts` |
+| `src/stores/<store>.ts` | `__tests__/stores/<store>.test.ts` |
+| `src/utils/<util>.ts` | `__tests__/utils/<util>.test.ts` |
+| `src/screens/<domain>/<Screen>.tsx` | `__tests__/screens/<domain>/<Screen>.test.tsx` |
 
-Tests should mirror the source structure:
-- `src/foo.py` -> `tests/test_foo.py`
-- `src/bar/baz.py` -> `tests/bar/test_baz.py`
+Check for:
+- Source files with no corresponding test file
+- Functions/methods not covered by existing tests
+- Edge cases: empty inputs, error paths, boundary values
+- Missing a11y tests for UI components (`*.a11y.test.tsx`)
 
-## Rules
+### Step 3: Write Missing Tests
 
-- Tests must not require external services (mock them)
-- Tests should skip gracefully if test data is missing
-- Run the test suite after every change
+Follow these conventions:
+- Use Jest + React Native Testing Library
+- Use RNTL accessibility queries in priority order: `getByRole` > `getByLabelText` > `getByTestId`
+- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (no `.snap` files)
+- Mock native modules in `jest.setup.js` — don't add new mocks unless necessary
+- Tests must run in under 1 second each
+- Use `renderHook` from `@testing-library/react-hooks` for hook tests
+
+**For each new test file:**
+1. Write the tests
+2. Run `pnpm typecheck` to verify imports
+3. Run the specific test: `pnpm test -- <test-file-path>`
+4. Fix any bugs the test reveals (TDD — see `.claude/rules/bug-fix-workflow.md`)
+
+### Step 4: Verify
+
+Run the full suite:
+```bash
+pnpm lint && pnpm typecheck && pnpm test
+```
+
+Re-run coverage to confirm improvement:
+```bash
+pnpm test --coverage --coverageDirectory=coverage
+```
+
+### Step 5: Summary
+
+Report what was added:
+- New test files created (with paths)
+- Coverage before/after
+- Bugs found and fixed by new tests
+- Remaining gaps (if any) with rationale for skipping
