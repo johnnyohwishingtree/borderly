@@ -73,23 +73,15 @@ Read the issue body and implement it. The story body tells you which skill to us
 
 ### Step 4: Verify
 
-This is the quality gate. All checks must pass before merging.
+This is the quality gate. All checks must pass before merging. Run all five checks **in parallel** (make 5 simultaneous Bash tool calls — they are independent):
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+1. `pnpm lint`
+2. `pnpm typecheck`
+3. `pnpm test`
+4. `pnpm e2e`
+5. `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
 
-If the story touched screens or components, also run E2E:
-```bash
-pnpm e2e
-```
-
-And verify the Metro bundle builds:
-```bash
-npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js
-```
-
-**You have up to 6 attempts.** If checks fail, read the errors, fix them, and re-run. Do not proceed until all pass.
+All five must pass. **You have up to 6 attempts.** If any check fails, read the errors, fix them, and re-run the failing checks. Do not proceed until all pass.
 
 ### Step 4b: Self-update check
 
