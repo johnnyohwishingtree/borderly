@@ -194,12 +194,12 @@ console.log(`${form.stats.autoFilled}/${form.stats.totalFields} fields auto-fill
 
 ## Autonomous Development Pipeline
 
-This repo uses an automated Claude Code pipeline. See `.github/workflows/` for details.
+This repo uses a **Claude Code scheduled task** for autonomous development. The pipeline runs hourly and follows `.claude/skills/pipeline/SKILL.md`.
 
-- Comment `@claude` on any issue to trigger implementation
-- Tests auto-run on PRs; failures auto-notify Claude for fixing
-- Stories auto-advance when PRs merge
-- Pipeline health monitored every 20 minutes
+- Create GitHub Issues with `story` and `pending` labels to queue work
+- The scheduled task picks up pending stories, implements them, and creates PRs
+- All verification (lint, typecheck, tests, E2E, bundle) runs locally before merge
+- Run `/pipeline` to trigger the pipeline immediately
 
 ## License
 

@@ -134,4 +134,4 @@ After running this skill:
 
 ## Starting the Pipeline
 
-Tell the user: "To start autonomous implementation, comment `@claude` on Story #<first_story_number>."
+Tell the user: "Stories are labeled `pending` — the scheduled task will pick them up on the next hourly run. To start immediately, run `/pipeline`."

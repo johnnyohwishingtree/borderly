@@ -191,13 +191,13 @@ pnpm e2e
 
 ## Testing Strategy
 
-The test pyramid has three layers. All run in CI on every PR.
+Three layers of verification, all run locally by the pipeline before merging:
 
-| Layer | Tool | Runs on | What it catches |
-|-------|------|---------|-----------------|
-| **Unit tests** | Jest + RNTL | ubuntu (fast) | Logic bugs, component behavior |
-| **Bundle check** | Metro bundler | ubuntu (fast) | Missing modules, import errors |
-| **E2E smoke tests** | Playwright + RN Web | ubuntu (fast) | Runtime crashes, screens not rendering, navigation broken |
+| Layer | Tool | What it catches |
+|-------|------|-----------------|
+| **Unit tests** | Jest + RNTL | Logic bugs, component behavior |
+| **Bundle check** | Metro bundler | Missing modules, import errors |
+| **E2E smoke tests** | Playwright + RN Web | Runtime crashes, screens not rendering, navigation broken |
 
 Unit tests mock all native modules, so they **cannot** catch missing dependencies or runtime crashes. The Metro bundle check catches unresolved imports. The E2E smoke tests render the full app in Chromium via React Native Web and verify screens appear correctly.
 
@@ -343,63 +343,42 @@ Existing a11y test files:
 - `__tests__/components/trips/PassportValidityWarning.a11y.test.tsx` — null when valid, alert role, polite live region, accessible=true, label content (country, required months, shortfall days, expiry date, guidance), singular/plural month and day, custom testID, decorative elements hidden
 - `__tests__/components/lock/LockScreen.a11y.test.tsx` — unlock button role/label/biometric-type variations, error live region, PIN retry button, decorative logo hidden, title header role
 
+## Rules
+
+Rules in `.claude/rules/` are auto-loaded into every Claude session. See `.claude/index.md` for the full system map (rules, skills, templates, rubrics).
+
 ## Skills Reference
 
 Available skills (invoke with `/<skill-name>`):
+- `/pipeline` — Autonomous story loop — merge, implement, verify, plan
+- `/epic-planner` — Break a goal into Epic + Story GitHub Issues
+- `/plan-feature` — Plan and implement a new feature
+- `/test-suite` — Find and fix test coverage gaps
 - `/review-pr` — Perform a comprehensive code review of a PR
 - `/capture-screens` — Capture screenshots of every screen + generate manifest
 - `/visual-audit` — Audit UI/UX using screenshots (read-only analysis)
 - `/visual-implement` — Apply UI fixes from an audit, then re-capture to verify
 - `/ux-review` — Evaluate user journeys, flow efficiency, and information architecture
 - `/ux-implement` — Implement flow-level UX changes (new screens, navigation restructuring)
-- `/epic-planner` — Break a goal into Epic + Story GitHub Issues
-- `/plan-feature` — Plan and implement a new feature
-- `/test-suite` — Find and fix test coverage gaps
+- `/qa` — Walk through the app and document bugs
+- `/refactor-design` — Audit and fix architecture issues
+- `/update-architecture` — Update architecture diagrams
 - `/organize` — Reorganize file structure
 - `/cleanup` — Remove unused files
-- `/update-architecture` — Update architecture diagrams
-- `/form-optimize` — Audit form inputs for platform autofill hints, keyboard types, and autocomplete
-- `/refactor-design` — Audit and fix architecture issues
-- `/qa` — Walk through the app and document bugs
+- `/local-feature` — Develop feature in isolated worktree
 
 ## Autonomous Workflow
 
-When working from a GitHub issue (via the Claude or Gemini GitHub App):
-1. Read this file first for project context
-2. Read `docs/mvp-proposal.md` for detailed specs, data models, and implementation code
-3. Follow the skill referenced in the issue body
-4. **Agent Choice**: Use `@claude` for Anthropic's Claude Code or `@gemini` for Google's Gemini CLI. Both are compatible with the project's skills and conventions.
-5. Create a PR with `Closes #N` in the body (N = issue number)
-6. **Before pushing, verify ALL checks pass:**
-   - `pnpm typecheck` — must pass with zero errors
-   - `pnpm test` — all unit tests must pass
-   - `pnpm e2e` — all E2E tests must pass
-7. Verify the Metro bundle builds: `npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js`
-8. If you added/modified screens, add or update a Playwright E2E test in `e2e/tests/`
-9. Run `/update-architecture` if code structure changed
-10. If you modified `.github/workflows/`, update `docs/pipeline-architecture.md` to match
+Borderly is orchestrated by a **Claude Code scheduled task** — no GitHub Actions runners needed for pipeline orchestration. The scheduled task runs hourly and follows `.claude/skills/pipeline/SKILL.md`:
 
-### Dual-Model Support
+1. **Merge open PRs** — ensures master is current before starting new work
+2. **Implement** — picks up the next `story,pending` issue, creates a branch, implements it
+3. **Verify** — runs lint, typecheck, tests, and E2E
+4. **Merge** — creates PR, squash merges
+5. **Plan** — if no stories remain, analyzes the codebase and creates a new epic with stories
+6. **Repeat** — next hourly run picks up the next story
 
-This project supports both **Claude** and **Gemini** as autonomous agents.
-- **Trigger**: `@claude` or `@gemini` in issue/PR comments.
-- **Skill Compatibility**: Both agents share the same skills in `.claude/skills/`.
-- **Handoff**: If one agent hits a usage limit or fails, you can switch to the other by commenting on the same issue.
-- **Review Guardian**: An automated system monitors for "Gemini Code Assist" failures. If the standard app fails to summarize or review a PR, it automatically triggers `@gemini` (or the preferred agent) to perform a fallback review.
-- **Story Pipeline**: The `orchestrate.yml` pipeline uses the `PREFERRED_AGENT` repository variable (default: `claude`) to decide which agent to trigger for the next story.
-
-### Auto-Fix Workflow (when responding to failing CI comments)
-
-When you receive a comment like "@claude Tests are failing on this PR" (or "@gemini"):
-1. Read the error output in the comment carefully
-2. Diagnose the root cause — do NOT blindly change code
-3. Make the fix
-4. **Run ALL of the following and verify they pass before committing:**
-   - `pnpm typecheck` — must pass with zero errors
-   - `pnpm test` — all unit tests must pass
-   - `pnpm e2e` — all E2E tests must pass
-5. Only after ALL three pass: git add, git commit, and git push
-6. If any check still fails after your fix, debug further — do NOT push failing code hoping CI will pass
+**To start work:** create a GitHub Issue with `story` and `pending` labels, or let the planner create them. To run the pipeline immediately, use `/pipeline`.
 
 ### Native Dependency Rules
 
@@ -407,7 +386,7 @@ When you receive a comment like "@claude Tests are failing on this PR" (or "@gem
 - **Never add a native dependency without linking it for iOS.** After adding a package with native code: (1) run `cd ios && pod install` to link the native module, (2) if the package requires fonts or assets (e.g., `react-native-vector-icons`), register them in `ios/Borderly/Info.plist` under `UIAppFonts`, (3) commit the updated `Podfile.lock` and `Info.plist`.
 - **Never bump `react` independently of `react-native`.** React Native pins a specific React version via `react-native-renderer`. Check `node_modules/react-native/package.json` peerDependencies to find the expected React version. Mismatches cause runtime crashes.
 - **Never use `|| true` to silence quality checks** (typecheck, lint, bundle). If a check fails, fix the underlying issue.
-- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check in CI is the safety net that catches missing modules.
+- **When mocking a native module in `jest.setup.js`**, understand that this hides real import failures. The Metro bundle check is the safety net that catches missing modules — run it locally before merging.
 
 ### TypeScript: Check Types Continuously
 
