@@ -6,7 +6,25 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/post-edit-typecheck.sh"
+            "command": "bash .claude/hooks/post-edit-typecheck.sh",
+            "statusMessage": "Type-checking..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-bash-commit-gate.sh",
+            "timeout": 120,
+            "statusMessage": "Running commit gate (lint + typecheck + test)..."
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-bash-no-blanket-add.sh"
           }
         ]
       }
