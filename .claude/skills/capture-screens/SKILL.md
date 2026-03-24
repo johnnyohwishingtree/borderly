@@ -9,7 +9,7 @@ Captures screenshots of every screen and component in the app via Playwright and
 
 ## Automatic vs Manual Capture
 
-**Component screenshots** are captured automatically in CI on every PR (`e2e-smoke.yml`). You usually don't need to capture them manually.
+**Component screenshots** can be captured in parallel and are quick to regenerate. You usually only need to recapture them when component styling changes.
 
 **Screen screenshots** require manual capture — they need navigation state injection and must run serially. Run this skill when screen UI changes or new screens are added.
 
@@ -92,7 +92,7 @@ Screenshots render via React Native Web in Chromium. Limitations:
 ## When to Re-Run
 
 - **Screens**: After UI changes to screens, new screens added, or navigation changes
-- **Components**: After modifying component styling or adding new components to the registry. Also captured automatically in CI on every PR.
+- **Components**: After modifying component styling or adding new components to the registry
 
 Screenshots are part of the source tree — update them in the same PR as the code change.
 

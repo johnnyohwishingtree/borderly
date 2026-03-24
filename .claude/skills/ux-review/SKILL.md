@@ -15,7 +15,7 @@ Analyze the app's user experience at the **flow level** — navigation paths, ta
 ## Prerequisites
 
 - Familiarity with the app's navigation structure (read `CLAUDE.md` and `src/app/navigation/`)
-- Screen screenshots at `src/screens/**/__screenshots__/` and component screenshots at `src/components/**/__screenshots__/` help but are optional — this skill primarily reads code. Component screenshots are captured automatically in CI on every PR.
+- Screen screenshots at `src/screens/**/__screenshots__/` and component screenshots at `src/components/**/__screenshots__/` help but are optional — this skill primarily reads code.
 
 ## Steps
 

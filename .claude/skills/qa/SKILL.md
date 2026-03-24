@@ -1,23 +1,100 @@
 ---
 name: qa
 description: Walk through the application like a real user and document every bug found
+argument-hint: "[specific flow to test, e.g. 'onboarding', 'trip creation']"
 ---
 
-# QA
+# /qa — Quality Assurance Walkthrough
 
-Walk through the application's functionality like a real user would. Document every bug, UX issue, and inconsistency found.
+Walk through the app's functionality like a real user. Document every bug, UX issue, and inconsistency found. This skill reads code and screenshots to simulate user journeys.
+
+## Usage
+```
+/qa                    # Full app walkthrough
+/qa onboarding         # Test only the onboarding flow
+/qa trip creation      # Test only trip creation
+```
 
 ## Steps
 
-1. **Read CLAUDE.md** to understand the application
-2. **Read `maestro/generator/screenRegistry.ts`** for per-screen metadata: fields (with required/optional status), alerts, action buttons, and navigation targets. This tells you what each screen should contain and what interactions are possible.
-3. **Read `maestro/generator/componentCatalog.ts`** for component interaction patterns: how each component type works (modal vs inline, keyboard behavior, sub-testIDs).
-4. **List all user-facing features** and create a test plan
-5. **Walk through each feature**, checking:
-   - Does it work as expected?
-   - Are error states handled?
-   - Is the UI/output consistent?
-   - Are edge cases handled?
-4. **Document bugs** with reproduction steps
-5. **Fix critical bugs** immediately
-6. **Create issues** for non-critical bugs
+### Step 1: Load App Context
+
+1. Read `CLAUDE.md` for architecture and feature list
+2. Read `maestro/generator/screenRegistry.ts` for per-screen metadata (fields, alerts, buttons)
+3. Read `maestro/generator/componentCatalog.ts` for component interaction patterns
+4. Read `e2e/screenshots/flow-graph.json` for navigation edges
+
+### Step 2: Define Test Plan
+
+List every user-facing flow to test. If user specified a flow, focus on that. Otherwise test all:
+
+| Flow | Key screens | What to verify |
+|------|------------|----------------|
+| Onboarding | Welcome, PassportScan, ConfirmProfile, BiometricSetup | Data persists, navigation correct, skip paths work |
+| Trip creation | CreateTrip, TripDetail, LegForm | Form validation, auto-fill, country selection |
+| Form completion | LegForm, DynamicForm | Smart delta, auto-fill accuracy, field types correct |
+| Portal submission | SubmissionGuide, PortalSubmission | Steps render, copyable fields work, QR capture |
+| Family management | FamilyManagement, AddFamilyMember | Add/edit/delete, profile switching, data isolation |
+| QR wallet | QRWallet, AddQR, QRDetail | Import, display, search, full-screen view |
+| Profile | Profile, EditProfile | View, edit, save, passport validity display |
+| Settings | Settings, PrivacyPolicy, Backup/Restore | All toggles work, backup/restore flow |
+
+### Step 3: Walk Through Each Flow
+
+For each flow, read the screen source files and verify:
+
+**Functional correctness:**
+- Do all buttons navigate to the correct screen?
+- Do form submissions save data to the correct store?
+- Do conditional renders show the right content for each state?
+- Do error handlers display meaningful messages?
+
+**State management:**
+- Is data preserved when navigating away and back?
+- Do stores update correctly on CRUD operations?
+- Is sensitive data only accessed via Keychain (not MMKV)?
+
+**Edge cases:**
+- Empty states (no trips, no family members, no QR codes)
+- Maximum data (8 family members, many trips)
+- Invalid input (expired passport, missing required fields)
+- Offline behavior
+
+**Accessibility:**
+- All interactive elements have `accessibilityRole` and `accessibilityLabel`
+- Error messages use `accessibilityLiveRegion="polite"`
+- Touch targets are 44x44px minimum
+
+### Step 4: Document Bugs
+
+For each bug found, record:
+- **Severity**: Critical / Major / Minor
+- **Location**: Screen name and file path
+- **Steps to reproduce**: What triggers the bug
+- **Expected**: What should happen
+- **Actual**: What happens instead
+- **Root cause** (if identifiable from code)
+
+### Step 5: Fix Critical Bugs
+
+Follow `.claude/rules/bug-fix-workflow.md`:
+1. Write a failing test that reproduces the bug
+2. Fix the code so the test passes
+3. Run `pnpm typecheck && pnpm test`
+
+### Step 6: Create Issues for Non-Critical Bugs
+
+```bash
+gh issue create \
+  --title "Bug: <description>" \
+  --label "bug" \
+  --body "<severity, steps to reproduce, expected vs actual>"
+```
+
+### Step 7: Summary
+
+Report:
+- Total bugs found (by severity)
+- Bugs fixed in this session
+- Issues created for deferred bugs
+- Flows that passed without issues

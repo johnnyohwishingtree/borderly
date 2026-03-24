@@ -116,7 +116,7 @@ E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=
 E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=screenshot-capture
 ```
 
-Per-screen and per-component manifests at `__screenshots__/manifest.json` are auto-updated by the capture tests. Component screenshots are also captured automatically in CI on every PR.
+Per-screen and per-component manifests at `__screenshots__/manifest.json` are auto-updated by the capture tests.
 
 ### Step 6: Update Architecture Docs
 
