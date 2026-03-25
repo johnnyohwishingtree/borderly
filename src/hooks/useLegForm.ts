@@ -13,6 +13,7 @@ import type { TravelerProfile } from '../types/profile';
 import type { TravelerFormData } from '../types/trip';
 import type { TravelerTab } from '../components/trips/TravelerTabs';
 import type { UseLegFormOptions, TravelerState } from './useLegFormTypes';
+import { stripPIIFromFormData } from '../utils/piiSanitizer';
 import { deriveLegFormStatus, upsertTravelerFormData } from './useLegFormHelpers';
 
 // Re-export for backward compatibility
@@ -275,7 +276,9 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     setFormError(null);
 
     try {
-      const formDataToSave = getFormData();
+      const rawFormData = getFormData();
+      // Strip PII before persisting to WatermelonDB — passport data stays in Keychain only
+      const formDataToSave = stripPIIFromFormData(rawFormData);
 
       if (hasMultipleTravelers && activeTravelerId) {
         const completionPct = currentForm?.stats.completionPercentage ?? 0;
@@ -349,7 +352,8 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     setFormError(null);
 
     try {
-      const formDataToSave = getFormData();
+      const rawFormData = getFormData();
+      const formDataToSave = stripPIIFromFormData(rawFormData);
 
       if (hasMultipleTravelers && activeTravelerId) {
         const freshLeg = getLegById(legId);

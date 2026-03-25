@@ -201,3 +201,42 @@ export function createSanitizer(options: SanitizationOptions) {
 export function sanitizePII(data: any): any {
   return sanitizeObject(data, { preserveStructure: true });
 }
+
+// ── Form data PII stripping (for WatermelonDB persistence) ──
+
+/**
+ * Field IDs that contain PII and must not be persisted to WatermelonDB.
+ * These are re-resolved from Keychain via autoFillSource on form load.
+ *
+ * See: .knowledge/concepts/security-boundary.md
+ */
+const PII_FORM_FIELD_IDS = new Set([
+  'passportNumber',
+  'dateOfBirth',
+  'passportExpiry',
+  'passportIssueDate',
+  'passportIssuedDate',
+  'surname',
+  'givenNames',
+  'fullName',
+  'firstName',
+  'lastName',
+]);
+
+/**
+ * Strip PII fields from form data before saving to WatermelonDB.
+ * Returns a new object without the sensitive fields.
+ * The stripped fields are re-resolved from Keychain on next form load
+ * via the auto-fill engine's autoFillSource resolution.
+ */
+export function stripPIIFromFormData(
+  formData: Record<string, unknown>,
+): Record<string, unknown> {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(formData)) {
+    if (!PII_FORM_FIELD_IDS.has(key)) {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}

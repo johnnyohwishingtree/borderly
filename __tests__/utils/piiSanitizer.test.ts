@@ -4,6 +4,7 @@ import {
   sanitizeError,
   sanitizeUrl,
   createSanitizer,
+  stripPIIFromFormData,
 } from '../../src/utils/piiSanitizer';
 
 describe('PII Sanitizer', () => {
@@ -288,5 +289,48 @@ describe('PII Sanitizer', () => {
       expect(result.FirstName).toBeUndefined();
       expect(result.EMAIL).toBeUndefined();
     });
+  });
+});
+// ── Form data PII stripping tests ──
+
+describe('stripPIIFromFormData', () => {
+  it('strips passport number from form data', () => {
+    const formData = {
+      passportNumber: 'AB123456',
+      occupation: 'company_employee',
+      purposeOfVisit: 'tourism',
+    };
+    const result = stripPIIFromFormData(formData);
+    expect(result.passportNumber).toBeUndefined();
+    expect(result.occupation).toBe('company_employee');
+    expect(result.purposeOfVisit).toBe('tourism');
+  });
+
+  it('strips all PII fields', () => {
+    const formData = {
+      passportNumber: 'AB123456',
+      dateOfBirth: '1990-01-01',
+      passportExpiry: '2030-01-01',
+      surname: 'Smith',
+      givenNames: 'John',
+      occupation: 'student',
+      hotelName: 'Park Hyatt',
+    };
+    const result = stripPIIFromFormData(formData);
+    expect(Object.keys(result)).toEqual(['occupation', 'hotelName']);
+  });
+
+  it('preserves non-PII fields unchanged', () => {
+    const formData = {
+      purposeOfVisit: 'tourism',
+      flightNumber: 'NH101',
+      accommodationName: 'Park Hyatt Tokyo',
+    };
+    const result = stripPIIFromFormData(formData);
+    expect(result).toEqual(formData);
+  });
+
+  it('handles empty form data', () => {
+    expect(stripPIIFromFormData({})).toEqual({});
   });
 });
