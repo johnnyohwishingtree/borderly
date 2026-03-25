@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Users, UserPlus, ChevronRight, CheckCircle, X } from 'lucide-react-native';
+import { Users, UserPlus, ChevronRight, CheckCircle, X, Clock, Shield } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
@@ -75,7 +75,7 @@ export default function AddCompanionsScreen() {
   const hasCompanions = companions.length > 0;
   const continueLabel = hasCompanions
     ? `Continue with ${companions.length + 1} traveler${companions.length + 1 > 1 ? 's' : ''}`
-    : 'Continue — just me';
+    : 'Skip for now';
 
   return (
     <>
@@ -166,28 +166,46 @@ export default function AddCompanionsScreen() {
             <ChevronRight size={20} color="#4f46e5" />
           </TouchableOpacity>
 
-          {/* Info card */}
-          <Card variant="outlined" className="mb-8 border-2 border-indigo-200 bg-indigo-50/50">
-            <View className="flex-row items-start">
-              <Users size={24} color="#4f46e5" style={{ marginRight: 12, marginTop: 2 }} />
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-gray-900 mb-1">
-                  Smart auto-fill for everyone
+          {/* Benefits section — visible when no companions added yet */}
+          {!hasCompanions && (
+            <View className="mb-8" testID="benefits-section">
+              <View className="flex-row items-center mb-4">
+                <Users size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <Text
+                  className="text-sm text-gray-800 flex-1"
+                  accessible={true}
+                >
+                  Fill forms once for your whole family
                 </Text>
-                <Text className="text-sm text-gray-600">
-                  Each companion's passport data is stored securely on your device. Declaration
-                  forms will be auto-filled for all travelers at once.
+              </View>
+              <View className="flex-row items-center mb-4">
+                <Clock size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <Text
+                  className="text-sm text-gray-800 flex-1"
+                  accessible={true}
+                >
+                  Save ~15 minutes per country per person
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Shield size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <Text
+                  className="text-sm text-gray-800 flex-1"
+                  accessible={true}
+                >
+                  Securely stored on this device only
                 </Text>
               </View>
             </View>
-          </Card>
+          )}
 
-          {/* Continue button */}
+          {/* Continue / Skip button */}
           <Button
             title={continueLabel}
             onPress={handleContinue}
             size="large"
             fullWidth
+            variant={hasCompanions ? 'primary' : 'outline'}
             testID="companions-continue-button"
           />
         </View>

@@ -79,10 +79,19 @@ describe('AddCompanionsScreen', () => {
     expect(getByTestId('companions-continue-button')).toBeTruthy();
   });
 
-  it('shows "Continue — just me" when no companions added', async () => {
+  it('shows "Skip for now" when no companions added', async () => {
     const { getByText } = render(<AddCompanionsScreen />);
 
-    expect(getByText('Continue — just me')).toBeTruthy();
+    expect(getByText('Skip for now')).toBeTruthy();
+  });
+
+  it('shows benefits section when no companions added', async () => {
+    const { getByTestId, getByText } = render(<AddCompanionsScreen />);
+
+    expect(getByTestId('benefits-section')).toBeTruthy();
+    expect(getByText('Fill forms once for your whole family')).toBeTruthy();
+    expect(getByText('Save ~15 minutes per country per person')).toBeTruthy();
+    expect(getByText('Securely stored on this device only')).toBeTruthy();
   });
 
   it('shows relationship picker options when Add a companion is tapped', async () => {
@@ -157,6 +166,21 @@ describe('AddCompanionsScreen', () => {
     expect(getAllByText('Spouse').length).toBeGreaterThan(0);
     expect(getAllByText('Child').length).toBeGreaterThan(0);
     expect(getAllByText('Other').length).toBeGreaterThan(0);
+  });
+
+  it('hides benefits section when companions are added', async () => {
+    (useProfileStore as unknown as jest.Mock).mockReturnValue({
+      getAllFamilyProfiles: jest.fn().mockResolvedValue([
+        mockFamilyMember({ id: 'member-1', relationship: 'spouse' }),
+      ]),
+      familyProfiles: [],
+    });
+
+    const { queryByTestId } = render(<AddCompanionsScreen />);
+
+    await waitFor(() => {
+      expect(queryByTestId('benefits-section')).toBeNull();
+    });
   });
 
   it('navigates to BiometricSetup when Continue is pressed', async () => {
