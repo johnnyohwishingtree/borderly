@@ -10,6 +10,7 @@ export { default as ReadinessChecklist } from './ReadinessChecklist';
 export { default as SubmissionStatusBadge } from './SubmissionStatusBadge';
 export { default as SaveTemplateModal } from './SaveTemplateModal';
 export { default as DuplicateTripModal } from './DuplicateTripModal';
+export { default as DeadlineSummary } from './DeadlineSummary';
 export { default as TravelerAvatars } from './TravelerAvatars';
 export { default as TravelerProgressList } from './TravelerProgressList';
 
@@ -25,5 +26,6 @@ export type { ReadinessChecklistProps } from './ReadinessChecklist';
 export type { SubmissionStatusBadgeProps } from './SubmissionStatusBadge';
 export type { SaveTemplateModalProps } from './SaveTemplateModal';
 export type { DuplicateTripModalProps } from './DuplicateTripModal';
+export type { DeadlineSummaryProps } from './DeadlineSummary';
 export type { TravelerAvatarsProps } from './TravelerAvatars';
 export type { TravelerProgressListProps } from './TravelerProgressList';

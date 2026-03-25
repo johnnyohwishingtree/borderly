@@ -54,7 +54,12 @@ function findMostUrgent(deadlines: LegDeadline[]): TripUrgency | null {
   };
 }
 
-export function useTripListDeadlines(trips: Trip[]): Record<string, TripUrgency> {
+export interface UseTripListDeadlinesReturn {
+  urgencyByTripId: Record<string, TripUrgency>;
+  schemas: Record<string, CountryFormSchema>;
+}
+
+export function useTripListDeadlines(trips: Trip[]): UseTripListDeadlinesReturn {
   const [schemas, setSchemas] = useState<Record<string, CountryFormSchema>>({});
 
   // Load schemas for all unique country codes across trips
@@ -84,7 +89,7 @@ export function useTripListDeadlines(trips: Trip[]): Record<string, TripUrgency>
     return () => { cancelled = true; };
   }, [trips]);
 
-  return useMemo(() => {
+  const urgencyByTripId = useMemo(() => {
     const result: Record<string, TripUrgency> = {};
     for (const trip of trips) {
       if (trip.status === 'completed') continue;
@@ -96,4 +101,6 @@ export function useTripListDeadlines(trips: Trip[]): Record<string, TripUrgency>
     }
     return result;
   }, [trips, schemas]);
+
+  return { urgencyByTripId, schemas };
 }
