@@ -104,9 +104,24 @@ function collectScreenSource(sourceFile: string): string {
 
     // Try exact file, then with extensions
     for (const ext of ['.ts', '.tsx']) {
-      const content = safeReadFile(resolvedPath + ext);
+      const filePath = resolvedPath + ext;
+      const content = safeReadFile(filePath);
       if (content) {
         parts.push(content);
+        // Follow relative imports from hook files (one level deep)
+        const relImports = content.match(/from\s+['"]\.\/[^'"]+['"]/g) ?? [];
+        for (const relImp of relImports) {
+          const relMatch = relImp.match(/from\s+['"](\.\/[^'"]+)['"]/);
+          if (!relMatch) continue;
+          const siblingPath = resolve(dirname(filePath), relMatch[1]);
+          for (const sibExt of ['.ts', '.tsx']) {
+            const sibContent = safeReadFile(siblingPath + sibExt);
+            if (sibContent) {
+              parts.push(sibContent);
+              break;
+            }
+          }
+        }
         break;
       }
     }
