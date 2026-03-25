@@ -19,11 +19,11 @@
  * 10. Multi-profile legs: worst passport status surfaces
  */
 
-import { computeTripReadiness, getOverallStatus } from '../../src/services/readiness/readinessService';
-import { ReadinessItem, ReadinessItemStatus } from '../../src/services/readiness/readinessTypes';
-import { Trip, TripLeg, SavedQRCode } from '../../src/types/trip';
-import { TravelerProfile } from '../../src/types/profile';
-import { CountryFormSchema } from '../../src/types/schema';
+import { computeTripReadiness, getOverallStatus } from '../../../src/services/readiness/readinessService';
+import { ReadinessItem, ReadinessItemStatus } from '../../../src/services/readiness/readinessTypes';
+import { Trip, TripLeg, SavedQRCode } from '../../../src/types/trip';
+import { TravelerProfile } from '../../../src/types/profile';
+import { CountryFormSchema } from '../../../src/types/schema';
 
 // ---------------------------------------------------------------------------
 // Fixtures / helpers
