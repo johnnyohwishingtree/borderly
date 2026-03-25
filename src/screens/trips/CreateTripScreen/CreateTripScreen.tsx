@@ -136,6 +136,8 @@ export default function CreateTripScreen() {
                   onChange={(date) => updateLeg(index, 'arrivalDate', date)}
                   testID={`leg-${index}-arrival-date`}
                   placeholder="Arrival date"
+                  minDate={new Date().toISOString().split('T')[0]}
+                  maxDate={`${new Date().getFullYear() + 3}-12-31`}
                   error={errors[`leg${index}.arrival`]}
                 />
               </View>
@@ -146,6 +148,8 @@ export default function CreateTripScreen() {
                   onChange={(date) => updateLeg(index, 'departureDate', date)}
                   testID={`leg-${index}-departure-date`}
                   placeholder="Departure date"
+                  minDate={leg.arrivalDate || new Date().toISOString().split('T')[0]}
+                  maxDate={`${new Date().getFullYear() + 3}-12-31`}
                 />
               </View>
             </View>
