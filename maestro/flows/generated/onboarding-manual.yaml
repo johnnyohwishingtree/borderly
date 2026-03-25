@@ -241,7 +241,7 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- tapOn: "Continue — just me"
+- tapOn: "Skip for now"
 
 # === BIOMETRIC SETUP — SKIP ===
 - extendedWaitUntil:

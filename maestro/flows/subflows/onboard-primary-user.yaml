@@ -222,7 +222,7 @@ appId: com.borderly.app
 - extendedWaitUntil:
     visible: "Traveling with family?"
     timeout: 15000
-- tapOn: "Continue — just me"
+- tapOn: "Skip for now"
 
 # === BIOMETRIC SETUP - SKIP ===
 - extendedWaitUntil:
