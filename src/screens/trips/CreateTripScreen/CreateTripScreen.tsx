@@ -219,7 +219,7 @@ export default function CreateTripScreen() {
               <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation</Text>
 
               <View className="space-y-3">
-                <View style={{ zIndex: 10 }}>
+                <View>
                   <AccommodationAutocomplete
                     value={leg.accommodation.name}
                     onNameChange={(text) => updateLeg(index, 'accommodation.name', text)}

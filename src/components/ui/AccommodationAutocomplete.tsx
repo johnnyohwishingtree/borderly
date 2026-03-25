@@ -10,7 +10,7 @@
  * Graceful offline fallback: when no API key is configured or the network is
  * unavailable, the component falls back to a plain TextInput field.
  *
- * Google attribution ("Powered by Google") is always shown per API terms.
+ * Google attribution ("Powered by Apple Maps") is always shown per API terms.
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -28,6 +28,7 @@ import {
   getPlacesApiKey,
   PlaceSuggestion,
 } from '../../services/places/placesService';
+import { getCountryName } from '../../constants/countries';
 
 export interface AccommodationAutocompleteProps {
   /** Current hotel/accommodation name value */
@@ -111,9 +112,10 @@ export default function AccommodationAutocomplete({
       debounceTimerRef.current = setTimeout(async () => {
         setIsLoadingSuggestions(true);
         try {
-          // Append country name to query for better scoping
-          const searchQuery = countryHint
-            ? `${text} ${countryHint}`
+          // Append country name to query for geographic scoping
+          const countryName = countryHint ? getCountryName(countryHint) : '';
+          const searchQuery = countryName
+            ? `${text} ${countryName}`
             : text;
           const results = await getLodgingSuggestions(
             searchQuery,
@@ -177,8 +179,8 @@ export default function AccommodationAutocomplete({
   }, []);
 
   return (
-    <View>
-      {/* Hotel name input with autocomplete */}
+    <View testID={testID}>
+      {/* Hotel name input */}
       <View style={styles.inputContainer}>
         <Input
           label={label}
@@ -190,7 +192,7 @@ export default function AccommodationAutocomplete({
           autoCorrect={false}
           editable={!disabled && !isLoadingDetails}
           error={error}
-          {...(testID ? { testID } : {})}
+          testID={testID ? `${testID}-input` : 'accommodation-name-input'}
         />
 
         {/* Loading indicator while fetching place details */}
@@ -199,50 +201,49 @@ export default function AccommodationAutocomplete({
             <ActivityIndicator size="small" color="#3b82f6" />
           </View>
         )}
-
-        {/* Lodging suggestions dropdown */}
-        {showSuggestions && (
-          <View
-            style={styles.suggestionsContainer}
-            testID={testID ? `${testID}-suggestions` : 'accommodation-suggestions'}
-          >
-            {isLoadingSuggestions && (
-              <View style={styles.loadingRow}>
-                <ActivityIndicator size="small" color="#6b7280" />
-                <Text style={styles.loadingText}>Searching…</Text>
-              </View>
-            )}
-            {!isLoadingSuggestions &&
-              suggestions.map((suggestion) => (
-                <TouchableOpacity
-                  key={suggestion.placeId}
-                  style={styles.suggestionRow}
-                  onPress={() => handleSuggestionPress(suggestion)}
-                  testID={`accommodation-suggestion-${suggestion.placeId}`}
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel={suggestion.description}
-                >
-                  <Text style={styles.suggestionMain} numberOfLines={1}>
-                    {suggestion.mainText}
-                  </Text>
-                  <Text style={styles.suggestionSecondary} numberOfLines={1}>
-                    {suggestion.secondaryText}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            {/* Google attribution — required by Google Maps Platform terms */}
-            <View style={styles.attributionRow}>
-              <Text style={styles.attributionText}>Powered by Google</Text>
-            </View>
-          </View>
-        )}
       </View>
+
+      {/* Suggestions list — renders inline (pushes content down) */}
+      {showSuggestions && (
+        <View
+          style={styles.suggestionsContainer}
+          testID={testID ? `${testID}-suggestions` : 'accommodation-suggestions'}
+        >
+          {isLoadingSuggestions && (
+            <View style={styles.loadingRow}>
+              <ActivityIndicator size="small" color="#6b7280" />
+              <Text style={styles.loadingText}>Searching…</Text>
+            </View>
+          )}
+          {!isLoadingSuggestions &&
+            suggestions.map((suggestion) => (
+              <TouchableOpacity
+                key={suggestion.placeId}
+                style={styles.suggestionRow}
+                onPress={() => handleSuggestionPress(suggestion)}
+                testID={`accommodation-suggestion-${suggestion.placeId}`}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={suggestion.description}
+              >
+                <Text style={styles.suggestionMain} numberOfLines={1}>
+                  {suggestion.mainText}
+                </Text>
+                <Text style={styles.suggestionSecondary} numberOfLines={1}>
+                  {suggestion.secondaryText}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          <View style={styles.attributionRow}>
+            <Text style={styles.attributionText}>Powered by Apple Maps</Text>
+          </View>
+        </View>
+      )}
 
       {/* Persistent Google attribution when autocomplete is active */}
       {hasApiKey && !showSuggestions && (
         <View style={styles.persistentAttribution}>
-          <Text style={styles.attributionText}>Powered by Google</Text>
+          <Text style={styles.attributionText}>Powered by Apple Maps</Text>
         </View>
       )}
     </View>
@@ -251,8 +252,6 @@ export default function AccommodationAutocomplete({
 
 const styles = StyleSheet.create({
   inputContainer: {
-    position: 'relative',
-    zIndex: 10,
   },
   detailsLoadingOverlay: {
     position: 'absolute',
@@ -261,20 +260,11 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   suggestionsContainer: {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
-    zIndex: 100,
+    marginTop: 4,
     maxHeight: 240,
     overflow: 'hidden',
   },
