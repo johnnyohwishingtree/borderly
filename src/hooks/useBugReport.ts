@@ -6,6 +6,28 @@ import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripStore } from '@/stores/useTripStore';
 import type { SelectOption } from '@/components/ui/Select';
 
+interface DiagnosticInfo {
+  timestamp: string;
+  platform: string;
+  platformVersion: string | number;
+  appVersion: string;
+  language: string;
+  theme: string;
+  biometricEnabled: boolean;
+  analyticsEnabled: boolean;
+  deviceInfo: {
+    hasProfile: boolean;
+    tripsCount: number;
+    lastActivity: string;
+  };
+  memory: { estimated: string };
+  features: {
+    cameraAvailable: boolean;
+    biometricsAvailable: boolean;
+    keychainAvailable: boolean;
+  };
+}
+
 const severityOptions: SelectOption[] = [
   { label: 'Low - Minor inconvenience', value: 'low' },
   { label: 'Medium - Affects functionality', value: 'medium' },
@@ -37,7 +59,7 @@ export function useBugReport() {
   const [stepsToReproduce, setStepsToReproduce] = useState<string>('');
   const [includeDiagnostics, setIncludeDiagnostics] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [diagnosticInfo, setDiagnosticInfo] = useState<any>(null);
+  const [diagnosticInfo, setDiagnosticInfo] = useState<DiagnosticInfo | null>(null);
 
   const generateDiagnosticInfo = useCallback(() => {
     const diagnostics = {
