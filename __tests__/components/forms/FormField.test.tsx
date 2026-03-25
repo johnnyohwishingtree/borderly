@@ -960,7 +960,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName');
+    const input = screen.getByTestId('accommodation-hotelName-input');
     expect(input.props.value).toBe('Park Hyatt Tokyo');
   });
 
@@ -979,7 +979,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName');
+    const input = screen.getByTestId('accommodation-hotelName-input');
     fireEvent.changeText(input, 'Hilton');
 
     expect(mockOnValueChange).toHaveBeenCalledWith('hotelName', 'Hilton');
@@ -1041,7 +1041,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName');
+    const input = screen.getByTestId('accommodation-hotelName-input');
     // Disabled input is not editable
     expect(input.props.editable).toBe(false);
   });
@@ -1098,7 +1098,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-accommodationName');
+    const input = screen.getByTestId('accommodation-accommodationName-input');
     fireEvent.changeText(input, 'Marina Bay Sands');
 
     expect(mockOnValueChange).toHaveBeenCalledWith('accommodationName', 'Marina Bay Sands');

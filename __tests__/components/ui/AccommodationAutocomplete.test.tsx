@@ -74,6 +74,7 @@ describe('AccommodationAutocomplete', () => {
       expect(mockGetLodgingSuggestions).toHaveBeenCalledWith(
         'Park Hyatt',
         expect.any(String),
+        undefined,
       );
     });
   });
@@ -89,18 +90,18 @@ describe('AccommodationAutocomplete', () => {
     expect(mockGetLodgingSuggestions).not.toHaveBeenCalled();
   });
 
-  it('shows Google attribution when API is available', () => {
+  it('shows Apple Maps attribution when API is available', () => {
     const { getByText } = render(
       <AccommodationAutocomplete {...defaultProps} />,
     );
-    expect(getByText('Powered by Google')).toBeTruthy();
+    expect(getByText('Powered by Apple Maps')).toBeTruthy();
   });
 
   it('does not show attribution when forced offline', () => {
     const { queryByText } = render(
       <AccommodationAutocomplete {...defaultProps} forceOffline />,
     );
-    expect(queryByText('Powered by Google')).toBeNull();
+    expect(queryByText('Powered by Apple Maps')).toBeNull();
   });
 
   it('shows error message when error prop is set', () => {
