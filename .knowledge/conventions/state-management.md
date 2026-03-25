@@ -26,4 +26,3 @@ Screens must be thin render layers. Business logic belongs in custom hooks under
 
 All exported from `src/hooks/index.ts`.
 
-## Known gaps

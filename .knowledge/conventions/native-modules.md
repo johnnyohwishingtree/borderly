@@ -15,4 +15,3 @@ Never bump `react` independently of `react-native`. RN pins a specific React ver
 - Never use `|| true` to silence quality checks
 - `react-native-mmkv` v3.x requires `newArchEnabled=true`
 
-## Known gaps

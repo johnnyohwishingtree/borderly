@@ -1,8 +1,6 @@
 # Screens
 
-Thin render layers. Business logic belongs in hooks, not here.
-Each screen lives in a named folder: `<ScreenName>/<ScreenName>.tsx`
+Thin render layers — business logic in hooks. Each screen: `<Name>/<Name>.tsx`
 
 See: .knowledge/conventions/state-management.md
-See: .knowledge/conventions/accessibility/core-principles.md
 See: .knowledge/patterns/add-screen.md

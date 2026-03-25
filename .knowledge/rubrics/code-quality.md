@@ -1,6 +1,6 @@
 # Code Quality Rubric
 
-Evaluate source modules (following `.claude/templates/module.md`) against these criteria.
+Evaluate source modules (following `.knowledge/templates/module.md`) against these criteria.
 
 ## Architecture (weight: 35%)
 - Functions are small and single-purpose

@@ -8,4 +8,3 @@ Features: capture, import, display, search, organization. All stored in Watermel
 - `QRCodeCard` — QR code display card
 - `QRFullScreen` — full-screen QR for scanning at gates
 
-## Known gaps

@@ -15,4 +15,3 @@ When source changes, derived artifacts must stay in sync.
 - After adding native modules: add web mock + webpack alias + pod install
 - Maestro drift detection tests exist in `maestro-drift.test.ts`
 
-## Known gaps

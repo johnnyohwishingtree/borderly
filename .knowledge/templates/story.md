@@ -30,8 +30,8 @@
 
 <Which patterns/templates apply to this story? Read these INSTEAD of reverse-engineering conventions from existing code.>
 
-- `.claude/patterns/<relevant>.md` — <when to follow it>
-- `.claude/templates/<relevant>.md` — <which files to structure this way>
+- `.knowledge/patterns/<relevant>.md` — <when to follow it>
+- `.knowledge/templates/<relevant>.md` — <which files to structure this way>
 
 If none apply, write "Standard — follow existing patterns in the codebase."
 

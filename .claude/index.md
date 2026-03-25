@@ -49,7 +49,7 @@ Read this first. Maps every artifact in the pipeline system.
 | `patterns/` | add-country, add-screen, add-native-dep |
 | `rubrics/` | code-quality, test-quality, skill-quality |
 
-All `.knowledge/` files can have `## Known gaps` sections. Pipeline adds gaps during Step 5 (learn). /optimize resolves them.
+Gaps found by /audit or /pipeline are written to `.knowledge/gaps.md`. Fix stories remove entries when resolved. /optimize resolves knowledge gaps and creates stories for code fixes.
 
 ## Folder-level CLAUDE.md files
 

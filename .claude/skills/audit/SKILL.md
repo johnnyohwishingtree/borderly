@@ -6,7 +6,7 @@ argument-hint: "[--dry-run]"
 
 # /audit — Codebase Health Audit
 
-Checks the codebase for drift, dead code, stale references, and violations. Adds findings as gap entries to the relevant `.knowledge/` knowledge files and creates fix stories.
+Checks that code follows folder-level CLAUDE.md conventions, detects drift, dead code, and architecture violations. Writes all findings to `.knowledge/gaps.md` and creates fix stories.
 
 **Scheduled task prompt:**
 ```
@@ -14,49 +14,90 @@ Read CLAUDE.md for project context.
 Read .claude/skills/audit/SKILL.md and follow every step.
 ```
 
-## Step 1: Run checks
+## Step 1: Convention compliance
 
-Run each check below. For every issue found, note the category and finding.
+For each folder CLAUDE.md file, read it and all its `See:` linked `.knowledge/` files. Then check whether the code in that folder actually follows the stated rules.
+
+### What to check per folder
+
+**`src/stores/`** — "Stores never import other stores or hooks"
+- Grep store files for imports from `../hooks/` or other store files
+
+**`src/components/`** — "Never import stores directly"
+- Grep component files for imports from `../stores/` or `useProfileStore`, `useTripStore`, etc.
+
+**`src/services/`** — "never import stores or hooks"
+- Grep service files for imports from `../stores/` or `../hooks/`
+
+**`src/hooks/`** — "All exported from index.ts"
+- Compare hook files in the directory to exports in `index.ts`
+
+**`src/screens/`** — "Thin render layers, business logic in hooks"
+- Flag screens with 5+ `useState` calls (candidates for hook extraction)
+
+**`src/components/`** — "NativeWind tokens, not inline styles"
+- Grep for `style={{` or inline hex colors (`#[0-9a-fA-F]{3,8}`)
+
+**General (all folders with CLAUDE.md)**
+- Verify every `See:` link points to an existing `.knowledge/` file
+- Verify folder CLAUDE.md is 5 lines or fewer (content belongs in `.knowledge/`)
+
+Add more checks as new folder CLAUDE.md files are created — read the rules, then verify them.
+
+## Step 2: Structural checks
 
 ### Dead code
 - Exports that nothing imports
-- Modules with no test file
+- Modules with no corresponding test file
 
 ### Architecture violations
-- Wrong dependency direction
-- Modules over 500 lines
-
-### Stale references
-- `.claude/` paths where `.knowledge/` is intended
-- Files referenced in docs that don't exist
+- Wrong dependency direction (see `.knowledge/concepts/dependency-direction.md`)
+- Source files over 500 lines
 
 ### Drift
-- README commands that don't match CLI help
-- Config references to files that don't exist
+- testIDs referenced in Maestro flows that don't exist in source
+- `.knowledge/` or `.claude/` path references pointing to files that don't exist
+- README commands that don't match actual CLI behavior
 
-### Folder CLAUDE.md health
-- "See:" links pointing to `.knowledge/` files that don't exist
-- Folder CLAUDE.md files over 5 lines (content should be in `.knowledge/`)
+## Step 3: Evaluate each finding
 
-## Step 2: Add findings to knowledge graph
+For every violation found, decide:
 
-For each finding, add a gap entry to the relevant `.knowledge/` file:
+**Is the code wrong?** The convention is correct but code doesn't follow it.
+- Add to `gaps.md` as a code fix
+- Example: a component imports a store directly — the component should use props
 
-| Finding type | Add gap to |
-|---|---|
-| Dead code, untested modules | `.knowledge/templates/story.md` or `.knowledge/conventions/testing.md` |
-| Architecture violations | `.knowledge/concepts/dependency-direction.md` (create if missing) |
-| Stale references, drift | `.knowledge/concepts/drift-detection.md` |
-| Missing conventions | `.knowledge/conventions/` (create new file) |
+**Is the knowledge stale?** The code is intentionally doing something different and the convention needs updating.
+- Add to `gaps.md` as a knowledge update
+- Example: a convention says "use pattern X" but the codebase has moved to pattern Y everywhere
+
+This evaluation is critical. Don't blindly flag violations — understand whether reality or documentation is wrong.
+
+## Step 4: Write findings to gaps.md
+
+Write all findings to `.knowledge/gaps.md`. Each entry includes: what's wrong, where, and whether to fix code or update knowledge.
 
 ```markdown
-## Known gaps
-- audit: <finding summary> (audit-YYYY-MM-DD)
+# Gaps
+
+Findings from audits and pipeline runs. Fix stories resolve these and remove the entry.
+
+## Code fixes
+- `src/components/trips/TripCard.tsx` imports `useTripStore` directly — should receive data via props (audit-YYYY-MM-DD)
+- `src/screens/Profile/Profile.tsx` has 7 useState calls — extract to `useProfile` hook (audit-YYYY-MM-DD)
+
+## Knowledge updates
+- `.knowledge/conventions/styling.md` says no inline styles but `StatusBadge` uses `style={{}}` for dynamic opacity — add exception for computed styles (audit-YYYY-MM-DD)
+
+## Drift
+- Maestro flow references `id:submit-form-button` but source uses `id:submit-declaration-button` (audit-YYYY-MM-DD)
 ```
 
-## Step 3: Create fix stories (if not --dry-run)
+If `gaps.md` already exists, **merge** new findings — don't duplicate entries that are already there.
 
-Group findings by category. For each group, create a story following `.knowledge/templates/story.md`.
+## Step 5: Create fix stories (if not --dry-run)
+
+Group findings by category. For each group with 2+ items, create a story.
 
 ```bash
 REPO="johnnyohwishingtree/borderly"  # CUSTOMIZE
@@ -65,16 +106,21 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Fix <category> issues from $DATE audit" \
   --label "story,pending" \
-  --body "<follow story template>"
+  --body "<follow .knowledge/templates/story.md>
+
+After completing fixes, remove resolved entries from .knowledge/gaps.md."
 ```
 
-## Step 4: Commit and push
+Always add the reminder to remove resolved entries from `gaps.md` in the story body.
+
+## Step 6: Commit and push
 
 ```bash
-git add .knowledge/
+git add .knowledge/gaps.md
 git diff --cached --quiet || git commit -m "chore: audit findings ($DATE)" && git push origin master
 ```
 
 ## What NOT to flag
-- Empty knowledge directories (they fill up over time)
+- Empty `.knowledge/` directories (they fill up over time)
 - Missing domain knowledge files (created when needed)
+- Violations already listed in `gaps.md` (don't duplicate)

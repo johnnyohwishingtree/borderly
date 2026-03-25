@@ -25,4 +25,3 @@
 - Mock in `jest.setup.js` (hides real import failures — Metro bundle check is safety net)
 - Mock in `e2e/mocks/` for Playwright (+ add alias in `webpack.config.js`)
 
-## Known gaps

@@ -25,4 +25,3 @@ Add form rendering test verifying DynamicForm loads the schema correctly.
 - [ ] Schema validation tests pass
 - [ ] E2E form rendering test added
 
-## Known gaps

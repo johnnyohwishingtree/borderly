@@ -18,4 +18,3 @@ Passport and personal data has strict containment rules.
 - Each family member has isolated storage with unique Keychain entries and encryption keys
 - Family member deletion securely removes all associated data
 
-## Known gaps
