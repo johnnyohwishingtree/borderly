@@ -403,8 +403,22 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'app-lock-toggle', label: 'App Lock', description: 'Toggle app lock on/off' },
       { testID: 'settings-theme-selector', label: 'Theme', description: 'Select light/dark/system theme' },
     ],
-    navigatesTo: ['PrivacyPolicy', 'Help', 'Feedback', 'BugReport'],
+    navigatesTo: ['PrivacyPolicy', 'Help', 'Feedback', 'BugReport', 'NotificationPreferences'],
     notes: ['Delete All Data requires TWO confirmation alerts.'],
+  },
+  NotificationPreferences: {
+    name: 'NotificationPreferences',
+    sourceFile: 'src/screens/settings/NotificationPreferences/NotificationPreferences.tsx',
+    waitFor: 'Notifications',
+    fields: [],
+    alerts: [],
+    actionButtons: [
+      { testID: 'notification-master-toggle', label: 'Deadline Reminders', description: 'Toggle all deadline notifications' },
+      { testID: 'timing-${option.value}', label: '48/24/6 hours before', description: 'Toggle timing reminder' },
+      { testID: 'quiet-hours-toggle', label: 'Quiet Hours', description: 'Toggle quiet hours' },
+    ],
+    navigatesTo: [],
+    notes: ['At least one timing option must remain selected.'],
   },
 };
 

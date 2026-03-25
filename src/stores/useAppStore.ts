@@ -8,6 +8,25 @@ const APP_THEME_KEY = 'app_theme';
 export type ThemePreference = 'system' | 'light' | 'dark';
 
 const HAS_SEEN_FIRST_RUN_PROMPT_KEY = 'has_seen_first_run_prompt';
+const NOTIF_PREFS_KEY = 'notification_preferences';
+
+export type NotificationTiming = '48h' | '24h' | '6h';
+
+export interface NotificationPreferences {
+  enabled: boolean;
+  timing: NotificationTiming[];
+  quietHoursEnabled: boolean;
+  quietHoursStart: string;
+  quietHoursEnd: string;
+}
+
+const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
+  enabled: true,
+  timing: ['48h', '24h', '6h'],
+  quietHoursEnabled: false,
+  quietHoursStart: '22:00',
+  quietHoursEnd: '07:00',
+};
 
 interface AppStore {
   // App preferences
@@ -89,6 +108,10 @@ interface AppStore {
   hasSeenFirstRunPrompt: boolean;
   /** Mark the first-run prompt as seen; persists to MMKV so it never shows again. */
   dismissFirstRunPrompt: () => void;
+
+  // Notification preferences
+  notificationPreferences: NotificationPreferences;
+  updateNotificationPreferences: (prefs: Partial<NotificationPreferences>) => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -119,6 +142,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   schemaRefreshCountries: [],
   schemaBannerDismissedAt: null,
   hasSeenFirstRunPrompt: false,
+  notificationPreferences: DEFAULT_NOTIFICATION_PREFS,
 
   // App preferences
   updatePreference: <K extends keyof AppPreferences>(key: K, value: AppPreferences[K]) => {
@@ -303,6 +327,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const isLockEnabled = mmkvService.getBoolean('app_lock_enabled') ?? false;
     const lockTimeoutMinutes = mmkvService.getNumber('app_lock_timeout_minutes') ?? 5;
 
+    // Load notification preferences
+    let notificationPreferences = DEFAULT_NOTIFICATION_PREFS;
+    const notifPrefsJson = mmkvService.getString(NOTIF_PREFS_KEY);
+    if (notifPrefsJson) {
+      try {
+        const parsed = JSON.parse(notifPrefsJson);
+        if (typeof parsed === 'object' && parsed !== null) {
+          notificationPreferences = { ...DEFAULT_NOTIFICATION_PREFS, ...parsed };
+        }
+      } catch {
+        console.warn('[useAppStore] Failed to parse notification_preferences from storage');
+      }
+    }
+
     set({
       lastSchemaRefreshTime: refreshTime,
       schemaRefreshCountries: refreshCountries,
@@ -310,7 +348,16 @@ export const useAppStore = create<AppStore>((set, get) => ({
       hasSeenFirstRunPrompt,
       isLockEnabled,
       lockTimeoutMinutes,
+      notificationPreferences,
     });
+  },
+
+  // Notification preferences
+  updateNotificationPreferences: (prefs: Partial<NotificationPreferences>) => {
+    const current = get().notificationPreferences;
+    const updated = { ...current, ...prefs };
+    mmkvService.setString(NOTIF_PREFS_KEY, JSON.stringify(updated));
+    set({ notificationPreferences: updated });
   },
 
   // First-run prompt actions

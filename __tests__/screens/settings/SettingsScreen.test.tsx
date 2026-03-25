@@ -74,6 +74,8 @@ jest.mock('lucide-react-native', () => {
   return {
     Lock: () => <View testID="icon-lock" />,
     Unlock: () => <View testID="icon-unlock" />,
+    Bell: () => <View testID="icon-bell" />,
+    ChevronRight: () => <View testID="icon-chevron-right" />,
   };
 });
 
