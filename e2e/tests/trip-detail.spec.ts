@@ -280,3 +280,106 @@ test.describe('TripDetailScreen — Submission Progress (Story #691)', () => {
     await expect(page.getByTestId('submission-progress-summary').getByText('0/2')).toBeVisible({ timeout: 5000 });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Traveler avatars on TripDetailScreen header
+// ---------------------------------------------------------------------------
+
+test.describe('Trip detail — traveler summary', () => {
+  test('traveler summary row appears when trip has multiple assigned travelers', async ({ page }) => {
+    const spouseProfile = {
+      id: 'e2e-profile-spouse',
+      surname: 'Smith',
+      givenNames: 'Bob',
+      passportNumber: 'CD7654321',
+      nationality: 'USA',
+      dateOfBirth: '1986-05-20',
+      gender: 'M',
+      passportExpiry: '2031-05-20',
+      issuingCountry: 'USA',
+      createdAt: '2026-01-01T00:00:00Z',
+      updatedAt: '2026-01-01T00:00:00Z',
+    };
+
+    const familyProfilesJson = JSON.stringify({
+      profiles: {
+        [DEFAULT_PROFILE.id]: {
+          id: DEFAULT_PROFILE.id,
+          relationship: 'self',
+          isPrimary: true,
+          isActive: true,
+          biometricEnabled: false,
+          createdAt: DEFAULT_PROFILE.createdAt,
+          updatedAt: DEFAULT_PROFILE.updatedAt,
+          nickname: 'Alice Smith',
+        },
+        [spouseProfile.id]: {
+          id: spouseProfile.id,
+          relationship: 'spouse',
+          isPrimary: false,
+          isActive: true,
+          biometricEnabled: false,
+          createdAt: spouseProfile.createdAt,
+          updatedAt: spouseProfile.updatedAt,
+          nickname: 'Bob Smith',
+        },
+      },
+      primaryProfileId: DEFAULT_PROFILE.id,
+      maxProfiles: 8,
+      version: 1,
+      lastModified: DEFAULT_PROFILE.updatedAt,
+    });
+
+    const tripId = 'trip-family-test';
+    const state = baseState({
+      profiles: {
+        [DEFAULT_PROFILE.id]: { ...DEFAULT_PROFILE },
+        [spouseProfile.id]: spouseProfile,
+      },
+      mmkv: {
+        current_profile_id: DEFAULT_PROFILE.id,
+        family_profiles: familyProfilesJson,
+      },
+      trips: [{ id: tripId, name: 'Family Trip', status: 'upcoming' }],
+      tripLegs: {
+        [tripId]: [
+          {
+            id: 'leg-family',
+            destinationCountry: 'JPN',
+            arrivalDateISO: '2027-08-01',
+            departureDateISO: '2027-08-10',
+            flightNumber: 'NH101',
+            airlineCode: 'NH',
+            formStatus: 'not_started',
+            order: 0,
+            assignedTravelers: [DEFAULT_PROFILE.id, spouseProfile.id],
+            accommodation: {
+              name: 'Park Hyatt Tokyo',
+              address: {
+                street: '3-7-1-2 Nishi-Shinjuku',
+                city: 'Shinjuku',
+                country: 'Japan',
+                postalCode: '163-1055',
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    await injectState(page, state);
+    await goToTripDetail(page, 'Family Trip');
+
+    // Traveler summary section should be visible
+    await expect(page.getByTestId('trip-detail-travelers')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Travelers')).toBeVisible();
+  });
+
+  test('traveler summary row is hidden for solo traveler trip', async ({ page }) => {
+    await injectState(page, tripWithOneLeg());
+    await goToTripDetail(page, 'Detail Test Trip');
+
+    // No traveler summary should appear
+    await expect(page.getByTestId('trip-detail-travelers')).not.toBeVisible();
+  });
+});

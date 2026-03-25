@@ -2,7 +2,9 @@ import React, { memo, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ActionSheetIOS, Alert, Platform } from 'react-native';
 import { Card, StatusBadge, ProgressBar } from '../ui';
 import { Trip } from '../../types/trip';
+import type { FamilyMember } from '../../types/profile';
 import CountryFlag from './CountryFlag';
+import TravelerAvatars from './TravelerAvatars';
 
 export interface TripCardProps {
   trip: Trip;
@@ -10,6 +12,7 @@ export interface TripCardProps {
   onDuplicate?: () => void;
   onDelete?: () => void;
   showProgress?: boolean;
+  travelers?: FamilyMember[];
 }
 
 const TripCard = memo<TripCardProps>(({
@@ -17,7 +20,8 @@ const TripCard = memo<TripCardProps>(({
   onPress,
   onDuplicate,
   onDelete,
-  showProgress = true
+  showProgress = true,
+  travelers,
 }) => {
   const formatDate = useMemo(() => (dateStr: string) => {
     try {
@@ -197,6 +201,18 @@ const TripCard = memo<TripCardProps>(({
                   </Text>
                 )}
               </View>
+            </View>
+          )}
+
+          {/* Travelers */}
+          {travelers && travelers.length > 1 && (
+            <View className="mb-4">
+              <TravelerAvatars
+                travelers={travelers}
+                maxVisible={3}
+                size="small"
+                testID={`trip-card-travelers-${trip.name}`}
+              />
             </View>
           )}
 
