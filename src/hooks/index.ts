@@ -13,6 +13,8 @@ export { usePortalAutoFill } from './usePortalAutoFill';
 export { usePortalAutoLogin } from './usePortalAutoLogin';
 export { usePortalProfiles } from './usePortalProfiles';
 export { useTripCreation } from './useTripCreation';
+export { useTripFilter } from './useTripFilter';
+export type { TripStatusFilter, UseTripFilterReturn } from './useTripFilter';
 export type { LegFormData } from './useTripCreationTypes';
 export { useTripDetail } from './useTripDetail';
 export { usePortalSubmission } from './usePortalSubmission';
