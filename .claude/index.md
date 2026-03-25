@@ -29,7 +29,6 @@ Read this first. Maps every artifact in the pipeline system.
 | `skills/ux-review/` | Evaluate user journeys and flow efficiency | `/ux-review` |
 | `skills/ux-implement/` | Implement flow-level UX changes | `/ux-implement` |
 | `skills/qa/` | Walk through app, document bugs | `/qa` |
-| `skills/review-pr/` | Comprehensive PR code review | `/review-pr` |
 | `skills/test-suite/` | Find and fix test coverage gaps | `/test-suite` |
 | `skills/plan-feature/` | Plan and implement a new feature | `/plan-feature` |
 | `skills/refactor-design/` | Audit and fix architecture issues | `/refactor-design` |
