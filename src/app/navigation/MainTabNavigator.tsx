@@ -21,6 +21,7 @@ const TripDetailScreen = lazy(() => import('@/screens/trips').then(m => ({ defau
 const LegFormScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.LegFormScreen })));
 const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
 const PortalSubmissionScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.PortalSubmissionScreen })));
+const TripChecklistScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripChecklistScreen })));
 const TemplatesScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TemplatesScreen })));
 
 // Lazy load wallet screens
@@ -150,6 +151,16 @@ function TripNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <PortalSubmissionScreen />
+          </Suspense>
+        )}
+      </TripStack.Screen>
+      <TripStack.Screen
+        name="TripChecklist"
+        options={{ title: 'Pre-Departure Checklist' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <TripChecklistScreen />
           </Suspense>
         )}
       </TripStack.Screen>

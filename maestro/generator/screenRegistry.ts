@@ -368,6 +368,16 @@ export const SCREENS: Record<string, ScreenSpec> = {
     navigatesTo: ['AddFamilyMember'],
   },
 
+  TripChecklist: {
+    name: 'TripChecklist',
+    sourceFile: 'src/screens/trips/TripChecklistScreen/TripChecklistScreen.tsx',
+    waitFor: 'checklist-progress',
+    fields: [],
+    alerts: [],
+    actionButtons: [],
+    navigatesTo: ['LegForm', 'QRWallet', 'Profile', 'TripDetail'],
+  },
+
   Templates: {
     name: 'Templates',
     sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
