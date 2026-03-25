@@ -68,6 +68,12 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   const [legOverrides, setLegOverrides] = useState<Set<number>>(new Set());
 
   /**
+   * When true, trip-level travelers sync to all legs (overrides are ignored).
+   * Default: true for new trips.
+   */
+  const [applyToAllLegs, setApplyToAllLegsRaw] = useState(true);
+
+  /**
    * Pre-populate legs (and trip name) from a saved template when `templateId`
    * is provided.  Only runs once on mount.
    */
@@ -138,6 +144,37 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
       }
     }
   }, [familyMembers, legs]);
+
+  /**
+   * Toggle "apply to all legs". When turning on, syncs trip-level travelers
+   * to all legs and clears overrides. Shows confirmation if per-leg
+   * customization exists.
+   */
+  const setApplyToAllLegs = useCallback((value: boolean) => {
+    if (value) {
+      const hasCustomization = legOverrides.size > 0;
+      const doApply = () => {
+        setApplyToAllLegsRaw(true);
+        setLegOverrides(new Set());
+        setLegs(prev => prev.map(leg => ({ ...leg, assignedTravelers: tripTravelers })));
+      };
+
+      if (hasCustomization) {
+        Alert.alert(
+          'Apply to all destinations?',
+          'This will overwrite per-destination traveler selections with the trip-level selection.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Apply', onPress: doApply },
+          ],
+        );
+      } else {
+        doApply();
+      }
+    } else {
+      setApplyToAllLegsRaw(false);
+    }
+  }, [legOverrides, tripTravelers]);
 
   /**
    * Returns the default traveler list for a new leg:
@@ -222,11 +259,14 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
 
     setLegs(prev =>
       prev.map((leg, index) => {
-        if (legOverrides.has(index)) return leg;
-        return { ...leg, assignedTravelers: newTravelers };
+        // When applyToAllLegs is on, sync ALL legs regardless of overrides
+        if (applyToAllLegs || !legOverrides.has(index)) {
+          return { ...leg, assignedTravelers: newTravelers };
+        }
+        return leg;
       }),
     );
-  }, [familyMembers, tripTravelers, legOverrides]);
+  }, [familyMembers, tripTravelers, legOverrides, applyToAllLegs]);
 
   /**
    * Toggle a traveler on a specific leg.
@@ -235,6 +275,8 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
    */
   const handleTravelerToggle = useCallback((legIndex: number, travelerId: string) => {
     setLegOverrides(prev => new Set([...prev, legIndex]));
+    // Per-leg customization implies "apply to all" is no longer in effect
+    setApplyToAllLegsRaw(false);
 
     setLegs(prev => {
       const newLegs = [...prev];
@@ -453,6 +495,8 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
     legs,
     tripTravelers,
     legOverrides,
+    applyToAllLegs,
+    setApplyToAllLegs,
     isCreating,
     errors,
     showScanner,
