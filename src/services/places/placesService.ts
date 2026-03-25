@@ -94,6 +94,8 @@ export async function getLodgingSuggestions(
   try {
     if (ApplePlaces) {
       const results = await ApplePlaces.search(input, 'lodging');
+      // Cache full results so getLodgingDetails can look up address data
+      _lastSearchResults = results;
       return results.map(r => ({
         placeId: r.placeId,
         description: r.description,
@@ -102,7 +104,23 @@ export async function getLodgingSuggestions(
       }));
     }
     // Fallback: Photon
-    return await photonSearch(input, 'lodging');
+    const photonResults = await photonSearch(input, 'lodging');
+    _lastSearchResults = photonResults.map(r => ({
+      placeId: r.placeId,
+      name: r.name,
+      description: r.description,
+      mainText: r.mainText,
+      secondaryText: r.secondaryText,
+      address: {
+        line1: r.address.line1 ?? '',
+        city: r.address.city ?? '',
+        state: r.address.state ?? '',
+        postalCode: r.address.postalCode ?? '',
+        country: r.address.country ?? '',
+      },
+      formattedAddress: r.formattedAddress,
+    }));
+    return photonResults;
   } catch {
     return [];
   }
