@@ -133,9 +133,9 @@ describe('Boarding Pass Parser Service', () => {
           ...mockSingleLegData.data,
           legs: [{
             ...mockSingleLegData.data.legs[0],
-            toCity: 'CGK', // Indonesia - not a supported destination
-            operatingCarrierDesignator: 'GA',
-            flightNumber: 'GA0001',
+            toCity: 'CDG', // France - not a supported destination
+            operatingCarrierDesignator: 'AF',
+            flightNumber: 'AF0001',
           }],
         },
       };
@@ -146,13 +146,13 @@ describe('Boarding Pass Parser Service', () => {
 
       // Should still parse but with warning logged
       expect(result).toEqual(expect.objectContaining({
-        arrivalAirport: 'CGK',
-        destinationCountry: 'IDN',
-        airlineCode: 'GA',
-        flightNumber: 'GA0001',
+        arrivalAirport: 'CDG',
+        destinationCountry: 'FRA',
+        airlineCode: 'AF',
+        flightNumber: 'AF0001',
       }));
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Destination airport CGK (IDN) is not in supported countries');
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Destination airport CDG (FRA) is not in supported countries');
       consoleWarnSpy.mockRestore();
     });
 
@@ -523,17 +523,17 @@ describe('Boarding Pass Parser Service', () => {
     });
 
     it('should return false for unsupported destinations', () => {
-      const indonesiaPass: ParsedBoardingPass = {
+      const francePass: ParsedBoardingPass = {
         passengerName: 'DOE/JOHN',
-        airlineCode: 'GA',
-        flightNumber: 'GA001',
+        airlineCode: 'AF',
+        flightNumber: 'AF001',
         departureAirport: 'LAX',
-        arrivalAirport: 'CGK',
+        arrivalAirport: 'CDG',
         flightDate: '2024-05-02',
-        destinationCountry: 'IDN',
+        destinationCountry: 'FRA',
       };
 
-      expect(isBoardingPassSupported(indonesiaPass)).toBe(false);
+      expect(isBoardingPassSupported(francePass)).toBe(false);
     });
 
     it('should return false when destination country is missing', () => {

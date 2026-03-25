@@ -83,6 +83,12 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
     fullName: 'India',
     colors: ['#FF9933', '#FFFFFF', '#138808', '#000080'],
   },
+  {
+    code: 'IDN',
+    name: 'Indonesia',
+    fullName: 'Indonesia',
+    colors: ['#FF0000', '#FFFFFF'],
+  },
 ];
 
 /**
