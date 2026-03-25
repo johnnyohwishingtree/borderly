@@ -150,6 +150,22 @@ jest.mock('../../../src/hooks/usePassportValidity', () => ({
   usePassportValidity: (...args: unknown[]) => mockUsePassportValidity(...args),
 }));
 
+jest.mock('../../../src/hooks/useTripChecklist', () => ({
+  useTripChecklist: () => ({
+    checklist: {
+      tripId: 'trip_1',
+      tripName: 'Asia Summer 2026',
+      items: [
+        { id: 'form-1', category: 'form', label: 'Japan entry form', status: 'not-started', detail: 'Form not started', urgency: 'critical', deepLink: { screen: 'LegForm', params: { legId: 'leg_1' } } },
+      ],
+      overallStatus: 'not-started',
+      completedCount: 0,
+      totalCount: 1,
+    },
+    isLoading: false,
+  }),
+}));
+
 // Shallow mock so it doesn't pull in lucide-react-native's AlertTriangle icon.
 jest.mock('../../../src/components/trips/PassportValidityWarning', () => {
   const React = require('react');
@@ -183,6 +199,15 @@ describe('TripDetailScreen — rendering', () => {
   it('renders a LegCard for each leg', () => {
     render(<TripDetailScreen />);
     expect(screen.getByTestId('leg-card-JPN')).toBeTruthy();
+  });
+
+  it('renders the Pre-Departure Checklist card', () => {
+    render(<TripDetailScreen />);
+    const card = screen.getByTestId('checklist-card');
+    expect(card).toBeTruthy();
+    expect(card.props.accessibilityRole).toBe('button');
+    expect(screen.getByText('Pre-Departure Checklist')).toBeTruthy();
+    expect(screen.getByText('0 of 1 items complete')).toBeTruthy();
   });
 
   it('renders the Edit button', () => {
