@@ -4,7 +4,7 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Code fixes
 
-- E2E suite (`pnpm e2e`) — 249 of 260 tests failing on master (pre-existing). Likely environment/config issue with Playwright web mocks or webpack config. Needs investigation.
+- E2E suite (`pnpm e2e`) — all failures caused by missing Playwright browser binaries. Webpack compiles successfully. Fix: run `pnpm exec playwright install` in an environment that allows CDN downloads (blocked in cloud/CI sandboxes). Not a code issue.
 
 ## Knowledge updates
 
