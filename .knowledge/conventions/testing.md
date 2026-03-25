@@ -55,4 +55,6 @@ ts-jest compilation is memory-hungry. Heavy import chains cause OOM in Jest work
 - **Importing from barrel in tests** (`from '@/hooks'`) — pulls in every hook's dependency tree, causes OOM. Import the specific file.
 - **Spawning background Jest processes to retry** — if a test OOMs, fix the import chain or mocks, don't throw more memory at it
 - **`jest.useFakeTimers()` with renderHook** — causes hangs and memory leaks; use real timers
+- **Trusting mocked native module tests as proof the feature works** — Jest mocks prove JS passes correct args, but the native module might not be compiled, linked, or receiving the args. Always verify native modules load at runtime (`NativeModules.X !== null`)
+- **Forgetting to update comments after implementation changes** — "Powered by Google" in a component that uses Apple MapKit misleads every reader. Update comments, JSDoc, and attribution text when switching implementations.
 

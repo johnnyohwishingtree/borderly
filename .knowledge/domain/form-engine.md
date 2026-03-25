@@ -25,12 +25,18 @@ Each field has: `id`, `label`, `type`, `required`, `section`, `autoFillSource`. 
 
 ## Smart components
 When a specialized component exists for a field type, ALWAYS use it instead of plain `<Input>`:
-- `AccommodationAutocomplete` — for hotel/accommodation name fields
-- `AddressAutocomplete` — for address fields with Google Places
+- `AccommodationAutocomplete` — for hotel/accommodation name fields (Apple MapKit on iOS, Photon on Android)
+- `AddressAutocomplete` — for address fields (Apple MapKit on iOS, Photon on Android)
 - `DatePickerField` — for date fields
 - `SearchableSelect` — for dropdown fields with search
 
 Plain Input loses autocomplete, platform autofill hints, and API-powered suggestions.
+
+### Smart component wiring checklist
+When using a smart component, check ALL its props — not just `value` and `onChange`:
+- `AccommodationAutocomplete`: wire `onAddressResolved` to auto-fill the `AddressAutocomplete` below it. Wire `countryHint` to the leg's destination country so search results are scoped.
+- `AddressAutocomplete`: wire `onAddressChange` to update the full address object (line1, city, state, postalCode, country).
+- `SearchableSelect`: wire `options` with `{ value: code, label: name }` format — `onValueChange` returns the `value` (code), not the label.
 
 ## Multi-traveler model
 Travelers are assigned per-leg, not per-trip. Each `TripLeg` has an optional `assignedTravelers: string[]` (profile IDs) and `travelerFormsData: TravelerFormData[]` for per-traveler form state. There is no `Trip.travelers` field — the trip itself doesn't own traveler assignments.
