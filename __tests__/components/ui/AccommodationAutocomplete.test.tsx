@@ -10,7 +10,6 @@
  * - Typed text commits via onNameChange on every keystroke
  */
 
-import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 
 // Mock the places service

@@ -223,7 +223,14 @@ export default function CreateTripScreen() {
                   <AccommodationAutocomplete
                     value={leg.accommodation.name}
                     onNameChange={(text) => updateLeg(index, 'accommodation.name', text)}
-                    onAddressResolved={(address) => updateLeg(index, 'accommodation.address.line1', address)}
+                    onAddressResolved={(resolved) => {
+                      if (resolved.line1) updateLeg(index, 'accommodation.address.line1', resolved.line1);
+                      if (resolved.city) updateLeg(index, 'accommodation.address.city', resolved.city);
+                      if (resolved.state) updateLeg(index, 'accommodation.address.state', resolved.state);
+                      if (resolved.postalCode) updateLeg(index, 'accommodation.address.postalCode', resolved.postalCode);
+                      if (resolved.country) updateLeg(index, 'accommodation.address.country', resolved.country);
+                    }}
+                    countryHint={leg.destinationCountry}
                     testID={`leg-${index}-accommodation-name`}
                     error={errors[`leg${index}.accommodation`]}
                   />

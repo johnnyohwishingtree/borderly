@@ -34,8 +34,10 @@ export interface AccommodationAutocompleteProps {
   value: string;
   /** Called when the hotel name changes (user typing or selection) */
   onNameChange: (name: string) => void;
-  /** Optional: called with the formatted address when a lodging is selected */
-  onAddressResolved?: (formattedAddress: string) => void;
+  /** Optional: called with structured address when a lodging is selected */
+  onAddressResolved?: (address: { line1?: string; city?: string; state?: string; postalCode?: string; country?: string; formattedAddress?: string }) => void;
+  /** ISO country code to scope search results (e.g., 'JPN' for Japan leg) */
+  countryHint?: string;
   /** Input label — defaults to 'Hotel / Accommodation Name' */
   label?: string;
   /** Validation error message */
@@ -58,6 +60,7 @@ export default function AccommodationAutocomplete({
   value,
   onNameChange,
   onAddressResolved,
+  countryHint,
   label = 'Hotel / Accommodation Name',
   error,
   disabled = false,
@@ -108,8 +111,12 @@ export default function AccommodationAutocomplete({
       debounceTimerRef.current = setTimeout(async () => {
         setIsLoadingSuggestions(true);
         try {
+          // Append country name to query for better scoping
+          const searchQuery = countryHint
+            ? `${text} ${countryHint}`
+            : text;
           const results = await getLodgingSuggestions(
-            text,
+            searchQuery,
             sessionTokenRef.current,
           );
           setSuggestions(results);
@@ -119,7 +126,7 @@ export default function AccommodationAutocomplete({
         }
       }, 300);
     },
-    [hasApiKey, onNameChange],
+    [hasApiKey, onNameChange, countryHint],
   );
 
   /**
@@ -142,11 +149,14 @@ export default function AccommodationAutocomplete({
         sessionTokenRef.current = generateSessionToken();
 
         if (details) {
-          // Use the official establishment name from Google's database
+          // Use the official establishment name
           onNameChange(details.name || suggestion.mainText);
-          // Resolve formatted address for the related address field (if applicable)
-          if (onAddressResolved && details.formattedAddress) {
-            onAddressResolved(details.formattedAddress);
+          // Resolve structured address for the address field below
+          if (onAddressResolved) {
+            onAddressResolved({
+              ...details.address,
+              formattedAddress: details.formattedAddress,
+            });
           }
         } else {
           // Fallback: use the suggestion's main text as the hotel name
