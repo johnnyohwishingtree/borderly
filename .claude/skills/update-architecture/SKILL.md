@@ -54,12 +54,12 @@ Read `docs/mvp-proposal.md` and update if:
 - Security model changed
 - New screens affect the user flow diagrams
 
-### Step 4: Update .claude/index.md
+### Step 4: Update .knowledge/index.md
 
-If any `.claude/` files were added, removed, or renamed:
+If any `.claude/` or `.knowledge/` files were added, removed, or renamed:
 - Update the Rules table
 - Update the Skills table
-- Update the Templates/Rubrics table
+- Update the Knowledge table
 
 ### Step 5: Regenerate Flow Graph
 

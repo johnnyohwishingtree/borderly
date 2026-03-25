@@ -19,7 +19,7 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ### Step 1: Understand Context
 
 1. Read `CLAUDE.md` for project architecture and conventions
-2. Read `.claude/index.md` for the system map
+2. Read `.knowledge/index.md` for the system map
 3. Read existing code in the area being modified — never propose changes to code you haven't read
 
 ### Step 2: Plan
@@ -75,7 +75,7 @@ If any fail, fix and re-run. Do not proceed until all pass.
 
 - **New screen?** Add E2E test in `e2e/tests/`, add web mock if new native dep
 - **New navigation route?** Update `src/app/navigation/types.ts`
-- **New `.claude/` file?** Update `.claude/index.md`
+- **New `.claude/` or `.knowledge/` file?** Update `.knowledge/index.md`
 - **New native dependency?** Add mock in `e2e/mocks/`, alias in `webpack.config.js`, run `cd ios && pod install`
 
 ## Domain-Specific Checklists

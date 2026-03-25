@@ -67,7 +67,7 @@ Project knowledge lives in `.knowledge/` — the pipeline reads and improves the
 | `templates/` | module, test, story, epic, skill structure |
 | `rubrics/` | code quality, test quality, skill quality criteria |
 
-See `.claude/index.md` for the full system map.
+See `.knowledge/index.md` for the full system map.
 
 ## Rules
 
@@ -78,7 +78,7 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 
 ## Skills Reference
 
-See `.claude/index.md` for all 18 skills. Key pipeline skills:
+See `.knowledge/index.md` for all 17 skills. Key pipeline skills:
 - `/pipeline` — Autonomous story loop (hourly scheduled task)
 - `/audit` — Codebase health audit (3x daily scheduled task)
 - `/optimize` — Resolve knowledge gaps, compress bloated files
