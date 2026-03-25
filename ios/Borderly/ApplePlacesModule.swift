@@ -53,6 +53,8 @@ class ApplePlacesModule: NSObject, RCTBridgeModule {
     resolve: @escaping RCTPromiseResolveBlock,
     reject: @escaping RCTPromiseRejectBlock
   ) {
+    NSLog("[ApplePlaces] search called: query='%@' type='%@' countryCode='%@'", query, type, countryCode)
+
     let request = MKLocalSearch.Request()
     request.naturalLanguageQuery = query
 
@@ -86,6 +88,10 @@ class ApplePlacesModule: NSObject, RCTBridgeModule {
       // Hard filter results to the target country
       // countryCode is alpha-3 (JPN), isoCountryCode is alpha-2 (JP)
       let alpha2 = ApplePlacesModule.alpha3ToAlpha2[countryCode] ?? ""
+      NSLog("[ApplePlaces] filtering: countryCode='%@' alpha2='%@' totalResults=%d", countryCode, alpha2, response.mapItems.count)
+      for item in response.mapItems.prefix(3) {
+        NSLog("[ApplePlaces] result: '%@' country='%@'", item.name ?? "?", item.placemark.isoCountryCode ?? "?")
+      }
       let items: [MKMapItem]
       if countryCode.isEmpty || alpha2.isEmpty {
         items = Array(response.mapItems.prefix(5))

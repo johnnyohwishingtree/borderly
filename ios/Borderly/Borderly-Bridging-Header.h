@@ -7,6 +7,7 @@
 
 #import <React/RCTBridgeModule.h>
 #import <React/RCTViewManager.h>
+#import <React/RCTEventEmitter.h>
 
 // WatermelonDB JSI bridging
 #if __has_include(<watermelondb/WatermelonDB.h>)
