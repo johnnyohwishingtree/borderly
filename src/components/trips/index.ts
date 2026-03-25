@@ -11,6 +11,7 @@ export { default as SubmissionStatusBadge } from './SubmissionStatusBadge';
 export { default as SaveTemplateModal } from './SaveTemplateModal';
 export { default as DuplicateTripModal } from './DuplicateTripModal';
 export { default as TravelerAvatars } from './TravelerAvatars';
+export { default as TravelerProgressList } from './TravelerProgressList';
 
 export type { TripCardProps } from './TripCard';
 export type { LegCardProps } from './LegCard';
@@ -25,3 +26,4 @@ export type { SubmissionStatusBadgeProps } from './SubmissionStatusBadge';
 export type { SaveTemplateModalProps } from './SaveTemplateModal';
 export type { DuplicateTripModalProps } from './DuplicateTripModal';
 export type { TravelerAvatarsProps } from './TravelerAvatars';
+export type { TravelerProgressListProps } from './TravelerProgressList';
