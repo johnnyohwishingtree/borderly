@@ -1,6 +1,6 @@
 /**
  * Portal Monitor Service
- * 
+ *
  * Continuously monitors government portal health, performance,
  * and availability. Provides alerting and automatic response
  * to portal issues. All monitoring is defensive and read-only.
@@ -8,58 +8,14 @@
 
 import { portalHealthChecker, PortalHealthStatus, PortalHealthIssue } from '../testing/portalHealthChecker';
 import { submissionAnalytics } from './submissionAnalytics';
+import { executeAutoResponses } from './portalAutoResponse';
+import type { MonitoringConfig, PortalAlert, MonitoringStatus, AutoResponse } from './portalMonitorTypes';
 
-export interface MonitoringConfig {
-  checkIntervalMinutes: number;
-  retryAttempts: number;
-  alertThresholds: {
-    responseTimeMs: number;
-    errorRate: number;
-    unhealthyDuration: number;
-  };
-  enableAlerts: boolean;
-  enableAutoResponse: boolean;
-}
-
-export interface PortalAlert {
-  id: string;
-  countryCode: string;
-  portalName: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  type: 'performance' | 'availability' | 'ssl' | 'structure_change';
-  message: string;
-  detectedAt: string;
-  resolvedAt?: string;
-  status: 'active' | 'acknowledged' | 'resolved' | 'suppressed';
-  metadata: {
-    responseTime?: number;
-    httpStatus?: number;
-    errorCount?: number;
-    impact?: string;
-  };
-}
-
-export interface MonitoringStatus {
-  isRunning: boolean;
-  lastCheckAt?: string;
-  nextCheckAt?: string;
-  monitoredPortals: number;
-  activeAlerts: number;
-  healthyPortals: number;
-  degradedPortals: number;
-  offlinePortals: number;
-}
-
-export interface AutoResponse {
-  trigger: string;
-  action: 'notify_users' | 'disable_automation' | 'switch_fallback' | 'update_schema';
-  executed: boolean;
-  executedAt?: string;
-}
+export type { MonitoringConfig, PortalAlert, MonitoringStatus, AutoResponse } from './portalMonitorTypes';
 
 /**
  * Portal Monitor - Continuous health monitoring
- * 
+ *
  * Monitors government portals for availability, performance,
  * and structural changes. Provides alerting and automatic
  * responses to ensure reliable user experience.
@@ -99,7 +55,7 @@ export class PortalMonitor {
     }
 
     this.isMonitoring = true;
-    
+
     // Initial check
     this.performHealthChecks();
 
@@ -121,7 +77,7 @@ export class PortalMonitor {
     }
 
     this.isMonitoring = false;
-    
+
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = undefined;
@@ -174,12 +130,18 @@ export class PortalMonitor {
 
           // Execute auto-responses if needed
           if (this.config.enableAutoResponse) {
-            await this.executeAutoResponses(countryCode, healthStatus);
+            const responses = await executeAutoResponses(countryCode, healthStatus);
+            if (responses.length > 0) {
+              if (!this.autoResponses.has(countryCode)) {
+                this.autoResponses.set(countryCode, []);
+              }
+              this.autoResponses.get(countryCode)!.push(...responses);
+            }
           }
 
         } catch (error) {
           console.error(`[PortalMonitor] Error checking ${countryCode}:`, error);
-          
+
           // Create error alert
           this.createAlert({
             countryCode,
@@ -302,8 +264,8 @@ export class PortalMonitor {
   private createAlert(alertData: Omit<PortalAlert, 'id' | 'detectedAt' | 'status'>): void {
     // Check for duplicate alerts
     const existingAlerts = this.getActiveAlerts(alertData.countryCode);
-    const isDuplicate = existingAlerts.some(alert => 
-      alert.type === alertData.type && 
+    const isDuplicate = existingAlerts.some(alert =>
+      alert.type === alertData.type &&
       alert.message === alertData.message
     );
 
@@ -332,90 +294,6 @@ export class PortalMonitor {
     const countryAlerts = this.alerts.get(alertData.countryCode)!;
     if (countryAlerts.length > 100) {
       countryAlerts.shift();
-    }
-  }
-
-  /**
-   * Executes automatic responses to portal issues
-   */
-  private async executeAutoResponses(
-    countryCode: string,
-    healthStatus: PortalHealthStatus
-  ): Promise<void> {
-    const responses: AutoResponse[] = [];
-
-    // Auto-response for offline portals
-    if (healthStatus.status === 'offline') {
-      responses.push({
-        trigger: 'portal_offline',
-        action: 'notify_users',
-        executed: false
-      });
-    }
-
-    // Auto-response for SSL issues
-    const hasSslIssue = healthStatus.issues.some(issue => issue.type === 'ssl_expired');
-    if (hasSslIssue) {
-      responses.push({
-        trigger: 'ssl_issue',
-        action: 'disable_automation',
-        executed: false
-      });
-    }
-
-    // Auto-response for structure changes
-    const hasStructureChange = healthStatus.issues.some(issue => issue.type === 'structure_changed');
-    if (hasStructureChange) {
-      responses.push({
-        trigger: 'structure_change',
-        action: 'update_schema',
-        executed: false
-      });
-    }
-
-    // Execute responses
-    for (const response of responses) {
-      try {
-        await this.executeResponse(countryCode, response);
-        response.executed = true;
-        response.executedAt = new Date().toISOString();
-      } catch (error) {
-        console.error(`[PortalMonitor] Failed to execute response:`, error);
-      }
-    }
-
-    if (responses.length > 0) {
-      if (!this.autoResponses.has(countryCode)) {
-        this.autoResponses.set(countryCode, []);
-      }
-      this.autoResponses.get(countryCode)!.push(...responses);
-    }
-  }
-
-  /**
-   * Executes a specific auto-response action
-   */
-  private async executeResponse(countryCode: string, response: AutoResponse): Promise<void> {
-    switch (response.action) {
-      case 'notify_users':
-        // In a real app, this would send notifications or update UI
-        console.log(`[PortalMonitor] Notifying users about ${countryCode} portal issue`);
-        break;
-        
-      case 'disable_automation':
-        // In a real app, this would disable automated submission
-        console.log(`[PortalMonitor] Disabling automation for ${countryCode}`);
-        break;
-        
-      case 'switch_fallback':
-        // In a real app, this would switch to manual mode
-        console.log(`[PortalMonitor] Switching ${countryCode} to fallback mode`);
-        break;
-        
-      case 'update_schema':
-        // In a real app, this would trigger schema validation
-        console.log(`[PortalMonitor] Requesting schema update for ${countryCode}`);
-        break;
     }
   }
 
@@ -566,7 +444,7 @@ export class PortalMonitor {
    */
   updateConfig(config: Partial<MonitoringConfig>): void {
     Object.assign(this.config, config);
-    
+
     // Restart monitoring if interval changed
     if (this.isMonitoring && config.checkIntervalMinutes) {
       this.stopMonitoring();

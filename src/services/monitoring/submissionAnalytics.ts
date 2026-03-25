@@ -1,5 +1,3 @@
-import { getCountryFullName } from '../../constants/countries';
-
 /**
  * Submission Analytics Service
  *
@@ -8,99 +6,31 @@ import { getCountryFullName } from '../../constants/countries';
  * information is collected or stored.
  */
 
-export interface SubmissionMetric {
-  id: string;
-  countryCode: string;
-  timestamp: string;
-  submissionMethod: 'manual' | 'guided' | 'test';
-  status: 'success' | 'failed' | 'abandoned' | 'test_success' | 'test_failed';
-  duration: {
-    preparationMs: number;
-    submissionMs: number;
-    totalMs: number;
-  };
-  formStats: {
-    totalFields: number;
-    autoFilledFields: number;
-    userInputFields: number;
-    completionPercentage: number;
-  };
-  portalPerformance: {
-    responseTimeMs?: number;
-    portalStatus: 'healthy' | 'degraded' | 'offline' | 'error';
-    errorType?: string;
-  };
-  userExperience: {
-    retryAttempts: number;
-    helpViewed: boolean;
-    guideStepsViewed: number;
-    errorsEncountered: string[];
-  };
-  deviceInfo: {
-    platform: 'ios' | 'android' | 'web';
-    appVersion: string;
-  };
-}
+import type {
+  SubmissionMetric,
+  AnalyticsReport,
+} from './submissionAnalyticsTypes';
+import {
+  generateSummary,
+  generateCountryBreakdown,
+  generatePerformanceTrends,
+  generateErrorAnalysis,
+  generateUXInsights,
+} from './submissionReportGenerator';
 
-export interface AnalyticsReport {
-  period: {
-    startDate: string;
-    endDate: string;
-  };
-  summary: {
-    totalSubmissions: number;
-    successRate: number;
-    averageDuration: number;
-    mostActiveCountry: string;
-    completionRate: number;
-  };
-  countryBreakdown: CountryAnalytics[];
-  performanceTrends: PerformanceTrend[];
-  errorAnalysis: ErrorAnalysis;
-  userExperienceInsights: UXInsights;
-}
-
-export interface CountryAnalytics {
-  countryCode: string;
-  countryName: string;
-  submissionCount: number;
-  successRate: number;
-  averageDuration: number;
-  commonErrors: string[];
-  portalHealthScore: number;
-}
-
-export interface PerformanceTrend {
-  date: string;
-  successRate: number;
-  averageResponseTime: number;
-  submissionVolume: number;
-}
-
-export interface ErrorAnalysis {
-  topErrors: Array<{
-    error: string;
-    frequency: number;
-    affectedCountries: string[];
-  }>;
-  errorTrends: Array<{
-    date: string;
-    errorCount: number;
-    errorType: string;
-  }>;
-}
-
-export interface UXInsights {
-  averageRetryAttempts: number;
-  helpUsageRate: number;
-  guideCompletionRate: number;
-  abandonmentRate: number;
-  timeToSuccess: number;
-}
+// Re-export all types so existing imports from this module continue to work
+export type {
+  SubmissionMetric,
+  AnalyticsReport,
+  CountryAnalytics,
+  PerformanceTrend,
+  ErrorAnalysis,
+  UXInsights,
+} from './submissionAnalyticsTypes';
 
 /**
  * Submission Analytics - Privacy-compliant metrics collection
- * 
+ *
  * Collects anonymized metrics about submission success rates,
  * performance, and user experience to improve the app.
  */
@@ -233,17 +163,20 @@ export class SubmissionAnalytics {
     countries?: string[]
   ): AnalyticsReport {
     const filteredMetrics = this.getMetricsInPeriod(startDate, endDate, countries);
-    
+
     return {
       period: {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString()
       },
-      summary: this.generateSummary(filteredMetrics),
-      countryBreakdown: this.generateCountryBreakdown(filteredMetrics),
-      performanceTrends: this.generatePerformanceTrends(filteredMetrics),
-      errorAnalysis: this.generateErrorAnalysis(filteredMetrics),
-      userExperienceInsights: this.generateUXInsights(filteredMetrics)
+      summary: generateSummary(filteredMetrics),
+      countryBreakdown: generateCountryBreakdown(
+        filteredMetrics,
+        (code) => this.getPortalHealthScore(code)
+      ),
+      performanceTrends: generatePerformanceTrends(filteredMetrics),
+      errorAnalysis: generateErrorAnalysis(filteredMetrics),
+      userExperienceInsights: generateUXInsights(filteredMetrics)
     };
   }
 
@@ -253,13 +186,13 @@ export class SubmissionAnalytics {
   getSuccessRate(countryCode: string, days: number = 30): number {
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const metrics = this.getMetricsInPeriod(cutoff, new Date(), [countryCode]);
-    
+
     if (metrics.length === 0) return 0;
-    
-    const successful = metrics.filter(m => 
+
+    const successful = metrics.filter(m =>
       m.status === 'success' || m.status === 'test_success'
     ).length;
-    
+
     return (successful / metrics.length) * 100;
   }
 
@@ -269,9 +202,9 @@ export class SubmissionAnalytics {
   getAverageProcessingTime(countryCode: string, days: number = 30): number {
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const metrics = this.getMetricsInPeriod(cutoff, new Date(), [countryCode]);
-    
+
     if (metrics.length === 0) return 0;
-    
+
     const totalTime = metrics.reduce((sum, m) => sum + m.duration.totalMs, 0);
     return totalTime / metrics.length;
   }
@@ -282,13 +215,13 @@ export class SubmissionAnalytics {
   getPortalHealthScore(countryCode: string, days: number = 7): number {
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const metrics = this.getMetricsInPeriod(cutoff, new Date(), [countryCode]);
-    
+
     if (metrics.length === 0) return 50; // Unknown
-    
-    const healthyMetrics = metrics.filter(m => 
+
+    const healthyMetrics = metrics.filter(m =>
       m.portalPerformance.portalStatus === 'healthy'
     ).length;
-    
+
     return (healthyMetrics / metrics.length) * 100;
   }
 
@@ -302,15 +235,15 @@ export class SubmissionAnalytics {
   }> {
     const countryMetrics = this.metrics.get(countryCode) || [];
     const errorCounts = new Map<string, number>();
-    
+
     countryMetrics.forEach(metric => {
       metric.userExperience.errorsEncountered.forEach(error => {
         errorCounts.set(error, (errorCounts.get(error) || 0) + 1);
       });
     });
-    
+
     const totalErrors = Array.from(errorCounts.values()).reduce((sum, count) => sum + count, 0);
-    
+
     return Array.from(errorCounts.entries())
       .map(([error, count]) => ({
         error,
@@ -330,9 +263,9 @@ export class SubmissionAnalytics {
     countries?: string[]
   ): SubmissionMetric[] {
     const allMetrics: SubmissionMetric[] = [];
-    
+
     const countriesToCheck = countries || Array.from(this.metrics.keys());
-    
+
     countriesToCheck.forEach(countryCode => {
       const countryMetrics = this.metrics.get(countryCode) || [];
       const filteredMetrics = countryMetrics.filter(metric => {
@@ -341,212 +274,8 @@ export class SubmissionAnalytics {
       });
       allMetrics.push(...filteredMetrics);
     });
-    
+
     return allMetrics;
-  }
-
-  /**
-   * Generates summary statistics
-   */
-  private generateSummary(metrics: SubmissionMetric[]): AnalyticsReport['summary'] {
-    if (metrics.length === 0) {
-      return {
-        totalSubmissions: 0,
-        successRate: 0,
-        averageDuration: 0,
-        mostActiveCountry: '',
-        completionRate: 0
-      };
-    }
-
-    const successful = metrics.filter(m => 
-      m.status === 'success' || m.status === 'test_success'
-    ).length;
-
-    const totalDuration = metrics.reduce((sum, m) => sum + m.duration.totalMs, 0);
-    
-    const countryFrequency = new Map<string, number>();
-    metrics.forEach(m => {
-      countryFrequency.set(m.countryCode, (countryFrequency.get(m.countryCode) || 0) + 1);
-    });
-    
-    const mostActiveCountry = Array.from(countryFrequency.entries())
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
-    const completed = metrics.filter(m => 
-      m.status !== 'abandoned' && m.formStats.completionPercentage === 100
-    ).length;
-
-    return {
-      totalSubmissions: metrics.length,
-      successRate: (successful / metrics.length) * 100,
-      averageDuration: totalDuration / metrics.length,
-      mostActiveCountry,
-      completionRate: (completed / metrics.length) * 100
-    };
-  }
-
-  /**
-   * Generates country breakdown analytics
-   */
-  private generateCountryBreakdown(metrics: SubmissionMetric[]): CountryAnalytics[] {
-    const countryMetrics = new Map<string, SubmissionMetric[]>();
-    
-    metrics.forEach(metric => {
-      if (!countryMetrics.has(metric.countryCode)) {
-        countryMetrics.set(metric.countryCode, []);
-      }
-      countryMetrics.get(metric.countryCode)!.push(metric);
-    });
-
-    return Array.from(countryMetrics.entries()).map(([countryCode, metricData]) => {
-      const successful = metricData.filter(m =>
-        m.status === 'success' || m.status === 'test_success'
-      ).length;
-
-      const totalDuration = metricData.reduce((sum, m) => sum + m.duration.totalMs, 0);
-
-      const errors = new Map<string, number>();
-      metricData.forEach(m => {
-        m.userExperience.errorsEncountered.forEach(error => {
-          errors.set(error, (errors.get(error) || 0) + 1);
-        });
-      });
-
-      const commonErrors = Array.from(errors.entries())
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 3)
-        .map(([error]) => error);
-
-      return {
-        countryCode,
-        countryName: this.getCountryName(countryCode),
-        submissionCount: metricData.length,
-        successRate: metricData.length > 0 ? (successful / metricData.length) * 100 : 0,
-        averageDuration: metricData.length > 0 ? totalDuration / metricData.length : 0,
-        commonErrors,
-        portalHealthScore: this.getPortalHealthScore(countryCode)
-      };
-    });
-  }
-
-  /**
-   * Generates performance trends
-   */
-  private generatePerformanceTrends(metrics: SubmissionMetric[]): PerformanceTrend[] {
-    const dailyMetrics = new Map<string, SubmissionMetric[]>();
-    
-    metrics.forEach(metric => {
-      const date = metric.timestamp.split('T')[0]; // Get date part only
-      if (!dailyMetrics.has(date)) {
-        dailyMetrics.set(date, []);
-      }
-      dailyMetrics.get(date)!.push(metric);
-    });
-
-    return Array.from(dailyMetrics.entries())
-      .map(([date, dayMetrics]) => {
-        const successful = dayMetrics.filter(m => 
-          m.status === 'success' || m.status === 'test_success'
-        ).length;
-        
-        const avgResponseTime = dayMetrics
-          .filter(m => m.portalPerformance.responseTimeMs)
-          .reduce((sum, m) => sum + (m.portalPerformance.responseTimeMs || 0), 0) / dayMetrics.length;
-
-        return {
-          date,
-          successRate: dayMetrics.length > 0 ? (successful / dayMetrics.length) * 100 : 0,
-          averageResponseTime: avgResponseTime || 0,
-          submissionVolume: dayMetrics.length
-        };
-      })
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }
-
-  /**
-   * Generates error analysis
-   */
-  private generateErrorAnalysis(metrics: SubmissionMetric[]): ErrorAnalysis {
-    const errorCounts = new Map<string, { count: number; countries: Set<string> }>();
-    const dailyErrors = new Map<string, Map<string, number>>();
-
-    metrics.forEach(metric => {
-      const date = metric.timestamp.split('T')[0];
-      
-      metric.userExperience.errorsEncountered.forEach(error => {
-        // Overall error tracking
-        if (!errorCounts.has(error)) {
-          errorCounts.set(error, { count: 0, countries: new Set() });
-        }
-        const errorData = errorCounts.get(error)!;
-        errorData.count++;
-        errorData.countries.add(metric.countryCode);
-
-        // Daily error tracking
-        if (!dailyErrors.has(date)) {
-          dailyErrors.set(date, new Map());
-        }
-        const dayErrors = dailyErrors.get(date)!;
-        dayErrors.set(error, (dayErrors.get(error) || 0) + 1);
-      });
-    });
-
-    const topErrors = Array.from(errorCounts.entries())
-      .map(([error, data]) => ({
-        error,
-        frequency: data.count,
-        affectedCountries: Array.from(data.countries)
-      }))
-      .sort((a, b) => b.frequency - a.frequency)
-      .slice(0, 10);
-
-    const errorTrends = Array.from(dailyErrors.entries())
-      .flatMap(([date, errors]) => 
-        Array.from(errors.entries()).map(([errorType, count]) => ({
-          date,
-          errorCount: count,
-          errorType
-        }))
-      )
-      .sort((a, b) => a.date.localeCompare(b.date));
-
-    return {
-      topErrors,
-      errorTrends
-    };
-  }
-
-  /**
-   * Generates UX insights
-   */
-  private generateUXInsights(metrics: SubmissionMetric[]): UXInsights {
-    if (metrics.length === 0) {
-      return {
-        averageRetryAttempts: 0,
-        helpUsageRate: 0,
-        guideCompletionRate: 0,
-        abandonmentRate: 0,
-        timeToSuccess: 0
-      };
-    }
-
-    const totalRetries = metrics.reduce((sum, m) => sum + m.userExperience.retryAttempts, 0);
-    const helpUsed = metrics.filter(m => m.userExperience.helpViewed).length;
-    const guidesCompleted = metrics.filter(m => m.userExperience.guideStepsViewed > 0).length;
-    const abandoned = metrics.filter(m => m.status === 'abandoned').length;
-    const successful = metrics.filter(m => 
-      m.status === 'success' || m.status === 'test_success'
-    );
-    const totalSuccessTime = successful.reduce((sum, m) => sum + m.duration.totalMs, 0);
-
-    return {
-      averageRetryAttempts: totalRetries / metrics.length,
-      helpUsageRate: (helpUsed / metrics.length) * 100,
-      guideCompletionRate: (guidesCompleted / metrics.length) * 100,
-      abandonmentRate: (abandoned / metrics.length) * 100,
-      timeToSuccess: successful.length > 0 ? totalSuccessTime / successful.length : 0
-    };
   }
 
   /**
@@ -580,13 +309,6 @@ export class SubmissionAnalytics {
   }
 
   /**
-   * Gets country name from country code
-   */
-  private getCountryName(countryCode: string): string {
-    return getCountryFullName(countryCode);
-  }
-
-  /**
    * Gets all tracked countries
    */
   getTrackedCountries(): string[] {
@@ -604,7 +326,7 @@ export class SubmissionAnalytics {
     const allMetrics = Array.from(this.metrics.values()).flat();
     const countries = this.getTrackedCountries();
     const successfulTests = allMetrics.filter(m => m.status === 'success').length;
-    
+
     return {
       totalTests: allMetrics.length,
       totalCountries: countries.length,
@@ -624,11 +346,11 @@ export class SubmissionAnalytics {
    */
   exportData(): { [countryCode: string]: SubmissionMetric[] } {
     const exported: { [countryCode: string]: SubmissionMetric[] } = {};
-    
+
     this.metrics.forEach((metrics, countryCode) => {
       exported[countryCode] = metrics.map(m => this.sanitizeMetric(m));
     });
-    
+
     return exported;
   }
 }
