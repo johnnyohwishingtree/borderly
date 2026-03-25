@@ -1,336 +1,42 @@
-import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import * as Keychain from 'react-native-keychain';
+import { ActivityIndicator, View, Text, ScrollView } from 'react-native';
 import { Lock, Unlock } from 'lucide-react-native';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
-import { useAppStore } from '@/stores/useAppStore';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Toggle, Select, SelectOption, StatusBadge, Divider, ScreenContainer } from '@/components/ui';
+import { Button, Card, Toggle, Select, StatusBadge, Divider, ScreenContainer } from '@/components/ui';
 import ThemeSelector from '@/components/settings/ThemeSelector';
-import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
-import { schemaRegistry } from '@/services/schemas/schemaRegistry';
-import type { SchemaMetadata } from '@/services/schemas/schemaRegistry';
-import { getPortalName } from '@/utils/countryUtils';
-import type { PortalCredential } from '@/types/submission';
-import type { SettingsStackParamList } from '@/app/navigation/types';
-
-type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'Settings'>;
-
-const APP_LOCK_CHECK_SERVICE = 'borderly_lock_check';
+import { PortalAccountsCard } from '@/components/settings/PortalAccountsCard';
+import { DataManagementCard } from '@/components/settings/DataManagementCard';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function SettingsScreen() {
-  const navigation = useNavigation<SettingsScreenNavigationProp>();
   const {
+    navigation,
     preferences,
     updatePreference,
-    loadPreferences,
-    resetPreferences,
     isBiometricAvailable,
-    setBiometricAvailable,
-    clearCache,
-    triggerSchemaUpdateCheck,
-    theme: themePreference,
+    themePreference,
     setTheme,
     isLockEnabled,
-    setLockEnabled,
     lockTimeoutMinutes,
-    setLockTimeoutMinutes,
-  } = useAppStore();
-  const { familyProfiles, setOnboardingComplete } = useProfileStore();
-  const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
-  const [storageStats, setStorageStats] = useState<{
-    profileSize: string;
-    tripsCount: number;
-    qrCodesCount: number;
-    cacheSize: string;
-  } | null>(null);
-
-  /** Stored portal credentials for the primary profile */
-  const [portalCredentials, setPortalCredentials] = useState<PortalCredential[]>([]);
-  const [isDeletingCredential, setIsDeletingCredential] = useState<string | null>(null);
-
-  /** Schema metadata for the Form Data section */
-  const [schemaMetadata, setSchemaMetadata] = useState<SchemaMetadata[]>([]);
-  const [isRefreshingSchemas, setIsRefreshingSchemas] = useState(false);
-
-  const checkBiometricAvailability = useCallback(async () => {
-    setIsCheckingBiometric(true);
-    try {
-      const available = await keychainService.isAvailable();
-      setBiometricAvailable(available);
-    } catch (error) {
-      console.error('Failed to check biometric availability:', error);
-      setBiometricAvailable(false);
-    } finally {
-      setIsCheckingBiometric(false);
-    }
-  }, [setBiometricAvailable]);
-
-  const loadStorageStats = useCallback(async () => {
-    // Mock storage stats - in real implementation, this would calculate actual storage usage
-    setStorageStats({
-      profileSize: '2.3 KB',
-      tripsCount: 5,
-      qrCodesCount: 3,
-      cacheSize: '1.2 MB'
-    });
-  }, []);
-
-  const loadPortalCredentials = useCallback(async () => {
-    try {
-      const primaryId = familyProfiles.primaryProfileId;
-      if (!primaryId) return;
-      const creds = await keychainService.getPortalCredentialsForProfile(primaryId);
-      setPortalCredentials(creds);
-    } catch (err) {
-      console.error('Failed to load portal credentials:', err);
-    }
-  }, [familyProfiles.primaryProfileId]);
-
-  const loadSchemaMetadata = useCallback(() => {
-    try {
-      const metadata = schemaRegistry.getSchemaMetadata();
-      setSchemaMetadata(metadata);
-    } catch {
-      // Registry may not yet be initialized; silently ignore.
-    }
-  }, []);
-
-  const handleRefreshSchemas = useCallback(async () => {
-    setIsRefreshingSchemas(true);
-    const success = await triggerSchemaUpdateCheck();
-    loadSchemaMetadata();
-    if (success) {
-      Alert.alert('Form Data Updated', 'Country form schemas have been checked for updates.');
-    } else {
-      Alert.alert('Update Failed', 'Unable to check for schema updates. Please try again.');
-    }
-    setIsRefreshingSchemas(false);
-  }, [triggerSchemaUpdateCheck, loadSchemaMetadata]);
-
-  useEffect(() => {
-    loadPreferences();
-    checkBiometricAvailability();
-    loadStorageStats();
-    loadPortalCredentials();
-    loadSchemaMetadata();
-  }, [loadPreferences, checkBiometricAvailability, loadStorageStats, loadPortalCredentials, loadSchemaMetadata]);
-
-  const languageOptions: SelectOption[] = [
-    { label: 'English', value: 'en' },
-    { label: '日本語', value: 'ja' },
-    { label: 'Bahasa Malaysia', value: 'ms' },
-    { label: 'Deutsch', value: 'de' },
-    { label: 'Français', value: 'fr' },
-  ];
-
-  const handleBiometricToggle = async (enabled: boolean) => {
-    if (!isBiometricAvailable && enabled) {
-      Alert.alert(
-        'Biometric Authentication Unavailable',
-        'Biometric authentication is not available on this device.',
-        [{ text: 'OK' }]
-      );
-      return;
-    }
-
-    if (enabled) {
-      Alert.alert(
-        'Enable Biometric Authentication',
-        'This will require biometric authentication to view sensitive passport data.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Enable',
-            onPress: () => updatePreference('biometricEnabled', true),
-          },
-        ]
-      );
-    } else {
-      Alert.alert(
-        'Disable Biometric Authentication',
-        'Passport data will be visible without biometric authentication. This is less secure.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Disable',
-            style: 'destructive',
-            onPress: () => updatePreference('biometricEnabled', false),
-          },
-        ]
-      );
-    }
-  };
-
-  const lockTimeoutOptions: SelectOption[] = [
-    { label: '1 minute', value: '1' },
-    { label: '5 minutes', value: '5' },
-    { label: '15 minutes', value: '15' },
-    { label: '30 minutes', value: '30' },
-  ];
-
-  const handleLockToggle = async (enabled: boolean) => {
-    if (enabled) {
-      // Enabling app lock — no confirmation required
-      setLockEnabled(true);
-    } else {
-      // Disabling app lock — require biometric confirmation first
-      try {
-        const result = await Keychain.getGenericPassword({
-          service: APP_LOCK_CHECK_SERVICE,
-          authenticationPrompt: {
-            title: 'Confirm Disable App Lock',
-            subtitle: 'Authenticate to disable app lock',
-            cancel: 'Cancel',
-          },
-        });
-        // Any non-throwing result means auth succeeded; false means no credential stored
-        if (result !== false) {
-          setLockEnabled(false);
-        } else {
-          // No stored credential — still allow disabling but via Alert confirmation
-          Alert.alert(
-            'Disable App Lock',
-            'Are you sure you want to disable app lock?',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Disable', style: 'destructive', onPress: () => setLockEnabled(false) },
-            ],
-          );
-        }
-      } catch {
-        // User cancelled biometric — keep lock enabled
-      }
-    }
-  };
-
-  const handleLockTimeoutChange = (value: string) => {
-    const minutes = parseInt(value, 10);
-    if (!isNaN(minutes)) {
-      setLockTimeoutMinutes(minutes);
-    }
-  };
-
-  const handleExportData = async () => {
-    try {
-      const profileIds = Array.from(familyProfiles.profiles.keys());
-      if (profileIds.length === 0) {
-        Alert.alert('No Data', 'There is no profile data to export.');
-        return;
-      }
-      await exportUserData(profileIds);
-    } catch {
-      Alert.alert('Export Failed', 'Unable to export your data. Please try again.');
-    }
-  };
-
-  const handleClearCache = () => {
-    Alert.alert(
-      'Clear Cache',
-      'This will clear app cache and temporary data. Your profile and trips will not be affected.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear',
-          onPress: () => {
-            clearCache();
-            loadStorageStats(); // Refresh storage stats
-            Alert.alert('Cache Cleared', 'App cache has been cleared successfully.');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleDeletePortalCredential = (portalCode: string) => {
-    Alert.alert(
-      'Delete Portal Credential',
-      `Remove saved login for ${getPortalName(portalCode)}? You will need to log in manually next time.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            setIsDeletingCredential(portalCode);
-            try {
-              const primaryId = familyProfiles.primaryProfileId;
-              if (!primaryId) return;
-              await keychainService.deletePortalCredential(primaryId, portalCode);
-              await loadPortalCredentials();
-            } catch {
-              Alert.alert('Error', 'Failed to delete credential. Please try again.');
-            } finally {
-              setIsDeletingCredential(null);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleDeleteAllPortalCredentials = () => {
-    Alert.alert(
-      'Delete All Portal Credentials',
-      'This will remove all saved portal logins. You will need to log in manually to each portal.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete All',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const primaryId = familyProfiles.primaryProfileId;
-              if (!primaryId) return;
-              await keychainService.deleteAllPortalCredentialsForProfile(primaryId);
-              setPortalCredentials([]);
-            } catch {
-              Alert.alert('Error', 'Failed to delete all portal credentials. Please try again.');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleDeleteAllData = () => {
-    Alert.alert(
-      'Delete All Data',
-      'This will permanently delete your profile, trips, and all app data. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete All',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert(
-              'Are you sure?',
-              'This will permanently delete ALL your data including your passport info, trips, and QR codes. You will need to complete onboarding again.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Delete All Data',
-                  style: 'destructive',
-                  onPress: async () => {
-                    try {
-                      const profileIds = Array.from(familyProfiles.profiles.keys());
-                      await deleteAllData(profileIds);
-                      // Reset in-memory state so RootNavigator routes to Onboarding
-                      setOnboardingComplete(false);
-                    } catch {
-                      Alert.alert('Error', 'Failed to delete all data. Some data may remain. Please try again.');
-                    }
-                  },
-                },
-              ]
-            );
-          },
-        },
-      ]
-    );
-  };
+    isCheckingBiometric,
+    storageStats,
+    portalCredentials,
+    isDeletingCredential,
+    schemaMetadata,
+    isRefreshingSchemas,
+    languageOptions,
+    lockTimeoutOptions,
+    handleBiometricToggle,
+    handleLockToggle,
+    handleLockTimeoutChange,
+    handleExportData,
+    handleClearCache,
+    handleDeletePortalCredential,
+    handleDeleteAllPortalCredentials,
+    handleDeleteAllData,
+    handleRefreshSchemas,
+    handleRefreshSettings,
+    handleResetSettings,
+  } = useSettings();
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
@@ -346,10 +52,10 @@ export default function SettingsScreen() {
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Security & Privacy</Text>
-            <StatusBadge 
-              status={preferences.biometricEnabled ? "success" : "warning"} 
-              size="small" 
-              text={preferences.biometricEnabled ? "Protected" : "Basic"} 
+            <StatusBadge
+              status={preferences.biometricEnabled ? "success" : "warning"}
+              size="small"
+              text={preferences.biometricEnabled ? "Protected" : "Basic"}
             />
           </View>
 
@@ -393,9 +99,9 @@ export default function SettingsScreen() {
                 </View>
               )}
             </View>
-            
+
             <Divider text="Data Privacy" />
-            
+
             <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
               <View className="flex-row items-center mb-2">
                 <Lock size={20} color="#1e3a5f" />
@@ -425,10 +131,7 @@ export default function SettingsScreen() {
           </View>
 
           {!isBiometricAvailable ? (
-            <View
-              className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
-              testID="app-lock-unavailable"
-            >
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" testID="app-lock-unavailable">
               <Text className="text-sm text-gray-500 dark:text-gray-400">
                 App lock is not available on this device. Biometric authentication (Face ID / Touch ID / Fingerprint) is required.
               </Text>
@@ -438,9 +141,7 @@ export default function SettingsScreen() {
               <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <View className="flex-row justify-between items-start">
                   <View className="flex-1">
-                    <Text className="text-base font-medium text-gray-900 dark:text-white">
-                      Enable App Lock
-                    </Text>
+                    <Text className="text-base font-medium text-gray-900 dark:text-white">Enable App Lock</Text>
                     <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       Lock the app after a period of inactivity. Disabling requires biometric confirmation.
                     </Text>
@@ -479,38 +180,18 @@ export default function SettingsScreen() {
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Appearance & Language</Text>
-            <StatusBadge 
-              status="info" 
-              size="small" 
-              text="Customizable" 
-            />
+            <StatusBadge status="info" size="small" text="Customizable" />
           </View>
 
           <View className="space-y-4">
             <View>
-              <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Theme
-              </Text>
-              <ThemeSelector
-                value={themePreference}
-                onValueChange={setTheme}
-                testID="settings-theme-selector"
-              />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Choose how the app appears on your device
-              </Text>
+              <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Theme</Text>
+              <ThemeSelector value={themePreference} onValueChange={setTheme} testID="settings-theme-selector" />
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">Choose how the app appears on your device</Text>
             </View>
-
             <View>
-              <Select
-                label="Language"
-                options={languageOptions}
-                value={preferences.language}
-                onValueChange={(value) => updatePreference('language', value)}
-              />
-              <Text className="text-xs text-gray-500 mt-1">
-                Interface language (forms remain in destination country language)
-              </Text>
+              <Select label="Language" options={languageOptions} value={preferences.language} onValueChange={(value) => updatePreference('language', value)} />
+              <Text className="text-xs text-gray-500 mt-1">Interface language (forms remain in destination country language)</Text>
             </View>
           </View>
         </Card>
@@ -519,11 +200,7 @@ export default function SettingsScreen() {
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Analytics & Diagnostics</Text>
-            <StatusBadge 
-              status={preferences.analyticsEnabled ? "info" : "neutral"} 
-              size="small" 
-              text={preferences.analyticsEnabled ? "Enabled" : "Disabled"} 
-            />
+            <StatusBadge status={preferences.analyticsEnabled ? "info" : "neutral"} size="small" text={preferences.analyticsEnabled ? "Enabled" : "Disabled"} />
           </View>
 
           <View className="space-y-6">
@@ -531,19 +208,11 @@ export default function SettingsScreen() {
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
                   <Text className="text-base font-medium text-gray-900 dark:text-white">Anonymous Analytics</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Help improve the app by sharing anonymous usage data
-                  </Text>
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    • No personal or passport data is collected
-                    • Only app usage patterns and performance metrics
-                  </Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">Help improve the app by sharing anonymous usage data</Text>
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">• No personal or passport data is collected{'\n'}• Only app usage patterns and performance metrics</Text>
                 </View>
                 <View className="ml-4">
-                  <Toggle
-                    value={preferences.analyticsEnabled}
-                    onValueChange={(value) => updatePreference('analyticsEnabled', value)}
-                  />
+                  <Toggle value={preferences.analyticsEnabled} onValueChange={(value) => updatePreference('analyticsEnabled', value)} />
                 </View>
               </View>
             </View>
@@ -552,19 +221,11 @@ export default function SettingsScreen() {
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
                   <Text className="text-base font-medium text-gray-900 dark:text-white">Crash Reporting</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Send anonymous crash reports to help fix issues
-                  </Text>
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    • Helps identify and fix app crashes
-                    • No personal data included in reports
-                  </Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">Send anonymous crash reports to help fix issues</Text>
+                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2">• Helps identify and fix app crashes{'\n'}• No personal data included in reports</Text>
                 </View>
                 <View className="ml-4">
-                  <Toggle
-                    value={preferences.crashReportingEnabled}
-                    onValueChange={(value) => updatePreference('crashReportingEnabled', value)}
-                  />
+                  <Toggle value={preferences.crashReportingEnabled} onValueChange={(value) => updatePreference('crashReportingEnabled', value)} />
                 </View>
               </View>
             </View>
@@ -572,181 +233,30 @@ export default function SettingsScreen() {
         </Card>
 
         {/* Portal Accounts */}
-        <Card testID="portal-accounts-card">
-          <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Portal Accounts</Text>
-            <StatusBadge
-              status={portalCredentials.length > 0 ? 'success' : 'neutral'}
-              size="small"
-              text={portalCredentials.length > 0 ? `${portalCredentials.length} saved` : 'None saved'}
-            />
-          </View>
-
-          <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
-            <Text className="text-xs text-blue-800 dark:text-blue-200">
-              🔒 Portal login credentials are stored securely on this device with biometric
-              protection. Passwords are never displayed.
-            </Text>
-          </View>
-
-          {portalCredentials.length === 0 ? (
-            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg items-center">
-              <Text className="text-sm text-gray-500 dark:text-gray-400">No portal credentials saved yet.</Text>
-              <Text className="text-xs text-gray-400 dark:text-gray-600 mt-1">
-                Credentials are saved automatically when you log in to a portal.
-              </Text>
-            </View>
-          ) : (
-            <View className="space-y-2">
-              {portalCredentials.map(cred => (
-                <View
-                  key={cred.portalCode}
-                  testID={`portal-credential-row-${cred.portalCode}`}
-                  className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex-row items-center justify-between"
-                >
-                  <View className="flex-1 mr-3">
-                    <Text className="text-sm font-medium text-gray-900 dark:text-white">
-                      {getPortalName(cred.portalCode)}
-                    </Text>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{cred.username}</Text>
-                  </View>
-                  {isDeletingCredential === cred.portalCode ? (
-                    <ActivityIndicator size="small" color="#EF4444" />
-                  ) : (
-                    <Button
-                      title="Delete"
-                      onPress={() => handleDeletePortalCredential(cred.portalCode)}
-                      variant="outline"
-                      size="small"
-                    />
-                  )}
-                </View>
-              ))}
-
-              <View className="mt-2">
-                <Button
-                  title="Delete All Portal Credentials"
-                  onPress={handleDeleteAllPortalCredentials}
-                  variant="outline"
-                  fullWidth
-                />
-                <Text className="text-xs text-red-600 mt-1 text-center">
-                  ⚠️ Removes all saved portal logins
-                </Text>
-              </View>
-            </View>
-          )}
-        </Card>
+        <PortalAccountsCard
+          portalCredentials={portalCredentials}
+          isDeletingCredential={isDeletingCredential}
+          onDeleteCredential={handleDeletePortalCredential}
+          onDeleteAllCredentials={handleDeleteAllPortalCredentials}
+        />
 
         {/* Data Management */}
-        <Card>
-          <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Data Management</Text>
-            <StatusBadge 
-              status="warning" 
-              size="small" 
-              text="Handle with Care" 
-            />
-          </View>
-
-          {/* Storage Usage */}
-          {storageStats && (
-            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
-              <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">📊 Storage Usage</Text>
-              <View className="space-y-2">
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600 dark:text-gray-400">Profile Data:</Text>
-                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.profileSize}</Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600 dark:text-gray-400">Trips:</Text>
-                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.tripsCount} saved</Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600 dark:text-gray-400">QR Codes:</Text>
-                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.qrCodesCount} stored</Text>
-                </View>
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-600 dark:text-gray-400">Cache:</Text>
-                  <Text className="text-xs text-gray-900 dark:text-white">{storageStats.cacheSize}</Text>
-                </View>
-              </View>
-            </View>
-          )}
-
-          <View className="space-y-3">
-            <View>
-              <Button
-                title="Export Data"
-                onPress={handleExportData}
-                variant="outline"
-                fullWidth
-              />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                Save your data as a secure backup file
-              </Text>
-            </View>
-
-            <View>
-              <Button
-                title="Restore from Backup"
-                onPress={() => navigation.navigate('RestoreBackup')}
-                variant="outline"
-                fullWidth
-                testID="restore-backup-button"
-                accessibilityRole="button"
-                accessibilityLabel="Restore from backup"
-                accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
-              />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                Import a .borderly backup file to restore your data
-              </Text>
-            </View>
-
-            <View>
-              <Button
-                title="Clear Cache ({storageStats?.cacheSize})"
-                onPress={handleClearCache}
-                variant="outline"
-                fullWidth
-              />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-                Free up space by clearing temporary files
-              </Text>
-            </View>
-
-            <Divider className="my-2" />
-
-            <View>
-              <Button
-                title="Delete All Data"
-                onPress={handleDeleteAllData}
-                variant="outline"
-                fullWidth
-              />
-              <Text className="text-xs text-red-600 mt-1 text-center">
-                ⚠️ Permanently removes all app data - cannot be undone
-              </Text>
-            </View>
-          </View>
-        </Card>
+        <DataManagementCard
+          storageStats={storageStats}
+          onExportData={handleExportData}
+          onRestoreBackup={() => navigation.navigate('RestoreBackup')}
+          onClearCache={handleClearCache}
+          onDeleteAllData={handleDeleteAllData}
+        />
 
         {/* Form Data */}
         <Card testID="form-data-card">
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Form Data</Text>
-            <StatusBadge
-              status="info"
-              size="small"
-              text="Country Schemas"
-            />
+            <StatusBadge status="info" size="small" text="Country Schemas" />
           </View>
+          <Text className="text-xs text-gray-500 dark:text-gray-400 mb-4">Country entry form definitions bundled with the app or refreshed over the air.</Text>
 
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-            Country entry form definitions bundled with the app or refreshed over the air.
-          </Text>
-
-          {/* Per-country schema rows */}
           {schemaMetadata.length === 0 ? (
             <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg items-center mb-4">
               <Text className="text-sm text-gray-500 dark:text-gray-400">No schema data available yet.</Text>
@@ -754,75 +264,43 @@ export default function SettingsScreen() {
           ) : (
             <View className="space-y-2 mb-4">
               {schemaMetadata.map(meta => (
-                <View
-                  key={meta.countryCode}
-                  testID={`schema-row-${meta.countryCode}`}
-                  className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg"
-                >
+                <View key={meta.countryCode} testID={`schema-row-${meta.countryCode}`} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <View className="flex-row items-center justify-between mb-1">
                     <Text className="text-sm font-medium text-gray-900 dark:text-white">{meta.countryName}</Text>
                     <StatusBadge status="neutral" size="small" text={`v${meta.schemaVersion}`} />
                   </View>
-                  <Text className="text-xs text-gray-500 dark:text-gray-400">
-                    Updated: {new Date(meta.lastUpdated).toLocaleDateString()}
-                  </Text>
+                  <Text className="text-xs text-gray-500 dark:text-gray-400">Updated: {new Date(meta.lastUpdated).toLocaleDateString()}</Text>
                 </View>
               ))}
             </View>
           )}
-
-          <Button
-            title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'}
-            onPress={handleRefreshSchemas}
-            variant="outline"
-            fullWidth
-            disabled={isRefreshingSchemas}
-            testID="refresh-schemas-button"
-          />
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
-            Manually check for updated country form definitions
-          </Text>
+          <Button title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'} onPress={handleRefreshSchemas} variant="outline" fullWidth disabled={isRefreshingSchemas} testID="refresh-schemas-button" />
+          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">Manually check for updated country form definitions</Text>
         </Card>
 
         {/* App Information */}
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">App Information</Text>
-            <StatusBadge
-              status="info"
-              size="small"
-              text="MVP Version"
-            />
+            <StatusBadge status="info" size="small" text="MVP Version" />
           </View>
-
           <View className="space-y-4">
             <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
               <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Version</Text>
               <Text className="text-sm text-gray-900 dark:text-white mt-1">1.0.0 (MVP)</Text>
             </View>
-
             <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
               <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Supported Countries</Text>
-              <View className="mt-2">
-                <Text className="text-sm text-gray-900 dark:text-white">{SUPPORTED_COUNTRIES.map(c => c.name).join(' • ')}</Text>
-              </View>
+              <Text className="text-sm text-gray-900 dark:text-white mt-2">{SUPPORTED_COUNTRIES.map(c => c.name).join(' • ')}</Text>
             </View>
-
             <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
               <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Schema Updates</Text>
-              <Text className="text-sm text-gray-900 dark:text-white mt-1">
-                {preferences.lastSchemaUpdateCheck || 'Never checked'}
-              </Text>
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Country form schemas are bundled with the app
-              </Text>
+              <Text className="text-sm text-gray-900 dark:text-white mt-1">{preferences.lastSchemaUpdateCheck || 'Never checked'}</Text>
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">Country form schemas are bundled with the app</Text>
             </View>
-
             <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
               <Text className="text-xs font-medium text-blue-800 dark:text-blue-200">📱 Built for Privacy</Text>
-              <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                Local-first architecture ensures your travel data stays on your device
-              </Text>
+              <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">Local-first architecture ensures your travel data stays on your device</Text>
             </View>
           </View>
         </Card>
@@ -830,83 +308,23 @@ export default function SettingsScreen() {
         {/* Quick Actions */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</Text>
-          
-          <View className="space-y-3">
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <Button
-                  title="Refresh"
-                  onPress={() => {
-                    loadPreferences();
-                    loadStorageStats();
-                    Alert.alert('Refreshed', 'Settings refreshed successfully.');
-                  }}
-                  variant="outline"
-                  fullWidth
-                />
-              </View>
-              <View className="flex-1">
-                <Button
-                  title="Reset"
-                  onPress={() => {
-                    Alert.alert(
-                      'Reset Settings',
-                      'This will reset app preferences to defaults (your profile data will be preserved).',
-                      [
-                        { text: 'Cancel', style: 'cancel' },
-                        { text: 'Reset', style: 'destructive', onPress: () => {
-                          resetPreferences();
-                          Alert.alert('Reset Complete', 'Settings have been reset to defaults.');
-                        }}
-                      ]
-                    );
-                  }}
-                  variant="outline"
-                  fullWidth
-                />
-              </View>
-            </View>
+          <View className="flex-row gap-3">
+            <View className="flex-1"><Button title="Refresh" onPress={handleRefreshSettings} variant="outline" fullWidth /></View>
+            <View className="flex-1"><Button title="Reset" onPress={handleResetSettings} variant="outline" fullWidth /></View>
           </View>
         </Card>
 
         {/* Help & Support */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Help & Support</Text>
-
           <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">📞 Need Help?</Text>
-            <Text className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-              Having issues with forms or need support with specific country requirements?
-            </Text>
+            <Text className="text-xs text-gray-600 dark:text-gray-400 mb-3">Having issues with forms or need support with specific country requirements?</Text>
             <View className="space-y-2">
-              <Button
-                title="Help & FAQ"
-                onPress={() => navigation.navigate('Help')}
-                variant="outline"
-                size="small"
-                fullWidth
-              />
-              <Button
-                title="Send Feedback"
-                onPress={() => navigation.navigate('Feedback')}
-                variant="outline"
-                size="small"
-                fullWidth
-              />
-              <Button
-                title="Report Bug"
-                onPress={() => navigation.navigate('BugReport')}
-                variant="outline"
-                size="small"
-                fullWidth
-              />
-              <Button
-                title="Privacy Policy"
-                onPress={() => navigation.navigate('PrivacyPolicy')}
-                variant="outline"
-                size="small"
-                fullWidth
-              />
+              <Button title="Help & FAQ" onPress={() => navigation.navigate('Help')} variant="outline" size="small" fullWidth />
+              <Button title="Send Feedback" onPress={() => navigation.navigate('Feedback')} variant="outline" size="small" fullWidth />
+              <Button title="Report Bug" onPress={() => navigation.navigate('BugReport')} variant="outline" size="small" fullWidth />
+              <Button title="Privacy Policy" onPress={() => navigation.navigate('PrivacyPolicy')} variant="outline" size="small" fullWidth />
             </View>
           </View>
         </Card>
