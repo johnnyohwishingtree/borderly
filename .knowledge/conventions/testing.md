@@ -32,6 +32,7 @@ ts-jest compilation is memory-hungry. Heavy import chains cause OOM in Jest work
 - **Mock heavy dependencies at module level** — if a hook imports 3 stores, mock the stores: `jest.mock('../../src/stores/useTripStore')`. This prevents ts-jest from compiling the entire store + its service chain.
 - **One hook per test file** — don't combine multiple hook tests. Each file runs in its own Jest worker with its own memory budget.
 - **Avoid `jest.useFakeTimers()` with `renderHook`** — fake timers + async hooks + act() often cause hangs or memory leaks. Use real timers with short delays instead.
+- **Store mocks must return stable references** — if a mock returns `{ preferences: { ... } }` inline, each render gets a new object, triggering `useEffect`/`useCallback` deps → infinite loop → OOM. Declare mock data as module-level constants outside the mock factory.
 
 ## Anti-patterns
 - **`toMatchSnapshot()`** — creates `.snap` files that fail in CI; use `toMatchInlineSnapshot()` or explicit assertions

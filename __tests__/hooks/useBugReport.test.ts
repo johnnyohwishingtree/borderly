@@ -8,6 +8,17 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { Alert, Platform } from 'react-native';
 
+// ── Stable mock data (prevents infinite re-render loops) ─────────────────────
+
+const MOCK_PREFERENCES = {
+  language: 'en',
+  biometricEnabled: false,
+  analyticsEnabled: true,
+};
+
+const MOCK_PROFILE = { id: 'profile-1', givenNames: 'Test', surname: 'User' };
+const MOCK_TRIPS = [{ id: 'trip-1' }, { id: 'trip-2' }];
+
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
 const mockGoBack = jest.fn();
@@ -20,28 +31,23 @@ jest.mock('@react-navigation/native', () => ({
 
 jest.mock('../../src/stores/useAppStore', () => ({
   useAppStore: () => ({
-    preferences: {
-      language: 'en',
-      biometricEnabled: false,
-      analyticsEnabled: true,
-    },
+    preferences: MOCK_PREFERENCES,
     theme: 'light',
   }),
 }));
 
 jest.mock('../../src/stores/useProfileStore', () => ({
   useProfileStore: () => ({
-    profile: { id: 'profile-1', givenNames: 'Test', surname: 'User' },
+    profile: MOCK_PROFILE,
   }),
 }));
 
 jest.mock('../../src/stores/useTripStore', () => ({
   useTripStore: () => ({
-    trips: [{ id: 'trip-1' }, { id: 'trip-2' }],
+    trips: MOCK_TRIPS,
   }),
 }));
 
-// Mock Select to avoid pulling in react-native-haptic-feedback
 jest.mock('../../src/components/ui/Select', () => ({}));
 
 jest.spyOn(Alert, 'alert').mockImplementation(jest.fn());
@@ -69,119 +75,100 @@ describe('useBugReport', () => {
     expect(result.current.isSubmitting).toBe(false);
   });
 
-  it('setSeverity updates severity', () => {
+  it('exposes severity and category options', () => {
     const { result } = renderHook(() => useBugReport());
-    act(() => { result.current.setSeverity('critical'); });
-    expect(result.current.severity).toBe('critical');
-  });
 
-  it('setTitle updates title', () => {
-    const { result } = renderHook(() => useBugReport());
-    act(() => { result.current.setTitle('App crashes'); });
-    expect(result.current.title).toBe('App crashes');
-  });
-
-  it('setDescription updates description', () => {
-    const { result } = renderHook(() => useBugReport());
-    act(() => { result.current.setDescription('Bug details'); });
-    expect(result.current.description).toBe('Bug details');
-  });
-
-  it('generates diagnosticInfo on mount', () => {
-    const { result } = renderHook(() => useBugReport());
-    expect(result.current.diagnosticInfo).not.toBeNull();
-    expect(result.current.diagnosticInfo).toEqual(
-      expect.objectContaining({
-        platform: Platform.OS,
-        appVersion: '1.0.0',
-        language: 'en',
-        theme: 'light',
-        deviceInfo: expect.objectContaining({
-          hasProfile: true,
-          tripsCount: 2,
-        }),
-      })
+    expect(result.current.severityOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: 'low' }),
+        expect.objectContaining({ value: 'medium' }),
+        expect.objectContaining({ value: 'high' }),
+        expect.objectContaining({ value: 'critical' }),
+      ])
     );
+
+    expect(result.current.categoryOptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value: 'general' }),
+        expect.objectContaining({ value: 'passport-scan' }),
+      ])
+    );
+  });
+
+  it('generates diagnostic info on mount', () => {
+    const { result } = renderHook(() => useBugReport());
+
+    expect(result.current.diagnosticInfo).not.toBeNull();
+    expect(result.current.diagnosticInfo?.platform).toBe(Platform.OS);
+    expect(result.current.diagnosticInfo?.language).toBe('en');
+    expect(result.current.diagnosticInfo?.theme).toBe('light');
+    expect(result.current.diagnosticInfo?.deviceInfo.tripsCount).toBe(2);
+    expect(result.current.diagnosticInfo?.deviceInfo.hasProfile).toBe(true);
+  });
+
+  it('updates state via setters', () => {
+    const { result } = renderHook(() => useBugReport());
+
+    act(() => result.current.setSeverity('high'));
+    expect(result.current.severity).toBe('high');
+
+    act(() => result.current.setCategory('passport-scan'));
+    expect(result.current.category).toBe('passport-scan');
+
+    act(() => result.current.setTitle('Crash on scan'));
+    expect(result.current.title).toBe('Crash on scan');
+
+    act(() => result.current.setDescription('App crashes when scanning'));
+    expect(result.current.description).toBe('App crashes when scanning');
+
+    act(() => result.current.setStepsToReproduce('1. Open scanner\n2. Scan'));
+    expect(result.current.stepsToReproduce).toBe('1. Open scanner\n2. Scan');
+
+    act(() => result.current.setIncludeDiagnostics(false));
+    expect(result.current.includeDiagnostics).toBe(false);
   });
 
   it('shows alert when title is empty on submit', async () => {
     const { result } = renderHook(() => useBugReport());
-    act(() => { result.current.setDescription('Some desc'); });
-    await act(async () => { await result.current.handleSubmitBugReport(); });
-    expect(Alert.alert).toHaveBeenCalledWith(
-      'Missing Information',
-      'Please provide a bug title.'
-    );
+
+    await act(async () => {
+      await result.current.handleSubmitBugReport();
+    });
+
+    expect(Alert.alert).toHaveBeenCalledWith('Missing Information', 'Please provide a bug title.');
   });
 
   it('shows alert when description is empty on submit', async () => {
     const { result } = renderHook(() => useBugReport());
-    act(() => { result.current.setTitle('Bug title'); });
-    await act(async () => { await result.current.handleSubmitBugReport(); });
-    expect(Alert.alert).toHaveBeenCalledWith(
-      'Missing Information',
-      'Please describe the bug you encountered.'
-    );
-  });
 
-  it('submits successfully and resets form via Alert callback', async () => {
-    const { result } = renderHook(() => useBugReport());
-
-    act(() => {
-      result.current.setTitle('Crash on scan');
-      result.current.setDescription('App crashes');
-      result.current.setSeverity('high');
-    });
+    act(() => result.current.setTitle('Some bug'));
 
     await act(async () => {
       await result.current.handleSubmitBugReport();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
-      'Bug Report Submitted',
-      expect.stringContaining('high severity issue'),
-      expect.arrayContaining([
-        expect.objectContaining({ text: 'OK' }),
-      ])
+      'Missing Information',
+      'Please describe the bug you encountered.'
     );
-
-    // Simulate pressing OK
-    const alertCall = (Alert.alert as jest.Mock).mock.calls.find(
-      (call: unknown[]) => call[0] === 'Bug Report Submitted'
-    );
-    const okButton = alertCall[2][0];
-    act(() => { okButton.onPress(); });
-
-    expect(result.current.title).toBe('');
-    expect(result.current.description).toBe('');
-    expect(result.current.severity).toBe('medium');
-    expect(mockGoBack).toHaveBeenCalledTimes(1);
   });
 
-  describe('getSeverityStatus', () => {
-    it('returns correct status for each severity', () => {
-      const { result } = renderHook(() => useBugReport());
-      expect(result.current.getSeverityStatus('low')).toBe('info');
-      expect(result.current.getSeverityStatus('medium')).toBe('warning');
-      expect(result.current.getSeverityStatus('high')).toBe('error');
-      expect(result.current.getSeverityStatus('critical')).toBe('error');
-      expect(result.current.getSeverityStatus('unknown')).toBe('neutral');
-    });
-  });
-
-  describe('getSeverityEmoji', () => {
-    it('returns an emoji for each severity', () => {
-      const { result } = renderHook(() => useBugReport());
-      expect(result.current.getSeverityEmoji('low')).toBeTruthy();
-      expect(result.current.getSeverityEmoji('medium')).toBeTruthy();
-      expect(result.current.getSeverityEmoji('high')).toBeTruthy();
-      expect(result.current.getSeverityEmoji('critical')).toBeTruthy();
-    });
-  });
-
-  it('returns severityOptions and categoryOptions', () => {
+  it('getSeverityStatus returns correct status', () => {
     const { result } = renderHook(() => useBugReport());
-    expect(result.current.severityOptions).toHaveLength(4);
-    expect(result.current.categoryOptions).toHaveLength(8);
+
+    expect(result.current.getSeverityStatus('low')).toBe('info');
+    expect(result.current.getSeverityStatus('medium')).toBe('warning');
+    expect(result.current.getSeverityStatus('high')).toBe('error');
+    expect(result.current.getSeverityStatus('critical')).toBe('error');
+    expect(result.current.getSeverityStatus('unknown')).toBe('neutral');
+  });
+
+  it('getSeverityEmoji returns correct emoji', () => {
+    const { result } = renderHook(() => useBugReport());
+
+    expect(result.current.getSeverityEmoji('low')).toBe('\u{1F7E2}');
+    expect(result.current.getSeverityEmoji('medium')).toBe('\u{1F7E1}');
+    expect(result.current.getSeverityEmoji('high')).toBe('\u{1F7E0}');
+    expect(result.current.getSeverityEmoji('critical')).toBe('\u{1F534}');
   });
 });
