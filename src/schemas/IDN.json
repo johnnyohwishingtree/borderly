@@ -96,7 +96,7 @@
         {
           "id": "gender",
           "label": "Gender",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -240,7 +240,7 @@
         {
           "id": "portOfArrival",
           "label": "Port of Arrival",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -294,7 +294,7 @@
         {
           "id": "cityOfStay",
           "label": "City of Destination",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

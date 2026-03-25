@@ -125,7 +125,7 @@
         {
           "id": "gender",
           "label": "Gender",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -192,7 +192,7 @@
         {
           "id": "passportType",
           "label": "Passport Type",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.passportType",
           "countrySpecific": false,
@@ -270,7 +270,7 @@
         {
           "id": "visaType",
           "label": "Visa Type",
-          "type": "select",
+          "type": "searchable_select",
           "required": false,
           "countrySpecific": true,
           "options": [
@@ -301,7 +301,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Purpose of Visit",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -348,7 +348,7 @@
         {
           "id": "portOfArrival",
           "label": "Port of Arrival",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -415,7 +415,7 @@
         {
           "id": "cityInIndia",
           "label": "City in India",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

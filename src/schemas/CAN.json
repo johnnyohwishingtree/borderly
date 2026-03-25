@@ -127,7 +127,7 @@
         {
           "id": "gender",
           "label": "Sex",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -144,7 +144,7 @@
         {
           "id": "maritalStatus",
           "label": "Marital status",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -193,7 +193,7 @@
         {
           "id": "immigrationStatus",
           "label": "What is your current immigration status?",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -369,7 +369,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Why do you want to come to Canada?",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -387,7 +387,7 @@
         {
           "id": "fundingSource",
           "label": "How will you support yourself in Canada?",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

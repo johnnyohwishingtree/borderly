@@ -74,9 +74,8 @@ describe('screen folder convention', () => {
       const fileName = path.basename(file, '.tsx'); // e.g., "TripListScreen"
 
       // Allow the folder name to differ from filename for cases like
-      // PrivacyPolicyScreen/PrivacyPolicy.tsx — the folder uses the
-      // screen route name. Check that the folder contains the file's base
-      // name or vice versa.
+      // FooScreen/Foo.tsx — the folder uses the screen route name.
+      // Check that the folder contains the file's base name or vice versa.
       const folderBase = folderName.replace(/Screen$/, '').replace(/Modal$/, '');
       const fileBase = fileName.replace(/Screen$/, '').replace(/Modal$/, '');
 

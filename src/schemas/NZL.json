@@ -98,7 +98,7 @@
         {
           "id": "gender",
           "label": "Sex",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -198,7 +198,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Purpose of Visit",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

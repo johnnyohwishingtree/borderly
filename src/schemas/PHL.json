@@ -113,7 +113,7 @@
         {
           "id": "gender",
           "label": "Sex",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -246,7 +246,7 @@
         {
           "id": "purposeOfTravel",
           "label": "Purpose of Travel",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -293,7 +293,7 @@
         {
           "id": "portOfArrival",
           "label": "Port of Arrival",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

@@ -126,7 +126,7 @@
         {
           "id": "gender",
           "label": "Gender",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -154,7 +154,7 @@
         {
           "id": "religion",
           "label": "Religion",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -180,7 +180,7 @@
         {
           "id": "passportType",
           "label": "Passport Type",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": false,
           "options": [
@@ -251,7 +251,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Purpose of Visit",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -283,7 +283,7 @@
         {
           "id": "entryPort",
           "label": "Port of Entry",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -338,7 +338,7 @@
         {
           "id": "accommodationType",
           "label": "Type of Accommodation",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -396,7 +396,7 @@
         {
           "id": "cityOfStay",
           "label": "City/Province of Stay",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

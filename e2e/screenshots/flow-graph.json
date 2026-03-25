@@ -423,7 +423,7 @@
     "FamilyManagement": "src/screens/profile/FamilyManagementScreen/FamilyManagementScreen.tsx",
     "Profile": "src/screens/profile/ProfileScreen/ProfileScreen.tsx",
     "ExportBackupModal": "src/screens/settings/ExportBackupModal/ExportBackupModal.tsx",
-    "PrivacyPolicy": "src/screens/settings/PrivacyPolicyScreen/PrivacyPolicy.tsx",
+    "PrivacyPolicy": "src/screens/settings/PrivacyPolicyScreen/PrivacyPolicyScreen.tsx",
     "RestoreBackupModal": "src/screens/settings/RestoreBackupModal/RestoreBackupModal.tsx",
     "Settings": "src/screens/settings/SettingsScreen/SettingsScreen.tsx",
     "BugReport": "src/screens/support/BugReportScreen/BugReportScreen.tsx",

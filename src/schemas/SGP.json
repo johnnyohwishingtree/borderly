@@ -109,7 +109,7 @@
         {
           "id": "gender",
           "label": "Gender",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
@@ -199,7 +199,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Purpose of Visit",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -236,7 +236,7 @@
         {
           "id": "accommodationType",
           "label": "Type of Accommodation",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [

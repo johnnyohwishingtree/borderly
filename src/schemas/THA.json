@@ -66,7 +66,7 @@
         {
           "id": "title",
           "label": "Title",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": false,
           "autoFillSource": "profile.title",
@@ -158,7 +158,7 @@
         {
           "id": "purposeOfVisit",
           "label": "Purpose of Visit",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -191,7 +191,7 @@
         {
           "id": "accommodationType",
           "label": "Type of Accommodation",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
@@ -239,7 +239,7 @@
         {
           "id": "vaccinationStatus",
           "label": "COVID-19 Vaccination Status",
-          "type": "select",
+          "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
           "options": [
