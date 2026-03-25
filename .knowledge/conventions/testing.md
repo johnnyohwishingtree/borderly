@@ -25,6 +25,14 @@
 - Mock in `jest.setup.js` (hides real import failures — Metro bundle check is safety net)
 - Mock in `e2e/mocks/` for Playwright (+ add alias in `webpack.config.js`)
 
+## Test memory management
+ts-jest compilation is memory-hungry. Heavy import chains cause OOM in Jest workers.
+
+- **Import directly, not from barrels** — `from '@/hooks/useMyHook'` not `from '@/hooks'`. Barrel imports pull in every module's dependency tree.
+- **Mock heavy dependencies at module level** — if a hook imports 3 stores, mock the stores: `jest.mock('../../src/stores/useTripStore')`. This prevents ts-jest from compiling the entire store + its service chain.
+- **One hook per test file** — don't combine multiple hook tests. Each file runs in its own Jest worker with its own memory budget.
+- **Avoid `jest.useFakeTimers()` with `renderHook`** — fake timers + async hooks + act() often cause hangs or memory leaks. Use real timers with short delays instead.
+
 ## Anti-patterns
 - **`toMatchSnapshot()`** — creates `.snap` files that fail in CI; use `toMatchInlineSnapshot()` or explicit assertions
 - **Testing implementation details** (`getByTestId` first) — prefer a11y queries: `getByRole` > `getByLabelText` > `getByTestId`
@@ -33,4 +41,7 @@
 - **Giant integration tests** — keep unit tests under 1 second; slow tests belong in E2E
 - **Asserting `toBeDefined()`** — assert specific values (`toBe(100)`, `toContain('error')`)
 - **Re-running Maestro/CI to verify a fix** — write a unit test first, get instant feedback
+- **Importing from barrel in tests** (`from '@/hooks'`) — pulls in every hook's dependency tree, causes OOM. Import the specific file.
+- **Spawning background Jest processes to retry** — if a test OOMs, fix the import chain or mocks, don't throw more memory at it
+- **`jest.useFakeTimers()` with renderHook** — causes hangs and memory leaks; use real timers
 
