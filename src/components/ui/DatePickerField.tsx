@@ -134,17 +134,28 @@ export default function DatePickerField({
   const [draftDay, setDraftDay] = useState(defaultDay);
 
   // Year range: minDate year to maxDate year (or 100-year window)
-  const minYear = parseISO(minDate ?? '')?.year ?? (today.getFullYear() - 100);
-  const maxYear = parseISO(maxDate ?? '')?.year ?? (today.getFullYear() + 20);
+  const parsedMin = parseISO(minDate ?? '');
+  const parsedMax = parseISO(maxDate ?? '');
+  const minYear = parsedMin?.year ?? (today.getFullYear() - 100);
+  const maxYear = parsedMax?.year ?? (today.getFullYear() + 20);
   const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => String(minYear + i));
-  const months = MONTHS.map((m, i) => `${i + 1} - ${m}`);
 
+  // Constrain months based on min/max date when at boundary year
+  const minMonth = (parsedMin && draftYear === parsedMin.year) ? parsedMin.month : 1;
+  const maxMonth = (parsedMax && draftYear === parsedMax.year) ? parsedMax.month : 12;
+  const months = MONTHS
+    .map((m, i) => ({ label: `${i + 1} - ${m}`, monthNum: i + 1 }))
+    .filter(m => m.monthNum >= minMonth && m.monthNum <= maxMonth);
+
+  // Constrain days based on min/max date when at boundary year+month
   const currentDays = daysInMonth(draftYear, draftMonth);
-  const days = Array.from({ length: currentDays }, (_, i) => String(i + 1).padStart(2, '0'));
+  const minDay = (parsedMin && draftYear === parsedMin.year && draftMonth === parsedMin.month) ? parsedMin.day : 1;
+  const maxDay = (parsedMax && draftYear === parsedMax.year && draftMonth === parsedMax.month) ? Math.min(parsedMax.day, currentDays) : currentDays;
+  const days = Array.from({ length: maxDay - minDay + 1 }, (_, i) => String(minDay + i).padStart(2, '0'));
 
   const yearIndex = Math.max(0, years.indexOf(String(draftYear)));
-  const monthIndex = draftMonth - 1;
-  const dayIndex = Math.min(draftDay - 1, currentDays - 1);
+  const monthIndex = Math.max(0, months.findIndex(m => m.monthNum === draftMonth));
+  const dayIndex = Math.max(0, Math.min(draftDay - minDay, days.length - 1));
 
   const handleOpen = useCallback(() => {
     if (disabled) return;
@@ -254,10 +265,10 @@ export default function DatePickerField({
               <View style={{ flex: 2 }}>
                 <Text className="text-center text-xs font-medium text-gray-500 py-1">Month</Text>
                 <ColumnPicker
-                  items={months}
+                  items={months.map(m => m.label)}
                   selectedIndex={monthIndex}
                   onSelect={(idx) => {
-                    const newMonth = idx + 1;
+                    const newMonth = months[idx].monthNum;
                     setDraftMonth(newMonth);
                     setDraftDay(clampDay(draftYear, newMonth, draftDay));
                   }}
@@ -285,6 +296,9 @@ export default function DatePickerField({
                   onSelect={(idx) => {
                     const newYear = minYear + idx;
                     setDraftYear(newYear);
+                    // Clamp month if we're now at the min year boundary
+                    const newMinMonth = (parsedMin && newYear === parsedMin.year) ? parsedMin.month : 1;
+                    if (draftMonth < newMinMonth) setDraftMonth(newMinMonth);
                     setDraftDay(clampDay(newYear, draftMonth, draftDay));
                   }}
                   testIDPrefix={testID ? `${testID}-year` : undefined}
