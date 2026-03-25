@@ -4,11 +4,11 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Code fixes
 
-- `src/hooks/useTripCreation.ts` at 516 lines — exceeds 500-line limit. Candidates for extraction: `handleSmartImport`, `handleScanSuccess` into a separate `useTripCreationImport` hook. (#746)
+(No current code fixes)
 
 ## Knowledge updates
 
-(No current knowledge gaps)
+- `.knowledge/conventions/testing.md` missing guidance on screen-registry-sync test: when extracting logic from hooks into sibling files, `collectScreenSource` now follows one level of relative imports from hook files (#788)
 
 ## Drift
 
