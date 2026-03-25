@@ -1,11 +1,9 @@
 import { create } from 'zustand';
-import { TravelerProfile, FamilyMember } from '@/types/profile';
+import { TravelerProfile } from '@/types/profile';
 import {
   FamilyProfileCollection,
   ProfileMetadata,
-  FamilyRelationship,
   SerializableFamilyProfileCollection,
-  FamilyProfileStats
 } from '@/types/family';
 import { keychainService, mmkvService } from '@/services/storage';
 import {
@@ -13,92 +11,23 @@ import {
   cancelPassportExpiryNotifications,
 } from '@/services/deadline/passportExpiryNotifications';
 
-// Constants
-const FAMILY_PROFILES_KEY = 'family_profiles';
-const CURRENT_PROFILE_ID_KEY = 'current_profile_id';
-const MAX_PROFILES = 8;
-const FAMILY_PROFILES_VERSION = 1;
+import type { ProfileStore } from './useProfileStoreTypes';
+import {
+  FAMILY_PROFILES_KEY,
+  CURRENT_PROFILE_ID_KEY,
+  MAX_PROFILES,
+  createEmptyFamilyCollection,
+  serializeFamilyCollection,
+  deserializeFamilyCollection,
+  createProfileMetadata,
+} from './profileStoreHelpers';
+import {
+  createProfileAccessSlice,
+  createFamilyManagementSlice,
+  createLegacySlice,
+} from './profileStoreSlices';
 
-// Helper functions
-const createEmptyFamilyCollection = (): FamilyProfileCollection => ({
-  profiles: new Map(),
-  primaryProfileId: '',
-  maxProfiles: MAX_PROFILES,
-  version: FAMILY_PROFILES_VERSION,
-  lastModified: new Date().toISOString(),
-});
-
-const serializeFamilyCollection = (collection: FamilyProfileCollection): SerializableFamilyProfileCollection => ({
-  profiles: Object.fromEntries(collection.profiles),
-  primaryProfileId: collection.primaryProfileId,
-  maxProfiles: collection.maxProfiles,
-  version: collection.version,
-  lastModified: collection.lastModified,
-});
-
-const deserializeFamilyCollection = (data: SerializableFamilyProfileCollection): FamilyProfileCollection => ({
-  profiles: new Map(Object.entries(data.profiles)),
-  primaryProfileId: data.primaryProfileId,
-  maxProfiles: data.maxProfiles,
-  version: data.version,
-  lastModified: data.lastModified,
-});
-
-const createProfileMetadata = (
-  profileId: string,
-  metadata: Omit<ProfileMetadata, 'id' | 'createdAt' | 'updatedAt'>
-): ProfileMetadata => ({
-  ...metadata,
-  id: profileId,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-});
-
-interface ProfileStore {
-  // Multi-profile state
-  familyProfiles: FamilyProfileCollection;
-  currentProfile: TravelerProfile | null;
-  currentProfileId: string | null;
-
-  // Legacy single-profile support (for backward compatibility)
-  profile: TravelerProfile | null;
-
-  // Multi-profile operations
-  loadFamilyProfiles: () => Promise<void>;
-  addProfile: (profile: TravelerProfile, metadata: Omit<ProfileMetadata, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateProfileById: (profileId: string, updates: Partial<TravelerProfile>) => Promise<void>;
-  deleteProfile: (profileId: string) => Promise<void>;
-  switchToProfile: (profileId: string) => Promise<void>;
-  updateProfileMetadata: (profileId: string, metadata: Partial<ProfileMetadata>) => Promise<void>;
-
-  // Profile access
-  getProfile: (profileId: string) => Promise<TravelerProfile | null>;
-  getAllProfiles: () => Promise<Map<string, TravelerProfile>>;
-  getAllFamilyProfiles: () => Promise<FamilyMember[]>;
-  getProfileMetadata: (profileId: string) => ProfileMetadata | null;
-  
-  // Family management
-  setPrimaryProfile: (profileId: string) => Promise<void>;
-  getFamilyStats: () => FamilyProfileStats | null;
-  canAddProfile: () => boolean;
-
-  // Legacy operations (for backward compatibility)
-  loadProfile: () => Promise<void>;
-  saveProfile: (profile: TravelerProfile) => Promise<void>;
-  updateProfile: (updates: Partial<TravelerProfile>) => Promise<void>;
-  clearProfile: () => Promise<void>;
-
-  // Migration
-  migrateLegacyProfile: () => Promise<void>;
-
-  // Onboarding state
-  isOnboardingComplete: boolean;
-  setOnboardingComplete: (complete: boolean) => void;
-
-  // Loading state
-  isLoading: boolean;
-  error: string | null;
-}
+export type { ProfileStore } from './useProfileStoreTypes';
 
 export const useProfileStore = create<ProfileStore>((set, get) => ({
   // State initialization
@@ -117,7 +46,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
       // Load family profile collection from MMKV
       const storedDataString = mmkvService.getString(FAMILY_PROFILES_KEY);
       const currentProfileId = mmkvService.getString(CURRENT_PROFILE_ID_KEY);
-      
+
       let storedData: SerializableFamilyProfileCollection | null = null;
       if (storedDataString) {
         try {
@@ -190,7 +119,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
   addProfile: async (profile: TravelerProfile, metadata) => {
     const { familyProfiles } = get();
-    
+
     if (familyProfiles.profiles.size >= MAX_PROFILES) {
       throw new Error(`Cannot add more than ${MAX_PROFILES} profiles`);
     }
@@ -248,7 +177,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
   updateProfileById: async (profileId: string, updates: Partial<TravelerProfile>) => {
     const { familyProfiles, currentProfileId } = get();
-    
+
     if (!familyProfiles.profiles.has(profileId)) {
       throw new Error('Profile not found');
     }
@@ -314,7 +243,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
   deleteProfile: async (profileId: string) => {
     const { familyProfiles, currentProfileId } = get();
-    
+
     if (!familyProfiles.profiles.has(profileId)) {
       throw new Error('Profile not found');
     }
@@ -387,7 +316,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
   switchToProfile: async (profileId: string) => {
     const { familyProfiles } = get();
-    
+
     if (!familyProfiles.profiles.has(profileId)) {
       throw new Error('Profile not found');
     }
@@ -396,7 +325,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     try {
       // Load profile from keychain
       const profile = await keychainService.getProfileById(profileId);
-      
+
       if (!profile) {
         throw new Error('Profile data not found in keychain');
       }
@@ -432,7 +361,7 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
 
   updateProfileMetadata: async (profileId: string, metadataUpdates: Partial<ProfileMetadata>) => {
     const { familyProfiles } = get();
-    
+
     if (!familyProfiles.profiles.has(profileId)) {
       throw new Error('Profile not found');
     }
@@ -461,203 +390,12 @@ export const useProfileStore = create<ProfileStore>((set, get) => ({
     });
   },
 
-  // Profile access methods
-  getProfile: async (profileId: string) => {
-    try {
-      return await keychainService.getProfileById(profileId);
-    } catch (error) {
-      console.error(`Failed to get profile ${profileId}:`, error);
-      return null;
-    }
-  },
+  // Profile access methods (extracted to profileStoreSlices.ts)
+  ...createProfileAccessSlice(set, get),
 
-  getAllProfiles: async () => {
-    const { familyProfiles } = get();
-    const profileMap = new Map<string, TravelerProfile>();
+  // Family management (extracted to profileStoreSlices.ts)
+  ...createFamilyManagementSlice(set, get),
 
-    try {
-      for (const [profileId] of familyProfiles.profiles) {
-        const profile = await keychainService.getProfileById(profileId);
-        if (profile) {
-          profileMap.set(profileId, profile);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to get all profiles:', error);
-    }
-
-    return profileMap;
-  },
-
-  getAllFamilyProfiles: async () => {
-    const { familyProfiles } = get();
-    const profileMap = await get().getAllProfiles();
-    const members: FamilyMember[] = [];
-
-    for (const [profileId, metadata] of familyProfiles.profiles) {
-      const profile = profileMap.get(profileId);
-      if (profile) {
-        members.push({
-          ...profile,
-          relationship: metadata.relationship as FamilyMember['relationship'],
-        });
-      }
-    }
-
-    // Sort: primary profile first, then others
-    const primaryId = familyProfiles.primaryProfileId;
-    members.sort((a, b) => {
-      if (a.id === primaryId) return -1;
-      if (b.id === primaryId) return 1;
-      return 0;
-    });
-
-    return members;
-  },
-
-  getProfileMetadata: (profileId: string) => {
-    const { familyProfiles } = get();
-    return familyProfiles.profiles.get(profileId) || null;
-  },
-
-  // Family management
-  setPrimaryProfile: async (profileId: string) => {
-    const { familyProfiles } = get();
-    
-    if (!familyProfiles.profiles.has(profileId)) {
-      throw new Error('Profile not found');
-    }
-
-    // Update all profiles to mark the new primary
-    const updatedProfiles = new Map(familyProfiles.profiles);
-    for (const [id, metadata] of updatedProfiles) {
-      metadata.isPrimary = id === profileId;
-      metadata.updatedAt = new Date().toISOString();
-    }
-
-    const updatedFamilyProfiles: FamilyProfileCollection = {
-      ...familyProfiles,
-      profiles: updatedProfiles,
-      primaryProfileId: profileId,
-      lastModified: new Date().toISOString(),
-    };
-
-    // Save to MMKV
-    mmkvService.setString(FAMILY_PROFILES_KEY, JSON.stringify(serializeFamilyCollection(updatedFamilyProfiles)));
-
-    set({
-      familyProfiles: updatedFamilyProfiles,
-    });
-  },
-
-  getFamilyStats: () => {
-    const { familyProfiles } = get();
-    
-    if (familyProfiles.profiles.size === 0) {
-      return null;
-    }
-
-    const profilesByRelationship: Record<FamilyRelationship, number> = {
-      self: 0,
-      spouse: 0,
-      child: 0,
-      parent: 0,
-      sibling: 0,
-      other: 0,
-    };
-
-    let lastAccessedProfile: ProfileMetadata | undefined;
-    let activeProfiles = 0;
-    let primaryProfile: ProfileMetadata | undefined;
-
-    for (const metadata of familyProfiles.profiles.values()) {
-      profilesByRelationship[metadata.relationship]++;
-      
-      if (metadata.isActive) {
-        activeProfiles++;
-      }
-      
-      if (metadata.isPrimary) {
-        primaryProfile = metadata;
-      }
-      
-      if (!lastAccessedProfile || 
-          (metadata.lastAccessed && metadata.lastAccessed > (lastAccessedProfile.lastAccessed || ''))) {
-        lastAccessedProfile = metadata;
-      }
-    }
-
-    if (!primaryProfile) {
-      return null;
-    }
-
-    return {
-      totalProfiles: familyProfiles.profiles.size,
-      activeProfiles,
-      primaryProfile,
-      lastAccessedProfile,
-      profilesByRelationship,
-    };
-  },
-
-  canAddProfile: () => {
-    const { familyProfiles } = get();
-    return familyProfiles.profiles.size < MAX_PROFILES;
-  },
-
-  // Legacy operations (for backward compatibility)
-  loadProfile: async () => {
-    // Just load the current profile using the new system
-    await get().loadFamilyProfiles();
-  },
-
-  updateProfile: async (updates: Partial<TravelerProfile>) => {
-    const { currentProfileId } = get();
-    if (!currentProfileId) {
-      throw new Error('No current profile to update');
-    }
-    await get().updateProfileById(currentProfileId, updates);
-  },
-
-  saveProfile: async (profile: TravelerProfile) => {
-    const { familyProfiles, currentProfileId } = get();
-
-    if (currentProfileId && familyProfiles.profiles.has(currentProfileId)) {
-      // Update existing profile
-      await get().updateProfileById(currentProfileId, profile);
-    } else {
-      // Add as new profile (first time or no current profile set)
-      await get().addProfile(profile, {
-        relationship: 'self',
-        isPrimary: familyProfiles.profiles.size === 0,
-        isActive: true,
-        biometricEnabled: true,
-        nickname: `${profile.givenNames} ${profile.surname}`,
-      });
-      await get().switchToProfile(profile.id);
-    }
-  },
-
-  clearProfile: async () => {
-    const { currentProfileId } = get();
-    if (currentProfileId) {
-      await get().deleteProfile(currentProfileId);
-    }
-    
-    // Also clear onboarding state
-    mmkvService.setPreference('onboardingComplete', false);
-    set({ isOnboardingComplete: false });
-  },
-
-  // Migration
-  migrateLegacyProfile: async () => {
-    // This is handled automatically in loadFamilyProfiles
-    await get().loadFamilyProfiles();
-  },
-
-  // Onboarding state
-  setOnboardingComplete: (complete: boolean) => {
-    mmkvService.setPreference('onboardingComplete', complete);
-    set({ isOnboardingComplete: complete });
-  },
+  // Legacy operations, migration, and onboarding (extracted to profileStoreSlices.ts)
+  ...createLegacySlice(set, get),
 }));
