@@ -36,6 +36,14 @@ ts-jest compilation is memory-hungry. Heavy import chains cause OOM in Jest work
 - **Avoid `jest.useFakeTimers()` with `renderHook`** — fake timers + async hooks + act() often cause hangs or memory leaks. Use real timers with short delays instead.
 - **Store mocks must return stable references** — if a mock returns `{ preferences: { ... } }` inline, each render gets a new object, triggering `useEffect`/`useCallback` deps → infinite loop → OOM. Declare mock data as module-level constants outside the mock factory.
 
+## Screen registry sync test
+
+`__tests__/structure/screen-registry-sync.test.ts` validates that every testID and alert title in `maestro/generator/screenRegistry.ts` exists in source. It reads the screen file plus its imports (hooks, components).
+
+**When extracting logic into sibling files** (e.g., splitting `useFoo.ts` into `useFoo.ts` + `useFooHelper.ts`), the test follows one level of relative imports from hook files. If a testID or alert moves to a new file that's imported via `from './newFile'`, the test will still find it. No action needed.
+
+**When testIDs are dynamic** (e.g., `testID={`timing-${option.value}`}`), register them with `${...}` syntax in the registry: `testID: 'timing-${option.value}'`. The test converts these to wildcard regex patterns.
+
 ## Anti-patterns
 - **`toMatchSnapshot()`** — creates `.snap` files that fail in CI; use `toMatchInlineSnapshot()` or explicit assertions
 - **Testing implementation details** (`getByTestId` first) — prefer a11y queries: `getByRole` > `getByLabelText` > `getByTestId`
