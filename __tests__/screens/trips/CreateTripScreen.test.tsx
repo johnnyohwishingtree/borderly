@@ -163,3 +163,33 @@ describe('CreateTripScreen — with unknown templateId', () => {
     expect(screen.queryByTestId('country-select-0')).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Family empty state CTA
+// ---------------------------------------------------------------------------
+
+describe('CreateTripScreen — family empty state', () => {
+  beforeEach(() => {
+    mockRouteParams = undefined;
+    jest.clearAllMocks();
+  });
+
+  it('shows "Traveling with family?" CTA when no family members exist', async () => {
+    render(<CreateTripScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('family-empty-state-card')).toBeTruthy();
+    });
+    expect(screen.getByText('Traveling with family?')).toBeTruthy();
+    expect(screen.getByText('Add a travel companion')).toBeTruthy();
+  });
+
+  it('CTA button has correct accessibility properties', async () => {
+    render(<CreateTripScreen />);
+    await waitFor(() => {
+      expect(screen.getByTestId('add-companion-cta-button')).toBeTruthy();
+    });
+    const button = screen.getByTestId('add-companion-cta-button');
+    expect(button.props.accessibilityRole).toBe('button');
+    expect(button.props.accessibilityLabel).toBe('Add a travel companion');
+  });
+});
