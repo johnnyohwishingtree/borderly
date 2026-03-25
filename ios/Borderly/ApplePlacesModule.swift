@@ -12,7 +12,17 @@ class ApplePlacesModule: NSObject, RCTBridgeModule {
     return false
   }
 
-  /// Country center coordinates for geographic biasing
+  /// ISO alpha-3 → alpha-2 conversion for country filtering
+  /// (MKMapItem.placemark.isoCountryCode returns alpha-2)
+  private static let alpha3ToAlpha2: [String: String] = [
+    "JPN": "JP", "MYS": "MY", "SGP": "SG", "THA": "TH", "VNM": "VN",
+    "CAN": "CA", "USA": "US", "GBR": "GB", "AUS": "AU", "NZL": "NZ",
+    "KOR": "KR", "IDN": "ID", "PHL": "PH", "IND": "IN", "CHN": "CN",
+    "FRA": "FR", "DEU": "DE", "ITA": "IT", "ESP": "ES", "TWN": "TW",
+    "HKG": "HK", "BRA": "BR", "MEX": "MX", "ARE": "AE", "SAU": "SA",
+  ]
+
+  /// Country center coordinates for geographic biasing (keyed by alpha-3)
   private static let countryRegions: [String: (lat: Double, lon: Double, span: Double)] = [
     "JPN": (36.2, 138.3, 10.0),
     "MYS": (4.2, 101.9, 8.0),
@@ -74,12 +84,14 @@ class ApplePlacesModule: NSObject, RCTBridgeModule {
       }
 
       // Hard filter results to the target country
+      // countryCode is alpha-3 (JPN), isoCountryCode is alpha-2 (JP)
+      let alpha2 = ApplePlacesModule.alpha3ToAlpha2[countryCode] ?? ""
       let items: [MKMapItem]
-      if countryCode.isEmpty {
+      if countryCode.isEmpty || alpha2.isEmpty {
         items = Array(response.mapItems.prefix(5))
       } else {
         items = Array(response.mapItems.filter { item in
-          (item.placemark.isoCountryCode?.uppercased() ?? "") == countryCode
+          (item.placemark.isoCountryCode?.uppercased() ?? "") == alpha2
         }.prefix(5))
       }
 
