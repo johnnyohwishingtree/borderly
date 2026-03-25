@@ -294,6 +294,14 @@ export default function CountryFlag({
             <View style={{ flex: 1, backgroundColor: '#138808' }} />
           </View>
         );
+      case 'IDN':
+        return (
+          <View style={baseFlagStyle}>
+            {/* Two horizontal stripes: red on top, white on bottom */}
+            <View style={{ flex: 1, backgroundColor: '#FF0000' }} />
+            <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
+          </View>
+        );
     }
 
     return null;
