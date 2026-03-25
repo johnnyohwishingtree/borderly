@@ -18,3 +18,10 @@ Passport and personal data has strict containment rules.
 - Each family member has isolated storage with unique Keychain entries and encryption keys
 - Family member deletion securely removes all associated data
 
+## Anti-patterns
+- **Logging passport data** — never `console.log` PII, even in development
+- **Storing PII in MMKV** — MMKV is not encrypted and is included in device backups
+- **Sharing Keychain entries across family members** — each member gets isolated entries and keys
+- **Leaving clipboard data indefinitely** — auto-clear after 60 seconds
+- **Sending PII to analytics/crash reporters** — strip before reporting
+

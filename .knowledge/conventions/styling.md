@@ -17,3 +17,11 @@ NativeWind (Tailwind for React Native). No inline hex colors.
 - Platform-specific layout that NativeWind can't express (e.g., `DatePickerField` column picker)
 
 If the value is static and expressible in Tailwind, use `className`. If it's dynamic or computed at runtime, `style={{}}` is fine.
+
+## Anti-patterns
+- **Inline hex colors** (`color: '#3B82F6'`) — use Tailwind color tokens (`text-blue-500`)
+- **Arbitrary spacing values** (`p-[13px]`) — stick to the Tailwind scale (`p-2`, `p-4`)
+- **Pure black/gray text** (`text-black`, `text-gray-500` on colored backgrounds) — tint grays to match the palette
+- **Card-on-card nesting** — flattens visual hierarchy; use spacing/dividers instead
+- **Fixed widths** (`w-[320px]`) — use responsive classes (`w-full`, `max-w-sm`)
+- **Mixing styled-components/StyleSheet with NativeWind** — pick one system per component

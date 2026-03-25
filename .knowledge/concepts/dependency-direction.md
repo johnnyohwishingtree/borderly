@@ -24,3 +24,10 @@ Components → Props only (no stores, no hooks with side effects)
 ## Cross-store coordination
 Stores never import other stores. If two stores need to coordinate, the hook or screen does the coordination.
 
+## Anti-patterns
+- **Component importing a store** (`import { useTripStore } from '../stores'`) — pass data via props
+- **Service importing a store** — services accept state as function parameters
+- **Screen with 300+ lines of logic** — extract to a hook; screen should just render
+- **Circular imports** (A imports B imports A) — always a dependency direction violation
+- **`useEffect` in a component that calls a store action** — move the effect to a hook
+

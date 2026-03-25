@@ -25,3 +25,12 @@
 - Mock in `jest.setup.js` (hides real import failures — Metro bundle check is safety net)
 - Mock in `e2e/mocks/` for Playwright (+ add alias in `webpack.config.js`)
 
+## Anti-patterns
+- **`toMatchSnapshot()`** — creates `.snap` files that fail in CI; use `toMatchInlineSnapshot()` or explicit assertions
+- **Testing implementation details** (`getByTestId` first) — prefer a11y queries: `getByRole` > `getByLabelText` > `getByTestId`
+- **Tests that depend on execution order** — each test must be independently runnable
+- **Mocking everything** — only mock what you must (native modules, network); test real logic
+- **Giant integration tests** — keep unit tests under 1 second; slow tests belong in E2E
+- **Asserting `toBeDefined()`** — assert specific values (`toBe(100)`, `toContain('error')`)
+- **Re-running Maestro/CI to verify a fix** — write a unit test first, get instant feedback
+

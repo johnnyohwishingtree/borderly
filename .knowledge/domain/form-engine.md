@@ -31,3 +31,10 @@ When a specialized component exists for a field type, ALWAYS use it instead of p
 - `SearchableSelect` — for dropdown fields with search
 
 Plain Input loses autocomplete, platform autofill hints, and API-powered suggestions.
+
+## Anti-patterns
+- **Plain `<Input>` for hotel/address fields** — always use `AccommodationAutocomplete` or `AddressAutocomplete`
+- **Validating dates with `isValidTravelDate()`** for non-travel dates — use `isValidISODate()` for DOB, passport expiry
+- **Ignoring `autoFillSource`** — if a schema field has it, the engine handles it; don't manually set values
+- **Hardcoding country-specific logic in the form engine** — put it in the country schema JSON instead
+- **Showing all 30+ fields** — the smart delta should reduce to 3-5 manual fields; if users see more, auto-fill is broken

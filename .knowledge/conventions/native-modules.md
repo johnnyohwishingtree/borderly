@@ -15,3 +15,10 @@ Never bump `react` independently of `react-native`. RN pins a specific React ver
 - Never use `|| true` to silence quality checks
 - `react-native-mmkv` v3.x requires `newArchEnabled=true`
 
+## Anti-patterns
+- **Adding a native dep without a web mock** — E2E tests will crash with no useful error
+- **Skipping `pod install`** — iOS build will fail at link time, not at import time
+- **Bumping `react` independently of `react-native`** — causes runtime renderer crashes
+- **Using `|| true` to silence failing checks** — hides real errors; fix the root cause
+- **Importing native modules directly in components** — wrap in a service so mocking is centralized
+
