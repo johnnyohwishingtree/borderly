@@ -1,14 +1,16 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, RefreshControl, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Plane } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAppStore } from '@/stores/useAppStore';
+import { useProfileStore } from '@/stores/useProfileStore';
 import { TripCard, DuplicateTripModal } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
 import { Trip } from '@/types/trip';
+import type { FamilyMember } from '@/types/profile';
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
@@ -25,6 +27,9 @@ export default function TripListScreen() {
     deleteTrip,
     duplicateTrip,
   } = useTripStore();
+
+  const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
+  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
 
   const [duplicateTargetId, setDuplicateTargetId] = useState<string | null>(null);
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -62,6 +67,49 @@ export default function TripListScreen() {
     fetchTrips();
     loadPersistedAppState();
   }, [fetchTrips, loadPersistedAppState]);
+
+  // Load family members for traveler avatars
+  useFocusEffect(
+    useCallback(() => {
+      const load = async () => {
+        try {
+          await loadFamilyProfiles();
+          const profiles = await getAllProfiles();
+          const members: FamilyMember[] = Array.from(profiles.values()).map(p => ({
+            ...p,
+            relationship: p.relationship ?? 'self',
+          }));
+          setFamilyMembers(members);
+        } catch {
+          // Non-critical — avatars just won't show
+        }
+      };
+      load();
+    }, [loadFamilyProfiles, getAllProfiles]),
+  );
+
+  // Resolve travelers for a given trip from assignedTravelers across legs
+  const travelersByTripId = useMemo(() => {
+    if (familyMembers.length <= 1) return {};
+    const memberMap = new Map(familyMembers.map(m => [m.id, m]));
+    const result: Record<string, FamilyMember[]> = {};
+    for (const trip of trips) {
+      const ids = new Set<string>();
+      for (const leg of trip.legs) {
+        if (leg.assignedTravelers) {
+          for (const id of leg.assignedTravelers) {
+            ids.add(id);
+          }
+        }
+      }
+      if (ids.size > 1) {
+        result[trip.id] = Array.from(ids)
+          .map(id => memberMap.get(id))
+          .filter((m): m is FamilyMember => m !== undefined);
+      }
+    }
+    return result;
+  }, [trips, familyMembers]);
 
   /**
    * The "schemas updated" banner should show when:
@@ -159,6 +207,7 @@ export default function TripListScreen() {
       onDuplicate={() => handleOpenDuplicateModal(item)}
       onDelete={() => handleDeleteTrip(item)}
       showProgress={true}
+      travelers={travelersByTripId[item.id]}
     />
   );
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Trash2, Copy, BookmarkPlus } from 'lucide-react-native';
@@ -39,6 +39,21 @@ export default function TripDetailScreen() {
     getStatusColor,
     getStatusText,
   } = useTripDetail({ tripId });
+
+  // Collect unique travelers across all legs
+  const tripTravelers = useMemo(() => {
+    if (!trip || familyMembers.length <= 1) return [];
+    const travelerIds = new Set<string>();
+    for (const leg of trip.legs) {
+      if (leg.assignedTravelers) {
+        for (const id of leg.assignedTravelers) {
+          travelerIds.add(id);
+        }
+      }
+    }
+    if (travelerIds.size <= 1) return [];
+    return familyMembers.filter(m => travelerIds.has(m.id));
+  }, [trip, familyMembers]);
 
   // Modal visibility — render-only UI state
   const [showEditModal, setShowEditModal] = useState(false);
@@ -161,6 +176,35 @@ export default function TripDetailScreen() {
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Travelers */}
+          {tripTravelers.length > 1 && (
+            <View
+              className="mb-4"
+              testID="trip-detail-travelers"
+              accessible={true}
+              accessibilityRole="text"
+              accessibilityLabel={`${tripTravelers.length} travelers: ${tripTravelers.map(t => `${t.givenNames} ${t.surname}`).join(', ')}`}
+            >
+              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Travelers</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {tripTravelers.map((member) => (
+                  <View
+                    key={member.id}
+                    className="flex-row items-center bg-gray-50 dark:bg-gray-700 rounded-full px-3 py-1"
+                    testID={`trip-detail-traveler-${member.id}`}
+                  >
+                    <Text className="text-sm font-medium text-gray-900 dark:text-white mr-1">
+                      {member.givenNames} {member.surname}
+                    </Text>
+                    <Text className="text-xs text-gray-500 dark:text-gray-400">
+                      {member.relationship === 'self' ? 'Primary' : member.relationship.charAt(0).toUpperCase() + member.relationship.slice(1)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
 
           {/* Progress Overview */}
           {trip.legs.length > 0 && (
