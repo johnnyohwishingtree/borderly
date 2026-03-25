@@ -56,6 +56,11 @@
       "version": "1.0.0",
       "checksum": "sha256:693b25f6886d0cce4edceed58a2d9b88c368230ee92b7b761b933df7d3d8ce69",
       "url": "https://schemas.borderly.app/v1/KOR.json"
+    },
+    "IND": {
+      "version": "1.0.0",
+      "checksum": "sha256:0a8cd30cf5d1965ab7ed8bb0cee3403057eec9f4e2a515b19777899e655a5be2",
+      "url": "https://schemas.borderly.app/v1/IND.json"
     }
   }
 }

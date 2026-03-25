@@ -77,6 +77,12 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
     fullName: 'South Korea',
     colors: ['#FFFFFF', '#003478', '#CD2E3A'],
   },
+  {
+    code: 'IND',
+    name: 'India',
+    fullName: 'India',
+    colors: ['#FF9933', '#FFFFFF', '#138808', '#000080'],
+  },
 ];
 
 /**
