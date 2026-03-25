@@ -152,12 +152,12 @@ export const SCREENS: Record<string, ScreenSpec> = {
     alerts: [],
     actionButtons: [
       { testID: 'add-companion-button', label: 'Add Companion', description: 'Open relationship picker to add a family member' },
-      { testID: 'companions-continue-button', label: 'Continue', description: 'Proceed to BiometricSetup (text varies: "Continue — just me" or "Continue")' },
+      { testID: 'companions-continue-button', label: 'Skip for now', description: 'Proceed to BiometricSetup (text is "Skip for now" when no companions added)' },
     ],
     navigatesTo: ['BiometricSetup'],
     notes: [
       'Optional step — can continue without adding anyone.',
-      'Continue button text is "Continue — just me" when no companions added.',
+      'Skip button text is "Skip for now" when no companions added.',
       'Relationship picker modal has testIDs: relationship-option-{spouse|child|parent|sibling|other}.',
     ],
   },

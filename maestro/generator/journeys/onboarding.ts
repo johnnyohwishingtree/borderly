@@ -88,7 +88,7 @@ const confirmProfileStep = (expectedName: string) => screenStep('ConfirmProfile'
 const addCompanionsSkipStep = () => screenStep('AddCompanions', {
   comment: 'ADD COMPANIONS — SKIP',
   actions: [
-    tapText('Continue \u2014 just me'),
+    tapText('Skip for now'),
   ],
 });
 
