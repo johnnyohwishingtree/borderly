@@ -67,15 +67,14 @@ interface ColumnPickerProps {
 }
 
 function ColumnPicker({ items, selectedIndex, onSelect, testIDPrefix }: ColumnPickerProps) {
-  const ITEM_HEIGHT = 44;
+  const ITEM_HEIGHT = 40;
+  const VISIBLE_ITEMS = 5;
 
   return (
     <ScrollView
-      style={{ height: ITEM_HEIGHT * 5, flex: 1 }}
+      style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingVertical: ITEM_HEIGHT * 2 }}
-      snapToInterval={ITEM_HEIGHT}
-      decelerationRate="fast"
+      nestedScrollEnabled
     >
       {items.map((item, index) => {
         const isSelected = index === selectedIndex;
@@ -83,12 +82,19 @@ function ColumnPicker({ items, selectedIndex, onSelect, testIDPrefix }: ColumnPi
           <TouchableOpacity
             key={item}
             onPress={() => onSelect(index)}
-            style={{ height: ITEM_HEIGHT, justifyContent: 'center', alignItems: 'center' }}
+            style={{
+              height: ITEM_HEIGHT,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: isSelected ? '#eff6ff' : 'transparent',
+              borderRadius: 8,
+              marginHorizontal: 4,
+            }}
             testID={testIDPrefix ? `${testIDPrefix}-${item}` : undefined}
           >
             <Text
               style={{
-                fontSize: isSelected ? 18 : 14,
+                fontSize: isSelected ? 16 : 14,
                 fontWeight: isSelected ? '600' : '400',
                 color: isSelected ? '#1d4ed8' : '#6b7280',
               }}
