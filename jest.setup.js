@@ -48,7 +48,11 @@ jest.mock('react-native', () => {
   };
   return {
     Platform: { OS: 'ios', select: (obj) => obj.ios },
-    NativeModules: {},
+    NativeModules: {
+      ApplePlacesModule: {
+        search: jest.fn().mockResolvedValue([]),
+      },
+    },
     View: mockComponent('View'),
     Text: mockComponent('Text'),
     SafeAreaView: mockComponent('SafeAreaView'),
