@@ -29,10 +29,13 @@ Create a pattern when you notice a recurring type of change that:
 
 If the guidance is a simple constraint ("always do X"), it's a **rule**, not a pattern.
 
-## Borderly-specific patterns to add
+## Available patterns
 
 - `add-screen.md` — New screen + navigation + E2E test + screenshot
-- `add-country-schema.md` — New country JSON + form engine integration + tests
+- `add-country.md` — New country JSON + form engine integration + tests
+- `add-native-dep.md` — Native dependency + iOS pod install + web mock + webpack alias
+
+## Patterns to add
+
 - `add-component.md` — New UI component + a11y tests + barrel export
 - `add-hook.md` — Extract hook from screen + tests + barrel export
-- `add-native-dep.md` — Native dependency + iOS pod install + web mock + webpack alias

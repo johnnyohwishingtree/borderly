@@ -5,7 +5,6 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 ## Code fixes
 
 - E2E suite (`pnpm e2e`) — 249 of 260 tests failing on master (pre-existing). Likely environment/config issue with Playwright web mocks or webpack config. Needs investigation.
-- `src/hooks/useLegFormHelpers.ts` and `src/hooks/useLegFormTypes.ts` not exported from `src/hooks/index.ts` barrel (audit-2026-03-25)
 - `src/screens/trips/TripListScreen/TripListScreen.tsx` — 542 lines (over 500 limit), 5 useState calls. Extract search/filter state to `useTripList` hook. (audit-2026-03-25)
 - `src/app/navigation/MainTabNavigator.tsx` — 520 lines (over 500 limit) (audit-2026-03-25)
 
@@ -15,4 +14,3 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Drift
 
-- `.knowledge/patterns/README.md` references `.knowledge/patterns/add-X.md` which doesn't exist — update to actual pattern names (audit-2026-03-25)
