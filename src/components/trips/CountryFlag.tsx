@@ -302,6 +302,20 @@ export default function CountryFlag({
             <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />
           </View>
         );
+      case 'PHL':
+        return (
+          <View style={{ ...baseFlagStyle, flexDirection: 'row' }}>
+            {/* White triangle on left with sun */}
+            <View style={{ width: flagSize.width * 0.35, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ width: flagSize.height * 0.25, height: flagSize.height * 0.25, borderRadius: flagSize.height * 0.125, backgroundColor: '#FCD116' }} />
+            </View>
+            {/* Two horizontal stripes: blue on top, red on bottom */}
+            <View style={{ flex: 1 }}>
+              <View style={{ flex: 1, backgroundColor: '#0038A8' }} />
+              <View style={{ flex: 1, backgroundColor: '#CE1126' }} />
+            </View>
+          </View>
+        );
     }
 
     return null;
