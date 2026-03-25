@@ -19,7 +19,7 @@ export {
   type MockSubmissionResult,
   type SubmissionError,
   type SubmissionTestConfig
-} from './submissionTester';
+} from './submission';
 
 export {
   ComplianceValidator,
@@ -28,4 +28,4 @@ export {
   type ComplianceCheck,
   type ComplianceViolation,
   type PrivacyComplianceConfig
-} from './complianceValidator';
+} from './compliance';

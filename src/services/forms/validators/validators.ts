@@ -16,7 +16,7 @@ import {
   validateCountryCode, 
   validateTravelName, 
   validateOccupation 
-} from '../../../utils/validationUtils';
+} from '../../../utils/validation/index';
 
 /**
  * Validation utilities for form fields using Zod schemas.

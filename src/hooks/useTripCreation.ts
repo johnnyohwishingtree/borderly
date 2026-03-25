@@ -6,7 +6,7 @@ import type { TripStackParamList } from '../app/navigation/types';
 import { useTripStore } from '../stores/useTripStore';
 import { useProfileStore } from '../stores/useProfileStore';
 import { TripLeg, Accommodation } from '../types/trip';
-import { Address, FamilyMember } from '../types/profile';
+import { FamilyMember } from '../types/profile';
 import { ParsedBoardingPass } from '../types/boarding';
 import type { SmartImportResult } from '../components/import';
 import {
@@ -16,33 +16,10 @@ import {
 import { getCountryName } from '../constants/countries';
 import { deepCopy } from '../utils/deepCopy';
 import { tripTemplateService } from '../services/trips/tripTemplateService';
+import type { LegFormData, UseTripCreationOptions } from './useTripCreationTypes';
 
-interface LegFormData {
-  destinationCountry: string;
-  arrivalDate: string;
-  departureDate: string;
-  flightNumber: string;
-  airlineCode: string;
-  arrivalAirport: string;
-  accommodation: {
-    name: string;
-    address: Address;
-    phone: string;
-  };
-  assignedTravelers: string[];
-  autoFilledFields?: {
-    destinationCountry?: 'auto';
-    arrivalDate?: 'auto';
-    flightNumber?: 'auto';
-    airlineCode?: 'auto';
-    arrivalAirport?: 'auto';
-  };
-}
-
-interface TripFormData {
-  name: string;
-  status: 'upcoming' | 'active' | 'completed';
-}
+// Re-export types for backward compatibility
+export type { LegFormData, UseTripCreationOptions } from './useTripCreationTypes';
 
 /**
  * Returns the ID of the primary traveler (relationship === 'self'),
@@ -50,11 +27,6 @@ interface TripFormData {
  */
 function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
   return (members.find(m => m.relationship === 'self') ?? members[0])?.id;
-}
-
-export interface UseTripCreationOptions {
-  /** When provided, legs are pre-populated from the matching template. */
-  templateId?: string;
 }
 
 /**
@@ -72,7 +44,7 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   const { createTrip, addTripLeg } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
 
-  const [tripData, setTripData] = useState<TripFormData>({
+  const [tripData, setTripData] = useState<import('./useTripCreationTypes').TripFormData>({
     name: '',
     status: 'upcoming',
   });
@@ -180,7 +152,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   }, [tripTravelers, familyMembers]);
 
   const addLeg = useCallback(() => {
-    // New legs inherit the current trip-level traveler selection.
     const defaultTravelers = getDefaultTravelers();
 
     const newLeg: LegFormData = {
@@ -198,18 +169,15 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
       assignedTravelers: defaultTravelers,
     };
     setLegs(prev => [...prev, newLeg]);
-    // New legs are NOT added to legOverrides — they follow trip-level changes.
   }, [getDefaultTravelers]);
 
   const removeLeg = useCallback((index: number) => {
     setLegs(prev => prev.filter((_, i) => i !== index));
-    // Shift override indices: remove the deleted index, decrement those above it.
     setLegOverrides(prev => {
       const next = new Set<number>();
       prev.forEach(i => {
         if (i < index) next.add(i);
         else if (i > index) next.add(i - 1);
-        // i === index is removed
       });
       return next;
     });
@@ -244,7 +212,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
    */
   const handleTripTravelerToggle = useCallback((travelerId: string) => {
     const primaryId = getPrimaryTravelerId(familyMembers);
-    // Primary traveler cannot be removed from the trip.
     if (travelerId === primaryId && tripTravelers.includes(travelerId)) return;
 
     const newTravelers = tripTravelers.includes(travelerId)
@@ -253,7 +220,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
 
     setTripTravelers(newTravelers);
 
-    // Propagate to legs that have not been manually overridden.
     setLegs(prev =>
       prev.map((leg, index) => {
         if (legOverrides.has(index)) return leg;
@@ -268,7 +234,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
    * propagate to it automatically.
    */
   const handleTravelerToggle = useCallback((legIndex: number, travelerId: string) => {
-    // Mark this leg as manually overridden.
     setLegOverrides(prev => new Set([...prev, legIndex]));
 
     setLegs(prev => {
@@ -312,7 +277,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
       return;
     }
 
-    // Scanned legs inherit the trip-level traveler selection.
     const defaultTravelers = getDefaultTravelers();
 
     const newLeg: LegFormData = {
@@ -417,7 +381,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   const handleSmartImport = useCallback((result: SmartImportResult) => {
     setShowSmartImport(false);
 
-    // Imported legs inherit the trip-level traveler selection.
     const defaultTravelers = getDefaultTravelers();
 
     const newLegs: LegFormData[] = [];
@@ -509,5 +472,3 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
     handleSmartImport,
   };
 }
-
-export type { LegFormData };

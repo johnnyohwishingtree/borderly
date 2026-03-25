@@ -1,8 +1,17 @@
 import * as Keychain from 'react-native-keychain';
 import { TravelerProfile } from '@/types/profile';
 import { PortalCredential } from '@/types/submission';
-import { mmkvService } from './mmkv';
 import 'react-native-get-random-values';
+import type { KeychainService } from './keychainTypes';
+import {
+  getPortalCredentialKey,
+  getPortalCredentialIndex,
+  savePortalCredentialIndex,
+  deletePortalCredentialIndexEntry,
+} from './keychainPortalCredentials';
+
+// Re-export type so existing consumers still work
+export type { KeychainService } from './keychainTypes';
 
 const LEGACY_PROFILE_KEY = 'borderly_traveler_profile';
 const ENCRYPTION_KEY = 'borderly_encryption_key';
@@ -10,42 +19,6 @@ const ENCRYPTION_KEY = 'borderly_encryption_key';
 // New multi-profile constants
 const PROFILE_KEY_PREFIX = 'borderly_profile_';
 const PROFILE_ENCRYPTION_KEY_PREFIX = 'borderly_profile_enc_';
-
-export interface KeychainService {
-  // Legacy single-profile methods (for backward compatibility)
-  storeProfile(profile: TravelerProfile): Promise<void>;
-  getProfile(): Promise<TravelerProfile | null>;
-  deleteProfile(): Promise<void>;
-
-  // New multi-profile methods
-  storeProfileById(profileId: string, profile: TravelerProfile): Promise<void>;
-  getProfileById(profileId: string): Promise<TravelerProfile | null>;
-  deleteProfileById(profileId: string): Promise<void>;
-  getAllProfileIds(): Promise<string[]>;
-  profileExists(profileId: string): Promise<boolean>;
-
-  // Migration support
-  migrateLegacyProfile(): Promise<string | null>; // Returns migrated profile ID if any
-
-  // Encryption key management
-  generateEncryptionKey(): Promise<string>;
-  generateProfileEncryptionKey(profileId: string): Promise<string>;
-  getEncryptionKey(): Promise<string | null>;
-  getProfileEncryptionKey(profileId: string): Promise<string | null>;
-  deleteProfileEncryptionKey(profileId: string): Promise<void>;
-
-  // Portal credential methods
-  storePortalCredential(profileId: string, portalCode: string, username: string, password: string, email?: string): Promise<void>;
-  getPortalCredential(profileId: string, portalCode: string): Promise<{ username: string; password: string } | null>;
-  deletePortalCredential(profileId: string, portalCode: string): Promise<void>;
-  getPortalCredentialsForProfile(profileId: string): Promise<PortalCredential[]>;
-  deleteAllPortalCredentialsForProfile(profileId: string): Promise<void>;
-
-  // System utilities
-  isAvailable(): Promise<boolean>;
-  clearSensitiveMemory(): void;
-  secureCleanup(): Promise<void>;
-}
 
 class KeychainServiceImpl implements KeychainService {
   // In-memory sensitive data tracking for cleanup
@@ -86,12 +59,9 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   private get keychainGetOptions(): Keychain.GetOptions {
-    return {
-      service: 'borderly',
-    };
+    return { service: 'borderly' };
   }
 
-  // Helper methods for multi-profile support
   private getProfileKeychainKey(profileId: string): string {
     return `${PROFILE_KEY_PREFIX}${profileId}`;
   }
@@ -172,17 +142,12 @@ class KeychainServiceImpl implements KeychainService {
 
   async generateEncryptionKey(): Promise<string> {
     try {
-      // Generate a cryptographically secure 256-bit key for WatermelonDB encryption
-      const keyBytes = new Uint8Array(32); // 256 bits / 8 = 32 bytes
+      const keyBytes = new Uint8Array(32);
       crypto.getRandomValues(keyBytes);
-
-      // Convert to hex string for storage
       const key = Array.from(keyBytes)
         .map((byte: number) => byte.toString(16).padStart(2, '0'))
         .join('');
-
       await this.storeInKeychain(ENCRYPTION_KEY, 'borderly_encryption', key);
-
       return key;
     } catch (error) {
       console.error('Failed to generate encryption key:', error);
@@ -211,45 +176,7 @@ class KeychainServiceImpl implements KeychainService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Portal credential helpers
-  // ---------------------------------------------------------------------------
-
-  private getPortalCredentialKey(profileId: string, portalCode: string): string {
-    return `borderly_portal_cred_${profileId}_${portalCode}`;
-  }
-
-  private getPortalCredentialIndexKey(profileId: string): string {
-    return `borderly_portal_cred_index_${profileId}`;
-  }
-
-  private getPortalCredentialIndex(profileId: string): PortalCredential[] {
-    try {
-      const raw = mmkvService.getString(this.getPortalCredentialIndexKey(profileId));
-      if (raw) {
-        return JSON.parse(raw) as PortalCredential[];
-      }
-    } catch (error) {
-      console.warn(`Failed to read portal credential index for ${profileId}:`, error);
-    }
-    return [];
-  }
-
-  private savePortalCredentialIndex(profileId: string, credentials: PortalCredential[]): void {
-    try {
-      mmkvService.setString(
-        this.getPortalCredentialIndexKey(profileId),
-        JSON.stringify(credentials),
-      );
-    } catch (error) {
-      console.error(`Failed to save portal credential index for ${profileId}:`, error);
-      throw error;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
   // Portal credential methods
-  // ---------------------------------------------------------------------------
 
   async storePortalCredential(
     profileId: string,
@@ -259,13 +186,13 @@ class KeychainServiceImpl implements KeychainService {
     email?: string,
   ): Promise<void> {
     try {
-      const key = this.getPortalCredentialKey(profileId, portalCode);
+      const key = getPortalCredentialKey(profileId, portalCode);
       // Store password as the Keychain "password" field; username as the "username"
       await this.storeInKeychain(key, username, password);
 
       // Update MMKV metadata index (no password here)
       const now = new Date().toISOString();
-      const index = this.getPortalCredentialIndex(profileId);
+      const index = getPortalCredentialIndex(profileId);
       const existingIdx = index.findIndex(c => c.portalCode === portalCode);
       const entry: PortalCredential = {
         portalCode,
@@ -281,7 +208,7 @@ class KeychainServiceImpl implements KeychainService {
       } else {
         index.push(entry);
       }
-      this.savePortalCredentialIndex(profileId, index);
+      savePortalCredentialIndex(profileId, index);
     } catch (error) {
       console.error(`Failed to store portal credential for ${profileId}/${portalCode}:`, error);
       throw new Error('Failed to securely store portal credential');
@@ -293,7 +220,7 @@ class KeychainServiceImpl implements KeychainService {
     portalCode: string,
   ): Promise<{ username: string; password: string } | null> {
     try {
-      const key = this.getPortalCredentialKey(profileId, portalCode);
+      const key = getPortalCredentialKey(profileId, portalCode);
       this.lastAccessTime[key] = Date.now();
       const credentials = await Keychain.getInternetCredentials(key, this.keychainGetOptions);
 
@@ -302,14 +229,14 @@ class KeychainServiceImpl implements KeychainService {
       }
 
       // Update lastUsed in MMKV index
-      const index = this.getPortalCredentialIndex(profileId);
+      const index = getPortalCredentialIndex(profileId);
       const existingIdx = index.findIndex(c => c.portalCode === portalCode);
       if (existingIdx >= 0) {
         index[existingIdx] = {
           ...index[existingIdx],
           lastUsed: new Date().toISOString(),
         };
-        this.savePortalCredentialIndex(profileId, index);
+        savePortalCredentialIndex(profileId, index);
       }
 
       return { username: credentials.username, password: credentials.password };
@@ -321,13 +248,13 @@ class KeychainServiceImpl implements KeychainService {
 
   async deletePortalCredential(profileId: string, portalCode: string): Promise<void> {
     try {
-      const key = this.getPortalCredentialKey(profileId, portalCode);
+      const key = getPortalCredentialKey(profileId, portalCode);
       await this.deleteFromKeychain(key);
 
       // Remove from MMKV index
-      const index = this.getPortalCredentialIndex(profileId);
+      const index = getPortalCredentialIndex(profileId);
       const updated = index.filter(c => c.portalCode !== portalCode);
-      this.savePortalCredentialIndex(profileId, updated);
+      savePortalCredentialIndex(profileId, updated);
     } catch (error) {
       console.error(`Failed to delete portal credential for ${profileId}/${portalCode}:`, error);
       throw new Error('Failed to delete portal credential');
@@ -335,18 +262,18 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   async getPortalCredentialsForProfile(profileId: string): Promise<PortalCredential[]> {
-    return this.getPortalCredentialIndex(profileId);
+    return getPortalCredentialIndex(profileId);
   }
 
   async deleteAllPortalCredentialsForProfile(profileId: string): Promise<void> {
     try {
-      const credentials = this.getPortalCredentialIndex(profileId);
+      const credentials = getPortalCredentialIndex(profileId);
 
       // Delete each credential from Keychain in parallel
       await Promise.all(
         credentials.map(cred =>
           this.deleteFromKeychain(
-            this.getPortalCredentialKey(profileId, cred.portalCode),
+            getPortalCredentialKey(profileId, cred.portalCode),
           ).catch(err => {
             console.warn(
               `Failed to delete portal credential ${cred.portalCode} for ${profileId}:`,
@@ -357,7 +284,7 @@ class KeychainServiceImpl implements KeychainService {
       );
 
       // Clear the MMKV index
-      mmkvService.delete(this.getPortalCredentialIndexKey(profileId));
+      deletePortalCredentialIndexEntry(profileId);
     } catch (error) {
       console.error(`Failed to delete all portal credentials for profile ${profileId}:`, error);
       throw new Error(`Failed to delete portal credentials for profile ${profileId}`);
@@ -418,8 +345,7 @@ class KeychainServiceImpl implements KeychainService {
     }
   }
 
-  // New multi-profile methods
-
+  // Multi-profile methods
   async storeProfileById(profileId: string, profile: TravelerProfile): Promise<void> {
     try {
       const profileJson = JSON.stringify(profile);
