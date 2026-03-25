@@ -15,14 +15,14 @@ import {
   cancelReadinessNotification,
   readinessKey,
   buildReadinessNotificationId,
-} from '../../src/services/readiness/readinessNotificationScheduler';
+} from '../../../src/services/readiness/readinessNotificationScheduler';
 import {
   setNotificationProvider,
   NotificationProvider,
   ScheduleRequest,
-} from '../../src/services/deadline/notificationScheduler';
-import { Trip } from '../../src/types/trip';
-import { TripReadiness, ReadinessItemStatus } from '../../src/services/readiness/readinessTypes';
+} from '../../../src/services/deadline/notificationScheduler';
+import { Trip } from '../../../src/types/trip';
+import { TripReadiness, ReadinessItemStatus } from '../../../src/services/readiness/readinessTypes';
 
 // ---------------------------------------------------------------------------
 // Mock mmkvService
@@ -30,7 +30,7 @@ import { TripReadiness, ReadinessItemStatus } from '../../src/services/readiness
 
 const mockStore: Record<string, string> = {};
 
-jest.mock('../../src/services/storage/mmkv', () => ({
+jest.mock('../../../src/services/storage/mmkv', () => ({
   mmkvService: {
     getString: jest.fn((key: string) => mockStore[key]),
     setString: jest.fn((key: string, value: string) => {
