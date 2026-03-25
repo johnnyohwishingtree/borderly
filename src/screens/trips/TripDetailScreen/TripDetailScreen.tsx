@@ -6,6 +6,7 @@ import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, 
 import { Button, StatusBadge, ScreenContainer } from '@/components/ui';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripDetail } from '@/hooks/useTripDetail';
+import { useTripChecklist } from '@/hooks/useTripChecklist';
 import { EditTripModal, AddDestinationModal } from '@/components/trips/TripDetailModals';
 import { computeTravelerProgress } from '@/services/readiness/travelerProgress';
 
@@ -17,6 +18,8 @@ export default function TripDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { tripId } = route.params as RouteParams;
+
+  const { checklist: tripChecklist } = useTripChecklist(tripId);
 
   const {
     trip,
@@ -295,6 +298,40 @@ export default function TripDetailScreen() {
                 .map(m => m.id)}
               testID="trip-detail-account-checklist"
             />
+          </View>
+        )}
+
+        {/* Pre-Departure Checklist Card */}
+        {tripChecklist && tripChecklist.items.length > 0 && (
+          <View className="px-4 pt-4">
+            <TouchableOpacity
+              testID="checklist-card"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
+              activeOpacity={0.7}
+              onPress={() => (navigation as { navigate: (screen: string, params: Record<string, string>) => void }).navigate('TripChecklist', { tripId })}
+              accessibilityRole="button"
+              accessibilityLabel={`Pre-Departure Checklist, ${tripChecklist.completedCount} of ${tripChecklist.totalCount} items complete${tripChecklist.overallStatus === 'action-needed' || tripChecklist.overallStatus === 'warning' ? ', attention needed' : ''}`}
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-base font-semibold text-gray-900 dark:text-white">Pre-Departure Checklist</Text>
+                {(tripChecklist.overallStatus === 'action-needed' || tripChecklist.overallStatus === 'warning') && (
+                  <StatusBadge
+                    status={tripChecklist.overallStatus === 'action-needed' ? 'error' : 'warning'}
+                    text={tripChecklist.overallStatus === 'action-needed' ? 'Action Needed' : 'Warning'}
+                    size="small"
+                  />
+                )}
+              </View>
+              <Text className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                {tripChecklist.completedCount} of {tripChecklist.totalCount} items complete
+              </Text>
+              <View className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                <View
+                  className="h-full bg-blue-500 rounded-full"
+                  style={{ width: `${tripChecklist.totalCount > 0 ? Math.round((tripChecklist.completedCount / tripChecklist.totalCount) * 100) : 0}%` }}
+                />
+              </View>
+            </TouchableOpacity>
           </View>
         )}
 

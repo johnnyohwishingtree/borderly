@@ -287,8 +287,9 @@ export const SCREENS: Record<string, ScreenSpec> = {
     actionButtons: [
       { testID: 'edit-trip-button', label: 'Edit', description: 'Toggle edit mode for trip' },
       { testID: 'add-destination-button', label: 'Add Destination', description: 'Add another leg' },
+      { testID: 'checklist-card', label: 'Pre-Departure Checklist', description: 'Navigate to TripChecklist' },
     ],
-    navigatesTo: ['LegForm', 'SubmissionGuide', 'PortalSubmission'],
+    navigatesTo: ['LegForm', 'SubmissionGuide', 'PortalSubmission', 'TripChecklist'],
     notes: [
       'Shows leg cards with testID leg-card-{COUNTRY_CODE} (e.g., leg-card-JPN).',
       'Tapping a leg card navigates to LegForm.',
