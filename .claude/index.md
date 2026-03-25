@@ -19,8 +19,8 @@ Read this first. Maps every artifact in the pipeline system.
 
 | Skill | Purpose | Invocation |
 |-------|---------|------------|
-| `skills/pipeline/` | Autonomous story loop — implement, verify, learn, merge, plan | `/pipeline` |
-| `skills/audit/` | Codebase health audit — drift, dead code, gaps | `/audit` |
+| `skills/pipeline/` | Autonomous story loop — implement, verify, review, merge, plan | `/pipeline` |
+| `skills/audit/` | Convention compliance, drift detection, index sync | `/audit` |
 | `skills/optimize/` | Resolve gaps in knowledge graph, compress bloated files | `/optimize` |
 | `skills/epic-planner/` | Break a goal into Epic + Stories | `/epic-planner` |
 | `skills/capture-screens/` | Capture screenshots + generate manifest | `/capture-screens` |
