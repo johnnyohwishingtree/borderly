@@ -1,0 +1,196 @@
+/**
+ * LegFormSection — Form fields for editing/adding a trip leg.
+ *
+ * Co-located with TripDetailScreen because LegPassportWarning uses a hook,
+ * violating the props-only rule for shared components.
+ */
+
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Input, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete } from '@/components/ui';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
+import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
+import { SUPPORTED_COUNTRIES } from '@/constants/countries';
+import { ALL_AIRPORTS } from '@/constants/airports';
+import type { Address } from '@/types/profile';
+
+// ── LegPassportWarning ──────────────────────────────────────────────────────
+
+function LegPassportWarning({
+  countryCode,
+  departureDate,
+  testID,
+}: {
+  countryCode: string;
+  departureDate?: string | undefined;
+  testID?: string;
+}) {
+  const warningData = usePassportValidity({ countryCode, departureDate });
+  if (!warningData) return null;
+  return (
+    <PassportValidityWarning
+      status={warningData.status}
+      countryName={warningData.countryName}
+      requiredMonths={warningData.requiredMonths}
+      passportExpiry={warningData.passportExpiry}
+      {...(testID !== undefined ? { testID } : {})}
+    />
+  );
+}
+
+// ── LegFormSection ──────────────────────────────────────────────────────────
+
+export interface LegFormSectionProps {
+  legData: {
+    destinationCountry: string;
+    arrivalDate: string;
+    departureDate: string;
+    flightNumber: string;
+    airlineCode: string;
+    arrivalAirport: string;
+    accommodation: {
+      name: string;
+      address: { line1: string; city: string; postalCode: string; country: string };
+      phone: string;
+    };
+  };
+  onUpdateField: (field: string, value: string) => void;
+  onAddressChange?: (address: Address) => void;
+  errors: Record<string, string>;
+  testIDPrefix: string;
+}
+
+export default function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix }: LegFormSectionProps) {
+  return (
+    <View className="p-4">
+      {/* Country */}
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Country</Text>
+        <View className="flex-row flex-wrap gap-2">
+          {SUPPORTED_COUNTRIES.map(country => (
+            <TouchableOpacity
+              key={country.code}
+              onPress={() => onUpdateField('destinationCountry', country.code)}
+              className={`px-3 py-2 rounded-lg border ${
+                legData.destinationCountry === country.code
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+              }`}
+              activeOpacity={0.7}
+              testID={`${testIDPrefix}-country-${country.code}`}
+            >
+              <Text
+                className={`font-medium text-sm ${
+                  legData.destinationCountry === country.code ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                {country.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {errors.country && <Text className="text-red-500 text-sm mt-2">{errors.country}</Text>}
+      </View>
+
+      {/* Passport validity warning */}
+      {legData.destinationCountry ? (
+        <LegPassportWarning
+          countryCode={legData.destinationCountry}
+          departureDate={legData.departureDate || undefined}
+          testID={`${testIDPrefix}-passport-validity-warning`}
+        />
+      ) : null}
+
+      {/* Dates */}
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Dates</Text>
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Date *</Text>
+            <DatePickerField
+              value={legData.arrivalDate}
+              onChange={date => onUpdateField('arrivalDate', date)}
+              placeholder="Arrival date"
+              error={errors.arrivalDate}
+              testID={`${testIDPrefix}-arrival-date`}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure Date</Text>
+            <DatePickerField
+              value={legData.departureDate}
+              onChange={date => onUpdateField('departureDate', date)}
+              placeholder="Departure date"
+              testID={`${testIDPrefix}-departure-date`}
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Flight */}
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Flight (Optional)</Text>
+        <View className="flex-row gap-3 mb-3">
+          <View className="flex-1">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flight Number</Text>
+            <Input
+              value={legData.flightNumber}
+              onChangeText={text => onUpdateField('flightNumber', text)}
+              placeholder="e.g., NH123"
+              autoCapitalize="characters"
+              testID={`${testIDPrefix}-flight-number`}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Airline Code</Text>
+            <Input
+              value={legData.airlineCode}
+              onChangeText={text => onUpdateField('airlineCode', text)}
+              placeholder="e.g., NH"
+              autoCapitalize="characters"
+              testID={`${testIDPrefix}-airline-code`}
+            />
+          </View>
+        </View>
+        <View>
+          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Airport</Text>
+          <SearchableSelect
+            value={legData.arrivalAirport}
+            onValueChange={val => onUpdateField('arrivalAirport', val)}
+            options={ALL_AIRPORTS}
+            placeholder="Search airport..."
+            testID={`${testIDPrefix}-arrival-airport`}
+          />
+        </View>
+      </View>
+
+      {/* Accommodation */}
+      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation *</Text>
+        <View className="space-y-3">
+          <View>
+            <AccommodationAutocomplete
+              value={legData.accommodation.name}
+              onNameChange={text => onUpdateField('accommodation.name', text)}
+              testID={`${testIDPrefix}-accommodation-name`}
+              error={errors.accommodationName}
+            />
+          </View>
+          <AddressAutocomplete
+            value={legData.accommodation.address}
+            onAddressChange={addr => onAddressChange?.(addr)}
+            testID={`${testIDPrefix}-accommodation-address`}
+          />
+          <View>
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
+            <Input
+              value={legData.accommodation.phone}
+              onChangeText={text => onUpdateField('accommodation.phone', text)}
+              placeholder="Hotel phone number"
+              keyboardType="phone-pad"
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}

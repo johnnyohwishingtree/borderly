@@ -1,4 +1,3 @@
-import { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +7,6 @@ import {
   Animated,
   StyleSheet,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import {
   ArrowLeft,
   ArrowRight,
@@ -17,311 +15,53 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react-native';
-import { PortalWebView, PortalWebViewHandle } from '@/components/submission/PortalWebView';
-import type { NavigationState } from '@/components/submission/PortalWebView';
+import { PortalWebView } from '@/components/submission/PortalWebView';
 import { AutoFillBanner } from '@/components/submission/AutoFillBanner';
 import { QRSaveOverlay } from '@/components/submission/QRSaveOverlay';
-import type { QRPageDetectedPayload } from '@/components/submission/QRSaveOverlay';
 import { AutoFillPill } from '@/components/submission/AutoFillPill';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CopyableField } from '@/components/guide';
-import { getSchemaByCountryCode } from '@/services/schemas/schemaRegistry';
-import { submissionCoordinator } from '@/services/submission/submissionCoordinator';
-import type { PageType } from '@/services/submission/submissionCoordinator';
-import { getPortalName } from '@/utils/countryUtils';
-import { formatFieldValue } from '@/utils/fieldFormatters';
-import { useTripStore } from '@/stores';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { TripStackParamList } from '@/app/navigation/types';
-import type { FilledFormSection, FilledFormField } from '@/services/forms/formEngine';
-
-import { usePortalProfiles } from '@/hooks/usePortalProfiles';
-import { useLoadTimeout } from '@/hooks/useLoadTimeout';
-import { usePortalAutoLogin } from '@/hooks/usePortalAutoLogin';
-import { usePortalAutoFill } from '@/hooks/usePortalAutoFill';
-
-type PortalSubmissionRouteProp = RouteProp<TripStackParamList, 'PortalSubmission'>;
+import { usePortalSubmission } from '@/hooks/usePortalSubmission';
 
 export default function PortalSubmissionScreen() {
-  const navigation = useNavigation();
-  const route = useRoute<PortalSubmissionRouteProp>();
-  const { url, countryCode, tripId, legId } = route.params;
-
-  const webViewRef = useRef<PortalWebViewHandle>(null);
-
-  // Navigation state from WebView
-  const [navState, setNavState] = useState<NavigationState>({
-    url,
-    loading: true,
-    canGoBack: false,
-    canGoForward: false,
-  });
-
-  // Progress tracking
-  const [currentStep, setCurrentStep] = useState(1);
-
-  // Collapsible panel
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-
-  // Incomplete-form message shown when Submit in App is tapped with missing fields
-  const [showIncompleteMessage, setShowIncompleteMessage] = useState(false);
-  const incompleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // QR save overlay state
-  const [qrPayload, setQrPayload] = useState<QRPageDetectedPayload | null>(null);
-
-  // Page detection state
-  const [pageType, setPageType] = useState<PageType>('unknown');
-  const [pillDismissed, setPillDismissed] = useState(false);
-
-  // URL tracking for page change detection
-  const lastUrlRef = useRef<string>(url);
-
-  // ─── Store access ──────────────────────────────────────────────────────────
-  const { trips, addQRCode, markLegAsSubmitted } = useTripStore();
-  const { profile, familyProfiles } = useProfileStore();
-
-  const trip = trips.find(t => t.id === tripId);
-  const leg = trip?.legs.find(l => l.id === legId);
-  const schema = getSchemaByCountryCode(countryCode);
-  const totalSteps = schema?.submissionGuide?.length ?? 0;
-
-  // ─── Custom hooks ──────────────────────────────────────────────────────────
-
   const {
+    url,
+    webViewRef,
+    navState,
+    currentStep,
+    isPanelOpen,
+    showIncompleteMessage,
+    qrPayload,
+    pageType,
+    pillDismissed,
+    schema,
+    totalSteps,
+    progressPercent,
+    currentStepFields,
+    loadError,
     availableProfiles,
     selectedProfileId,
-    effectiveProfile,
-    lastUsedProfileRef,
     handleProfileChange,
-  } = usePortalProfiles();
-
-  const {
-    loadError,
-    startTimer: handleLoadStart,
-    onLoadComplete,
-    onWebViewError: handleWebViewError,
-    clearError: clearLoadError,
-  } = useLoadTimeout();
-
-  const autoLogin = usePortalAutoLogin({
-    countryCode,
-    schema,
-    selectedProfileId,
-    primaryProfileId: familyProfiles.primaryProfileId,
-    profileEmail: profile?.email ?? '',
-    webViewRef,
-  });
-
-  const autoFill = usePortalAutoFill({
-    countryCode,
-    schema,
-    leg,
-    effectiveProfile,
-    selectedProfileId,
-    currentStep,
-    lastUsedProfileRef,
-    webViewRef,
-  });
-
-  // ─── Copy-paste panel fields ───────────────────────────────────────────────
-
-  const currentStepFields = (() => {
-    if (!schema || !leg || !effectiveProfile) return [];
-    const step = schema.submissionGuide?.[currentStep - 1];
-    if (!step) return [];
-
-    const filledForm = submissionCoordinator.generateFilledForm(effectiveProfile, leg, schema);
-    if (!filledForm) return [];
-
-    const allFields: { id: string; label: string; value: string }[] = [];
-    filledForm.sections.forEach((section: FilledFormSection) => {
-      section.fields.forEach((field: FilledFormField) => {
-        const fieldsOnScreen = step.fieldsOnThisScreen ?? [];
-        if (fieldsOnScreen.length === 0 || fieldsOnScreen.includes(field.id)) {
-          const value = formatFieldValue(field.currentValue, field.type);
-          if (value) {
-            allFields.push({ id: field.id, label: field.label, value });
-          }
-        }
-      });
-    });
-    return allFields;
-  })();
-
-  // ─── Navigation callbacks ─────────────────────────────────────────────────
-
-  const handleNavigationChange = useCallback((state: NavigationState) => {
-    setNavState(state);
-    if (state.url && state.url !== lastUrlRef.current) {
-      lastUrlRef.current = state.url;
-      setPageType('unknown');
-      setPillDismissed(false);
-      autoLogin.resetForNewPage();
-    }
-  }, [autoLogin]);
-
-  const handleContinueManually = useCallback(() => {
-    (navigation as any).navigate('SubmissionGuide', { legId, tripId });
-  }, [navigation, legId, tripId]);
-
-  // ─── Page load & type detection ───────────────────────────────────────────
-
-  const handlePageLoad = useCallback(
-    (loadedUrl: string) => {
-      onLoadComplete();
-      setPageType('unknown');
-      setPillDismissed(false);
-      autoLogin.resetForNewPage();
-
-      if (!schema) return;
-
-      const stepIdx = submissionCoordinator.detectStep(loadedUrl, schema);
-      if (stepIdx >= 0) {
-        setCurrentStep(stepIdx + 1);
-      }
-
-      webViewRef.current?.injectJavaScript(submissionCoordinator.getPageTypeCheckScript());
-
-      const qrScript = submissionCoordinator.getQRDetectionScript(countryCode);
-      if (qrScript) {
-        webViewRef.current?.injectJavaScript(qrScript);
-      }
-    },
-    [schema, countryCode, onLoadComplete, autoLogin],
-  );
-
-  // ─── Message handling ─────────────────────────────────────────────────────
-
-  const handleMessage = useCallback(
-    (event: { nativeEvent: { data: string } }) => {
-      try {
-        const msg = JSON.parse(event.nativeEvent.data) as Record<string, unknown>;
-        const msgType = typeof msg.type === 'string' ? msg.type : '';
-
-        if (msgType === 'PAGE_TYPE_CHECK') {
-          const html = typeof msg.html === 'string' ? msg.html : '';
-          const formFieldCount =
-            typeof msg.formFieldCount === 'number' ? msg.formFieldCount : 0;
-
-          const detected = submissionCoordinator.detectPageType(html, formFieldCount);
-
-          autoLogin.checkAuthToFormTransition(autoLogin.prevPageTypeRef.current, detected);
-          setPageType(detected);
-
-          if (detected === 'auth') {
-            autoLogin.attemptAutoLogin();
-          }
-          return;
-        }
-
-        if (msgType === 'AUTO_LOGIN_RESULT') {
-          autoLogin.handleAutoLoginResult(msg.success === true);
-          return;
-        }
-
-        if (msgType === 'EXTRACT_LOGIN_USERNAME') {
-          const username = typeof msg.username === 'string' ? msg.username : '';
-          if (__DEV__) {
-            console.log('[PortalSubmissionScreen] Extracted username for save prompt:', username);
-          }
-          autoLogin.handleExtractedUsername(username);
-          return;
-        }
-
-        if (msgType === 'AUTO_FILL_RESULT') {
-          autoFill.handleAutoFillResult(msg);
-          return;
-        }
-
-        if (msgType === 'QR_PAGE_DETECTED' && msg.isQRPage === true) {
-          const newPayload: QRPageDetectedPayload = {
-            countryCode:
-              typeof msg.countryCode === 'string' ? msg.countryCode : countryCode,
-            qrImageBase64:
-              typeof msg.qrImageBase64 === 'string' ? msg.qrImageBase64 : null,
-            pageUrl: typeof msg.pageUrl === 'string' ? msg.pageUrl : '',
-          };
-          if (msg.confirmationNumber !== undefined) {
-            newPayload.confirmationNumber =
-              typeof msg.confirmationNumber === 'string'
-                ? msg.confirmationNumber
-                : null;
-          }
-          setQrPayload(newPayload);
-        }
-      } catch {
-        // Not a Borderly message — ignore
-      }
-    },
-    [countryCode, autoLogin, autoFill],
-  );
-
-  // ─── Toolbar callbacks ────────────────────────────────────────────────────
-
-  const handleGoBack = useCallback(() => {
-    webViewRef.current?.injectJavaScript('window.history.back(); true;');
-  }, []);
-
-  const handleGoForward = useCallback(() => {
-    webViewRef.current?.injectJavaScript('window.history.forward(); true;');
-  }, []);
-
-  const handleRefresh = useCallback(() => {
-    clearLoadError();
-    webViewRef.current?.injectJavaScript('window.location.reload(); true;');
-  }, [clearLoadError]);
-
-  const handleClose = useCallback(() => {
-    (navigation as any).navigate('TripDetail', { tripId });
-  }, [navigation, tripId]);
-
-  // ─── Submit in App ────────────────────────────────────────────────────────
-
-  /**
-   * Primary submission CTA. When all required fields are filled, triggers
-   * auto-fill of the current portal page. When fields are missing, shows a
-   * brief inline message listing what needs to be completed first.
-   */
-  const handleSubmitInApp = useCallback(() => {
-    if (!autoFill.isFormComplete) {
-      if (incompleteTimerRef.current) clearTimeout(incompleteTimerRef.current);
-      setShowIncompleteMessage(true);
-      incompleteTimerRef.current = setTimeout(() => setShowIncompleteMessage(false), 3000);
-      return;
-    }
-    autoFill.handleAutoFill();
-  }, [autoFill]);
-
-  // ─── QR wallet callbacks ──────────────────────────────────────────────────
-
-  const handleSaveQR = useCallback(
-    async (imageBase64: string | null) => {
-      const qrTypeMap: Record<string, 'immigration' | 'customs' | 'health' | 'combined'> = {
-        JPN: 'immigration',
-        MYS: 'immigration',
-        SGP: 'immigration',
-      };
-      const type = qrTypeMap[countryCode] ?? 'immigration';
-      const label = `${getPortalName(countryCode)} — Immigration QR`;
-
-      await addQRCode(legId, {
-        type,
-        imageBase64: imageBase64 ?? '',
-        label,
-      });
-
-      await markLegAsSubmitted(legId);
-    },
-    [addQRCode, markLegAsSubmitted, legId, countryCode],
-  );
-
-  const handleOpenWallet = useCallback(() => {
-    setQrPayload(null);
-    (navigation as any).navigate('Main', { screen: 'Wallet' });
-  }, [navigation]);
-
-  const progressPercent = totalSteps > 0 ? (currentStep / totalSteps) * 100 : 0;
+    autoLogin,
+    autoFill,
+    handleNavigationChange,
+    handleContinueManually,
+    handlePageLoad,
+    handleLoadStart,
+    handleMessage,
+    handleWebViewError,
+    handleGoBack,
+    handleGoForward,
+    handleRefresh,
+    handleClose,
+    handleSubmitInApp,
+    handleSaveQR,
+    handleOpenWallet,
+    dismissPill,
+    togglePanel,
+    dismissQrPayload,
+    clearLoadError,
+  } = usePortalSubmission();
 
   return (
     <SafeAreaView className="flex-1 bg-white" testID="portal-submission-screen">
@@ -520,7 +260,7 @@ export default function PortalSubmissionScreen() {
             selectedProfileId={selectedProfileId}
             onProfileChange={handleProfileChange}
             onAutoFill={autoFill.handleAutoFill}
-            onDismiss={() => setPillDismissed(true)}
+            onDismiss={dismissPill}
             testID="autofill-pill"
           />
         )}
@@ -593,7 +333,7 @@ export default function PortalSubmissionScreen() {
         )}
       </View>
 
-      {/* Submit in App — primary CTA (gated on form completeness) */}
+      {/* Submit in App — primary CTA */}
       {qrPayload === null && (
         <View
           style={{ backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 }}
@@ -642,7 +382,7 @@ export default function PortalSubmissionScreen() {
       {qrPayload === null && (
         <View className="bg-white border-t border-gray-200">
           <Pressable
-            onPress={() => setIsPanelOpen(prev => !prev)}
+            onPress={togglePanel}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             className="flex-row items-center justify-between px-4 py-3"
             accessibilityLabel={isPanelOpen ? 'Collapse fields panel' : 'Expand fields panel'}
@@ -689,7 +429,7 @@ export default function PortalSubmissionScreen() {
       <QRSaveOverlay
         payload={qrPayload}
         onSave={handleSaveQR}
-        onDismiss={() => setQrPayload(null)}
+        onDismiss={dismissQrPayload}
         onOpenWallet={handleOpenWallet}
         testID="qr-save-overlay"
       />
