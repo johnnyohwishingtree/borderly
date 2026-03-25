@@ -282,6 +282,18 @@ export default function CountryFlag({
             </View>
           </View>
         );
+      case 'IND':
+        return (
+          <View style={baseFlagStyle}>
+            {/* Three horizontal stripes: saffron, white, green */}
+            <View style={{ flex: 1, backgroundColor: '#FF9933' }} />
+            <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}>
+              {/* Simplified Ashoka Chakra */}
+              <View style={{ width: flagSize.height * 0.25, height: flagSize.height * 0.25, borderRadius: flagSize.height * 0.125, borderWidth: 1, borderColor: '#000080' }} />
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#138808' }} />
+          </View>
+        );
     }
 
     return null;

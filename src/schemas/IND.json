@@ -1,0 +1,730 @@
+{
+  "countryCode": "IND",
+  "countryName": "India",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2026-03-25T00:00:00Z",
+  "portalUrl": "https://www.newdelhiairport.in/airsuvidha",
+  "portalName": "India Air Suvidha / e-Arrival Card",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 96,
+  "submissionWindowNote": "Submit within 72 hours before departure",
+  "passportValidityMonths": 6,
+  "metadata": {
+    "priority": 8,
+    "complexity": "medium",
+    "popularity": 85,
+    "lastVerified": "2026-03-25T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".arrival-card-form", ".declaration-section", "#submit-form"],
+    "changeThreshold": 20,
+    "fallbackActions": [
+      {
+        "trigger": "form_layout_changed",
+        "action": "notify",
+        "message": "India e-Arrival Card form layout has changed. Please verify manually."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "14d",
+    "latestBeforeArrival": "0d",
+    "recommended": "3d",
+    "processingTime": "instant"
+  },
+  "portalFlow": {
+    "requiresAccount": false,
+    "familyPolicy": {
+      "type": "individual",
+      "description": "Each traveler must submit a separate arrival card"
+    },
+    "multiStep": true,
+    "canSaveProgress": false,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Passport valid for at least 6 months",
+        "required": true
+      },
+      {
+        "type": "document",
+        "description": "Valid visa or e-Visa (unless visa-exempt)",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Surname (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#surname",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "givenName",
+          "label": "Given Name (First Name)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#givenName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.middleNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#middleName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#dateOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "placeOfBirth",
+          "label": "Place of Birth",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.placeOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#placeOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Gender",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" },
+            { "value": "O", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation / Profession",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": true,
+          "options": [
+            { "value": "business", "label": "Business / Trade" },
+            { "value": "government", "label": "Government Service" },
+            { "value": "professional", "label": "Professional" },
+            { "value": "student", "label": "Student" },
+            { "value": "retired", "label": "Retired" },
+            { "value": "homemaker", "label": "Homemaker" },
+            { "value": "journalist", "label": "Journalist / Media" },
+            { "value": "diplomat", "label": "Diplomat" },
+            { "value": "other", "label": "Other" }
+          ],
+          "autoFillMapping": {
+            "Software Developer": "professional",
+            "Engineer": "professional",
+            "Doctor": "professional",
+            "Teacher": "professional",
+            "Student": "student",
+            "Retired": "retired",
+            "_default": "other"
+          },
+          "automation": {
+            "selector": "#occupation",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportType",
+          "label": "Passport Type",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.passportType",
+          "countrySpecific": false,
+          "options": [
+            { "value": "ordinary", "label": "Ordinary" },
+            { "value": "diplomatic", "label": "Diplomatic" },
+            { "value": "official", "label": "Official" },
+            { "value": "service", "label": "Service" }
+          ],
+          "automation": {
+            "selector": "#passportType",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuedDate",
+          "label": "Passport Issue Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssuedDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportExpiry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuingCountry",
+          "label": "Passport Issuing Country",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssuingCountry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "visaNumber",
+          "label": "Visa Number",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "helpText": "Enter your Indian visa or e-Visa number if applicable",
+          "automation": {
+            "selector": "#visaNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "visaType",
+          "label": "Visa Type",
+          "type": "select",
+          "required": false,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourist", "label": "Tourist Visa" },
+            { "value": "business", "label": "Business Visa" },
+            { "value": "employment", "label": "Employment Visa" },
+            { "value": "student", "label": "Student Visa" },
+            { "value": "medical", "label": "Medical Visa" },
+            { "value": "conference", "label": "Conference Visa" },
+            { "value": "transit", "label": "Transit Visa" },
+            { "value": "e_tourist", "label": "e-Tourist Visa" },
+            { "value": "e_business", "label": "e-Business Visa" },
+            { "value": "e_medical", "label": "e-Medical Visa" },
+            { "value": "visa_on_arrival", "label": "Visa on Arrival" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#visaType",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfVisit",
+          "label": "Purpose of Visit",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism" },
+            { "value": "business", "label": "Business" },
+            { "value": "employment", "label": "Employment" },
+            { "value": "study", "label": "Study" },
+            { "value": "medical", "label": "Medical Treatment" },
+            { "value": "conference", "label": "Conference / Seminar" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "pilgrimage", "label": "Pilgrimage" },
+            { "value": "family_visit", "label": "Visiting Family / Friends" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#purposeOfVisit",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "arrivalDate",
+          "label": "Date of Arrival",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#arrivalDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#flightNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "portOfArrival",
+          "label": "Port of Arrival",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "DEL", "label": "Indira Gandhi International Airport (Delhi)" },
+            { "value": "BOM", "label": "Chhatrapati Shivaji Maharaj International Airport (Mumbai)" },
+            { "value": "BLR", "label": "Kempegowda International Airport (Bengaluru)" },
+            { "value": "MAA", "label": "Chennai International Airport (Chennai)" },
+            { "value": "CCU", "label": "Netaji Subhas Chandra Bose International Airport (Kolkata)" },
+            { "value": "HYD", "label": "Rajiv Gandhi International Airport (Hyderabad)" },
+            { "value": "COK", "label": "Cochin International Airport (Kochi)" },
+            { "value": "GOI", "label": "Goa International Airport (Goa)" },
+            { "value": "AMD", "label": "Sardar Vallabhbhai Patel International Airport (Ahmedabad)" },
+            { "value": "JAI", "label": "Jaipur International Airport (Jaipur)" },
+            { "value": "other", "label": "Other" }
+          ],
+          "helpText": "Select the airport where you will arrive in India",
+          "automation": {
+            "selector": "#portOfArrival",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "departureCountry",
+          "label": "Country of Departure",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.departureCountry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#departureCountry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "stayDuration",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "autoFillSource": "leg._calculatedDuration",
+          "countrySpecific": false,
+          "validation": {
+            "min": 1,
+            "max": 180
+          },
+          "helpText": "Tourist visa allows up to 180 days per visit",
+          "automation": {
+            "selector": "#stayDuration",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "addressInIndia",
+          "label": "Address in India",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Full address of your hotel or place of stay",
+          "automation": {
+            "selector": "#addressInIndia",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "cityInIndia",
+          "label": "City in India",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "new_delhi", "label": "New Delhi" },
+            { "value": "mumbai", "label": "Mumbai" },
+            { "value": "bengaluru", "label": "Bengaluru" },
+            { "value": "chennai", "label": "Chennai" },
+            { "value": "kolkata", "label": "Kolkata" },
+            { "value": "hyderabad", "label": "Hyderabad" },
+            { "value": "jaipur", "label": "Jaipur" },
+            { "value": "goa", "label": "Goa" },
+            { "value": "agra", "label": "Agra" },
+            { "value": "varanasi", "label": "Varanasi" },
+            { "value": "kochi", "label": "Kochi" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#cityInIndia",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "previousIndiaVisit",
+          "label": "Have you visited India before?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#previousIndiaVisit",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Health Declaration",
+      "fields": [
+        {
+          "id": "countriesVisitedLast14Days",
+          "label": "Countries visited in the last 14 days",
+          "type": "textarea",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "List all countries visited in the 14 days prior to arrival in India",
+          "automation": {
+            "selector": "#countriesVisitedLast14Days",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "feverOrCough",
+          "label": "Do you currently have fever, cough, or difficulty breathing?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#feverOrCough",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "contactWithInfected",
+          "label": "Have you been in contact with anyone diagnosed with a communicable disease in the last 14 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#contactWithInfected",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    },
+    {
+      "id": "customs",
+      "title": "Customs Declaration",
+      "fields": [
+        {
+          "id": "carryingCurrency",
+          "label": "Are you carrying currency exceeding USD 5,000 or equivalent?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#carryingCurrency",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "currencyAmount",
+          "label": "Total currency amount (if exceeding limit)",
+          "type": "text",
+          "required": false,
+          "countrySpecific": true,
+          "helpText": "Specify amount and currency type",
+          "automation": {
+            "selector": "#currencyAmount",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dutiableGoods",
+          "label": "Are you carrying dutiable goods (alcohol, tobacco, electronics exceeding duty-free allowance)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#dutiableGoods",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "prohibitedItems",
+          "label": "Are you carrying any prohibited or restricted items (narcotics, firearms, wildlife products)?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#prohibitedItems",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "commercialGoods",
+          "label": "Are you carrying goods for commercial purposes?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#commercialGoods",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "homeAddress",
+          "label": "Permanent Address in Home Country",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "profile.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#homeAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phone",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#phoneNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactName",
+          "label": "Emergency Contact Name",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#emergencyContactName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "emergencyContactPhone",
+          "label": "Emergency Contact Phone",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#emergencyContactPhone",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Access India e-Arrival Card Portal",
+      "description": "Navigate to the Air Suvidha portal. No account registration is required.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use the official government portal only",
+        "Have your passport, visa, and flight details ready",
+        "The form can be completed in a single session"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Personal Information",
+      "description": "Fill in your personal details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["surname", "givenName", "middleName", "dateOfBirth", "placeOfBirth", "gender", "nationality", "occupation"],
+      "tips": [
+        "Names must match passport exactly",
+        "India recognizes 'Other' as a gender option",
+        "Select your occupation from the dropdown"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Passport and Visa Details",
+      "description": "Enter your passport information and Indian visa details.",
+      "fieldsOnThisScreen": ["passportType", "passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingCountry", "visaNumber", "visaType"],
+      "tips": [
+        "Passport must be valid for at least 6 months from arrival date",
+        "Enter your e-Visa number if traveling on an e-Visa",
+        "Visa-on-arrival is available for some nationalities"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Travel Information",
+      "description": "Provide details about your travel to India including flight and accommodation.",
+      "fieldsOnThisScreen": ["purposeOfVisit", "arrivalDate", "flightNumber", "portOfArrival", "departureCountry", "stayDuration", "addressInIndia", "cityInIndia", "previousIndiaVisit"],
+      "tips": [
+        "Flight number must match your boarding pass",
+        "Select the correct airport of arrival",
+        "Provide the complete address of your hotel or host"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Health Declaration",
+      "description": "Complete the mandatory health screening questions.",
+      "fieldsOnThisScreen": ["countriesVisitedLast14Days", "feverOrCough", "contactWithInfected"],
+      "tips": [
+        "List all countries visited in the last 14 days",
+        "Answer health questions truthfully",
+        "False declarations may result in penalties"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Customs Declaration",
+      "description": "Declare any currency, dutiable goods, or restricted items.",
+      "fieldsOnThisScreen": ["carryingCurrency", "currencyAmount", "dutiableGoods", "prohibitedItems", "commercialGoods"],
+      "tips": [
+        "Currency exceeding USD 5,000 must be declared",
+        "Duty-free allowances: 1L alcohol, 100 cigarettes or 25 cigars",
+        "Electronics exceeding INR 50,000 may attract duty",
+        "Severe penalties for undeclared prohibited items"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Contact Information",
+      "description": "Provide your contact details and an emergency contact.",
+      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email", "emergencyContactName", "emergencyContactPhone"],
+      "tips": [
+        "Use an email you check regularly for notifications",
+        "Include country code in phone numbers",
+        "Emergency contact should be reachable during your trip"
+      ]
+    },
+    {
+      "order": 8,
+      "title": "Review and Submit",
+      "description": "Review all details carefully and submit your e-Arrival Card.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Double-check all passport and visa details",
+        "Save or print the confirmation for immigration",
+        "Present the QR code or printout at arrival",
+        "No fee is required for the arrival card"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://www.newdelhiairport.in/airsuvidha",
+    "testMode": true,
+    "successIndicators": [".submission-success", "#confirmation-code"],
+    "failureIndicators": [".error-message", ".form-validation-error"],
+    "dataExtractionRules": [
+      {
+        "name": "confirmationCode",
+        "selector": "#confirmation-code",
+        "required": true
+      }
+    ]
+  }
+}
