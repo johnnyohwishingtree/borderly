@@ -26,6 +26,7 @@ tags:
       id: "take-tutorial-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "take-tutorial-button"
 
@@ -43,6 +44,7 @@ tags:
       id: "tutorial-skip-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "tutorial-skip-button"
 
@@ -65,6 +67,7 @@ tags:
       id: "enter-manually-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "enter-manually-button"
 - scrollUntilVisible:
@@ -72,6 +75,7 @@ tags:
       id: "passport-number-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-number-input"
 - inputText: "L12345678"
@@ -84,6 +88,7 @@ tags:
       id: "surname-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "surname-input"
 - inputText: "SMITH"
@@ -96,6 +101,7 @@ tags:
       id: "given-names-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "given-names-input"
 - inputText: "JOHN MICHAEL"
@@ -108,11 +114,13 @@ tags:
       id: "nationality-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - scrollUntilVisible:
     element:
       id: "nationality-input-trigger"
     direction: DOWN
     timeout: 3000
+    centerElement: true
 - swipe:
     start: "50%,50%"
     end: "50%,40%"
@@ -138,17 +146,19 @@ tags:
       id: "dob-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "dob-input"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 3000
+    timeout: 5000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "gender-Male-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "gender-Male-button"
 - scrollUntilVisible:
@@ -156,22 +166,25 @@ tags:
       id: "passport-expiry-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-expiry-input"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 3000
+    timeout: 5000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "issuing-country-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - scrollUntilVisible:
     element:
       id: "issuing-country-input-trigger"
     direction: DOWN
     timeout: 3000
+    centerElement: true
 - swipe:
     start: "50%,50%"
     end: "50%,40%"
@@ -197,6 +210,7 @@ tags:
       id: "passport-continue-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-continue-button"
 
@@ -217,6 +231,7 @@ tags:
       id: "continue-to-security-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "continue-to-security-button"
 - runFlow:
@@ -229,6 +244,7 @@ tags:
             id: "continue-to-security-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "continue-to-security-button"
 
@@ -257,6 +273,7 @@ tags:
       id: "skip-biometric-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "skip-biometric-button"
 - extendedWaitUntil:
@@ -278,6 +295,7 @@ tags:
       id: "create-first-trip-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "create-first-trip-button"
 
@@ -295,6 +313,7 @@ tags:
       id: "trip-name-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "trip-name-input"
 - inputText: "Japan Trip 2026"
@@ -307,6 +326,7 @@ tags:
       id: "add-destination-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "add-destination-button"
 - scrollUntilVisible:
@@ -314,6 +334,7 @@ tags:
       id: "country-select-0-trigger"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "country-select-0-trigger"
 - scrollUntilVisible:
@@ -321,9 +342,10 @@ tags:
       id: "country-select-0-search"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "country-select-0-search"
-- inputText: "Jap"
+- inputText: "Japan"
 - swipe:
     start: "50%,40%"
     end: "50%,38%"
@@ -333,6 +355,7 @@ tags:
       id: "country-select-0-option-JPN"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "country-select-0-option-JPN"
 - scrollUntilVisible:
@@ -340,17 +363,19 @@ tags:
       id: "leg-0-arrival-date"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "leg-0-arrival-date"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 3000
+    timeout: 5000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-name"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "leg-0-accommodation-name"
 - inputText: "Park Hyatt Tokyo"
@@ -360,9 +385,62 @@ tags:
     duration: 200
 - scrollUntilVisible:
     element:
+      id: "leg-0-accommodation-address-line1"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn:
+    id: "leg-0-accommodation-address-line1"
+- inputText: "3-7-1-2 Nishi Shinjuku"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address-city"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn:
+    id: "leg-0-accommodation-address-city"
+- inputText: "Tokyo"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address-postal-code"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn:
+    id: "leg-0-accommodation-address-postal-code"
+- inputText: "163-1055"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element:
+      id: "leg-0-accommodation-address-country"
+    direction: DOWN
+    timeout: 5000
+    centerElement: true
+- tapOn:
+    id: "leg-0-accommodation-address-country"
+- inputText: "JPN"
+- swipe:
+    start: "50%,40%"
+    end: "50%,35%"
+    duration: 200
+- scrollUntilVisible:
+    element:
       id: "create-trip-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "create-trip-button"
 - extendedWaitUntil:
@@ -373,12 +451,15 @@ tags:
 # === TRIP DETAIL — VERIFY ===
 - extendedWaitUntil:
     visible: "Itinerary"
-    timeout: 15000
+    timeout: 20000
 - runFlow:
     when:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
+- extendedWaitUntil:
+    visible: "Japan Trip 2026"
+    timeout: 10000
 - extendedWaitUntil:
     visible:
       id: "leg-card-JPN"

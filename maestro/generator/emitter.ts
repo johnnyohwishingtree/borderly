@@ -20,6 +20,20 @@ function comment(depth: number, text: string): string {
   return line(depth, `# ${text}`);
 }
 
+// ── Scroll helper ──
+
+/** Emit a scrollUntilVisible block with centerElement to prevent header overlap */
+function emitScroll(d: number, testID: string, timeout = 5000): string[] {
+  return [
+    line(d, '- scrollUntilVisible:'),
+    line(d, '    element:'),
+    line(d, `      id: "${testID}"`),
+    line(d, '    direction: DOWN'),
+    line(d, `    timeout: ${timeout}`),
+    line(d, '    centerElement: true'),
+  ];
+}
+
 // ── Action → YAML lines ──
 
 function emitAction(action: Action, depth = 0): string[] {
@@ -29,11 +43,7 @@ function emitAction(action: Action, depth = 0): string[] {
   switch (action.type) {
     case 'tap':
       lines.push(
-        line(d, '- scrollUntilVisible:'),
-        line(d, '    element:'),
-        line(d, `      id: "${action.testID}"`),
-        line(d, '    direction: DOWN'),
-        line(d, '    timeout: 5000'),
+        ...emitScroll(d, action.testID),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
       );
@@ -45,11 +55,7 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'fill':
       lines.push(
-        line(d, '- scrollUntilVisible:'),
-        line(d, '    element:'),
-        line(d, `      id: "${action.testID}"`),
-        line(d, '    direction: DOWN'),
-        line(d, '    timeout: 5000'),
+        ...emitScroll(d, action.testID),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         line(d, `- inputText: "${action.value}"`),
@@ -63,19 +69,9 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'select':
       lines.push(
-        line(d, '- scrollUntilVisible:'),
-        line(d, '    element:'),
-        line(d, `      id: "${action.testID}"`),
-        line(d, '    direction: DOWN'),
-        line(d, '    timeout: 5000'),
-        // Gentle nudge so dropdown options have room below the trigger.
-        // Using scrollUntilVisible on the trigger itself to center it,
-        // then a small swipe to push it slightly above center.
-        line(d, '- scrollUntilVisible:'),
-        line(d, '    element:'),
-        line(d, `      id: "${action.testID}-trigger"`),
-        line(d, '    direction: DOWN'),
-        line(d, '    timeout: 3000'),
+        ...emitScroll(d, action.testID),
+        // Center the trigger so dropdown options have room below
+        ...emitScroll(d, `${action.testID}-trigger`, 3000),
         line(d, '- swipe:'),
         line(d, '    start: "50%,50%"'),
         line(d, '    end: "50%,40%"'),
@@ -102,17 +98,13 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'date':
       lines.push(
-        line(d, '- scrollUntilVisible:'),
-        line(d, '    element:'),
-        line(d, `      id: "${action.testID}"`),
-        line(d, '    direction: DOWN'),
-        line(d, '    timeout: 5000'),
+        ...emitScroll(d, action.testID),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         // Date picker modal — confirm default date
         line(d, '- extendedWaitUntil:'),
         line(d, '    visible: "Done"'),
-        line(d, '    timeout: 3000'),
+        line(d, '    timeout: 5000'),
         line(d, '- tapOn: "Done"'),
       );
       break;

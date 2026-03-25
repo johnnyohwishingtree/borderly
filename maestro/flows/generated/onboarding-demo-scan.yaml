@@ -27,6 +27,7 @@ tags:
       id: "take-tutorial-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "take-tutorial-button"
 
@@ -44,6 +45,7 @@ tags:
       id: "tutorial-skip-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "tutorial-skip-button"
 
@@ -66,6 +68,7 @@ tags:
       id: "demo-scan-adult"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "demo-scan-adult"
 - extendedWaitUntil:
@@ -76,6 +79,7 @@ tags:
       id: "confirm-scan-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "confirm-scan-button"
 
@@ -96,6 +100,7 @@ tags:
       id: "continue-to-security-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "continue-to-security-button"
 - runFlow:
@@ -108,6 +113,7 @@ tags:
             id: "continue-to-security-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "continue-to-security-button"
 
@@ -136,6 +142,7 @@ tags:
       id: "skip-biometric-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "skip-biometric-button"
 - extendedWaitUntil:
@@ -158,6 +165,7 @@ tags:
             id: "skip-notifications-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "skip-notifications-button"
 - runFlow:
@@ -170,6 +178,7 @@ tags:
             id: "skip-notifications-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "skip-notifications-button"
 - extendedWaitUntil:

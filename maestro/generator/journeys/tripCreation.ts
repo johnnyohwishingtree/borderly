@@ -6,7 +6,7 @@
  */
 import { journey } from '../dsl';
 import {
-  tap, inputText, assertVisibleID, swipe,
+  tap, inputText, assertVisible, assertVisibleID, swipe, conditional,
 } from '../dsl';
 import {
   screenStep, tapButton, handleAlert, fillField,
@@ -22,8 +22,7 @@ import { onboardingManual } from './onboarding';
  * field based on its componentType in the registry (Input → fill, SearchableSelect
  * → select, DatePickerField → date).
  *
- * Only fills required fields (country, arrival date, accommodation)
- * to keep the flow short and avoid deep-scroll issues in Maestro.
+ * Fills all required fields + address sub-fields to avoid validation errors.
  */
 const createJapanTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — JAPAN',
@@ -32,21 +31,35 @@ const createJapanTrip = () => screenStep('CreateTrip', {
     ...fillField('CreateTrip', 'trip-name-input', { text: 'Japan Trip 2026' }),
     // Add a destination leg
     tapButton('CreateTrip', 'add-destination-button'),
-    // Country select: SearchableSelect requires raw actions at this nesting depth
-    // because Maestro's XCTest driver can't reliably find FlatList items.
-    // The select() DSL works for shallower nesting, but CreateTrip is deep
-    // (Tab > Stack > Screen > ScrollView > Form), so we use manual actions.
+    // Country select: use manual tap actions (Maestro depth issue with SearchableSelect)
     tap('country-select-0-trigger'),
     tap('country-select-0-search'),
-    inputText('Jap'),
-    // Dismiss keyboard so the option is easier to tap
+    inputText('Japan'),
     swipe('50%,40%', '50%,38%', 150),
-    // Tap the Japan option by id
     tap('country-select-0-option-JPN'),
     // Arrival date (required) — DatePickerField → date DSL action
     ...fillField('CreateTrip', 'leg-${index}-arrival-date', 'default', { index: 0 }),
     // Accommodation name (required) — Input → fill DSL action
     ...fillField('CreateTrip', 'leg-${index}-accommodation-name', { text: 'Park Hyatt Tokyo' }, { index: 0 }),
+    // Address sub-fields (AddressAutocomplete generates sub-testIDs)
+    // fillField returns [] for AddressAutocomplete, so we fill sub-fields manually
+    ...fillField('CreateTrip', 'leg-${index}-accommodation-address', undefined, { index: 0 }),
+    // Address line 1
+    tap('leg-0-accommodation-address-line1'),
+    inputText('3-7-1-2 Nishi Shinjuku'),
+    swipe('50%,40%', '50%,35%', 200),
+    // City
+    tap('leg-0-accommodation-address-city'),
+    inputText('Tokyo'),
+    swipe('50%,40%', '50%,35%', 200),
+    // Postal code
+    tap('leg-0-accommodation-address-postal-code'),
+    inputText('163-1055'),
+    swipe('50%,40%', '50%,35%', 200),
+    // Country
+    tap('leg-0-accommodation-address-country'),
+    inputText('JPN'),
+    swipe('50%,40%', '50%,35%', 200),
     // Create the trip
     tapButton('CreateTrip', 'create-trip-button'),
     // Dismiss success alert using registry's happy-path button
@@ -57,8 +70,9 @@ const createJapanTrip = () => screenStep('CreateTrip', {
 /** Verify trip detail screen after creation */
 const tripDetailStep = () => screenStep('TripDetail', {
   comment: 'TRIP DETAIL — VERIFY',
-  waitTimeout: 15000,
+  waitTimeout: 20000,
   actions: [
+    assertVisible('Japan Trip 2026'),
     assertVisibleID('leg-card-JPN'),
   ],
 });

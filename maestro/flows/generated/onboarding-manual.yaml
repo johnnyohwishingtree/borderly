@@ -26,6 +26,7 @@ tags:
       id: "take-tutorial-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "take-tutorial-button"
 
@@ -43,6 +44,7 @@ tags:
       id: "tutorial-skip-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "tutorial-skip-button"
 
@@ -65,6 +67,7 @@ tags:
       id: "enter-manually-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "enter-manually-button"
 - scrollUntilVisible:
@@ -72,6 +75,7 @@ tags:
       id: "passport-number-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-number-input"
 - inputText: "L12345678"
@@ -84,6 +88,7 @@ tags:
       id: "surname-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "surname-input"
 - inputText: "SMITH"
@@ -96,6 +101,7 @@ tags:
       id: "given-names-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "given-names-input"
 - inputText: "JOHN MICHAEL"
@@ -108,11 +114,13 @@ tags:
       id: "nationality-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - scrollUntilVisible:
     element:
       id: "nationality-input-trigger"
     direction: DOWN
     timeout: 3000
+    centerElement: true
 - swipe:
     start: "50%,50%"
     end: "50%,40%"
@@ -138,17 +146,19 @@ tags:
       id: "dob-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "dob-input"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 3000
+    timeout: 5000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "gender-Male-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "gender-Male-button"
 - scrollUntilVisible:
@@ -156,22 +166,25 @@ tags:
       id: "passport-expiry-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-expiry-input"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 3000
+    timeout: 5000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "issuing-country-input"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - scrollUntilVisible:
     element:
       id: "issuing-country-input-trigger"
     direction: DOWN
     timeout: 3000
+    centerElement: true
 - swipe:
     start: "50%,50%"
     end: "50%,40%"
@@ -197,6 +210,7 @@ tags:
       id: "passport-continue-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "passport-continue-button"
 
@@ -217,6 +231,7 @@ tags:
       id: "continue-to-security-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "continue-to-security-button"
 - runFlow:
@@ -229,6 +244,7 @@ tags:
             id: "continue-to-security-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "continue-to-security-button"
 
@@ -257,6 +273,7 @@ tags:
       id: "skip-biometric-button"
     direction: DOWN
     timeout: 5000
+    centerElement: true
 - tapOn:
     id: "skip-biometric-button"
 - extendedWaitUntil:
@@ -279,6 +296,7 @@ tags:
             id: "skip-notifications-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "skip-notifications-button"
 - runFlow:
@@ -291,6 +309,7 @@ tags:
             id: "skip-notifications-button"
           direction: DOWN
           timeout: 5000
+          centerElement: true
       - tapOn:
           id: "skip-notifications-button"
 - extendedWaitUntil:
