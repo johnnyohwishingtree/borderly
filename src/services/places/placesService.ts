@@ -73,7 +73,7 @@ interface ApplePlacesResult {
 }
 
 interface ApplePlacesModuleType {
-  search(query: string, type: string): Promise<ApplePlacesResult[]>;
+  search(query: string, type: string, countryCode: string): Promise<ApplePlacesResult[]>;
 }
 
 const ApplePlaces: ApplePlacesModuleType | null =
@@ -88,12 +88,13 @@ const ApplePlaces: ApplePlacesModuleType | null =
 export async function getLodgingSuggestions(
   input: string,
   _sessionToken?: string,
+  countryCode?: string,
 ): Promise<PlaceSuggestion[]> {
   if (!input || input.trim().length < 3) return [];
 
   try {
     if (ApplePlaces) {
-      const results = await ApplePlaces.search(input, 'lodging');
+      const results = await ApplePlaces.search(input, 'lodging', countryCode ?? '');
       // Cache full results so getLodgingDetails can look up address data
       _lastSearchResults = results;
       return results.map(r => ({
@@ -168,7 +169,7 @@ export async function getAutocompleteSuggestions(
 
   try {
     if (ApplePlaces) {
-      const results = await ApplePlaces.search(input, 'address');
+      const results = await ApplePlaces.search(input, 'address', '');
       _lastSearchResults = results;
       return results.map(r => ({
         placeId: r.placeId,

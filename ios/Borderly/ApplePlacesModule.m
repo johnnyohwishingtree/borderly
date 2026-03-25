@@ -4,6 +4,7 @@
 
 RCT_EXTERN_METHOD(search:(NSString *)query
                   type:(NSString *)type
+                  countryCode:(NSString *)countryCode
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 

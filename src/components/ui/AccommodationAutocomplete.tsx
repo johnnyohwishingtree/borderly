@@ -28,7 +28,6 @@ import {
   getPlacesApiKey,
   PlaceSuggestion,
 } from '../../services/places/placesService';
-import { getCountryName } from '../../constants/countries';
 
 export interface AccommodationAutocompleteProps {
   /** Current hotel/accommodation name value */
@@ -112,14 +111,10 @@ export default function AccommodationAutocomplete({
       debounceTimerRef.current = setTimeout(async () => {
         setIsLoadingSuggestions(true);
         try {
-          // Append country name to query for geographic scoping
-          const countryName = countryHint ? getCountryName(countryHint) : '';
-          const searchQuery = countryName
-            ? `${text} ${countryName}`
-            : text;
           const results = await getLodgingSuggestions(
-            searchQuery,
+            text,
             sessionTokenRef.current,
+            countryHint,
           );
           setSuggestions(results);
           setShowSuggestions(results.length > 0);
