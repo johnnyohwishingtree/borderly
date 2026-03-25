@@ -112,6 +112,7 @@ export class PushNotificationProvider implements NotificationProvider {
           smallIcon: 'ic_notification',
           pressAction: { id: 'default' },
         },
+        ...(request.data ? { data: request.data } : {}),
       },
       trigger,
     );

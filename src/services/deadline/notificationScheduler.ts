@@ -16,6 +16,7 @@
 import { Trip } from '../../types/trip';
 import { LegDeadline } from './deadlineService';
 import { mmkvService } from '../storage/mmkv';
+import { getCountryName } from '../../constants/countries';
 
 // ---------------------------------------------------------------------------
 // Notification provider interface
@@ -29,6 +30,8 @@ export interface ScheduleRequest {
   body: string;
   /** When to fire the notification (local device time). */
   fireDate: Date;
+  /** Optional deep-link data attached to the notification payload. */
+  data?: Record<string, string>;
 }
 
 /**
@@ -127,9 +130,9 @@ function deleteKey(key: string): void {
 const MS_PER_HOUR = 60 * 60 * 1000;
 
 const TRIGGERS_MS: ReadonlyArray<{ label: string; offsetMs: number }> = [
-  { label: '7 days',  offsetMs: 7 * 24 * MS_PER_HOUR },
   { label: '48 hours', offsetMs: 48 * MS_PER_HOUR },
   { label: '24 hours', offsetMs: 24 * MS_PER_HOUR },
+  { label: '6 hours',  offsetMs: 6 * MS_PER_HOUR },
 ];
 
 function buildNotificationId(legId: string, label: string): string {
@@ -139,12 +142,7 @@ function buildNotificationId(legId: string, label: string): string {
 }
 
 function buildCountryLabel(countryCode: string): string {
-  const MAP: Record<string, string> = {
-    JPN: 'Japan',
-    MYS: 'Malaysia',
-    SGP: 'Singapore',
-  };
-  return MAP[countryCode] ?? countryCode;
+  return getCountryName(countryCode) || countryCode;
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +165,9 @@ export async function scheduleDeadlineNotifications(
   for (const deadline of deadlines) {
     if (!deadline.submissionDeadline) {continue;}
 
+    // Skip legs that are already completed or overdue
+    if (deadline.status === 'ready' || deadline.status === 'overdue') {continue;}
+
     const deadlineMs = deadline.submissionDeadline.getTime();
     const country = buildCountryLabel(deadline.countryCode);
     const scheduledIds: string[] = [];
@@ -181,9 +182,14 @@ export async function scheduleDeadlineNotifications(
 
       const request: ScheduleRequest = {
         id,
-        title: 'Travel Declaration Reminder',
-        body: `${country} declaration due in ${label} — tap to complete`,
+        title: `${trip.name} — ${country} form due in ${label}`,
+        body: `Complete your ${country} declaration before departure — tap to open`,
         fireDate,
+        data: {
+          tripId: trip.id,
+          legId: deadline.legId,
+          screen: 'LegForm',
+        },
       };
 
       try {

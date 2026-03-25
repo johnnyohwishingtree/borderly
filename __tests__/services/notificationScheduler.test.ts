@@ -42,6 +42,13 @@ jest.mock('../../src/services/storage/mmkv', () => ({
   },
 }));
 
+jest.mock('../../src/constants/countries', () => ({
+  getCountryName: (code: string) => {
+    const names: Record<string, string> = { JPN: 'Japan', MYS: 'Malaysia', SGP: 'Singapore' };
+    return names[code] || '';
+  },
+}));
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -127,11 +134,11 @@ describe('TRIGGERS_MS', () => {
     expect(TRIGGERS_MS).toHaveLength(3);
   });
 
-  it('has offsets for 7 days, 48 hours, and 24 hours', () => {
+  it('has offsets for 48 hours, 24 hours, and 6 hours', () => {
     const labels = TRIGGERS_MS.map(t => t.label);
-    expect(labels).toContain('7 days');
     expect(labels).toContain('48 hours');
     expect(labels).toContain('24 hours');
+    expect(labels).toContain('6 hours');
   });
 });
 
@@ -159,24 +166,25 @@ describe('scheduleDeadlineNotifications', () => {
     const { provider, scheduled } = makeMockProvider();
     setNotificationProvider(provider);
 
-    // Deadline is 30 hours away: 7-day and 48-h triggers are in the past,
-    // only 24-h trigger fires
+    // Deadline is 30 hours away: 48-h trigger is in the past,
+    // 24-h and 6-h triggers fire
     const trip = makeTrip();
     const deadline = makeFutureDeadline(30);
 
     await scheduleDeadlineNotifications(trip, [deadline]);
 
-    expect(scheduled).toHaveLength(1);
+    expect(scheduled).toHaveLength(2);
     expect(scheduled[0].id).toBe(buildNotificationId('leg-1', '24 hours'));
+    expect(scheduled[1].id).toBe(buildNotificationId('leg-1', '6 hours'));
   });
 
-  it('skips all triggers when deadline is fewer than 24 hours away', async () => {
+  it('skips all triggers when deadline is fewer than 6 hours away', async () => {
     const { provider, scheduled } = makeMockProvider();
     setNotificationProvider(provider);
 
-    // Deadline is 10 hours away — all triggers are in the past
+    // Deadline is 3 hours away — all triggers (48h, 24h, 6h) are in the past
     const trip = makeTrip();
-    const deadline = makeFutureDeadline(10);
+    const deadline = makeFutureDeadline(3);
 
     await scheduleDeadlineNotifications(trip, [deadline]);
 
@@ -210,7 +218,7 @@ describe('scheduleDeadlineNotifications', () => {
     expect(scheduled).toHaveLength(0);
   });
 
-  it('includes correct message with country name and time label', async () => {
+  it('includes trip name, country, and countdown in notification', async () => {
     const { provider, scheduled } = makeMockProvider();
     setNotificationProvider(provider);
 
@@ -219,19 +227,24 @@ describe('scheduleDeadlineNotifications', () => {
 
     await scheduleDeadlineNotifications(trip, [deadline]);
 
+    // Title includes trip name, country, and time label
+    const titles = scheduled.map(r => r.title);
+    expect(titles[0]).toContain('Asia Trip');
+    expect(titles[0]).toContain('Japan');
+    expect(titles[0]).toContain('48 hours');
+    expect(titles[1]).toContain('24 hours');
+    expect(titles[2]).toContain('6 hours');
+
+    // Body includes country name
     const bodies = scheduled.map(r => r.body);
-    expect(bodies).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Japan'),
-        expect.stringContaining('7 days'),
-      ]),
-    );
-    expect(bodies).toEqual(
-      expect.arrayContaining([expect.stringContaining('48 hours')]),
-    );
-    expect(bodies).toEqual(
-      expect.arrayContaining([expect.stringContaining('24 hours')]),
-    );
+    expect(bodies[0]).toContain('Japan');
+
+    // Deep-link data included
+    expect(scheduled[0].data).toEqual({
+      tripId: 'trip-1',
+      legId: 'leg-1',
+      screen: 'LegForm',
+    });
   });
 
   it('persists scheduled IDs in MMKV for the leg', async () => {
@@ -557,15 +570,15 @@ describe('Integration: notificationScheduler with PushNotificationProvider', () 
       authorizationStatus: AuthorizationStatus.AUTHORIZED,
     });
 
-    // Deadline is 30h away: 7d and 48h triggers are past, only 24h is future
+    // Deadline is 30h away: 48h trigger is past, 24h and 6h are future
     const trip = makeTrip();
     const deadline = makeFutureDeadline(30);
 
     await scheduleDeadlineNotifications(trip, [deadline]);
 
-    expect(notifee.createTriggerNotification).toHaveBeenCalledTimes(1);
+    expect(notifee.createTriggerNotification).toHaveBeenCalledTimes(2);
     const [notification] = (notifee.createTriggerNotification as jest.Mock).mock.calls[0];
-    expect(notification.body).toContain('24 hours');
+    expect(notification.title).toContain('24 hours');
   });
 
   it('requestNotificationPermission delegates to PushNotificationProvider', async () => {
