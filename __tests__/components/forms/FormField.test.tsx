@@ -920,7 +920,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
     );
 
     // The AccommodationAutocomplete renders a text input (not a searchable-select trigger)
-    expect(screen.getByTestId('accommodation-hotelName-input')).toBeTruthy();
+    expect(screen.getByTestId('accommodation-hotelName')).toBeTruthy();
   });
 
   it('renders the field label', () => {
@@ -960,7 +960,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName-input');
+    const input = screen.getByTestId('accommodation-hotelName');
     expect(input.props.value).toBe('Park Hyatt Tokyo');
   });
 
@@ -979,7 +979,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName-input');
+    const input = screen.getByTestId('accommodation-hotelName');
     fireEvent.changeText(input, 'Hilton');
 
     expect(mockOnValueChange).toHaveBeenCalledWith('hotelName', 'Hilton');
@@ -1041,7 +1041,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-hotelName-input');
+    const input = screen.getByTestId('accommodation-hotelName');
     // Disabled input is not editable
     expect(input.props.editable).toBe(false);
   });
@@ -1080,7 +1080,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByTestId('accommodation-accommodationName-input')).toBeTruthy();
+    expect(screen.getByTestId('accommodation-accommodationName')).toBeTruthy();
   });
 
   it('calls onValueChange with the name field when typing (accommodationName pattern)', () => {
@@ -1098,7 +1098,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    const input = screen.getByTestId('accommodation-accommodationName-input');
+    const input = screen.getByTestId('accommodation-accommodationName');
     fireEvent.changeText(input, 'Marina Bay Sands');
 
     expect(mockOnValueChange).toHaveBeenCalledWith('accommodationName', 'Marina Bay Sands');

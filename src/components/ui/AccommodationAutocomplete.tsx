@@ -167,7 +167,7 @@ export default function AccommodationAutocomplete({
   }, []);
 
   return (
-    <View testID={testID}>
+    <View>
       {/* Hotel name input with autocomplete */}
       <View style={styles.inputContainer}>
         <Input
@@ -180,7 +180,7 @@ export default function AccommodationAutocomplete({
           autoCorrect={false}
           editable={!disabled && !isLoadingDetails}
           error={error}
-          testID={testID ? `${testID}-input` : 'accommodation-name-input'}
+          {...(testID ? { testID } : {})}
         />
 
         {/* Loading indicator while fetching place details */}
