@@ -221,6 +221,7 @@ export default function DatePickerField({
             className="bg-white rounded-t-3xl"
             onPress={e => e.stopPropagation()}
             accessible={false}
+            style={{ minHeight: 350 }}
           >
             {/* Header */}
             <View className="flex-row justify-between items-center px-4 pt-4 pb-2 border-b border-gray-100">
@@ -242,7 +243,7 @@ export default function DatePickerField({
             </View>
 
             {/* Picker columns */}
-            <View className="flex-row px-2 pb-8">
+            <View className="flex-row px-2 pb-16">
               {/* Month column */}
               <View style={{ flex: 2 }}>
                 <Text className="text-center text-xs font-medium text-gray-500 py-1">Month</Text>
