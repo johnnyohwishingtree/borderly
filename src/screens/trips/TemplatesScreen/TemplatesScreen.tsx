@@ -8,7 +8,6 @@
 
 import { useCallback, useState } from 'react';
 import {
-  Alert,
   FlatList,
   Modal,
   Platform,
@@ -19,12 +18,11 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { BookmarkPlus, Pencil, Trash2 } from 'lucide-react-native';
 import { TripTemplate } from '@/types/trip';
-import { tripTemplateService } from '@/services/trips/tripTemplateService';
 import { CountryFlag } from '@/components/trips';
 import { Card, ScreenContainer, EmptyState } from '@/components/ui';
+import { useTemplates } from '@/hooks/useTemplates';
 
 // ---------------------------------------------------------------------------
 // RenameModal — inline subcomponent (tightly coupled to this screen)
@@ -42,7 +40,6 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
   const [name, setName] = useState(currentName);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  // Reset when opened with a new template
   const onOpen = useCallback(() => {
     setName(currentName);
     setError(undefined);
@@ -165,7 +162,6 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
   return (
     <Card variant="elevated" className="mb-3">
       <View className="p-4">
-        {/* Name + actions row */}
         <View className="flex-row items-center justify-between mb-3">
           <Text
             className="text-base font-semibold text-gray-900 dark:text-white flex-1 mr-3"
@@ -199,7 +195,6 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
           </View>
         </View>
 
-        {/* Flags + leg count */}
         <View
           className="flex-row items-center"
           accessibilityElementsHidden={true}
@@ -224,10 +219,8 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
         >
           {legCount} leg{legCount !== 1 ? 's' : ''}
         </Text>
-        {/* Combined a11y label on the card container */}
         <Text className="sr-only" accessibilityLabel={`${legCount} leg${legCount !== 1 ? 's' : ''}: ${uniqueCodes.join(', ')}`} />
 
-        {/* Use This Template CTA */}
         <TouchableOpacity
           onPress={onUse}
           activeOpacity={0.7}
@@ -250,55 +243,19 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
 // ---------------------------------------------------------------------------
 
 export default function TemplatesScreen() {
-  const navigation = useNavigation();
-  const [templates, setTemplates] = useState<TripTemplate[]>([]);
-  const [renameTarget, setRenameTarget] = useState<TripTemplate | null>(null);
-  const [isRenaming, setIsRenaming] = useState(false);
-
-  // Reload templates each time the screen is focused
-  useFocusEffect(
-    useCallback(() => {
-      setTemplates(tripTemplateService.list());
-    }, []),
-  );
-
-  const handleDelete = (template: TripTemplate) => {
-    Alert.alert(
-      'Delete Template',
-      `Are you sure you want to delete "${template.name}"? This cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            tripTemplateService.delete(template.id);
-            setTemplates(tripTemplateService.list());
-          },
-        },
-      ],
-    );
-  };
-
-  const handleUseTemplate = (template: TripTemplate) => {
-    (navigation as any).navigate('CreateTrip', { templateId: template.id });
-  };
-
-  const handleRenameConfirm = (newName: string) => {
-    if (!renameTarget) return;
-    setIsRenaming(true);
-    try {
-      tripTemplateService.rename(renameTarget.id, newName);
-      setTemplates(tripTemplateService.list());
-    } finally {
-      setIsRenaming(false);
-      setRenameTarget(null);
-    }
-  };
+  const {
+    templates,
+    renameTarget,
+    isRenaming,
+    handleDelete,
+    handleUseTemplate,
+    handleRenameConfirm,
+    openRename,
+    closeRename,
+  } = useTemplates();
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-5 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between">
           <View>
@@ -314,7 +271,6 @@ export default function TemplatesScreen() {
         </View>
       </View>
 
-      {/* Content */}
       {templates.length === 0 ? (
         <EmptyState
           icon={<BookmarkPlus size={40} color="#6b7280" />}
@@ -329,7 +285,7 @@ export default function TemplatesScreen() {
           renderItem={({ item }) => (
             <TemplateCard
               template={item}
-              onRename={() => setRenameTarget(item)}
+              onRename={() => openRename(item)}
               onDelete={() => handleDelete(item)}
               onUse={() => handleUseTemplate(item)}
             />
@@ -341,12 +297,11 @@ export default function TemplatesScreen() {
         />
       )}
 
-      {/* Rename modal */}
       <RenameModal
         visible={renameTarget !== null}
         currentName={renameTarget?.name ?? ''}
         onConfirm={handleRenameConfirm}
-        onCancel={() => setRenameTarget(null)}
+        onCancel={closeRename}
         isSaving={isRenaming}
       />
     </ScreenContainer>
