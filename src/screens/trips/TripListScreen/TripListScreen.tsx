@@ -1,16 +1,24 @@
 import { useEffect, useCallback, useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity, FlatList, RefreshControl, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, Alert, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Plane } from 'lucide-react-native';
+import { Plane, Search, X } from 'lucide-react-native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
 import { TripCard, DuplicateTripModal } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
 import { Trip } from '@/types/trip';
 import type { FamilyMember } from '@/types/profile';
+
+const FILTER_TABS: { key: TripStatusFilter; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'upcoming', label: 'Upcoming' },
+  { key: 'active', label: 'Active' },
+  { key: 'completed', label: 'Completed' },
+];
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
@@ -30,6 +38,16 @@ export default function TripListScreen() {
 
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+
+  const {
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    filteredTrips,
+    hasActiveFilters,
+    clearSearch,
+  } = useTripFilter(trips);
 
   const [duplicateTargetId, setDuplicateTargetId] = useState<string | null>(null);
   const [isDuplicating, setIsDuplicating] = useState(false);
@@ -324,12 +342,89 @@ export default function TripListScreen() {
         </View>
       </View>
 
+      {/* Search and Filter */}
+      {trips.length > 0 && (
+        <View className="bg-white dark:bg-gray-800 px-4 pb-3 border-b border-gray-100 dark:border-gray-700">
+          {/* Search bar */}
+          <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded-lg px-3 min-h-[44px]">
+            <Search size={18} color="#9CA3AF" />
+            <TextInput
+              className="flex-1 ml-2 text-base text-gray-900 dark:text-gray-100 py-2"
+              placeholder="Search trips..."
+              placeholderTextColor="#9CA3AF"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              accessibilityLabel="Search trips"
+              accessibilityHint="Filter trips by name"
+              testID="trip-search-input"
+              returnKeyType="search"
+              autoCorrect={false}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={clearSearch}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel="Clear search"
+                testID="trip-search-clear"
+              >
+                <X size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Status filter tabs */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="mt-3"
+            contentContainerStyle={{ gap: 8 }}
+          >
+            {FILTER_TABS.map(tab => {
+              const isSelected = statusFilter === tab.key;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  onPress={() => setStatusFilter(tab.key)}
+                  className={`px-4 py-1.5 rounded-full min-h-[36px] items-center justify-center ${
+                    isSelected
+                      ? 'bg-blue-600 dark:bg-blue-500'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={`${tab.label} trips`}
+                  testID={`trip-filter-${tab.key}`}
+                >
+                  <Text
+                    className={`text-sm font-medium ${
+                      isSelected
+                        ? 'text-white'
+                        : 'text-gray-600 dark:text-gray-300'
+                    }`}
+                  >
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
+
       {/* Trip List */}
       {trips.length === 0 ? (
         renderEmptyState()
+      ) : filteredTrips.length === 0 && hasActiveFilters ? (
+        <EmptyState
+          icon={<Search size={40} color="#6b7280" />}
+          title="No trips match your search"
+          description="Try a different search term or filter"
+          variant="illustration"
+        />
       ) : (
         <FlatList
-          data={trips}
+          data={filteredTrips}
           renderItem={renderTripCard}
           keyExtractor={(item: Trip) => item.id}
           contentContainerStyle={{ padding: 16 }}
