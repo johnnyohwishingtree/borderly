@@ -7,7 +7,8 @@ import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
 import { useTripListDeadlines } from '@/hooks/useTripListDeadlines';
-import { TripCard, DuplicateTripModal } from '@/components/trips';
+import { useDeadlineSummary } from '@/hooks/useDeadlineSummary';
+import { TripCard, DuplicateTripModal, DeadlineSummary } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
 import { HapticFeedback } from '@/components/ui/HapticFeedback';
@@ -39,7 +40,8 @@ export default function TripListScreen() {
 
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const urgencyByTripId = useTripListDeadlines(trips);
+  const { urgencyByTripId, schemas: deadlineSchemas } = useTripListDeadlines(trips);
+  const deadlineSummary = useDeadlineSummary(trips, deadlineSchemas);
 
   const {
     searchQuery,
@@ -173,6 +175,10 @@ export default function TripListScreen() {
     HapticFeedback.refresh();
     await fetchTrips();
   };
+
+  const handleGoToForm = useCallback((tripId: string, legId: string) => {
+    (navigation as any).navigate('LegForm', { tripId, legId });
+  }, [navigation]);
 
   const handleDeleteTrip = useCallback((trip: Trip) => {
     Alert.alert(
@@ -432,6 +438,17 @@ export default function TripListScreen() {
           keyExtractor={(item: Trip) => item.id}
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            deadlineSummary.hasUrgentItems ? (
+              <DeadlineSummary
+                items={deadlineSummary.items}
+                isExpanded={deadlineSummary.isExpanded}
+                onToggleExpanded={deadlineSummary.toggleExpanded}
+                onGoToForm={handleGoToForm}
+                testID="trip-list-deadline-summary"
+              />
+            ) : null
+          }
           refreshControl={
             <RefreshControl
               refreshing={isLoading && trips.length > 0}

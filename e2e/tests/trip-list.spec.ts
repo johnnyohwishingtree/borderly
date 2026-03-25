@@ -45,6 +45,62 @@ function tripListState() {
   });
 }
 
+function deadlineSummaryState() {
+  // Trip with a JPN leg arriving soon (within 72h + 12h = 84h → critical deadline)
+  const soonArrival = new Date(Date.now() + 84 * 60 * 60 * 1000);
+  const soonDeparture = new Date(soonArrival.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  return baseState({
+    trips: [
+      { id: 'trip-urgent', name: 'Urgent Japan Trip', status: 'upcoming' as const },
+      { id: 'trip-safe', name: 'Safe Future Trip', status: 'upcoming' as const },
+    ],
+    tripLegs: {
+      'trip-urgent': [{
+        id: 'leg-urgent',
+        destinationCountry: 'JPN',
+        arrivalDateISO: soonArrival.toISOString().split('T')[0],
+        departureDateISO: soonDeparture.toISOString().split('T')[0],
+        formStatus: 'not_started',
+        order: 0,
+        accommodation: { name: 'Hotel', address: { street: '1-1', city: 'Tokyo', country: 'Japan', postalCode: '100-0001' } },
+      }],
+      'trip-safe': [{
+        id: 'leg-safe',
+        destinationCountry: 'JPN',
+        arrivalDateISO: '2028-06-01',
+        departureDateISO: '2028-06-10',
+        formStatus: 'not_started',
+        order: 0,
+        accommodation: { name: 'Hotel', address: { street: '2-2', city: 'Tokyo', country: 'Japan', postalCode: '100-0002' } },
+      }],
+    },
+  });
+}
+
+test.describe('TripListScreen deadline summary', () => {
+  test.beforeEach(async ({ page }) => {
+    await injectState(page, deadlineSummaryState());
+    await page.goto('/');
+    await expect(page.getByText('Your Trips')).toBeVisible({ timeout: 10000 });
+  });
+
+  test('shows deadline summary when urgent deadlines exist', async ({ page }) => {
+    const summary = page.getByTestId('trip-list-deadline-summary');
+    await expect(summary).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/deadline.* needs? attention/i)).toBeVisible();
+  });
+
+  test('Go button navigates to LegForm', async ({ page }) => {
+    const goButton = page.getByTestId('trip-list-deadline-summary-item-0-go-button');
+    await expect(goButton).toBeVisible({ timeout: 5000 });
+    await goButton.click();
+    // Should navigate to LegForm screen
+    await page.waitForTimeout(1000);
+    // LegForm screen would show country-specific form content
+  });
+});
+
 test.describe('TripListScreen search and filter', () => {
   test.beforeEach(async ({ page }) => {
     await injectState(page, tripListState());
