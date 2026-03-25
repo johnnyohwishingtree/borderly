@@ -66,6 +66,11 @@
       "version": "1.0.0",
       "checksum": "sha256:4f18ec9d81f390dec4f523c8875d9755fccd55787515062efd5a422067e45737",
       "url": "https://schemas.borderly.app/v1/IDN.json"
+    },
+    "PHL": {
+      "version": "1.0.0",
+      "checksum": "sha256:909ab323ff588e8a68698aacfe5a20796a2bd4ca10e229a2c2227e3fa24c7c43",
+      "url": "https://schemas.borderly.app/v1/PHL.json"
     }
   }
 }

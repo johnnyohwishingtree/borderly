@@ -236,7 +236,7 @@ describe('Airport Lookup Service', () => {
 
     it('should be an array matching constants/countries.ts', () => {
       expect(Array.isArray(SUPPORTED_COUNTRIES)).toBe(true);
-      expect(SUPPORTED_COUNTRIES.length).toBe(13);
+      expect(SUPPORTED_COUNTRIES.length).toBe(14);
     });
   });
 });

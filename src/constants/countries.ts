@@ -89,6 +89,12 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
     fullName: 'Indonesia',
     colors: ['#FF0000', '#FFFFFF'],
   },
+  {
+    code: 'PHL',
+    name: 'Philippines',
+    fullName: 'Philippines',
+    colors: ['#0038A8', '#CE1126', '#FFFFFF', '#FCD116'],
+  },
 ];
 
 /**

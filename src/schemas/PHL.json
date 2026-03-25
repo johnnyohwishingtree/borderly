@@ -1,0 +1,558 @@
+{
+  "countryCode": "PHL",
+  "countryName": "Philippines",
+  "schemaVersion": "1.0.0",
+  "lastUpdated": "2026-03-25T00:00:00Z",
+  "portalUrl": "https://etravel.gov.ph",
+  "portalName": "Philippines eTravel",
+  "submissionDeadlineHours": 72,
+  "recommendedLeadTimeHours": 96,
+  "submissionWindowNote": "Submit within 72 hours before departure",
+  "passportValidityMonths": 6,
+  "metadata": {
+    "priority": 7,
+    "complexity": "medium",
+    "popularity": 75,
+    "lastVerified": "2026-03-25T00:00:00Z",
+    "supportedLanguages": ["en"],
+    "implementationStatus": "planned",
+    "maintenanceFrequency": "monthly"
+  },
+  "changeDetection": {
+    "monitoredSelectors": [".etravel-form", ".registration-section", "#submit-registration"],
+    "changeThreshold": 20,
+    "fallbackActions": [
+      {
+        "trigger": "form_layout_changed",
+        "action": "notify",
+        "message": "Philippines eTravel form layout has changed. Please verify manually."
+      }
+    ]
+  },
+  "submission": {
+    "earliestBeforeArrival": "3d",
+    "latestBeforeArrival": "0h",
+    "recommended": "24h",
+    "processingTime": "instant"
+  },
+  "portalFlow": {
+    "requiresAccount": true,
+    "familyPolicy": {
+      "type": "group",
+      "description": "One registration can include accompanying minors; adults must register separately"
+    },
+    "multiStep": true,
+    "canSaveProgress": true,
+    "sessionTimeout": "30m",
+    "prerequisites": [
+      {
+        "type": "document",
+        "description": "Passport valid for at least 6 months",
+        "required": true
+      },
+      {
+        "type": "account",
+        "description": "eTravel account registration (email verification)",
+        "required": true
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "personal",
+      "title": "Personal Information",
+      "fields": [
+        {
+          "id": "surname",
+          "label": "Last Name (as on passport)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.surname",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#surname",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "givenName",
+          "label": "First Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.givenNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#givenName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "middleName",
+          "label": "Middle Name",
+          "type": "text",
+          "required": false,
+          "autoFillSource": "profile.middleNames",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#middleName",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "dateOfBirth",
+          "label": "Date of Birth",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.dateOfBirth",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#dateOfBirth",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "gender",
+          "label": "Sex",
+          "type": "select",
+          "required": true,
+          "autoFillSource": "profile.gender",
+          "countrySpecific": false,
+          "options": [
+            { "value": "M", "label": "Male" },
+            { "value": "F", "label": "Female" }
+          ],
+          "automation": {
+            "selector": "#gender",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "nationality",
+          "label": "Nationality",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#nationality",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "countryOfResidence",
+          "label": "Country of Residence",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.countryOfResidence",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#countryOfResidence",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "occupation",
+          "label": "Occupation",
+          "type": "searchable_select",
+          "required": true,
+          "autoFillSource": "profile.occupation",
+          "countrySpecific": true,
+          "options": [
+            { "value": "employee", "label": "Employee" },
+            { "value": "business_owner", "label": "Business Owner" },
+            { "value": "government", "label": "Government Employee" },
+            { "value": "professional", "label": "Professional" },
+            { "value": "ofw", "label": "Overseas Filipino Worker (OFW)" },
+            { "value": "student", "label": "Student" },
+            { "value": "retired", "label": "Retired" },
+            { "value": "homemaker", "label": "Homemaker" },
+            { "value": "unemployed", "label": "Unemployed" },
+            { "value": "other", "label": "Other" }
+          ],
+          "autoFillMapping": {
+            "Software Developer": "employee",
+            "Engineer": "professional",
+            "Doctor": "professional",
+            "Teacher": "employee",
+            "Student": "student",
+            "Retired": "retired",
+            "_default": "other"
+          },
+          "automation": {
+            "selector": "#occupation",
+            "fillMethod": "select"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passport",
+      "title": "Passport Information",
+      "fields": [
+        {
+          "id": "passportNumber",
+          "label": "Passport Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.passportNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuedDate",
+          "label": "Passport Issue Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportIssued",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssuedDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportExpiry",
+          "label": "Passport Expiry Date",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "profile.passportExpiry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportExpiry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "passportIssuingCountry",
+          "label": "Country of Issue",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.nationality",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#passportIssuingCountry",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "title": "Travel Information",
+      "fields": [
+        {
+          "id": "purposeOfTravel",
+          "label": "Purpose of Travel",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "tourism", "label": "Tourism / Vacation" },
+            { "value": "business", "label": "Business" },
+            { "value": "balikbayan", "label": "Balikbayan (Returning Filipino)" },
+            { "value": "visiting_relatives", "label": "Visiting Relatives / Friends" },
+            { "value": "transit", "label": "Transit" },
+            { "value": "education", "label": "Education / Study" },
+            { "value": "employment", "label": "Employment" },
+            { "value": "medical", "label": "Medical" },
+            { "value": "official", "label": "Official / Government" },
+            { "value": "other", "label": "Other" }
+          ],
+          "automation": {
+            "selector": "#purposeOfTravel",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "arrivalDate",
+          "label": "Date of Arrival",
+          "type": "date",
+          "required": true,
+          "autoFillSource": "leg.arrivalDate",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#arrivalDate",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "flightNumber",
+          "label": "Flight Number / Vessel Name",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.flightNumber",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#flightNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "portOfArrival",
+          "label": "Port of Arrival",
+          "type": "select",
+          "required": true,
+          "countrySpecific": true,
+          "options": [
+            { "value": "MNL", "label": "Ninoy Aquino International Airport (Manila)" },
+            { "value": "CEB", "label": "Mactan-Cebu International Airport" },
+            { "value": "CRK", "label": "Clark International Airport" },
+            { "value": "DVO", "label": "Francisco Bangoy International Airport (Davao)" },
+            { "value": "ILO", "label": "Iloilo International Airport" },
+            { "value": "KLO", "label": "Kalibo International Airport (Boracay)" },
+            { "value": "PPS", "label": "Puerto Princesa International Airport (Palawan)" },
+            { "value": "other", "label": "Other" }
+          ],
+          "helpText": "Select the airport or seaport where you will arrive",
+          "automation": {
+            "selector": "#portOfArrival",
+            "fillMethod": "select"
+          }
+        },
+        {
+          "id": "departureCountry",
+          "label": "Country of Origin (last port of departure)",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "leg.departureCountry",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#departureCountry",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "stayDuration",
+          "label": "Intended Length of Stay (days)",
+          "type": "number",
+          "required": true,
+          "autoFillSource": "leg._calculatedDuration",
+          "countrySpecific": false,
+          "validation": {
+            "min": 1,
+            "max": 30
+          },
+          "helpText": "Visa-free stay up to 30 days for eligible nationalities",
+          "automation": {
+            "selector": "#stayDuration",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "addressInPhilippines",
+          "label": "Address in the Philippines",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "leg.accommodation.address._formatted",
+          "countrySpecific": false,
+          "helpText": "Full address of hotel or place of stay",
+          "automation": {
+            "selector": "#addressInPhilippines",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "contactNumberInPhilippines",
+          "label": "Contact Number in the Philippines",
+          "type": "text",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "Local phone number or hotel phone number",
+          "automation": {
+            "selector": "#contactNumberInPhilippines",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "title": "Health Declaration",
+      "fields": [
+        {
+          "id": "countriesVisitedLast30Days",
+          "label": "Countries visited in the last 30 days",
+          "type": "textarea",
+          "required": true,
+          "countrySpecific": true,
+          "helpText": "List all countries visited in the 30 days prior to arrival",
+          "automation": {
+            "selector": "#countriesVisitedLast30Days",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "havingSymptoms",
+          "label": "Are you currently experiencing fever, cough, cold, or sore throat?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#havingSymptoms",
+            "fillMethod": "click"
+          }
+        },
+        {
+          "id": "contactWithSick",
+          "label": "Have you been in close contact with anyone who is sick in the last 14 days?",
+          "type": "boolean",
+          "required": true,
+          "countrySpecific": true,
+          "automation": {
+            "selector": "#contactWithSick",
+            "fillMethod": "click"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact Information",
+      "fields": [
+        {
+          "id": "homeAddress",
+          "label": "Permanent Address in Home Country",
+          "type": "textarea",
+          "required": true,
+          "autoFillSource": "profile.address._formatted",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#homeAddress",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "phoneNumber",
+          "label": "Mobile / Phone Number",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.phone",
+          "countrySpecific": false,
+          "automation": {
+            "selector": "#phoneNumber",
+            "fillMethod": "input"
+          }
+        },
+        {
+          "id": "email",
+          "label": "Email Address",
+          "type": "text",
+          "required": true,
+          "autoFillSource": "profile.email",
+          "countrySpecific": false,
+          "validation": {
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          },
+          "automation": {
+            "selector": "#email",
+            "fillMethod": "input"
+          }
+        }
+      ]
+    }
+  ],
+  "submissionGuide": [
+    {
+      "order": 1,
+      "title": "Create eTravel Account",
+      "description": "Register on the eTravel portal with your email address. Verify your email to activate the account.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "Use an email you check regularly",
+        "You will need to verify your email before proceeding",
+        "Save your login credentials for future trips"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Enter Personal Information",
+      "description": "Fill in your personal details exactly as they appear on your passport.",
+      "fieldsOnThisScreen": ["surname", "givenName", "middleName", "dateOfBirth", "gender", "nationality", "countryOfResidence", "occupation"],
+      "tips": [
+        "Names must match your passport exactly",
+        "OFW category applies to returning Filipino workers",
+        "Balikbayan is for Filipinos returning from abroad"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Passport Details",
+      "description": "Enter your passport information from the data page.",
+      "fieldsOnThisScreen": ["passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingCountry"],
+      "tips": [
+        "Passport must be valid for at least 6 months from arrival",
+        "Double-check your passport number"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Travel Information",
+      "description": "Provide your flight and accommodation details for the Philippines.",
+      "fieldsOnThisScreen": ["purposeOfTravel", "arrivalDate", "flightNumber", "portOfArrival", "departureCountry", "stayDuration", "addressInPhilippines", "contactNumberInPhilippines"],
+      "tips": [
+        "Flight number must match your ticket",
+        "Kalibo airport serves Boracay travelers",
+        "Puerto Princesa serves Palawan/El Nido travelers",
+        "Provide your hotel's local phone number"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "Health Declaration",
+      "description": "Complete the health screening questions honestly.",
+      "fieldsOnThisScreen": ["countriesVisitedLast30Days", "havingSymptoms", "contactWithSick"],
+      "tips": [
+        "List all countries visited in the last 30 days",
+        "Answer health questions truthfully",
+        "False declarations may result in penalties or denial of entry"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Contact Information",
+      "description": "Provide your contact details.",
+      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email"],
+      "tips": [
+        "Include country code in phone number",
+        "Use the email associated with your eTravel account"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Review and Submit",
+      "description": "Review all information and submit your eTravel registration.",
+      "fieldsOnThisScreen": [],
+      "tips": [
+        "You will receive a QR code via email",
+        "Save the QR code on your phone",
+        "Present the QR code at immigration upon arrival",
+        "No fee is required for eTravel registration",
+        "You can update your registration if details change"
+      ]
+    }
+  ],
+  "automation": {
+    "enabled": false,
+    "version": "1.0.0",
+    "entryUrl": "https://etravel.gov.ph",
+    "testMode": true,
+    "successIndicators": [".registration-success", "#qr-code-display"],
+    "failureIndicators": [".error-message", ".validation-error"],
+    "dataExtractionRules": [
+      {
+        "name": "qrCode",
+        "selector": "#etravel-qr",
+        "attribute": "src",
+        "required": true
+      },
+      {
+        "name": "transactionNumber",
+        "selector": "#transaction-number",
+        "required": true
+      }
+    ]
+  }
+}
