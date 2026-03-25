@@ -4,10 +4,21 @@
  * profile data, trip information, and country-specific requirements.
  */
 
-import { Address } from '../../types/profile';
-import { FormField } from '../../types/schema';
-import { resolveAutoFillPath, FormContext } from './fieldMapper';
-import { calculateStayDuration, isValidISODate } from '../../utils/dateUtils';
+import { FormField } from '../../../types/schema';
+import { resolveAutoFillPath, FormContext } from '../fieldMapper';
+import { calculateStayDuration } from '../../../utils/dateUtils';
+import {
+  isValidFieldValue,
+  predictPurposeOfVisit,
+  getCommonStayDuration,
+  convertNationalityToDisplayName,
+  formatAddressForCountry,
+  getSmartDeclarationDefault,
+  getCurrencyThreshold,
+  extractAirlineFromFlight,
+  expandAirlineName,
+  getSmartSelectDefault,
+} from './autoFillHelpers';
 
 export interface AutoFillResult {
   value: unknown;
@@ -282,235 +293,6 @@ function getDefaultAutoFill(field: FormField, context: FormContext): AutoFillRes
         return { value: context.leg.departureDate, source: 'trip', confidence: 0.95 };
       }
       break;
-  }
-
-  return null;
-}
-
-/**
- * Helper function to determine if a value is valid for a field type.
- */
-function isValidFieldValue(value: unknown, fieldType: string): boolean {
-  if (value === undefined || value === null || value === '') {
-    return false;
-  }
-
-  switch (fieldType) {
-    case 'text':
-    case 'textarea':
-      return typeof value === 'string' && value.trim().length > 0;
-    case 'number':
-      return typeof value === 'number' && !isNaN(value);
-    case 'date':
-      return typeof value === 'string' && isValidISODate(value);
-    case 'boolean':
-      return typeof value === 'boolean';
-    case 'select':
-      return typeof value === 'string' && value.length > 0;
-    default:
-      return false;
-  }
-}
-
-/**
- * Smart purpose of visit prediction based on trip context.
- */
-function predictPurposeOfVisit(context: FormContext, _countryCode?: string): string | null {
-  const leg = context.leg;
-  
-  // Duration checks take priority over accommodation type
-  const duration = calculateStayDuration(leg.arrivalDate, leg.departureDate);
-  if (duration && duration <= 2) {
-    return 'transit';
-  }
-  
-  // If staying longer than 30 days, might be visiting relatives
-  if (duration && duration > 30) {
-    return 'visiting_relatives';
-  }
-  
-  // Simple heuristics based on trip characteristics
-  if (leg.accommodation?.name?.toLowerCase().includes('hotel')) {
-    return 'tourism';
-  }
-  
-  // Default to tourism for most cases
-  return 'tourism';
-}
-
-/**
- * Gets common stay duration for a country when departure date is unknown.
- */
-function getCommonStayDuration(countryCode?: string): number {
-  switch (countryCode) {
-    case 'JPN':
-      return 14; // Common tourist visa length
-    case 'SGP':
-      return 5; // Common stopover length
-    case 'MYS':
-      return 7; // Common week-long visit
-    default:
-      return 10; // Generic medium stay
-  }
-}
-
-/**
- * Converts ISO country code to display name for nationality fields.
- */
-function convertNationalityToDisplayName(countryCode: string): string {
-  const nationalityMap: Record<string, string> = {
-    'USA': 'United States',
-    'GBR': 'United Kingdom',
-    'JPN': 'Japan',
-    'KOR': 'Republic of Korea',
-    'CHN': 'China',
-    'SGP': 'Singapore',
-    'MYS': 'Malaysia',
-    'AUS': 'Australia',
-    'CAN': 'Canada',
-    'DEU': 'Germany',
-    'FRA': 'France',
-    'ESP': 'Spain',
-    'ITA': 'Italy',
-    'NLD': 'Netherlands',
-  };
-
-  return nationalityMap[countryCode] || countryCode;
-}
-
-/**
- * Formats address according to country conventions.
- */
-function formatAddressForCountry(address: Address, countryCode?: string): string {
-  const parts = [address.line1, address.line2, address.city, address.state, address.postalCode];
-  const filteredParts = parts.filter(Boolean);
-
-  // Different countries have different address formatting preferences
-  switch (countryCode) {
-    case 'JPN':
-      // Japan prefers postal code first
-      return `${address.postalCode || ''} ${filteredParts.slice(0, -1).join(', ')}`.trim();
-    case 'GBR':
-      // UK format with proper postal code placement
-      return filteredParts.join(', ');
-    default:
-      return filteredParts.join(', ');
-  }
-}
-
-/**
- * Gets smart declaration defaults based on profile and common patterns.
- */
-function getSmartDeclarationDefault(field: FormField, context: FormContext): boolean | null {
-  const fieldId = field.id.toLowerCase();
-  const profile = context.profile;
-
-  // Use profile default declarations if available
-  const defaults = profile.defaultDeclarations;
-
-  // Safely handle missing defaults
-  if (defaults) {
-    if (fieldId.includes('prohibited') || fieldId.includes('drugs') || fieldId.includes('weapons')) {
-      return defaults.carryingProhibitedItems;
-    }
-    if (fieldId.includes('currency') || fieldId.includes('cash') || fieldId.includes('money')) {
-      return defaults.carryingCurrency;
-    }
-    if (fieldId.includes('commercial') || fieldId.includes('business') || fieldId.includes('goods')) {
-      return defaults.carryingCommercialGoods;
-    }
-    if (fieldId.includes('farm') || fieldId.includes('agriculture')) {
-      return defaults.visitedFarm;
-    }
-    if (fieldId.includes('criminal') || fieldId.includes('conviction')) {
-      return defaults.hasCriminalRecord;
-    }
-    if (fieldId.includes('declare') || fieldId.includes('duty')) {
-      return defaults.hasItemsToDeclare;
-    }
-  }
-
-  return null;
-}
-
-/**
- * Gets currency threshold information for a country.
- */
-function getCurrencyThreshold(countryCode?: string): number | null {
-  const thresholds: Record<string, number> = {
-    'JPN': 1000000, // ¥1,000,000
-    'USA': 10000,   // $10,000
-    'SGP': 20000,   // S$20,000
-    'MYS': 10000,   // RM10,000
-  };
-
-  return thresholds[countryCode || ''] || null;
-}
-
-/**
- * Extracts airline code from flight number.
- */
-function extractAirlineFromFlight(flightNumber: string): string | null {
-  const match = flightNumber.match(/^([A-Z]{2,3})/);
-  return match ? match[1] : null;
-}
-
-/**
- * Expands airline code to full airline name.
- */
-function expandAirlineName(airlineCode: string): string {
-  const airlineMap: Record<string, string> = {
-    'AA': 'American Airlines',
-    'BA': 'British Airways',
-    'NH': 'All Nippon Airways',
-    'JL': 'Japan Airlines',
-    'SQ': 'Singapore Airlines',
-    'MH': 'Malaysia Airlines',
-    'CX': 'Cathay Pacific',
-    'LH': 'Lufthansa',
-    'AF': 'Air France',
-    'KL': 'KLM',
-  };
-
-  return airlineMap[airlineCode] || airlineCode;
-}
-
-/**
- * Gets smart default for select fields based on context.
- */
-function getSmartSelectDefault(field: FormField, context: FormContext): string | null {
-  if (!field.options || field.options.length === 0) {
-    return null;
-  }
-
-  const fieldId = field.id.toLowerCase();
-  
-  // Purpose of visit smart defaults
-  if (fieldId.includes('purpose') || fieldId.includes('reason')) {
-    const predicted = predictPurposeOfVisit(context);
-    if (predicted && field.options.some(opt => opt.value === predicted)) {
-      return predicted;
-    }
-  }
-
-  // Gender field defaults
-  if (fieldId.includes('gender') || fieldId.includes('sex')) {
-    const gender = context.profile.gender;
-    const option = field.options.find(opt => 
-      opt.value.toUpperCase() === gender || 
-      opt.value.toLowerCase().startsWith(gender.toLowerCase())
-    );
-    return option?.value || null;
-  }
-
-  // Nationality field defaults
-  if (fieldId.includes('nationality') || fieldId.includes('country')) {
-    const nationality = context.profile.nationality;
-    const option = field.options.find(opt => 
-      opt.value === nationality || 
-      opt.label.toLowerCase().includes(nationality.toLowerCase())
-    );
-    return option?.value || null;
   }
 
   return null;

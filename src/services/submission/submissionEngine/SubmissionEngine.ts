@@ -1,63 +1,31 @@
 /**
  * Submission Engine - Core orchestration for automated government portal submissions
- * 
+ *
  * Coordinates WebView automation, session management, error handling, and fallback
  * mechanisms while ensuring no PII leaks during the submission process.
  */
 
-import { 
-  SubmissionSession, 
-  SubmissionResult, 
-  SubmissionStatus, 
+import {
+  SubmissionSession,
+  SubmissionResult,
   SubmissionMethod,
   SubmissionEngineConfig,
   AutomationScript,
-  SubmissionError,
   SubmissionMetrics,
-  AutomationStepResult
+  AutomationStepResult,
 } from '@/types/submission';
-
-// Re-export types for external use
-export type {
-  SubmissionSession,
-  SubmissionResult,
-  SubmissionStatus,
-  SubmissionMethod,
-  SubmissionError,
-  SubmissionMetrics,
-  AutomationStepResult
-};
 import { TripLeg } from '@/types/trip';
 import { FilledForm } from '@/services/forms/formEngine';
-import { WebViewController } from './webviewController';
-import { AutomationScriptRegistry } from './automationScripts';
-import { SubmissionValidator } from './submissionValidator';
-
-/**
- * Default configuration for submission engine
- */
-export const DEFAULT_CONFIG: SubmissionEngineConfig = {
-  timeouts: {
-    sessionMaxMs: 10 * 60 * 1000, // 10 minutes
-    stepMaxMs: 30 * 1000, // 30 seconds
-    pageLoadMaxMs: 15 * 1000, // 15 seconds
-  },
-  retries: {
-    maxAttempts: 3,
-    delayMs: 1000,
-    backoffMultiplier: 2,
-  },
-  security: {
-    validateSSL: true,
-    allowedDomains: [],
-    maxDataSize: 1024 * 1024, // 1MB
-  },
-  debug: {
-    captureScreenshots: false,
-    logJavaScript: false,
-    saveSessionData: false,
-  },
-};
+import { WebViewController } from '../webviewController';
+import { AutomationScriptRegistry } from '../automationScripts';
+import { SubmissionValidator } from '../submissionValidator';
+import {
+  generateSessionId,
+  extractFormData,
+  prepareStepData,
+  injectFormData,
+  categorizeOutcome,
+} from './engineHelpers';
 
 /**
  * Main submission engine class
@@ -85,47 +53,38 @@ export class SubmissionEngine {
     filledForm: FilledForm,
     method: SubmissionMethod = 'automated'
   ): Promise<SubmissionResult> {
-    const sessionId = this.generateSessionId();
+    const sessionId = generateSessionId();
     const startTime = Date.now();
 
     try {
-      // Create submission session
       const session = this.createSession(sessionId, leg, method, filledForm);
       this.activeSessions.set(sessionId, session);
 
-      // Security validation
       const securityResult = await this.validator.validateSubmission(filledForm, leg.destinationCountry);
       if (!securityResult.isValid) {
         throw new Error(`Security validation failed: ${securityResult.errors.join(', ')}`);
       }
 
-      // Get automation script for country
       const script = await this.scriptRegistry.getScript(leg.destinationCountry);
       if (!script && method === 'automated') {
         return await this.fallbackToManual(session, 'No automation script available');
       }
 
-      // Execute submission based on method
       let result: SubmissionResult;
       if (method === 'automated' && script) {
         result = await this.executeAutomatedSubmission(session, script, filledForm);
       } else {
-        // Manual method requested or no automation available
         result = await this.executeManualSubmission(session, filledForm);
       }
 
-      // Record metrics
       this.recordMetrics(session, result, Date.now() - startTime);
-
       return result;
 
     } catch (error) {
-      // Handle unexpected errors
       const errorResult = this.handleUnexpectedError(sessionId, error as Error, Date.now() - startTime);
       this.recordMetrics(this.getSession(sessionId)!, errorResult, Date.now() - startTime);
       return errorResult;
     } finally {
-      // Cleanup session
       this.cleanupSession(sessionId);
     }
   }
@@ -139,34 +98,23 @@ export class SubmissionEngine {
     filledForm: FilledForm
   ): Promise<SubmissionResult> {
     try {
-      // Initialize WebView with script prerequisites
       await this.webviewController.initialize(script.prerequisites);
-      
-      // Navigate to portal
       await this.webviewController.navigateTo(script.portalUrl);
-      
-      // Update session status
+
       session.status = 'in_progress';
       session.progress.totalSteps = script.steps.length;
 
-      // Execute automation steps
       for (let i = 0; i < script.steps.length; i++) {
         const step = script.steps[i];
-        
+
         try {
-          // Execute step
           const stepResult = await this.executeAutomationStep(session, step, script, filledForm);
-          
+
           if (!stepResult.success) {
             if (step.critical) {
-              // Critical step failed, fallback to manual
-              return await this.fallbackToManual(
-                session, 
-                `Critical step failed: ${step.name}`
-              );
+              return await this.fallbackToManual(session, `Critical step failed: ${step.name}`);
             }
-            
-            // Non-critical step failed, continue with warning
+
             session.errors.push({
               stepId: step.id,
               error: stepResult.error || 'Unknown error',
@@ -176,7 +124,6 @@ export class SubmissionEngine {
             });
           }
 
-          // Update progress
           session.progress.currentStep = i + 1;
           if (stepResult.success) {
             session.progress.completedSteps.push(step.id);
@@ -184,13 +131,11 @@ export class SubmissionEngine {
             session.progress.failedSteps.push(step.id);
           }
 
-          // Store step data
           if (stepResult.data) {
             Object.assign(session.sessionData.formData, stepResult.data);
           }
 
         } catch (stepError) {
-          // Step execution threw an error
           session.errors.push({
             stepId: step.id,
             error: (stepError as Error).message,
@@ -207,9 +152,8 @@ export class SubmissionEngine {
         }
       }
 
-      // Check if submission was successful
       const finalResult = await this.validateSubmissionComplete(session, script);
-      
+
       if (finalResult.success) {
         session.status = 'completed';
         return {
@@ -241,47 +185,37 @@ export class SubmissionEngine {
    */
   private async executeAutomationStep(
     _session: SubmissionSession,
-    _step: any,
+    _step: AutomationScript['steps'][number],
     _script: AutomationScript,
     _filledForm: FilledForm
   ): Promise<AutomationStepResult> {
     try {
-      // Prepare form data for this step
-      const stepData = this.prepareStepData(_step, _filledForm, _script);
-      
-      // Execute JavaScript in WebView
+      const stepData = prepareStepData(_step, _filledForm, _script);
+
       const result = await this.webviewController.executeScript({
-        code: this.injectFormData(_step.script, stepData),
+        code: injectFormData(_step.script, stepData),
         timeout: _step.timing.timeout,
         expectsResult: true
       });
 
-      // Validate step result
       if (_step.validation) {
         const isValid = await this.validateStepResult(_step.validation, result);
         if (!isValid) {
-          return {
-            success: false,
-            error: 'Step validation failed'
-          };
+          return { success: false, error: 'Step validation failed' };
         }
       }
 
-      // Wait if configured
       if (_step.timing?.waitAfter) {
         await new Promise(resolve => setTimeout(() => resolve(undefined), _step.timing.waitAfter));
       }
 
-      return {
-        success: true,
-        data: result
-      };
+      if (result !== null && typeof result === 'object') {
+        return { success: true, data: result as Record<string, unknown> };
+      }
+      return { success: true };
 
     } catch (error) {
-      return {
-        success: false,
-        error: (error as Error).message
-      };
+      return { success: false, error: (error as Error).message };
     }
   }
 
@@ -293,7 +227,7 @@ export class SubmissionEngine {
     _filledForm: FilledForm
   ): Promise<SubmissionResult> {
     session.status = 'manual_fallback';
-    
+
     return {
       sessionId: session.id,
       status: 'manual_fallback',
@@ -378,9 +312,6 @@ export class SubmissionEngine {
     };
   }
 
-  /**
-   * Utility methods
-   */
   private createSession(
     sessionId: string,
     leg: TripLeg,
@@ -388,7 +319,7 @@ export class SubmissionEngine {
     filledForm: FilledForm
   ): SubmissionSession {
     const now = new Date().toISOString();
-    
+
     return {
       id: sessionId,
       legId: leg.id,
@@ -404,75 +335,26 @@ export class SubmissionEngine {
         failedSteps: []
       },
       sessionData: {
-        formData: this.extractFormData(filledForm),
+        formData: extractFormData(filledForm),
         screenshots: []
       },
       errors: []
     };
   }
 
-  private extractFormData(filledForm: FilledForm): Record<string, unknown> {
-    const data: Record<string, unknown> = {};
-    
-    filledForm.sections.forEach(section => {
-      section.fields.forEach(field => {
-        if (field.currentValue !== undefined && field.currentValue !== '') {
-          data[field.id] = field.currentValue;
-        }
-      });
-    });
-    
-    return data;
+  private async validateStepResult(_validation: unknown, _result: unknown): Promise<boolean> {
+    return true; // Simplified — real implementation checks URLs, text, element presence
   }
 
-  private prepareStepData(_step: any, filledForm: FilledForm, script: AutomationScript): Record<string, unknown> {
-    const data: Record<string, unknown> = {};
-    
-    // Map form fields to portal selectors
-    Object.entries(script.fieldMappings).forEach(([fieldId, _mapping]) => {
-      const formData = this.extractFormData(filledForm);
-      if (formData[fieldId] !== undefined) {
-        data[fieldId] = formData[fieldId];
-      }
-    });
-    
-    return data;
-  }
-
-  private injectFormData(scriptCode: string, data: Record<string, unknown>): string {
-    // Replace placeholders in script with actual form data
-    let injectedCode = scriptCode;
-    
-    Object.entries(data).forEach(([key, value]) => {
-      const placeholder = `{{${key}}}`;
-      const safeValue = typeof value === 'string' 
-        ? JSON.stringify(value) 
-        : JSON.stringify(value);
-      injectedCode = injectedCode.replace(new RegExp(placeholder, 'g'), safeValue);
-    });
-    
-    return injectedCode;
-  }
-
-  private async validateStepResult(_validation: any, _result: any): Promise<boolean> {
-    // Implementation for step validation
-    // This would check expected URLs, text content, or element presence
-    return true; // Simplified for now
-  }
-
-  private async validateSubmissionComplete(_session: SubmissionSession, _script: AutomationScript): Promise<any> {
-    // Implementation for final submission validation
-    // This would check for confirmation pages, QR codes, etc.
-    // For testing purposes, assume success if we got this far
-    return { 
-      success: true, 
-      confirmationNumber: `CONF_${Date.now()}`, 
-      qrCode: 'mock_qr_code_data' 
+  private async validateSubmissionComplete(
+    _session: SubmissionSession,
+    _script: AutomationScript
+  ): Promise<{ success: boolean; confirmationNumber: string; qrCode: string }> {
+    return {
+      success: true,
+      confirmationNumber: `CONF_${Date.now()}`,
+      qrCode: 'mock_qr_code_data'
     };
-  }
-
-  private generateSessionId(): string {
-    return `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private getSession(sessionId: string): SubmissionSession | undefined {
@@ -483,7 +365,11 @@ export class SubmissionEngine {
     this.activeSessions.delete(sessionId);
   }
 
-  private recordMetrics(session: SubmissionSession, result: SubmissionResult, duration: number): void {
+  private recordMetrics(
+    session: SubmissionSession,
+    result: SubmissionResult,
+    duration: number
+  ): void {
     const metrics: SubmissionMetrics = {
       countryCode: session.countryCode,
       submissionMethod: session.method,
@@ -493,17 +379,10 @@ export class SubmissionEngine {
       errorsEncountered: session.errors.length,
       fallbackTriggered: session.status === 'manual_fallback',
       timestamp: new Date().toISOString(),
-      outcome: this.categorizeOutcome(result)
+      outcome: categorizeOutcome(result)
     };
-    
-    this.metrics.push(metrics);
-  }
 
-  private categorizeOutcome(result: SubmissionResult): SubmissionMetrics['outcome'] {
-    if (result.status === 'completed') return 'success';
-    if (result.status === 'manual_fallback') return 'partial_success';
-    if (result.status === 'failed') return 'failure';
-    return 'user_abandoned';
+    this.metrics.push(metrics);
   }
 
   /**
@@ -526,16 +405,16 @@ export class SubmissionEngine {
   }
 
   public getSuccessRate(countryCode?: string): number {
-    const relevantMetrics = countryCode 
+    const relevantMetrics = countryCode
       ? this.metrics.filter(m => m.countryCode === countryCode)
       : this.metrics;
-    
+
     if (relevantMetrics.length === 0) return 0;
-    
-    const successful = relevantMetrics.filter(m => 
+
+    const successful = relevantMetrics.filter(m =>
       m.outcome === 'success' || m.outcome === 'partial_success'
     ).length;
-    
+
     return successful / relevantMetrics.length;
   }
 }

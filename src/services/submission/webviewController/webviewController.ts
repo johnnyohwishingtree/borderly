@@ -1,0 +1,445 @@
+/**
+ * WebView Controller - Manages WebView interactions and JavaScript injection
+ *
+ * Provides a secure interface for automating government portal interactions
+ * through controlled JavaScript injection and DOM manipulation.
+ */
+
+import {
+  WebViewState,
+  JavaScriptPayload,
+  WebViewNavigationEvent,
+} from '@/types/submission';
+
+import {
+  WebViewImplementation,
+  WebViewPrerequisites,
+  SecurityConstraints,
+  WebViewHandle,
+} from './webviewControllerTypes';
+
+import {
+  wrapJavaScriptCode,
+  generateFormInjectionScript,
+  generateFieldFillScript,
+  SCREENSHOT_SCRIPT,
+  buildElementExistsScript,
+  buildClickScript,
+  PAGE_INFO_SCRIPT,
+  validateUrl,
+  validateJavaScript,
+  createTimeout,
+  getResponseSize,
+} from './webviewScripts';
+
+export type { WebViewHandle };
+
+/**
+ * Main WebView controller class
+ */
+export class WebViewController {
+  private webviewImpl?: WebViewImplementation;
+  private state: WebViewState;
+  private securityConstraints: SecurityConstraints;
+  private navigationListeners: ((event: WebViewNavigationEvent) => void)[];
+  private isInitialized = false;
+  private pendingCallbacks: Map<
+    string,
+    { resolve: (value: unknown) => void; reject: (error: Error) => void }
+  >;
+
+  constructor() {
+    this.state = {
+      url: '',
+      loading: false,
+      canGoBack: false,
+      canGoForward: false
+    };
+
+    this.securityConstraints = {
+      allowedDomains: [
+        'vjw-lp.digital.go.jp', // Japan - Visit Japan Web
+        'mdac.gov.my',          // Malaysia - MDAC
+        'eservices.ica.gov.sg', // Singapore - ICA
+        'localhost',            // Development
+        '127.0.0.1'            // Development
+      ],
+      maxExecutionTime: 30000,      // 30 seconds
+      maxResponseSize: 1024 * 1024, // 1MB
+      validateSSL: true
+    };
+
+    this.navigationListeners = [];
+    this.pendingCallbacks = new Map();
+  }
+
+  /**
+   * Initialize WebView with prerequisites and security constraints
+   */
+  async initialize(prerequisites: WebViewPrerequisites): Promise<void> {
+    if (this.isInitialized) {
+      throw new Error('WebViewController already initialized');
+    }
+
+    try {
+      this.webviewImpl = this.createWebViewImplementation();
+
+      if (prerequisites.userAgent) {
+        await this.webviewImpl.setUserAgent(prerequisites.userAgent);
+      }
+
+      await this.webviewImpl.clearCache();
+      if (!prerequisites.cookiesEnabled) {
+        await this.webviewImpl.clearCookies();
+      }
+
+      this.setupEventListeners();
+      this.isInitialized = true;
+
+    } catch (error) {
+      throw new Error(`Failed to initialize WebView: ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * Navigate to a URL with security validation
+   */
+  async navigateTo(url: string): Promise<void> {
+    this.ensureInitialized();
+
+    const securityResult = validateUrl(url, this.securityConstraints);
+    if (!securityResult.isValid) {
+      throw new Error(`URL security validation failed: ${securityResult.errors.join(', ')}`);
+    }
+
+    try {
+      this.state.loading = true;
+      this.state.url = url;
+      await this.webviewImpl!.loadUrl(url);
+      await this.waitForPageLoad();
+    } catch (error) {
+      this.state.loading = false;
+      this.state.error = (error as Error).message;
+      throw error;
+    }
+  }
+
+  /**
+   * Execute JavaScript code in the WebView context
+   */
+  async executeScript(payload: JavaScriptPayload): Promise<unknown> {
+    this.ensureInitialized();
+
+    const securityResult = validateJavaScript(payload.code);
+    if (!securityResult.isValid) {
+      throw new Error(`JavaScript security validation failed: ${securityResult.errors.join(', ')}`);
+    }
+
+    try {
+      const wrappedCode = wrapJavaScriptCode(payload.code, payload.timeout);
+
+      const result = await Promise.race([
+        this.webviewImpl!.executeJavaScript(wrappedCode),
+        createTimeout(payload.timeout, 'JavaScript execution timeout')
+      ]);
+
+      if (getResponseSize(result) > this.securityConstraints.maxResponseSize) {
+        throw new Error('JavaScript response exceeds maximum allowed size');
+      }
+
+      return result;
+
+    } catch (error) {
+      throw new Error(`JavaScript execution failed: ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * Inject form data into the current page
+   */
+  async injectFormData(fieldMappings: Record<string, unknown>): Promise<void> {
+    const injectionScript = generateFormInjectionScript(fieldMappings);
+
+    await this.executeScript({
+      code: injectionScript,
+      timeout: 10000,
+      expectsResult: false
+    });
+  }
+
+  /**
+   * Capture screenshot of current page state
+   */
+  async captureScreenshot(): Promise<string> {
+    try {
+      const screenshot = await this.executeScript({
+        code: SCREENSHOT_SCRIPT,
+        timeout: 5000,
+        expectsResult: true
+      });
+
+      return screenshot as string;
+    } catch {
+      return '';
+    }
+  }
+
+  /**
+   * Check if a specific element exists on the page
+   */
+  async elementExists(selector: string): Promise<boolean> {
+    try {
+      const result = await this.executeScript({
+        code: buildElementExistsScript(selector),
+        timeout: 5000,
+        expectsResult: true
+      });
+
+      return Boolean(result);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Wait for a specific element to appear
+   */
+  async waitForElement(selector: string, maxWaitMs = 10000): Promise<boolean> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitMs) {
+      if (await this.elementExists(selector)) {
+        return true;
+      }
+
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 500));
+    }
+
+    return false;
+  }
+
+  /**
+   * Fill a form field with specified value
+   */
+  async fillField(selector: string, value: string, inputType = 'text'): Promise<void> {
+    const fillScript = generateFieldFillScript(selector, value, inputType);
+
+    await this.executeScript({
+      code: fillScript,
+      timeout: 5000,
+      expectsResult: false
+    });
+  }
+
+  /**
+   * Click an element
+   */
+  async clickElement(selector: string): Promise<void> {
+    const success = await this.executeScript({
+      code: buildClickScript(selector),
+      timeout: 5000,
+      expectsResult: true
+    });
+
+    if (!success) {
+      throw new Error(`Failed to click element: ${selector}`);
+    }
+  }
+
+  /**
+   * Get current page information
+   */
+  async getPageInfo(): Promise<{ title: string; url: string; ready: boolean }> {
+    return await this.executeScript({
+      code: PAGE_INFO_SCRIPT,
+      timeout: 3000,
+      expectsResult: true
+    }) as { title: string; url: string; ready: boolean };
+  }
+
+  /**
+   * Navigation methods
+   */
+  async goBack(): Promise<void> {
+    this.ensureInitialized();
+    await this.webviewImpl!.goBack();
+  }
+
+  async goForward(): Promise<void> {
+    this.ensureInitialized();
+    await this.webviewImpl!.goForward();
+  }
+
+  async reload(): Promise<void> {
+    this.ensureInitialized();
+    await this.webviewImpl!.reload();
+  }
+
+  /**
+   * Event handling
+   */
+  onNavigation(callback: (event: WebViewNavigationEvent) => void): void {
+    this.navigationListeners.push(callback);
+  }
+
+  removeNavigationListener(callback: (event: WebViewNavigationEvent) => void): void {
+    const index = this.navigationListeners.indexOf(callback);
+    if (index > -1) {
+      this.navigationListeners.splice(index, 1);
+    }
+  }
+
+  /**
+   * State accessors
+   */
+  getState(): WebViewState {
+    return { ...this.state };
+  }
+
+  isReady(): boolean {
+    return this.isInitialized && !this.state.loading && !this.state.error;
+  }
+
+  /**
+   * Cleanup resources
+   */
+  async dispose(): Promise<void> {
+    if (this.webviewImpl) {
+      await this.webviewImpl.clearCache();
+      await this.webviewImpl.clearCookies();
+    }
+
+    this.navigationListeners = [];
+    this.isInitialized = false;
+  }
+
+  /**
+   * Wire this controller to a live PortalWebView ref.
+   *
+   * Replaces the internal mock with a real implementation that uses
+   * `injectJavaScript` for JS execution and relies on `handleWebViewMessage`
+   * to receive results via `window.ReactNativeWebView.postMessage`.
+   */
+  setWebViewRef(handle: WebViewHandle): void {
+    const self = this;
+    this.webviewImpl = {
+      loadUrl: async (_url: string) => {
+        // Navigation handled at the React Navigation / PortalWebView level
+      },
+      executeJavaScript: (code: string) =>
+        new Promise((resolve, reject) => {
+          const callbackId = `brd_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          const idJson = JSON.stringify(callbackId);
+          const wrapped =
+            `(function(){try{var r=(${code});` +
+            `window.ReactNativeWebView.postMessage(JSON.stringify({type:'SCRIPT_RESULT',id:${idJson},result:r}));` +
+            `}catch(e){` +
+            `window.ReactNativeWebView.postMessage(JSON.stringify({type:'SCRIPT_ERROR',id:${idJson},error:e.message}));` +
+            `}true;})();`;
+          self.pendingCallbacks.set(callbackId, { resolve, reject });
+          handle.injectJavaScript(wrapped);
+        }),
+      goBack: async () => {
+        handle.injectJavaScript('window.history.back(); true;');
+      },
+      goForward: async () => {
+        handle.injectJavaScript('window.history.forward(); true;');
+      },
+      reload: async () => {
+        handle.injectJavaScript('window.location.reload(); true;');
+      },
+      clearCache: async () => { /* Not available via injectJavaScript */ },
+      clearCookies: async () => { /* Not available via injectJavaScript */ },
+      setUserAgent: async (_userAgent: string) => { /* Must be set before WebView load */ },
+      addEventListener: (_event: string, _callback: (data: unknown) => void) => {
+        /* Messages handled via onMessage prop — see handleWebViewMessage */
+      },
+      removeEventListener: (_event: string, _callback: (data: unknown) => void) => {
+        /* Messages handled via onMessage prop — see handleWebViewMessage */
+      },
+    };
+    this.isInitialized = true;
+  }
+
+  /**
+   * Route a raw `window.ReactNativeWebView.postMessage` payload to pending
+   * `executeJavaScript` callbacks.  Call this from the `onMessage` handler
+   * of the PortalWebView component.
+   */
+  handleWebViewMessage(data: string): void {
+    let msg: { type: string; id: string; result?: unknown; error?: string };
+    try {
+      msg = JSON.parse(data);
+    } catch {
+      return;
+    }
+    if (msg.type !== 'SCRIPT_RESULT' && msg.type !== 'SCRIPT_ERROR') return;
+    const cb = this.pendingCallbacks.get(msg.id);
+    if (!cb) return;
+    this.pendingCallbacks.delete(msg.id);
+    if (msg.type === 'SCRIPT_RESULT') {
+      cb.resolve(msg.result);
+    } else {
+      cb.reject(new Error(msg.error ?? 'Unknown script error'));
+    }
+  }
+
+  /**
+   * Private helper methods
+   */
+  private ensureInitialized(): void {
+    if (!this.isInitialized || !this.webviewImpl) {
+      throw new Error('WebViewController not initialized. Call initialize() first.');
+    }
+  }
+
+  private async waitForPageLoad(): Promise<void> {
+    const maxWaitTime = 15000;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitTime) {
+      try {
+        const pageInfo = await this.getPageInfo();
+        if (pageInfo.ready) {
+          this.state.loading = false;
+          return;
+        }
+      } catch {
+        // Continue waiting
+      }
+
+      await new Promise(resolve => setTimeout(() => resolve(undefined), 500));
+    }
+
+    throw new Error('Page load timeout');
+  }
+
+  private setupEventListeners(): void {
+    // Placeholder — real event listeners wired via setWebViewRef / onMessage prop
+  }
+
+  private createWebViewImplementation(): WebViewImplementation {
+    return {
+      loadUrl: async (_url: string) => { /* Mock implementation */ },
+      executeJavaScript: async (_code: string) => { /* Mock implementation */ },
+      goBack: async () => { /* Mock implementation */ },
+      goForward: async () => { /* Mock implementation */ },
+      reload: async () => { /* Mock implementation */ },
+      clearCache: async () => { /* Mock implementation */ },
+      clearCookies: async () => { /* Mock implementation */ },
+      setUserAgent: async (_userAgent: string) => { /* Mock implementation */ },
+      addEventListener: (_event: string, _callback: (data: unknown) => void) => { /* Mock implementation */ },
+      removeEventListener: (_event: string, _callback: (data: unknown) => void) => { /* Mock implementation */ }
+    };
+  }
+
+  protected notifyNavigationListeners(event: WebViewNavigationEvent): void {
+    this.navigationListeners.forEach(callback => {
+      try {
+        callback(event);
+      } catch (error) {
+        console.warn('Navigation listener error:', error);
+      }
+    });
+  }
+}
