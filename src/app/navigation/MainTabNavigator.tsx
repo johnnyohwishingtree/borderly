@@ -37,6 +37,7 @@ const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => (
 
 // Lazy load settings screens
 const SettingsScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.SettingsScreen })));
+const NotificationPreferencesScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.NotificationPreferencesScreen })));
 const PrivacyPolicyScreen = lazy(() => import('@/screens/settings').then(m => ({ default: m.PrivacyPolicyScreen })));
 const RestoreBackupModal = lazy(() => import('@/screens/settings').then(m => ({ default: m.RestoreBackupModal })));
 
@@ -306,6 +307,16 @@ function SettingsNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <SettingsScreen />
+          </Suspense>
+        )}
+      </SettingsStack.Screen>
+      <SettingsStack.Screen
+        name="NotificationPreferences"
+        options={{ title: 'Notifications' }}
+      >
+        {() => (
+          <Suspense fallback={<ScreenLoader />}>
+            <NotificationPreferencesScreen />
           </Suspense>
         )}
       </SettingsStack.Screen>

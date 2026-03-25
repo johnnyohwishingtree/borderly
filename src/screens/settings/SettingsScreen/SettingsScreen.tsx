@@ -1,5 +1,5 @@
-import { ActivityIndicator, View, Text, ScrollView } from 'react-native';
-import { Lock, Unlock } from 'lucide-react-native';
+import { ActivityIndicator, View, Text, ScrollView, Pressable } from 'react-native';
+import { Lock, Unlock, Bell, ChevronRight } from 'lucide-react-native';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { Button, Card, Toggle, Select, StatusBadge, Divider, ScreenContainer } from '@/components/ui';
 import ThemeSelector from '@/components/settings/ThemeSelector';
@@ -174,6 +174,32 @@ export default function SettingsScreen() {
               )}
             </View>
           )}
+        </Card>
+
+        {/* Notifications */}
+        <Card testID="notification-settings-card">
+          <Pressable
+            onPress={() => navigation.navigate('NotificationPreferences')}
+            accessibilityRole="button"
+            accessibilityLabel="Notification Preferences"
+            accessibilityHint="Configure deadline reminder notifications"
+            testID="notification-preferences-row"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <Bell size={20} color="#3b82f6" />
+                <View className="ml-3 flex-1">
+                  <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                    Notification Preferences
+                  </Text>
+                  <Text className="text-sm text-gray-600 dark:text-gray-400">
+                    Deadline reminders, timing, quiet hours
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={20} color="#9ca3af" />
+            </View>
+          </Pressable>
         </Card>
 
         {/* App Preferences */}
