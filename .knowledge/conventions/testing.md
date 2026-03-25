@@ -15,6 +15,8 @@
 | E2E smoke tests | Playwright + RN Web | Runtime crashes, screens not rendering |
 
 ## Rules
+- **Zero known failures** — never merge code with a failing or OOMing test. Fix or delete the test before merging. A "known failure" that ships becomes every future pipeline run's problem.
+- **If you wrote it, it must pass** — run the specific test file you created before committing. If it crashes, OOMs, or fails, that's your bug to fix, not an "environment issue."
 - Unit tests mock all native modules — they CANNOT catch missing deps
 - When adding new screens: add Playwright test in `e2e/tests/`, add mock in `e2e/mocks/` if native module used
 - No snapshot files — use `toMatchInlineSnapshot()` or explicit assertions
