@@ -139,8 +139,8 @@ test.describe('TemplatesScreen — Use Template flow', () => {
     await expect(useButton).toBeVisible({ timeout: 8000 });
     await useButton.click();
 
-    // Should land on CreateTrip screen
-    await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
+    // Should land on CreateTrip screen with template pre-filled
+    await expect(page.getByText('Trip from Template')).toBeVisible({ timeout: 10000 });
   });
 });
 

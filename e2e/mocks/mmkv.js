@@ -1,6 +1,21 @@
 // Web implementation of react-native-mmkv using localStorage for persistence.
+// Tests can pre-seed MMKV keys via window.__BORDERLY_STATE__.mmkv
 
 const PREFIX = '__mmkv_';
+
+let _seeded = false;
+function seedFromInjectedState() {
+  if (_seeded) return;
+  _seeded = true;
+  if (typeof window !== 'undefined' && window.__BORDERLY_STATE__ && window.__BORDERLY_STATE__.mmkv) {
+    const mmkv = window.__BORDERLY_STATE__.mmkv;
+    for (const [key, value] of Object.entries(mmkv)) {
+      try {
+        localStorage.setItem(PREFIX + key, JSON.stringify(value));
+      } catch { /* ignore */ }
+    }
+  }
+}
 
 class MMKV {
   set(key, value) {
@@ -11,6 +26,7 @@ class MMKV {
     }
   }
   getString(key) {
+    seedFromInjectedState();
     try {
       const raw = localStorage.getItem(PREFIX + key);
       if (raw === null) return undefined;
