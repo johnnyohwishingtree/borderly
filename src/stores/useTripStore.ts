@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Trip, TripLeg, SavedQRCode, LegSubmissionStatus, TravelerFormData } from '@/types/trip';
+import type { Trip, TripLeg, LegSubmissionStatus } from '@/types/trip';
 import { databaseService, TripQueryOptions } from '@/services/storage';
 import {
   scheduleDeadlineNotifications,
@@ -9,61 +9,11 @@ import {
 import { computeLegDeadline } from '@/services/deadline/deadlineService';
 import { SchemaRegistry } from '@/services/schemas/schemaRegistry';
 import { cloneTrip } from '@/services/trips/tripDuplicateService';
+import type { TripStore } from './useTripStoreTypes';
+import { mapTripModelToTrip } from './tripModelMapper';
+import { createTravelerSlice } from './tripTravelerSlice';
 
-interface TripStore {
-  // State
-  trips: Trip[];
-  currentTrip: Trip | null;
-  isLoading: boolean;
-  isLoadingMore: boolean;
-  error: string | null;
-  
-  // Pagination state
-  currentPage: number;
-  pageSize: number;
-  totalTrips: number;
-  hasMoreTrips: boolean;
-
-  // Trip operations
-  loadTrips: (options?: { refresh?: boolean; status?: 'upcoming' | 'active' | 'completed' }) => Promise<void>;
-  loadMoreTrips: () => Promise<void>;
-  createTrip: (tripData: Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Trip>;
-  updateTrip: (tripId: string, updates: Partial<Trip>) => Promise<void>;
-  deleteTrip: (tripId: string) => Promise<void>;
-  setCurrentTrip: (trip: Trip | null) => void;
-
-  // Trip leg operations
-  addTripLeg: (tripId: string, legData: Omit<TripLeg, 'id' | 'tripId'>) => Promise<void>;
-  updateTripLeg: (legId: string, updates: Partial<TripLeg>) => Promise<void>;
-  removeTripLeg: (legId: string) => Promise<void>;
-  reorderTripLegs: (tripId: string, legIds: string[]) => Promise<void>;
-
-  // QR code operations
-  addQRCode: (legId: string, qrData: Omit<SavedQRCode, 'id' | 'legId' | 'savedAt'>) => Promise<void>;
-  removeQRCode: (qrId: string) => Promise<void>;
-  getQRCodesForLeg: (legId: string) => SavedQRCode[];
-
-  // Multi-traveler operations
-  assignTravelersToLeg: (legId: string, travelerIds: string[]) => Promise<void>;
-  removeTravelerFromLeg: (legId: string, travelerId: string) => Promise<void>;
-  updateTravelerFormData: (legId: string, travelerId: string, fieldId: string, value: unknown) => Promise<void>;
-  updateTravelerFormStatus: (legId: string, travelerId: string, status: 'not_started' | 'in_progress' | 'ready' | 'submitted') => Promise<void>;
-  getTravelerFormData: (legId: string, travelerId: string) => TravelerFormData | undefined;
-
-  // Submission status
-  markLegAsSubmitted: (legId: string) => Promise<void>;
-  updateLegSubmissionStatus: (legId: string, status: LegSubmissionStatus) => Promise<void>;
-
-  // Trip duplication
-  duplicateTrip: (sourceTripId: string, newDepartureDate: string) => Promise<Trip>;
-
-  // Utilities
-  getTripById: (tripId: string) => Trip | undefined;
-  getLegById: (legId: string) => TripLeg | undefined;
-  getActiveTrips: () => Trip[];
-  getUpcomingTrips: () => Trip[];
-  clearError: () => void;
-}
+export type { TripStore } from './useTripStoreTypes';
 
 export const useTripStore = create<TripStore>((set, get) => ({
   // Initial state
@@ -72,7 +22,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
   isLoading: false,
   isLoadingMore: false,
   error: null,
-  
+
   // Pagination state
   currentPage: 0,
   pageSize: 20,
@@ -83,23 +33,23 @@ export const useTripStore = create<TripStore>((set, get) => ({
   loadTrips: async (options = {}) => {
     const { refresh = false, status } = options;
     const state = get();
-    
+
     // If refresh is true, reset pagination
     if (refresh) {
-      set({ 
-        isLoading: true, 
-        error: null, 
-        trips: [], 
-        currentPage: 0, 
-        hasMoreTrips: true 
+      set({
+        isLoading: true,
+        error: null,
+        trips: [],
+        currentPage: 0,
+        hasMoreTrips: true
       });
     } else {
       set({ isLoading: true, error: null });
     }
-    
+
     try {
       await databaseService.initialize();
-      
+
       const queryOptions: TripQueryOptions = {
         ...(status && { status }), // Only include status if it's defined
         pagination: {
@@ -109,40 +59,15 @@ export const useTripStore = create<TripStore>((set, get) => ({
         sortBy: 'updated_at',
         sortOrder: 'desc'
       };
-      
+
       // Use optimized batch loading method
       const tripsWithLegs = await databaseService.getTripsWithLegs(queryOptions);
       const totalTrips = await databaseService.getTripCount(status);
-      
+
       // Convert to plain objects
-      const trips: Trip[] = tripsWithLegs.map(({ trip: tripModel, legs: legModels }) => {
-        const trip: Trip = {
-          id: tripModel.id,
-          name: (tripModel as any).name,
-          status: (tripModel as any).status,
-          legs: legModels.map(legModel => ({
-            id: legModel.id,
-            tripId: tripModel.id,
-            destinationCountry: (legModel as any).destinationCountry,
-            arrivalDate: (legModel as any).arrivalDateISO,
-            departureDate: (legModel as any).departureDateISO,
-            flightNumber: (legModel as any).flightNumber,
-            airlineCode: (legModel as any).airlineCode,
-            arrivalAirport: (legModel as any).arrivalAirport,
-            accommodation: (legModel as any).accommodation,
-            formStatus: (legModel as any).formStatus,
-            submissionStatus: (legModel as any).submissionStatus || 'not_started',
-            formData: (legModel as any).formData,
-            order: (legModel as any).order,
-            qrCodes: [], // Will be loaded if needed
-            assignedTravelers: (legModel as any).assignedTravelers || [], // Default to empty array for backward compatibility
-            travelerFormsData: (legModel as any).travelerFormsData || [], // Default to empty array
-          })),
-          createdAt: (tripModel as any).createdAtISO,
-          updatedAt: (tripModel as any).updatedAtISO,
-        };
-        return trip;
-      });
+      const trips: Trip[] = tripsWithLegs.map(({ trip: tripModel, legs: legModels }) =>
+        mapTripModelToTrip(tripModel, legModels)
+      );
 
       set({
         trips,
@@ -162,13 +87,13 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
   loadMoreTrips: async () => {
     const state = get();
-    
+
     if (state.isLoadingMore || !state.hasMoreTrips) {
       return;
     }
-    
+
     set({ isLoadingMore: true, error: null });
-    
+
     try {
       const queryOptions: TripQueryOptions = {
         pagination: {
@@ -178,38 +103,13 @@ export const useTripStore = create<TripStore>((set, get) => ({
         sortBy: 'updated_at',
         sortOrder: 'desc'
       };
-      
+
       const tripsWithLegs = await databaseService.getTripsWithLegs(queryOptions);
-      
+
       // Convert to plain objects
-      const newTrips: Trip[] = tripsWithLegs.map(({ trip: tripModel, legs: legModels }) => {
-        const trip: Trip = {
-          id: tripModel.id,
-          name: (tripModel as any).name,
-          status: (tripModel as any).status,
-          legs: legModels.map(legModel => ({
-            id: legModel.id,
-            tripId: tripModel.id,
-            destinationCountry: (legModel as any).destinationCountry,
-            arrivalDate: (legModel as any).arrivalDateISO,
-            departureDate: (legModel as any).departureDateISO,
-            flightNumber: (legModel as any).flightNumber,
-            airlineCode: (legModel as any).airlineCode,
-            arrivalAirport: (legModel as any).arrivalAirport,
-            accommodation: (legModel as any).accommodation,
-            formStatus: (legModel as any).formStatus,
-            submissionStatus: (legModel as any).submissionStatus || 'not_started',
-            formData: (legModel as any).formData,
-            order: (legModel as any).order,
-            qrCodes: [],
-            assignedTravelers: (legModel as any).assignedTravelers || [], // Default to empty array for backward compatibility
-            travelerFormsData: (legModel as any).travelerFormsData || [], // Default to empty array
-          })),
-          createdAt: (tripModel as any).createdAtISO,
-          updatedAt: (tripModel as any).updatedAtISO,
-        };
-        return trip;
-      });
+      const newTrips: Trip[] = tripsWithLegs.map(({ trip: tripModel, legs: legModels }) =>
+        mapTripModelToTrip(tripModel, legModels)
+      );
 
       set(currentState => ({
         trips: [...currentState.trips, ...newTrips],
@@ -460,12 +360,12 @@ export const useTripStore = create<TripStore>((set, get) => ({
         savedAt: (qr as any).savedAtISO,
         label: (qr as any).label,
       }));
-      
+
       set(state => ({
         trips: state.trips.map(trip => ({
           ...trip,
-          legs: trip.legs.map(leg => 
-            leg.id === legId 
+          legs: trip.legs.map(leg =>
+            leg.id === legId
               ? { ...leg, qrCodes: formattedQrCodes }
               : leg
           )
@@ -480,7 +380,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
   removeQRCode: async (qrId) => {
     try {
       await databaseService.deleteQRCode(qrId);
-      
+
       // Update state by removing the QR code from the appropriate leg
       set(state => ({
         trips: state.trips.map(trip => ({
@@ -579,155 +479,6 @@ export const useTripStore = create<TripStore>((set, get) => ({
     }
   },
 
-  // Multi-traveler operations
-  assignTravelersToLeg: async (legId, travelerIds) => {
-    set({ isLoading: true, error: null });
-    try {
-      // Update database
-      await databaseService.updateTripLeg(legId, {
-        assignedTravelers: travelerIds,
-      } as any);
-
-      // Update local state
-      set(state => ({
-        trips: state.trips.map(trip => ({
-          ...trip,
-          legs: trip.legs.map(leg => 
-            leg.id === legId 
-              ? { 
-                  ...leg, 
-                  assignedTravelers: travelerIds,
-                  // Initialize traveler forms data if not exists
-                  travelerFormsData: travelerIds.map(travelerId => {
-                    const existing = leg.travelerFormsData?.find(t => t.travelerId === travelerId);
-                    return existing || {
-                      travelerId,
-                      formData: {},
-                      formStatus: 'not_started' as const,
-                      completionPercentage: 0,
-                    };
-                  }),
-                }
-              : leg
-          )
-        })),
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Failed to assign travelers to leg:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Failed to assign travelers',
-        isLoading: false,
-      });
-    }
-  },
-
-  removeTravelerFromLeg: async (legId, travelerId) => {
-    const leg = get().getLegById(legId);
-    if (!leg) return;
-
-    const updatedTravelers = (leg.assignedTravelers || []).filter(id => id !== travelerId);
-    await get().assignTravelersToLeg(legId, updatedTravelers);
-  },
-
-  updateTravelerFormData: async (legId, travelerId, fieldId, value) => {
-    set({ error: null });
-    try {
-      const leg = get().getLegById(legId);
-      if (!leg) return;
-
-      const existingFormsData = leg.travelerFormsData || [];
-      const existingIndex = existingFormsData.findIndex(t => t.travelerId === travelerId);
-
-      let updatedTravelerFormsData: TravelerFormData[];
-      if (existingIndex >= 0) {
-        updatedTravelerFormsData = existingFormsData.map((t, i) =>
-          i === existingIndex
-            ? {
-                ...t,
-                formData: { ...t.formData, [fieldId]: value },
-                formStatus: 'in_progress' as const,
-              }
-            : t
-        );
-      } else {
-        updatedTravelerFormsData = [
-          ...existingFormsData,
-          {
-            travelerId,
-            formData: { [fieldId]: value },
-            formStatus: 'in_progress' as const,
-            completionPercentage: 0,
-          },
-        ];
-      }
-
-      // Persist to database
-      await databaseService.updateTripLeg(legId, { travelerFormsData: updatedTravelerFormsData });
-
-      // Update in-memory state
-      set(state => ({
-        trips: state.trips.map(trip => ({
-          ...trip,
-          legs: trip.legs.map(l =>
-            l.id !== legId ? l : { ...l, travelerFormsData: updatedTravelerFormsData }
-          ),
-        })),
-      }));
-    } catch (error) {
-      console.error('Failed to update traveler form data:', error);
-      set({ error: error instanceof Error ? error.message : 'Failed to update form data' });
-    }
-  },
-
-  updateTravelerFormStatus: async (legId, travelerId, status) => {
-    set({ error: null });
-    try {
-      const leg = get().getLegById(legId);
-      if (!leg) return;
-
-      const existingFormsData = leg.travelerFormsData || [];
-      const existingIndex = existingFormsData.findIndex(t => t.travelerId === travelerId);
-
-      let updatedTravelerFormsData: TravelerFormData[];
-      if (existingIndex >= 0) {
-        updatedTravelerFormsData = existingFormsData.map((t, i) =>
-          i === existingIndex ? { ...t, formStatus: status } : t
-        );
-      } else {
-        updatedTravelerFormsData = [
-          ...existingFormsData,
-          {
-            travelerId,
-            formData: {},
-            formStatus: status,
-            completionPercentage: 0,
-          },
-        ];
-      }
-
-      // Persist to database
-      await databaseService.updateTripLeg(legId, { travelerFormsData: updatedTravelerFormsData });
-
-      // Update in-memory state
-      set(state => ({
-        trips: state.trips.map(trip => ({
-          ...trip,
-          legs: trip.legs.map(l =>
-            l.id !== legId ? l : { ...l, travelerFormsData: updatedTravelerFormsData }
-          ),
-        })),
-      }));
-    } catch (error) {
-      console.error('Failed to update traveler form status:', error);
-      set({ error: error instanceof Error ? error.message : 'Failed to update form status' });
-    }
-  },
-
-  getTravelerFormData: (legId, travelerId) => {
-    const leg = get().getLegById(legId);
-    if (!leg) return undefined;
-    
-    return leg.travelerFormsData?.find(t => t.travelerId === travelerId);
-  },
+  // Multi-traveler operations (delegated to slice)
+  ...createTravelerSlice(set, get),
 }));
