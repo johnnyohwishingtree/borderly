@@ -20,6 +20,8 @@ export { useTripFilter } from './useTripFilter';
 export type { TripStatusFilter, UseTripFilterReturn } from './useTripFilter';
 export type { LegFormData } from './useTripCreationTypes';
 export { useTripDetail } from './useTripDetail';
+export { useTripList } from './useTripList';
+export type { UseTripListReturn } from './useTripList';
 export { useTripListDeadlines } from './useTripListDeadlines';
 export type { TripUrgency, UseTripListDeadlinesReturn } from './useTripListDeadlines';
 export { useDeadlineSummary } from './useDeadlineSummary';

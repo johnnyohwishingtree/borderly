@@ -1,19 +1,11 @@
-import { useEffect, useCallback, useState, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, Alert, ScrollView } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, ScrollView } from 'react-native';
 import { Plane, Search, X } from 'lucide-react-native';
-import { useTripStore } from '@/stores/useTripStore';
-import { useAppStore } from '@/stores/useAppStore';
-import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
-import { useTripListDeadlines } from '@/hooks/useTripListDeadlines';
-import { useDeadlineSummary } from '@/hooks/useDeadlineSummary';
+import { useTripList } from '@/hooks/useTripList';
 import { TripCard, DuplicateTripModal, DeadlineSummary } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
-import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
-import { HapticFeedback } from '@/components/ui/HapticFeedback';
+import LoadingStates from '@/components/ui/LoadingStates';
 import { Trip } from '@/types/trip';
-import type { FamilyMember } from '@/types/profile';
 
 const FILTER_TABS: { key: TripStatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -22,26 +14,37 @@ const FILTER_TABS: { key: TripStatusFilter; label: string }[] = [
   { key: 'completed', label: 'Completed' },
 ];
 
-const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
-
 export default function TripListScreen() {
-  const navigation = useNavigation();
   const {
     trips,
+    loadingState,
+    storeError,
     isLoading,
     isLoadingMore,
-    error,
     hasMoreTrips,
-    loadTrips,
     loadMoreTrips,
-    deleteTrip,
-    duplicateTrip,
-  } = useTripStore();
-
-  const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
-  const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
-  const { urgencyByTripId, schemas: deadlineSchemas } = useTripListDeadlines(trips);
-  const deadlineSummary = useDeadlineSummary(trips, deadlineSchemas);
+    resetLoading,
+    handleRefresh,
+    travelersByTripId,
+    urgencyByTripId,
+    deadlineSummary,
+    showSchemaBanner,
+    schemaBannerMessage,
+    dismissSchemaBanner,
+    hasSeenFirstRunPrompt,
+    dismissFirstRunPrompt,
+    duplicateTargetId,
+    isDuplicating,
+    duplicateError,
+    handleOpenDuplicateModal,
+    handleCloseDuplicateModal,
+    handleConfirmDuplicate,
+    handleTripPress,
+    handleCreateTrip,
+    handleCreateFromTemplate,
+    handleGoToForm,
+    handleDeleteTrip,
+  } = useTripList();
 
   const {
     searchQuery,
@@ -52,179 +55,6 @@ export default function TripListScreen() {
     hasActiveFilters,
     clearSearch,
   } = useTripFilter(trips);
-
-  const [duplicateTargetId, setDuplicateTargetId] = useState<string | null>(null);
-  const [isDuplicating, setIsDuplicating] = useState(false);
-  const [duplicateError, setDuplicateError] = useState<string | null>(null);
-
-  const {
-    lastSchemaRefreshTime,
-    schemaRefreshCountries,
-    schemaBannerDismissedAt,
-    dismissSchemaBanner,
-    loadPersistedAppState,
-    hasSeenFirstRunPrompt,
-    dismissFirstRunPrompt,
-  } = useAppStore();
-
-  const {
-    state,
-    setLoading,
-    setLoadingError,
-    setLoadingSuccess,
-    reset,
-  } = useLoadingState();
-
-  const fetchTrips = useCallback(async () => {
-    setLoading();
-    try {
-      await loadTrips({ refresh: true });
-      setLoadingSuccess();
-    } catch (err) {
-      setLoadingError(err instanceof Error ? err.message : 'Failed to load trips');
-    }
-  }, [setLoading, loadTrips, setLoadingSuccess, setLoadingError]);
-
-  useEffect(() => {
-    fetchTrips();
-    loadPersistedAppState();
-  }, [fetchTrips, loadPersistedAppState]);
-
-  // Load family members for traveler avatars
-  useFocusEffect(
-    useCallback(() => {
-      const load = async () => {
-        try {
-          await loadFamilyProfiles();
-          const profiles = await getAllProfiles();
-          const members: FamilyMember[] = Array.from(profiles.values()).map(p => ({
-            ...p,
-            relationship: p.relationship ?? 'self',
-          }));
-          setFamilyMembers(members);
-        } catch {
-          // Non-critical — avatars just won't show
-        }
-      };
-      load();
-    }, [loadFamilyProfiles, getAllProfiles]),
-  );
-
-  // Resolve travelers for a given trip from assignedTravelers across legs
-  const travelersByTripId = useMemo(() => {
-    if (familyMembers.length <= 1) return {};
-    const memberMap = new Map(familyMembers.map(m => [m.id, m]));
-    const result: Record<string, FamilyMember[]> = {};
-    for (const trip of trips) {
-      const ids = new Set<string>();
-      for (const leg of trip.legs) {
-        if (leg.assignedTravelers) {
-          for (const id of leg.assignedTravelers) {
-            ids.add(id);
-          }
-        }
-      }
-      if (ids.size > 1) {
-        result[trip.id] = Array.from(ids)
-          .map(id => memberMap.get(id))
-          .filter((m): m is FamilyMember => m !== undefined);
-      }
-    }
-    return result;
-  }, [trips, familyMembers]);
-
-  /**
-   * The "schemas updated" banner should show when:
-   * 1. An OTA schema refresh has occurred (lastSchemaRefreshTime !== null), AND
-   * 2. The refresh was within the last 24 hours, AND
-   * 3. The user has not dismissed the banner since the last refresh.
-   */
-  const showSchemaBanner =
-    lastSchemaRefreshTime !== null &&
-    Date.now() - lastSchemaRefreshTime < TWENTY_FOUR_HOURS_MS &&
-    (schemaBannerDismissedAt === null || schemaBannerDismissedAt < lastSchemaRefreshTime);
-
-  const schemaBannerMessage = (() => {
-    if (schemaRefreshCountries.length === 0) {
-      return 'Form data updated — country entry forms have new fields.';
-    }
-    if (schemaRefreshCountries.length === 1) {
-      return `Form data updated — ${schemaRefreshCountries[0]} entry form has new fields.`;
-    }
-    const listed = schemaRefreshCountries.slice(0, 2).join(' & ');
-    const extra = schemaRefreshCountries.length > 2 ? ` and ${schemaRefreshCountries.length - 2} more` : '';
-    return `Form data updated — ${listed}${extra} entry forms have new fields.`;
-  })();
-
-  const handleTripPress = (trip: Trip) => {
-    HapticFeedback.navigation();
-    (navigation as any).navigate('TripDetail', { tripId: trip.id });
-  };
-
-  const handleCreateTrip = () => {
-    HapticFeedback.button('large');
-    (navigation as any).navigate('CreateTrip');
-  };
-
-  const handleCreateFromTemplate = () => {
-    HapticFeedback.button('medium');
-    (navigation as any).navigate('Templates');
-  };
-
-  const handleRefresh = async () => {
-    HapticFeedback.refresh();
-    await fetchTrips();
-  };
-
-  const handleGoToForm = useCallback((tripId: string, legId: string) => {
-    (navigation as any).navigate('LegForm', { tripId, legId });
-  }, [navigation]);
-
-  const handleDeleteTrip = useCallback((trip: Trip) => {
-    Alert.alert(
-      'Delete Trip',
-      `Are you sure you want to delete "${trip.name}"? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTrip(trip.id);
-            } catch {
-              Alert.alert('Error', 'Failed to delete trip');
-            }
-          },
-        },
-      ],
-    );
-  }, [deleteTrip]);
-
-  const handleOpenDuplicateModal = useCallback((trip: Trip) => {
-    setDuplicateError(null);
-    setDuplicateTargetId(trip.id);
-  }, []);
-
-  const handleCloseDuplicateModal = useCallback(() => {
-    setDuplicateTargetId(null);
-    setDuplicateError(null);
-  }, []);
-
-  const handleConfirmDuplicate = useCallback(async (newDepartureDate: string) => {
-    if (!duplicateTargetId) {return;}
-    setIsDuplicating(true);
-    setDuplicateError(null);
-    try {
-      const newTrip = await duplicateTrip(duplicateTargetId, newDepartureDate);
-      setDuplicateTargetId(null);
-      (navigation as any).navigate('TripDetail', { tripId: newTrip.id });
-    } catch {
-      setDuplicateError('Failed to duplicate trip. Please try again.');
-    } finally {
-      setIsDuplicating(false);
-    }
-  }, [duplicateTargetId, duplicateTrip, navigation]);
 
   const renderTripCard = ({ item }: { item: Trip }) => (
     <TripCard
@@ -261,9 +91,8 @@ export default function TripListScreen() {
     />
   );
 
-
   // Handle loading states
-  if (state === 'loading' && trips.length === 0) {
+  if (loadingState === 'loading' && trips.length === 0) {
     return (
       <LoadingStates
         state="loading"
@@ -271,25 +100,24 @@ export default function TripListScreen() {
         size="medium"
         text="Loading your trips..."
         fullScreen={true}
-        onCancel={() => reset()}
+        onCancel={() => resetLoading()}
         cancelable={true}
       />
     );
   }
 
-  if (state === 'error' || error) {
+  if (loadingState === 'error' || storeError) {
     return (
       <LoadingStates
         state="error"
         fullScreen={true}
-        errorMessage={error || 'Failed to load trips'}
+        errorMessage={storeError || 'Failed to load trips'}
         onRetry={handleRefresh}
         showRetryButton={true}
         retryButtonText="Reload Trips"
       />
     );
   }
-
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
@@ -491,7 +319,7 @@ export default function TripListScreen() {
           windowSize={10}
           removeClippedSubviews={true}
           getItemLayout={(_: any, index: number) => ({
-            length: 200, // Approximate height of TripCard
+            length: 200,
             offset: 200 * index,
             index,
           })}
@@ -520,7 +348,7 @@ export default function TripListScreen() {
             accessibilityLabel="Create new trip"
             accessibilityHint="Add a new travel itinerary"
             style={{
-              minHeight: 56, // Minimum 56x56 for floating action button
+              minHeight: 56,
               minWidth: 56,
             }}
           >
