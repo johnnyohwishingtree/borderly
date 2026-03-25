@@ -4,7 +4,7 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Code fixes
 
-(No current code fixes needed)
+- `src/hooks/useTripCreation.ts` at 516 lines — exceeds 500-line limit. Candidates for extraction: `handleSmartImport`, `handleScanSuccess` into a separate `useTripCreationImport` hook. (#746)
 
 ## Knowledge updates
 

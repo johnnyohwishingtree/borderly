@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
 import { Plane, MapPin, Globe, Users, UserPlus } from 'lucide-react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete, ScreenContainer } from '@/components/ui';
+import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete, ScreenContainer, Toggle } from '@/components/ui';
 import { CountryFlag, TravelerSelector } from '@/components/trips';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { AutoFilledBadge } from '@/components/forms';
@@ -78,6 +78,8 @@ export default function CreateTripScreen() {
     handleManualEntry,
     handleCreateTrip,
     handleSmartImport,
+    applyToAllLegs,
+    setApplyToAllLegs,
   } = useTripCreation(templateId ? { templateId } : {});
 
   const renderLegCard = (leg: LegFormData, index: number) => {
@@ -185,17 +187,30 @@ export default function CreateTripScreen() {
             {/* Traveler Selection */}
             {familyMembers.length > 0 && (
               <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <TravelerSelector
-                  travelers={familyMembers}
-                  selectedTravelerIds={leg.assignedTravelers}
-                  onToggleTraveler={(travelerId) => handleTravelerToggle(index, travelerId)}
-                  title="Who is traveling to this destination?"
-                  subtitle="Select which family members will visit this country."
-                  showCompact={true}
-                  minSelection={1}
-                />
-                {errors[`leg${index}.travelers`] && (
-                  <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.travelers`]}</Text>
+                {applyToAllLegs ? (
+                  <View testID={`leg-${index}-travelers-synced`}>
+                    <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Travelers
+                    </Text>
+                    <Text className="text-sm text-gray-500 dark:text-gray-400">
+                      Same as trip — {leg.assignedTravelers.length} traveler{leg.assignedTravelers.length !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                ) : (
+                  <>
+                    <TravelerSelector
+                      travelers={familyMembers}
+                      selectedTravelerIds={leg.assignedTravelers}
+                      onToggleTraveler={(travelerId) => handleTravelerToggle(index, travelerId)}
+                      title="Who is traveling to this destination?"
+                      subtitle="Select which family members will visit this country."
+                      showCompact={true}
+                      minSelection={1}
+                    />
+                    {errors[`leg${index}.travelers`] && (
+                      <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.travelers`]}</Text>
+                    )}
+                  </>
                 )}
               </View>
             )}
@@ -300,6 +315,23 @@ export default function CreateTripScreen() {
                   showCompact={false}
                   minSelection={1}
                 />
+                {legs.length >= 2 && familyMembers.length >= 2 && (
+                  <View
+                    className="flex-row items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+                    testID="apply-to-all-toggle-row"
+                  >
+                    <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Apply to all destinations
+                    </Text>
+                    <Toggle
+                      value={applyToAllLegs}
+                      onValueChange={setApplyToAllLegs}
+                      accessibilityLabel="Apply travelers to all destinations"
+                      accessibilityHint="When on, all destinations share the same travelers"
+                      testID="apply-to-all-toggle"
+                    />
+                  </View>
+                )}
               </View>
             </Card>
           ) : (
