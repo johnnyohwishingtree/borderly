@@ -9,6 +9,17 @@ The screen source code, the screenRegistry, and the generated Maestro flows must
 2. Updating the registry when UI changes → generator produces correct flows
 3. All flows generated from journeys → no hand-maintained YAML to forget
 
+## Component testability contract
+
+Every interactive component must work for both users AND automated tests. This means:
+
+- **Typed text must commit on blur** — if Maestro types text and moves to the next field, the value must be saved. Components that only commit on suggestion-tap (like autocompletes) need a fallback: commit the raw text if no suggestion was selected when the field loses focus.
+- **Modals must be dismissable by testID** — "Done" text is fragile. Add `testID="date-picker-done"` to modal confirm buttons.
+- **Dropdowns must close on outside tap** — if Maestro scrolls past a dropdown, it should auto-close, not block the scroll.
+- **Auto-focused fields must start empty** — when a SearchableSelect opens and auto-focuses its search input, the input must be empty. Stale text from previous interactions causes "TJapan" / "TUnited States" bugs.
+
+When building a new interactive component, test it with this mental model: "Can Maestro interact with this using only `tapOn`, `inputText`, `eraseText`, `scrollUntilVisible`, and `pressKey`?"
+
 ## testID naming conventions
 
 Every interactive element needs a `testID`. Follow these patterns:
@@ -64,7 +75,7 @@ When building a new component with internal interactive elements, derive sub-tes
 
 Prefer generated flows over hand-written YAML:
 - **Generated** (`maestro/flows/generated/`) — produced by `pnpm maestro:generate` from journey definitions. Stay in sync when registry updates.
-- **Hand-written** (`maestro/flows/subflows/`) — manually maintained. Drift when UI changes. Use only for flows the generator can't express (e.g., complex conditional logic).
+- **Hand-written** (`maestro/flows/subflows/`) — manually maintained. Drift when UI changes. Use only for flows the generator can't express.
 
 To add a new E2E flow:
 1. Create a journey in `maestro/generator/journeys/<name>.ts`
@@ -79,19 +90,37 @@ To add a new E2E flow:
 - Hand-written subflows referencing testIDs not in source
 - Dynamic testID templates that don't match source patterns
 
-This means drift is caught in 0.4 seconds, not at Maestro runtime (3+ minutes).
+Drift is caught in 0.4 seconds, not at Maestro runtime (3+ minutes).
 
 ## Maestro interaction patterns
 
-- **Always `eraseText` before `inputText` in search fields** — stray keystrokes from previous taps/swipes leak into auto-focused TextInputs. The SearchableSelect search field is especially prone to this.
-- **Use `centerElement: true` on `scrollUntilVisible`** — prevents elements from being found but hidden behind sticky headers.
-- **Dismiss Fast Refresh banners** — add `runFlow when visible "Fast Refresh disconnected"` handlers. Metro disconnects during long runs.
-- **Use `pressKey: Enter` + swipe after search input** — dismisses keyboard so options below are tappable.
+- **Always `eraseText: 20` before `inputText` in search fields** — stray keystrokes from previous taps/swipes leak into auto-focused TextInputs
+- **Use `centerElement: true` on `scrollUntilVisible`** — prevents elements from being found but hidden behind sticky headers
+- **Dismiss Fast Refresh banners** — add `runFlow when visible "Fast Refresh disconnected"` handlers
+- **Use `pressKey: Enter` + swipe after search input** — dismisses keyboard so options below are tappable
+- **Commit text inputs before scrolling** — `pressKey: Enter` or small swipe to blur the field, otherwise typed text may not be saved
+
+## Debugging Maestro failures
+
+When a flow fails:
+1. **Read the screenshot** — the `.maestro/tests/<timestamp>/` directory has failure screenshots
+2. **Categorize the failure:**
+   - **Drift** — testID or text changed in source but not in registry/flow → update registry, regenerate
+   - **Interaction** — component needs different interaction than what the flow does (e.g., autocomplete needs suggestion tap, not just inputText) → fix the component's testability contract or the flow interaction
+   - **Timing** — element not ready yet → increase timeout, add `extendedWaitUntil`
+   - **Scroll** — element behind header or off-screen → use `centerElement: true`, check scroll direction
+   - **Stale input** — search field has residual text → add `eraseText` before `inputText`
+3. **Fix at the right level:**
+   - Component bug (doesn't commit on blur) → fix the component
+   - Registry stale → update `screenRegistry.ts`
+   - Flow wrong → update journey definition + regenerate
+   - Emitter pattern wrong → fix `emitter.ts` (affects ALL generated flows)
 
 ## Anti-patterns
 - **Text-based taps** (`tapOn: "Submit"`) — breaks when button text changes. Always use testID-based taps.
 - **Hand-writing Maestro YAML** for flows the generator can handle — drifts on the next UI change
 - **Adding an interactive element without a testID** — invisible to Maestro and the registry
-- **Using `style={{}}` testID-like attributes** — only `testID` prop is visible to Maestro
 - **Hardcoded index in testIDs** (`leg-0-arrival-date` in source) — use `leg-${index}-arrival-date` so it works for any leg
+- **Components that only commit on suggestion tap** — must also commit on blur for testability
 - **Forgetting to run `pnpm maestro:generate`** after registry updates — generated flows will be stale
+- **Spawning background Maestro processes** — kills stale driver connections, causes "Fast Refresh disconnected"
