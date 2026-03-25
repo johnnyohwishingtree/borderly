@@ -1,15 +1,15 @@
 /**
  * AddressAutocomplete component
  *
- * Wraps address input fields with Google Places Autocomplete suggestions.
+ * Wraps address input fields with Apple MapKit / Photon autocomplete suggestions.
  * When the user types in the address line 1 field, debounced suggestions are
- * fetched from the Google Places API. Selecting a suggestion auto-fills all
+ * fetched from the Apple MapKit. Selecting a suggestion auto-fills all
  * structured address sub-fields (line1, city, state, postalCode, country).
  *
  * Graceful offline fallback: when no API key is configured or the network is
  * unavailable, the component falls back to plain TextInput fields.
  *
- * Google attribution ("Powered by Google") is always shown per API terms.
+ * Apple Maps attribution is shown when autocomplete is active.
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -236,9 +236,9 @@ export default function AddressAutocomplete({
                   </Text>
                 </TouchableOpacity>
               ))}
-            {/* Google attribution — required by Google Maps Platform terms */}
+            {/* Apple Maps attribution — required by Apple Maps terms */}
             <View style={styles.attributionRow}>
-              <Text style={styles.attributionText}>Powered by Google</Text>
+              <Text style={styles.attributionText}>Powered by Apple Maps</Text>
             </View>
           </View>
         )}
@@ -312,10 +312,10 @@ export default function AddressAutocomplete({
         </View>
       </View>
 
-      {/* Persistent Google attribution when autocomplete is active */}
+      {/* Persistent Apple Maps attribution when autocomplete is active */}
       {hasApiKey && !showSuggestions && (
         <View style={styles.persistentAttribution}>
-          <Text style={styles.attributionText}>Powered by Google</Text>
+          <Text style={styles.attributionText}>Powered by Apple Maps</Text>
         </View>
       )}
     </View>

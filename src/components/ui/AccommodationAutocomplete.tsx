@@ -1,16 +1,16 @@
 /**
  * AccommodationAutocomplete component
  *
- * Wraps a hotel/accommodation name input with Google Places Autocomplete
+ * Wraps a hotel/accommodation name input with Apple MapKit autocomplete
  * suggestions filtered to lodging types (hotels, hostels, resorts).
- * When the user types, debounced suggestions are fetched from the Google
- * Places API with `types=lodging`. Selecting a suggestion auto-fills the
+ * When the user types, debounced suggestions are fetched from Apple MapKit
+ * (iOS) or Photon/OSM (Android). Selecting a suggestion auto-fills the
  * hotel name and resolves the formatted address for the related address field.
  *
  * Graceful offline fallback: when no API key is configured or the network is
  * unavailable, the component falls back to a plain TextInput field.
  *
- * Google attribution ("Powered by Apple Maps") is always shown per API terms.
+ * Apple Maps attribution ("Powered by Apple Maps") is always shown per API terms.
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -235,7 +235,7 @@ export default function AccommodationAutocomplete({
         </View>
       )}
 
-      {/* Persistent Google attribution when autocomplete is active */}
+      {/* Persistent Apple Maps attribution when autocomplete is active */}
       {hasApiKey && !showSuggestions && (
         <View style={styles.persistentAttribution}>
           <Text style={styles.attributionText}>Powered by Apple Maps</Text>
