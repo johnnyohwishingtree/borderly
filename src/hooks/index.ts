@@ -7,6 +7,8 @@ export { useEditTrip } from './useEditTrip';
 export { useAppLock } from './useAppLock';
 export { useLoadTimeout } from './useLoadTimeout';
 export { useLegForm, deriveLegFormStatus } from './useLegForm';
+export { upsertTravelerFormData } from './useLegFormHelpers';
+export type { UseLegFormOptions, TravelerState, LastFailedOperation, FormError } from './useLegFormTypes';
 export { useMRZScanner } from './useMRZScanner';
 export { usePassportScan } from './usePassportScan';
 export { usePortalAutoFill } from './usePortalAutoFill';
