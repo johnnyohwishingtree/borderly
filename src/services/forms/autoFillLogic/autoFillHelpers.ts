@@ -26,7 +26,10 @@ export function isValidFieldValue(value: unknown, fieldType: string): boolean {
     case 'boolean':
       return typeof value === 'boolean';
     case 'select':
+    case 'searchable_select':
       return typeof value === 'string' && value.length > 0;
+    case 'address':
+      return typeof value === 'object' && value !== null;
     default:
       return false;
   }

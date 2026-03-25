@@ -1031,4 +1031,73 @@ describe('Auto-Fill Logic', () => {
       expect(result!.value).toBe('British Airways');
     });
   });
+
+  describe('autoFillMapping — country-specific enum translation', () => {
+    it('maps profile occupation to country-specific value', () => {
+      const field: FormField = {
+        id: 'occupation',
+        label: 'Occupation',
+        type: 'searchable_select',
+        required: false,
+        countrySpecific: false,
+        autoFillSource: 'profile.occupation',
+        options: [
+          { value: 'company_employee', label: 'Company employee' },
+          { value: 'self_employed', label: 'Self-employed' },
+          { value: 'student', label: 'Student' },
+          { value: 'other', label: 'Other' },
+        ],
+        autoFillMapping: {
+          'Software Developer': 'company_employee',
+          'Student': 'student',
+          '_default': 'other',
+        },
+      };
+
+      const profile = { ...mockProfile, occupation: 'Software Developer' };
+      const result = intelligentAutoFill(field, { profile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('company_employee');
+      expect(result!.source).toBe('profile');
+    });
+
+    it('falls back to _default when no mapping matches', () => {
+      const field: FormField = {
+        id: 'occupation',
+        label: 'Occupation',
+        type: 'searchable_select',
+        required: false,
+        countrySpecific: false,
+        autoFillSource: 'profile.occupation',
+        autoFillMapping: {
+          'Student': 'student',
+          '_default': 'other',
+        },
+      };
+
+      const profile = { ...mockProfile, occupation: 'Astronaut' };
+      const result = intelligentAutoFill(field, { profile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('other');
+    });
+
+    it('passes value through when no autoFillMapping defined', () => {
+      const field: FormField = {
+        id: 'occupation',
+        label: 'Occupation',
+        type: 'text',
+        required: false,
+        countrySpecific: false,
+        autoFillSource: 'profile.occupation',
+      };
+
+      const profile = { ...mockProfile, occupation: 'Software Developer' };
+      const result = intelligentAutoFill(field, { profile, leg: mockTripLeg }, defaultOptions);
+
+      expect(result).not.toBeNull();
+      expect(result!.value).toBe('Software Developer');
+    });
+  });
 });

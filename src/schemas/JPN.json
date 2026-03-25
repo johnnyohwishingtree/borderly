@@ -14,12 +14,19 @@
     "complexity": "low",
     "popularity": 95,
     "lastVerified": "2025-06-01T00:00:00Z",
-    "supportedLanguages": ["en", "ja"],
+    "supportedLanguages": [
+      "en",
+      "ja"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".vjw-form", ".form-section", "#submit-btn"],
+    "monitoredSelectors": [
+      ".vjw-form",
+      ".form-section",
+      "#submit-btn"
+    ],
     "changeThreshold": 10,
     "fallbackActions": [
       {
@@ -124,11 +131,74 @@
         {
           "id": "occupation",
           "label": "Occupation",
-          "type": "text",
+          "type": "searchable_select",
           "required": false,
           "autoFillSource": "profile.occupation",
           "countrySpecific": false,
-          "portalFieldName": "Occupation"
+          "portalFieldName": "Occupation",
+          "options": [
+            {
+              "value": "company_employee",
+              "label": "Company employee"
+            },
+            {
+              "value": "government_employee",
+              "label": "Government employee"
+            },
+            {
+              "value": "self_employed",
+              "label": "Self-employed"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "homemaker",
+              "label": "Housewife/Househusband"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            },
+            {
+              "value": "unemployed",
+              "label": "Unemployed"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillMapping": {
+            "Software Developer": "company_employee",
+            "Software Engineer": "company_employee",
+            "Engineer": "company_employee",
+            "Developer": "company_employee",
+            "Designer": "company_employee",
+            "Manager": "company_employee",
+            "Analyst": "company_employee",
+            "Consultant": "company_employee",
+            "Accountant": "company_employee",
+            "Marketing": "company_employee",
+            "Sales": "company_employee",
+            "Administrative": "company_employee",
+            "Teacher": "government_employee",
+            "Professor": "government_employee",
+            "Government Worker": "government_employee",
+            "Civil Servant": "government_employee",
+            "Freelancer": "self_employed",
+            "Self-employed": "self_employed",
+            "Business Owner": "self_employed",
+            "Entrepreneur": "self_employed",
+            "Student": "student",
+            "Homemaker": "homemaker",
+            "Housewife": "homemaker",
+            "Househusband": "homemaker",
+            "Retired": "retired",
+            "Unemployed": "unemployed",
+            "_default": "other"
+          }
         },
         {
           "id": "homeCountry",
@@ -158,8 +228,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ]
         }
       ]
@@ -220,11 +296,26 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_relatives", "label": "Visiting Relatives" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_relatives",
+              "label": "Visiting Relatives"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ]
         },
         {
@@ -345,7 +436,14 @@
       "order": 2,
       "title": "Register Your Passport Details",
       "description": "Enter your passport information. The portal will ask you to scan your passport or enter details manually.",
-      "fieldsOnThisScreen": ["passportNumber", "surname", "givenNames", "nationality", "dateOfBirth", "passportExpiry"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "surname",
+        "givenNames",
+        "nationality",
+        "dateOfBirth",
+        "passportExpiry"
+      ],
       "tips": [
         "Use EXACTLY the name shown on your passport",
         "You can scan your passport to register your photo for Tax-free QR Code",
@@ -356,7 +454,11 @@
       "order": 3,
       "title": "Enter Basic Information",
       "description": "Provide your occupation and home address. This information makes entry easier in subsequent procedures.",
-      "fieldsOnThisScreen": ["occupation", "homeCountry", "homeCity"],
+      "fieldsOnThisScreen": [
+        "occupation",
+        "homeCountry",
+        "homeCity"
+      ],
       "tips": [
         "Registration is optional but makes entry easier",
         "Use the dropdown search to find your country"
@@ -366,7 +468,15 @@
       "order": 4,
       "title": "Register Your Trip",
       "description": "Click 'Register new planned entry/return' and enter your travel details.",
-      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "airlineCode", "arrivalAirport", "departureCity", "purposeOfVisit", "durationOfStay"],
+      "fieldsOnThisScreen": [
+        "arrivalDate",
+        "flightNumber",
+        "airlineCode",
+        "arrivalAirport",
+        "departureCity",
+        "purposeOfVisit",
+        "durationOfStay"
+      ],
       "tips": [
         "If connecting, enter the flight number of the plane landing in Japan",
         "Departure city is where your FIRST flight departs"
@@ -376,7 +486,11 @@
       "order": 5,
       "title": "Enter Accommodation",
       "description": "Provide your hotel or accommodation details in Japan.",
-      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "fieldsOnThisScreen": [
+        "hotelName",
+        "hotelAddress",
+        "hotelPhone"
+      ],
       "tips": [
         "If staying at multiple places, enter the first one",
         "Hotel phone number is optional but helpful"
@@ -386,7 +500,14 @@
       "order": 6,
       "title": "Complete Immigration & Customs Declaration",
       "description": "Answer the customs declaration questions. For most tourists, the answer to all questions is 'No'.",
-      "fieldsOnThisScreen": ["carryingProhibitedItems", "currencyOver1M", "commercialGoods", "meatProducts", "plantProducts", "itemsToDeclareDuty"],
+      "fieldsOnThisScreen": [
+        "carryingProhibitedItems",
+        "currencyOver1M",
+        "commercialGoods",
+        "meatProducts",
+        "plantProducts",
+        "itemsToDeclareDuty"
+      ],
       "tips": [
         "Answer truthfully — false declarations can result in penalties",
         "All meat products are banned — including beef jerky, salami, etc.",

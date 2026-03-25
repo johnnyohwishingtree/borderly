@@ -31,6 +31,7 @@ const FormFieldSchema = z.object({
   portalFieldName: z.string().optional(),
   portalScreenshot: z.string().optional(),
   optionsSource: z.string().optional(),
+  autoFillMapping: z.record(z.string(), z.string()).optional(),
   automation: z.object({
     selector: z.string(),
     fillMethod: z.enum(['input', 'select', 'click', 'date']),
@@ -103,6 +104,7 @@ function convertToStrictSchema(parsed: any): CountryFormSchema {
     if (field.helpText) {cleaned.helpText = field.helpText;}
     if (field.portalFieldName) {cleaned.portalFieldName = field.portalFieldName;}
     if (field.portalScreenshot) {cleaned.portalScreenshot = field.portalScreenshot;}
+    if (field.autoFillMapping) {cleaned.autoFillMapping = field.autoFillMapping;}
 
     return cleaned;
   };

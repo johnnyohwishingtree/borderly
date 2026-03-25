@@ -28,6 +28,10 @@ export interface FormField {
   // Help text explaining what this field means
   helpText?: string;
 
+  // Mapping from Borderly canonical values to country-specific portal values
+  // e.g., { "Software Developer": "company_employee", "_default": "other" }
+  autoFillMapping?: Record<string, string>;
+
   // What to show in the government portal walkthrough
   portalFieldName?: string; // The label used in the actual government form
   portalScreenshot?: string; // Asset reference for walkthrough

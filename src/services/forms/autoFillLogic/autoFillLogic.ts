@@ -87,11 +87,21 @@ function tryStandardAutoFill(field: FormField, context: FormContext): AutoFillRe
   }
 
   try {
-    const value = resolveAutoFillPath(field.autoFillSource, context);
+    let value = resolveAutoFillPath(field.autoFillSource, context);
+
+    // Apply autoFillMapping if the field defines one (e.g., occupation → country-specific enum)
+    if (value && field.autoFillMapping) {
+      const mapping = field.autoFillMapping as Record<string, string>;
+      const mapped = mapping[String(value)] ?? mapping['_default'];
+      if (mapped) {
+        value = mapped;
+      }
+    }
+
     if (isValidFieldValue(value, field.type)) {
       return {
         value,
-        source: field.autoFillSource.startsWith('profile.') ? 'profile' : 
+        source: field.autoFillSource.startsWith('profile.') ? 'profile' :
                 field.autoFillSource.startsWith('leg.') && !field.autoFillSource.includes('_calculated') ? 'trip' : 'computed',
         confidence: 0.95,
       };
