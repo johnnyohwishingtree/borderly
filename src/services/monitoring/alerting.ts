@@ -1,71 +1,28 @@
 /**
  * Alerting Service
- * 
+ *
  * Manages real-time alerts and notifications for critical system events
  * while maintaining privacy compliance.
  */
 
 import { sanitizeObject } from '../../utils/piiSanitizer';
-import type { MonitoringEvent } from './productionMonitoring';
+import type { MonitoringEvent } from './alertingTypes';
+import type {
+  Alert,
+  AlertRule,
+  AlertAction,
+  AlertingConfig
+} from './alertingTypes';
+import { evaluateRule } from './alertRuleEvaluator';
 
-export interface Alert {
-  id: string;
-  ruleId: string;
-  timestamp: number;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  message: string;
-  category: string;
-  eventCount: number;
-  timeWindow: number;
-  status: 'active' | 'acknowledged' | 'resolved';
-  acknowledgedAt?: number;
-  acknowledgedBy?: string;
-  resolvedAt?: number;
-  context: Record<string, any>;
-  tags: Record<string, string>;
-}
-
-export interface AlertRule {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  condition: AlertCondition;
-  threshold: number;
-  timeWindow: number; // minutes
-  severity: Alert['severity'];
-  enabled: boolean;
-  cooldown: number; // minutes - prevent alert spam
-  actions: AlertAction[];
-  tags: Record<string, string>;
-}
-
-export interface AlertCondition {
-  type: 'event_count' | 'error_rate' | 'performance_threshold' | 'custom';
-  eventType?: MonitoringEvent['type'];
-  eventCategory?: string;
-  eventSeverity?: MonitoringEvent['severity'];
-  metricName?: string;
-  operator: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'contains';
-  value: number | string;
-  field?: string; // field to check in event data
-}
-
-export interface AlertAction {
-  type: 'log' | 'console' | 'webhook' | 'local_notification' | 'custom';
-  config: Record<string, any>;
-  enabled: boolean;
-}
-
-export interface AlertingConfig {
-  enabled: boolean;
-  maxActiveAlerts: number;
-  defaultCooldown: number;
-  retentionDays: number;
-  enableConsoleOutput: boolean;
-  enableLocalNotifications: boolean;
-}
+// Re-export all types so existing consumers are not broken
+export type {
+  Alert,
+  AlertRule,
+  AlertCondition,
+  AlertAction,
+  AlertingConfig
+} from './alertingTypes';
 
 class AlertingService {
   private alerts: Alert[] = [];
@@ -84,7 +41,7 @@ class AlertingService {
       enableLocalNotifications: false,
       ...config
     };
-    
+
     this.setupDefaultRules();
   }
 
@@ -219,7 +176,7 @@ class AlertingService {
 
       if (this.isInCooldown(rule.id)) continue;
 
-      if (this.evaluateRule(rule, event)) {
+      if (evaluateRule(rule, event, this.eventBuffer)) {
         this.triggerAlert(rule, event);
       }
     }
@@ -230,7 +187,7 @@ class AlertingService {
    */
   triggerAlert(rule: AlertRule, triggerEvent: MonitoringEvent): void {
     const relatedEvents = this.getRelatedEvents(rule, triggerEvent);
-    
+
     const alert: Alert = {
       id: this.generateAlertId(),
       ruleId: rule.id,
@@ -306,9 +263,9 @@ class AlertingService {
    */
   getAlerts(timeRange?: { start: number; end: number }): Alert[] {
     let alerts = this.alerts;
-    
+
     if (timeRange) {
-      alerts = alerts.filter(a => 
+      alerts = alerts.filter(a =>
         a.timestamp >= timeRange.start && a.timestamp <= timeRange.end
       );
     }
@@ -379,9 +336,9 @@ class AlertingService {
 
     // Aggregate by category and severity
     this.alerts.forEach(alert => {
-      stats.alertsByCategory[alert.category] = 
+      stats.alertsByCategory[alert.category] =
         (stats.alertsByCategory[alert.category] || 0) + 1;
-      stats.alertsBySeverity[alert.severity] = 
+      stats.alertsBySeverity[alert.severity] =
         (stats.alertsBySeverity[alert.severity] || 0) + 1;
     });
 
@@ -405,137 +362,37 @@ class AlertingService {
     this.config = { ...this.config, ...config };
   }
 
-  private evaluateRule(rule: AlertRule, event: MonitoringEvent): boolean {
-    const { condition } = rule;
-
-    // Filter events for the time window
-    const windowStart = Date.now() - (rule.timeWindow * 60 * 1000);
-    const windowEvents = this.eventBuffer.filter(e => e.timestamp >= windowStart);
-
-    switch (condition.type) {
-      case 'event_count':
-        return this.evaluateEventCount(condition, windowEvents, rule.threshold);
-      
-      case 'error_rate':
-        return this.evaluateErrorRate(condition, windowEvents, rule.threshold);
-      
-      case 'performance_threshold':
-        return this.evaluatePerformanceThreshold(condition, windowEvents, rule.threshold);
-      
-      case 'custom':
-        return this.evaluateCustomCondition(condition, event, windowEvents);
-      
-      default:
-        return false;
-    }
-  }
-
-  private evaluateEventCount(
-    condition: AlertCondition, 
-    events: MonitoringEvent[], 
-    threshold: number
-  ): boolean {
-    const matchingEvents = events.filter(event => {
-      if (condition.eventType && event.type !== condition.eventType) return false;
-      if (condition.eventCategory && event.category !== condition.eventCategory) return false;
-      if (condition.eventSeverity && event.severity !== condition.eventSeverity) return false;
-      return true;
-    });
-
-    return this.compareValue(matchingEvents.length, condition.operator, threshold);
-  }
-
-  private evaluateErrorRate(
-    condition: AlertCondition, 
-    events: MonitoringEvent[], 
-    threshold: number
-  ): boolean {
-    const errorEvents = events.filter(e => e.type === 'error');
-    return this.compareValue(errorEvents.length, condition.operator, threshold);
-  }
-
-  private evaluatePerformanceThreshold(
-    condition: AlertCondition, 
-    events: MonitoringEvent[], 
-    threshold: number
-  ): boolean {
-    const perfEvents = events.filter(e => 
-      e.type === 'performance' && 
-      (!condition.eventCategory || e.category === condition.eventCategory)
-    );
-
-    const exceedingEvents = perfEvents.filter(event => {
-      const value = condition.field ? 
-        this.getNestedValue(event, condition.field) : 
-        event.data.value;
-      
-      if (typeof value !== 'number') return false;
-      return this.compareValue(value, condition.operator, condition.value as number);
-    });
-
-    return exceedingEvents.length >= threshold;
-  }
-
-  private evaluateCustomCondition(
-    _condition: AlertCondition,
-    _event: MonitoringEvent,
-    _windowEvents: MonitoringEvent[]
-  ): boolean {
-    // Placeholder for custom condition evaluation
-    // This would be implemented based on specific requirements
-    return false;
-  }
-
-  private compareValue(
-    actual: number, 
-    operator: AlertCondition['operator'], 
-    expected: number
-  ): boolean {
-    switch (operator) {
-      case 'gt': return actual > expected;
-      case 'gte': return actual >= expected;
-      case 'lt': return actual < expected;
-      case 'lte': return actual <= expected;
-      case 'eq': return actual === expected;
-      default: return false;
-    }
-  }
-
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
-  }
-
   private getRelatedEvents(rule: AlertRule, _triggerEvent: MonitoringEvent): MonitoringEvent[] {
     const windowStart = Date.now() - (rule.timeWindow * 60 * 1000);
     return this.eventBuffer.filter(event => {
       if (event.timestamp < windowStart) return false;
-      
+
       const { condition } = rule;
       if (condition.eventType && event.type !== condition.eventType) return false;
       if (condition.eventCategory && event.category !== condition.eventCategory) return false;
       if (condition.eventSeverity && event.severity !== condition.eventSeverity) return false;
-      
+
       return true;
     });
   }
 
   private generateAlertMessage(
-    rule: AlertRule, 
+    rule: AlertRule,
     _triggerEvent: MonitoringEvent,
     relatedEvents: MonitoringEvent[]
   ): string {
     const { condition, timeWindow } = rule;
-    
+
     switch (condition.type) {
       case 'event_count':
         return `${relatedEvents.length} ${condition.eventType || 'events'} of type '${condition.eventCategory || 'any'}' occurred in the last ${timeWindow} minutes`;
-      
+
       case 'error_rate':
         return `High error rate detected: ${relatedEvents.length} errors in the last ${timeWindow} minutes`;
-      
+
       case 'performance_threshold':
         return `Performance threshold exceeded: ${relatedEvents.length} slow operations detected in the last ${timeWindow} minutes`;
-      
+
       default:
         return `Alert condition '${rule.name}' triggered with ${relatedEvents.length} related events`;
     }
@@ -557,12 +414,12 @@ class AlertingService {
               });
             }
             break;
-          
+
           case 'log':
             const level = (action.config.level || 'warn') as 'log' | 'warn' | 'error' | 'info';
             console[level](`Alert: ${alert.title} - ${alert.message}`);
             break;
-          
+
           // Additional action types would be implemented here
           // case 'webhook':, 'local_notification', etc.
         }
@@ -588,7 +445,7 @@ class AlertingService {
     const maxTimeWindow = Math.max(...this.rules.map(r => r.timeWindow));
     const retentionMs = (maxTimeWindow + 30) * 60 * 1000; // 30 minute buffer
     const cutoff = Date.now() - retentionMs;
-    
+
     this.eventBuffer = this.eventBuffer.filter(e => e.timestamp > cutoff);
   }
 
@@ -599,7 +456,7 @@ class AlertingService {
       const oldestActive = activeAlerts
         .sort((a, b) => a.timestamp - b.timestamp)
         .slice(0, activeAlerts.length - this.config.maxActiveAlerts);
-      
+
       oldestActive.forEach(alert => this.resolveAlert(alert.id));
     }
 
@@ -613,7 +470,7 @@ class AlertingService {
     return sanitizeObject(context, {
       preserveStructure: true,
       whitelistedFields: [
-        'timestamp', 'type', 'category', 'severity', 'name', 
+        'timestamp', 'type', 'category', 'severity', 'name',
         'condition', 'relatedEventCount', 'duration', 'value'
       ]
     });
