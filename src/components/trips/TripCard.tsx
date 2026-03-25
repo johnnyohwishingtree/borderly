@@ -3,8 +3,16 @@ import { View, Text, TouchableOpacity, ActionSheetIOS, Alert, Platform } from 'r
 import { Card, StatusBadge, ProgressBar } from '../ui';
 import { Trip } from '../../types/trip';
 import type { FamilyMember } from '../../types/profile';
+import type { UrgencyLevel } from '../../services/deadline/deadlineService';
 import CountryFlag from './CountryFlag';
 import TravelerAvatars from './TravelerAvatars';
+
+export interface TripUrgency {
+  level: UrgencyLevel;
+  hoursRemaining: number;
+  countryCode: string;
+  label: string;
+}
 
 export interface TripCardProps {
   trip: Trip;
@@ -13,7 +21,14 @@ export interface TripCardProps {
   onDelete?: () => void;
   showProgress?: boolean;
   travelers?: FamilyMember[];
+  urgency?: TripUrgency;
 }
+
+const URGENCY_STYLES: Record<string, { bg: string; text: string }> = {
+  overdue: { bg: 'bg-red-100 dark:bg-red-900', text: 'text-red-800 dark:text-red-200' },
+  critical: { bg: 'bg-orange-100 dark:bg-orange-900', text: 'text-orange-800 dark:text-orange-200' },
+  warning: { bg: 'bg-amber-100 dark:bg-amber-900', text: 'text-amber-800 dark:text-amber-200' },
+};
 
 const TripCard = memo<TripCardProps>(({
   trip,
@@ -22,6 +37,7 @@ const TripCard = memo<TripCardProps>(({
   onDelete,
   showProgress = true,
   travelers,
+  urgency,
 }) => {
   const formatDate = useMemo(() => (dateStr: string) => {
     try {
@@ -200,6 +216,24 @@ const TripCard = memo<TripCardProps>(({
                     +{trip.legs.length - 4} more
                   </Text>
                 )}
+              </View>
+            </View>
+          )}
+
+          {/* Urgency badge */}
+          {urgency && urgency.level !== 'normal' && trip.status !== 'completed' && (
+            <View
+              className="mb-4 flex-row items-center"
+              testID={`trip-card-urgency-${trip.name}`}
+            >
+              <CountryFlag countryCode={urgency.countryCode} size="small" />
+              <View
+                className={`ml-2 flex-row items-center rounded-full px-2 py-1 ${URGENCY_STYLES[urgency.level]?.bg ?? ''}`}
+                accessibilityLabel={`${urgency.countryCode} form ${urgency.label.toLowerCase()}`}
+              >
+                <Text className={`text-xs font-semibold ${URGENCY_STYLES[urgency.level]?.text ?? ''}`}>
+                  {urgency.label}
+                </Text>
               </View>
             </View>
           )}

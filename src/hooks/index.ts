@@ -17,6 +17,8 @@ export { useTripFilter } from './useTripFilter';
 export type { TripStatusFilter, UseTripFilterReturn } from './useTripFilter';
 export type { LegFormData } from './useTripCreationTypes';
 export { useTripDetail } from './useTripDetail';
+export { useTripListDeadlines } from './useTripListDeadlines';
+export type { TripUrgency } from './useTripListDeadlines';
 export { usePortalSubmission } from './usePortalSubmission';
 export { useTemplates } from './useTemplates';
 export { useSubmissionGuide } from './useSubmissionGuide';

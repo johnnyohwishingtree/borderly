@@ -6,6 +6,7 @@ import { useTripStore } from '@/stores/useTripStore';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
+import { useTripListDeadlines } from '@/hooks/useTripListDeadlines';
 import { TripCard, DuplicateTripModal } from '@/components/trips';
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates, { useLoadingState } from '@/components/ui/LoadingStates';
@@ -38,6 +39,7 @@ export default function TripListScreen() {
 
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
+  const urgencyByTripId = useTripListDeadlines(trips);
 
   const {
     searchQuery,
@@ -225,6 +227,7 @@ export default function TripListScreen() {
       onDuplicate={() => handleOpenDuplicateModal(item)}
       onDelete={() => handleDeleteTrip(item)}
       showProgress={true}
+      urgency={urgencyByTripId[item.id]}
       travelers={travelersByTripId[item.id]}
     />
   );

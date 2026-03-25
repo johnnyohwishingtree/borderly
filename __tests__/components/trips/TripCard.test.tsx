@@ -228,3 +228,71 @@ describe('TripCard — indicator visibility', () => {
     expect(indicator.props.accessibilityLabel).toBe('All legs submitted');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Urgency badge
+// ---------------------------------------------------------------------------
+
+describe('TripCard — urgency badge', () => {
+  it('shows urgency badge when urgency prop is overdue', () => {
+    const trip = makeTrip();
+    render(
+      <TripCard
+        trip={trip}
+        urgency={{ level: 'overdue', hoursRemaining: -5, countryCode: 'JPN', label: 'Overdue' }}
+      />,
+    );
+    expect(screen.getByTestId('trip-card-urgency-Asia Adventure 2025')).toBeTruthy();
+    expect(screen.getByText('Overdue')).toBeTruthy();
+  });
+
+  it('shows urgency badge when urgency prop is critical', () => {
+    const trip = makeTrip();
+    render(
+      <TripCard
+        trip={trip}
+        urgency={{ level: 'critical', hoursRemaining: 12, countryCode: 'JPN', label: 'Due in 12h' }}
+      />,
+    );
+    expect(screen.getByText('Due in 12h')).toBeTruthy();
+  });
+
+  it('shows urgency badge when urgency prop is warning', () => {
+    const trip = makeTrip();
+    render(
+      <TripCard
+        trip={trip}
+        urgency={{ level: 'warning', hoursRemaining: 36, countryCode: 'JPN', label: 'Due in 2d' }}
+      />,
+    );
+    expect(screen.getByText('Due in 2d')).toBeTruthy();
+  });
+
+  it('does NOT show urgency badge when level is normal', () => {
+    const trip = makeTrip();
+    render(
+      <TripCard
+        trip={trip}
+        urgency={{ level: 'normal', hoursRemaining: 100, countryCode: 'JPN', label: 'Due in 4d' }}
+      />,
+    );
+    expect(screen.queryByTestId('trip-card-urgency-Asia Adventure 2025')).toBeNull();
+  });
+
+  it('does NOT show urgency badge for completed trips', () => {
+    const trip = makeTrip({ status: 'completed' });
+    render(
+      <TripCard
+        trip={trip}
+        urgency={{ level: 'overdue', hoursRemaining: -5, countryCode: 'JPN', label: 'Overdue' }}
+      />,
+    );
+    expect(screen.queryByTestId('trip-card-urgency-Asia Adventure 2025')).toBeNull();
+  });
+
+  it('does NOT show urgency badge when no urgency prop', () => {
+    const trip = makeTrip();
+    render(<TripCard trip={trip} />);
+    expect(screen.queryByTestId('trip-card-urgency-Asia Adventure 2025')).toBeNull();
+  });
+});
