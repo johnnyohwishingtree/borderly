@@ -11,4 +11,3 @@ Parsed by `src/services/passport/mrzParser.ts`. Camera scanning via `mrzScanner.
 ## Family profiles
 Up to 8 family members per device. Each has isolated Keychain storage with unique encryption keys. Relationships: self, spouse, child, parent, sibling, other.
 
-## Known gaps

@@ -15,4 +15,3 @@
 - `AccessibilityStateHelpers.createButtonState(disabled, loading, selected)`
 - `SemanticUtils.generateFieldLabel(label, required, hasError, errorMsg)`
 
-## Known gaps

@@ -24,4 +24,3 @@ cd ios && pod install
 ### 4. Jest mock
 - Add mock in `jest.setup.js`
 
-## Known gaps

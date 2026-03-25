@@ -1,6 +1,6 @@
 # Skill Quality Rubric
 
-Evaluate skill files (following `.claude/templates/skill.md`) against these criteria.
+Evaluate skill files (following `.knowledge/templates/skill.md`) against these criteria.
 
 ## Clarity (weight: 30%)
 - Every step has an explicit command or concrete action

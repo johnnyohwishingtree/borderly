@@ -8,4 +8,3 @@ React Native a11y for VoiceOver (iOS) and TalkBack (Android).
 - Decorative elements hidden: `accessibilityElementsHidden={true}` or `importantForAccessibility="no-hide-descendants"`
 - State communicated: disabled, loading, selected via `accessibilityState`
 
-## Known gaps

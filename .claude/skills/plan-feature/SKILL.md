@@ -25,7 +25,7 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ### Step 2: Plan
 
 1. Identify files to create or modify
-2. Check if relevant patterns exist in `.claude/patterns/`
+2. Check if relevant patterns exist in `.knowledge/patterns/`
 3. Determine the dependency order (stores before hooks before screens)
 4. List tests that need to be written
 
@@ -45,7 +45,7 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 - Use existing `src/components/ui/` components before creating new ones
 - Use Lucide icons from `lucide-react-native` (not vector-icons)
 - Extract business logic into hooks in `src/hooks/` if a screen has 3+ useState calls
-- Use smart components where required (see `.claude/rules/smart-components.md`)
+- Use smart components where required (see `.knowledge/domain/form-engine.md`)
 - Never use `any` types — fix the root cause
 
 ### Step 4: Write Tests

@@ -19,4 +19,3 @@ Three-tier storage. See `.knowledge/concepts/security-boundary.md` for security 
 - v3.x requires `newArchEnabled=true` — setting false breaks Android builds
 - API keys (e.g., Google Places) stored here — not sensitive enough for Keychain
 
-## Known gaps

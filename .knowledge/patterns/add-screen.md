@@ -19,4 +19,3 @@ Verify screen renders. If screen uses new native module, add mock in `e2e/mocks/
 
 ### 5. A11y test — `__tests__/components/<domain>/<ScreenName>.a11y.test.tsx`
 
-## Known gaps

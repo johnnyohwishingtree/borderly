@@ -107,7 +107,7 @@ Do NOT load all screenshots at once — this exhausts the context window.
 **Smart Component Usage**
 - Hotel/accommodation name fields must use `AccommodationAutocomplete` (not plain `Input`). Look for inputs with hotel-related placeholders or accommodation-name testIDs that aren't using the smart component.
 - Address fields must use `AddressAutocomplete` (not individual `Input` fields for line1, city, postal code). A single `AddressAutocomplete` should replace multiple address sub-field inputs.
-- See `.claude/rules/smart-components.md` for the full mapping. Flag violations as **Major**.
+- See `.knowledge/domain/form-engine.md` (## Smart components) for the full mapping. Flag violations as **Major**.
 
 **Component Consistency** (when reviewing component screenshots)
 - Variants are visually consistent (same component, different states look related)

@@ -13,4 +13,3 @@ Each screen lives in a named folder: `src/screens/<domain>/<ScreenName>/<ScreenN
 
 Screens are thin render layers — business logic belongs in custom hooks under `src/hooks/`.
 
-## Known gaps

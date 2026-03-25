@@ -9,4 +9,3 @@ All UI components must have a11y tests in `__tests__/components/<domain>/<Compon
 
 **Do NOT use** `getByRole` on mocked native components (TouchableOpacity, etc.) — use `getByTestId` and check `.props.accessibilityRole` directly.
 
-## Known gaps

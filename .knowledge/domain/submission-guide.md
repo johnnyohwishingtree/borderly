@@ -9,4 +9,3 @@ Each country has a submission guide defining portal steps. The guide shows Copya
 - `CopyableField` — tap to copy a value to clipboard (auto-clears after 60s)
 - `GuideProgress` — progress indicator
 
-## Known gaps

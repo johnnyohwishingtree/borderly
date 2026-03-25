@@ -24,4 +24,3 @@ Components → Props only (no stores, no hooks with side effects)
 ## Cross-store coordination
 Stores never import other stores. If two stores need to coordinate, the hook or screen does the coordination.
 
-## Known gaps

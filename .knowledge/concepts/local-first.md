@@ -26,4 +26,3 @@ All user data stays on-device. No server stores passport data.
 - No backend server — schemas ship bundled in app
 - All data can be exported/restored via encrypted backup (.borderly files)
 
-## Known gaps

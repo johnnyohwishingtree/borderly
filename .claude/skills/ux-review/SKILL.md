@@ -106,7 +106,7 @@ For each flow, evaluate against these criteria:
 **Smart Component Usage**
 - Are all hotel/accommodation name fields using `AccommodationAutocomplete` (not plain `Input`)? This provides Google Places lodging suggestions.
 - Are all address fields using `AddressAutocomplete` (not individual `Input` fields for line1/city/postal)? This provides Google Places address suggestions with structured parsing.
-- See `.claude/rules/smart-components.md` for the full list of required smart component mappings.
+- See `.knowledge/domain/form-engine.md` (## Smart components) for the full list of required smart component mappings.
 - If a plain `Input` is used where a smart component exists, flag it as a **Major** finding.
 
 **Scalability of UI Patterns**

@@ -23,8 +23,6 @@ Each field has: `id`, `label`, `type`, `required`, `section`, `autoFillSource`. 
 - `src/services/forms/validators.ts` — Zod validation
 - `src/schemas/*.json` — country schemas
 
-## Known gaps
-
 ## Smart components
 When a specialized component exists for a field type, ALWAYS use it instead of plain `<Input>`:
 - `AccommodationAutocomplete` — for hotel/accommodation name fields

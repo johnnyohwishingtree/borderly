@@ -2,7 +2,7 @@
 
 Test files follow this structure. Uses Jest + React Native Testing Library.
 
-**Matching rubric:** `.claude/rubrics/test-quality.md`
+**Matching rubric:** `.knowledge/rubrics/test-quality.md`
 
 ## Structure
 
