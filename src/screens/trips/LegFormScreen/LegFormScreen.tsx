@@ -115,19 +115,22 @@ export default function LegFormScreen() {
           </View>
         </View>
 
-        {/* Form Status */}
+        {/* Form Status — live progress from form store, not saved leg status */}
         <View className="mt-3">
           <View className="flex-row items-center gap-2">
             <View
               className={`w-3 h-3 rounded-full ${
-                leg.formStatus === 'ready' ? 'bg-green-500' :
-                leg.formStatus === 'in_progress' ? 'bg-yellow-500' :
+                isValid ? 'bg-green-500' :
+                currentForm.stats.completionPercentage > 0 ? 'bg-yellow-500' :
                 leg.formStatus === 'submitted' ? 'bg-blue-500' :
                 'bg-gray-300'
               }`}
             />
             <Text className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-              {leg.formStatus.replace('_', ' ')}
+              {leg.formStatus === 'submitted' ? 'Submitted' :
+               isValid ? 'Ready' :
+               currentForm.stats.completionPercentage > 0 ? 'In Progress' :
+               'Not Started'}
             </Text>
             {currentForm.stats.completionPercentage > 0 && (
               <Text className="text-sm text-green-600 dark:text-green-400 font-medium">
@@ -188,68 +191,76 @@ export default function LegFormScreen() {
 
       {/* Action Buttons — fixed bottom bar, always visible regardless of scroll position */}
       <View testID="action-buttons-bar" className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
-        <View className="space-y-2">
+        {isValid ? (
+          <View className="space-y-2">
+            <Button
+              title="Mark as Ready"
+              onPress={handleMarkAsReady}
+              variant="primary"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              testID="mark-ready-button"
+            />
+            <Button
+              title="Save Draft"
+              onPress={handleSaveForm}
+              variant="outline"
+              size="medium"
+              fullWidth
+              loading={isSubmitting}
+              testID="save-progress-button"
+            />
+            <View className="mt-1 flex-row gap-3">
+              <View className="flex-1">
+                <Button
+                  title="Submit in App"
+                  onPress={() => {
+                    const countryCode = leg.destinationCountry;
+                    const schema = schemaRegistry.getSchema(countryCode);
+                    if (schema?.portalUrl) {
+                      navigation.navigate('PortalSubmission', {
+                        url: schema.portalUrl,
+                        countryCode,
+                        tripId,
+                        legId,
+                      });
+                    } else {
+                      Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
+                    }
+                  }}
+                  variant="primary"
+                  testID="submit-in-app-button"
+                  size="medium"
+                  fullWidth
+                />
+              </View>
+              <Button
+                title="Guide"
+                onPress={() => {
+                  navigation.navigate('SubmissionGuide', {
+                    tripId,
+                    legId,
+                    countryCode: leg.destinationCountry,
+                  });
+                }}
+                variant="secondary"
+                testID="open-submission-guide-button"
+                size="medium"
+              />
+            </View>
+          </View>
+        ) : (
           <Button
             title="Save Progress"
             onPress={handleSaveForm}
-            variant="outline"
+            variant="primary"
             size="medium"
             fullWidth
             loading={isSubmitting}
             disabled={Object.keys(formData).length === 0}
             testID="save-progress-button"
           />
-          <Button
-            title={isValid ? 'Mark as Ready' : 'Complete Required Fields'}
-            onPress={handleMarkAsReady}
-            variant="primary"
-            size="medium"
-            fullWidth
-            loading={isSubmitting}
-            disabled={!isValid}
-            testID="mark-ready-button"
-          />
-        </View>
-
-        {isValid && (
-          <View className="mt-2 flex-row gap-3">
-            <View className="flex-1">
-              <Button
-                title="Submit in App"
-                onPress={() => {
-                  const countryCode = leg.destinationCountry;
-                  const schema = schemaRegistry.getSchema(countryCode);
-                  if (schema?.portalUrl) {
-                    navigation.navigate('PortalSubmission', {
-                      url: schema.portalUrl,
-                      countryCode,
-                      tripId,
-                      legId,
-                    });
-                  } else {
-                    Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
-                  }
-                }}
-                variant="primary"
-                testID="submit-in-app-button"
-                size="medium"
-                fullWidth
-              />
-            </View>
-            <Button
-              title="Guide"
-              onPress={() => {
-                navigation.navigate('SubmissionGuide', {
-                  tripId,
-                  legId,
-                  countryCode: leg.destinationCountry,
-                });
-              }}
-              variant="secondary"
-              testID="open-submission-guide-button"
-              size="medium"
-            />
-          </View>
         )}
       </View>
     </ScreenContainer>
