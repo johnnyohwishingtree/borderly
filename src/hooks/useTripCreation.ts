@@ -8,6 +8,7 @@ import { useProfileStore } from '../stores/useProfileStore';
 import { TripLeg, Accommodation } from '../types/trip';
 import { FamilyMember } from '../types/profile';
 import { deepCopy } from '../utils/deepCopy';
+import { getCountryName } from '../constants/countries';
 import { tripTemplateService } from '../services/trips/tripTemplateService';
 import type { LegFormData, UseTripCreationOptions } from './useTripCreationTypes';
 import { useTripCreationImport } from './useTripCreationImport';
@@ -293,10 +294,11 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
       newErrors.legs = 'At least one destination is required';
     }
     legs.forEach((leg, index) => {
-      if (!leg.destinationCountry) newErrors[`leg${index}.country`] = 'Country is required';
-      if (!leg.arrivalDate) newErrors[`leg${index}.arrival`] = 'Arrival date is required';
-      if (!leg.accommodation.name) newErrors[`leg${index}.accommodation`] = 'Accommodation name is required';
-      if (leg.assignedTravelers.length === 0) newErrors[`leg${index}.travelers`] = 'At least one traveler must be selected';
+      const dest = getCountryName(leg.destinationCountry) || `Destination ${index + 1}`;
+      if (!leg.destinationCountry) newErrors[`leg${index}.country`] = `${dest}: Country is required`;
+      if (!leg.arrivalDate) newErrors[`leg${index}.arrival`] = `${dest}: Arrival date is required`;
+      if (!leg.accommodation.name) newErrors[`leg${index}.accommodation`] = `${dest}: Accommodation name is required`;
+      if (leg.assignedTravelers.length === 0) newErrors[`leg${index}.travelers`] = `${dest}: Select at least one traveler`;
     });
     setErrors(newErrors);
     return newErrors;
@@ -305,7 +307,7 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   const handleCreateTrip = useCallback(async () => {
     const validationErrors = validateTrip();
     if (Object.keys(validationErrors).length > 0) {
-      const errorList = Object.entries(validationErrors).map(([k, v]) => `${k}: ${v}`).join('\n');
+      const errorList = Object.values(validationErrors).join('\n');
       Alert.alert('Validation Error', errorList || 'Please fix the errors below');
       return;
     }

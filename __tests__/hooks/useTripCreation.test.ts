@@ -23,6 +23,13 @@ jest.mock('../../src/services/trips/tripTemplateService', () => ({
   },
 }));
 
+jest.mock('../../src/constants/countries', () => ({
+  getCountryName: (code: string) => {
+    const names: Record<string, string> = { JPN: 'Japan', SGP: 'Singapore', MYS: 'Malaysia' };
+    return names[code] || '';
+  },
+}));
+
 // Mock navigation
 const mockGoBack = jest.fn();
 const mockNavigate = jest.fn();
@@ -556,5 +563,59 @@ describe('useTripCreation — template pre-fill', () => {
 
     expect(result.current.legs).toHaveLength(1);
     expect(result.current.legs[0].destinationCountry).toBe('SGP');
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Validation error message formatting
+  // ─────────────────────────────────────────────────────────────────────────
+
+  it('validation errors use country name when destination is set', async () => {
+    const { result } = renderHook(() => useTripCreation());
+
+    act(() => {
+      result.current.addLeg();
+      result.current.updateLeg(0, 'destinationCountry', 'JPN');
+    });
+
+    act(() => {
+      result.current.handleCreateTrip();
+    });
+
+    const errors = result.current.errors;
+    expect(errors['leg0.arrival']).toBe('Japan: Arrival date is required');
+    expect(errors['leg0.accommodation']).toBe('Japan: Accommodation name is required');
+  });
+
+  it('validation errors use "Destination N" when no country is set', async () => {
+    const { result } = renderHook(() => useTripCreation());
+
+    act(() => {
+      result.current.addLeg();
+    });
+
+    act(() => {
+      result.current.handleCreateTrip();
+    });
+
+    const errors = result.current.errors;
+    expect(errors['leg0.country']).toBe('Destination 1: Country is required');
+    expect(errors['leg0.arrival']).toBe('Destination 1: Arrival date is required');
+  });
+
+  it('validation error keys do not appear in error messages', async () => {
+    const { result } = renderHook(() => useTripCreation());
+
+    act(() => {
+      result.current.addLeg();
+    });
+
+    act(() => {
+      result.current.handleCreateTrip();
+    });
+
+    const errorValues = Object.values(result.current.errors);
+    for (const msg of errorValues) {
+      expect(msg).not.toMatch(/^leg\d+\./);
+    }
   });
 });
