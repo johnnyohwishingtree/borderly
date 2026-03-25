@@ -42,7 +42,7 @@ Read this first. Maps every artifact in the pipeline system.
 | Directory | What it contains |
 |-----------|-----------------|
 | `concepts/` | local-first, security-boundary, dependency-direction, drift-detection |
-| `conventions/` | testing, styling, storage, navigation, state-management, native-modules, typography, motion, ux-writing, accessibility/ |
+| `conventions/` | testing, styling, storage, navigation, state-management, native-modules, typography, motion, ux-writing, e2e-testability, accessibility/ |
 | `domain/` | passport, form-engine, submission-guide, qr-wallet, countries/ |
 | `templates/` | module, test, story, epic, skill, folder-claude-md |
 | `patterns/` | add-country, add-screen, add-native-dep |

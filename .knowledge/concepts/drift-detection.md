@@ -14,16 +14,6 @@ When source changes, derived artifacts must stay in sync.
 ## How to prevent
 - After renaming/moving files: grep for old paths in all .md and .yaml files
 - After adding native modules: add web mock + webpack alias + pod install
-- Maestro drift detection tests exist in `maestro-drift.test.ts`
-
-## Maestro generator
-Maestro flows are generated from declarative journey definitions, NOT hand-written.
-
-**After changing any screen UI text, testIDs, or navigation:**
-1. Update `maestro/generator/screenRegistry.ts` with new text/testIDs/buttons
-2. Update the relevant journey in `maestro/generator/journeys/`
-3. Run `pnpm maestro:generate` to regenerate flows
-4. Commit the updated generated flows
-
-Never hand-edit files in `maestro/flows/generated/` — they get overwritten by the generator. Hand-written flows in `maestro/flows/subflows/` must be updated manually.
+- After changing screen UI: follow `.knowledge/conventions/e2e-testability.md`
+- `maestro-registry-sync.test.ts` catches testID drift at `pnpm test` time
 

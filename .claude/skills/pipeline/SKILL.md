@@ -59,11 +59,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
 **If you changed screen UI (testIDs, button text, navigation):**
-1. Update `maestro/generator/screenRegistry.ts` with new testIDs/text/buttons
-2. Update the relevant journey in `maestro/generator/journeys/`
-3. Run `pnpm maestro:generate` to regenerate flows
-4. Update any hand-written subflows in `maestro/flows/subflows/` that reference changed elements
-5. Commit the updated generated flows + subflows
+Follow `.knowledge/conventions/e2e-testability.md` — update screenRegistry, regenerate flows, commit.
 
 If checks fail → fix → rerun. Up to 6 attempts.
 
