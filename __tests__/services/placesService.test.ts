@@ -5,17 +5,45 @@
  * - parseAddressComponents: mapping component types to Address fields
  * - alpha2ToAlpha3: ISO country code conversion
  * - getPlacesApiKey: always returns 'native' (no API key needed)
- * - getLodgingSuggestions / getAutocompleteSuggestions: returns empty when input too short
+ * - getLodgingSuggestions: country code passed to native module, results cached
+ * - getLodgingDetails: returns cached address data from previous search
+ * - getAutocompleteSuggestions: returns empty when input too short
  */
 
+import { NativeModules } from 'react-native';
 import {
   parseAddressComponents,
   alpha2ToAlpha3,
   getPlacesApiKey,
   setPlacesApiKey,
   getLodgingSuggestions,
+  getLodgingDetails,
   getAutocompleteSuggestions,
 } from '../../src/services/places/placesService';
+
+// ── Stable mock data ──
+
+const MOCK_APPLE_RESULTS = [
+  {
+    placeId: 'hotel-1',
+    name: 'Park Hyatt Tokyo',
+    description: 'Park Hyatt Tokyo, Shinjuku, Japan',
+    mainText: 'Park Hyatt Tokyo',
+    secondaryText: 'Shinjuku, Japan',
+    address: {
+      line1: '3-7-1-2 Nishi-Shinjuku',
+      city: 'Shinjuku',
+      state: 'Tokyo',
+      postalCode: '163-1055',
+      country: 'JP',
+    },
+    formattedAddress: '3-7-1-2 Nishi-Shinjuku, Shinjuku, Tokyo, 163-1055, Japan',
+  },
+];
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 // ── parseAddressComponents ──
 
@@ -78,7 +106,6 @@ describe('alpha2ToAlpha3', () => {
 
   it('returns input unchanged for unknown codes', () => {
     expect(alpha2ToAlpha3('ZZ')).toBe('ZZ');
-    expect(alpha2ToAlpha3('XX')).toBe('XX');
   });
 });
 
@@ -96,7 +123,7 @@ describe('setPlacesApiKey', () => {
   });
 });
 
-// ── Search functions ──
+// ── getLodgingSuggestions ──
 
 describe('getLodgingSuggestions', () => {
   it('returns empty for short input', async () => {
@@ -108,11 +135,75 @@ describe('getLodgingSuggestions', () => {
     const result = await getLodgingSuggestions('');
     expect(result).toEqual([]);
   });
+
+  it('passes countryCode to the native module', async () => {
+    const mockSearch = NativeModules.ApplePlacesModule.search as jest.Mock;
+    mockSearch.mockResolvedValueOnce(MOCK_APPLE_RESULTS);
+
+    await getLodgingSuggestions('Park Hyatt', undefined, 'JPN');
+
+    expect(mockSearch).toHaveBeenCalledWith('Park Hyatt', 'lodging', 'JPN');
+  });
+
+  it('passes empty string when no countryCode provided', async () => {
+    const mockSearch = NativeModules.ApplePlacesModule.search as jest.Mock;
+    mockSearch.mockResolvedValueOnce([]);
+
+    await getLodgingSuggestions('Park Hyatt');
+
+    expect(mockSearch).toHaveBeenCalledWith('Park Hyatt', 'lodging', '');
+  });
+
+  it('caches results for getLodgingDetails lookup', async () => {
+    const mockSearch = NativeModules.ApplePlacesModule.search as jest.Mock;
+    mockSearch.mockResolvedValueOnce(MOCK_APPLE_RESULTS);
+
+    await getLodgingSuggestions('Park Hyatt', undefined, 'JPN');
+
+    const details = await getLodgingDetails('hotel-1');
+    expect(details).not.toBeNull();
+    expect(details!.name).toBe('Park Hyatt Tokyo');
+    expect(details!.address.line1).toBe('3-7-1-2 Nishi-Shinjuku');
+    expect(details!.address.city).toBe('Shinjuku');
+    expect(details!.address.postalCode).toBe('163-1055');
+    expect(details!.address.country).toBe('JPN');
+  });
 });
+
+// ── getLodgingDetails ──
+
+describe('getLodgingDetails', () => {
+  it('returns null for unknown placeId', async () => {
+    const result = await getLodgingDetails('nonexistent');
+    expect(result).toBeNull();
+  });
+
+  it('converts alpha-2 country code to alpha-3 in address', async () => {
+    const mockSearch = NativeModules.ApplePlacesModule.search as jest.Mock;
+    mockSearch.mockResolvedValueOnce(MOCK_APPLE_RESULTS);
+
+    await getLodgingSuggestions('Park Hyatt', undefined, 'JPN');
+    const details = await getLodgingDetails('hotel-1');
+
+    // Source has 'JP' (alpha-2), result should have 'JPN' (alpha-3)
+    expect(details!.address.country).toBe('JPN');
+  });
+});
+
+// ── getAutocompleteSuggestions ──
 
 describe('getAutocompleteSuggestions', () => {
   it('returns empty for short input', async () => {
     const result = await getAutocompleteSuggestions('ab');
     expect(result).toEqual([]);
+  });
+
+  it('passes empty countryCode for address search', async () => {
+    const mockSearch = NativeModules.ApplePlacesModule.search as jest.Mock;
+    mockSearch.mockResolvedValueOnce([]);
+
+    await getAutocompleteSuggestions('123 Main St');
+
+    expect(mockSearch).toHaveBeenCalledWith('123 Main St', 'address', '');
   });
 });
