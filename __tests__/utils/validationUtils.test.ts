@@ -16,7 +16,7 @@ import {
   validateLength,
   validateRange,
   VALIDATION_PATTERNS,
-} from '../../src/utils/validationUtils';
+} from '../../src/utils/validation/index';
 
 describe('Validation Utils', () => {
   describe('validatePassportNumber', () => {

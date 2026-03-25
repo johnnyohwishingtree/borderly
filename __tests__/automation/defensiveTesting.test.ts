@@ -5,7 +5,7 @@
  * validation and portal health monitoring without real submissions.
  */
 
-import { ComplianceValidator } from '@/services/testing/complianceValidator';
+import { ComplianceValidator } from '@/services/testing/compliance';
 import { PortalMonitor } from '@/services/monitoring/portalMonitor';
 import { SubmissionAnalytics } from '@/services/monitoring/submissionAnalytics';
 import { TestDataFactory, TestAssertions, TestEnvironment } from '@/utils/testHelpers';

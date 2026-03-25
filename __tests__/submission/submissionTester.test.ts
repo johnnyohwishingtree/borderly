@@ -4,7 +4,7 @@
  * Tests the mock-only submission testing framework
  */
 
-import { SubmissionTester } from '@/services/testing/submissionTester';
+import { SubmissionTester } from '@/services/testing/submission';
 import { TestDataFactory } from '@/utils/testHelpers';
 import { FilledForm } from '@/services/forms/formEngine';
 import { TripLeg } from '@/types/trip';

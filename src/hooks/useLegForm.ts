@@ -9,74 +9,14 @@ import { schemaRegistry } from '../services/schemas/schemaRegistry';
 import { handleStorageError, handleValidationError } from '../services/error/errorHandler';
 import { ERROR_CODES, createAppError } from '../services/error/errorHandling';
 import type { TripStackParamList } from '../app/navigation/types';
-import type { AppError } from '../services/error/errorHandling';
 import type { TravelerProfile } from '../types/profile';
 import type { TravelerFormData } from '../types/trip';
 import type { TravelerTab } from '../components/trips/TravelerTabs';
+import type { UseLegFormOptions, TravelerState } from './useLegFormTypes';
+import { deriveLegFormStatus, upsertTravelerFormData } from './useLegFormHelpers';
 
-interface UseLegFormOptions {
-  tripId: string;
-  legId: string;
-}
-
-/**
- * Derives the leg-level formStatus from the individual travelers' statuses.
- * - 'ready'       if ALL assigned travelers have formStatus 'ready' or 'submitted'
- * - 'in_progress' if at least one traveler has started ('in_progress', 'ready', or 'submitted')
- * - 'not_started' otherwise
- *
- * Exported for unit testing.
- */
-export function deriveLegFormStatus(
-  assignedTravelers: string[],
-  updatedForms: TravelerFormData[],
-): 'not_started' | 'in_progress' | 'ready' {
-  if (assignedTravelers.length === 0) return 'not_started';
-
-  const allReady = assignedTravelers.every(id => {
-    const form = updatedForms.find(f => f.travelerId === id);
-    return form?.formStatus === 'ready' || form?.formStatus === 'submitted';
-  });
-
-  if (allReady) return 'ready';
-
-  const anyStarted = assignedTravelers.some(id => {
-    const formStatus = updatedForms.find(f => f.travelerId === id)?.formStatus;
-    // Any status other than 'not_started' implies the form has been touched.
-    return formStatus && formStatus !== 'not_started';
-  });
-
-  return anyStarted ? 'in_progress' : 'not_started';
-}
-
-/**
- * Upserts a traveler's form entry in the travelerFormsData array.
- * If an entry for the traveler already exists, it is updated in-place;
- * otherwise a new entry is appended.
- */
-function upsertTravelerFormData(
-  existingForms: TravelerFormData[],
-  travelerId: string,
-  formData: Record<string, unknown>,
-  formStatus: TravelerFormData['formStatus'],
-  completionPercentage: number,
-): TravelerFormData[] {
-  const updated = existingForms.map<TravelerFormData>(tf =>
-    tf.travelerId === travelerId
-      ? { ...tf, formData, formStatus, completionPercentage }
-      : tf
-  );
-  if (!existingForms.find(tf => tf.travelerId === travelerId)) {
-    updated.push({ travelerId, formData, formStatus, completionPercentage });
-  }
-  return updated;
-}
-
-/** Combined traveler state — updated atomically to avoid split renders */
-interface TravelerState {
-  activeTravelerId: string | null;
-  profiles: Map<string, TravelerProfile>;
-}
+// Re-export for backward compatibility
+export { deriveLegFormStatus } from './useLegFormHelpers';
 
 /**
  * Encapsulates the business logic for LegFormScreen:
@@ -101,8 +41,8 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
   } = useFormStore();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState<AppError | string | null>(null);
-  const [loadError, setLoadError] = useState<AppError | string | null>(null);
+  const [formError, setFormError] = useState<import('../services/error/errorHandling').AppError | string | null>(null);
+  const [loadError, setLoadError] = useState<import('../services/error/errorHandling').AppError | string | null>(null);
   const [lastFailedOperation, setLastFailedOperation] = useState<{ type: 'save' | 'markReady' } | null>(null);
 
   // Multi-traveler state: combined so that profiles + activeId are always in sync
@@ -338,7 +278,6 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       const formDataToSave = getFormData();
 
       if (hasMultipleTravelers && activeTravelerId) {
-        // Save per-traveler form data
         const completionPct = currentForm?.stats.completionPercentage ?? 0;
         const freshLeg = getLegById(legId);
         const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
@@ -352,7 +291,6 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
         const derivedFormStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
         await updateTripLeg(leg.id, { travelerFormsData: updatedForms, formStatus: derivedFormStatus });
       } else {
-        // Legacy single-traveler save
         await updateTripLeg(leg.id, {
           formData: formDataToSave,
           formStatus: isValid ? 'ready' : 'in_progress',
@@ -414,7 +352,6 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       const formDataToSave = getFormData();
 
       if (hasMultipleTravelers && activeTravelerId) {
-        // Mark this specific traveler as ready
         const freshLeg = getLegById(legId);
         const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
         const updatedForms = upsertTravelerFormData(
@@ -424,10 +361,9 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
           'ready',
           100,
         );
-        const derivedFormStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
-        await updateTripLeg(leg!.id, { travelerFormsData: updatedForms, formStatus: derivedFormStatus });
+        const derivedStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
+        await updateTripLeg(leg!.id, { travelerFormsData: updatedForms, formStatus: derivedStatus });
       } else {
-        // Legacy single-traveler mark-as-ready
         await updateTripLeg(leg!.id, {
           formData: formDataToSave,
           formStatus: 'ready',
@@ -502,7 +438,6 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
 
         if (isActive && currentForm) {
           completionPercentage = currentForm.stats.completionPercentage;
-          // Keep formStatus live for active traveler based on isValid
           if (isValid && completionPercentage === 100) {
             formStatus = 'ready';
           } else if (completionPercentage > 0) {

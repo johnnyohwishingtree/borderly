@@ -1,35 +1,14 @@
 import { MMKV } from 'react-native-mmkv';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { databaseService } from '@/services/storage/database';
+import type {
+  DataLeakDetectionResult,
+  DataLeak,
+  DataLeakRecommendation,
+} from './dataLeakDetectorTypes';
 
-export interface DataLeakDetectionResult {
-  leaksDetected: boolean;
-  leakCount: number;
-  leaks: DataLeak[];
-  riskLevel: 'critical' | 'high' | 'medium' | 'low';
-  recommendations: DataLeakRecommendation[];
-  lastScanDate: Date;
-}
-
-export interface DataLeak {
-  id: string;
-  type: 'pii' | 'passport' | 'financial' | 'location' | 'biometric' | 'government_id';
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  location: string;
-  description: string;
-  detectedValue: string; // Redacted for logging
-  fullMatch: boolean;
-  confidence: number; // 0-1
-  remediation: string;
-}
-
-export interface DataLeakRecommendation {
-  priority: 'immediate' | 'urgent' | 'standard' | 'advisory';
-  title: string;
-  description: string;
-  actions: string[];
-  impact: string;
-}
+// Re-export types so existing consumers still work
+export type { DataLeakDetectionResult, DataLeak, DataLeakRecommendation } from './dataLeakDetectorTypes';
 
 class DataLeakDetectorService {
   private readonly auditMmkv = new MMKV({ id: 'borderly_leak_detection' });

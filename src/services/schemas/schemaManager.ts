@@ -4,8 +4,8 @@ import {
   SchemaRegistry
 } from '../../types/schema';
 import { SUPPORTED_COUNTRY_CODES } from '../../constants/countries';
-import { schemaValidator } from './schemaValidator';
-import { schemaMigrator } from './schemaMigrator';
+import { schemaValidator } from './validation';
+import { schemaMigrator } from './migration';
 
 class SchemaManager {
   private storage: MMKV;

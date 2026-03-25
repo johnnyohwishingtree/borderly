@@ -5,8 +5,8 @@
  * and defensive testing of schema compliance.
  */
 
-import { ComplianceValidator } from '@/services/testing/complianceValidator';
-import { SubmissionTester } from '@/services/testing/submissionTester';
+import { ComplianceValidator } from '@/services/testing/compliance';
+import { SubmissionTester } from '@/services/testing/submission';
 import { TestDataFactory, ValidationHelpers } from '@/utils/testHelpers';
 
 

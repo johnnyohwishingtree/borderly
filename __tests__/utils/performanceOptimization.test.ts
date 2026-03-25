@@ -24,7 +24,7 @@ jest.mock('react-native-mmkv', () => ({
   })),
 }));
 
-import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization';
+import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization/index';
 
 // Mock PII sanitization
 jest.mock('../../src/utils/piiSanitizer', () => ({

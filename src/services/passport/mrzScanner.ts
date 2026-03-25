@@ -1,57 +1,24 @@
 /**
  * MRZ Scanner Service
- * 
+ *
  * Integrates with ML Kit text recognition to scan passport MRZ zones.
  * Handles camera text recognition and real-time feedback.
- * 
+ *
  * Security: No image storage - immediate processing only.
  */
 
-import type { TrackedTextFeature } from 'react-native-camera';
-
-// Type for text recognition response from RNCamera
-export interface TextRecognition {
-  textBlocks: TrackedTextFeature[];
-}
 import { parseMRZ, extractMRZFromText, type MRZParseResult } from './mrzParser';
+import {
+  defaultScannerConfig,
+  performanceConfigs,
+  type TextRecognition,
+  type ScanResult,
+  type ScannerConfig,
+} from './mrzScannerTypes';
 
-export interface ScanResult {
-  type: 'success' | 'partial' | 'error' | 'no_mrz';
-  mrz?: MRZParseResult;
-  confidence: number;
-  guidance: string; // User-facing instruction
-}
-
-export interface ScannerConfig {
-  minConfidence: number; // Minimum confidence to accept scan (0-1)
-  maxScanAttempts: number; // Max attempts before suggesting manual entry
-  scanCooldownMs: number; // Cooldown between scans to prevent spam
-}
-
-export const defaultScannerConfig: ScannerConfig = {
-  minConfidence: 0.7,
-  maxScanAttempts: 10,
-  scanCooldownMs: 500
-};
-
-// Performance-optimized configurations for different device tiers
-export const performanceConfigs = {
-  low: {
-    minConfidence: 0.6,
-    maxScanAttempts: 15,
-    scanCooldownMs: 800,
-  },
-  medium: {
-    minConfidence: 0.7,
-    maxScanAttempts: 12,
-    scanCooldownMs: 600,
-  },
-  high: {
-    minConfidence: 0.8,
-    maxScanAttempts: 8,
-    scanCooldownMs: 300,
-  },
-};
+// Re-export types and configs so existing consumers still work
+export { defaultScannerConfig, performanceConfigs };
+export type { TextRecognition, ScanResult, ScannerConfig };
 
 /**
  * Process text recognition result from camera
@@ -498,38 +465,26 @@ export function getScanningGuidance(
  * Create an optimized MRZ scanner based on device performance
  */
 export function createOptimizedMRZScanner(customConfig?: Partial<ScannerConfig>): MRZScanner {
-  // Detect device performance tier
   const deviceTier = detectDevicePerformanceTier();
-  
-  // Merge custom config with performance-optimized defaults
   const config = {
     ...defaultScannerConfig,
     ...performanceConfigs[deviceTier],
     ...customConfig,
   };
-  
   return new MRZScanner(config, deviceTier);
 }
 
-/**
- * Simple device performance tier detection
- */
+/** Simple device performance tier detection */
 function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
   try {
-    // Check hardware concurrency (CPU cores) if available
     const nav = (typeof navigator !== 'undefined' ? navigator : null) as any;
     const hardwareConcurrency = nav?.hardwareConcurrency || 2;
-    
-    // Check device memory if available
     const deviceMemory = nav?.deviceMemory || 2;
-    
-    // Check user agent for known low-end patterns if available
     const userAgent = nav?.userAgent?.toLowerCase() || '';
-    const isLowEndDevice = userAgent.includes('low-end') || 
-      userAgent.includes('lite') || 
+    const isLowEndDevice = userAgent.includes('low-end') ||
+      userAgent.includes('lite') ||
       userAgent.includes('go');
-    
-    // Performance heuristics
+
     if (isLowEndDevice || hardwareConcurrency <= 2 || deviceMemory <= 2) {
       return 'low';
     } else if (hardwareConcurrency <= 4 || deviceMemory <= 4) {
@@ -538,7 +493,6 @@ function detectDevicePerformanceTier(): 'low' | 'medium' | 'high' {
       return 'high';
     }
   } catch {
-    // Default to medium if detection fails
     return 'medium';
   }
 }
