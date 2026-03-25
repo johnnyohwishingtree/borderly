@@ -75,8 +75,8 @@ export default function NotificationPermissionScreen() {
           Stay on Top of Deadlines
         </Text>
         <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-8">
-          Get reminded before your travel declarations are due — 7 days, 48 hours,
-          and 24 hours in advance so you never miss a submission window.
+          Get reminded before your travel declarations are due — 48 hours,
+          24 hours, and 6 hours in advance so you never miss a submission window.
         </Text>
 
         <Card variant="outlined" className="mb-8">
