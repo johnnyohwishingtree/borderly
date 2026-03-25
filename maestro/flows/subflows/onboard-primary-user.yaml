@@ -111,10 +111,13 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "nationality-input-search"
+- eraseText: 20
 - inputText: "United States"
-# Dismiss keyboard first so the option is tappable
 - pressKey: Enter
-# Now tap the matching option
+- swipe:
+    start: "50%,70%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "nationality-input-option-USA"
 
@@ -169,8 +172,8 @@ appId: com.borderly.app
     timeout: 5000
 - tapOn:
     id: "issuing-country-input-search"
+- eraseText: 20
 - inputText: "United States"
-# Dismiss keyboard first so the option is tappable
 - pressKey: Enter
 # Scroll to reveal option if below screen edge
 - swipe:

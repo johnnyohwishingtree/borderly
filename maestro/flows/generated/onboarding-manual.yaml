@@ -133,6 +133,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "nationality-input-search"
+- eraseText: 20
 - inputText: "United States"
 - pressKey: Enter
 - swipe:
@@ -197,6 +198,7 @@ tags:
     timeout: 5000
 - tapOn:
     id: "issuing-country-input-search"
+- eraseText: 20
 - inputText: "United States"
 - pressKey: Enter
 - swipe:

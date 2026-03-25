@@ -84,6 +84,7 @@ function emitAction(action: Action, depth = 0): string[] {
         line(d, '    timeout: 5000'),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}-search"`),
+        line(d, '- eraseText: 20'),
         line(d, `- inputText: "${action.search}"`),
         line(d, '- pressKey: Enter'),
         // Scroll to reveal option if below screen edge

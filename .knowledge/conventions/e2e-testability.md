@@ -81,6 +81,13 @@ To add a new E2E flow:
 
 This means drift is caught in 0.4 seconds, not at Maestro runtime (3+ minutes).
 
+## Maestro interaction patterns
+
+- **Always `eraseText` before `inputText` in search fields** — stray keystrokes from previous taps/swipes leak into auto-focused TextInputs. The SearchableSelect search field is especially prone to this.
+- **Use `centerElement: true` on `scrollUntilVisible`** — prevents elements from being found but hidden behind sticky headers.
+- **Dismiss Fast Refresh banners** — add `runFlow when visible "Fast Refresh disconnected"` handlers. Metro disconnects during long runs.
+- **Use `pressKey: Enter` + swipe after search input** — dismisses keyboard so options below are tappable.
+
 ## Anti-patterns
 - **Text-based taps** (`tapOn: "Submit"`) — breaks when button text changes. Always use testID-based taps.
 - **Hand-writing Maestro YAML** for flows the generator can handle — drifts on the next UI change
