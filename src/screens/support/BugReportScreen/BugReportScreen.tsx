@@ -1,155 +1,30 @@
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, Alert, TextInput, Platform } from 'react-native';
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import { View, Text, ScrollView, TextInput } from 'react-native';
 import { Lock } from 'lucide-react-native';
-import { Button, Card, StatusBadge, Select, SelectOption, Toggle, ScreenContainer } from '@/components/ui';
-import { useAppStore } from '@/stores/useAppStore';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { useTripStore } from '@/stores/useTripStore';
+import { Button, Card, StatusBadge, Select, Toggle, ScreenContainer } from '@/components/ui';
+import { useBugReport } from '@/hooks/useBugReport';
 
-interface BugReportScreenProps {
-  route?: RouteProp<any, any>;
-}
-
-export default function BugReportScreen({ route: _route }: BugReportScreenProps) {
-  const navigation = useNavigation();
-  const { preferences, theme } = useAppStore();
-  const { profile } = useProfileStore();
-  const { trips } = useTripStore();
-  const [severity, setSeverity] = useState<string>('medium');
-  const [category, setCategory] = useState<string>('general');
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [stepsToReproduce, setStepsToReproduce] = useState<string>('');
-  const [includeDiagnostics, setIncludeDiagnostics] = useState<boolean>(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [diagnosticInfo, setDiagnosticInfo] = useState<any>(null);
-
-  const severityOptions: SelectOption[] = [
-    { label: 'Low - Minor inconvenience', value: 'low' },
-    { label: 'Medium - Affects functionality', value: 'medium' },
-    { label: 'High - Blocks important features', value: 'high' },
-    { label: 'Critical - App crashes or data loss', value: 'critical' },
-  ];
-
-  const categoryOptions: SelectOption[] = [
-    { label: 'General App Issues', value: 'general' },
-    { label: 'Passport Scanning', value: 'passport-scan' },
-    { label: 'Form Generation', value: 'form-generation' },
-    { label: 'Country Portals', value: 'country-portals' },
-    { label: 'QR Code Wallet', value: 'qr-wallet' },
-    { label: 'Data Storage', value: 'data-storage' },
-    { label: 'Performance', value: 'performance' },
-    { label: 'UI/UX Issues', value: 'ui-ux' },
-  ];
-
-  const generateDiagnosticInfo = useCallback(() => {
-    const diagnostics = {
-      timestamp: new Date().toISOString(),
-      platform: Platform.OS,
-      platformVersion: Platform.Version,
-      appVersion: '1.0.0',
-      language: preferences.language,
-      theme,
-      biometricEnabled: preferences.biometricEnabled,
-      analyticsEnabled: preferences.analyticsEnabled,
-      deviceInfo: {
-        hasProfile: !!profile,
-        tripsCount: trips.length,
-        lastActivity: new Date().toISOString(),
-      },
-      memory: {
-        // In a real app, you'd get actual memory usage
-        estimated: '< 100MB',
-      },
-      features: {
-        cameraAvailable: true, // Would check actual camera availability
-        biometricsAvailable: true, // Would check actual biometrics
-        keychainAvailable: true, // Would check keychain
-      },
-    };
-    setDiagnosticInfo(diagnostics);
-  }, [preferences, profile, trips]);
-
-  useEffect(() => {
-    generateDiagnosticInfo();
-  }, [generateDiagnosticInfo]);
-
-  const handleSubmitBugReport = async () => {
-    if (!title.trim()) {
-      Alert.alert('Missing Information', 'Please provide a bug title.');
-      return;
-    }
-
-    if (!description.trim()) {
-      Alert.alert('Missing Information', 'Please describe the bug you encountered.');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const bugReport = {
-        id: `bug-${Date.now()}`,
-        title: title.trim(),
-        description: description.trim(),
-        stepsToReproduce: stepsToReproduce.trim(),
-        severity,
-        category,
-        timestamp: new Date().toISOString(),
-        diagnostics: includeDiagnostics ? diagnosticInfo : null,
-      };
-
-      // In a real implementation, this would send the bug report to a service
-      await new Promise(resolve => setTimeout(() => resolve(undefined), 1500));
-
-      console.log('Bug report submitted:', bugReport);
-
-      Alert.alert(
-        'Bug Report Submitted',
-        `Thank you for reporting this ${severity} severity issue. We'll investigate and work on a fix.`,
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setTitle('');
-              setDescription('');
-              setStepsToReproduce('');
-              setSeverity('medium');
-              setCategory('general');
-              navigation.goBack();
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Failed to submit bug report:', error);
-      Alert.alert('Submission Failed', 'Failed to submit bug report. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getSeverityStatus = (sev: string) => {
-    switch (sev) {
-      case 'low': return 'info';
-      case 'medium': return 'warning';
-      case 'high': return 'error';
-      case 'critical': return 'error';
-      default: return 'neutral';
-    }
-  };
-
-  const getSeverityEmoji = (sev: string) => {
-    switch (sev) {
-      case 'low': return '🟢';
-      case 'medium': return '🟡';
-      case 'high': return '🟠';
-      case 'critical': return '🔴';
-      default: return '⚪';
-    }
-  };
+export default function BugReportScreen() {
+  const {
+    severity,
+    setSeverity,
+    category,
+    setCategory,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    stepsToReproduce,
+    setStepsToReproduce,
+    includeDiagnostics,
+    setIncludeDiagnostics,
+    isSubmitting,
+    diagnosticInfo,
+    severityOptions,
+    categoryOptions,
+    handleSubmitBugReport,
+    getSeverityStatus,
+    getSeverityEmoji,
+  } = useBugReport();
 
   return (
     <ScreenContainer className="bg-gray-50">
@@ -165,20 +40,20 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         <Card>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 mr-3">Bug Severity</Text>
-            <StatusBadge 
-              status={getSeverityStatus(severity)} 
-              size="small" 
-              text={`${getSeverityEmoji(severity)} ${severity.charAt(0).toUpperCase() + severity.slice(1)}`} 
+            <StatusBadge
+              status={getSeverityStatus(severity)}
+              size="small"
+              text={`${getSeverityEmoji(severity)} ${severity.charAt(0).toUpperCase() + severity.slice(1)}`}
             />
           </View>
-          
+
           <Select
             label="How severe is this issue?"
             options={severityOptions}
             value={severity}
             onValueChange={setSeverity}
           />
-          
+
           <Text className="text-xs text-gray-500 mt-2">
             Select the severity that best describes the impact of this bug
           </Text>
@@ -187,7 +62,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         {/* Category */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">Bug Category</Text>
-          
+
           <Select
             label="Which area of the app is affected?"
             options={categoryOptions}
@@ -199,7 +74,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         {/* Title */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">Bug Title</Text>
-          
+
           <TextInput
             value={title}
             onChangeText={setTitle}
@@ -207,7 +82,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
             className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
             maxLength={100}
           />
-          
+
           <Text className="text-xs text-gray-500 mt-2">
             {title.length}/100 characters
           </Text>
@@ -216,7 +91,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         {/* Description */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">Bug Description</Text>
-          
+
           <TextInput
             value={description}
             onChangeText={setDescription}
@@ -227,7 +102,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
             style={{ minHeight: 120, textAlignVertical: 'top' }}
             maxLength={1000}
           />
-          
+
           <Text className="text-xs text-gray-500 mt-2">
             {description.length}/1000 characters
           </Text>
@@ -236,7 +111,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
         {/* Steps to Reproduce */}
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">Steps to Reproduce (Optional)</Text>
-          
+
           <TextInput
             value={stepsToReproduce}
             onChangeText={setStepsToReproduce}
@@ -247,7 +122,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
             style={{ minHeight: 80, textAlignVertical: 'top' }}
             maxLength={500}
           />
-          
+
           <Text className="text-xs text-gray-500 mt-2">
             {stepsToReproduce.length}/500 characters • List specific steps to help us reproduce the issue
           </Text>
@@ -287,7 +162,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
                   <Text className="text-xs text-gray-900">{diagnosticInfo.deviceInfo.hasProfile ? 'Yes' : 'No'}</Text>
                 </View>
               </View>
-              
+
               <Text className="text-xs text-gray-500 mt-3">
                 ℹ️ No personal or passport data is included
               </Text>
@@ -322,7 +197,7 @@ export default function BugReportScreen({ route: _route }: BugReportScreenProps)
             loading={isSubmitting}
             fullWidth
           />
-          
+
           <Text className="text-xs text-gray-500 text-center mt-3">
             Thank you for helping us improve Borderly! We'll investigate this issue promptly.
           </Text>

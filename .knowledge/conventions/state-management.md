@@ -23,6 +23,8 @@ Screens must be thin render layers. Business logic belongs in custom hooks under
 - `usePortalProfiles`, `useLoadTimeout`, `usePortalAutoLogin`, `usePortalAutoFill`
 - `useLegForm`, `useTripCreation`, `usePassportScan`
 - `useBackupExport`, `useBackupRestore`, `usePassportValidity`
+- `useTripDetail`, `usePortalSubmission`, `useTemplates`
+- `useAddQR`, `useQRWallet`, `useBugReport`, `useSettings`, `useFeedback`
 
 All exported from `src/hooks/index.ts`.
 
