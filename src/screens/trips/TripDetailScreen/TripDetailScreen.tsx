@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Map, Trash2, Copy, BookmarkPlus } from 'lucide-react-native';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
+import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, DuplicateTripModal, TravelerProgressList } from '@/components/trips';
 import { Button, StatusBadge, ScreenContainer } from '@/components/ui';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripDetail } from '@/hooks/useTripDetail';
 import { EditTripModal, AddDestinationModal } from '@/components/trips/TripDetailModals';
+import { computeTravelerProgress } from '@/services/readiness/travelerProgress';
 
 interface RouteParams {
   tripId: string;
@@ -53,6 +54,12 @@ export default function TripDetailScreen() {
     }
     if (travelerIds.size <= 1) return [];
     return familyMembers.filter(m => travelerIds.has(m.id));
+  }, [trip, familyMembers]);
+
+  // Per-traveler form progress (only for multi-traveler trips)
+  const travelerProgressData = useMemo(() => {
+    if (!trip || familyMembers.length <= 1) return [];
+    return computeTravelerProgress(trip, familyMembers);
   }, [trip, familyMembers]);
 
   // Modal visibility — render-only UI state
@@ -264,6 +271,16 @@ export default function TripDetailScreen() {
                 testID="readiness-checklist"
               />
             ) : null}
+          </View>
+        )}
+
+        {/* Per-traveler Progress */}
+        {travelerProgressData.length > 0 && (
+          <View className="px-4 pt-4">
+            <TravelerProgressList
+              travelers={travelerProgressData}
+              testID="trip-detail-traveler-progress"
+            />
           </View>
         )}
 

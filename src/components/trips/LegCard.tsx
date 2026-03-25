@@ -186,11 +186,32 @@ export default function LegCard({
             </View>
           )}
 
-          {/* Show traveler count even when details are hidden */}
+          {/* Mini traveler status indicators when details are hidden */}
           {!showTravelerDetails && leg.assignedTravelers && leg.assignedTravelers.length > 1 && (
-            <View className="mt-2">
-              <Text className="text-xs text-gray-500 dark:text-gray-400">
-                {leg.assignedTravelers.length} travelers assigned
+            <View className="mt-2 flex-row items-center" testID={`leg-card-traveler-indicators-${leg.destinationCountry}`}>
+              {getAssignedTravelers().map((travelerInfo) => {
+                if (!travelerInfo) return null;
+                const { member, status } = travelerInfo;
+                const initial = (member.givenNames?.charAt(0) ?? '').toUpperCase();
+                const dotColor = status === 'submitted' || status === 'ready'
+                  ? 'bg-green-500'
+                  : status === 'in_progress'
+                  ? 'bg-amber-500'
+                  : 'bg-gray-400';
+
+                return (
+                  <View
+                    key={member.id}
+                    className={`w-6 h-6 rounded-full items-center justify-center mr-1 ${dotColor}`}
+                    accessibilityLabel={`${member.givenNames} ${member.surname}: ${getStatusText(status)}`}
+                    testID={`leg-traveler-dot-${member.id}`}
+                  >
+                    <Text className="text-xs font-bold text-white">{initial}</Text>
+                  </View>
+                );
+              })}
+              <Text className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                {leg.assignedTravelers.length} travelers
               </Text>
             </View>
           )}
