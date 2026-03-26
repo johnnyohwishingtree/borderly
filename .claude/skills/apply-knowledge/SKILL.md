@@ -84,7 +84,7 @@ After updating a policy or model, check for cascade effects:
 
 This prevents denormalization drift — one source of truth, all references stay in sync.
 
-## Step 7: Write tests for fixes
+## Step 6: Write tests for fixes
 
 For each fix, check if a structural test already catches it:
 - If yes → verify the test passes with the fix
@@ -92,13 +92,13 @@ For each fix, check if a structural test already catches it:
 
 Every fix must have a test. See `.claude/rules/knowledge-must-have-tests.md`.
 
-## Step 8: Verify
+## Step 7: Verify
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-## Step 9: Report
+## Step 8: Report
 
 Summary of what was done:
 - Files scanned
