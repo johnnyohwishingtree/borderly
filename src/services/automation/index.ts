@@ -60,14 +60,12 @@ export type {
 } from './filler';
 
 // Automation utilities
-export {
-  SelectorBuilder,
-  DataTransformer,
-  ElementUtils,
-  ErrorHandling,
-  PerformanceMonitor,
-  AutomationPatterns
-} from '../../utils/automation';
+export { SelectorBuilder } from './selectorBuilder';
+export { DataTransformer } from './dataTransformer';
+export { ElementUtils } from './elementUtils';
+export { ErrorHandling } from './errorHandling';
+export { PerformanceMonitor } from './performanceMonitor';
+export { AutomationPatterns } from './automationPatterns';
 
 export {
   PortalDetector

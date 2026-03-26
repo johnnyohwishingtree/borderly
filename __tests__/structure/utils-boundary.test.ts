@@ -22,7 +22,7 @@ const EXEMPT_DIRS = new Set(['testHelpers', 'validation']);
  * Known violations that will be fixed by future stories (#947, #948).
  * Each entry is removed as the directory is promoted to a service.
  */
-const KNOWN_VIOLATIONS = new Set(['automation', 'portal', 'performanceOptimization']);
+const KNOWN_VIOLATIONS = new Set(['portal', 'performanceOptimization']);
 
 function getAllUtilsFiles(): { path: string; content: string }[] {
   const results: { path: string; content: string }[] = [];
