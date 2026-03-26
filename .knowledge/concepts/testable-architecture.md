@@ -26,7 +26,7 @@ If naming were arbitrary, structural tests couldn't distinguish hooks from utili
 
 ### Declarative metadata
 ```
-src/schemas/*.json                  → can parse: "all fields have autoFillSource"
+src/schemas/*.json                  → can parse: "fields have autoFillSource or countrySpecific"
 maestro/generator/screenRegistry.ts → can diff: "registry matches source testIDs"
 .knowledge/index.md                 → can diff: "index matches files on disk"
 ```

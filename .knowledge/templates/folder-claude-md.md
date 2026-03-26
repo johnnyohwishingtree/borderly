@@ -23,7 +23,7 @@ See: .knowledge/<path>.md
 
 ```markdown
 # Schemas
-Country form schemas. Every field needs autoFillSource for smart delta.
+Country form schemas. `autoFillSource` for profile fields, `countrySpecific: true` for the rest.
 See: .knowledge/domain/form-engine.md
 ```
 
