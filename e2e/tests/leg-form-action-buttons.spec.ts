@@ -14,6 +14,7 @@ import { baseState, injectState, createErrorTracker } from '../helpers';
 // Fixture: a single Japan leg in "not_started" state
 // ---------------------------------------------------------------------------
 
+/** Leg with empty formData — form is invalid, shows "Save Progress" only. */
 function japanLegState() {
   return baseState({
     trips: [
@@ -42,6 +43,55 @@ function japanLegState() {
               country: 'Japan',
               postalCode: '163-1055',
             },
+          },
+        },
+      ],
+    },
+  });
+}
+
+/** Leg with complete formData — form is valid, shows "Mark as Ready" + "Save Draft". */
+function validJapanLegState() {
+  return baseState({
+    trips: [
+      {
+        id: 'trip-action-bar-test',
+        name: 'Action Bar Test Trip',
+        status: 'upcoming',
+      },
+    ],
+    tripLegs: {
+      'trip-action-bar-test': [
+        {
+          id: 'leg-action-bar-jpn',
+          destinationCountry: 'JPN',
+          arrivalDateISO: '2027-08-01',
+          departureDateISO: '2027-08-10',
+          flightNumber: 'NH201',
+          airlineCode: 'NH',
+          formStatus: 'in_progress',
+          order: 0,
+          accommodation: {
+            name: 'Park Hyatt Tokyo',
+            address: {
+              street: '3-7-1-2 Nishi-Shinjuku',
+              city: 'Shinjuku',
+              country: 'Japan',
+              postalCode: '163-1055',
+            },
+            phone: '03-5322-1234',
+          },
+          formData: {
+            departureCity: 'Los Angeles',
+            purposeOfVisit: 'tourism',
+            durationOfStay: 9,
+            arrivalAirport: 'NRT',
+            currencyOver1M: false,
+            meatProducts: false,
+            plantProducts: false,
+            itemsToDeclareDuty: false,
+            carryingProhibitedItems: false,
+            commercialGoods: false,
           },
         },
       ],
@@ -109,7 +159,7 @@ test.describe('LegFormScreen — Fixed Action Button Bar', () => {
   });
 
   test('Mark as Ready button is visible without scrolling', async ({ page }) => {
-    await injectState(page, japanLegState());
+    await injectState(page, validJapanLegState());
     await page.goto('/');
 
     await expect(page.getByText('My Trips')).toBeVisible({ timeout: 10000 });
