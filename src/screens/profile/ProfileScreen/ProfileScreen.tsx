@@ -1,114 +1,36 @@
-import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TriangleAlert, Lock, User, ChevronRight } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
-import { useProfileStore } from '@/stores/useProfileStore';
-import { useAppStore } from '@/stores/useAppStore';
 import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState, ScreenContainer } from '@/components/ui';
 import { DocumentValidityCard } from '@/components/profile';
-import { TravelerProfile } from '@/types/profile';
+import { useProfileScreen } from '@/hooks/useProfileScreen';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { profile, familyProfiles, loadProfile, isLoading, error } = useProfileStore();
-  const { preferences } = useAppStore();
-  const [secureProfile, setSecureProfile] = useState<TravelerProfile | null>(null);
-  const [isUnlocked, setIsUnlocked] = useState(false);
-
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
-
-  const handleUnlockProfile = async () => {
-    if (!preferences.biometricEnabled) {
-      setSecureProfile(profile);
-      setIsUnlocked(true);
-      return;
-    }
-
-    try {
-      await useProfileStore.getState().loadProfile();
-      const freshProfile = useProfileStore.getState().profile;
-      if (freshProfile) {
-        setSecureProfile(freshProfile);
-        setIsUnlocked(true);
-      }
-    } catch {
-      Alert.alert(
-        'Authentication Failed',
-        'Could not authenticate. Please try again.',
-        [{ text: 'OK' }]
-      );
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const isPassportExpiringSoon = (expiryDate: string) => {
-    const expiry = new Date(expiryDate);
-    const now = new Date();
-    const sixMonths = new Date();
-    sixMonths.setMonth(now.getMonth() + 6);
-    return expiry <= sixMonths;
-  };
-
-  const getProfileCompleteness = () => {
-    if (!profile) return { percentage: 0, missing: [] };
-    
-    const requiredFields = [
-      { field: 'email', label: 'Email' },
-      { field: 'phoneNumber', label: 'Phone Number' },
-      { field: 'occupation', label: 'Occupation' },
-      { field: 'homeAddress', label: 'Home Address' },
-    ];
-    
-    const completed = requiredFields.filter(({ field }) => {
-      if (field === 'homeAddress') {
-        const addr = profile.homeAddress;
-        return addr ? !!(addr.line1 && addr.city && addr.country) : false;
-      }
-      return !!profile[field as keyof typeof profile];
-    });
-
-    const missing = requiredFields.filter(({ field }) => {
-      if (field === 'homeAddress') {
-        const addr = profile.homeAddress;
-        return !addr || !addr.line1 || !addr.city || !addr.country;
-      }
-      return !profile[field as keyof typeof profile];
-    });
-    
-    return {
-      percentage: Math.round((completed.length / requiredFields.length) * 100),
-      missing: missing.map(m => m.label)
-    };
-  };
-
-  const maskPassportNumber = (passportNumber: string) => {
-    if (passportNumber.length <= 4) {return passportNumber;}
-    const visiblePart = passportNumber.slice(-4);
-    const maskedPart = '*'.repeat(passportNumber.length - 4);
-    return `${maskedPart}${visiblePart}`;
-  };
+  const {
+    profile,
+    secureProfile,
+    isUnlocked,
+    isLoading,
+    error,
+    biometricEnabled,
+    familyProfiles,
+    completeness,
+    handleUnlockProfile,
+    formatDate,
+    isPassportExpiringSoon,
+    maskPassportNumber,
+    loadProfile,
+  } = useProfileScreen();
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-gray-50 dark:bg-gray-900">
-        <LoadingSpinner 
-          size="large" 
-          text="Loading your profile..." 
-          variant="spinner"
-        />
+        <LoadingSpinner size="large" text="Loading your profile..." variant="spinner" />
       </View>
     );
   }
@@ -120,11 +42,7 @@ export default function ProfileScreen() {
           icon={<TriangleAlert size={32} color="#dc2626" />}
           title="Unable to load profile"
           description={error}
-          buttonProps={{
-            title: "Try Again",
-            onPress: loadProfile,
-            variant: "primary"
-          }}
+          buttonProps={{ title: "Try Again", onPress: loadProfile, variant: "primary" }}
           variant="default"
         />
       </View>
@@ -159,37 +77,23 @@ export default function ProfileScreen() {
             </View>
             <View className="items-end">
               {isPassportExpiringSoon(profile.passportExpiry) ? (
-                <StatusBadge 
-                  status="warning" 
-                  size="small" 
-                  text="Passport Expiring" 
-                  className="mb-1"
-                />
+                <StatusBadge status="warning" size="small" text="Passport Expiring" className="mb-1" />
               ) : (
-                <StatusBadge 
-                  status="success" 
-                  size="small" 
-                  text="Valid" 
-                  className="mb-1"
-                />
+                <StatusBadge status="success" size="small" text="Valid" className="mb-1" />
               )}
             </View>
           </View>
-          
+
           {/* Profile Completeness */}
           <Card className="mb-4">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-sm font-semibold text-gray-900 dark:text-white">Profile Completeness</Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">{getProfileCompleteness().percentage}%</Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-400">{completeness.percentage}%</Text>
             </View>
-            <ProgressBar 
-              progress={getProfileCompleteness().percentage} 
-              size="small"
-              className="mb-2"
-            />
-            {getProfileCompleteness().missing.length > 0 && (
+            <ProgressBar progress={completeness.percentage} size="small" className="mb-2" />
+            {completeness.missing.length > 0 && (
               <Text className="text-xs text-gray-500 dark:text-gray-500">
-                Missing: {getProfileCompleteness().missing.join(', ')}
+                Missing: {completeness.missing.join(', ')}
               </Text>
             )}
           </Card>
@@ -205,18 +109,14 @@ export default function ProfileScreen() {
               <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
                 Passport Information
               </Text>
-              {preferences.biometricEnabled ? (
-                <StatusBadge 
-                  status={isUnlocked ? "success" : "warning"} 
-                  size="small" 
-                  text={isUnlocked ? "Unlocked" : "Locked"} 
+              {biometricEnabled ? (
+                <StatusBadge
+                  status={isUnlocked ? "success" : "warning"}
+                  size="small"
+                  text={isUnlocked ? "Unlocked" : "Locked"}
                 />
               ) : (
-                <StatusBadge
-                  status="warning"
-                  size="small"
-                  text="Biometric Off"
-                />
+                <StatusBadge status="warning" size="small" text="Biometric Off" />
               )}
             </View>
             {isPassportExpiringSoon(profile.passportExpiry) && (
@@ -227,7 +127,7 @@ export default function ProfileScreen() {
             )}
           </View>
 
-          {!isUnlocked && preferences.biometricEnabled ? (
+          {!isUnlocked && biometricEnabled ? (
             <View className="py-6">
               <Text className="text-center text-gray-600 dark:text-gray-400 mb-4">
                 Passport data is protected by biometric authentication
@@ -249,7 +149,7 @@ export default function ProfileScreen() {
                     {isUnlocked ? secureProfile?.passportNumber : maskPassportNumber(profile.passportNumber)}
                   </Text>
                 </View>
-                
+
                 <View className="flex-row gap-3">
                   <View className="flex-1 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                     <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nationality</Text>
@@ -260,12 +160,12 @@ export default function ProfileScreen() {
                     <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.gender}</Text>
                   </View>
                 </View>
-                
+
                 <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date of Birth</Text>
                   <Text className="text-sm text-gray-900 dark:text-white mt-1">{formatDate(profile.dateOfBirth)}</Text>
                 </View>
-                
+
                 <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Passport Expires</Text>
                   <View className="flex-row items-center justify-between mt-1">
@@ -280,7 +180,7 @@ export default function ProfileScreen() {
                     )}
                   </View>
                 </View>
-                
+
                 <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Issued by</Text>
                   <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.issuingCountry}</Text>
@@ -403,16 +303,16 @@ export default function ProfileScreen() {
               <Text className="text-sm text-gray-900 dark:text-white mt-1">{formatDate(profile.updatedAt)}</Text>
             </View>
           </View>
-          
+
           <Divider className="my-4" />
-          
+
           {/* Security Notice */}
           <View className="flex-row items-start">
             <Lock size={18} color="#374151" style={{ marginRight: 8 }} />
             <View className="flex-1">
               <Text className="text-sm font-medium text-gray-900 dark:text-white">Local-First Security</Text>
               <Text className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                Your passport data is encrypted and stored securely on this device only. 
+                Your passport data is encrypted and stored securely on this device only.
                 It never leaves your phone unless you explicitly share it.
               </Text>
             </View>

@@ -43,6 +43,8 @@ export type { UseTripChecklistResult } from './useTripChecklist';
 export { useTripReadiness } from './useTripReadiness';
 export type { UseTripReadinessResult } from './useTripReadiness';
 export { useImportTrip } from './useImportTrip';
+export { useProfileScreen } from './useProfileScreen';
+export type { ProfileCompleteness, UseProfileScreenReturn } from './useProfileScreen';
 export { useReviewImport } from './useReviewImport';
 export { useTheme } from '@/utils/theme';
 export type { UseThemeResult, ResolvedTheme, ColorTokens } from '@/utils/theme';
