@@ -122,6 +122,7 @@ jest.mock('react-native', () => {
     },
     findNodeHandle: jest.fn(() => null),
     useColorScheme: jest.fn(() => 'light'),
+    useWindowDimensions: jest.fn(() => ({ width: 375, height: 812 })),
   };
 });
 
