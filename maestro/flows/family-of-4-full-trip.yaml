@@ -40,11 +40,11 @@ tags:
     timeout: 10000
 - scrollUntilVisible:
     element:
-      id: "manage-family-button"
+      id: "family-summary-row"
     direction: DOWN
     timeout: 5000
 - tapOn:
-    id: "manage-family-button"
+    id: "family-summary-row"
 
 # Family management screen - verify it loads
 - extendedWaitUntil:

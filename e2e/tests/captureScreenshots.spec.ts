@@ -762,7 +762,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    const familyBtn = page.getByTestId('manage-family-button');
+    const familyBtn = page.getByTestId('family-summary-row');
     if (await familyBtn.isVisible()) {
       await familyBtn.click();
       await page.waitForTimeout(1500);
@@ -781,7 +781,7 @@ test.describe('Screenshot Capture for Visual Audit', () => {
     await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 15000 });
     await page.getByRole('tab', { name: 'Profile tab' }).click();
     await expect(page.getByText('Travel Profile')).toBeVisible({ timeout: 10000 });
-    const familyBtn = page.getByTestId('manage-family-button');
+    const familyBtn = page.getByTestId('family-summary-row');
     if (await familyBtn.isVisible()) {
       await familyBtn.click();
       await page.waitForTimeout(1500);
