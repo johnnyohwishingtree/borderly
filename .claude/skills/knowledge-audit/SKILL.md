@@ -105,7 +105,36 @@ Every fix needs a test to prevent regression. For each violation, specify:
 
 If no existing test covers the violation, create one. The test should run at `pnpm test` time (< 1 second) so it catches drift immediately.
 
-## Step 6: Write findings to gaps.md
+## Step 6: Check knowledge consistency
+
+Scan for contradictions between knowledge files. Two files should never give opposite instructions about the same topic.
+
+### How to check:
+
+**1. Extract rules by topic.** For each knowledge file, list the concrete rules as topic + instruction:
+```
+styling.md:       [inline-styles] → AVOID (prefer className)
+e2e-testability.md: [inline-styles] → OK (for computed values)
+```
+
+**2. Cluster by shared topics.** Find files that mention the same concepts (e.g., "testID", "Keychain", "inline styles", "barrel export", "autoFillSource"). These are the files that could contradict.
+
+**3. Compare instructions.** For each shared topic, check if the files agree:
+- **Consistent**: both say the same thing, or one is a scoped exception of the other (e.g., "avoid inline styles" + "inline styles OK for animations" — the exception is scoped)
+- **Contradictory**: one says "always do X" and another says "never do X" with no scoping — this is a conflict that needs resolving
+
+### Common conflict patterns:
+- Anti-pattern in file A is a recommendation in file B (without scoping)
+- Two files define different rules for the same field/component/pattern
+- A folder CLAUDE.md links to two knowledge files that disagree
+- A convention was updated but files that reference it still describe the old rule
+
+### When a conflict is found:
+- Determine which file is authoritative (usually the more specific one)
+- Update the other file to reference the authoritative rule or add explicit scoping
+- Add to gaps.md under `## Knowledge updates`
+
+## Step 7: Write all findings to gaps.md
 
 Write findings to `.knowledge/gaps.md` with the test strategy included:
 
@@ -114,7 +143,7 @@ Write findings to `.knowledge/gaps.md` with the test strategy included:
 - `src/components/guide/CopyableField.tsx` — copy button missing testID. Test: add to screenRegistry + maestro-registry-sync catches it. (knowledge-audit-YYYY-MM-DD)
 ```
 
-## Step 7: Fix or create stories (if not --dry-run)
+## Step 8: Fix or create stories (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline and commit
 - **Larger fixes**: create a story with the test strategy in the acceptance criteria
