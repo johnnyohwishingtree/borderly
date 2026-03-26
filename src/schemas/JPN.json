@@ -171,32 +171,23 @@
             }
           ],
           "autoFillMapping": {
-            "Software Developer": "company_employee",
-            "Software Engineer": "company_employee",
-            "Engineer": "company_employee",
-            "Developer": "company_employee",
-            "Designer": "company_employee",
-            "Manager": "company_employee",
-            "Analyst": "company_employee",
-            "Consultant": "company_employee",
-            "Accountant": "company_employee",
-            "Marketing": "company_employee",
-            "Sales": "company_employee",
-            "Administrative": "company_employee",
-            "Teacher": "government_employee",
-            "Professor": "government_employee",
-            "Government Worker": "government_employee",
-            "Civil Servant": "government_employee",
-            "Freelancer": "self_employed",
-            "Self-employed": "self_employed",
-            "Business Owner": "self_employed",
-            "Entrepreneur": "self_employed",
-            "Student": "student",
-            "Homemaker": "homemaker",
-            "Housewife": "homemaker",
-            "Househusband": "homemaker",
-            "Retired": "retired",
-            "Unemployed": "unemployed",
+            "SOFTWARE_DEVELOPER": "company_employee",
+            "ENGINEER": "company_employee",
+            "ACCOUNTANT": "company_employee",
+            "LAWYER": "company_employee",
+            "TEACHER": "government_employee",
+            "GOVERNMENT_WORKER": "government_employee",
+            "MILITARY": "government_employee",
+            "SELF_EMPLOYED": "self_employed",
+            "BUSINESS_OWNER": "self_employed",
+            "FREELANCER": "self_employed",
+            "STUDENT": "student",
+            "HOMEMAKER": "homemaker",
+            "RETIRED": "retired",
+            "UNEMPLOYED": "unemployed",
+            "DOCTOR": "company_employee",
+            "NURSE": "company_employee",
+            "OTHER": "other",
             "_default": "other"
           }
         },
@@ -295,6 +286,8 @@
           "type": "searchable_select",
           "required": true,
           "countrySpecific": true,
+          "autoFillSource": "profile.purposeOfVisit",
+          "portalFieldName": "Purpose of Visit",
           "options": [
             {
               "value": "tourism",
@@ -316,7 +309,18 @@
               "value": "other",
               "label": "Other"
             }
-          ]
+          ],
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "other",
+            "MEDICAL": "other",
+            "FAMILY_VISIT": "visiting_relatives",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "durationOfStay",
