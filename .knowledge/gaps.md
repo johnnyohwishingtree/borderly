@@ -17,6 +17,8 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 - Missing test coverage for utils: `animations.ts`, `colors.ts`, `constants.ts`, `imageUtils.ts`, `logger.ts`. Test: add unit tests. (audit-2026-03-26)
 - 17 of 19 folder CLAUDE.md files exceed the 5-line max (template says "Maximum 5 lines"). Most are 7-8 lines with multiple See: links. Trim to pointer-only format per `.knowledge/templates/folder-claude-md.md`. (audit-2026-03-26)
 
+- 16 hooks still return >10 top-level keys (allowlisted in `__tests__/structure/hook-return-limit.test.ts`): useAddQR, useBugReport, useEditTrip, useFeedback, useHelpScreen, useLegForm, useMRZScanner, usePortalAutoLogin, useProfileScreen, useQRWallet, useReviewImport, useSettings, useSubmissionGuide, useTripCreation, useTripDetailModals, useTripList. Each needs a story to group return values. Test: structural test catches new violations; stale-entry test catches fixed hooks not removed from allowlist. (#1013)
+
 ## Knowledge updates
 
 - `.knowledge/models/form-engine.md` line 55 references `src/services/forms/formEngine.ts` — actual path is `src/services/forms/formEngine/formEngine.ts`. Line 58 references `src/services/forms/validators.ts` — actual path is `src/services/forms/validators/validators.ts`. Update to reflect folder structure. (audit-2026-03-26)
