@@ -1,10 +1,13 @@
 import { create } from 'zustand';
-import { generateFilledForm, updateFormData, validateFormCompletion } from '../services/forms/formEngine';
+import { generateFilledForm, updateFormData } from '../services/forms/formEngine';
 import { batchAutoFill } from '../services/forms/autoFillLogic';
 import { validateFormWithCrossChecks } from '../services/forms/validators';
 import { findFieldInForm, validateFieldValue } from './formStoreHelpers';
 import { schemaUpdateService } from '../services/schemas/schemaUpdateService';
 import type { FormStore } from './useFormStoreTypes';
+import { createAutoFillSlice } from './formStoreAutoFillSlice';
+import { createMemorySlice } from './formStoreMemorySlice';
+import { createValidationSlice } from './formStoreValidationSlice';
 
 export type { FormStore } from './useFormStoreTypes';
 
@@ -31,29 +34,22 @@ export const useFormStore = create<FormStore>((set, get) => ({
   generateForm: (profile, leg, schema, existingData = {}) => {
     set({ isLoading: true });
 
-    // Fire a background schema-update check so that the next time a leg form
-    // is opened it will pick up any OTA changes stored in MMKV.
-    // This is intentionally fire-and-forget — never blocks the UI.
-    schemaUpdateService.checkForUpdates().catch(() => {
-      // Swallow errors: offline or CDN failures should never break form generation.
-    });
+    schemaUpdateService.checkForUpdates().catch(() => {});
 
     try {
       const state = get();
-      
-      // Perform memory cleanup if needed before generating new form
-      if (Date.now() - state.memoryUsage.lastCleanup > 300000) { // 5 minutes
+
+      if (Date.now() - state.memoryUsage.lastCleanup > 300000) {
         state.performMemoryCleanup();
       }
 
       const form = generateFilledForm(profile, leg, schema, existingData);
-      
-      // Apply intelligent auto-fill if enabled
+
       let enhancedFormData = { ...existingData };
       if (state.autoFillOptions.enableSmartDefaults) {
         const allFields = form.sections.flatMap(section => section.fields);
         const autoFillResults = batchAutoFill(allFields, { profile, leg }, state.autoFillOptions);
-        
+
         Object.entries(autoFillResults).forEach(([fieldId, result]) => {
           if (!enhancedFormData[fieldId] && result.value !== undefined) {
             enhancedFormData[fieldId] = result.value;
@@ -61,14 +57,12 @@ export const useFormStore = create<FormStore>((set, get) => ({
         });
       }
 
-      // Validate with enhanced validation
       const allFields = form.sections.flatMap(section => section.fields);
       const validationResult = validateFormWithCrossChecks(allFields, enhancedFormData, {
         countryCode: schema.countryCode,
         profileData: profile,
       });
 
-      // Calculate memory usage
       const formDataSize = JSON.stringify(enhancedFormData).length;
 
       set({
@@ -103,8 +97,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
     if (!state.currentForm) {return;}
 
     const updatedData = updateFormData(state.formData, fieldId, value);
-    
-    // Enhanced validation with cross-field checks
+
     const allFields = state.currentForm.sections.flatMap(section => section.fields);
     const validationResult = validateFormWithCrossChecks(allFields, updatedData, {
       countryCode: state.currentForm.countryCode,
@@ -214,261 +207,12 @@ export const useFormStore = create<FormStore>((set, get) => ({
     return Object.keys(state.formData).length > 0;
   },
 
-  getCountrySpecificFields: () => {
-    const state = get();
-    if (!state.currentForm) {return [];}
+  // Auto-fill operations (delegated to slice)
+  ...createAutoFillSlice(set, get),
 
-    const countrySpecificFields: string[] = [];
-    state.currentForm.sections.forEach(section => {
-      section.fields.forEach(field => {
-        if (field.countrySpecific) {
-          countrySpecificFields.push(field.id);
-        }
-      });
-    });
+  // Memory management (delegated to slice)
+  ...createMemorySlice(set, get),
 
-    return countrySpecificFields;
-  },
-
-  getRequiredFields: () => {
-    const state = get();
-    if (!state.currentForm) {return [];}
-
-    const requiredFields: string[] = [];
-    state.currentForm.sections.forEach(section => {
-      section.fields.forEach(field => {
-        if (field.required) {
-          requiredFields.push(field.id);
-        }
-      });
-    });
-
-    return requiredFields;
-  },
-
-  getMissingRequiredFields: () => {
-    const state = get();
-    if (!state.currentForm) {return [];}
-
-    const validationResult = validateFormCompletion(state.currentForm);
-    return validationResult.missingFields;
-  },
-
-  // Enhanced auto-fill operations
-  enableSmartAutoFill: (profile, leg) => {
-    const state = get();
-    if (!state.currentForm) return;
-
-    const allFields = state.currentForm.sections.flatMap(section => section.fields);
-    const autoFillResults = batchAutoFill(allFields, { profile, leg }, state.autoFillOptions);
-    
-    const updatedFormData = { ...state.formData };
-    Object.entries(autoFillResults).forEach(([fieldId, result]) => {
-      if (result.confidence >= state.autoFillOptions.confidenceThreshold) {
-        updatedFormData[fieldId] = result.value;
-      }
-    });
-
-    set({ formData: updatedFormData });
-  },
-
-  updateAutoFillOptions: (options) => {
-    set(state => ({
-      autoFillOptions: { ...state.autoFillOptions, ...options }
-    }));
-  },
-
-  getAutoFillSuggestion: (fieldId) => {
-    const state = get();
-    if (!state.currentForm) return undefined;
-
-    const field = findFieldInForm(state.currentForm, fieldId);
-    if (!field) return undefined;
-
-    // This would need profile and leg context - simplified for now
-    return undefined;
-  },
-
-  applyAutoFillSuggestion: (fieldId) => {
-    const state = get();
-    const suggestion = state.getAutoFillSuggestion(fieldId);
-    if (suggestion !== undefined) {
-      state.updateField(fieldId, suggestion);
-      return true;
-    }
-    return false;
-  },
-
-  batchAutoFillForm: () => {
-    const state = get();
-    if (!state.currentForm) return;
-
-    // This would need profile and leg context - could be stored in state
-    // For now, just a placeholder
-  },
-
-  // Enhanced validation methods
-  getFieldWarnings: (fieldId) => {
-    const state = get();
-    return state.warnings[fieldId] || [];
-  },
-
-  getCrossFieldErrors: () => {
-    const state = get();
-    return state.crossFieldErrors;
-  },
-
-  getValidationSummary: () => {
-    const state = get();
-    const errorCount = Object.keys(state.errors).length;
-    const warningCount = Object.values(state.warnings).reduce((count, warnings) => count + warnings.length, 0);
-    const crossFieldErrorCount = state.crossFieldErrors.length;
-
-    return {
-      hasErrors: errorCount > 0 || crossFieldErrorCount > 0,
-      hasWarnings: warningCount > 0,
-      errorCount: errorCount + crossFieldErrorCount,
-      warningCount,
-    };
-  },
-
-  getAutoFillableFields: () => {
-    const state = get();
-    if (!state.currentForm) return [];
-
-    const autoFillableFields: string[] = [];
-    state.currentForm.sections.forEach(section => {
-      section.fields.forEach(field => {
-        if (field.autoFillSource || field.countrySpecific === false) {
-          autoFillableFields.push(field.id);
-        }
-      });
-    });
-
-    return autoFillableFields;
-  },
-
-  getFormCompletionDetails: () => {
-    const state = get();
-    if (!state.currentForm) {
-      return {
-        totalFields: 0,
-        completedFields: 0,
-        autoFilledFields: 0,
-        userFilledFields: 0,
-        remainingFields: 0,
-      };
-    }
-
-    const stats = state.currentForm.stats;
-    const completedFields = stats.autoFilled + stats.userFilled;
-
-    return {
-      totalFields: stats.totalFields,
-      completedFields,
-      autoFilledFields: stats.autoFilled,
-      userFilledFields: stats.userFilled,
-      remainingFields: stats.remaining,
-    };
-  },
-
-  // Memory management operations
-  performMemoryCleanup: () => {
-    const state = get();
-    
-    // Clear non-essential data from form
-    const optimizedFormData = { ...state.formData };
-    
-    // Remove large text values that can be regenerated
-    Object.keys(optimizedFormData).forEach(key => {
-      const value = optimizedFormData[key];
-      if (typeof value === 'string' && value.length > 1000) {
-        // Keep only a shortened version for very long text
-        optimizedFormData[key] = value.substring(0, 100) + '...';
-      }
-    });
-
-    // Clear old validation errors and warnings that may accumulate
-    const cleanedErrors: Record<string, string> = {};
-    const cleanedWarnings: Record<string, string[]> = {};
-
-    // Only keep errors/warnings for fields that still exist in current form
-    if (state.currentForm) {
-      const allFieldIds = state.currentForm.sections.flatMap(section => 
-        section.fields.map(field => field.id)
-      );
-      
-      allFieldIds.forEach(fieldId => {
-        if (state.errors[fieldId]) {
-          cleanedErrors[fieldId] = state.errors[fieldId];
-        }
-        if (state.warnings[fieldId]) {
-          cleanedWarnings[fieldId] = state.warnings[fieldId];
-        }
-      });
-    }
-
-    set({
-      formData: optimizedFormData,
-      errors: cleanedErrors,
-      warnings: cleanedWarnings,
-      memoryUsage: {
-        ...state.memoryUsage,
-        lastCleanup: Date.now(),
-        formDataSize: JSON.stringify(optimizedFormData).length,
-      },
-    });
-
-    // Force garbage collection in dev mode
-    if (__DEV__ && (globalThis as any).gc) {
-      (globalThis as any).gc();
-    }
-  },
-
-  getMemoryUsage: () => {
-    const state = get();
-    return { ...state.memoryUsage };
-  },
-
-  clearFormHistory: () => {
-    set({
-      currentForm: null,
-      formData: {},
-      errors: {},
-      warnings: {},
-      crossFieldErrors: [],
-      isValid: false,
-      memoryUsage: {
-        formDataSize: 0,
-        lastCleanup: Date.now(),
-        maxRetainedForms: 3,
-      },
-    });
-  },
-
-  optimizeFormData: () => {
-    const state = get();
-    if (!state.currentForm || Object.keys(state.formData).length === 0) {
-      return;
-    }
-
-    // Remove undefined/null values
-    const optimizedData: Record<string, unknown> = {};
-    Object.entries(state.formData).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        optimizedData[key] = value;
-      }
-    });
-
-    // Update memory usage tracking
-    const newSize = JSON.stringify(optimizedData).length;
-
-    set({
-      formData: optimizedData,
-      memoryUsage: {
-        ...state.memoryUsage,
-        formDataSize: newSize,
-      },
-    });
-  },
+  // Validation reporting (delegated to slice)
+  ...createValidationSlice(set, get),
 }));
