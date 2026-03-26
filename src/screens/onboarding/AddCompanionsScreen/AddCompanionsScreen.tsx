@@ -96,7 +96,10 @@ export default function AddCompanionsScreen() {
             >
               Traveling with family?
             </Text>
-            <Text className="text-base text-gray-600 text-center">
+            <Text
+              className="text-base text-gray-600 text-center"
+              testID="add-companions-subtitle"
+            >
               Scan their passports now so forms auto-fill for everyone
             </Text>
           </View>

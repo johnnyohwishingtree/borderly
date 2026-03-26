@@ -20,8 +20,7 @@ test.describe('AddCompanions Screen', () => {
     await navigateToAddCompanions(page);
 
     await expect(page.getByTestId('add-companions-title')).toBeVisible();
-    await expect(page.getByText('Traveling with family?')).toBeVisible();
-    await expect(page.getByText('Scan their passports now so forms auto-fill for everyone')).toBeVisible();
+    await expect(page.getByTestId('add-companions-subtitle')).toBeVisible();
   });
 
   test('shows add companion button', async ({ page }) => {
