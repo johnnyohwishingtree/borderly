@@ -70,11 +70,18 @@ jest.mock('react-native', () => {
       View: mockComponent('Animated.View'),
       Value: jest.fn(() => ({
         interpolate: jest.fn(() => 'interpolated'),
+        stopAnimation: jest.fn(),
       })),
       timing: jest.fn(() => ({
         start: jest.fn(),
       })),
       spring: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+      sequence: jest.fn(() => ({
+        start: jest.fn(),
+      })),
+      loop: jest.fn(() => ({
         start: jest.fn(),
       })),
     },
