@@ -3,6 +3,7 @@
  */
 
 import { productionProfiler } from '../../../src/services/performance/productionProfiler';
+import { cleanupOldData } from '../../../src/services/performance/productionProfiler/metricsStorage';
 
 declare const global: any;
 
@@ -359,12 +360,8 @@ describe('ProductionProfiler', () => {
         ]),
       };
       
-      // @ts-ignore - Access private method for testing
-      const profiler = new (productionProfiler.constructor as any)();
-      profiler.storage = localMockStorage;
-      
-      // Trigger cleanup
-      profiler.cleanupOldData();
+      // Call the extracted cleanup function directly with mock storage
+      cleanupOldData(localMockStorage as any);
       
       expect(localMockStorage.delete).toHaveBeenCalledWith('metrics-2023-01-01');
       expect(localMockStorage.delete).not.toHaveBeenCalledWith('metrics-2026-03-01');
