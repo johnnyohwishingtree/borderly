@@ -27,6 +27,7 @@ jest.mock('@/services/storage', () => ({
     getPortalCredentialsForProfile: jest.fn().mockResolvedValue([]),
     deletePortalCredential: jest.fn().mockResolvedValue(undefined),
     deleteAllPortalCredentialsForProfile: jest.fn().mockResolvedValue(undefined),
+    authenticateWithBiometric: jest.fn().mockResolvedValue(false),
   },
   exportUserData: jest.fn().mockResolvedValue(undefined),
   deleteAllData: jest.fn().mockResolvedValue(undefined),
@@ -56,13 +57,6 @@ jest.mock('@/constants/countries', () => ({
     { code: 'MYS', name: 'Malaysia' },
     { code: 'SGP', name: 'Singapore' },
   ],
-}));
-
-jest.mock('react-native-keychain', () => ({
-  getGenericPassword: jest.fn().mockResolvedValue(false),
-  ACCESSIBLE: {
-    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WhenUnlockedThisDeviceOnly',
-  },
 }));
 
 jest.mock('react-native-haptic-feedback', () => ({
@@ -210,7 +204,7 @@ function setupMocks(
 // ---------------------------------------------------------------------------
 
 describe('SettingsScreen — App Lock section', () => {
-  const Keychain = require('react-native-keychain'); // eslint-disable-line @typescript-eslint/no-require-imports
+  const { keychainService } = require('@/services/storage'); // eslint-disable-line @typescript-eslint/no-require-imports
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -257,7 +251,7 @@ describe('SettingsScreen — App Lock section', () => {
   });
 
   it('triggers biometric auth when disabling lock', async () => {
-    Keychain.getGenericPassword.mockResolvedValue({ username: 'test', password: 'pass' });
+    keychainService.authenticateWithBiometric.mockResolvedValue(true);
 
     const setLockEnabled = jest.fn();
     setupMocks({ isBiometricAvailable: true, isLockEnabled: true, setLockEnabled });
@@ -268,16 +262,17 @@ describe('SettingsScreen — App Lock section', () => {
       fireEvent.press(toggle);
     });
 
-    expect(Keychain.getGenericPassword).toHaveBeenCalledWith(
+    expect(keychainService.authenticateWithBiometric).toHaveBeenCalledWith(
+      'borderly_lock_check',
       expect.objectContaining({
-        service: 'borderly_lock_check',
+        title: 'Confirm Disable App Lock',
       }),
     );
     expect(setLockEnabled).toHaveBeenCalledWith(false);
   });
 
-  it('does NOT disable lock if biometric auth is cancelled (getGenericPassword throws)', async () => {
-    Keychain.getGenericPassword.mockRejectedValue(new Error('User cancelled'));
+  it('does NOT disable lock if biometric auth fails', async () => {
+    keychainService.authenticateWithBiometric.mockResolvedValue(false);
 
     const setLockEnabled = jest.fn();
     setupMocks({ isBiometricAvailable: true, isLockEnabled: true, setLockEnabled });
@@ -288,11 +283,12 @@ describe('SettingsScreen — App Lock section', () => {
       fireEvent.press(toggle);
     });
 
-    expect(setLockEnabled).not.toHaveBeenCalled();
+    // When auth returns false, Alert fallback is shown instead of directly disabling
+    expect(setLockEnabled).not.toHaveBeenCalledWith(false);
   });
 
-  it('shows Alert confirmation when no stored credential (getGenericPassword returns false)', async () => {
-    Keychain.getGenericPassword.mockResolvedValue(false);
+  it('shows Alert confirmation when biometric auth returns false', async () => {
+    keychainService.authenticateWithBiometric.mockResolvedValue(false);
 
     const alertSpy = jest.spyOn(Alert, 'alert');
     const setLockEnabled = jest.fn();

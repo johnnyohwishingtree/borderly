@@ -180,6 +180,23 @@ class KeychainServiceImpl implements KeychainService {
     return deleteAllPortalCreds(this.ops, profileId);
   }
 
+  // Biometric authentication
+
+  async authenticateWithBiometric(
+    service: string,
+    prompt: { title: string; subtitle: string; cancel: string },
+  ): Promise<boolean> {
+    try {
+      const result = await Keychain.getGenericPassword({
+        service,
+        authenticationPrompt: prompt,
+      });
+      return result !== false;
+    } catch {
+      return false;
+    }
+  }
+
   // Utility methods
 
   async isAvailable(): Promise<boolean> {

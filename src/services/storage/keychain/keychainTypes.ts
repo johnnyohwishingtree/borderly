@@ -31,6 +31,9 @@ export interface KeychainService {
   getPortalCredentialsForProfile(profileId: string): Promise<PortalCredential[]>;
   deleteAllPortalCredentialsForProfile(profileId: string): Promise<void>;
 
+  // Biometric authentication
+  authenticateWithBiometric(service: string, prompt: { title: string; subtitle: string; cancel: string }): Promise<boolean>;
+
   // System utilities
   isAvailable(): Promise<boolean>;
   clearSensitiveMemory(): void;

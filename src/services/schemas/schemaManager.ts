@@ -1,4 +1,4 @@
-import { MMKV } from 'react-native-mmkv';
+import { mmkvService } from '../storage';
 import {
   CountryFormSchema,
   SchemaRegistry
@@ -8,12 +8,16 @@ import { schemaValidator } from './validation';
 import { schemaMigrator } from './migration';
 
 class SchemaManager {
-  private storage: MMKV;
+  private static readonly STORAGE_PREFIX = 'schema_';
   private registry: SchemaRegistry | null = null;
   private changeDetectionInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor() {
-    this.storage = new MMKV({ id: 'schema_storage' });
+  private storageGet(key: string): string | undefined {
+    return mmkvService.getString(`${SchemaManager.STORAGE_PREFIX}${key}`);
+  }
+
+  private storageSet(key: string, value: string): void {
+    mmkvService.setString(`${SchemaManager.STORAGE_PREFIX}${key}`, value);
   }
 
   /**
@@ -42,7 +46,7 @@ class SchemaManager {
       }
 
       // Create registry if it doesn't exist
-      if (!this.storage.getString('registry')) {
+      if (!this.storageGet('registry')) {
         const initialRegistry: SchemaRegistry = {
           schemas: schemaMap,
           migrations: {},
@@ -53,10 +57,10 @@ class SchemaManager {
           },
         };
         
-        this.storage.set('registry', JSON.stringify(initialRegistry));
+        this.storageSet('registry', JSON.stringify(initialRegistry));
       }
 
-      this.registry = JSON.parse(this.storage.getString('registry')!);
+      this.registry = JSON.parse(this.storageGet('registry')!);
       
       // Start change detection monitoring
       this.startChangeDetection();
@@ -134,7 +138,7 @@ class SchemaManager {
     }
 
     // Persist to storage
-    this.storage.set('registry', JSON.stringify(this.registry));
+    this.storageSet('registry', JSON.stringify(this.registry));
 
     console.log(`Schema for ${countryCode} updated successfully`);
   }
@@ -163,7 +167,7 @@ class SchemaManager {
     );
 
     this.registry.metadata.lastUpdated = new Date().toISOString();
-    this.storage.set('registry', JSON.stringify(this.registry));
+    this.storageSet('registry', JSON.stringify(this.registry));
 
     console.log(`Schema for ${countryCode} deprecated successfully`);
   }
@@ -316,7 +320,7 @@ class SchemaManager {
     }
 
     this.registry = registry;
-    this.storage.set('registry', JSON.stringify(registry));
+    this.storageSet('registry', JSON.stringify(registry));
     console.log('Schema registry imported successfully');
   }
 

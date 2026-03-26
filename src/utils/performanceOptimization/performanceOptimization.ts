@@ -5,7 +5,7 @@
  * for improving app performance based on real-world usage data.
  */
 
-import { MMKV } from 'react-native-mmkv';
+import { mmkvService } from '../../services/storage';
 import { sanitizePII } from '../piiSanitizer';
 import type { PerformanceMetrics } from '../../services/performance/productionProfiler';
 import type { RegressionAlert } from '../../services/performance/regressionDetection';
@@ -28,19 +28,23 @@ import {
 declare const global: any;
 
 class PerformanceOptimization {
-  private storage: MMKV;
+  private static readonly STORAGE_PREFIX = 'perf_opt_';
   private strategies: Map<string, OptimizationStrategy> = new Map();
   private optimizationHistory: OptimizationResult[] = [];
   private performanceBudgets: PerformanceBudget[] = [];
 
   constructor() {
-    this.storage = new MMKV({
-      id: 'performance-optimization',
-    });
-
     this.loadStrategies();
     this.loadOptimizationHistory();
     this.initializePerformanceBudgets();
+  }
+
+  private storageGet(key: string): string | undefined {
+    return mmkvService.getString(`${PerformanceOptimization.STORAGE_PREFIX}${key}`);
+  }
+
+  private storageSet(key: string, value: string): void {
+    mmkvService.setString(`${PerformanceOptimization.STORAGE_PREFIX}${key}`, value);
   }
 
   /**
@@ -366,7 +370,7 @@ class PerformanceOptimization {
     });
 
     try {
-      const customStrategies = this.storage.getString('custom-strategies');
+      const customStrategies = this.storageGet('custom-strategies');
       if (customStrategies) {
         const strategies: OptimizationStrategy[] = JSON.parse(customStrategies);
         strategies.forEach(strategy => {
@@ -380,7 +384,7 @@ class PerformanceOptimization {
 
   private loadOptimizationHistory(): void {
     try {
-      const history = this.storage.getString('optimization-history');
+      const history = this.storageGet('optimization-history');
       if (history) {
         this.optimizationHistory = JSON.parse(history);
       }
@@ -400,7 +404,7 @@ class PerformanceOptimization {
       { metric: 'errorRate', target: 0.005, current: 0, status: 'within_budget', trend: 'stable' },
     ];
 
-    const storedBudgets = this.storage.getString('performance-budgets');
+    const storedBudgets = this.storageGet('performance-budgets');
     if (storedBudgets) {
       this.performanceBudgets = JSON.parse(storedBudgets);
     } else {
@@ -439,11 +443,11 @@ class PerformanceOptimization {
       measurements.splice(0, measurements.length - 1000);
     }
 
-    this.storage.set('performance-measurements', JSON.stringify(measurements));
+    this.storageSet('performance-measurements', JSON.stringify(measurements));
   }
 
   private getStoredMeasurements(): Array<any> {
-    const stored = this.storage.getString('performance-measurements');
+    const stored = this.storageGet('performance-measurements');
     return stored ? JSON.parse(stored) : [];
   }
 
@@ -455,11 +459,11 @@ class PerformanceOptimization {
       this.optimizationHistory.splice(0, this.optimizationHistory.length - 100);
     }
 
-    this.storage.set('optimization-history', sanitizePII(JSON.stringify(this.optimizationHistory)));
+    this.storageSet('optimization-history', sanitizePII(JSON.stringify(this.optimizationHistory)));
   }
 
   private savePerformanceBudgets(): void {
-    this.storage.set('performance-budgets', JSON.stringify(this.performanceBudgets));
+    this.storageSet('performance-budgets', JSON.stringify(this.performanceBudgets));
   }
 }
 
