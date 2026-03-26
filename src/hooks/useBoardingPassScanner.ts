@@ -355,21 +355,29 @@ export function useBoardingPassScanner({
   };
 
   return {
-    cameraRef,
-    isScanning,
-    scanResult,
-    flashMode,
-    cameraStatus,
-    isImporting,
-    lowPowerMode,
-    handleBarcodeRead,
-    handleCameraReady,
-    handleStatusChange,
-    handleMountError,
-    startDemoScan,
-    handleImageImport,
-    toggleFlash,
-    getGuidanceColor,
-    getConfidenceColor,
+    scanner: {
+      isScanning,
+      result: scanResult,
+      handleBarcodeRead,
+      startDemo: startDemoScan,
+    },
+    camera: {
+      ref: cameraRef,
+      status: cameraStatus,
+      flashMode,
+      handleReady: handleCameraReady,
+      handleStatusChange,
+      handleMountError,
+      toggleFlash,
+    },
+    import_: {
+      isImporting,
+      handleImageImport,
+    },
+    ui: {
+      lowPowerMode,
+      getGuidanceColor,
+      getConfidenceColor,
+    },
   };
 }
