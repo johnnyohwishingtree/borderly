@@ -46,8 +46,9 @@ function tripListState() {
 }
 
 function deadlineSummaryState() {
-  // Trip with a JPN leg arriving soon (within 72h + 12h = 84h → critical deadline)
-  const soonArrival = new Date(Date.now() + 84 * 60 * 60 * 1000);
+  // Trip with a JPN leg arriving soon — JPN has submissionDeadlineHours=24,
+  // so hoursRemaining = arrivalOffset - 24. With 36h offset: 36 - 24 = 12h → critical.
+  const soonArrival = new Date(Date.now() + 36 * 60 * 60 * 1000);
   const soonDeparture = new Date(soonArrival.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   return baseState({
