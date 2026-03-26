@@ -1,7 +1,7 @@
 # Schemas
 
-Country form schemas (JSON). Fields with profile data need `autoFillSource`.
-Fields without (country-specific) should set `countrySpecific: true`.
+Country form schemas (JSON). `autoFillSource` for profile fields, `countrySpecific: true` for the rest.
 
 See: .knowledge/domain/form-engine.md
 See: .knowledge/patterns/add-country.md
+See: .knowledge/concepts/drift-detection.md
