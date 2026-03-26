@@ -172,6 +172,6 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 
 Read the codebase and `.knowledge/` knowledge graph. Identify the highest-impact improvement. Create an epic with 2-4 stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
 
-Populate every story section — especially Knowledge (which concepts/conventions apply) and Tasks (which templates/patterns to follow). This minimizes token waste during implementation.
+Populate every story section — especially Knowledge (which policies/models apply) and Tasks (which templates/patterns to follow). This minimizes token waste during implementation.
 
 The next pipeline run picks up the first new story.
