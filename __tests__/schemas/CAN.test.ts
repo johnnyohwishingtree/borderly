@@ -242,7 +242,7 @@ describe('Canada (CAN) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const genderField = personalSection.fields.find(f => f.id === 'gender')!;
 
-    expect(genderField.type).toBe('select');
+    expect(genderField.type).toBe('searchable_select');
     const genderValues = genderField.options!.map(o => o.value);
     expect(genderValues).toContain('M');
     expect(genderValues).toContain('F');
@@ -256,7 +256,7 @@ describe('Canada (CAN) Schema', () => {
     expect(maritalStatusField).toBeDefined();
     expect(maritalStatusField.countrySpecific).toBe(true);
     expect(maritalStatusField.required).toBe(true);
-    expect(maritalStatusField.type).toBe('select');
+    expect(maritalStatusField.type).toBe('searchable_select');
 
     const statusValues = maritalStatusField.options!.map(o => o.value);
     expect(statusValues).toContain('single');

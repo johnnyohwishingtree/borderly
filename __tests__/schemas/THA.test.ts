@@ -87,7 +87,7 @@ describe('Thailand (THA) Schema', () => {
     const titleField = personalSection.fields.find(f => f.id === 'title');
 
     expect(titleField).toBeDefined();
-    expect(titleField!.type).toBe('select');
+    expect(titleField!.type).toBe('searchable_select');
 
     const titleValues = titleField!.options!.map(o => o.value);
     expect(titleValues).toContain('Mr');
@@ -186,7 +186,7 @@ describe('Thailand (THA) Schema', () => {
     const vaccinationField = healthSection.fields.find(f => f.id === 'vaccinationStatus')!;
 
     expect(vaccinationField.countrySpecific).toBe(true);
-    expect(vaccinationField.type).toBe('select');
+    expect(vaccinationField.type).toBe('searchable_select');
 
     const options = vaccinationField.options!.map(o => o.value);
     expect(options).toContain('fully_vaccinated');

@@ -144,7 +144,7 @@ describe('South Korea (KOR) Schema', () => {
     const genderField = passportSection.fields.find(f => f.id === 'gender')!;
 
     expect(genderField).toBeDefined();
-    expect(genderField.type).toBe('select');
+    expect(genderField.type).toBe('searchable_select');
     expect(genderField.autoFillSource).toBe('profile.gender');
 
     const values = genderField.options!.map(o => o.value);
@@ -170,7 +170,7 @@ describe('South Korea (KOR) Schema', () => {
     const occupationField = personalSection.fields.find(f => f.id === 'occupation')!;
 
     expect(occupationField).toBeDefined();
-    expect(occupationField.type).toBe('select');
+    expect(occupationField.type).toBe('searchable_select');
     expect(occupationField.countrySpecific).toBe(true);
     expect(occupationField.required).toBe(true);
     expect(occupationField.options).toBeDefined();
@@ -196,7 +196,7 @@ describe('South Korea (KOR) Schema', () => {
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
     expect(purposeField).toBeDefined();
-    expect(purposeField.type).toBe('select');
+    expect(purposeField.type).toBe('searchable_select');
     expect(purposeField.countrySpecific).toBe(true);
     expect(purposeField.required).toBe(true);
 

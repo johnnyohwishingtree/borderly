@@ -132,7 +132,7 @@ describe('United Kingdom (GBR) Schema', () => {
     const visitPurposeField = travelSection.fields.find(f => f.id === 'visitPurpose')!;
 
     expect(visitPurposeField.countrySpecific).toBe(true);
-    expect(visitPurposeField.type).toBe('select');
+    expect(visitPurposeField.type).toBe('searchable_select');
     const values = visitPurposeField.options!.map(o => o.value);
     expect(values).toContain('tourism');
     expect(values).toContain('business');

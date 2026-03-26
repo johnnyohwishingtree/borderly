@@ -138,7 +138,7 @@ describe('Australia (AUS) Schema', () => {
     const genderField = personalSection.fields.find(f => f.id === 'gender')!;
 
     expect(genderField).toBeDefined();
-    expect(genderField.type).toBe('select');
+    expect(genderField.type).toBe('searchable_select');
     expect(genderField.autoFillSource).toBe('profile.gender');
 
     const values = genderField.options!.map(o => o.value);
@@ -178,7 +178,7 @@ describe('Australia (AUS) Schema', () => {
     const seatField = travelSection.fields.find(f => f.id === 'seatClass')!;
 
     expect(seatField).toBeDefined();
-    expect(seatField.type).toBe('select');
+    expect(seatField.type).toBe('searchable_select');
     expect(seatField.countrySpecific).toBe(true);
 
     const values = seatField.options!.map(o => o.value);
@@ -201,7 +201,7 @@ describe('Australia (AUS) Schema', () => {
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
     expect(purposeField).toBeDefined();
-    expect(purposeField.type).toBe('select');
+    expect(purposeField.type).toBe('searchable_select');
     expect(purposeField.countrySpecific).toBe(true);
 
     const values = purposeField.options!.map(o => o.value);
@@ -227,7 +227,7 @@ describe('Australia (AUS) Schema', () => {
     const stateField = addressSection.fields.find(f => f.id === 'australianAddressState')!;
 
     expect(stateField).toBeDefined();
-    expect(stateField.type).toBe('select');
+    expect(stateField.type).toBe('searchable_select');
 
     const values = stateField.options!.map(o => o.value);
     expect(values).toContain('ACT');
