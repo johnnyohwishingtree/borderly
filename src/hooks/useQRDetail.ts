@@ -48,7 +48,7 @@ export function getTypeLabel(type: QRType): string {
   }
 }
 
-export function formatQRDate(date: Date): string {
+function formatQRDate(date: Date): string {
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',

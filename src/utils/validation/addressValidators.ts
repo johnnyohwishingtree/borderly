@@ -1,5 +1,5 @@
 /**
- * Address validators: postal code, country code, full address.
+ * Address validators: postal code, country code.
  */
 
 import { VALIDATION_PATTERNS } from './patterns';
@@ -62,55 +62,3 @@ export function validateCountryCode(
   return { isValid: true };
 }
 
-/**
- * Validates addresses for travel documents.
- */
-export function validateAddress(address: {
-  line1?: string;
-  line2?: string;
-  city?: string;
-  state?: string;
-  postalCode?: string;
-  country?: string;
-}): { isValid: boolean; errors: Record<string, string> } {
-  const errors: Record<string, string> = {};
-
-  if (!address.line1 || address.line1.trim().length < 5) {
-    errors.line1 = 'Address line 1 must be at least 5 characters';
-  }
-
-  if (address.line1 && address.line1.length > 100) {
-    errors.line1 = 'Address line 1 is too long (maximum 100 characters)';
-  }
-
-  if (address.line2 && address.line2.length > 100) {
-    errors.line2 = 'Address line 2 is too long (maximum 100 characters)';
-  }
-
-  if (!address.city || address.city.trim().length < 2) {
-    errors.city = 'City must be at least 2 characters';
-  }
-
-  if (address.city && address.city.length > 50) {
-    errors.city = 'City is too long (maximum 50 characters)';
-  }
-
-  if (address.postalCode && address.country) {
-    const postalResult = validatePostalCode(address.postalCode, address.country);
-    if (!postalResult.isValid) {
-      errors.postalCode = postalResult.error || 'Invalid postal code';
-    }
-  }
-
-  if (address.country) {
-    const countryResult = validateCountryCode(address.country);
-    if (!countryResult.isValid) {
-      errors.country = countryResult.error || 'Invalid country code';
-    }
-  }
-
-  return {
-    isValid: Object.keys(errors).length === 0,
-    errors,
-  };
-}

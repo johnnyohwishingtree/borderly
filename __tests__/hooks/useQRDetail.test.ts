@@ -10,7 +10,6 @@ import {
   useQRDetail,
   getTypeColor,
   getTypeLabel,
-  formatQRDate,
 } from '@/hooks/useQRDetail';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -107,17 +106,6 @@ describe('getTypeLabel', () => {
 
   it('returns "Unknown" for unknown type', () => {
     expect(getTypeLabel('other' as any)).toBe('Unknown');
-  });
-});
-
-// ── formatQRDate ──────────────────────────────────────────────────────────────
-
-describe('formatQRDate', () => {
-  it('formats date with weekday, month, day, year, and time', () => {
-    const date = new Date('2026-01-15T10:30:00Z');
-    const result = formatQRDate(date);
-    expect(result).toContain('2026');
-    expect(result).toContain('January');
   });
 });
 
