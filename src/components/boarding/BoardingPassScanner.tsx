@@ -31,22 +31,7 @@ export default function BoardingPassScanner({
   onImageImport,
   lowPowerMode = false,
 }: BoardingPassScannerProps) {
-  const {
-    cameraRef,
-    scanResult,
-    flashMode,
-    cameraStatus,
-    isImporting,
-    handleBarcodeRead,
-    handleCameraReady,
-    handleStatusChange,
-    handleMountError,
-    startDemoScan,
-    handleImageImport,
-    toggleFlash,
-    getGuidanceColor,
-    getConfidenceColor,
-  } = useBoardingPassScanner({
+  const { scanner, camera, import_, ui } = useBoardingPassScanner({
     onScanSuccess,
     ...(onScanError != null && { onScanError }),
     ...(onImageImport != null && { onImageImport }),
@@ -54,8 +39,8 @@ export default function BoardingPassScanner({
   });
 
   // Show error state if permission denied or camera unavailable
-  if (cameraStatus === 'denied' || cameraStatus === 'unavailable') {
-    const isDenied = cameraStatus === 'denied';
+  if (camera.status === 'denied' || camera.status === 'unavailable') {
+    const isDenied = camera.status === 'denied';
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
         <Text className="text-white text-xl font-bold mb-4 text-center">
@@ -78,7 +63,7 @@ export default function BoardingPassScanner({
           <View className="w-full">
             <Button
               title="Try Demo Scan"
-              onPress={startDemoScan}
+              onPress={scanner.startDemo}
               variant="primary"
               fullWidth
             />
@@ -87,10 +72,10 @@ export default function BoardingPassScanner({
         <View className="mt-4 w-full">
           <Button
             title="Import from Photo"
-            onPress={handleImageImport}
+            onPress={import_.handleImageImport}
             variant="outline"
             fullWidth
-            disabled={isImporting}
+            disabled={import_.isImporting}
           />
         </View>
         <View className="mt-4 w-full">
@@ -99,7 +84,7 @@ export default function BoardingPassScanner({
             onPress={onManualEntry}
             variant={isDenied ? 'primary' : 'outline'}
             fullWidth
-            disabled={isImporting}
+            disabled={import_.isImporting}
           />
         </View>
       </View>
@@ -111,10 +96,10 @@ export default function BoardingPassScanner({
       {/* Top overlay */}
       <View className="flex-1 bg-black/60 flex-col justify-end">
         <Text className="text-white text-center text-lg font-semibold mb-2">
-          {cameraStatus === 'demo' ? 'Demo: Scanning sample boarding pass' : 'Position boarding pass barcode in frame'}
+          {camera.status === 'demo' ? 'Demo: Scanning sample boarding pass' : 'Position boarding pass barcode in frame'}
         </Text>
         <Text className="text-gray-300 text-center text-sm mb-4">
-          {cameraStatus === 'demo' ? 'Simulating barcode recognition...' : 'Supports PDF417, Aztec, and QR codes'}
+          {camera.status === 'demo' ? 'Simulating barcode recognition...' : 'Supports PDF417, Aztec, and QR codes'}
         </Text>
       </View>
 
@@ -122,11 +107,11 @@ export default function BoardingPassScanner({
       <View className="mx-8 my-4 relative">
         <View
           className={`border-2 ${
-            scanResult?.type === 'success'
+            scanner.result?.type === 'success'
               ? 'border-green-400'
-              : scanResult?.type === 'partial'
+              : scanner.result?.type === 'partial'
               ? 'border-yellow-400'
-              : scanResult?.type === 'error'
+              : scanner.result?.type === 'error'
               ? 'border-red-400'
               : 'border-white/70'
           } rounded-lg bg-transparent`}
@@ -156,11 +141,11 @@ export default function BoardingPassScanner({
         </View>
 
         {/* Confidence indicator */}
-        {scanResult && scanResult.confidence > 0 && (
+        {scanner.result && scanner.result.confidence > 0 && (
           <View className="absolute -bottom-2 left-0 right-0 flex-row items-center justify-center">
             <View
-              className={`h-1 rounded-full ${getConfidenceColor(scanResult.confidence)}`}
-              style={{ width: `${scanResult.confidence * 100}%` }}
+              className={`h-1 rounded-full ${ui.getConfidenceColor(scanner.result.confidence)}`}
+              style={{ width: `${scanner.result.confidence * 100}%` }}
             />
           </View>
         )}
@@ -170,12 +155,12 @@ export default function BoardingPassScanner({
       <View className="flex-1 bg-black/60 flex-col justify-start">
         {/* Guidance text */}
         <View className="px-6 py-4">
-          <Text className={`text-center text-sm font-medium ${getGuidanceColor(scanResult)}`}>
-            {isImporting ? 'Importing from photo...' : scanResult?.guidance || 'Initializing scanner...'}
+          <Text className={`text-center text-sm font-medium ${ui.getGuidanceColor(scanner.result)}`}>
+            {import_.isImporting ? 'Importing from photo...' : scanner.result?.guidance || 'Initializing scanner...'}
           </Text>
-          {!isImporting && scanResult?.confidence !== undefined && scanResult.confidence > 0 && (
+          {!import_.isImporting && scanner.result?.confidence !== undefined && scanner.result.confidence > 0 && (
             <Text className="text-center text-xs text-gray-400 mt-1">
-              Confidence: {Math.round(scanResult.confidence * 100)}%
+              Confidence: {Math.round(scanner.result.confidence * 100)}%
             </Text>
           )}
         </View>
@@ -187,20 +172,20 @@ export default function BoardingPassScanner({
             onPress={onScanCancel}
             variant="outline"
             size="medium"
-            disabled={isImporting}
+            disabled={import_.isImporting}
           />
 
           <View className="flex-row gap-3">
-            {cameraStatus !== 'demo' && (
+            {camera.status !== 'demo' && (
               <TouchableOpacity
-                onPress={toggleFlash}
-                disabled={isImporting}
+                onPress={camera.toggleFlash}
+                disabled={import_.isImporting}
                 className={`w-12 h-12 rounded-full items-center justify-center ${
-                  flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
-                } ${isImporting ? 'opacity-50' : ''}`}
-                accessibilityLabel={`Turn flash ${flashMode === 'on' ? 'off' : 'on'}`}
+                  camera.flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
+                } ${import_.isImporting ? 'opacity-50' : ''}`}
+                accessibilityLabel={`Turn flash ${camera.flashMode === 'on' ? 'off' : 'on'}`}
               >
-                {flashMode === 'on' ? (
+                {camera.flashMode === 'on' ? (
                   <Lightbulb size={20} color="#ffffff" />
                 ) : (
                   <Flashlight size={20} color="#ffffff" />
@@ -209,14 +194,14 @@ export default function BoardingPassScanner({
             )}
 
             <TouchableOpacity
-              onPress={handleImageImport}
-              disabled={isImporting}
+              onPress={import_.handleImageImport}
+              disabled={import_.isImporting}
               className={`w-12 h-12 rounded-full items-center justify-center bg-blue-600 ${
-                isImporting ? 'opacity-50' : ''
+                import_.isImporting ? 'opacity-50' : ''
               }`}
               accessibilityLabel="Import from photo"
             >
-              {isImporting ? (
+              {import_.isImporting ? (
                 <Hourglass size={20} color="#ffffff" />
               ) : (
                 <Camera size={20} color="#ffffff" />
@@ -229,7 +214,7 @@ export default function BoardingPassScanner({
             onPress={onManualEntry}
             variant="outline"
             size="medium"
-            disabled={isImporting}
+            disabled={import_.isImporting}
           />
         </View>
       </View>
@@ -237,13 +222,13 @@ export default function BoardingPassScanner({
   );
 
   // Demo mode — show scanning UI without real camera
-  if (cameraStatus === 'demo') {
+  if (camera.status === 'demo') {
     return (
       <View className="flex-1 bg-black">
         {scanOverlay}
 
         {/* Success overlay */}
-        {scanResult?.type === 'success' && (
+        {scanner.result?.type === 'success' && (
           <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
             <View className="bg-green-500 rounded-full p-4 mb-4">
               <Check size={32} color="#ffffff" />
@@ -259,24 +244,24 @@ export default function BoardingPassScanner({
     <View className="flex-1 bg-black">
       {/* Camera View — mounts during loading (null) so onCameraReady can fire */}
       <RNCamera
-        ref={cameraRef}
+        ref={camera.ref}
         className="flex-1"
         type={RNCamera.Constants.Type.back}
         flashMode={
-          flashMode === 'on'
+          camera.flashMode === 'on'
             ? RNCamera.Constants.FlashMode.torch
             : RNCamera.Constants.FlashMode.off
         }
-        onBarCodeRead={handleBarcodeRead}
+        onBarCodeRead={scanner.handleBarcodeRead}
         barCodeTypes={[
           RNCamera.Constants.BarCodeType.pdf417,
           RNCamera.Constants.BarCodeType.aztec,
           RNCamera.Constants.BarCodeType.qr,
         ]}
         captureAudio={false}
-        onCameraReady={handleCameraReady}
-        onMountError={handleMountError}
-        onStatusChange={handleStatusChange}
+        onCameraReady={camera.handleReady}
+        onMountError={camera.handleMountError}
+        onStatusChange={camera.handleStatusChange}
         ratio={lowPowerMode ? "4:3" : "16:9"}
         autoFocusPointOfInterest={{ x: 0.5, y: 0.5 }}
       >
@@ -284,7 +269,7 @@ export default function BoardingPassScanner({
       </RNCamera>
 
       {/* Loading overlay — shown while camera initializes */}
-      {cameraStatus === 'pending' && (
+      {camera.status === 'pending' && (
         <View className="absolute inset-0 bg-black items-center justify-center">
           <LoadingSpinner />
           <Text className="text-white mt-4">Initializing camera...</Text>
@@ -292,7 +277,7 @@ export default function BoardingPassScanner({
       )}
 
       {/* Success overlay */}
-      {scanResult?.type === 'success' && (
+      {scanner.result?.type === 'success' && (
         <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
           <View className="bg-green-500 rounded-full p-4 mb-4">
             <Check size={32} color="#ffffff" />

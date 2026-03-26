@@ -63,10 +63,10 @@ describe('useBoardingPassScanner', () => {
     it('starts with scanning enabled and camera pending', () => {
       const { result } = renderScanner();
 
-      expect(result.current.isScanning).toBe(true);
-      expect(result.current.cameraStatus).toBe('pending');
-      expect(result.current.scanResult).toBeNull();
-      expect(result.current.flashMode).toBe('off');
+      expect(result.current.scanner.isScanning).toBe(true);
+      expect(result.current.camera.status).toBe('pending');
+      expect(result.current.scanner.result).toBeNull();
+      expect(result.current.camera.flashMode).toBe('off');
     });
   });
 
@@ -75,30 +75,30 @@ describe('useBoardingPassScanner', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleCameraReady();
+        result.current.camera.handleReady();
       });
 
-      expect(result.current.cameraStatus).toBe('ready');
+      expect(result.current.camera.status).toBe('ready');
     });
 
     it('marks camera unavailable on mount error', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleMountError(new Error('camera init failed'));
+        result.current.camera.handleMountError(new Error('camera init failed'));
       });
 
-      expect(result.current.cameraStatus).toBe('unavailable');
+      expect(result.current.camera.status).toBe('unavailable');
     });
 
     it('detects permission denial via status change', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleStatusChange({ cameraStatus: 'NOT_AUTHORIZED' });
+        result.current.camera.handleStatusChange({ cameraStatus: 'NOT_AUTHORIZED' });
       });
 
-      expect(result.current.cameraStatus).toBe('denied');
+      expect(result.current.camera.status).toBe('denied');
     });
   });
 
@@ -106,19 +106,19 @@ describe('useBoardingPassScanner', () => {
     it('toggles flash between off and on', () => {
       const { result } = renderScanner();
 
-      expect(result.current.flashMode).toBe('off');
+      expect(result.current.camera.flashMode).toBe('off');
 
       act(() => {
-        result.current.toggleFlash();
+        result.current.camera.toggleFlash();
       });
 
-      expect(result.current.flashMode).toBe('on');
+      expect(result.current.camera.flashMode).toBe('on');
 
       act(() => {
-        result.current.toggleFlash();
+        result.current.camera.toggleFlash();
       });
 
-      expect(result.current.flashMode).toBe('off');
+      expect(result.current.camera.flashMode).toBe('off');
     });
   });
 
@@ -127,10 +127,10 @@ describe('useBoardingPassScanner', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.startDemoScan();
+        result.current.scanner.startDemo();
       });
 
-      expect(result.current.cameraStatus).toBe('demo');
+      expect(result.current.camera.status).toBe('demo');
     });
   });
 
@@ -138,7 +138,7 @@ describe('useBoardingPassScanner', () => {
     it('returns a string for scan results', () => {
       const { result } = renderScanner();
 
-      const color = result.current.getGuidanceColor({
+      const color = result.current.ui.getGuidanceColor({
         type: 'success',
         confidence: 1,
         guidance: 'Scanned',
@@ -152,8 +152,8 @@ describe('useBoardingPassScanner', () => {
     it('returns a color string based on confidence', () => {
       const { result } = renderScanner();
 
-      const high = result.current.getConfidenceColor(0.9);
-      const low = result.current.getConfidenceColor(0.3);
+      const high = result.current.ui.getConfidenceColor(0.9);
+      const low = result.current.ui.getConfidenceColor(0.3);
 
       expect(typeof high).toBe('string');
       expect(typeof low).toBe('string');
