@@ -83,10 +83,10 @@ export function CredentialPrompt({
       onRequestClose={onSkip}
       testID={testID ?? 'credential-prompt-modal'}
     >
-      <View style={{ flex: 1 }}>
+      <View className="flex-1">
         {/* Tap-outside-to-dismiss overlay */}
         <TouchableOpacity
-          style={{ flex: 1 }}
+          className="flex-1"
           activeOpacity={1}
           onPress={onSkip}
           testID="credential-prompt-backdrop"
@@ -95,36 +95,15 @@ export function CredentialPrompt({
 
         {/* Bottom sheet */}
         <View
-          style={{
-            backgroundColor: '#fff',
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
-            paddingHorizontal: 20,
-            paddingTop: 16,
-            paddingBottom: 32,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
+          className="bg-white rounded-t-2xl px-5 pt-4 pb-8 shadow-lg elevation-8"
           testID="credential-prompt-sheet"
         >
           {/* Handle */}
-          <View
-            style={{
-              width: 40,
-              height: 4,
-              backgroundColor: '#D1D5DB',
-              borderRadius: 2,
-              alignSelf: 'center',
-              marginBottom: 16,
-            }}
-          />
+          <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-4" />
 
           {/* Title */}
           <Text
-            style={{ fontSize: 17, fontWeight: '600', color: '#111827', marginBottom: 6 }}
+            className="text-[17px] font-semibold text-gray-900 mb-1.5"
             testID="credential-prompt-title"
           >
             {resolvedTitle}
@@ -132,7 +111,7 @@ export function CredentialPrompt({
 
           {/* Subtitle */}
           <Text
-            style={{ fontSize: 13, color: '#6B7280', lineHeight: 18, marginBottom: 20 }}
+            className="text-[13px] text-gray-500 leading-[18px] mb-5"
             testID="credential-prompt-subtitle"
           >
             {resolvedSubtitle}
@@ -140,23 +119,12 @@ export function CredentialPrompt({
 
           <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={false}>
             {/* Username / email field */}
-            <View style={{ marginBottom: 12 }}>
-              <Text
-                style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 4 }}
-              >
+            <View className="mb-3">
+              <Text className="text-[13px] font-medium text-gray-700 mb-1">
                 Email / Username
               </Text>
               <TextInput
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#D1D5DB',
-                  borderRadius: 8,
-                  paddingHorizontal: 12,
-                  paddingVertical: 10,
-                  fontSize: 15,
-                  color: '#111827',
-                  backgroundColor: '#F9FAFB',
-                }}
+                className="border border-gray-300 rounded-lg px-3 py-2.5 text-[15px] text-gray-900 bg-gray-50"
                 value={username}
                 onChangeText={setUsername}
                 placeholder="you@example.com"
@@ -171,25 +139,13 @@ export function CredentialPrompt({
             </View>
 
             {/* Password field */}
-            <View style={{ marginBottom: 20 }}>
-              <Text
-                style={{ fontSize: 13, fontWeight: '500', color: '#374151', marginBottom: 4 }}
-              >
+            <View className="mb-5">
+              <Text className="text-[13px] font-medium text-gray-700 mb-1">
                 Password
               </Text>
-              <View style={{ position: 'relative' }}>
+              <View className="relative">
                 <TextInput
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#D1D5DB',
-                    borderRadius: 8,
-                    paddingHorizontal: 12,
-                    paddingVertical: 10,
-                    paddingRight: 50,
-                    fontSize: 15,
-                    color: '#111827',
-                    backgroundColor: '#F9FAFB',
-                  }}
+                  className="border border-gray-300 rounded-lg px-3 py-2.5 pr-[50px] text-[15px] text-gray-900 bg-gray-50"
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Your password"
@@ -202,18 +158,12 @@ export function CredentialPrompt({
                   accessibilityLabel="Password"
                 />
                 <TouchableOpacity
-                  style={{
-                    position: 'absolute',
-                    right: 12,
-                    top: 0,
-                    bottom: 0,
-                    justifyContent: 'center',
-                  }}
+                  className="absolute right-3 top-0 bottom-0 justify-center"
                   onPress={() => setShowPassword(s => !s)}
                   testID="credential-prompt-toggle-password"
                   accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  <Text style={{ fontSize: 12, color: '#6B7280' }}>
+                  <Text className="text-xs text-gray-500">
                     {showPassword ? 'Hide' : 'Show'}
                   </Text>
                 </TouchableOpacity>
@@ -221,37 +171,24 @@ export function CredentialPrompt({
             </View>
 
             {/* Action buttons */}
-            <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View className="flex-row gap-3">
               <TouchableOpacity
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor: '#D1D5DB',
-                  alignItems: 'center',
-                }}
+                className="flex-1 py-3 rounded-[10px] border border-gray-300 items-center"
                 onPress={onSkip}
                 testID="credential-prompt-skip"
                 accessibilityLabel="Skip saving credentials"
               >
-                <Text style={{ fontSize: 15, fontWeight: '500', color: '#374151' }}>Skip</Text>
+                <Text className="text-[15px] font-medium text-gray-700">Skip</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={{
-                  flex: 2,
-                  paddingVertical: 12,
-                  borderRadius: 10,
-                  backgroundColor: canSave ? '#2563EB' : '#93C5FD',
-                  alignItems: 'center',
-                }}
+                className={`flex-[2] py-3 rounded-[10px] items-center ${canSave ? 'bg-blue-600' : 'bg-blue-300'}`}
                 onPress={handleSave}
                 disabled={!canSave}
                 testID="credential-prompt-save"
                 accessibilityLabel="Save credentials securely"
               >
-                <Text style={{ fontSize: 15, fontWeight: '600', color: '#fff' }}>
+                <Text className="text-[15px] font-semibold text-white">
                   Save securely 🔒
                 </Text>
               </TouchableOpacity>

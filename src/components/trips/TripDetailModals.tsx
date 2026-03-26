@@ -109,7 +109,7 @@ export function EditTripModal({
               </Text>
             </TouchableOpacity>
           ) : (
-            <View style={{ width: 50 }} />
+            <View className="w-[50px]" />
           )}
         </View>
 
@@ -181,7 +181,7 @@ export function EditTripModal({
                 activeOpacity={0.7}
                 testID="edit-modal-add-destination"
               >
-                <Plus size={20} color="#2563eb" style={{ marginRight: 8 }} />
+                <Plus size={20} color="#2563eb" className="mr-2" />
                 <Text className="text-blue-600 dark:text-blue-400 font-medium">Add New Destination</Text>
               </TouchableOpacity>
             </View>

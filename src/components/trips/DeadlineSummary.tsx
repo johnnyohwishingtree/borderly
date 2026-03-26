@@ -123,7 +123,8 @@ export default function DeadlineSummary({
       >
         <View className="flex-row items-center flex-1">
           <View
-            style={{ width: 4, height: 20, borderRadius: 2, backgroundColor: accentColor, marginRight: 10 }}
+            className="w-1 h-5 rounded-sm mr-2.5"
+            style={{ backgroundColor: accentColor }}
           />
           <Text className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {items.length} {items.length === 1 ? 'deadline needs' : 'deadlines need'} attention

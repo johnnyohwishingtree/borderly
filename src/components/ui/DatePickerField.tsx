@@ -235,10 +235,9 @@ export default function DatePickerField({
           accessible={false}
         >
           <Pressable
-            className="bg-white rounded-t-3xl"
+            className="bg-white rounded-t-3xl min-h-[350px]"
             onPress={e => e.stopPropagation()}
             accessible={false}
-            style={{ minHeight: 350 }}
           >
             {/* Header */}
             <View className="flex-row justify-between items-center px-4 pt-4 pb-2 border-b border-gray-100">
@@ -262,7 +261,7 @@ export default function DatePickerField({
             {/* Picker columns */}
             <View className="flex-row px-2 pb-16">
               {/* Month column */}
-              <View style={{ flex: 2 }}>
+              <View className="flex-[2]">
                 <Text className="text-center text-xs font-medium text-gray-500 py-1">Month</Text>
                 <ColumnPicker
                   items={months.map(m => m.label)}
@@ -277,7 +276,7 @@ export default function DatePickerField({
               </View>
 
               {/* Day column */}
-              <View style={{ flex: 1 }}>
+              <View className="flex-1">
                 <Text className="text-center text-xs font-medium text-gray-500 py-1">Day</Text>
                 <ColumnPicker
                   items={days}
@@ -288,7 +287,7 @@ export default function DatePickerField({
               </View>
 
               {/* Year column */}
-              <View style={{ flex: 1 }}>
+              <View className="flex-1">
                 <Text className="text-center text-xs font-medium text-gray-500 py-1">Year</Text>
                 <ColumnPicker
                   items={years}

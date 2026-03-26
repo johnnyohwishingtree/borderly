@@ -143,7 +143,7 @@ export default function Button({
             ? (highContrastMode ? '#000000' : (isDark ? '#E5E7EB' : '#374151'))
             : (highContrastMode ? '#FFFFFF' : 'white')
           }
-          style={{ marginRight: 8 }}
+          className="mr-2"
           accessibilityLabel="Loading"
         />
       ) : null}

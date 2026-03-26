@@ -100,10 +100,10 @@ export function ErrorMessage({
       );
     }
     return (
-      <CircleAlert 
-        size={variant === 'inline' ? 20 : 24} 
-        color="#DC2626" 
-        style={{ marginRight: 8 }}
+      <CircleAlert
+        size={variant === 'inline' ? 20 : 24}
+        color="#DC2626"
+        className="mr-2"
       />
     );
   };
