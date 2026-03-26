@@ -1,6 +1,5 @@
 # Form Services
 
-Core form engine. Takes profile + trip leg + country schema → filled form.
-Uses `autoFillSource` dot-notation to resolve profile fields.
+Core form engine: profile + trip leg + country schema → filled form via `autoFillSource` dot-notation.
 
 See: .knowledge/models/form-engine.md

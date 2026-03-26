@@ -1,6 +1,5 @@
 # Form Components
 
-DynamicForm renders country schemas. Use smart components for specialized fields:
-AccommodationAutocomplete, AddressAutocomplete, DatePickerField, SearchableSelect.
+DynamicForm renders country schemas with smart field components (autocomplete, date picker, searchable select).
 
 See: .knowledge/models/form-engine.md
