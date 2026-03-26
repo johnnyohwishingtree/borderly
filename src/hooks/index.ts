@@ -37,6 +37,7 @@ export { useBugReport } from './useBugReport';
 export { useSettings } from './useSettings';
 export { useFeedback } from './useFeedback';
 export type { PassportValidityWarningData } from './usePassportValidity';
+export { useTripDetailModals } from './useTripDetailModals';
 export { useTripChecklist } from './useTripChecklist';
 export type { UseTripChecklistResult } from './useTripChecklist';
 export { useTripReadiness } from './useTripReadiness';

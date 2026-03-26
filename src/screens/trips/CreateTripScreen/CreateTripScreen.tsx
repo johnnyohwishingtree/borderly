@@ -1,55 +1,16 @@
 import { View, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
-import { Plane, MapPin, Globe, Users, UserPlus } from 'lucide-react-native';
+import { Plane, Users, UserPlus } from 'lucide-react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete, ScreenContainer, Toggle } from '@/components/ui';
-import { CountryFlag, TravelerSelector } from '@/components/trips';
-import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
-import { AutoFilledBadge } from '@/components/forms';
+import { Button, Input, Card, ScreenContainer, Toggle } from '@/components/ui';
+import { TravelerSelector } from '@/components/trips';
 import { ContextualHelp, HelpContent } from '@/components/help';
 import { BoardingPassScanner } from '@/components/boarding';
 import { SmartImportSheet } from '@/components/import';
-import { SUPPORTED_COUNTRIES } from '@/constants/countries';
-import { ALL_AIRPORTS } from '@/constants/airports';
 import { useTripCreation } from '@/hooks/useTripCreation';
-import { usePassportValidity } from '@/hooks/usePassportValidity';
-import type { LegFormData } from '@/hooks/useTripCreation';
+import { Destinations } from './CreateTripScreen.Destinations';
 import type { TripStackParamList } from '@/app/navigation/types';
 
 type CreateTripRouteProp = RouteProp<TripStackParamList, 'CreateTrip'>;
-
-const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
-  <View className="flex-row items-center justify-between mb-2">
-    <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</Text>
-    {autoFilled && <AutoFilledBadge source="auto" size="small" />}
-  </View>
-);
-
-/**
- * Small sub-component so we can call `usePassportValidity` (a hook) once per
- * leg card. Hooks cannot be called inside plain functions — they must live at
- * the top level of a function component.
- */
-function LegPassportWarning({
-  countryCode,
-  departureDate,
-  legIndex,
-}: {
-  countryCode: string;
-  departureDate?: string | undefined;
-  legIndex: number;
-}) {
-  const warningData = usePassportValidity({ countryCode, departureDate });
-  if (!warningData) return null;
-  return (
-    <PassportValidityWarning
-      status={warningData.status}
-      countryName={warningData.countryName}
-      requiredMonths={warningData.requiredMonths}
-      passportExpiry={warningData.passportExpiry}
-      testID={`create-trip-passport-validity-warning-${legIndex}`}
-    />
-  );
-}
 
 export default function CreateTripScreen() {
   const rootNavigation = useNavigation();
@@ -81,187 +42,6 @@ export default function CreateTripScreen() {
     applyToAllLegs,
     setApplyToAllLegs,
   } = useTripCreation(templateId ? { templateId } : {});
-
-  const renderLegCard = (leg: LegFormData, index: number) => {
-    return (
-      <Card key={index} className="mb-4" variant="outlined">
-        <View className="p-4">
-          <View className="flex-row justify-between items-center mb-4">
-            <View className="flex-row items-center">
-              {leg.destinationCountry && (
-                <CountryFlag countryCode={leg.destinationCountry} size="medium" showName />
-              )}
-              {!leg.destinationCountry && (
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Destination {index + 1}
-                </Text>
-              )}
-            </View>
-            <Button
-              title="Remove"
-              onPress={() => removeLeg(index)}
-              variant="outline"
-              size="small"
-              testID={`remove-leg-${index}-button`}
-            />
-          </View>
-
-          <View className="space-y-3">
-            <View>
-              <FieldHeader label="Country" autoFilled={!!leg.autoFilledFields?.destinationCountry} />
-              <SearchableSelect
-                options={SUPPORTED_COUNTRIES.map(c => ({ value: c.code, label: c.name }))}
-                value={leg.destinationCountry}
-                onValueChange={(val) => updateLeg(index, 'destinationCountry', val)}
-                placeholder="Search country..."
-                testID={`country-select-${index}`}
-                error={errors[`leg${index}.country`]}
-              />
-            </View>
-
-            {/* Passport validity warning — only shown once departure date is entered */}
-            {leg.destinationCountry ? (
-              <LegPassportWarning
-                countryCode={leg.destinationCountry}
-                departureDate={leg.departureDate || undefined}
-                legIndex={index}
-              />
-            ) : null}
-
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <FieldHeader label="Arrival Date" autoFilled={!!leg.autoFilledFields?.arrivalDate} />
-                <DatePickerField
-                  value={leg.arrivalDate}
-                  onChange={(date) => updateLeg(index, 'arrivalDate', date)}
-                  testID={`leg-${index}-arrival-date`}
-                  placeholder="Arrival date"
-                  minDate={new Date().toISOString().split('T')[0]}
-                  maxDate={`${new Date().getFullYear() + 3}-12-31`}
-                  error={errors[`leg${index}.arrival`]}
-                />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure Date</Text>
-                <DatePickerField
-                  value={leg.departureDate}
-                  onChange={(date) => updateLeg(index, 'departureDate', date)}
-                  testID={`leg-${index}-departure-date`}
-                  placeholder="Departure date"
-                  minDate={leg.arrivalDate || new Date().toISOString().split('T')[0]}
-                  maxDate={`${new Date().getFullYear() + 3}-12-31`}
-                />
-              </View>
-            </View>
-
-            <View className="flex-row gap-3">
-              <View className="flex-1">
-                <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
-                <Input
-                  value={leg.flightNumber}
-                  onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
-                  placeholder="e.g., NH123"
-                  autoCapitalize="characters"
-                  testID={`leg-${index}-flight-number`}
-                />
-              </View>
-              <View className="flex-1">
-                <FieldHeader label="Airline Code" autoFilled={!!leg.autoFilledFields?.airlineCode} />
-                <Input
-                  value={leg.airlineCode}
-                  onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
-                  placeholder="e.g., NH"
-                  autoCapitalize="characters"
-                  testID={`leg-${index}-airline-code`}
-                />
-              </View>
-            </View>
-
-            <View>
-              <FieldHeader label="Arrival Airport" autoFilled={!!leg.autoFilledFields?.arrivalAirport} />
-              <SearchableSelect
-                value={leg.arrivalAirport}
-                onValueChange={(val) => updateLeg(index, 'arrivalAirport', val)}
-                options={ALL_AIRPORTS}
-                placeholder="Search airport..."
-                testID={`leg-${index}-arrival-airport`}
-              />
-            </View>
-
-            {/* Traveler Selection */}
-            {familyMembers.length > 0 && (
-              <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                {applyToAllLegs ? (
-                  <View testID={`leg-${index}-travelers-synced`}>
-                    <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Travelers
-                    </Text>
-                    <Text className="text-sm text-gray-500 dark:text-gray-400">
-                      Same as trip — {leg.assignedTravelers.length} traveler{leg.assignedTravelers.length !== 1 ? 's' : ''}
-                    </Text>
-                  </View>
-                ) : (
-                  <>
-                    <TravelerSelector
-                      travelers={familyMembers}
-                      selectedTravelerIds={leg.assignedTravelers}
-                      onToggleTraveler={(travelerId) => handleTravelerToggle(index, travelerId)}
-                      title="Who is traveling to this destination?"
-                      subtitle="Select which family members will visit this country."
-                      showCompact={true}
-                      minSelection={1}
-                    />
-                    {errors[`leg${index}.travelers`] && (
-                      <Text className="text-red-500 text-sm mt-1">{errors[`leg${index}.travelers`]}</Text>
-                    )}
-                  </>
-                )}
-              </View>
-            )}
-
-            <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation</Text>
-
-              <View className="space-y-3">
-                <View>
-                  <AccommodationAutocomplete
-                    value={leg.accommodation.name}
-                    onNameChange={(text) => updateLeg(index, 'accommodation.name', text)}
-                    onAddressResolved={(resolved) => {
-                      if (resolved.line1) updateLeg(index, 'accommodation.address.line1', resolved.line1);
-                      if (resolved.city) updateLeg(index, 'accommodation.address.city', resolved.city);
-                      if (resolved.state) updateLeg(index, 'accommodation.address.state', resolved.state);
-                      if (resolved.postalCode) updateLeg(index, 'accommodation.address.postalCode', resolved.postalCode);
-                      if (resolved.country) updateLeg(index, 'accommodation.address.country', resolved.country);
-                    }}
-                    countryHint={leg.destinationCountry}
-                    testID={`leg-${index}-accommodation-name`}
-                    error={errors[`leg${index}.accommodation`]}
-                  />
-                </View>
-
-                <AddressAutocomplete
-                  value={leg.accommodation.address}
-                  onAddressChange={(address) => updateLeg(index, 'accommodation.address', address)}
-                  testID={`leg-${index}-accommodation-address`}
-                />
-
-                <View>
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
-                  <Input
-                    value={leg.accommodation.phone}
-                    onChangeText={(text) => updateLeg(index, 'accommodation.phone', text)}
-                    placeholder="Hotel phone number"
-                    keyboardType="phone-pad"
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-      </Card>
-    );
-  };
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
@@ -372,69 +152,18 @@ export default function CreateTripScreen() {
             </Card>
           )}
 
-          <View className="mb-6">
-            <View className="flex-row flex-wrap items-center justify-between mb-4 gap-2">
-              <View className="flex-row items-center">
-                <MapPin size={32} color="#374151" style={{ marginRight: 12 }} />
-                <Text className="text-xl font-bold text-gray-900 dark:text-white">Destinations</Text>
-              </View>
-              <View className="flex-row flex-wrap gap-2">
-                <Button
-                  title="Import"
-                  onPress={() => setShowSmartImport(true)}
-                  variant="outline"
-                  size="small"
-                  testID="smart-import-button"
-                />
-                <Button
-                  title="Scan"
-                  onPress={() => setShowScanner(true)}
-                  variant="outline"
-                  size="small"
-                  testID="scan-destination-button"
-                />
-                <Button
-                  title="+ Add"
-                  onPress={addLeg}
-                  variant="primary"
-                  size="small"
-                  testID="add-destination-button"
-                />
-              </View>
-            </View>
-
-            {errors.legs && (
-              <Text className="text-red-500 text-sm mb-3">{errors.legs}</Text>
-            )}
-
-            {legs.length === 0 ? (
-              <Card variant="outlined">
-                <View className="p-6 items-center">
-                  <Globe size={64} color="#9ca3af" style={{ marginBottom: 16 }} />
-                  <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No destinations added yet</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 text-center mb-4">
-                    Add your travel destinations to plan your customs declarations
-                  </Text>
-                  <View className="flex-row flex-wrap gap-3 justify-center">
-                    <Button
-                      title="Scan Boarding Pass"
-                      onPress={() => setShowScanner(true)}
-                      variant="primary"
-                      testID="empty-state-scan-button"
-                    />
-                    <Button
-                      title="Add Manually"
-                      onPress={addLeg}
-                      variant="outline"
-                      testID="empty-state-add-button"
-                    />
-                  </View>
-                </View>
-              </Card>
-            ) : (
-              legs.map(renderLegCard)
-            )}
-          </View>
+          <Destinations
+            legs={legs}
+            errors={errors}
+            familyMembers={familyMembers}
+            applyToAllLegs={applyToAllLegs}
+            addLeg={addLeg}
+            removeLeg={removeLeg}
+            updateLeg={updateLeg}
+            handleTravelerToggle={handleTravelerToggle}
+            onShowScanner={() => setShowScanner(true)}
+            onShowSmartImport={() => setShowSmartImport(true)}
+          />
 
           <View className="pb-8">
             <Button

@@ -1,14 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Map, Trash2, Copy, BookmarkPlus } from 'lucide-react-native';
-import { LegCard, AccountSetupChecklist, ReadinessChecklist, SaveTemplateModal, DuplicateTripModal, TravelerProgressList } from '@/components/trips';
+import { Trash2, Copy, BookmarkPlus } from 'lucide-react-native';
+import { SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
 import { Button, StatusBadge, ScreenContainer } from '@/components/ui';
-import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
 import { useTripDetail } from '@/hooks/useTripDetail';
 import { useTripChecklist } from '@/hooks/useTripChecklist';
+import { useTripDetailModals } from '@/hooks/useTripDetailModals';
 import { EditTripModal, AddDestinationModal } from '@/components/trips/TripDetailModals';
 import { computeTravelerProgress } from '@/services/readiness/travelerProgress';
+import { Checklists } from './TripDetailScreen.Checklists';
+import { Itinerary } from './TripDetailScreen.Itinerary';
 
 interface RouteParams {
   tripId: string;
@@ -44,7 +46,6 @@ export default function TripDetailScreen() {
     getStatusText,
   } = useTripDetail({ tripId });
 
-  // Collect unique travelers across all legs
   const tripTravelers = useMemo(() => {
     if (!trip || familyMembers.length <= 1) return [];
     const travelerIds = new Set<string>();
@@ -59,74 +60,18 @@ export default function TripDetailScreen() {
     return familyMembers.filter(m => travelerIds.has(m.id));
   }, [trip, familyMembers]);
 
-  // Per-traveler form progress (only for multi-traveler trips)
   const travelerProgressData = useMemo(() => {
     if (!trip || familyMembers.length <= 1) return [];
     return computeTravelerProgress(trip, familyMembers);
   }, [trip, familyMembers]);
 
-  // Modal visibility — render-only UI state
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
-
-  // Accessibility: focus management for modals
-  const { ref: editTriggerRef, focusElement: focusEditTrigger } = useAccessibilityFocus();
-  const { ref: addTriggerRef, focusElement: focusAddTrigger } = useAccessibilityFocus();
-  const { ref: duplicateTriggerRef, focusElement: focusDuplicateTrigger } = useAccessibilityFocus();
-  const { ref: editModalTitleRef } = useAccessibilityFocus({ shouldFocus: showEditModal, delay: 350 });
-  const { ref: addModalTitleRef } = useAccessibilityFocus({ shouldFocus: showAddModal, delay: 350 });
-
-  const handleOpenDuplicateModal = () => {
-    resetDuplicateError();
-    setShowDuplicateModal(true);
-  };
-
-  const handleCloseDuplicateModal = () => {
-    setShowDuplicateModal(false);
-    resetDuplicateError();
-    setTimeout(focusDuplicateTrigger, 100);
-  };
-
-  const handleDuplicateConfirm = async (newDepartureDate: string) => {
-    const newTrip = await handleConfirmDuplicate(newDepartureDate);
-    if (newTrip) {
-      setShowDuplicateModal(false);
-      (navigation as any).navigate('TripDetail', { tripId: newTrip.id });
-    }
-  };
-
-  const handleOpenAddDestination = () => {
-    editHook.startAddDestination();
-    setShowAddModal(true);
-  };
-
-  const handleCloseEditModal = () => {
-    editHook.cancelEditLeg();
-    setShowEditModal(false);
-    setTimeout(focusEditTrigger, 100);
-  };
-
-  const handleCloseAddModal = () => {
-    editHook.cancelAddDestination();
-    setShowAddModal(false);
-    setTimeout(focusAddTrigger, 100);
-  };
-
-  const handleConfirmAddDestination = async () => {
-    const added = await editHook.handleAddDestination();
-    if (added) {
-      setShowAddModal(false);
-    }
-  };
-
-  const onSaveAsTemplate = async (name: string) => {
-    const success = await handleSaveAsTemplate(name);
-    if (success) {
-      setShowSaveTemplateModal(false);
-    }
-  };
+  const modals = useTripDetailModals({
+    editHook,
+    resetDuplicateError,
+    handleConfirmDuplicate,
+    handleSaveAsTemplate,
+    navigateToTrip: (id) => (navigation as any).navigate('TripDetail', { tripId: id }),
+  });
 
   if (!trip) {
     return (
@@ -163,8 +108,8 @@ export default function TripDetailScreen() {
             </View>
             <View className="flex-row items-center">
               <TouchableOpacity
-                ref={duplicateTriggerRef}
-                onPress={handleOpenDuplicateModal}
+                ref={modals.duplicateTriggerRef}
+                onPress={modals.handleOpenDuplicateModal}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
                 testID="duplicate-trip-button"
@@ -174,8 +119,8 @@ export default function TripDetailScreen() {
                 <Copy size={20} color="#2563eb" />
               </TouchableOpacity>
               <TouchableOpacity
-                ref={editTriggerRef}
-                onPress={() => setShowEditModal(true)}
+                ref={modals.editTriggerRef}
+                onPress={() => modals.setShowEditModal(true)}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
                 testID="edit-trip-button"
@@ -231,7 +176,6 @@ export default function TripDetailScreen() {
                   style={{ width: `${progress.percentage}%` }}
                 />
               </View>
-              {/* Submission progress summary */}
               <View
                 className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 flex-row items-center justify-between"
                 testID="submission-progress-summary"
@@ -254,148 +198,33 @@ export default function TripDetailScreen() {
           )}
         </View>
 
-        {/* Trip Readiness Checklist */}
-        {trip.legs.length > 0 && (
-          <View className="px-4 pt-4">
-            {isReadinessLoading ? (
-              <View
-                testID="readiness-checklist-loading"
-                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3"
-                accessible={true}
-                accessibilityLabel="Loading trip readiness"
-                accessibilityRole="progressbar"
-              >
-                <View className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-2/3" />
-              </View>
-            ) : tripReadiness ? (
-              <ReadinessChecklist
-                tripReadiness={tripReadiness}
-                onNavigate={handleReadinessNavigate}
-                testID="readiness-checklist"
-              />
-            ) : null}
-          </View>
-        )}
+        <Checklists
+          legs={trip.legs}
+          currentProfileId={currentProfileId}
+          familyMembers={familyMembers}
+          isReadinessLoading={isReadinessLoading}
+          tripReadiness={tripReadiness}
+          tripChecklist={tripChecklist}
+          travelerProgressData={travelerProgressData}
+          onReadinessNavigate={handleReadinessNavigate}
+          onChecklistPress={() => (navigation as { navigate: (screen: string, params: Record<string, string>) => void }).navigate('TripChecklist', { tripId })}
+        />
 
-        {/* Per-traveler Progress */}
-        {travelerProgressData.length > 0 && (
-          <View className="px-4 pt-4">
-            <TravelerProgressList
-              travelers={travelerProgressData}
-              testID="trip-detail-traveler-progress"
-            />
-          </View>
-        )}
-
-        {/* Pre-trip Account Setup */}
-        {trip.legs.length > 0 && currentProfileId && (
-          <View className="pt-4">
-            <AccountSetupChecklist
-              legs={trip.legs}
-              profileId={currentProfileId}
-              familyProfileIds={familyMembers
-                .filter(m => m.id !== currentProfileId)
-                .map(m => m.id)}
-              testID="trip-detail-account-checklist"
-            />
-          </View>
-        )}
-
-        {/* Pre-Departure Checklist Card */}
-        {tripChecklist && tripChecklist.items.length > 0 && (
-          <View className="px-4 pt-4">
-            <TouchableOpacity
-              testID="checklist-card"
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
-              activeOpacity={0.7}
-              onPress={() => (navigation as { navigate: (screen: string, params: Record<string, string>) => void }).navigate('TripChecklist', { tripId })}
-              accessibilityRole="button"
-              accessibilityLabel={`Pre-Departure Checklist, ${tripChecklist.completedCount} of ${tripChecklist.totalCount} items complete${tripChecklist.overallStatus === 'action-needed' || tripChecklist.overallStatus === 'warning' ? ', attention needed' : ''}`}
-            >
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-base font-semibold text-gray-900 dark:text-white">Pre-Departure Checklist</Text>
-                {(tripChecklist.overallStatus === 'action-needed' || tripChecklist.overallStatus === 'warning') && (
-                  <StatusBadge
-                    status={tripChecklist.overallStatus === 'action-needed' ? 'error' : 'warning'}
-                    text={tripChecklist.overallStatus === 'action-needed' ? 'Action Needed' : 'Warning'}
-                    size="small"
-                  />
-                )}
-              </View>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                {tripChecklist.completedCount} of {tripChecklist.totalCount} items complete
-              </Text>
-              <View className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
-                <View
-                  className="h-full bg-blue-500 rounded-full"
-                  style={{ width: `${tripChecklist.totalCount > 0 ? Math.round((tripChecklist.completedCount / tripChecklist.totalCount) * 100) : 0}%` }}
-                />
-              </View>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Trip Timeline */}
-        <View className="px-4 py-6">
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-xl font-bold text-gray-900 dark:text-white">Itinerary</Text>
-            <TouchableOpacity
-              ref={addTriggerRef}
-              onPress={handleOpenAddDestination}
-              className="bg-blue-50 dark:bg-blue-950 px-3 py-2 rounded-lg"
-              activeOpacity={0.7}
-              testID="add-destination-button"
-              accessibilityLabel="Add destination"
-              accessibilityRole="button"
-            >
-              <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">+ Add Destination</Text>
-            </TouchableOpacity>
-          </View>
-
-          {trip.legs.length === 0 ? (
-            <View className="bg-white dark:bg-gray-800 rounded-lg p-6 items-center">
-              <Map size={40} color="#6b7280" style={{ marginBottom: 12 }} />
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No destinations yet</Text>
-              <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-4">
-                Add your first destination to start planning your forms
-              </Text>
-              <Button
-                title="Add Destination"
-                onPress={handleOpenAddDestination}
-                variant="primary"
-                testID="add-destination-empty-button"
-              />
-            </View>
-          ) : (
-            <View>
-              {trip.legs
-                .sort((a, b) => a.order - b.order)
-                .map((leg, index) => (
-                  <View key={leg.id} className="relative">
-                    <LegCard
-                      leg={leg}
-                      onPress={() => handleLegPress(leg)}
-                      showFormStatus
-                      familyMembers={familyMembers}
-                      showTravelerDetails
-                      deadline={deadlineMap[leg.id]}
-                      onMarkAsSubmitted={() => handleMarkAsSubmitted(leg.id)}
-                    />
-                    {index < trip.legs.length - 1 && (
-                      <View className="absolute left-8 top-20 w-0.5 h-4 bg-gray-300 dark:bg-gray-600 z-10" />
-                    )}
-                  </View>
-                ))}
-            </View>
-          )}
-        </View>
+        <Itinerary
+          legs={trip.legs}
+          familyMembers={familyMembers}
+          deadlineMap={deadlineMap}
+          addTriggerRef={modals.addTriggerRef}
+          onAddDestination={modals.handleOpenAddDestination}
+          onLegPress={handleLegPress}
+          onMarkAsSubmitted={handleMarkAsSubmitted}
+        />
 
         {/* Actions */}
         <View className="px-4 pb-8">
           <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
-            {/* Save as Template */}
             <TouchableOpacity
-              onPress={() => setShowSaveTemplateModal(true)}
+              onPress={() => modals.setShowSaveTemplateModal(true)}
               className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
               activeOpacity={0.7}
               testID="save-as-template-button"
@@ -411,7 +240,6 @@ export default function TripDetailScreen() {
               </View>
             </TouchableOpacity>
 
-            {/* Delete Trip */}
             <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
@@ -427,45 +255,40 @@ export default function TripDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* ── Save as Template Modal ──────────────────────────────────────────── */}
       <SaveTemplateModal
-        visible={showSaveTemplateModal}
+        visible={modals.showSaveTemplateModal}
         initialName={trip.name}
-        onSave={onSaveAsTemplate}
-        onCancel={() => setShowSaveTemplateModal(false)}
+        onSave={modals.onSaveAsTemplate}
+        onCancel={() => modals.setShowSaveTemplateModal(false)}
         testID="save-template-modal"
       />
 
-      {/* ── Edit Trip Modal ──────────────────────────────────────────────────── */}
       <EditTripModal
-        visible={showEditModal}
-        onClose={handleCloseEditModal}
+        visible={modals.showEditModal}
+        onClose={modals.handleCloseEditModal}
         onSwitchToAdd={() => {
-          setShowEditModal(false);
+          modals.setShowEditModal(false);
           setTimeout(() => {
             editHook.startAddDestination();
-            setShowAddModal(true);
+            modals.handleOpenAddDestination();
           }, 300);
         }}
         editHook={editHook}
         legs={trip.legs}
-        editModalTitleRef={editModalTitleRef}
+        editModalTitleRef={modals.editModalTitleRef}
       />
-
-      {/* ── Add Destination Modal ───────────────────────────────────────────── */}
       <AddDestinationModal
-        visible={showAddModal}
-        onClose={handleCloseAddModal}
-        onConfirm={handleConfirmAddDestination}
+        visible={modals.showAddModal}
+        onClose={modals.handleCloseAddModal}
+        onConfirm={modals.handleConfirmAddDestination}
         editHook={editHook}
-        addModalTitleRef={addModalTitleRef}
+        addModalTitleRef={modals.addModalTitleRef}
       />
 
-      {/* ── Duplicate Trip Modal ─────────────────────────────────────────────── */}
       <DuplicateTripModal
-        visible={showDuplicateModal}
-        onClose={handleCloseDuplicateModal}
-        onConfirm={handleDuplicateConfirm}
+        visible={modals.showDuplicateModal}
+        onClose={modals.handleCloseDuplicateModal}
+        onConfirm={modals.handleDuplicateConfirm}
         loading={isDuplicating}
         error={duplicateError}
         testID="duplicate-trip-modal"
