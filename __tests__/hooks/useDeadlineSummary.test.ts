@@ -249,4 +249,40 @@ describe('useDeadlineSummary', () => {
 
     expect(result.current.items[0].label).toMatch(/Due in \d+d/);
   });
+
+  it('classifies 84h arrival as normal when submissionDeadlineHours=24 (real JPN schema)', () => {
+    // JPN.json has submissionDeadlineHours=24 (not the default 72 used above).
+    // hoursRemaining = 84 - 24 = 60h → normal → filtered out → no items.
+    const jpnSchema = makeSchema({ submissionDeadlineHours: 24 });
+    const trips: Trip[] = [
+      makeTrip({
+        legs: [makeLeg({
+          arrivalDate: new Date(Date.now() + 84 * 60 * 60 * 1000).toISOString(),
+        })],
+      }),
+    ];
+
+    const { result } = renderHook(() => useDeadlineSummary(trips, { JPN: jpnSchema }));
+
+    expect(result.current.hasUrgentItems).toBe(false);
+    expect(result.current.items).toHaveLength(0);
+  });
+
+  it('classifies 36h arrival as critical when submissionDeadlineHours=24 (E2E fixture parity)', () => {
+    // With submissionDeadlineHours=24: hoursRemaining = 36 - 24 = 12h → critical.
+    const jpnSchema = makeSchema({ submissionDeadlineHours: 24 });
+    const trips: Trip[] = [
+      makeTrip({
+        legs: [makeLeg({
+          arrivalDate: new Date(Date.now() + 36 * 60 * 60 * 1000).toISOString(),
+        })],
+      }),
+    ];
+
+    const { result } = renderHook(() => useDeadlineSummary(trips, { JPN: jpnSchema }));
+
+    expect(result.current.hasUrgentItems).toBe(true);
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0].urgency).toBe('critical');
+  });
 });
