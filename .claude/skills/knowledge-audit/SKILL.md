@@ -21,36 +21,22 @@ For each folder with a CLAUDE.md:
 
 For each rule, run the appropriate check:
 
-### Dependency direction (`.knowledge/concepts/dependency-direction.md`)
-- `src/stores/`: grep for imports from hooks or other stores
-- `src/components/`: grep for imports from stores
-- `src/services/`: grep for imports from stores or hooks
+For each policy file in `.knowledge/policies/`, read its SCOPE and RULES sections, then check the scoped directories:
 
-### Styling (`.knowledge/conventions/styling.md`)
-- `src/components/`: count `style={{` occurrences, flag non-exception cases
-- Check for inline hex colors outside of Lucide icon `color` props
+- Read the **SCOPE** to know which directories to scan
+- Read each **RULE** (ALLOW/DENY/REQUIRE) and grep/parse the scoped files
+- Check **EXCEPTIONS** — don't flag legitimate exceptions
+- Verify **ENFORCEMENT** test exists and passes
 
-### State management (`.knowledge/conventions/state-management.md`)
-- `src/hooks/`: compare files to `index.ts` barrel exports
-- `src/screens/`: count `useState` per screen, flag 5+
+Policy files are organized by scope:
+- `policies/architecture/` — dependency direction, file boundaries, local-first
+- `policies/data/` — storage tiers, PII boundary, schema fields
+- `policies/ui/` — styling, typography, motion, accessibility, ux-writing
+- `policies/state/` — hook conventions, store boundaries
+- `policies/testing/` — test conventions, e2e testability, drift detection
+- `policies/platform/` — native modules, navigation
 
-### E2E testability (`.knowledge/conventions/e2e-testability.md`)
-- `src/components/`: find interactive elements (`Pressable`, `TouchableOpacity`, `Button`) without `testID`
-- Compare against `maestro/generator/screenRegistry.ts`
-
-### Security boundary (`.knowledge/concepts/security-boundary.md`)
-- Check if PII fields (passport, DOB) are persisted to WatermelonDB or MMKV
-- Check for `console.log` of sensitive data
-
-### Schemas (`.knowledge/domain/form-engine.md` + `.knowledge/patterns/add-country.md`)
-- Fields without `autoFillSource` that aren't `countrySpecific: true`
-- Date fields not using `type: "date"`
-- Dropdown fields not using `searchable_select`
-- Missing `autoFillMapping` for fields with country-specific enums
-
-### Native modules (`.knowledge/conventions/native-modules.md`)
-- Native modules on disk but not in Xcode pbxproj
-- Missing web mocks or Jest mocks
+Also check `.knowledge/models/` for invariant violations in business logic.
 
 ## Step 3: Check knowledge test coverage
 
@@ -71,16 +57,15 @@ For each `.knowledge/conventions/` file, verify a structural test exists that en
 | `motion.md` | (design guideline — not structurally testable) |
 | `ux-writing.md` | (design guideline — not structurally testable) |
 
-For any convention **without** a structural test:
-1. Determine if the convention IS structurally testable (can you grep/parse for violations?)
-2. If yes → write the test and add it to `__tests__/structure/`
-3. If no (design guideline) → skip, but note it in the report
+For any policy **without** a structural test:
+1. Read its ENFORCEMENT section — does it reference a test?
+2. If no test exists → write one and add it to `__tests__/structure/`
+3. If the policy is a design guideline (typography, motion, ux-writing) → skip but note it
+4. Add new policies to `knowledge-test-coverage.test.ts` mapping
 
-Also check `.knowledge/concepts/` and `.knowledge/domain/` for testable rules:
-- `drift-detection.md` → `maestro-registry-sync.test.ts` covers Maestro drift
-- `form-engine.md` → `schemaValidation.test.ts` covers schema rules
+Also check `.knowledge/models/` — model invariants may need validation tests.
 
-**New knowledge files added since last audit** should be flagged if they have no test.
+**New knowledge files added since last audit** should be flagged if not mapped in `knowledge-test-coverage.test.ts`.
 
 ## Step 4: Evaluate each finding
 
