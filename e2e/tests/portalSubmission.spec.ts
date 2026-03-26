@@ -228,7 +228,7 @@ test.describe('PortalSubmissionScreen', () => {
 
 test.describe('PortalSubmissionScreen — UI elements', () => {
   // Collected JS errors for the current test — reset in beforeEach, checked in afterEach.
-  let jsErrors: string[];
+  let jsErrors: string[] = [];
 
   test.beforeEach(async ({ page }) => {
     jsErrors = [];
@@ -238,6 +238,7 @@ test.describe('PortalSubmissionScreen — UI elements', () => {
   });
 
   test.afterEach(() => {
+    if (!jsErrors) return;
     // Filter out harmless React / NativeWind warnings that are not actionable errors.
     const criticalErrors = jsErrors.filter(
       (e) =>
