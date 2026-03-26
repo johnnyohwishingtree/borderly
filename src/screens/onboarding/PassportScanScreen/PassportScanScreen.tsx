@@ -11,65 +11,37 @@ import { usePassportScan } from '@/hooks/usePassportScan';
 import { getTodayISO } from '@/utils/dateUtils';
 
 export default function PassportScanScreen() {
-  const {
-    mode,
-    scanResult,
-    scannedProfile,
-    isSubmitting,
-    devicePerformance,
-    showPerformanceHint,
-    setShowPerformanceHint,
-    storageError,
-    scanError,
-    familyMode,
-    relationship,
-    form,
-    clearStorageError,
-    saveProfileData,
-    handleScanSuccess,
-    handleScanError,
-    handleScanCancel,
-    handleManualEntry,
-    handleStartScanning,
-    handleBack,
-    handleConfirmScanned,
-    handleEditScanned,
-    handleRescan,
-    retrySave,
-    retryScan,
-    fallbackToManual,
-    handleDemoScan,
-  } = usePassportScan();
+  const { scan, profile, form, ui, navigation, family } = usePassportScan();
 
   const { colors } = useTheme();
   const { control, handleSubmit, formState: { errors } } = form;
 
-  if (mode === 'scanning') {
+  if (scan.mode === 'scanning') {
     return (
       <MRZScanner
-        onScanSuccess={handleScanSuccess}
-        onScanCancel={handleScanCancel}
-        onManualEntry={handleManualEntry}
-        onScanError={handleScanError}
-        lowPowerMode={devicePerformance === 'low'}
+        onScanSuccess={scan.handleSuccess}
+        onScanCancel={scan.handleCancel}
+        onManualEntry={scan.handleManualEntry}
+        onScanError={scan.handleError}
+        lowPowerMode={ui.devicePerformance === 'low'}
       />
     );
   }
 
-  if (mode === 'preview' && scannedProfile) {
+  if (scan.mode === 'preview' && profile.scanned) {
     return (
       <PassportPreview
-        profile={scannedProfile}
-        {...(scanResult ? { scanResult } : {})}
-        onConfirm={handleConfirmScanned}
-        onEdit={handleEditScanned}
-        onRescan={handleRescan}
-        isLoading={isSubmitting}
+        profile={profile.scanned}
+        {...(scan.result ? { scanResult: scan.result } : {})}
+        onConfirm={profile.confirm}
+        onEdit={profile.edit}
+        onRescan={profile.rescan}
+        isLoading={profile.isSubmitting}
       />
     );
   }
 
-  const currentStep = mode === 'method' ? 0 : 1;
+  const currentStep = scan.mode === 'method' ? 0 : 1;
   const totalSteps = 3;
 
   return (
@@ -89,7 +61,7 @@ export default function PassportScanScreen() {
             <View className="flex-row items-center flex-1">
               <Camera size={24} color={colors.textPrimary} style={{ marginRight: 8 }} />
               <Text className="text-2xl font-bold text-gray-900 dark:text-white">
-                {familyMode ? 'Add Family Member' : 'Passport Information'}
+                {family.mode ? 'Add Family Member' : 'Passport Information'}
               </Text>
             </View>
             <ContextualHelp
@@ -99,16 +71,16 @@ export default function PassportScanScreen() {
             />
           </View>
           <Text className="text-base text-gray-600 dark:text-gray-400 mb-4">
-            {familyMode
-              ? `Scan the ${relationship === 'spouse' ? "spouse's" :
-                           relationship === 'child' ? "child's" :
-                           relationship === 'parent' ? "parent's" :
+            {family.mode
+              ? `Scan the ${family.relationship === 'spouse' ? "spouse's" :
+                           family.relationship === 'child' ? "child's" :
+                           family.relationship === 'parent' ? "parent's" :
                            "family member's"} passport or enter information manually. All data is stored securely on your device.`
               : 'Scan your passport or enter information manually. All data is stored securely on your device.'
             }
           </Text>
 
-          {mode !== 'manual' && (
+          {scan.mode !== 'manual' && (
             <HelpHint
               title="Scanning Tips"
               content="For best results, ensure good lighting and hold your passport flat. The camera will automatically detect the MRZ (Machine Readable Zone) at the bottom of your passport photo page."
@@ -121,25 +93,25 @@ export default function PassportScanScreen() {
 
         {/* Error Messages */}
         <ErrorMessage
-          error={storageError}
+          error={ui.storageError}
           variant="card"
           showRetry
-          onRetry={retrySave}
-          onDismiss={clearStorageError}
+          onRetry={profile.retrySave}
+          onDismiss={ui.clearStorageError}
           className="mb-4"
         />
 
         <ErrorMessage
-          error={scanError}
+          error={scan.error}
           variant="card"
           showRetry
-          onRetry={retryScan}
-          onDismiss={fallbackToManual}
+          onRetry={scan.retry}
+          onDismiss={scan.fallbackToManual}
           className="mb-4"
         />
 
         {/* Performance hint for low-end devices */}
-        {showPerformanceHint && (
+        {ui.showPerformanceHint && (
           <View className="mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
             <View className="flex-row items-start gap-3">
               <Zap size={20} color="#ea580c" />
@@ -152,7 +124,7 @@ export default function PassportScanScreen() {
                 </Text>
                 <Button
                   title="Dismiss"
-                  onPress={() => setShowPerformanceHint(false)}
+                  onPress={() => ui.setShowPerformanceHint(false)}
                   variant="outline"
                   size="small"
                   testID="dismiss-performance-hint-button"
@@ -163,7 +135,7 @@ export default function PassportScanScreen() {
         )}
 
         {/* Method selection */}
-        {mode === 'method' && (
+        {scan.mode === 'method' && (
           <>
             <View className="items-center py-8 mb-4 border border-gray-200 dark:border-gray-700 rounded-xl">
               <View className="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 rounded-full mb-4 items-center justify-center">
@@ -177,7 +149,7 @@ export default function PassportScanScreen() {
               </Text>
               <Button
                 title="Start Camera Scan"
-                onPress={handleStartScanning}
+                onPress={scan.handleStart}
                 variant="primary"
                 size="large"
                 testID="start-camera-scan-button"
@@ -187,7 +159,7 @@ export default function PassportScanScreen() {
             <View className="items-center py-4">
               <Button
                 title="Or enter manually"
-                onPress={handleManualEntry}
+                onPress={scan.handleManualEntry}
                 variant="outline"
                 size="medium"
                 testID="enter-manually-button"
@@ -200,21 +172,21 @@ export default function PassportScanScreen() {
                 <View className="flex-row gap-2">
                   <Button
                     title="Demo: Adult"
-                    onPress={() => handleDemoScan('adult')}
+                    onPress={() => scan.handleDemo('adult')}
                     variant="outline"
                     size="small"
                     testID="demo-scan-adult"
                   />
                   <Button
                     title="Demo: Spouse"
-                    onPress={() => handleDemoScan('spouse')}
+                    onPress={() => scan.handleDemo('spouse')}
                     variant="outline"
                     size="small"
                     testID="demo-scan-spouse"
                   />
                   <Button
                     title="Demo: Child"
-                    onPress={() => handleDemoScan('child')}
+                    onPress={() => scan.handleDemo('child')}
                     variant="outline"
                     size="small"
                     testID="demo-scan-child"
@@ -226,7 +198,7 @@ export default function PassportScanScreen() {
         )}
 
         {/* Manual entry section */}
-        {mode === 'manual' && (
+        {scan.mode === 'manual' && (
           <View className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
             <View className="flex-row items-center mb-2">
               <Pencil size={20} color={colors.textPrimary} style={{ marginRight: 8 }} />
@@ -389,11 +361,11 @@ export default function PassportScanScreen() {
         )}
 
         <View className="mt-6 space-y-4">
-          {mode === 'manual' && (
+          {scan.mode === 'manual' && (
             <Button
               title="Continue"
-              onPress={handleSubmit((data) => saveProfileData(data))}
-              loading={isSubmitting}
+              onPress={handleSubmit((data) => profile.save(data))}
+              loading={profile.isSubmitting}
               size="large"
               fullWidth
               testID="passport-continue-button"
@@ -402,7 +374,7 @@ export default function PassportScanScreen() {
 
           <Button
             title="Back"
-            onPress={handleBack}
+            onPress={navigation.handleBack}
             variant="outline"
             size="large"
             fullWidth

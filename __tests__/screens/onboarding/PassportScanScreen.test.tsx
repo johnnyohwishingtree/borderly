@@ -28,71 +28,91 @@ const mockSetShowPerformanceHint = jest.fn();
 const mockHandleSubmit = jest.fn((cb: (data: unknown) => void) => () => cb({}));
 
 interface MockHookReturn {
-  mode: 'method' | 'scanning' | 'preview' | 'manual';
-  scanResult: unknown;
-  scannedProfile: Record<string, string> | null;
-  isSubmitting: boolean;
-  devicePerformance: 'low' | 'medium' | 'high';
-  showPerformanceHint: boolean;
-  setShowPerformanceHint: jest.Mock;
-  storageError: string | null;
-  scanError: string | null;
-  familyMode: boolean;
-  relationship: string;
+  scan: {
+    result: unknown;
+    error: string | null;
+    mode: 'method' | 'scanning' | 'preview' | 'manual';
+    handleSuccess: jest.Mock;
+    handleError: jest.Mock;
+    handleCancel: jest.Mock;
+    handleStart: jest.Mock;
+    handleManualEntry: jest.Mock;
+    handleDemo: jest.Mock;
+    retry: jest.Mock;
+    fallbackToManual: jest.Mock;
+  };
+  profile: {
+    scanned: Record<string, string> | null;
+    isSubmitting: boolean;
+    save: jest.Mock;
+    confirm: jest.Mock;
+    edit: jest.Mock;
+    rescan: jest.Mock;
+    retrySave: jest.Mock;
+  };
   form: {
     control: Record<string, unknown>;
     handleSubmit: jest.Mock;
     formState: { errors: Record<string, unknown> };
   };
-  clearStorageError: jest.Mock;
-  saveProfileData: jest.Mock;
-  handleScanSuccess: jest.Mock;
-  handleScanError: jest.Mock;
-  handleScanCancel: jest.Mock;
-  handleManualEntry: jest.Mock;
-  handleStartScanning: jest.Mock;
-  handleBack: jest.Mock;
-  handleConfirmScanned: jest.Mock;
-  handleEditScanned: jest.Mock;
-  handleRescan: jest.Mock;
-  retrySave: jest.Mock;
-  retryScan: jest.Mock;
-  fallbackToManual: jest.Mock;
-  handleDemoScan: jest.Mock;
+  ui: {
+    devicePerformance: 'low' | 'medium' | 'high';
+    showPerformanceHint: boolean;
+    setShowPerformanceHint: jest.Mock;
+    storageError: string | null;
+    clearStorageError: jest.Mock;
+  };
+  navigation: {
+    handleBack: jest.Mock;
+  };
+  family: {
+    mode: boolean;
+    relationship: string;
+  };
 }
 
 const defaultHookReturn: MockHookReturn = {
-  mode: 'method',
-  scanResult: null,
-  scannedProfile: null,
-  isSubmitting: false,
-  devicePerformance: 'medium',
-  showPerformanceHint: false,
-  setShowPerformanceHint: mockSetShowPerformanceHint,
-  storageError: null,
-  scanError: null,
-  familyMode: false,
-  relationship: 'self',
+  scan: {
+    result: null,
+    error: null,
+    mode: 'method',
+    handleSuccess: mockHandleScanSuccess,
+    handleError: mockHandleScanError,
+    handleCancel: mockHandleScanCancel,
+    handleStart: mockHandleStartScanning,
+    handleManualEntry: mockHandleManualEntry,
+    handleDemo: mockHandleDemoScan,
+    retry: mockRetryScan,
+    fallbackToManual: mockFallbackToManual,
+  },
+  profile: {
+    scanned: null,
+    isSubmitting: false,
+    save: mockSaveProfileData,
+    confirm: mockHandleConfirmScanned,
+    edit: mockHandleEditScanned,
+    rescan: mockHandleRescan,
+    retrySave: mockRetrySave,
+  },
   form: {
     control: {},
     handleSubmit: mockHandleSubmit,
     formState: { errors: {} },
   },
-  clearStorageError: mockClearStorageError,
-  saveProfileData: mockSaveProfileData,
-  handleScanSuccess: mockHandleScanSuccess,
-  handleScanError: mockHandleScanError,
-  handleScanCancel: mockHandleScanCancel,
-  handleManualEntry: mockHandleManualEntry,
-  handleStartScanning: mockHandleStartScanning,
-  handleBack: mockHandleBack,
-  handleConfirmScanned: mockHandleConfirmScanned,
-  handleEditScanned: mockHandleEditScanned,
-  handleRescan: mockHandleRescan,
-  retrySave: mockRetrySave,
-  retryScan: mockRetryScan,
-  fallbackToManual: mockFallbackToManual,
-  handleDemoScan: mockHandleDemoScan,
+  ui: {
+    devicePerformance: 'medium',
+    showPerformanceHint: false,
+    setShowPerformanceHint: mockSetShowPerformanceHint,
+    storageError: null,
+    clearStorageError: mockClearStorageError,
+  },
+  navigation: {
+    handleBack: mockHandleBack,
+  },
+  family: {
+    mode: false,
+    relationship: 'self',
+  },
 };
 
 let mockHookReturn: MockHookReturn = { ...defaultHookReturn };
@@ -289,7 +309,7 @@ describe('PassportScanScreen — method selection mode', () => {
 
 describe('PassportScanScreen — family mode', () => {
   it('shows "Add Family Member" title when familyMode is true', () => {
-    mockHookReturn = { ...defaultHookReturn, familyMode: true, relationship: 'spouse' };
+    mockHookReturn = { ...defaultHookReturn, family: { mode: true, relationship: 'spouse' } };
 
     render(<PassportScanScreen />);
 
@@ -297,7 +317,7 @@ describe('PassportScanScreen — family mode', () => {
   });
 
   it('shows spouse-specific description text', () => {
-    mockHookReturn = { ...defaultHookReturn, familyMode: true, relationship: 'spouse' };
+    mockHookReturn = { ...defaultHookReturn, family: { mode: true, relationship: 'spouse' } };
 
     render(<PassportScanScreen />);
 
@@ -305,7 +325,7 @@ describe('PassportScanScreen — family mode', () => {
   });
 
   it('shows child-specific description text', () => {
-    mockHookReturn = { ...defaultHookReturn, familyMode: true, relationship: 'child' };
+    mockHookReturn = { ...defaultHookReturn, family: { mode: true, relationship: 'child' } };
 
     render(<PassportScanScreen />);
 
@@ -317,7 +337,7 @@ describe('PassportScanScreen — family mode', () => {
 
 describe('PassportScanScreen — scanning mode', () => {
   beforeEach(() => {
-    mockHookReturn = { ...defaultHookReturn, mode: 'scanning' };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, mode: 'scanning' } };
   });
 
   it('renders MRZScanner component', () => {
@@ -368,7 +388,7 @@ describe('PassportScanScreen — preview mode', () => {
   };
 
   beforeEach(() => {
-    mockHookReturn = { ...defaultHookReturn, mode: 'preview', scannedProfile };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, mode: 'preview' }, profile: { ...defaultHookReturn.profile, scanned: scannedProfile } };
   });
 
   it('renders PassportPreview component', () => {
@@ -409,7 +429,7 @@ describe('PassportScanScreen — preview mode', () => {
   });
 
   it('shows loading state when isSubmitting is true', () => {
-    mockHookReturn = { ...defaultHookReturn, mode: 'preview', scannedProfile, isSubmitting: true };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, mode: 'preview' }, profile: { ...defaultHookReturn.profile, scanned: scannedProfile, isSubmitting: true } };
 
     render(<PassportScanScreen />);
 
@@ -417,7 +437,7 @@ describe('PassportScanScreen — preview mode', () => {
   });
 
   it('does not render preview when scannedProfile is null (falls through to method view)', () => {
-    mockHookReturn = { ...defaultHookReturn, mode: 'preview', scannedProfile: null };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, mode: 'preview' }, profile: { ...defaultHookReturn.profile, scanned: null } };
 
     render(<PassportScanScreen />);
 
@@ -431,7 +451,7 @@ describe('PassportScanScreen — preview mode', () => {
 
 describe('PassportScanScreen — manual entry mode', () => {
   beforeEach(() => {
-    mockHookReturn = { ...defaultHookReturn, mode: 'manual' };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, mode: 'manual' } };
   });
 
   it('renders "Passport Details" heading', () => {
@@ -513,7 +533,7 @@ describe('PassportScanScreen — manual entry mode', () => {
 
 describe('PassportScanScreen — error states', () => {
   it('shows storage error message when storageError is set', () => {
-    mockHookReturn = { ...defaultHookReturn, storageError: 'Failed to save profile' };
+    mockHookReturn = { ...defaultHookReturn, ui: { ...defaultHookReturn.ui, storageError: 'Failed to save profile' } };
 
     render(<PassportScanScreen />);
 
@@ -521,7 +541,7 @@ describe('PassportScanScreen — error states', () => {
   });
 
   it('shows scan error message when scanError is set', () => {
-    mockHookReturn = { ...defaultHookReturn, scanError: 'Camera failed' };
+    mockHookReturn = { ...defaultHookReturn, scan: { ...defaultHookReturn.scan, error: 'Camera failed' } };
 
     render(<PassportScanScreen />);
 
@@ -539,7 +559,7 @@ describe('PassportScanScreen — error states', () => {
 
 describe('PassportScanScreen — performance hint', () => {
   it('shows performance hint when showPerformanceHint is true', () => {
-    mockHookReturn = { ...defaultHookReturn, showPerformanceHint: true };
+    mockHookReturn = { ...defaultHookReturn, ui: { ...defaultHookReturn.ui, showPerformanceHint: true } };
 
     render(<PassportScanScreen />);
 
@@ -553,7 +573,7 @@ describe('PassportScanScreen — performance hint', () => {
   });
 
   it('dismiss button calls setShowPerformanceHint(false)', () => {
-    mockHookReturn = { ...defaultHookReturn, showPerformanceHint: true };
+    mockHookReturn = { ...defaultHookReturn, ui: { ...defaultHookReturn.ui, showPerformanceHint: true } };
 
     render(<PassportScanScreen />);
 

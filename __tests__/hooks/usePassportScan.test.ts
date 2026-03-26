@@ -100,39 +100,39 @@ beforeEach(() => {
 describe('usePassportScan — mode transitions', () => {
   it('starts in method mode', () => {
     const { result } = renderHook(() => usePassportScan());
-    expect(result.current.mode).toBe('method');
+    expect(result.current.scan.mode).toBe('method');
   });
 
   it('transitions from method to scanning via handleStartScanning', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleStartScanning();
+      result.current.scan.handleStart();
     });
 
-    expect(result.current.mode).toBe('scanning');
+    expect(result.current.scan.mode).toBe('scanning');
   });
 
   it('transitions from method to manual via handleManualEntry', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleManualEntry();
+      result.current.scan.handleManualEntry();
     });
 
-    expect(result.current.mode).toBe('manual');
+    expect(result.current.scan.mode).toBe('manual');
   });
 
   it('transitions from scanning to preview on scan success', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleStartScanning();
+      result.current.scan.handleStart();
     });
-    expect(result.current.mode).toBe('scanning');
+    expect(result.current.scan.mode).toBe('scanning');
 
     act(() => {
-      result.current.handleScanSuccess({
+      result.current.scan.handleSuccess({
         success: true,
         errors: [],
         confidence: 0.95,
@@ -140,7 +140,7 @@ describe('usePassportScan — mode transitions', () => {
       });
     });
 
-    expect(result.current.mode).toBe('preview');
+    expect(result.current.scan.mode).toBe('preview');
   });
 
   it('transitions from preview to method via handleBack (rescan)', () => {
@@ -148,30 +148,30 @@ describe('usePassportScan — mode transitions', () => {
 
     // Go to preview via scan success
     act(() => {
-      result.current.handleScanSuccess({
+      result.current.scan.handleSuccess({
         success: true,
         errors: [],
         confidence: 0.95,
         profile: validPassportData,
       });
     });
-    expect(result.current.mode).toBe('preview');
+    expect(result.current.scan.mode).toBe('preview');
 
     act(() => {
-      result.current.handleBack();
+      result.current.navigation.handleBack();
     });
 
-    expect(result.current.mode).toBe('method');
-    expect(result.current.scanResult).toBeNull();
-    expect(result.current.scannedProfile).toBeNull();
+    expect(result.current.scan.mode).toBe('method');
+    expect(result.current.scan.result).toBeNull();
+    expect(result.current.profile.scanned).toBeNull();
   });
 
   it('navigates goBack when handleBack is called in method mode', () => {
     const { result } = renderHook(() => usePassportScan());
-    expect(result.current.mode).toBe('method');
+    expect(result.current.scan.mode).toBe('method');
 
     act(() => {
-      result.current.handleBack();
+      result.current.navigation.handleBack();
     });
 
     expect(mockGoBack).toHaveBeenCalledTimes(1);
@@ -181,37 +181,37 @@ describe('usePassportScan — mode transitions', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleScanSuccess({
+      result.current.scan.handleSuccess({
         success: true,
         errors: [],
         confidence: 0.95,
         profile: validPassportData,
       });
     });
-    expect(result.current.mode).toBe('preview');
+    expect(result.current.scan.mode).toBe('preview');
 
     act(() => {
-      result.current.handleRescan();
+      result.current.profile.rescan();
     });
 
-    expect(result.current.mode).toBe('scanning');
-    expect(result.current.scanResult).toBeNull();
-    expect(result.current.scannedProfile).toBeNull();
+    expect(result.current.scan.mode).toBe('scanning');
+    expect(result.current.scan.result).toBeNull();
+    expect(result.current.profile.scanned).toBeNull();
   });
 
   it('transitions back to method via handleScanCancel', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleStartScanning();
+      result.current.scan.handleStart();
     });
-    expect(result.current.mode).toBe('scanning');
+    expect(result.current.scan.mode).toBe('scanning');
 
     act(() => {
-      result.current.handleScanCancel();
+      result.current.scan.handleCancel();
     });
 
-    expect(result.current.mode).toBe('method');
+    expect(result.current.scan.mode).toBe('method');
   });
 });
 
@@ -318,12 +318,12 @@ describe('usePassportScan — scan success', () => {
     };
 
     act(() => {
-      result.current.handleScanSuccess(mrzResult);
+      result.current.scan.handleSuccess(mrzResult);
     });
 
-    expect(result.current.scanResult).toBe(mrzResult);
-    expect(result.current.scannedProfile).toEqual(mrzResult.profile);
-    expect(result.current.mode).toBe('preview');
+    expect(result.current.scan.result).toBe(mrzResult);
+    expect(result.current.profile.scanned).toEqual(mrzResult.profile);
+    expect(result.current.scan.mode).toBe('preview');
   });
 
   it('clears scanError on scan success', () => {
@@ -331,7 +331,7 @@ describe('usePassportScan — scan success', () => {
 
     // Trigger a scan success after being in a state
     act(() => {
-      result.current.handleScanSuccess({
+      result.current.scan.handleSuccess({
         success: true,
         errors: [],
         confidence: 0.95,
@@ -339,7 +339,7 @@ describe('usePassportScan — scan success', () => {
       });
     });
 
-    expect(result.current.scanError).toBeNull();
+    expect(result.current.scan.error).toBeNull();
   });
 });
 
@@ -350,7 +350,7 @@ describe('usePassportScan — scan error', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.handleScanError(new Error('Camera unavailable'));
+      await result.current.scan.handleError(new Error('Camera unavailable'));
     });
 
     expect(handleCameraError).toHaveBeenCalledTimes(1);
@@ -370,10 +370,10 @@ describe('usePassportScan — scan error', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.handleScanError(new Error('Camera unavailable'));
+      await result.current.scan.handleError(new Error('Camera unavailable'));
     });
 
-    expect(result.current.scanError).toBe('Camera failed');
+    expect(result.current.scan.error).toBe('Camera failed');
   });
 });
 
@@ -387,11 +387,11 @@ describe('usePassportScan — storage error on save', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData({ passportNumber: 'X123' });
+      await result.current.profile.save({ passportNumber: 'X123' });
     });
 
-    expect(result.current.storageError).toBe('General error');
-    expect(result.current.isSubmitting).toBe(false);
+    expect(result.current.ui.storageError).toBe('General error');
+    expect(result.current.profile.isSubmitting).toBe(false);
   });
 
   it('retrySave calls saveProfileData again with last failed data', async () => {
@@ -405,14 +405,14 @@ describe('usePassportScan — storage error on save', () => {
     const profileData = { passportNumber: 'X123', surname: 'RETRY' };
 
     await act(async () => {
-      await result.current.saveProfileData(profileData);
+      await result.current.profile.save(profileData);
     });
 
-    expect(result.current.storageError).toBeTruthy();
+    expect(result.current.ui.storageError).toBeTruthy();
 
     // Now retry
     await act(async () => {
-      await result.current.retrySave();
+      await result.current.profile.retrySave();
     });
 
     // saveProfile called twice (once original, once retry)
@@ -423,18 +423,18 @@ describe('usePassportScan — storage error on save', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.retryScan();
+      result.current.scan.retry();
     });
 
-    expect(result.current.mode).toBe('scanning');
-    expect(result.current.scanError).toBeNull();
+    expect(result.current.scan.mode).toBe('scanning');
+    expect(result.current.scan.error).toBeNull();
 
     act(() => {
-      result.current.fallbackToManual();
+      result.current.scan.fallbackToManual();
     });
 
-    expect(result.current.mode).toBe('manual');
-    expect(result.current.scanError).toBeNull();
+    expect(result.current.scan.mode).toBe('manual');
+    expect(result.current.scan.error).toBeNull();
   });
 });
 
@@ -445,11 +445,11 @@ describe('usePassportScan — handleDemoScan', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleDemoScan();
+      result.current.scan.handleDemo();
     });
 
-    expect(result.current.mode).toBe('preview');
-    expect(result.current.scannedProfile).toEqual({
+    expect(result.current.scan.mode).toBe('preview');
+    expect(result.current.profile.scanned).toEqual({
       passportNumber: 'L12345678',
       surname: 'SMITH',
       givenNames: 'JOHN MICHAEL',
@@ -465,10 +465,10 @@ describe('usePassportScan — handleDemoScan', () => {
     const { result } = renderHook(() => usePassportScan());
 
     act(() => {
-      result.current.handleDemoScan('child');
+      result.current.scan.handleDemo('child');
     });
 
-    expect(result.current.scannedProfile).toEqual(
+    expect(result.current.profile.scanned).toEqual(
       expect.objectContaining({
         passportNumber: 'N55512345',
         surname: 'SMITH',
@@ -487,15 +487,15 @@ describe('usePassportScan — family mode', () => {
 
     const { result } = renderHook(() => usePassportScan());
 
-    expect(result.current.familyMode).toBe(true);
-    expect(result.current.relationship).toBe('spouse');
+    expect(result.current.family.mode).toBe(true);
+    expect(result.current.family.relationship).toBe('spouse');
   });
 
   it('defaults familyMode to false and relationship to self', () => {
     const { result } = renderHook(() => usePassportScan());
 
-    expect(result.current.familyMode).toBe(false);
-    expect(result.current.relationship).toBe('self');
+    expect(result.current.family.mode).toBe(false);
+    expect(result.current.family.relationship).toBe('self');
   });
 
   it('calls addProfile instead of saveProfile when in family mode', async () => {
@@ -505,7 +505,7 @@ describe('usePassportScan — family mode', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData(validPassportData);
+      await result.current.profile.save(validPassportData);
     });
 
     expect(mockAddProfile).toHaveBeenCalledTimes(1);
@@ -525,7 +525,7 @@ describe('usePassportScan — family mode', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData(validPassportData);
+      await result.current.profile.save(validPassportData);
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('ConfirmProfile');
@@ -538,7 +538,7 @@ describe('usePassportScan — family mode', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData(validPassportData);
+      await result.current.profile.save(validPassportData);
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('FamilyManagement');
@@ -552,7 +552,7 @@ describe('usePassportScan — family mode', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData(validPassportData);
+      await result.current.profile.save(validPassportData);
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('AddCompanions');
@@ -564,7 +564,7 @@ describe('usePassportScan — family mode', () => {
 describe('usePassportScan — device performance', () => {
   it('detects device performance on mount', () => {
     const { result } = renderHook(() => usePassportScan());
-    expect(result.current.devicePerformance).toBe('medium');
+    expect(result.current.ui.devicePerformance).toBe('medium');
   });
 });
 
@@ -576,7 +576,7 @@ describe('usePassportScan — handleEditScanned', () => {
 
     // First scan
     act(() => {
-      result.current.handleScanSuccess({
+      result.current.scan.handleSuccess({
         success: true,
         errors: [],
         confidence: 0.95,
@@ -593,13 +593,13 @@ describe('usePassportScan — handleEditScanned', () => {
       });
     });
 
-    expect(result.current.mode).toBe('preview');
+    expect(result.current.scan.mode).toBe('preview');
 
     act(() => {
-      result.current.handleEditScanned();
+      result.current.profile.edit();
     });
 
-    expect(result.current.mode).toBe('manual');
+    expect(result.current.scan.mode).toBe('manual');
     expect(result.current.form.getValues('passportNumber')).toBe('EDIT1234');
     expect(result.current.form.getValues('surname')).toBe('EDIT');
     expect(result.current.form.getValues('nationality')).toBe('GBR');
@@ -626,7 +626,7 @@ describe('usePassportScan — editing existing profile', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await waitFor(() => {
-      expect(result.current.mode).toBe('manual');
+      expect(result.current.scan.mode).toBe('manual');
     });
 
     expect(result.current.form.getValues('passportNumber')).toBe('OLD12345');
@@ -641,7 +641,7 @@ describe('usePassportScan — editing existing profile', () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
-      await result.current.saveProfileData(validPassportData);
+      await result.current.profile.save(validPassportData);
     });
 
     expect(mockUpdateProfileById).toHaveBeenCalledWith(

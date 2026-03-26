@@ -335,34 +335,49 @@ export function usePassportScan() {
     handleScanSuccess(demoResult);
   }, [handleScanSuccess]);
 
+  const handleScanCancel = useCallback(() => { setScanError(null); setMode('method'); }, []);
+  const handleManualEntry = useCallback(() => setMode('manual'), []);
+  const handleStartScanning = useCallback(() => setMode('scanning'), []);
+  const clearStorageError = useCallback(() => setStorageError(null), []);
+
   return {
-    mode,
-    scanResult,
-    scannedProfile,
-    isSubmitting,
-    devicePerformance,
-    showPerformanceHint,
-    setShowPerformanceHint,
-    storageError,
-    scanError,
-    familyMode,
-    relationship,
+    scan: {
+      result: scanResult,
+      error: scanError,
+      mode,
+      handleSuccess: handleScanSuccess,
+      handleError: handleScanError,
+      handleCancel: handleScanCancel,
+      handleStart: handleStartScanning,
+      handleManualEntry,
+      handleDemo: handleDemoScan,
+      retry: retryScan,
+      fallbackToManual,
+    },
+    profile: {
+      scanned: scannedProfile,
+      isSubmitting,
+      save: saveProfileData,
+      confirm: handleConfirmScanned,
+      edit: handleEditScanned,
+      rescan: handleRescan,
+      retrySave,
+    },
     form,
-    clearStorageError: useCallback(() => setStorageError(null), []),
-    saveProfileData,
-    handleScanSuccess,
-    handleScanError,
-    handleScanCancel: useCallback(() => { setScanError(null); setMode('method'); }, []),
-    handleManualEntry: useCallback(() => setMode('manual'), []),
-    handleStartScanning: useCallback(() => setMode('scanning'), []),
-    handleBack,
-    handleConfirmScanned,
-    handleEditScanned,
-    handleRescan,
-    retrySave,
-    retryScan,
-    fallbackToManual,
-    handleDemoScan,
+    ui: {
+      devicePerformance,
+      showPerformanceHint,
+      setShowPerformanceHint,
+      storageError,
+      clearStorageError,
+    },
+    navigation: {
+      handleBack,
+    },
+    family: {
+      mode: familyMode,
+      relationship,
+    },
   };
 }
 
