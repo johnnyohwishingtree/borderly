@@ -13,6 +13,8 @@ Passport and personal data has strict containment rules.
 ## Rules
 - Passport data NEVER leaves OS Keychain except into memory for form generation
 - iCloud/Google backup EXCLUDED for Keychain items (`WHEN_UNLOCKED_THIS_DEVICE_ONLY`)
+- Shared Keychain access group (`com.borderly.shared-keychain`) enables data sharing between main app and AutoFill extension — both targets must have the same access group in their entitlements
+- App Group (`group.com.borderly.shared`) for non-Keychain shared data (e.g., MMKV config) between app and extensions
 - Clear copied passport data from clipboard after 60 seconds
 - App lock after 5 minutes of inactivity
 - Each family member has isolated storage with unique Keychain entries and encryption keys

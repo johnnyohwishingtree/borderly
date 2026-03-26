@@ -5,6 +5,7 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 ## Code fixes
 
 - E2E suite (`pnpm e2e`) — all failures caused by missing Playwright browser binaries. Webpack compiles successfully. Fix: run `pnpm exec playwright install` in an environment that allows CDN downloads (blocked in cloud/CI sandboxes). Not a code issue.
+- E2E `portalSubmission.spec.ts:483` — `auto-login-failed-banner NOT shown on initial load` fails consistently on master. Unrelated to keychain changes. (#834)
 
 ## Knowledge updates
 

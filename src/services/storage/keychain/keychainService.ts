@@ -14,6 +14,10 @@ import type { KeychainService } from './keychainTypes';
 import type { KeychainOps } from './keychainEncryption';
 import { getPortalCredentialIndex } from './keychainPortalCredentials';
 import {
+  SHARED_KEYCHAIN_ACCESS_GROUP,
+  KEYCHAIN_SERVICE,
+} from './sharedAccessConfig';
+import {
   generateEncryptionKey as genEncKey,
   getEncryptionKey as getEncKey,
   generateProfileEncryptionKey as genProfileEncKey,
@@ -53,8 +57,9 @@ class KeychainServiceImpl implements KeychainService {
 
   private async getKeychainSetOptions(): Promise<Keychain.SetOptions> {
     const baseOptions: Keychain.SetOptions = {
-      service: 'borderly',
+      service: KEYCHAIN_SERVICE,
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
     };
 
     try {
@@ -81,7 +86,10 @@ class KeychainServiceImpl implements KeychainService {
   }
 
   private get keychainGetOptions(): Keychain.GetOptions {
-    return { service: 'borderly' };
+    return {
+      service: KEYCHAIN_SERVICE,
+      accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
+    };
   }
 
   private async storeInKeychain(key: string, username: string, data: string): Promise<void> {
@@ -205,8 +213,9 @@ class KeychainServiceImpl implements KeychainService {
       const testData = 'test';
 
       await Keychain.setInternetCredentials(testKey, 'test', testData, {
-        service: 'borderly',
+        service: KEYCHAIN_SERVICE,
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
       });
 
       const retrieved = await Keychain.getInternetCredentials(testKey, this.keychainGetOptions);
@@ -229,7 +238,7 @@ class KeychainServiceImpl implements KeychainService {
 
   async secureCleanup(): Promise<void> {
     try {
-      await Keychain.resetGenericPassword({ service: 'borderly' }).catch(() => {});
+      await Keychain.resetGenericPassword({ service: KEYCHAIN_SERVICE }).catch(() => {});
       this.clearSensitiveMemory();
       this.lastAccessTime = {};
       console.log('Keychain secure cleanup completed');
