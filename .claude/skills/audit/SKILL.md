@@ -84,20 +84,22 @@ This evaluation is critical. Don't blindly flag violations — understand whethe
 
 Write all findings to `.knowledge/gaps.md`. Each entry includes: what's wrong, where, and whether to fix code or update knowledge.
 
+Each gap entry must include a **test strategy** — how to prevent this from recurring:
+
 ```markdown
 # Gaps
 
 Findings from audits and pipeline runs. Fix stories resolve these and remove the entry.
 
 ## Code fixes
-- `src/components/trips/TripCard.tsx` imports `useTripStore` directly — should receive data via props (audit-YYYY-MM-DD)
-- `src/screens/Profile/Profile.tsx` has 7 useState calls — extract to `useProfile` hook (audit-YYYY-MM-DD)
+- `src/components/trips/TripCard.tsx` imports `useTripStore` directly — should receive data via props. Test: add dependency-direction structural test. (audit-YYYY-MM-DD)
+- `src/screens/Profile/Profile.tsx` has 7 useState calls — extract to `useProfile` hook. Test: hook unit tests + screen stays under 500 lines. (audit-YYYY-MM-DD)
 
 ## Knowledge updates
-- `.knowledge/conventions/styling.md` says no inline styles but `StatusBadge` uses `style={{}}` for dynamic opacity — add exception for computed styles (audit-YYYY-MM-DD)
+- `.knowledge/conventions/styling.md` says no inline styles but `StatusBadge` uses `style={{}}` for dynamic opacity — add exception for computed styles. (audit-YYYY-MM-DD)
 
 ## Drift
-- Maestro flow references `id:submit-form-button` but source uses `id:submit-declaration-button` (audit-YYYY-MM-DD)
+- Maestro flow references `id:submit-form-button` but source uses `id:submit-declaration-button`. Test: maestro-registry-sync.test.ts catches this. (audit-YYYY-MM-DD)
 ```
 
 If `gaps.md` already exists, **merge** new findings — don't duplicate entries that are already there.
