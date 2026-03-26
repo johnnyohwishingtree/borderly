@@ -38,6 +38,7 @@ Read this first. Maps every artifact in the pipeline system.
 | `skills/organize/` | Reorganize file structure | `/organize` |
 | `skills/cleanup/` | Remove unused files | `/cleanup` |
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
+| `skills/local-pipeline/` | Same as pipeline but for Claude Desktop / local CLI | `/local-pipeline` |
 
 ## .knowledge/ (read-write — pipeline edits freely)
 
