@@ -44,6 +44,21 @@ jest.mock('@/components/ui', () => {
     },
     Divider: () => <View />,
     AddressAutocomplete: ({ testID }: any) => <View testID={testID} />,
+    SearchableSelect: ({ label, value, onValueChange, testID, options }: any) => (
+      <View testID={testID}>
+        <Text>{label}</Text>
+        <Text testID={`${testID}-value`}>{value}</Text>
+        {options?.map((opt: any) => (
+          <TouchableOpacity
+            key={opt.value}
+            testID={`${testID}-option-${opt.value}`}
+            onPress={() => onValueChange(opt.value)}
+          >
+            <Text>{opt.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    ),
   };
 });
 
@@ -71,7 +86,8 @@ const DEFAULT_PROFILE = {
   issuingCountry: 'USA',
   email: 'alice@example.com',
   phoneNumber: '+1 555-0100',
-  occupation: 'Engineer',
+  occupation: 'ENGINEER',
+  maritalStatus: 'SINGLE',
   homeAddress: {
     line1: '123 Main St',
     city: 'Springfield',
@@ -212,6 +228,54 @@ describe('EditProfileScreen', () => {
       // navigation.goBack() not called yet — user must confirm in the alert
       expect(mockGoBack).not.toHaveBeenCalled();
 
+      alertSpy.mockRestore();
+    });
+  });
+
+  describe('enum field selection', () => {
+    it('renders SearchableSelect for occupation with current value', () => {
+      setupMocks();
+      const { getByTestId } = render(<EditProfileScreen />);
+      const occupationValue = getByTestId('occupation-select-value');
+      expect(occupationValue.props.children).toBe('ENGINEER');
+    });
+
+    it('renders SearchableSelect for marital status with current value', () => {
+      setupMocks();
+      const { getByTestId } = render(<EditProfileScreen />);
+      const maritalValue = getByTestId('marital-status-select-value');
+      expect(maritalValue.props.children).toBe('SINGLE');
+    });
+
+    it('updates occupation when an option is selected', async () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      setupMocks();
+      const { getByTestId } = render(<EditProfileScreen />);
+
+      fireEvent.press(getByTestId('occupation-select-option-DOCTOR'));
+      fireEvent.press(getByTestId('button-Save Changes'));
+
+      await waitFor(() => {
+        expect(mockUpdateProfile).toHaveBeenCalledWith(
+          expect.objectContaining({ occupation: 'DOCTOR' }),
+        );
+      });
+      alertSpy.mockRestore();
+    });
+
+    it('updates marital status when an option is selected', async () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      setupMocks();
+      const { getByTestId } = render(<EditProfileScreen />);
+
+      fireEvent.press(getByTestId('marital-status-select-option-MARRIED'));
+      fireEvent.press(getByTestId('button-Save Changes'));
+
+      await waitFor(() => {
+        expect(mockUpdateProfile).toHaveBeenCalledWith(
+          expect.objectContaining({ maritalStatus: 'MARRIED' }),
+        );
+      });
       alertSpy.mockRestore();
     });
   });

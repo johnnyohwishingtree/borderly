@@ -5,8 +5,9 @@ import { Lock, TriangleAlert, Lightbulb } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete, ScreenContainer } from '@/components/ui';
-import { Address } from '@/types/profile';
+import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete, SearchableSelect, ScreenContainer } from '@/components/ui';
+import { Address, TravelerProfile } from '@/types/profile';
+import { OCCUPATIONS, MARITAL_STATUSES } from '@/constants/enums';
 
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
 
@@ -17,6 +18,7 @@ export default function EditProfileScreen() {
     email: '',
     phoneNumber: '',
     occupation: '',
+    maritalStatus: '',
     homeAddress: {
       line1: '',
       line2: '',
@@ -35,6 +37,7 @@ export default function EditProfileScreen() {
         email: profile.email || '',
         phoneNumber: profile.phoneNumber || '',
         occupation: profile.occupation || '',
+        maritalStatus: profile.maritalStatus || '',
         homeAddress: profile.homeAddress || {
           line1: '',
           line2: '',
@@ -93,16 +96,14 @@ export default function EditProfileScreen() {
     }
 
     try {
-      const updates: any = {
-        email: formData.email || undefined,
-        phoneNumber: formData.phoneNumber || undefined,
-        occupation: formData.occupation || undefined,
-      };
+      const updates: Partial<TravelerProfile> = {};
+      if (formData.email) {updates.email = formData.email;}
+      if (formData.phoneNumber) {updates.phoneNumber = formData.phoneNumber;}
+      if (formData.occupation) {updates.occupation = formData.occupation;}
+      if (formData.maritalStatus) {updates.maritalStatus = formData.maritalStatus;}
 
       if (formData.homeAddress.line1 || formData.homeAddress.city) {
         updates.homeAddress = formData.homeAddress;
-      } else {
-        updates.homeAddress = undefined;
       }
 
       await updateProfile(updates);
@@ -205,12 +206,29 @@ export default function EditProfileScreen() {
             </View>
 
             <View>
-              <Input
+              <SearchableSelect
                 label="Occupation"
+                options={OCCUPATIONS}
                 value={formData.occupation}
-                onChangeText={(value) => updateFormData('occupation', value)}
-                placeholder="Software Engineer"
+                onValueChange={(value) => updateFormData('occupation', value)}
+                placeholder="Select your occupation"
                 error={errors.occupation}
+                testID="occupation-select"
+              />
+              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Required for some immigration forms
+              </Text>
+            </View>
+
+            <View>
+              <SearchableSelect
+                label="Marital Status"
+                options={MARITAL_STATUSES}
+                value={formData.maritalStatus}
+                onValueChange={(value) => updateFormData('maritalStatus', value)}
+                placeholder="Select your marital status"
+                error={errors.maritalStatus}
+                testID="marital-status-select"
               />
               <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Required for some immigration forms
