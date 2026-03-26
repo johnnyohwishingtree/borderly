@@ -14,12 +14,25 @@
     "complexity": "high",
     "popularity": 95,
     "lastVerified": "2026-03-15T00:00:00Z",
-    "supportedLanguages": ["en", "es", "fr", "de", "it", "pt", "ja", "ko"],
+    "supportedLanguages": [
+      "en",
+      "es",
+      "fr",
+      "de",
+      "it",
+      "pt",
+      "ja",
+      "ko"
+    ],
     "implementationStatus": "planned",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".cbp-form", ".declaration-section", "#submit-declaration"],
+    "monitoredSelectors": [
+      ".cbp-form",
+      ".declaration-section",
+      "#submit-declaration"
+    ],
     "changeThreshold": 5,
     "fallbackActions": [
       {
@@ -163,8 +176,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -406,13 +425,34 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "business", "label": "Business" },
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "transit", "label": "Transit" }
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            }
           ],
           "automation": {
             "selector": "#purposeOfTravel",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "tourism",
+            "MEDICAL": "tourism",
+            "FAMILY_VISIT": "tourism",
+            "CONFERENCE": "business",
+            "OTHER": "tourism",
+            "_default": "tourism"
           }
         },
         {
@@ -632,7 +672,16 @@
       "order": 3,
       "title": "Enter Applicant Information",
       "description": "Fill in your personal details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["surname", "firstName", "middleName", "aliases", "dateOfBirth", "cityOfBirth", "countryOfBirth", "gender"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "firstName",
+        "middleName",
+        "aliases",
+        "dateOfBirth",
+        "cityOfBirth",
+        "countryOfBirth",
+        "gender"
+      ],
       "tips": [
         "Names must match passport exactly",
         "Include all given names from passport",
@@ -643,7 +692,13 @@
       "order": 4,
       "title": "Passport Information",
       "description": "Enter all passport details from your passport's information page.",
-      "fieldsOnThisScreen": ["passportNumber", "passportCountry", "passportIssueDate", "passportExpirationDate", "issuingAuthority"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportCountry",
+        "passportIssueDate",
+        "passportExpirationDate",
+        "issuingAuthority"
+      ],
       "tips": [
         "Passport must be e-passport with chip",
         "Must be valid for duration of stay",
@@ -654,7 +709,12 @@
       "order": 5,
       "title": "Contact Information",
       "description": "Provide your current contact information.",
-      "fieldsOnThisScreen": ["homeAddress", "homePhone", "workPhone", "email"],
+      "fieldsOnThisScreen": [
+        "homeAddress",
+        "homePhone",
+        "workPhone",
+        "email"
+      ],
       "tips": [
         "Use email you check regularly",
         "Include country codes for phone numbers",
@@ -665,7 +725,12 @@
       "order": 6,
       "title": "Employment Information",
       "description": "Enter your current or most recent employment details.",
-      "fieldsOnThisScreen": ["employer", "employerAddress", "employerPhone", "jobTitle"],
+      "fieldsOnThisScreen": [
+        "employer",
+        "employerAddress",
+        "employerPhone",
+        "jobTitle"
+      ],
       "tips": [
         "If unemployed, enter 'UNEMPLOYED'",
         "Students can enter school name",
@@ -676,7 +741,11 @@
       "order": 7,
       "title": "Emergency Contact",
       "description": "Provide emergency contact information for someone not traveling with you.",
-      "fieldsOnThisScreen": ["emergencyContactName", "emergencyContactPhone", "emergencyContactEmail"],
+      "fieldsOnThisScreen": [
+        "emergencyContactName",
+        "emergencyContactPhone",
+        "emergencyContactEmail"
+      ],
       "tips": [
         "Should be someone in your home country",
         "Cannot be someone traveling with you",
@@ -687,7 +756,12 @@
       "order": 8,
       "title": "Travel Information",
       "description": "Enter details about your planned travel to the United States.",
-      "fieldsOnThisScreen": ["purposeOfTravel", "addressInUS", "contactPersonUS", "contactPhoneUS"],
+      "fieldsOnThisScreen": [
+        "purposeOfTravel",
+        "addressInUS",
+        "contactPersonUS",
+        "contactPhoneUS"
+      ],
       "tips": [
         "Purpose affects your permitted activities",
         "Hotel name and address is acceptable",
@@ -698,7 +772,21 @@
       "order": 9,
       "title": "Eligibility Questions",
       "description": "Answer all security and eligibility questions truthfully. Most travelers will answer 'No' to all questions.",
-      "fieldsOnThisScreen": ["mentalDisorder", "drugConviction", "childAbduction", "crimeConviction", "controlledSubstance", "prostitution", "moneyLaundering", "humanTrafficking", "terrorism", "genocide", "childSoldier", "religiousFreedom", "visaRefusal"],
+      "fieldsOnThisScreen": [
+        "mentalDisorder",
+        "drugConviction",
+        "childAbduction",
+        "crimeConviction",
+        "controlledSubstance",
+        "prostitution",
+        "moneyLaundering",
+        "humanTrafficking",
+        "terrorism",
+        "genocide",
+        "childSoldier",
+        "religiousFreedom",
+        "visaRefusal"
+      ],
       "tips": [
         "Answer honestly - false answers are grounds for denial",
         "Most legitimate travelers answer 'No' to all",
@@ -748,8 +836,16 @@
     "version": "1.1.0",
     "entryUrl": "https://cbpone.cbp.dhs.gov/",
     "testMode": true,
-    "successIndicators": [".declaration-submitted", "#cbp-confirmation", ".submission-complete"],
-    "failureIndicators": [".declaration-error", ".validation-error", ".submission-failed"],
+    "successIndicators": [
+      ".declaration-submitted",
+      "#cbp-confirmation",
+      ".submission-complete"
+    ],
+    "failureIndicators": [
+      ".declaration-error",
+      ".validation-error",
+      ".submission-failed"
+    ],
     "dataExtractionRules": [
       {
         "name": "confirmationNumber",

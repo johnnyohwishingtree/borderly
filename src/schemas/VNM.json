@@ -14,12 +14,19 @@
     "complexity": "medium",
     "popularity": 70,
     "lastVerified": "2026-03-07T00:00:00Z",
-    "supportedLanguages": ["en", "vi"],
+    "supportedLanguages": [
+      "en",
+      "vi"
+    ],
     "implementationStatus": "planned",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".evisa-form", ".application-section", "#submit-application"],
+    "monitoredSelectors": [
+      ".evisa-form",
+      ".application-section",
+      "#submit-application"
+    ],
     "changeThreshold": 20,
     "fallbackActions": [
       {
@@ -131,8 +138,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -158,13 +171,34 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "buddhism", "label": "Buddhism" },
-            { "value": "christianity", "label": "Christianity" },
-            { "value": "islam", "label": "Islam" },
-            { "value": "hinduism", "label": "Hinduism" },
-            { "value": "judaism", "label": "Judaism" },
-            { "value": "other", "label": "Other" },
-            { "value": "none", "label": "None" }
+            {
+              "value": "buddhism",
+              "label": "Buddhism"
+            },
+            {
+              "value": "christianity",
+              "label": "Christianity"
+            },
+            {
+              "value": "islam",
+              "label": "Islam"
+            },
+            {
+              "value": "hinduism",
+              "label": "Hinduism"
+            },
+            {
+              "value": "judaism",
+              "label": "Judaism"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            },
+            {
+              "value": "none",
+              "label": "None"
+            }
           ],
           "automation": {
             "selector": "#religion",
@@ -184,10 +218,22 @@
           "required": true,
           "countrySpecific": false,
           "options": [
-            { "value": "ordinary", "label": "Ordinary" },
-            { "value": "diplomatic", "label": "Diplomatic" },
-            { "value": "official", "label": "Official" },
-            { "value": "service", "label": "Service" }
+            {
+              "value": "ordinary",
+              "label": "Ordinary"
+            },
+            {
+              "value": "diplomatic",
+              "label": "Diplomatic"
+            },
+            {
+              "value": "official",
+              "label": "Official"
+            },
+            {
+              "value": "service",
+              "label": "Service"
+            }
           ],
           "automation": {
             "selector": "#passportType",
@@ -255,17 +301,50 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "work", "label": "Work" },
-            { "value": "study", "label": "Study" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "family_visit", "label": "Visiting Family" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "work",
+              "label": "Work"
+            },
+            {
+              "value": "study",
+              "label": "Study"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "family_visit",
+              "label": "Visiting Family"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#purposeOfVisit",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "study",
+            "MEDICAL": "tourism",
+            "FAMILY_VISIT": "family_visit",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -287,13 +366,34 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "SGN", "label": "Tan Son Nhat Airport (Ho Chi Minh City)" },
-            { "value": "HAN", "label": "Noi Bai Airport (Hanoi)" },
-            { "value": "DAD", "label": "Da Nang Airport" },
-            { "value": "CXR", "label": "Cam Ranh Airport (Nha Trang)" },
-            { "value": "PQC", "label": "Phu Quoc Airport" },
-            { "value": "land_border", "label": "Land Border Crossing" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "SGN",
+              "label": "Tan Son Nhat Airport (Ho Chi Minh City)"
+            },
+            {
+              "value": "HAN",
+              "label": "Noi Bai Airport (Hanoi)"
+            },
+            {
+              "value": "DAD",
+              "label": "Da Nang Airport"
+            },
+            {
+              "value": "CXR",
+              "label": "Cam Ranh Airport (Nha Trang)"
+            },
+            {
+              "value": "PQC",
+              "label": "Phu Quoc Airport"
+            },
+            {
+              "value": "land_border",
+              "label": "Land Border Crossing"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "helpText": "Select the airport or border crossing where you'll enter Vietnam",
           "automation": {
@@ -342,13 +442,34 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "hotel", "label": "Hotel" },
-            { "value": "resort", "label": "Resort" },
-            { "value": "hostel", "label": "Hostel" },
-            { "value": "guesthouse", "label": "Guesthouse" },
-            { "value": "apartment", "label": "Private Apartment" },
-            { "value": "friend_family", "label": "Friend/Family Home" },
-            { "value": "cruise", "label": "Cruise Ship" }
+            {
+              "value": "hotel",
+              "label": "Hotel"
+            },
+            {
+              "value": "resort",
+              "label": "Resort"
+            },
+            {
+              "value": "hostel",
+              "label": "Hostel"
+            },
+            {
+              "value": "guesthouse",
+              "label": "Guesthouse"
+            },
+            {
+              "value": "apartment",
+              "label": "Private Apartment"
+            },
+            {
+              "value": "friend_family",
+              "label": "Friend/Family Home"
+            },
+            {
+              "value": "cruise",
+              "label": "Cruise Ship"
+            }
           ],
           "automation": {
             "selector": "#accommodationType",
@@ -400,15 +521,42 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "hanoi", "label": "Hanoi" },
-            { "value": "ho_chi_minh", "label": "Ho Chi Minh City" },
-            { "value": "da_nang", "label": "Da Nang" },
-            { "value": "hoi_an", "label": "Hoi An" },
-            { "value": "nha_trang", "label": "Nha Trang" },
-            { "value": "phu_quoc", "label": "Phu Quoc" },
-            { "value": "ha_long", "label": "Ha Long" },
-            { "value": "hue", "label": "Hue" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "hanoi",
+              "label": "Hanoi"
+            },
+            {
+              "value": "ho_chi_minh",
+              "label": "Ho Chi Minh City"
+            },
+            {
+              "value": "da_nang",
+              "label": "Da Nang"
+            },
+            {
+              "value": "hoi_an",
+              "label": "Hoi An"
+            },
+            {
+              "value": "nha_trang",
+              "label": "Nha Trang"
+            },
+            {
+              "value": "phu_quoc",
+              "label": "Phu Quoc"
+            },
+            {
+              "value": "ha_long",
+              "label": "Ha Long"
+            },
+            {
+              "value": "hue",
+              "label": "Hue"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#cityOfStay",
@@ -512,7 +660,16 @@
       "order": 3,
       "title": "Enter Personal Information",
       "description": "Fill in all personal details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["surname", "middleName", "givenName", "dateOfBirth", "placeOfBirth", "gender", "nationality", "religion"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "middleName",
+        "givenName",
+        "dateOfBirth",
+        "placeOfBirth",
+        "gender",
+        "nationality",
+        "religion"
+      ],
       "tips": [
         "Names must match passport exactly",
         "Religion field is mandatory in Vietnam",
@@ -523,7 +680,13 @@
       "order": 4,
       "title": "Passport Details",
       "description": "Enter all passport information from your passport's data page.",
-      "fieldsOnThisScreen": ["passportType", "passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingAuthority"],
+      "fieldsOnThisScreen": [
+        "passportType",
+        "passportNumber",
+        "passportIssuedDate",
+        "passportExpiry",
+        "passportIssuingAuthority"
+      ],
       "tips": [
         "Passport must be valid for at least 6 months",
         "Check passport number carefully",
@@ -534,7 +697,13 @@
       "order": 5,
       "title": "Travel Information",
       "description": "Provide details about your intended visit to Vietnam.",
-      "fieldsOnThisScreen": ["purposeOfVisit", "entryDate", "entryPort", "stayDuration", "previousVietnamVisit"],
+      "fieldsOnThisScreen": [
+        "purposeOfVisit",
+        "entryDate",
+        "entryPort",
+        "stayDuration",
+        "previousVietnamVisit"
+      ],
       "tips": [
         "Entry date should match your flight",
         "Select correct port of entry",
@@ -545,7 +714,13 @@
       "order": 6,
       "title": "Accommodation Information",
       "description": "Enter details of where you'll be staying in Vietnam.",
-      "fieldsOnThisScreen": ["accommodationType", "hotelName", "hotelAddress", "hotelPhone", "cityOfStay"],
+      "fieldsOnThisScreen": [
+        "accommodationType",
+        "hotelName",
+        "hotelAddress",
+        "hotelPhone",
+        "cityOfStay"
+      ],
       "tips": [
         "Hotel booking confirmation may be requested",
         "Use full hotel name and address",
@@ -556,7 +731,13 @@
       "order": 7,
       "title": "Contact Information",
       "description": "Provide your contact details and emergency contact information.",
-      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email", "emergencyContactName", "emergencyContactPhone"],
+      "fieldsOnThisScreen": [
+        "homeAddress",
+        "phoneNumber",
+        "email",
+        "emergencyContactName",
+        "emergencyContactPhone"
+      ],
       "tips": [
         "Use email you check regularly",
         "Include country code in phone numbers",
@@ -605,8 +786,14 @@
     "version": "1.0.0",
     "entryUrl": "https://evisa.xuatnhapcanh.gov.vn/",
     "testMode": true,
-    "successIndicators": [".application-success", "#download-evisa"],
-    "failureIndicators": [".error-notification", ".form-validation-error"],
+    "successIndicators": [
+      ".application-success",
+      "#download-evisa"
+    ],
+    "failureIndicators": [
+      ".error-notification",
+      ".form-validation-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "applicationNumber",

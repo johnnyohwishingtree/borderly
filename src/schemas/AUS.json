@@ -14,12 +14,19 @@
     "complexity": "medium",
     "popularity": 85,
     "lastVerified": "2026-03-22T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "quarterly"
   },
   "changeDetection": {
-    "monitoredSelectors": ["#dipc-form", ".form-section", ".submit-button", ".declaration-section"],
+    "monitoredSelectors": [
+      "#dipc-form",
+      ".form-section",
+      ".submit-button",
+      ".declaration-section"
+    ],
     "changeThreshold": 15,
     "fallbackActions": [
       {
@@ -98,9 +105,18 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" },
-            { "value": "X", "label": "Unspecified" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            },
+            {
+              "value": "X",
+              "label": "Unspecified"
+            }
           ]
         },
         {
@@ -184,10 +200,22 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "economy", "label": "Economy" },
-            { "value": "premium_economy", "label": "Premium Economy" },
-            { "value": "business", "label": "Business" },
-            { "value": "first", "label": "First" }
+            {
+              "value": "economy",
+              "label": "Economy"
+            },
+            {
+              "value": "premium_economy",
+              "label": "Premium Economy"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "first",
+              "label": "First"
+            }
           ],
           "helpText": "Select the class of your seat on the aircraft"
         },
@@ -219,14 +247,47 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "holiday", "label": "Holiday / Vacation" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_family_friends", "label": "Visiting Family / Friends" },
-            { "value": "education", "label": "Education / Study" },
-            { "value": "employment", "label": "Employment" },
-            { "value": "transit", "label": "In Transit" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "holiday",
+              "label": "Holiday / Vacation"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_family_friends",
+              "label": "Visiting Family / Friends"
+            },
+            {
+              "value": "education",
+              "label": "Education / Study"
+            },
+            {
+              "value": "employment",
+              "label": "Employment"
+            },
+            {
+              "value": "transit",
+              "label": "In Transit"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "holiday",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "other",
+            "FAMILY_VISIT": "visiting_family_friends",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
+          }
         }
       ]
     },
@@ -259,14 +320,38 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "ACT", "label": "Australian Capital Territory (ACT)" },
-            { "value": "NSW", "label": "New South Wales (NSW)" },
-            { "value": "NT", "label": "Northern Territory (NT)" },
-            { "value": "QLD", "label": "Queensland (QLD)" },
-            { "value": "SA", "label": "South Australia (SA)" },
-            { "value": "TAS", "label": "Tasmania (TAS)" },
-            { "value": "VIC", "label": "Victoria (VIC)" },
-            { "value": "WA", "label": "Western Australia (WA)" }
+            {
+              "value": "ACT",
+              "label": "Australian Capital Territory (ACT)"
+            },
+            {
+              "value": "NSW",
+              "label": "New South Wales (NSW)"
+            },
+            {
+              "value": "NT",
+              "label": "Northern Territory (NT)"
+            },
+            {
+              "value": "QLD",
+              "label": "Queensland (QLD)"
+            },
+            {
+              "value": "SA",
+              "label": "South Australia (SA)"
+            },
+            {
+              "value": "TAS",
+              "label": "Tasmania (TAS)"
+            },
+            {
+              "value": "VIC",
+              "label": "Victoria (VIC)"
+            },
+            {
+              "value": "WA",
+              "label": "Western Australia (WA)"
+            }
           ]
         },
         {
@@ -385,7 +470,14 @@
       "order": 2,
       "title": "Enter Personal Details",
       "description": "Fill in your personal information exactly as it appears on your passport, including your family name, given names, date of birth, sex, and country of birth.",
-      "fieldsOnThisScreen": ["familyName", "givenNames", "dateOfBirth", "gender", "countryOfBirth", "nationality"],
+      "fieldsOnThisScreen": [
+        "familyName",
+        "givenNames",
+        "dateOfBirth",
+        "gender",
+        "countryOfBirth",
+        "nationality"
+      ],
       "tips": [
         "Use the same spelling as your passport — no abbreviations",
         "If your passport shows only one name, enter it as your family name"
@@ -395,7 +487,11 @@
       "order": 3,
       "title": "Enter Passport Details",
       "description": "Enter your passport number, expiry date, and the country that issued your passport.",
-      "fieldsOnThisScreen": ["passportNumber", "passportExpiry", "passportCountry"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportExpiry",
+        "passportCountry"
+      ],
       "tips": [
         "Double-check your passport number carefully",
         "Ensure your passport is valid for at least 6 months beyond your intended stay"
@@ -405,7 +501,14 @@
       "order": 4,
       "title": "Enter Travel Details",
       "description": "Provide your flight number, arrival date, seat class, and the last country you visited before Australia.",
-      "fieldsOnThisScreen": ["flightNumber", "arrivalDate", "seatClass", "lastCountryVisited", "intendedLengthOfStay", "purposeOfVisit"],
+      "fieldsOnThisScreen": [
+        "flightNumber",
+        "arrivalDate",
+        "seatClass",
+        "lastCountryVisited",
+        "intendedLengthOfStay",
+        "purposeOfVisit"
+      ],
       "tips": [
         "Your flight number is on your boarding pass or e-ticket",
         "The last country visited is where your flight to Australia departed from",
@@ -416,7 +519,12 @@
       "order": 5,
       "title": "Enter Australian Address",
       "description": "Provide the address where you will be staying in Australia. Use your first accommodation address if you are visiting multiple places.",
-      "fieldsOnThisScreen": ["australianAddressLine1", "australianAddressCity", "australianAddressState", "australianAddressPostcode"],
+      "fieldsOnThisScreen": [
+        "australianAddressLine1",
+        "australianAddressCity",
+        "australianAddressState",
+        "australianAddressPostcode"
+      ],
       "tips": [
         "If staying in multiple locations, enter the first address",
         "Transit passengers may use the transit area or hotel address",
@@ -427,7 +535,13 @@
       "order": 6,
       "title": "Biosecurity Declarations",
       "description": "Declare whether you are carrying any food, plants, animals, or animal products, or have been in contact with farms or bushland. Australia has strict biosecurity laws — when in doubt, declare it.",
-      "fieldsOnThisScreen": ["hasFoodItems", "hasPlantItems", "hasAnimalItems", "hasBiosecurityRiskItems", "hasSoilOrWater"],
+      "fieldsOnThisScreen": [
+        "hasFoodItems",
+        "hasPlantItems",
+        "hasAnimalItems",
+        "hasBiosecurityRiskItems",
+        "hasSoilOrWater"
+      ],
       "tips": [
         "Always declare if unsure — ABF officers can inspect and allow permitted items through",
         "Failure to declare biosecurity risk items can result in fines of up to AUD 420 on the spot",
@@ -439,7 +553,12 @@
       "order": 7,
       "title": "Customs Declarations",
       "description": "Declare any controlled substances, weapons, currency over AUD 10,000, or goods exceeding duty-free allowances.",
-      "fieldsOnThisScreen": ["hasControlledGoods", "hasCurrencyOver10000", "hasGoodsExceedingAllowance", "hasCommercialGoods"],
+      "fieldsOnThisScreen": [
+        "hasControlledGoods",
+        "hasCurrencyOver10000",
+        "hasGoodsExceedingAllowance",
+        "hasCommercialGoods"
+      ],
       "tips": [
         "Declare all currency — this is not a tax, just a reporting requirement",
         "The duty-free allowance for adults is AUD 900 (excluding alcohol and tobacco)",
@@ -465,7 +584,15 @@
     "version": "1.0.0",
     "entryUrl": "https://online.abf.gov.au/incoming-passenger-card/",
     "testMode": true,
-    "successIndicators": [".confirmation-message", "#submission-reference", ".dipc-complete"],
-    "failureIndicators": [".error-message", ".form-error", ".validation-error"]
+    "successIndicators": [
+      ".confirmation-message",
+      "#submission-reference",
+      ".dipc-complete"
+    ],
+    "failureIndicators": [
+      ".error-message",
+      ".form-error",
+      ".validation-error"
+    ]
   }
 }

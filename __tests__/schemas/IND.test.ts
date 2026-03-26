@@ -68,7 +68,7 @@ describe('India (IND) Schema', () => {
 
     expect((occupationField as any).autoFillMapping).toBeDefined();
     expect((occupationField as any).autoFillMapping._default).toBe('other');
-    expect((occupationField as any).autoFillMapping.Student).toBe('student');
+    expect((occupationField as any).autoFillMapping.STUDENT).toBe('student');
   });
 
   test('gender field should include Other option for India', () => {

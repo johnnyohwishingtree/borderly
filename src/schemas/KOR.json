@@ -14,12 +14,19 @@
     "complexity": "medium",
     "popularity": 85,
     "lastVerified": "2025-03-22T00:00:00Z",
-    "supportedLanguages": ["en", "ko"],
+    "supportedLanguages": [
+      "en",
+      "ko"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".k-eta-form", ".apply-form", "#submit-btn"],
+    "monitoredSelectors": [
+      ".k-eta-form",
+      ".apply-form",
+      "#submit-btn"
+    ],
     "changeThreshold": 10,
     "fallbackActions": [
       {
@@ -119,8 +126,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ],
           "portalFieldName": "Sex"
         },
@@ -183,15 +196,59 @@
           "countrySpecific": true,
           "portalFieldName": "Occupation",
           "options": [
-            { "value": "employed", "label": "Employed (private sector)" },
-            { "value": "government", "label": "Government / Public servant" },
-            { "value": "self_employed", "label": "Self-employed / Business owner" },
-            { "value": "student", "label": "Student" },
-            { "value": "homemaker", "label": "Homemaker" },
-            { "value": "retired", "label": "Retired" },
-            { "value": "unemployed", "label": "Unemployed" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "employed",
+              "label": "Employed (private sector)"
+            },
+            {
+              "value": "government",
+              "label": "Government / Public servant"
+            },
+            {
+              "value": "self_employed",
+              "label": "Self-employed / Business owner"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "homemaker",
+              "label": "Homemaker"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            },
+            {
+              "value": "unemployed",
+              "label": "Unemployed"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillMapping": {
+            "SOFTWARE_DEVELOPER": "employed",
+            "ENGINEER": "employed",
+            "ACCOUNTANT": "employed",
+            "LAWYER": "employed",
+            "DOCTOR": "employed",
+            "NURSE": "employed",
+            "TEACHER": "government",
+            "GOVERNMENT_WORKER": "government",
+            "MILITARY": "government",
+            "SELF_EMPLOYED": "self_employed",
+            "BUSINESS_OWNER": "self_employed",
+            "FREELANCER": "self_employed",
+            "STUDENT": "student",
+            "HOMEMAKER": "homemaker",
+            "RETIRED": "retired",
+            "UNEMPLOYED": "unemployed",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "homeCountry",
@@ -227,16 +284,55 @@
           "countrySpecific": true,
           "portalFieldName": "Purpose of Visit",
           "options": [
-            { "value": "tourism", "label": "Tourism / Sightseeing" },
-            { "value": "visiting_family", "label": "Visiting Family / Friends" },
-            { "value": "business", "label": "Business (meetings, negotiations)" },
-            { "value": "conference", "label": "Conference / Seminar / Exhibition" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "medical", "label": "Medical Treatment" },
-            { "value": "education", "label": "Short-term Study / Language program" },
-            { "value": "cultural", "label": "Cultural / Sports Events" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "tourism",
+              "label": "Tourism / Sightseeing"
+            },
+            {
+              "value": "visiting_family",
+              "label": "Visiting Family / Friends"
+            },
+            {
+              "value": "business",
+              "label": "Business (meetings, negotiations)"
+            },
+            {
+              "value": "conference",
+              "label": "Conference / Seminar / Exhibition"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Treatment"
+            },
+            {
+              "value": "education",
+              "label": "Short-term Study / Language program"
+            },
+            {
+              "value": "cultural",
+              "label": "Cultural / Sports Events"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "visiting_family",
+            "CONFERENCE": "conference",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "arrivalDate",
@@ -444,7 +540,16 @@
       "order": 2,
       "title": "Enter Passport Details",
       "description": "Enter your passport information exactly as it appears on your passport.",
-      "fieldsOnThisScreen": ["passportNumber", "surname", "givenNames", "nationality", "dateOfBirth", "gender", "passportExpiry", "passportIssuingCountry"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "surname",
+        "givenNames",
+        "nationality",
+        "dateOfBirth",
+        "gender",
+        "passportExpiry",
+        "passportIssuingCountry"
+      ],
       "tips": [
         "Double-check your passport number — errors can cause denial at immigration",
         "Your passport must be valid for at least 6 months from your planned entry date",
@@ -455,7 +560,13 @@
       "order": 3,
       "title": "Personal Information",
       "description": "Provide your contact details and personal background information.",
-      "fieldsOnThisScreen": ["email", "phoneNumber", "occupation", "homeCountry", "homeAddress"],
+      "fieldsOnThisScreen": [
+        "email",
+        "phoneNumber",
+        "occupation",
+        "homeCountry",
+        "homeAddress"
+      ],
       "tips": [
         "Use the same email as your K-ETA account for consistency",
         "Select the occupation category that best matches your current status",
@@ -466,7 +577,15 @@
       "order": 4,
       "title": "Travel Details",
       "description": "Enter your trip information including your flight, intended stay, and entry point.",
-      "fieldsOnThisScreen": ["purposeOfVisit", "arrivalDate", "durationOfStay", "flightNumber", "airlineCode", "arrivalAirport", "departureCountry"],
+      "fieldsOnThisScreen": [
+        "purposeOfVisit",
+        "arrivalDate",
+        "durationOfStay",
+        "flightNumber",
+        "airlineCode",
+        "arrivalAirport",
+        "departureCountry"
+      ],
       "tips": [
         "Most international flights arrive at Incheon International Airport (ICN)",
         "Select the purpose that best matches your primary reason for visiting",
@@ -477,7 +596,11 @@
       "order": 5,
       "title": "Accommodation in Korea",
       "description": "Provide the address and details of where you will be staying in South Korea.",
-      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "fieldsOnThisScreen": [
+        "hotelName",
+        "hotelAddress",
+        "hotelPhone"
+      ],
       "tips": [
         "If staying at multiple places, enter the first accommodation",
         "Airbnb and private rentals are accepted — enter the full address",
@@ -488,7 +611,11 @@
       "order": 6,
       "title": "Health Declaration",
       "description": "Answer the health screening questions required for entry into South Korea.",
-      "fieldsOnThisScreen": ["hasSymptoms", "hasInfectiousDisease", "visitedOutbreakArea"],
+      "fieldsOnThisScreen": [
+        "hasSymptoms",
+        "hasInfectiousDisease",
+        "visitedOutbreakArea"
+      ],
       "tips": [
         "Answer honestly — false health declarations are a criminal offense",
         "If you answer 'Yes', you may be subject to additional health screening upon arrival",
@@ -499,7 +626,14 @@
       "order": 7,
       "title": "Customs Declaration",
       "description": "Declare any goods, cash, or items that may be subject to customs regulations.",
-      "fieldsOnThisScreen": ["carryingProhibitedItems", "exceedsDutyFreeAllowance", "carryingCurrencyOverLimit", "carryingAnimalPlantProducts", "carryingCommercialGoods", "carryingMedications"],
+      "fieldsOnThisScreen": [
+        "carryingProhibitedItems",
+        "exceedsDutyFreeAllowance",
+        "carryingCurrencyOverLimit",
+        "carryingAnimalPlantProducts",
+        "carryingCommercialGoods",
+        "carryingMedications"
+      ],
       "tips": [
         "Korea's duty-free limit is USD 800 per person — gifts and souvenirs count toward this total",
         "Strict penalties apply for undeclared currency exceeding USD 10,000",

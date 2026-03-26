@@ -14,13 +14,20 @@
     "complexity": "medium",
     "popularity": 75,
     "lastVerified": "2026-03-15T00:00:00Z",
-    "supportedLanguages": ["en", "fr"],
+    "supportedLanguages": [
+      "en",
+      "fr"
+    ],
     "implementationStatus": "archived",
     "archiveReason": "ArriveCAN (mandatory digital arrival app) was discontinued on October 1, 2023 by the Canada Border Services Agency. Travelers no longer need a digital pre-arrival declaration. The Canadian eTA is still required for visa-exempt nationals but cannot be browser-automated — it is processed via canada.ca and linked to the passport electronically. This schema is retained for reference in case a replacement digital portal is introduced.",
     "maintenanceFrequency": "as_needed"
   },
   "changeDetection": {
-    "monitoredSelectors": [".eta-form", ".form-group", "#submit-eta"],
+    "monitoredSelectors": [
+      ".eta-form",
+      ".form-group",
+      "#submit-eta"
+    ],
     "changeThreshold": 10,
     "fallbackActions": [
       {
@@ -132,9 +139,18 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" },
-            { "value": "X", "label": "Another gender" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            },
+            {
+              "value": "X",
+              "label": "Another gender"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -148,17 +164,48 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "single", "label": "Single/Never married" },
-            { "value": "married", "label": "Married" },
-            { "value": "divorced", "label": "Divorced" },
-            { "value": "widowed", "label": "Widowed" },
-            { "value": "separated", "label": "Legally separated" },
-            { "value": "common_law", "label": "Common-law" },
-            { "value": "annulled", "label": "Annulled marriage" }
+            {
+              "value": "single",
+              "label": "Single/Never married"
+            },
+            {
+              "value": "married",
+              "label": "Married"
+            },
+            {
+              "value": "divorced",
+              "label": "Divorced"
+            },
+            {
+              "value": "widowed",
+              "label": "Widowed"
+            },
+            {
+              "value": "separated",
+              "label": "Legally separated"
+            },
+            {
+              "value": "common_law",
+              "label": "Common-law"
+            },
+            {
+              "value": "annulled",
+              "label": "Annulled marriage"
+            }
           ],
           "automation": {
             "selector": "#marital-status",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.maritalStatus",
+          "autoFillMapping": {
+            "SINGLE": "single",
+            "MARRIED": "married",
+            "DIVORCED": "divorced",
+            "WIDOWED": "widowed",
+            "SEPARATED": "separated",
+            "OTHER": "other",
+            "_default": "other"
           }
         }
       ]
@@ -197,10 +244,22 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "citizen", "label": "Citizen" },
-            { "value": "permanent_resident", "label": "Permanent resident" },
-            { "value": "refugee", "label": "Refugee" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "citizen",
+              "label": "Citizen"
+            },
+            {
+              "value": "permanent_resident",
+              "label": "Permanent resident"
+            },
+            {
+              "value": "refugee",
+              "label": "Refugee"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "helpText": "In your country of nationality",
           "automation": {
@@ -373,15 +432,42 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism/recreation" },
-            { "value": "visit_family", "label": "Visit family or friends" },
-            { "value": "business", "label": "Business" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourism",
+              "label": "Tourism/recreation"
+            },
+            {
+              "value": "visit_family",
+              "label": "Visit family or friends"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#purpose-of-visit",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "other",
+            "MEDICAL": "other",
+            "FAMILY_VISIT": "visit_family",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -391,11 +477,26 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "personal_funds", "label": "My own funds" },
-            { "value": "family_friends", "label": "Funds from family or friends in Canada" },
-            { "value": "family_home", "label": "Funds from family or friends in my home country" },
-            { "value": "organization", "label": "Funds from an organization or government" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "personal_funds",
+              "label": "My own funds"
+            },
+            {
+              "value": "family_friends",
+              "label": "Funds from family or friends in Canada"
+            },
+            {
+              "value": "family_home",
+              "label": "Funds from family or friends in my home country"
+            },
+            {
+              "value": "organization",
+              "label": "Funds from an organization or government"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#funding-source",
@@ -526,7 +627,15 @@
       "order": 4,
       "title": "Enter Personal Information",
       "description": "Fill in your personal details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["surname", "givenNames", "previousNames", "dateOfBirth", "countryOfBirth", "gender", "maritalStatus"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "givenNames",
+        "previousNames",
+        "dateOfBirth",
+        "countryOfBirth",
+        "gender",
+        "maritalStatus"
+      ],
       "tips": [
         "Names must match passport exactly",
         "Include all names from passport",
@@ -537,7 +646,11 @@
       "order": 5,
       "title": "Nationality and Citizenship",
       "description": "Provide information about your nationality and citizenship status.",
-      "fieldsOnThisScreen": ["nationality", "dualCitizenship", "immigrationStatus"],
+      "fieldsOnThisScreen": [
+        "nationality",
+        "dualCitizenship",
+        "immigrationStatus"
+      ],
       "tips": [
         "Answer honestly about dual citizenship",
         "Immigration status refers to your home country",
@@ -548,7 +661,12 @@
       "order": 6,
       "title": "Passport Information",
       "description": "Enter your passport details from the passport information page.",
-      "fieldsOnThisScreen": ["passportNumber", "passportCountry", "passportIssueDate", "passportExpiryDate"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportCountry",
+        "passportIssueDate",
+        "passportExpiryDate"
+      ],
       "tips": [
         "Passport must be valid for your travel",
         "Double-check passport number",
@@ -559,7 +677,10 @@
       "order": 7,
       "title": "Contact Information",
       "description": "Provide your email address where you'll receive your eTA confirmation.",
-      "fieldsOnThisScreen": ["email", "confirmEmail"],
+      "fieldsOnThisScreen": [
+        "email",
+        "confirmEmail"
+      ],
       "tips": [
         "Use an email you check regularly",
         "You'll receive confirmation within minutes",
@@ -570,7 +691,10 @@
       "order": 8,
       "title": "Address Information",
       "description": "Enter your current home address.",
-      "fieldsOnThisScreen": ["homeAddress", "homeCountry"],
+      "fieldsOnThisScreen": [
+        "homeAddress",
+        "homeCountry"
+      ],
       "tips": [
         "Use your permanent address",
         "Include postal/zip code if applicable",
@@ -581,7 +705,10 @@
       "order": 9,
       "title": "Employment Information",
       "description": "Provide details about your current occupation and employer.",
-      "fieldsOnThisScreen": ["occupation", "employerName"],
+      "fieldsOnThisScreen": [
+        "occupation",
+        "employerName"
+      ],
       "tips": [
         "Students should enter 'Student'",
         "Retired persons should enter 'Retired'",
@@ -592,7 +719,10 @@
       "order": 10,
       "title": "Travel Information",
       "description": "Indicate your purpose for visiting Canada and how you'll support yourself.",
-      "fieldsOnThisScreen": ["purposeOfVisit", "fundingSource"],
+      "fieldsOnThisScreen": [
+        "purposeOfVisit",
+        "fundingSource"
+      ],
       "tips": [
         "Choose the main purpose of your visit",
         "Be honest about funding sources",
@@ -603,7 +733,15 @@
       "order": 11,
       "title": "Background Questions",
       "description": "Answer all background and security questions truthfully. Most travelers will answer 'No' to all questions.",
-      "fieldsOnThisScreen": ["criminalOffence", "immigrationOffence", "medicalCondition", "tuberculosis", "governmentPosition", "militaryService", "warCrimes"],
+      "fieldsOnThisScreen": [
+        "criminalOffence",
+        "immigrationOffence",
+        "medicalCondition",
+        "tuberculosis",
+        "governmentPosition",
+        "militaryService",
+        "warCrimes"
+      ],
       "tips": [
         "Answer honestly - false answers can result in serious consequences",
         "Most legitimate travelers answer 'No' to all questions",
@@ -651,8 +789,14 @@
     "entryUrl": "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
     "testMode": true,
     "disabledReason": "ArriveCAN discontinued October 2023. Automation disabled until a replacement digital portal is available.",
-    "successIndicators": [".eta-approved", "#confirmation-number"],
-    "failureIndicators": [".application-error", ".form-validation-error"],
+    "successIndicators": [
+      ".eta-approved",
+      "#confirmation-number"
+    ],
+    "failureIndicators": [
+      ".application-error",
+      ".form-validation-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "etaNumber",

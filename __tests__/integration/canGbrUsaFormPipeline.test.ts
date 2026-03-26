@@ -54,7 +54,7 @@ const mockProfile: TravelerProfile = {
     postalCode: '3000',
     country: 'AUS',
   },
-  occupation: 'Software Engineer',
+  occupation: 'SOFTWARE_DEVELOPER',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: false,
@@ -374,9 +374,10 @@ describe('FormEngine — United Kingdom (GBR) Integration', () => {
       const fieldsNeedingInput = allFields.filter(f => f.needsUserInput && f.required);
       const needsInputIds = fieldsNeedingInput.map(f => f.id);
 
-      // GBR-specific required fields without autoFillSource:
-      expect(needsInputIds).toContain('employmentStatus');      // employment — country-specific
-      expect(needsInputIds).toContain('visitPurpose');          // travel — country-specific
+      // GBR-specific required fields:
+      // employmentStatus now auto-filled via profile.occupation + autoFillMapping
+      expect(needsInputIds).not.toContain('employmentStatus');
+      expect(needsInputIds).toContain('visitPurpose');          // travel — no purposeOfVisit on profile
       // criminalRecord, immigrationBreach, ukRefusal, terrorismAssociation are boolean — false default is a valid answer
       expect(needsInputIds).not.toContain('criminalRecord');
       expect(needsInputIds).not.toContain('immigrationBreach');

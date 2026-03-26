@@ -45,3 +45,7 @@ Typical manual: `aliases`, `cityOfBirth`, `countryOfBirth`, `employer`, `employe
 ## Change Detection
 - Monitored selectors: `.cbp-form`, `.declaration-section`, `#submit-declaration`
 - Threshold: 5% — triggers **disable** action (not just notify)
+
+## autoFillMapping Status
+- `purposeOfTravel`: mapped from canonical `PURPOSES_OF_VISIT` enums
+- `jobTitle`: text field, passes canonical occupation value directly

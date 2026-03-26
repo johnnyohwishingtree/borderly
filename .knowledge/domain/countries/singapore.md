@@ -41,3 +41,6 @@ Typical manual fields: `arrivalTime`, `departureCity`, `purposeOfVisit`, `accomm
 ## Change Detection
 - Monitored selectors: `.sg-arrival-form`, `.ica-form`, `#submit-card`
 - Threshold: 10% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

@@ -44,3 +44,6 @@ Typical manual: `purposeOfVisit`, `departureCountry` + 7 biosecurity/goods boole
 ## Change Detection
 - Monitored selectors: `#nztd-form`, `.nztd-section`, `.submit-button`, `.declaration-section`
 - Threshold: 15% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

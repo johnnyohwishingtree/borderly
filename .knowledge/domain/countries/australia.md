@@ -42,3 +42,6 @@ Typical manual: `seatClass`, `lastCountryVisited`, `purposeOfVisit`, `australian
 ## Change Detection
 - Monitored selectors: `#dipc-form`, `.form-section`, `.submit-button`, `.declaration-section`
 - Threshold: 15% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

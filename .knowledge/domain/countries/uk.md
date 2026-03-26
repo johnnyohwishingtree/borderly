@@ -46,3 +46,8 @@ Typical manual: `visitPurpose`, `employmentStatus`, `confirmEmail`, `criminalRec
 ## Change Detection
 - Monitored selectors: `.eta-application-form`, `.form-section`, `#submit-application`
 - Threshold: 10% — triggers notify action
+
+## autoFillMapping Status
+- `visitPurpose`: mapped from canonical `PURPOSES_OF_VISIT` enums
+- `employmentStatus`: mapped from canonical `OCCUPATIONS` enums
+- `occupation`: text field, passes canonical occupation value directly

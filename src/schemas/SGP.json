@@ -14,12 +14,18 @@
     "complexity": "low",
     "popularity": 85,
     "lastVerified": "2025-06-01T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".sg-arrival-form", ".ica-form", "#submit-card"],
+    "monitoredSelectors": [
+      ".sg-arrival-form",
+      ".ica-form",
+      "#submit-card"
+    ],
     "changeThreshold": 10,
     "fallbackActions": [
       {
@@ -114,8 +120,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ]
         },
         {
@@ -203,16 +215,55 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_friends", "label": "Visiting Friends/Relatives" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "conference", "label": "Conference/Exhibition" },
-            { "value": "medical", "label": "Medical Treatment" },
-            { "value": "education", "label": "Education" },
-            { "value": "employment", "label": "Employment" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_friends",
+              "label": "Visiting Friends/Relatives"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "conference",
+              "label": "Conference/Exhibition"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Treatment"
+            },
+            {
+              "value": "education",
+              "label": "Education"
+            },
+            {
+              "value": "employment",
+              "label": "Employment"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "visiting_friends",
+            "CONFERENCE": "conference",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "intendedLengthOfStay",
@@ -240,12 +291,30 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "hotel", "label": "Hotel" },
-            { "value": "hostel", "label": "Hostel" },
-            { "value": "serviced_apartment", "label": "Serviced Apartment" },
-            { "value": "private_residence", "label": "Private Residence" },
-            { "value": "friends_family", "label": "Staying with Friends/Family" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "hotel",
+              "label": "Hotel"
+            },
+            {
+              "value": "hostel",
+              "label": "Hostel"
+            },
+            {
+              "value": "serviced_apartment",
+              "label": "Serviced Apartment"
+            },
+            {
+              "value": "private_residence",
+              "label": "Private Residence"
+            },
+            {
+              "value": "friends_family",
+              "label": "Staying with Friends/Family"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ]
         },
         {
@@ -369,7 +438,17 @@
       "order": 2,
       "title": "Personal Details",
       "description": "Enter your personal information exactly as it appears on your passport.",
-      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "passportExpiry", "gender", "email", "phoneNumber"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "givenNames",
+        "dateOfBirth",
+        "nationality",
+        "passportNumber",
+        "passportExpiry",
+        "gender",
+        "email",
+        "phoneNumber"
+      ],
       "tips": [
         "Use the exact spelling from your passport",
         "Passport must be valid for at least 6 months from entry date",
@@ -380,7 +459,16 @@
       "order": 3,
       "title": "Travel Information",
       "description": "Provide details about your flight and travel purpose.",
-      "fieldsOnThisScreen": ["arrivalDate", "arrivalTime", "flightNumber", "airlineCode", "arrivalAirport", "departureCity", "purposeOfVisit", "intendedLengthOfStay"],
+      "fieldsOnThisScreen": [
+        "arrivalDate",
+        "arrivalTime",
+        "flightNumber",
+        "airlineCode",
+        "arrivalAirport",
+        "departureCity",
+        "purposeOfVisit",
+        "intendedLengthOfStay"
+      ],
       "tips": [
         "Check your boarding pass for correct flight details",
         "If transiting, select 'Transit' as purpose of visit"
@@ -390,7 +478,12 @@
       "order": 4,
       "title": "Accommodation Details",
       "description": "Enter information about where you will be staying in Singapore.",
-      "fieldsOnThisScreen": ["accommodationType", "accommodationName", "accommodationAddress", "accommodationPhone"],
+      "fieldsOnThisScreen": [
+        "accommodationType",
+        "accommodationName",
+        "accommodationAddress",
+        "accommodationPhone"
+      ],
       "tips": [
         "If staying with friends/family, provide their address",
         "Include postal code if you know it",
@@ -401,7 +494,12 @@
       "order": 5,
       "title": "Health Declaration",
       "description": "Complete the health screening questions required for entry.",
-      "fieldsOnThisScreen": ["feverSymptoms", "infectiousDisease", "visitedOutbreakArea", "contactWithInfected"],
+      "fieldsOnThisScreen": [
+        "feverSymptoms",
+        "infectiousDisease",
+        "visitedOutbreakArea",
+        "contactWithInfected"
+      ],
       "tips": [
         "Answer honestly - false declarations are a serious offense",
         "If you answer 'Yes' to any health question, you may need additional screening",
@@ -412,7 +510,12 @@
       "order": 6,
       "title": "Customs Declaration",
       "description": "Declare any goods that exceed duty-free allowances or are prohibited.",
-      "fieldsOnThisScreen": ["exceedsAllowance", "carryingCash", "prohibitedGoods", "commercialGoods"],
+      "fieldsOnThisScreen": [
+        "exceedsAllowance",
+        "carryingCash",
+        "prohibitedGoods",
+        "commercialGoods"
+      ],
       "tips": [
         "Singapore has strict penalties for drug trafficking",
         "Chewing gum is generally prohibited",
