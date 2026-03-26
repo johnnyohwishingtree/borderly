@@ -1,7 +1,7 @@
 # UI Components
 
-Base components (Button, Card, Input, etc.). NativeWind tokens only.
-Every interactive element needs accessibilityRole + accessibilityLabel.
+Base components. NativeWind tokens, a11y props on every interactive element.
 
 See: .knowledge/conventions/styling.md
-See: .knowledge/conventions/accessibility/component-props.md
+See: .knowledge/conventions/typography.md
+See: .knowledge/conventions/motion.md
