@@ -21,14 +21,18 @@ src/services/storage/   → storage, security-boundary
 src/services/forms/     → form-engine
 src/services/passport/  → passport
 src/services/submission/→ submission-guide, local-first
-src/components/         → dependency-direction, styling
+src/components/         → dependency-direction, e2e-testability
 src/components/ui/      → styling, typography, motion
 src/components/forms/   → form-engine
+src/components/wallet/  → qr-wallet, styling
 src/screens/            → state-management, ux-writing, add-screen
+src/screens/wallet/     → qr-wallet, e2e-testability
 src/hooks/              → state-management
-src/schemas/            → form-engine, add-country
+src/schemas/            → form-engine, add-country, drift-detection
+maestro/                → e2e-testability, drift-detection
 e2e/                    → testing, native-modules
 __tests__/              → testing, accessibility/testing-patterns
+__tests__/structure/    → testable-architecture
 ```
 
 ## Knowledge Cross-References
@@ -90,15 +94,14 @@ Files referencing the same concept must not contradict:
 |---|---|
 | `concepts/dependency-direction` | 6 dirs + 3 skills + 1 test |
 | `domain/form-engine` | 3 dirs + 4 skills + 1 test |
-| `conventions/styling` | 3 dirs + 1 skill + 2 tests |
+| `conventions/e2e-testability` | 3 dirs + 3 skills + 2 tests |
+| `conventions/styling` | 4 dirs + 1 skill + 2 tests |
 | `conventions/storage` | 3 dirs + security-boundary ref |
-| `conventions/e2e-testability` | 3 skills + 2 tests + drift ref |
 | `concepts/security-boundary` | 2 dirs + storage ref + 2 tests |
+| `concepts/drift-detection` | 2 dirs + internal ref + 1 test |
+| `domain/qr-wallet` | 2 dirs |
+| `concepts/testable-architecture` | 1 dir + meta-test |
 
 ## Orphaned Nodes
 
-| File | Issue |
-|---|---|
-| `domain/qr-wallet` | No references |
-| `concepts/testable-architecture` | Principle only, not per-directory |
-| `concepts/drift-detection` | Internal ref only |
+None — all knowledge files are referenced by at least one folder CLAUDE.md.
