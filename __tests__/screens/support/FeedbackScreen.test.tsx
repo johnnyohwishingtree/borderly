@@ -1,0 +1,252 @@
+/**
+ * Unit tests for FeedbackScreen.
+ *
+ * Covers rendering of 5-star rating buttons, feedback type select,
+ * subject/message inputs, and submit button disabled state.
+ */
+import { render, screen, fireEvent } from '@testing-library/react-native';
+import FeedbackScreen from '@/screens/support/FeedbackScreen/FeedbackScreen';
+
+// ── Mock return values (module-level stable references) ───────────────────────
+
+const mockSetFeedbackType = jest.fn();
+const mockSetSubject = jest.fn();
+const mockSetMessage = jest.fn();
+const mockHandleRatingPress = jest.fn();
+const mockHandleSubmitFeedback = jest.fn();
+
+interface MockHookReturn {
+  feedbackType: string;
+  setFeedbackType: jest.Mock;
+  rating: number;
+  subject: string;
+  setSubject: jest.Mock;
+  message: string;
+  setMessage: jest.Mock;
+  isSubmitting: boolean;
+  feedbackTypeOptions: Array<{ label: string; value: string }>;
+  handleRatingPress: jest.Mock;
+  handleSubmitFeedback: jest.Mock;
+  getRatingEmoji: (star: number) => string;
+  getRatingText: (rating: number) => string;
+}
+
+let mockHookReturn: MockHookReturn;
+
+function resetMockHook() {
+  mockHookReturn = {
+    feedbackType: 'general',
+    setFeedbackType: mockSetFeedbackType,
+    rating: 0,
+    subject: '',
+    setSubject: mockSetSubject,
+    message: '',
+    setMessage: mockSetMessage,
+    isSubmitting: false,
+    feedbackTypeOptions: [
+      { label: 'General Feedback', value: 'general' },
+      { label: 'Feature Request', value: 'feature' },
+      { label: 'User Experience', value: 'ux' },
+    ],
+    handleRatingPress: mockHandleRatingPress,
+    handleSubmitFeedback: mockHandleSubmitFeedback,
+    getRatingEmoji: (star: number) => ['', '😞', '😐', '🙂', '😄', '🤩'][star],
+    getRatingText: (r: number) => ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][r],
+  };
+}
+
+// ── Mocks ─────────────────────────────────────────────────────────────────────
+
+jest.mock('../../../src/hooks/useFeedback', () => ({
+  useFeedback: () => mockHookReturn,
+}));
+
+jest.mock('../../../src/utils/theme', () => ({
+  useTheme: () => ({
+    colors: { textPrimary: '#000', textSecondary: '#666', success: '#22c55e', accent: '#3b82f6' },
+    isDark: false,
+  }),
+}));
+
+jest.mock('lucide-react-native', () => {
+  const React = require('react');
+  const Icon = ({ testID }: { testID?: string }) => React.createElement('View', { testID });
+  return { Lock: Icon };
+});
+
+jest.mock('../../../src/components/ui', () => {
+  const React = require('react');
+  return {
+    Button: ({ title, onPress, testID, disabled }: { title: string; onPress?: () => void; testID?: string; disabled?: boolean }) =>
+      React.createElement('TouchableOpacity', { onPress: disabled ? undefined : onPress, testID, disabled, accessibilityState: { disabled } },
+        React.createElement('Text', null, title)),
+    Card: ({ children, ...props }: any) =>
+      React.createElement('View', props, children),
+    StatusBadge: ({ text }: { text: string; status: string; size: string }) =>
+      React.createElement('Text', null, text),
+    Select: ({ label, value }: any) =>
+      React.createElement('View', null,
+        React.createElement('Text', null, label),
+        React.createElement('Text', null, value)),
+    ScreenContainer: ({ children, ...props }: any) =>
+      React.createElement('View', props, children),
+  };
+});
+
+// ── Test setup ────────────────────────────────────────────────────────────────
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  resetMockHook();
+});
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — header', () => {
+  it('renders title and subtitle', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Send Feedback')).toBeTruthy();
+    expect(screen.getByText('Help us improve your travel experience')).toBeTruthy();
+  });
+});
+
+// ── Star rating ───────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — star rating', () => {
+  it('renders 5 star rating buttons', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('😞')).toBeTruthy();
+    expect(screen.getByText('😐')).toBeTruthy();
+    expect(screen.getByText('🙂')).toBeTruthy();
+    expect(screen.getByText('😄')).toBeTruthy();
+    expect(screen.getByText('🤩')).toBeTruthy();
+  });
+
+  it('calls handleRatingPress when a star is pressed', () => {
+    render(<FeedbackScreen />);
+    fireEvent.press(screen.getByText('😄'));
+    expect(mockHandleRatingPress).toHaveBeenCalledWith(4);
+  });
+
+  it('shows "Not Rated" when no rating is selected', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Not Rated')).toBeTruthy();
+  });
+
+  it('shows rating text when a rating is selected', () => {
+    mockHookReturn.rating = 4;
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Great (4/5)')).toBeTruthy();
+  });
+
+  it('shows rating badge text when rated', () => {
+    mockHookReturn.rating = 5;
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Excellent')).toBeTruthy();
+  });
+});
+
+// ── Feedback type select ──────────────────────────────────────────────────────
+
+describe('FeedbackScreen — feedback type', () => {
+  it('renders feedback type section', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Feedback Category')).toBeTruthy();
+    expect(screen.getByText('What type of feedback is this?')).toBeTruthy();
+  });
+});
+
+// ── Subject input ─────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — subject', () => {
+  it('renders subject input with placeholder', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Subject (Optional)')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Brief summary of your feedback...')).toBeTruthy();
+  });
+
+  it('calls setSubject when text is entered', () => {
+    render(<FeedbackScreen />);
+    fireEvent.changeText(screen.getByPlaceholderText('Brief summary of your feedback...'), 'Great app');
+    expect(mockSetSubject).toHaveBeenCalledWith('Great app');
+  });
+
+  it('shows character count', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('0/100 characters')).toBeTruthy();
+  });
+});
+
+// ── Message input ─────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — message', () => {
+  it('renders message input with placeholder', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Your Feedback')).toBeTruthy();
+    expect(screen.getByPlaceholderText(/Tell us about your experience/)).toBeTruthy();
+  });
+
+  it('calls setMessage when text is entered', () => {
+    render(<FeedbackScreen />);
+    fireEvent.changeText(screen.getByPlaceholderText(/Tell us about your experience/), 'Love this app');
+    expect(mockSetMessage).toHaveBeenCalledWith('Love this app');
+  });
+
+  it('shows character count', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('0/1000 characters')).toBeTruthy();
+  });
+});
+
+// ── Submit button ─────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — submit button', () => {
+  it('renders submit button', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Submit Feedback')).toBeTruthy();
+  });
+
+  it('submit button is disabled when no rating', () => {
+    mockHookReturn.rating = 0;
+    mockHookReturn.message = 'Some feedback';
+    render(<FeedbackScreen />);
+
+    const submitButton = screen.getByText('Submit Feedback').parent;
+    expect(submitButton?.props.disabled).toBe(true);
+  });
+
+  it('submit button is disabled when message is empty', () => {
+    mockHookReturn.rating = 4;
+    mockHookReturn.message = '';
+    render(<FeedbackScreen />);
+
+    const submitButton = screen.getByText('Submit Feedback').parent;
+    expect(submitButton?.props.disabled).toBe(true);
+  });
+
+  it('submit button calls handleSubmitFeedback when rating and message are set', () => {
+    mockHookReturn.rating = 4;
+    mockHookReturn.message = 'Great app!';
+    render(<FeedbackScreen />);
+
+    fireEvent.press(screen.getByText('Submit Feedback'));
+
+    expect(mockHandleSubmitFeedback).toHaveBeenCalled();
+  });
+
+  it('shows "Submitting..." when isSubmitting is true', () => {
+    mockHookReturn.isSubmitting = true;
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Submitting...')).toBeTruthy();
+  });
+});
+
+// ── Privacy notice ────────────────────────────────────────────────────────────
+
+describe('FeedbackScreen — privacy', () => {
+  it('renders privacy notice', () => {
+    render(<FeedbackScreen />);
+    expect(screen.getByText('Privacy Notice')).toBeTruthy();
+    expect(screen.getByText(/No personal or passport data is included/)).toBeTruthy();
+  });
+});
