@@ -1,6 +1,6 @@
 // Storage services exports
 export { keychainService } from './keychain';
-export type { KeychainService } from './keychainTypes';
+export type { KeychainService } from './keychain';
 
 export { mmkvService } from './mmkv';
 export type { MMKVService, AppPreferences } from './mmkv';

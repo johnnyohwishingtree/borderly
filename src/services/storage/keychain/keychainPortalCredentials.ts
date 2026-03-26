@@ -1,5 +1,5 @@
 import { PortalCredential } from '@/types/submission';
-import { mmkvService } from './mmkv';
+import { mmkvService } from '../mmkv';
 
 /**
  * Helper functions for managing portal credential metadata in MMKV.
