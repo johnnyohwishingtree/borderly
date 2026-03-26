@@ -1,6 +1,8 @@
 # Pattern: Add a Native Dependency
 
-Three mandatory steps. See `.knowledge/policies/platform/native-modules.md` for details.
+## Policies to follow
+- `.knowledge/policies/platform/native-modules.md` — web mock, Jest mock, pod install, Xcode config
+- `.knowledge/policies/testing/test-conventions.md` — Jest mock must return stable references
 
 ## Steps (in order)
 
