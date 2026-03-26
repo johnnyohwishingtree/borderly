@@ -64,7 +64,11 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 ### Models
 
-form-engine, passport, qr-wallet, submission-guide, stores, domain/countries/ (15 countries)
+form-engine, passport, qr-wallet, submission-guide, stores
+
+### Domain
+
+`domain/countries/` (14 countries)
 
 ### Other
 

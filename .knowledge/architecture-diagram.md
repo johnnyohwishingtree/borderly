@@ -79,23 +79,33 @@ templates/test                           → rubrics/test-quality
 ## Structural Tests → Policies
 
 ```
+accessibility-props            → policies/ui/accessibility
+dependency-direction           → policies/architecture/dependency-direction
+hooks-barrel                   → policies/state/hook-conventions
+inline-styles                  → policies/ui/styling
 knowledge-test-coverage        → policies/architecture/testable-architecture
+native-module-mocks            → policies/platform/native-modules
+no-space-x                     → policies/ui/styling
+pii-boundary                   → policies/data/pii-boundary
+smart-component-usage          → policies/ui/styling
+storage-boundary               → policies/data/storage-tiers
+utils-boundary                 → policies/architecture/utils-boundary
 ```
 
 ## High-Connectivity Nodes
 
 | File | References |
 |---|---|
-| `policies/architecture/dependency-direction` | 6 |
+| `policies/architecture/dependency-direction` | 7 |
 | `models/form-engine` | 6 |
+| `policies/ui/styling` | 6 |
+| `policies/state/hook-conventions` | 5 |
+| `policies/data/storage-tiers` | 4 |
 | `policies/testing/e2e-testability` | 4 |
-| `policies/state/hook-conventions` | 4 |
-| `policies/data/storage-tiers` | 3 |
-| `policies/ui/styling` | 3 |
+| `policies/platform/native-modules` | 4 |
+| `policies/ui/accessibility` | 3 |
 | `policies/testing/drift-detection` | 3 |
-| `policies/platform/native-modules` | 3 |
-| `models/stores` | 3 |
-| `policies/testing/test-conventions` | 3 |
+| `policies/data/pii-boundary` | 3 |
 
 ## Orphaned Nodes
 
