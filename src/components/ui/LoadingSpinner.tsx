@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, ActivityIndicator, Text, Pressable } from 'react-native';
+import { colors } from '../../utils/colors';
 
 export interface LoadingSpinnerProps {
   size?: 'small' | 'medium' | 'large';
@@ -54,7 +55,7 @@ export default function LoadingSpinner({
 
   const getSpinnerColor = () => {
     if (color) return color;
-    return '#3B82F6'; // blue-600
+    return colors.blue[500]; // blue-500
   };
 
   const getContainerStyles = () => {

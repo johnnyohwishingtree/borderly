@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import WebView, { WebViewNavigation, WebViewMessageEvent, WebViewRef } from 'react-native-webview';
+import { colors } from '../../utils/colors';
 
 import { getAllowedDomains } from '@/services/submission/portalRegistry';
 
@@ -193,9 +194,9 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
 
     if (urlBlocked) {
       return (
-        <View style={styles.errorContainer} testID={testID}>
-          <Text style={styles.errorTitle}>Access Denied</Text>
-          <Text style={styles.errorMessage}>
+        <View className="flex-1 justify-center items-center p-6 bg-gray-50" testID={testID}>
+          <Text className="text-lg font-semibold text-red-700 mb-2 text-center">Access Denied</Text>
+          <Text className="text-sm text-gray-600 text-center leading-5">
             This URL is not permitted.{'\n'}
             Only official government portals may be loaded.
           </Text>
@@ -204,11 +205,11 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
     }
 
     return (
-      <View style={styles.container} testID={testID}>
+      <View className="flex-1 relative" testID={testID}>
         <WebView
           ref={webViewRef}
           source={{ uri: url }}
-          style={styles.webView}
+          style={{ flex: 1 }}
           injectedJavaScript={COMMON_JS}
           onLoadStart={handleLoadStart}
           onLoadEnd={handleLoadEnd}
@@ -224,56 +225,20 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
         />
 
         {isLoading && !errorMessage && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#0066CC" />
+          <View style={StyleSheet.absoluteFillObject} className="bg-white/85 justify-center items-center">
+            <ActivityIndicator size="large" color={colors.blue[600]} />
           </View>
         )}
 
         {errorMessage && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorTitle}>Unable to Load Page</Text>
-            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          <View className="flex-1 justify-center items-center p-6 bg-gray-50">
+            <Text className="text-lg font-semibold text-red-700 mb-2 text-center">Unable to Load Page</Text>
+            <Text className="text-sm text-gray-600 text-center leading-5">{errorMessage}</Text>
           </View>
         )}
       </View>
     );
   },
 );
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
-  webView: {
-    flex: 1,
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: '#FAFAFA',
-  },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#CC0000',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    fontSize: 14,
-    color: '#555555',
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-});
 
 export { PortalWebView };

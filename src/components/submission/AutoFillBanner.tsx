@@ -58,9 +58,6 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
   }, [opacity, dismiss]);
 
   const isWarning = filled < total;
-  const bgColor = isWarning ? '#FFFBEB' : '#F0FDF4';
-  const borderColor = isWarning ? '#FCD34D' : '#86EFAC';
-  const textColor = isWarning ? '#92400E' : '#166534';
   const iconColor = isWarning ? '#B45309' : '#16A34A';
   const fieldWord = total === 1 ? 'field' : 'fields';
 
@@ -69,26 +66,19 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
   const failedResults = results?.filter(r => r.status === 'failed' || r.status === 'not_found') ?? [];
   const skippedResults = results?.filter(r => r.status === 'skipped') ?? [];
 
+  const bannerBg = isWarning ? 'bg-amber-50' : 'bg-green-50';
+  const bannerBorder = isWarning ? 'border-t-amber-300' : 'border-t-green-300';
+  const messageText = isWarning ? 'text-amber-900' : 'text-green-900';
+
   return (
     <Animated.View style={{ opacity }} testID={testID ?? 'autofill-banner'}>
       <View
-        style={{
-          backgroundColor: bgColor,
-          borderTopWidth: 1,
-          borderTopColor: borderColor,
-        }}
+        className={`${bannerBg} border-t ${bannerBorder}`}
       >
         {/* Main banner row */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-          }}
-        >
+        <View className="flex-row items-center px-4 py-2.5">
           <Text
-            style={{ flex: 1, fontSize: 13, color: textColor, fontWeight: '500' }}
+            className={`flex-1 text-[13px] ${messageText} font-medium`}
             testID="autofill-banner-message"
           >
             {filled} of {total} {fieldWord} auto-filled — please review before continuing
@@ -98,7 +88,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
           {hasResults && (
             <Pressable
               onPress={() => setIsExpanded(prev => !prev)}
-              style={{ marginLeft: 4, padding: 4 }}
+              className="ml-1 p-1"
               accessibilityLabel={isExpanded ? 'Hide field details' : 'Show field details'}
               testID="autofill-banner-expand-toggle"
             >
@@ -112,7 +102,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
 
           <Pressable
             onPress={dismiss}
-            style={{ marginLeft: 4, padding: 4 }}
+            className="ml-1 p-1"
             accessibilityLabel="Dismiss auto-fill notification"
             testID="autofill-banner-dismiss"
           >
@@ -123,23 +113,23 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
         {/* Expandable field-level detail */}
         {isExpanded && hasResults && (
           <ScrollView
-            style={{ maxHeight: 160 }}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 10 }}
+            className="max-h-[160px]"
+            contentContainerClassName="px-4 pb-2.5"
             testID="autofill-banner-details"
           >
             {filledResults.length > 0 && (
               <>
-                <Text style={{ fontSize: 11, color: textColor, fontWeight: '600', marginBottom: 4 }}>
+                <Text className={`text-[11px] ${messageText} font-semibold mb-1`}>
                   Filled ({filledResults.length})
                 </Text>
                 {filledResults.map(r => (
                   <View
                     key={r.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}
+                    className="flex-row items-center mb-0.5"
                     testID={`autofill-result-${r.id}`}
                   >
                     <CheckCircle size={12} color="#16A34A" />
-                    <Text style={{ fontSize: 12, color: '#166534', marginLeft: 4 }}>{r.id}</Text>
+                    <Text className="text-xs text-green-900 ml-1">{r.id}</Text>
                   </View>
                 ))}
               </>
@@ -147,17 +137,17 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
 
             {failedResults.length > 0 && (
               <>
-                <Text style={{ fontSize: 11, color: '#92400E', fontWeight: '600', marginTop: 6, marginBottom: 4 }}>
+                <Text className="text-[11px] text-amber-900 font-semibold mt-1.5 mb-1">
                   Could not fill ({failedResults.length})
                 </Text>
                 {failedResults.map(r => (
                   <View
                     key={r.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}
+                    className="flex-row items-center mb-0.5"
                     testID={`autofill-result-${r.id}`}
                   >
                     <AlertCircle size={12} color="#B45309" />
-                    <Text style={{ fontSize: 12, color: '#92400E', marginLeft: 4 }}>
+                    <Text className="text-xs text-amber-900 ml-1">
                       {r.id}{r.error ? ` — ${r.error}` : ''}
                     </Text>
                   </View>
@@ -167,16 +157,16 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
 
             {skippedResults.length > 0 && (
               <>
-                <Text style={{ fontSize: 11, color: '#6B7280', fontWeight: '600', marginTop: 6, marginBottom: 4 }}>
+                <Text className="text-[11px] text-gray-500 font-semibold mt-1.5 mb-1">
                   Already filled ({skippedResults.length})
                 </Text>
                 {skippedResults.map(r => (
                   <View
                     key={r.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}
+                    className="flex-row items-center mb-0.5"
                     testID={`autofill-result-${r.id}`}
                   >
-                    <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 16 }}>{r.id}</Text>
+                    <Text className="text-xs text-gray-500 ml-4">{r.id}</Text>
                   </View>
                 ))}
               </>
