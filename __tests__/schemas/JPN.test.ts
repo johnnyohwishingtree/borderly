@@ -1,6 +1,7 @@
 import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
 import { getSchemaByCountryCode } from '../../src/schemas';
 import JPN from '../../src/schemas/JPN.json';
+import { OCCUPATIONS, PURPOSES_OF_VISIT } from '../../src/constants/enums';
 
 describe('Japan (JPN) Schema', () => {
   const schema = JPN;
@@ -192,6 +193,40 @@ describe('Japan (JPN) Schema', () => {
     expect(homeCityField.required).toBe(false);
     const genderField = basicInfoSection.fields.find(f => f.id === 'gender')!;
     expect(genderField.required).toBe(true);
+  });
+
+  test('occupation autoFillMapping covers all canonical enum values', () => {
+    const basicInfoSection = schema.sections.find(s => s.id === 'basic_info')!;
+    const occupationField = basicInfoSection.fields.find(f => f.id === 'occupation') as any;
+
+    expect(occupationField.autoFillMapping).toBeDefined();
+    expect(occupationField.autoFillMapping._default).toBe('other');
+
+    // Every canonical occupation value should have a mapping
+    for (const occ of OCCUPATIONS) {
+      const mapped = occupationField.autoFillMapping[occ.value] ?? occupationField.autoFillMapping._default;
+      expect(mapped).toBeDefined();
+      // Mapped value should be one of the portal options
+      const portalValues = occupationField.options.map((o: any) => o.value);
+      expect(portalValues).toContain(mapped);
+    }
+  });
+
+  test('purposeOfVisit has autoFillSource and autoFillMapping', () => {
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit') as any;
+
+    expect(purposeField.autoFillSource).toBe('profile.purposeOfVisit');
+    expect(purposeField.autoFillMapping).toBeDefined();
+    expect(purposeField.autoFillMapping._default).toBe('other');
+
+    // Every canonical purpose value should have a mapping
+    for (const purpose of PURPOSES_OF_VISIT) {
+      const mapped = purposeField.autoFillMapping[purpose.value] ?? purposeField.autoFillMapping._default;
+      expect(mapped).toBeDefined();
+      const portalValues = purposeField.options.map((o: any) => o.value);
+      expect(portalValues).toContain(mapped);
+    }
   });
 
   test('passport fields should have help text matching VJW portal', () => {

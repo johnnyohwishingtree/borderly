@@ -27,6 +27,18 @@
 4. **Accommodation** — hotelName, hotelAddress, hotelPhone (auto-filled from leg)
 5. **Customs Declarations** — carryingProhibitedItems, commercialGoods, itemsToDeclareDuty (auto-filled from defaults); currencyOver1M, meatProducts, plantProducts (country-specific)
 
+## Field Type Inventory (Dropdown Fields)
+| Field | Portal Type | Schema Type | Options Source | autoFillMapping |
+|-------|------------|-------------|----------------|-----------------|
+| nationality | dropdown | searchable_select | countries | N/A (ISO codes match) |
+| occupation | dropdown | searchable_select | inline (8 options) | canonical → portal values |
+| homeCountry | dropdown | searchable_select | countries | N/A (ISO codes match) |
+| gender | dropdown | searchable_select | inline (M/F) | N/A (profile uses M/F) |
+| airlineCode | dropdown | searchable_select | airlines | N/A (IATA codes match) |
+| arrivalAirport | dropdown | searchable_select | airports | N/A (IATA codes match) |
+| purposeOfVisit | dropdown | searchable_select | inline (5 options) | canonical → portal values |
+| hotelName | autocomplete | searchable_select | accommodations | N/A |
+
 ## Smart Delta Fields
 Typical manual fields: `departureCity`, `purposeOfVisit`, `currencyOver1M`, `meatProducts`, `plantProducts` (3-5 questions).
 
