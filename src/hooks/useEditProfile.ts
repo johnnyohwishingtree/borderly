@@ -32,13 +32,13 @@ const EMPTY_ADDRESS: Address = {
   country: '',
 };
 
-export function validateEmail(email: string): string {
+function validateEmail(email: string): string {
   if (!email) return '';
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) ? '' : 'Please enter a valid email address';
 }
 
-export function validatePhoneNumber(phone: string): string {
+function validatePhoneNumber(phone: string): string {
   if (!phone) return '';
   const phoneRegex = /^\+?[\d\s\-()]+$/;
   return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';

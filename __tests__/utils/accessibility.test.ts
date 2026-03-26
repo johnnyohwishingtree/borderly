@@ -2,12 +2,9 @@ import {
   ACCESSIBILITY_CONSTANTS,
   ScreenReaderUtils,
   AccessibilityStateHelpers,
-  AccessibilityValueHelpers,
   TouchTargetUtils,
   SemanticUtils,
   HighContrastUtils,
-  AccessibilityTestUtils,
-  defaultAccessibilityContext,
 } from '../../src/utils/accessibility';
 import { AccessibilityInfo } from 'react-native';
 
@@ -116,32 +113,6 @@ describe('AccessibilityStateHelpers', () => {
         checked: true,
         disabled: false,
       });
-    });
-  });
-});
-
-describe('AccessibilityValueHelpers', () => {
-  describe('createProgressValue', () => {
-    it('calculates correct percentage text', () => {
-      const result = AccessibilityValueHelpers.createProgressValue(50, 100);
-      expect(result).toEqual({ min: 0, max: 100, now: 50, text: '50% complete' });
-    });
-
-    it('rounds percentage', () => {
-      const result = AccessibilityValueHelpers.createProgressValue(1, 3);
-      expect(result.text).toBe('33% complete');
-    });
-
-    it('accepts custom min', () => {
-      const result = AccessibilityValueHelpers.createProgressValue(75, 100, 25);
-      expect(result.min).toBe(25);
-    });
-  });
-
-  describe('createStepValue', () => {
-    it('creates step value text', () => {
-      const result = AccessibilityValueHelpers.createStepValue(2, 5);
-      expect(result).toEqual({ min: 1, max: 5, now: 2, text: 'Step 2 of 5' });
     });
   });
 });
@@ -277,43 +248,3 @@ describe('HighContrastUtils', () => {
   });
 });
 
-describe('AccessibilityTestUtils', () => {
-  describe('hasRequiredAccessibilityProps', () => {
-    it('returns true when accessibilityRole is set', () => {
-      expect(AccessibilityTestUtils.hasRequiredAccessibilityProps({ accessibilityRole: 'button' })).toBe(true);
-    });
-
-    it('returns true when accessibilityLabel is set', () => {
-      expect(AccessibilityTestUtils.hasRequiredAccessibilityProps({ accessibilityLabel: 'OK' })).toBe(true);
-    });
-
-    it('returns false when accessible is explicitly false and no role/label', () => {
-      expect(AccessibilityTestUtils.hasRequiredAccessibilityProps({ accessible: false })).toBe(false);
-    });
-
-    it('returns true for empty object (accessible !== false)', () => {
-      expect(AccessibilityTestUtils.hasRequiredAccessibilityProps({})).toBe(true);
-    });
-  });
-
-  describe('meetsMinimumTouchTarget', () => {
-    it('returns true for 44x44', () => {
-      expect(AccessibilityTestUtils.meetsMinimumTouchTarget(44, 44)).toBe(true);
-    });
-
-    it('returns false for 43x44', () => {
-      expect(AccessibilityTestUtils.meetsMinimumTouchTarget(43, 44)).toBe(false);
-    });
-  });
-});
-
-describe('defaultAccessibilityContext', () => {
-  it('has all flags set to false', () => {
-    expect(defaultAccessibilityContext).toEqual({
-      isScreenReaderEnabled: false,
-      isReduceMotionEnabled: false,
-      isHighContrastEnabled: false,
-      prefersDarkMode: false,
-    });
-  });
-});

@@ -20,8 +20,6 @@ export interface UseProfileScreenReturn {
   familyProfiles: FamilyProfileCollection;
   completeness: ProfileCompleteness;
   handleUnlockProfile: () => Promise<void>;
-  formatDate: (dateString: string) => string;
-  isPassportExpiringSoon: (expiryDate: string) => boolean;
   maskPassportNumber: (passportNumber: string) => string;
   loadProfile: () => void;
 }
@@ -121,8 +119,6 @@ export function useProfileScreen(): UseProfileScreenReturn {
     familyProfiles,
     completeness,
     handleUnlockProfile,
-    formatDate,
-    isPassportExpiringSoon,
     maskPassportNumber,
     loadProfile,
   };

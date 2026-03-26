@@ -8,8 +8,6 @@ import { renderHook, act } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import {
   useEditProfile,
-  validateEmail,
-  validatePhoneNumber,
 } from '@/hooks/useEditProfile';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -64,42 +62,6 @@ beforeEach(() => {
   mockProfile = null;
   mockIsLoading = false;
   mockUpdateProfile.mockResolvedValue(undefined);
-});
-
-// ── validateEmail ─────────────────────────────────────────────────────────────
-
-describe('validateEmail', () => {
-  it('returns empty string for empty input', () => {
-    expect(validateEmail('')).toBe('');
-  });
-
-  it('returns empty string for valid email', () => {
-    expect(validateEmail('user@example.com')).toBe('');
-  });
-
-  it('returns error for invalid email', () => {
-    expect(validateEmail('not-an-email')).toBe('Please enter a valid email address');
-  });
-
-  it('returns error for email missing domain', () => {
-    expect(validateEmail('user@')).toBe('Please enter a valid email address');
-  });
-});
-
-// ── validatePhoneNumber ───────────────────────────────────────────────────────
-
-describe('validatePhoneNumber', () => {
-  it('returns empty string for empty input', () => {
-    expect(validatePhoneNumber('')).toBe('');
-  });
-
-  it('returns empty string for valid phone', () => {
-    expect(validatePhoneNumber('+1 (555) 123-4567')).toBe('');
-  });
-
-  it('returns error for phone with letters', () => {
-    expect(validatePhoneNumber('abc-defg')).toBe('Please enter a valid phone number');
-  });
 });
 
 // ── useEditProfile hook ───────────────────────────────────────────────────────

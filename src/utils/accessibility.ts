@@ -1,4 +1,4 @@
-import { AccessibilityInfo, AccessibilityState, AccessibilityValue } from 'react-native';
+import { AccessibilityInfo, AccessibilityState } from 'react-native';
 
 // WCAG 2.1 AA compliance constants
 export const ACCESSIBILITY_CONSTANTS = {
@@ -89,29 +89,6 @@ export const AccessibilityStateHelpers = {
   ): AccessibilityState => ({
     checked: isChecked,
     disabled: isDisabled,
-  }),
-};
-
-// Accessibility value helpers
-export const AccessibilityValueHelpers = {
-  /**
-   * Creates accessibility value for progress indicators
-   */
-  createProgressValue: (current: number, max: number, min: number = 0): AccessibilityValue => ({
-    min,
-    max,
-    now: current,
-    text: `${Math.round((current / max) * 100)}% complete`,
-  }),
-
-  /**
-   * Creates accessibility value for step indicators
-   */
-  createStepValue: (currentStep: number, totalSteps: number): AccessibilityValue => ({
-    min: 1,
-    max: totalSteps,
-    now: currentStep,
-    text: `Step ${currentStep} of ${totalSteps}`,
   }),
 };
 
@@ -254,48 +231,3 @@ export const HighContrastUtils = {
   },
 };
 
-// Accessibility context for the app
-export interface AccessibilityContext {
-  isScreenReaderEnabled: boolean;
-  isReduceMotionEnabled: boolean;
-  isHighContrastEnabled: boolean;
-  prefersDarkMode: boolean;
-}
-
-export const defaultAccessibilityContext: AccessibilityContext = {
-  isScreenReaderEnabled: false,
-  isReduceMotionEnabled: false,
-  isHighContrastEnabled: false,
-  prefersDarkMode: false,
-};
-
-// Accessibility testing utilities
-export const AccessibilityTestUtils = {
-  /**
-   * Tests if element has proper accessibility props
-   */
-  hasRequiredAccessibilityProps: (element: any): boolean => {
-    return !!(
-      element.accessibilityRole ||
-      element.accessibilityLabel ||
-      element.accessible !== false
-    );
-  },
-
-  /**
-   * Tests if touch target meets minimum size requirements
-   */
-  meetsMinimumTouchTarget: (width: number, height: number): boolean => {
-    const minSize = ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET;
-    return width >= minSize && height >= minSize;
-  },
-
-  /**
-   * Tests color contrast ratio (basic implementation)
-   */
-  hasMinimumColorContrast: (_isLargeText: boolean = false): boolean => {
-    // This is a simplified implementation - in a real app you'd use a proper color contrast library
-    // For now, we assume our predefined high contrast colors meet requirements
-    return true; // Placeholder - implement proper contrast calculation
-  },
-};

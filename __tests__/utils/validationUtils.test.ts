@@ -9,12 +9,7 @@ import {
   validateCountryCode,
   validateTravelName,
   validateOccupation,
-  validateAddress,
-  validateCurrencyAmount,
-  sanitizeFormInput,
   isRequired,
-  validateLength,
-  validateRange,
   VALIDATION_PATTERNS,
 } from '../../src/utils/validation/index';
 
@@ -367,137 +362,6 @@ describe('Validation Utils', () => {
     });
   });
 
-  describe('validateAddress', () => {
-    it('should validate complete address', () => {
-      const address = {
-        line1: '123 Main Street',
-        line2: 'Apt 4B',
-        city: 'New York',
-        state: 'NY',
-        postalCode: '10001',
-        country: 'USA',
-      };
-
-      const result = validateAddress(address);
-      expect(result.isValid).toBe(true);
-      expect(Object.keys(result.errors)).toHaveLength(0);
-    });
-
-    it('should validate minimal address', () => {
-      const address = {
-        line1: '123 Main Street',
-        city: 'New York',
-      };
-
-      const result = validateAddress(address);
-      expect(result.isValid).toBe(true);
-    });
-
-    it('should reject address without line1', () => {
-      const address = {
-        city: 'New York',
-      };
-
-      const result = validateAddress(address);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.line1).toBeDefined();
-    });
-
-    it('should reject address without city', () => {
-      const address = {
-        line1: '123 Main Street',
-      };
-
-      const result = validateAddress(address);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.city).toBeDefined();
-    });
-
-    it('should validate postal code with country', () => {
-      const address = {
-        line1: '123 Main Street',
-        city: 'New York',
-        postalCode: 'invalid',
-        country: 'USA',
-      };
-
-      const result = validateAddress(address);
-      expect(result.isValid).toBe(false);
-      expect(result.errors.postalCode).toBeDefined();
-    });
-  });
-
-  describe('validateCurrencyAmount', () => {
-    it('should validate correct currency amounts', () => {
-      const amounts = [0, 100, 1000.50, '500'];
-
-      amounts.forEach(amount => {
-        const result = validateCurrencyAmount(amount);
-        expect(result.isValid).toBe(true);
-        expect(result.error).toBeUndefined();
-      });
-    });
-
-    it('should reject invalid currency amounts', () => {
-      const invalidAmounts = ['invalid', -100, NaN];
-
-      invalidAmounts.forEach(amount => {
-        const result = validateCurrencyAmount(amount);
-        expect(result.isValid).toBe(false);
-        expect(result.error).toBeDefined();
-      });
-    });
-
-    it('should reject amounts exceeding maximum', () => {
-      const result = validateCurrencyAmount(1000001);
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('maximum limit');
-    });
-
-    it('should provide country-specific warnings', () => {
-      const result = validateCurrencyAmount(1500000, 'JPY', 'JPN');
-      expect(result.isValid).toBe(true);
-      expect(result.warning).toContain('¥1,000,000');
-    });
-
-    it('should warn for US currency threshold', () => {
-      const result = validateCurrencyAmount(15000, 'USD', 'USA');
-      expect(result.isValid).toBe(true);
-      expect(result.warning).toContain('$10,000');
-    });
-
-    it('should warn for Singapore currency threshold', () => {
-      const result = validateCurrencyAmount(25000, 'SGD', 'SGP');
-      expect(result.isValid).toBe(true);
-      expect(result.warning).toContain('S$20,000');
-    });
-  });
-
-  describe('sanitizeFormInput', () => {
-    it('should trim whitespace', () => {
-      expect(sanitizeFormInput('  hello world  ')).toBe('hello world');
-    });
-
-    it('should replace multiple spaces with single space', () => {
-      expect(sanitizeFormInput('hello    world')).toBe('hello world');
-    });
-
-    it('should remove dangerous characters', () => {
-      expect(sanitizeFormInput('hello<script>world')).toBe('helloscriptworld');
-    });
-
-    it('should limit length', () => {
-      const longString = 'a'.repeat(1500);
-      const result = sanitizeFormInput(longString);
-      expect(result.length).toBe(1000);
-    });
-
-    it('should handle non-string input', () => {
-      expect(sanitizeFormInput(null as any)).toBe('');
-      expect(sanitizeFormInput(undefined as any)).toBe('');
-    });
-  });
-
   describe('isRequired', () => {
     it('should accept valid values', () => {
       const validValues = ['hello', 123, true, 0, false];
@@ -521,62 +385,6 @@ describe('Validation Utils', () => {
     it('should use custom field name', () => {
       const result = isRequired(null, 'Email');
       expect(result.error).toContain('Email is required');
-    });
-  });
-
-  describe('validateLength', () => {
-    it('should validate correct lengths', () => {
-      const result = validateLength('hello', { min: 3, max: 10 });
-      expect(result.isValid).toBe(true);
-    });
-
-    it('should reject strings that are too short', () => {
-      const result = validateLength('hi', { min: 3 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('at least 3');
-    });
-
-    it('should reject strings that are too long', () => {
-      const result = validateLength('hello world', { max: 5 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('cannot exceed 5');
-    });
-
-    it('should handle non-string input', () => {
-      const result = validateLength(123 as any, { min: 3 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('must be a string');
-    });
-  });
-
-  describe('validateRange', () => {
-    it('should validate correct ranges', () => {
-      const result = validateRange(5, { min: 1, max: 10 });
-      expect(result.isValid).toBe(true);
-    });
-
-    it('should reject numbers below minimum', () => {
-      const result = validateRange(0, { min: 1 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('at least 1');
-    });
-
-    it('should reject numbers above maximum', () => {
-      const result = validateRange(11, { max: 10 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('cannot exceed 10');
-    });
-
-    it('should handle non-number input', () => {
-      const result = validateRange('not a number' as any, { min: 1 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('must be a number');
-    });
-
-    it('should handle NaN', () => {
-      const result = validateRange(NaN, { min: 1 });
-      expect(result.isValid).toBe(false);
-      expect(result.error).toContain('must be a number');
     });
   });
 

@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
 import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState, ScreenContainer } from '@/components/ui';
 import { DocumentValidityCard } from '@/components/profile';
-import { useProfileScreen } from '@/hooks/useProfileScreen';
+import { useProfileScreen, formatDate, isPassportExpiringSoon } from '@/hooks/useProfileScreen';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
 
@@ -21,8 +21,6 @@ export default function ProfileScreen() {
     familyProfiles,
     completeness,
     handleUnlockProfile,
-    formatDate,
-    isPassportExpiringSoon,
     maskPassportNumber,
     loadProfile,
   } = useProfileScreen();
