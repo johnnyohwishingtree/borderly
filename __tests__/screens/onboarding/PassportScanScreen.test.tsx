@@ -195,8 +195,8 @@ jest.mock('../../../src/utils/dateUtils', () => ({
 // react-hook-form Controller mock — renders the child with mock field
 jest.mock('react-hook-form', () => {
   return {
-    Controller: ({ render }: { render: (props: any) => any; name: string }) =>
-      render({
+    Controller: ({ render: renderFn }: { render: (props: any) => any; name: string }) =>
+      renderFn({
         field: { onChange: jest.fn(), onBlur: jest.fn(), value: '' },
         fieldState: { error: undefined },
       }),

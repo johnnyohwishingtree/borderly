@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -60,7 +60,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
   const leg = getLegById(legId);
 
   // Derived: whether this leg has multiple assigned travelers
-  const assignedTravelers = leg?.assignedTravelers ?? [];
+  const assignedTravelers = useMemo(() => leg?.assignedTravelers ?? [], [leg?.assignedTravelers]);
   const hasMultipleTravelers = assignedTravelers.length > 1;
 
   // The profile to use for form generation: traveler profile (multi) or current profile (single)
@@ -229,7 +229,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [leg, currentForm, getFormData, updateTripLeg, isValid, hasMultipleTravelers, activeTravelerId, getLegById, legId]);
+  }, [leg, currentForm, getFormData, updateTripLeg, isValid, hasMultipleTravelers, activeTravelerId, assignedTravelers, getLegById, legId]);
 
   const handleMarkAsReady = useCallback(async () => {
     if (!isValid) {
@@ -276,7 +276,7 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [isValid, leg, getFormData, updateTripLeg, navigation, hasMultipleTravelers, activeTravelerId, getLegById, legId]);
+  }, [isValid, leg, getFormData, updateTripLeg, navigation, hasMultipleTravelers, activeTravelerId, assignedTravelers, getLegById, legId]);
 
   const retryLastOperation = useCallback(async () => {
     setFormError(null);

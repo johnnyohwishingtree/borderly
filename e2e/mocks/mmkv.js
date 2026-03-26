@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // Web implementation of react-native-mmkv using localStorage for persistence.
 // Tests can pre-seed MMKV keys via window.__BORDERLY_STATE__.mmkv
 
