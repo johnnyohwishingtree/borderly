@@ -410,6 +410,23 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'import-parse-button', label: 'Import Trip', description: 'Parse and import the confirmation text' },
       { testID: 'import-try-again-button', label: 'Try Again', description: 'Retry after error' },
     ],
+    navigatesTo: ['ReviewImport'],
+  },
+
+  ReviewImport: {
+    name: 'ReviewImport',
+    sourceFile: 'src/screens/trips/ReviewImportScreen/ReviewImportScreen.tsx',
+    waitFor: 'review-trip-name',
+    fields: [
+      { testID: 'review-trip-name', label: 'Trip Name', componentType: 'other', required: true },
+      { testID: 'leg-arrival-date-${index}', label: 'Arrival Date', componentType: 'other', required: true, dynamic: true },
+    ],
+    alerts: [],
+    actionButtons: [
+      { testID: 'review-create-trip-button', label: 'Create Trip', description: 'Save trip and navigate to detail' },
+      { testID: 'review-cancel-button', label: 'Discard', description: 'Discard changes and go back' },
+      { testID: 'remove-leg-${index}', label: 'Remove Leg', description: 'Remove a destination leg' },
+    ],
     navigatesTo: ['TripDetail'],
   },
 
