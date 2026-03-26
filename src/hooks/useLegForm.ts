@@ -11,10 +11,13 @@ import { ERROR_CODES, createAppError } from '../services/error/errorHandling';
 import type { TripStackParamList } from '../app/navigation/types';
 import type { TravelerProfile } from '../types/profile';
 import type { TravelerFormData } from '../types/trip';
-import type { TravelerTab } from '../components/trips/TravelerTabs';
 import type { UseLegFormOptions, TravelerState } from './useLegFormTypes';
-import { stripPIIFromFormData } from '../utils/piiSanitizer';
-import { deriveLegFormStatus, upsertTravelerFormData } from './useLegFormHelpers';
+import {
+  upsertTravelerFormData,
+  persistFormData,
+  buildTravelerTabs,
+  resolveFormGenerationContext,
+} from './useLegFormHelpers';
 
 // Re-export for backward compatibility
 export { deriveLegFormStatus } from './useLegFormHelpers';
@@ -115,98 +118,25 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
 
   // Generate form when data is ready
   useEffect(() => {
-    if (!trip || !leg) {
-      const error = createAppError(
-        ERROR_CODES.PARSING_ERROR,
-        'Trip, leg, or profile not found',
-        'Required data is missing. Please try navigating back and trying again.'
-      );
-      setLoadError(error);
-      return;
-    }
+    const ctx = resolveFormGenerationContext({
+      trip, leg, profile, hasMultipleTravelers, activeTravelerId,
+      travelerProfiles, getTravelerFormData, legId,
+    });
 
-    // For multi-traveler legs, wait until profiles are loaded and an active traveler is set
-    if (hasMultipleTravelers) {
-      if (!activeTravelerId || travelerProfiles.size === 0) {
-        // Still loading profiles — don't generate yet
-        return;
-      }
-
-      const travelerProfile = travelerProfiles.get(activeTravelerId);
-      if (!travelerProfile) {
-        const error = createAppError(
-          ERROR_CODES.PARSING_ERROR,
-          `Profile not found for traveler ${activeTravelerId}`,
-          'Unable to load traveler profile. Please go back and try again.'
-        );
-        setLoadError(error);
-        return;
-      }
-
-      const schema = schemaRegistry.getSchema(leg.destinationCountry);
-      if (!schema) {
-        const error = createAppError(
-          ERROR_CODES.PARSING_ERROR,
-          `Schema not found for ${leg.destinationCountry}`,
-          `Form template for ${leg.destinationCountry} is not available. Please contact support.`
-        );
-        setLoadError(error);
-        return;
-      }
-
-      try {
-        setLoadError(null);
-        const storedData = getTravelerFormData(legId, activeTravelerId)?.formData ?? {};
-        generateForm(travelerProfile, leg, schema, storedData);
-      } catch (error) {
-        const appError = createAppError(
-          ERROR_CODES.PARSING_ERROR,
-          (error as Error).message,
-          'Failed to load the form. Please try again.'
-        );
-        setLoadError(appError);
-      }
-
-      return;
-    }
-
-    // Single-traveler path (existing behaviour)
-    if (!profile) {
-      const error = createAppError(
-        ERROR_CODES.PARSING_ERROR,
-        'Trip, leg, or profile not found',
-        'Required data is missing. Please try navigating back and trying again.'
-      );
-      setLoadError(error);
-      return;
-    }
-
-    const schema = schemaRegistry.getSchema(leg.destinationCountry);
-    if (!schema) {
-      const error = createAppError(
-        ERROR_CODES.PARSING_ERROR,
-        `Schema not found for ${leg.destinationCountry}`,
-        `Form template for ${leg.destinationCountry} is not available. Please contact support.`
-      );
-      setLoadError(error);
+    if ('error' in ctx) {
+      // Empty message means "still loading" — don't show error, just wait
+      if (ctx.error.userMessage) setLoadError(ctx.error);
       return;
     }
 
     try {
       setLoadError(null);
-      generateForm(profile, leg, schema, leg.formData || {});
+      generateForm(ctx.profile, leg!, ctx.schema, ctx.initialData);
     } catch (error) {
-      const appError = createAppError(
-        ERROR_CODES.PARSING_ERROR,
-        (error as Error).message,
-        'Failed to load the form. Please try again.'
-      );
-      setLoadError(appError);
+      setLoadError(createAppError(ERROR_CODES.PARSING_ERROR, (error as Error).message, 'Failed to load the form. Please try again.'));
     }
 
-    return () => {
-      resetForm();
-    };
+    return () => { resetForm(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId, legId, profile, trip, leg, generateForm, resetForm, activeTravelerId, travelerState, hasMultipleTravelers]);
 
@@ -276,52 +206,26 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     setFormError(null);
 
     try {
-      const rawFormData = getFormData();
-      // Strip PII before persisting to WatermelonDB — passport data stays in Keychain only
-      const formDataToSave = stripPIIFromFormData(rawFormData);
-
-      if (hasMultipleTravelers && activeTravelerId) {
-        const completionPct = currentForm?.stats.completionPercentage ?? 0;
-        const freshLeg = getLegById(legId);
-        const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
-        const updatedForms = upsertTravelerFormData(
-          existingForms,
-          activeTravelerId,
-          formDataToSave,
-          isValid ? 'ready' : 'in_progress',
-          completionPct,
-        );
-        const derivedFormStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
-        await updateTripLeg(leg.id, { travelerFormsData: updatedForms, formStatus: derivedFormStatus });
-      } else {
-        await updateTripLeg(leg.id, {
-          formData: formDataToSave,
-          formStatus: isValid ? 'ready' : 'in_progress',
-        });
-      }
-
+      await persistFormData({
+        leg, rawFormData: getFormData(), isValid, hasMultipleTravelers,
+        activeTravelerId, assignedTravelers, getLegById, legId, updateTripLeg,
+        completionPercentage: currentForm?.stats.completionPercentage ?? 0,
+      });
       setLastFailedOperation(null);
       Alert.alert('Success', 'Form data saved successfully!');
     } catch (error) {
       setLastFailedOperation({ type: 'save' });
-
       const result = await handleStorageError(error as Error, {
-        screen: 'LegForm',
-        action: 'saveForm',
-        timestamp: Date.now()
+        screen: 'LegForm', action: 'saveForm', timestamp: Date.now(),
       }, {
-        showUserFeedback: false,
-        enableRetry: true,
+        showUserFeedback: false, enableRetry: true,
         onRecoverySuccess: () => {
           setFormError(null);
           setLastFailedOperation(null);
           Alert.alert('Success', 'Form data saved successfully!');
-        }
+        },
       });
-
-      if (!result.recovered && result.error) {
-        setFormError(result.error);
-      }
+      if (!result.recovered && result.error) setFormError(result.error);
     } finally {
       setIsSubmitting(false);
     }
@@ -332,18 +236,11 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       const validationError = createAppError(
         ERROR_CODES.VALIDATION_FAILED,
         'Form validation failed',
-        'Please complete all required fields before marking as ready.'
+        'Please complete all required fields before marking as ready.',
       );
-
       await handleValidationError(new Error('Form validation failed'), {
-        screen: 'LegForm',
-        action: 'markAsReady',
-        timestamp: Date.now()
-      }, {
-        showUserFeedback: false,
-        enableRetry: false
-      });
-
+        screen: 'LegForm', action: 'markAsReady', timestamp: Date.now(),
+      }, { showUserFeedback: false, enableRetry: false });
       setFormError(validationError);
       return;
     }
@@ -352,54 +249,30 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     setFormError(null);
 
     try {
-      const rawFormData = getFormData();
-      const formDataToSave = stripPIIFromFormData(rawFormData);
-
-      if (hasMultipleTravelers && activeTravelerId) {
-        const freshLeg = getLegById(legId);
-        const existingForms: TravelerFormData[] = freshLeg?.travelerFormsData ?? [];
-        const updatedForms = upsertTravelerFormData(
-          existingForms,
-          activeTravelerId,
-          formDataToSave,
-          'ready',
-          100,
-        );
-        const derivedStatus = deriveLegFormStatus(assignedTravelers, updatedForms);
-        await updateTripLeg(leg!.id, { travelerFormsData: updatedForms, formStatus: derivedStatus });
-      } else {
-        await updateTripLeg(leg!.id, {
-          formData: formDataToSave,
-          formStatus: 'ready',
-        });
-      }
-
+      await persistFormData({
+        leg: leg!, rawFormData: getFormData(), isValid, hasMultipleTravelers,
+        activeTravelerId, assignedTravelers, getLegById, legId, updateTripLeg,
+        completionPercentage: 100, statusOverride: 'ready',
+      });
       setLastFailedOperation(null);
       Alert.alert('Success', 'Form marked as ready for submission!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       setLastFailedOperation({ type: 'markReady' });
-
       const result = await handleStorageError(error as Error, {
-        screen: 'LegForm',
-        action: 'markAsReady',
-        timestamp: Date.now()
+        screen: 'LegForm', action: 'markAsReady', timestamp: Date.now(),
       }, {
-        showUserFeedback: false,
-        enableRetry: true,
+        showUserFeedback: false, enableRetry: true,
         onRecoverySuccess: () => {
           setFormError(null);
           setLastFailedOperation(null);
           Alert.alert('Success', 'Form marked as ready for submission!', [
             { text: 'OK', onPress: () => navigation.goBack() },
           ]);
-        }
+        },
       });
-
-      if (!result.recovered && result.error) {
-        setFormError(result.error);
-      }
+      if (!result.recovered && result.error) setFormError(result.error);
     } finally {
       setIsSubmitting(false);
     }
@@ -428,41 +301,15 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
     }
   }, [activeProfile, leg, generateForm, hasMultipleTravelers, activeTravelerId, getTravelerFormData, legId]);
 
-  /**
-   * Tab data for the TravelerTabs component. Empty when single-traveler.
-   */
-  const travelerTabs: TravelerTab[] = hasMultipleTravelers
-    ? assignedTravelers.map((travelerId): TravelerTab => {
-        const travelerProfile = travelerProfiles.get(travelerId);
-        const isActive = travelerId === activeTravelerId;
-        const storedFormEntry = getTravelerFormData(legId, travelerId);
-
-        let completionPercentage = 0;
-        let formStatus: TravelerFormData['formStatus'] = storedFormEntry?.formStatus ?? 'not_started';
-
-        if (isActive && currentForm) {
-          completionPercentage = currentForm.stats.completionPercentage;
-          if (isValid && completionPercentage === 100) {
-            formStatus = 'ready';
-          } else if (completionPercentage > 0) {
-            formStatus = 'in_progress';
-          }
-        } else if (storedFormEntry) {
-          if (storedFormEntry.formStatus === 'ready' || storedFormEntry.formStatus === 'submitted') {
-            completionPercentage = 100;
-          } else if (storedFormEntry.formStatus === 'in_progress') {
-            completionPercentage = storedFormEntry.completionPercentage;
-          }
-        }
-
-        const firstName = travelerProfile?.givenNames?.split(' ')[0] ?? 'Traveler';
-
-        return {
-          id: travelerId,
-          name: firstName,
-          completionPercentage,
-          formStatus,
-        };
+  const travelerTabs = hasMultipleTravelers
+    ? buildTravelerTabs({
+        assignedTravelers,
+        activeTravelerId,
+        travelerProfiles,
+        getTravelerFormData,
+        legId,
+        currentFormStats: currentForm?.stats ?? null,
+        isValid,
       })
     : [];
 

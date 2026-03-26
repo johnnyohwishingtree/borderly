@@ -14,22 +14,28 @@ const ROOT = resolve(__dirname, '../..');
 
 describe('PII boundary', () => {
   it('useLegForm strips PII before saving to database', () => {
-    const content = readFileSync(
+    // PII stripping may live in useLegForm.ts directly or in its extracted helpers
+    const mainContent = readFileSync(
       resolve(ROOT, 'src/hooks/useLegForm.ts'),
       'utf-8',
     );
+    const helpersContent = readFileSync(
+      resolve(ROOT, 'src/hooks/useLegFormHelpers.ts'),
+      'utf-8',
+    );
+    const combined = mainContent + '\n' + helpersContent;
 
-    // Every call to updateTripLeg with formData must be preceded by stripPIIFromFormData
-    const hasStrip = content.includes('stripPIIFromFormData');
-    const importsStrip = content.includes("from '../utils/piiSanitizer'") ||
-                          content.includes("from '@/utils/piiSanitizer'");
+    // stripPIIFromFormData must be used somewhere in the useLegForm module
+    const hasStrip = combined.includes('stripPIIFromFormData');
+    const importsStrip = combined.includes("from '../utils/piiSanitizer'") ||
+                          combined.includes("from '@/utils/piiSanitizer'");
 
     expect(hasStrip).toBe(true);
     expect(importsStrip).toBe(true);
 
     // Verify no raw getFormData() is passed directly to updateTripLeg
     // The pattern "formDataToSave = getFormData()" without stripping is the violation
-    const lines = content.split('\n');
+    const lines = combined.split('\n');
     const violations: string[] = [];
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
