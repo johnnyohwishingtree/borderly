@@ -8,6 +8,6 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Knowledge updates
 
-- `.knowledge/policies/testing/test-conventions.md` missing guidance on stable mock references for React Navigation hooks — `useNavigation` mock must return a module-level constant, not a new object per call, or hooks with `navigation` in dep arrays cause infinite re-render loops. Test: check screen tests for `useNavigation: () => ({` pattern (should use stored const). (#911)
+(No current knowledge gaps)
 
 ## Drift

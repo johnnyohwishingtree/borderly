@@ -18,6 +18,7 @@ __tests__/, src/**/*.test.ts
 - REQUIRE: import directly, not from barrels (`from '@/hooks/useMyHook'`)
 - REQUIRE: mock heavy dependencies at module level
 - REQUIRE: store mocks return stable references (module-level constants)
+- REQUIRE: `useNavigation`/`useRoute` mocks must return module-level constants — a new object per call causes infinite re-render loops in hooks that list `navigation` in dependency arrays
 - DENY: `jest.useFakeTimers()` with `renderHook` — causes hangs/OOM
 - DENY: mocked native module tests as proof the feature works (verify at runtime too)
 
@@ -30,6 +31,7 @@ __tests__/, src/**/*.test.ts
 - Store mock returns inline `{ preferences: {...} }` → infinite useEffect loop → OOM
 - `from '@/hooks'` barrel import in test → pulls all hook dependencies → OOM
 - Re-running CI to check if a fix worked instead of writing a unit test
+- `useNavigation: () => ({ goBack: mockFn })` creates a new object per render → infinite useEffect loop; use `const mockNav = { goBack: mockFn }; useNavigation: () => mockNav`
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit
