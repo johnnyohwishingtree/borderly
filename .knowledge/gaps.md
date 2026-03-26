@@ -9,7 +9,8 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 
 ## Knowledge updates
 
-(No current knowledge gaps)
+- AutoFill extension on-device testing requires a physical iOS device or simulator with Xcode. Integration tests verify field matching against all 14 country schemas, but real portal testing (DOM parsing, Safari extension activation, dropdown handling) needs manual QA on-device. (#838)
+- Schema field ID inconsistency: schemas use different IDs for the same concept (`givenNames`/`givenName`/`firstName`, `surname`/`lastName`/`familyName`). The field matcher handles this via aliases, but consider standardizing schema IDs. (#838)
 
 ## Drift
 
