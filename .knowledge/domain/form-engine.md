@@ -44,6 +44,9 @@ Travelers are assigned per-leg, not per-trip. Each `TripLeg` has an optional `as
 ## Canonical enums
 Profile fields like occupation, marital status, and purpose of visit use canonical enum values defined in `src/constants/enums.ts`. Country schemas use `autoFillMapping` to translate these canonical values into portal-specific labels (e.g., `SOFTWARE_DEVELOPER` → `Company employee` for Japan).
 
+## AutoFill extension field matching
+The field matcher (`src/services/forms/fieldMatcher.ts`) maps webpage inputs to schema fields using four strategies: HTML `autocomplete` attributes, `portalFieldName` labels, field `name`/`id` attributes, and fuzzy label matching. Integration tests in `__tests__/integration/autofillFieldMatcher.test.ts` verify all 14 schemas. On-device testing with a real iOS device is needed to verify Safari extension activation and DOM parsing.
+
 ## Anti-patterns
 - **Plain `<Input>` for hotel/address fields** — always use `AccommodationAutocomplete` or `AddressAutocomplete`
 - **Validating dates with `isValidTravelDate()`** for non-travel dates — use `isValidISODate()` for DOB, passport expiry

@@ -43,6 +43,21 @@ Build the schema from the portal audit, NOT by copying another country's schema.
 - `type` must match the portal: `searchable_select` for dropdowns, `date` for dates, `boolean` for checkboxes
 - `options` array for dropdown fields — must match the portal's exact option labels
 - `autoFillMapping` for fields where Borderly's canonical values differ from the portal's
+- `portalFieldName` — the exact label text shown on the government portal (used by AutoFill field matcher)
+
+### Standardized field IDs
+Use these canonical field IDs across all schemas for consistency. The AutoFill field matcher relies on them:
+
+| Profile field | Canonical ID | Avoid |
+|---|---|---|
+| Given/first name | `givenNames` | `firstName`, `givenName` |
+| Surname | `surname` | `lastName`, `familyName` |
+| Date of birth | `dateOfBirth` | `dob`, `birthDate` |
+| Passport number | `passportNumber` | `passport`, `passNumber` |
+| Email | `email` | `emailAddress` |
+| Phone | `phoneNumber` | `phone`, `tel` |
+
+Note: The AutoFill field matcher (`src/services/forms/fieldMatcher.ts`) handles legacy aliases, but new schemas should always use canonical IDs.
 
 ## Step 2: `src/services/schemas/schemaRegistry.ts` — Register schema
 

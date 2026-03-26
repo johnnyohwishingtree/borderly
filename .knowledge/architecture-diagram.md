@@ -1,180 +1,104 @@
 # Knowledge Graph — Entity Relationship Diagram
 
-## Schema Overview
+## Directory Layout
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        .knowledge/ (DATABASE)                       │
-├─────────────┬──────────────┬──────────────┬────────────┬────────────┤
-│  concepts/  │ conventions/ │   domain/    │ templates/ │  rubrics/  │
-│ (principles)│   (rules)    │(business)    │(structure) │ (quality)  │
-├─────────────┼──────────────┼──────────────┼────────────┼────────────┤
-│ dependency- │ styling      │ form-engine  │ module     │ code-      │
-│  direction  │ testing      │ passport     │ test       │  quality   │
-│ security-   │ storage      │ submission-  │ story      │ test-      │
-│  boundary   │ navigation   │  guide       │ epic       │  quality   │
-│ local-first │ state-mgmt   │ qr-wallet    │ skill      │ skill-     │
-│ drift-      │ native-mods  │ countries/   │ folder-    │  quality   │
-│  detection  │ e2e-testab.  │  (11 files)  │  claude-md │            │
-│ testable-   │ typography   │              │            │            │
-│  architect. │ motion       │              │            │            │
-│             │ ux-writing   │              │            │            │
-│             │ accessib./   │              │            │            │
-│             │  (3 files)   │              │            │            │
-└─────────────┴──────────────┴──────────────┴────────────┴────────────┘
+.knowledge/
+├── concepts/     (5): dependency-direction, security-boundary, local-first, drift-detection, testable-architecture
+├── conventions/  (10+): styling, testing, storage, navigation, state-mgmt, native-mods, e2e-testability, typography, motion, ux-writing, accessibility/ (3)
+├── domain/       (5+): form-engine, passport, submission-guide, qr-wallet, countries/ (11)
+├── templates/    (5): module, test, story, epic, skill, folder-claude-md
+└── rubrics/      (3): code-quality, test-quality, skill-quality
 ```
 
-## Entity Relationships
-
-### Folder CLAUDE.md → Knowledge (Foreign Keys)
-
-These are the "indexes" — auto-loaded when the agent works in a directory.
+## Folder CLAUDE.md → Knowledge (Foreign Keys)
 
 ```
-src/CLAUDE.md ──────────────┬→ concepts/local-first
-                            ├→ concepts/dependency-direction ←──┐
-                            └→ conventions/storage               │
-                                                                 │
-src/stores/CLAUDE.md ───────→ concepts/dependency-direction ←────┤
-src/services/CLAUDE.md ─────→ concepts/dependency-direction ←────┤
-src/components/CLAUDE.md ───┬→ concepts/dependency-direction ←───┘
-                            └→ conventions/styling ←─────────────┐
-                                                                 │
-src/components/ui/CLAUDE.md ┬→ conventions/styling ←─────────────┘
-                            ├→ conventions/typography
-                            └→ conventions/motion
-
-src/screens/CLAUDE.md ──────┬→ conventions/state-management ←───┐
-                            ├→ conventions/ux-writing            │
-                            └→ patterns/add-screen               │
-                                                                 │
-src/hooks/CLAUDE.md ────────→ conventions/state-management ←────┘
-
-src/schemas/CLAUDE.md ──────┬→ domain/form-engine ←─────────────┐
-                            └→ patterns/add-country              │
-                                                                 │
-src/components/forms/ ──────→ domain/form-engine ←───────────────┤
-src/services/forms/ ────────→ domain/form-engine ←───────────────┘
-
-src/services/storage/ ──────┬→ conventions/storage
-                            └→ concepts/security-boundary ←─────┐
-src/services/backup/ ───────┬→ conventions/storage               │
-                            └→ concepts/security-boundary ←──────┘
-
-src/services/passport/ ─────→ domain/passport
-src/services/submission/ ───┬→ domain/submission-guide
-                            └→ concepts/local-first
-
-src/services/notification/ ─┬→ concepts/dependency-direction
-                            └→ conventions/native-modules ←─────┐
-e2e/CLAUDE.md ──────────────┬→ conventions/testing               │
-                            └→ conventions/native-modules ←──────┘
-__tests__/CLAUDE.md ────────┬→ conventions/testing
-                            └→ conventions/accessibility/testing-patterns
+src/                    → local-first, dependency-direction, storage
+src/stores/             → dependency-direction
+src/services/           → dependency-direction
+src/services/storage/   → storage, security-boundary
+src/services/forms/     → form-engine
+src/services/passport/  → passport
+src/services/submission/→ submission-guide, local-first
+src/components/         → dependency-direction, styling
+src/components/ui/      → styling, typography, motion
+src/components/forms/   → form-engine
+src/screens/            → state-management, ux-writing, add-screen
+src/hooks/              → state-management
+src/schemas/            → form-engine, add-country
+e2e/                    → testing, native-modules
+__tests__/              → testing, accessibility/testing-patterns
 ```
 
-### Knowledge → Knowledge (Internal References)
+## Knowledge Cross-References
 
 ```
-conventions/storage ────────→ concepts/security-boundary
-concepts/drift-detection ───→ conventions/e2e-testability
-patterns/add-screen ────────┬→ conventions/styling
-                            └→ conventions/accessibility/component-props
-patterns/add-native-dep ────→ conventions/native-modules
-patterns/add-country ───────→ (uses domain/form-engine implicitly)
-
-templates/module ───────────┬→ rubrics/code-quality
-                            └→ templates/test
-templates/test ─────────────→ rubrics/test-quality
-rubrics/skill-quality ──────→ templates/skill
+conventions/storage       → concepts/security-boundary
+concepts/drift-detection  → conventions/e2e-testability
+patterns/add-screen       → conventions/styling, accessibility/component-props
+patterns/add-native-dep   → conventions/native-modules
+patterns/add-country      → domain/form-engine (implicit)
+templates/module          → rubrics/code-quality, templates/test
+templates/test            → rubrics/test-quality
 ```
 
-### Skills → Knowledge (Query Paths)
+## Skills → Knowledge
 
 ```
-/pipeline ──────────────────┬→ gaps.md
-                            ├→ rubrics/* (self-review)
-                            ├→ templates/story, epic
-                            ├→ templates/folder-claude-md
-                            └→ conventions/e2e-testability
-
-/audit ─────────────────────┬→ gaps.md
-                            ├→ index.md
-                            ├→ concepts/dependency-direction
-                            ├→ conventions/styling
-                            └→ templates/story
-
-/knowledge-audit ───────────┬→ ALL conventions/*
-                            ├→ ALL concepts/*
-                            ├→ domain/form-engine
-                            ├→ patterns/add-country
-                            └→ gaps.md
-
-/apply-knowledge ───────────→ (single file, specified by user)
-
-/optimize ──────────────────┬→ gaps.md
-                            └→ templates/story
-
-/plan-feature ──────────────┬→ index.md
-                            └→ domain/form-engine
-
-/refactor-design ───────────┬→ concepts/dependency-direction
-                            ├→ conventions/state-management
-                            └→ domain/form-engine
+/pipeline     → gaps.md, rubrics/*, templates/story+epic, conventions/e2e-testability
+/audit        → gaps.md, index.md, dependency-direction, styling, templates/story
+/knowledge-audit → ALL conventions/*, ALL concepts/*, form-engine, add-country, gaps.md
+/optimize     → gaps.md, templates/story
+/plan-feature → index.md, form-engine
+/refactor     → dependency-direction, state-management, form-engine
 ```
 
-### Structural Tests → Knowledge (Constraint Enforcement)
+## Structural Tests → Knowledge
 
 ```
-dependency-direction.test ──→ concepts/dependency-direction
-pii-boundary.test ──────────→ concepts/security-boundary
-                            → conventions/storage
-maestro-registry-sync.test ─→ conventions/e2e-testability
-                            → concepts/drift-detection
-component-testids.test ─────→ conventions/e2e-testability
-hooks-barrel.test ──────────→ conventions/state-management
-screen-folder-convention ───→ conventions/navigation
-native-module-mocks.test ───→ conventions/native-modules
-accessibility-props.test ───→ conventions/accessibility/*
-no-space-x.test ────────────→ conventions/styling
-smart-component-usage.test ─→ conventions/styling
-                            → domain/form-engine
-knowledge-test-coverage ────→ concepts/testable-architecture
-                            → (ALL conventions — meta-test)
+dependency-direction.test  → concepts/dependency-direction
+pii-boundary.test          → concepts/security-boundary, conventions/storage
+maestro-registry-sync.test → conventions/e2e-testability, concepts/drift-detection
+component-testids.test     → conventions/e2e-testability
+hooks-barrel.test          → conventions/state-management
+screen-folder-convention   → conventions/navigation
+native-module-mocks.test   → conventions/native-modules
+accessibility-props.test   → conventions/accessibility/*
+no-space-x.test            → conventions/styling
+smart-component-usage.test → conventions/styling, domain/form-engine
+knowledge-test-coverage    → concepts/testable-architecture (meta-test)
+autofill-extension.test    → concepts/security-boundary (entitlements)
+autofill-extension-ui.test → conventions/styling (color tokens)
 ```
 
 ## Shared Topic Clusters
 
-Files that reference the same concept must not contradict:
+Files referencing the same concept must not contradict:
 
-```
-"testID"          → e2e-testability, drift-detection, testing, add-screen
-"Keychain"        → security-boundary, local-first, storage, passport
-"autoFillSource"  → form-engine, add-country, drift-detection, folder-claude-md
-"inline styles"   → styling, code-quality, module template
-"useState"        → state-management, testable-architecture
-"searchable_select" → form-engine, add-country, countries/japan
-```
-
-## High-Connectivity Nodes (most referenced)
-
-| Knowledge file | Referenced by |
+| Topic | Referenced in |
 |---|---|
-| `concepts/dependency-direction` | 6 folder CLAUDE.md + 3 skills + 1 test |
-| `domain/form-engine` | 3 folder CLAUDE.md + 4 skills + 1 test |
-| `conventions/styling` | 3 folder CLAUDE.md + 1 skill + 2 tests |
-| `conventions/storage` | 3 folder CLAUDE.md + internal ref to security-boundary |
-| `conventions/state-management` | 2 folder CLAUDE.md + 2 skills + 1 test |
-| `conventions/e2e-testability` | 3 skills + 2 tests + internal ref from drift-detection |
-| `concepts/security-boundary` | 2 folder CLAUDE.md + internal ref from storage + 1 test |
+| testID | e2e-testability, drift-detection, testing, add-screen |
+| Keychain | security-boundary, local-first, storage, passport |
+| autoFillSource | form-engine, add-country, drift-detection |
+| inline styles | styling, code-quality, module template |
+| searchable_select | form-engine, add-country, countries/japan |
 
-## Orphaned Nodes (no folder CLAUDE.md references)
+## High-Connectivity Nodes
 
-| Knowledge file | Referenced by | Issue |
-|---|---|---|
-| `conventions/e2e-testability` | Skills + tests only | No folder CLAUDE.md points to it |
-| `conventions/testing` | `e2e/` + `__tests__/` only | Not loaded for `src/` work |
-| `domain/qr-wallet` | Nothing | Completely orphaned |
-| `domain/submission-guide` | `services/submission/` only | Low connectivity |
-| `concepts/testable-architecture` | Nothing | Principle, not actionable per-directory |
-| `concepts/drift-detection` | Internal ref only | Not auto-loaded anywhere |
+| File | Refs |
+|---|---|
+| `concepts/dependency-direction` | 6 dirs + 3 skills + 1 test |
+| `domain/form-engine` | 3 dirs + 4 skills + 1 test |
+| `conventions/styling` | 3 dirs + 1 skill + 2 tests |
+| `conventions/storage` | 3 dirs + security-boundary ref |
+| `conventions/e2e-testability` | 3 skills + 2 tests + drift ref |
+| `concepts/security-boundary` | 2 dirs + storage ref + 2 tests |
+
+## Orphaned Nodes
+
+| File | Issue |
+|---|---|
+| `domain/qr-wallet` | No references |
+| `concepts/testable-architecture` | Principle only, not per-directory |
+| `concepts/drift-detection` | Internal ref only |
