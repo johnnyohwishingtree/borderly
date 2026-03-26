@@ -1,14 +1,12 @@
 ---
 name: local-pipeline
-description: Autonomous pipeline for local environments (Claude Desktop / CLI) — same as /pipeline but invoked manually
+description: Autonomous pipeline for local environments (Claude Desktop / CLI) — uses worktree to avoid disrupting user's work
 argument-hint: "[--issue N]"
 ---
 
 # /local-pipeline — Local Autonomous Pipeline
 
-Same as `/pipeline` but designed for Claude Desktop or Claude CLI running on the user's machine. Uses `gh` CLI and `git push` — requires local filesystem access and GitHub authentication.
-
-Use this when Claude Code scheduled tasks aren't available (e.g., Claude Desktop, Cowork, or local CLI sessions).
+Same as `/pipeline` but runs in an isolated git worktree so it doesn't disturb the user's working directory. Designed for Claude Desktop or CLI running on the user's machine.
 
 **Scheduled task prompt (Claude Desktop):**
 ```
@@ -16,17 +14,32 @@ Read CLAUDE.md for project context.
 Read .claude/skills/local-pipeline/SKILL.md and follow every step.
 ```
 
-## Step 1: Merge open PRs
+## Step 0: Set up worktree
+
+Create an isolated worktree so the user's working directory is untouched:
 
 ```bash
 REPO="johnnyohwishingtree/borderly"  # CUSTOMIZE
+WORKTREE_DIR="/tmp/borderly-pipeline-$(date +%s)"
+
+git fetch origin master
+git worktree add "$WORKTREE_DIR" origin/master --detach
+cd "$WORKTREE_DIR"
+pnpm install --frozen-lockfile
+```
+
+All subsequent steps run inside `$WORKTREE_DIR`.
+
+## Step 1: Merge open PRs
+
+```bash
 gh pr list --repo $REPO --state open --json number,title,headRefName --jq '.[]'
 ```
 
 For each open PR: review the diff, merge if clean, fix if not.
 
 ```bash
-git checkout master && git pull origin master
+git fetch origin master && git reset --hard origin/master
 ```
 
 ## Step 2: Find next story
@@ -37,69 +50,50 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 8**.
 
-**Important:** Only pick up stories labeled `pending`. Never pick up `in-progress` stories — another session owns them.
+**Important:** Only pick up stories labeled `pending`. Never pick up `in-progress` stories.
 
 ## Step 3: Implement
 
 ```bash
 NUMBER=<issue number>
 gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-progress"
-git fetch origin master && git checkout -b story/issue-$NUMBER origin/master
+git checkout -b story/issue-$NUMBER
 ```
 
 Read the story body. Implementation order:
-1. Read the **Knowledge** section — these `.knowledge/` files give you context
-2. Read the **Tasks** section — each task references a template or pattern to follow
-3. Read the **Context** section — the minimum source files to read
+1. Read the **Knowledge** section
+2. Read the **Tasks** section
+3. Read the **Context** section
 4. Implement each task following the referenced `.knowledge/` file
 
 ## Step 4: Verify (up to 6 attempts)
 
-Run verification commands (from CLAUDE.md):
 ```bash
 pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
-**If you changed screen UI:** Follow `.knowledge/conventions/e2e-testability.md` — update screenRegistry, run `pnpm maestro:generate`.
+**If you changed screen UI:** Follow `.knowledge/conventions/e2e-testability.md`.
 
 If checks fail → fix → rerun. Up to 6 attempts.
 
-If still failing after 6 attempts → push WIP branch, create draft PR, reset story to `pending`, stop.
+If still failing after 6 → push WIP branch, create draft PR, reset to `pending`, skip to cleanup.
 
 **Failure discipline:**
-- If the same failure repeats after a fix attempt, try a different approach — don't retry the same fix
-- If a failure is pre-existing (exists on master too), fix it now or add it to `.knowledge/gaps.md`
-- If you created a test, run it individually before committing
-- Run verification in the foreground — never spawn background processes
-- Clean up any processes you started before moving to the next step
+- Don't retry the same fix
+- Fix or log pre-existing failures
+- Run verification foreground — no background processes
+- If you created a test, run it individually first
 
 ## Step 5: Learn — update the knowledge graph
 
-After verify passes, reflect on each task you implemented:
-
-1. **Did you have to figure something out not covered by any `.knowledge/` file?**
-   → Add an entry to `.knowledge/gaps.md` with a test strategy:
-   ```markdown
-   ## Knowledge updates
-   - `.knowledge/<file>.md` missing guidance on <topic>. Test: <how to catch this>. (#$NUMBER)
-   ```
-
+1. **Missing guidance?** → Add to `.knowledge/gaps.md` with test strategy
 2. **New concept?** → Create `.knowledge/concepts/<name>.md`
 3. **New convention?** → Create `.knowledge/conventions/<name>.md` + structural test
-4. **New domain knowledge?** → Create or update `.knowledge/domain/<name>.md`
-5. **Directory-specific convention?** → Create folder CLAUDE.md pointer
+4. **Directory-specific?** → Create folder CLAUDE.md pointer
 
 ## Step 6: Self-review against rubrics
 
-Review your diff against:
-- `.knowledge/rubrics/code-quality.md` — for source files
-- `.knowledge/rubrics/test-quality.md` — for test files
-- `.knowledge/rubrics/skill-quality.md` — for skill files
-
-**Fix immediately:** `any` types, unused imports, empty catches, missing tests, anti-patterns.
-**Add to gaps.md:** architectural questions needing human input.
-
-Re-run verification after fixes.
+Review diff against `.knowledge/rubrics/`. Fix issues, re-verify.
 
 ## Step 7: Push, PR, merge
 
@@ -136,6 +130,17 @@ fi
 
 Read and follow `.claude/skills/optimize/SKILL.md`.
 
-## Step 9: Plan next epic (when queue is empty and optimization is done)
+## Step 9: Cleanup worktree
 
-Read the codebase and `.knowledge/` knowledge graph. Identify the highest-impact improvement. Create an epic with stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
+Always run this — even if steps above failed:
+
+```bash
+cd /
+git -C "$WORKTREE_DIR" worktree list  # verify it's a worktree
+rm -rf "$WORKTREE_DIR"
+git worktree prune
+```
+
+## Step 10: Report
+
+Print summary: what was implemented, branch name, tests added, knowledge updated, worktree cleaned up.
