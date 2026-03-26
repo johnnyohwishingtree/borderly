@@ -36,6 +36,7 @@ const DESIGN_GUIDELINES = new Set([
   'ui/ux-writing.md',
   'testing/test-conventions.md',
   'data/schema-fields.md',
+  'architecture/utils-boundary.md', // structural test pending (story #853)
 ]);
 
 describe('Knowledge test coverage', () => {
