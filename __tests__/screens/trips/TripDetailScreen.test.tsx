@@ -111,6 +111,10 @@ jest.mock('../../../src/components/trips', () => {
     TravelerSelector: () => React.createElement('View', { testID: 'traveler-selector' }),
     DuplicateTripModal: ({ testID, visible }: { testID?: string; visible?: boolean }) =>
       React.createElement('View', { testID: testID ?? 'duplicate-trip-modal', 'aria-hidden': !visible }),
+    TravelerProgressList: ({ testID, travelers }: { testID?: string; travelers?: any[] }) =>
+      travelers && travelers.length > 0
+        ? React.createElement('View', { testID })
+        : null,
   };
 });
 
@@ -233,6 +237,64 @@ describe('TripDetailScreen — rendering', () => {
     }];
     render(<TripDetailScreen />);
     expect(screen.getByText('2 destinations')).toBeTruthy();
+  });
+
+  it('renders traveler progress section for multi-traveler trips', async () => {
+    const selfProfile = {
+      id: 'p1', givenNames: 'Alice', surname: 'Smith',
+      passportNumber: 'AB123', nationality: 'USA', dateOfBirth: '1985-01-01',
+      gender: 'F', passportExpiry: '2030-01-01', issuingCountry: 'USA',
+      relationship: 'self',
+    };
+    const spouseProfile = {
+      id: 'p2', givenNames: 'Bob', surname: 'Smith',
+      passportNumber: 'CD456', nationality: 'USA', dateOfBirth: '1986-01-01',
+      gender: 'M', passportExpiry: '2030-01-01', issuingCountry: 'USA',
+      relationship: 'spouse',
+    };
+
+    mockGetAllProfiles.mockResolvedValue(
+      new Map([['p1', selfProfile], ['p2', spouseProfile]]),
+    );
+
+    mockTrips = [{
+      ...baseTrip,
+      legs: [{
+        ...makeTripLeg(),
+        assignedTravelers: ['p1', 'p2'],
+      }],
+    }];
+
+    render(<TripDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('trip-detail-traveler-progress')).toBeTruthy();
+    });
+  });
+
+  it('does NOT render traveler progress for solo-traveler trips', async () => {
+    const selfProfile = {
+      id: 'p1', givenNames: 'Alice', surname: 'Smith',
+      passportNumber: 'AB123', nationality: 'USA', dateOfBirth: '1985-01-01',
+      gender: 'F', passportExpiry: '2030-01-01', issuingCountry: 'USA',
+      relationship: 'self',
+    };
+
+    mockGetAllProfiles.mockResolvedValue(new Map([['p1', selfProfile]]));
+
+    mockTrips = [{
+      ...baseTrip,
+      legs: [{
+        ...makeTripLeg(),
+        assignedTravelers: ['p1'],
+      }],
+    }];
+
+    render(<TripDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('trip-detail-traveler-progress')).toBeNull();
+    });
   });
 });
 
