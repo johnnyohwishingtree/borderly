@@ -1,135 +1,26 @@
-import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Lock, TriangleAlert, Lightbulb } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '@/app/navigation/types';
-import { useProfileStore } from '@/stores/useProfileStore';
+import { useEditProfile } from '@/hooks/useEditProfile';
 import { Button, Card, Input, StatusBadge, Divider, AddressAutocomplete, SearchableSelect, ScreenContainer } from '@/components/ui';
-import { Address, TravelerProfile } from '@/types/profile';
 import { OCCUPATIONS, MARITAL_STATUSES } from '@/constants/enums';
 
 type EditProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<EditProfileScreenNavigationProp>();
-  const { profile, updateProfile, isLoading } = useProfileStore();
-  const [formData, setFormData] = useState({
-    email: '',
-    phoneNumber: '',
-    occupation: '',
-    maritalStatus: '',
-    homeAddress: {
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-    } as Address,
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        email: profile.email || '',
-        phoneNumber: profile.phoneNumber || '',
-        occupation: profile.occupation || '',
-        maritalStatus: profile.maritalStatus || '',
-        homeAddress: profile.homeAddress || {
-          line1: '',
-          line2: '',
-          city: '',
-          state: '',
-          postalCode: '',
-          country: '',
-        },
-      });
-    }
-  }, [profile]);
-
-  const validateEmail = (email: string) => {
-    if (!email) {return '';}
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email) ? '' : 'Please enter a valid email address';
-  };
-
-  const validatePhoneNumber = (phone: string) => {
-    if (!phone) {return '';}
-    const phoneRegex = /^\+?[\d\s\-()]+$/;
-    return phoneRegex.test(phone) ? '' : 'Please enter a valid phone number';
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (formData.email) {
-      const emailError = validateEmail(formData.email);
-      if (emailError) {newErrors.email = emailError;}
-    }
-
-    if (formData.phoneNumber) {
-      const phoneError = validatePhoneNumber(formData.phoneNumber);
-      if (phoneError) {newErrors.phoneNumber = phoneError;}
-    }
-
-    if (formData.homeAddress.line1 && !formData.homeAddress.city) {
-      newErrors.city = 'City is required when address is provided';
-    }
-
-    if (formData.homeAddress.line1 && !formData.homeAddress.country) {
-      newErrors.country = 'Country is required when address is provided';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!profile) {return;}
-
-    if (!validateForm()) {
-      Alert.alert('Validation Error', 'Please correct the errors and try again.');
-      return;
-    }
-
-    try {
-      const updates: Partial<TravelerProfile> = {};
-      if (formData.email) {updates.email = formData.email;}
-      if (formData.phoneNumber) {updates.phoneNumber = formData.phoneNumber;}
-      if (formData.occupation) {updates.occupation = formData.occupation;}
-      if (formData.maritalStatus) {updates.maritalStatus = formData.maritalStatus;}
-
-      if (formData.homeAddress.line1 || formData.homeAddress.city) {
-        updates.homeAddress = formData.homeAddress;
-      }
-
-      await updateProfile(updates);
-      setHasUnsavedChanges(false);
-      Alert.alert('Success', 'Profile updated successfully.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
-    } catch {
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
-    }
-  };
-
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-    setHasUnsavedChanges(true);
-
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
-  };
+  const {
+    formData,
+    errors,
+    hasUnsavedChanges,
+    isLoading,
+    profile,
+    handleSave,
+    updateFormData,
+    updateAddress,
+  } = useEditProfile();
 
   if (!profile) {
     return (
@@ -153,10 +44,10 @@ export default function EditProfileScreen() {
               </Text>
             </View>
             {hasUnsavedChanges && (
-              <StatusBadge 
-                status="warning" 
-                size="small" 
-                text="Unsaved Changes" 
+              <StatusBadge
+                status="warning"
+                size="small"
+                text="Unsaved Changes"
               />
             )}
           </View>
@@ -168,10 +59,10 @@ export default function EditProfileScreen() {
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
               Contact Information
             </Text>
-            <StatusBadge 
-              status="info" 
-              size="small" 
-              text="Required for Travel" 
+            <StatusBadge
+              status="info"
+              size="small"
+              text="Required for Travel"
             />
           </View>
 
@@ -243,13 +134,13 @@ export default function EditProfileScreen() {
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
               Home Address
             </Text>
-            <StatusBadge 
-              status="info" 
-              size="small" 
-              text="Helps Auto-Fill" 
+            <StatusBadge
+              status="info"
+              size="small"
+              text="Helps Auto-Fill"
             />
           </View>
-          
+
           <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
             <View className="flex-row items-center">
               <Lightbulb size={14} color="#1e40af" />
@@ -262,20 +153,7 @@ export default function EditProfileScreen() {
 
           <AddressAutocomplete
             value={formData.homeAddress}
-            onAddressChange={(address) => {
-              setFormData(prev => ({ ...prev, homeAddress: address }));
-              setHasUnsavedChanges(true);
-              // Clear address-level errors when user updates
-              setErrors(prev => {
-                const next = { ...prev };
-                delete next.line1;
-                delete next.city;
-                delete next.state;
-                delete next.postalCode;
-                delete next.country;
-                return next;
-              });
-            }}
+            onAddressChange={updateAddress}
             errors={{
               line1: errors.line1,
               city: errors.city,
@@ -298,9 +176,9 @@ export default function EditProfileScreen() {
               <StatusBadge status="neutral" size="small" text="Read-Only" />
             </View>
           </View>
-          
+
           <Divider className="mb-3" />
-          
+
           <Text className="text-sm text-gray-600 dark:text-gray-400 mb-3">
             Passport information cannot be edited here for security reasons. Your passport data is
             encrypted and stored securely on this device only.
@@ -330,7 +208,7 @@ export default function EditProfileScreen() {
               </Text>
             </View>
           )}
-          
+
           <View className="flex-row gap-3">
             <View className="flex-1">
               <Button
@@ -356,7 +234,7 @@ export default function EditProfileScreen() {
             <View className="flex-1">
               <Button
                 title={isLoading ? "Saving..." : "Save Changes"}
-                onPress={handleSave}
+                onPress={() => handleSave(() => navigation.goBack())}
                 variant="primary"
                 loading={isLoading}
                 disabled={!hasUnsavedChanges}
