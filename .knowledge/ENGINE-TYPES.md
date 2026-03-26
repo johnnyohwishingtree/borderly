@@ -82,18 +82,30 @@ The `.knowledge/` directory contains five types of knowledge, each with its own 
 ## Anti-patterns — what fails the rubric
 ```
 
+## Operational Artifacts (not an engine type)
+
+**`gaps.md`** — a transient work queue, not knowledge. Entries are created by `/audit`, `/knowledge-audit`, and `/pipeline` Step 5 when violations or missing knowledge are found. Each entry includes a test strategy. Entries are removed after the fix is merged.
+
+Not an engine type because: it's a single file, entries are temporary, and it doesn't define rules or entities. It's the input queue for `/optimize` and the pipeline.
+
 ## How They Relate
 
 ```
+Audit / Knowledge-Audit / Pipeline
+    ↓ discovers gaps
+gaps.md (work queue)
+    ↓ resolved by
+Optimize / Pipeline stories
+    ↓ may create new
+Policies (constraints)   ←──── with structural test
+    ↓ enforced by
+Structural Tests
+    ↓ informed by
+Domain Models (business context)
+
 Patterns (how to build)
     ↓ references
 Templates (file structure)
     ↓ evaluated by
 Rubrics (quality check)
-
-Policies (constraints)
-    ↓ enforced by
-Structural Tests
-    ↓ informed by
-Domain Models (business context)
 ```
