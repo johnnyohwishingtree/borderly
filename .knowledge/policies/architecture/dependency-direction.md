@@ -40,7 +40,6 @@ src/stores/, src/services/, src/components/, src/hooks/, src/screens/
 - Related: policies/state/hook-conventions.md
 
 ## Current Stores
-- useProfileStore — multi-profile/family management
-- useTripStore — trips, legs, QR codes, multi-traveler
+See `.knowledge/models/stores.md` for the canonical store inventory.
 - useFormStore — form generation, validation, auto-fill
 - useAppStore — preferences, feature flags, app lock

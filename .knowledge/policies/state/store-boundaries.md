@@ -11,10 +11,7 @@ src/stores/
 - ALLOW: stores importing own internal files (types, helpers, slices) via relative paths
 
 ## Current Stores
-- `useProfileStore` — multi-profile/family management, onboarding
-- `useTripStore` — trips, legs, QR codes, multi-traveler
-- `useFormStore` — form generation, validation, auto-fill
-- `useAppStore` — preferences, feature flags, app lock, network
+See `.knowledge/models/stores.md` for the canonical store inventory.
 
 ## Exceptions
 - Store barrel `index.ts` re-exports all stores

@@ -74,7 +74,17 @@ For each violation, apply the fix:
 **Missing barrel export** → add the export to index.ts
 **Anti-pattern usage** → refactor to the recommended pattern
 
-## Step 5: Write tests for fixes
+## Step 5: Cascade — check files that reference this knowledge
+
+After updating a policy or model, check for cascade effects:
+1. Find all folder CLAUDE.md files that `See:` this file
+2. Find all other knowledge files that reference this file
+3. Verify they're still consistent with the updated content
+4. If a referenced fact changed (e.g., store list, field type), update all referencing files
+
+This prevents denormalization drift — one source of truth, all references stay in sync.
+
+## Step 7: Write tests for fixes
 
 For each fix, check if a structural test already catches it:
 - If yes → verify the test passes with the fix
@@ -82,13 +92,13 @@ For each fix, check if a structural test already catches it:
 
 Every fix must have a test. See `.claude/rules/knowledge-must-have-tests.md`.
 
-## Step 6: Verify
+## Step 8: Verify
 
 ```bash
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-## Step 7: Report
+## Step 9: Report
 
 Summary of what was done:
 - Files scanned
