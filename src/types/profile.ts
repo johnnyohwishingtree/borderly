@@ -34,7 +34,9 @@ export interface TravelerProfile {
   email?: string;
   phoneNumber?: string;
   homeAddress?: Address;
-  occupation?: string;
+  occupation?: string; // canonical enum value from OCCUPATIONS
+  maritalStatus?: string; // canonical enum value from MARITAL_STATUSES
+  purposeOfVisit?: string; // canonical enum value from PURPOSES_OF_VISIT
 
   // Family relationship (self for primary profile)
   relationship?: FamilyRelationship;

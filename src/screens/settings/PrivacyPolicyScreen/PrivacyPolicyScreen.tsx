@@ -1,8 +1,10 @@
 import { ScrollView, View, Text } from 'react-native';
+import { ScreenContainer } from '@/components/ui';
 
 export default function PrivacyPolicyScreen() {
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" testID="privacy-policy-screen">
+    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScrollView className="flex-1" testID="privacy-policy-screen">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
@@ -117,5 +119,6 @@ export default function PrivacyPolicyScreen() {
         <View className="h-8" />
       </View>
     </ScrollView>
+    </ScreenContainer>
   );
 }

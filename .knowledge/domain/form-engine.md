@@ -41,6 +41,9 @@ When using a smart component, check ALL its props — not just `value` and `onCh
 ## Multi-traveler model
 Travelers are assigned per-leg, not per-trip. Each `TripLeg` has an optional `assignedTravelers: string[]` (profile IDs) and `travelerFormsData: TravelerFormData[]` for per-traveler form state. There is no `Trip.travelers` field — the trip itself doesn't own traveler assignments.
 
+## Canonical enums
+Profile fields like occupation, marital status, and purpose of visit use canonical enum values defined in `src/constants/enums.ts`. Country schemas use `autoFillMapping` to translate these canonical values into portal-specific labels (e.g., `SOFTWARE_DEVELOPER` → `Company employee` for Japan).
+
 ## Anti-patterns
 - **Plain `<Input>` for hotel/address fields** — always use `AccommodationAutocomplete` or `AddressAutocomplete`
 - **Validating dates with `isValidTravelDate()`** for non-travel dates — use `isValidISODate()` for DOB, passport expiry
