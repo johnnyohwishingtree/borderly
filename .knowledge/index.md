@@ -22,6 +22,7 @@ Read this first. Maps every artifact in the pipeline system.
 | `skills/pipeline/` | Autonomous story loop — implement, verify, review, merge, plan | `/pipeline` |
 | `skills/audit/` | Drift detection, dead code, index sync | `/audit` |
 | `skills/knowledge-audit/` | Code vs knowledge compliance + test strategies | `/knowledge-audit` |
+| `skills/apply-knowledge/` | Scan and fix violations against a specific knowledge file | `/apply-knowledge` |
 | `skills/optimize/` | Resolve gaps in knowledge graph, compress bloated files | `/optimize` |
 | `skills/epic-planner/` | Break a goal into Epic + Stories | `/epic-planner` |
 | `skills/capture-screens/` | Capture screenshots + generate manifest | `/capture-screens` |
