@@ -6,7 +6,6 @@ import { parseConfirmationText } from '@/services/import/confirmationParser';
 import { createTripFromParsedData } from '@/services/import/tripAutoCreator';
 import type { ConfirmationParseResult, ParsedFlightInfo } from '@/types/import';
 import type { ParsedBoardingPass } from '@/types/boarding';
-import { useTripStore } from '@/stores/useTripStore';
 
 type ImportMode = 'paste' | 'scan';
 type ImportStatus = 'idle' | 'parsing' | 'success' | 'error';
@@ -26,19 +25,17 @@ interface UseImportTripReturn {
 
 export function useImportTrip(): UseImportTripReturn {
   const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
-  const createTrip = useTripStore(state => state.createTrip);
-  const addTripLeg = useTripStore(state => state.addTripLeg);
 
   const [mode, setMode] = useState<ImportMode>('paste');
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [confirmationText, setConfirmationText] = useState('');
 
-  const saveTripAndNavigate = useCallback(
-    async (parseResult: ConfirmationParseResult) => {
-      const { trip } = createTripFromParsedData(parseResult);
+  const navigateToReview = useCallback(
+    (parseResult: ConfirmationParseResult) => {
+      const draftResult = createTripFromParsedData(parseResult);
 
-      if (trip.legs.length === 0) {
+      if (draftResult.trip.legs.length === 0) {
         setStatus('error');
         setErrorMessage(
           'No flight or hotel information found. Try pasting a different confirmation.'
@@ -46,21 +43,12 @@ export function useImportTrip(): UseImportTripReturn {
         return;
       }
 
-      try {
-        const savedTrip = await createTrip({ ...trip, legs: [] });
-
-        for (const leg of trip.legs) {
-          await addTripLeg(savedTrip.id, leg);
-        }
-
-        setStatus('success');
-        navigation.replace('TripDetail', { tripId: savedTrip.id });
-      } catch {
-        setStatus('error');
-        setErrorMessage('Could not save the trip. Please try again.');
-      }
+      setStatus('success');
+      navigation.replace('ReviewImport', {
+        draftTripJson: JSON.stringify(draftResult),
+      });
     },
-    [createTrip, addTripLeg, navigation]
+    [navigation]
   );
 
   const handleParseConfirmation = useCallback(() => {
@@ -80,14 +68,14 @@ export function useImportTrip(): UseImportTripReturn {
         return;
       }
 
-      saveTripAndNavigate(result);
+      navigateToReview(result);
     } catch {
       setStatus('error');
       setErrorMessage(
         'Could not parse the confirmation text. Check the format and try again.'
       );
     }
-  }, [confirmationText, saveTripAndNavigate]);
+  }, [confirmationText, navigateToReview]);
 
   const handleBoardingPassScanned = useCallback(
     (parsedPass: ParsedBoardingPass) => {
@@ -112,9 +100,9 @@ export function useImportTrip(): UseImportTripReturn {
         confidence: 0.9,
       };
 
-      saveTripAndNavigate(parseResult);
+      navigateToReview(parseResult);
     },
-    [saveTripAndNavigate]
+    [navigateToReview]
   );
 
   const handleScanCancel = useCallback(() => {

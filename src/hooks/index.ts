@@ -42,5 +42,6 @@ export type { UseTripChecklistResult } from './useTripChecklist';
 export { useTripReadiness } from './useTripReadiness';
 export type { UseTripReadinessResult } from './useTripReadiness';
 export { useImportTrip } from './useImportTrip';
+export { useReviewImport } from './useReviewImport';
 export { useTheme } from '@/utils/theme';
 export type { UseThemeResult, ResolvedTheme, ColorTokens } from '@/utils/theme';

@@ -1,17 +1,6 @@
 import { renderHook, act } from '@testing-library/react-native';
 
-// Mock stores before import
-const mockCreateTrip = jest.fn().mockResolvedValue({ id: 'trip-123', name: 'Test Trip', status: 'upcoming', legs: [], createdAt: '', updatedAt: '' });
-const mockAddTripLeg = jest.fn().mockResolvedValue({});
-
-jest.mock('@/stores/useTripStore', () => ({
-  useTripStore: (selector: (state: Record<string, unknown>) => unknown) =>
-    selector({
-      createTrip: mockCreateTrip,
-      addTripLeg: mockAddTripLeg,
-    }),
-}));
-
+// Mock navigation
 const mockReplace = jest.fn();
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({
@@ -37,7 +26,6 @@ const mockCreateTripFromParsedData = createTripFromParsedData as jest.MockedFunc
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockCreateTrip.mockResolvedValue({ id: 'trip-123', name: 'Test', status: 'upcoming', legs: [], createdAt: '', updatedAt: '' });
 });
 
 describe('useImportTrip', () => {
@@ -76,7 +64,7 @@ describe('useImportTrip', () => {
     expect(result.current.errorMessage).toContain('No flight or hotel');
   });
 
-  it('creates trip and navigates on successful parse', async () => {
+  it('navigates to ReviewImport on successful parse', () => {
     const mockTrip = {
       id: 'trip-abc',
       name: 'Tokyo Trip',
@@ -96,17 +84,15 @@ describe('useImportTrip', () => {
 
     const { result } = renderHook(() => useImportTrip());
     act(() => result.current.setConfirmationText('NH101 LAX NRT'));
+    act(() => result.current.handleParseConfirmation());
 
-    await act(async () => {
-      result.current.handleParseConfirmation();
+    expect(mockReplace).toHaveBeenCalledWith('ReviewImport', {
+      draftTripJson: expect.any(String),
     });
-
-    expect(mockCreateTrip).toHaveBeenCalled();
-    expect(mockAddTripLeg).toHaveBeenCalledWith('trip-123', mockTrip.legs[0]);
-    expect(mockReplace).toHaveBeenCalledWith('TripDetail', { tripId: 'trip-123' });
+    expect(result.current.status).toBe('success');
   });
 
-  it('shows error when createTripFromParsedData returns no legs', async () => {
+  it('shows error when createTripFromParsedData returns no legs', () => {
     mockParseConfirmationText.mockReturnValue({
       flights: [{ flightNumber: 'XX123', airlineCode: 'XX' }],
       hotels: [],
@@ -120,16 +106,13 @@ describe('useImportTrip', () => {
 
     const { result } = renderHook(() => useImportTrip());
     act(() => result.current.setConfirmationText('XX123'));
-
-    await act(async () => {
-      result.current.handleParseConfirmation();
-    });
+    act(() => result.current.handleParseConfirmation());
 
     expect(result.current.status).toBe('error');
-    expect(mockCreateTrip).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 
-  it('handles boarding pass scan and creates trip', async () => {
+  it('navigates to ReviewImport on boarding pass scan', () => {
     const boardingPass: ParsedBoardingPass = {
       passengerName: 'DOE/JOHN',
       flightNumber: 'NH101',
@@ -151,17 +134,14 @@ describe('useImportTrip', () => {
     mockCreateTripFromParsedData.mockReturnValue({ trip: mockTrip, confidence: 0.9 });
 
     const { result } = renderHook(() => useImportTrip());
-
-    await act(async () => {
-      result.current.handleBoardingPassScanned(boardingPass);
-    });
+    act(() => result.current.handleBoardingPassScanned(boardingPass));
 
     expect(mockCreateTripFromParsedData).toHaveBeenCalledWith(
       expect.objectContaining({
         flights: [expect.objectContaining({ flightNumber: 'NH101', destinationCountry: 'JPN' })],
       })
     );
-    expect(mockCreateTrip).toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalledWith('ReviewImport', expect.any(Object));
   });
 
   it('resets to idle on handleRetry', () => {

@@ -36,6 +36,7 @@ export type TripStackParamList = {
   TripChecklist: { tripId: string };
   Templates: undefined;
   ImportTrip: undefined;
+  ReviewImport: { draftTripJson: string }; // JSON-serialised DraftTripResult
 };
 
 export type WalletStackParamList = {
