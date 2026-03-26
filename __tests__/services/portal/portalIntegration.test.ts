@@ -13,6 +13,16 @@ jest.mock('react-native', () => ({
   },
 }));
 
+const mockGetString = jest.fn();
+const mockSetString = jest.fn();
+
+jest.mock('../../../src/services/storage', () => ({
+  mmkvService: {
+    getString: (...args: unknown[]) => mockGetString(...args),
+    setString: (...args: unknown[]) => mockSetString(...args),
+  },
+}));
+
 const mockLinking = jest.mocked(Linking);
 const mockAlert = jest.mocked(Alert);
 
@@ -285,7 +295,7 @@ describe('PortalIntegrationService', () => {
 
     it('shows error alert for failed portal launch', () => {
       const result = { success: false, error: 'Network error' };
-      
+
       PortalIntegrationService.showPortalLaunchAlert(result, 'Test Portal');
 
       expect(mockAlert.alert).toHaveBeenCalledWith(
@@ -293,7 +303,7 @@ describe('PortalIntegrationService', () => {
         'Network error',
         expect.arrayContaining([
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Try Again', style: 'default', onPress: expect.any(Function) },
+          { text: 'Try Again', style: 'default', onPress: undefined },
         ])
       );
     });

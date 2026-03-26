@@ -19,3 +19,10 @@ export interface PortalLaunchOptions {
   prefillData?: boolean;
   trackingParams?: Record<string, string>;
 }
+
+export interface PortalAnalyticsEvent {
+  countryCode: string;
+  success: boolean;
+  errorCategory?: string; // e.g. 'timeout', 'url_invalid', 'cannot_open', 'unknown'
+  timestamp: string; // ISO 8601
+}
