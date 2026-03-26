@@ -158,6 +158,24 @@ describe('LegFormScreen action buttons', () => {
     });
   });
 
+  describe('button mutual exclusivity (E2E parity)', () => {
+    it('invalid form: save-progress visible, mark-ready absent', () => {
+      mockIsValid = false;
+      mockCompletionPercentage = 40;
+      const { getByTestId, queryByTestId } = render(<LegFormScreen />);
+      expect(getByTestId('save-progress-button')).toBeTruthy();
+      expect(queryByTestId('mark-ready-button')).toBeNull();
+    });
+
+    it('valid form: mark-ready visible, save-progress also visible as "Save Draft"', () => {
+      mockIsValid = true;
+      mockCompletionPercentage = 100;
+      const { getByTestId } = render(<LegFormScreen />);
+      expect(getByTestId('mark-ready-button')).toBeTruthy();
+      expect(getByTestId('save-progress-button')).toBeTruthy();
+    });
+  });
+
   describe('live progress status', () => {
     it('shows "Not Started" when completion is 0%', () => {
       mockCompletionPercentage = 0;
