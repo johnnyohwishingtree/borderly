@@ -7,6 +7,7 @@ import {
   Modal,
   ScrollView,
 } from 'react-native';
+import { colors } from '../../utils/colors';
 
 export interface CredentialPromptProps {
   /** Whether the prompt is visible */
@@ -128,7 +129,7 @@ export function CredentialPrompt({
                 value={username}
                 onChangeText={setUsername}
                 placeholder="you@example.com"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.gray[400]}
                 autoCapitalize="none"
                 autoCorrect={false}
                 keyboardType="email-address"
@@ -149,7 +150,7 @@ export function CredentialPrompt({
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Your password"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoCorrect={false}

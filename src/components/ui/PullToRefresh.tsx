@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { RefreshControl, ScrollView, ScrollViewProps, FlatListProps, FlatList } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
+import { colors } from '../../utils/colors';
 
 export interface PullToRefreshScrollViewProps extends Omit<ScrollViewProps, 'refreshControl'> {
   children: ReactNode;
@@ -35,13 +36,13 @@ export function PullToRefreshScrollView({
   children,
   refreshing,
   onRefresh,
-  colors = ['#3B82F6'],
-  tintColor = '#3B82F6',
+  colors: refreshColors = [colors.blue[500]],
+  tintColor = colors.blue[500],
   title,
-  titleColor = '#666666',
+  titleColor = colors.gray[600],
   enabled = true,
   progressViewOffset,
-  progressBackgroundColor = '#ffffff',
+  progressBackgroundColor = colors.white,
   size = 'default',
   hapticFeedback = true,
   ...scrollViewProps
@@ -61,7 +62,7 @@ export function PullToRefreshScrollView({
     <RefreshControl
       refreshing={refreshing}
       onRefresh={handleRefresh}
-      colors={colors}
+      colors={refreshColors}
       tintColor={tintColor}
       title={title}
       titleColor={titleColor}
@@ -86,13 +87,13 @@ export function PullToRefreshScrollView({
 export function PullToRefreshFlatList({
   refreshing,
   onRefresh,
-  colors = ['#3B82F6'],
-  tintColor = '#3B82F6',
+  colors: refreshColors = [colors.blue[500]],
+  tintColor = colors.blue[500],
   title,
-  titleColor = '#666666',
+  titleColor = colors.gray[600],
   enabled = true,
   progressViewOffset,
-  progressBackgroundColor = '#ffffff',
+  progressBackgroundColor = colors.white,
   size = 'default',
   hapticFeedback = true,
   ...flatListProps
@@ -112,7 +113,7 @@ export function PullToRefreshFlatList({
     <RefreshControl
       refreshing={refreshing}
       onRefresh={handleRefresh}
-      colors={colors}
+      colors={refreshColors}
       tintColor={tintColor}
       title={title}
       titleColor={titleColor}
