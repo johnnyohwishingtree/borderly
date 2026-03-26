@@ -7,7 +7,7 @@
  * Security: No image data is stored - only parsed text fields.
  */
 
-import type { TravelerProfile } from '../../types/profile';
+import type { TravelerProfile } from '../../../types/profile';
 
 export interface MRZParseResult {
   success: boolean;

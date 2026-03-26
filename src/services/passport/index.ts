@@ -7,6 +7,6 @@ export {
   defaultScannerConfig,
   performanceConfigs,
 } from './mrzScanner';
-export type { TextRecognition, ScanResult, ScannerConfig } from './mrzScannerTypes';
-export { parseMRZ, extractMRZFromText } from './mrzParser';
-export type { MRZParseResult } from './mrzParser';
+export type { TextRecognition, ScanResult, ScannerConfig } from './mrzScanner';
+export { parseMRZ, extractMRZFromText } from './mrzScanner/mrzParser';
+export type { MRZParseResult } from './mrzScanner/mrzParser';

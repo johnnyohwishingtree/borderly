@@ -6,7 +6,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import PassportPreview from '../../../src/components/passport/PassportPreview';
 import { type TravelerProfile } from '../../../src/types/profile';
-import { type MRZParseResult } from '../../../src/services/passport/mrzParser';
+import { type MRZParseResult } from '../../../src/services/passport/mrzScanner/mrzParser';
 
 // Mock haptic feedback
 jest.mock('react-native-haptic-feedback', () => ({

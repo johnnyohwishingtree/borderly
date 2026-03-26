@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { OnboardingStackParamList } from '../app/navigation/types';
 import { useProfileStore } from '../stores/useProfileStore';
-import { type MRZParseResult } from '../services/passport/mrzParser';
+import { type MRZParseResult } from '../services/passport/mrzScanner/mrzParser';
 import { type TravelerProfile } from '../types/profile';
 import { detectDevicePerformance } from '../utils/imageUtils';
 import { handleStorageError, handleCameraError, errorHandler } from '../services/error/errorHandler';

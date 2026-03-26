@@ -1,4 +1,4 @@
-import type { MRZParseResult } from '../../services/passport/mrzParser';
+import type { MRZParseResult } from '../../services/passport/mrzScanner/mrzParser';
 
 export interface MRZScannerProps {
   onScanSuccess: (result: MRZParseResult) => void;

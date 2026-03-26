@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { createOptimizedMRZScanner, type ScanResult, type TextRecognition } from '../services/passport/mrzScanner';
-import { parseMRZ } from '../services/passport/mrzParser';
-import type { MRZParseResult } from '../services/passport/mrzParser';
+import { parseMRZ } from '../services/passport/mrzScanner/mrzParser';
+import type { MRZParseResult } from '../services/passport/mrzScanner/mrzParser';
 import type { MRZCameraStatus, MRZPerformanceMetrics } from '../components/passport/mrzScannerTypes';
 
 interface UseMRZScannerOptions {
