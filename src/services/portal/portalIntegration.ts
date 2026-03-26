@@ -1,7 +1,8 @@
 import { Linking, Alert } from 'react-native';
 import { CountryFormSchema } from '../../types/schema';
-import type { PortalInfo, PortalLaunchOptions } from './portalIntegrationTypes';
+import type { PortalInfo, PortalLaunchOptions, PortalAnalyticsEvent } from './portalIntegrationTypes';
 import { portalMap, portalTimeEstimates } from './portalData';
+import { mmkvService } from '../storage';
 
 /**
  * Portal Integration Service
@@ -12,6 +13,8 @@ import { portalMap, portalTimeEstimates } from './portalData';
  */
 export class PortalIntegrationService {
   private static readonly PORTAL_TIMEOUT = 10000; // 10 seconds
+  private static readonly ANALYTICS_KEY = 'portal_analytics';
+  private static readonly ANALYTICS_MAX_EVENTS = 100;
 
   /**
    * Gets portal information for a specific country
@@ -196,7 +199,18 @@ export class PortalIntegrationService {
   }
 
   /**
-   * Logs portal launch events for analytics (without PII)
+   * Maps raw error messages to privacy-safe error categories
+   */
+  static categorizeError(error: string): string {
+    const lower = error.toLowerCase();
+    if (lower.includes('timeout')) return 'timeout';
+    if (lower.includes('invalid') || lower.includes('url')) return 'url_invalid';
+    if (lower.includes('cannot open') || lower.includes('can\'t open')) return 'cannot_open';
+    return 'unknown';
+  }
+
+  /**
+   * Logs portal launch events to MMKV (without PII)
    */
   private static logPortalLaunch(
     countryCode: string,
@@ -206,25 +220,46 @@ export class PortalIntegrationService {
       hasTrackingParams?: boolean;
     }
   ): void {
-    // TODO: Implement analytics logging here
-    // This would integrate with a privacy-compliant analytics service
-    // that doesn't capture any personally identifiable information
+    const analyticsEvent: PortalAnalyticsEvent = {
+      countryCode,
+      success: event.success,
+      ...(event.error ? { errorCategory: this.categorizeError(event.error) } : {}),
+      timestamp: new Date().toISOString(),
+    };
 
-    if (__DEV__) {
-      console.log('[PortalIntegration]', {
-        countryCode,
-        ...event,
-        timestamp: new Date().toISOString(),
-      });
+    const existing = this.getPortalAnalytics();
+    existing.push(analyticsEvent);
+
+    // FIFO cap: remove oldest events when exceeding limit
+    while (existing.length > this.ANALYTICS_MAX_EVENTS) {
+      existing.shift();
+    }
+
+    mmkvService.setString(this.ANALYTICS_KEY, JSON.stringify(existing));
+  }
+
+  /**
+   * Retrieves stored portal analytics events
+   */
+  static getPortalAnalytics(): PortalAnalyticsEvent[] {
+    const raw = mmkvService.getString(this.ANALYTICS_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
     }
   }
 
   /**
-   * Shows a user-friendly alert with portal launch results
+   * Shows a user-friendly alert with portal launch results.
+   * On failure, "Try Again" retries launchPortal with the same schema/options.
    */
   static showPortalLaunchAlert(
     result: { success: boolean; error?: string },
-    portalName: string
+    portalName: string,
+    schema?: CountryFormSchema,
+    options?: PortalLaunchOptions
   ): void {
     if (result.success) {
       Alert.alert(
@@ -241,9 +276,12 @@ export class PortalIntegrationService {
           {
             text: 'Try Again',
             style: 'default',
-            onPress: () => {
-              // Could retry the portal launch here
-            }
+            onPress: schema
+              ? async () => {
+                  const retryResult = await this.launchPortal(schema, options);
+                  this.showPortalLaunchAlert(retryResult, portalName, schema, options);
+                }
+              : undefined,
           }
         ]
       );
