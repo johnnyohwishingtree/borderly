@@ -79,6 +79,20 @@ describe('AddCompanionsScreen', () => {
     expect(getByTestId('companions-continue-button')).toBeTruthy();
   });
 
+  it('renders title and subtitle with testIDs', () => {
+    const { getByTestId } = render(<AddCompanionsScreen />);
+
+    const title = getByTestId('add-companions-title');
+    expect(title).toBeTruthy();
+    expect(title.props.children).toBe('Traveling with family?');
+
+    const subtitle = getByTestId('add-companions-subtitle');
+    expect(subtitle).toBeTruthy();
+    expect(subtitle.props.children).toBe(
+      'Scan their passports now so forms auto-fill for everyone',
+    );
+  });
+
   it('shows "Skip for now" when no companions added', async () => {
     const { getByText } = render(<AddCompanionsScreen />);
 
