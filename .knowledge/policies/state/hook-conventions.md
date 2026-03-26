@@ -28,6 +28,7 @@ src/hooks/, src/screens/
 
 ## Enforcement
 - `__tests__/structure/hooks-barrel.test.ts` — barrel completeness + naming
+- `__tests__/structure/hook-return-limit.test.ts` — max 10 top-level return keys
 
 ## References
 - Related: policies/state/store-boundaries.md
