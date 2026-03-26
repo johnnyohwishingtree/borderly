@@ -138,7 +138,7 @@ Present what was implemented:
 
 - **Screens** go in `src/screens/<domain>/` and are exported from domain barrel files
 - **Hooks** go in `src/hooks/` and are exported from `src/hooks/index.ts`
-- **Components** use props only — no direct store imports (see `.knowledge/concepts/dependency-direction.md`)
+- **Components** use props only — no direct store imports (see `.knowledge/policies/architecture/dependency-direction.md`)
 - **Styling** uses NativeWind `className` everywhere — no inline styles
 - **Icons** from `lucide-react-native` only — not vector-icons
 - **UI primitives** from `src/components/ui/` — check before creating new ones

@@ -3,5 +3,5 @@
 Generated from journey definitions — don't hand-edit generated/ files.
 Update screenRegistry.ts + run `pnpm maestro:generate` after UI changes.
 
-See: .knowledge/conventions/e2e-testability.md
-See: .knowledge/concepts/drift-detection.md
+See: .knowledge/policies/testing/e2e-testability.md
+See: .knowledge/policies/testing/drift-detection.md

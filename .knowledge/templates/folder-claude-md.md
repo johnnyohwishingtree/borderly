@@ -24,17 +24,17 @@ See: .knowledge/<path>.md
 ```markdown
 # Schemas
 Country form schemas. `autoFillSource` for profile fields, `countrySpecific: true` for the rest.
-See: .knowledge/domain/form-engine.md
+See: .knowledge/models/form-engine.md
 ```
 
 ```markdown
 # Hooks
 Custom hooks extracted from screens. Hooks own state + effects, screens are thin render layers.
-See: .knowledge/conventions/state-management.md
+See: .knowledge/policies/state/hook-conventions.md
 ```
 
 ```markdown
 # Stores
 Zustand stores. Stores never import other stores — cross-store coordination belongs in hooks.
-See: .knowledge/concepts/dependency-direction.md
+See: .knowledge/policies/architecture/dependency-direction.md
 ```

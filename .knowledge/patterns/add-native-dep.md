@@ -1,6 +1,6 @@
 # Pattern: Add a Native Dependency
 
-Three mandatory steps. See `.knowledge/conventions/native-modules.md` for details.
+Three mandatory steps. See `.knowledge/policies/platform/native-modules.md` for details.
 
 ## Steps (in order)
 

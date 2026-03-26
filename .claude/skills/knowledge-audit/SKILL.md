@@ -40,22 +40,9 @@ Also check `.knowledge/models/` for invariant violations in business logic.
 
 ## Step 3: Check knowledge test coverage
 
-For each `.knowledge/conventions/` file, verify a structural test exists that enforces it. Compare against `__tests__/structure/`:
+For each `.knowledge/policies/` file, read its ENFORCEMENT section and verify the referenced test exists. The `knowledge-test-coverage.test.ts` meta-test tracks the full mapping.
 
-| Convention | Expected test |
-|---|---|
-| `dependency-direction.md` | `dependency-direction.test.ts` |
-| `e2e-testability.md` | `maestro-registry-sync.test.ts` + `component-testids.test.ts` |
-| `security-boundary.md` | `pii-boundary.test.ts` |
-| `styling.md` | `no-space-x.test.ts` + `smart-component-usage.test.ts` |
-| `state-management.md` | `hooks-barrel.test.ts` |
-| `navigation.md` | `screen-folder-convention.test.ts` |
-| `native-modules.md` | `native-module-mocks.test.ts` |
-| `accessibility/` | `accessibility-props.test.ts` |
-| `testing.md` | (meta — testing conventions aren't structurally testable) |
-| `typography.md` | (design guideline — not structurally testable) |
-| `motion.md` | (design guideline — not structurally testable) |
-| `ux-writing.md` | (design guideline — not structurally testable) |
+Each policy's ENFORCEMENT section names its structural test. If a policy has no ENFORCEMENT or the test doesn't exist, that's a gap.
 
 For any policy **without** a structural test:
 1. Read its ENFORCEMENT section — does it reference a test?
@@ -134,6 +121,6 @@ Write findings to `.knowledge/gaps.md` with the test strategy included:
 - **Larger fixes**: create a story with the test strategy in the acceptance criteria
 
 ## What NOT to flag
-- Inline styles that are acceptable per `.knowledge/conventions/styling.md` exceptions
+- Inline styles that are acceptable per `.knowledge/policies/ui/styling.md` exceptions
 - Fields without `autoFillSource` that are `countrySpecific: true`
 - Empty `.knowledge/` directories

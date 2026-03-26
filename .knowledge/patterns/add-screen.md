@@ -5,8 +5,8 @@
 ### 1. `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`
 - Thin render layer — extract business logic to hooks
 - Add testIDs on interactive elements
-- Follow NativeWind styling (see `.knowledge/conventions/styling.md`)
-- Add a11y props (see `.knowledge/conventions/accessibility/component-props.md`)
+- Follow NativeWind styling (see `.knowledge/policies/ui/styling.md`)
+- Add a11y props (see `.knowledge/policies/ui/accessibility.md`)
 
 ### 2. Register in navigator
 - Add to appropriate navigator in `src/app/navigation/`

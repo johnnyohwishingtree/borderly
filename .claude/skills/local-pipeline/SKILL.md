@@ -72,7 +72,7 @@ Read the story body. Implementation order:
 pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
-**If you changed screen UI:** Follow `.knowledge/conventions/e2e-testability.md`.
+**If you changed screen UI:** Follow `.knowledge/policies/testing/e2e-testability.md`.
 
 If checks fail → fix → rerun. Up to 6 attempts.
 
@@ -87,9 +87,9 @@ If still failing after 6 → push WIP branch, create draft PR, reset to `pending
 ## Step 5: Learn — update the knowledge graph
 
 1. **Missing guidance?** → Add to `.knowledge/gaps.md` with test strategy
-2. **New concept?** → Create `.knowledge/concepts/<name>.md`
-3. **New convention?** → Create `.knowledge/conventions/<name>.md` + structural test
-4. **Directory-specific?** → Create folder CLAUDE.md pointer
+2. **New constraint?** → Create `.knowledge/policies/<scope>/<name>.md` (SCOPE/RULES/ENFORCEMENT format) + structural test
+3. **New business entity?** → Create `.knowledge/models/<name>.md` (ENTITIES/RELATIONSHIPS format)
+4. **Directory-specific?** → Create folder CLAUDE.md pointer with `See:` links to relevant policies/models
 
 ## Step 6: Self-review against rubrics
 

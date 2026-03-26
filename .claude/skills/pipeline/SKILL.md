@@ -59,7 +59,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
 **If you changed screen UI (testIDs, button text, navigation):**
-Follow `.knowledge/conventions/e2e-testability.md` — update screenRegistry, regenerate flows, commit.
+Follow `.knowledge/policies/testing/e2e-testability.md` — update screenRegistry, regenerate flows, commit.
 
 If checks fail → fix → rerun. Up to 6 attempts.
 

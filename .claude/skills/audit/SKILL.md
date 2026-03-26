@@ -51,7 +51,7 @@ Add more checks as new folder CLAUDE.md files are created — read the rules, th
 - Modules with no corresponding test file
 
 ### Architecture violations
-- Wrong dependency direction (see `.knowledge/concepts/dependency-direction.md`)
+- Wrong dependency direction (see `.knowledge/policies/architecture/dependency-direction.md`)
 - Source files over 500 lines
 
 ### Drift
@@ -96,7 +96,7 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 - `src/screens/Profile/Profile.tsx` has 7 useState calls — extract to `useProfile` hook. Test: hook unit tests + screen stays under 500 lines. (audit-YYYY-MM-DD)
 
 ## Knowledge updates
-- `.knowledge/conventions/styling.md` says no inline styles but `StatusBadge` uses `style={{}}` for dynamic opacity — add exception for computed styles. (audit-YYYY-MM-DD)
+- `.knowledge/policies/ui/styling.md` says no inline styles but `StatusBadge` uses `style={{}}` for dynamic opacity — add exception for computed styles. (audit-YYYY-MM-DD)
 
 ## Drift
 - Maestro flow references `id:submit-form-button` but source uses `id:submit-declaration-button`. Test: maestro-registry-sync.test.ts catches this. (audit-YYYY-MM-DD)

@@ -45,7 +45,7 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 - Use existing `src/components/ui/` components before creating new ones
 - Use Lucide icons from `lucide-react-native` (not vector-icons)
 - Extract business logic into hooks in `src/hooks/` if a screen has 3+ useState calls
-- Use smart components where required (see `.knowledge/domain/form-engine.md`)
+- Use smart components where required (see `.knowledge/models/form-engine.md`)
 - Never use `any` types — fix the root cause
 
 ### Step 4: Write Tests
