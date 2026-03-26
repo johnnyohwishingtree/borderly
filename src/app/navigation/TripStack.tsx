@@ -12,6 +12,7 @@ const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ 
 const PortalSubmissionScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.PortalSubmissionScreen })));
 const TripChecklistScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripChecklistScreen })));
 const TemplatesScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TemplatesScreen })));
+const ImportTripScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.ImportTripScreen })));
 
 const ScreenLoader = () => (
   <LoadingStates state="loading" variant="spinner" size="medium" text="Loading..." fullScreen={false} />
@@ -56,6 +57,9 @@ export default function TripNavigator() {
         </Stack.Screen>
         <Stack.Screen name="Templates" options={{ title: 'Trip Templates' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><TemplatesScreen /></Suspense>)}
+        </Stack.Screen>
+        <Stack.Screen name="ImportTrip" options={{ title: 'Import Trip' }}>
+          {() => (<Suspense fallback={<ScreenLoader />}><ImportTripScreen /></Suspense>)}
         </Stack.Screen>
       </Stack.Navigator>
     </ErrorBoundary>

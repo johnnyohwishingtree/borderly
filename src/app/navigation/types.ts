@@ -35,6 +35,7 @@ export type TripStackParamList = {
   };
   TripChecklist: { tripId: string };
   Templates: undefined;
+  ImportTrip: undefined;
 };
 
 export type WalletStackParamList = {

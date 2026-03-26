@@ -64,6 +64,7 @@ const SCREEN_TITLES: Record<string, string> = {
   LegForm: 'Destination Form',
   SubmissionGuide: 'Submission Guide',
   PortalSubmission: 'Portal Submission',
+  ImportTrip: 'Import Trip',
   // Profile screens
   FamilyManagement: 'Family Members',
   AddFamilyMember: 'Add Family Member',

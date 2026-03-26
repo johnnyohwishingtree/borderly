@@ -6,3 +6,4 @@ export { default as SubmissionGuideScreen } from './SubmissionGuideScreen/Submis
 export { default as PortalSubmissionScreen } from './PortalSubmissionScreen/PortalSubmissionScreen';
 export { default as TripChecklistScreen } from './TripChecklistScreen/TripChecklistScreen';
 export { default as TemplatesScreen } from './TemplatesScreen/TemplatesScreen';
+export { default as ImportTripScreen } from './ImportTripScreen/ImportTripScreen';
