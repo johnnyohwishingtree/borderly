@@ -7,6 +7,8 @@ export { useEditProfile } from './useEditProfile';
 export type { EditProfileFormData, UseEditProfileReturn } from './useEditProfile';
 export { validateEmail, validatePhoneNumber } from './useEditProfile';
 export { useEditTrip } from './useEditTrip';
+export { useHelpScreen } from './useHelpScreen';
+export type { UseHelpScreenReturn } from './useHelpScreen';
 export { useAppLock } from './useAppLock';
 export { useLoadTimeout } from './useLoadTimeout';
 export { useLegForm, deriveLegFormStatus } from './useLegForm';
