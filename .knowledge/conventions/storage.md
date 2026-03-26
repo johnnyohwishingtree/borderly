@@ -19,6 +19,17 @@ Three-tier storage. See `.knowledge/concepts/security-boundary.md` for security 
 - v3.x requires `newArchEnabled=true` — setting false breaks Android builds
 - API keys (e.g., Google Places) stored here — not sensitive enough for Keychain
 
+## Access rules
+
+All storage access should go through centralized services (`src/services/storage/`). Direct imports of `react-native-keychain` or `react-native-mmkv` in hooks, screens, or utilities are violations.
+
+**Legitimate exceptions** (security tools that need raw access):
+- `LockScreen.tsx` — biometric capability check
+- `useAppLock.ts` — biometric auth prompt
+- `keychainValidator.ts` — Keychain health validation
+- `dataLeakDetector.ts` — scans storage for PII leaks
+- `privacyAudit.ts` — inventories all storage tiers
+
 ## Anti-patterns
 - **Passport data in MMKV or WatermelonDB** — passport data belongs in OS Keychain only
 - **Storing encryption keys alongside encrypted data** — key goes in Keychain, data in WatermelonDB
