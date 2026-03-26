@@ -26,6 +26,15 @@ export {
   type FormContext,
 } from './fieldMapper';
 
+// Field matching for AutoFill extension
+export {
+  matchField,
+  matchAllFields,
+  detectCountryFromUrl,
+  type InputAttributes,
+  type FieldMatchResult,
+} from './fieldMatcher';
+
 // Validation utilities
 export {
   createFieldSchema,
