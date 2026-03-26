@@ -34,5 +34,6 @@ src/utils/, src/services/
 - `portal/` (5 files, detection logic) — overlaps `src/services/portal/`
 
 ## Enforcement
-- No structural test yet — story #853 pending
-- Manual review during `/knowledge-audit`
+- Structural test: `__tests__/structure/utils-boundary.test.ts`
+- Runs at `pnpm test` time — catches storage imports, oversized directories, and lifecycle exports
+- Known violations (`automation`, `portal`, `performanceOptimization`) tracked in `KNOWN_VIOLATIONS` set — stories #947, #948 will clear them
