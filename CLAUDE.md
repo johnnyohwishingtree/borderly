@@ -58,14 +58,14 @@ pnpm e2e              # E2E smoke tests (Playwright)
 
 Project knowledge lives in `.knowledge/` — the pipeline reads and improves these files.
 
-| Directory | What's documented |
-|-----------|-------------------|
-| `concepts/` | local-first architecture, security boundary, dependency direction, drift detection |
-| `conventions/` | testing, styling, storage, navigation, state management, native modules, accessibility |
-| `domain/` | passport/MRZ, form engine, submission guide, QR wallet, country-specific rules |
-| `patterns/` | add-country, add-screen, add-native-dep |
-| `templates/` | module, test, story, epic, skill structure |
-| `rubrics/` | code quality, test quality, skill quality criteria |
+| Engine | Directory | Purpose |
+|--------|-----------|---------|
+| Policies | `policies/` | ALLOW/DENY/REQUIRE rules (architecture, data, ui, state, testing, platform) |
+| Models | `models/` | Business entities (form-engine, passport, qr-wallet, submission-guide) |
+| Domain | `domain/countries/` | Per-country portal metadata |
+| Patterns | `patterns/` | Multi-step recipes (add-country, add-screen, add-native-dep) |
+| Templates | `templates/` | File structure (module, test, story, epic, skill) |
+| Rubrics | `rubrics/` | Quality evaluation (code, test, skill) |
 
 See `.knowledge/index.md` for the full system map.
 

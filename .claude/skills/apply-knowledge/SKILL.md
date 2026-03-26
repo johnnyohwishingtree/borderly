@@ -24,13 +24,13 @@ Read the specified `.knowledge/` file. Extract:
 - **Anti-patterns**: concrete "never do this" statements
 - **Scope**: which directories/file types the rules apply to (infer from the content or use `--scope`)
 
-If the file is in `conventions/`, it applies to source code.
-If the file is in `concepts/`, it applies to architecture/structure.
-If the file is in `domain/`, it applies to schemas/business logic.
+If the file is a **policy** (`policies/`), read its SCOPE section — it tells you exactly what directories to scan and what RULES to check.
+If the file is a **model** (`models/`), read its INVARIANTS — check the code enforces them.
 
 ## Step 2: Determine what to scan
 
-Map the knowledge file to the directories it governs:
+For policies: read the **SCOPE** section — it lists the exact directories.
+For models: read the **KEY FILES** section — those are the files to check.
 
 | Knowledge file | Default scan scope |
 |---|---|

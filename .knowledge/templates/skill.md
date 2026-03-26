@@ -8,6 +8,8 @@ argument-hint: "[optional args]"
 
 <One paragraph: what this skill does and when to use it.>
 
+**Matching rubric:** `.knowledge/rubrics/skill-quality.md`
+
 ## Usage
 ```
 /<skill-name>              # Default invocation

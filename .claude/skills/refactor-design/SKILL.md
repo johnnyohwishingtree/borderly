@@ -20,9 +20,9 @@ Identify and fix architecture issues: dependency violations, oversized files, mi
 ### Step 1: Load Architecture Rules
 
 Read the enforced constraints:
-- `.knowledge/concepts/dependency-direction.md` — Screens -> Hooks -> Stores -> Services
-- `.knowledge/conventions/state-management.md` — Extract business logic into hooks
-- `.knowledge/domain/form-engine.md` — Smart components for specialized fields
+- `.knowledge/policies/architecture/dependency-direction.md` — Screens -> Hooks -> Stores -> Services
+- `.knowledge/policies/state/hook-conventions.md` — Extract business logic into hooks
+- `.knowledge/models/form-engine.md` — Smart components for specialized fields
 - `.claude/rules/file-size-limits.md` — Files under 500 lines
 
 ### Step 2: Scan for Violations
