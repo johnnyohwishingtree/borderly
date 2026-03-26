@@ -177,16 +177,16 @@ describe('usePortalSubmission — initial state', () => {
   it('returns route params from navigation', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
-    expect(result.current.url).toBe('https://example.com');
-    expect(result.current.countryCode).toBe('JPN');
-    expect(result.current.tripId).toBe('trip_1');
-    expect(result.current.legId).toBe('leg_1');
+    expect(result.current.route.url).toBe('https://example.com');
+    expect(result.current.route.countryCode).toBe('JPN');
+    expect(result.current.route.tripId).toBe('trip_1');
+    expect(result.current.route.legId).toBe('leg_1');
   });
 
   it('initialises navState with url from route and loading true', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
-    expect(result.current.navState).toEqual({
+    expect(result.current.state.navState).toEqual({
       url: 'https://example.com',
       loading: true,
       canGoBack: false,
@@ -196,32 +196,32 @@ describe('usePortalSubmission — initial state', () => {
 
   it('initialises currentStep to 1', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.currentStep).toBe(1);
+    expect(result.current.state.currentStep).toBe(1);
   });
 
   it('initialises isPanelOpen to false', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.isPanelOpen).toBe(false);
+    expect(result.current.state.isPanelOpen).toBe(false);
   });
 
   it('initialises showIncompleteMessage to false', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.showIncompleteMessage).toBe(false);
+    expect(result.current.state.showIncompleteMessage).toBe(false);
   });
 
   it('initialises qrPayload to null', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.qrPayload).toBeNull();
+    expect(result.current.state.qrPayload).toBeNull();
   });
 
   it('initialises pageType to unknown', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.pageType).toBe('unknown');
+    expect(result.current.state.pageType).toBe('unknown');
   });
 
   it('initialises pillDismissed to false', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.pillDismissed).toBe(false);
+    expect(result.current.state.pillDismissed).toBe(false);
   });
 
   it('provides a webViewRef', () => {
@@ -232,13 +232,13 @@ describe('usePortalSubmission — initial state', () => {
 
   it('computes totalSteps from schema submissionGuide length', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.totalSteps).toBe(2);
+    expect(result.current.derived.totalSteps).toBe(2);
   });
 
   it('computes progressPercent from currentStep and totalSteps', () => {
     const { result } = renderHook(() => usePortalSubmission());
     // currentStep=1, totalSteps=2 => 50%
-    expect(result.current.progressPercent).toBe(50);
+    expect(result.current.derived.progressPercent).toBe(50);
   });
 });
 
@@ -249,19 +249,19 @@ describe('usePortalSubmission — togglePanel', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.togglePanel();
+      result.current.actions.togglePanel();
     });
 
-    expect(result.current.isPanelOpen).toBe(true);
+    expect(result.current.state.isPanelOpen).toBe(true);
   });
 
   it('toggles isPanelOpen back to false on second call', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
-    act(() => { result.current.togglePanel(); });
-    act(() => { result.current.togglePanel(); });
+    act(() => { result.current.actions.togglePanel(); });
+    act(() => { result.current.actions.togglePanel(); });
 
-    expect(result.current.isPanelOpen).toBe(false);
+    expect(result.current.state.isPanelOpen).toBe(false);
   });
 });
 
@@ -272,10 +272,10 @@ describe('usePortalSubmission — dismissPill', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.dismissPill();
+      result.current.actions.dismissPill();
     });
 
-    expect(result.current.pillDismissed).toBe(true);
+    expect(result.current.state.pillDismissed).toBe(true);
   });
 });
 
@@ -286,10 +286,10 @@ describe('usePortalSubmission — dismissQrPayload', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.dismissQrPayload();
+      result.current.actions.dismissQrPayload();
     });
 
-    expect(result.current.qrPayload).toBeNull();
+    expect(result.current.state.qrPayload).toBeNull();
   });
 });
 
@@ -306,7 +306,7 @@ describe('usePortalSubmission — webview controls', () => {
     };
 
     act(() => {
-      result.current.handleGoBack();
+      result.current.webViewHandlers.handleGoBack();
     });
 
     expect(mockInjectJS).toHaveBeenCalledWith('window.history.back(); true;');
@@ -321,7 +321,7 @@ describe('usePortalSubmission — webview controls', () => {
     };
 
     act(() => {
-      result.current.handleGoForward();
+      result.current.webViewHandlers.handleGoForward();
     });
 
     expect(mockInjectJS).toHaveBeenCalledWith('window.history.forward(); true;');
@@ -336,7 +336,7 @@ describe('usePortalSubmission — webview controls', () => {
     };
 
     act(() => {
-      result.current.handleRefresh();
+      result.current.webViewHandlers.handleRefresh();
     });
 
     expect(mockInjectJS).toHaveBeenCalledWith('window.location.reload(); true;');
@@ -346,7 +346,7 @@ describe('usePortalSubmission — webview controls', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     expect(() => {
-      act(() => { result.current.handleGoBack(); });
+      act(() => { result.current.webViewHandlers.handleGoBack(); });
     }).not.toThrow();
   });
 
@@ -354,7 +354,7 @@ describe('usePortalSubmission — webview controls', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     expect(() => {
-      act(() => { result.current.handleGoForward(); });
+      act(() => { result.current.webViewHandlers.handleGoForward(); });
     }).not.toThrow();
   });
 
@@ -362,7 +362,7 @@ describe('usePortalSubmission — webview controls', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     expect(() => {
-      act(() => { result.current.handleRefresh(); });
+      act(() => { result.current.webViewHandlers.handleRefresh(); });
     }).not.toThrow();
   });
 });
@@ -374,7 +374,7 @@ describe('usePortalSubmission — handleClose', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.handleClose();
+      result.current.actions.handleClose();
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip_1' });
@@ -388,7 +388,7 @@ describe('usePortalSubmission — handleContinueManually', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.handleContinueManually();
+      result.current.actions.handleContinueManually();
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('SubmissionGuide', {
@@ -412,22 +412,22 @@ describe('usePortalSubmission — handleNavigationChange', () => {
     };
 
     act(() => {
-      result.current.handleNavigationChange(newState);
+      result.current.webViewHandlers.handleNavigationChange(newState);
     });
 
-    expect(result.current.navState).toEqual(newState);
+    expect(result.current.state.navState).toEqual(newState);
   });
 
   it('resets pageType and pillDismissed when URL changes', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     // First, set pillDismissed to true
-    act(() => { result.current.dismissPill(); });
-    expect(result.current.pillDismissed).toBe(true);
+    act(() => { result.current.actions.dismissPill(); });
+    expect(result.current.state.pillDismissed).toBe(true);
 
     // Navigate to a new URL
     act(() => {
-      result.current.handleNavigationChange({
+      result.current.webViewHandlers.handleNavigationChange({
         url: 'https://example.com/new-page',
         loading: false,
         canGoBack: true,
@@ -435,18 +435,18 @@ describe('usePortalSubmission — handleNavigationChange', () => {
       });
     });
 
-    expect(result.current.pillDismissed).toBe(false);
-    expect(result.current.pageType).toBe('unknown');
+    expect(result.current.state.pillDismissed).toBe(false);
+    expect(result.current.state.pageType).toBe('unknown');
     expect(mockResetForNewPage).toHaveBeenCalled();
   });
 
   it('does not reset when URL stays the same', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
-    act(() => { result.current.dismissPill(); });
+    act(() => { result.current.actions.dismissPill(); });
 
     act(() => {
-      result.current.handleNavigationChange({
+      result.current.webViewHandlers.handleNavigationChange({
         url: 'https://example.com',
         loading: false,
         canGoBack: false,
@@ -455,7 +455,7 @@ describe('usePortalSubmission — handleNavigationChange', () => {
     });
 
     // pillDismissed should remain true since URL did not change
-    expect(result.current.pillDismissed).toBe(true);
+    expect(result.current.state.pillDismissed).toBe(true);
   });
 });
 
@@ -466,10 +466,10 @@ describe('usePortalSubmission — handleOpenWallet', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
-      result.current.handleOpenWallet();
+      result.current.actions.handleOpenWallet();
     });
 
-    expect(result.current.qrPayload).toBeNull();
+    expect(result.current.state.qrPayload).toBeNull();
     expect(mockNavigate).toHaveBeenCalledWith('Main', { screen: 'Wallet' });
   });
 });
@@ -479,22 +479,22 @@ describe('usePortalSubmission — handleOpenWallet', () => {
 describe('usePortalSubmission — sub-hook exposure', () => {
   it('exposes availableProfiles from usePortalProfiles', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.availableProfiles).toEqual([]);
+    expect(result.current.profiles.availableProfiles).toEqual([]);
   });
 
   it('exposes selectedProfileId from usePortalProfiles', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.selectedProfileId).toBe('profile_primary');
+    expect(result.current.profiles.selectedProfileId).toBe('profile_primary');
   });
 
   it('exposes loadError from useLoadTimeout', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.loadError).toBeNull();
+    expect(result.current.derived.loadError).toBeNull();
   });
 
   it('exposes schema from schemaRegistry', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.schema).toBeDefined();
-    expect(result.current.schema?.countryCode).toBe('JPN');
+    expect(result.current.derived.schema).toBeDefined();
+    expect(result.current.derived.schema?.countryCode).toBe('JPN');
   });
 });
