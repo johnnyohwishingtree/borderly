@@ -78,6 +78,35 @@ jest.mock('@/components/settings/ThemeSelector', () => {
   return () => <View testID="theme-selector" />;
 });
 
+jest.mock('@/components/settings/PortalAccountsCard', () => {
+  const { View, Text } = require('react-native');
+  return {
+    PortalAccountsCard: ({ portalCredentials }: any) => (
+      <View testID="portal-accounts-card">
+        <Text>Portal Accounts</Text>
+        {portalCredentials?.map((c: any) => (
+          <Text key={c.id} testID={`portal-cred-${c.id}`}>{c.portalName}</Text>
+        ))}
+      </View>
+    ),
+  };
+});
+
+jest.mock('@/components/settings/DataManagementCard', () => {
+  const { View, Text, TouchableOpacity } = require('react-native');
+  return {
+    DataManagementCard: ({ onExportData, onRestoreBackup, onClearCache, onDeleteAllData }: any) => (
+      <View testID="data-management-card">
+        <Text>Data Management</Text>
+        <TouchableOpacity testID="export-data-button" onPress={onExportData}><Text>Export</Text></TouchableOpacity>
+        <TouchableOpacity testID="restore-backup-button" onPress={onRestoreBackup}><Text>Restore</Text></TouchableOpacity>
+        <TouchableOpacity testID="clear-cache-button" onPress={onClearCache}><Text>Clear Cache</Text></TouchableOpacity>
+        <TouchableOpacity testID="delete-all-data-button" onPress={onDeleteAllData}><Text>Delete All</Text></TouchableOpacity>
+      </View>
+    ),
+  };
+});
+
 jest.mock('@/components/ui', () => {
   const { View, Text, TouchableOpacity } = require('react-native');
   return {
@@ -361,5 +390,192 @@ describe('SettingsScreen — App Lock section', () => {
     const { getByTestId, queryByTestId } = render(<SettingsScreen />);
     expect(getByTestId('app-lock-unavailable')).toBeTruthy();
     expect(queryByTestId('app-lock-toggle')).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Rendering — all settings sections
+// ---------------------------------------------------------------------------
+
+describe('SettingsScreen — section rendering', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it('renders the Settings header', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Settings')).toBeTruthy();
+    expect(getByText('App preferences and data management')).toBeTruthy();
+  });
+
+  it('renders Security & Privacy section', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Security & Privacy')).toBeTruthy();
+    expect(getByText('Biometric Authentication')).toBeTruthy();
+  });
+
+  it('renders Appearance & Language section', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Appearance & Language')).toBeTruthy();
+    expect(getByText('Theme')).toBeTruthy();
+  });
+
+  it('renders Analytics & Diagnostics section', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Analytics & Diagnostics')).toBeTruthy();
+    expect(getByText('Anonymous Analytics')).toBeTruthy();
+    expect(getByText('Crash Reporting')).toBeTruthy();
+  });
+
+  it('renders Form Data section', () => {
+    const { getByTestId, getByText } = render(<SettingsScreen />);
+    expect(getByTestId('form-data-card')).toBeTruthy();
+    expect(getByText('Form Data')).toBeTruthy();
+  });
+
+  it('renders App Information section with version', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('App Information')).toBeTruthy();
+    expect(getByText('1.0.0 (MVP)')).toBeTruthy();
+  });
+
+  it('renders supported countries in App Information', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Japan • Malaysia • Singapore')).toBeTruthy();
+  });
+
+  it('renders Quick Actions section', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Quick Actions')).toBeTruthy();
+    expect(getByText('Refresh')).toBeTruthy();
+    expect(getByText('Reset')).toBeTruthy();
+  });
+
+  it('renders Help & Support section', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Help & Support')).toBeTruthy();
+    expect(getByText('Help & FAQ')).toBeTruthy();
+    expect(getByText('Send Feedback')).toBeTruthy();
+    expect(getByText('Privacy Policy')).toBeTruthy();
+  });
+
+  it('renders Notification Preferences row', () => {
+    const { getByTestId, getByText } = render(<SettingsScreen />);
+    expect(getByTestId('notification-preferences-row')).toBeTruthy();
+    expect(getByText('Notification Preferences')).toBeTruthy();
+    expect(getByText('Deadline reminders, timing, quiet hours')).toBeTruthy();
+  });
+
+  it('renders Local-First Privacy info', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Local-First Privacy')).toBeTruthy();
+    expect(getByText('Your data never leaves this device unless you explicitly share it.')).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+describe('SettingsScreen — theme', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it('renders ThemeSelector component', () => {
+    const { getByTestId } = render(<SettingsScreen />);
+    expect(getByTestId('theme-selector')).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Biometric security badge
+// ---------------------------------------------------------------------------
+
+describe('SettingsScreen — security badge', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('shows "Protected" badge when biometric is enabled', () => {
+    setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: true } });
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Protected')).toBeTruthy();
+  });
+
+  it('shows "Basic" badge when biometric is disabled', () => {
+    setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: false } });
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('Basic')).toBeTruthy();
+  });
+
+  it('shows "Enhanced Security Active" message when biometric enabled', () => {
+    setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: true } });
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText(/Enhanced Security Active/)).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Navigation interactions
+// ---------------------------------------------------------------------------
+
+describe('SettingsScreen — navigation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it('notification preferences row navigates to NotificationPreferences', () => {
+    const { getByTestId } = render(<SettingsScreen />);
+    fireEvent.press(getByTestId('notification-preferences-row'));
+    expect(mockNavigate).toHaveBeenCalledWith('NotificationPreferences');
+  });
+
+  it('Help & FAQ button navigates to Help', () => {
+    const { getByText } = render(<SettingsScreen />);
+    fireEvent.press(getByText('Help & FAQ'));
+    expect(mockNavigate).toHaveBeenCalledWith('Help');
+  });
+
+  it('Privacy Policy button navigates to PrivacyPolicy', () => {
+    const { getByText } = render(<SettingsScreen />);
+    fireEvent.press(getByText('Privacy Policy'));
+    expect(mockNavigate).toHaveBeenCalledWith('PrivacyPolicy');
+  });
+
+  it('Send Feedback button navigates to Feedback', () => {
+    const { getByText } = render(<SettingsScreen />);
+    fireEvent.press(getByText('Send Feedback'));
+    expect(mockNavigate).toHaveBeenCalledWith('Feedback');
+  });
+
+  it('Report Bug button navigates to BugReport', () => {
+    const { getByText } = render(<SettingsScreen />);
+    fireEvent.press(getByText('Report Bug'));
+    expect(mockNavigate).toHaveBeenCalledWith('BugReport');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Form Data / Schema refresh
+// ---------------------------------------------------------------------------
+
+describe('SettingsScreen — form data', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it('shows "No schema data available yet" when no schemas exist', () => {
+    const { getByText } = render(<SettingsScreen />);
+    expect(getByText('No schema data available yet.')).toBeTruthy();
+  });
+
+  it('renders refresh schemas button', () => {
+    const { getByTestId } = render(<SettingsScreen />);
+    expect(getByTestId('refresh-schemas-button')).toBeTruthy();
   });
 });
