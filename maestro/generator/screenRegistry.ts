@@ -396,6 +396,23 @@ export const SCREENS: Record<string, ScreenSpec> = {
     navigatesTo: ['CreateTrip'],
   },
 
+  ImportTrip: {
+    name: 'ImportTrip',
+    sourceFile: 'src/screens/trips/ImportTripScreen/ImportTripScreen.tsx',
+    waitFor: 'import-confirmation-input',
+    fields: [
+      { testID: 'import-confirmation-input', label: 'Booking confirmation text', componentType: 'other', required: true },
+    ],
+    alerts: [],
+    actionButtons: [
+      { testID: 'import-tab-paste', label: 'Paste Confirmation', description: 'Switch to paste mode' },
+      { testID: 'import-tab-scan', label: 'Scan Boarding Pass', description: 'Switch to camera scan mode' },
+      { testID: 'import-parse-button', label: 'Import Trip', description: 'Parse and import the confirmation text' },
+      { testID: 'import-try-again-button', label: 'Try Again', description: 'Retry after error' },
+    ],
+    navigatesTo: ['TripDetail'],
+  },
+
   Settings: {
     name: 'Settings',
     sourceFile: 'src/screens/settings/SettingsScreen/SettingsScreen.tsx',

@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { Plane, Search, X } from 'lucide-react-native';
+import { Plane, Search, X, FileDown } from 'lucide-react-native';
 import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
 import { useTripList } from '@/hooks/useTripList';
 import { TripCard, DuplicateTripModal, DeadlineSummary } from '@/components/trips';
@@ -42,6 +42,7 @@ export default function TripListScreen() {
     handleTripPress,
     handleCreateTrip,
     handleCreateFromTemplate,
+    handleImportTrip,
     handleGoToForm,
     handleDeleteTrip,
   } = useTripList();
@@ -152,6 +153,17 @@ export default function TripListScreen() {
             </Text>
           </View>
           <View className="flex-row items-center gap-x-2">
+            <TouchableOpacity
+              onPress={handleImportTrip}
+              className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
+              activeOpacity={0.7}
+              testID="import-trip-button"
+              accessibilityRole="button"
+              accessibilityLabel="Import trip"
+              accessibilityHint="Import a trip from a booking confirmation or boarding pass"
+            >
+              <FileDown size={16} color="#374151" />
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={handleCreateFromTemplate}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"

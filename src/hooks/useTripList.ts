@@ -65,6 +65,7 @@ export interface UseTripListReturn {
   handleTripPress: (trip: Trip) => void;
   handleCreateTrip: () => void;
   handleCreateFromTemplate: () => void;
+  handleImportTrip: () => void;
   handleGoToForm: (tripId: string, legId: string) => void;
   handleDeleteTrip: (trip: Trip) => void;
 }
@@ -208,6 +209,11 @@ export function useTripList(): UseTripListReturn {
     (navigation as any).navigate('Templates');
   }, [navigation]);
 
+  const handleImportTrip = useCallback(() => {
+    HapticFeedback.button('medium');
+    (navigation as any).navigate('ImportTrip');
+  }, [navigation]);
+
   const handleGoToForm = useCallback((tripId: string, legId: string) => {
     (navigation as any).navigate('LegForm', { tripId, legId });
   }, [navigation]);
@@ -285,6 +291,7 @@ export function useTripList(): UseTripListReturn {
     handleTripPress,
     handleCreateTrip,
     handleCreateFromTemplate,
+    handleImportTrip,
     handleGoToForm,
     handleDeleteTrip,
   };
