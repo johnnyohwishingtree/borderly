@@ -55,6 +55,10 @@ export function QRSaveOverlay({
   const translateY = useRef(new Animated.Value(300)).current;
   const [overlayState, setOverlayState] = useState<OverlayState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [primaryPressed, setPrimaryPressed] = useState(false);
+  const [secondaryPressed, setSecondaryPressed] = useState(false);
+  const [savePressed, setSavePressed] = useState(false);
+  const [skipPressed, setSkipPressed] = useState(false);
   // Keep a ref to know whether the overlay is currently animated in.
   const isVisible = useRef(false);
 
@@ -113,26 +117,26 @@ export function QRSaveOverlay({
       style={[styles.container, { transform: [{ translateY }] }]}
       testID={testID ?? 'qr-save-overlay'}
     >
-      <View style={styles.sheet}>
+      <View className="bg-white rounded-t-[20px] shadow-lg elevation-16 pb-8">
         {/* Drag handle */}
-        <View style={styles.dragHandle} />
+        <View className="w-9 h-1 bg-gray-300 rounded-sm self-center mt-3 mb-4" />
 
         {/* Header row */}
-        <View style={styles.headerRow}>
-          <View style={styles.headerTextContainer}>
+        <View className="flex-row items-center px-5 mb-3">
+          <View className="flex-1">
             {overlayState === 'saved' ? (
-              <View style={styles.savedTitleRow}>
+              <View className="flex-row items-center">
                 <CheckCircle size={20} color="#16A34A" />
-                <Text style={styles.savedTitleText} testID="qr-overlay-title">
+                <Text className="ml-2 text-base font-bold text-green-900" testID="qr-overlay-title">
                   QR Code Saved!
                 </Text>
               </View>
             ) : (
-              <Text style={styles.titleText} testID="qr-overlay-title">
+              <Text className="text-base font-bold text-gray-900" testID="qr-overlay-title">
                 QR Code Detected
               </Text>
             )}
-            <Text style={styles.subtitleText} testID="qr-overlay-subtitle">
+            <Text className="text-[13px] text-gray-500 mt-0.5" testID="qr-overlay-subtitle">
               {overlayState === 'saved'
                 ? `Saved from ${portalName} to your QR Wallet`
                 : `${portalName} generated a QR code`}
@@ -156,10 +160,10 @@ export function QRSaveOverlay({
 
         {/* QR image preview */}
         {payload?.qrImageBase64 && overlayState !== 'saved' && (
-          <View style={styles.qrPreviewContainer} testID="qr-overlay-preview">
+          <View className="items-center mb-4 px-5" testID="qr-overlay-preview">
             <Image
               source={{ uri: payload.qrImageBase64 }}
-              style={styles.qrImage}
+              className="w-[140px] h-[140px] rounded-lg border border-gray-200"
               resizeMode="contain"
               accessibilityLabel="Detected QR code preview"
               testID="qr-overlay-image"
@@ -169,9 +173,9 @@ export function QRSaveOverlay({
 
         {/* Confirmation number */}
         {payload?.confirmationNumber && overlayState !== 'saved' && (
-          <View style={styles.confirmationContainer} testID="qr-overlay-confirmation">
-            <Text style={styles.refLabel}>Reference Number</Text>
-            <Text style={styles.refNumber} testID="qr-overlay-ref-number">
+          <View className="mx-5 mb-4 bg-gray-50 rounded-lg p-3" testID="qr-overlay-confirmation">
+            <Text className="text-xs text-gray-500 mb-0.5">Reference Number</Text>
+            <Text className="text-sm font-semibold text-gray-900" testID="qr-overlay-ref-number">
               {payload.confirmationNumber}
             </Text>
           </View>
@@ -179,36 +183,34 @@ export function QRSaveOverlay({
 
         {/* Error message */}
         {overlayState === 'error' && errorMessage && (
-          <View style={styles.errorContainer} testID="qr-overlay-error">
-            <Text style={styles.errorText}>{errorMessage}</Text>
+          <View className="mx-5 mb-3 bg-red-50 rounded-lg p-3 border border-red-200" testID="qr-overlay-error">
+            <Text className="text-[13px] text-red-900">{errorMessage}</Text>
           </View>
         )}
 
         {/* Actions */}
-        <View style={styles.actionsContainer}>
+        <View className="px-5 mt-1">
           {overlayState === 'saved' ? (
             <>
               <Pressable
                 onPress={onOpenWallet}
-                style={({ pressed }) => [
-                  styles.primaryButton,
-                  { backgroundColor: pressed ? '#1D4ED8' : '#2563EB' },
-                ]}
+                onPressIn={() => setPrimaryPressed(true)}
+                onPressOut={() => setPrimaryPressed(false)}
+                className={`rounded-xl py-3.5 items-center ${primaryPressed ? 'bg-blue-700' : 'bg-blue-600'}`}
                 accessibilityLabel="Open QR wallet"
                 testID="qr-overlay-open-wallet"
               >
-                <Text style={styles.primaryButtonText}>Open QR Wallet</Text>
+                <Text className="text-white font-bold text-[15px]">Open QR Wallet</Text>
               </Pressable>
               <Pressable
                 onPress={onDismiss}
-                style={({ pressed }) => [
-                  styles.secondaryButton,
-                  { backgroundColor: pressed ? '#F3F4F6' : '#FFFFFF' },
-                ]}
+                onPressIn={() => setSecondaryPressed(true)}
+                onPressOut={() => setSecondaryPressed(false)}
+                className={`rounded-xl py-3.5 items-center border border-gray-200 mt-2.5 ${secondaryPressed ? 'bg-gray-100' : 'bg-white'}`}
                 accessibilityLabel="Back to trip"
                 testID="qr-overlay-back-to-trip"
               >
-                <Text style={styles.secondaryButtonText}>Back to Trip</Text>
+                <Text className="text-gray-700 font-semibold text-[15px]">Back to Trip</Text>
               </Pressable>
             </>
           ) : (
@@ -216,38 +218,35 @@ export function QRSaveOverlay({
               <Pressable
                 onPress={handleSave}
                 disabled={overlayState === 'saving'}
-                style={({ pressed }) => [
-                  styles.saveButton,
-                  {
-                    backgroundColor:
-                      overlayState === 'saving'
-                        ? '#93C5FD'
-                        : pressed
-                        ? '#1D4ED8'
-                        : '#2563EB',
-                  },
-                ]}
+                onPressIn={() => setSavePressed(true)}
+                onPressOut={() => setSavePressed(false)}
+                className={`rounded-xl py-3.5 items-center flex-row justify-center ${
+                  overlayState === 'saving'
+                    ? 'bg-blue-300'
+                    : savePressed
+                    ? 'bg-blue-700'
+                    : 'bg-blue-600'
+                }`}
                 accessibilityLabel="Save QR code to wallet"
                 testID="qr-overlay-save-button"
               >
-                <View style={styles.saveButtonIcon}>
+                <View className="mr-2">
                   <Download size={18} color="#FFFFFF" />
                 </View>
-                <Text style={styles.primaryButtonText}>
+                <Text className="text-white font-bold text-[15px]">
                   {overlayState === 'saving' ? 'Saving…' : 'Save QR to Wallet'}
                 </Text>
               </Pressable>
 
               <Pressable
                 onPress={onDismiss}
-                style={({ pressed }) => [
-                  styles.skipButton,
-                  { backgroundColor: pressed ? '#F3F4F6' : '#FFFFFF' },
-                ]}
+                onPressIn={() => setSkipPressed(true)}
+                onPressOut={() => setSkipPressed(false)}
+                className={`rounded-xl py-3.5 items-center mt-2.5 ${skipPressed ? 'bg-gray-100' : 'bg-white'}`}
                 accessibilityLabel="Skip saving QR code"
                 testID="qr-overlay-skip-button"
               >
-                <Text style={styles.skipButtonText}>
+                <Text className="text-gray-500 font-semibold text-[15px]">
                   {overlayState === 'error' ? 'Skip (Screenshot Manually)' : 'Skip'}
                 </Text>
               </Pressable>
@@ -267,146 +266,7 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 100,
   },
-  sheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 16,
-    paddingBottom: 32,
-  },
-  dragHandle: {
-    width: 36,
-    height: 4,
-    backgroundColor: '#D1D5DB',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  headerTextContainer: {
-    flex: 1,
-  },
-  savedTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  savedTitleText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#166534',
-  },
-  titleText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  subtitleText: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 2,
-  },
   dismissButton: {
     padding: 6,
-  },
-  qrPreviewContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 20,
-  },
-  qrImage: {
-    width: 140,
-    height: 140,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  confirmationContainer: {
-    marginHorizontal: 20,
-    marginBottom: 16,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    padding: 12,
-  },
-  refLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 2,
-  },
-  refNumber: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  errorContainer: {
-    marginHorizontal: 20,
-    marginBottom: 12,
-    backgroundColor: '#FEF2F2',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#FECACA',
-  },
-  errorText: {
-    fontSize: 13,
-    color: '#991B1B',
-  },
-  actionsContainer: {
-    paddingHorizontal: 20,
-    marginTop: 4,
-  },
-  primaryButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  secondaryButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginTop: 10,
-  },
-  secondaryButtonText: {
-    color: '#374151',
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  saveButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  saveButtonIcon: {
-    marginRight: 8,
-  },
-  skipButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  skipButtonText: {
-    color: '#6B7280',
-    fontWeight: '600',
-    fontSize: 15,
   },
 });

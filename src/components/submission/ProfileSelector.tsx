@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { ChevronDown, ChevronUp, User } from 'lucide-react-native';
 
 export interface ProfileOption {
@@ -31,6 +31,7 @@ export function ProfileSelector({
   testID,
 }: ProfileSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
 
   const selectedProfile = profiles.find(p => p.id === selectedProfileId);
   const displayLabel = selectedProfile
@@ -42,12 +43,14 @@ export function ProfileSelector({
       {/* Trigger button */}
       <Pressable
         onPress={() => setIsOpen(prev => !prev)}
-        style={({ pressed }) => [styles.trigger, pressed && styles.triggerPressed]}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        className={`flex-row items-center rounded-lg px-2.5 py-2 gap-1.5 ${isPressed ? 'bg-gray-200' : 'bg-gray-100'}`}
         accessibilityLabel="Select profile for auto-fill"
         testID="profile-selector-trigger"
       >
         <User size={14} color="#6B7280" />
-        <Text style={styles.triggerText} numberOfLines={1} testID="profile-selector-label">
+        <Text className="flex-1 text-[13px] text-gray-700 font-medium" numberOfLines={1} testID="profile-selector-label">
           {displayLabel}
         </Text>
         {isOpen ? (
@@ -60,8 +63,8 @@ export function ProfileSelector({
       {/* Dropdown options */}
       {isOpen && (
         <ScrollView
-          style={styles.dropdown}
-          contentContainerStyle={styles.dropdownContent}
+          className="max-h-[200px] mt-1 bg-white rounded-lg border border-gray-200 shadow-sm elevation-3"
+          contentContainerClassName="py-1"
           nestedScrollEnabled
           testID="profile-selector-dropdown"
         >
@@ -74,22 +77,18 @@ export function ProfileSelector({
                   onSelect(profile.id);
                   setIsOpen(false);
                 }}
-                style={({ pressed }) => [
-                  styles.option,
-                  isSelected && styles.optionSelected,
-                  pressed && styles.optionPressed,
-                ]}
+                className={`flex-row items-center px-3 py-2.5 ${isSelected ? 'bg-blue-50' : ''}`}
                 accessibilityLabel={`Select ${profile.name}`}
                 testID={`profile-option-${profile.id}`}
               >
                 <Text
-                  style={[styles.optionText, isSelected && styles.optionTextSelected]}
+                  className={`flex-1 text-[13px] ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
                   numberOfLines={1}
                 >
                   {profile.name} ({profile.relationship})
                 </Text>
                 {isSelected && (
-                  <View style={styles.selectedDot} testID={`profile-selected-dot-${profile.id}`} />
+                  <View className="w-2 h-2 rounded-full bg-blue-600 ml-2" testID={`profile-selected-dot-${profile.id}`} />
                 )}
               </Pressable>
             );
@@ -99,68 +98,3 @@ export function ProfileSelector({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  trigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    gap: 6,
-  },
-  triggerPressed: {
-    backgroundColor: '#E5E7EB',
-  },
-  triggerText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#374151',
-    fontWeight: '500',
-  },
-  dropdown: {
-    maxHeight: 200,
-    marginTop: 4,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dropdownContent: {
-    paddingVertical: 4,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  optionSelected: {
-    backgroundColor: '#EFF6FF',
-  },
-  optionPressed: {
-    backgroundColor: '#F3F4F6',
-  },
-  optionText: {
-    flex: 1,
-    fontSize: 13,
-    color: '#374151',
-  },
-  optionTextSelected: {
-    color: '#2563EB',
-    fontWeight: '600',
-  },
-  selectedDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#2563EB',
-    marginLeft: 8,
-  },
-});
