@@ -477,4 +477,49 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       expect(queryByTestId('save-credentials-prompt')).toBeNull();
     });
   });
+
+  // ── Initial render — no banners before PAGE_TYPE_CHECK ──────────────────
+
+  describe('initial render — no login banners before any page type detection', () => {
+    it('does NOT show auto-login-failed-banner on initial render', () => {
+      mockResolvePortalCredential.mockResolvedValue(null);
+
+      const { queryByTestId } = render(<PortalSubmissionScreen />);
+
+      // Before any PAGE_TYPE_CHECK message, the banner must not be present
+      expect(queryByTestId('auto-login-failed-banner')).toBeNull();
+    });
+
+    it('does NOT show auto-login-progress-banner on initial render', () => {
+      mockResolvePortalCredential.mockResolvedValue(null);
+
+      const { queryByTestId } = render(<PortalSubmissionScreen />);
+
+      expect(queryByTestId('auto-login-progress-banner')).toBeNull();
+    });
+
+    it('does NOT show auth-page-banner on initial render', () => {
+      mockResolvePortalCredential.mockResolvedValue(null);
+
+      const { queryByTestId } = render(<PortalSubmissionScreen />);
+
+      expect(queryByTestId('auth-page-banner')).toBeNull();
+    });
+
+    it('does NOT show any login banners even when credentials exist', async () => {
+      // Credentials exist but no PAGE_TYPE_CHECK has been sent yet —
+      // banners should NOT appear until the page is classified as 'auth'.
+      mockResolvePortalCredential.mockResolvedValue({
+        username: 'alice@example.com',
+        password: 'secret',
+      });
+
+      const { queryByTestId } = render(<PortalSubmissionScreen />);
+      await flushPromises();
+
+      expect(queryByTestId('auto-login-failed-banner')).toBeNull();
+      expect(queryByTestId('auto-login-progress-banner')).toBeNull();
+      expect(queryByTestId('auth-page-banner')).toBeNull();
+    });
+  });
 });

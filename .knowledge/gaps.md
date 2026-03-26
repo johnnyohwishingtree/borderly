@@ -9,7 +9,6 @@ Findings from audits and pipeline runs. Fix stories resolve these and remove the
 - E2E `leg-form-action-buttons` — 2 tests fail: "Save Progress" button visibility assertions broken after LegForm button refactor (#821). Test: update testIDs/assertions to match new button layout. (audit-2026-03-25)
 - E2E `trip-detail` — traveler avatar assertions fail after per-traveler progress feature (#781). Test: update assertions for new traveler UI. (audit-2026-03-25)
 - E2E `trip-list` — deadline badge assertion fails after deadline summary feature (#786). Test: update assertions for new deadline UI. (audit-2026-03-25)
-- E2E `portalSubmission.spec.ts:483` — auto-login-failed-banner assertion fails. Fix story: #885
 
 ## Knowledge updates
 

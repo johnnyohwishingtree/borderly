@@ -1,6 +1,6 @@
 module.exports = {
   setInternetCredentials: () => Promise.resolve(true),
-  getInternetCredentials: () => Promise.resolve({ password: '{}' }),
+  getInternetCredentials: () => Promise.resolve(false),
   resetInternetCredentials: () => Promise.resolve(true),
   setGenericPassword: () => Promise.resolve(true),
   getGenericPassword: () => Promise.resolve(false),
