@@ -330,7 +330,7 @@ export default function TripListScreen() {
           maxToRenderPerBatch={5}
           windowSize={10}
           removeClippedSubviews={true}
-          getItemLayout={(_: any, index: number) => ({
+          getItemLayout={(_data, index) => ({
             length: 200,
             offset: 200 * index,
             index,

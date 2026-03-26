@@ -209,7 +209,8 @@ describe('notificationScheduler', () => {
 
     it('skips deadlines with no submissionDeadline', async () => {
       const trip = makeTrip();
-      const { submissionDeadline: _, ...rest } = makeDeadline();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { submissionDeadline, ...rest } = makeDeadline();
       const deadline: LegDeadline = {
         ...rest,
         status: 'no-deadline',

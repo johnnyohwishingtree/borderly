@@ -1,22 +1,6 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const COUNTRY_LABELS: Record<string, string> = {
-  USA: 'United States',
-  AUS: 'Australia',
-  CAN: 'Canada',
-  GBR: 'United Kingdom',
-  JPN: 'Japan',
-};
-
-/** Select a country in a SearchableSelect dropdown by testID */
-async function selectCountry(page: Page, testID: string, code: string) {
-  const label = COUNTRY_LABELS[code] || code;
-  await page.getByTestId(`${testID}-trigger`).click();
-  await page.getByTestId(`${testID}-search`).fill(label);
-  await page.getByTestId(`${testID}-option-${code}`).click();
-}
-
 /**
  * Navigate to a screen using the imperative navigation ref.
  * Returns true if navigation succeeded, false otherwise.
