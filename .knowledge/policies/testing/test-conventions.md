@@ -32,6 +32,7 @@ __tests__/, src/**/*.test.ts
 - `from '@/hooks'` barrel import in test → pulls all hook dependencies → OOM
 - Re-running CI to check if a fix worked instead of writing a unit test
 - `useNavigation: () => ({ goBack: mockFn })` creates a new object per render → infinite useEffect loop; use `const mockNav = { goBack: mockFn }; useNavigation: () => mockNav`
+- Using `queryByText(...).toBeNull()` to test Modal hidden state — RN `Modal` renders children even when `visible={false}` in RNTL. Use `UNSAFE_getByType(Modal).props.visible` to assert visibility instead
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit
