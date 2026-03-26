@@ -25,25 +25,15 @@ export default function TripDetailScreen() {
 
   const {
     trip,
-    familyMembers,
-    deadlineMap,
-    submissionProgress,
-    progress,
-    isDuplicating,
-    duplicateError,
-    resetDuplicateError,
-    currentProfileId,
-    tripReadiness,
-    isReadinessLoading,
+    state: { familyMembers, deadlineMap, isDuplicating, duplicateError, currentProfileId },
+    derived: { submissionProgress, progress, tripReadiness, isReadinessLoading },
     editHook,
-    handleReadinessNavigate,
-    handleLegPress,
-    handleDeleteTrip,
-    handleSaveAsTemplate,
-    handleConfirmDuplicate,
-    handleMarkAsSubmitted,
-    getStatusColor,
-    getStatusText,
+    actions: {
+      handleReadinessNavigate, handleLegPress, handleDeleteTrip,
+      handleSaveAsTemplate, handleConfirmDuplicate, handleMarkAsSubmitted,
+      resetDuplicateError,
+    },
+    ui: { getStatusColor, getStatusText },
   } = useTripDetail({ tripId });
 
   const tripTravelers = useMemo(() => {
