@@ -55,3 +55,7 @@ The India e-Arrival Card has 6 sections:
 - Passport must be valid for at least 6 months from date of arrival
 - Each traveler submits individually (no family/group submissions)
 - The arrival card can be submitted up to 14 days before arrival; no fee required
+
+## autoFillMapping Status
+- `occupation`: mapped from canonical `OCCUPATIONS` enums (updated to canonical keys)
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

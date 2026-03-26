@@ -51,3 +51,6 @@ The Indonesia e-CD has 6 sections:
 - **QR code output:** After submission, travelers receive a QR code to present at customs
 - **Bali travelers:** Most use Ngurah Rai International Airport (DPS)
 - Passport must be valid for at least 6 months from arrival date
+
+## autoFillMapping Status
+- `occupation`: mapped from canonical `OCCUPATIONS` enums (updated to canonical keys)

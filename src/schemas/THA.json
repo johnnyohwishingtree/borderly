@@ -14,13 +14,20 @@
     "complexity": "medium",
     "popularity": 90,
     "lastVerified": "2026-03-15T00:00:00Z",
-    "supportedLanguages": ["en", "th"],
+    "supportedLanguages": [
+      "en",
+      "th"
+    ],
     "implementationStatus": "coming_soon",
     "statusNote": "Thailand Pass (COVID-era mandatory app) was discontinued on May 1, 2022. Thailand is developing a Thailand Digital Arrival Card (TDAC) system to replace paper TM6 forms, but as of early 2026 it is not yet mandatory for all travelers. This schema will be updated when TDAC launches officially. The portalUrl above (tp.consular.go.th) is the former Thailand Pass URL — the new TDAC portal URL is not yet confirmed.",
     "maintenanceFrequency": "as_needed"
   },
   "changeDetection": {
-    "monitoredSelectors": ["#main-form", ".form-section", ".submit-button"],
+    "monitoredSelectors": [
+      "#main-form",
+      ".form-section",
+      ".submit-button"
+    ],
     "changeThreshold": 15,
     "fallbackActions": [
       {
@@ -71,10 +78,22 @@
           "countrySpecific": false,
           "autoFillSource": "profile.title",
           "options": [
-            { "value": "Mr", "label": "Mr." },
-            { "value": "Mrs", "label": "Mrs." },
-            { "value": "Ms", "label": "Ms." },
-            { "value": "Dr", "label": "Dr." }
+            {
+              "value": "Mr",
+              "label": "Mr."
+            },
+            {
+              "value": "Mrs",
+              "label": "Mrs."
+            },
+            {
+              "value": "Ms",
+              "label": "Ms."
+            },
+            {
+              "value": "Dr",
+              "label": "Dr."
+            }
           ]
         },
         {
@@ -162,13 +181,43 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "medical", "label": "Medical Treatment" },
-            { "value": "education", "label": "Education" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Treatment"
+            },
+            {
+              "value": "education",
+              "label": "Education"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "tourism",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "lengthOfStay",
@@ -195,13 +244,34 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "hotel", "label": "Hotel" },
-            { "value": "resort", "label": "Resort" },
-            { "value": "hostel", "label": "Hostel" },
-            { "value": "guesthouse", "label": "Guesthouse" },
-            { "value": "apartment", "label": "Apartment/Condo" },
-            { "value": "friend_family", "label": "Friend/Family" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "hotel",
+              "label": "Hotel"
+            },
+            {
+              "value": "resort",
+              "label": "Resort"
+            },
+            {
+              "value": "hostel",
+              "label": "Hostel"
+            },
+            {
+              "value": "guesthouse",
+              "label": "Guesthouse"
+            },
+            {
+              "value": "apartment",
+              "label": "Apartment/Condo"
+            },
+            {
+              "value": "friend_family",
+              "label": "Friend/Family"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ]
         },
         {
@@ -243,9 +313,18 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "fully_vaccinated", "label": "Fully Vaccinated (2+ doses)" },
-            { "value": "not_vaccinated", "label": "Not Vaccinated" },
-            { "value": "partially_vaccinated", "label": "Partially Vaccinated (1 dose)" }
+            {
+              "value": "fully_vaccinated",
+              "label": "Fully Vaccinated (2+ doses)"
+            },
+            {
+              "value": "not_vaccinated",
+              "label": "Not Vaccinated"
+            },
+            {
+              "value": "partially_vaccinated",
+              "label": "Partially Vaccinated (1 dose)"
+            }
           ],
           "helpText": "Thailand's requirements vary based on vaccination status"
         },
@@ -293,7 +372,15 @@
       "order": 3,
       "title": "Enter Personal Information",
       "description": "Fill in your passport details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["title", "firstName", "lastName", "dateOfBirth", "nationality", "passportNumber", "passportExpiry"],
+      "fieldsOnThisScreen": [
+        "title",
+        "firstName",
+        "lastName",
+        "dateOfBirth",
+        "nationality",
+        "passportNumber",
+        "passportExpiry"
+      ],
       "tips": [
         "Double-check spelling - it must match your passport exactly",
         "Ensure your passport is valid for at least 6 months"
@@ -303,7 +390,13 @@
       "order": 4,
       "title": "Travel Information",
       "description": "Enter your flight details and travel purpose.",
-      "fieldsOnThisScreen": ["arrivalDate", "flightNumber", "departureCountry", "purposeOfVisit", "lengthOfStay"],
+      "fieldsOnThisScreen": [
+        "arrivalDate",
+        "flightNumber",
+        "departureCountry",
+        "purposeOfVisit",
+        "lengthOfStay"
+      ],
       "tips": [
         "Flight details can be updated later if they change",
         "Make sure your arrival date matches your flight booking"
@@ -313,7 +406,12 @@
       "order": 5,
       "title": "Accommodation Details",
       "description": "Provide details of where you'll be staying in Thailand.",
-      "fieldsOnThisScreen": ["accommodationType", "hotelName", "hotelAddress", "hotelPhone"],
+      "fieldsOnThisScreen": [
+        "accommodationType",
+        "hotelName",
+        "hotelAddress",
+        "hotelPhone"
+      ],
       "tips": [
         "If staying multiple places, enter your first accommodation",
         "Hotel booking confirmation may be required"
@@ -323,7 +421,11 @@
       "order": 6,
       "title": "Health and Insurance Information",
       "description": "Declare your vaccination status and insurance coverage.",
-      "fieldsOnThisScreen": ["vaccinationStatus", "hasInsurance", "emergencyContact"],
+      "fieldsOnThisScreen": [
+        "vaccinationStatus",
+        "hasInsurance",
+        "emergencyContact"
+      ],
       "tips": [
         "Vaccination certificates may need to be uploaded",
         "Insurance must cover COVID-19 treatment",
@@ -359,8 +461,14 @@
     "version": "1.0.0",
     "entryUrl": "https://tp.consular.go.th/",
     "testMode": true,
-    "successIndicators": [".confirmation-page", "#qr-code-display"],
-    "failureIndicators": [".error-message", ".form-error"],
+    "successIndicators": [
+      ".confirmation-page",
+      "#qr-code-display"
+    ],
+    "failureIndicators": [
+      ".error-message",
+      ".form-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "confirmationNumber",

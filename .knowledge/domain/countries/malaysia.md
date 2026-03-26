@@ -38,3 +38,6 @@ Typical manual fields: `arrivalAirport`, `purposeOfVisit`, `healthCondition`, `v
 ## Change Detection
 - Monitored selectors: `.mdac-form`, `.arrival-form`, `#submit-application`
 - Threshold: 15% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

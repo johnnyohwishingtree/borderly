@@ -14,12 +14,19 @@
     "complexity": "medium",
     "popularity": 65,
     "lastVerified": "2026-03-22T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "quarterly"
   },
   "changeDetection": {
-    "monitoredSelectors": ["#nztd-form", ".nztd-section", ".submit-button", ".declaration-section"],
+    "monitoredSelectors": [
+      "#nztd-form",
+      ".nztd-section",
+      ".submit-button",
+      ".declaration-section"
+    ],
     "changeThreshold": 15,
     "fallbackActions": [
       {
@@ -103,9 +110,18 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" },
-            { "value": "X", "label": "Another gender" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            },
+            {
+              "value": "X",
+              "label": "Another gender"
+            }
           ]
         },
         {
@@ -202,14 +218,47 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "holiday", "label": "Holiday / Vacation" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_family_friends", "label": "Visiting Family / Friends" },
-            { "value": "education", "label": "Education / Study" },
-            { "value": "employment", "label": "Employment" },
-            { "value": "transit", "label": "In Transit" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "holiday",
+              "label": "Holiday / Vacation"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_family_friends",
+              "label": "Visiting Family / Friends"
+            },
+            {
+              "value": "education",
+              "label": "Education / Study"
+            },
+            {
+              "value": "employment",
+              "label": "Employment"
+            },
+            {
+              "value": "transit",
+              "label": "In Transit"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "holiday",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "other",
+            "FAMILY_VISIT": "visiting_family_friends",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "intendedLengthOfStay",
@@ -356,7 +405,13 @@
       "order": 2,
       "title": "Enter Personal Details",
       "description": "Fill in your personal information exactly as it appears on your passport, including family name, given names, date of birth, and gender.",
-      "fieldsOnThisScreen": ["familyName", "givenNames", "dateOfBirth", "gender", "nationality"],
+      "fieldsOnThisScreen": [
+        "familyName",
+        "givenNames",
+        "dateOfBirth",
+        "gender",
+        "nationality"
+      ],
       "tips": [
         "Use the exact spelling as shown on your passport — no abbreviations",
         "If your passport shows only one name, enter it as your family name"
@@ -366,7 +421,12 @@
       "order": 3,
       "title": "Enter Passport Details",
       "description": "Enter your passport number, expiry date, the country that issued your passport, and your email address for your NZTD reference code.",
-      "fieldsOnThisScreen": ["passportNumber", "passportExpiry", "passportCountry", "email"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportExpiry",
+        "passportCountry",
+        "email"
+      ],
       "tips": [
         "Double-check your passport number carefully",
         "New Zealand requires your passport to be valid for at least 3 months beyond your intended stay",
@@ -377,7 +437,14 @@
       "order": 4,
       "title": "Enter Travel Details",
       "description": "Provide your flight number, arrival date, New Zealand arrival airport, purpose of visit, and the country you are travelling from.",
-      "fieldsOnThisScreen": ["flightNumber", "arrivalDate", "arrivalAirport", "purposeOfVisit", "intendedLengthOfStay", "departureCountry"],
+      "fieldsOnThisScreen": [
+        "flightNumber",
+        "arrivalDate",
+        "arrivalAirport",
+        "purposeOfVisit",
+        "intendedLengthOfStay",
+        "departureCountry"
+      ],
       "tips": [
         "Your flight number is on your boarding pass or e-ticket",
         "Select the correct arrival airport — NZ has multiple international airports (AKL, CHC, WLG, ZQN)",
@@ -388,7 +455,11 @@
       "order": 5,
       "title": "Enter New Zealand Address",
       "description": "Provide the address where you will be staying in New Zealand. Use your first accommodation address if visiting multiple places.",
-      "fieldsOnThisScreen": ["nzAddressLine1", "nzAddressCity", "nzAddressPostcode"],
+      "fieldsOnThisScreen": [
+        "nzAddressLine1",
+        "nzAddressCity",
+        "nzAddressPostcode"
+      ],
       "tips": [
         "If staying in multiple locations, enter the first address",
         "Transit passengers may use the transit area or hotel address",
@@ -399,7 +470,12 @@
       "order": 6,
       "title": "Biosecurity Declarations",
       "description": "Declare whether you are carrying any food, plant material, animal products, or equipment that has been in contact with soil or fresh water. New Zealand has strict biosecurity laws to protect its unique environment — when in doubt, declare it.",
-      "fieldsOnThisScreen": ["hasFoodItems", "hasPlantItems", "hasAnimalItems", "hasSoilOrWaterItems"],
+      "fieldsOnThisScreen": [
+        "hasFoodItems",
+        "hasPlantItems",
+        "hasAnimalItems",
+        "hasSoilOrWaterItems"
+      ],
       "tips": [
         "New Zealand biosecurity is among the strictest in the world — always declare if unsure",
         "Officers can inspect and allow permitted items through at the border",
@@ -412,7 +488,11 @@
       "order": 7,
       "title": "Goods Declarations",
       "description": "Declare any currency over NZD 10,000, controlled or prohibited items, or dutiable goods exceeding the duty-free allowance.",
-      "fieldsOnThisScreen": ["hasCurrencyOver10000", "hasControlledItems", "hasGoodsExceedingAllowance"],
+      "fieldsOnThisScreen": [
+        "hasCurrencyOver10000",
+        "hasControlledItems",
+        "hasGoodsExceedingAllowance"
+      ],
       "tips": [
         "Declare all currency — this is a reporting requirement, not a restriction or tax",
         "The personal duty-free allowance is NZD 700 total value (per person)",
@@ -438,7 +518,15 @@
     "version": "1.0.0",
     "entryUrl": "https://www.nztravellerdeclaration.govt.nz",
     "testMode": true,
-    "successIndicators": [".confirmation-message", "#submission-reference", ".nztd-complete"],
-    "failureIndicators": [".error-message", ".form-error", ".validation-error"]
+    "successIndicators": [
+      ".confirmation-message",
+      "#submission-reference",
+      ".nztd-complete"
+    ],
+    "failureIndicators": [
+      ".error-message",
+      ".form-error",
+      ".validation-error"
+    ]
   }
 }

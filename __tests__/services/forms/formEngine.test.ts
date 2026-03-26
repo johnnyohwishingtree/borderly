@@ -37,7 +37,7 @@ const mockProfile: TravelerProfile = {
     postalCode: '10001',
     country: 'USA',
   },
-  occupation: 'Software Engineer',
+  occupation: 'SOFTWARE_DEVELOPER',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: false,

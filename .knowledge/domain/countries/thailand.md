@@ -42,3 +42,6 @@ Typical manual fields: `departureCountry`, `purposeOfVisit`, `accommodationType`
 ## Change Detection
 - Monitored selectors: `#main-form`, `.form-section`, `.submit-button`
 - Threshold: 15% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

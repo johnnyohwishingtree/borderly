@@ -48,3 +48,7 @@ The Philippines eTravel has 5 sections:
 - **Passport validity:** Must be valid for at least 6 months from arrival
 - **Kalibo (KLO):** Gateway airport for Boracay Island travelers
 - **Puerto Princesa (PPS):** Gateway for Palawan / El Nido travelers
+
+## autoFillMapping Status
+- `occupation`: mapped from canonical `OCCUPATIONS` enums (updated to canonical keys)
+- `purposeOfTravel`: mapped from canonical `PURPOSES_OF_VISIT` enums

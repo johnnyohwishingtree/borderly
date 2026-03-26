@@ -46,3 +46,8 @@ Typical manual: `maritalStatus`, `previousNames`, `dualCitizenship`, `immigratio
 ## Change Detection
 - Monitored selectors: `.eta-form`, `.form-group`, `#submit-eta`
 - Threshold: 10% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums
+- `maritalStatus`: mapped from canonical `MARITAL_STATUSES` enums
+- `occupation`: text field, passes canonical occupation value directly

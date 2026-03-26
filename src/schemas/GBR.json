@@ -14,12 +14,18 @@
     "complexity": "medium",
     "popularity": 85,
     "lastVerified": "2026-03-07T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "planned",
     "maintenanceFrequency": "quarterly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".eta-application-form", ".form-section", "#submit-application"],
+    "monitoredSelectors": [
+      ".eta-application-form",
+      ".form-section",
+      "#submit-application"
+    ],
     "changeThreshold": 10,
     "fallbackActions": [
       {
@@ -70,14 +76,38 @@
           "required": false,
           "countrySpecific": false,
           "options": [
-            { "value": "Mr", "label": "Mr" },
-            { "value": "Mrs", "label": "Mrs" },
-            { "value": "Miss", "label": "Miss" },
-            { "value": "Ms", "label": "Ms" },
-            { "value": "Dr", "label": "Dr" },
-            { "value": "Prof", "label": "Professor" },
-            { "value": "Rev", "label": "Reverend" },
-            { "value": "Other", "label": "Other" }
+            {
+              "value": "Mr",
+              "label": "Mr"
+            },
+            {
+              "value": "Mrs",
+              "label": "Mrs"
+            },
+            {
+              "value": "Miss",
+              "label": "Miss"
+            },
+            {
+              "value": "Ms",
+              "label": "Ms"
+            },
+            {
+              "value": "Dr",
+              "label": "Dr"
+            },
+            {
+              "value": "Prof",
+              "label": "Professor"
+            },
+            {
+              "value": "Rev",
+              "label": "Reverend"
+            },
+            {
+              "value": "Other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#title",
@@ -165,9 +195,18 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" },
-            { "value": "X", "label": "Unspecified" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            },
+            {
+              "value": "X",
+              "label": "Unspecified"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -368,16 +407,55 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "employed", "label": "Employed" },
-            { "value": "self_employed", "label": "Self-employed" },
-            { "value": "unemployed", "label": "Unemployed" },
-            { "value": "retired", "label": "Retired" },
-            { "value": "student", "label": "Student" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "employed",
+              "label": "Employed"
+            },
+            {
+              "value": "self_employed",
+              "label": "Self-employed"
+            },
+            {
+              "value": "unemployed",
+              "label": "Unemployed"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#employment-status",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.occupation",
+          "autoFillMapping": {
+            "SOFTWARE_DEVELOPER": "employed",
+            "ENGINEER": "employed",
+            "ACCOUNTANT": "employed",
+            "LAWYER": "employed",
+            "DOCTOR": "employed",
+            "NURSE": "employed",
+            "TEACHER": "employed",
+            "GOVERNMENT_WORKER": "employed",
+            "MILITARY": "employed",
+            "SELF_EMPLOYED": "self_employed",
+            "BUSINESS_OWNER": "self_employed",
+            "FREELANCER": "self_employed",
+            "STUDENT": "student",
+            "HOMEMAKER": "other",
+            "RETIRED": "retired",
+            "UNEMPLOYED": "unemployed",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -430,17 +508,50 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_family", "label": "Visiting family or friends" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "study_short", "label": "Short-term study (up to 6 months)" },
-            { "value": "medical", "label": "Medical treatment" },
-            { "value": "other", "label": "Other permitted activity" }
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_family",
+              "label": "Visiting family or friends"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "study_short",
+              "label": "Short-term study (up to 6 months)"
+            },
+            {
+              "value": "medical",
+              "label": "Medical treatment"
+            },
+            {
+              "value": "other",
+              "label": "Other permitted activity"
+            }
           ],
           "automation": {
             "selector": "#visit-purpose",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "study_short",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "visiting_family",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -536,7 +647,16 @@
       "order": 3,
       "title": "Enter Personal Details",
       "description": "Fill in your personal information exactly as it appears on your passport.",
-      "fieldsOnThisScreen": ["title", "givenNames", "familyName", "otherNames", "dateOfBirth", "countryOfBirth", "nationality", "gender"],
+      "fieldsOnThisScreen": [
+        "title",
+        "givenNames",
+        "familyName",
+        "otherNames",
+        "dateOfBirth",
+        "countryOfBirth",
+        "nationality",
+        "gender"
+      ],
       "tips": [
         "Names must match your passport exactly",
         "Include all given names as shown",
@@ -547,7 +667,12 @@
       "order": 4,
       "title": "Passport Information",
       "description": "Enter your passport details from the data page.",
-      "fieldsOnThisScreen": ["passportNumber", "passportCountryOfIssue", "passportIssueDate", "passportExpiryDate"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportCountryOfIssue",
+        "passportIssueDate",
+        "passportExpiryDate"
+      ],
       "tips": [
         "Your passport must be valid for the duration of your stay",
         "Check passport number carefully",
@@ -558,7 +683,11 @@
       "order": 5,
       "title": "Contact Information",
       "description": "Provide your email address and phone number for updates about your application.",
-      "fieldsOnThisScreen": ["email", "confirmEmail", "phoneNumber"],
+      "fieldsOnThisScreen": [
+        "email",
+        "confirmEmail",
+        "phoneNumber"
+      ],
       "tips": [
         "Use an email you check regularly",
         "You'll receive your ETA approval by email",
@@ -569,7 +698,14 @@
       "order": 6,
       "title": "Home Address",
       "description": "Enter your current permanent address in your home country.",
-      "fieldsOnThisScreen": ["addressLine1", "addressLine2", "city", "county", "postalCode", "country"],
+      "fieldsOnThisScreen": [
+        "addressLine1",
+        "addressLine2",
+        "city",
+        "county",
+        "postalCode",
+        "country"
+      ],
       "tips": [
         "Use your permanent address",
         "Include postal or zip code if applicable",
@@ -580,7 +716,11 @@
       "order": 7,
       "title": "Employment Details",
       "description": "Provide information about your current employment status and occupation.",
-      "fieldsOnThisScreen": ["employmentStatus", "occupation", "employerName"],
+      "fieldsOnThisScreen": [
+        "employmentStatus",
+        "occupation",
+        "employerName"
+      ],
       "tips": [
         "Be accurate about your employment status",
         "Students should select 'Student'",
@@ -591,7 +731,11 @@
       "order": 8,
       "title": "Travel Information",
       "description": "Enter details about your planned visit to the UK.",
-      "fieldsOnThisScreen": ["arrivalDate", "visitPurpose", "ukAddress"],
+      "fieldsOnThisScreen": [
+        "arrivalDate",
+        "visitPurpose",
+        "ukAddress"
+      ],
       "tips": [
         "Arrival date can be approximate",
         "Your ETA is valid for 2 years once approved",
@@ -602,7 +746,12 @@
       "order": 9,
       "title": "Security Questions",
       "description": "Answer the mandatory security and background questions truthfully.",
-      "fieldsOnThisScreen": ["criminalRecord", "immigrationBreach", "ukRefusal", "terrorismAssociation"],
+      "fieldsOnThisScreen": [
+        "criminalRecord",
+        "immigrationBreach",
+        "ukRefusal",
+        "terrorismAssociation"
+      ],
       "tips": [
         "Answer all questions honestly",
         "False information may result in refusal",
@@ -651,8 +800,14 @@
     "version": "1.0.0",
     "entryUrl": "https://www.gov.uk/apply-electronic-travel-authorisation",
     "testMode": true,
-    "successIndicators": [".application-complete", "#eta-approval"],
-    "failureIndicators": [".govuk-error-summary", ".form-error"],
+    "successIndicators": [
+      ".application-complete",
+      "#eta-approval"
+    ],
+    "failureIndicators": [
+      ".govuk-error-summary",
+      ".form-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "applicationReference",

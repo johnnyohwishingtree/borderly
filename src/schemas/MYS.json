@@ -14,12 +14,19 @@
     "complexity": "medium",
     "popularity": 80,
     "lastVerified": "2025-06-01T00:00:00Z",
-    "supportedLanguages": ["en", "ms"],
+    "supportedLanguages": [
+      "en",
+      "ms"
+    ],
     "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".mdac-form", ".arrival-form", "#submit-application"],
+    "monitoredSelectors": [
+      ".mdac-form",
+      ".arrival-form",
+      "#submit-application"
+    ],
     "changeThreshold": 15,
     "fallbackActions": [
       {
@@ -114,8 +121,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ]
         },
         {
@@ -176,15 +189,51 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism/Holiday" },
-            { "value": "business", "label": "Business" },
-            { "value": "visiting_family", "label": "Visiting Family/Friends" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "conference", "label": "Conference/Meeting" },
-            { "value": "medical", "label": "Medical Treatment" },
-            { "value": "education", "label": "Education" },
-            { "value": "other", "label": "Other" }
-          ]
+            {
+              "value": "tourism",
+              "label": "Tourism/Holiday"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "visiting_family",
+              "label": "Visiting Family/Friends"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "conference",
+              "label": "Conference/Meeting"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Treatment"
+            },
+            {
+              "value": "education",
+              "label": "Education"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ],
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "visiting_family",
+            "CONFERENCE": "conference",
+            "OTHER": "other",
+            "_default": "other"
+          }
         },
         {
           "id": "durationOfStay",
@@ -289,7 +338,17 @@
       "order": 2,
       "title": "Enter Personal Information",
       "description": "Fill in your passport details exactly as shown on your passport document.",
-      "fieldsOnThisScreen": ["surname", "givenNames", "dateOfBirth", "nationality", "passportNumber", "passportExpiry", "gender", "email", "phoneNumber"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "givenNames",
+        "dateOfBirth",
+        "nationality",
+        "passportNumber",
+        "passportExpiry",
+        "gender",
+        "email",
+        "phoneNumber"
+      ],
       "tips": [
         "Use the same name format as your passport",
         "Ensure email is valid as you'll receive a confirmation",
@@ -300,8 +359,13 @@
       "order": 3,
       "title": "Travel Details",
       "description": "Provide your flight and travel information for entry into Malaysia.",
-      "fieldsOnThisScreen": ["arrivalDate", "arrivalAirport", "flightNumber", "purposeOfVisit", "durationOfStay"],
-
+      "fieldsOnThisScreen": [
+        "arrivalDate",
+        "arrivalAirport",
+        "flightNumber",
+        "purposeOfVisit",
+        "durationOfStay"
+      ],
       "tips": [
         "Select the correct airport - KLIA and KLIA2 are different",
         "Duration of stay affects your visa validity"
@@ -311,7 +375,11 @@
       "order": 4,
       "title": "Accommodation Information",
       "description": "Enter details of where you will be staying in Malaysia.",
-      "fieldsOnThisScreen": ["hotelName", "hotelAddress", "hotelPhone"],
+      "fieldsOnThisScreen": [
+        "hotelName",
+        "hotelAddress",
+        "hotelPhone"
+      ],
       "tips": [
         "If staying multiple places, provide the first accommodation",
         "Full address including state and postal code is required"
@@ -321,7 +389,12 @@
       "order": 5,
       "title": "Health and Declaration",
       "description": "Answer health screening and customs declaration questions honestly.",
-      "fieldsOnThisScreen": ["healthCondition", "visitedHighRiskCountries", "carryingCurrency", "carryingProhibitedItems"],
+      "fieldsOnThisScreen": [
+        "healthCondition",
+        "visitedHighRiskCountries",
+        "carryingCurrency",
+        "carryingProhibitedItems"
+      ],
       "tips": [
         "False declarations can result in serious legal consequences",
         "If you have medical conditions, bring supporting documentation"

@@ -14,12 +14,18 @@
     "complexity": "medium",
     "popularity": 75,
     "lastVerified": "2026-03-25T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "planned",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".etravel-form", ".registration-section", "#submit-registration"],
+    "monitoredSelectors": [
+      ".etravel-form",
+      ".registration-section",
+      "#submit-registration"
+    ],
     "changeThreshold": 20,
     "fallbackActions": [
       {
@@ -118,8 +124,14 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -158,24 +170,65 @@
           "autoFillSource": "profile.occupation",
           "countrySpecific": true,
           "options": [
-            { "value": "employee", "label": "Employee" },
-            { "value": "business_owner", "label": "Business Owner" },
-            { "value": "government", "label": "Government Employee" },
-            { "value": "professional", "label": "Professional" },
-            { "value": "ofw", "label": "Overseas Filipino Worker (OFW)" },
-            { "value": "student", "label": "Student" },
-            { "value": "retired", "label": "Retired" },
-            { "value": "homemaker", "label": "Homemaker" },
-            { "value": "unemployed", "label": "Unemployed" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "employee",
+              "label": "Employee"
+            },
+            {
+              "value": "business_owner",
+              "label": "Business Owner"
+            },
+            {
+              "value": "government",
+              "label": "Government Employee"
+            },
+            {
+              "value": "professional",
+              "label": "Professional"
+            },
+            {
+              "value": "ofw",
+              "label": "Overseas Filipino Worker (OFW)"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            },
+            {
+              "value": "homemaker",
+              "label": "Homemaker"
+            },
+            {
+              "value": "unemployed",
+              "label": "Unemployed"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "autoFillMapping": {
-            "Software Developer": "employee",
-            "Engineer": "professional",
-            "Doctor": "professional",
-            "Teacher": "employee",
-            "Student": "student",
-            "Retired": "retired",
+            "SOFTWARE_DEVELOPER": "employee",
+            "ENGINEER": "professional",
+            "ACCOUNTANT": "professional",
+            "LAWYER": "professional",
+            "DOCTOR": "professional",
+            "NURSE": "professional",
+            "TEACHER": "employee",
+            "GOVERNMENT_WORKER": "government",
+            "MILITARY": "government",
+            "SELF_EMPLOYED": "business_owner",
+            "BUSINESS_OWNER": "business_owner",
+            "FREELANCER": "professional",
+            "STUDENT": "student",
+            "HOMEMAKER": "homemaker",
+            "RETIRED": "retired",
+            "UNEMPLOYED": "unemployed",
+            "OTHER": "other",
             "_default": "other"
           },
           "automation": {
@@ -250,20 +303,62 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism / Vacation" },
-            { "value": "business", "label": "Business" },
-            { "value": "balikbayan", "label": "Balikbayan (Returning Filipino)" },
-            { "value": "visiting_relatives", "label": "Visiting Relatives / Friends" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "education", "label": "Education / Study" },
-            { "value": "employment", "label": "Employment" },
-            { "value": "medical", "label": "Medical" },
-            { "value": "official", "label": "Official / Government" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourism",
+              "label": "Tourism / Vacation"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "balikbayan",
+              "label": "Balikbayan (Returning Filipino)"
+            },
+            {
+              "value": "visiting_relatives",
+              "label": "Visiting Relatives / Friends"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "education",
+              "label": "Education / Study"
+            },
+            {
+              "value": "employment",
+              "label": "Employment"
+            },
+            {
+              "value": "medical",
+              "label": "Medical"
+            },
+            {
+              "value": "official",
+              "label": "Official / Government"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#purposeOfTravel",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "education",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "visiting_relatives",
+            "CONFERENCE": "business",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -297,14 +392,38 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "MNL", "label": "Ninoy Aquino International Airport (Manila)" },
-            { "value": "CEB", "label": "Mactan-Cebu International Airport" },
-            { "value": "CRK", "label": "Clark International Airport" },
-            { "value": "DVO", "label": "Francisco Bangoy International Airport (Davao)" },
-            { "value": "ILO", "label": "Iloilo International Airport" },
-            { "value": "KLO", "label": "Kalibo International Airport (Boracay)" },
-            { "value": "PPS", "label": "Puerto Princesa International Airport (Palawan)" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "MNL",
+              "label": "Ninoy Aquino International Airport (Manila)"
+            },
+            {
+              "value": "CEB",
+              "label": "Mactan-Cebu International Airport"
+            },
+            {
+              "value": "CRK",
+              "label": "Clark International Airport"
+            },
+            {
+              "value": "DVO",
+              "label": "Francisco Bangoy International Airport (Davao)"
+            },
+            {
+              "value": "ILO",
+              "label": "Iloilo International Airport"
+            },
+            {
+              "value": "KLO",
+              "label": "Kalibo International Airport (Boracay)"
+            },
+            {
+              "value": "PPS",
+              "label": "Puerto Princesa International Airport (Palawan)"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "helpText": "Select the airport or seaport where you will arrive",
           "automation": {
@@ -470,7 +589,16 @@
       "order": 2,
       "title": "Enter Personal Information",
       "description": "Fill in your personal details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["surname", "givenName", "middleName", "dateOfBirth", "gender", "nationality", "countryOfResidence", "occupation"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "givenName",
+        "middleName",
+        "dateOfBirth",
+        "gender",
+        "nationality",
+        "countryOfResidence",
+        "occupation"
+      ],
       "tips": [
         "Names must match your passport exactly",
         "OFW category applies to returning Filipino workers",
@@ -481,7 +609,12 @@
       "order": 3,
       "title": "Passport Details",
       "description": "Enter your passport information from the data page.",
-      "fieldsOnThisScreen": ["passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingCountry"],
+      "fieldsOnThisScreen": [
+        "passportNumber",
+        "passportIssuedDate",
+        "passportExpiry",
+        "passportIssuingCountry"
+      ],
       "tips": [
         "Passport must be valid for at least 6 months from arrival",
         "Double-check your passport number"
@@ -491,7 +624,16 @@
       "order": 4,
       "title": "Travel Information",
       "description": "Provide your flight and accommodation details for the Philippines.",
-      "fieldsOnThisScreen": ["purposeOfTravel", "arrivalDate", "flightNumber", "portOfArrival", "departureCountry", "stayDuration", "addressInPhilippines", "contactNumberInPhilippines"],
+      "fieldsOnThisScreen": [
+        "purposeOfTravel",
+        "arrivalDate",
+        "flightNumber",
+        "portOfArrival",
+        "departureCountry",
+        "stayDuration",
+        "addressInPhilippines",
+        "contactNumberInPhilippines"
+      ],
       "tips": [
         "Flight number must match your ticket",
         "Kalibo airport serves Boracay travelers",
@@ -503,7 +645,11 @@
       "order": 5,
       "title": "Health Declaration",
       "description": "Complete the health screening questions honestly.",
-      "fieldsOnThisScreen": ["countriesVisitedLast30Days", "havingSymptoms", "contactWithSick"],
+      "fieldsOnThisScreen": [
+        "countriesVisitedLast30Days",
+        "havingSymptoms",
+        "contactWithSick"
+      ],
       "tips": [
         "List all countries visited in the last 30 days",
         "Answer health questions truthfully",
@@ -514,7 +660,11 @@
       "order": 6,
       "title": "Contact Information",
       "description": "Provide your contact details.",
-      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email"],
+      "fieldsOnThisScreen": [
+        "homeAddress",
+        "phoneNumber",
+        "email"
+      ],
       "tips": [
         "Include country code in phone number",
         "Use the email associated with your eTravel account"
@@ -539,8 +689,14 @@
     "version": "1.0.0",
     "entryUrl": "https://etravel.gov.ph",
     "testMode": true,
-    "successIndicators": [".registration-success", "#qr-code-display"],
-    "failureIndicators": [".error-message", ".validation-error"],
+    "successIndicators": [
+      ".registration-success",
+      "#qr-code-display"
+    ],
+    "failureIndicators": [
+      ".error-message",
+      ".validation-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "qrCode",

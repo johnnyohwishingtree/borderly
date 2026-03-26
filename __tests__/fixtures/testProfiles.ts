@@ -25,7 +25,7 @@ export const usaProfile: TravelerProfile = {
     postalCode: '10001',
     country: 'USA',
   },
-  occupation: 'Software Engineer',
+  occupation: 'SOFTWARE_DEVELOPER',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: false,
@@ -57,7 +57,7 @@ export const ukProfile: TravelerProfile = {
     postalCode: 'SW1A 2AA',
     country: 'GBR',
   },
-  occupation: 'Marketing Director',
+  occupation: 'OTHER',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: true, // Business traveler with cash
@@ -90,7 +90,7 @@ export const australianProfile: TravelerProfile = {
     postalCode: '3000',
     country: 'AUS',
   },
-  occupation: 'Doctor',
+  occupation: 'DOCTOR',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: false,
@@ -122,7 +122,7 @@ export const studentProfile: TravelerProfile = {
     postalCode: 'M5G 1X8',
     country: 'CAN',
   },
-  occupation: 'Student',
+  occupation: 'STUDENT',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: false,
@@ -177,7 +177,7 @@ export const businessTravelerProfile: TravelerProfile = {
     postalCode: '150-0002',
     country: 'JPN',
   },
-  occupation: 'Sales Manager',
+  occupation: 'OTHER',
   defaultDeclarations: {
     hasItemsToDeclare: true, // Carrying expensive electronics for demos
     carryingCurrency: true, // Business expenses in cash

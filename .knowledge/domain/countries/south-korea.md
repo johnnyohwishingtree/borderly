@@ -44,3 +44,7 @@ Typical manual fields: `purposeOfVisit`, `occupation`, `departureCountry`, `hasS
 ## Change Detection
 - Monitored selectors: `.k-eta-form`, `.apply-form`, `#submit-btn`
 - Threshold: 10% — triggers notify action with manual verification message
+
+## autoFillMapping Status
+- `occupation`: mapped from canonical `OCCUPATIONS` enums
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

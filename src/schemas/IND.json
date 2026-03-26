@@ -14,12 +14,18 @@
     "complexity": "medium",
     "popularity": 85,
     "lastVerified": "2026-03-25T00:00:00Z",
-    "supportedLanguages": ["en"],
+    "supportedLanguages": [
+      "en"
+    ],
     "implementationStatus": "planned",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
-    "monitoredSelectors": [".arrival-card-form", ".declaration-section", "#submit-form"],
+    "monitoredSelectors": [
+      ".arrival-card-form",
+      ".declaration-section",
+      "#submit-form"
+    ],
     "changeThreshold": 20,
     "fallbackActions": [
       {
@@ -130,9 +136,18 @@
           "autoFillSource": "profile.gender",
           "countrySpecific": false,
           "options": [
-            { "value": "M", "label": "Male" },
-            { "value": "F", "label": "Female" },
-            { "value": "O", "label": "Other" }
+            {
+              "value": "M",
+              "label": "Male"
+            },
+            {
+              "value": "F",
+              "label": "Female"
+            },
+            {
+              "value": "O",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#gender",
@@ -159,23 +174,61 @@
           "autoFillSource": "profile.occupation",
           "countrySpecific": true,
           "options": [
-            { "value": "business", "label": "Business / Trade" },
-            { "value": "government", "label": "Government Service" },
-            { "value": "professional", "label": "Professional" },
-            { "value": "student", "label": "Student" },
-            { "value": "retired", "label": "Retired" },
-            { "value": "homemaker", "label": "Homemaker" },
-            { "value": "journalist", "label": "Journalist / Media" },
-            { "value": "diplomat", "label": "Diplomat" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "business",
+              "label": "Business / Trade"
+            },
+            {
+              "value": "government",
+              "label": "Government Service"
+            },
+            {
+              "value": "professional",
+              "label": "Professional"
+            },
+            {
+              "value": "student",
+              "label": "Student"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            },
+            {
+              "value": "homemaker",
+              "label": "Homemaker"
+            },
+            {
+              "value": "journalist",
+              "label": "Journalist / Media"
+            },
+            {
+              "value": "diplomat",
+              "label": "Diplomat"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "autoFillMapping": {
-            "Software Developer": "professional",
-            "Engineer": "professional",
-            "Doctor": "professional",
-            "Teacher": "professional",
-            "Student": "student",
-            "Retired": "retired",
+            "SOFTWARE_DEVELOPER": "professional",
+            "ENGINEER": "professional",
+            "ACCOUNTANT": "professional",
+            "LAWYER": "professional",
+            "DOCTOR": "professional",
+            "NURSE": "professional",
+            "TEACHER": "professional",
+            "GOVERNMENT_WORKER": "government",
+            "MILITARY": "government",
+            "SELF_EMPLOYED": "business",
+            "BUSINESS_OWNER": "business",
+            "FREELANCER": "professional",
+            "STUDENT": "student",
+            "HOMEMAKER": "homemaker",
+            "RETIRED": "retired",
+            "UNEMPLOYED": "other",
+            "OTHER": "other",
             "_default": "other"
           },
           "automation": {
@@ -197,10 +250,22 @@
           "autoFillSource": "profile.passportType",
           "countrySpecific": false,
           "options": [
-            { "value": "ordinary", "label": "Ordinary" },
-            { "value": "diplomatic", "label": "Diplomatic" },
-            { "value": "official", "label": "Official" },
-            { "value": "service", "label": "Service" }
+            {
+              "value": "ordinary",
+              "label": "Ordinary"
+            },
+            {
+              "value": "diplomatic",
+              "label": "Diplomatic"
+            },
+            {
+              "value": "official",
+              "label": "Official"
+            },
+            {
+              "value": "service",
+              "label": "Service"
+            }
           ],
           "automation": {
             "selector": "#passportType",
@@ -274,18 +339,54 @@
           "required": false,
           "countrySpecific": true,
           "options": [
-            { "value": "tourist", "label": "Tourist Visa" },
-            { "value": "business", "label": "Business Visa" },
-            { "value": "employment", "label": "Employment Visa" },
-            { "value": "student", "label": "Student Visa" },
-            { "value": "medical", "label": "Medical Visa" },
-            { "value": "conference", "label": "Conference Visa" },
-            { "value": "transit", "label": "Transit Visa" },
-            { "value": "e_tourist", "label": "e-Tourist Visa" },
-            { "value": "e_business", "label": "e-Business Visa" },
-            { "value": "e_medical", "label": "e-Medical Visa" },
-            { "value": "visa_on_arrival", "label": "Visa on Arrival" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourist",
+              "label": "Tourist Visa"
+            },
+            {
+              "value": "business",
+              "label": "Business Visa"
+            },
+            {
+              "value": "employment",
+              "label": "Employment Visa"
+            },
+            {
+              "value": "student",
+              "label": "Student Visa"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Visa"
+            },
+            {
+              "value": "conference",
+              "label": "Conference Visa"
+            },
+            {
+              "value": "transit",
+              "label": "Transit Visa"
+            },
+            {
+              "value": "e_tourist",
+              "label": "e-Tourist Visa"
+            },
+            {
+              "value": "e_business",
+              "label": "e-Business Visa"
+            },
+            {
+              "value": "e_medical",
+              "label": "e-Medical Visa"
+            },
+            {
+              "value": "visa_on_arrival",
+              "label": "Visa on Arrival"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#visaType",
@@ -305,20 +406,62 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "tourism", "label": "Tourism" },
-            { "value": "business", "label": "Business" },
-            { "value": "employment", "label": "Employment" },
-            { "value": "study", "label": "Study" },
-            { "value": "medical", "label": "Medical Treatment" },
-            { "value": "conference", "label": "Conference / Seminar" },
-            { "value": "transit", "label": "Transit" },
-            { "value": "pilgrimage", "label": "Pilgrimage" },
-            { "value": "family_visit", "label": "Visiting Family / Friends" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "tourism",
+              "label": "Tourism"
+            },
+            {
+              "value": "business",
+              "label": "Business"
+            },
+            {
+              "value": "employment",
+              "label": "Employment"
+            },
+            {
+              "value": "study",
+              "label": "Study"
+            },
+            {
+              "value": "medical",
+              "label": "Medical Treatment"
+            },
+            {
+              "value": "conference",
+              "label": "Conference / Seminar"
+            },
+            {
+              "value": "transit",
+              "label": "Transit"
+            },
+            {
+              "value": "pilgrimage",
+              "label": "Pilgrimage"
+            },
+            {
+              "value": "family_visit",
+              "label": "Visiting Family / Friends"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#purposeOfVisit",
             "fillMethod": "select"
+          },
+          "autoFillSource": "profile.purposeOfVisit",
+          "autoFillMapping": {
+            "VACATION": "tourism",
+            "BUSINESS": "business",
+            "TRANSIT": "transit",
+            "STUDY": "study",
+            "MEDICAL": "medical",
+            "FAMILY_VISIT": "family_visit",
+            "CONFERENCE": "conference",
+            "OTHER": "other",
+            "_default": "other"
           }
         },
         {
@@ -352,17 +495,50 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "DEL", "label": "Indira Gandhi International Airport (Delhi)" },
-            { "value": "BOM", "label": "Chhatrapati Shivaji Maharaj International Airport (Mumbai)" },
-            { "value": "BLR", "label": "Kempegowda International Airport (Bengaluru)" },
-            { "value": "MAA", "label": "Chennai International Airport (Chennai)" },
-            { "value": "CCU", "label": "Netaji Subhas Chandra Bose International Airport (Kolkata)" },
-            { "value": "HYD", "label": "Rajiv Gandhi International Airport (Hyderabad)" },
-            { "value": "COK", "label": "Cochin International Airport (Kochi)" },
-            { "value": "GOI", "label": "Goa International Airport (Goa)" },
-            { "value": "AMD", "label": "Sardar Vallabhbhai Patel International Airport (Ahmedabad)" },
-            { "value": "JAI", "label": "Jaipur International Airport (Jaipur)" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "DEL",
+              "label": "Indira Gandhi International Airport (Delhi)"
+            },
+            {
+              "value": "BOM",
+              "label": "Chhatrapati Shivaji Maharaj International Airport (Mumbai)"
+            },
+            {
+              "value": "BLR",
+              "label": "Kempegowda International Airport (Bengaluru)"
+            },
+            {
+              "value": "MAA",
+              "label": "Chennai International Airport (Chennai)"
+            },
+            {
+              "value": "CCU",
+              "label": "Netaji Subhas Chandra Bose International Airport (Kolkata)"
+            },
+            {
+              "value": "HYD",
+              "label": "Rajiv Gandhi International Airport (Hyderabad)"
+            },
+            {
+              "value": "COK",
+              "label": "Cochin International Airport (Kochi)"
+            },
+            {
+              "value": "GOI",
+              "label": "Goa International Airport (Goa)"
+            },
+            {
+              "value": "AMD",
+              "label": "Sardar Vallabhbhai Patel International Airport (Ahmedabad)"
+            },
+            {
+              "value": "JAI",
+              "label": "Jaipur International Airport (Jaipur)"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "helpText": "Select the airport where you will arrive in India",
           "automation": {
@@ -419,18 +595,54 @@
           "required": true,
           "countrySpecific": true,
           "options": [
-            { "value": "new_delhi", "label": "New Delhi" },
-            { "value": "mumbai", "label": "Mumbai" },
-            { "value": "bengaluru", "label": "Bengaluru" },
-            { "value": "chennai", "label": "Chennai" },
-            { "value": "kolkata", "label": "Kolkata" },
-            { "value": "hyderabad", "label": "Hyderabad" },
-            { "value": "jaipur", "label": "Jaipur" },
-            { "value": "goa", "label": "Goa" },
-            { "value": "agra", "label": "Agra" },
-            { "value": "varanasi", "label": "Varanasi" },
-            { "value": "kochi", "label": "Kochi" },
-            { "value": "other", "label": "Other" }
+            {
+              "value": "new_delhi",
+              "label": "New Delhi"
+            },
+            {
+              "value": "mumbai",
+              "label": "Mumbai"
+            },
+            {
+              "value": "bengaluru",
+              "label": "Bengaluru"
+            },
+            {
+              "value": "chennai",
+              "label": "Chennai"
+            },
+            {
+              "value": "kolkata",
+              "label": "Kolkata"
+            },
+            {
+              "value": "hyderabad",
+              "label": "Hyderabad"
+            },
+            {
+              "value": "jaipur",
+              "label": "Jaipur"
+            },
+            {
+              "value": "goa",
+              "label": "Goa"
+            },
+            {
+              "value": "agra",
+              "label": "Agra"
+            },
+            {
+              "value": "varanasi",
+              "label": "Varanasi"
+            },
+            {
+              "value": "kochi",
+              "label": "Kochi"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
           ],
           "automation": {
             "selector": "#cityInIndia",
@@ -636,7 +848,16 @@
       "order": 2,
       "title": "Enter Personal Information",
       "description": "Fill in your personal details exactly as they appear on your passport.",
-      "fieldsOnThisScreen": ["surname", "givenName", "middleName", "dateOfBirth", "placeOfBirth", "gender", "nationality", "occupation"],
+      "fieldsOnThisScreen": [
+        "surname",
+        "givenName",
+        "middleName",
+        "dateOfBirth",
+        "placeOfBirth",
+        "gender",
+        "nationality",
+        "occupation"
+      ],
       "tips": [
         "Names must match passport exactly",
         "India recognizes 'Other' as a gender option",
@@ -647,7 +868,15 @@
       "order": 3,
       "title": "Passport and Visa Details",
       "description": "Enter your passport information and Indian visa details.",
-      "fieldsOnThisScreen": ["passportType", "passportNumber", "passportIssuedDate", "passportExpiry", "passportIssuingCountry", "visaNumber", "visaType"],
+      "fieldsOnThisScreen": [
+        "passportType",
+        "passportNumber",
+        "passportIssuedDate",
+        "passportExpiry",
+        "passportIssuingCountry",
+        "visaNumber",
+        "visaType"
+      ],
       "tips": [
         "Passport must be valid for at least 6 months from arrival date",
         "Enter your e-Visa number if traveling on an e-Visa",
@@ -658,7 +887,17 @@
       "order": 4,
       "title": "Travel Information",
       "description": "Provide details about your travel to India including flight and accommodation.",
-      "fieldsOnThisScreen": ["purposeOfVisit", "arrivalDate", "flightNumber", "portOfArrival", "departureCountry", "stayDuration", "addressInIndia", "cityInIndia", "previousIndiaVisit"],
+      "fieldsOnThisScreen": [
+        "purposeOfVisit",
+        "arrivalDate",
+        "flightNumber",
+        "portOfArrival",
+        "departureCountry",
+        "stayDuration",
+        "addressInIndia",
+        "cityInIndia",
+        "previousIndiaVisit"
+      ],
       "tips": [
         "Flight number must match your boarding pass",
         "Select the correct airport of arrival",
@@ -669,7 +908,11 @@
       "order": 5,
       "title": "Health Declaration",
       "description": "Complete the mandatory health screening questions.",
-      "fieldsOnThisScreen": ["countriesVisitedLast14Days", "feverOrCough", "contactWithInfected"],
+      "fieldsOnThisScreen": [
+        "countriesVisitedLast14Days",
+        "feverOrCough",
+        "contactWithInfected"
+      ],
       "tips": [
         "List all countries visited in the last 14 days",
         "Answer health questions truthfully",
@@ -680,7 +923,13 @@
       "order": 6,
       "title": "Customs Declaration",
       "description": "Declare any currency, dutiable goods, or restricted items.",
-      "fieldsOnThisScreen": ["carryingCurrency", "currencyAmount", "dutiableGoods", "prohibitedItems", "commercialGoods"],
+      "fieldsOnThisScreen": [
+        "carryingCurrency",
+        "currencyAmount",
+        "dutiableGoods",
+        "prohibitedItems",
+        "commercialGoods"
+      ],
       "tips": [
         "Currency exceeding USD 5,000 must be declared",
         "Duty-free allowances: 1L alcohol, 100 cigarettes or 25 cigars",
@@ -692,7 +941,13 @@
       "order": 7,
       "title": "Contact Information",
       "description": "Provide your contact details and an emergency contact.",
-      "fieldsOnThisScreen": ["homeAddress", "phoneNumber", "email", "emergencyContactName", "emergencyContactPhone"],
+      "fieldsOnThisScreen": [
+        "homeAddress",
+        "phoneNumber",
+        "email",
+        "emergencyContactName",
+        "emergencyContactPhone"
+      ],
       "tips": [
         "Use an email you check regularly for notifications",
         "Include country code in phone numbers",
@@ -717,8 +972,14 @@
     "version": "1.0.0",
     "entryUrl": "https://www.newdelhiairport.in/airsuvidha",
     "testMode": true,
-    "successIndicators": [".submission-success", "#confirmation-code"],
-    "failureIndicators": [".error-message", ".form-validation-error"],
+    "successIndicators": [
+      ".submission-success",
+      "#confirmation-code"
+    ],
+    "failureIndicators": [
+      ".error-message",
+      ".form-validation-error"
+    ],
     "dataExtractionRules": [
       {
         "name": "confirmationCode",

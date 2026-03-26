@@ -45,3 +45,6 @@ Typical manual fields: `religion`, `placeOfBirth`, `passportIssuingAuthority`, `
 ## Change Detection
 - Monitored selectors: `.evisa-form`, `.application-section`, `#submit-application`
 - Threshold: 20% — triggers notify action
+
+## autoFillMapping Status
+- `purposeOfVisit`: mapped from canonical `PURPOSES_OF_VISIT` enums

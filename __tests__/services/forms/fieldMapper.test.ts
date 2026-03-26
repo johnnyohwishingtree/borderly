@@ -28,7 +28,7 @@ const mockProfile: TravelerProfile = {
     postalCode: '10001',
     country: 'USA',
   },
-  occupation: 'Software Engineer',
+  occupation: 'SOFTWARE_DEVELOPER',
   defaultDeclarations: {
     hasItemsToDeclare: false,
     carryingCurrency: true,
@@ -83,7 +83,7 @@ describe('FieldMapper', () => {
         expect(resolveAutoFillPath('profile.dateOfBirth', mockContext)).toBe('1990-04-08');
         expect(resolveAutoFillPath('profile.gender', mockContext)).toBe('M');
         expect(resolveAutoFillPath('profile.email', mockContext)).toBe('johnny@example.com');
-        expect(resolveAutoFillPath('profile.occupation', mockContext)).toBe('Software Engineer');
+        expect(resolveAutoFillPath('profile.occupation', mockContext)).toBe('SOFTWARE_DEVELOPER');
       });
 
       it('should resolve nested profile fields', () => {
