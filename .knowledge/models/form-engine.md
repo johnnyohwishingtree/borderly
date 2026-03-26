@@ -52,9 +52,9 @@ Field *──* Option (for searchable_select/select types)
 - `SearchableSelect`: `onValueChange` returns option `value`, not `label`
 
 ## Key Files
-- `src/services/forms/formEngine.ts` — main engine
+- `src/services/forms/formEngine/formEngine.ts` — main engine
 - `src/services/forms/fieldMapper.ts` — dot-notation resolver
 - `src/services/forms/autoFillLogic/` — intelligent auto-fill
-- `src/services/forms/validators.ts` — Zod validation
+- `src/services/forms/validators/validators.ts` — Zod validation
 - `src/schemas/*.json` — country schemas
 - `src/components/forms/DynamicForm.tsx` — renders schemas
