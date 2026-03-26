@@ -6,7 +6,7 @@ import {
   parseMRZ,
   cleanMRZText,
   extractMRZFromText,
-} from '../../../src/services/passport/mrzParser';
+} from '../../../src/services/passport/mrzScanner/mrzParser';
 
 describe('MRZ Parser', () => {
   // Valid test MRZ data (anonymized) - TD3 format: exactly 44 chars per line

@@ -34,7 +34,7 @@ const mockQrCapture = {
 };
 
 // Mock imports
-jest.mock('../../src/services/passport/mrzParser', () => ({
+jest.mock('../../src/services/passport/mrzScanner/mrzParser', () => ({
   mrzParser: mockMrzParser,
 }));
 

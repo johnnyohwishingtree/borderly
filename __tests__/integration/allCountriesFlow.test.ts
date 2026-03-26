@@ -6,7 +6,7 @@
 import { describe, it, beforeEach, expect, jest } from '@jest/globals';
 import { generateFilledForm } from '../../src/services/forms/formEngine';
 import { validateSchema } from '../../src/services/schemas/schemaLoader';
-import { parseMRZ } from '../../src/services/passport/mrzParser';
+import { parseMRZ } from '../../src/services/passport/mrzScanner/mrzParser';
 import type { UserProfile, Trip, TripLeg, CountryFormSchema } from '../../src/types';
 
 // Mock native modules

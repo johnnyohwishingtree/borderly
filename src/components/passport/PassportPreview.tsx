@@ -12,7 +12,7 @@ import { Lock, TriangleAlert } from 'lucide-react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { type TravelerProfile } from '../../types/profile';
 import { validateScannedPassport } from '../../services/passport/mrzScanner';
-import { type MRZParseResult } from '../../services/passport/mrzParser';
+import { type MRZParseResult } from '../../services/passport/mrzScanner/mrzParser';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import StatusBadge from '../ui/StatusBadge';

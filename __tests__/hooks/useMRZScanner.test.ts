@@ -22,7 +22,7 @@ jest.mock('@/services/passport/mrzScanner', () => ({
   })),
 }));
 
-jest.mock('@/services/passport/mrzParser', () => ({
+jest.mock('@/services/passport/mrzScanner/mrzParser', () => ({
   parseMRZ: jest.fn(() => ({
     success: true,
     confidence: 0.95,

@@ -3,5 +3,4 @@ export type {
   DataLeakDetectionResult,
   DataLeak,
   DataLeakRecommendation,
-  PIIPattern,
-} from './dataLeakDetector/dataLeakDetectorTypes';
+} from './dataLeakDetectorTypes';
