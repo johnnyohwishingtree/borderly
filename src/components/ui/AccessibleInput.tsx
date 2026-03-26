@@ -222,13 +222,8 @@ export default function AccessibleInput({
     // This would typically be an actual icon component
     return (
       <View
-        style={{
-          width: 20,
-          height: 20,
-          backgroundColor: iconColor,
-          borderRadius: 10,
-          marginRight: 8,
-        }}
+        className="w-5 h-5 rounded-full mr-2"
+        style={{ backgroundColor: iconColor }}
         accessible={false}
       />
     );
@@ -249,7 +244,7 @@ export default function AccessibleInput({
         accessibilityLabel={rightIconAccessibilityLabel}
         hitSlop={hasAction ? TouchTargetUtils.getHitSlop(24, 24) : undefined}
       >
-        <View style={{ paddingHorizontal: 12, paddingVertical: 8 }}>
+        <View className="px-3 py-2">
           {renderValidationIcon()}
           {rightIcon}
         </View>
@@ -281,8 +276,8 @@ export default function AccessibleInput({
 
       <View className={getInputContainerStyles()}>
         {leftIcon && (
-          <View 
-            style={{ paddingLeft: 12, paddingVertical: 8 }}
+          <View
+            className="pl-3 py-2"
             accessible={false}
           >
             {leftIcon}

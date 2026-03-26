@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, FlatList, TextInput, StyleSheet } from 'react-native';
+import { View, Text, Pressable, FlatList, TextInput } from 'react-native';
 
 export interface SearchableSelectProps {
   options: { value: string; label: string }[];
@@ -79,7 +79,7 @@ export default function SearchableSelect({
 
       {/* Inline dropdown panel — renders below trigger, no Modal or absolute positioning */}
       {isOpen && (
-        <View style={styles.dropdown} testID={testID ? `${testID}-panel` : undefined}>
+        <View className="mt-1 bg-white rounded-xl max-h-[280px] border border-gray-200 overflow-hidden shadow-lg elevation-4" testID={testID ? `${testID}-panel` : undefined}>
           <View className="p-3 border-b border-gray-100">
             <TextInput
               className="border border-gray-300 rounded-lg px-3 py-2 text-base"
@@ -114,7 +114,7 @@ export default function SearchableSelect({
                 </Pressable>
               );
             }}
-            style={styles.list}
+            className="max-h-[220px]"
             ListEmptyComponent={
               <View className="p-4">
                 <Text className="text-gray-500 text-center">No results for &quot;{search}&quot;</Text>
@@ -126,23 +126,3 @@ export default function SearchableSelect({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  dropdown: {
-    marginTop: 4,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    maxHeight: 280,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  list: {
-    maxHeight: 220,
-  },
-});
