@@ -152,9 +152,9 @@ describe('useTripDetail — progress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.progress.completed).toBe(0);
-    expect(result.current.progress.total).toBe(2);
-    expect(result.current.progress.percentage).toBe(0);
+    expect(result.current.derived.progress.completed).toBe(0);
+    expect(result.current.derived.progress.total).toBe(2);
+    expect(result.current.derived.progress.percentage).toBe(0);
   });
 
   it('computes 50% progress when 1 of 2 legs is ready', () => {
@@ -167,9 +167,9 @@ describe('useTripDetail — progress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.progress.completed).toBe(1);
-    expect(result.current.progress.total).toBe(2);
-    expect(result.current.progress.percentage).toBe(50);
+    expect(result.current.derived.progress.completed).toBe(1);
+    expect(result.current.derived.progress.total).toBe(2);
+    expect(result.current.derived.progress.percentage).toBe(50);
   });
 
   it('computes 100% progress when all legs are submitted', () => {
@@ -182,9 +182,9 @@ describe('useTripDetail — progress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.progress.completed).toBe(2);
-    expect(result.current.progress.total).toBe(2);
-    expect(result.current.progress.percentage).toBe(100);
+    expect(result.current.derived.progress.completed).toBe(2);
+    expect(result.current.derived.progress.total).toBe(2);
+    expect(result.current.derived.progress.percentage).toBe(100);
   });
 
   it('counts both ready and submitted legs as completed', () => {
@@ -198,9 +198,9 @@ describe('useTripDetail — progress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.progress.completed).toBe(2);
-    expect(result.current.progress.total).toBe(3);
-    expect(result.current.progress.percentage).toBeCloseTo(66.67, 1);
+    expect(result.current.derived.progress.completed).toBe(2);
+    expect(result.current.derived.progress.total).toBe(3);
+    expect(result.current.derived.progress.percentage).toBeCloseTo(66.67, 1);
   });
 
   it('returns zero progress when trip has no legs', () => {
@@ -208,7 +208,7 @@ describe('useTripDetail — progress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.progress).toEqual({ completed: 0, total: 0, percentage: 0, readyCount: 0 });
+    expect(result.current.derived.progress).toEqual({ completed: 0, total: 0, percentage: 0, readyCount: 0 });
   });
 });
 
@@ -226,8 +226,8 @@ describe('useTripDetail — submissionProgress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.submissionProgress.submitted).toBe(2);
-    expect(result.current.submissionProgress.total).toBe(3);
+    expect(result.current.derived.submissionProgress.submitted).toBe(2);
+    expect(result.current.derived.submissionProgress.total).toBe(3);
   });
 
   it('returns 0 submitted when no legs are submitted', () => {
@@ -240,8 +240,8 @@ describe('useTripDetail — submissionProgress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.submissionProgress.submitted).toBe(0);
-    expect(result.current.submissionProgress.total).toBe(2);
+    expect(result.current.derived.submissionProgress.submitted).toBe(0);
+    expect(result.current.derived.submissionProgress.total).toBe(2);
   });
 
   it('returns zero totals when trip has no legs', () => {
@@ -249,7 +249,7 @@ describe('useTripDetail — submissionProgress', () => {
 
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.submissionProgress).toEqual({ submitted: 0, total: 0 });
+    expect(result.current.derived.submissionProgress).toEqual({ submitted: 0, total: 0 });
   });
 });
 
@@ -260,7 +260,7 @@ describe('useTripDetail — handleMarkAsSubmitted', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
     await act(async () => {
-      await result.current.handleMarkAsSubmitted('leg_1');
+      await result.current.actions.handleMarkAsSubmitted('leg_1');
     });
 
     expect(mockUpdateLegSubmissionStatus).toHaveBeenCalledWith('leg_1', 'submitted');
@@ -274,17 +274,17 @@ describe('useTripDetail — handleConfirmDuplicate', () => {
   it('sets isDuplicating, calls duplicateTrip, and resets on success', async () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.isDuplicating).toBe(false);
+    expect(result.current.state.isDuplicating).toBe(false);
 
     let newTrip: unknown;
     await act(async () => {
-      newTrip = await result.current.handleConfirmDuplicate('2026-06-01');
+      newTrip = await result.current.actions.handleConfirmDuplicate('2026-06-01');
     });
 
     expect(mockDuplicateTrip).toHaveBeenCalledWith('trip_1', '2026-06-01');
     expect(newTrip).toEqual({ id: 'trip_dup_1', name: 'Duplicated Trip' });
-    expect(result.current.isDuplicating).toBe(false);
-    expect(result.current.duplicateError).toBeNull();
+    expect(result.current.state.isDuplicating).toBe(false);
+    expect(result.current.state.duplicateError).toBeNull();
   });
 
   it('sets duplicateError on failure and resets isDuplicating', async () => {
@@ -294,12 +294,12 @@ describe('useTripDetail — handleConfirmDuplicate', () => {
 
     let newTrip: unknown;
     await act(async () => {
-      newTrip = await result.current.handleConfirmDuplicate('2026-06-01');
+      newTrip = await result.current.actions.handleConfirmDuplicate('2026-06-01');
     });
 
     expect(newTrip).toBeNull();
-    expect(result.current.duplicateError).toBe('Failed to duplicate trip. Please try again.');
-    expect(result.current.isDuplicating).toBe(false);
+    expect(result.current.state.duplicateError).toBe('Failed to duplicate trip. Please try again.');
+    expect(result.current.state.isDuplicating).toBe(false);
   });
 
   it('resetDuplicateError clears the error', async () => {
@@ -308,16 +308,16 @@ describe('useTripDetail — handleConfirmDuplicate', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
     await act(async () => {
-      await result.current.handleConfirmDuplicate('2026-06-01');
+      await result.current.actions.handleConfirmDuplicate('2026-06-01');
     });
 
-    expect(result.current.duplicateError).not.toBeNull();
+    expect(result.current.state.duplicateError).not.toBeNull();
 
     act(() => {
-      result.current.resetDuplicateError();
+      result.current.actions.resetDuplicateError();
     });
 
-    expect(result.current.duplicateError).toBeNull();
+    expect(result.current.state.duplicateError).toBeNull();
   });
 });
 
@@ -327,29 +327,29 @@ describe('useTripDetail — status helpers', () => {
   it('getStatusColor returns correct color for each status', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.getStatusColor('upcoming')).toBe('info');
-    expect(result.current.getStatusColor('active')).toBe('success');
-    expect(result.current.getStatusColor('completed')).toBe('neutral');
+    expect(result.current.ui.getStatusColor('upcoming')).toBe('info');
+    expect(result.current.ui.getStatusColor('active')).toBe('success');
+    expect(result.current.ui.getStatusColor('completed')).toBe('neutral');
   });
 
   it('getStatusColor returns neutral for unknown status', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
     // Cast to simulate an unexpected value
-    expect(result.current.getStatusColor('archived' as Trip['status'])).toBe('neutral');
+    expect(result.current.ui.getStatusColor('archived' as Trip['status'])).toBe('neutral');
   });
 
   it('getStatusText returns correct text for each status', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.getStatusText('upcoming')).toBe('Upcoming');
-    expect(result.current.getStatusText('active')).toBe('Active');
-    expect(result.current.getStatusText('completed')).toBe('Completed');
+    expect(result.current.ui.getStatusText('upcoming')).toBe('Upcoming');
+    expect(result.current.ui.getStatusText('active')).toBe('Active');
+    expect(result.current.ui.getStatusText('completed')).toBe('Completed');
   });
 
   it('getStatusText returns Unknown for unexpected status', () => {
     const { result } = renderHook(() => useTripDetail({ tripId: 'trip_1' }));
 
-    expect(result.current.getStatusText('archived' as Trip['status'])).toBe('Unknown');
+    expect(result.current.ui.getStatusText('archived' as Trip['status'])).toBe('Unknown');
   });
 });
