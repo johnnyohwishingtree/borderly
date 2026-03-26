@@ -4,7 +4,7 @@
  * Verifies that only centralized storage services and legitimate security
  * tools import react-native-keychain or react-native-mmkv directly.
  *
- * See: .knowledge/conventions/storage.md
+ * See: .knowledge/policies/data/storage-tiers.md
  */
 
 import { execSync } from 'child_process';

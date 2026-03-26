@@ -6,7 +6,7 @@
  *   Components → Props only (no stores, no hooks with side effects)
  *
  * Catches violations at `pnpm test` time (< 1 second).
- * See: .knowledge/concepts/dependency-direction.md
+ * See: .knowledge/policies/architecture/dependency-direction.md
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

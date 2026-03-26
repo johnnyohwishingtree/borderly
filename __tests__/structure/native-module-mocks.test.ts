@@ -5,7 +5,7 @@
  * 1. A web mock in e2e/mocks/
  * 2. A Jest mock in jest.setup.js (via NativeModules or jest.mock)
  *
- * See: .knowledge/conventions/native-modules.md
+ * See: .knowledge/policies/platform/native-modules.md
  */
 
 import { readFileSync, existsSync } from 'fs';

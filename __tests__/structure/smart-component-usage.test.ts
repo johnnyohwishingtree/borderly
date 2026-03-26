@@ -9,7 +9,7 @@ import * as path from 'path';
  * plain Input. Using plain Input loses autocomplete, platform autofill hints,
  * and API-powered suggestions.
  *
- * See `.claude/rules/smart-components.md` for the full list.
+ * See: .knowledge/policies/ui/styling.md
  */
 
 const SRC_DIR = path.resolve(__dirname, '../../src');

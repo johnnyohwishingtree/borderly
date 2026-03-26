@@ -4,7 +4,7 @@
  * Verifies that code paths saving form data to WatermelonDB
  * use stripPIIFromFormData() to remove passport/personal data.
  *
- * See: .knowledge/concepts/security-boundary.md
+ * See: .knowledge/policies/data/pii-boundary.md
  */
 
 import { readFileSync } from 'fs';

@@ -208,7 +208,7 @@ export function sanitizePII(data: any): any {
  * Field IDs that contain PII and must not be persisted to WatermelonDB.
  * These are re-resolved from Keychain via autoFillSource on form load.
  *
- * See: .knowledge/concepts/security-boundary.md
+ * See: .knowledge/policies/data/pii-boundary.md
  */
 const PII_FORM_FIELD_IDS = new Set([
   'passportNumber',

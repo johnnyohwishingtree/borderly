@@ -9,7 +9,7 @@ import * as path from 'path';
  * both wrapped and non-wrapped layouts, preventing horizontal overflow on
  * narrow viewports.
  *
- * See `.claude/rules/tailwind-spacing.md` for the full rationale.
+ * See: .knowledge/policies/ui/styling.md
  */
 
 const SRC_DIR = path.resolve(__dirname, '../../src');

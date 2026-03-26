@@ -4,7 +4,7 @@
  * Every hook file in src/hooks/ must be exported from src/hooks/index.ts.
  * Missing exports mean hooks are unusable via the standard import path.
  *
- * See: .knowledge/conventions/state-management.md
+ * See: .knowledge/policies/state/hook-conventions.md
  */
 
 import { readdirSync, readFileSync } from 'fs';

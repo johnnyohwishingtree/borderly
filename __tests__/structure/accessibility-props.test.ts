@@ -4,8 +4,7 @@
  * Interactive elements (Button, TouchableOpacity, Pressable with onPress)
  * must have accessibilityRole and accessibilityLabel.
  *
- * See: .knowledge/conventions/accessibility/core-principles.md
- * See: .knowledge/conventions/accessibility/component-props.md
+ * See: .knowledge/policies/ui/accessibility.md
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

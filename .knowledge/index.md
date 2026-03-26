@@ -55,7 +55,7 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 | Scope | Policies |
 |-------|---------|
-| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture |
+| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
 | `data/` | storage-tiers, pii-boundary, schema-fields |
 | `ui/` | styling, typography, motion, accessibility, ux-writing |
 | `state/` | hook-conventions, store-boundaries |
@@ -64,7 +64,7 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 ### Models
 
-form-engine, passport, qr-wallet, submission-guide, domain/countries/ (14 countries)
+form-engine, passport, qr-wallet, submission-guide, stores, domain/countries/ (15 countries)
 
 ### Other
 

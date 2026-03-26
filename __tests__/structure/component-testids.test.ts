@@ -4,7 +4,7 @@
  * Finds Pressable/TouchableOpacity elements in src/components/ that
  * don't have a testID prop. These are invisible to Maestro E2E tests.
  *
- * See: .knowledge/conventions/e2e-testability.md
+ * See: .knowledge/policies/testing/e2e-testability.md
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';
