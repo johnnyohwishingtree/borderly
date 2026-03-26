@@ -76,13 +76,21 @@ For each violation, apply the fix:
 
 ## Step 5: Cascade — check files that reference this knowledge
 
-After updating a policy or model, check for cascade effects:
-1. Find all folder CLAUDE.md files that `See:` this file
-2. Find all other knowledge files that reference this file
-3. Verify they're still consistent with the updated content
-4. If a referenced fact changed (e.g., store list, field type), update all referencing files
+Use the graph engine to find cascade effects:
 
-This prevents denormalization drift — one source of truth, all references stay in sync.
+```bash
+npx tsx scripts/knowledge-graph.ts impact <the-file-you-changed>
+```
+
+For each affected node:
+1. Read the file
+2. Verify it's still consistent with the updated content
+3. If a referenced fact changed (e.g., store list, field type), update it
+
+Then regenerate the architecture diagram:
+```bash
+npx tsx scripts/generate-knowledge-diagram.ts
+```
 
 ## Step 6: Write tests for fixes
 
