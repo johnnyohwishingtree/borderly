@@ -310,7 +310,7 @@ describe('PortalIntegrationService', () => {
 
     it('shows default error message when no specific error provided', () => {
       const result = { success: false };
-      
+
       PortalIntegrationService.showPortalLaunchAlert(result, 'Test Portal');
 
       expect(mockAlert.alert).toHaveBeenCalledWith(
@@ -318,6 +318,229 @@ describe('PortalIntegrationService', () => {
         'Failed to open Test Portal',
         expect.any(Array)
       );
+    });
+
+    it('retry calls launchPortal with same schema and options when schema provided', async () => {
+      const schema: CountryFormSchema = {
+        countryCode: 'JPN',
+        countryName: 'Japan',
+        schemaVersion: '1.0.0',
+        lastUpdated: '2025-06-01T00:00:00Z',
+        portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+        portalName: 'Visit Japan Web',
+        submissionDeadlineHours: 24,
+        recommendedLeadTimeHours: 72,
+        submissionWindowNote: 'Submit 24-72 h before arrival',
+        metadata: {
+          priority: 1,
+          complexity: 'low',
+          popularity: 80,
+          lastVerified: '2025-06-01T00:00:00Z',
+          supportedLanguages: ['en'],
+          implementationStatus: 'complete',
+          maintenanceFrequency: 'monthly',
+        },
+        changeDetection: {
+          monitoredSelectors: ['form'],
+          changeThreshold: 0.2,
+          fallbackActions: [{ trigger: 'test', action: 'notify' }],
+        },
+        submission: {
+          earliestBeforeArrival: '14d',
+          latestBeforeArrival: '0h',
+          recommended: '72h',
+        },
+        portalFlow: {
+          requiresAccount: false,
+          multiStep: false,
+          canSaveProgress: false,
+        },
+        sections: [],
+        submissionGuide: [],
+      };
+      const options = { trackingParams: { source: 'retry' } };
+      const failResult = { success: false, error: 'Network error' };
+
+      PortalIntegrationService.showPortalLaunchAlert(failResult, 'Visit Japan Web', schema, options);
+
+      // Extract the onPress handler
+      const alertCall = mockAlert.alert.mock.calls[0];
+      const buttons = alertCall[2] as Array<{ text: string; onPress?: () => void }>;
+      const tryAgainBtn = buttons.find(b => b.text === 'Try Again');
+      expect(tryAgainBtn?.onPress).toEqual(expect.any(Function));
+
+      // Mock a successful retry
+      mockLinking.canOpenURL.mockResolvedValue(true);
+      mockLinking.openURL.mockResolvedValue(undefined);
+      mockAlert.alert.mockClear();
+
+      await tryAgainBtn!.onPress!();
+
+      // launchPortal should have been called (openURL proves it)
+      expect(mockLinking.openURL).toHaveBeenCalledWith(
+        expect.stringContaining('source=retry')
+      );
+      // Should show the result alert again
+      expect(mockAlert.alert).toHaveBeenCalledWith(
+        'Opening Portal',
+        expect.stringContaining('Visit Japan Web'),
+        expect.any(Array)
+      );
+    });
+  });
+
+  describe('categorizeError', () => {
+    it('categorizes timeout errors', () => {
+      expect(PortalIntegrationService.categorizeError('Connection Timeout')).toBe('timeout');
+      expect(PortalIntegrationService.categorizeError('Timeout exceeded')).toBe('timeout');
+    });
+
+    it('categorizes URL/invalid errors', () => {
+      expect(PortalIntegrationService.categorizeError('Invalid portal URL')).toBe('url_invalid');
+      expect(PortalIntegrationService.categorizeError('Bad URL format')).toBe('url_invalid');
+    });
+
+    it('categorizes cannot-open errors', () => {
+      expect(PortalIntegrationService.categorizeError('Cannot open this link')).toBe('cannot_open');
+      expect(PortalIntegrationService.categorizeError("Can't open this portal")).toBe('cannot_open');
+    });
+
+    it('returns unknown for unrecognized errors', () => {
+      expect(PortalIntegrationService.categorizeError('Something went wrong')).toBe('unknown');
+    });
+  });
+
+  describe('logPortalLaunch (via launchPortal)', () => {
+    const mockSchema: CountryFormSchema = {
+      countryCode: 'JPN',
+      countryName: 'Japan',
+      schemaVersion: '1.0.0',
+      lastUpdated: '2025-06-01T00:00:00Z',
+      portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+      portalName: 'Visit Japan Web',
+      submissionDeadlineHours: 24,
+      recommendedLeadTimeHours: 72,
+      submissionWindowNote: 'Submit 24-72 h before arrival',
+      metadata: {
+        priority: 1,
+        complexity: 'low',
+        popularity: 80,
+        lastVerified: '2025-06-01T00:00:00Z',
+        supportedLanguages: ['en'],
+        implementationStatus: 'complete',
+        maintenanceFrequency: 'monthly',
+      },
+      changeDetection: {
+        monitoredSelectors: ['form'],
+        changeThreshold: 0.2,
+        fallbackActions: [{ trigger: 'test', action: 'notify' }],
+      },
+      submission: {
+        earliestBeforeArrival: '14d',
+        latestBeforeArrival: '0h',
+        recommended: '72h',
+      },
+      portalFlow: {
+        requiresAccount: false,
+        multiStep: false,
+        canSaveProgress: false,
+      },
+      sections: [],
+      submissionGuide: [],
+    };
+
+    it('writes success event to MMKV on successful launch', async () => {
+      mockLinking.canOpenURL.mockResolvedValue(true);
+      mockLinking.openURL.mockResolvedValue(undefined);
+      mockGetString.mockReturnValue(undefined);
+
+      await PortalIntegrationService.launchPortal(mockSchema);
+
+      expect(mockSetString).toHaveBeenCalledWith(
+        'portal_analytics',
+        expect.any(String)
+      );
+
+      const stored = JSON.parse(mockSetString.mock.calls[0][1]);
+      expect(stored).toHaveLength(1);
+      expect(stored[0].countryCode).toBe('JPN');
+      expect(stored[0].success).toBe(true);
+      expect(stored[0].errorCategory).toBeUndefined();
+      expect(stored[0].timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    });
+
+    it('writes failure event with error category on failed launch', async () => {
+      mockLinking.canOpenURL.mockRejectedValue(new Error('Timeout'));
+      mockGetString.mockReturnValue(undefined);
+
+      await PortalIntegrationService.launchPortal(mockSchema);
+
+      const stored = JSON.parse(mockSetString.mock.calls[0][1]);
+      expect(stored).toHaveLength(1);
+      expect(stored[0].success).toBe(false);
+      expect(stored[0].errorCategory).toBe('timeout');
+    });
+
+    it('appends to existing events', async () => {
+      const existingEvents = [
+        { countryCode: 'SGP', success: true, timestamp: '2026-01-01T00:00:00Z' },
+      ];
+      mockGetString.mockReturnValue(JSON.stringify(existingEvents));
+      mockLinking.canOpenURL.mockResolvedValue(true);
+      mockLinking.openURL.mockResolvedValue(undefined);
+
+      await PortalIntegrationService.launchPortal(mockSchema);
+
+      const stored = JSON.parse(mockSetString.mock.calls[0][1]);
+      expect(stored).toHaveLength(2);
+      expect(stored[0].countryCode).toBe('SGP');
+      expect(stored[1].countryCode).toBe('JPN');
+    });
+
+    it('enforces FIFO cap at 100 events', async () => {
+      const existingEvents = Array.from({ length: 100 }, (_, i) => ({
+        countryCode: 'SGP',
+        success: true,
+        timestamp: `2026-01-${String(i + 1).padStart(2, '0')}T00:00:00Z`,
+      }));
+      mockGetString.mockReturnValue(JSON.stringify(existingEvents));
+      mockLinking.canOpenURL.mockResolvedValue(true);
+      mockLinking.openURL.mockResolvedValue(undefined);
+
+      await PortalIntegrationService.launchPortal(mockSchema);
+
+      const stored = JSON.parse(mockSetString.mock.calls[0][1]);
+      expect(stored).toHaveLength(100);
+      // Oldest event removed, newest appended
+      expect(stored[0].timestamp).toBe('2026-01-02T00:00:00Z');
+      expect(stored[99].countryCode).toBe('JPN');
+    });
+  });
+
+  describe('getPortalAnalytics', () => {
+    it('returns empty array when no data stored', () => {
+      mockGetString.mockReturnValue(undefined);
+
+      const result = PortalIntegrationService.getPortalAnalytics();
+      expect(result).toEqual([]);
+    });
+
+    it('returns stored events', () => {
+      const events = [
+        { countryCode: 'JPN', success: true, timestamp: '2026-01-01T00:00:00Z' },
+        { countryCode: 'SGP', success: false, errorCategory: 'timeout', timestamp: '2026-01-02T00:00:00Z' },
+      ];
+      mockGetString.mockReturnValue(JSON.stringify(events));
+
+      const result = PortalIntegrationService.getPortalAnalytics();
+      expect(result).toEqual(events);
+    });
+
+    it('returns empty array on corrupted data', () => {
+      mockGetString.mockReturnValue('not-json{{{');
+
+      const result = PortalIntegrationService.getPortalAnalytics();
+      expect(result).toEqual([]);
     });
   });
 
