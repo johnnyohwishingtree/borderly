@@ -11,7 +11,7 @@
 import { performanceMonitor } from '../../src/services/monitoring/performance';
 import { memoryLeakDetector } from '../../src/services/monitoring/memoryLeakDetector';
 import { monitoringManager } from '../../src/services/monitoring';
-import { performanceOptimization } from '../../src/utils/performanceOptimization/index';
+import { performanceOptimization } from '../../src/services/performanceOptimization/index';
 
 // Mock MMKV storage for testing
 jest.mock('react-native-mmkv', () => ({

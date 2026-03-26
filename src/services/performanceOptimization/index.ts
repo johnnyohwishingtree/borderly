@@ -1,5 +1,5 @@
 /**
- * Performance Optimization barrel export
+ * Performance Optimization service barrel export
  */
 
 export { performanceOptimization } from './performanceOptimization';

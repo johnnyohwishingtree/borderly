@@ -22,7 +22,7 @@ jest.mock('../../src/services/storage', () => ({
   },
 }));
 
-import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization/index';
+import { performanceOptimization, OptimizationResult } from '../../src/services/performanceOptimization/index';
 
 // Mock PII sanitization
 jest.mock('../../src/utils/piiSanitizer', () => ({

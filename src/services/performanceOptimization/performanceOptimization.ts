@@ -5,10 +5,10 @@
  * for improving app performance based on real-world usage data.
  */
 
-import { mmkvService } from '../../services/storage';
-import { sanitizePII } from '../piiSanitizer';
-import type { PerformanceMetrics } from '../../services/performance/productionProfiler';
-import type { RegressionAlert } from '../../services/performance/regressionDetection';
+import { mmkvService } from '../storage';
+import { sanitizePII } from '../../utils/piiSanitizer';
+import type { PerformanceMetrics } from '../performance/productionProfiler';
+import type { RegressionAlert } from '../performance/regressionDetection';
 import type {
   OptimizationStrategy,
   OptimizationResult,
