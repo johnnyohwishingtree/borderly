@@ -33,29 +33,30 @@ export interface FieldMatchResult {
 
 /**
  * Standard HTML autocomplete tokens mapped to Borderly profile field IDs.
+ * Multiple IDs per token handle schema variations (e.g., givenNames vs firstName).
  * See: https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
  */
-const AUTOCOMPLETE_TO_FIELD_ID: Record<string, string> = {
-  'given-name': 'givenNames',
-  'additional-name': 'middleName',
-  'family-name': 'surname',
-  'name': 'givenNames', // fallback — often used for full name
-  'bday': 'dateOfBirth',
-  'bday-day': 'dateOfBirth',
-  'bday-month': 'dateOfBirth',
-  'bday-year': 'dateOfBirth',
-  'sex': 'gender',
-  'email': 'email',
-  'tel': 'phoneNumber',
-  'tel-national': 'phoneNumber',
-  'street-address': 'homeAddress',
-  'address-line1': 'homeAddress',
-  'address-level2': 'city',
-  'address-level1': 'state',
-  'postal-code': 'postalCode',
-  'country': 'nationality',
-  'country-name': 'nationality',
-  'organization': 'occupation',
+const AUTOCOMPLETE_TO_FIELD_IDS: Record<string, string[]> = {
+  'given-name': ['givenNames', 'givenName', 'firstName'],
+  'additional-name': ['middleName'],
+  'family-name': ['surname', 'lastName', 'familyName'],
+  'name': ['givenNames', 'givenName', 'firstName', 'fullName'],
+  'bday': ['dateOfBirth'],
+  'bday-day': ['dateOfBirth'],
+  'bday-month': ['dateOfBirth'],
+  'bday-year': ['dateOfBirth'],
+  'sex': ['gender'],
+  'email': ['email'],
+  'tel': ['phoneNumber'],
+  'tel-national': ['phoneNumber'],
+  'street-address': ['homeAddress'],
+  'address-line1': ['homeAddress'],
+  'address-level2': ['city'],
+  'address-level1': ['state'],
+  'postal-code': ['postalCode'],
+  'country': ['nationality'],
+  'country-name': ['nationality'],
+  'organization': ['occupation'],
 };
 
 /**
@@ -133,13 +134,17 @@ function matchByAutocomplete(
   const tokens = normalized.split(/\s+/);
   const fieldToken = tokens[tokens.length - 1];
 
-  const fieldId = AUTOCOMPLETE_TO_FIELD_ID[fieldToken];
-  if (!fieldId) return null;
+  const candidateIds = AUTOCOMPLETE_TO_FIELD_IDS[fieldToken];
+  if (!candidateIds) return null;
 
-  const field = fields.find(f => f.id === fieldId);
-  if (!field) return null;
+  for (const candidateId of candidateIds) {
+    const field = fields.find(f => f.id === candidateId);
+    if (field) {
+      return { field, confidence: 'high', strategy: 'autocomplete' };
+    }
+  }
 
-  return { field, confidence: 'high', strategy: 'autocomplete' };
+  return null;
 }
 
 /**
