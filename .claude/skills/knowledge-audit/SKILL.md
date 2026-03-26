@@ -1,126 +1,96 @@
 ---
 name: knowledge-audit
-description: Audit code against .knowledge/ conventions — find violations, evaluate fixes, propose test strategies
-argument-hint: "[--dry-run] [layer: services|stores|components|hooks|screens|schemas]"
+description: Audit code against .knowledge/ policies — find violations, evaluate fixes, propose test strategies
+argument-hint: "[--dry-run] [layer]"
 ---
 
 # /knowledge-audit — Code vs Knowledge Compliance Audit
 
-Checks whether code in each folder actually follows the rules declared in its CLAUDE.md and linked `.knowledge/` files. For each violation, evaluates whether to fix the code or update the knowledge, and proposes a test strategy to prevent regression.
+Checks whether code follows the policies declared in `.knowledge/policies/`, verifies test coverage, checks for graph integrity issues, and proposes test strategies for each violation.
 
-Differs from `/audit` (which checks drift, dead code, and index sync). This skill focuses specifically on whether the code conforms to the documented conventions.
+Uses the knowledge graph engine (`scripts/knowledge-graph.ts`) for structural queries.
 
-## Step 1: For each folder CLAUDE.md, read the rules
+## Step 1: Graph health check
 
-For each folder with a CLAUDE.md:
-1. Read the CLAUDE.md
-2. Read all linked `.knowledge/` files (the `See:` references)
-3. Extract the concrete rules (both "do this" and "anti-patterns")
+Run the graph engine queries to find structural issues:
 
-## Step 2: Check code against rules
+```bash
+npx tsx scripts/knowledge-graph.ts orphans       # nodes with no connections
+npx tsx scripts/knowledge-graph.ts unreferenced   # policies no CLAUDE.md loads
+npx tsx scripts/knowledge-graph.ts unenforced     # policies with no structural test
+```
 
-For each rule, run the appropriate check:
+Fix any issues found:
+- **Orphans** → wire into a folder CLAUDE.md or delete if obsolete
+- **Unreferenced** → add `See:` link to the relevant folder CLAUDE.md
+- **Unenforced** → write the structural test or mark as design guideline
 
-For each policy file in `.knowledge/policies/`, read its SCOPE and RULES sections, then check the scoped directories:
+## Step 2: Check code against policies
 
-- Read the **SCOPE** to know which directories to scan
-- Read each **RULE** (ALLOW/DENY/REQUIRE) and grep/parse the scoped files
-- Check **EXCEPTIONS** — don't flag legitimate exceptions
-- Verify **ENFORCEMENT** test exists and passes
-
-Policy files are organized by scope:
-- `policies/architecture/` — dependency direction, file boundaries, local-first
-- `policies/data/` — storage tiers, PII boundary, schema fields
-- `policies/ui/` — styling, typography, motion, accessibility, ux-writing
-- `policies/state/` — hook conventions, store boundaries
-- `policies/testing/` — test conventions, e2e testability, drift detection
-- `policies/platform/` — native modules, navigation
-
-Also check `.knowledge/models/` for invariant violations in business logic.
+For each policy in `.knowledge/policies/`:
+1. Read its **SCOPE** to know which directories to scan
+2. Read each **RULE** (ALLOW/DENY/REQUIRE) and grep/parse the scoped files
+3. Check **EXCEPTIONS** — don't flag legitimate exceptions
+4. Verify **ENFORCEMENT** test exists and passes
 
 ## Step 3: Check knowledge test coverage
 
-For each `.knowledge/policies/` file, read its ENFORCEMENT section and verify the referenced test exists. The `knowledge-test-coverage.test.ts` meta-test tracks the full mapping.
+Run `pnpm test -- knowledge-test-coverage` to verify all policies are mapped.
 
-Each policy's ENFORCEMENT section names its structural test. If a policy has no ENFORCEMENT or the test doesn't exist, that's a gap.
-
-For any policy **without** a structural test:
+For any policy without a structural test:
 1. Read its ENFORCEMENT section — does it reference a test?
 2. If no test exists → write one and add it to `__tests__/structure/`
-3. If the policy is a design guideline (typography, motion, ux-writing) → skip but note it
+3. If design guideline → skip but note it
 4. Add new policies to `knowledge-test-coverage.test.ts` mapping
-
-Also check `.knowledge/models/` — model invariants may need validation tests.
-
-**New knowledge files added since last audit** should be flagged if not mapped in `knowledge-test-coverage.test.ts`.
 
 ## Step 4: Evaluate each finding
 
 For every violation, decide:
 
-**Code is wrong** → the convention is correct, code needs fixing
-**Knowledge is stale** → the code is intentionally different, update the knowledge
+**Code is wrong** → the policy is correct, code needs fixing
+**Knowledge is stale** → the code is intentionally different, update the policy
 
 ## Step 5: Propose test strategy for each code fix
 
-Every fix needs a test to prevent regression. For each violation, specify:
+Every fix needs a test to prevent regression. Specify the test type, location, and what it asserts.
 
-| Violation type | Test strategy |
-|---|---|
-| Dependency direction | Structural test: grep imports at `pnpm test` time (already exists in screen-folder-convention tests) |
-| Store in component | Add to existing dependency-direction structural test |
-| Missing testID | Add to `maestro-registry-sync.test.ts` — registers the testID in screenRegistry |
-| PII in wrong storage | Unit test: verify `stripPIIFromFormData` strips the field |
-| Schema field type wrong | Schema validation test in `__tests__/schemas/` |
-| Hooks barrel missing export | Structural test: compare files to exports |
-| Screen naming | Already covered by `screen-folder-convention.test.ts` |
-
-If no existing test covers the violation, create one. The test should run at `pnpm test` time (< 1 second) so it catches drift immediately.
+If no existing test covers the violation, create one that runs in < 1 second.
 
 ## Step 6: Check knowledge consistency
 
-Scan for contradictions between knowledge files. Two files should never give opposite instructions about the same topic.
+Scan for contradictions between knowledge files:
 
-### How to check:
-
-**1. Extract rules by topic.** For each knowledge file, list the concrete rules as topic + instruction:
-```
-styling.md:       [inline-styles] → AVOID (prefer className)
-e2e-testability.md: [inline-styles] → OK (for computed values)
+```bash
+npx tsx scripts/knowledge-graph.ts impact <file>  # see what a change affects
 ```
 
-**2. Cluster by shared topics.** Find files that mention the same concepts (e.g., "testID", "Keychain", "inline styles", "barrel export", "autoFillSource"). These are the files that could contradict.
+For files that share topics, verify they agree:
+- **Consistent**: same rule, or one is a scoped exception
+- **Contradictory**: opposite instructions with no scoping → resolve
 
-**3. Compare instructions.** For each shared topic, check if the files agree:
-- **Consistent**: both say the same thing, or one is a scoped exception of the other (e.g., "avoid inline styles" + "inline styles OK for animations" — the exception is scoped)
-- **Contradictory**: one says "always do X" and another says "never do X" with no scoping — this is a conflict that needs resolving
-
-### Common conflict patterns:
-- Anti-pattern in file A is a recommendation in file B (without scoping)
-- Two files define different rules for the same field/component/pattern
-- A folder CLAUDE.md links to two knowledge files that disagree
-- A convention was updated but files that reference it still describe the old rule
-
-### When a conflict is found:
+When a conflict is found:
 - Determine which file is authoritative (usually the more specific one)
-- Update the other file to reference the authoritative rule or add explicit scoping
+- Update the other file to reference the authoritative rule
 - Add to gaps.md under `## Knowledge updates`
 
-## Step 7: Write all findings to gaps.md
+## Step 7: Regenerate architecture diagram
 
-Write findings to `.knowledge/gaps.md` with the test strategy included:
-
-```markdown
-## Code fixes
-- `src/components/guide/CopyableField.tsx` — copy button missing testID. Test: add to screenRegistry + maestro-registry-sync catches it. (knowledge-audit-YYYY-MM-DD)
+```bash
+npx tsx scripts/generate-knowledge-diagram.ts
 ```
 
-## Step 8: Fix or create stories (if not --dry-run)
+Commit if the diagram changed — keeps the view in sync.
+
+## Step 8: Write all findings to gaps.md
+
+Each gap entry includes: what's wrong, where, test strategy to prevent recurrence.
+
+## Step 9: Fix or create stories (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline and commit
-- **Larger fixes**: create a story with the test strategy in the acceptance criteria
+- **Larger fixes**: create a story with the test strategy in acceptance criteria
 
 ## What NOT to flag
-- Inline styles that are acceptable per `.knowledge/policies/ui/styling.md` exceptions
-- Fields without `autoFillSource` that are `countrySpecific: true`
-- Empty `.knowledge/` directories
+- Violations already listed in `gaps.md`
+- Design guidelines that can't be structurally tested (note them, don't flag)
+- Empty directories
