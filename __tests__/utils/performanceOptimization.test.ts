@@ -9,19 +9,17 @@ import type { RegressionAlert } from '../../src/services/performance/regressionD
 // Create a storage map that will be available for all instances
 const mockStorageMap = new Map<string, string>();
 
-jest.mock('react-native-mmkv', () => ({
-  MMKV: jest.fn().mockImplementation(() => ({
-    set: jest.fn((key: string, value: string) => {
+jest.mock('../../src/services/storage', () => ({
+  mmkvService: {
+    getString: jest.fn((key: string) => mockStorageMap.get(key) ?? undefined),
+    setString: jest.fn((key: string, value: string) => {
       mockStorageMap.set(key, value);
-    }),
-    getString: jest.fn((key: string) => {
-      return mockStorageMap.get(key) || null;
     }),
     delete: jest.fn((key: string) => {
       mockStorageMap.delete(key);
     }),
     getAllKeys: jest.fn(() => Array.from(mockStorageMap.keys())),
-  })),
+  },
 }));
 
 import { performanceOptimization, OptimizationResult } from '../../src/utils/performanceOptimization/index';
@@ -184,7 +182,7 @@ describe('PerformanceOptimization', () => {
           timestamp: Date.now() - 86400000
         }
       ];
-      mockStorageMap.set('optimization-history', JSON.stringify(optimizationHistory));
+      mockStorageMap.set('perf_opt_optimization-history', JSON.stringify(optimizationHistory));
       (performanceOptimization as any).resetForTesting(); // Reload the history
 
       const recommendations = performanceOptimization.getRecommendations(mockMetrics, mockAlerts);
@@ -324,7 +322,7 @@ describe('PerformanceOptimization', () => {
         expect(mockOperation).toHaveBeenCalled();
         
         // Should have recorded the measurement
-        expect(mockStorageMap.has('performance-measurements')).toBe(true);
+        expect(mockStorageMap.has('perf_opt_performance-measurements')).toBe(true);
       });
 
       it('should handle async operation errors', async () => {
@@ -336,7 +334,7 @@ describe('PerformanceOptimization', () => {
         ).rejects.toThrow('Async operation failed');
         
         // Should still record the failed measurement
-        expect(mockStorageMap.has('performance-measurements')).toBe(true);
+        expect(mockStorageMap.has('perf_opt_performance-measurements')).toBe(true);
       });
 
       it('should calculate execution time', async () => {
@@ -497,7 +495,7 @@ describe('PerformanceOptimization', () => {
       ];
       
       // Mock the optimization history
-      mockStorageMap.set('optimization-history', JSON.stringify(mockHistory));
+      mockStorageMap.set('perf_opt_optimization-history', JSON.stringify(mockHistory));
       (performanceOptimization as any).resetForTesting(); // Reload the history
 
       const report = performanceOptimization.getOptimizationReport();
@@ -551,7 +549,7 @@ describe('PerformanceOptimization', () => {
     });
 
     it('should handle malformed stored data', () => {
-      mockStorageMap.set('optimization-history', 'invalid json');
+      mockStorageMap.set('perf_opt_optimization-history', 'invalid json');
       
       expect(() => {
         performanceOptimization.getOptimizationReport();

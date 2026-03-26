@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import * as Keychain from 'react-native-keychain';
 import { useAppStore } from '@/stores/useAppStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { keychainService, exportUserData, deleteAllData } from '@/services/storage';
@@ -169,15 +168,15 @@ export function useSettings() {
     }
 
     try {
-      const result = await Keychain.getGenericPassword({
-        service: APP_LOCK_CHECK_SERVICE,
-        authenticationPrompt: {
+      const authenticated = await keychainService.authenticateWithBiometric(
+        APP_LOCK_CHECK_SERVICE,
+        {
           title: 'Confirm Disable App Lock',
           subtitle: 'Authenticate to disable app lock',
           cancel: 'Cancel',
         },
-      });
-      if (result !== false) {
+      );
+      if (authenticated) {
         setLockEnabled(false);
       } else {
         Alert.alert(
