@@ -52,14 +52,44 @@ For each rule, run the appropriate check:
 - Native modules on disk but not in Xcode pbxproj
 - Missing web mocks or Jest mocks
 
-## Step 3: Evaluate each finding
+## Step 3: Check knowledge test coverage
+
+For each `.knowledge/conventions/` file, verify a structural test exists that enforces it. Compare against `__tests__/structure/`:
+
+| Convention | Expected test |
+|---|---|
+| `dependency-direction.md` | `dependency-direction.test.ts` |
+| `e2e-testability.md` | `maestro-registry-sync.test.ts` + `component-testids.test.ts` |
+| `security-boundary.md` | `pii-boundary.test.ts` |
+| `styling.md` | `no-space-x.test.ts` + `smart-component-usage.test.ts` |
+| `state-management.md` | `hooks-barrel.test.ts` |
+| `navigation.md` | `screen-folder-convention.test.ts` |
+| `native-modules.md` | `native-module-mocks.test.ts` |
+| `accessibility/` | `accessibility-props.test.ts` |
+| `testing.md` | (meta — testing conventions aren't structurally testable) |
+| `typography.md` | (design guideline — not structurally testable) |
+| `motion.md` | (design guideline — not structurally testable) |
+| `ux-writing.md` | (design guideline — not structurally testable) |
+
+For any convention **without** a structural test:
+1. Determine if the convention IS structurally testable (can you grep/parse for violations?)
+2. If yes → write the test and add it to `__tests__/structure/`
+3. If no (design guideline) → skip, but note it in the report
+
+Also check `.knowledge/concepts/` and `.knowledge/domain/` for testable rules:
+- `drift-detection.md` → `maestro-registry-sync.test.ts` covers Maestro drift
+- `form-engine.md` → `schemaValidation.test.ts` covers schema rules
+
+**New knowledge files added since last audit** should be flagged if they have no test.
+
+## Step 4: Evaluate each finding
 
 For every violation, decide:
 
 **Code is wrong** → the convention is correct, code needs fixing
 **Knowledge is stale** → the code is intentionally different, update the knowledge
 
-## Step 4: Propose test strategy for each fix
+## Step 5: Propose test strategy for each code fix
 
 Every fix needs a test to prevent regression. For each violation, specify:
 
@@ -75,7 +105,7 @@ Every fix needs a test to prevent regression. For each violation, specify:
 
 If no existing test covers the violation, create one. The test should run at `pnpm test` time (< 1 second) so it catches drift immediately.
 
-## Step 5: Write findings to gaps.md
+## Step 6: Write findings to gaps.md
 
 Write findings to `.knowledge/gaps.md` with the test strategy included:
 
@@ -84,7 +114,7 @@ Write findings to `.knowledge/gaps.md` with the test strategy included:
 - `src/components/guide/CopyableField.tsx` — copy button missing testID. Test: add to screenRegistry + maestro-registry-sync catches it. (knowledge-audit-YYYY-MM-DD)
 ```
 
-## Step 6: Fix or create stories (if not --dry-run)
+## Step 7: Fix or create stories (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline and commit
 - **Larger fixes**: create a story with the test strategy in the acceptance criteria
