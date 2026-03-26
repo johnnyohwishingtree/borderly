@@ -2,8 +2,8 @@
  * Performance Optimization Types
  */
 
-import type { PerformanceMetrics } from '../../services/performance/productionProfiler';
-import type { RegressionAlert } from '../../services/performance/regressionDetection';
+import type { PerformanceMetrics } from '../performance/productionProfiler';
+import type { RegressionAlert } from '../performance/regressionDetection';
 
 export interface OptimizationStrategy {
   id: string;

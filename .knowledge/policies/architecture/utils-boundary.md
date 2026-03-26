@@ -36,4 +36,4 @@ src/utils/, src/services/
 ## Enforcement
 - Structural test: `__tests__/structure/utils-boundary.test.ts`
 - Runs at `pnpm test` time — catches storage imports, oversized directories, and lifecycle exports
-- Known violations (`automation`, `portal`, `performanceOptimization`) tracked in `KNOWN_VIOLATIONS` set — stories #947, #948 will clear them
+- All violations resolved — structural test fully enforces the policy with no exceptions

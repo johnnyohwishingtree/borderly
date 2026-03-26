@@ -2,15 +2,15 @@
  * Strategy execution methods extracted from PerformanceOptimization class
  */
 
-import type { PerformanceMetrics } from '../../services/performance/productionProfiler';
-import type { RegressionAlert } from '../../services/performance/regressionDetection';
+import type { PerformanceMetrics } from '../performance/productionProfiler';
+import type { RegressionAlert } from '../performance/regressionDetection';
 import type {
   OptimizationStrategy,
   OptimizationResult,
   OptimizationRecommendation,
   PerformanceBudget,
 } from './types';
-import { sanitizePII } from '../piiSanitizer';
+import { sanitizePII } from '../../utils/piiSanitizer';
 
 declare const global: any;
 

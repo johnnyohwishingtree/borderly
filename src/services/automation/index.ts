@@ -20,7 +20,7 @@ import { ElementDetector } from './detection';
 import { UploadHandler } from './upload';
 
 // Portal detection utility
-import { PortalDetector } from '../../utils/portal';
+import { PortalDetector } from '../portal';
 
 // Re-export types for external use
 export type {
@@ -69,7 +69,7 @@ export { AutomationPatterns } from './automationPatterns';
 
 export {
   PortalDetector
-} from '../../utils/portal';
+} from '../portal';
 
 export type {
   PortalIdentification,
@@ -78,7 +78,7 @@ export type {
   FormStructureInfo,
   CaptchaInfo,
   PortalChangeInfo
-} from '../../utils/portal';
+} from '../portal';
 
 /**
  * Automation Engine - Main orchestrator class
