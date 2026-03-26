@@ -46,5 +46,7 @@ export { useImportTrip } from './useImportTrip';
 export { useProfileScreen } from './useProfileScreen';
 export type { ProfileCompleteness, UseProfileScreenReturn } from './useProfileScreen';
 export { useReviewImport } from './useReviewImport';
+export { useTroubleshootingScreen } from './useTroubleshootingScreen';
+export type { UseTroubleshootingScreenReturn } from './useTroubleshootingScreen';
 export { useTheme } from '@/utils/theme';
 export type { UseThemeResult, ResolvedTheme, ColorTokens } from '@/utils/theme';
