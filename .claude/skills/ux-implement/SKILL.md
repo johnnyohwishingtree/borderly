@@ -67,17 +67,7 @@ Follow the project's standard patterns for each type of change:
 
 #### Onboarding Flow Changes
 
-The onboarding stack is in `src/app/navigation/RootNavigator.tsx`:
-```
-Welcome → Tutorial → PassportScan → ConfirmProfile → BiometricSetup
-```
-
-To add a screen to onboarding:
-1. Create the screen in `src/screens/onboarding/`
-2. Add to `OnboardingStackParamList` in `types.ts`
-3. Add a lazy import and `<OnboardingStack.Screen>` entry in `RootNavigator.tsx`
-4. Update the screen that navigates TO and FROM the new screen
-5. Export from `src/screens/onboarding/index.ts`
+Follow `.knowledge/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 

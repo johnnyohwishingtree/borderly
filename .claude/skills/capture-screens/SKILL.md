@@ -73,19 +73,9 @@ This produces `e2e/screenshots/flow-graph.json` — a machine-readable map of st
 
 ## Output
 
-**Screen screenshots** — currently **37 screens** across 7 domains:
+**Screen screenshots** — Read `maestro/generator/screenRegistry.ts` for the current screen inventory. Screen domains are discovered by listing directories under `src/screens/`.
 
-| Domain | Screens | Count |
-|--------|---------|-------|
-| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, AddCompanions, BiometricSetup | 8 |
-| trips | TripList (empty/with-trip), CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN) | 15 |
-| wallet | QRWallet, AddQR, QRDetail | 3 |
-| profile | Profile, EditProfile, FamilyManagement, AddFamilyMember | 4 |
-| settings | Settings, PrivacyPolicy | 2 |
-| support | Help, Feedback, BugReport | 3 |
-| help | FAQ, Troubleshooting | 2 |
-
-**Component screenshots** — **31 components / 87 variants** across 6 domains (ui, trips, guide, forms, profile, submission). Registered in `e2e/component-registry.tsx`.
+**Component screenshots** — Read `e2e/component-registry.tsx` for the component registry and current variant counts.
 
 **Flow graph** at `e2e/screenshots/flow-graph.json`.
 

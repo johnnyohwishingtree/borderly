@@ -41,13 +41,7 @@ Scan for:
 
 ### Step 2: Check Domain Placement
 
-Source files should be in their correct domain:
-- Storage services in `src/services/storage/`
-- Form engine in `src/services/forms/`
-- Submission logic in `src/services/submission/`
-- Error handling in `src/services/error/`
-- Monitoring in `src/services/monitoring/`
-- Navigation in `src/app/navigation/`
+Source files should be in their correct domain. Read folder `CLAUDE.md` files (e.g., `src/services/CLAUDE.md`, `src/app/CLAUDE.md`) to understand the expected directory structure and domain boundaries.
 
 Look for files in `src/utils/` that belong in a service domain.
 

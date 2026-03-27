@@ -26,24 +26,15 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 ### Step 1: Load App Context
 
 1. Read `CLAUDE.md` for architecture and feature list
-2. Read `maestro/generator/screenRegistry.ts` for per-screen metadata (fields, alerts, buttons)
+2. Read `maestro/generator/screenRegistry.ts` for the current screen inventory and per-screen metadata (fields, alerts, buttons)
 3. Read `maestro/generator/componentCatalog.ts` for component interaction patterns
 4. Read `e2e/screenshots/flow-graph.json` for navigation edges
 
 ### Step 2: Define Test Plan
 
-List every user-facing flow to test. If user specified a flow, focus on that. Otherwise test all:
+List every user-facing flow to test. If user specified a flow, focus on that. Otherwise test all.
 
-| Flow | Key screens | What to verify |
-|------|------------|----------------|
-| Onboarding | Welcome, PassportScan, ConfirmProfile, BiometricSetup | Data persists, navigation correct, skip paths work |
-| Trip creation | CreateTrip, TripDetail, LegForm | Form validation, auto-fill, country selection |
-| Form completion | LegForm, DynamicForm | Smart delta, auto-fill accuracy, field types correct |
-| Portal submission | SubmissionGuide, PortalSubmission | Steps render, copyable fields work, QR capture |
-| Family management | FamilyManagement, AddFamilyMember | Add/edit/delete, profile switching, data isolation |
-| QR wallet | QRWallet, AddQR, QRDetail | Import, display, search, full-screen view |
-| Profile | Profile, EditProfile | View, edit, save, passport validity display |
-| Settings | Settings, PrivacyPolicy, Backup/Restore | All toggles work, backup/restore flow |
+Read `maestro/generator/screenRegistry.ts` for the current screen inventory. Group screens by domain to define test flows. For each flow, identify key screens and what to verify (data persistence, form validation, navigation correctness, edge cases).
 
 ### Step 3: Walk Through Each Flow
 

@@ -54,7 +54,7 @@ Check for:
 **Coupling issues:**
 - Business logic in screen render functions
 - State management mixed with UI code
-- Direct OS Keychain access outside `src/services/storage/`
+- Storage boundary violations — check `.knowledge/policies/data/storage-tiers.md` for storage boundary rules
 
 ### Step 3: Plan Refactoring
 

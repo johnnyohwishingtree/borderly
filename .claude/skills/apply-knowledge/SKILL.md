@@ -35,25 +35,12 @@ If the file is a **model** (`models/`), read its INVARIANTS — check the code e
 
 ## Step 2: Determine what to scan
 
-For policies: read the **SCOPE** section — it lists the exact directories.
-For models: read the **KEY FILES** section — those are the files to check.
+Read the knowledge file's **SCOPE** section — it lists the exact directories to scan.
+For models, read the **KEY FILES** section.
 
-| Knowledge file | Default scan scope |
-|---|---|
-| `styling.md` | `src/components/`, `src/screens/` |
-| `state-management.md` | `src/hooks/`, `src/screens/` |
-| `dependency-direction.md` | `src/stores/`, `src/services/`, `src/components/`, `src/hooks/` |
-| `e2e-testability.md` | `src/components/`, `maestro/` |
-| `storage.md` | `src/services/`, `src/hooks/` |
-| `native-modules.md` | `ios/`, `e2e/mocks/`, `jest.setup.js` |
-| `testing.md` | `__tests__/` |
-| `form-engine.md` | `src/schemas/`, `src/services/forms/`, `src/components/forms/` |
-| `typography.md` | `src/components/ui/`, `src/screens/` |
-| `motion.md` | `src/components/ui/` |
-| `ux-writing.md` | `src/screens/`, `src/components/` |
-| `accessibility/*` | `src/components/` |
+If `--scope` provided, use that override instead.
 
-Override with `--scope` if provided.
+If the file has no SCOPE section, infer from its content — which directories do its rules apply to?
 
 ## Step 3: Scan for violations
 
