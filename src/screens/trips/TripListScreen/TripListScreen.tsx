@@ -207,7 +207,7 @@ export default function TripListScreen() {
               onChangeText={setSearchQuery}
               accessibilityLabel="Search trips"
               accessibilityHint="Filter trips by name"
-              testID="trip-search-input"
+              testID="trip-search-field"
               returnKeyType="search"
               autoCorrect={false}
             />

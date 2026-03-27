@@ -59,7 +59,7 @@ test.describe('Trip Creation and Management', () => {
     await page.getByRole('button', { name: 'Create Your First Trip' }).click();
     await expect(page.getByText('Create New Trip')).toBeVisible();
 
-    const nameInput = page.getByTestId('trip-name-input');
+    const nameInput = page.getByTestId('trip-name-field');
     await nameInput.fill('Japan Solo Adventure');
     await expect(nameInput).toHaveValue('Japan Solo Adventure');
   });

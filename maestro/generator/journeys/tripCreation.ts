@@ -28,7 +28,7 @@ const createJapanTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — JAPAN',
   actions: [
     // Trip name
-    fill('trip-name-input', 'Japan Trip 2026'),
+    fill('trip-name-field', 'Japan Trip 2026'),
     // Add destination
     tapButton('CreateTrip', 'add-destination-button'),
     // Country select (manual — Maestro depth issue with SearchableSelect)

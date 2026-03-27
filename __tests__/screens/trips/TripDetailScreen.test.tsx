@@ -314,7 +314,7 @@ describe('TripDetailScreen — Edit Trip modal', () => {
 
     fireEvent.press(screen.getByTestId('edit-trip-button'));
 
-    const input = screen.getByTestId('edit-trip-name-input');
+    const input = screen.getByTestId('edit-trip-name-field');
     expect(input.props.value).toBe('Asia Summer 2026');
   });
 
@@ -333,7 +333,7 @@ describe('TripDetailScreen — Edit Trip modal', () => {
     render(<TripDetailScreen />);
 
     fireEvent.press(screen.getByTestId('edit-trip-button'));
-    fireEvent.changeText(screen.getByTestId('edit-trip-name-input'), 'Renamed Trip');
+    fireEvent.changeText(screen.getByTestId('edit-trip-name-field'), 'Renamed Trip');
     fireEvent.press(screen.getByTestId('save-trip-name-button'));
 
     expect(mockUpdateTrip).toHaveBeenCalledWith('trip_1', { name: 'Renamed Trip' });

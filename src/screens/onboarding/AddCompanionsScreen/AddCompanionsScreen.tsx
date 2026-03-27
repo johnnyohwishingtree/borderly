@@ -242,7 +242,7 @@ export default function AddCompanionsScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => setShowRelationshipPicker(false)}
-                testID="relationship-picker-close"
+                testID="relationship-picker-close-button"
               >
                 <X size={24} color="#6b7280" />
               </TouchableOpacity>

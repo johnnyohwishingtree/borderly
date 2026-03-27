@@ -152,18 +152,18 @@ test.describe('Deadline Reminders — Notification Permission Screen', () => {
 
     // Enter passport details manually
     await page.getByRole('button', { name: 'Or enter manually' }).click();
-    await page.getByTestId('passport-number-input').fill('X98765432');
-    await page.getByTestId('surname-input').fill('TANAKA');
-    await page.getByTestId('given-names-input').fill('YUKI');
-    await page.getByTestId('nationality-input-trigger').click();
-    await page.getByTestId('nationality-input-search').fill('Japan');
-    await page.getByTestId('nationality-input-option-JPN').click();
-    await page.getByTestId('dob-input').fill('1990-04-22');
+    await page.getByTestId('passport-number-field').fill('X98765432');
+    await page.getByTestId('surname-field').fill('TANAKA');
+    await page.getByTestId('given-names-field').fill('YUKI');
+    await page.getByTestId('nationality-field-trigger').click();
+    await page.getByTestId('nationality-field-search').fill('Japan');
+    await page.getByTestId('nationality-field-option-JPN').click();
+    await page.getByTestId('dob-field').fill('1990-04-22');
     await page.getByTestId('gender-Female-button').click();
-    await page.getByTestId('passport-expiry-input').fill('2033-04-21');
-    await page.getByTestId('issuing-country-input-trigger').click();
-    await page.getByTestId('issuing-country-input-search').fill('Japan');
-    await page.getByTestId('issuing-country-input-option-JPN').click();
+    await page.getByTestId('passport-expiry-field').fill('2033-04-21');
+    await page.getByTestId('issuing-country-field-trigger').click();
+    await page.getByTestId('issuing-country-field-search').fill('Japan');
+    await page.getByTestId('issuing-country-field-option-JPN').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     // ConfirmProfile → AddCompanions → BiometricSetup
@@ -189,18 +189,18 @@ test.describe('Deadline Reminders — Notification Permission Screen', () => {
 
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await page.getByRole('button', { name: 'Or enter manually' }).click();
-    await page.getByTestId('passport-number-input').fill('X98765432');
-    await page.getByTestId('surname-input').fill('TANAKA');
-    await page.getByTestId('given-names-input').fill('YUKI');
-    await page.getByTestId('nationality-input-trigger').click();
-    await page.getByTestId('nationality-input-search').fill('Japan');
-    await page.getByTestId('nationality-input-option-JPN').click();
-    await page.getByTestId('dob-input').fill('1990-04-22');
+    await page.getByTestId('passport-number-field').fill('X98765432');
+    await page.getByTestId('surname-field').fill('TANAKA');
+    await page.getByTestId('given-names-field').fill('YUKI');
+    await page.getByTestId('nationality-field-trigger').click();
+    await page.getByTestId('nationality-field-search').fill('Japan');
+    await page.getByTestId('nationality-field-option-JPN').click();
+    await page.getByTestId('dob-field').fill('1990-04-22');
     await page.getByTestId('gender-Female-button').click();
-    await page.getByTestId('passport-expiry-input').fill('2033-04-21');
-    await page.getByTestId('issuing-country-input-trigger').click();
-    await page.getByTestId('issuing-country-input-search').fill('Japan');
-    await page.getByTestId('issuing-country-input-option-JPN').click();
+    await page.getByTestId('passport-expiry-field').fill('2033-04-21');
+    await page.getByTestId('issuing-country-field-trigger').click();
+    await page.getByTestId('issuing-country-field-search').fill('Japan');
+    await page.getByTestId('issuing-country-field-option-JPN').click();
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
     await page.getByTestId('continue-to-security-button').click();

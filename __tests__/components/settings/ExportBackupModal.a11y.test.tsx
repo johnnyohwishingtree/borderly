@@ -110,7 +110,7 @@ describe('ExportBackupModal — close button', () => {
 describe('ExportBackupModal — passphrase inputs', () => {
   it('passphrase input has correct accessibilityLabel', () => {
     render(<ExportBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('passphrase-input');
+    const input = screen.getByTestId('passphrase-field');
     expect(input.props.accessibilityLabel).toBe(
       'Passphrase, required, minimum 8 characters',
     );
@@ -118,7 +118,7 @@ describe('ExportBackupModal — passphrase inputs', () => {
 
   it('confirm passphrase input has correct accessibilityLabel', () => {
     render(<ExportBackupModal visible={true} onClose={jest.fn()} />);
-    const input = screen.getByTestId('confirm-passphrase-input');
+    const input = screen.getByTestId('confirm-passphrase-field');
     expect(input.props.accessibilityLabel).toBe('Confirm passphrase, required');
   });
 });

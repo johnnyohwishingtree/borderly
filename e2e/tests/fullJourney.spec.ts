@@ -20,18 +20,18 @@ async function completeManualOnboarding(page: Page, passport: {
   await page.getByRole('button', { name: 'Skip tutorial' }).click();
   await page.getByRole('button', { name: 'Or enter manually' }).click();
 
-  await page.getByTestId('passport-number-input').fill(passport.number);
-  await page.getByTestId('surname-input').fill(passport.surname);
-  await page.getByTestId('given-names-input').fill(passport.givenNames);
-  await page.getByTestId('nationality-input-trigger').click();
-  await page.getByTestId('nationality-input-search').fill('United States');
-  await page.getByTestId('nationality-input-option-USA').click();
-  await page.getByTestId('dob-input').fill(passport.dob);
+  await page.getByTestId('passport-number-field').fill(passport.number);
+  await page.getByTestId('surname-field').fill(passport.surname);
+  await page.getByTestId('given-names-field').fill(passport.givenNames);
+  await page.getByTestId('nationality-field-trigger').click();
+  await page.getByTestId('nationality-field-search').fill('United States');
+  await page.getByTestId('nationality-field-option-USA').click();
+  await page.getByTestId('dob-field').fill(passport.dob);
   await page.getByTestId(`gender-${passport.gender}-button`).click();
-  await page.getByTestId('passport-expiry-input').fill(passport.expiry);
-  await page.getByTestId('issuing-country-input-trigger').click();
-  await page.getByTestId('issuing-country-input-search').fill('United States');
-  await page.getByTestId('issuing-country-input-option-USA').click();
+  await page.getByTestId('passport-expiry-field').fill(passport.expiry);
+  await page.getByTestId('issuing-country-field-trigger').click();
+  await page.getByTestId('issuing-country-field-search').fill('United States');
+  await page.getByTestId('issuing-country-field-option-USA').click();
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });

@@ -164,7 +164,7 @@ export default function ExportBackupModal({
             accessibilityLabel="Passphrase, required, minimum 8 characters"
             autoCapitalize="none"
             autoComplete="password-new"
-            testID="passphrase-input"
+            testID="passphrase-field"
           />
 
           {/* Strength indicator — shown once user starts typing */}
@@ -184,7 +184,7 @@ export default function ExportBackupModal({
             accessibilityLabel="Confirm passphrase, required"
             autoCapitalize="none"
             autoComplete="password-new"
-            testID="confirm-passphrase-input"
+            testID="confirm-passphrase-field"
           />
 
           {/* Inline error (live region so screen readers announce it) */}

@@ -13,18 +13,18 @@ export async function completeOnboarding(page: Page) {
   await page.getByRole('button', { name: 'Skip tutorial' }).click();
   await page.getByRole('button', { name: 'Enter Manually' }).click();
 
-  await page.getByTestId('passport-number-input').fill(TEST_PASSPORT.number);
-  await page.getByTestId('surname-input').fill(TEST_PASSPORT.surname);
-  await page.getByTestId('given-names-input').fill(TEST_PASSPORT.givenNames);
-  await page.getByTestId('nationality-input-trigger').click();
-  await page.getByTestId('nationality-input-search').fill('United States');
-  await page.getByTestId('nationality-input-option-USA').click();
-  await page.getByTestId('dob-input').fill(TEST_PASSPORT.dob);
+  await page.getByTestId('passport-number-field').fill(TEST_PASSPORT.number);
+  await page.getByTestId('surname-field').fill(TEST_PASSPORT.surname);
+  await page.getByTestId('given-names-field').fill(TEST_PASSPORT.givenNames);
+  await page.getByTestId('nationality-field-trigger').click();
+  await page.getByTestId('nationality-field-search').fill('United States');
+  await page.getByTestId('nationality-field-option-USA').click();
+  await page.getByTestId('dob-field').fill(TEST_PASSPORT.dob);
   await page.getByTestId('gender-Male-button').click();
-  await page.getByTestId('passport-expiry-input').fill(TEST_PASSPORT.expiry);
-  await page.getByTestId('issuing-country-input-trigger').click();
-  await page.getByTestId('issuing-country-input-search').fill('United States');
-  await page.getByTestId('issuing-country-input-option-USA').click();
+  await page.getByTestId('passport-expiry-field').fill(TEST_PASSPORT.expiry);
+  await page.getByTestId('issuing-country-field-trigger').click();
+  await page.getByTestId('issuing-country-field-search').fill('United States');
+  await page.getByTestId('issuing-country-field-option-USA').click();
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
@@ -47,18 +47,18 @@ export async function navigateToAddCompanions(page: Page) {
   await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
   await page.getByRole('button', { name: 'Or enter manually' }).click();
 
-  await page.getByTestId('passport-number-input').fill('AB1234567');
-  await page.getByTestId('surname-input').fill('SMITH');
-  await page.getByTestId('given-names-input').fill('JOHN');
-  await page.getByTestId('nationality-input-trigger').click();
-  await page.getByTestId('nationality-input-search').fill('United States');
-  await page.getByTestId('nationality-input-option-USA').click();
-  await page.getByTestId('dob-input').fill('1990-01-15');
+  await page.getByTestId('passport-number-field').fill('AB1234567');
+  await page.getByTestId('surname-field').fill('SMITH');
+  await page.getByTestId('given-names-field').fill('JOHN');
+  await page.getByTestId('nationality-field-trigger').click();
+  await page.getByTestId('nationality-field-search').fill('United States');
+  await page.getByTestId('nationality-field-option-USA').click();
+  await page.getByTestId('dob-field').fill('1990-01-15');
   await page.getByTestId('gender-Male-button').click();
-  await page.getByTestId('passport-expiry-input').fill('2030-12-31');
-  await page.getByTestId('issuing-country-input-trigger').click();
-  await page.getByTestId('issuing-country-input-search').fill('United States');
-  await page.getByTestId('issuing-country-input-option-USA').click();
+  await page.getByTestId('passport-expiry-field').fill('2030-12-31');
+  await page.getByTestId('issuing-country-field-trigger').click();
+  await page.getByTestId('issuing-country-field-search').fill('United States');
+  await page.getByTestId('issuing-country-field-option-USA').click();
 
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
@@ -77,7 +77,7 @@ export async function createJapanTrip(page: Page) {
   await page.getByTestId('country-select-0-search').fill('Japan');
   await page.getByTestId('country-select-0-option-JPN').click();
 
-  await page.getByTestId('trip-name-input').fill('Smith Family Asia');
+  await page.getByTestId('trip-name-field').fill('Smith Family Asia');
 
   await page.getByTestId('leg-0-arrival-date').fill('2026-07-01');
   await page.getByTestId('leg-0-departure-date').fill('2026-07-07');

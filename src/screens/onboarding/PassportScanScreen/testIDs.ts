@@ -1,0 +1,17 @@
+export const PASSPORT_SCAN_IDS = {
+  dismissPerformanceHintButton: { id: 'dismiss-performance-hint-button', type: 'button' as const },
+  startCameraScanButton: { id: 'start-camera-scan-button', type: 'button' as const },
+  enterManuallyButton: { id: 'enter-manually-button', type: 'button' as const },
+  demoScanAdultButton: { id: 'demo-scan-adult-button', type: 'button' as const },
+  demoScanSpouseButton: { id: 'demo-scan-spouse-button', type: 'button' as const },
+  demoScanChildButton: { id: 'demo-scan-child-button', type: 'button' as const },
+  passportNumberField: { id: 'passport-number-field', type: 'Input' as const },
+  surnameField: { id: 'surname-field', type: 'Input' as const },
+  givenNamesField: { id: 'given-names-field', type: 'Input' as const },
+  nationalityField: { id: 'nationality-field', type: 'SearchableSelect' as const },
+  dobField: { id: 'dob-field', type: 'DatePickerField' as const },
+  passportExpiryField: { id: 'passport-expiry-field', type: 'DatePickerField' as const },
+  issuingCountryField: { id: 'issuing-country-field', type: 'SearchableSelect' as const },
+  passportContinueButton: { id: 'passport-continue-button', type: 'button' as const },
+  passportBackButton: { id: 'passport-back-button', type: 'button' as const },
+};

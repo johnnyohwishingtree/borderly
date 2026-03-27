@@ -133,7 +133,7 @@ describe('CreateTripScreen — with templateId', () => {
     render(<CreateTripScreen />);
     // The trip name input should be pre-filled with the template name
     await waitFor(() => {
-      const nameInput = screen.getByTestId('trip-name-input');
+      const nameInput = screen.getByTestId('trip-name-field');
       expect(nameInput.props.value).toBe('Japan–Singapore Loop');
     });
   });

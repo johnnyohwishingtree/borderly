@@ -111,7 +111,7 @@ test.describe('TripListScreen search and filter', () => {
   });
 
   test('search bar is visible and filters trips by name', async ({ page }) => {
-    const searchInput = page.getByTestId('trip-search-input');
+    const searchInput = page.getByTestId('trip-search-field');
     await expect(searchInput).toBeVisible();
 
     await searchInput.fill('Tokyo');
@@ -125,7 +125,7 @@ test.describe('TripListScreen search and filter', () => {
   });
 
   test('clear button resets search', async ({ page }) => {
-    const searchInput = page.getByTestId('trip-search-input');
+    const searchInput = page.getByTestId('trip-search-field');
     await searchInput.fill('Tokyo');
     await page.waitForTimeout(400);
 
@@ -154,7 +154,7 @@ test.describe('TripListScreen search and filter', () => {
     await page.getByTestId('trip-filter-active').click();
 
     // Search for Tokyo
-    const searchInput = page.getByTestId('trip-search-input');
+    const searchInput = page.getByTestId('trip-search-field');
     await searchInput.fill('Tokyo');
     await page.waitForTimeout(400);
 
@@ -165,7 +165,7 @@ test.describe('TripListScreen search and filter', () => {
   });
 
   test('shows no-match empty state when filters return zero results', async ({ page }) => {
-    const searchInput = page.getByTestId('trip-search-input');
+    const searchInput = page.getByTestId('trip-search-field');
     await searchInput.fill('zzz');
     await page.waitForTimeout(400);
 

@@ -175,21 +175,21 @@ export default function PassportScanScreen() {
                     onPress={() => scan.handleDemo('adult')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-adult"
+                    testID="demo-scan-adult-button"
                   />
                   <Button
                     title="Demo: Spouse"
                     onPress={() => scan.handleDemo('spouse')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-spouse"
+                    testID="demo-scan-spouse-button"
                   />
                   <Button
                     title="Demo: Child"
                     onPress={() => scan.handleDemo('child')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-child"
+                    testID="demo-scan-child-button"
                   />
                 </View>
               </View>
@@ -220,7 +220,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.passportNumber?.message}
                   autoCapitalize="characters"
-                  testID="passport-number-input"
+                  testID="passport-number-field"
                 />
               )}
             />
@@ -237,7 +237,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.surname?.message}
                   autoCapitalize="words"
-                  testID="surname-input"
+                  testID="surname-field"
                 />
               )}
             />
@@ -254,7 +254,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.givenNames?.message}
                   autoCapitalize="words"
-                  testID="given-names-input"
+                  testID="given-names-field"
                 />
               )}
             />
@@ -271,7 +271,7 @@ export default function PassportScanScreen() {
                     onValueChange={onChange}
                     placeholder="Search nationality..."
                     error={errors.nationality?.message}
-                    testID="nationality-input"
+                    testID="nationality-field"
                   />
                 </View>
               )}
@@ -287,7 +287,7 @@ export default function PassportScanScreen() {
                   onChange={onChange}
                   error={errors.dateOfBirth?.message}
                   maxDate={getTodayISO()}
-                  testID="dob-input"
+                  testID="dob-field"
                   placeholder="Select date of birth"
                 />
               )}
@@ -334,7 +334,7 @@ export default function PassportScanScreen() {
                   onChange={onChange}
                   error={errors.passportExpiry?.message}
                   minDate={getTodayISO()}
-                  testID="passport-expiry-input"
+                  testID="passport-expiry-field"
                   placeholder="Select expiry date"
                 />
               )}
@@ -352,7 +352,7 @@ export default function PassportScanScreen() {
                     onValueChange={onChange}
                     placeholder="Search issuing country..."
                     error={errors.issuingCountry?.message}
-                    testID="issuing-country-input"
+                    testID="issuing-country-field"
                   />
                 </View>
               )}

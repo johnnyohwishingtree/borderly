@@ -13,8 +13,8 @@ src/components/, src/screens/, maestro/
   - `-container` for non-interactive wrappers that need identification
 - REQUIRE: screen prefix for disambiguation: `<screen>-<name>-<suffix>` (e.g., `create-trip-name-field`, `passport-continue-button`)
 - REQUIRE: dynamic testIDs use `${index}`: `leg-${index}-arrival-field`
-- DENY: suffix-less testIDs (`demo-scan-adult`) — must be `demo-scan-adult-button`
-- DENY: misleading suffixes (`nationality-input` for a SearchableSelect) — use `-field`
+- DENY: suffix-less testIDs (e.g., `demo-scan-adult`) — must be `demo-scan-adult-button`
+- DENY: misleading suffixes (e.g., `-input` for a SearchableSelect) — use `-field`
 - DENY: hardcoded index in source testIDs (`leg-0-*`) — use `leg-${index}-*`
 
 ### testID declaration
@@ -66,8 +66,8 @@ xcrun simctl spawn booted log show --last 2m --predicate 'process == "Borderly"'
 - `tapOn: "City"` in Maestro flow — breaks when label text changes
 - Updating screen UI without updating testIDs.ts
 - Inline testID strings in JSX — drift when refactored
-- `nationality-input` for a SearchableSelect — misleading suffix
-- `demo-scan-adult` with no suffix — parser can't classify
+- `-input` suffix for a SearchableSelect — misleading suffix; use `nationality-field`
+- Suffix-less testIDs — parser can't classify; use `demo-scan-adult-button`
 - `testID: "..."` in prop objects — use constant import
 - Debugging Maestro failures by screenshot alone — check simulator logs first
 - Keychain access groups on simulator without provisioning — use `USE_SHARED_ACCESS_GROUP` flag

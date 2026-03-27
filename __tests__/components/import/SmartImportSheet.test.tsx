@@ -97,7 +97,7 @@ describe('SmartImportSheet', () => {
     const { getByTestId } = render(
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
-    expect(getByTestId('paste-confirmation-input')).toBeTruthy();
+    expect(getByTestId('paste-confirmation-field')).toBeTruthy();
   });
 
   it('switches to flight tab on press', () => {
@@ -105,8 +105,8 @@ describe('SmartImportSheet', () => {
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
     fireEvent.press(getByTestId('tab-flight'));
-    expect(getByTestId('flight-number-input')).toBeTruthy();
-    expect(queryByTestId('paste-confirmation-input')).toBeNull();
+    expect(getByTestId('flight-number-field')).toBeTruthy();
+    expect(queryByTestId('paste-confirmation-field')).toBeNull();
   });
 
   it('switches back to paste tab', () => {
@@ -115,7 +115,7 @@ describe('SmartImportSheet', () => {
     );
     fireEvent.press(getByTestId('tab-flight'));
     fireEvent.press(getByTestId('tab-paste'));
-    expect(getByTestId('paste-confirmation-input')).toBeTruthy();
+    expect(getByTestId('paste-confirmation-field')).toBeTruthy();
   });
 
   // ─── Close ────────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ describe('SmartImportSheet', () => {
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
 
-    fireEvent.changeText(getByTestId('paste-confirmation-input'), 'booking email text');
+    fireEvent.changeText(getByTestId('paste-confirmation-field'), 'booking email text');
     fireEvent.press(getByTestId('parse-confirmation-button'));
 
     expect(mockParseConfirmationText).toHaveBeenCalledWith('booking email text');
@@ -155,7 +155,7 @@ describe('SmartImportSheet', () => {
       <SmartImportSheet onImport={onImport} onClose={jest.fn()} />,
     );
 
-    fireEvent.changeText(getByTestId('paste-confirmation-input'), 'booking text');
+    fireEvent.changeText(getByTestId('paste-confirmation-field'), 'booking text');
     fireEvent.press(getByTestId('parse-confirmation-button'));
     fireEvent.press(getByTestId('import-parsed-data-button'));
 
@@ -177,7 +177,7 @@ describe('SmartImportSheet', () => {
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
 
-    fireEvent.changeText(getByTestId('paste-confirmation-input'), 'random text');
+    fireEvent.changeText(getByTestId('paste-confirmation-field'), 'random text');
     fireEvent.press(getByTestId('parse-confirmation-button'));
 
     expect(getByText(/No flight or hotel information found/)).toBeTruthy();
@@ -193,7 +193,7 @@ describe('SmartImportSheet', () => {
     );
 
     fireEvent.press(getByTestId('tab-flight'));
-    fireEvent.changeText(getByTestId('flight-number-input'), 'JL723');
+    fireEvent.changeText(getByTestId('flight-number-field'), 'JL723');
     fireEvent.press(getByTestId('lookup-flight-button'));
 
     expect(mockLookupFlight).toHaveBeenCalledWith('JL723', {});
@@ -210,7 +210,7 @@ describe('SmartImportSheet', () => {
     );
 
     fireEvent.press(getByTestId('tab-flight'));
-    fireEvent.changeText(getByTestId('flight-number-input'), 'JL723');
+    fireEvent.changeText(getByTestId('flight-number-field'), 'JL723');
     fireEvent.press(getByTestId('lookup-flight-button'));
     fireEvent.press(getByTestId('import-flight-button'));
 
@@ -231,7 +231,7 @@ describe('SmartImportSheet', () => {
     );
 
     fireEvent.press(getByTestId('tab-flight'));
-    fireEvent.changeText(getByTestId('flight-number-input'), 'XX999');
+    fireEvent.changeText(getByTestId('flight-number-field'), 'XX999');
     fireEvent.press(getByTestId('lookup-flight-button'));
 
     expect(getByText('Flight not found')).toBeTruthy();

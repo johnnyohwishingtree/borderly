@@ -50,18 +50,18 @@ test.describe('AddCompanions Screen', () => {
     await page.getByRole('button', { name: 'Skip tutorial' }).click();
     await page.getByRole('button', { name: 'Or enter manually' }).click();
 
-    await page.getByTestId('passport-number-input').fill('ZX9876543');
-    await page.getByTestId('surname-input').fill('JONES');
-    await page.getByTestId('given-names-input').fill('ALICE');
-    await page.getByTestId('nationality-input-trigger').click();
-    await page.getByTestId('nationality-input-search').fill('United States');
-    await page.getByTestId('nationality-input-option-USA').click();
-    await page.getByTestId('dob-input').fill('1988-03-22');
+    await page.getByTestId('passport-number-field').fill('ZX9876543');
+    await page.getByTestId('surname-field').fill('JONES');
+    await page.getByTestId('given-names-field').fill('ALICE');
+    await page.getByTestId('nationality-field-trigger').click();
+    await page.getByTestId('nationality-field-search').fill('United States');
+    await page.getByTestId('nationality-field-option-USA').click();
+    await page.getByTestId('dob-field').fill('1988-03-22');
     await page.getByTestId('gender-Female-button').click();
-    await page.getByTestId('passport-expiry-input').fill('2029-09-15');
-    await page.getByTestId('issuing-country-input-trigger').click();
-    await page.getByTestId('issuing-country-input-search').fill('United States');
-    await page.getByTestId('issuing-country-input-option-USA').click();
+    await page.getByTestId('passport-expiry-field').fill('2029-09-15');
+    await page.getByTestId('issuing-country-field-trigger').click();
+    await page.getByTestId('issuing-country-field-search').fill('United States');
+    await page.getByTestId('issuing-country-field-option-USA').click();
 
     await page.getByTestId('passport-continue-button').click();
     await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });

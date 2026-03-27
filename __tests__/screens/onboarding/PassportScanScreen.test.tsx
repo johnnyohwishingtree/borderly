@@ -401,7 +401,7 @@ describe('PassportScanScreen — preview mode', () => {
     render(<PassportScanScreen />);
 
     expect(screen.queryByText('Quick Passport Scan')).toBeNull();
-    expect(screen.queryByTestId('passport-number-input')).toBeNull();
+    expect(screen.queryByTestId('passport-number-field')).toBeNull();
   });
 
   it('confirm button calls handleConfirmScanned', () => {
@@ -463,31 +463,31 @@ describe('PassportScanScreen — manual entry mode', () => {
   it('renders passport number input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-number-input')).toBeTruthy();
+    expect(screen.getByTestId('passport-number-field')).toBeTruthy();
   });
 
   it('renders surname input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('surname-input')).toBeTruthy();
+    expect(screen.getByTestId('surname-field')).toBeTruthy();
   });
 
   it('renders given names input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('given-names-input')).toBeTruthy();
+    expect(screen.getByTestId('given-names-field')).toBeTruthy();
   });
 
   it('renders nationality select', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('nationality-input')).toBeTruthy();
+    expect(screen.getByTestId('nationality-field')).toBeTruthy();
   });
 
   it('renders date of birth field', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('dob-input')).toBeTruthy();
+    expect(screen.getByTestId('dob-field')).toBeTruthy();
   });
 
   it('renders gender buttons', () => {
@@ -501,13 +501,13 @@ describe('PassportScanScreen — manual entry mode', () => {
   it('renders passport expiry field', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-expiry-input')).toBeTruthy();
+    expect(screen.getByTestId('passport-expiry-field')).toBeTruthy();
   });
 
   it('renders issuing country select', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('issuing-country-input')).toBeTruthy();
+    expect(screen.getByTestId('issuing-country-field')).toBeTruthy();
   });
 
   it('renders Continue button', () => {

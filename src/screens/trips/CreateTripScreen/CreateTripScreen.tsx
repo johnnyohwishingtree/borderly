@@ -62,7 +62,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => setTripData(prev => ({ ...prev, name: text }))}
                   placeholder="e.g., Asia Summer 2025"
                   error={errors.tripName}
-                  testID="trip-name-input"
+                  testID="trip-name-field"
                 />
                 {errors.tripName && (
                   <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>

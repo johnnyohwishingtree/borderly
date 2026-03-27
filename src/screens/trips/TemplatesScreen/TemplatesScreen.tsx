@@ -124,7 +124,7 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
               returnKeyType="done"
               onSubmitEditing={handleConfirm}
               className="text-base text-gray-900 dark:text-white"
-              testID="rename-template-input"
+              testID="rename-template-field"
               accessibilityLabel="Template name, required"
               autoFocus
             />

@@ -100,8 +100,8 @@ describe('ExportBackupModal — rendering', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByTestId('passphrase-input')).toBeTruthy();
-    expect(getByTestId('confirm-passphrase-input')).toBeTruthy();
+    expect(getByTestId('passphrase-field')).toBeTruthy();
+    expect(getByTestId('confirm-passphrase-field')).toBeTruthy();
   });
 
   it('renders the export button when not loading', () => {
@@ -135,7 +135,7 @@ describe('ExportBackupModal — passphrase interactions', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    fireEvent.changeText(getByTestId('passphrase-input-field'), 'mypassword');
+    fireEvent.changeText(getByTestId('passphrase-field-field'), 'mypassword');
     expect(mockSetPassphrase).toHaveBeenCalledWith('mypassword');
   });
 
@@ -143,7 +143,7 @@ describe('ExportBackupModal — passphrase interactions', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    fireEvent.changeText(getByTestId('confirm-passphrase-input-field'), 'mypassword');
+    fireEvent.changeText(getByTestId('confirm-passphrase-field-field'), 'mypassword');
     expect(mockSetConfirmPassphrase).toHaveBeenCalledWith('mypassword');
   });
 });

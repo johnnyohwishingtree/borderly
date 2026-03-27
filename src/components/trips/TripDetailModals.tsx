@@ -137,7 +137,7 @@ export function EditTripModal({
                   onChangeText={editHook.tripName.setEditName}
                   placeholder="e.g., Asia Summer 2025"
                   error={editHook.errors.name}
-                  testID="edit-trip-name-input"
+                  testID="edit-trip-name-field"
                 />
                 <View className="mt-3">
                   <Button

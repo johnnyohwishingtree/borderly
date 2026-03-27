@@ -163,7 +163,7 @@ function PasteTab({
         numberOfLines={8}
         textAlignVertical="top"
         className="border border-gray-300 rounded-lg p-3 text-base text-gray-900 mb-4 min-h-[160px]"
-        testID="paste-confirmation-input"
+        testID="paste-confirmation-field"
       />
 
       <Button
@@ -270,7 +270,7 @@ function FlightTab({
           placeholder="e.g., NH101, JL723, SQ12"
           autoCapitalize="characters"
           className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-          testID="flight-number-input"
+          testID="flight-number-field"
         />
       </View>
 
@@ -286,7 +286,7 @@ function FlightTab({
             autoCapitalize="characters"
             maxLength={3}
             className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-            testID="departure-airport-input"
+            testID="departure-airport-field"
           />
         </View>
         <View className="flex-1">
@@ -300,7 +300,7 @@ function FlightTab({
             autoCapitalize="characters"
             maxLength={3}
             className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-            testID="arrival-airport-input"
+            testID="arrival-airport-field"
           />
         </View>
       </View>
@@ -314,7 +314,7 @@ function FlightTab({
           onChangeText={setDate}
           placeholder="YYYY-MM-DD"
           className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-          testID="flight-date-input"
+          testID="flight-date-field"
         />
       </View>
 

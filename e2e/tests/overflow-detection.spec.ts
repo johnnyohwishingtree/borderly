@@ -225,7 +225,7 @@ test.describe('Horizontal overflow detection (375px viewport)', () => {
     await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: 'Or enter manually' }).click();
     // Wait for the manual form to render
-    await expect(page.getByTestId('passport-number-input')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('passport-number-field')).toBeVisible({ timeout: 5000 });
 
     const result = await checkHorizontalOverflow(page);
     expect(result.overflows, `scrollWidth=${result.scrollWidth} > clientWidth=${result.clientWidth}`).toBe(false);

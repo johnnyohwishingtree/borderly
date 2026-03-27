@@ -67,7 +67,7 @@ test.describe('Complete User Flow', () => {
     await expect(page.getByRole('textbox', { name: 'Passport Number' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Surname (Family Name)' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Given Names' })).toBeVisible();
-    await expect(page.getByTestId('nationality-input')).toBeVisible();
+    await expect(page.getByTestId('nationality-field')).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Date of Birth' })).toBeVisible();
 
     // Gender options should be available
