@@ -72,11 +72,7 @@ Verify the output at `e2e/screenshots/flow-graph.json`.
 
 ### Step 6: Verify
 
-```bash
-pnpm typecheck
-```
-
-Documentation changes don't need full test runs, but verify type definitions if `types.ts` was updated.
+Run `pnpm typecheck`. Documentation-only changes don't need full verification per `policies/workflow/verification.md`, but verify type definitions if `types.ts` was updated.
 
 ### Step 7: Summary
 

@@ -95,3 +95,8 @@ Report:
 - Bugs fixed in this session
 - Issues created for deferred bugs
 - Flows that passed without issues
+
+## Related Skills
+- `/visual-audit` — screenshot-based UI/UX audit (this skill reads code and simulates flows)
+- `/ux-review` — evaluates flow-level UX (this skill finds bugs, not UX issues)
+- `/audit` — codebase health (this skill is user-facing quality)

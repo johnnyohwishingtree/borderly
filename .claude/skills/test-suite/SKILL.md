@@ -49,7 +49,7 @@ Check for:
 Follow these conventions:
 - Use Jest + React Native Testing Library
 - Use RNTL accessibility queries in priority order: `getByRole` > `getByLabelText` > `getByTestId`
-- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (no `.snap` files)
+- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per `.claude/rules/no-snapshot-files.md`)
 - Mock native modules in `jest.setup.js` — don't add new mocks unless necessary
 - Tests must run in under 1 second each
 - Use `renderHook` from `@testing-library/react-hooks` for hook tests
@@ -76,3 +76,7 @@ Report what was added:
 - Coverage before/after
 - Bugs found and fixed by new tests
 - Remaining gaps (if any) with rationale for skipping
+
+## Related Skills
+- `/test-audit` — evaluates quality of existing tests (this skill adds missing tests, test-audit scores existing ones)
+- `/apply-knowledge testing/test-quality.md` — fix tests that violate quality policy

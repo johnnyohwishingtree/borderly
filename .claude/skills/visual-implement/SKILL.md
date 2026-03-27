@@ -50,7 +50,7 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 1. Read the screen source file
 2. Identify the exact code to modify
 3. Apply the fix (with TDD for bugs, directly for styling)
-4. Run `pnpm typecheck` after each file to catch errors immediately
+4. Follow `.knowledge/policies/workflow/fix-strategy.md` — typecheck after each file
 
 ### Step 4: Verify
 

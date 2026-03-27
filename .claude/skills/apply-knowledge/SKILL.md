@@ -96,7 +96,7 @@ For each fix, check if a structural test already catches it:
 - If yes → verify the test passes with the fix
 - If no → create or update the structural test in `__tests__/structure/`
 
-Every fix must have a test. See `.claude/rules/knowledge-must-have-tests.md`.
+Every fix must have a test per `.knowledge/policies/architecture/testable-architecture.md`.
 
 ## Step 7: Verify
 

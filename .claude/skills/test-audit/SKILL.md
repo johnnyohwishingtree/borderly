@@ -113,3 +113,7 @@ If patterns were found during the audit:
 - Structural tests in `__tests__/structure/` (they enforce policies)
 - Tests for security-critical code (PII, keychain, encryption)
 - Tests the user explicitly asked for
+
+## Related Skills
+- `/test-suite` — adds missing tests (this skill scores existing ones)
+- `/audit` — finds dead code and drift (this skill focuses on test quality)
