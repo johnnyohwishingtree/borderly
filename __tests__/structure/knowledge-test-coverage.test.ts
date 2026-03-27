@@ -44,6 +44,7 @@ const DESIGN_GUIDELINES = new Set([
   'workflow/fix-strategy.md', // process policy — rules/fix-strategy.md is the auto-loaded pointer
   'workflow/bug-fix.md', // process policy — rules/bug-fix-workflow.md is the auto-loaded pointer
   'workflow/story-implementation.md', // process policy — enforced by pipeline skills
+  'workflow/epic-planning.md', // process policy — enforced by pipeline Step 9
 ]);
 
 describe('Knowledge test coverage', () => {

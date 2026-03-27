@@ -141,18 +141,45 @@ Output a structured report with:
 - Affected screens/files
 - Whether this requires new screens, navigation changes, or just reordering
 
-### Step 6: Prioritized Recommendations
+### Step 6: Write findings to gaps.md
 
-Group findings into actionable themes:
-1. **Quick wins** — Reordering, renaming, or adding shortcuts (no new screens)
-2. **Flow restructuring** — Adding screens to existing flows, changing navigation order
+Add UX findings to `.knowledge/gaps.md` under `## Code fixes` (for implementable changes) or `## Knowledge updates` (for flow model updates).
+
+Each entry must include severity and what needs to change.
+
+### Step 7: Create stories
+
+Group findings by theme. For each group with 2+ items, create a story:
+
+```bash
+REPO="johnnyohwishingtree/borderly"
+DATE=$(date +%Y-%m-%d)
+
+gh issue create --repo $REPO \
+  --title "Story: Fix <theme> UX issues from $DATE ux-review" \
+  --label "story,pending" \
+  --body "<follow .knowledge/templates/story.md>
+
+After completing fixes, remove resolved entries from .knowledge/gaps.md."
+```
+
+Prioritize themes in this order:
+1. **Quick wins** — Reordering, renaming, adding shortcuts (no new screens)
+2. **Flow restructuring** — Adding screens, changing navigation order
 3. **New features** — New screens or navigation paths needed
-4. **Architecture changes** — Store/service changes to support better flows
+
+### Step 8: Verify and commit
+
+Follow `.knowledge/policies/workflow/verification.md` if any files were changed.
+
+```bash
+git add .knowledge/gaps.md
+git diff --cached --quiet || git commit -m "chore: ux-review findings ($DATE)" && git push origin master
+```
 
 ## Guardrails
-
-- Individual screen visual polish (that's `/visual-audit`)
-- Code quality or architecture (that's `/refactor-design`)
-- Test coverage (that's `/test-suite`)
-- Performance (separate concern)
+- Don't implement fixes — only identify and create stories
+- Individual screen visual polish is `/visual-audit`, not this skill
+- Code quality or architecture is `/refactor-design`
+- Test coverage is `/test-suite`
 

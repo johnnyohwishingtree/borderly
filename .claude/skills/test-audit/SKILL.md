@@ -107,15 +107,42 @@ Test count may go DOWN — that's expected if quality went up. Track:
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after
 
-## Step 6: Update knowledge
+## Step 6: Write findings to gaps.md and create stories
+
+Add findings to `.knowledge/gaps.md`. For Tier 3-4 groups with 5+ tests, create a story:
+
+```bash
+REPO="johnnyohwishingtree/borderly"
+DATE=$(date +%Y-%m-%d)
+
+gh issue create --repo $REPO \
+  --title "Story: Clean up Tier <N> tests from $DATE test-audit" \
+  --label "story,pending" \
+  --body "<follow .knowledge/templates/story.md>
+
+After completing fixes, remove resolved entries from .knowledge/gaps.md."
+```
+
+## Step 7: Update knowledge
+
+Follow `.knowledge/policies/workflow/learning.md`.
 
 If patterns were found during the audit:
 - Add new anti-patterns to `policies/testing/test-quality.md`
 - Add new anti-patterns to `policies/testing/test-conventions.md`
-- Update `gaps.md` with test files that need human judgment
+
+## Step 8: Verify and commit
+
+Follow `.knowledge/policies/workflow/verification.md`.
+
+```bash
+git add .knowledge/gaps.md
+git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" && git push origin master
+```
 
 ## Guardrails
-- Bug regression tests (even if simple — they prevent specific bugs)
-- Structural tests in `__tests__/structure/` (they enforce policies)
-- Tests for security-critical code (PII, keychain, encryption)
-- Tests the user explicitly asked for
+- Don't delete bug regression tests (even if simple)
+- Don't delete structural tests in `__tests__/structure/`
+- Don't delete tests for security-critical code (PII, keychain, encryption)
+- Don't delete tests the user explicitly asked for
+- Follow `.knowledge/patterns/add-test.md` for what's worth testing
