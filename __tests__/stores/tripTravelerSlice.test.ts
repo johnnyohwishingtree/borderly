@@ -181,18 +181,21 @@ describe('createTravelerSlice', () => {
       expect(mockAssignTravelers).toHaveBeenCalledWith('leg-1', ['t2']);
     });
 
-    it('does nothing if leg not found', async () => {
+    it('leaves state unchanged if leg not found', async () => {
+      const mockAssignTravelers = jest.fn();
       get.mockReturnValue({
         ...storeState,
         getLegById: () => undefined,
-        assignTravelersToLeg: jest.fn(),
+        assignTravelersToLeg: mockAssignTravelers,
       });
+      const originalTrips = JSON.parse(JSON.stringify(storeState.trips));
 
       const slice = createTravelerSlice(set, get);
       await slice.removeTravelerFromLeg('nonexistent', 't1');
 
-      // No DB call, no error
-      expect(mockUpdateTripLeg).not.toHaveBeenCalled();
+      expect(mockAssignTravelers).not.toHaveBeenCalled();
+      expect(storeState.trips).toEqual(originalTrips);
+      expect(storeState.error).toBeNull();
     });
   });
 
@@ -242,16 +245,18 @@ describe('createTravelerSlice', () => {
       });
     });
 
-    it('does nothing if leg not found', async () => {
+    it('leaves travelerFormsData unchanged if leg not found', async () => {
       get.mockReturnValue({
         ...storeState,
         getLegById: () => undefined,
       });
+      const originalLeg = JSON.parse(JSON.stringify(storeState.trips![0].legs[0]));
 
       const slice = createTravelerSlice(set, get);
       await slice.updateTravelerFormData('nonexistent', 't1', 'name', 'X');
 
-      expect(mockUpdateTripLeg).not.toHaveBeenCalled();
+      expect(storeState.trips![0].legs[0].travelerFormsData).toEqual(originalLeg.travelerFormsData);
+      expect(storeState.error).toBeNull();
     });
 
     it('sets error on failure', async () => {

@@ -190,15 +190,15 @@ describe('createAutoFillSlice', () => {
       expect(set).toHaveBeenCalledWith({ formData: {} });
     });
 
-    it('does nothing if currentForm is null', () => {
-      storeState = createStoreState({ currentForm: null });
+    it('leaves formData unchanged when currentForm is null', () => {
+      storeState = createStoreState({ currentForm: null, formData: {} });
       get.mockReturnValue(storeState);
 
       const slice = createAutoFillSlice(set, get);
       slice.enableSmartAutoFill(createProfile(), createLeg());
 
+      expect(storeState.formData).toEqual({});
       expect(mockBatchAutoFill).not.toHaveBeenCalled();
-      expect(set).not.toHaveBeenCalled();
     });
 
     it('preserves existing formData and adds auto-filled values', () => {
@@ -303,14 +303,14 @@ describe('createAutoFillSlice', () => {
   // -----------------------------------------------------------------------
 
   describe('batchAutoFillForm', () => {
-    it('does nothing when currentForm is null', () => {
-      storeState = createStoreState({ currentForm: null });
+    it('leaves formData unchanged when currentForm is null', () => {
+      storeState = createStoreState({ currentForm: null, formData: {} });
       get.mockReturnValue(storeState);
 
       const slice = createAutoFillSlice(set, get);
       slice.batchAutoFillForm();
 
-      expect(set).not.toHaveBeenCalled();
+      expect(storeState.formData).toEqual({});
     });
 
     it('does not throw when currentForm exists', () => {

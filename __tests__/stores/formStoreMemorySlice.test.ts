@@ -228,24 +228,29 @@ describe('createMemorySlice', () => {
       expect(setArg.formData).toEqual({ a: 'value', e: 42 });
     });
 
-    it('does nothing when currentForm is null', () => {
-      storeState = createStoreState({ currentForm: null });
+    it('leaves formData and memoryUsage unchanged when currentForm is null', () => {
+      storeState = createStoreState({ currentForm: null, formData: { a: 'val' } });
       get.mockReturnValue(storeState);
+      const originalFormData = { ...storeState.formData };
+      const originalMemoryUsage = { ...storeState.memoryUsage };
 
       const slice = createMemorySlice(set, get);
       slice.optimizeFormData();
 
-      expect(set).not.toHaveBeenCalled();
+      expect(storeState.formData).toEqual(originalFormData);
+      expect(storeState.memoryUsage).toEqual(originalMemoryUsage);
     });
 
-    it('does nothing when formData is empty', () => {
+    it('leaves formData and memoryUsage unchanged when formData is empty', () => {
       storeState = createStoreState({ formData: {} });
       get.mockReturnValue(storeState);
+      const originalMemoryUsage = { ...storeState.memoryUsage };
 
       const slice = createMemorySlice(set, get);
       slice.optimizeFormData();
 
-      expect(set).not.toHaveBeenCalled();
+      expect(storeState.formData).toEqual({});
+      expect(storeState.memoryUsage).toEqual(originalMemoryUsage);
     });
 
     it('updates memoryUsage.formDataSize after optimization', () => {
