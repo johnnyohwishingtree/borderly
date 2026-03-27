@@ -68,7 +68,7 @@ const createJapanTrip = () => screenStep('CreateTrip', {
 });
 
 /** Verify trip detail screen after creation */
-const tripDetailStep = () => screenStep('TripDetail', {
+export const tripDetailStep = () => screenStep('TripDetail', {
   comment: 'TRIP DETAIL — VERIFY',
   waitTimeout: 20000,
   actions: [
@@ -76,6 +76,9 @@ const tripDetailStep = () => screenStep('TripDetail', {
     assertVisibleID('leg-card-JPN'),
   ],
 });
+
+/** Reusable: create Japan trip steps (for composition in other journeys) */
+export const createJapanTripSteps = () => [createJapanTrip()];
 
 // ── Exported journeys ──
 

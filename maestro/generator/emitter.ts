@@ -192,6 +192,13 @@ function emitAction(action: Action, depth = 0): string[] {
     case 'runSubflow':
       lines.push(line(d, `- runFlow: ${action.file}`));
       break;
+
+    case 'screenshot':
+      lines.push(
+        line(d, '- takeScreenshot:'),
+        line(d, `    path: "maestro/output/${action.name}"`),
+      );
+      break;
   }
 
   return lines;
