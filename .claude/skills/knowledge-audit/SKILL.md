@@ -87,8 +87,13 @@ Each gap entry includes: what's wrong, where, test strategy to prevent recurrenc
 
 ## Step 9: Fix or create stories (if not --dry-run)
 
-- **Quick fixes** (< 5 minutes): fix inline and commit
+- **Quick fixes** (< 5 minutes): fix inline following `.knowledge/policies/workflow/fix-strategy.md`
 - **Larger fixes**: create a story with the test strategy in acceptance criteria
+
+## Step 10: Verify and learn
+
+Follow `.knowledge/policies/workflow/verification.md`.
+Follow `.knowledge/policies/workflow/learning.md`.
 
 ## What NOT to flag
 - Violations already listed in `gaps.md`

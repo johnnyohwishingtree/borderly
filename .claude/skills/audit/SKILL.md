@@ -132,7 +132,9 @@ After completing fixes, remove resolved entries from .knowledge/gaps.md."
 
 Always add the reminder to remove resolved entries from `gaps.md` in the story body.
 
-## Step 6: Commit and push
+## Step 6: Verify and commit
+
+Follow `.knowledge/policies/workflow/verification.md` if code was changed.
 
 ```bash
 git add .knowledge/gaps.md
