@@ -1,11 +1,12 @@
 /**
- * Structural test: knowledge graph integrity.
+ * Structural test: system integrity.
  *
- * Verifies that all cross-references in the knowledge system resolve:
- * - Folder CLAUDE.md `See:` links point to existing .knowledge/ files
- * - Skill files that reference .knowledge/ policies point to existing files
- * - .knowledge/ files that reference other .knowledge/ files point to existing files
- * - .knowledge/index.md lists all skills and policy scopes that exist on disk
+ * Verifies all cross-references across the three layers resolve:
+ * - Rules (.claude/rules/) → policies (.knowledge/)
+ * - Skills (.claude/skills/) → policies, rules, and other skills
+ * - Policies (.knowledge/) → other policies
+ * - Folder CLAUDE.md → policies
+ * - Index (.knowledge/index.md) → skills, policy scopes, rules on disk
  *
  * See: .knowledge/policies/architecture/testable-architecture.md
  */
@@ -41,7 +42,7 @@ function extractReferences(content: string, pattern: RegExp): string[] {
   return refs;
 }
 
-describe('Knowledge integrity', () => {
+describe('System integrity', () => {
   it('all folder CLAUDE.md See: links point to existing files', () => {
     const claudeMds = walk(resolve(ROOT, 'src'), '.md')
       .concat(walk(resolve(ROOT, '__tests__'), '.md'))
