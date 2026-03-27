@@ -112,17 +112,17 @@ beforeEach(() => {
 describe('useEditTrip — trip name editing', () => {
   it('initialises editName from the trip prop', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
-    expect(result.current.editName).toBe('Asia Summer 2026');
+    expect(result.current.tripName.editName).toBe('Asia Summer 2026');
   });
 
   it('setEditName updates the input value', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
     act(() => {
-      result.current.setEditName('Winter Japan 2026');
+      result.current.tripName.setEditName('Winter Japan 2026');
     });
 
-    expect(result.current.editName).toBe('Winter Japan 2026');
+    expect(result.current.tripName.editName).toBe('Winter Japan 2026');
   });
 
   it('handleUpdateTripName calls updateTrip with the trimmed name', async () => {
@@ -131,11 +131,11 @@ describe('useEditTrip — trip name editing', () => {
       useEditTrip({ trip: makeTrip(), onTripUpdated })
     );
 
-    act(() => { result.current.setEditName('  New Name  '); });
+    act(() => { result.current.tripName.setEditName('  New Name  '); });
 
     let success = false;
     await act(async () => {
-      success = await result.current.handleUpdateTripName();
+      success = await result.current.tripName.handleUpdateTripName();
     });
 
     expect(success).toBe(true);
@@ -146,11 +146,11 @@ describe('useEditTrip — trip name editing', () => {
   it('handleUpdateTripName returns false and sets error when name is empty', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.setEditName('   '); });
+    act(() => { result.current.tripName.setEditName('   '); });
 
     let success = true;
     await act(async () => {
-      success = await result.current.handleUpdateTripName();
+      success = await result.current.tripName.handleUpdateTripName();
     });
 
     expect(success).toBe(false);
@@ -163,7 +163,7 @@ describe('useEditTrip — trip name editing', () => {
 
     let success = true;
     await act(async () => {
-      success = await result.current.handleUpdateTripName();
+      success = await result.current.tripName.handleUpdateTripName();
     });
 
     expect(success).toBe(false);
@@ -176,11 +176,11 @@ describe('useEditTrip — trip name editing', () => {
       { initialProps: { trip: makeTrip({ id: 'trip_1', name: 'Trip One' }) } }
     );
 
-    expect(result.current.editName).toBe('Trip One');
+    expect(result.current.tripName.editName).toBe('Trip One');
 
     rerender({ trip: makeTrip({ id: 'trip_2', name: 'Trip Two' }) });
 
-    expect(result.current.editName).toBe('Trip Two');
+    expect(result.current.tripName.editName).toBe('Trip Two');
   });
 });
 
@@ -191,56 +191,56 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
 
-    expect(result.current.editingLegId).toBe('leg_1');
-    expect(result.current.editLegData?.destinationCountry).toBe('JPN');
-    expect(result.current.editLegData?.flightNumber).toBe('NH123');
-    expect(result.current.editLegData?.accommodation.name).toBe('Park Hyatt Tokyo');
+    expect(result.current.legEdit.editingLegId).toBe('leg_1');
+    expect(result.current.legEdit.editLegData?.destinationCountry).toBe('JPN');
+    expect(result.current.legEdit.editLegData?.flightNumber).toBe('NH123');
+    expect(result.current.legEdit.editLegData?.accommodation.name).toBe('Park Hyatt Tokyo');
   });
 
   it('cancelEditLeg resets editing state', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.cancelEditLeg(); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.cancelEditLeg(); });
 
-    expect(result.current.editingLegId).toBeNull();
-    expect(result.current.editLegData).toBeNull();
+    expect(result.current.legEdit.editingLegId).toBeNull();
+    expect(result.current.legEdit.editLegData).toBeNull();
   });
 
   it('updateEditLegField updates a top-level field', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.updateEditLegField('flightNumber', 'JL456'); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.updateEditLegField('flightNumber', 'JL456'); });
 
-    expect(result.current.editLegData?.flightNumber).toBe('JL456');
+    expect(result.current.legEdit.editLegData?.flightNumber).toBe('JL456');
   });
 
   it('updateEditLegField handles nested dot-notation path', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.updateEditLegField('accommodation.address.city', 'Osaka'); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.updateEditLegField('accommodation.address.city', 'Osaka'); });
 
-    expect(result.current.editLegData?.accommodation.address.city).toBe('Osaka');
+    expect(result.current.legEdit.editLegData?.accommodation.address.city).toBe('Osaka');
   });
 
   it('updateEditLegField does not mutate the original leg data', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
 
-    const before = result.current.editLegData;
-    act(() => { result.current.updateEditLegField('arrivalDate', '2026-05-01'); });
+    const before = result.current.legEdit.editLegData;
+    act(() => { result.current.legEdit.updateEditLegField('arrivalDate', '2026-05-01'); });
 
     expect(before?.arrivalDate).toBe('2026-04-01'); // original unchanged
-    expect(result.current.editLegData?.arrivalDate).toBe('2026-05-01');
+    expect(result.current.legEdit.editLegData?.arrivalDate).toBe('2026-05-01');
   });
 
   it('handleSaveLeg calls updateTripLeg and resets state on success', async () => {
@@ -248,18 +248,18 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip, onTripUpdated }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.updateEditLegField('flightNumber', 'JL456'); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.updateEditLegField('flightNumber', 'JL456'); });
 
     let success = false;
-    await act(async () => { success = await result.current.handleSaveLeg(); });
+    await act(async () => { success = await result.current.legEdit.handleSaveLeg(); });
 
     expect(success).toBe(true);
     expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg_1', expect.objectContaining({
       destinationCountry: 'JPN',
       flightNumber: 'JL456',
     }));
-    expect(result.current.editingLegId).toBeNull();
+    expect(result.current.legEdit.editingLegId).toBeNull();
     expect(onTripUpdated).toHaveBeenCalledTimes(1);
   });
 
@@ -267,11 +267,11 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.updateEditLegField('destinationCountry', ''); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.updateEditLegField('destinationCountry', ''); });
 
     let success = true;
-    await act(async () => { success = await result.current.handleSaveLeg(); });
+    await act(async () => { success = await result.current.legEdit.handleSaveLeg(); });
 
     expect(success).toBe(false);
     expect(mockUpdateTripLeg).not.toHaveBeenCalled();
@@ -282,12 +282,12 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
     // Add a second traveler
-    act(() => { result.current.handleEditLegTravelerToggle('traveler_2'); });
+    act(() => { result.current.legEdit.handleEditLegTravelerToggle('traveler_2'); });
 
     let success = false;
-    await act(async () => { success = await result.current.handleSaveLeg(); });
+    await act(async () => { success = await result.current.legEdit.handleSaveLeg(); });
 
     expect(success).toBe(true);
     expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg_1', expect.objectContaining({
@@ -299,12 +299,12 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
     // Remove the primary traveler
-    act(() => { result.current.handleEditLegTravelerToggle(PRIMARY_ID); });
+    act(() => { result.current.legEdit.handleEditLegTravelerToggle(PRIMARY_ID); });
 
     let success = false;
-    await act(async () => { success = await result.current.handleSaveLeg(); });
+    await act(async () => { success = await result.current.legEdit.handleSaveLeg(); });
 
     expect(success).toBe(true);
     expect(mockUpdateTripLeg).toHaveBeenCalledWith('leg_1', expect.objectContaining({
@@ -316,7 +316,7 @@ describe('useEditTrip — leg editing', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
     let success = true;
-    await act(async () => { success = await result.current.handleSaveLeg(); });
+    await act(async () => { success = await result.current.legEdit.handleSaveLeg(); });
 
     expect(success).toBe(false);
     expect(mockUpdateTripLeg).not.toHaveBeenCalled();
@@ -326,21 +326,21 @@ describe('useEditTrip — leg editing', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
-    act(() => { result.current.handleEditLegTravelerToggle('traveler_2'); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.handleEditLegTravelerToggle('traveler_2'); });
 
-    expect(result.current.editLegData?.assignedTravelers).toContain('traveler_2');
+    expect(result.current.legEdit.editLegData?.assignedTravelers).toContain('traveler_2');
   });
 
   it('handleEditLegTravelerToggle removes an already-assigned traveler', () => {
     const trip = makeTrip();
     const { result } = renderHook(() => useEditTrip({ trip }));
 
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
     // Primary traveler is already assigned
-    act(() => { result.current.handleEditLegTravelerToggle(PRIMARY_ID); });
+    act(() => { result.current.legEdit.handleEditLegTravelerToggle(PRIMARY_ID); });
 
-    expect(result.current.editLegData?.assignedTravelers).not.toContain(PRIMARY_ID);
+    expect(result.current.legEdit.editLegData?.assignedTravelers).not.toContain(PRIMARY_ID);
   });
 });
 
@@ -350,12 +350,12 @@ describe('useEditTrip — add destination', () => {
   it('startAddDestination initialises a blank newLegData form', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
 
-    expect(result.current.newLegData).not.toBeNull();
-    expect(result.current.newLegData?.destinationCountry).toBe('');
-    expect(result.current.newLegData?.arrivalDate).toBe('');
-    expect(result.current.newLegData?.accommodation.name).toBe('');
+    expect(result.current.addDestination.newLegData).not.toBeNull();
+    expect(result.current.addDestination.newLegData?.destinationCountry).toBe('');
+    expect(result.current.addDestination.newLegData?.arrivalDate).toBe('');
+    expect(result.current.addDestination.newLegData?.accommodation.name).toBe('');
   });
 
   it('startAddDestination assigns the primary traveler when family is loaded', async () => {
@@ -367,36 +367,36 @@ describe('useEditTrip — add destination', () => {
     // Wait for profiles to load
     await waitFor(() => expect(result.current.familyMembers).toHaveLength(1), { timeout: 3000 });
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
 
-    expect(result.current.newLegData?.assignedTravelers).toContain(PRIMARY_ID);
+    expect(result.current.addDestination.newLegData?.assignedTravelers).toContain(PRIMARY_ID);
   });
 
   it('cancelAddDestination resets newLegData to null', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
-    act(() => { result.current.cancelAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    act(() => { result.current.addDestination.cancelAddDestination(); });
 
-    expect(result.current.newLegData).toBeNull();
+    expect(result.current.addDestination.newLegData).toBeNull();
   });
 
   it('updateNewLegField updates a field on newLegData', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
-    act(() => { result.current.updateNewLegField('destinationCountry', 'SGP'); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    act(() => { result.current.addDestination.updateNewLegField('destinationCountry', 'SGP'); });
 
-    expect(result.current.newLegData?.destinationCountry).toBe('SGP');
+    expect(result.current.addDestination.newLegData?.destinationCountry).toBe('SGP');
   });
 
   it('updateNewLegField handles nested accommodation fields', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
-    act(() => { result.current.updateNewLegField('accommodation.name', 'Marina Bay Sands'); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    act(() => { result.current.addDestination.updateNewLegField('accommodation.name', 'Marina Bay Sands'); });
 
-    expect(result.current.newLegData?.accommodation.name).toBe('Marina Bay Sands');
+    expect(result.current.addDestination.newLegData?.accommodation.name).toBe('Marina Bay Sands');
   });
 
   it('handleAddDestination calls addTripLeg with next order index', async () => {
@@ -404,15 +404,15 @@ describe('useEditTrip — add destination', () => {
     const trip = makeTrip(); // has 1 existing leg (order 0)
     const { result } = renderHook(() => useEditTrip({ trip, onTripUpdated }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
     act(() => {
-      result.current.updateNewLegField('destinationCountry', 'SGP');
-      result.current.updateNewLegField('arrivalDate', '2026-05-01');
-      result.current.updateNewLegField('accommodation.name', 'Marina Bay Sands');
+      result.current.addDestination.updateNewLegField('destinationCountry', 'SGP');
+      result.current.addDestination.updateNewLegField('arrivalDate', '2026-05-01');
+      result.current.addDestination.updateNewLegField('accommodation.name', 'Marina Bay Sands');
     });
 
     let success = false;
-    await act(async () => { success = await result.current.handleAddDestination(); });
+    await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(true);
     expect(mockAddTripLeg).toHaveBeenCalledWith(
@@ -423,22 +423,22 @@ describe('useEditTrip — add destination', () => {
         order: 1, // after the existing leg
       })
     );
-    expect(result.current.newLegData).toBeNull();
+    expect(result.current.addDestination.newLegData).toBeNull();
     expect(onTripUpdated).toHaveBeenCalledTimes(1);
   });
 
   it('handleAddDestination validates and returns false when country is missing', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
     act(() => {
       // Set arrival date and accommodation but no country
-      result.current.updateNewLegField('arrivalDate', '2026-05-01');
-      result.current.updateNewLegField('accommodation.name', 'Some Hotel');
+      result.current.addDestination.updateNewLegField('arrivalDate', '2026-05-01');
+      result.current.addDestination.updateNewLegField('accommodation.name', 'Some Hotel');
     });
 
     let success = true;
-    await act(async () => { success = await result.current.handleAddDestination(); });
+    await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
     expect(mockAddTripLeg).not.toHaveBeenCalled();
@@ -448,14 +448,14 @@ describe('useEditTrip — add destination', () => {
   it('handleAddDestination validates and returns false when arrival date is missing', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
     act(() => {
-      result.current.updateNewLegField('destinationCountry', 'MYS');
-      result.current.updateNewLegField('accommodation.name', 'Hotel Kuala Lumpur');
+      result.current.addDestination.updateNewLegField('destinationCountry', 'MYS');
+      result.current.addDestination.updateNewLegField('accommodation.name', 'Hotel Kuala Lumpur');
     });
 
     let success = true;
-    await act(async () => { success = await result.current.handleAddDestination(); });
+    await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
     expect(result.current.errors.arrivalDate).toBeTruthy();
@@ -464,14 +464,14 @@ describe('useEditTrip — add destination', () => {
   it('handleAddDestination validates and returns false when accommodation name is missing', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
     act(() => {
-      result.current.updateNewLegField('destinationCountry', 'MYS');
-      result.current.updateNewLegField('arrivalDate', '2026-05-01');
+      result.current.addDestination.updateNewLegField('destinationCountry', 'MYS');
+      result.current.addDestination.updateNewLegField('arrivalDate', '2026-05-01');
     });
 
     let success = true;
-    await act(async () => { success = await result.current.handleAddDestination(); });
+    await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
     expect(result.current.errors.accommodationName).toBeTruthy();
@@ -480,10 +480,10 @@ describe('useEditTrip — add destination', () => {
   it('handleAddDestination returns false when trip is null', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: null }));
 
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
 
     let success = true;
-    await act(async () => { success = await result.current.handleAddDestination(); });
+    await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
     expect(mockAddTripLeg).not.toHaveBeenCalled();
@@ -492,10 +492,10 @@ describe('useEditTrip — add destination', () => {
   it('handleNewLegTravelerToggle adds a traveler to the new leg', () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
-    act(() => { result.current.handleNewLegTravelerToggle('traveler_2'); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    act(() => { result.current.addDestination.handleNewLegTravelerToggle('traveler_2'); });
 
-    expect(result.current.newLegData?.assignedTravelers).toContain('traveler_2');
+    expect(result.current.addDestination.newLegData?.assignedTravelers).toContain('traveler_2');
   });
 
   it('handleNewLegTravelerToggle removes an already-selected traveler', () => {
@@ -505,14 +505,14 @@ describe('useEditTrip — add destination', () => {
 
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
     // Manually push primary into the form
-    act(() => { result.current.startAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
     // startAddDestination adds PRIMARY_ID (via primary member logic after load —
     // but since profiles load async and we haven't awaited, we add it manually)
-    act(() => { result.current.handleNewLegTravelerToggle(PRIMARY_ID); });
-    act(() => { result.current.handleNewLegTravelerToggle(PRIMARY_ID); });
+    act(() => { result.current.addDestination.handleNewLegTravelerToggle(PRIMARY_ID); });
+    act(() => { result.current.addDestination.handleNewLegTravelerToggle(PRIMARY_ID); });
 
     // After toggling twice, should not be present
-    expect(result.current.newLegData?.assignedTravelers).not.toContain(PRIMARY_ID);
+    expect(result.current.addDestination.newLegData?.assignedTravelers).not.toContain(PRIMARY_ID);
   });
 });
 
@@ -524,13 +524,13 @@ describe('useEditTrip — error clearing', () => {
     const { result } = renderHook(() => useEditTrip({ trip }));
 
     // Trigger a validation error
-    act(() => { result.current.startAddDestination(); });
-    await act(async () => { await result.current.handleAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    await act(async () => { await result.current.addDestination.handleAddDestination(); });
 
     expect(Object.keys(result.current.errors).length).toBeGreaterThan(0);
 
     // Now start editing a leg — errors should be cleared
-    act(() => { result.current.startEditLeg(trip.legs[0]); });
+    act(() => { result.current.legEdit.startEditLeg(trip.legs[0]); });
 
     expect(result.current.errors).toEqual({});
   });
@@ -538,12 +538,12 @@ describe('useEditTrip — error clearing', () => {
   it('cancelAddDestination clears errors', async () => {
     const { result } = renderHook(() => useEditTrip({ trip: makeTrip() }));
 
-    act(() => { result.current.startAddDestination(); });
-    await act(async () => { await result.current.handleAddDestination(); });
+    act(() => { result.current.addDestination.startAddDestination(); });
+    await act(async () => { await result.current.addDestination.handleAddDestination(); });
 
     expect(Object.keys(result.current.errors).length).toBeGreaterThan(0);
 
-    act(() => { result.current.cancelAddDestination(); });
+    act(() => { result.current.addDestination.cancelAddDestination(); });
 
     expect(result.current.errors).toEqual({});
   });

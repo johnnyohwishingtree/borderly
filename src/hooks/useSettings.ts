@@ -343,41 +343,27 @@ export function useSettings() {
   };
 
   return {
-    // Navigation
     navigation,
-
-    // Store state
-    preferences,
-    updatePreference,
-    isBiometricAvailable,
-    themePreference,
-    setTheme,
-    isLockEnabled,
-    lockTimeoutMinutes,
-
-    // Local state
-    isCheckingBiometric,
-    storageStats,
-    portalCredentials,
-    isDeletingCredential,
-    schemaMetadata,
-    isRefreshingSchemas,
-
-    // Constants
-    languageOptions,
-    lockTimeoutOptions,
-
-    // Handlers
-    handleBiometricToggle,
-    handleLockToggle,
-    handleLockTimeoutChange,
-    handleExportData,
-    handleClearCache,
-    handleDeletePortalCredential,
-    handleDeleteAllPortalCredentials,
-    handleDeleteAllData,
-    handleRefreshSchemas,
-    handleRefreshSettings,
-    handleResetSettings,
+    preferences: { values: preferences, updatePreference },
+    security: {
+      isBiometricAvailable,
+      isCheckingBiometric,
+      handleBiometricToggle,
+      isLockEnabled,
+      handleLockToggle,
+      lockTimeoutMinutes,
+      handleLockTimeoutChange,
+    },
+    theme: { themePreference, setTheme },
+    portal: {
+      portalCredentials,
+      isDeletingCredential,
+      handleDeletePortalCredential,
+      handleDeleteAllPortalCredentials,
+    },
+    schema: { schemaMetadata, isRefreshingSchemas, handleRefreshSchemas },
+    data: { storageStats, handleExportData, handleClearCache, handleDeleteAllData },
+    options: { languageOptions, lockTimeoutOptions },
+    actions: { handleRefreshSettings, handleResetSettings },
   };
 }

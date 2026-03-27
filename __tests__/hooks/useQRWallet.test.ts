@@ -114,28 +114,28 @@ describe('useQRWallet — initial state', () => {
     const { result } = renderQRWallet();
     await act(async () => {});
 
-    expect(result.current.qrCodes).toEqual([]);
+    expect(result.current.data.qrCodes).toEqual([]);
   });
 
   it('returns isRefreshing as false', async () => {
     const { result } = renderQRWallet();
     await act(async () => {});
 
-    expect(result.current.isRefreshing).toBe(false);
+    expect(result.current.loading.isRefreshing).toBe(false);
   });
 
   it('returns selectedQR as null', async () => {
     const { result } = renderQRWallet();
     await act(async () => {});
 
-    expect(result.current.selectedQR).toBeNull();
+    expect(result.current.fullScreen.selectedQR).toBeNull();
   });
 
   it('returns fullScreenVisible as false', async () => {
     const { result } = renderQRWallet();
     await act(async () => {});
 
-    expect(result.current.fullScreenVisible).toBe(false);
+    expect(result.current.fullScreen.fullScreenVisible).toBe(false);
   });
 });
 
@@ -152,8 +152,8 @@ describe('useQRWallet — filteredQRCodes', () => {
     const { result } = renderQRWallet();
     await act(async () => {});
 
-    expect(result.current.filteredQRCodes).toHaveLength(2);
-    expect(result.current.filteredQRCodes).toEqual(
+    expect(result.current.data.filteredQRCodes).toHaveLength(2);
+    expect(result.current.data.filteredQRCodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'qr_1' }),
         expect.objectContaining({ id: 'qr_2' }),
@@ -173,11 +173,11 @@ describe('useQRWallet — filteredQRCodes', () => {
     await act(async () => {});
 
     act(() => {
-      result.current.setSelectedTravelerFilter('traveler_1');
+      result.current.filter.setSelectedTravelerFilter('traveler_1');
     });
 
-    expect(result.current.filteredQRCodes).toHaveLength(2);
-    expect(result.current.filteredQRCodes.every((qr) => qr.travelerId === 'traveler_1')).toBe(true);
+    expect(result.current.data.filteredQRCodes).toHaveLength(2);
+    expect(result.current.data.filteredQRCodes.every((qr) => qr.travelerId === 'traveler_1')).toBe(true);
   });
 
   it('filters unassigned QR codes when filter is "unassigned"', async () => {
@@ -192,11 +192,11 @@ describe('useQRWallet — filteredQRCodes', () => {
     await act(async () => {});
 
     act(() => {
-      result.current.setSelectedTravelerFilter('unassigned');
+      result.current.filter.setSelectedTravelerFilter('unassigned');
     });
 
-    expect(result.current.filteredQRCodes).toHaveLength(2);
-    expect(result.current.filteredQRCodes.every((qr) => qr.travelerId === null)).toBe(true);
+    expect(result.current.data.filteredQRCodes).toHaveLength(2);
+    expect(result.current.data.filteredQRCodes.every((qr) => qr.travelerId === null)).toBe(true);
   });
 });
 
@@ -211,11 +211,11 @@ describe('useQRWallet — handleQRPress', () => {
     await act(async () => {});
 
     act(() => {
-      result.current.handleQRPress(qr as any);
+      result.current.fullScreen.handleQRPress(qr as any);
     });
 
-    expect(result.current.selectedQR).toBe(qr);
-    expect(result.current.fullScreenVisible).toBe(true);
+    expect(result.current.fullScreen.selectedQR).toBe(qr);
+    expect(result.current.fullScreen.fullScreenVisible).toBe(true);
   });
 });
 
@@ -229,18 +229,18 @@ describe('useQRWallet — handleCloseFullScreen', () => {
 
     // First open full screen
     act(() => {
-      result.current.handleQRPress(qr as any);
+      result.current.fullScreen.handleQRPress(qr as any);
     });
 
-    expect(result.current.fullScreenVisible).toBe(true);
+    expect(result.current.fullScreen.fullScreenVisible).toBe(true);
 
     // Then close it
     act(() => {
-      result.current.handleCloseFullScreen();
+      result.current.fullScreen.handleCloseFullScreen();
     });
 
-    expect(result.current.selectedQR).toBeNull();
-    expect(result.current.fullScreenVisible).toBe(false);
+    expect(result.current.fullScreen.selectedQR).toBeNull();
+    expect(result.current.fullScreen.fullScreenVisible).toBe(false);
   });
 });
 
@@ -252,7 +252,7 @@ describe('useQRWallet — handleAddQR', () => {
     await act(async () => {});
 
     act(() => {
-      result.current.handleAddQR();
+      result.current.actions.handleAddQR();
     });
 
     expect(mockNavigate).toHaveBeenCalledWith('AddQR');
@@ -268,16 +268,16 @@ describe('useQRWallet — handleCloseFilterModal', () => {
 
     // Open the filter modal first
     act(() => {
-      result.current.setShowFilterModal(true);
+      result.current.filter.setShowFilterModal(true);
     });
 
-    expect(result.current.showFilterModal).toBe(true);
+    expect(result.current.filter.showFilterModal).toBe(true);
 
     // Close it
     act(() => {
-      result.current.handleCloseFilterModal();
+      result.current.filter.handleCloseFilterModal();
     });
 
-    expect(result.current.showFilterModal).toBe(false);
+    expect(result.current.filter.showFilterModal).toBe(false);
   });
 });

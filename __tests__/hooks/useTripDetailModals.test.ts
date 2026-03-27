@@ -54,10 +54,12 @@ jest.mock('../../src/hooks/useAccessibilityFocus', () => ({
 
 interface MockOptions {
   editHook: {
-    startAddDestination: jest.Mock;
-    cancelEditLeg: jest.Mock;
-    cancelAddDestination: jest.Mock;
-    handleAddDestination: jest.Mock;
+    legEdit: { cancelEditLeg: jest.Mock };
+    addDestination: {
+      startAddDestination: jest.Mock;
+      cancelAddDestination: jest.Mock;
+      handleAddDestination: jest.Mock;
+    };
   };
   resetDuplicateError: jest.Mock;
   handleConfirmDuplicate: jest.Mock;
@@ -68,10 +70,12 @@ interface MockOptions {
 function makeOptions(): MockOptions {
   return {
     editHook: {
-      startAddDestination: jest.fn(),
-      cancelEditLeg: jest.fn(),
-      cancelAddDestination: jest.fn(),
-      handleAddDestination: jest.fn().mockResolvedValue(true),
+      legEdit: { cancelEditLeg: jest.fn() },
+      addDestination: {
+        startAddDestination: jest.fn(),
+        cancelAddDestination: jest.fn(),
+        handleAddDestination: jest.fn().mockResolvedValue(true),
+      },
     },
     resetDuplicateError: jest.fn(),
     handleConfirmDuplicate: jest.fn().mockResolvedValue({ id: 'new-trip-1' }),
@@ -135,7 +139,7 @@ describe('useTripDetailModals', () => {
     });
 
     expect(result.current.showEditModal).toBe(false);
-    expect(opts.editHook.cancelEditLeg).toHaveBeenCalled();
+    expect(opts.editHook.legEdit.cancelEditLeg).toHaveBeenCalled();
 
     act(() => {
       jest.advanceTimersByTime(100);
@@ -154,7 +158,7 @@ describe('useTripDetailModals', () => {
       result.current.handleOpenAddDestination();
     });
 
-    expect(opts.editHook.startAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.startAddDestination).toHaveBeenCalled();
     expect(result.current.showAddModal).toBe(true);
   });
 
@@ -171,7 +175,7 @@ describe('useTripDetailModals', () => {
     });
 
     expect(result.current.showAddModal).toBe(false);
-    expect(opts.editHook.cancelAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.cancelAddDestination).toHaveBeenCalled();
 
     act(() => {
       jest.advanceTimersByTime(100);
@@ -192,13 +196,13 @@ describe('useTripDetailModals', () => {
       await result.current.handleConfirmAddDestination();
     });
 
-    expect(opts.editHook.handleAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.handleAddDestination).toHaveBeenCalled();
     expect(result.current.showAddModal).toBe(false);
   });
 
   it('handleConfirmAddDestination keeps modal open on failure', async () => {
     const opts = makeOptions();
-    opts.editHook.handleAddDestination.mockResolvedValue(false);
+    opts.editHook.addDestination.handleAddDestination.mockResolvedValue(false);
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {

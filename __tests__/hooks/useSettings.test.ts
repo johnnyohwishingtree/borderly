@@ -103,34 +103,34 @@ describe('useSettings', () => {
   it('returns all expected properties', async () => {
     const { result } = renderHook(() => useSettings());
 
-    // Store state
-    expect(result.current.preferences).toBeDefined();
-    expect(result.current.updatePreference).toBeDefined();
-    expect(result.current.isBiometricAvailable).toBe(true);
-    expect(result.current.themePreference).toBe('system');
-    expect(result.current.setTheme).toBeDefined();
-    expect(result.current.isLockEnabled).toBe(false);
-    expect(result.current.lockTimeoutMinutes).toBe(5);
+    // Store state (grouped)
+    expect(result.current.preferences.values).toBeDefined();
+    expect(result.current.preferences.updatePreference).toBeDefined();
+    expect(result.current.security.isBiometricAvailable).toBe(true);
+    expect(result.current.theme.themePreference).toBe('system');
+    expect(result.current.theme.setTheme).toBeDefined();
+    expect(result.current.security.isLockEnabled).toBe(false);
+    expect(result.current.security.lockTimeoutMinutes).toBe(5);
 
-    // Local state
-    expect(result.current.storageStats).toBeDefined();
-    expect(result.current.portalCredentials).toBeDefined();
-    expect(result.current.schemaMetadata).toBeDefined();
-    expect(result.current.isRefreshingSchemas).toBe(false);
-    expect(result.current.isDeletingCredential).toBeNull();
+    // Local state (grouped)
+    expect(result.current.data.storageStats).toBeDefined();
+    expect(result.current.portal.portalCredentials).toBeDefined();
+    expect(result.current.schema.schemaMetadata).toBeDefined();
+    expect(result.current.schema.isRefreshingSchemas).toBe(false);
+    expect(result.current.portal.isDeletingCredential).toBeNull();
 
     // Constants
-    expect(result.current.languageOptions).toBeDefined();
-    expect(result.current.lockTimeoutOptions).toBeDefined();
+    expect(result.current.options.languageOptions).toBeDefined();
+    expect(result.current.options.lockTimeoutOptions).toBeDefined();
 
     // Handlers
-    expect(typeof result.current.handleBiometricToggle).toBe('function');
-    expect(typeof result.current.handleLockToggle).toBe('function');
-    expect(typeof result.current.handleLockTimeoutChange).toBe('function');
-    expect(typeof result.current.handleExportData).toBe('function');
-    expect(typeof result.current.handleClearCache).toBe('function');
-    expect(typeof result.current.handleRefreshSettings).toBe('function');
-    expect(typeof result.current.handleResetSettings).toBe('function');
+    expect(typeof result.current.security.handleBiometricToggle).toBe('function');
+    expect(typeof result.current.security.handleLockToggle).toBe('function');
+    expect(typeof result.current.security.handleLockTimeoutChange).toBe('function');
+    expect(typeof result.current.data.handleExportData).toBe('function');
+    expect(typeof result.current.data.handleClearCache).toBe('function');
+    expect(typeof result.current.actions.handleRefreshSettings).toBe('function');
+    expect(typeof result.current.actions.handleResetSettings).toBe('function');
 
     // Navigation
     expect(result.current.navigation).toBeDefined();
@@ -154,7 +154,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.handleBiometricToggle(true);
+      await result.current.security.handleBiometricToggle(true);
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -172,7 +172,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.handleBiometricToggle(false);
+      await result.current.security.handleBiometricToggle(false);
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -209,7 +209,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.handleBiometricToggle(true);
+      await result.current.security.handleBiometricToggle(true);
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -244,7 +244,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
-      result.current.handleLockTimeoutChange('15');
+      result.current.security.handleLockTimeoutChange('15');
     });
 
     expect(mockSetLockTimeoutMinutes).toHaveBeenCalledWith(15);
@@ -254,7 +254,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
-      result.current.handleLockTimeoutChange('abc');
+      result.current.security.handleLockTimeoutChange('abc');
     });
 
     expect(mockSetLockTimeoutMinutes).not.toHaveBeenCalled();
@@ -265,7 +265,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
-      result.current.handleClearCache();
+      result.current.data.handleClearCache();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -283,7 +283,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     await act(async () => {
-      await result.current.handleExportData();
+      await result.current.data.handleExportData();
     });
 
     expect(mockExportUserData).toHaveBeenCalledWith(['profile-1']);
@@ -297,7 +297,7 @@ describe('useSettings', () => {
     mockLoadPreferences.mockClear();
 
     act(() => {
-      result.current.handleRefreshSettings();
+      result.current.actions.handleRefreshSettings();
     });
 
     expect(mockLoadPreferences).toHaveBeenCalled();
@@ -309,7 +309,7 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     act(() => {
-      result.current.handleResetSettings();
+      result.current.actions.handleResetSettings();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -326,25 +326,25 @@ describe('useSettings', () => {
   it('returns languageOptions with expected values', () => {
     const { result } = renderHook(() => useSettings());
 
-    expect(result.current.languageOptions).toEqual(
+    expect(result.current.options.languageOptions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: 'en', label: 'English' }),
         expect.objectContaining({ value: 'ja', label: '日本語' }),
       ]),
     );
-    expect(result.current.languageOptions.length).toBe(5);
+    expect(result.current.options.languageOptions.length).toBe(5);
   });
 
   it('returns lockTimeoutOptions with expected values', () => {
     const { result } = renderHook(() => useSettings());
 
-    expect(result.current.lockTimeoutOptions).toEqual(
+    expect(result.current.options.lockTimeoutOptions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: '1', label: '1 minute' }),
         expect.objectContaining({ value: '5', label: '5 minutes' }),
       ]),
     );
-    expect(result.current.lockTimeoutOptions.length).toBe(4);
+    expect(result.current.options.lockTimeoutOptions.length).toBe(4);
   });
 
   // 10. storageStats is set after mount
@@ -354,7 +354,7 @@ describe('useSettings', () => {
     // Wait for async effects
     await act(async () => {});
 
-    expect(result.current.storageStats).toEqual({
+    expect(result.current.data.storageStats).toEqual({
       profileSize: '2.3 KB',
       tripsCount: 5,
       qrCodesCount: 3,

@@ -355,34 +355,28 @@ export function useEditTrip({ trip, onTripUpdated }: UseEditTripOptions) {
   }, [trip, newLegData, addTripLeg, onTripUpdated]);
 
   return {
-    // Trip name
-    editName,
-    setEditName,
-    isUpdatingName,
-    handleUpdateTripName,
-
-    // Leg editing
-    editingLegId,
-    editLegData,
-    isUpdatingLeg,
-    startEditLeg,
-    cancelEditLeg,
-    updateEditLegField,
-    updateEditLegAddress,
-    handleEditLegTravelerToggle,
-    handleSaveLeg,
-
-    // Add destination
-    newLegData,
-    isAddingDestination,
-    startAddDestination,
-    cancelAddDestination,
-    updateNewLegField,
-    updateNewLegAddress,
-    handleNewLegTravelerToggle,
-    handleAddDestination,
-
-    // Shared
+    tripName: { editName, setEditName, isUpdatingName, handleUpdateTripName },
+    legEdit: {
+      editingLegId,
+      editLegData,
+      isUpdatingLeg,
+      startEditLeg,
+      cancelEditLeg,
+      updateEditLegField,
+      updateEditLegAddress,
+      handleEditLegTravelerToggle,
+      handleSaveLeg,
+    },
+    addDestination: {
+      newLegData,
+      isAddingDestination,
+      startAddDestination,
+      cancelAddDestination,
+      updateNewLegField,
+      updateNewLegAddress,
+      handleNewLegTravelerToggle,
+      handleAddDestination,
+    },
     errors,
     familyMembers,
   };
