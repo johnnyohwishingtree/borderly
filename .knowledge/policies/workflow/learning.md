@@ -48,4 +48,4 @@ After completing work, check each category:
 - "No gaps = knowledge graph is working well" used as excuse to skip learning
 
 ## Enforcement
-Checked by `/audit` skill — flags PRs with high file count but no knowledge updates
+Checked by `/code-audit` skill — flags PRs with high file count but no knowledge updates

@@ -19,7 +19,7 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 |-------|---------|------------|
 | `skills/pipeline/` | Autonomous story loop | `/pipeline` |
 | `skills/local-pipeline/` | Same, for local CLI / Claude Desktop | `/local-pipeline` |
-| `skills/audit/` | Drift detection, dead code, index sync | `/audit` |
+| `skills/code-audit/` | Code vs policy compliance, drift, dead code | `/code-audit` |
 | `skills/knowledge-audit/` | Policy compliance + test coverage + consistency | `/knowledge-audit` |
 | `skills/apply-knowledge/` | Scan and fix against one knowledge file | `/apply-knowledge` |
 | `skills/optimize/` | Resolve gaps, compress bloated files | `/optimize` |
