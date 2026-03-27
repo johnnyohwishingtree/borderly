@@ -27,8 +27,8 @@ const personalInfoMappings: Record<string, PortalFieldMapping> = {
     selector: 'input[name="surname"], input[name="lastName"], #surname',
     inputType: 'text',
   },
-  givenNames: {
-    fieldId: 'givenNames',
+  givenName: {
+    fieldId: 'givenName',
     selector: 'input[name="givenName"], input[name="firstName"], #givenName',
     inputType: 'text',
   },
@@ -87,8 +87,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
     selector: 'input[name="passportNumber"], input[name="passport_number"], #passportNumber',
     inputType: 'text',
   },
-  passportIssueDate: {
-    fieldId: 'passportIssueDate',
+  passportIssuedDate: {
+    fieldId: 'passportIssuedDate',
     selector: 'input[name="passportIssueDate"], input[name="passport_issue_date"], #passportIssueDate',
     inputType: 'date',
     transform: {
@@ -96,8 +96,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
       config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
     },
   },
-  passportExpiryDate: {
-    fieldId: 'passportExpiryDate',
+  passportExpiry: {
+    fieldId: 'passportExpiry',
     selector: 'input[name="passportExpiryDate"], input[name="passport_expiry_date"], #passportExpiryDate',
     inputType: 'date',
     transform: {
@@ -165,8 +165,8 @@ const travelMappings: Record<string, PortalFieldMapping> = {
       config: { format: 'iso3_to_name' },
     },
   },
-  intendedLengthOfStay: {
-    fieldId: 'intendedLengthOfStay',
+  stayDuration: {
+    fieldId: 'stayDuration',
     selector: 'input[name="lengthOfStay"], input[name="duration_of_stay"], #lengthOfStay',
     inputType: 'text',
   },
@@ -194,13 +194,13 @@ const travelMappings: Record<string, PortalFieldMapping> = {
 // ── Section 4: Health Declaration ────────────────────────────────────────────
 
 const healthMappings: Record<string, PortalFieldMapping> = {
-  countriesVisited14Days: {
-    fieldId: 'countriesVisited14Days',
+  countriesVisitedLast14Days: {
+    fieldId: 'countriesVisitedLast14Days',
     selector: 'textarea[name="countriesVisited"], input[name="countries_visited"], #countriesVisited',
     inputType: 'text',
   },
-  hasSymptoms: {
-    fieldId: 'hasSymptoms',
+  feverOrCough: {
+    fieldId: 'feverOrCough',
     selector: 'input[name="hasSymptoms"], input[name="fever_cough"]',
     inputType: 'radio',
     transform: {
@@ -208,8 +208,8 @@ const healthMappings: Record<string, PortalFieldMapping> = {
       config: { trueValue: 'yes', falseValue: 'no' },
     },
   },
-  closeContactWithInfected: {
-    fieldId: 'closeContactWithInfected',
+  contactWithInfected: {
+    fieldId: 'contactWithInfected',
     selector: 'input[name="closeContact"], input[name="contact_infected"]',
     inputType: 'radio',
     transform: {
@@ -222,8 +222,8 @@ const healthMappings: Record<string, PortalFieldMapping> = {
 // ── Section 5: Customs Declaration ───────────────────────────────────────────
 
 const customsMappings: Record<string, PortalFieldMapping> = {
-  currencyExceeding: {
-    fieldId: 'currencyExceeding',
+  carryingCurrency: {
+    fieldId: 'carryingCurrency',
     // Currency exceeding USD 5,000
     selector: 'input[name="currencyExceeding"], input[name="excess_currency"]',
     inputType: 'radio',

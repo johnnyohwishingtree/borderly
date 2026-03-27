@@ -76,7 +76,15 @@ Verify all fields have autoFillSource, types are valid, dropdown fields have opt
 
 Update with portal field documentation from Step 0.
 
-## Step 5: E2E tests
+## Step 5: `src/services/submission/mappings/<ISO>.ts` — Submission mapping
+
+Create a mapping file that connects schema field IDs to the portal's HTML selectors.
+
+**Critical constraint:** The mapping object keys MUST match the schema field IDs exactly (the same `id` values used in the JSON schema's `sections[].fields[].id`). The `submissionCoordinator.ts` looks up mappings via `automationScript.fieldMappings[field.id]` — if the key doesn't match, auto-fill silently skips the field.
+
+Add test in `__tests__/services/submission/mappings/<ISO>.test.ts` following the JPN test pattern.
+
+## Step 6: E2E tests
 
 Add form rendering test verifying DynamicForm loads the schema correctly.
 
@@ -89,4 +97,6 @@ Add form rendering test verifying DynamicForm loads the schema correctly.
 - [ ] Schema registered in schemaRegistry
 - [ ] Schema validation tests pass
 - [ ] E2E form rendering test added
+- [ ] Submission mapping keys match schema field IDs exactly
+- [ ] Submission mapping test validates fields against schema
 - [ ] Country knowledge file updated

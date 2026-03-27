@@ -24,8 +24,8 @@ const personalInfoMappings: Record<string, PortalFieldMapping> = {
     selector: 'input[name="lastName"], input[name="last_name"], #lastName',
     inputType: 'text',
   },
-  givenNames: {
-    fieldId: 'givenNames',
+  givenName: {
+    fieldId: 'givenName',
     selector: 'input[name="firstName"], input[name="first_name"], #firstName',
     inputType: 'text',
   },
@@ -43,8 +43,8 @@ const personalInfoMappings: Record<string, PortalFieldMapping> = {
       config: { from: 'YYYY-MM-DD', to: 'MM/DD/YYYY' },
     },
   },
-  sex: {
-    fieldId: 'sex',
+  gender: {
+    fieldId: 'gender',
     selector: 'select[name="sex"], select[name="gender"], #sex',
     inputType: 'select',
   },
@@ -81,8 +81,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
     selector: 'input[name="passportNumber"], input[name="passport_number"], #passportNumber',
     inputType: 'text',
   },
-  passportIssueDate: {
-    fieldId: 'passportIssueDate',
+  passportIssuedDate: {
+    fieldId: 'passportIssuedDate',
     selector: 'input[name="passportIssueDate"], input[name="passport_issue_date"], #passportIssueDate',
     inputType: 'date',
     transform: {
@@ -90,8 +90,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
       config: { from: 'YYYY-MM-DD', to: 'MM/DD/YYYY' },
     },
   },
-  passportExpiryDate: {
-    fieldId: 'passportExpiryDate',
+  passportExpiry: {
+    fieldId: 'passportExpiry',
     selector: 'input[name="passportExpiryDate"], input[name="passport_expiry_date"], #passportExpiryDate',
     inputType: 'date',
     transform: {
@@ -137,8 +137,8 @@ const travelMappings: Record<string, PortalFieldMapping> = {
     selector: 'select[name="portOfArrival"], select[name="port_of_arrival"], #portOfArrival',
     inputType: 'select',
   },
-  countryOfOrigin: {
-    fieldId: 'countryOfOrigin',
+  departureCountry: {
+    fieldId: 'departureCountry',
     selector: 'select[name="countryOfOrigin"], select[name="country_of_origin"], #countryOfOrigin',
     inputType: 'select',
     transform: {
@@ -146,8 +146,8 @@ const travelMappings: Record<string, PortalFieldMapping> = {
       config: { format: 'iso3_to_name' },
     },
   },
-  intendedLengthOfStay: {
-    fieldId: 'intendedLengthOfStay',
+  stayDuration: {
+    fieldId: 'stayDuration',
     selector: 'input[name="lengthOfStay"], input[name="length_of_stay"], #lengthOfStay',
     inputType: 'text',
   },
@@ -156,8 +156,8 @@ const travelMappings: Record<string, PortalFieldMapping> = {
     selector: 'input[name="localAddress"], textarea[name="localAddress"], #localAddress',
     inputType: 'text',
   },
-  localContactNumber: {
-    fieldId: 'localContactNumber',
+  contactNumberInPhilippines: {
+    fieldId: 'contactNumberInPhilippines',
     selector: 'input[name="localContactNumber"], input[name="local_contact"], #localContactNumber',
     inputType: 'text',
   },
@@ -166,13 +166,13 @@ const travelMappings: Record<string, PortalFieldMapping> = {
 // ── Section 4: Health Declaration ────────────────────────────────────────────
 
 const healthMappings: Record<string, PortalFieldMapping> = {
-  countriesVisited30Days: {
-    fieldId: 'countriesVisited30Days',
+  countriesVisitedLast30Days: {
+    fieldId: 'countriesVisitedLast30Days',
     selector: 'textarea[name="countriesVisited"], input[name="countries_visited"], #countriesVisited',
     inputType: 'text',
   },
-  hasSymptoms: {
-    fieldId: 'hasSymptoms',
+  havingSymptoms: {
+    fieldId: 'havingSymptoms',
     selector: 'input[name="hasSymptoms"], input[name="has_symptoms"]',
     inputType: 'radio',
     transform: {
@@ -180,8 +180,8 @@ const healthMappings: Record<string, PortalFieldMapping> = {
       config: { trueValue: 'yes', falseValue: 'no' },
     },
   },
-  closeContactWithSick: {
-    fieldId: 'closeContactWithSick',
+  contactWithSick: {
+    fieldId: 'contactWithSick',
     selector: 'input[name="closeContact"], input[name="close_contact"]',
     inputType: 'radio',
     transform: {
