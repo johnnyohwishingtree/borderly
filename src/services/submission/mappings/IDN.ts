@@ -21,8 +21,8 @@ const personalInfoMappings: Record<string, PortalFieldMapping> = {
     selector: '#familyName, input[name="familyName"]',
     inputType: 'text',
   },
-  givenNames: {
-    fieldId: 'givenNames',
+  givenName: {
+    fieldId: 'givenName',
     selector: '#givenName, input[name="givenName"]',
     inputType: 'text',
   },
@@ -64,8 +64,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
     selector: '#passportNumber, input[name="passportNumber"]',
     inputType: 'text',
   },
-  passportIssueDate: {
-    fieldId: 'passportIssueDate',
+  passportIssuedDate: {
+    fieldId: 'passportIssuedDate',
     selector: '#passportIssueDate, input[name="passportIssueDate"]',
     inputType: 'date',
     transform: {
@@ -73,8 +73,8 @@ const passportMappings: Record<string, PortalFieldMapping> = {
       config: { from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' },
     },
   },
-  passportExpiryDate: {
-    fieldId: 'passportExpiryDate',
+  passportExpiry: {
+    fieldId: 'passportExpiry',
     selector: '#passportExpiryDate, input[name="passportExpiryDate"]',
     inputType: 'date',
     transform: {
@@ -129,18 +129,18 @@ const flightMappings: Record<string, PortalFieldMapping> = {
 // ── Section 4: Accommodation ─────────────────────────────────────────────────
 
 const accommodationMappings: Record<string, PortalFieldMapping> = {
-  addressInIndonesia: {
-    fieldId: 'addressInIndonesia',
+  accommodationAddress: {
+    fieldId: 'accommodationAddress',
     selector: '#address, textarea[name="address"], input[name="address"]',
     inputType: 'text',
   },
-  cityOfDestination: {
-    fieldId: 'cityOfDestination',
+  cityOfStay: {
+    fieldId: 'cityOfStay',
     selector: '#cityOfDestination, select[name="cityOfDestination"]',
     inputType: 'select',
   },
-  durationOfStay: {
-    fieldId: 'durationOfStay',
+  stayDuration: {
+    fieldId: 'stayDuration',
     selector: '#durationOfStay, input[name="durationOfStay"]',
     inputType: 'text',
   },
@@ -149,8 +149,8 @@ const accommodationMappings: Record<string, PortalFieldMapping> = {
 // ── Section 5: Customs Declaration ───────────────────────────────────────────
 
 const customsMappings: Record<string, PortalFieldMapping> = {
-  currencyExceeding: {
-    fieldId: 'currencyExceeding',
+  carryingCurrency: {
+    fieldId: 'carryingCurrency',
     selector: 'input[name="currencyExceeding"], #currencyExceeding',
     inputType: 'radio',
     transform: {
@@ -163,8 +163,8 @@ const customsMappings: Record<string, PortalFieldMapping> = {
     selector: '#currencyAmount, input[name="currencyAmount"]',
     inputType: 'text',
   },
-  goodsExceedingAllowance: {
-    fieldId: 'goodsExceedingAllowance',
+  carryingGoods: {
+    fieldId: 'carryingGoods',
     selector: 'input[name="goodsExceedingAllowance"], #goodsExceedingAllowance',
     inputType: 'radio',
     transform: {
@@ -172,8 +172,8 @@ const customsMappings: Record<string, PortalFieldMapping> = {
       config: { trueValue: 'yes', falseValue: 'no' },
     },
   },
-  animalsOrPlants: {
-    fieldId: 'animalsOrPlants',
+  carryingAnimalsPlants: {
+    fieldId: 'carryingAnimalsPlants',
     selector: 'input[name="animalsOrPlants"], #animalsOrPlants',
     inputType: 'radio',
     transform: {
@@ -181,8 +181,8 @@ const customsMappings: Record<string, PortalFieldMapping> = {
       config: { trueValue: 'yes', falseValue: 'no' },
     },
   },
-  narcotics: {
-    fieldId: 'narcotics',
+  carryingNarcotics: {
+    fieldId: 'carryingNarcotics',
     selector: 'input[name="narcotics"], #narcotics',
     inputType: 'radio',
     transform: {
@@ -190,8 +190,8 @@ const customsMappings: Record<string, PortalFieldMapping> = {
       config: { trueValue: 'yes', falseValue: 'no' },
     },
   },
-  commercialGoods: {
-    fieldId: 'commercialGoods',
+  carryingCommercialGoods: {
+    fieldId: 'carryingCommercialGoods',
     selector: 'input[name="commercialGoods"], #commercialGoods',
     inputType: 'radio',
     transform: {
