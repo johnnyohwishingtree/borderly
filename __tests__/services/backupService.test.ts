@@ -194,13 +194,13 @@ describe('BackupService', () => {
 
     it('collects trips and legs from WatermelonDB', async () => {
       await backupService.export(PASSPHRASE);
-      expect(databaseService.getTrips).toHaveBeenCalled();
+      expect(databaseService.getTrips).toHaveBeenCalledWith();
       expect(databaseService.getTripLegs).toHaveBeenCalledWith('trip-1');
     });
 
     it('collects QR codes from WatermelonDB', async () => {
       await backupService.export(PASSPHRASE);
-      expect(databaseService.getQRCodes).toHaveBeenCalled();
+      expect(databaseService.getQRCodes).toHaveBeenCalledWith();
     });
 
     it('collects preferences from MMKV (excluding family_profiles)', async () => {

@@ -294,7 +294,11 @@ describe('handleError', () => {
 
     handleError(new Error('timeout occurred'));
 
-    expect(Alert.alert).toHaveBeenCalled();
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Error',
+      expect.any(String),
+      expect.any(Array),
+    );
 
     jest.restoreAllMocks();
   });

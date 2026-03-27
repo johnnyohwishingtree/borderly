@@ -221,7 +221,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const backButton = getByText('Back');
       fireEvent.press(backButton);
 
-      expect(mockNavigation.goBack).toHaveBeenCalled();
+      expect(mockNavigation.goBack).toHaveBeenCalledWith();
     });
 
     it('should handle gender selection in manual form', () => {
@@ -252,7 +252,7 @@ describe('Onboarding Flow Integration Tests', () => {
       const backButton = getByText('Back');
       fireEvent.press(backButton);
 
-      expect(mockNavigation.goBack).toHaveBeenCalled();
+      expect(mockNavigation.goBack).toHaveBeenCalledWith();
     });
   });
 

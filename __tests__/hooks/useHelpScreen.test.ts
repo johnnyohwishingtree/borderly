@@ -160,7 +160,7 @@ describe('useHelpScreen', () => {
     const feedbackButton = alertButtons.find((b: any) => b.text === 'Send Feedback');
     feedbackButton.onPress();
 
-    expect(onFeedback).toHaveBeenCalled();
+    expect(onFeedback).toHaveBeenCalledWith();
   });
 
   it('handleContactSupport Email Support opens mailto link', () => {

@@ -145,7 +145,13 @@ describe('QRDetailScreen — error loading', () => {
     render(<QRDetailScreen />);
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalled();
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Error',
+        'Failed to load QR code details.',
+        expect.arrayContaining([
+          expect.objectContaining({ text: 'Go Back' }),
+        ]),
+      );
     });
 
     expect(alertSpy).toHaveBeenCalledWith(
@@ -243,7 +249,9 @@ describe('QRDetailScreen — share', () => {
     fireEvent.press(shareBtn);
 
     await waitFor(() => {
-      expect(shareSpy).toHaveBeenCalled();
+      expect(shareSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) }),
+      );
     });
   });
 });

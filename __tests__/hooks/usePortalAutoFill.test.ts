@@ -91,7 +91,13 @@ describe('usePortalAutoFill', () => {
         result.current.handleAutoFill();
       });
 
-      expect(mockBuildAutoFillSpecs).toHaveBeenCalled();
+      expect(mockBuildAutoFillSpecs).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'prof-1' }),
+        expect.objectContaining({ id: 'leg-1' }),
+        expect.objectContaining({ countryCode: 'JPN' }),
+        'JPN',
+        0,
+      );
     });
 
     it('injects script when specs are non-empty', () => {

@@ -250,7 +250,7 @@ describe('useQRDetail', () => {
       await deleteButton.onPress();
     });
 
-    expect(mockDestroyPermanently).toHaveBeenCalled();
+    expect(mockDestroyPermanently).toHaveBeenCalledWith();
     expect(Alert.alert).toHaveBeenCalledWith(
       'Success',
       'QR code deleted successfully',

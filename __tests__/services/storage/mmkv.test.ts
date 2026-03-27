@@ -278,7 +278,7 @@ describe('MMKVService', () => {
     it('should clear all data', () => {
       mmkvService.clearAll();
 
-      expect(mockStorage.clearAll).toHaveBeenCalled();
+      expect(mockStorage.clearAll).toHaveBeenCalledWith();
     });
   });
 

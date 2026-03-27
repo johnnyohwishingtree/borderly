@@ -107,7 +107,7 @@ describe('createLoadingSlice', () => {
       await slice.loadTrips();
 
       expect(set).toHaveBeenCalledWith({ isLoading: true, error: null });
-      expect(mockInitialize).toHaveBeenCalled();
+      expect(mockInitialize).toHaveBeenCalledWith();
     });
 
     it('loads trips and sets them in state', async () => {

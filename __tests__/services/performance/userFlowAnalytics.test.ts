@@ -355,7 +355,14 @@ describe('UserFlowAnalytics', () => {
       userFlowAnalytics.trackAction('Profile', 'edit', 1000, sensitiveMetadata);
       
       const { sanitizePII } = require('../../../src/utils/piiSanitizer');
-      expect(sanitizePII).toHaveBeenCalled();
+      expect(sanitizePII).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: '12345',
+          email: 'user@example.com',
+          passportNumber: 'AB123456',
+          platform: 'ios',
+        })
+      );
     });
 
     it('should handle storage errors gracefully', () => {

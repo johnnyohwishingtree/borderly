@@ -95,7 +95,7 @@ describe('usePortalAutoLogin', () => {
         await result.current.actions.attemptAutoLogin();
       });
 
-      expect(mockResolveCredential).toHaveBeenCalled();
+      expect(mockResolveCredential).toHaveBeenCalledWith('prof-1', 'prof-1', 'JPN', 'none');
       expect(webViewRef.current.injectJavaScript).toHaveBeenCalledWith('javascript:login()');
     });
 

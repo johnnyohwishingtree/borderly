@@ -169,7 +169,7 @@ describe('maskPassportNumber', () => {
 describe('useProfileScreen', () => {
   it('calls loadProfile on mount', () => {
     renderHook(() => useProfileScreen());
-    expect(mockLoadProfile).toHaveBeenCalled();
+    expect(mockLoadProfile).toHaveBeenCalledWith();
   });
 
   it('returns profile data from store', () => {

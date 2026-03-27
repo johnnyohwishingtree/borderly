@@ -95,7 +95,7 @@ describe('useReviewImport', () => {
       await result.current.actions.handleConfirm();
     });
 
-    expect(mockCreateTrip).toHaveBeenCalled();
+    expect(mockCreateTrip).toHaveBeenCalledWith(expect.objectContaining({ name: 'Tokyo Trip', legs: [] }));
     expect(mockAddTripLeg).toHaveBeenCalledWith('saved-trip-1', expect.objectContaining({ destinationCountry: 'JPN' }));
     expect(mockReplace).toHaveBeenCalledWith('TripDetail', { tripId: 'saved-trip-1' });
   });
@@ -116,7 +116,7 @@ describe('useReviewImport', () => {
   it('navigates back on cancel', () => {
     const { result } = renderHook(() => useReviewImport());
     act(() => result.current.actions.handleCancel());
-    expect(mockGoBack).toHaveBeenCalled();
+    expect(mockGoBack).toHaveBeenCalledWith();
   });
 
   it('detects missing fields', () => {

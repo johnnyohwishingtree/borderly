@@ -218,7 +218,10 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(logError).toHaveBeenCalled();
+    expect(logError).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'UNKNOWN_ERROR' }),
+      expect.objectContaining({ screen: 'ErrorBoundary', action: 'componentDidCatch' }),
+    );
   });
 
   it('can wrap multiple children', () => {

@@ -166,7 +166,12 @@ describe('useTripReadiness', () => {
     renderHook(() => useTripReadiness(trip));
 
     await waitFor(() => {
-      expect(mockComputeTripReadiness).toHaveBeenCalled();
+      expect(mockComputeTripReadiness).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'trip-1' }),
+        expect.any(Array),
+        expect.any(Object),
+        expect.arrayContaining([qr]),
+      );
     });
 
     const calledQrCodes = mockComputeTripReadiness.mock.calls[0][3];
@@ -226,7 +231,12 @@ describe('useTripReadiness', () => {
     renderHook(() => useTripReadiness(trip));
 
     await waitFor(() => {
-      expect(mockComputeTripReadiness).toHaveBeenCalled();
+      expect(mockComputeTripReadiness).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'trip-1' }),
+        expect.any(Array),
+        expect.any(Object),
+        expect.any(Array),
+      );
     });
 
     // Schema should only be loaded once for JPN

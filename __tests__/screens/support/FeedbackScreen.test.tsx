@@ -249,7 +249,7 @@ describe('FeedbackScreen — submit button', () => {
 
     fireEvent.press(screen.getByText('Submit Feedback'));
 
-    expect(mockHandleSubmitFeedback).toHaveBeenCalled();
+    expect(mockHandleSubmitFeedback).toHaveBeenCalledWith();
   });
 
   it('shows "Submitting..." when isSubmitting is true', () => {

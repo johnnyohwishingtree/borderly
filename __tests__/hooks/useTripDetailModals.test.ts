@@ -139,13 +139,13 @@ describe('useTripDetailModals', () => {
     });
 
     expect(result.current.editModal.showEditModal).toBe(false);
-    expect(opts.editHook.legEdit.cancelEditLeg).toHaveBeenCalled();
+    expect(opts.editHook.legEdit.cancelEditLeg).toHaveBeenCalledWith();
 
     act(() => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(getMockFocus('editTrigger')).toHaveBeenCalled();
+    expect(getMockFocus('editTrigger')).toHaveBeenCalledWith();
   });
 
   // -- Add destination modal --------------------------------------------------
@@ -158,7 +158,7 @@ describe('useTripDetailModals', () => {
       result.current.addModal.handleOpenAddDestination();
     });
 
-    expect(opts.editHook.addDestination.startAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.startAddDestination).toHaveBeenCalledWith();
     expect(result.current.addModal.showAddModal).toBe(true);
   });
 
@@ -175,13 +175,13 @@ describe('useTripDetailModals', () => {
     });
 
     expect(result.current.addModal.showAddModal).toBe(false);
-    expect(opts.editHook.addDestination.cancelAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.cancelAddDestination).toHaveBeenCalledWith();
 
     act(() => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(getMockFocus('addTrigger')).toHaveBeenCalled();
+    expect(getMockFocus('addTrigger')).toHaveBeenCalledWith();
   });
 
   it('handleConfirmAddDestination closes modal on success', async () => {
@@ -196,7 +196,7 @@ describe('useTripDetailModals', () => {
       await result.current.addModal.handleConfirmAddDestination();
     });
 
-    expect(opts.editHook.addDestination.handleAddDestination).toHaveBeenCalled();
+    expect(opts.editHook.addDestination.handleAddDestination).toHaveBeenCalledWith();
     expect(result.current.addModal.showAddModal).toBe(false);
   });
 
@@ -227,7 +227,7 @@ describe('useTripDetailModals', () => {
     });
 
     expect(result.current.duplicateModal.showDuplicateModal).toBe(true);
-    expect(opts.resetDuplicateError).toHaveBeenCalled();
+    expect(opts.resetDuplicateError).toHaveBeenCalledWith();
   });
 
   it('closes duplicate modal, resets error, and restores focus', () => {
@@ -249,7 +249,7 @@ describe('useTripDetailModals', () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(getMockFocus('duplicateTrigger')).toHaveBeenCalled();
+    expect(getMockFocus('duplicateTrigger')).toHaveBeenCalledWith();
   });
 
   it('handleDuplicateConfirm navigates on success', async () => {

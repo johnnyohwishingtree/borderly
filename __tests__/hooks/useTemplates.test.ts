@@ -67,7 +67,7 @@ describe('useTemplates — initial state', () => {
 
     const { result } = renderHook(() => useTemplates());
 
-    expect(mockList).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith();
     expect(result.current.templates).toEqual(templates);
   });
 
@@ -185,7 +185,7 @@ describe('useTemplates — handleRenameConfirm', () => {
     });
 
     expect(mockRename).toHaveBeenCalledWith('tpl_5', 'New Name');
-    expect(mockList).toHaveBeenCalled();
+    expect(mockList).toHaveBeenCalledWith();
     expect(result.current.templates).toEqual(updatedList);
     expect(result.current.renameTarget).toBeNull();
     expect(result.current.isRenaming).toBe(false);

@@ -203,7 +203,10 @@ describe('MemoryLeakDetectionService', () => {
         detector.trackTimer(`timer_bulk_${i}`, 'create');
       }
 
-      expect(mockedCreateTimerLeak).toHaveBeenCalled();
+      expect(mockedCreateTimerLeak).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.any(Array),
+      );
       const report = detector.getLeakReport();
       expect(report.leaks.length).toBeGreaterThanOrEqual(1);
     });
@@ -234,7 +237,10 @@ describe('MemoryLeakDetectionService', () => {
         detector.trackNetworkRequest(`req_flood_${i}`, 'start');
       }
 
-      expect(mockedCreateNetworkLeak).toHaveBeenCalled();
+      expect(mockedCreateNetworkLeak).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.any(Array),
+      );
       const report = detector.getLeakReport();
       expect(report.leaks.length).toBeGreaterThanOrEqual(1);
     });

@@ -319,8 +319,8 @@ describe('PerformanceOptimization', () => {
         const result = await performanceOptimization.measureAsync('test-operation', mockOperation, 'testing');
         
         expect(result).toBe('result');
-        expect(mockOperation).toHaveBeenCalled();
-        
+        expect(mockOperation).toHaveBeenCalledWith();
+
         // Should have recorded the measurement
         expect(mockStorageMap.has('perf_opt_performance-measurements')).toBe(true);
       });
@@ -376,7 +376,7 @@ describe('PerformanceOptimization', () => {
         const result = performanceOptimization.measureSync('sync-operation', mockOperation, 'sync-testing');
         
         expect(result).toBe('sync-result');
-        expect(mockOperation).toHaveBeenCalled();
+        expect(mockOperation).toHaveBeenCalledWith();
       });
 
       it('should handle sync operation errors', () => {
@@ -396,7 +396,7 @@ describe('PerformanceOptimization', () => {
         const result = performanceOptimization.measureSync('fast-operation', fastOperation);
         
         expect(result).toBe(42);
-        expect(fastOperation).toHaveBeenCalled();
+        expect(fastOperation).toHaveBeenCalledWith();
       });
     });
   });

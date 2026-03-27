@@ -148,7 +148,11 @@ describe('EditProfileScreen', () => {
       await renderAndSave();
 
       await waitFor(() => {
-        expect(alertSpy).toHaveBeenCalled();
+        expect(alertSpy).toHaveBeenCalledWith(
+          'Success',
+          'Profile updated successfully.',
+          expect.any(Array),
+        );
       });
 
       // goBack must NOT have been called yet — the alert is still open
@@ -185,7 +189,9 @@ describe('EditProfileScreen', () => {
       await renderAndSave();
 
       await waitFor(() => {
-        expect(mockUpdateProfile).toHaveBeenCalled();
+        expect(mockUpdateProfile).toHaveBeenCalledWith(
+          expect.objectContaining({ email: 'updated@example.com' }),
+        );
       });
 
       // Even after updateProfile resolves, goBack must not have been called

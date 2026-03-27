@@ -48,7 +48,10 @@ describe('BugReporter', () => {
       expect(result.success).toBe(true);
       expect(typeof result.reportId).toBe('string');
       expect(result.reportId!.length).toBeGreaterThan(0);
-      expect(mmkvService.setString).toHaveBeenCalled();
+      expect(mmkvService.setString).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining('App crashes on startup'),
+      );
     });
 
     it('should include diagnostic info when requested', async () => {
