@@ -62,7 +62,7 @@ Present the plan before implementing if it touches 5+ files.
 
 ### Step 4: Implement (One File at a Time)
 
-Follow `.knowledge/policies/workflow/fix-strategy.md` — one file at a time, typecheck after each.
+Follow `.knowledge/policies/workflow/fix-strategy.md`.
 
 **When splitting files:**
 - New subdirectory gets a barrel `index.ts`

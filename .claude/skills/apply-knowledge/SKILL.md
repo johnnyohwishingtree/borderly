@@ -61,7 +61,7 @@ Collect all violations with file path, line number, and the specific rule violat
 
 ## Step 4: Fix violations (if not --dry-run)
 
-Follow `.knowledge/policies/workflow/fix-strategy.md` — one file at a time, typecheck after each.
+Follow `.knowledge/policies/workflow/fix-strategy.md`.
 If a fix requires judgment (not mechanical), skip and add to gaps.md.
 
 ### Fix patterns by knowledge type:

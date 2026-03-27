@@ -45,14 +45,14 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git fetch origin master && git checkout -b story/issue-$NUMBER origin/master
 ```
 
-Follow `.knowledge/policies/workflow/story-implementation.md` — read Knowledge → Tasks → Context → Implement.
+Follow `.knowledge/policies/workflow/story-implementation.md`.
 
 When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
 When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
 
 ## Step 4: Verify
 
-Follow `.knowledge/policies/workflow/verification.md` — lint, typecheck, test (up to 6 attempts).
+Follow `.knowledge/policies/workflow/verification.md`.
 
 If you changed screen UI, also follow `.knowledge/policies/testing/e2e-testability.md`.
 
@@ -66,7 +66,7 @@ Self-check: if 5+ files changed and zero `.knowledge/` files updated, stop and r
 
 ## Step 6: Self-review
 
-Follow `.knowledge/policies/workflow/self-review.md` — review diff against rubrics, fix issues, re-verify.
+Follow `.knowledge/policies/workflow/self-review.md`.
 
 ## Step 7: Push, PR, merge
 

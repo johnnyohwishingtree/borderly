@@ -52,7 +52,7 @@ Use `git mv` to preserve history:
 git mv old/path/file.ts new/path/file.ts
 ```
 
-After each move, follow `.knowledge/policies/workflow/fix-strategy.md` — update imports, barrels, typecheck after each file.
+After each move, follow `.knowledge/policies/workflow/fix-strategy.md`.
 
 ### Step 4: Remove Duplicates
 
