@@ -12,17 +12,9 @@ type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamLi
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const {
-    profile,
-    secureProfile,
-    isUnlocked,
-    isLoading,
-    error,
-    biometricEnabled,
-    familyProfiles,
-    completeness,
-    handleUnlockProfile,
-    maskPassportNumber,
-    loadProfile,
+    data: { profile, secureProfile, familyProfiles, completeness },
+    state: { isUnlocked, isLoading, error, biometricEnabled },
+    actions: { handleUnlockProfile, maskPassportNumber, loadProfile },
   } = useProfileScreen();
 
   if (isLoading) {

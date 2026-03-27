@@ -16,42 +16,60 @@ const mockHandleRatingPress = jest.fn();
 const mockHandleSubmitFeedback = jest.fn();
 
 interface MockHookReturn {
-  feedbackType: string;
-  setFeedbackType: jest.Mock;
-  rating: number;
-  subject: string;
-  setSubject: jest.Mock;
-  message: string;
-  setMessage: jest.Mock;
-  isSubmitting: boolean;
-  feedbackTypeOptions: Array<{ label: string; value: string }>;
-  handleRatingPress: jest.Mock;
-  handleSubmitFeedback: jest.Mock;
-  getRatingEmoji: (star: number) => string;
-  getRatingText: (rating: number) => string;
+  fields: {
+    feedbackType: string;
+    setFeedbackType: jest.Mock;
+    rating: number;
+    setRating: jest.Mock;
+    subject: string;
+    setSubject: jest.Mock;
+    message: string;
+    setMessage: jest.Mock;
+  };
+  submission: {
+    isSubmitting: boolean;
+    handleSubmitFeedback: jest.Mock;
+  };
+  options: {
+    feedbackTypeOptions: Array<{ label: string; value: string }>;
+  };
+  ratingHelpers: {
+    handleRatingPress: jest.Mock;
+    getRatingEmoji: (star: number) => string;
+    getRatingText: (rating: number) => string;
+  };
 }
 
 let mockHookReturn: MockHookReturn;
 
 function resetMockHook() {
   mockHookReturn = {
-    feedbackType: 'general',
-    setFeedbackType: mockSetFeedbackType,
-    rating: 0,
-    subject: '',
-    setSubject: mockSetSubject,
-    message: '',
-    setMessage: mockSetMessage,
-    isSubmitting: false,
-    feedbackTypeOptions: [
-      { label: 'General Feedback', value: 'general' },
-      { label: 'Feature Request', value: 'feature' },
-      { label: 'User Experience', value: 'ux' },
-    ],
-    handleRatingPress: mockHandleRatingPress,
-    handleSubmitFeedback: mockHandleSubmitFeedback,
-    getRatingEmoji: (star: number) => ['', '😞', '😐', '🙂', '😄', '🤩'][star],
-    getRatingText: (r: number) => ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][r],
+    fields: {
+      feedbackType: 'general',
+      setFeedbackType: mockSetFeedbackType,
+      rating: 0,
+      setRating: jest.fn(),
+      subject: '',
+      setSubject: mockSetSubject,
+      message: '',
+      setMessage: mockSetMessage,
+    },
+    submission: {
+      isSubmitting: false,
+      handleSubmitFeedback: mockHandleSubmitFeedback,
+    },
+    options: {
+      feedbackTypeOptions: [
+        { label: 'General Feedback', value: 'general' },
+        { label: 'Feature Request', value: 'feature' },
+        { label: 'User Experience', value: 'ux' },
+      ],
+    },
+    ratingHelpers: {
+      handleRatingPress: mockHandleRatingPress,
+      getRatingEmoji: (star: number) => ['', '😞', '😐', '🙂', '😄', '🤩'][star],
+      getRatingText: (r: number) => ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'][r],
+    },
   };
 }
 
@@ -134,13 +152,13 @@ describe('FeedbackScreen — star rating', () => {
   });
 
   it('shows rating text when a rating is selected', () => {
-    mockHookReturn.rating = 4;
+    mockHookReturn.fields.rating = 4;
     render(<FeedbackScreen />);
     expect(screen.getByText('Great (4/5)')).toBeTruthy();
   });
 
   it('shows rating badge text when rated', () => {
-    mockHookReturn.rating = 5;
+    mockHookReturn.fields.rating = 5;
     render(<FeedbackScreen />);
     expect(screen.getByText('Excellent')).toBeTruthy();
   });
@@ -207,8 +225,8 @@ describe('FeedbackScreen — submit button', () => {
   });
 
   it('submit button is disabled when no rating', () => {
-    mockHookReturn.rating = 0;
-    mockHookReturn.message = 'Some feedback';
+    mockHookReturn.fields.rating = 0;
+    mockHookReturn.fields.message = 'Some feedback';
     render(<FeedbackScreen />);
 
     const submitButton = screen.getByText('Submit Feedback').parent;
@@ -216,8 +234,8 @@ describe('FeedbackScreen — submit button', () => {
   });
 
   it('submit button is disabled when message is empty', () => {
-    mockHookReturn.rating = 4;
-    mockHookReturn.message = '';
+    mockHookReturn.fields.rating = 4;
+    mockHookReturn.fields.message = '';
     render(<FeedbackScreen />);
 
     const submitButton = screen.getByText('Submit Feedback').parent;
@@ -225,8 +243,8 @@ describe('FeedbackScreen — submit button', () => {
   });
 
   it('submit button calls handleSubmitFeedback when rating and message are set', () => {
-    mockHookReturn.rating = 4;
-    mockHookReturn.message = 'Great app!';
+    mockHookReturn.fields.rating = 4;
+    mockHookReturn.fields.message = 'Great app!';
     render(<FeedbackScreen />);
 
     fireEvent.press(screen.getByText('Submit Feedback'));
@@ -235,7 +253,7 @@ describe('FeedbackScreen — submit button', () => {
   });
 
   it('shows "Submitting..." when isSubmitting is true', () => {
-    mockHookReturn.isSubmitting = true;
+    mockHookReturn.submission.isSubmitting = true;
     render(<FeedbackScreen />);
     expect(screen.getByText('Submitting...')).toBeTruthy();
   });

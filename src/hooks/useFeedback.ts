@@ -105,26 +105,27 @@ export function useFeedback() {
   };
 
   return {
-    // State
-    feedbackType,
-    setFeedbackType,
-    rating,
-    setRating,
-    subject,
-    setSubject,
-    message,
-    setMessage,
-    isSubmitting,
-
-    // Constants
-    feedbackTypeOptions,
-
-    // Callbacks
-    handleRatingPress,
-    handleSubmitFeedback,
-
-    // Helpers
-    getRatingEmoji,
-    getRatingText,
+    fields: {
+      feedbackType,
+      setFeedbackType,
+      rating,
+      setRating,
+      subject,
+      setSubject,
+      message,
+      setMessage,
+    },
+    submission: {
+      isSubmitting,
+      handleSubmitFeedback,
+    },
+    options: {
+      feedbackTypeOptions,
+    },
+    ratingHelpers: {
+      handleRatingPress,
+      getRatingEmoji,
+      getRatingText,
+    },
   };
 }

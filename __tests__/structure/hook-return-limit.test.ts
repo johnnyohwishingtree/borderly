@@ -20,12 +20,8 @@ const MAX_RETURN_KEYS = 10;
  * Adding a NEW hook here is not allowed — fix the hook instead.
  */
 const KNOWN_VIOLATIONS = new Set([
-  'useAddQR',
-  'useFeedback',
   'useHelpScreen',
-  'useMRZScanner',
   'usePortalAutoLogin',
-  'useProfileScreen',
   'useReviewImport',
   'useSubmissionGuide',
 ]);

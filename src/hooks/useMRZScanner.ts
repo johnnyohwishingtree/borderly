@@ -252,20 +252,28 @@ export function useMRZScanner({
   };
 
   return {
-    cameraRef,
-    isScanning,
-    scanResult,
-    flashMode,
-    cameraStatus,
-    performanceMetrics,
-    lowPowerMode,
-    handleTextRecognition,
-    handleCameraReady,
-    handleStatusChange,
-    handleMountError,
-    startDemoScan,
-    toggleFlash,
-    getGuidanceColor,
-    getConfidenceColor,
+    state: {
+      isScanning,
+      scanResult,
+      cameraStatus,
+      performanceMetrics,
+      lowPowerMode,
+    },
+    camera: {
+      cameraRef,
+      flashMode,
+      handleCameraReady,
+      handleStatusChange,
+      handleMountError,
+      toggleFlash,
+    },
+    scanning: {
+      handleTextRecognition,
+      startDemoScan,
+    },
+    ui: {
+      getGuidanceColor,
+      getConfidenceColor,
+    },
   };
 }

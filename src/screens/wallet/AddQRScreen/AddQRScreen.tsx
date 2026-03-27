@@ -13,19 +13,9 @@ import { useAddQR } from '@/hooks/useAddQR';
 
 export default function AddQRScreen() {
   const {
-    isLoading,
-    capturedImage,
-    progressiveImage,
-    imageQuality,
-    compressionInfo,
-    formData,
-    setFormData,
-    devicePerformance,
-    qrTypeOptions,
-    handleCameraCapture,
-    handleLibraryImport,
-    handleSaveQR,
-    handleReset,
+    image: { capturedImage, progressiveImage, imageQuality, compressionInfo, devicePerformance },
+    form: { formData, setFormData, qrTypeOptions },
+    actions: { isLoading, handleCameraCapture, handleLibraryImport, handleSaveQR, handleReset },
   } = useAddQR();
 
   if (isLoading) {
