@@ -9,19 +9,28 @@ import {
 } from 'react-native';
 import WebView from 'react-native-webview';
 import { X } from 'lucide-react-native';
-import { useAccountSetup } from '@/hooks/useAccountSetup';
 import { getSchemaByCountryCode } from '@/schemas';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CountryFormSchema } from '@/types/schema';
 import { TripLeg } from '@/types/trip';
 import { TravelerProfile } from '@/types/profile';
+import type { AccountReadinessStatus } from '@/types/submission';
 import { ACCOUNT_SETUP_CHECKLIST_IDS } from './testIDs';
+
+export interface AccountSetupActions {
+  getPortalStatus: (portalCode: string) => AccountReadinessStatus;
+  markPortalReady: (portalCode: string) => void;
+  resetPortalStatus: (portalCode: string) => void;
+  loadStatuses: () => void;
+  getPortalCredential: (portalCode: string) => Promise<{ username: string; password: string } | null>;
+  storePortalCredential: (portalCode: string, username: string, password: string, email?: string) => Promise<void>;
+}
 
 export interface AccountSetupChecklistProps {
   /** The legs of the trip to show account setup items for */
   legs: TripLeg[];
-  /** Primary profile ID (for storing readiness per profile × portal) */
-  profileId: string;
+  /** Account setup actions provided by the parent screen */
+  accountSetup: AccountSetupActions;
   /** Optional profile object — used to pre-fill email in the credential prompt */
   profile?: TravelerProfile;
   /**
@@ -56,7 +65,7 @@ interface PortalAccountInfo {
  */
 export default function AccountSetupChecklist({
   legs,
-  profileId,
+  accountSetup,
   profile,
   familyProfileIds: _familyProfileIds = [],
   testID,
@@ -80,7 +89,7 @@ export default function AccountSetupChecklist({
     portalName: string;
   } | null>(null);
 
-  const { getPortalStatus, markPortalReady, resetPortalStatus, loadStatuses, getPortalCredential, storePortalCredential } = useAccountSetup(profileId);
+  const { getPortalStatus, markPortalReady, resetPortalStatus, loadStatuses, getPortalCredential, storePortalCredential } = accountSetup;
 
   useEffect(() => {
     loadStatuses();

@@ -1,41 +1,17 @@
 /**
  * LegFormSection — Form fields for editing/adding a trip leg.
  *
- * Co-located with TripDetailScreen because LegPassportWarning uses a hook,
- * violating the props-only rule for shared components.
+ * Receives all data (including passport validity warnings) as props
+ * from the parent screen.
  */
 
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Input, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete } from '@/components/ui';
-import { usePassportValidity } from '@/hooks/usePassportValidity';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { ALL_AIRPORTS } from '@/constants/airports';
 import type { Address } from '@/types/profile';
-
-// ── LegPassportWarning ──────────────────────────────────────────────────────
-
-function LegPassportWarning({
-  countryCode,
-  departureDate,
-  testID,
-}: {
-  countryCode: string;
-  departureDate?: string | undefined;
-  testID?: string;
-}) {
-  const warningData = usePassportValidity({ countryCode, departureDate });
-  if (!warningData) return null;
-  return (
-    <PassportValidityWarning
-      status={warningData.status}
-      countryName={warningData.countryName}
-      requiredMonths={warningData.requiredMonths}
-      passportExpiry={warningData.passportExpiry}
-      {...(testID !== undefined ? { testID } : {})}
-    />
-  );
-}
+import type { PassportValidityWarningData } from '@/hooks/usePassportValidity';
 
 // ── LegFormSection ──────────────────────────────────────────────────────────
 
@@ -57,9 +33,11 @@ export interface LegFormSectionProps {
   onAddressChange?: (address: Address) => void;
   errors: Record<string, string>;
   testIDPrefix: string;
+  /** Passport validity warning data — null/undefined means no warning to show */
+  passportWarning?: PassportValidityWarningData | null | undefined;
 }
 
-export default function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix }: LegFormSectionProps) {
+export default function LegFormSection({ legData, onUpdateField, onAddressChange, errors, testIDPrefix, passportWarning }: LegFormSectionProps) {
   return (
     <View className="p-4">
       {/* Country */}
@@ -92,10 +70,12 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
       </View>
 
       {/* Passport validity warning */}
-      {legData.destinationCountry ? (
-        <LegPassportWarning
-          countryCode={legData.destinationCountry}
-          departureDate={legData.departureDate || undefined}
+      {passportWarning ? (
+        <PassportValidityWarning
+          status={passportWarning.status}
+          countryName={passportWarning.countryName}
+          requiredMonths={passportWarning.requiredMonths}
+          passportExpiry={passportWarning.passportExpiry}
           testID={`${testIDPrefix}-passport-validity-warning`}
         />
       ) : null}

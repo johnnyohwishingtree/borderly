@@ -7,6 +7,7 @@ import { Button, StatusBadge, ScreenContainer } from '@/components/ui';
 import { useTripDetail } from '@/hooks/useTripDetail';
 import { useTripChecklist } from '@/hooks/useTripChecklist';
 import { useTripDetailModals } from '@/hooks/useTripDetailModals';
+import { usePassportValidity } from '@/hooks/usePassportValidity';
 import { EditTripModal, AddDestinationModal } from '@/components/trips/TripDetailModals';
 import { computeTravelerProgress } from '@/services/readiness/travelerProgress';
 import { Checklists } from './TripDetailScreen.Checklists';
@@ -55,6 +56,16 @@ export default function TripDetailScreen() {
     if (!trip || familyMembers.length <= 1) return [];
     return computeTravelerProgress(trip, familyMembers);
   }, [trip, familyMembers]);
+
+  const editPassportWarning = usePassportValidity({
+    countryCode: editHook.legEdit.editLegData?.destinationCountry ?? '',
+    departureDate: editHook.legEdit.editLegData?.departureDate || undefined,
+  });
+
+  const addPassportWarning = usePassportValidity({
+    countryCode: editHook.addDestination.newLegData?.destinationCountry ?? '',
+    departureDate: editHook.addDestination.newLegData?.departureDate || undefined,
+  });
 
   const modals = useTripDetailModals({
     editHook,
@@ -267,6 +278,7 @@ export default function TripDetailScreen() {
         editHook={editHook}
         legs={trip.legs}
         editModalTitleRef={modals.editModal.editModalTitleRef}
+        passportWarning={editPassportWarning}
       />
       <AddDestinationModal
         visible={modals.addModal.showAddModal}
@@ -274,6 +286,7 @@ export default function TripDetailScreen() {
         onConfirm={modals.addModal.handleConfirmAddDestination}
         editHook={editHook}
         addModalTitleRef={modals.addModal.addModalTitleRef}
+        passportWarning={addPassportWarning}
       />
 
       <DuplicateTripModal

@@ -154,6 +154,17 @@ jest.mock('../../../src/hooks/usePassportValidity', () => ({
   usePassportValidity: (...args: unknown[]) => mockUsePassportValidity(...args),
 }));
 
+jest.mock('../../../src/hooks/useAccountSetup', () => ({
+  useAccountSetup: () => ({
+    getPortalStatus: jest.fn().mockReturnValue('not_started'),
+    markPortalReady: jest.fn(),
+    resetPortalStatus: jest.fn(),
+    loadStatuses: jest.fn(),
+    getPortalCredential: jest.fn().mockResolvedValue(null),
+    storePortalCredential: jest.fn().mockResolvedValue(undefined),
+  }),
+}));
+
 jest.mock('../../../src/hooks/useTripChecklist', () => ({
   useTripChecklist: () => ({
     checklist: {

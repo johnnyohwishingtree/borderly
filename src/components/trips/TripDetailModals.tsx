@@ -17,6 +17,7 @@ import { ChevronLeft, Plus } from 'lucide-react-native';
 import { Button, Input } from '@/components/ui';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { TripLeg } from '@/types/trip';
+import type { PassportValidityWarningData } from '@/hooks/usePassportValidity';
 import LegFormSection from './LegFormSection';
 
 interface EditHookShape {
@@ -56,6 +57,7 @@ export interface EditTripModalProps {
   editHook: EditHookShape;
   legs: TripLeg[];
   editModalTitleRef: any;
+  passportWarning?: PassportValidityWarningData | null;
 }
 
 export function EditTripModal({
@@ -65,6 +67,7 @@ export function EditTripModal({
   editHook,
   legs,
   editModalTitleRef,
+  passportWarning,
 }: EditTripModalProps) {
   const handleSaveLeg = async () => {
     await editHook.legEdit.handleSaveLeg();
@@ -127,6 +130,7 @@ export function EditTripModal({
               onAddressChange={editHook.legEdit.updateEditLegAddress}
               errors={editHook.errors}
               testIDPrefix="edit-leg"
+              passportWarning={passportWarning}
             />
           ) : (
             <View className="p-4">
@@ -206,6 +210,7 @@ export interface AddDestinationModalProps {
   onConfirm: () => Promise<void>;
   editHook: Pick<EditHookShape, 'addDestination' | 'errors'>;
   addModalTitleRef: any;
+  passportWarning?: PassportValidityWarningData | null;
 }
 
 export function AddDestinationModal({
@@ -214,6 +219,7 @@ export function AddDestinationModal({
   onConfirm,
   editHook,
   addModalTitleRef,
+  passportWarning,
 }: AddDestinationModalProps) {
   return (
     <Modal
@@ -258,6 +264,7 @@ export function AddDestinationModal({
               onAddressChange={editHook.addDestination.updateNewLegAddress}
               errors={editHook.errors}
               testIDPrefix="new-leg"
+              passportWarning={passportWarning}
             />
           )}
         </ScrollView>
