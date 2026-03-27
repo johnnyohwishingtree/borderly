@@ -35,7 +35,7 @@ describe('Privacy Compliance Audit', () => {
       expect(result.complianceScore).toBeGreaterThanOrEqual(80);
       expect(result.violations).toHaveLength(0);
       expect(result.biometricStatus.available).toBe(true);
-      expect(result.dataInventory).toBeDefined();
+      expect(result.dataInventory).toEqual(expect.any(Array));
     });
 
     it('should detect missing biometric configuration', async () => {
@@ -232,9 +232,9 @@ describe('Privacy Compliance Audit', () => {
       
       const latestAudit = await privacyAuditService.getLatestAudit();
       
-      expect(latestAudit).toBeDefined();
-      expect(latestAudit!.timestamp).toBeTruthy();
-      expect(new Date(latestAudit!.timestamp)).toBeInstanceOf(Date);
+      expect(latestAudit).not.toBeUndefined();
+      expect(typeof latestAudit!.timestamp).toBe('string');
+      expect(new Date(latestAudit!.timestamp as unknown as string).getTime()).not.toBeNaN();
     });
 
     it('should clear audit history', async () => {
@@ -281,7 +281,7 @@ describe('Privacy Compliance Audit', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
       
       // Should still complete audit with appropriate violations
-      expect(result).toBeDefined();
+      expect(result).not.toBeUndefined();
       expect(result.violations.some(v => v.type === 'insecure_storage')).toBe(true);
     });
 
@@ -290,7 +290,7 @@ describe('Privacy Compliance Audit', () => {
       
       const result = await privacyAuditService.runComprehensiveAudit();
       
-      expect(result).toBeDefined();
+      expect(result).not.toBeUndefined();
       expect(result.violations.some(v => v.type === 'insecure_storage')).toBe(true);
     });
 
@@ -299,7 +299,7 @@ describe('Privacy Compliance Audit', () => {
       
       const result = await privacyAuditService.runComprehensiveAudit();
       
-      expect(result).toBeDefined();
+      expect(result).not.toBeUndefined();
       expect(result.biometricStatus.available).toBe(false);
     });
   });

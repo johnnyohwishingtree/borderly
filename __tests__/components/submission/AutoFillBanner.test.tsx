@@ -23,21 +23,21 @@ describe('AutoFillBanner', () => {
     const { getByTestId } = render(
       <AutoFillBanner filled={3} total={5} onDismiss={jest.fn()} />
     );
-    expect(getByTestId('autofill-banner')).toBeTruthy();
+    getByTestId('autofill-banner');
   });
 
   it('renders with a custom testID', () => {
     const { getByTestId } = render(
       <AutoFillBanner filled={1} total={1} onDismiss={jest.fn()} testID="my-banner" />
     );
-    expect(getByTestId('my-banner')).toBeTruthy();
+    getByTestId('my-banner');
   });
 
   it('renders the dismiss button', () => {
     const { getByTestId } = render(
       <AutoFillBanner filled={3} total={5} onDismiss={jest.fn()} />
     );
-    expect(getByTestId('autofill-banner-dismiss')).toBeTruthy();
+    getByTestId('autofill-banner-dismiss');
   });
 
   it('shows the filled/total counts in the message', () => {
@@ -72,7 +72,7 @@ describe('AutoFillBanner', () => {
     const { getByLabelText } = render(
       <AutoFillBanner filled={1} total={1} onDismiss={jest.fn()} />
     );
-    expect(getByLabelText('Dismiss auto-fill notification')).toBeTruthy();
+    getByLabelText('Dismiss auto-fill notification');
   });
 
   it('calls onDismiss when dismiss button is pressed', () => {
@@ -129,7 +129,7 @@ describe('AutoFillBanner', () => {
     const { getByTestId } = render(
       <AutoFillBanner filled={2} total={2} results={results} onDismiss={jest.fn()} />
     );
-    expect(getByTestId('autofill-banner-expand-toggle')).toBeTruthy();
+    getByTestId('autofill-banner-expand-toggle');
   });
 
   it('detail section is hidden before expand toggle is pressed', () => {
@@ -154,10 +154,10 @@ describe('AutoFillBanner', () => {
     fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
 
     // Detail section should now be visible
-    expect(getByTestId('autofill-banner-details')).toBeTruthy();
+    getByTestId('autofill-banner-details');
     // Individual field results should be rendered
-    expect(getByTestId('autofill-result-surname')).toBeTruthy();
-    expect(getByTestId('autofill-result-departureCity')).toBeTruthy();
+    getByTestId('autofill-result-surname');
+    getByTestId('autofill-result-departureCity');
   });
 
   it('hides detail section after pressing expand toggle a second time', () => {
@@ -168,7 +168,7 @@ describe('AutoFillBanner', () => {
 
     // Open
     fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
-    expect(getByTestId('autofill-banner-details')).toBeTruthy();
+    getByTestId('autofill-banner-details');
 
     // Close
     fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
@@ -180,7 +180,7 @@ describe('AutoFillBanner', () => {
     const { getByLabelText } = render(
       <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
     );
-    expect(getByLabelText('Show field details')).toBeTruthy();
+    getByLabelText('Show field details');
   });
 
   it('expand toggle has correct accessibility label when expanded', () => {
@@ -189,6 +189,6 @@ describe('AutoFillBanner', () => {
       <AutoFillBanner filled={1} total={1} results={results} onDismiss={jest.fn()} />
     );
     fireEvent.press(getByTestId('autofill-banner-expand-toggle'));
-    expect(getByLabelText('Hide field details')).toBeTruthy();
+    getByLabelText('Hide field details');
   });
 });

@@ -85,10 +85,10 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={mockPrimaryMember} />
       );
 
-      expect(getByText('John Smith')).toBeTruthy();
-      expect(getByText('Primary Traveler')).toBeTruthy();
-      expect(getByText('USA • Born 1980')).toBeTruthy();
-      expect(getByText('US1234567')).toBeTruthy();
+      getByText('John Smith');
+      getByText('Primary Traveler');
+      getByText('USA • Born 1980');
+      getByText('US1234567');
     });
 
     it('should display relationship labels correctly', () => {
@@ -104,7 +104,7 @@ describe('FamilyMemberCard', () => {
         const { getByText } = render(
           <FamilyMemberCard member={member as FamilyMember} />
         );
-        expect(getByText(expected)).toBeTruthy();
+        getByText(expected);
       });
     });
 
@@ -114,8 +114,7 @@ describe('FamilyMemberCard', () => {
       );
 
       // Date rendering depends on timezone; check that "Expires:" prefix and year appear
-      const expiresText = getByText(/Expires:.*2030/);
-      expect(expiresText).toBeTruthy();
+      getByText(/Expires:.*2030/);
     });
 
     it('should display last scanned date', () => {
@@ -124,7 +123,7 @@ describe('FamilyMemberCard', () => {
       );
 
       // "Last scanned:" and date may be split across text nodes; verify prefix exists
-      expect(getByText(/Last scanned:/)).toBeTruthy();
+      getByText(/Last scanned:/);
     });
   });
 
@@ -134,7 +133,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={mockPrimaryMember} />
       );
 
-      expect(getByText('Valid')).toBeTruthy();
+      getByText('Valid');
     });
 
     it('should show expiring warning for passport expiring within 6 months', () => {
@@ -150,8 +149,8 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={expiringMember} />
       );
 
-      expect(getByText('Passport Expiring')).toBeTruthy();
-      expect(getByText('⚠ Expiring Soon')).toBeTruthy();
+      getByText('Passport Expiring');
+      getByText('⚠ Expiring Soon');
     });
 
     it('should show expired warning for already expired passport', () => {
@@ -167,8 +166,8 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={expiredMember} />
       );
 
-      expect(getByText('Passport Expiring')).toBeTruthy();
-      expect(getByText('⚠ Expiring Soon')).toBeTruthy();
+      getByText('Passport Expiring');
+      getByText('⚠ Expiring Soon');
     });
   });
 
@@ -225,7 +224,7 @@ describe('FamilyMemberCard', () => {
         />
       );
 
-      expect(queryByText('Remove')).toBeFalsy();
+      expect(queryByText('Remove')).toBeNull();
     });
 
     it('should not render card as touchable when onPress is not provided', () => {
@@ -236,7 +235,7 @@ describe('FamilyMemberCard', () => {
       );
 
       // Card should still be rendered but not be pressable
-      expect(getByText('John Smith')).toBeTruthy();
+      getByText('John Smith');
     });
   });
 
@@ -250,7 +249,7 @@ describe('FamilyMemberCard', () => {
       );
 
       // Component should render without errors when isActive is true
-      expect(getByText('John Smith')).toBeTruthy();
+      getByText('John Smith');
     });
 
     it('should not apply active styling when isActive is false', () => {
@@ -262,7 +261,7 @@ describe('FamilyMemberCard', () => {
       );
 
       // Component should render without errors when isActive is false
-      expect(getByText('John Smith')).toBeTruthy();
+      getByText('John Smith');
     });
   });
 
@@ -272,7 +271,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={mockChildMember} />
       );
 
-      expect(getByText('USA • Born 2015')).toBeTruthy();
+      getByText('USA • Born 2015');
     });
 
     it('should handle different nationalities correctly', () => {
@@ -285,7 +284,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={canadianMember} />
       );
 
-      expect(getByText('CAN • Born 1980')).toBeTruthy();
+      getByText('CAN • Born 1980');
     });
   });
 
@@ -303,8 +302,8 @@ describe('FamilyMemberCard', () => {
       );
 
       // Should still render the component without crashing
-      expect(getByText('John Smith')).toBeTruthy();
-      expect(getByText('Primary Traveler')).toBeTruthy();
+      getByText('John Smith');
+      getByText('Primary Traveler');
     });
 
     it('should not display "Invalid Date" when updatedAt is missing or empty', () => {
@@ -317,7 +316,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={memberWithNoUpdatedAt} />
       );
 
-      expect(queryByText(/Invalid Date/)).toBeFalsy();
+      expect(queryByText(/Invalid Date/)).toBeNull();
     });
 
     it('should not display "Invalid Date" when updatedAt is undefined', () => {
@@ -330,7 +329,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={memberWithUndefinedUpdatedAt} />
       );
 
-      expect(queryByText(/Invalid Date/)).toBeFalsy();
+      expect(queryByText(/Invalid Date/)).toBeNull();
     });
 
     it('should handle missing optional fields', () => {
@@ -345,8 +344,8 @@ describe('FamilyMemberCard', () => {
       );
 
       // Should still render essential information
-      expect(getByText('John Smith')).toBeTruthy();
-      expect(getByText('US1234567')).toBeTruthy();
+      getByText('John Smith');
+      getByText('US1234567');
     });
 
     it('should memoize calculations to prevent unnecessary re-renders', () => {
@@ -369,8 +368,8 @@ describe('FamilyMemberCard', () => {
       );
 
       // Should have accessible content
-      expect(getByText('John Smith')).toBeTruthy();
-      expect(getByText('Primary Traveler')).toBeTruthy();
+      getByText('John Smith');
+      getByText('Primary Traveler');
     });
 
     it('should provide context for passport status to screen readers', () => {
@@ -383,7 +382,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={expiringMember} />
       );
 
-      expect(getByText('⚠ Expiring Soon')).toBeTruthy();
+      getByText('⚠ Expiring Soon');
     });
   });
 });

@@ -93,22 +93,22 @@ describe('TemplatesScreen — empty state', () => {
 
   it('renders the screen header', () => {
     const { getByText } = render(<TemplatesScreen />);
-    expect(getByText('Trip Templates', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('Trip Templates', INCLUDE_HIDDEN);
   });
 
   it('shows empty state when no templates exist', () => {
     const { getByTestId } = render(<TemplatesScreen />);
-    expect(getByTestId('empty-state', INCLUDE_HIDDEN)).toBeTruthy();
+    getByTestId('empty-state', INCLUDE_HIDDEN);
   });
 
   it('shows "No templates yet" in empty state', () => {
     const { getByText } = render(<TemplatesScreen />);
-    expect(getByText('No templates yet', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('No templates yet', INCLUDE_HIDDEN);
   });
 
   it('shows subtitle "Saved templates appear here" when empty', () => {
     const { getByText } = render(<TemplatesScreen />);
-    expect(getByText('Saved templates appear here', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('Saved templates appear here', INCLUDE_HIDDEN);
   });
 
   it('does not render templates list when empty', () => {
@@ -132,7 +132,7 @@ describe('TemplatesScreen — with templates', () => {
 
   it('renders the templates list', () => {
     const { getByTestId } = render(<TemplatesScreen />);
-    expect(getByTestId('templates-list', INCLUDE_HIDDEN)).toBeTruthy();
+    getByTestId('templates-list', INCLUDE_HIDDEN);
   });
 
   it('does not show empty state when templates exist', () => {
@@ -142,13 +142,13 @@ describe('TemplatesScreen — with templates', () => {
 
   it('shows template count in header', () => {
     const { getByText } = render(<TemplatesScreen />);
-    expect(getByText('2 saved templates', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('2 saved templates', INCLUDE_HIDDEN);
   });
 
   it('shows singular "template" for count of 1', () => {
     setupHook([tpl1]);
     const { getByText } = render(<TemplatesScreen />);
-    expect(getByText('1 saved template', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('1 saved template', INCLUDE_HIDDEN);
   });
 });
 
@@ -167,17 +167,17 @@ describe('TemplateCard — rendering', () => {
 
   it('displays the template name', () => {
     const { getByText } = render(<TemplateCard {...defaultProps} />);
-    expect(getByText('Japan Loop')).toBeTruthy();
+    getByText('Japan Loop');
   });
 
   it('shows the "Use This Template" button', () => {
     const { getByText } = render(<TemplateCard {...defaultProps} />);
-    expect(getByText('Use This Template')).toBeTruthy();
+    getByText('Use This Template');
   });
 
   it('shows leg count (hidden from a11y tree, visible in render)', () => {
     const { getByText } = render(<TemplateCard {...defaultProps} />);
-    expect(getByText('2 legs', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('2 legs', INCLUDE_HIDDEN);
   });
 
   it('shows singular "leg" for single-leg template', () => {
@@ -185,13 +185,13 @@ describe('TemplateCard — rendering', () => {
       legs: [{ countryCode: 'JPN', typicalDurationDays: 7, order: 0 }],
     });
     const { getByText } = render(<TemplateCard {...defaultProps} template={singleLeg} />);
-    expect(getByText('1 leg', INCLUDE_HIDDEN)).toBeTruthy();
+    getByText('1 leg', INCLUDE_HIDDEN);
   });
 
   it('renders country flags (hidden from a11y tree)', () => {
     const { getByTestId } = render(<TemplateCard {...defaultProps} />);
-    expect(getByTestId('flag-JPN', INCLUDE_HIDDEN)).toBeTruthy();
-    expect(getByTestId('flag-SGP', INCLUDE_HIDDEN)).toBeTruthy();
+    getByTestId('flag-JPN', INCLUDE_HIDDEN);
+    getByTestId('flag-SGP', INCLUDE_HIDDEN);
   });
 });
 
@@ -247,14 +247,14 @@ describe('TemplatesScreen — rename modal', () => {
     const tpl = makeTemplate();
     setupHook([tpl], tpl);
     const { getByTestId } = render(<TemplatesScreen />);
-    expect(getByTestId('rename-template-modal')).toBeTruthy();
+    getByTestId('rename-template-modal');
   });
 
   it('rename modal has cancel button', () => {
     const tpl = makeTemplate();
     setupHook([tpl], tpl);
     const { getByTestId } = render(<TemplatesScreen />);
-    expect(getByTestId('rename-modal-cancel')).toBeTruthy();
+    getByTestId('rename-modal-cancel');
   });
 
   it('calls closeRename when cancel is pressed in rename modal', () => {

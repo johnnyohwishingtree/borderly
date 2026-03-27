@@ -98,13 +98,13 @@ describe('RestoreBackupModal — idle step', () => {
 
   it('renders the heading', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-backup-heading')).toBeTruthy();
+    getByTestId('restore-backup-heading');
   });
 
   it('renders the idle step with pick file button', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-idle')).toBeTruthy();
-    expect(getByTestId('pick-file-button')).toBeTruthy();
+    getByTestId('restore-step-idle');
+    getByTestId('pick-file-button');
   });
 
   it('calls pickFile when pick file button is pressed', () => {
@@ -115,7 +115,7 @@ describe('RestoreBackupModal — idle step', () => {
 
   it('shows "What gets restored" info card', () => {
     const { getByText } = render(<RestoreBackupModal />);
-    expect(getByText('What gets restored')).toBeTruthy();
+    getByText('What gets restored');
   });
 });
 
@@ -131,12 +131,12 @@ describe('RestoreBackupModal — passphrase step', () => {
 
   it('renders the passphrase step', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-passphrase')).toBeTruthy();
+    getByTestId('restore-step-passphrase');
   });
 
   it('renders passphrase input', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('passphrase-field')).toBeTruthy();
+    getByTestId('passphrase-field');
   });
 
   it('calls setPassphrase on text change', () => {
@@ -147,7 +147,7 @@ describe('RestoreBackupModal — passphrase step', () => {
 
   it('renders submit passphrase button', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('submit-passphrase-button')).toBeTruthy();
+    getByTestId('submit-passphrase-button');
   });
 
   it('submit button is disabled when passphrase is empty', () => {
@@ -194,12 +194,12 @@ describe('RestoreBackupModal — loading step', () => {
 
   it('renders the loading step', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-loading')).toBeTruthy();
+    getByTestId('restore-step-loading');
   });
 
   it('shows restoring message', () => {
     const { getByText } = render(<RestoreBackupModal />);
-    expect(getByText('Restoring your data…')).toBeTruthy();
+    getByText('Restoring your data…');
   });
 });
 
@@ -215,12 +215,12 @@ describe('RestoreBackupModal — confirming-replace step', () => {
 
   it('renders the conflict step', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-conflict')).toBeTruthy();
+    getByTestId('restore-step-conflict');
   });
 
   it('shows existing data warning', () => {
     const { getByText } = render(<RestoreBackupModal />);
-    expect(getByText('Existing data detected')).toBeTruthy();
+    getByText('Existing data detected');
   });
 
   it('calls confirmReplace when replace button is pressed', () => {
@@ -248,12 +248,12 @@ describe('RestoreBackupModal — success step', () => {
 
   it('renders the success step', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-success')).toBeTruthy();
+    getByTestId('restore-step-success');
   });
 
   it('shows success message', () => {
     const { getByText } = render(<RestoreBackupModal />);
-    expect(getByText('Restore complete!')).toBeTruthy();
+    getByText('Restore complete!');
   });
 
   it('calls loadFamilyProfiles, setOnboardingComplete, and goBack on Go to Home', async () => {
@@ -279,7 +279,7 @@ describe('RestoreBackupModal — error step', () => {
   it('renders the error step', () => {
     setup({ step: 'error', errorMessage: 'Incorrect passphrase.' });
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('restore-step-error')).toBeTruthy();
+    getByTestId('restore-step-error');
   });
 
   it('displays the error message', () => {
@@ -291,7 +291,7 @@ describe('RestoreBackupModal — error step', () => {
   it('shows "Restore failed" heading', () => {
     setup({ step: 'error', errorMessage: 'Something broke' });
     const { getByText } = render(<RestoreBackupModal />);
-    expect(getByText('Restore failed')).toBeTruthy();
+    getByText('Restore failed');
   });
 
   it('calls reset when try again button is pressed', () => {

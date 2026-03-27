@@ -55,25 +55,25 @@ describe('TutorialScreen — first step', () => {
   it('renders the first tutorial step title', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByText('Fill Once, Travel Everywhere')).toBeTruthy();
+    screen.getByText('Fill Once, Travel Everywhere');
   });
 
   it('renders the first step subtitle', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByText('One profile. Every country.')).toBeTruthy();
+    screen.getByText('One profile. Every country.');
   });
 
   it('renders the first step content', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByText(/Enter your passport details once/)).toBeTruthy();
+    screen.getByText(/Enter your passport details once/);
   });
 
   it('renders "Next" button on first step', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByText('Next')).toBeTruthy();
+    screen.getByText('Next');
   });
 
   it('does not render "Previous" button on first step', () => {
@@ -85,7 +85,7 @@ describe('TutorialScreen — first step', () => {
   it('renders step indicator showing "Step 1 of 3"', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByTestId('tutorial-step-indicator')).toBeTruthy();
+    screen.getByTestId('tutorial-step-indicator');
     expect(screen.getAllByText('Step 1 of 3').length).toBeGreaterThanOrEqual(1);
   });
 });
@@ -98,8 +98,8 @@ describe('TutorialScreen — step navigation', () => {
 
     fireEvent.press(screen.getByTestId('next-step-button'));
 
-    expect(screen.getByText('Your Data Stays on Your Phone')).toBeTruthy();
-    expect(screen.getByText('Zero servers. Full privacy.')).toBeTruthy();
+    screen.getByText('Your Data Stays on Your Phone');
+    screen.getByText('Zero servers. Full privacy.');
   });
 
   it('shows "Previous" button on step 2', () => {
@@ -107,7 +107,7 @@ describe('TutorialScreen — step navigation', () => {
 
     fireEvent.press(screen.getByTestId('next-step-button'));
 
-    expect(screen.getByTestId('previous-step-button')).toBeTruthy();
+    screen.getByTestId('previous-step-button');
   });
 
   it('pressing "Previous" on step 2 returns to step 1', () => {
@@ -116,7 +116,7 @@ describe('TutorialScreen — step navigation', () => {
     fireEvent.press(screen.getByTestId('next-step-button'));
     fireEvent.press(screen.getByTestId('previous-step-button'));
 
-    expect(screen.getByText('Fill Once, Travel Everywhere')).toBeTruthy();
+    screen.getByText('Fill Once, Travel Everywhere');
   });
 
   it('pressing "Next" twice advances to step 3', () => {
@@ -125,8 +125,8 @@ describe('TutorialScreen — step navigation', () => {
     fireEvent.press(screen.getByTestId('next-step-button'));
     fireEvent.press(screen.getByTestId('next-step-button'));
 
-    expect(screen.getByText("Let's Scan Your Passport")).toBeTruthy();
-    expect(screen.getByText('Quick setup in seconds')).toBeTruthy();
+    screen.getByText("Let's Scan Your Passport");
+    screen.getByText('Quick setup in seconds');
   });
 });
 
@@ -142,7 +142,7 @@ describe('TutorialScreen — final step', () => {
   it('shows "Get Started" instead of "Next" on final step', () => {
     goToFinalStep();
 
-    expect(screen.getByText('Get Started')).toBeTruthy();
+    screen.getByText('Get Started');
     expect(screen.queryByText('Next')).toBeNull();
   });
 
@@ -157,7 +157,7 @@ describe('TutorialScreen — final step', () => {
   it('shows "Previous" button on final step', () => {
     goToFinalStep();
 
-    expect(screen.getByTestId('previous-step-button')).toBeTruthy();
+    screen.getByTestId('previous-step-button');
   });
 });
 
@@ -167,7 +167,7 @@ describe('TutorialScreen — skip', () => {
   it('renders "Skip" button', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByTestId('tutorial-skip-button')).toBeTruthy();
+    screen.getByTestId('tutorial-skip-button');
   });
 
   it('pressing "Skip" navigates to PassportScan', () => {
@@ -185,7 +185,7 @@ describe('TutorialScreen — progress indicator', () => {
   it('renders progress indicator', () => {
     render(<TutorialScreen />);
 
-    expect(screen.getByTestId('progress-indicator')).toBeTruthy();
+    screen.getByTestId('progress-indicator');
   });
 
   it('progress indicator updates when navigating steps', () => {
@@ -195,6 +195,6 @@ describe('TutorialScreen — progress indicator', () => {
 
     // The ProgressIndicator mock renders "Step X of Y"
     // After advancing, the step-indicator text updates too
-    expect(screen.getByTestId('tutorial-step-indicator').children).toBeTruthy();
+    expect(screen.getByTestId('tutorial-step-indicator').children.length).toBeGreaterThan(0);
   });
 });

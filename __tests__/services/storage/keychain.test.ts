@@ -142,7 +142,6 @@ describe('KeychainService', () => {
 
       const key = await keychainService.generateEncryptionKey();
 
-      expect(key).toBeDefined();
       expect(typeof key).toBe('string');
       expect(key.length).toBe(64);
       expect(Keychain.setInternetCredentials).toHaveBeenCalledWith(

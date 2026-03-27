@@ -18,12 +18,12 @@ describe('Australia (AUS) Schema', () => {
   });
 
   test('should have lastUpdated in ISO format', () => {
-    expect(schema.lastUpdated).toBeDefined();
+    expect(typeof schema.lastUpdated).toBe('string');
     expect(() => new Date(schema.lastUpdated)).not.toThrow();
   });
 
   test('should have implementationStatus set to complete', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
@@ -39,7 +39,7 @@ describe('Australia (AUS) Schema', () => {
   // ── 2. Submission timing ────────────────────────────────────────────────────
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('72h');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('48h');
@@ -54,7 +54,7 @@ describe('Australia (AUS) Schema', () => {
   });
 
   test('submissionWindowNote should describe the 72h window', () => {
-    expect(schema.submissionWindowNote).toBeDefined();
+    expect(typeof schema.submissionWindowNote).toBe('string');
     expect(schema.submissionWindowNote.toLowerCase()).toContain('72');
   });
 
@@ -67,19 +67,19 @@ describe('Australia (AUS) Schema', () => {
   // ── 4. Portal flow ──────────────────────────────────────────────────────────
 
   test('portalFlow should have requiresAccount set to false', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('portalFlow should have family policy with no account requirement', () => {
     const portalFlow = schema.portalFlow;
-    expect(portalFlow.familyPolicy).toBeDefined();
+    expect(portalFlow.familyPolicy).not.toBeUndefined();
     expect(portalFlow.familyPolicy!.type).toBe('none');
     expect(portalFlow.familyPolicy!.description).toContain('No account required');
   });
 
   test('portalFlow should have prerequisites', () => {
-    expect(schema.portalFlow.prerequisites).toBeDefined();
+    expect(schema.portalFlow.prerequisites).not.toBeUndefined();
     expect(schema.portalFlow.prerequisites!.length).toBeGreaterThanOrEqual(2);
 
     const prereqDescriptions = schema.portalFlow.prerequisites!.map(p => p.description);
@@ -103,7 +103,7 @@ describe('Australia (AUS) Schema', () => {
 
   test('personal section should have core passport fields with autoFillSource', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('familyName');
@@ -137,7 +137,7 @@ describe('Australia (AUS) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const genderField = personalSection.fields.find(f => f.id === 'gender')!;
 
-    expect(genderField).toBeDefined();
+    expect(genderField).not.toBeUndefined();
     expect(genderField.type).toBe('searchable_select');
     expect(genderField.autoFillSource).toBe('profile.gender');
 
@@ -151,7 +151,7 @@ describe('Australia (AUS) Schema', () => {
 
   test('travel section should have DIPC-specific fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('flightNumber');
@@ -177,7 +177,7 @@ describe('Australia (AUS) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const seatField = travelSection.fields.find(f => f.id === 'seatClass')!;
 
-    expect(seatField).toBeDefined();
+    expect(seatField).not.toBeUndefined();
     expect(seatField.type).toBe('searchable_select');
     expect(seatField.countrySpecific).toBe(true);
 
@@ -191,7 +191,7 @@ describe('Australia (AUS) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const lastCountryField = travelSection.fields.find(f => f.id === 'lastCountryVisited')!;
 
-    expect(lastCountryField).toBeDefined();
+    expect(lastCountryField).not.toBeUndefined();
     expect(lastCountryField.type).toBe('searchable_select');
     expect(lastCountryField.countrySpecific).toBe(true);
   });
@@ -200,7 +200,7 @@ describe('Australia (AUS) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.type).toBe('searchable_select');
     expect(purposeField.countrySpecific).toBe(true);
 
@@ -214,7 +214,7 @@ describe('Australia (AUS) Schema', () => {
 
   test('address section should have Australian address fields', () => {
     const addressSection = schema.sections.find(s => s.id === 'address');
-    expect(addressSection).toBeDefined();
+    expect(addressSection).not.toBeUndefined();
 
     const fieldIds = addressSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('australianAddressLine1');
@@ -226,7 +226,7 @@ describe('Australia (AUS) Schema', () => {
     const addressSection = schema.sections.find(s => s.id === 'address')!;
     const stateField = addressSection.fields.find(f => f.id === 'australianAddressState')!;
 
-    expect(stateField).toBeDefined();
+    expect(stateField).not.toBeUndefined();
     expect(stateField.type).toBe('searchable_select');
 
     const values = stateField.options!.map(o => o.value);
@@ -245,7 +245,7 @@ describe('Australia (AUS) Schema', () => {
 
   test('health_biosecurity section should have all biosecurity declaration fields', () => {
     const biosecuritySection = schema.sections.find(s => s.id === 'health_biosecurity');
-    expect(biosecuritySection).toBeDefined();
+    expect(biosecuritySection).not.toBeUndefined();
 
     const fieldIds = biosecuritySection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hasFoodItems');
@@ -269,7 +269,7 @@ describe('Australia (AUS) Schema', () => {
 
   test('customs section should have customs declaration fields', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const fieldIds = customsSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hasControlledGoods');
@@ -281,7 +281,7 @@ describe('Australia (AUS) Schema', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs')!;
     const currencyField = customsSection.fields.find(f => f.id === 'hasCurrencyOver10000')!;
 
-    expect(currencyField).toBeDefined();
+    expect(currencyField).not.toBeUndefined();
     expect(currencyField.type).toBe('boolean');
     expect(currencyField.label).toContain('10,000');
     expect(currencyField.countrySpecific).toBe(true);
@@ -380,14 +380,13 @@ describe('Australia (AUS) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('AUS');
-    expect(registrySchema).toBeDefined();
-    expect(registrySchema?.countryCode).toBe('AUS');
+    expect(registrySchema).toEqual(expect.objectContaining({ countryCode: 'AUS' }));
   });
 
   // ── 15. changeDetection ─────────────────────────────────────────────────────
 
   test('should have changeDetection with non-empty monitoredSelectors', () => {
-    expect(schema.changeDetection).toBeDefined();
+    expect(schema.changeDetection).toEqual(expect.objectContaining({ monitoredSelectors: expect.any(Array) }));
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });

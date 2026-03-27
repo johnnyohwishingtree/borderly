@@ -41,7 +41,7 @@ describe('getStats', () => {
     PerformanceMonitor.endTiming(id2, false);
 
     const stats = PerformanceMonitor.getStats('fillField');
-    expect(stats['fillField']).toBeDefined();
+    expect(stats['fillField']).not.toBeUndefined();
     expect(stats['fillField'].totalOperations).toBe(2);
     expect(stats['fillField'].successfulOperations).toBe(1);
     expect(stats['fillField'].successRate).toBe(0.5);
@@ -54,8 +54,8 @@ describe('getStats', () => {
     PerformanceMonitor.endTiming(id2, true);
 
     const stats = PerformanceMonitor.getStats();
-    expect(stats['opA']).toBeDefined();
-    expect(stats['opB']).toBeDefined();
+    expect(stats['opA']).not.toBeUndefined();
+    expect(stats['opB']).not.toBeUndefined();
   });
 
   it('returns empty object for unknown operation', () => {

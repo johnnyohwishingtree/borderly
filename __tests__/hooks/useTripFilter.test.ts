@@ -208,7 +208,7 @@ describe('useTripFilter', () => {
 
       // Simulate focus event
       const focusCallback = mockAddListener.mock.calls[0]?.[1] as (() => void) | undefined;
-      expect(focusCallback).toBeDefined();
+      expect(typeof focusCallback).toBe('function');
       act(() => { focusCallback!(); });
       act(() => { jest.advanceTimersByTime(300); });
 

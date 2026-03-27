@@ -446,7 +446,7 @@ describe('Family Form Pipeline — No-Account Countries', () => {
         // VNM schema may use "givenName" (singular) — check both
         const given = findField(form, 'givenName') || findField(form, 'givenNames');
         if (given) {
-          expect(given.currentValue).toBeTruthy();
+          expect(given.currentValue).toBe('JOHN WILLIAM');
         }
       });
 
@@ -649,7 +649,7 @@ describe('Family Form Pipeline — No-Account Countries', () => {
         const autoFields = getAutoFilledFields(form);
 
         for (const field of autoFields) {
-          expect(field.currentValue).toBeDefined();
+          expect(field.currentValue).not.toBeUndefined();
           expect(field.currentValue).not.toBe('');
           expect(field.currentValue).not.toBeNull();
           expect(field.source).toBe('auto');

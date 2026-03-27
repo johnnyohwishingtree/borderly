@@ -1185,7 +1185,7 @@ describe('FormEngine', () => {
       // "100% complete but can't mark as ready"
       expect(enhancedFormData.dateOfBirth).toBe('1990-04-08');
       expect(enhancedFormData.surname).toBe('JOHNSON');
-      expect(enhancedFormData.arrivalDate).toBeDefined();
+      expect(typeof enhancedFormData.arrivalDate).toBe('string');
     });
 
     it('should produce isValid=true when all required fields are auto-filled', () => {

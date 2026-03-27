@@ -57,29 +57,29 @@ describe('LockScreen — rendering', () => {
 
   it('renders the screen container', () => {
     renderLockScreen();
-    expect(screen.getByTestId('lock-screen')).toBeTruthy();
+    screen.getByTestId('lock-screen');
   });
 
   it('renders the title "Borderly Locked"', () => {
     renderLockScreen();
-    expect(screen.getByText('Borderly Locked')).toBeTruthy();
+    screen.getByText('Borderly Locked');
   });
 
   it('renders the subtitle', () => {
     renderLockScreen();
-    expect(screen.getByText('Authenticate to access your travel data')).toBeTruthy();
+    screen.getByText('Authenticate to access your travel data');
   });
 
   it('renders the biometric unlock button', async () => {
     renderLockScreen();
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
   });
 
   it('renders the PIN fallback button', () => {
     renderLockScreen();
-    expect(screen.getByTestId('lock-screen-pin-button')).toBeTruthy();
+    screen.getByTestId('lock-screen-pin-button');
   });
 
   it('does NOT render the error message initially', () => {
@@ -100,36 +100,31 @@ describe('LockScreen — biometry label', () => {
   it('shows "Unlock with Face ID" when biometryType is FaceID', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('FaceID');
     renderLockScreen();
-    const button = await screen.findByRole('button', { name: 'Unlock with Face ID' });
-    expect(button).toBeTruthy();
+    await screen.findByRole('button', { name: 'Unlock with Face ID' });
   });
 
   it('shows "Unlock with Touch ID" when biometryType is TouchID', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('TouchID');
     renderLockScreen();
-    const button = await screen.findByRole('button', { name: 'Unlock with Touch ID' });
-    expect(button).toBeTruthy();
+    await screen.findByRole('button', { name: 'Unlock with Touch ID' });
   });
 
   it('shows "Unlock with Fingerprint" when biometryType is Fingerprint', async () => {
     mockGetSupportedBiometryType.mockResolvedValue('Fingerprint');
     renderLockScreen();
-    const button = await screen.findByRole('button', { name: 'Unlock with Fingerprint' });
-    expect(button).toBeTruthy();
+    await screen.findByRole('button', { name: 'Unlock with Fingerprint' });
   });
 
   it('shows "Unlock with Biometrics" when biometryType is null (no biometrics)', async () => {
     mockGetSupportedBiometryType.mockResolvedValue(null);
     renderLockScreen();
-    const button = await screen.findByRole('button', { name: 'Unlock with Biometrics' });
-    expect(button).toBeTruthy();
+    await screen.findByRole('button', { name: 'Unlock with Biometrics' });
   });
 
   it('shows "Unlock with Biometrics" when getSupportedBiometryType rejects', async () => {
     mockGetSupportedBiometryType.mockRejectedValue(new Error('unavailable'));
     renderLockScreen();
-    const button = await screen.findByRole('button', { name: 'Unlock with Biometrics' });
-    expect(button).toBeTruthy();
+    await screen.findByRole('button', { name: 'Unlock with Biometrics' });
   });
 });
 
@@ -196,7 +191,7 @@ describe('LockScreen — cancelled biometric authentication', () => {
       fireEvent.press(button);
     });
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-error')).toBeTruthy();
+      screen.getByTestId('lock-screen-error');
     });
   });
 
@@ -243,7 +238,7 @@ describe('LockScreen — biometric authentication error', () => {
       fireEvent.press(button);
     });
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-error')).toBeTruthy();
+      screen.getByTestId('lock-screen-error');
     });
   });
 
@@ -268,7 +263,7 @@ describe('LockScreen — biometric authentication error', () => {
     });
     await waitFor(() => {
       // Button should still be accessible and pressable
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
   });
 });
@@ -318,7 +313,8 @@ describe('LockScreen — accessibility', () => {
   it('biometric button has accessibilityHint', async () => {
     renderLockScreen();
     const btn = screen.getByTestId('lock-screen-biometric-button');
-    expect(btn.props.accessibilityHint).toBeTruthy();
+    expect(typeof btn.props.accessibilityHint).toBe('string');
+    expect(btn.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 
   it('PIN button has accessibilityRole="button"', () => {
@@ -330,7 +326,8 @@ describe('LockScreen — accessibility', () => {
   it('PIN button has accessibilityLabel', () => {
     renderLockScreen();
     const btn = screen.getByTestId('lock-screen-pin-button');
-    expect(btn.props.accessibilityLabel).toBeTruthy();
+    expect(typeof btn.props.accessibilityLabel).toBe('string');
+    expect(btn.props.accessibilityLabel.length).toBeGreaterThan(0);
   });
 
   it('error container has accessibilityRole="alert"', async () => {

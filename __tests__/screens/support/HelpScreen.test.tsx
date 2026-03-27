@@ -77,8 +77,8 @@ beforeEach(() => {
 describe('HelpScreen — header', () => {
   it('renders title and subtitle', () => {
     render(<HelpScreen />);
-    expect(screen.getByText('Help & Support')).toBeTruthy();
-    expect(screen.getByText('Find answers and get assistance')).toBeTruthy();
+    screen.getByText('Help & Support');
+    screen.getByText('Find answers and get assistance');
   });
 });
 
@@ -87,7 +87,7 @@ describe('HelpScreen — header', () => {
 describe('HelpScreen — search toggle', () => {
   it('renders Search All Help Topics button', () => {
     render(<HelpScreen />);
-    expect(screen.getByText('Search All Help Topics')).toBeTruthy();
+    screen.getByText('Search All Help Topics');
   });
 
   it('opens search modal when Search button is pressed', () => {
@@ -95,14 +95,14 @@ describe('HelpScreen — search toggle', () => {
 
     fireEvent.press(screen.getByText('Search All Help Topics'));
 
-    expect(screen.getByTestId('searchable-help')).toBeTruthy();
+    screen.getByTestId('searchable-help');
   });
 
   it('closes search modal when close is triggered', () => {
     render(<HelpScreen />);
 
     fireEvent.press(screen.getByText('Search All Help Topics'));
-    expect(screen.getByTestId('searchable-help')).toBeTruthy();
+    screen.getByTestId('searchable-help');
 
     fireEvent.press(screen.getByTestId('close-search'));
     expect(screen.queryByTestId('searchable-help')).toBeNull();
@@ -115,13 +115,13 @@ describe('HelpScreen — category filters', () => {
   it('renders all category buttons', () => {
     render(<HelpScreen />);
 
-    expect(screen.getByText('All Topics')).toBeTruthy();
-    expect(screen.getByText('Passport & Scanning')).toBeTruthy();
-    expect(screen.getByText('Security & Privacy')).toBeTruthy();
-    expect(screen.getByText('Trips & Countries')).toBeTruthy();
-    expect(screen.getByText('Forms & Submission')).toBeTruthy();
-    expect(screen.getByText('QR Codes')).toBeTruthy();
-    expect(screen.getByText('Performance')).toBeTruthy();
+    screen.getByText('All Topics');
+    screen.getByText('Passport & Scanning');
+    screen.getByText('Security & Privacy');
+    screen.getByText('Trips & Countries');
+    screen.getByText('Forms & Submission');
+    screen.getByText('QR Codes');
+    screen.getByText('Performance');
   });
 
   it('shows category indicator when non-all category selected', () => {
@@ -129,7 +129,7 @@ describe('HelpScreen — category filters', () => {
 
     fireEvent.press(screen.getByText('Security & Privacy'));
 
-    expect(screen.getByText('Showing Security & Privacy questions')).toBeTruthy();
+    screen.getByText('Showing Security & Privacy questions');
   });
 
   it('filters FAQs by selected category', () => {
@@ -138,8 +138,8 @@ describe('HelpScreen — category filters', () => {
     fireEvent.press(screen.getByText('Security & Privacy'));
 
     // Security FAQs should be visible, others hidden
-    expect(screen.getByText(/Is my passport data secure\?/)).toBeTruthy();
-    expect(screen.getByText('2 questions')).toBeTruthy();
+    screen.getByText(/Is my passport data secure\?/);
+    screen.getByText('2 questions');
   });
 });
 
@@ -148,7 +148,7 @@ describe('HelpScreen — category filters', () => {
 describe('HelpScreen — FAQ expand/collapse', () => {
   it('shows FAQ questions as collapsed by default', () => {
     render(<HelpScreen />);
-    expect(screen.getByText(/\+ How do I scan my passport\?/)).toBeTruthy();
+    screen.getByText(/\+ How do I scan my passport\?/);
   });
 
   it('expands FAQ to show answer when pressed', () => {
@@ -156,7 +156,7 @@ describe('HelpScreen — FAQ expand/collapse', () => {
 
     fireEvent.press(screen.getByText(/\+ How do I scan my passport\?/));
 
-    expect(screen.getByText(/Point your camera at the bottom of your passport/)).toBeTruthy();
+    screen.getByText(/Point your camera at the bottom of your passport/);
   });
 
   it('collapses FAQ when pressed again', () => {
@@ -173,8 +173,8 @@ describe('HelpScreen — FAQ expand/collapse', () => {
 
     fireEvent.press(screen.getByText(/\+ How do I scan my passport\?/));
 
-    expect(screen.getByText('#passport')).toBeTruthy();
-    expect(screen.getByText('#scan')).toBeTruthy();
+    screen.getByText('#passport');
+    screen.getByText('#scan');
   });
 });
 
@@ -282,7 +282,7 @@ describe('HelpScreen — contact support', () => {
 describe('HelpScreen — emergency section', () => {
   it('renders emergency travel support section', () => {
     render(<HelpScreen />);
-    expect(screen.getByText('Emergency Travel Support')).toBeTruthy();
+    screen.getByText('Emergency Travel Support');
   });
 });
 
@@ -291,11 +291,11 @@ describe('HelpScreen — emergency section', () => {
 describe('HelpScreen — app info', () => {
   it('renders app version', () => {
     render(<HelpScreen />);
-    expect(screen.getByText('1.0.0 (MVP)')).toBeTruthy();
+    screen.getByText('1.0.0 (MVP)');
   });
 
   it('renders privacy info', () => {
     render(<HelpScreen />);
-    expect(screen.getByText('Local-first, No cloud sync')).toBeTruthy();
+    screen.getByText('Local-first, No cloud sync');
   });
 });

@@ -36,28 +36,28 @@ jest.mock('../../../src/utils/accessibility', () => ({
 describe('AccessibleInput', () => {
   it('renders with label', () => {
     const { getByText } = render(<AccessibleInput label="Full Name" />);
-    expect(getByText('Full Name')).toBeTruthy();
+    getByText('Full Name');
   });
 
   it('shows required indicator when required', () => {
     const { getByLabelText } = render(
       <AccessibleInput label="Email" required />,
     );
-    expect(getByLabelText('required')).toBeTruthy();
+    getByLabelText('required');
   });
 
   it('renders error message', () => {
     const { getByText } = render(
       <AccessibleInput label="Email" error="Invalid email" errorTestID="email-error" />,
     );
-    expect(getByText('Invalid email')).toBeTruthy();
+    getByText('Invalid email');
   });
 
   it('renders helper text when no error', () => {
     const { getByText } = render(
       <AccessibleInput label="Name" helperText="Enter your full name" />,
     );
-    expect(getByText('Enter your full name')).toBeTruthy();
+    getByText('Enter your full name');
   });
 
   it('hides helper text when error is shown', () => {
@@ -68,7 +68,7 @@ describe('AccessibleInput', () => {
         error="Name is required"
       />,
     );
-    expect(getByText('Name is required')).toBeTruthy();
+    getByText('Name is required');
     expect(queryByText('Enter your full name')).toBeNull();
   });
 
@@ -76,7 +76,7 @@ describe('AccessibleInput', () => {
     const { getByTestId } = render(
       <AccessibleInput testID="name-input" />,
     );
-    expect(getByTestId('name-input')).toBeTruthy();
+    getByTestId('name-input');
   });
 
   it('calls onChangeText when text changes', () => {
@@ -93,7 +93,7 @@ describe('AccessibleInput', () => {
     const { getByTestId } = render(
       <AccessibleInput leftIcon={icon} />,
     );
-    expect(getByTestId('left-icon')).toBeTruthy();
+    getByTestId('left-icon');
   });
 
   it('renders right icon with press handler', () => {
@@ -114,6 +114,6 @@ describe('AccessibleInput', () => {
     const { getByLabelText } = render(
       <AccessibleInput label="Email" required error="Invalid" />,
     );
-    expect(getByLabelText('Email, required, error: Invalid')).toBeTruthy();
+    getByLabelText('Email, required, error: Invalid');
   });
 });

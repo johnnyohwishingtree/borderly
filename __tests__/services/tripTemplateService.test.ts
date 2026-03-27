@@ -144,7 +144,8 @@ describe('saveTemplateFromTrip', () => {
     const template = saveTemplateFromTrip(trip);
     const after = new Date().toISOString();
 
-    expect(template.id).toBeTruthy();
+    expect(typeof template.id).toBe('string');
+    expect(template.id.length).toBeGreaterThan(0);
     expect(template.createdAt >= before).toBe(true);
     expect(template.createdAt <= after).toBe(true);
   });

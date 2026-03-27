@@ -75,7 +75,7 @@ beforeEach(() => {
 describe('RestoreBackupModal — renders', () => {
   it('renders the screen scroll view', () => {
     render(<RestoreBackupModal />);
-    expect(screen.getByTestId('restore-backup-screen')).toBeTruthy();
+    screen.getByTestId('restore-backup-screen');
   });
 
   it('renders the "Restore from Backup" heading with accessibilityRole="header"', () => {
@@ -92,7 +92,7 @@ describe('RestoreBackupModal — renders', () => {
 describe('RestoreBackupModal — idle step', () => {
   it('shows pick-file-button in idle step', () => {
     render(<RestoreBackupModal />);
-    expect(screen.getByTestId('pick-file-button')).toBeTruthy();
+    screen.getByTestId('pick-file-button');
   });
 
   it('pick-file-button has accessibilityRole="button"', () => {
@@ -187,7 +187,7 @@ describe('RestoreBackupModal — success step', () => {
 
   it('shows restore-step-success after successful restore', () => {
     render(<RestoreBackupModal />);
-    expect(screen.getByTestId('restore-step-success')).toBeTruthy();
+    screen.getByTestId('restore-step-success');
   });
 
   it('go-to-home-button has correct accessibilityLabel', () => {
@@ -216,7 +216,7 @@ describe('RestoreBackupModal — loading step', () => {
   it('shows restore-step-loading and hides passphrase step', () => {
     mockStep('loading');
     render(<RestoreBackupModal />);
-    expect(screen.getByTestId('restore-step-loading')).toBeTruthy();
+    screen.getByTestId('restore-step-loading');
     expect(screen.queryByTestId('restore-step-passphrase')).toBeNull();
   });
 
@@ -239,7 +239,7 @@ describe('RestoreBackupModal — confirming-replace step', () => {
 
   it('shows restore-step-conflict', () => {
     render(<RestoreBackupModal />);
-    expect(screen.getByTestId('restore-step-conflict')).toBeTruthy();
+    screen.getByTestId('restore-step-conflict');
   });
 
   it('confirm-replace-button has correct accessibilityLabel', () => {

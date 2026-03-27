@@ -59,17 +59,17 @@ describe('PassportPreview Component', () => {
   it('renders passport information correctly', () => {
     const { getByText, getAllByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('Confirm Passport Details')).toBeTruthy();
-    expect(getByText('P12345678')).toBeTruthy();
-    expect(getByText('DOE')).toBeTruthy();
-    expect(getByText('JANE')).toBeTruthy();
+    getByText('Confirm Passport Details');
+    getByText('P12345678');
+    getByText('DOE');
+    getByText('JANE');
     expect(getAllByText('USA')).toHaveLength(2); // Appears in both issuing country and nationality
   });
 
   it('shows security indicator', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('Secure Local Storage')).toBeTruthy();
+    getByText('Secure Local Storage');
   });
 
   it('displays scan confidence when scan result provided', () => {
@@ -77,8 +77,8 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} scanResult={mockScanResult} />
     );
 
-    expect(getByText('Scan Quality')).toBeTruthy();
-    expect(getByText('90% Confident')).toBeTruthy();
+    getByText('Scan Quality');
+    getByText('90% Confident');
   });
 
   it('handles confirm button press', async () => {
@@ -115,26 +115,26 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} isLoading={true} />
     );
 
-    expect(getByText('Saving...')).toBeTruthy();
+    getByText('Saving...');
   });
 
   it('formats dates correctly', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('January 1, 1990')).toBeTruthy(); // Birth date
-    expect(getByText('December 31, 2030')).toBeTruthy(); // Expiry date
+    getByText('January 1, 1990'); // Birth date
+    getByText('December 31, 2030'); // Expiry date
   });
 
   it('displays gender correctly', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('Female')).toBeTruthy();
+    getByText('Female');
   });
 
   it('shows valid expiry status', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    expect(getByText('Valid')).toBeTruthy();
+    getByText('Valid');
   });
 
   it('shows expired passport warning', () => {
@@ -147,7 +147,7 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} profile={expiredProfile} />
     );
 
-    expect(getByText('Expired')).toBeTruthy();
+    getByText('Expired');
   });
 
   it('shows expiring soon warning', () => {
@@ -164,7 +164,7 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} profile={soonExpiringProfile} />
     );
 
-    expect(getByText('Expires Soon')).toBeTruthy();
+    getByText('Expires Soon');
   });
 
   it('shows validation warnings when present', () => {
@@ -178,9 +178,9 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} scanResult={mockScanResult} />
     );
 
-    expect(getByText('Validation Warnings')).toBeTruthy();
-    expect(getByText('• Passport number appears incomplete')).toBeTruthy();
-    expect(getByText('• Surname appears incomplete')).toBeTruthy();
+    getByText('Validation Warnings');
+    getByText('• Passport number appears incomplete');
+    getByText('• Surname appears incomplete');
   });
 
   it('shows confirmation dialog on validation warnings', async () => {
@@ -228,7 +228,7 @@ describe('PassportPreview Component', () => {
       <PassportPreview {...mockProps} scanResult={lowConfidenceScanResult} />
     );
 
-    expect(getByText('50% Confident')).toBeTruthy();
+    getByText('50% Confident');
   });
 
   it('handles different gender values', () => {
@@ -245,7 +245,7 @@ describe('PassportPreview Component', () => {
         <PassportPreview {...mockProps} profile={profileWithGender} />
       );
 
-      expect(getByText(expected)).toBeTruthy();
+      getByText(expected);
     });
   });
 
@@ -255,8 +255,8 @@ describe('PassportPreview Component', () => {
     );
 
     // Check that the loading text is shown
-    expect(getByText('Saving...')).toBeTruthy();
-    
+    getByText('Saving...');
+
     // Check that edit button is disabled
     const editButton = getByLabelText('Edit Details');
     expect(editButton.props.accessibilityState?.disabled).toBe(true);
@@ -281,20 +281,15 @@ describe('PassportPreview Component', () => {
     );
 
     // Should display the raw string when date parsing fails
-    expect(getByText('invalid-date')).toBeTruthy();
+    getByText('invalid-date');
   });
 
   it('marks important fields visually', () => {
     const { getByText } = render(<PassportPreview {...mockProps} />);
 
-    // Important fields should have different styling
-    const passportNumber = getByText('P12345678');
-    const surname = getByText('DOE');
-    const givenNames = getByText('JANE');
-
-    // These should be marked as important (exact styling depends on implementation)
-    expect(passportNumber).toBeTruthy();
-    expect(surname).toBeTruthy();
-    expect(givenNames).toBeTruthy();
+    // Important fields should be present — getByText throws if not found
+    getByText('P12345678');
+    getByText('DOE');
+    getByText('JANE');
   });
 });

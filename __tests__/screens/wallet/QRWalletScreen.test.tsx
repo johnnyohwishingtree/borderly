@@ -179,8 +179,8 @@ describe('QRWalletScreen — rendering with QR codes', () => {
   it('renders QR code cards when codes exist', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('qr-card-qr_1')).toBeTruthy();
-    expect(screen.getByText('Japan Entry QR')).toBeTruthy();
+    screen.getByTestId('qr-card-qr_1');
+    screen.getByText('Japan Entry QR');
   });
 
   it('renders multiple QR code cards', () => {
@@ -192,20 +192,20 @@ describe('QRWalletScreen — rendering with QR codes', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('qr-card-qr_1')).toBeTruthy();
-    expect(screen.getByTestId('qr-card-qr_2')).toBeTruthy();
+    screen.getByTestId('qr-card-qr_1');
+    screen.getByTestId('qr-card-qr_2');
   });
 
   it('renders the "QR Wallet" header', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('QR Wallet')).toBeTruthy();
+    screen.getByText('QR Wallet');
   });
 
   it('renders saved codes count subtitle', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('1 saved code')).toBeTruthy();
+    screen.getByText('1 saved code');
   });
 
   it('renders plural subtitle for multiple codes', () => {
@@ -217,13 +217,13 @@ describe('QRWalletScreen — rendering with QR codes', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('2 saved codes')).toBeTruthy();
+    screen.getByText('2 saved codes');
   });
 
   it('renders the + Add QR button', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByLabelText('Add QR code')).toBeTruthy();
+    screen.getByLabelText('Add QR code');
   });
 });
 
@@ -240,14 +240,14 @@ describe('QRWalletScreen — empty state', () => {
   it('shows empty state when no QR codes saved', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('empty-state')).toBeTruthy();
-    expect(screen.getByText('No QR codes saved')).toBeTruthy();
+    screen.getByTestId('empty-state');
+    screen.getByText('No QR codes saved');
   });
 
   it('shows the "Add QR Code" button in empty state', () => {
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('Add QR Code')).toBeTruthy();
+    screen.getByText('Add QR Code');
   });
 
   it('pressing "Add QR Code" in empty state calls handleAddQR', () => {
@@ -271,8 +271,8 @@ describe('QRWalletScreen — loading state', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('loading-states-loading')).toBeTruthy();
-    expect(screen.getByText('Loading your QR codes...')).toBeTruthy();
+    screen.getByTestId('loading-states-loading');
+    screen.getByText('Loading your QR codes...');
   });
 });
 
@@ -287,8 +287,8 @@ describe('QRWalletScreen — error state', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('loading-states-error')).toBeTruthy();
-    expect(screen.getByText('Database connection failed')).toBeTruthy();
+    screen.getByTestId('loading-states-error');
+    screen.getByText('Database connection failed');
   });
 
   it('shows default error message when error is null', () => {
@@ -299,7 +299,7 @@ describe('QRWalletScreen — error state', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('Failed to load QR codes')).toBeTruthy();
+    screen.getByText('Failed to load QR codes');
   });
 
   it('retry button calls handleRetry', () => {
@@ -331,7 +331,7 @@ describe('QRWalletScreen — filter button and modal', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByLabelText('Filter QR codes by traveler')).toBeTruthy();
+    screen.getByLabelText('Filter QR codes by traveler');
   });
 
   it('does not show filter button when there is only one traveler', () => {
@@ -349,7 +349,7 @@ describe('QRWalletScreen — filter button and modal', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByText('1 code for John')).toBeTruthy();
+    screen.getByText('1 code for John');
   });
 
   it('shows "Clear filter" button when filter is active', () => {
@@ -360,7 +360,7 @@ describe('QRWalletScreen — filter button and modal', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByLabelText('Clear traveler filter')).toBeTruthy();
+    screen.getByLabelText('Clear traveler filter');
   });
 
   it('pressing "Clear filter" calls setSelectedTravelerFilter with null', () => {
@@ -416,7 +416,7 @@ describe('QRWalletScreen — full screen QR display', () => {
 
     render(<QRWalletScreen />);
 
-    expect(screen.getByTestId('qr-full-screen')).toBeTruthy();
+    screen.getByTestId('qr-full-screen');
   });
 
   it('does not render QRFullScreen when fullScreenVisible is false', () => {
@@ -433,7 +433,7 @@ describe('QRWalletScreen — pull to refresh', () => {
     const { toJSON } = render(<QRWalletScreen />);
 
     // Screen renders successfully with refreshControl wired up
-    expect(toJSON()).toBeTruthy();
+    expect(toJSON()).not.toBeNull();
     // onRefresh is provided by the hook (verified via mock)
     expect(mockOnRefresh).not.toHaveBeenCalled();
   });
@@ -446,6 +446,6 @@ describe('QRWalletScreen — pull to refresh', () => {
 
     const { toJSON } = render(<QRWalletScreen />);
 
-    expect(toJSON()).toBeTruthy();
+    expect(toJSON()).not.toBeNull();
   });
 });

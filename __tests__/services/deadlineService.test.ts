@@ -125,7 +125,7 @@ describe('computeLegDeadline', () => {
     const result = computeLegDeadline(leg, schema);
 
     const expectedDeadline = new Date('2025-11-27T22:00:00Z');
-    expect(result.submissionDeadline).toBeDefined();
+    expect(result.submissionDeadline).toBeInstanceOf(Date);
     expect(result.submissionDeadline!.getTime()).toBe(expectedDeadline.getTime());
   });
 
@@ -138,7 +138,7 @@ describe('computeLegDeadline', () => {
     const result = computeLegDeadline(leg, schema);
 
     const expectedRecommended = new Date('2025-11-26T22:00:00Z');
-    expect(result.recommendedDeadline).toBeDefined();
+    expect(result.recommendedDeadline).toBeInstanceOf(Date);
     expect(result.recommendedDeadline!.getTime()).toBe(expectedRecommended.getTime());
   });
 
@@ -149,7 +149,7 @@ describe('computeLegDeadline', () => {
     const result = computeLegDeadline(leg, schema);
 
     const expectedDeadline = new Date('2025-11-29T10:00:00Z');
-    expect(result.submissionDeadline).toBeDefined();
+    expect(result.submissionDeadline).toBeInstanceOf(Date);
     expect(result.submissionDeadline!.getTime()).toBe(expectedDeadline.getTime());
   });
 
@@ -223,7 +223,7 @@ describe('computeLegDeadline', () => {
     const result = computeLegDeadline(leg, schema);
 
     expect(result.status).toBe<DeadlineStatus>('overdue');
-    expect(result.submissionDeadline).toBeDefined();
+    expect(result.submissionDeadline).toBeInstanceOf(Date);
     expect(result.submissionDeadline!.getTime()).toBeLessThan(Date.now());
   });
 

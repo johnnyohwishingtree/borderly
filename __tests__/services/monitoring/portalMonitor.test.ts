@@ -92,7 +92,7 @@ describe('PortalMonitor', () => {
 
       const status = monitor.getMonitoringStatus();
       expect(status.isRunning).toBe(true);
-      expect(status.nextCheckAt).toBeDefined();
+      expect(typeof status.nextCheckAt).toBe('string');
     });
 
     it('reflects the number of monitored portals', () => {

@@ -96,7 +96,7 @@ describe('generateRecommendations', () => {
     const recs = generateRecommendations(leaks);
 
     const passportRec = recs.find(r => r.title.includes('Passport'));
-    expect(passportRec).toBeDefined();
+    expect(passportRec).not.toBeUndefined();
     expect(passportRec!.priority).toBe('immediate');
     expect(passportRec!.actions.length).toBeGreaterThan(0);
   });
@@ -106,7 +106,7 @@ describe('generateRecommendations', () => {
     const recs = generateRecommendations(leaks);
 
     const financialRec = recs.find(r => r.title.includes('Financial'));
-    expect(financialRec).toBeDefined();
+    expect(financialRec).not.toBeUndefined();
     expect(financialRec!.priority).toBe('immediate');
   });
 
@@ -115,7 +115,7 @@ describe('generateRecommendations', () => {
     const recs = generateRecommendations(leaks);
 
     const minimizationRec = recs.find(r => r.title.includes('Data Minimization'));
-    expect(minimizationRec).toBeDefined();
+    expect(minimizationRec).not.toBeUndefined();
     expect(minimizationRec!.priority).toBe('urgent');
   });
 
@@ -124,7 +124,7 @@ describe('generateRecommendations', () => {
     const recs = generateRecommendations(leaks);
 
     const auditRec = recs.find(r => r.title.includes('Security Audits'));
-    expect(auditRec).toBeDefined();
+    expect(auditRec).not.toBeUndefined();
     expect(auditRec!.priority).toBe('standard');
   });
 
@@ -133,7 +133,7 @@ describe('generateRecommendations', () => {
     const recs = generateRecommendations(leaks);
 
     const asyncRec = recs.find(r => r.title.includes('AsyncStorage'));
-    expect(asyncRec).toBeDefined();
+    expect(asyncRec).not.toBeUndefined();
     expect(asyncRec!.priority).toBe('urgent');
   });
 
@@ -152,8 +152,8 @@ describe('generateRecommendations', () => {
     ];
     const recs = generateRecommendations(leaks);
 
-    expect(recs.find(r => r.title.includes('Passport'))).toBeDefined();
-    expect(recs.find(r => r.title.includes('Financial'))).toBeDefined();
+    expect(recs.find(r => r.title.includes('Passport'))).not.toBeUndefined();
+    expect(recs.find(r => r.title.includes('Financial'))).not.toBeUndefined();
   });
 
   it('includes impact information in each recommendation', () => {

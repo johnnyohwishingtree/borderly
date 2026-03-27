@@ -18,7 +18,7 @@ describe('United States (USA) Schema', () => {
   });
 
   test('should have implementationStatus set to planned', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('planned');
   });
 
@@ -39,7 +39,7 @@ describe('United States (USA) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('730d');
     expect(schema.submission.latestBeforeArrival).toBe('72h');
     expect(schema.submission.recommended).toBe('14d');
@@ -47,8 +47,8 @@ describe('United States (USA) Schema', () => {
   });
 
   test('changeDetection monitoredSelectors should be non-empty', () => {
-    expect(schema.changeDetection).toBeDefined();
-    expect(schema.changeDetection.monitoredSelectors).toBeDefined();
+    expect(schema.changeDetection).not.toBeUndefined();
+    expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
 
@@ -67,7 +67,7 @@ describe('United States (USA) Schema', () => {
 
   test('applicant section should have required CBP One declaration fields', () => {
     const applicantSection = schema.sections.find(s => s.id === 'applicant');
-    expect(applicantSection).toBeDefined();
+    expect(applicantSection).not.toBeUndefined();
 
     const fieldIds = applicantSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
@@ -95,7 +95,7 @@ describe('United States (USA) Schema', () => {
 
   test('passport section should have required passportNumber field', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -114,7 +114,7 @@ describe('United States (USA) Schema', () => {
 
   test('travel section should have CBP One travel fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('purposeOfTravel');
@@ -123,7 +123,7 @@ describe('United States (USA) Schema', () => {
 
   test('eligibility section should have required declaration answer fields', () => {
     const eligibilitySection = schema.sections.find(s => s.id === 'eligibility');
-    expect(eligibilitySection).toBeDefined();
+    expect(eligibilitySection).not.toBeUndefined();
 
     const fieldIds = eligibilitySection!.fields.map(f => f.id);
     expect(fieldIds).toContain('drugConviction');
@@ -139,18 +139,18 @@ describe('United States (USA) Schema', () => {
   });
 
   test('portalFlow should require an account', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(true);
   });
 
   test('portalFlow familyPolicy should be companion type', () => {
     const portalFlow = schema.portalFlow;
-    expect(portalFlow.familyPolicy).toBeDefined();
+    expect(portalFlow.familyPolicy).not.toBeUndefined();
     expect(portalFlow.familyPolicy!.type).toBe('companion');
   });
 
   test('should have a complete submission guide', () => {
-    expect(schema.submissionGuide).toBeDefined();
+    expect(schema.submissionGuide).not.toBeUndefined();
     expect(schema.submissionGuide.length).toBeGreaterThan(0);
 
     const stepTitles = schema.submissionGuide.map(s => s.title);
@@ -216,7 +216,7 @@ describe('United States (USA) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('USA');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('USA');
   });
 });

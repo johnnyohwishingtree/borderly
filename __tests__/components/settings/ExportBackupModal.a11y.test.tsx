@@ -57,7 +57,7 @@ beforeEach(() => {
 describe('ExportBackupModal — renders', () => {
   it('renders the modal scroll view when visible', () => {
     render(<ExportBackupModal visible={true} onClose={jest.fn()} />);
-    expect(screen.getByTestId('export-backup-modal')).toBeTruthy();
+    screen.getByTestId('export-backup-modal');
   });
 
   it('has accessibilityViewIsModal on the Modal element', () => {

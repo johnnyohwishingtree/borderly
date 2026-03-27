@@ -122,13 +122,13 @@ describe('computeTravelerProgress — multi-traveler', () => {
     expect(result).toHaveLength(2);
 
     const john = result.find(r => r.profileId === 'p1');
-    expect(john).toBeDefined();
+    expect(john).toEqual(expect.objectContaining({ profileId: 'p1' }));
     expect(john!.legsReady).toBe(2);
     expect(john!.legsTotal).toBe(2);
     expect(john!.overallStatus).toBe('ready'); // ready + submitted = ready
 
     const jane = result.find(r => r.profileId === 'p2');
-    expect(jane).toBeDefined();
+    expect(jane).toEqual(expect.objectContaining({ profileId: 'p2' }));
     expect(jane!.legsReady).toBe(0);
     expect(jane!.legsTotal).toBe(2);
     expect(jane!.overallStatus).toBe('in_progress');
@@ -176,7 +176,7 @@ describe('computeTravelerProgress — multi-traveler', () => {
     const result = computeTravelerProgress(trip, [self, spouse, child]);
 
     const alex = result.find(r => r.profileId === 'p3');
-    expect(alex).toBeDefined();
+    expect(alex).toEqual(expect.objectContaining({ profileId: 'p3' }));
     expect(alex!.legsTotal).toBe(1); // Only assigned to leg-1
     expect(alex!.legsReady).toBe(0);
   });

@@ -92,7 +92,7 @@ describe('Storage Security Tests', () => {
 
       const key = await keychainService.generateEncryptionKey();
 
-      expect(key).toBeDefined();
+      expect(key).not.toBeNull();
       expect(typeof key).toBe('string');
       expect(key.length).toBe(64); // 256-bit key in hex
       expect(key).toMatch(/^[a-zA-Z0-9]+$/); // Only alphanumeric characters
@@ -134,13 +134,13 @@ describe('Storage Security Tests', () => {
 
   describe('Database Security Integration', () => {
     it('should use keychain for encryption key management', () => {
-      expect(keychainService.getEncryptionKey).toBeDefined();
-      expect(keychainService.generateEncryptionKey).toBeDefined();
+      expect(typeof keychainService.getEncryptionKey).toBe('function');
+      expect(typeof keychainService.generateEncryptionKey).toBe('function');
     });
 
     it('should use database service with secure initialization', () => {
-      expect(databaseService.initialize).toBeDefined();
-      expect(databaseService.getDatabase).toBeDefined();
+      expect(typeof databaseService.initialize).toBe('function');
+      expect(typeof databaseService.getDatabase).toBe('function');
     });
   });
 

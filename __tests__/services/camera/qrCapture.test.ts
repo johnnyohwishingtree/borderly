@@ -231,16 +231,16 @@ describe('QRCaptureService', () => {
       
       expect(testQR.type).toBe('combined');
       expect(testQR.label).toContain('Travel QR Code');
-      expect(testQR.imageBase64).toBeDefined();
+      expect(typeof testQR.imageBase64).toBe('string');
       expect(testQR.imageBase64.length).toBeGreaterThan(0);
     });
 
     it('should create test QR code with specific type', () => {
       const testQR = QRCaptureService.createTestQRCode('immigration');
-      
+
       expect(testQR.type).toBe('immigration');
       expect(testQR.label).toContain('Immigration QR');
-      expect(testQR.imageBase64).toBeDefined();
+      expect(typeof testQR.imageBase64).toBe('string');
     });
 
     it('should create different labels for different types', () => {

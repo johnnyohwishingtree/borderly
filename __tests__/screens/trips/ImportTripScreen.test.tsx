@@ -53,18 +53,18 @@ beforeEach(() => {
 describe('ImportTripScreen', () => {
   it('renders paste and scan tab buttons', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('import-tab-paste-button')).toBeTruthy();
-    expect(getByTestId('import-tab-scan-button')).toBeTruthy();
+    getByTestId('import-tab-paste-button');
+    getByTestId('import-tab-scan-button');
   });
 
   it('renders confirmation text input', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('import-confirmation-field')).toBeTruthy();
+    getByTestId('import-confirmation-field');
   });
 
   it('renders import button', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('import-parse-button')).toBeTruthy();
+    getByTestId('import-parse-button');
   });
 
   it('calls setMode when scan tab is pressed', () => {
@@ -89,15 +89,15 @@ describe('ImportTripScreen', () => {
   it('shows loading state when status is parsing', () => {
     mockUseImportTrip.status = 'parsing';
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('loading-state')).toBeTruthy();
+    getByTestId('loading-state');
   });
 
   it('shows error message when status is error', () => {
     mockUseImportTrip.status = 'error';
     mockUseImportTrip.errorMessage = 'No flight info found';
     const { getByTestId, getByText } = render(<ImportTripScreen />);
-    expect(getByTestId('import-error-message')).toBeTruthy();
-    expect(getByText('No flight info found')).toBeTruthy();
+    getByTestId('import-error-message');
+    getByText('No flight info found');
   });
 
   it('calls handleRetry when try again is pressed', () => {

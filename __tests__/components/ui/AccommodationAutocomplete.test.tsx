@@ -43,7 +43,7 @@ describe('AccommodationAutocomplete', () => {
     const { getByPlaceholderText } = render(
       <AccommodationAutocomplete {...defaultProps} />,
     );
-    expect(getByPlaceholderText('Start typing a hotel name…')).toBeTruthy();
+    getByPlaceholderText('Start typing a hotel name…');
   });
 
   it('calls onNameChange on every keystroke', () => {
@@ -94,7 +94,7 @@ describe('AccommodationAutocomplete', () => {
     const { getByText } = render(
       <AccommodationAutocomplete {...defaultProps} />,
     );
-    expect(getByText('Powered by Apple Maps')).toBeTruthy();
+    getByText('Powered by Apple Maps');
   });
 
   it('does not show attribution when forced offline', () => {
@@ -108,6 +108,6 @@ describe('AccommodationAutocomplete', () => {
     const { getByText } = render(
       <AccommodationAutocomplete {...defaultProps} error="Required" />,
     );
-    expect(getByText('Required')).toBeTruthy();
+    getByText('Required');
   });
 });

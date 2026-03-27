@@ -90,7 +90,7 @@ describe('Navigation Flow Tests', () => {
       const { getByTestId } = render(<RootNavigator />);
 
       await waitFor(() => {
-        expect(getByTestId('welcome-screen')).toBeTruthy();
+        getByTestId('welcome-screen');
       });
     });
 
@@ -100,7 +100,7 @@ describe('Navigation Flow Tests', () => {
       const { getByTestId } = render(<RootNavigator />);
 
       await waitFor(() => {
-        expect(getByTestId('main-tab-navigator')).toBeTruthy();
+        getByTestId('main-tab-navigator');
       });
     });
 
@@ -108,7 +108,7 @@ describe('Navigation Flow Tests', () => {
       const { rerender, getByTestId, queryByTestId } = render(<RootNavigator />);
 
       // Initially show onboarding
-      expect(getByTestId('welcome-screen')).toBeTruthy();
+      getByTestId('welcome-screen');
       expect(queryByTestId('main-tab-navigator')).toBeNull();
 
       // Update store to complete onboarding
@@ -121,7 +121,7 @@ describe('Navigation Flow Tests', () => {
       rerender(<RootNavigator />);
 
       await waitFor(() => {
-        expect(getByTestId('main-tab-navigator')).toBeTruthy();
+        getByTestId('main-tab-navigator');
         expect(queryByTestId('welcome-screen')).toBeNull();
       });
     });
@@ -136,14 +136,14 @@ describe('Navigation Flow Tests', () => {
       const { getByTestId } = render(<RootNavigator />);
 
       // At least the welcome screen should be available
-      expect(getByTestId('welcome-screen')).toBeTruthy();
+      getByTestId('welcome-screen');
     });
 
     it('should not show headers in onboarding flow', () => {
       const { root } = render(<RootNavigator />);
 
       // Should not have any navigation headers
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
       // This is more of a structural test - the actual header hiding
       // is handled by React Navigation's screenOptions
     });
@@ -157,7 +157,7 @@ describe('Navigation Flow Tests', () => {
     it('should render main tab navigator when authenticated', () => {
       const { getByTestId } = render(<RootNavigator />);
 
-      expect(getByTestId('main-tab-navigator')).toBeTruthy();
+      getByTestId('main-tab-navigator');
     });
 
     it('should not show onboarding screens when authenticated', () => {
@@ -178,7 +178,7 @@ describe('Navigation Flow Tests', () => {
       const { root } = render(<RootNavigator />);
 
       // Should still render something while loading
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
       expect(mockProfileStore.loadProfile).toHaveBeenCalled();
     });
 
@@ -189,7 +189,7 @@ describe('Navigation Flow Tests', () => {
       const { root } = render(<RootNavigator />);
 
       // Should still render despite error
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
     });
   });
 
@@ -226,7 +226,7 @@ describe('Navigation Flow Tests', () => {
     it('should wrap navigation in NavigationContainer', () => {
       // This test verifies the structural integration
       const { root } = render(<RootNavigator />);
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
 
       // The actual NavigationContainer is mocked, but we verify
       // that the structure is set up correctly
@@ -236,7 +236,7 @@ describe('Navigation Flow Tests', () => {
       const { root } = render(<RootNavigator />);
 
       // Verify the component renders without errors
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
     });
   });
 
@@ -245,14 +245,14 @@ describe('Navigation Flow Tests', () => {
       mockProfileStore.isOnboardingComplete = false;
       const { getByTestId } = render(<RootNavigator />);
 
-      expect(getByTestId('welcome-screen')).toBeTruthy();
+      getByTestId('welcome-screen');
     });
 
     it('should handle screen transitions properly', async () => {
       const { getByTestId, rerender } = render(<RootNavigator />);
 
       // Start in onboarding
-      expect(getByTestId('welcome-screen')).toBeTruthy();
+      getByTestId('welcome-screen');
 
       // Complete onboarding
       mockProfileStore.isOnboardingComplete = true;
@@ -264,7 +264,7 @@ describe('Navigation Flow Tests', () => {
       rerender(<RootNavigator />);
 
       await waitFor(() => {
-        expect(getByTestId('main-tab-navigator')).toBeTruthy();
+        getByTestId('main-tab-navigator');
       });
     });
   });
@@ -275,7 +275,7 @@ describe('Navigation Flow Tests', () => {
 
       // Should not expose profile data or sensitive information
       // This is more of a structural test
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
     });
 
     it('should protect main app routes when not authenticated', () => {
@@ -285,7 +285,7 @@ describe('Navigation Flow Tests', () => {
       const { queryByTestId } = render(<RootNavigator />);
 
       expect(queryByTestId('main-tab-navigator')).toBeNull();
-      expect(queryByTestId('welcome-screen')).toBeTruthy();
+      expect(queryByTestId('welcome-screen')).not.toBeNull();
     });
 
     it('should handle profile store errors without exposing sensitive info', () => {
@@ -295,7 +295,7 @@ describe('Navigation Flow Tests', () => {
       const { queryByTestId } = render(<RootNavigator />);
 
       // Should fallback to onboarding, not expose error details
-      expect(queryByTestId('welcome-screen')).toBeTruthy();
+      expect(queryByTestId('welcome-screen')).not.toBeNull();
       expect(queryByTestId('main-tab-navigator')).toBeNull();
     });
   });
@@ -313,7 +313,7 @@ describe('Navigation Flow Tests', () => {
       const { root } = render(<RootNavigator />);
 
       // Should handle undefined values gracefully
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
     });
 
     it('should handle rapid state changes', () => {

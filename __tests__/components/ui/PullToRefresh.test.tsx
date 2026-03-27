@@ -13,7 +13,7 @@ describe('PullToRefreshScrollView', () => {
         <Text>Content</Text>
       </PullToRefreshScrollView>,
     );
-    expect(getByText('Content')).toBeTruthy();
+    getByText('Content');
   });
 
   it('renders with refreshing true without crashing', () => {
@@ -22,7 +22,7 @@ describe('PullToRefreshScrollView', () => {
         <Text>Refreshing content</Text>
       </PullToRefreshScrollView>,
     );
-    expect(getByText('Refreshing content')).toBeTruthy();
+    getByText('Refreshing content');
   });
 
   it('renders without crashing when hapticFeedback is disabled', () => {
@@ -31,7 +31,7 @@ describe('PullToRefreshScrollView', () => {
         <Text>No haptic</Text>
       </PullToRefreshScrollView>,
     );
-    expect(getByText('No haptic')).toBeTruthy();
+    getByText('No haptic');
   });
 
   it('accepts custom tintColor', () => {
@@ -40,7 +40,7 @@ describe('PullToRefreshScrollView', () => {
         <Text>Colored</Text>
       </PullToRefreshScrollView>,
     );
-    expect(getByText('Colored')).toBeTruthy();
+    getByText('Colored');
   });
 
   it('accepts title prop', () => {
@@ -49,6 +49,6 @@ describe('PullToRefreshScrollView', () => {
         <Text>With title</Text>
       </PullToRefreshScrollView>,
     );
-    expect(getByText('With title')).toBeTruthy();
+    getByText('With title');
   });
 });

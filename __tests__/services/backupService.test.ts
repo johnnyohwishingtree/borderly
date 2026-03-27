@@ -357,7 +357,7 @@ describe('BackupService', () => {
       expect(leg.flightNumber).toBe('BA007');
       expect(leg.airlineCode).toBe('BA');
       expect(leg.arrivalAirport).toBe('NRT');
-      expect(leg.departureDate).toBeDefined();
+      expect(leg.departureDate).toBe('2024-07-14T00:00:00.000Z');
     });
 
     it('omits undefined leg optional fields', async () => {

@@ -38,7 +38,7 @@ describe('Error Tracking Service', () => {
       const error = new Error('Test error message');
       const errorId = captureError(error);
 
-      expect(errorId).toBeTruthy();
+      expect(errorId).toMatch(/^err_/);
       const stats = errorTracker.getErrorStats();
       expect(stats.totalErrors).toBe(1);
       expect(stats.recentErrors).toHaveLength(1);
@@ -137,7 +137,7 @@ describe('Error Tracking Service', () => {
         networkError
       );
 
-      expect(errorId).toBeTruthy();
+      expect(errorId).toMatch(/^err_/);
       const stats = errorTracker.getErrorStats();
       const error = stats.recentErrors[0];
       expect(error.error.name).toBe('NetworkError');
@@ -155,7 +155,7 @@ describe('Error Tracking Service', () => {
         'user_registration'
       );
 
-      expect(errorId).toBeTruthy();
+      expect(errorId).toMatch(/^err_/);
       const stats = errorTracker.getErrorStats();
       const error = stats.recentErrors[0];
       expect(error.error.name).toBe('ValidationError');
@@ -357,8 +357,7 @@ describe('Error Tracking Service', () => {
       
       // Check that user action breadcrumb exists
       const userActionBreadcrumb = exported.breadcrumbs.find(b => b.type === 'user_action');
-      expect(userActionBreadcrumb).toBeDefined();
-      expect(userActionBreadcrumb?.message).toBe('Test action');
+      expect(userActionBreadcrumb).toEqual(expect.objectContaining({ type: 'user_action', message: 'Test action' }));
     });
 
     it('should clear all data', () => {

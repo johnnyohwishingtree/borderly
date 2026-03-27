@@ -154,9 +154,7 @@ describe('useTripListDeadlines', () => {
 
     await waitFor(() => {
       const urgency = result.current.urgencyByTripId['trip-1'];
-      expect(urgency).toBeDefined();
-      expect(urgency.level).toBe('overdue');
-      expect(urgency.label).toBe('Overdue');
+      expect(urgency).toMatchObject({ level: 'overdue', label: 'Overdue' });
     });
   });
 
@@ -175,8 +173,7 @@ describe('useTripListDeadlines', () => {
 
     await waitFor(() => {
       const urgency = result.current.urgencyByTripId['trip-1'];
-      expect(urgency).toBeDefined();
-      expect(urgency.level).toBe('critical');
+      expect(urgency).toMatchObject({ level: 'critical' });
     });
   });
 
@@ -207,8 +204,7 @@ describe('useTripListDeadlines', () => {
     const { result } = renderHook(() => useTripListDeadlines([trip]));
 
     await waitFor(() => {
-      expect(result.current.schemas['JPN']).toBeDefined();
-      expect(result.current.schemas['JPN'].countryCode).toBe('JPN');
+      expect(result.current.schemas['JPN']).toMatchObject({ countryCode: 'JPN' });
     });
   });
 
@@ -246,8 +242,7 @@ describe('useTripListDeadlines', () => {
 
     await waitFor(() => {
       const urgency = result.current.urgencyByTripId['trip-1'];
-      expect(urgency).toBeDefined();
-      expect(urgency.level).toBe('overdue');
+      expect(urgency).toMatchObject({ level: 'overdue' });
     });
   });
 });

@@ -34,7 +34,7 @@ import EmptyState from '../../src/components/ui/EmptyState';
 describe('EmptyState', () => {
   it('renders the title', () => {
     const { getByText } = render(<EmptyState title="No trips yet" />);
-    expect(getByText('No trips yet')).toBeTruthy();
+    getByText('No trips yet');
   });
 
   it('renders an icon when provided', () => {
@@ -44,7 +44,7 @@ describe('EmptyState', () => {
         icon={<Text testID="empty-icon">✈️</Text>}
       />,
     );
-    expect(getByTestId('empty-icon')).toBeTruthy();
+    getByTestId('empty-icon');
   });
 
   it('renders description text when provided', () => {
@@ -54,7 +54,7 @@ describe('EmptyState', () => {
         description="Create your first trip to get started"
       />,
     );
-    expect(getByText('Create your first trip to get started')).toBeTruthy();
+    getByText('Create your first trip to get started');
   });
 
   it('renders subtitle text when provided', () => {
@@ -64,7 +64,7 @@ describe('EmptyState', () => {
         subtitle="Add QR codes for quick border access"
       />,
     );
-    expect(getByText('Add QR codes for quick border access')).toBeTruthy();
+    getByText('Add QR codes for quick border access');
   });
 
   it('subtitle takes precedence over description when both supplied', () => {
@@ -75,7 +75,7 @@ describe('EmptyState', () => {
         subtitle="subtitle text"
       />,
     );
-    expect(getByText('subtitle text')).toBeTruthy();
+    getByText('subtitle text');
     expect(queryByText('description text')).toBeNull();
   });
 
@@ -93,7 +93,7 @@ describe('EmptyState', () => {
         buttonProps={{ title: 'Create Trip', onPress, variant: 'primary' }}
       />,
     );
-    expect(getByText('Create Trip')).toBeTruthy();
+    getByText('Create Trip');
   });
 
   it('calls onPress when the CTA button is pressed', () => {
@@ -117,13 +117,13 @@ describe('EmptyState', () => {
     const { getByText } = render(
       <EmptyState title="Compact" variant="compact" />,
     );
-    expect(getByText('Compact')).toBeTruthy();
+    getByText('Compact');
   });
 
   it('renders with illustration variant without crashing', () => {
     const { getByText } = render(
       <EmptyState title="Illustration" variant="illustration" />,
     );
-    expect(getByText('Illustration')).toBeTruthy();
+    getByText('Illustration');
   });
 });

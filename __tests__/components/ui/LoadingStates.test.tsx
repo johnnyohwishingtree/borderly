@@ -56,7 +56,7 @@ describe('LoadingStates', () => {
 
   it('renders loading indicator when state is loading', () => {
     const { toJSON } = render(<LoadingStates state="loading" />);
-    expect(toJSON()).toBeTruthy();
+    expect(toJSON()).not.toBeNull();
     expect((toJSON() as ReactTestRendererJSON).props.accessibilityLabel).toBe('Loading');
   });
 
@@ -64,31 +64,31 @@ describe('LoadingStates', () => {
     const { getByText } = render(
       <LoadingStates state="success" successMessage="Profile saved" />,
     );
-    expect(getByText('Success!')).toBeTruthy();
-    expect(getByText('Profile saved')).toBeTruthy();
+    getByText('Success!');
+    getByText('Profile saved');
   });
 
   it('renders default success message', () => {
     const { getByText } = render(<LoadingStates state="success" />);
-    expect(getByText('Completed successfully')).toBeTruthy();
+    getByText('Completed successfully');
   });
 
   it('renders error state with message', () => {
     const { getByText } = render(
       <LoadingStates state="error" errorMessage="Network failed" />,
     );
-    expect(getByText('Error')).toBeTruthy();
-    expect(getByText('Network failed')).toBeTruthy();
+    getByText('Error');
+    getByText('Network failed');
   });
 
   it('renders default error message', () => {
     const { getByText } = render(<LoadingStates state="error" />);
-    expect(getByText('Something went wrong. Please try again.')).toBeTruthy();
+    getByText('Something went wrong. Please try again.');
   });
 
   it('renders timeout state', () => {
     const { getByText } = render(<LoadingStates state="timeout" />);
-    expect(getByText('Request Timed Out')).toBeTruthy();
+    getByText('Request Timed Out');
   });
 
   it('renders retry button on error when onRetry provided', () => {
@@ -104,7 +104,7 @@ describe('LoadingStates', () => {
     const { getByText } = render(
       <LoadingStates state="error" onRetry={jest.fn()} retryButtonText="Reload" />,
     );
-    expect(getByText('Reload')).toBeTruthy();
+    getByText('Reload');
   });
 
   it('hides retry button when showRetryButton is false', () => {

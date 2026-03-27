@@ -70,7 +70,6 @@ describe('TripCard — zero submitted', () => {
     });
     render(<TripCard trip={trip} />);
     const indicator = screen.getByTestId('trip-card-submission-indicator');
-    expect(indicator).toBeTruthy();
     expect(indicator.props.accessibilityLabel).toBe('0 of 3 legs submitted');
   });
 
@@ -83,7 +82,7 @@ describe('TripCard — zero submitted', () => {
       ],
     });
     render(<TripCard trip={trip} />);
-    expect(screen.getByText('0/3 submitted')).toBeTruthy();
+    screen.getByText('0/3 submitted');
   });
 
   it('does NOT render the "All submitted" checkmark text', () => {
@@ -122,7 +121,7 @@ describe('TripCard — partial submitted', () => {
       ],
     });
     render(<TripCard trip={trip} />);
-    expect(screen.getByText('1/3 submitted')).toBeTruthy();
+    screen.getByText('1/3 submitted');
   });
 
   it('counts only "submitted" legs — not "in_progress"', () => {
@@ -176,7 +175,7 @@ describe('TripCard — all submitted', () => {
       ],
     });
     render(<TripCard trip={trip} />);
-    expect(screen.getByText('✓ All submitted')).toBeTruthy();
+    screen.getByText('✓ All submitted');
   });
 
   it('does NOT show the fractional X/N text when all submitted', () => {
@@ -242,8 +241,8 @@ describe('TripCard — urgency badge', () => {
         urgency={{ level: 'overdue', hoursRemaining: -5, countryCode: 'JPN', label: 'Overdue' }}
       />,
     );
-    expect(screen.getByTestId('trip-card-urgency-Asia Adventure 2025')).toBeTruthy();
-    expect(screen.getByText('Overdue')).toBeTruthy();
+    screen.getByTestId('trip-card-urgency-Asia Adventure 2025');
+    screen.getByText('Overdue');
   });
 
   it('shows urgency badge when urgency prop is critical', () => {
@@ -254,7 +253,7 @@ describe('TripCard — urgency badge', () => {
         urgency={{ level: 'critical', hoursRemaining: 12, countryCode: 'JPN', label: 'Due in 12h' }}
       />,
     );
-    expect(screen.getByText('Due in 12h')).toBeTruthy();
+    screen.getByText('Due in 12h');
   });
 
   it('shows urgency badge when urgency prop is warning', () => {
@@ -265,7 +264,7 @@ describe('TripCard — urgency badge', () => {
         urgency={{ level: 'warning', hoursRemaining: 36, countryCode: 'JPN', label: 'Due in 2d' }}
       />,
     );
-    expect(screen.getByText('Due in 2d')).toBeTruthy();
+    screen.getByText('Due in 2d');
   });
 
   it('does NOT show urgency badge when level is normal', () => {

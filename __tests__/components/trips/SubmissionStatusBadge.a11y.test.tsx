@@ -74,7 +74,7 @@ describe('SubmissionStatusBadge a11y — accessibilityLabel', () => {
     ['submitted', 'Submission complete'],
   ] as const)('is findable by accessibilityLabel for %s', (status, expectedLabel) => {
     render(<SubmissionStatusBadge status={status} />);
-    expect(screen.getByLabelText(expectedLabel)).toBeTruthy();
+    screen.getByLabelText(expectedLabel);
   });
 });
 

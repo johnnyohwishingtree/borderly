@@ -34,19 +34,19 @@ describe('QRSaveOverlay', () => {
 
   it('renders the overlay when payload is provided', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-save-overlay')).toBeTruthy();
+    getByTestId('qr-save-overlay');
   });
 
   it('renders with the default testID', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-save-overlay')).toBeTruthy();
+    getByTestId('qr-save-overlay');
   });
 
   it('renders with a custom testID', () => {
     const { getByTestId } = render(
       <QRSaveOverlay {...defaultProps} testID="custom-overlay" />
     );
-    expect(getByTestId('custom-overlay')).toBeTruthy();
+    getByTestId('custom-overlay');
   });
 
   it('shows QR Code Detected title in idle state', () => {
@@ -56,8 +56,8 @@ describe('QRSaveOverlay', () => {
 
   it('shows QR image preview when qrImageBase64 is provided', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-overlay-preview')).toBeTruthy();
-    expect(getByTestId('qr-overlay-image')).toBeTruthy();
+    getByTestId('qr-overlay-preview');
+    getByTestId('qr-overlay-image');
   });
 
   it('hides QR image preview when qrImageBase64 is null', () => {
@@ -77,7 +77,7 @@ describe('QRSaveOverlay', () => {
         payload={{ ...SAMPLE_PAYLOAD, confirmationNumber: 'REF-12345' }}
       />
     );
-    expect(getByTestId('qr-overlay-confirmation')).toBeTruthy();
+    getByTestId('qr-overlay-confirmation');
     expect(getByTestId('qr-overlay-ref-number').props.children).toBe('REF-12345');
   });
 
@@ -88,17 +88,17 @@ describe('QRSaveOverlay', () => {
 
   it('renders the Save QR to Wallet button', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-overlay-save-button')).toBeTruthy();
+    getByTestId('qr-overlay-save-button');
   });
 
   it('renders the Skip button', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-overlay-skip-button')).toBeTruthy();
+    getByTestId('qr-overlay-skip-button');
   });
 
   it('renders the dismiss (X) button', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
-    expect(getByTestId('qr-overlay-dismiss')).toBeTruthy();
+    getByTestId('qr-overlay-dismiss');
   });
 
   it('calls onDismiss when Skip is pressed', () => {
@@ -157,7 +157,7 @@ describe('QRSaveOverlay', () => {
     const { getByTestId } = render(<QRSaveOverlay {...defaultProps} />);
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     await waitFor(() => {
-      expect(getByTestId('qr-overlay-open-wallet')).toBeTruthy();
+      getByTestId('qr-overlay-open-wallet');
     });
   });
 
@@ -168,7 +168,7 @@ describe('QRSaveOverlay', () => {
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     // Wait for a positive indicator of saved state before checking absence
     await waitFor(() => {
-      expect(getByTestId('qr-overlay-open-wallet')).toBeTruthy();
+      getByTestId('qr-overlay-open-wallet');
     });
     // In saved state, the dismiss X button must not be rendered
     expect(queryByTestId('qr-overlay-dismiss')).toBeNull();
@@ -181,7 +181,7 @@ describe('QRSaveOverlay', () => {
     );
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     await waitFor(() => {
-      expect(getByTestId('qr-overlay-open-wallet')).toBeTruthy();
+      getByTestId('qr-overlay-open-wallet');
     });
     fireEvent.press(getByTestId('qr-overlay-open-wallet'));
     expect(onOpenWallet).toHaveBeenCalledTimes(1);
@@ -194,7 +194,7 @@ describe('QRSaveOverlay', () => {
     );
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     await waitFor(() => {
-      expect(getByTestId('qr-overlay-error')).toBeTruthy();
+      getByTestId('qr-overlay-error');
     });
   });
 
@@ -206,7 +206,7 @@ describe('QRSaveOverlay', () => {
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     await waitFor(() => {
       const skipBtn = getByTestId('qr-overlay-skip-button');
-      expect(skipBtn.props.children).toBeTruthy();
+      expect(skipBtn.props.children).not.toBeNull();
     });
   });
 
@@ -219,7 +219,7 @@ describe('QRSaveOverlay', () => {
     rerender(<QRSaveOverlay {...propsWithError} />);
     fireEvent.press(getByTestId('qr-overlay-save-button'));
     await waitFor(() => {
-      expect(getByTestId('qr-overlay-error')).toBeTruthy();
+      getByTestId('qr-overlay-error');
     });
 
     // Now reset with a new payload — should go back to idle

@@ -154,8 +154,8 @@ describe('FamilyManagementScreen — loading state', () => {
       getAllFamilyProfiles: jest.fn().mockReturnValue(new Promise(() => {})),
     });
     render(<FamilyManagementScreen />);
-    expect(screen.getByTestId('loading-state')).toBeTruthy();
-    expect(screen.getByText('Loading family members...')).toBeTruthy();
+    screen.getByTestId('loading-state');
+    screen.getByText('Loading family members...');
   });
 });
 
@@ -166,8 +166,8 @@ describe('FamilyManagementScreen — member list', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('JOHN SMITH')).toBeTruthy();
-      expect(screen.getByText('JANE SMITH')).toBeTruthy();
+      screen.getByText('JOHN SMITH');
+      screen.getByText('JANE SMITH');
     });
   });
 
@@ -175,7 +175,7 @@ describe('FamilyManagementScreen — member list', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-member-button')).toBeTruthy();
+      screen.getByTestId('add-member-button');
     });
   });
 
@@ -183,7 +183,7 @@ describe('FamilyManagementScreen — member list', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('JOHN SMITH')).toBeTruthy();
+      screen.getByText('JOHN SMITH');
     });
     expect(screen.queryByTestId('family-member-card-primary-1-remove')).toBeNull();
   });
@@ -192,7 +192,7 @@ describe('FamilyManagementScreen — member list', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('family-member-card-family-2-remove')).toBeTruthy();
+      screen.getByTestId('family-member-card-family-2-remove');
     });
   });
 });
@@ -205,8 +205,8 @@ describe('FamilyManagementScreen — empty state', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('empty-state')).toBeTruthy();
-      expect(screen.getByText('No Family Members')).toBeTruthy();
+      screen.getByTestId('empty-state');
+      screen.getByText('No Family Members');
     });
   });
 
@@ -215,7 +215,7 @@ describe('FamilyManagementScreen — empty state', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('Add First Member')).toBeTruthy();
+      screen.getByText('Add First Member');
     });
   });
 });
@@ -227,7 +227,7 @@ describe('FamilyManagementScreen — navigation', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('add-member-button')).toBeTruthy();
+      screen.getByTestId('add-member-button');
     });
 
     fireEvent.press(screen.getByTestId('add-member-button'));
@@ -238,7 +238,7 @@ describe('FamilyManagementScreen — navigation', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('family-member-card-primary-1-edit')).toBeTruthy();
+      screen.getByTestId('family-member-card-primary-1-edit');
     });
 
     fireEvent.press(screen.getByTestId('family-member-card-primary-1-edit'));
@@ -249,7 +249,7 @@ describe('FamilyManagementScreen — navigation', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('family-member-card-family-2-edit')).toBeTruthy();
+      screen.getByTestId('family-member-card-family-2-edit');
     });
 
     fireEvent.press(screen.getByTestId('family-member-card-family-2-edit'));
@@ -269,7 +269,7 @@ describe('FamilyManagementScreen — remove member', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('family-member-card-family-2-remove')).toBeTruthy();
+      screen.getByTestId('family-member-card-family-2-remove');
     });
 
     fireEvent.press(screen.getByTestId('family-member-card-family-2-remove'));
@@ -291,7 +291,7 @@ describe('FamilyManagementScreen — remove member', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('family-member-card-family-2-remove')).toBeTruthy();
+      screen.getByTestId('family-member-card-family-2-remove');
     });
 
     fireEvent.press(screen.getByTestId('family-member-card-family-2-remove'));
@@ -311,8 +311,8 @@ describe('FamilyManagementScreen — info card', () => {
     render(<FamilyManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('About Family Profiles')).toBeTruthy();
-      expect(screen.getByText(/Each family member gets their own secure profile/)).toBeTruthy();
+      screen.getByText('About Family Profiles');
+      screen.getByText(/Each family member gets their own secure profile/);
     });
   });
 });

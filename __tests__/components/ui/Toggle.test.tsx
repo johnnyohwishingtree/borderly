@@ -73,13 +73,13 @@ describe('Toggle', () => {
     const { getByRole } = render(
       <Toggle value={false} onValueChange={jest.fn()} size="small" />,
     );
-    expect(getByRole('switch')).toBeTruthy();
+    getByRole('switch');
   });
 
   it('renders with large size', () => {
     const { getByRole } = render(
       <Toggle value={false} onValueChange={jest.fn()} size="large" />,
     );
-    expect(getByRole('switch')).toBeTruthy();
+    getByRole('switch');
   });
 });

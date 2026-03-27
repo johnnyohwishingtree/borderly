@@ -45,14 +45,14 @@ describe('TripChecklistScreen', () => {
     mockIsLoading = true;
     render(<TripChecklistScreen />);
 
-    expect(screen.getByText('Computing checklist...')).toBeTruthy();
+    screen.getByText('Computing checklist...');
   });
 
   it('shows empty state when no items', () => {
     mockChecklist = null;
     render(<TripChecklistScreen />);
 
-    expect(screen.getByTestId('checklist-empty')).toBeTruthy();
+    screen.getByTestId('checklist-empty');
   });
 
   it('renders progress header and grouped items', () => {
@@ -91,16 +91,16 @@ describe('TripChecklistScreen', () => {
     render(<TripChecklistScreen />);
 
     // Progress header
-    expect(screen.getByTestId('checklist-progress')).toBeTruthy();
-    expect(screen.getByText('0 of 2 items complete')).toBeTruthy();
+    screen.getByTestId('checklist-progress');
+    screen.getByText('0 of 2 items complete');
 
     // Section headers
-    expect(screen.getByText('Forms')).toBeTruthy();
-    expect(screen.getByText('QR Codes')).toBeTruthy();
+    screen.getByText('Forms');
+    screen.getByText('QR Codes');
 
     // Items
-    expect(screen.getByText('Japan entry form')).toBeTruthy();
-    expect(screen.getByText('Japan QR code')).toBeTruthy();
+    screen.getByText('Japan entry form');
+    screen.getByText('Japan QR code');
   });
 
   it('navigates when item is tapped', () => {

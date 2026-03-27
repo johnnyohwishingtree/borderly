@@ -13,7 +13,7 @@ describe('Tooltip', () => {
         <Text>Trigger</Text>
       </Tooltip>,
     );
-    expect(getByText('Trigger')).toBeTruthy();
+    getByText('Trigger');
   });
 
   it('sets accessibility label on trigger', () => {
@@ -22,7 +22,7 @@ describe('Tooltip', () => {
         <Text>Trigger</Text>
       </Tooltip>,
     );
-    expect(getByLabelText('Show tooltip: Help text')).toBeTruthy();
+    getByLabelText('Show tooltip: Help text');
   });
 
   it('has button accessibility role on trigger', () => {
@@ -42,7 +42,7 @@ describe('Tooltip', () => {
       </Tooltip>,
     );
     // Content is rendered in the Modal (even when not visible)
-    expect(getByText('Tooltip message')).toBeTruthy();
+    getByText('Tooltip message');
   });
 
   it('starts with modal not visible', () => {
@@ -83,7 +83,7 @@ describe('Tooltip', () => {
           <Text>Trigger</Text>
         </Tooltip>,
       );
-      expect(getByText(`${variant} tooltip`)).toBeTruthy();
+      getByText(`${variant} tooltip`);
     });
   });
 });

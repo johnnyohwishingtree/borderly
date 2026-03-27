@@ -85,9 +85,9 @@ describe('DynamicForm', () => {
       />
     );
 
-    expect(screen.getByText('Japan Declaration')).toBeTruthy();
-    expect(screen.getByText('Visit Japan Web')).toBeTruthy();
-    expect(screen.getByText('Personal Information')).toBeTruthy();
+    screen.getByText('Japan Declaration');
+    screen.getByText('Visit Japan Web');
+    screen.getByText('Personal Information');
   });
 
   it('displays form statistics correctly', () => {
@@ -101,12 +101,12 @@ describe('DynamicForm', () => {
       />
     );
 
-    expect(screen.getByText('Form Summary')).toBeTruthy();
-    expect(screen.getByText('Total Fields:')).toBeTruthy();
-    expect(screen.getByText('Auto-filled:')).toBeTruthy();
-    expect(screen.getByText('User filled:')).toBeTruthy();
-    expect(screen.getByText('Remaining:')).toBeTruthy();
-    expect(screen.getByText('Completion:')).toBeTruthy();
+    screen.getByText('Form Summary');
+    screen.getByText('Total Fields:');
+    screen.getByText('Auto-filled:');
+    screen.getByText('User filled:');
+    screen.getByText('Remaining:');
+    screen.getByText('Completion:');
   });
 
   it('shows only country-specific fields when flag is enabled', () => {
@@ -121,10 +121,10 @@ describe('DynamicForm', () => {
     );
 
     // Should show country-specific indicator
-    expect(screen.getByText('⚠️ Country-specific requirement')).toBeTruthy();
-    
+    screen.getByText('⚠️ Country-specific requirement');
+
     // Should show the select button for Purpose of Visit
-    expect(screen.getByTestId('select-purposeOfVisit')).toBeTruthy();
+    screen.getByTestId('select-purposeOfVisit');
   });
 
   it('calls onFormDataChange when field values change', async () => {
@@ -202,7 +202,7 @@ describe('DynamicForm', () => {
       />
     );
 
-    expect(screen.getByText('No form fields available for Japan')).toBeTruthy();
+    screen.getByText('No form fields available for Japan');
   });
 
   it('shows collapsible sections when enabled', () => {
@@ -216,7 +216,7 @@ describe('DynamicForm', () => {
       />
     );
 
-    expect(screen.getByText('Personal Information')).toBeTruthy();
+    screen.getByText('Personal Information');
     // The section should be collapsible - exact UI depends on implementation
   });
 
@@ -261,7 +261,7 @@ describe('DynamicForm', () => {
     );
 
     // Should show country-specific indicators
-    expect(screen.getByText('⚠️ Country-specific requirement')).toBeTruthy();
+    screen.getByText('⚠️ Country-specific requirement');
   });
 });
 

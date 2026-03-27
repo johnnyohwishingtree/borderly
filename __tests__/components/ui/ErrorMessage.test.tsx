@@ -24,7 +24,7 @@ describe('ErrorMessage Component', () => {
 
   it('renders AppError with user message', () => {
     const { getByText } = render(<ErrorMessage error={mockError} />);
-    expect(getByText('Please check your internet connection')).toBeTruthy();
+    getByText('Please check your internet connection');
   });
 
   it('shows retry button when showRetry is true and error is recoverable', () => {
@@ -38,7 +38,7 @@ describe('ErrorMessage Component', () => {
     );
     
     const retryButton = getByText('Try Again');
-    expect(retryButton).toBeTruthy();
+    
     
     fireEvent.press(retryButton);
     expect(onRetryMock).toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('ErrorMessage Component', () => {
     );
     
     const dismissButton = getByText('Dismiss');
-    expect(dismissButton).toBeTruthy();
+    
     
     fireEvent.press(dismissButton);
     expect(onDismissMock).toHaveBeenCalled();
@@ -72,9 +72,9 @@ describe('ErrorMessage Component', () => {
     );
 
     // All variants should render the error message
-    expect(getInlineText('Test Inline')).toBeTruthy();
-    expect(getCardText('Test Card')).toBeTruthy();
-    expect(getFullscreenText('Test Fullscreen')).toBeTruthy();
+    getInlineText('Test Inline');
+    getCardText('Test Card');
+    getFullscreenText('Test Fullscreen');
   });
 });
 
@@ -109,7 +109,7 @@ describe('useErrorMessage Hook', () => {
     
     // Show error
     fireEvent.press(getByTestId('show-error'));
-    expect(getByText('Test error')).toBeTruthy();
+    getByText('Test error');
     
     // Clear error
     fireEvent.press(getByTestId('clear-error'));

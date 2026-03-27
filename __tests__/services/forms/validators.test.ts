@@ -143,7 +143,7 @@ describe('Form Validators', () => {
     it('should reject invalid field value', () => {
       const result = validateField(textField, 'J');
       expect(result.isValid).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(typeof result.error).toBe('string');
     });
   });
 
@@ -167,7 +167,7 @@ describe('Form Validators', () => {
       });
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toBeDefined();
+      expect(Array.isArray(result.warnings)).toBe(true);
       expect(result.warnings![0]).toContain('6 months');
     });
 
@@ -185,7 +185,7 @@ describe('Form Validators', () => {
       });
 
       expect(result.isValid).toBe(true);
-      expect(result.warnings).toBeDefined();
+      expect(Array.isArray(result.warnings)).toBe(true);
       expect(result.warnings![0]).toContain('prohibited in Japan');
     });
   });
@@ -269,9 +269,9 @@ describe('Form Validators', () => {
     it('should create real-time validator', () => {
       const validator = createRealTimeValidator(fields);
       
-      expect(validator.validateField).toBeDefined();
-      expect(validator.validatePartial).toBeDefined();
-      expect(validator.getFieldSchema).toBeDefined();
+      expect(typeof validator.validateField).toBe('function');
+      expect(typeof validator.validatePartial).toBe('function');
+      expect(typeof validator.getFieldSchema).toBe('function');
     });
 
     it('should validate individual fields', () => {

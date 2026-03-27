@@ -108,7 +108,7 @@ describe('USA field mappings', () => {
     const dateFields = fieldIds.filter((id) => fieldMappings[id].inputType === 'date');
     dateFields.forEach((id) => {
       const transform = fieldMappings[id].transform;
-      expect(transform).toBeDefined();
+      expect(transform).not.toBeUndefined();
       expect(transform?.type).toBe('date_format');
       expect((transform?.config as { to?: string })?.to).toBe('MM/DD/YYYY');
     });

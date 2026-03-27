@@ -408,7 +408,7 @@ describe('usePassportScan — storage error on save', () => {
       await result.current.profile.save(profileData);
     });
 
-    expect(result.current.ui.storageError).toBeTruthy();
+    expect(result.current.ui.storageError).toBe('General error');
 
     // Now retry
     await act(async () => {

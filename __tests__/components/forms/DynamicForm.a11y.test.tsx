@@ -71,14 +71,14 @@ describe('DynamicForm country heading accessibility', () => {
     render(
       <DynamicForm form={makeForm()} onFormDataChange={jest.fn()} showFormStats={false} />
     );
-    expect(screen.getByText('Japan Declaration')).toBeTruthy();
+    screen.getByText('Japan Declaration');
   });
 
   it('renders the portal name subtitle', () => {
     render(
       <DynamicForm form={makeForm()} onFormDataChange={jest.fn()} showFormStats={false} />
     );
-    expect(screen.getByText('Visit Japan Web')).toBeTruthy();
+    screen.getByText('Visit Japan Web');
   });
 });
 
@@ -150,7 +150,7 @@ describe('DynamicForm validation summary live region', () => {
       <DynamicForm form={form} onFormDataChange={jest.fn()} showFormStats={false} />
     );
     // "1 required fields need attention" — matches fragment: "required fields need attention"
-    expect(screen.getByText(/required fields need attention/)).toBeTruthy();
+    screen.getByText(/required fields need attention/);
   });
 });
 
@@ -163,7 +163,7 @@ describe('DynamicForm testID', () => {
     render(
       <DynamicForm form={makeForm()} onFormDataChange={jest.fn()} showFormStats={false} />
     );
-    expect(screen.getByTestId('dynamic-form')).toBeTruthy();
+    screen.getByTestId('dynamic-form');
   });
 });
 
@@ -177,7 +177,7 @@ describe('DynamicForm auto-fill badge accessibility', () => {
       <DynamicForm form={makeForm()} onFormDataChange={jest.fn()} showFormStats={false} />
     );
     // AutoFilledBadge renders with accessibilityLabel explaining source
-    expect(screen.getByLabelText('Auto-filled from your passport profile')).toBeTruthy();
+    screen.getByLabelText('Auto-filled from your passport profile');
   });
 });
 
@@ -194,6 +194,6 @@ describe('DynamicForm empty state', () => {
     render(
       <DynamicForm form={emptyForm} onFormDataChange={jest.fn()} />
     );
-    expect(screen.getByText('No form fields available for Japan')).toBeTruthy();
+    screen.getByText('No form fields available for Japan');
   });
 });

@@ -330,7 +330,7 @@ describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
 
   it('renders the mark-as-submitted-button when all steps are complete', () => {
     const { getByTestId } = render(<SubmissionGuideScreen />);
-    expect(getByTestId('mark-as-submitted-button')).toBeTruthy();
+    getByTestId('mark-as-submitted-button');
   });
 
   it('does not render mark-as-submitted-button when steps are not all complete', () => {

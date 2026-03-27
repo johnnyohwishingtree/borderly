@@ -211,7 +211,7 @@ describe('TemplatesScreen — templates list accessibility', () => {
       screen.toJSON(),
       n => (n.props as Record<string, unknown>)?.testID === 'templates-list',
     );
-    expect(list).toBeTruthy();
+    expect(list).not.toBeNull();
     expect((list!.props as Record<string, unknown>).accessibilityLabel).toBe(
       'List of saved trip templates',
     );
@@ -334,7 +334,8 @@ describe('TemplateCard — Use Template button accessibility', () => {
   it('has an accessibilityHint describing navigation', () => {
     render(<TemplateCard {...DEFAULT_CARD_PROPS} />);
     const useBtn = screen.getByTestId('use-template-tpl-001');
-    expect(useBtn.props.accessibilityHint).toBeTruthy();
+    expect(typeof useBtn.props.accessibilityHint).toBe('string');
+    expect(useBtn.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 
   it('label reflects a different template name', () => {
@@ -349,7 +350,7 @@ describe('TemplateCard — Use Template button accessibility', () => {
 
   it('shows "Use This Template" text on the button', () => {
     render(<TemplateCard {...DEFAULT_CARD_PROPS} />);
-    expect(screen.getByText('Use This Template')).toBeTruthy();
+    screen.getByText('Use This Template');
   });
 });
 

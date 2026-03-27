@@ -311,7 +311,7 @@ describe('PortalSubmissionScreen — auto-login states', () => {
       await Promise.resolve();
     });
 
-    expect(queryByTestId('auth-page-banner')).toBeTruthy();
+    expect(queryByTestId('auth-page-banner')).not.toBeNull();
     expect(queryByTestId('auto-login-progress-banner')).toBeNull();
     expect(queryByTestId('auto-login-failed-banner')).toBeNull();
   });
@@ -332,7 +332,7 @@ describe('PortalSubmissionScreen — auto-login states', () => {
       await Promise.resolve();
     });
 
-    expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+    expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
     expect(queryByTestId('auth-page-banner')).toBeNull();
   });
 
@@ -369,7 +369,7 @@ describe('PortalSubmissionScreen — auto-login states', () => {
 
     simulateAutoLoginResult(false, 'Login fields not found');
 
-    expect(queryByTestId('auto-login-failed-banner')).toBeTruthy();
+    expect(queryByTestId('auto-login-failed-banner')).not.toBeNull();
     expect(queryByTestId('auto-login-progress-banner')).toBeNull();
   });
 
@@ -387,7 +387,7 @@ describe('PortalSubmissionScreen — auto-login states', () => {
     simulateAutoLoginResult(true);
 
     // Success: stays in 'in_progress' while page redirects
-    expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+    expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
     expect(queryByTestId('auto-login-failed-banner')).toBeNull();
   });
 
@@ -434,9 +434,9 @@ describe('PortalSubmissionScreen — auto-login states', () => {
     simulatePageTypeCheck({ formFieldCount: 3 });
     await act(async () => { await Promise.resolve(); });
 
-    expect(queryByTestId('save-credentials-prompt')).toBeTruthy();
-    expect(queryByTestId('credential-prompt-save')).toBeTruthy();
-    expect(queryByTestId('credential-prompt-skip')).toBeTruthy();
+    expect(queryByTestId('save-credentials-prompt')).not.toBeNull();
+    expect(queryByTestId('credential-prompt-save')).not.toBeNull();
+    expect(queryByTestId('credential-prompt-skip')).not.toBeNull();
   });
 
   it('does NOT show save-credentials-prompt when auto-login handled the login', async () => {
@@ -482,10 +482,10 @@ describe('PortalSubmissionScreen — auto-login states', () => {
     // Trigger progress banner
     simulatePageTypeCheck({ isAuth: true });
     await act(async () => { await Promise.resolve(); });
-    expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+    expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
 
     // Trigger failed banner
     simulateAutoLoginResult(false, 'err');
-    expect(queryByTestId('auto-login-failed-banner')).toBeTruthy();
+    expect(queryByTestId('auto-login-failed-banner')).not.toBeNull();
   });
 });

@@ -239,8 +239,7 @@ describe('usePortalSubmission — initial state', () => {
 
   it('provides a webViewRef', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.webViewRef).toBeDefined();
-    expect(result.current.webViewRef.current).toBeNull();
+    expect(result.current.webViewRef).toEqual({ current: null });
   });
 
   it('computes totalSteps from schema submissionGuide length', () => {
@@ -507,7 +506,6 @@ describe('usePortalSubmission — sub-hook exposure', () => {
 
   it('exposes schema from schemaRegistry', () => {
     const { result } = renderHook(() => usePortalSubmission());
-    expect(result.current.derived.schema).toBeDefined();
-    expect(result.current.derived.schema?.countryCode).toBe('JPN');
+    expect(result.current.derived.schema).toMatchObject({ countryCode: 'JPN' });
   });
 });

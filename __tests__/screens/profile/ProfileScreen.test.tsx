@@ -130,7 +130,7 @@ describe('ProfileScreen', () => {
       const { getByTestId, queryByTestId } = render(<ProfileScreen />);
 
       // Single summary row present
-      expect(getByTestId('family-summary-row')).toBeTruthy();
+      getByTestId('family-summary-row');
 
       // Old duplicate buttons should be gone
       expect(queryByTestId('manage-family-button')).toBeNull();
@@ -140,13 +140,13 @@ describe('ProfileScreen', () => {
     it('displays "1 family member" when there is exactly one profile', () => {
       setupMocks({ familySize: 1 });
       const { getByText } = render(<ProfileScreen />);
-      expect(getByText('1 family member')).toBeTruthy();
+      getByText('1 family member');
     });
 
     it('displays plural count when there are multiple profiles', () => {
       setupMocks({ familySize: 3 });
       const { getByText } = render(<ProfileScreen />);
-      expect(getByText('3 family members')).toBeTruthy();
+      getByText('3 family members');
     });
 
     it('navigates to FamilyManagement when summary row is tapped', () => {
@@ -159,7 +159,7 @@ describe('ProfileScreen', () => {
     it('chevron icon is present in the summary row', () => {
       setupMocks({ familySize: 1 });
       const { getByTestId } = render(<ProfileScreen />);
-      expect(getByTestId('icon-chevron-right')).toBeTruthy();
+      getByTestId('icon-chevron-right');
     });
   });
 
@@ -190,7 +190,7 @@ describe('ProfileScreen', () => {
       const { getByTestId, getByText, queryByTestId } = render(<ProfileScreen />);
 
       // Unlock button is visible before authentication
-      expect(getByTestId('unlock-biometrics-button')).toBeTruthy();
+      getByTestId('unlock-biometrics-button');
 
       await act(async () => {
         fireEvent.press(getByTestId('unlock-biometrics-button'));
@@ -200,7 +200,7 @@ describe('ProfileScreen', () => {
       expect(mockLoadProfile).toHaveBeenCalled();
 
       // The freshly-loaded passport number (from getState().profile) is now displayed
-      expect(getByText('XY9876543')).toBeTruthy();
+      getByText('XY9876543');
 
       // The unlock button is no longer shown (isUnlocked is true)
       expect(queryByTestId('unlock-biometrics-button')).toBeNull();
@@ -211,19 +211,19 @@ describe('ProfileScreen', () => {
     it('shows a loading spinner when isLoading is true', () => {
       setupMocks({ profile: null, familySize: 0, isLoading: true });
       const { getByText } = render(<ProfileScreen />);
-      expect(getByText('Loading your profile...')).toBeTruthy();
+      getByText('Loading your profile...');
     });
 
     it('shows an error state when error is set', () => {
       setupMocks({ profile: null, familySize: 0, error: 'Failed to load' });
       const { getByText } = render(<ProfileScreen />);
-      expect(getByText('Unable to load profile')).toBeTruthy();
+      getByText('Unable to load profile');
     });
 
     it('shows an empty state when profile is null', () => {
       setupMocks({ profile: null, familySize: 0 });
       const { getByText } = render(<ProfileScreen />);
-      expect(getByText('No Profile Found')).toBeTruthy();
+      getByText('No Profile Found');
     });
   });
 });

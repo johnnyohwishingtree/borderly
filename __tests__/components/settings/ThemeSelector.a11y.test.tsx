@@ -31,7 +31,7 @@ function renderSelector(value: ThemePreference, onValueChange = jest.fn()) {
 describe('ThemeSelector — container', () => {
   it('renders the root container with testID', () => {
     renderSelector('system');
-    expect(screen.getByTestId('theme-selector')).toBeTruthy();
+    screen.getByTestId('theme-selector');
   });
 
   it('applies radiogroup accessibilityRole to the container', () => {
@@ -54,9 +54,9 @@ describe('ThemeSelector — container', () => {
 describe('ThemeSelector — option buttons render', () => {
   it('renders all three option buttons', () => {
     renderSelector('system');
-    expect(screen.getByTestId('theme-selector-option-system')).toBeTruthy();
-    expect(screen.getByTestId('theme-selector-option-light')).toBeTruthy();
-    expect(screen.getByTestId('theme-selector-option-dark')).toBeTruthy();
+    screen.getByTestId('theme-selector-option-system');
+    screen.getByTestId('theme-selector-option-light');
+    screen.getByTestId('theme-selector-option-dark');
   });
 
   it('each option has accessibilityRole="button"', () => {
@@ -144,8 +144,8 @@ describe('ThemeSelector — interaction', () => {
 describe('ThemeSelector — visible text labels', () => {
   it('shows "System", "Light", and "Dark" labels', () => {
     renderSelector('system');
-    expect(screen.getByText('System')).toBeTruthy();
-    expect(screen.getByText('Light')).toBeTruthy();
-    expect(screen.getByText('Dark')).toBeTruthy();
+    screen.getByText('System');
+    screen.getByText('Light');
+    screen.getByText('Dark');
   });
 });

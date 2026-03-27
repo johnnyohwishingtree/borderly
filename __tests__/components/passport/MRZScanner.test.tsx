@@ -85,21 +85,20 @@ describe('MRZScanner Component', () => {
   });
 
   it('renders without crashing', () => {
-    const component = render(<MRZScanner {...mockProps} />);
-    expect(component).toBeTruthy();
+    render(<MRZScanner {...mockProps} />);
   });
 
   it('renders camera scanning UI when camera initializes immediately', () => {
     const { getByText } = render(<MRZScanner {...mockProps} />);
     // Camera mock fires onCameraReady immediately, so we see the scanning UI
-    expect(getByText('Position passport MRZ in frame')).toBeTruthy();
+    getByText('Position passport MRZ in frame');
   });
 
   it('shows loading overlay when camera has not initialized yet', () => {
     autoFireCameraReady = false;
     const { getByText } = render(<MRZScanner {...mockProps} />);
     // Camera hasn't called onCameraReady, so loading overlay should show
-    expect(getByText('Initializing camera...')).toBeTruthy();
+    getByText('Initializing camera...');
   });
 
   it('shows error state after camera initialization timeout', async () => {
@@ -107,7 +106,7 @@ describe('MRZScanner Component', () => {
     const { getByText } = render(<MRZScanner {...mockProps} />);
 
     // Initially shows loading
-    expect(getByText('Initializing camera...')).toBeTruthy();
+    getByText('Initializing camera...');
 
     // Advance past the 10-second timeout
     act(() => {
@@ -116,11 +115,11 @@ describe('MRZScanner Component', () => {
 
     // Should show camera unavailable screen (timeout = hardware issue, not permission)
     await waitFor(() => {
-      expect(getByText('Camera Not Available')).toBeTruthy();
+      getByText('Camera Not Available');
     });
 
     // Manual entry button should be available
-    expect(getByText('Enter Manually Instead')).toBeTruthy();
+    getByText('Enter Manually Instead');
   });
 
   it('calls onManualEntry when manual entry button is pressed after timeout', async () => {
@@ -132,7 +131,7 @@ describe('MRZScanner Component', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Enter Manually Instead')).toBeTruthy();
+      getByText('Enter Manually Instead');
     });
 
     fireEvent.press(getByText('Enter Manually Instead'));

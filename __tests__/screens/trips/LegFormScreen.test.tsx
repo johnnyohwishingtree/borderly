@@ -228,7 +228,7 @@ describe('LegFormScreen — loading state', () => {
 
   it('shows loading text when isLoading is true', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('Loading form...')).toBeTruthy();
+    getByText('Loading form...');
   });
 });
 
@@ -244,12 +244,12 @@ describe('LegFormScreen — error state', () => {
 
   it('shows error message when loadError is present', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('error-message')).toBeTruthy();
+    getByTestId('error-message');
   });
 
   it('shows retry button in error state', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('error-retry-button')).toBeTruthy();
+    getByTestId('error-retry-button');
   });
 
   it('calls clearLoadError and reloadForm when retry is pressed', () => {
@@ -272,33 +272,33 @@ describe('LegFormScreen — normal rendering', () => {
 
   it('renders the country name in the header', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('Japan')).toBeTruthy();
+    getByText('Japan');
   });
 
   it('renders the trip name and portal name', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText(/Japan Trip/)).toBeTruthy();
-    expect(getByText(/Visit Japan Web/)).toBeTruthy();
+    getByText(/Japan Trip/);
+    getByText(/Visit Japan Web/);
   });
 
   it('renders the dynamic form', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('dynamic-form')).toBeTruthy();
+    getByTestId('dynamic-form');
   });
 
   it('shows completion percentage when > 0', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('50% complete')).toBeTruthy();
+    getByText('50% complete');
   });
 
   it('shows "In Progress" status when partially complete and not valid', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('In Progress')).toBeTruthy();
+    getByText('In Progress');
   });
 
   it('shows Smart Delta button', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('smart-delta-button')).toBeTruthy();
+    getByTestId('smart-delta-button');
   });
 });
 
@@ -314,7 +314,7 @@ describe('LegFormScreen — save flow (not valid)', () => {
 
   it('shows "Save Progress" button when form is not valid', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('save-progress-button')).toBeTruthy();
+    getByTestId('save-progress-button');
   });
 
   it('calls handleSaveForm when save progress is pressed', () => {
@@ -342,7 +342,7 @@ describe('LegFormScreen — valid form actions', () => {
 
   it('shows "Mark as Ready" button when form is valid', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('mark-ready-button')).toBeTruthy();
+    getByTestId('mark-ready-button');
   });
 
   it('calls handleMarkAsReady when mark as ready is pressed', () => {
@@ -353,12 +353,12 @@ describe('LegFormScreen — valid form actions', () => {
 
   it('shows "Save Draft" button alongside mark as ready', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('save-progress-button')).toBeTruthy();
+    getByTestId('save-progress-button');
   });
 
   it('shows "Submit in App" button when form is valid', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('submit-in-app-button')).toBeTruthy();
+    getByTestId('submit-in-app-button');
   });
 
   it('navigates to PortalSubmission when submit in app is pressed', () => {
@@ -373,7 +373,7 @@ describe('LegFormScreen — valid form actions', () => {
 
   it('shows "Guide" button when form is valid', () => {
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('open-submission-guide-button')).toBeTruthy();
+    getByTestId('open-submission-guide-button');
   });
 
   it('navigates to SubmissionGuide when guide button is pressed', () => {
@@ -388,7 +388,7 @@ describe('LegFormScreen — valid form actions', () => {
 
   it('shows "Ready" status text when form is valid', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('Ready')).toBeTruthy();
+    getByText('Ready');
   });
 });
 
@@ -404,7 +404,7 @@ describe('LegFormScreen — form error', () => {
 
   it('displays form error message', () => {
     const { getByText } = render(<LegFormScreen />);
-    expect(getByText('Save failed')).toBeTruthy();
+    getByText('Save failed');
   });
 
   it('calls retryLastOperation when retry is pressed', () => {
@@ -433,7 +433,7 @@ describe('LegFormScreen — passport validity warning', () => {
       passportExpiry: '2026-08-01',
     });
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('leg-form-passport-validity-warning')).toBeTruthy();
+    getByTestId('leg-form-passport-validity-warning');
   });
 
   it('does not show passport warning when null', () => {
@@ -464,6 +464,6 @@ describe('LegFormScreen — multi-traveler', () => {
       ],
     });
     const { getByTestId } = render(<LegFormScreen />);
-    expect(getByTestId('leg-form-traveler-tabs')).toBeTruthy();
+    getByTestId('leg-form-traveler-tabs');
   });
 });

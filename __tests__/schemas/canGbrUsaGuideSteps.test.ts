@@ -114,7 +114,7 @@ function runGuideStepValidation(schema: CountryFormSchema): void {
       copyableFields.forEach(cf => {
         expect(typeof cf.label).toBe('string');
         expect(cf.label).toEqual(expect.stringMatching(/\S/));
-        expect(cf.sourceField).toBeDefined();
+        expect(typeof cf.sourceField).toBe('string');
         expect(allFieldIds.has(cf.sourceField)).toBe(true);
       });
     });

@@ -12,7 +12,8 @@ jest.unmock('@nozbe/watermelondb/Schema/migrations');
 describe('WatermelonDB Schema and Migrations', () => {
   it('schema should be valid and have version >= 1', () => {
     const { schema } = require('../../src/services/storage/schema');
-    expect(schema).toBeDefined();
+    expect(typeof schema).toBe('object');
+    expect(schema).not.toBeNull();
     expect(schema.version).toBeGreaterThanOrEqual(1);
     expect(Number.isInteger(schema.version)).toBe(true);
   });
@@ -21,7 +22,8 @@ describe('WatermelonDB Schema and Migrations', () => {
     // WatermelonDB requires migrations to start from version 2.
     // Version 1 is always created from the schema definition, never via migration.
     const { migrations } = require('../../src/services/storage/migrations');
-    expect(migrations).toBeDefined();
+    expect(typeof migrations).toBe('object');
+    expect(migrations).not.toBeNull();
     const migrationList = migrations.sortedMigrations || migrations.migrations || [];
     const migrationVersions = migrationList.map((m: any) => m.toVersion);
     expect(migrationVersions).not.toContain(1);
@@ -57,7 +59,8 @@ describe('WatermelonDB Schema and Migrations', () => {
 
   it('schema should define required tables', () => {
     const { schema } = require('../../src/services/storage/schema');
-    expect(schema.tables).toBeDefined();
+    expect(typeof schema.tables).toBe('object');
+    expect(schema.tables).not.toBeNull();
     const tableNames = Object.keys(schema.tables);
     expect(tableNames).toContain('trips');
     expect(tableNames).toContain('trip_legs');

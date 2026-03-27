@@ -248,7 +248,8 @@ describe('NavigationController', () => {
       expect(state.pageTitle).toBe('');
       expect(state.steps).toHaveLength(0);
       expect(state.isLoading).toBe(false);
-      expect(state.sessionId).toBeTruthy();
+      expect(typeof state.sessionId).toBe('string');
+      expect(state.sessionId.length).toBeGreaterThan(0);
     });
 
     it('returns a copy of state that does not mutate internal state', () => {

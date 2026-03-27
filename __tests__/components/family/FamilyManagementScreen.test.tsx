@@ -179,7 +179,7 @@ describe('FamilyManagementScreen', () => {
 
       const { getByText } = render(<FamilyManagementScreen />);
 
-      expect(getByText('Loading family members...')).toBeTruthy();
+      getByText('Loading family members...');
     });
   });
 
@@ -190,9 +190,9 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByText('No Family Members')).toBeTruthy();
-        expect(getByText('Add family members to manage multiple travel profiles and streamline form completion for everyone.')).toBeTruthy();
-        expect(getByText('Add First Member')).toBeTruthy();
+        getByText('No Family Members');
+        getByText('Add family members to manage multiple travel profiles and streamline form completion for everyone.');
+        getByText('Add First Member');
       });
     });
 
@@ -202,7 +202,7 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByText('Add First Member')).toBeTruthy();
+        getByText('Add First Member');
       });
 
       fireEvent.press(getByText('Add First Member'));
@@ -217,9 +217,9 @@ describe('FamilyManagementScreen', () => {
       const { getByText, getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('family-member-card-primary-123')).toBeTruthy();
-        expect(getByText('Alice Johnson')).toBeTruthy();
-        expect(getByText('self')).toBeTruthy();
+        getByTestId('family-member-card-primary-123');
+        getByText('Alice Johnson');
+        getByText('self');
       });
     });
 
@@ -229,10 +229,10 @@ describe('FamilyManagementScreen', () => {
       const { getByText, getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('family-member-card-primary-123')).toBeTruthy();
-        expect(getByTestId('family-member-card-spouse-456')).toBeTruthy();
-        expect(getByText('Alice Johnson')).toBeTruthy();
-        expect(getByText('Bob Johnson')).toBeTruthy();
+        getByTestId('family-member-card-primary-123');
+        getByTestId('family-member-card-spouse-456');
+        getByText('Alice Johnson');
+        getByText('Bob Johnson');
       });
     });
 
@@ -264,7 +264,7 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByText('Add Member')).toBeTruthy();
+        getByText('Add Member');
       });
 
       fireEvent.press(getByText('Add Member'));
@@ -277,7 +277,7 @@ describe('FamilyManagementScreen', () => {
       const { getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('edit-primary-123')).toBeTruthy();
+        getByTestId('edit-primary-123');
       });
 
       fireEvent.press(getByTestId('edit-primary-123'));
@@ -290,7 +290,7 @@ describe('FamilyManagementScreen', () => {
       const { getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('edit-spouse-456')).toBeTruthy();
+        getByTestId('edit-spouse-456');
       });
 
       fireEvent.press(getByTestId('edit-spouse-456'));
@@ -309,7 +309,7 @@ describe('FamilyManagementScreen', () => {
       const { queryByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(queryByTestId('remove-primary-123')).toBeFalsy();
+        expect(queryByTestId('remove-primary-123')).toBeNull();
       });
     });
 
@@ -319,7 +319,7 @@ describe('FamilyManagementScreen', () => {
       const { getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('remove-spouse-456')).toBeTruthy();
+        getByTestId('remove-spouse-456');
       });
     });
 
@@ -348,7 +348,7 @@ describe('FamilyManagementScreen', () => {
       const { getByTestId } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByTestId('remove-spouse-456')).toBeTruthy();
+        getByTestId('remove-spouse-456');
       });
 
       fireEvent.press(getByTestId('remove-spouse-456'));
@@ -368,11 +368,11 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByText('About Family Profiles')).toBeTruthy();
-        expect(getByText('• Each family member gets their own secure profile')).toBeTruthy();
-        expect(getByText('• All data is stored locally on your device')).toBeTruthy();
-        expect(getByText('• Scan multiple passports for quick setup')).toBeTruthy();
-        expect(getByText('• Forms can be auto-filled for each family member')).toBeTruthy();
+        getByText('About Family Profiles');
+        getByText('• Each family member gets their own secure profile');
+        getByText('• All data is stored locally on your device');
+        getByText('• Scan multiple passports for quick setup');
+        getByText('• Forms can be auto-filled for each family member');
       });
     });
   });
@@ -384,8 +384,8 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(getByText('Family Members')).toBeTruthy();
-        expect(getByText('Manage your family travel profiles')).toBeTruthy();
+        getByText('Family Members');
+        getByText('Manage your family travel profiles');
       });
     });
   });
@@ -414,7 +414,7 @@ describe('FamilyManagementScreen', () => {
       const { queryByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(queryByText('Loading family members...')).toBeFalsy();
+        expect(queryByText('Loading family members...')).toBeNull();
       });
     });
   });

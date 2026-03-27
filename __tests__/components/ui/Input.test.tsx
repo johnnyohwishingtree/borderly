@@ -10,34 +10,34 @@ describe('Input', () => {
     const { getByPlaceholderText } = render(
       <Input placeholder="Enter name" />,
     );
-    expect(getByPlaceholderText('Enter name')).toBeTruthy();
+    getByPlaceholderText('Enter name');
   });
 
   it('renders the label when provided', () => {
     const { getByText } = render(<Input label="Full Name" />);
-    expect(getByText('Full Name')).toBeTruthy();
+    getByText('Full Name');
   });
 
   it('shows required asterisk when required', () => {
     const { getByText } = render(<Input label="Email" required />);
-    expect(getByText('*')).toBeTruthy();
+    getByText('*');
   });
 
   it('shows error message when provided', () => {
     const { getByText } = render(<Input error="This field is required" />);
-    expect(getByText('This field is required')).toBeTruthy();
+    getByText('This field is required');
   });
 
   it('shows helper text when no error', () => {
     const { getByText } = render(<Input helperText="Enter your full name" />);
-    expect(getByText('Enter your full name')).toBeTruthy();
+    getByText('Enter your full name');
   });
 
   it('hides helper text when error is present', () => {
     const { queryByText, getByText } = render(
       <Input helperText="Hint" error="Required" />,
     );
-    expect(getByText('Required')).toBeTruthy();
+    getByText('Required');
     expect(queryByText('Hint')).toBeNull();
   });
 
@@ -63,7 +63,6 @@ describe('Input', () => {
     const { getByPlaceholderText } = render(
       <Input placeholder="Test input" />,
     );
-    const input = getByPlaceholderText('Test input');
-    expect(input).toBeTruthy();
+    getByPlaceholderText('Test input');
   });
 });

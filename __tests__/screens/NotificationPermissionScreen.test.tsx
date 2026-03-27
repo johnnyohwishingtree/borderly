@@ -43,16 +43,16 @@ describe('NotificationPermissionScreen', () => {
   it('renders the screen with headline and buttons', () => {
     const { getByText, getByTestId } = render(<NotificationPermissionScreen />);
 
-    expect(getByText('Stay on Top of Deadlines')).toBeTruthy();
-    expect(getByTestId('allow-notifications-button')).toBeTruthy();
-    expect(getByTestId('skip-notifications-button')).toBeTruthy();
+    getByText('Stay on Top of Deadlines');
+    getByTestId('allow-notifications-button');
+    getByTestId('skip-notifications-button');
   });
 
   it('displays updated timing info (48h, 24h, 6h)', () => {
     const { getByText } = render(<NotificationPermissionScreen />);
 
-    expect(getByText(/48 hours/)).toBeTruthy();
-    expect(getByText(/6 hours/)).toBeTruthy();
+    getByText(/48 hours/);
+    getByText(/6 hours/);
   });
 
   it('requests permission and completes onboarding when Allow is pressed', async () => {

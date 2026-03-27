@@ -60,12 +60,12 @@ beforeEach(() => {
 describe('FAQScreen — header', () => {
   it('renders FAQ title', () => {
     render(<FAQScreen />);
-    expect(screen.getByText('Frequently Asked Questions')).toBeTruthy();
+    screen.getByText('Frequently Asked Questions');
   });
 
   it('renders subtitle text', () => {
     render(<FAQScreen />);
-    expect(screen.getByText('Search and browse common questions')).toBeTruthy();
+    screen.getByText('Search and browse common questions');
   });
 });
 
@@ -74,7 +74,7 @@ describe('FAQScreen — header', () => {
 describe('FAQScreen — search', () => {
   it('renders search input with correct placeholder', () => {
     render(<FAQScreen />);
-    expect(screen.getByPlaceholderText('Search questions, answers, or topics...')).toBeTruthy();
+    screen.getByPlaceholderText('Search questions, answers, or topics...');
   });
 
   it('filters FAQs when search term is entered', () => {
@@ -83,7 +83,7 @@ describe('FAQScreen — search', () => {
     fireEvent.changeText(searchInput, 'passport');
 
     // Should show result count
-    expect(screen.getByText(/Found .* results for "passport"/)).toBeTruthy();
+    screen.getByText(/Found .* results for "passport"/);
   });
 
   it('shows "No questions found" when search matches nothing', () => {
@@ -91,7 +91,7 @@ describe('FAQScreen — search', () => {
     const searchInput = screen.getByPlaceholderText('Search questions, answers, or topics...');
     fireEvent.changeText(searchInput, 'xyznonexistent');
 
-    expect(screen.getByText('No questions found')).toBeTruthy();
+    screen.getByText('No questions found');
   });
 
   it('shows Clear button when search term is entered', () => {
@@ -99,7 +99,7 @@ describe('FAQScreen — search', () => {
     const searchInput = screen.getByPlaceholderText('Search questions, answers, or topics...');
     fireEvent.changeText(searchInput, 'passport');
 
-    expect(screen.getByText('Clear')).toBeTruthy();
+    screen.getByText('Clear');
   });
 
   it('clears search and resets category when Clear Search is pressed', () => {
@@ -111,7 +111,7 @@ describe('FAQScreen — search', () => {
     fireEvent.press(screen.getByText('Clear Search'));
 
     // All FAQs should be visible again (count badge shows 15 of 15)
-    expect(screen.getByText('15 of 15')).toBeTruthy();
+    screen.getByText('15 of 15');
   });
 });
 
@@ -121,15 +121,15 @@ describe('FAQScreen — category filters', () => {
   it('renders all category filter buttons', () => {
     render(<FAQScreen />);
 
-    expect(screen.getByText('All Topics')).toBeTruthy();
-    expect(screen.getByText('Passport & Scanning')).toBeTruthy();
-    expect(screen.getByText('Security & Privacy')).toBeTruthy();
-    expect(screen.getByText('Trips & Countries')).toBeTruthy();
-    expect(screen.getByText('Forms & Submission')).toBeTruthy();
-    expect(screen.getByText('QR Codes')).toBeTruthy();
-    expect(screen.getByText('Performance')).toBeTruthy();
-    expect(screen.getByText('Sharing & Updates')).toBeTruthy();
-    expect(screen.getByText('Offline Usage')).toBeTruthy();
+    screen.getByText('All Topics');
+    screen.getByText('Passport & Scanning');
+    screen.getByText('Security & Privacy');
+    screen.getByText('Trips & Countries');
+    screen.getByText('Forms & Submission');
+    screen.getByText('QR Codes');
+    screen.getByText('Performance');
+    screen.getByText('Sharing & Updates');
+    screen.getByText('Offline Usage');
   });
 
   it('filters FAQs when a category is selected', () => {
@@ -138,7 +138,7 @@ describe('FAQScreen — category filters', () => {
     fireEvent.press(screen.getByText('Security & Privacy'));
 
     // Should show category indicator
-    expect(screen.getByText('Showing Security & Privacy questions')).toBeTruthy();
+    screen.getByText('Showing Security & Privacy questions');
   });
 });
 
@@ -149,7 +149,7 @@ describe('FAQScreen — expand/collapse', () => {
     render(<FAQScreen />);
 
     // Questions should be visible with + prefix
-    expect(screen.getByText(/\+ How do I scan my passport\?/)).toBeTruthy();
+    screen.getByText(/\+ How do I scan my passport\?/);
   });
 
   it('expands FAQ to show answer when question is pressed', () => {
@@ -158,7 +158,7 @@ describe('FAQScreen — expand/collapse', () => {
     fireEvent.press(screen.getByText(/\+ How do I scan my passport\?/));
 
     // Answer should now be visible
-    expect(screen.getByText(/Point your camera at the bottom of your passport/)).toBeTruthy();
+    screen.getByText(/Point your camera at the bottom of your passport/);
   });
 
   it('collapses FAQ when expanded question is pressed again', () => {
@@ -166,7 +166,7 @@ describe('FAQScreen — expand/collapse', () => {
 
     // Expand
     fireEvent.press(screen.getByText(/\+ How do I scan my passport\?/));
-    expect(screen.getByText(/Point your camera at the bottom of your passport/)).toBeTruthy();
+    screen.getByText(/Point your camera at the bottom of your passport/);
 
     // Collapse (now shows − prefix)
     fireEvent.press(screen.getByText(/− How do I scan my passport\?/));
@@ -180,9 +180,9 @@ describe('FAQScreen — expand/collapse', () => {
 
     fireEvent.press(screen.getByText(/\+ How do I scan my passport\?/));
 
-    expect(screen.getByText('#passport')).toBeTruthy();
-    expect(screen.getByText('#scan')).toBeTruthy();
-    expect(screen.getByText('#mrz')).toBeTruthy();
+    screen.getByText('#passport');
+    screen.getByText('#scan');
+    screen.getByText('#mrz');
   });
 });
 
@@ -192,10 +192,10 @@ describe('FAQScreen — navigation buttons', () => {
   it('renders "Still Need Help?" section with action buttons', () => {
     render(<FAQScreen />);
 
-    expect(screen.getByText('Still Need Help?')).toBeTruthy();
-    expect(screen.getByText('View User Guide')).toBeTruthy();
-    expect(screen.getByText('Troubleshooting')).toBeTruthy();
-    expect(screen.getByText('Send Feedback')).toBeTruthy();
-    expect(screen.getByText('Report Bug')).toBeTruthy();
+    screen.getByText('Still Need Help?');
+    screen.getByText('View User Guide');
+    screen.getByText('Troubleshooting');
+    screen.getByText('Send Feedback');
+    screen.getByText('Report Bug');
   });
 });

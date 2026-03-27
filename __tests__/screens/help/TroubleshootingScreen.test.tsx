@@ -68,13 +68,13 @@ beforeEach(() => {
 describe('TroubleshootingScreen — header', () => {
   it('renders title and subtitle', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByText('Troubleshooting Guide')).toBeTruthy();
-    expect(screen.getByText('Solve common issues and problems')).toBeTruthy();
+    screen.getByText('Troubleshooting Guide');
+    screen.getByText('Solve common issues and problems');
   });
 
   it('renders travel emergency warning', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByText('Travel Emergency')).toBeTruthy();
+    screen.getByText('Travel Emergency');
   });
 });
 
@@ -83,7 +83,7 @@ describe('TroubleshootingScreen — header', () => {
 describe('TroubleshootingScreen — search', () => {
   it('renders search input', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByPlaceholderText('Describe your problem or search symptoms...')).toBeTruthy();
+    screen.getByPlaceholderText('Describe your problem or search symptoms...');
   });
 
   it('filters issues when search term is entered', () => {
@@ -91,7 +91,7 @@ describe('TroubleshootingScreen — search', () => {
     const searchInput = screen.getByPlaceholderText('Describe your problem or search symptoms...');
     fireEvent.changeText(searchInput, 'passport');
 
-    expect(screen.getByText(/Found .* solutions for "passport"/)).toBeTruthy();
+    screen.getByText(/Found .* solutions for "passport"/);
   });
 
   it('shows no results state when search matches nothing', () => {
@@ -99,7 +99,7 @@ describe('TroubleshootingScreen — search', () => {
     const searchInput = screen.getByPlaceholderText('Describe your problem or search symptoms...');
     fireEvent.changeText(searchInput, 'xyznonexistent');
 
-    expect(screen.getByText('No issues found')).toBeTruthy();
+    screen.getByText('No issues found');
   });
 
   it('shows Clear button when search term is entered', () => {
@@ -107,7 +107,7 @@ describe('TroubleshootingScreen — search', () => {
     const searchInput = screen.getByPlaceholderText('Describe your problem or search symptoms...');
     fireEvent.changeText(searchInput, 'camera');
 
-    expect(screen.getByText('Clear')).toBeTruthy();
+    screen.getByText('Clear');
   });
 });
 
@@ -117,15 +117,15 @@ describe('TroubleshootingScreen — categories', () => {
   it('renders all category buttons', () => {
     render(<TroubleshootingScreen />);
 
-    expect(screen.getByText('All Issues')).toBeTruthy();
-    expect(screen.getByText('Passport Scanning')).toBeTruthy();
-    expect(screen.getByText('App Performance')).toBeTruthy();
-    expect(screen.getByText('Forms & Auto-fill')).toBeTruthy();
-    expect(screen.getByText('QR Codes')).toBeTruthy();
-    expect(screen.getByText('Security & Biometrics')).toBeTruthy();
-    expect(screen.getByText('Government Portals')).toBeTruthy();
-    expect(screen.getByText('Data & Sync')).toBeTruthy();
-    expect(screen.getByText('Network Issues')).toBeTruthy();
+    screen.getByText('All Issues');
+    screen.getByText('Passport Scanning');
+    screen.getByText('App Performance');
+    screen.getByText('Forms & Auto-fill');
+    screen.getByText('QR Codes');
+    screen.getByText('Security & Biometrics');
+    screen.getByText('Government Portals');
+    screen.getByText('Data & Sync');
+    screen.getByText('Network Issues');
   });
 
   it('filters issues when a category is selected', () => {
@@ -134,8 +134,8 @@ describe('TroubleshootingScreen — categories', () => {
     fireEvent.press(screen.getByText('Passport Scanning'));
 
     // Should show only passport-related issues
-    expect(screen.getByText('Passport scanning not working')).toBeTruthy();
-    expect(screen.getByText('1 issues')).toBeTruthy();
+    screen.getByText('Passport scanning not working');
+    screen.getByText('1 issues');
   });
 });
 
@@ -144,8 +144,8 @@ describe('TroubleshootingScreen — categories', () => {
 describe('TroubleshootingScreen — issue cards', () => {
   it('renders issue problems', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByText('Passport scanning not working')).toBeTruthy();
-    expect(screen.getByText('App crashes on startup')).toBeTruthy();
+    screen.getByText('Passport scanning not working');
+    screen.getByText('App crashes on startup');
   });
 
   it('renders severity badges', () => {
@@ -168,12 +168,12 @@ describe('TroubleshootingScreen — issue cards', () => {
     fireEvent.press(screen.getAllByText('Show Solutions')[0]);
 
     // Symptoms should be visible
-    expect(screen.getByText('Common Symptoms:')).toBeTruthy();
-    expect(screen.getByText(/Camera won't focus/)).toBeTruthy();
+    screen.getByText('Common Symptoms:');
+    screen.getByText(/Camera won't focus/);
 
     // Solutions should be visible
-    expect(screen.getByText('Solutions to Try:')).toBeTruthy();
-    expect(screen.getByText(/Ensure good lighting/)).toBeTruthy();
+    screen.getByText('Solutions to Try:');
+    screen.getByText(/Ensure good lighting/);
   });
 
   it('toggles between Show/Hide Solutions', () => {
@@ -181,7 +181,7 @@ describe('TroubleshootingScreen — issue cards', () => {
 
     // Expand
     fireEvent.press(screen.getAllByText('Show Solutions')[0]);
-    expect(screen.getByText('Hide Solutions')).toBeTruthy();
+    screen.getByText('Hide Solutions');
 
     // Collapse
     fireEvent.press(screen.getByText('Hide Solutions'));
@@ -193,8 +193,8 @@ describe('TroubleshootingScreen — issue cards', () => {
 
     fireEvent.press(screen.getAllByText('Show Solutions')[0]);
 
-    expect(screen.getByText('#passport')).toBeTruthy();
-    expect(screen.getByText('#scanning')).toBeTruthy();
+    screen.getByText('#passport');
+    screen.getByText('#scanning');
   });
 });
 
@@ -203,7 +203,7 @@ describe('TroubleshootingScreen — issue cards', () => {
 describe('TroubleshootingScreen — contact support', () => {
   it('renders Contact Support button', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByText('Contact Support')).toBeTruthy();
+    screen.getByText('Contact Support');
   });
 
   it('shows Alert with support options when Contact Support is pressed', () => {
@@ -243,7 +243,7 @@ describe('TroubleshootingScreen — contact support', () => {
 describe('TroubleshootingScreen — system info', () => {
   it('renders system information section', () => {
     render(<TroubleshootingScreen />);
-    expect(screen.getByText('System Information')).toBeTruthy();
-    expect(screen.getByText(/App version: 1.0.0/)).toBeTruthy();
+    screen.getByText('System Information');
+    screen.getByText(/App version: 1.0.0/);
   });
 });

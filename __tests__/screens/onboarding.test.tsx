@@ -144,15 +144,15 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should render welcome content correctly', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText('Welcome to')).toBeTruthy();
-      expect(getByText('Borderly')).toBeTruthy();
-      expect(getByText('Your universal travel declaration companion. Fill once, travel everywhere.')).toBeTruthy();
-      expect(getByText('Fill Once, Travel Everywhere')).toBeTruthy();
-      expect(getByText('Private & Secure')).toBeTruthy();
-      expect(getByText('Data stays on your device')).toBeTruthy();
-      expect(getByText('Works Offline')).toBeTruthy();
-      expect(getByText('Lightning Fast')).toBeTruthy();
-      expect(getByText('Privacy First')).toBeTruthy();
+      getByText('Welcome to');
+      getByText('Borderly');
+      getByText('Your universal travel declaration companion. Fill once, travel everywhere.');
+      getByText('Fill Once, Travel Everywhere');
+      getByText('Private & Secure');
+      getByText('Data stays on your device');
+      getByText('Works Offline');
+      getByText('Lightning Fast');
+      getByText('Privacy First');
     });
 
     it('should navigate to PassportScan when Skip Tutorial is pressed', () => {
@@ -176,8 +176,8 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should display privacy information prominently', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText('Privacy First')).toBeTruthy();
-      expect(getByText(/Your passport data is encrypted and stored only in your device's secure keychain/)).toBeTruthy();
+      getByText('Privacy First');
+      getByText(/Your passport data is encrypted and stored only in your device's secure keychain/);
     });
   });
 
@@ -185,11 +185,11 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should render passport scan method selection correctly', () => {
       const { getByText } = render(<PassportScanScreen />);
 
-      expect(getByText('Passport Information')).toBeTruthy();
-      expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
-      expect(getByText('Quick Passport Scan')).toBeTruthy();
-      expect(getByText('Start Camera Scan')).toBeTruthy();
-      expect(getByText('Or enter manually')).toBeTruthy();
+      getByText('Passport Information');
+      getByText(/All data is stored securely on your device/);
+      getByText('Quick Passport Scan');
+      getByText('Start Camera Scan');
+      getByText('Or enter manually');
     });
 
     it('should show manual form when manual entry is selected', () => {
@@ -198,9 +198,9 @@ describe('Onboarding Flow Integration Tests', () => {
       // Click manual entry to show the form
       fireEvent.press(getByText('Or enter manually'));
 
-      expect(getByPlaceholderText('Enter passport number')).toBeTruthy();
-      expect(getByPlaceholderText('Enter surname')).toBeTruthy();
-      expect(getByPlaceholderText('Enter given names')).toBeTruthy();
+      getByPlaceholderText('Enter passport number');
+      getByPlaceholderText('Enter surname');
+      getByPlaceholderText('Enter given names');
     });
 
     it('should display gender options in manual form', () => {
@@ -209,10 +209,10 @@ describe('Onboarding Flow Integration Tests', () => {
       // Click manual entry to show the form
       fireEvent.press(getByText('Or enter manually'));
 
-      expect(getByText(/Gender/)).toBeTruthy();
-      expect(getByText('Male')).toBeTruthy();
-      expect(getByText('Female')).toBeTruthy();
-      expect(getByText('Other')).toBeTruthy();
+      getByText(/Gender/);
+      getByText('Male');
+      getByText('Female');
+      getByText('Other');
     });
 
     it('should navigate back when Back button is pressed', () => {
@@ -232,11 +232,9 @@ describe('Onboarding Flow Integration Tests', () => {
 
       const femaleButton = getByText('Female');
       fireEvent.press(femaleButton);
-      expect(femaleButton).toBeTruthy();
 
       const otherButton = getByText('Other');
       fireEvent.press(otherButton);
-      expect(otherButton).toBeTruthy();
     });
   });
 
@@ -262,14 +260,14 @@ describe('Onboarding Flow Integration Tests', () => {
     it('should emphasize local storage in UI text', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      expect(getByText('Private & Secure')).toBeTruthy();
-      expect(getByText('Data stays on your device')).toBeTruthy();
+      getByText('Private & Secure');
+      getByText('Data stays on your device');
     });
 
     it('should mention secure storage in passport screen', () => {
       const { getByText } = render(<PassportScanScreen />);
 
-      expect(getByText(/All data is stored securely on your device/)).toBeTruthy();
+      getByText(/All data is stored securely on your device/);
     });
   });
 });

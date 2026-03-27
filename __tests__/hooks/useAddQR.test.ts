@@ -259,7 +259,8 @@ describe('useAddQR', () => {
 
       // After capture, capturedImage and base64Image should be set
       expect(result.current.image.capturedImage).toBe('file:///test-image.jpg');
-      expect(result.current.image.base64Image).toBeTruthy();
+      expect(typeof result.current.image.base64Image).toBe('string');
+      expect(result.current.image.base64Image!.length).toBeGreaterThan(0);
 
       // The auto-generated label should be set, but let's set our own
       act(() => {

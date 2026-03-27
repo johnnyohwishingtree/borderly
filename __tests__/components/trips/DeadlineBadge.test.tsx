@@ -27,7 +27,7 @@ describe('DeadlineBadge', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'not-started', hoursRemaining: 120 })} />,
       );
-      expect(getByText('Not Started')).toBeTruthy();
+      getByText('Not Started');
     });
   });
 
@@ -36,7 +36,7 @@ describe('DeadlineBadge', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'in-progress', hoursRemaining: 96 })} />,
       );
-      expect(getByText('In Progress')).toBeTruthy();
+      getByText('In Progress');
     });
   });
 
@@ -45,14 +45,14 @@ describe('DeadlineBadge', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'ready', hoursRemaining: 24 })} />,
       );
-      expect(getByText('Ready')).toBeTruthy();
+      getByText('Ready');
     });
 
     it('still shows "Ready" even when hours remaining are low (ready takes precedence)', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'ready', hoursRemaining: 5 })} />,
       );
-      expect(getByText('Ready')).toBeTruthy();
+      getByText('Ready');
     });
   });
 
@@ -63,7 +63,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'not-started', hoursRemaining: 48 })}
         />,
       );
-      expect(getByText('Due Soon')).toBeTruthy();
+      getByText('Due Soon');
     });
 
     it('renders "Due Soon" for 36 hours remaining', () => {
@@ -72,7 +72,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'not-started', hoursRemaining: 36 })}
         />,
       );
-      expect(getByText('Due Soon')).toBeTruthy();
+      getByText('Due Soon');
     });
   });
 
@@ -83,7 +83,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'not-started', hoursRemaining: 24 })}
         />,
       );
-      expect(getByText('Act Now')).toBeTruthy();
+      getByText('Act Now');
     });
 
     it('renders "Act Now" for 10 hours remaining', () => {
@@ -92,7 +92,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'in-progress', hoursRemaining: 10 })}
         />,
       );
-      expect(getByText('Act Now')).toBeTruthy();
+      getByText('Act Now');
     });
   });
 
@@ -101,7 +101,7 @@ describe('DeadlineBadge', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'overdue', hoursRemaining: -5 })} />,
       );
-      expect(getByText('Overdue')).toBeTruthy();
+      getByText('Overdue');
     });
 
     it('renders "Overdue" when hoursRemaining is negative', () => {
@@ -110,7 +110,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'not-started', hoursRemaining: -1 })}
         />,
       );
-      expect(getByText('Overdue')).toBeTruthy();
+      getByText('Overdue');
     });
   });
 
@@ -135,7 +135,7 @@ describe('DeadlineBadge', () => {
       const { getByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'not-started', hoursRemaining: 72 })} />,
       );
-      expect(getByText('· 3 days left')).toBeTruthy();
+      getByText('· 3 days left');
     });
 
     it('shows singular "day" when exactly 1 day remains', () => {
@@ -146,7 +146,7 @@ describe('DeadlineBadge', () => {
         />,
       );
       // 30/24 = 1.25 → rounds to 1 day
-      expect(getByText('· 1 day left')).toBeTruthy();
+      getByText('· 1 day left');
     });
 
     it('shows hours when hoursRemaining is ≤ 24 and > 0', () => {
@@ -155,7 +155,7 @@ describe('DeadlineBadge', () => {
           deadline={makeDeadline({ status: 'in-progress', hoursRemaining: 10 })}
         />,
       );
-      expect(getByText('· 10h left')).toBeTruthy();
+      getByText('· 10h left');
     });
 
     it('shows no countdown label when overdue (hoursRemaining ≤ 0)', () => {
@@ -169,7 +169,7 @@ describe('DeadlineBadge', () => {
       const { queryByText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'ready', hoursRemaining: 48 })} />,
       );
-      expect(queryByText('Ready')).toBeTruthy();
+      expect(queryByText('Ready')).not.toBeNull();
       expect(queryByText(/left/)).toBeNull();
     });
   });
@@ -183,7 +183,7 @@ describe('DeadlineBadge', () => {
       const { getByTestId } = render(
         <DeadlineBadge deadline={makeDeadline({ legId: 'leg-42', status: 'not-started', hoursRemaining: 72 })} />,
       );
-      expect(getByTestId('deadline-badge-leg-42')).toBeTruthy();
+      getByTestId('deadline-badge-leg-42');
     });
 
     it('accepts a custom testID', () => {
@@ -193,21 +193,21 @@ describe('DeadlineBadge', () => {
           testID="my-custom-badge"
         />,
       );
-      expect(getByTestId('my-custom-badge')).toBeTruthy();
+      getByTestId('my-custom-badge');
     });
 
     it('has correct accessibilityLabel for overdue badge', () => {
       const { getByLabelText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'overdue', hoursRemaining: -3 })} />,
       );
-      expect(getByLabelText('Overdue')).toBeTruthy();
+      getByLabelText('Overdue');
     });
 
     it('has correct accessibilityLabel including countdown for not-started badge', () => {
       const { getByLabelText } = render(
         <DeadlineBadge deadline={makeDeadline({ status: 'not-started', hoursRemaining: 72 })} />,
       );
-      expect(getByLabelText('Not Started, 3 days left')).toBeTruthy();
+      getByLabelText('Not Started, 3 days left');
     });
   });
 });

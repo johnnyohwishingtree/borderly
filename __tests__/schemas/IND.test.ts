@@ -14,7 +14,7 @@ describe('India (IND) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('14d');
     expect(schema.submission.recommended).toBe('3d');
   });
@@ -24,12 +24,12 @@ describe('India (IND) Schema', () => {
   });
 
   test('portalFlow should not require account registration', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('implementation status should be planned', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
@@ -47,7 +47,7 @@ describe('India (IND) Schema', () => {
 
   test('personal section should include India-specific occupation field', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
@@ -56,7 +56,7 @@ describe('India (IND) Schema', () => {
     expect(fieldIds).toContain('occupation');
 
     const occupationField = personalSection!.fields.find(f => f.id === 'occupation');
-    expect(occupationField).toBeDefined();
+    expect(occupationField).not.toBeUndefined();
     expect(occupationField!.countrySpecific).toBe(true);
     expect(occupationField!.required).toBe(true);
     expect(occupationField!.type).toBe('searchable_select');
@@ -66,7 +66,7 @@ describe('India (IND) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const occupationField = personalSection.fields.find(f => f.id === 'occupation')!;
 
-    expect((occupationField as any).autoFillMapping).toBeDefined();
+    expect((occupationField as any).autoFillMapping).not.toBeUndefined();
     expect((occupationField as any).autoFillMapping._default).toBe('other');
     expect((occupationField as any).autoFillMapping.STUDENT).toBe('student');
   });
@@ -83,7 +83,7 @@ describe('India (IND) Schema', () => {
 
   test('passport section should have all required passport fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -97,11 +97,11 @@ describe('India (IND) Schema', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport')!;
 
     const visaNumberField = passportSection.fields.find(f => f.id === 'visaNumber');
-    expect(visaNumberField).toBeDefined();
+    expect(visaNumberField).not.toBeUndefined();
     expect(visaNumberField!.countrySpecific).toBe(true);
 
     const visaTypeField = passportSection.fields.find(f => f.id === 'visaType');
-    expect(visaTypeField).toBeDefined();
+    expect(visaTypeField).not.toBeUndefined();
     expect(visaTypeField!.countrySpecific).toBe(true);
 
     const visaTypes = visaTypeField!.options?.map(o => o.value) ?? [];
@@ -121,10 +121,10 @@ describe('India (IND) Schema', () => {
 
   test('travel section should have India-specific port of arrival', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const portField = travelSection!.fields.find(f => f.id === 'portOfArrival');
-    expect(portField).toBeDefined();
+    expect(portField).not.toBeUndefined();
     expect(portField!.countrySpecific).toBe(true);
 
     const portCodes = portField!.options?.map(o => o.value) ?? [];
@@ -138,7 +138,7 @@ describe('India (IND) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.countrySpecific).toBe(true);
 
     const purposes = purposeField.options?.map(o => o.value) ?? [];
@@ -152,8 +152,8 @@ describe('India (IND) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const durationField = travelSection.fields.find(f => f.id === 'stayDuration')!;
 
-    expect(durationField).toBeDefined();
-    expect((durationField as any).validation).toBeDefined();
+    expect(durationField).not.toBeUndefined();
+    expect((durationField as any).validation).not.toBeUndefined();
     expect((durationField as any).validation.min).toBe(1);
     expect((durationField as any).validation.max).toBe(180);
   });
@@ -162,7 +162,7 @@ describe('India (IND) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const prevVisitField = travelSection.fields.find(f => f.id === 'previousIndiaVisit')!;
 
-    expect(prevVisitField).toBeDefined();
+    expect(prevVisitField).not.toBeUndefined();
     expect(prevVisitField.type).toBe('boolean');
     expect(prevVisitField.countrySpecific).toBe(true);
     expect(prevVisitField.required).toBe(true);
@@ -170,7 +170,7 @@ describe('India (IND) Schema', () => {
 
   test('health section should have health declaration fields', () => {
     const healthSection = schema.sections.find(s => s.id === 'health');
-    expect(healthSection).toBeDefined();
+    expect(healthSection).not.toBeUndefined();
 
     const fieldIds = healthSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('countriesVisitedLast14Days');
@@ -184,7 +184,7 @@ describe('India (IND) Schema', () => {
 
   test('customs section should have currency and goods declaration fields', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const fieldIds = customsSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('carryingCurrency');
@@ -199,7 +199,7 @@ describe('India (IND) Schema', () => {
 
   test('contact section should have emergency contact fields', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact');
-    expect(contactSection).toBeDefined();
+    expect(contactSection).not.toBeUndefined();
 
     const fieldIds = contactSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('email');
@@ -215,8 +215,8 @@ describe('India (IND) Schema', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact')!;
     const emailField = contactSection.fields.find(f => f.id === 'email')!;
 
-    expect((emailField as any).validation).toBeDefined();
-    expect((emailField as any).validation.pattern).toBeDefined();
+    expect((emailField as any).validation).not.toBeUndefined();
+    expect(typeof (emailField as any).validation.pattern).toBe('string');
     expect((emailField as any).validation.pattern).toContain('@');
   });
 
@@ -270,7 +270,7 @@ describe('India (IND) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('IND');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('IND');
   });
 
@@ -281,10 +281,10 @@ describe('India (IND) Schema', () => {
 
   test('portalFlow should require visa prerequisite', () => {
     const prerequisites = schema.portalFlow.prerequisites;
-    expect(prerequisites).toBeDefined();
+    expect(prerequisites).not.toBeUndefined();
 
     const visaPrereq = prerequisites!.find((p: any) => p.description.includes('visa'));
-    expect(visaPrereq).toBeDefined();
+    expect(visaPrereq).toEqual(expect.objectContaining({ required: true }));
     expect(visaPrereq!.required).toBe(true);
   });
 

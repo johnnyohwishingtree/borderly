@@ -12,7 +12,7 @@ describe('ScreenContainer', () => {
     const { getByText } = render(
       <ScreenContainer><Text>Screen content</Text></ScreenContainer>,
     );
-    expect(getByText('Screen content')).toBeTruthy();
+    getByText('Screen content');
   });
 
   it('applies flex-1 base class', () => {
@@ -35,7 +35,7 @@ describe('ScreenContainer', () => {
     const { getByTestId } = render(
       <ScreenContainer testID="screen"><Text>Content</Text></ScreenContainer>,
     );
-    expect(getByTestId('screen')).toBeTruthy();
+    getByTestId('screen');
   });
 
   it('renders on native platform (not web) as single wrapper', () => {

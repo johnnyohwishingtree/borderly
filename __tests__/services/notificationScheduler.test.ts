@@ -257,7 +257,7 @@ describe('scheduleDeadlineNotifications', () => {
     await scheduleDeadlineNotifications(trip, [deadline]);
 
     const raw = mockStore[legKey('leg-1')];
-    expect(raw).toBeDefined();
+    expect(typeof raw).toBe('string');
     const ids: string[] = JSON.parse(raw);
     expect(ids).toHaveLength(3);
   });
@@ -272,7 +272,7 @@ describe('scheduleDeadlineNotifications', () => {
     await scheduleDeadlineNotifications(trip, [deadline]);
 
     const raw = mockStore[tripKey('trip-1')];
-    expect(raw).toBeDefined();
+    expect(typeof raw).toBe('string');
     const ids: string[] = JSON.parse(raw);
     expect(ids).toHaveLength(3);
   });
@@ -548,7 +548,7 @@ describe('Integration: notificationScheduler with PushNotificationProvider', () 
     await scheduleDeadlineNotifications(trip, [deadline]);
 
     const raw = mockStore[legKey('leg-1')];
-    expect(raw).toBeDefined();
+    expect(typeof raw).toBe('string');
     const ids: string[] = JSON.parse(raw);
     expect(ids).toHaveLength(3);
   });

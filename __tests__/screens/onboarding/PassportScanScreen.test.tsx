@@ -241,19 +241,19 @@ describe('PassportScanScreen — method selection mode', () => {
   it('renders the "Passport Information" title', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Passport Information')).toBeTruthy();
+    screen.getByText('Passport Information');
   });
 
   it('renders "Quick Passport Scan" heading', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Quick Passport Scan')).toBeTruthy();
+    screen.getByText('Quick Passport Scan');
   });
 
   it('renders "Start Camera Scan" button', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('start-camera-scan-button')).toBeTruthy();
+    screen.getByTestId('start-camera-scan-button');
   });
 
   it('pressing "Start Camera Scan" calls handleStartScanning', () => {
@@ -267,7 +267,7 @@ describe('PassportScanScreen — method selection mode', () => {
   it('renders "Or enter manually" button', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('enter-manually-button')).toBeTruthy();
+    screen.getByTestId('enter-manually-button');
   });
 
   it('pressing "Or enter manually" calls handleManualEntry', () => {
@@ -281,13 +281,13 @@ describe('PassportScanScreen — method selection mode', () => {
   it('renders scanning tips hint', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Scanning Tips')).toBeTruthy();
+    screen.getByText('Scanning Tips');
   });
 
   it('renders Back button', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-back-button')).toBeTruthy();
+    screen.getByTestId('passport-back-button');
   });
 
   it('pressing Back calls handleBack', () => {
@@ -313,7 +313,7 @@ describe('PassportScanScreen — family mode', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Add Family Member')).toBeTruthy();
+    screen.getByText('Add Family Member');
   });
 
   it('shows spouse-specific description text', () => {
@@ -321,7 +321,7 @@ describe('PassportScanScreen — family mode', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText(/spouse's passport/)).toBeTruthy();
+    screen.getByText(/spouse's passport/);
   });
 
   it('shows child-specific description text', () => {
@@ -329,7 +329,7 @@ describe('PassportScanScreen — family mode', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText(/child's passport/)).toBeTruthy();
+    screen.getByText(/child's passport/);
   });
 });
 
@@ -343,7 +343,7 @@ describe('PassportScanScreen — scanning mode', () => {
   it('renders MRZScanner component', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('mrz-scanner')).toBeTruthy();
+    screen.getByTestId('mrz-scanner');
   });
 
   it('does not render the method selection UI', () => {
@@ -394,7 +394,7 @@ describe('PassportScanScreen — preview mode', () => {
   it('renders PassportPreview component', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-preview')).toBeTruthy();
+    screen.getByTestId('passport-preview');
   });
 
   it('does not render method selection or manual entry UI', () => {
@@ -433,7 +433,7 @@ describe('PassportScanScreen — preview mode', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Loading...')).toBeTruthy();
+    screen.getByText('Loading...');
   });
 
   it('does not render preview when scannedProfile is null (falls through to method view)', () => {
@@ -443,7 +443,7 @@ describe('PassportScanScreen — preview mode', () => {
 
     // Falls through the preview guard to the main view
     expect(screen.queryByTestId('passport-preview')).toBeNull();
-    expect(screen.getByText('Passport Information')).toBeTruthy();
+    screen.getByText('Passport Information');
   });
 });
 
@@ -457,63 +457,63 @@ describe('PassportScanScreen — manual entry mode', () => {
   it('renders "Passport Details" heading', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Passport Details')).toBeTruthy();
+    screen.getByText('Passport Details');
   });
 
   it('renders passport number input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-number-field')).toBeTruthy();
+    screen.getByTestId('passport-number-field');
   });
 
   it('renders surname input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('surname-field')).toBeTruthy();
+    screen.getByTestId('surname-field');
   });
 
   it('renders given names input', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('given-names-field')).toBeTruthy();
+    screen.getByTestId('given-names-field');
   });
 
   it('renders nationality select', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('nationality-field')).toBeTruthy();
+    screen.getByTestId('nationality-field');
   });
 
   it('renders date of birth field', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('dob-field')).toBeTruthy();
+    screen.getByTestId('dob-field');
   });
 
   it('renders gender buttons', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('gender-Male-button')).toBeTruthy();
-    expect(screen.getByTestId('gender-Female-button')).toBeTruthy();
-    expect(screen.getByTestId('gender-Other-button')).toBeTruthy();
+    screen.getByTestId('gender-Male-button');
+    screen.getByTestId('gender-Female-button');
+    screen.getByTestId('gender-Other-button');
   });
 
   it('renders passport expiry field', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-expiry-field')).toBeTruthy();
+    screen.getByTestId('passport-expiry-field');
   });
 
   it('renders issuing country select', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('issuing-country-field')).toBeTruthy();
+    screen.getByTestId('issuing-country-field');
   });
 
   it('renders Continue button', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByTestId('passport-continue-button')).toBeTruthy();
+    screen.getByTestId('passport-continue-button');
   });
 
   it('does not show scanning tips in manual mode', () => {
@@ -525,7 +525,7 @@ describe('PassportScanScreen — manual entry mode', () => {
   it('"All fields are required" text is shown', () => {
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('All fields are required')).toBeTruthy();
+    screen.getByText('All fields are required');
   });
 });
 
@@ -537,7 +537,7 @@ describe('PassportScanScreen — error states', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Failed to save profile')).toBeTruthy();
+    screen.getByText('Failed to save profile');
   });
 
   it('shows scan error message when scanError is set', () => {
@@ -545,7 +545,7 @@ describe('PassportScanScreen — error states', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Camera failed')).toBeTruthy();
+    screen.getByText('Camera failed');
   });
 
   it('does not show error messages when no errors', () => {
@@ -563,7 +563,7 @@ describe('PassportScanScreen — performance hint', () => {
 
     render(<PassportScanScreen />);
 
-    expect(screen.getByText('Performance Optimization Enabled')).toBeTruthy();
+    screen.getByText('Performance Optimization Enabled');
   });
 
   it('does not show performance hint when showPerformanceHint is false', () => {

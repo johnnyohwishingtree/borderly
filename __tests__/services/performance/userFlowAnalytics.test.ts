@@ -67,7 +67,7 @@ describe('UserFlowAnalytics', () => {
       userFlowAnalytics.trackAction('Welcome', 'continue');
       userFlowAnalytics.startNewSession(); // Should end previous session
       
-      expect(mockStorage.set).toBeDefined(); // Storage operations occurred
+      expect(typeof mockStorage.set).toBe('function'); // Storage operations occurred
     });
   });
 
@@ -391,10 +391,10 @@ describe('UserFlowAnalytics', () => {
       const passportScanningAnalytics = userFlowAnalytics.getFlowAnalytics('passport_scanning');
       
       // These flows should be recognized (even if no data exists)
-      expect(onboardingAnalytics).toBeDefined();
-      expect(tripCreationAnalytics).toBeDefined();
-      expect(formCompletionAnalytics).toBeDefined();
-      expect(passportScanningAnalytics).toBeDefined();
+      expect(onboardingAnalytics).not.toBeNull();
+      expect(tripCreationAnalytics).not.toBeNull();
+      expect(formCompletionAnalytics).not.toBeNull();
+      expect(passportScanningAnalytics).not.toBeNull();
     });
 
     it('should have proper flow step definitions', () => {

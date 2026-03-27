@@ -50,9 +50,9 @@ describe('SubmissionTester', () => {
       const result = await submissionTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
 
       expect(result.success).toBe(true);
-      expect(result.submissionId).toBeDefined();
-      expect(result.confirmationNumber).toBeDefined();
-      expect(result.qrCode).toBeDefined();
+      expect(typeof result.submissionId).toBe('string');
+      expect(typeof result.confirmationNumber).toBe('string');
+      expect(typeof result.qrCode).toBe('string');
       expect(result.errors).toHaveLength(0);
       expect(result.testMetadata.formValidationPassed).toBe(true);
       expect(result.testMetadata.fieldMappingCorrect).toBe(true);
@@ -350,7 +350,7 @@ describe('SubmissionTester', () => {
     it('should generate valid confirmation numbers', async () => {
       const result = await submissionTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
 
-      expect(result.confirmationNumber).toBeDefined();
+      expect(typeof result.confirmationNumber).toBe('string');
       expect(result.confirmationNumber!.startsWith('JPN')).toBe(true);
       expect(result.confirmationNumber!.length).toBeGreaterThan(8);
     });
@@ -358,7 +358,7 @@ describe('SubmissionTester', () => {
     it('should generate mock QR codes', async () => {
       const result = await submissionTester.testSubmission(sampleLeg, sampleForm, sampleSchema);
 
-      expect(result.qrCode).toBeDefined();
+      expect(typeof result.qrCode).toBe('string');
       expect(result.qrCode!.startsWith('QR_MOCK_')).toBe(true);
       expect(result.qrCode!).toContain(result.confirmationNumber!);
     });
@@ -382,8 +382,8 @@ describe('SubmissionTester', () => {
       const result = await submissionTester.testSubmission(sampleLeg, incompleteForm, sampleSchema);
 
       result.errors.forEach(error => {
-        expect(error.message).toBeTruthy();
-        expect(error.suggestion).toBeTruthy();
+        expect(typeof error.message).toBe('string');
+        expect(typeof error.suggestion).toBe('string');
       });
     });
   });
@@ -440,7 +440,7 @@ describe('SubmissionTester', () => {
 
       expect(results).toHaveLength(10);
       results.forEach(result => {
-        expect(result.submissionId).toBeDefined();
+        expect(typeof result.submissionId).toBe('string');
       });
 
       // All submission IDs should be unique

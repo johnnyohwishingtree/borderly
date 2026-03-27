@@ -104,24 +104,24 @@ describe('useSettings', () => {
     const { result } = renderHook(() => useSettings());
 
     // Store state (grouped)
-    expect(result.current.preferences.values).toBeDefined();
-    expect(result.current.preferences.updatePreference).toBeDefined();
+    expect(result.current.preferences.values).toEqual({ biometricEnabled: false, language: 'en' });
+    expect(typeof result.current.preferences.updatePreference).toBe('function');
     expect(result.current.security.isBiometricAvailable).toBe(true);
     expect(result.current.theme.themePreference).toBe('system');
-    expect(result.current.theme.setTheme).toBeDefined();
+    expect(typeof result.current.theme.setTheme).toBe('function');
     expect(result.current.security.isLockEnabled).toBe(false);
     expect(result.current.security.lockTimeoutMinutes).toBe(5);
 
     // Local state (grouped)
-    expect(result.current.data.storageStats).toBeDefined();
-    expect(result.current.portal.portalCredentials).toBeDefined();
-    expect(result.current.schema.schemaMetadata).toBeDefined();
+    expect(result.current.data.storageStats).toEqual(expect.any(Object));
+    expect(result.current.portal.portalCredentials).toEqual([]);
+    expect(result.current.schema.schemaMetadata).toEqual([{ countryCode: 'JPN', version: '1.0' }]);
     expect(result.current.schema.isRefreshingSchemas).toBe(false);
     expect(result.current.portal.isDeletingCredential).toBeNull();
 
     // Constants
-    expect(result.current.options.languageOptions).toBeDefined();
-    expect(result.current.options.lockTimeoutOptions).toBeDefined();
+    expect(result.current.options.languageOptions).toHaveLength(5);
+    expect(result.current.options.lockTimeoutOptions).toHaveLength(4);
 
     // Handlers
     expect(typeof result.current.security.handleBiometricToggle).toBe('function');
@@ -133,7 +133,7 @@ describe('useSettings', () => {
     expect(typeof result.current.actions.handleResetSettings).toBe('function');
 
     // Navigation
-    expect(result.current.navigation).toBeDefined();
+    expect(typeof result.current.navigation).toBe('object');
   });
 
   // 2. Calls mount-time functions

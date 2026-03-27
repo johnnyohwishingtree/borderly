@@ -32,19 +32,19 @@ describe('DeadlineSummary', () => {
 
   it('renders header with correct count text', () => {
     const { getByText } = render(<DeadlineSummary {...defaultProps} />);
-    expect(getByText('1 deadline needs attention')).toBeTruthy();
+    getByText('1 deadline needs attention');
   });
 
   it('renders plural header for multiple items', () => {
     const items = [makeItem(), makeItem({ legId: 'leg-2', tripId: 'trip-2', tripName: 'Trip 2' })];
     const { getByText } = render(<DeadlineSummary {...defaultProps} items={items} />);
-    expect(getByText('2 deadlines need attention')).toBeTruthy();
+    getByText('2 deadlines need attention');
   });
 
   it('shows item rows when expanded', () => {
     const { getByText } = render(<DeadlineSummary {...defaultProps} />);
-    expect(getByText('Japan Trip')).toBeTruthy();
-    expect(getByText('Due in 12h')).toBeTruthy();
+    getByText('Japan Trip');
+    getByText('Due in 12h');
   });
 
   it('hides item rows when collapsed', () => {
@@ -77,7 +77,7 @@ describe('DeadlineSummary', () => {
       makeItem({ legId: `leg-${i}`, tripId: `trip-${i}`, tripName: `Trip ${i}` }),
     );
     const { getByText } = render(<DeadlineSummary {...defaultProps} items={items} />);
-    expect(getByText('+2 more')).toBeTruthy();
+    getByText('+2 more');
   });
 
   it('does not show "+N more" link when items <= 5', () => {
@@ -91,14 +91,14 @@ describe('DeadlineSummary', () => {
   it('renders overdue label with correct styling class', () => {
     const items = [makeItem({ urgency: 'overdue', label: 'Overdue' })];
     const { getByText } = render(<DeadlineSummary {...defaultProps} items={items} />);
-    expect(getByText('Overdue')).toBeTruthy();
+    getByText('Overdue');
   });
 
   it('has correct testID', () => {
     const { getByTestId } = render(
       <DeadlineSummary {...defaultProps} testID="custom-summary" />,
     );
-    expect(getByTestId('custom-summary')).toBeTruthy();
+    getByTestId('custom-summary');
   });
 
   it('has accessibilityRole summary on container', () => {

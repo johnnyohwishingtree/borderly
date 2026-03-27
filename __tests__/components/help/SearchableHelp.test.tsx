@@ -49,7 +49,7 @@ describe('SearchableHelp', () => {
     const { getByText } = render(
       <SearchableHelp isVisible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Search Help')).toBeTruthy();
+    getByText('Search Help');
   });
 
   it('passes visible=false to Modal when not visible', () => {
@@ -77,9 +77,9 @@ describe('SearchableHelp', () => {
     const { getByText } = render(
       <SearchableHelp isVisible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Popular Topics')).toBeTruthy();
-    expect(getByText('How to scan passport')).toBeTruthy();
-    expect(getByText('QR code wallet')).toBeTruthy();
+    getByText('Popular Topics');
+    getByText('How to scan passport');
+    getByText('QR code wallet');
   });
 
   // ─── Search filtering ────────────────────────────────────────────────────
@@ -98,7 +98,7 @@ describe('SearchableHelp', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('How do I scan my passport?')).toBeTruthy();
+      getByText('How do I scan my passport?');
     });
   });
 
@@ -115,7 +115,7 @@ describe('SearchableHelp', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('No results found')).toBeTruthy();
+      getByText('No results found');
     });
   });
 
@@ -187,7 +187,7 @@ describe('SearchableHelp', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Popular Topics')).toBeTruthy();
+      getByText('Popular Topics');
     });
   });
 });

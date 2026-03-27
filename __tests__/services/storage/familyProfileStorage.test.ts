@@ -388,7 +388,7 @@ describe('Family Profile Storage', () => {
 
       // Family collection doesn't exist but legacy profile does — migration needed
       expect(familyCollection).toBeUndefined();
-      expect(legacyProfile).toBeDefined();
+      expect(legacyProfile).not.toBeUndefined();
       expect(JSON.parse(legacyProfile!).id).toBe('legacy-profile');
     });
 

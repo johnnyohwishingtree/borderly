@@ -110,7 +110,7 @@ describe('useEditProfile', () => {
       result.current.validateForm();
     });
 
-    expect(result.current.errors.email).toBeTruthy();
+    expect(result.current.errors.email).toBe('Please enter a valid email address');
 
     // Now update the field — error should clear
     act(() => {

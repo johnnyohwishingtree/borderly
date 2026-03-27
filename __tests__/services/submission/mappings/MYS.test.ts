@@ -96,16 +96,16 @@ describe('MYS field mappings', () => {
     const dateFields = fieldIds.filter((id) => fieldMappings[id].inputType === 'date');
     dateFields.forEach((id) => {
       const transform = fieldMappings[id].transform;
-      expect(transform).toBeDefined();
+      expect(transform).not.toBeUndefined();
       expect(transform?.type).toBe('date_format');
-      expect(transform?.config).toBeDefined();
+      expect(transform?.config).not.toBeUndefined();
       expect((transform?.config as { to?: string })?.to).toBe('DD/MM/YYYY');
     });
   });
 
   it('nationality field has country_code transform', () => {
     const nationalityMapping = fieldMappings['nationality'];
-    expect(nationalityMapping).toBeDefined();
+    expect(nationalityMapping).not.toBeUndefined();
     expect(nationalityMapping.transform?.type).toBe('country_code');
   });
 
@@ -113,7 +113,7 @@ describe('MYS field mappings', () => {
     const booleanFields = fieldIds.filter((id) => fieldMappings[id].inputType === 'radio');
     booleanFields.forEach((id) => {
       const transform = fieldMappings[id].transform;
-      expect(transform).toBeDefined();
+      expect(transform).not.toBeUndefined();
       expect(transform?.type).toBe('boolean_to_yesno');
     });
   });

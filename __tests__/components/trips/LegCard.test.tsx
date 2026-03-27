@@ -48,27 +48,24 @@ function makeLeg(overrides: Partial<TripLeg> = {}): TripLeg {
 describe('LegCard — SubmissionStatusBadge', () => {
   it('renders SubmissionStatusBadge with not_started status by default', () => {
     render(<LegCard leg={makeLeg()} />);
-    expect(screen.getByTestId('submission-status-badge-JPN')).toBeTruthy();
+    screen.getByTestId('submission-status-badge-JPN');
   });
 
   it('renders SubmissionStatusBadge with not_started status', () => {
     render(<LegCard leg={makeLeg({ submissionStatus: 'not_started' })} />);
     const badge = screen.getByTestId('submission-status-badge-JPN');
-    expect(badge).toBeTruthy();
     expect(badge.props.accessibilityLabel).toBe('Submission not started');
   });
 
   it('renders SubmissionStatusBadge with in_progress status', () => {
     render(<LegCard leg={makeLeg({ submissionStatus: 'in_progress' })} />);
     const badge = screen.getByTestId('submission-status-badge-JPN');
-    expect(badge).toBeTruthy();
     expect(badge.props.accessibilityLabel).toBe('Submission in progress');
   });
 
   it('renders SubmissionStatusBadge with submitted status', () => {
     render(<LegCard leg={makeLeg({ submissionStatus: 'submitted' })} />);
     const badge = screen.getByTestId('submission-status-badge-JPN');
-    expect(badge).toBeTruthy();
     expect(badge.props.accessibilityLabel).toBe('Submission complete');
   });
 });
@@ -85,7 +82,7 @@ describe('LegCard — "Mark as Submitted" button visibility', () => {
         onMarkAsSubmitted={jest.fn()}
       />,
     );
-    expect(screen.getByTestId('mark-submitted-JPN')).toBeTruthy();
+    screen.getByTestId('mark-submitted-JPN');
   });
 
   it('shows the button when onMarkAsSubmitted is provided and status is in_progress', () => {
@@ -95,7 +92,7 @@ describe('LegCard — "Mark as Submitted" button visibility', () => {
         onMarkAsSubmitted={jest.fn()}
       />,
     );
-    expect(screen.getByTestId('mark-submitted-JPN')).toBeTruthy();
+    screen.getByTestId('mark-submitted-JPN');
   });
 
   it('hides the button when submissionStatus is already submitted', () => {
@@ -181,7 +178,8 @@ describe('LegCard — "Mark as Submitted" button accessibility', () => {
       />,
     );
     const btn = screen.getByTestId('mark-submitted-JPN');
-    expect(btn.props.accessibilityHint).toBeTruthy();
+    expect(typeof btn.props.accessibilityHint).toBe('string');
+    expect(btn.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 
   it('has accessible={true}', () => {

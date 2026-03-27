@@ -220,7 +220,7 @@ describe('Performance Acceptance Criteria', () => {
       memoryLeakDetector.trackComponentUnmount(trackerId);
       
       const report = memoryLeakDetector.getLeakReport();
-      expect(report.componentIssues).toBeDefined();
+      expect(report.componentIssues).not.toBeUndefined();
     });
   });
 
@@ -423,12 +423,10 @@ describe('Performance Acceptance Criteria', () => {
       expect(budgets.length).toBeGreaterThan(0);
       
       const startupBudget = budgets.find(b => b.metric === 'appStartTime');
-      expect(startupBudget).toBeDefined();
-      expect(startupBudget!.target).toBe(2500); // Default in performanceOptimization
+      expect(startupBudget).toEqual(expect.objectContaining({ metric: 'appStartTime', target: 2500 }));
       
       const formBudget = budgets.find(b => b.metric === 'formGenerationTime');
-      expect(formBudget).toBeDefined();
-      expect(formBudget!.target).toBe(300); // Default in performanceOptimization
+      expect(formBudget).toEqual(expect.objectContaining({ metric: 'formGenerationTime', target: 300 }));
     });
 
     test('should provide optimization report with effectiveness metrics', () => {
@@ -485,8 +483,7 @@ describe('Performance Acceptance Criteria', () => {
       
       const qrMetric = cameraMetrics.metrics.find(m => m.name === 'camera_qr_scan');
       
-      expect(qrMetric).toBeDefined();
-      expect(qrMetric!.value).toBe(qrScanDuration);
+      expect(qrMetric).toEqual(expect.objectContaining({ name: 'camera_qr_scan', value: qrScanDuration }));
     });
   });
 

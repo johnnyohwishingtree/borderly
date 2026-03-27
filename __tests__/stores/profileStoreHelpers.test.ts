@@ -103,7 +103,8 @@ describe('createEmptyFamilyCollection', () => {
     expect(result.primaryProfileId).toBe('');
     expect(result.maxProfiles).toBe(MAX_PROFILES);
     expect(result.version).toBe(FAMILY_PROFILES_VERSION);
-    expect(result.lastModified).toBeDefined();
+    expect(typeof result.lastModified).toBe('string');
+    expect(new Date(result.lastModified).toISOString()).toBe(result.lastModified);
   });
 });
 
@@ -167,8 +168,10 @@ describe('createProfileMetadata', () => {
     expect(result.isPrimary).toBe(false);
     expect(result.isActive).toBe(true);
     expect(result.biometricEnabled).toBe(false);
-    expect(result.createdAt).toBeDefined();
-    expect(result.updatedAt).toBeDefined();
+    expect(typeof result.createdAt).toBe('string');
+    expect(new Date(result.createdAt).toISOString()).toBe(result.createdAt);
+    expect(typeof result.updatedAt).toBe('string');
+    expect(new Date(result.updatedAt).toISOString()).toBe(result.updatedAt);
   });
 
   it('preserves optional nickname', () => {

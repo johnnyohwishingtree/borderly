@@ -36,32 +36,32 @@ beforeEach(() => {
 describe('DuplicateTripModal — rendering', () => {
   it('renders the modal with default testID', () => {
     renderModal();
-    expect(screen.getByTestId('duplicate-trip-modal')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal');
   });
 
   it('renders the modal with a custom testID', () => {
     renderModal({ testID: 'custom-id' });
-    expect(screen.getByTestId('custom-id')).toBeTruthy();
+    screen.getByTestId('custom-id');
   });
 
   it('renders the title', () => {
     renderModal();
-    expect(screen.getByTestId('duplicate-trip-modal-title')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal-title');
   });
 
   it('renders the cancel button', () => {
     renderModal();
-    expect(screen.getByTestId('duplicate-trip-modal-cancel')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal-cancel');
   });
 
   it('renders the confirm button', () => {
     renderModal();
-    expect(screen.getByTestId('duplicate-trip-modal-confirm')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal-confirm');
   });
 
   it('renders the departure date picker', () => {
     renderModal();
-    expect(screen.getByTestId('duplicate-trip-departure-date')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-departure-date');
   });
 
   it('does not show error section when error is null', () => {
@@ -71,12 +71,12 @@ describe('DuplicateTripModal — rendering', () => {
 
   it('shows error section when error is provided', () => {
     renderModal({ error: 'Something went wrong' });
-    expect(screen.getByTestId('duplicate-trip-modal-error')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal-error');
   });
 
   it('displays the error message text', () => {
     renderModal({ error: 'Failed to duplicate' });
-    expect(screen.getByText('Failed to duplicate')).toBeTruthy();
+    screen.getByText('Failed to duplicate');
   });
 });
 
@@ -87,7 +87,7 @@ describe('DuplicateTripModal — rendering', () => {
 describe('DuplicateTripModal — loading state', () => {
   it('shows loading indicator when loading is true', () => {
     renderModal({ loading: true });
-    expect(screen.getByTestId('duplicate-trip-loading-indicator')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-loading-indicator');
   });
 
   it('does not show loading indicator when loading is false', () => {
@@ -130,7 +130,7 @@ describe('DuplicateTripModal — interactions', () => {
   it('shows a validation error when confirm is pressed without a date', () => {
     renderModal();
     fireEvent.press(screen.getByTestId('duplicate-trip-modal-confirm'));
-    expect(screen.getByText('Please select a new departure date')).toBeTruthy();
+    screen.getByText('Please select a new departure date');
   });
 });
 
@@ -148,7 +148,7 @@ describe('DuplicateTripModal — accessibility', () => {
   it('cancel button has an accessibilityLabel', () => {
     renderModal();
     const btn = screen.getByTestId('duplicate-trip-modal-cancel');
-    expect(btn.props.accessibilityLabel).toBeTruthy();
+    expect(btn.props.accessibilityLabel).toBe('Cancel duplicate trip');
   });
 
   it('confirm button has accessibilityRole button', () => {
@@ -160,7 +160,7 @@ describe('DuplicateTripModal — accessibility', () => {
   it('confirm button has an accessibilityLabel', () => {
     renderModal();
     const btn = screen.getByTestId('duplicate-trip-modal-confirm');
-    expect(btn.props.accessibilityLabel).toBeTruthy();
+    expect(btn.props.accessibilityLabel).toBe('Confirm duplicate trip');
   });
 
   it('title has accessibilityRole header', () => {

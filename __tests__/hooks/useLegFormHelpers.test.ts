@@ -316,8 +316,9 @@ describe('persistFormData', () => {
 
     expect(updateTripLeg).toHaveBeenCalledTimes(1);
     const call = updateTripLeg.mock.calls[0];
-    expect(call[1].travelerFormsData).toBeDefined();
-    expect(call[1].travelerFormsData[0].travelerId).toBe('t1');
+    expect(call[1].travelerFormsData).toEqual(
+      expect.arrayContaining([expect.objectContaining({ travelerId: 't1' })]),
+    );
   });
 
   it('uses statusOverride when provided', async () => {

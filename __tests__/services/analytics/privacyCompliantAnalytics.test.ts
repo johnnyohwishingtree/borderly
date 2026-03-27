@@ -276,7 +276,8 @@ describe('PrivacyCompliantAnalyticsService', () => {
 
       const analytics = svc.exportJourneyAnalytics();
       const onboarding = analytics.find(a => a.flowType === 'onboarding');
-      expect(onboarding!.abandonnmentPoints).toBeDefined();
+      expect(typeof onboarding!.abandonnmentPoints).toBe('object');
+      expect(onboarding!.abandonnmentPoints).not.toBeNull();
       expect(Object.keys(onboarding!.abandonnmentPoints).length).toBeGreaterThan(0);
     });
   });
@@ -364,7 +365,7 @@ describe('PrivacyCompliantAnalyticsService', () => {
       svc.trackScreenView('A');
 
       const status = svc.getDataStatus();
-      expect(status.oldestEvent).toBeDefined();
+      expect(typeof status.oldestEvent).toBe('number');
       expect(status.oldestEvent).toBeLessThanOrEqual(Date.now());
     });
 

@@ -31,12 +31,12 @@ describe('AddressAutocomplete', () => {
         testID="addr"
       />,
     );
-    expect(getByTestId('addr-line1')).toBeTruthy();
-    expect(getByTestId('addr-line2')).toBeTruthy();
-    expect(getByTestId('addr-city')).toBeTruthy();
-    expect(getByTestId('addr-state')).toBeTruthy();
-    expect(getByTestId('addr-postal-code')).toBeTruthy();
-    expect(getByTestId('addr-country')).toBeTruthy();
+    getByTestId('addr-line1');
+    getByTestId('addr-line2');
+    getByTestId('addr-city');
+    getByTestId('addr-state');
+    getByTestId('addr-postal-code');
+    getByTestId('addr-country');
   });
 
   it('renders label text', () => {
@@ -47,7 +47,7 @@ describe('AddressAutocomplete', () => {
         label="Home Address"
       />,
     );
-    expect(getByText('Home Address')).toBeTruthy();
+    getByText('Home Address');
   });
 
   it('calls onAddressChange when line1 changes', () => {

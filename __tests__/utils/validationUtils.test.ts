@@ -18,7 +18,7 @@ describe('Validation Utils', () => {
     it('should validate valid passport numbers', () => {
       const result = validatePassportNumber('AB123456');
       expect(result.isValid).toBe(true);
-      expect(result.error).toBeUndefined();
+      expect(result.error).toBe(undefined);
     });
 
     it('should validate US passport format', () => {
@@ -72,7 +72,7 @@ describe('Validation Utils', () => {
       validEmails.forEach(email => {
         const result = validateEmail(email);
         expect(result.isValid).toBe(true);
-        expect(result.error).toBeUndefined();
+        expect(result.error).toBe(undefined);
       });
     });
 
@@ -89,7 +89,7 @@ describe('Validation Utils', () => {
       invalidEmails.forEach(email => {
         const result = validateEmail(email);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBeDefined();
+        expect(typeof result.error).toBe('string');
       });
     });
 
@@ -132,7 +132,7 @@ describe('Validation Utils', () => {
       invalidNumbers.forEach(number => {
         const result = validatePhoneNumber(number);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBeDefined();
+        expect(typeof result.error).toBe('string');
       });
     });
   });
@@ -150,7 +150,7 @@ describe('Validation Utils', () => {
       validFlightNumbers.forEach(flightNumber => {
         const result = validateFlightNumber(flightNumber);
         expect(result.isValid).toBe(true);
-        expect(result.error).toBeUndefined();
+        expect(result.error).toBe(undefined);
       });
     });
 
@@ -166,7 +166,7 @@ describe('Validation Utils', () => {
       invalidFlightNumbers.forEach(flightNumber => {
         const result = validateFlightNumber(flightNumber);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBeDefined();
+        expect(typeof result.error).toBe('string');
       });
     });
   });

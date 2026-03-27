@@ -14,7 +14,7 @@ function root(toJSON: () => ReturnType<ReturnType<typeof render>['toJSON']>) {
 describe('Divider', () => {
   it('renders horizontal by default', () => {
     const r = root(render(<Divider />).toJSON);
-    expect(r).toBeTruthy();
+    expect(r).not.toBeNull();
     expect(r.type).toBe('View');
   });
 
@@ -25,7 +25,7 @@ describe('Divider', () => {
 
   it('shows label text when provided on horizontal divider', () => {
     const { getByText } = render(<Divider text="OR" />);
-    expect(getByText('OR')).toBeTruthy();
+    getByText('OR');
   });
 
   it('renders as flex-row container when text is provided', () => {

@@ -129,11 +129,11 @@ describe('Import Pipeline Integration', () => {
 
       // First leg should be Japan
       const jpnLeg = trip.legs.find(l => l.destinationCountry === 'JPN');
-      expect(jpnLeg).toBeTruthy();
+      expect(jpnLeg).not.toBeUndefined();
 
       // Second leg should be Singapore
       const sgpLeg = trip.legs.find(l => l.destinationCountry === 'SGP');
-      expect(sgpLeg).toBeTruthy();
+      expect(sgpLeg).not.toBeUndefined();
 
       // Trip name should include both destinations
       expect(trip.name).toContain('Tokyo');
@@ -192,7 +192,8 @@ describe('Import Pipeline Integration', () => {
 
         expect(trip.legs).toHaveLength(1);
         // Should use today as fallback when date is missing
-        expect(trip.legs[0].arrivalDate).toBeTruthy();
+        expect(typeof trip.legs[0].arrivalDate).toBe('string');
+        expect(trip.legs[0].arrivalDate.length).toBeGreaterThan(0);
         expect(trip.legs[0].destinationCountry).toBe('JPN');
       }
     });

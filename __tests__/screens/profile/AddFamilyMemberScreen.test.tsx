@@ -69,8 +69,8 @@ beforeEach(() => {
 describe('AddFamilyMemberScreen — header', () => {
   it('renders title and subtitle', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByText('Add Family Member')).toBeTruthy();
-    expect(screen.getByText('Create a new family travel profile')).toBeTruthy();
+    screen.getByText('Add Family Member');
+    screen.getByText('Create a new family travel profile');
   });
 });
 
@@ -79,17 +79,17 @@ describe('AddFamilyMemberScreen — header', () => {
 describe('AddFamilyMemberScreen — relationship select', () => {
   it('renders relationship select with default spouse', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByTestId('relationship-select')).toBeTruthy();
-    expect(screen.getByText('spouse')).toBeTruthy();
+    screen.getByTestId('relationship-select');
+    screen.getByText('spouse');
   });
 
   it('renders all relationship options', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByText('Spouse')).toBeTruthy();
-    expect(screen.getByText('Child')).toBeTruthy();
-    expect(screen.getByText('Parent')).toBeTruthy();
-    expect(screen.getByText('Sibling')).toBeTruthy();
-    expect(screen.getByText('Other Family')).toBeTruthy();
+    screen.getByText('Spouse');
+    screen.getByText('Child');
+    screen.getByText('Parent');
+    screen.getByText('Sibling');
+    screen.getByText('Other Family');
   });
 
   it('updates description when relationship is changed to child', () => {
@@ -97,12 +97,12 @@ describe('AddFamilyMemberScreen — relationship select', () => {
 
     fireEvent.press(screen.getByTestId('select-option-child'));
 
-    expect(screen.getByText('Add your child to your family profile')).toBeTruthy();
+    screen.getByText('Add your child to your family profile');
   });
 
   it('shows spouse description by default', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByText('Add your spouse or partner to your family profile')).toBeTruthy();
+    screen.getByText('Add your spouse or partner to your family profile');
   });
 });
 
@@ -111,7 +111,7 @@ describe('AddFamilyMemberScreen — relationship select', () => {
 describe('AddFamilyMemberScreen — camera scan', () => {
   it('renders "Start Camera Scan" button', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByTestId('start-camera-scan-button')).toBeTruthy();
+    screen.getByTestId('start-camera-scan-button');
   });
 
   it('navigates to PassportScan with familyMode and relationship when scan is pressed', () => {
@@ -143,7 +143,7 @@ describe('AddFamilyMemberScreen — camera scan', () => {
 describe('AddFamilyMemberScreen — manual entry', () => {
   it('renders "Enter Manually" button', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByTestId('enter-manually-family-button')).toBeTruthy();
+    screen.getByTestId('enter-manually-family-button');
   });
 
   it('navigates to PassportScan with familyMode when manual entry is pressed', () => {
@@ -163,7 +163,7 @@ describe('AddFamilyMemberScreen — manual entry', () => {
 describe('AddFamilyMemberScreen — privacy info', () => {
   it('renders privacy and security section', () => {
     render(<AddFamilyMemberScreen />);
-    expect(screen.getByText('Privacy & Security')).toBeTruthy();
-    expect(screen.getByText(/All family member data is encrypted/)).toBeTruthy();
+    screen.getByText('Privacy & Security');
+    screen.getByText(/All family member data is encrypted/);
   });
 });

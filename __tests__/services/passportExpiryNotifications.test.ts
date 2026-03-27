@@ -240,7 +240,7 @@ describe('schedulePassportExpiryNotifications', () => {
     await schedulePassportExpiryNotifications(profile);
 
     const raw = mockStore[profilePassportKey(profile.id)];
-    expect(raw).toBeDefined();
+    expect(typeof raw).toBe('string');
     const ids: string[] = JSON.parse(raw);
     expect(ids).toHaveLength(4);
   });
@@ -460,8 +460,8 @@ describe('scheduleAllProfilePassportExpiry', () => {
 
     const rawX = mockStore[profilePassportKey('profile-X')];
     const rawY = mockStore[profilePassportKey('profile-Y')];
-    expect(rawX).toBeDefined();
-    expect(rawY).toBeDefined();
+    expect(typeof rawX).toBe('string');
+    expect(typeof rawY).toBe('string');
     expect(JSON.parse(rawX)).toHaveLength(4);
     expect(JSON.parse(rawY)).toHaveLength(4);
   });

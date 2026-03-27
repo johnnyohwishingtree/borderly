@@ -24,38 +24,38 @@ describe('TravelerProgressList — visibility', () => {
 
   it('renders when travelers are provided', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByTestId('traveler-progress-list')).toBeTruthy();
+    screen.getByTestId('traveler-progress-list');
   });
 });
 
 describe('TravelerProgressList — content', () => {
   it('renders a row for each traveler', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByTestId('traveler-progress-p1')).toBeTruthy();
-    expect(screen.getByTestId('traveler-progress-p2')).toBeTruthy();
+    screen.getByTestId('traveler-progress-p1');
+    screen.getByTestId('traveler-progress-p2');
   });
 
   it('shows traveler names', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByText('John Doe')).toBeTruthy();
-    expect(screen.getByText('Jane Doe')).toBeTruthy();
+    screen.getByText('John Doe');
+    screen.getByText('Jane Doe');
   });
 
   it('shows ready/total counts', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByText('2/3 ready')).toBeTruthy();
-    expect(screen.getByText('3/3 ready')).toBeTruthy();
+    screen.getByText('2/3 ready');
+    screen.getByText('3/3 ready');
   });
 
   it('shows relationship labels', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByText('Primary')).toBeTruthy();
-    expect(screen.getByText('Spouse')).toBeTruthy();
+    screen.getByText('Primary');
+    screen.getByText('Spouse');
   });
 
   it('shows "Traveler Progress" heading', () => {
     render(<TravelerProgressList travelers={travelers} />);
-    expect(screen.getByText('Traveler Progress')).toBeTruthy();
+    screen.getByText('Traveler Progress');
   });
 });
 

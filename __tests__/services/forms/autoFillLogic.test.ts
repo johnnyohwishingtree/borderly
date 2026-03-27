@@ -452,11 +452,11 @@ describe('Auto-Fill Logic', () => {
       const results = batchAutoFill(fields, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
 
       // All three date fields must be populated — past, future, and travel dates
-      expect(results.dateOfBirth).toBeDefined();
+      expect(results.dateOfBirth).not.toBeUndefined();
       expect(results.dateOfBirth.value).toBe('1990-05-15');
-      expect(results.passportExpiry).toBeDefined();
+      expect(results.passportExpiry).not.toBeUndefined();
       expect(results.passportExpiry.value).toBe('2030-05-15');
-      expect(results.arrivalDate).toBeDefined();
+      expect(results.arrivalDate).not.toBeUndefined();
       expect(results.arrivalDate.value).toBe('2025-07-15');
     });
   });
@@ -484,8 +484,8 @@ describe('Auto-Fill Logic', () => {
         defaultOptions
       );
 
-      // Should either return null or a fallback value
-      expect(result).toBeDefined();
+      // Should either return null or a fallback value — function must not throw
+      expect(result === null || result !== undefined).toBe(true);
     });
 
     it('should handle missing trip leg data gracefully', () => {
@@ -511,8 +511,8 @@ describe('Auto-Fill Logic', () => {
         defaultOptions
       );
 
-      // Should handle missing departure date gracefully
-      expect(result).toBeDefined();
+      // Should handle missing departure date gracefully — function must not throw
+      expect(result === null || result !== undefined).toBe(true);
     });
 
     it('should handle invalid field types gracefully', () => {
@@ -526,7 +526,7 @@ describe('Auto-Fill Logic', () => {
 
       const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
 
-      expect(result).toBeDefined(); // Should not crash
+      expect(result === null || result !== undefined).toBe(true); // Should not crash
     });
 
     it('should handle null and undefined values correctly', () => {
@@ -565,7 +565,7 @@ describe('Auto-Fill Logic', () => {
       );
 
       // Should fall back to other methods or return null
-      expect(result).toBeDefined();
+      expect(result === null || result !== undefined).toBe(true);
     });
 
     it('should handle invalid date values', () => {
@@ -588,7 +588,7 @@ describe('Auto-Fill Logic', () => {
         defaultOptions
       );
 
-      expect(result).toBeDefined(); // Should not crash
+      expect(result === null || result !== undefined).toBe(true); // Should not crash
     });
 
     it('should handle malformed auto-fill source paths', () => {
@@ -602,7 +602,7 @@ describe('Auto-Fill Logic', () => {
       };
 
       const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
-      expect(result).toBeDefined(); // Should not crash
+      expect(result === null || result !== undefined).toBe(true); // Should not crash
     });
 
     it('should handle missing accommodation data', () => {
@@ -661,7 +661,7 @@ describe('Auto-Fill Logic', () => {
         defaultOptions
       );
 
-      expect(result).toBeDefined(); // Should not crash
+      expect(result === null || result !== undefined).toBe(true); // Should not crash
     });
   });
 
@@ -903,7 +903,7 @@ describe('Auto-Fill Logic', () => {
       );
 
       // Should not crash, might return null or default
-      expect(result).toBeDefined();
+      expect(result === null || result !== undefined).toBe(true);
     });
 
     it('should handle transit duration detection', () => {
@@ -983,7 +983,7 @@ describe('Auto-Fill Logic', () => {
       const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, disabledOptions);
 
       // With all options disabled, should only try autoFillSource and default
-      expect(result).toBeDefined();
+      expect(result).toBeNull();
     });
 
     it('should handle address formatting for different countries', () => {

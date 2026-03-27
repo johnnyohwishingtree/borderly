@@ -54,7 +54,7 @@ function collectTextContent(node: unknown): string[] {
 describe('SubmissionStatusBadge — not_started (grey)', () => {
   it('renders for not_started status', () => {
     render(<SubmissionStatusBadge status="not_started" />);
-    expect(screen.getByTestId('submission-status-badge-not_started')).toBeTruthy();
+    screen.getByTestId('submission-status-badge-not_started');
   });
 
   it('displays "Not Started" label text in rendered tree', () => {
@@ -76,7 +76,7 @@ describe('SubmissionStatusBadge — not_started (grey)', () => {
 describe('SubmissionStatusBadge — in_progress (amber)', () => {
   it('renders for in_progress status', () => {
     render(<SubmissionStatusBadge status="in_progress" />);
-    expect(screen.getByTestId('submission-status-badge-in_progress')).toBeTruthy();
+    screen.getByTestId('submission-status-badge-in_progress');
   });
 
   it('displays "In Progress" label text in rendered tree', () => {
@@ -98,7 +98,7 @@ describe('SubmissionStatusBadge — in_progress (amber)', () => {
 describe('SubmissionStatusBadge — submitted (green)', () => {
   it('renders for submitted status', () => {
     render(<SubmissionStatusBadge status="submitted" />);
-    expect(screen.getByTestId('submission-status-badge-submitted')).toBeTruthy();
+    screen.getByTestId('submission-status-badge-submitted');
   });
 
   it('displays "Submitted" label text in rendered tree', () => {
@@ -120,17 +120,17 @@ describe('SubmissionStatusBadge — submitted (green)', () => {
 describe('SubmissionStatusBadge — testID', () => {
   it('uses default testID based on status', () => {
     render(<SubmissionStatusBadge status="submitted" />);
-    expect(screen.getByTestId('submission-status-badge-submitted')).toBeTruthy();
+    screen.getByTestId('submission-status-badge-submitted');
   });
 
   it('uses custom testID when provided', () => {
     render(<SubmissionStatusBadge status="in_progress" testID="custom-badge" />);
-    expect(screen.getByTestId('custom-badge')).toBeTruthy();
+    screen.getByTestId('custom-badge');
   });
 
   it('custom testID overrides the default for not_started', () => {
     render(<SubmissionStatusBadge status="not_started" testID="my-badge" />);
-    expect(screen.getByTestId('my-badge')).toBeTruthy();
+    screen.getByTestId('my-badge');
     expect(screen.queryByTestId('submission-status-badge-not_started')).toBeNull();
   });
 });

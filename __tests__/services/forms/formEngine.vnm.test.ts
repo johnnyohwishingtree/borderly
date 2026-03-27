@@ -98,7 +98,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
     it('should auto-fill personal information fields from the profile', () => {
       const result = generateFilledForm(mockProfile, mockVnmLeg, vnmSchema);
       const personal = result.sections.find(s => s.id === 'personal');
-      expect(personal).toBeDefined();
+      expect(personal).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(personal!.fields.map(f => [f.id, f]));
 
@@ -131,7 +131,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
     it('should auto-fill passport information fields from the profile', () => {
       const result = generateFilledForm(mockProfile, mockVnmLeg, vnmSchema);
       const passport = result.sections.find(s => s.id === 'passport');
-      expect(passport).toBeDefined();
+      expect(passport).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(passport!.fields.map(f => [f.id, f]));
 
@@ -149,7 +149,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
     it('should auto-fill travel information fields from the trip leg', () => {
       const result = generateFilledForm(mockProfile, mockVnmLeg, vnmSchema);
       const travel = result.sections.find(s => s.id === 'travel');
-      expect(travel).toBeDefined();
+      expect(travel).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(travel!.fields.map(f => [f.id, f]));
 
@@ -167,7 +167,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
     it('should auto-fill accommodation fields from the trip leg', () => {
       const result = generateFilledForm(mockProfile, mockVnmLeg, vnmSchema);
       const accommodation = result.sections.find(s => s.id === 'accommodation');
-      expect(accommodation).toBeDefined();
+      expect(accommodation).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(accommodation!.fields.map(f => [f.id, f]));
 
@@ -190,7 +190,7 @@ describe('FormEngine — Vietnam (VNM) Integration', () => {
     it('should auto-fill email from the profile in the contact section', () => {
       const result = generateFilledForm(mockProfile, mockVnmLeg, vnmSchema);
       const contact = result.sections.find(s => s.id === 'contact');
-      expect(contact).toBeDefined();
+      expect(contact).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(contact!.fields.map(f => [f.id, f]));
 

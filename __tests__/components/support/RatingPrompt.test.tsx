@@ -48,7 +48,7 @@ describe('RatingPrompt', () => {
     const { getByText } = render(
       <RatingPrompt visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Rate your experience')).toBeTruthy();
+    getByText('Rate your experience');
   });
 
   it('passes visible=false to Modal when not visible', () => {
@@ -65,14 +65,14 @@ describe('RatingPrompt', () => {
     const { getByText } = render(
       <RatingPrompt visible={true} onClose={jest.fn()} trigger="app-usage" />,
     );
-    expect(getByText("How's your experience?")).toBeTruthy();
+    getByText("How's your experience?");
   });
 
   it('shows form-completion trigger title', () => {
     const { getByText } = render(
       <RatingPrompt visible={true} onClose={jest.fn()} trigger="form-completion" />,
     );
-    expect(getByText('How was form filling?')).toBeTruthy();
+    getByText('How was form filling?');
   });
 
   // ─── Star rating selection ────────────────────────────────────────────────
@@ -83,7 +83,7 @@ describe('RatingPrompt', () => {
     );
     // Press the 4-star emoji button (😊)
     fireEvent.press(getByText('😊'));
-    expect(getByText('Good (4/5)')).toBeTruthy();
+    getByText('Good (4/5)');
   });
 
   it('shows correct text for each rating value', () => {
@@ -92,10 +92,10 @@ describe('RatingPrompt', () => {
     );
 
     fireEvent.press(getByText('😞'));
-    expect(getByText('Very Poor (1/5)')).toBeTruthy();
+    getByText('Very Poor (1/5)');
 
     fireEvent.press(getByText('🤩'));
-    expect(getByText('Excellent (5/5)')).toBeTruthy();
+    getByText('Excellent (5/5)');
   });
 
   // ─── Submit rating ───────────────────────────────────────────────────────
@@ -146,9 +146,9 @@ describe('RatingPrompt', () => {
     fireEvent.press(getByText('Submit Rating'));
 
     await waitFor(() => {
-      expect(getByText('Help us improve!')).toBeTruthy();
-      expect(getByText('Share Detailed Feedback')).toBeTruthy();
-      expect(getByText('No Thanks')).toBeTruthy();
+      getByText('Help us improve!');
+      getByText('Share Detailed Feedback');
+      getByText('No Thanks');
     });
   });
 

@@ -187,7 +187,7 @@ describe('PortalHealthChecker', () => {
       await healthChecker.checkPortalHealth('JPN', 'Test Portal', 'https://test.com');
       
       const latest = healthChecker.getLatestHealthStatus('JPN');
-      expect(latest).toBeDefined();
+      expect(latest).not.toBeUndefined();
       expect(latest!.countryCode).toBe('JPN');
     });
 
@@ -329,7 +329,7 @@ describe('PortalHealthChecker', () => {
       );
 
       const criticalIssue = result.issues.find(issue => issue.severity === 'critical');
-      expect(criticalIssue).toBeDefined();
+      expect(criticalIssue).toEqual(expect.objectContaining({ severity: 'critical' }));
       expect(result.status).toBe('offline');
     });
 

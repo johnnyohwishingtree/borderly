@@ -8,7 +8,7 @@ import Button from '../../../src/components/ui/Button';
 describe('Button', () => {
   it('renders the title text', () => {
     const { getByText } = render(<Button title="Save" onPress={jest.fn()} />);
-    expect(getByText('Save')).toBeTruthy();
+    getByText('Save');
   });
 
   it('calls onPress when pressed', () => {
@@ -41,35 +41,35 @@ describe('Button', () => {
     const { getByLabelText } = render(
       <Button title="Submit" onPress={jest.fn()} loading />,
     );
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
   });
 
   it('renders with primary variant by default', () => {
     const { getByRole } = render(
       <Button title="Go" onPress={jest.fn()} />,
     );
-    expect(getByRole('button')).toBeTruthy();
+    getByRole('button');
   });
 
   it('renders with secondary variant', () => {
     const { getByText } = render(
       <Button title="Cancel" onPress={jest.fn()} variant="secondary" />,
     );
-    expect(getByText('Cancel')).toBeTruthy();
+    getByText('Cancel');
   });
 
   it('renders with outline variant', () => {
     const { getByText } = render(
       <Button title="Details" onPress={jest.fn()} variant="outline" />,
     );
-    expect(getByText('Details')).toBeTruthy();
+    getByText('Details');
   });
 
   it('has accessible button role', () => {
     const { getByRole } = render(
       <Button title="Save" onPress={jest.fn()} />,
     );
-    expect(getByRole('button')).toBeTruthy();
+    getByRole('button');
   });
 
   it('applies disabled accessibility state', () => {
@@ -88,6 +88,6 @@ describe('Button', () => {
         accessibilityLabel="Close dialog"
       />,
     );
-    expect(getByLabelText('Close dialog')).toBeTruthy();
+    getByLabelText('Close dialog');
   });
 });

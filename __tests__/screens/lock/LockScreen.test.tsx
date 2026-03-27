@@ -50,29 +50,29 @@ describe('LockScreen — rendering', () => {
   it('renders lock screen with title', async () => {
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Borderly Locked')).toBeTruthy();
+      screen.getByText('Borderly Locked');
     });
   });
 
   it('renders subtitle text', async () => {
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Authenticate to access your travel data')).toBeTruthy();
+      screen.getByText('Authenticate to access your travel data');
     });
   });
 
   it('renders biometric unlock button', async () => {
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
   });
 
   it('renders PIN fallback button', async () => {
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-pin-button')).toBeTruthy();
-      expect(screen.getByText('Use PIN Instead')).toBeTruthy();
+      screen.getByTestId('lock-screen-pin-button');
+      screen.getByText('Use PIN Instead');
     });
   });
 });
@@ -84,7 +84,7 @@ describe('LockScreen — biometry type', () => {
     (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('TouchID');
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Unlock with Touch ID')).toBeTruthy();
+      screen.getByText('Unlock with Touch ID');
     });
   });
 
@@ -92,7 +92,7 @@ describe('LockScreen — biometry type', () => {
     (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('FaceID');
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Unlock with Face ID')).toBeTruthy();
+      screen.getByText('Unlock with Face ID');
     });
   });
 
@@ -100,7 +100,7 @@ describe('LockScreen — biometry type', () => {
     (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue('Fingerprint');
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Unlock with Fingerprint')).toBeTruthy();
+      screen.getByText('Unlock with Fingerprint');
     });
   });
 
@@ -108,7 +108,7 @@ describe('LockScreen — biometry type', () => {
     (Keychain.getSupportedBiometryType as jest.Mock).mockResolvedValue(null);
     render(<LockScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Unlock with Biometrics')).toBeTruthy();
+      screen.getByText('Unlock with Biometrics');
     });
   });
 });
@@ -124,7 +124,7 @@ describe('LockScreen — unlock success', () => {
     render(<LockScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
 
     fireEvent.press(screen.getByTestId('lock-screen-biometric-button'));
@@ -143,14 +143,14 @@ describe('LockScreen — unlock failure', () => {
     render(<LockScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
 
     fireEvent.press(screen.getByTestId('lock-screen-biometric-button'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-error')).toBeTruthy();
-      expect(screen.getByText('Authentication was cancelled. Please try again.')).toBeTruthy();
+      screen.getByTestId('lock-screen-error');
+      screen.getByText('Authentication was cancelled. Please try again.');
     });
   });
 
@@ -159,14 +159,14 @@ describe('LockScreen — unlock failure', () => {
     render(<LockScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
 
     fireEvent.press(screen.getByTestId('lock-screen-biometric-button'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-error')).toBeTruthy();
-      expect(screen.getByText('Biometric sensor error')).toBeTruthy();
+      screen.getByTestId('lock-screen-error');
+      screen.getByText('Biometric sensor error');
     });
   });
 
@@ -175,13 +175,13 @@ describe('LockScreen — unlock failure', () => {
     render(<LockScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-biometric-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-biometric-button');
     });
 
     fireEvent.press(screen.getByTestId('lock-screen-biometric-button'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-error')).toBeTruthy();
+      screen.getByTestId('lock-screen-error');
     });
 
     expect(mockUnlock).not.toHaveBeenCalled();
@@ -196,7 +196,7 @@ describe('LockScreen — PIN fallback', () => {
     render(<LockScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('lock-screen-pin-button')).toBeTruthy();
+      screen.getByTestId('lock-screen-pin-button');
     });
 
     fireEvent.press(screen.getByTestId('lock-screen-pin-button'));

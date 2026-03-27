@@ -441,7 +441,7 @@ describe('useProfileStore', () => {
       });
 
       const stats = store.getFamilyStats();
-      expect(stats).toBeDefined();
+      expect(stats).not.toBeNull();
       expect(stats!.totalProfiles).toBe(3);
       expect(stats!.activeProfiles).toBe(3);
       expect(stats!.primaryProfile.id).toBe(mockProfile.id);

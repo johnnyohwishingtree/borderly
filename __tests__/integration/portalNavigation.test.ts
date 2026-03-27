@@ -118,11 +118,14 @@ describe('portalNavigation — getAllPortals registry', () => {
 
   it('every portal entry has countryCode, portalName, portalUrl, allowedDomain, baseUrl', () => {
     getAllPortals().forEach((portal) => {
-      expect(portal.countryCode).toBeTruthy();
-      expect(portal.portalName).toBeTruthy();
-      expect(portal.portalUrl).toBeTruthy();
-      expect(portal.allowedDomain).toBeTruthy();
-      expect(portal.baseUrl).toBeTruthy();
+      expect(typeof portal.countryCode).toBe('string');
+      expect(portal.countryCode.length).toBe(3);
+      expect(typeof portal.portalName).toBe('string');
+      expect(portal.portalName.length).toBeGreaterThan(0);
+      expect(portal.portalUrl).toMatch(/^https?:\/\//);
+      expect(typeof portal.allowedDomain).toBe('string');
+      expect(portal.allowedDomain.length).toBeGreaterThan(0);
+      expect(portal.baseUrl).toMatch(/^https?:\/\//);
     });
   });
 

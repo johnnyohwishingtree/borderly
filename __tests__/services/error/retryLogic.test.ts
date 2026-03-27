@@ -83,7 +83,7 @@ describe('retryAsync', () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    expect(result.error).toBeInstanceOf(Error);
     expect(result.error!.message).toBe('Network request failed');
     expect(result.attempts).toBe(3);
   });

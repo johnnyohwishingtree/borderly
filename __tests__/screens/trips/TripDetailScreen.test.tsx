@@ -192,42 +192,41 @@ beforeEach(() => {
 describe('TripDetailScreen — rendering', () => {
   it('renders the trip name', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByText('Asia Summer 2026')).toBeTruthy();
+    screen.getByText('Asia Summer 2026');
   });
 
   it('renders the destination count', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByText('1 destination')).toBeTruthy();
+    screen.getByText('1 destination');
   });
 
   it('renders a LegCard for each leg', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByTestId('leg-card-JPN')).toBeTruthy();
+    screen.getByTestId('leg-card-JPN');
   });
 
   it('renders the Pre-Departure Checklist card', () => {
     render(<TripDetailScreen />);
     const card = screen.getByTestId('checklist-card');
-    expect(card).toBeTruthy();
     expect(card.props.accessibilityRole).toBe('button');
-    expect(screen.getByText('Pre-Departure Checklist')).toBeTruthy();
-    expect(screen.getByText('0 of 1 items complete')).toBeTruthy();
+    screen.getByText('Pre-Departure Checklist');
+    screen.getByText('0 of 1 items complete');
   });
 
   it('renders the Edit button', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByTestId('edit-trip-button')).toBeTruthy();
+    screen.getByTestId('edit-trip-button');
   });
 
   it('renders the Add Destination button', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByTestId('add-destination-button')).toBeTruthy();
+    screen.getByTestId('add-destination-button');
   });
 
   it('renders "Trip not found" when trip is absent from the store', () => {
     mockTrips = [];
     render(<TripDetailScreen />);
-    expect(screen.getByText('Trip not found')).toBeTruthy();
+    screen.getByText('Trip not found');
   });
 
   it('renders plural "destinations" text when multiple legs exist', () => {
@@ -236,7 +235,7 @@ describe('TripDetailScreen — rendering', () => {
       legs: [makeTripLeg(), { ...makeTripLeg(), id: 'leg_2', order: 1 }],
     }];
     render(<TripDetailScreen />);
-    expect(screen.getByText('2 destinations')).toBeTruthy();
+    screen.getByText('2 destinations');
   });
 
   it('renders traveler progress section for multi-traveler trips', async () => {
@@ -268,7 +267,7 @@ describe('TripDetailScreen — rendering', () => {
     render(<TripDetailScreen />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('trip-detail-traveler-progress')).toBeTruthy();
+      screen.getByTestId('trip-detail-traveler-progress');
     });
   });
 
@@ -306,7 +305,7 @@ describe('TripDetailScreen — Edit Trip modal', () => {
 
     fireEvent.press(screen.getByTestId('edit-trip-button'));
 
-    expect(screen.getByTestId('edit-trip-modal')).toBeTruthy();
+    screen.getByTestId('edit-trip-modal');
   });
 
   it('edit modal shows the current trip name in the input', () => {
@@ -344,7 +343,7 @@ describe('TripDetailScreen — Edit Trip modal', () => {
 
     fireEvent.press(screen.getByTestId('edit-trip-button'));
 
-    expect(screen.getByTestId('edit-leg-leg_1-button')).toBeTruthy();
+    screen.getByTestId('edit-leg-leg_1-button');
   });
 
   it('pressing Edit on a leg shows the leg edit form (country selector, dates)', () => {
@@ -354,8 +353,8 @@ describe('TripDetailScreen — Edit Trip modal', () => {
     fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
 
     // Should show the country buttons
-    expect(screen.getByTestId('edit-leg-country-JPN')).toBeTruthy();
-    expect(screen.getByTestId('edit-leg-arrival-date')).toBeTruthy();
+    screen.getByTestId('edit-leg-country-JPN');
+    screen.getByTestId('edit-leg-arrival-date');
   });
 
   it('save leg button calls updateTripLeg', () => {
@@ -418,7 +417,7 @@ describe('TripDetailScreen — Add Destination modal', () => {
 
     fireEvent.press(screen.getByTestId('add-destination-button'));
 
-    expect(screen.getByTestId('add-destination-modal')).toBeTruthy();
+    screen.getByTestId('add-destination-modal');
   });
 
   it('add modal shows empty form fields', () => {
@@ -447,7 +446,7 @@ describe('TripDetailScreen — Add Destination modal', () => {
 
     fireEvent.press(screen.getByTestId('add-destination-empty-button'));
 
-    expect(screen.getByTestId('add-destination-modal')).toBeTruthy();
+    screen.getByTestId('add-destination-modal');
   });
 
   it('confirm add destination calls addTripLeg when form is filled', () => {
@@ -482,7 +481,7 @@ describe('TripDetailScreen — AddressAutocomplete in accommodation section', ()
     fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
 
     // AddressAutocomplete is rendered with testID "edit-leg-accommodation-address"
-    expect(screen.getByTestId('edit-leg-accommodation-address')).toBeTruthy();
+    screen.getByTestId('edit-leg-accommodation-address');
 
     // Individual sub-field inputs (city, postal) should NOT be present
     expect(screen.queryByTestId('edit-leg-accommodation-city')).toBeNull();
@@ -495,7 +494,7 @@ describe('TripDetailScreen — AddressAutocomplete in accommodation section', ()
     fireEvent.press(screen.getByTestId('add-destination-button'));
 
     // AddressAutocomplete is rendered with testID "new-leg-accommodation-address"
-    expect(screen.getByTestId('new-leg-accommodation-address')).toBeTruthy();
+    screen.getByTestId('new-leg-accommodation-address');
 
     // Individual sub-field inputs (city, postal) should NOT be present
     expect(screen.queryByTestId('new-leg-accommodation-city')).toBeNull();
@@ -508,7 +507,7 @@ describe('TripDetailScreen — AddressAutocomplete in accommodation section', ()
 describe('TripDetailScreen — delete trip', () => {
   it('renders the Delete Trip button', () => {
     render(<TripDetailScreen />);
-    expect(screen.getByText('Delete Trip')).toBeTruthy();
+    screen.getByText('Delete Trip');
   });
 });
 
@@ -568,7 +567,7 @@ describe('TripDetailScreen — passport validity warning in Edit Destination mod
     fireEvent.press(screen.getByTestId('edit-trip-button'));
     fireEvent.press(screen.getByTestId('edit-leg-leg_1-button'));
 
-    expect(screen.getByTestId('edit-leg-passport-validity-warning')).toBeTruthy();
+    screen.getByTestId('edit-leg-passport-validity-warning');
   });
 
   it('does not show PassportValidityWarning when usePassportValidity returns null (valid passport)', () => {
@@ -605,6 +604,6 @@ describe('TripDetailScreen — passport validity warning in Edit Destination mod
     // Select a country in the add form
     fireEvent.press(screen.getByTestId('new-leg-country-SGP'));
 
-    expect(screen.getByTestId('new-leg-passport-validity-warning')).toBeTruthy();
+    screen.getByTestId('new-leg-passport-validity-warning');
   });
 });

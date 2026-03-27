@@ -93,7 +93,7 @@ describe('keychainValidator', () => {
 
       expect(result.biometricStatus.available).toBe(false);
       const bioError = result.errors.find(e => e.code === 'BIOMETRIC_UNAVAILABLE');
-      expect(bioError).toBeDefined();
+      expect(bioError).not.toBeUndefined();
       expect(bioError!.severity).toBe('high');
     });
 
@@ -110,7 +110,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const enrollWarning = result.warnings.find(w => w.code === 'BIOMETRIC_NOT_ENROLLED');
-      expect(enrollWarning).toBeDefined();
+      expect(enrollWarning).not.toBeUndefined();
     });
 
     it('adds error when biometric validation throws', async () => {
@@ -121,7 +121,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const validationError = result.errors.find(e => e.code === 'BIOMETRIC_VALIDATION_FAILED');
-      expect(validationError).toBeDefined();
+      expect(validationError).not.toBeUndefined();
       expect(validationError!.severity).toBe('medium');
       expect(result.biometricStatus.available).toBe(false);
     });
@@ -136,7 +136,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'KEYCHAIN_UNAVAILABLE');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.severity).toBe('critical');
       expect(err!.affectsAppStore).toBe(true);
     });
@@ -147,7 +147,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'KEYCHAIN_AVAILABILITY_CHECK_FAILED');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.severity).toBe('high');
     });
 
@@ -161,7 +161,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const warn = result.warnings.find(w => w.code === 'ENCRYPTION_KEY_MISSING');
-      expect(warn).toBeDefined();
+      expect(warn).not.toBeUndefined();
     });
 
     it('adds error for short encryption key', async () => {
@@ -170,7 +170,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'WEAK_ENCRYPTION_KEY');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.message).toContain('6 characters');
     });
 
@@ -180,7 +180,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'LOW_ENTROPY_KEY');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.severity).toBe('critical');
     });
 
@@ -191,7 +191,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'LOW_ENTROPY_KEY');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
     });
 
     it('adds error for key starting with "test"', async () => {
@@ -201,7 +201,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'LOW_ENTROPY_KEY');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
     });
 
     it('adds error when encryption key retrieval throws', async () => {
@@ -210,7 +210,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'ENCRYPTION_KEY_VALIDATION_ERROR');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
     });
 
     // -----------------------------------------------------------------------
@@ -223,7 +223,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const warn = result.warnings.find(w => w.code === 'NO_PROFILE_STORED');
-      expect(warn).toBeDefined();
+      expect(warn).not.toBeUndefined();
     });
 
     it('adds error when profile contains test data', async () => {
@@ -236,7 +236,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'TEST_DATA_IN_PRODUCTION');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.severity).toBe('medium');
     });
 
@@ -260,7 +260,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'PROFILE_VALIDATION_ERROR');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
     });
 
     // -----------------------------------------------------------------------
@@ -275,7 +275,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'ACCESSIBILITY_CONFIGURATION_ERROR');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
       expect(err!.severity).toBe('critical');
       expect(result.accessibilityCompliance.correctLevel).toBe(false);
     });
@@ -286,7 +286,7 @@ describe('keychainValidator', () => {
       const result = await keychainValidator.validateKeychainSecurity();
 
       const err = result.errors.find(e => e.code === 'ACCESSIBILITY_TEST_FAILED');
-      expect(err).toBeDefined();
+      expect(err).not.toBeUndefined();
     });
   });
 

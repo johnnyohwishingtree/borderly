@@ -59,7 +59,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByTestId('autofill-pill')).toBeTruthy();
+    getByTestId('autofill-pill');
   });
 
   it('renders with a custom testID', () => {
@@ -73,7 +73,7 @@ describe('AutoFillPill', () => {
         testID="my-pill"
       />,
     );
-    expect(getByTestId('my-pill')).toBeTruthy();
+    getByTestId('my-pill');
   });
 
   it('renders the Auto-fill Now button', () => {
@@ -86,7 +86,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByTestId('autofill-pill-fill-button')).toBeTruthy();
+    getByTestId('autofill-pill-fill-button');
   });
 
   it('renders the dismiss button', () => {
@@ -99,7 +99,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByTestId('autofill-pill-dismiss')).toBeTruthy();
+    getByTestId('autofill-pill-dismiss');
   });
 
   it('calls onAutoFill when Auto-fill Now button is pressed', () => {
@@ -142,7 +142,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByLabelText('Dismiss auto-fill pill')).toBeTruthy();
+    getByLabelText('Dismiss auto-fill pill');
   });
 
   it('shows Auto-fill Now button with correct accessibility label', () => {
@@ -155,7 +155,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByLabelText('Auto-fill form fields now')).toBeTruthy();
+    getByLabelText('Auto-fill form fields now');
   });
 
   // ─── Single profile ──────────────────────────────────────────────────────────
@@ -200,7 +200,7 @@ describe('AutoFillPill', () => {
         onDismiss={jest.fn()}
       />,
     );
-    expect(getByTestId('autofill-pill-profile-selector')).toBeTruthy();
+    getByTestId('autofill-pill-profile-selector');
   });
 
   it('does NOT show single profile label when multiple profiles are provided', () => {

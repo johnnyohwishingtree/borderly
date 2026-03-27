@@ -106,8 +106,8 @@ describe('QRDetailScreen — loading state', () => {
 
     render(<QRDetailScreen />);
 
-    expect(screen.getByTestId('loading-spinner')).toBeTruthy();
-    expect(screen.getByText('Loading QR code...')).toBeTruthy();
+    screen.getByTestId('loading-spinner');
+    screen.getByText('Loading QR code...');
   });
 });
 
@@ -121,8 +121,8 @@ describe('QRDetailScreen — not found state', () => {
   it('shows not-found state when QR code is null', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('QR Code Not Found')).toBeTruthy();
-    expect(screen.getByText('The requested QR code could not be found.')).toBeTruthy();
+    await screen.findByText('QR Code Not Found');
+    screen.getByText('The requested QR code could not be found.');
   });
 
   it('shows Go Back button and pressing it navigates back', async () => {
@@ -164,13 +164,13 @@ describe('QRDetailScreen — QR code display', () => {
   it('renders QR code label as header', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('Japan Entry QR')).toBeTruthy();
+    await screen.findByText('Japan Entry QR');
   });
 
   it('renders tap-for-full-screen hint', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('Tap for full screen view')).toBeTruthy();
+    await screen.findByText('Tap for full screen view');
   });
 
   it('shows "No Image" when imageBase64 is empty', async () => {
@@ -178,7 +178,7 @@ describe('QRDetailScreen — QR code display', () => {
 
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('No Image')).toBeTruthy();
+    await screen.findByText('No Image');
   });
 });
 
@@ -207,15 +207,15 @@ describe('QRDetailScreen — metadata', () => {
   it('shows save date and type labels', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('Saved:')).toBeTruthy();
-    expect(screen.getByText('Type:')).toBeTruthy();
+    await screen.findByText('Saved:');
+    screen.getByText('Type:');
   });
 
   it('shows trip leg association when legId exists', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('Trip Leg:')).toBeTruthy();
-    expect(screen.getByText('Associated')).toBeTruthy();
+    await screen.findByText('Trip Leg:');
+    screen.getByText('Associated');
   });
 });
 
@@ -225,9 +225,9 @@ describe('QRDetailScreen — action buttons', () => {
   it('renders all action buttons', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('View Full Screen')).toBeTruthy();
-    expect(screen.getByText('Share QR Code')).toBeTruthy();
-    expect(screen.getByText('Delete QR Code')).toBeTruthy();
+    await screen.findByText('View Full Screen');
+    screen.getByText('Share QR Code');
+    screen.getByText('Delete QR Code');
   });
 });
 
@@ -279,7 +279,7 @@ describe('QRDetailScreen — full screen view', () => {
     const tapHint = await screen.findByText('Tap for full screen view');
     fireEvent.press(tapHint);
 
-    expect(screen.getByTestId('qr-full-screen')).toBeTruthy();
+    screen.getByTestId('qr-full-screen');
   });
 
   it('opens full screen when pressing View Full Screen button', async () => {
@@ -288,7 +288,7 @@ describe('QRDetailScreen — full screen view', () => {
     const btn = await screen.findByText('View Full Screen');
     fireEvent.press(btn);
 
-    expect(screen.getByTestId('qr-full-screen')).toBeTruthy();
+    screen.getByTestId('qr-full-screen');
   });
 });
 
@@ -298,9 +298,9 @@ describe('QRDetailScreen — usage instructions', () => {
   it('renders usage instructions section', async () => {
     render(<QRDetailScreen />);
 
-    expect(await screen.findByText('How to Use')).toBeTruthy();
-    expect(screen.getByText(/Show this QR code to immigration/)).toBeTruthy();
-    expect(screen.getByText(/Use full-screen view/)).toBeTruthy();
-    expect(screen.getByText(/Keep your phone charged/)).toBeTruthy();
+    await screen.findByText('How to Use');
+    screen.getByText(/Show this QR code to immigration/);
+    screen.getByText(/Use full-screen view/);
+    screen.getByText(/Keep your phone charged/);
   });
 });

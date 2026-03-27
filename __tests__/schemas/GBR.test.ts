@@ -19,7 +19,7 @@ describe('United Kingdom (GBR) Schema', () => {
   });
 
   test('should have implementationStatus set to planned', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('planned');
   });
 
@@ -36,7 +36,7 @@ describe('United Kingdom (GBR) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('30d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('72h');
@@ -44,8 +44,8 @@ describe('United Kingdom (GBR) Schema', () => {
   });
 
   test('changeDetection monitoredSelectors should be non-empty', () => {
-    expect(schema.changeDetection).toBeDefined();
-    expect(schema.changeDetection.monitoredSelectors).toBeDefined();
+    expect(schema.changeDetection).not.toBeUndefined();
+    expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
 
@@ -64,7 +64,7 @@ describe('United Kingdom (GBR) Schema', () => {
 
   test('passport section should have required passport fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -87,7 +87,7 @@ describe('United Kingdom (GBR) Schema', () => {
 
   test('personal section should have required identity fields', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('givenNames');
@@ -111,7 +111,7 @@ describe('United Kingdom (GBR) Schema', () => {
 
   test('travel section should have required travel fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('arrivalDate');
@@ -141,7 +141,7 @@ describe('United Kingdom (GBR) Schema', () => {
 
   test('security section should have country-specific boolean fields', () => {
     const securitySection = schema.sections.find(s => s.id === 'security');
-    expect(securitySection).toBeDefined();
+    expect(securitySection).not.toBeUndefined();
 
     const fieldIds = securitySection!.fields.map(f => f.id);
     expect(fieldIds).toContain('criminalRecord');
@@ -157,12 +157,12 @@ describe('United Kingdom (GBR) Schema', () => {
   });
 
   test('portalFlow should require an account', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(true);
   });
 
   test('should have a complete submission guide', () => {
-    expect(schema.submissionGuide).toBeDefined();
+    expect(schema.submissionGuide).not.toBeUndefined();
     expect(schema.submissionGuide.length).toBeGreaterThan(0);
 
     const stepTitles = schema.submissionGuide.map(s => s.title);
@@ -228,7 +228,7 @@ describe('United Kingdom (GBR) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('GBR');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('GBR');
   });
 });

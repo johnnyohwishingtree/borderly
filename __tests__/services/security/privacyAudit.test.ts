@@ -64,7 +64,8 @@ describe('privacyAuditService', () => {
       expect(Array.isArray(result.violations)).toBe(true);
       expect(Array.isArray(result.recommendations)).toBe(true);
       expect(Array.isArray(result.dataInventory)).toBe(true);
-      expect(result.biometricStatus).toBeDefined();
+      expect(typeof result.biometricStatus).toBe('object');
+      expect(result.biometricStatus).not.toBeNull();
     });
 
     it('returns biometric status showing available and configured', async () => {
@@ -81,7 +82,7 @@ describe('privacyAuditService', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
 
       const bioViolation = result.violations.find(v => v.type === 'missing_biometric');
-      expect(bioViolation).toBeDefined();
+      expect(bioViolation).not.toBeUndefined();
       expect(bioViolation!.severity).toBe('high');
     });
 
@@ -103,7 +104,7 @@ describe('privacyAuditService', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
 
       const passportItem = result.dataInventory.find(d => d.category === 'passport');
-      expect(passportItem).toBeDefined();
+      expect(passportItem).not.toBeUndefined();
       expect(passportItem!.location).toBe('keychain');
       expect(passportItem!.encryption).toBe('biometric');
       expect(passportItem!.sensitivity).toBe('pii');
@@ -115,7 +116,7 @@ describe('privacyAuditService', () => {
       const keyItem = result.dataInventory.find(
         d => d.dataTypes.includes('database_encryption_key'),
       );
-      expect(keyItem).toBeDefined();
+      expect(keyItem).not.toBeUndefined();
       expect(keyItem!.location).toBe('keychain');
     });
 
@@ -125,7 +126,7 @@ describe('privacyAuditService', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
 
       const tripItem = result.dataInventory.find(d => d.category === 'trip');
-      expect(tripItem).toBeDefined();
+      expect(tripItem).not.toBeUndefined();
       expect(tripItem!.location).toBe('database');
     });
 
@@ -135,7 +136,7 @@ describe('privacyAuditService', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
 
       const qrItem = result.dataInventory.find(d => d.category === 'qr');
-      expect(qrItem).toBeDefined();
+      expect(qrItem).not.toBeUndefined();
     });
 
     it('inventories MMKV preferences', async () => {
@@ -144,7 +145,7 @@ describe('privacyAuditService', () => {
       const prefsItem = result.dataInventory.find(
         d => d.category === 'preferences' && d.location === 'mmkv',
       );
-      expect(prefsItem).toBeDefined();
+      expect(prefsItem).not.toBeUndefined();
       expect(prefsItem!.encryption).toBe('none');
       expect(prefsItem!.sensitivity).toBe('public');
     });
@@ -164,7 +165,7 @@ describe('privacyAuditService', () => {
       const testDataViolation = result.violations.find(
         v => v.type === 'data_leak' && v.description.includes('Test'),
       );
-      expect(testDataViolation).toBeDefined();
+      expect(testDataViolation).not.toBeUndefined();
     });
 
     it('adds violation for weak encryption key', async () => {
@@ -173,7 +174,7 @@ describe('privacyAuditService', () => {
       const result = await privacyAuditService.runComprehensiveAudit();
 
       const weakKeyViolation = result.violations.find(v => v.type === 'weak_encryption');
-      expect(weakKeyViolation).toBeDefined();
+      expect(weakKeyViolation).not.toBeUndefined();
       expect(weakKeyViolation!.severity).toBe('high');
     });
 
@@ -185,7 +186,7 @@ describe('privacyAuditService', () => {
       const storageViolation = result.violations.find(
         v => v.type === 'insecure_storage' && v.location === 'keychain:profile',
       );
-      expect(storageViolation).toBeDefined();
+      expect(storageViolation).not.toBeUndefined();
     });
 
     it('adds violation when encryption key is inaccessible', async () => {
@@ -196,7 +197,7 @@ describe('privacyAuditService', () => {
       const keyViolation = result.violations.find(
         v => v.type === 'insecure_storage' && v.location === 'keychain:encryption_key',
       );
-      expect(keyViolation).toBeDefined();
+      expect(keyViolation).not.toBeUndefined();
     });
 
     it('adds violation when database is inaccessible', async () => {
@@ -207,7 +208,7 @@ describe('privacyAuditService', () => {
       const dbViolation = result.violations.find(
         v => v.type === 'insecure_storage' && v.location === 'watermelondb',
       );
-      expect(dbViolation).toBeDefined();
+      expect(dbViolation).not.toBeUndefined();
     });
 
     // -----------------------------------------------------------------------
@@ -274,7 +275,7 @@ describe('privacyAuditService', () => {
       const secReviewRec = result.recommendations.find(
         r => r.title.includes('Security Review'),
       );
-      expect(secReviewRec).toBeDefined();
+      expect(secReviewRec).not.toBeUndefined();
       expect(secReviewRec!.priority).toBe('critical');
     });
   });

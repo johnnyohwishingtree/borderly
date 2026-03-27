@@ -11,8 +11,8 @@ describe('GuideProgress', () => {
   it('renders correctly with basic props', () => {
     const { getByText } = render(<GuideProgress {...defaultProps} />);
 
-    expect(getByText('Step 3 of 5')).toBeTruthy();
-    expect(getByText('40% Complete')).toBeTruthy();
+    getByText('Step 3 of 5');
+    getByText('40% Complete');
   });
 
   it('displays step titles when provided', () => {
@@ -47,7 +47,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('Current Step:')).toBeTruthy();
+    getByText('Current Step:');
     // Use getAllByText since "Current Title" appears in both step label and current step info
     expect(getAllByText('Current Title').length).toBeGreaterThan(0);
   });
@@ -61,7 +61,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('40% Complete')).toBeTruthy();
+    getByText('40% Complete');
   });
 
   it('handles 100% completion', () => {
@@ -73,7 +73,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('100% Complete')).toBeTruthy();
+    getByText('100% Complete');
   });
 
   it('handles 0% completion', () => {
@@ -85,7 +85,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('0% Complete')).toBeTruthy();
+    getByText('0% Complete');
   });
 
   it('renders in vertical variant', () => {
@@ -97,7 +97,7 @@ describe('GuideProgress', () => {
     );
 
     // Should still show the same text content
-    expect(getByText('Step 3 of 5')).toBeTruthy();
+    getByText('Step 3 of 5');
   });
 
   it('hides labels when showLabels is false', () => {
@@ -128,7 +128,7 @@ describe('GuideProgress', () => {
         />
       );
 
-      expect(getByText('Step 3 of 5')).toBeTruthy();
+      getByText('Step 3 of 5');
     });
   });
 
@@ -141,7 +141,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('Step 0 of 0')).toBeTruthy();
+    getByText('Step 0 of 0');
   });
 
   it('handles edge case with invalid current step', () => {
@@ -153,7 +153,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('Step 10 of 5')).toBeTruthy();
+    getByText('Step 10 of 5');
   });
 
   it('handles edge case with duplicate completed steps', () => {
@@ -166,7 +166,7 @@ describe('GuideProgress', () => {
     );
 
     // Should still calculate percentage based on unique completed steps
-    expect(getByText('40% Complete')).toBeTruthy();
+    getByText('40% Complete');
   });
 
   it('does not show current step info when no step titles provided', () => {
@@ -186,7 +186,7 @@ describe('GuideProgress', () => {
       />
     );
 
-    expect(getByText('Step 1 of 1')).toBeTruthy();
-    expect(getByText('0% Complete')).toBeTruthy();
+    getByText('Step 1 of 1');
+    getByText('0% Complete');
   });
 });

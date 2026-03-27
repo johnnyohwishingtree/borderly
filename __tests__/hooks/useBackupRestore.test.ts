@@ -128,7 +128,8 @@ describe('useBackupRestore', () => {
       });
 
       expect(result.current.step).toBe('error');
-      expect(result.current.errorMessage).toBeDefined();
+      expect(typeof result.current.errorMessage).toBe('string');
+      expect(result.current.errorMessage!.length).toBeGreaterThan(0);
     });
   });
 });

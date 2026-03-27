@@ -44,14 +44,14 @@ describe('AutoFilledBadge accessibility', () => {
     const { getByLabelText } = render(
       <AutoFilledBadge source="auto" />
     );
-    expect(getByLabelText('Auto-filled from your passport profile')).toBeTruthy();
+    getByLabelText('Auto-filled from your passport profile');
   });
 
   it('has accessibilityLabel explaining user entry for user source', () => {
     const { getByLabelText } = render(
       <AutoFilledBadge source="user" />
     );
-    expect(getByLabelText('Filled from your previous entries')).toBeTruthy();
+    getByLabelText('Filled from your previous entries');
   });
 
   it('returns null for empty source (not accessible, not rendered)', () => {
@@ -91,7 +91,7 @@ describe('FormField error live region', () => {
     const politeError = allErrors.find(
       el => el.props.accessibilityLiveRegion === 'polite'
     );
-    expect(politeError).toBeTruthy();
+    expect(politeError).not.toBeUndefined();
   });
 
   it('error message has accessibilityRole text', () => {
@@ -271,7 +271,7 @@ describe('FormField required field accessibility', () => {
     const togglePressable = allElements.find(
       el => el.props.accessibilityRole === 'switch'
     );
-    expect(togglePressable).toBeTruthy();
+    expect(togglePressable).not.toBeUndefined();
     // Toggle internally computes: "${accessibilityLabel}, ${currentStateLabel}"
     // → "Goods to Declare, required, Off"
     expect(togglePressable?.props.accessibilityLabel).toContain('Goods to Declare');
@@ -298,7 +298,7 @@ describe('FormField required field accessibility', () => {
     const togglePressable = allElements.find(
       el => el.props.accessibilityRole === 'switch'
     );
-    expect(togglePressable).toBeTruthy();
+    expect(togglePressable).not.toBeUndefined();
     expect(togglePressable?.props.accessibilityLabel).toContain('Optional Setting');
     expect(togglePressable?.props.accessibilityLabel).not.toContain('required');
   });

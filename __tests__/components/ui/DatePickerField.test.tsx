@@ -24,14 +24,14 @@ describe('DatePickerField', () => {
       const { getByText } = render(
         <DatePickerField label="Expiry" onChange={mockOnChange} required />
       );
-      expect(getByText(' *')).toBeTruthy();
+      getByText(' *');
     });
 
     it('renders placeholder when no value set', () => {
       const { getByText } = render(
         <DatePickerField placeholder="Select a date" onChange={mockOnChange} />
       );
-      expect(getByText('Select a date')).toBeTruthy();
+      getByText('Select a date');
     });
 
     it('renders formatted date when value is set', () => {
@@ -39,21 +39,21 @@ describe('DatePickerField', () => {
         <DatePickerField value="1990-01-15" onChange={mockOnChange} />
       );
       // Friendly format: "Jan 15, 1990" (day is not zero-padded)
-      expect(getByText('Jan 15, 1990')).toBeTruthy();
+      getByText('Jan 15, 1990');
     });
 
     it('renders error message when error prop is provided', () => {
       const { getByText } = render(
         <DatePickerField error="This field is required" onChange={mockOnChange} />
       );
-      expect(getByText('This field is required')).toBeTruthy();
+      getByText('This field is required');
     });
 
     it('renders with testID', () => {
       const { getByTestId } = render(
         <DatePickerField testID="my-date-picker" onChange={mockOnChange} />
       );
-      expect(getByTestId('my-date-picker')).toBeTruthy();
+      getByTestId('my-date-picker');
     });
   });
 
@@ -63,28 +63,28 @@ describe('DatePickerField', () => {
         <DatePickerField value="2024-01-05" onChange={mockOnChange} />
       );
       // Day is not zero-padded in the friendly display format
-      expect(getByText('Jan 5, 2024')).toBeTruthy();
+      getByText('Jan 5, 2024');
     });
 
     it('formats December date correctly', () => {
       const { getByText } = render(
         <DatePickerField value="2000-12-31" onChange={mockOnChange} />
       );
-      expect(getByText('Dec 31, 2000')).toBeTruthy();
+      getByText('Dec 31, 2000');
     });
 
     it('shows placeholder for empty value', () => {
       const { getByText } = render(
         <DatePickerField value="" placeholder="Pick a date" onChange={mockOnChange} />
       );
-      expect(getByText('Pick a date')).toBeTruthy();
+      getByText('Pick a date');
     });
 
     it('shows placeholder for invalid value', () => {
       const { getByText } = render(
         <DatePickerField value="not-a-date" placeholder="Invalid date" onChange={mockOnChange} />
       );
-      expect(getByText('Invalid date')).toBeTruthy();
+      getByText('Invalid date');
     });
   });
 
@@ -96,7 +96,7 @@ describe('DatePickerField', () => {
       const trigger = getByTestId('date-picker');
       fireEvent.press(trigger);
       // Modal content (Done button) should be visible
-      expect(getByText('Done')).toBeTruthy();
+      getByText('Done');
     });
 
     it('shows Clear and Done buttons when modal is open', () => {
@@ -104,8 +104,8 @@ describe('DatePickerField', () => {
         <DatePickerField testID="date-picker" onChange={mockOnChange} />
       );
       fireEvent.press(getByTestId('date-picker'));
-      expect(getByText('Clear')).toBeTruthy();
-      expect(getByText('Done')).toBeTruthy();
+      getByText('Clear');
+      getByText('Done');
     });
 
     it('calls onChange with empty string when Clear is pressed', () => {

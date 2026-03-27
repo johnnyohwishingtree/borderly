@@ -46,7 +46,8 @@ describe('BugReporter', () => {
       const result = await bugReporter.submitBugReport(bugReportData, testDiagnosticContext);
 
       expect(result.success).toBe(true);
-      expect(result.reportId).toBeDefined();
+      expect(typeof result.reportId).toBe('string');
+      expect(result.reportId!.length).toBeGreaterThan(0);
       expect(mmkvService.setString).toHaveBeenCalled();
     });
 
@@ -78,7 +79,8 @@ describe('BugReporter', () => {
       const storedData = JSON.parse(setStringCalls[0][1]);
       const lastReport = storedData[storedData.length - 1];
       
-      expect(lastReport.diagnostics).toBeDefined();
+      expect(typeof lastReport.diagnostics).toBe('object');
+      expect(lastReport.diagnostics).not.toBeNull();
       expect(lastReport.diagnostics.platform).toBe('ios');
       expect(lastReport.diagnostics.deviceInfo.hasProfile).toBe(true);
       expect(lastReport.diagnostics.deviceInfo.tripsCount).toBe(2);

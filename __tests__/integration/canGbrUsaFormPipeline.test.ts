@@ -275,7 +275,8 @@ describe('FormEngine — Canada (CAN) Integration', () => {
 
       const validation = validateField(schemaField, '2020-01-15');
       expect(validation.isValid).toBe(false);
-      expect(validation.error).toBeTruthy();
+      expect(typeof validation.error).toBe('string');
+      expect(validation.error!.length).toBeGreaterThan(0);
     });
 
     it('should have correct total field count matching the schema definition', () => {
@@ -354,7 +355,7 @@ describe('FormEngine — United Kingdom (GBR) Integration', () => {
     it('should auto-fill trip leg fields (arrivalDate and UK accommodation address)', () => {
       const result = generateFilledForm(mockProfile, mockGbrLeg, gbrSchema);
       const travel = result.sections.find(s => s.id === 'travel');
-      expect(travel).toBeDefined();
+      expect(travel).not.toBeUndefined();
       const fieldMap = Object.fromEntries(travel!.fields.map(f => [f.id, f]));
 
       // arrivalDate → leg.arrivalDate
@@ -413,7 +414,8 @@ describe('FormEngine — United Kingdom (GBR) Integration', () => {
 
       const validation = validateField(schemaField, '2020-01-15');
       expect(validation.isValid).toBe(false);
-      expect(validation.error).toBeTruthy();
+      expect(typeof validation.error).toBe('string');
+      expect(validation.error!.length).toBeGreaterThan(0);
     });
 
     it('should have correct total field count matching the schema definition', () => {
@@ -487,7 +489,7 @@ describe('FormEngine — United States (USA) Integration', () => {
     it('should auto-fill US accommodation address from the trip leg', () => {
       const result = generateFilledForm(mockProfile, mockUsaLeg, usaSchema);
       const travel = result.sections.find(s => s.id === 'travel');
-      expect(travel).toBeDefined();
+      expect(travel).not.toBeUndefined();
       const fieldMap = Object.fromEntries(travel!.fields.map(f => [f.id, f]));
 
       // addressInUS → formatted from leg.accommodation.address

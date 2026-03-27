@@ -96,43 +96,42 @@ describe('ConfirmProfileScreen — profile fields', () => {
   it('renders "Confirm Your Profile" title', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Confirm Your Profile')).toBeTruthy();
+    screen.getByText('Confirm Your Profile');
   });
 
   it('renders passport number', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-passport-number')).toBeTruthy();
-    expect(screen.getByText('L12345678')).toBeTruthy();
+    screen.getByTestId('profile-field-passport-number');
+    screen.getByText('L12345678');
   });
 
   it('renders full name (givenNames + surname)', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-full-name')).toBeTruthy();
-    expect(screen.getByText('JOHN SMITH')).toBeTruthy();
+    screen.getByTestId('profile-field-full-name');
+    screen.getByText('JOHN SMITH');
   });
 
   it('renders nationality', () => {
     render(<ConfirmProfileScreen />);
 
     const nationalityField = screen.getByTestId('profile-field-nationality');
-    expect(nationalityField).toBeTruthy();
     expect(nationalityField.children).toContain('USA');
   });
 
   it('renders date of birth', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-date-of-birth')).toBeTruthy();
-    expect(screen.getByText('1990-01-15')).toBeTruthy();
+    screen.getByTestId('profile-field-date-of-birth');
+    screen.getByText('1990-01-15');
   });
 
   it('renders gender as "Male" for gender "M"', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-gender')).toBeTruthy();
-    expect(screen.getByText('Male')).toBeTruthy();
+    screen.getByTestId('profile-field-gender');
+    screen.getByText('Male');
   });
 
   it('renders gender as "Female" for gender "F"', () => {
@@ -143,7 +142,7 @@ describe('ConfirmProfileScreen — profile fields', () => {
 
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Female')).toBeTruthy();
+    screen.getByText('Female');
   });
 
   it('renders gender as "Other" for non-M/F gender', () => {
@@ -154,26 +153,26 @@ describe('ConfirmProfileScreen — profile fields', () => {
 
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Other')).toBeTruthy();
+    screen.getByText('Other');
   });
 
   it('renders passport expiry', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-passport-expiry')).toBeTruthy();
-    expect(screen.getByText('2030-06-20')).toBeTruthy();
+    screen.getByTestId('profile-field-passport-expiry');
+    screen.getByText('2030-06-20');
   });
 
   it('renders issuing country', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('profile-field-issuing-country')).toBeTruthy();
+    screen.getByTestId('profile-field-issuing-country');
   });
 
   it('renders progress bar', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('progress-bar')).toBeTruthy();
+    screen.getByTestId('progress-bar');
   });
 });
 
@@ -183,21 +182,21 @@ describe('ConfirmProfileScreen — security notice', () => {
   it('renders "Security Notice" heading', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Security Notice')).toBeTruthy();
+    screen.getByText('Security Notice');
   });
 
   it('renders security description about local keychain storage', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText(/stored securely on your device/)).toBeTruthy();
+    screen.getByText(/stored securely on your device/);
   });
 
   it('renders security badges (Encrypted, Local Storage, No Server)', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Encrypted')).toBeTruthy();
-    expect(screen.getByText('Local Storage')).toBeTruthy();
-    expect(screen.getByText('No Server')).toBeTruthy();
+    screen.getByText('Encrypted');
+    screen.getByText('Local Storage');
+    screen.getByText('No Server');
   });
 });
 
@@ -207,7 +206,7 @@ describe('ConfirmProfileScreen — navigation', () => {
   it('renders "Continue" button', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('continue-to-security-button')).toBeTruthy();
+    screen.getByTestId('continue-to-security-button');
   });
 
   it('pressing "Continue" navigates to AddCompanions', () => {
@@ -221,7 +220,7 @@ describe('ConfirmProfileScreen — navigation', () => {
   it('renders "Edit Information" button', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('edit-information-button')).toBeTruthy();
+    screen.getByTestId('edit-information-button');
   });
 
   it('pressing "Edit Information" calls goBack', () => {
@@ -241,8 +240,8 @@ describe('ConfirmProfileScreen — loading state', () => {
 
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('Loading profile...')).toBeTruthy();
-    expect(screen.getByText('Retrieving your secure data')).toBeTruthy();
+    screen.getByText('Loading profile...');
+    screen.getByText('Retrieving your secure data');
   });
 
   it('does not render profile fields when loading', () => {
@@ -264,19 +263,19 @@ describe('ConfirmProfileScreen — no profile', () => {
   it('shows "No Profile Found" when profile is null', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText('No Profile Found')).toBeTruthy();
+    screen.getByText('No Profile Found');
   });
 
   it('shows explanation text', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByText(/couldn't find your profile data/)).toBeTruthy();
+    screen.getByText(/couldn't find your profile data/);
   });
 
   it('renders "Go Back" button', () => {
     render(<ConfirmProfileScreen />);
 
-    expect(screen.getByTestId('confirm-go-back-button')).toBeTruthy();
+    screen.getByTestId('confirm-go-back-button');
   });
 
   it('pressing "Go Back" calls goBack', () => {

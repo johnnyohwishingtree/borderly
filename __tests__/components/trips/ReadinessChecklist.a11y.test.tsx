@@ -252,7 +252,7 @@ describe('ReadinessChecklist — Fix link a11y', () => {
       />,
     );
     // Should have a label like "Fix Japan form incomplete"
-    expect(screen.getByLabelText('Fix Japan form incomplete')).toBeTruthy();
+    screen.getByLabelText('Fix Japan form incomplete');
   });
 
   it('Fix button has an accessibilityHint', () => {
@@ -264,7 +264,8 @@ describe('ReadinessChecklist — Fix link a11y', () => {
       />,
     );
     const fixButton = screen.getByLabelText('Fix Japan form incomplete');
-    expect(fixButton.props.accessibilityHint).toBeTruthy();
+    expect(typeof fixButton.props.accessibilityHint).toBe('string');
+    expect(fixButton.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 });
 

@@ -270,7 +270,7 @@ describe('createLoadingSlice', () => {
       const functionalCall = set.mock.calls.find(
         (call: any) => typeof call[0] === 'function'
       );
-      expect(functionalCall).toBeTruthy();
+      expect(functionalCall).not.toBeUndefined();
       const result = functionalCall![0]({
         trips: [existingTrip],
         currentPage: 1,

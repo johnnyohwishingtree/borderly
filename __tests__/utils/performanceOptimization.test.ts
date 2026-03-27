@@ -231,9 +231,9 @@ describe('PerformanceOptimization', () => {
     it('should capture before and after metrics', async () => {
       const result = await performanceOptimization.executeStrategy('form-caching');
       
-      expect(result.metricsImpact.before).toBeDefined();
-      expect(result.metricsImpact.after).toBeDefined();
-      expect(result.metricsImpact.improvement).toBeDefined();
+      expect(result.metricsImpact.before).not.toBeUndefined();
+      expect(result.metricsImpact.after).not.toBeUndefined();
+      expect(result.metricsImpact.improvement).not.toBeUndefined();
       
       // Should capture relevant metrics
       const strategy = result.strategyId;

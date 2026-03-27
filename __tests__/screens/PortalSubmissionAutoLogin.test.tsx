@@ -248,7 +248,7 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       simulatePageTypeCheck({ isAuth: true });
       await flushPromises();
 
-      expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+      expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
       expect(queryByTestId('auth-page-banner')).toBeNull();
       expect(queryByTestId('auto-login-failed-banner')).toBeNull();
     });
@@ -278,7 +278,7 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       simulatePageTypeCheck({ isAuth: true });
       await flushPromises();
 
-      expect(queryByTestId('auth-page-banner')).toBeTruthy();
+      expect(queryByTestId('auth-page-banner')).not.toBeNull();
       expect(queryByTestId('auto-login-progress-banner')).toBeNull();
       expect(queryByTestId('auto-login-failed-banner')).toBeNull();
     });
@@ -308,11 +308,11 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       simulatePageTypeCheck({ isAuth: true });
       await flushPromises();
       // State: auto-login-in-progress
-      expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+      expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
 
       simulateAutoLoginResult(false, 'Login fields not found');
       // State: manual-login-required (via failed banner)
-      expect(queryByTestId('auto-login-failed-banner')).toBeTruthy();
+      expect(queryByTestId('auto-login-failed-banner')).not.toBeNull();
       expect(queryByTestId('auto-login-progress-banner')).toBeNull();
     });
 
@@ -344,12 +344,12 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       // Step 1: auth page → auto-login starts
       simulatePageTypeCheck({ isAuth: true });
       await flushPromises();
-      expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+      expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
 
       // Step 2: login script succeeds (credential submitted, page redirect pending)
       simulateAutoLoginResult(true);
       // Still shows progress banner while waiting for redirect
-      expect(queryByTestId('auto-login-progress-banner')).toBeTruthy();
+      expect(queryByTestId('auto-login-progress-banner')).not.toBeNull();
 
       // Step 3: portal redirects to form page
       simulatePageTypeCheck({ formFieldCount: 5 });
@@ -379,7 +379,7 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       await flushPromises();
 
       // AutoFillPill should be present in auto-fill-available state
-      expect(queryByTestId('autofill-pill')).toBeTruthy();
+      expect(queryByTestId('autofill-pill')).not.toBeNull();
     });
   });
 
@@ -457,7 +457,7 @@ describe('PortalSubmissionScreen — state machine transitions', () => {
       simulatePageTypeCheck({ formFieldCount: 3 });
       await flushPromises();
 
-      expect(queryByTestId('save-credentials-prompt')).toBeTruthy();
+      expect(queryByTestId('save-credentials-prompt')).not.toBeNull();
     });
 
     it('does NOT show save-credentials-prompt when auto-login handled the session', async () => {

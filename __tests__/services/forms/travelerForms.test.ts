@@ -74,7 +74,7 @@ describe('updateTravelerFormData', () => {
     const leg = makeLeg();
     const updated = updateTravelerFormData('t1', leg, 'surname', 'Tanaka');
     const travelerData = updated.travelerFormsData?.find(t => t.travelerId === 't1');
-    expect(travelerData).toBeTruthy();
+    expect(travelerData).not.toBeUndefined();
     expect(travelerData?.formData.surname).toBe('Tanaka');
     expect(travelerData?.formStatus).toBe('in_progress');
   });

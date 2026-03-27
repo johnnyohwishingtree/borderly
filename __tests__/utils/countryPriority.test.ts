@@ -106,7 +106,8 @@ describe('countryPriorityManager', () => {
       const impl = countryPriorityManager.getCountriesByStatus('implemented');
       impl.forEach(p => {
         // Must be in supported codes from the constants module
-        expect(p.countryCode).toBeTruthy();
+        expect(typeof p.countryCode).toBe('string');
+        expect(p.countryCode.length).toBe(3);
       });
     });
   });
@@ -166,8 +167,9 @@ describe('countryPriorityManager', () => {
     it('each recommendation has country, reason, and estimatedEffort', () => {
       const recs = countryPriorityManager.getImplementationRecommendations(2);
       recs.forEach(r => {
-        expect(r.country).toBeDefined();
-        expect(r.reason).toBeTruthy();
+        expect(r.country).not.toBeUndefined();
+        expect(typeof r.reason).toBe('string');
+        expect(r.reason.length).toBeGreaterThan(0);
         expect(['low', 'medium', 'high']).toContain(r.estimatedEffort);
       });
     });

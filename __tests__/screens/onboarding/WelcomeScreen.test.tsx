@@ -98,19 +98,19 @@ describe('WelcomeScreen — hero section', () => {
   it('renders "Welcome to" header text', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Welcome to')).toBeTruthy();
+    screen.getByText('Welcome to');
   });
 
   it('renders "Borderly" header text', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Borderly')).toBeTruthy();
+    screen.getByText('Borderly');
   });
 
   it('renders subtitle text', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText(/Fill once, travel everywhere/)).toBeTruthy();
+    screen.getByText(/Fill once, travel everywhere/);
   });
 });
 
@@ -120,7 +120,7 @@ describe('WelcomeScreen — progress bar', () => {
   it('renders progress bar at step 1 of 4', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByLabelText(/Step 1 of 4/)).toBeTruthy();
+    screen.getByLabelText(/Step 1 of 4/);
   });
 });
 
@@ -130,28 +130,28 @@ describe('WelcomeScreen — feature cards', () => {
   it('renders "Fill Once, Travel Everywhere" feature heading', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Fill Once, Travel Everywhere')).toBeTruthy();
+    screen.getByText('Fill Once, Travel Everywhere');
   });
 
   it('renders "Private & Secure" feature', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Private & Secure')).toBeTruthy();
-    expect(screen.getByText('Data stays on your device')).toBeTruthy();
+    screen.getByText('Private & Secure');
+    screen.getByText('Data stays on your device');
   });
 
   it('renders "Works Offline" feature', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Works Offline')).toBeTruthy();
-    expect(screen.getByText('No internet required')).toBeTruthy();
+    screen.getByText('Works Offline');
+    screen.getByText('No internet required');
   });
 
   it('renders "Lightning Fast" feature', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Lightning Fast')).toBeTruthy();
-    expect(screen.getByText('Fill forms in seconds')).toBeTruthy();
+    screen.getByText('Lightning Fast');
+    screen.getByText('Fill forms in seconds');
   });
 });
 
@@ -161,45 +161,45 @@ describe('WelcomeScreen — supported countries', () => {
   it('renders "Supported Countries" heading', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Supported Countries')).toBeTruthy();
+    screen.getByText('Supported Countries');
   });
 
   it('renders country flag for each supported country', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('country-flag-JPN')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-MYS')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-SGP')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-THA')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-VNM')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-GBR')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-USA')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-CAN')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-AUS')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-NZL')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-KOR')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-IND')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-IDN')).toBeTruthy();
-    expect(screen.getByTestId('country-flag-PHL')).toBeTruthy();
+    screen.getByTestId('country-flag-JPN');
+    screen.getByTestId('country-flag-MYS');
+    screen.getByTestId('country-flag-SGP');
+    screen.getByTestId('country-flag-THA');
+    screen.getByTestId('country-flag-VNM');
+    screen.getByTestId('country-flag-GBR');
+    screen.getByTestId('country-flag-USA');
+    screen.getByTestId('country-flag-CAN');
+    screen.getByTestId('country-flag-AUS');
+    screen.getByTestId('country-flag-NZL');
+    screen.getByTestId('country-flag-KOR');
+    screen.getByTestId('country-flag-IND');
+    screen.getByTestId('country-flag-IDN');
+    screen.getByTestId('country-flag-PHL');
   });
 
   it('renders country names for all supported countries', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Japan')).toBeTruthy();
-    expect(screen.getByText('Malaysia')).toBeTruthy();
-    expect(screen.getByText('Singapore')).toBeTruthy();
-    expect(screen.getByText('Thailand')).toBeTruthy();
-    expect(screen.getByText('Vietnam')).toBeTruthy();
-    expect(screen.getByText('UK')).toBeTruthy();
-    expect(screen.getByText('USA')).toBeTruthy();
-    expect(screen.getByText('Canada')).toBeTruthy();
-    expect(screen.getByText('Australia')).toBeTruthy();
-    expect(screen.getByText('New Zealand')).toBeTruthy();
-    expect(screen.getByText('South Korea')).toBeTruthy();
-    expect(screen.getByText('India')).toBeTruthy();
-    expect(screen.getByText('Indonesia')).toBeTruthy();
-    expect(screen.getByText('Philippines')).toBeTruthy();
+    screen.getByText('Japan');
+    screen.getByText('Malaysia');
+    screen.getByText('Singapore');
+    screen.getByText('Thailand');
+    screen.getByText('Vietnam');
+    screen.getByText('UK');
+    screen.getByText('USA');
+    screen.getByText('Canada');
+    screen.getByText('Australia');
+    screen.getByText('New Zealand');
+    screen.getByText('South Korea');
+    screen.getByText('India');
+    screen.getByText('Indonesia');
+    screen.getByText('Philippines');
   });
 });
 
@@ -209,13 +209,13 @@ describe('WelcomeScreen — privacy notice', () => {
   it('renders "Privacy First" heading', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText('Privacy First')).toBeTruthy();
+    screen.getByText('Privacy First');
   });
 
   it('renders privacy description about encrypted keychain storage', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByText(/encrypted and stored only in your device/)).toBeTruthy();
+    screen.getByText(/encrypted and stored only in your device/);
   });
 });
 
@@ -225,7 +225,7 @@ describe('WelcomeScreen — navigation', () => {
   it('renders "Take Quick Tutorial" button', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('take-tutorial-button')).toBeTruthy();
+    screen.getByTestId('take-tutorial-button');
   });
 
   it('pressing "Take Quick Tutorial" navigates to Tutorial screen', () => {
@@ -239,7 +239,7 @@ describe('WelcomeScreen — navigation', () => {
   it('renders "Skip Tutorial" button', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('skip-tutorial-button')).toBeTruthy();
+    screen.getByTestId('skip-tutorial-button');
   });
 
   it('pressing "Skip Tutorial" navigates to PassportScan screen', () => {
@@ -253,7 +253,7 @@ describe('WelcomeScreen — navigation', () => {
   it('renders "Restore from backup" link', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('restore-backup-link-button')).toBeTruthy();
+    screen.getByTestId('restore-backup-link-button');
   });
 
   it('pressing "Restore from backup" navigates to RestoreBackup screen', () => {

@@ -159,8 +159,8 @@ beforeEach(() => {
 describe('BugReportScreen — header', () => {
   it('renders title and subtitle', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Report a Bug')).toBeTruthy();
-    expect(screen.getByText('Help us fix issues and improve the app')).toBeTruthy();
+    screen.getByText('Report a Bug');
+    screen.getByText('Help us fix issues and improve the app');
   });
 });
 
@@ -169,13 +169,13 @@ describe('BugReportScreen — header', () => {
 describe('BugReportScreen — severity', () => {
   it('renders severity section', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Bug Severity')).toBeTruthy();
-    expect(screen.getByText('How severe is this issue?')).toBeTruthy();
+    screen.getByText('Bug Severity');
+    screen.getByText('How severe is this issue?');
   });
 
   it('renders severity badge with current value', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText(/Medium/)).toBeTruthy();
+    screen.getByText(/Medium/);
   });
 });
 
@@ -184,8 +184,8 @@ describe('BugReportScreen — severity', () => {
 describe('BugReportScreen — category', () => {
   it('renders category section', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Bug Category')).toBeTruthy();
-    expect(screen.getByText('Which area of the app is affected?')).toBeTruthy();
+    screen.getByText('Bug Category');
+    screen.getByText('Which area of the app is affected?');
   });
 });
 
@@ -194,13 +194,13 @@ describe('BugReportScreen — category', () => {
 describe('BugReportScreen — title input', () => {
   it('renders title input with placeholder', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Bug Title')).toBeTruthy();
-    expect(screen.getByPlaceholderText(/Brief description of the bug/)).toBeTruthy();
+    screen.getByText('Bug Title');
+    screen.getByPlaceholderText(/Brief description of the bug/);
   });
 
   it('shows character count', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('0/100 characters')).toBeTruthy();
+    screen.getByText('0/100 characters');
   });
 
   it('calls setTitle when text is entered', () => {
@@ -215,13 +215,13 @@ describe('BugReportScreen — title input', () => {
 describe('BugReportScreen — description', () => {
   it('renders description input with placeholder', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Bug Description')).toBeTruthy();
-    expect(screen.getByPlaceholderText(/Describe what happened/)).toBeTruthy();
+    screen.getByText('Bug Description');
+    screen.getByPlaceholderText(/Describe what happened/);
   });
 
   it('shows character count', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('0/1000 characters')).toBeTruthy();
+    screen.getByText('0/1000 characters');
   });
 });
 
@@ -230,7 +230,7 @@ describe('BugReportScreen — description', () => {
 describe('BugReportScreen — steps to reproduce', () => {
   it('renders steps input with label', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Steps to Reproduce (Optional)')).toBeTruthy();
+    screen.getByText('Steps to Reproduce (Optional)');
   });
 
   it('calls setStepsToReproduce when text is entered', () => {
@@ -245,8 +245,8 @@ describe('BugReportScreen — steps to reproduce', () => {
 describe('BugReportScreen — diagnostics toggle', () => {
   it('renders diagnostic toggle', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Include Diagnostic Info')).toBeTruthy();
-    expect(screen.getByTestId('diagnostics-toggle')).toBeTruthy();
+    screen.getByText('Include Diagnostic Info');
+    screen.getByTestId('diagnostics-toggle');
   });
 
   it('calls setIncludeDiagnostics when toggled', () => {
@@ -258,9 +258,9 @@ describe('BugReportScreen — diagnostics toggle', () => {
   it('shows diagnostic info preview when toggle is on', () => {
     mockHookReturn.diagnostics.includeDiagnostics = true;
     render(<BugReportScreen />);
-    expect(screen.getByText(/Diagnostic Information Preview/)).toBeTruthy();
-    expect(screen.getByText('iOS 17.0')).toBeTruthy();
-    expect(screen.getByText('1.0.0')).toBeTruthy();
+    screen.getByText(/Diagnostic Information Preview/);
+    screen.getByText('iOS 17.0');
+    screen.getByText('1.0.0');
   });
 
   it('hides diagnostic info when toggle is off', () => {
@@ -275,7 +275,7 @@ describe('BugReportScreen — diagnostics toggle', () => {
 describe('BugReportScreen — submit button', () => {
   it('renders submit button', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Submit Bug Report')).toBeTruthy();
+    screen.getByText('Submit Bug Report');
   });
 
   it('submit button is disabled when title is empty', () => {
@@ -309,7 +309,7 @@ describe('BugReportScreen — submit button', () => {
   it('shows "Submitting Report..." when isSubmitting is true', () => {
     mockHookReturn.submission.isSubmitting = true;
     render(<BugReportScreen />);
-    expect(screen.getByText('Submitting Report...')).toBeTruthy();
+    screen.getByText('Submitting Report...');
   });
 });
 
@@ -318,7 +318,7 @@ describe('BugReportScreen — submit button', () => {
 describe('BugReportScreen — privacy', () => {
   it('renders privacy notice', () => {
     render(<BugReportScreen />);
-    expect(screen.getByText('Privacy & Security')).toBeTruthy();
-    expect(screen.getByText(/No passport or personal data is included/)).toBeTruthy();
+    screen.getByText('Privacy & Security');
+    screen.getByText(/No passport or personal data is included/);
   });
 });

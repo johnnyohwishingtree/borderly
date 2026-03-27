@@ -43,8 +43,8 @@ describe('TravelerTabs', () => {
       <TravelerTabs tabs={tabs} activeTabId="profile_1" onTabPress={jest.fn()} />
     );
 
-    expect(getByTestId('traveler-tab-profile_1')).toBeTruthy();
-    expect(getByTestId('traveler-tab-profile_2')).toBeTruthy();
+    getByTestId('traveler-tab-profile_1');
+    getByTestId('traveler-tab-profile_2');
   });
 
   it('shows traveler first names in the tabs', () => {
@@ -53,8 +53,8 @@ describe('TravelerTabs', () => {
       <TravelerTabs tabs={tabs} activeTabId="profile_1" onTabPress={jest.fn()} />
     );
 
-    expect(getByText('John')).toBeTruthy();
-    expect(getByText('Jane')).toBeTruthy();
+    getByText('John');
+    getByText('Jane');
   });
 
   it('shows completion percentage for in-progress traveler', () => {
@@ -64,7 +64,7 @@ describe('TravelerTabs', () => {
     );
 
     // John is at 60% done
-    expect(getByText('60% done')).toBeTruthy();
+    getByText('60% done');
   });
 
   it('shows "Ready" label for ready/submitted tabs', () => {
@@ -75,7 +75,7 @@ describe('TravelerTabs', () => {
       <TravelerTabs tabs={tabs} activeTabId="profile_2" onTabPress={jest.fn()} />
     );
 
-    expect(getByText('Ready')).toBeTruthy();
+    getByText('Ready');
   });
 
   it('calls onTabPress with the traveler id when a tab is pressed', () => {
@@ -111,7 +111,7 @@ describe('TravelerTabs', () => {
         testID="custom-tabs"
       />
     );
-    expect(getByTestId('custom-tabs')).toBeTruthy();
+    getByTestId('custom-tabs');
   });
 
   it('renders submitted tab as ready (100%)', () => {
@@ -123,6 +123,6 @@ describe('TravelerTabs', () => {
     );
 
     // Submitted is treated same as ready
-    expect(getByText('Ready')).toBeTruthy();
+    getByText('Ready');
   });
 });

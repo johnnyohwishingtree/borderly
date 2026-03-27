@@ -123,8 +123,8 @@ beforeEach(() => {
 describe('FeedbackScreen — header', () => {
   it('renders title and subtitle', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Send Feedback')).toBeTruthy();
-    expect(screen.getByText('Help us improve your travel experience')).toBeTruthy();
+    screen.getByText('Send Feedback');
+    screen.getByText('Help us improve your travel experience');
   });
 });
 
@@ -133,11 +133,11 @@ describe('FeedbackScreen — header', () => {
 describe('FeedbackScreen — star rating', () => {
   it('renders 5 star rating buttons', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('😞')).toBeTruthy();
-    expect(screen.getByText('😐')).toBeTruthy();
-    expect(screen.getByText('🙂')).toBeTruthy();
-    expect(screen.getByText('😄')).toBeTruthy();
-    expect(screen.getByText('🤩')).toBeTruthy();
+    screen.getByText('😞');
+    screen.getByText('😐');
+    screen.getByText('🙂');
+    screen.getByText('😄');
+    screen.getByText('🤩');
   });
 
   it('calls handleRatingPress when a star is pressed', () => {
@@ -148,19 +148,19 @@ describe('FeedbackScreen — star rating', () => {
 
   it('shows "Not Rated" when no rating is selected', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Not Rated')).toBeTruthy();
+    screen.getByText('Not Rated');
   });
 
   it('shows rating text when a rating is selected', () => {
     mockHookReturn.fields.rating = 4;
     render(<FeedbackScreen />);
-    expect(screen.getByText('Great (4/5)')).toBeTruthy();
+    screen.getByText('Great (4/5)');
   });
 
   it('shows rating badge text when rated', () => {
     mockHookReturn.fields.rating = 5;
     render(<FeedbackScreen />);
-    expect(screen.getByText('Excellent')).toBeTruthy();
+    screen.getByText('Excellent');
   });
 });
 
@@ -169,8 +169,8 @@ describe('FeedbackScreen — star rating', () => {
 describe('FeedbackScreen — feedback type', () => {
   it('renders feedback type section', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Feedback Category')).toBeTruthy();
-    expect(screen.getByText('What type of feedback is this?')).toBeTruthy();
+    screen.getByText('Feedback Category');
+    screen.getByText('What type of feedback is this?');
   });
 });
 
@@ -179,8 +179,8 @@ describe('FeedbackScreen — feedback type', () => {
 describe('FeedbackScreen — subject', () => {
   it('renders subject input with placeholder', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Subject (Optional)')).toBeTruthy();
-    expect(screen.getByPlaceholderText('Brief summary of your feedback...')).toBeTruthy();
+    screen.getByText('Subject (Optional)');
+    screen.getByPlaceholderText('Brief summary of your feedback...');
   });
 
   it('calls setSubject when text is entered', () => {
@@ -191,7 +191,7 @@ describe('FeedbackScreen — subject', () => {
 
   it('shows character count', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('0/100 characters')).toBeTruthy();
+    screen.getByText('0/100 characters');
   });
 });
 
@@ -200,8 +200,8 @@ describe('FeedbackScreen — subject', () => {
 describe('FeedbackScreen — message', () => {
   it('renders message input with placeholder', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Your Feedback')).toBeTruthy();
-    expect(screen.getByPlaceholderText(/Tell us about your experience/)).toBeTruthy();
+    screen.getByText('Your Feedback');
+    screen.getByPlaceholderText(/Tell us about your experience/);
   });
 
   it('calls setMessage when text is entered', () => {
@@ -212,7 +212,7 @@ describe('FeedbackScreen — message', () => {
 
   it('shows character count', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('0/1000 characters')).toBeTruthy();
+    screen.getByText('0/1000 characters');
   });
 });
 
@@ -221,7 +221,7 @@ describe('FeedbackScreen — message', () => {
 describe('FeedbackScreen — submit button', () => {
   it('renders submit button', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Submit Feedback')).toBeTruthy();
+    screen.getByText('Submit Feedback');
   });
 
   it('submit button is disabled when no rating', () => {
@@ -255,7 +255,7 @@ describe('FeedbackScreen — submit button', () => {
   it('shows "Submitting..." when isSubmitting is true', () => {
     mockHookReturn.submission.isSubmitting = true;
     render(<FeedbackScreen />);
-    expect(screen.getByText('Submitting...')).toBeTruthy();
+    screen.getByText('Submitting...');
   });
 });
 
@@ -264,7 +264,7 @@ describe('FeedbackScreen — submit button', () => {
 describe('FeedbackScreen — privacy', () => {
   it('renders privacy notice', () => {
     render(<FeedbackScreen />);
-    expect(screen.getByText('Privacy Notice')).toBeTruthy();
-    expect(screen.getByText(/No personal or passport data is included/)).toBeTruthy();
+    screen.getByText('Privacy Notice');
+    screen.getByText(/No personal or passport data is included/);
   });
 });

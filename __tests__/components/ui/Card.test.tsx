@@ -13,7 +13,7 @@ describe('Card', () => {
         <Text>Card Content</Text>
       </Card>,
     );
-    expect(getByText('Card Content')).toBeTruthy();
+    getByText('Card Content');
   });
 
   it('calls onPress when interactive and pressed', () => {
@@ -33,7 +33,7 @@ describe('Card', () => {
         <Text>Static card</Text>
       </Card>,
     );
-    expect(getByText('Static card')).toBeTruthy();
+    getByText('Static card');
   });
 
   it('renders with outlined variant', () => {
@@ -42,7 +42,7 @@ describe('Card', () => {
         <Text>Outlined</Text>
       </Card>,
     );
-    expect(getByText('Outlined')).toBeTruthy();
+    getByText('Outlined');
   });
 
   it('renders with elevated variant', () => {
@@ -51,7 +51,7 @@ describe('Card', () => {
         <Text>Elevated</Text>
       </Card>,
     );
-    expect(getByText('Elevated')).toBeTruthy();
+    getByText('Elevated');
   });
 
   it('renders with ghost variant', () => {
@@ -60,7 +60,7 @@ describe('Card', () => {
         <Text>Ghost</Text>
       </Card>,
     );
-    expect(getByText('Ghost')).toBeTruthy();
+    getByText('Ghost');
   });
 
   it('applies accessibility label', () => {
@@ -69,7 +69,7 @@ describe('Card', () => {
         <Text>Content</Text>
       </Card>,
     );
-    expect(getByLabelText('Trip card')).toBeTruthy();
+    getByLabelText('Trip card');
   });
 
   it('has button role when onPress is provided', () => {
@@ -78,6 +78,6 @@ describe('Card', () => {
         <Text>Interactive</Text>
       </Card>,
     );
-    expect(getByRole('button')).toBeTruthy();
+    getByRole('button');
   });
 });

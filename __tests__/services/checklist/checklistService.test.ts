@@ -247,7 +247,7 @@ describe('computeTripChecklist', () => {
       const result = computeTripChecklist(trip, [profile], schemas, []);
       const passportItem = result.items.find((i) => i.category === 'passport');
 
-      expect(passportItem).toBeDefined();
+      expect(passportItem).not.toBeUndefined();
       expect(passportItem?.status).toBe('warning');
       expect(passportItem?.urgency).toBe('warning');
     });
@@ -258,7 +258,7 @@ describe('computeTripChecklist', () => {
       const result = computeTripChecklist(trip, [profile], schemas, []);
       const passportItem = result.items.find((i) => i.category === 'passport');
 
-      expect(passportItem).toBeDefined();
+      expect(passportItem).not.toBeUndefined();
       expect(passportItem?.status).toBe('action-needed');
       expect(passportItem?.urgency).toBe('critical');
       expect(passportItem?.deepLink.screen).toBe('Profile');

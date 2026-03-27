@@ -25,7 +25,12 @@ describe('MRZ Parser', () => {
       const result = parseMRZ(validMRZ.line1, validMRZ.line2);
       
       expect(result.success).toBe(true);
-      expect(result.profile).toBeDefined();
+      expect(result.profile).toEqual(expect.objectContaining({
+        passportNumber: 'L898902C3',
+        surname: 'DOE',
+        givenNames: 'JANE',
+        nationality: 'UTO',
+      }));
       expect(result.errors).toHaveLength(0);
       expect(result.confidence).toBeGreaterThan(0.5);
       
@@ -151,10 +156,11 @@ describe('MRZ Parser', () => {
       `;
       
       const result = extractMRZFromText(ocrText);
-      
-      expect(result).toBeDefined();
-      expect(result!.line1).toBe('P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<');
-      expect(result!.line2).toBe('L898902C36UTO7408122F1204159ZE184226B<<<<<10');
+
+      expect(result).toEqual({
+        line1: 'P<UTODOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',
+        line2: 'L898902C36UTO7408122F1204159ZE184226B<<<<<10',
+      });
     });
 
     it('should handle lines that need padding', () => {
@@ -164,8 +170,8 @@ describe('MRZ Parser', () => {
       `;
       
       const result = extractMRZFromText(ocrText);
-      
-      expect(result).toBeDefined();
+
+      expect(result).not.toBeNull();
       expect(result!.line1).toHaveLength(44);
       expect(result!.line2).toHaveLength(44);
       expect(result!.line1.endsWith('<')).toBe(true);
@@ -204,8 +210,8 @@ describe('MRZ Parser', () => {
       `;
       
       const result = extractMRZFromText(ocrText);
-      
-      expect(result).toBeDefined();
+
+      expect(result).not.toBeNull();
       expect(result!.line1.startsWith('P<')).toBe(true);
     });
   });

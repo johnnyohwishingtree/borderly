@@ -13,20 +13,17 @@ import Button from '../../../src/components/ui/Button';
 describe('Button accessibilityRole', () => {
   it('has accessibilityRole "button" by default', () => {
     render(<Button title="Continue" onPress={jest.fn()} />);
-    const btn = screen.getByRole('button');
-    expect(btn).toBeTruthy();
+    screen.getByRole('button');
   });
 
   it('has accessibilityRole "link" when specified', () => {
     render(<Button title="Open Portal" onPress={jest.fn()} accessibilityRole="link" />);
-    const link = screen.getByRole('link');
-    expect(link).toBeTruthy();
+    screen.getByRole('link');
   });
 
   it('has accessibilityRole "tab" when specified', () => {
     render(<Button title="Tab Item" onPress={jest.fn()} accessibilityRole="tab" />);
-    const tab = screen.getByRole('tab');
-    expect(tab).toBeTruthy();
+    screen.getByRole('tab');
   });
 });
 
@@ -37,7 +34,7 @@ describe('Button accessibilityRole', () => {
 describe('Button accessibilityLabel', () => {
   it('defaults to the title text when no accessibilityLabel is provided', () => {
     render(<Button title="Save Profile" onPress={jest.fn()} />);
-    expect(screen.getByLabelText('Save Profile')).toBeTruthy();
+    screen.getByLabelText('Save Profile');
   });
 
   it('uses custom accessibilityLabel when provided', () => {
@@ -48,7 +45,7 @@ describe('Button accessibilityLabel', () => {
         accessibilityLabel="Submit customs declaration form"
       />
     );
-    expect(screen.getByLabelText('Submit customs declaration form')).toBeTruthy();
+    screen.getByLabelText('Submit customs declaration form');
   });
 
   it('custom label takes precedence over title', () => {
@@ -60,7 +57,7 @@ describe('Button accessibilityLabel', () => {
       />
     );
     // Custom label present
-    expect(screen.getByLabelText('Navigate to next step')).toBeTruthy();
+    screen.getByLabelText('Navigate to next step');
     // Title-based label should NOT be the label (title 'Go' is not the a11y label)
     expect(screen.queryByLabelText('Go')).toBeNull();
   });
@@ -100,7 +97,7 @@ describe('Button accessibilityState.busy', () => {
   it('accessibilityState.busy is false when not loading', () => {
     render(<Button title="Save" onPress={jest.fn()} />);
     const btn = screen.getByRole('button');
-    expect(btn.props.accessibilityState?.busy).toBeFalsy();
+    expect(btn.props.accessibilityState?.busy).toBe(false);
   });
 
   it('accessibilityState.busy is true when loading', () => {

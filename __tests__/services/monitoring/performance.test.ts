@@ -59,11 +59,11 @@ describe('Performance Monitoring Service', () => {
   describe('user flow tracking', () => {
     it('should track a complete user flow', () => {
       const flowId = startFlow('onboarding');
-      expect(flowId).toBeTruthy();
+      expect(flowId).toMatch(/^perf_/);
       expect(performanceMonitor.getActiveFlowsCount()).toBe(1);
 
       const stepId = addFlowStep(flowId, 'passport_scan');
-      expect(stepId).toBeTruthy();
+      expect(stepId).toMatch(/^perf_/);
 
       // Complete flow immediately  
       completeFlowStep(flowId, stepId, true);
@@ -72,7 +72,7 @@ describe('Performance Monitoring Service', () => {
       expect(performanceMonitor.getActiveFlowsCount()).toBe(0);
       const summary = performanceMonitor.getPerformanceSummary();
       const flowMetric = summary.metrics.find(m => m.name === 'flow_onboarding');
-      expect(flowMetric).toBeDefined();
+      expect(flowMetric).toEqual(expect.objectContaining({ name: 'flow_onboarding' }));
       expect(flowMetric?.value).toBeGreaterThanOrEqual(0);
     });
 
@@ -85,7 +85,7 @@ describe('Performance Monitoring Service', () => {
 
       const summary = performanceMonitor.getPerformanceSummary();
       const flowMetric = summary.metrics.find(m => m.name === 'flow_payment_flow');
-      expect(flowMetric).toBeDefined();
+      expect(flowMetric).toEqual(expect.objectContaining({ name: 'flow_payment_flow' }));
     });
 
     it('should sanitize sensitive data in flow names and error messages', () => {

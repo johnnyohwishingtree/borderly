@@ -58,7 +58,8 @@ describe('colorTokens', () => {
 
   test.each(['light', 'dark'] as const)('%s mode has all required tokens', mode => {
     requiredTokens.forEach(token => {
-      expect(colorTokens[mode][token]).toBeTruthy();
+      expect(typeof colorTokens[mode][token]).toBe('string');
+      expect(colorTokens[mode][token].length).toBeGreaterThan(0);
     });
   });
 

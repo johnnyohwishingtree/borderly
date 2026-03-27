@@ -89,15 +89,15 @@ describe('SmartImportSheet', () => {
     const { getByText } = render(
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
-    expect(getByText('Paste Confirmation')).toBeTruthy();
-    expect(getByText('Flight Lookup')).toBeTruthy();
+    getByText('Paste Confirmation');
+    getByText('Flight Lookup');
   });
 
   it('shows paste tab content by default', () => {
     const { getByTestId } = render(
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
-    expect(getByTestId('paste-confirmation-field')).toBeTruthy();
+    getByTestId('paste-confirmation-field');
   });
 
   it('switches to flight tab on press', () => {
@@ -105,7 +105,7 @@ describe('SmartImportSheet', () => {
       <SmartImportSheet onImport={jest.fn()} onClose={jest.fn()} />,
     );
     fireEvent.press(getByTestId('tab-flight'));
-    expect(getByTestId('flight-number-field')).toBeTruthy();
+    getByTestId('flight-number-field');
     expect(queryByTestId('paste-confirmation-field')).toBeNull();
   });
 
@@ -115,7 +115,7 @@ describe('SmartImportSheet', () => {
     );
     fireEvent.press(getByTestId('tab-flight'));
     fireEvent.press(getByTestId('tab-paste'));
-    expect(getByTestId('paste-confirmation-field')).toBeTruthy();
+    getByTestId('paste-confirmation-field');
   });
 
   // ─── Close ────────────────────────────────────────────────────────────────
@@ -142,9 +142,9 @@ describe('SmartImportSheet', () => {
     fireEvent.press(getByTestId('parse-confirmation-button'));
 
     expect(mockParseConfirmationText).toHaveBeenCalledWith('booking email text');
-    expect(getByText('NH101')).toBeTruthy();
-    expect(getByText('Tokyo Hotel')).toBeTruthy();
-    expect(getByText('Found Information')).toBeTruthy();
+    getByText('NH101');
+    getByText('Tokyo Hotel');
+    getByText('Found Information');
   });
 
   it('calls onImport with parsed data when import button pressed', () => {
@@ -180,7 +180,7 @@ describe('SmartImportSheet', () => {
     fireEvent.changeText(getByTestId('paste-confirmation-field'), 'random text');
     fireEvent.press(getByTestId('parse-confirmation-button'));
 
-    expect(getByText(/No flight or hotel information found/)).toBeTruthy();
+    getByText(/No flight or hotel information found/);
   });
 
   // ─── Flight tab: lookup and import ────────────────────────────────────────
@@ -197,8 +197,8 @@ describe('SmartImportSheet', () => {
     fireEvent.press(getByTestId('lookup-flight-button'));
 
     expect(mockLookupFlight).toHaveBeenCalledWith('JL723', {});
-    expect(getByText('JL723')).toBeTruthy();
-    expect(getByText('Japan Airlines')).toBeTruthy();
+    getByText('JL723');
+    getByText('Japan Airlines');
   });
 
   it('calls onImport with flight data when import button pressed', () => {
@@ -234,6 +234,6 @@ describe('SmartImportSheet', () => {
     fireEvent.changeText(getByTestId('flight-number-field'), 'XX999');
     fireEvent.press(getByTestId('lookup-flight-button'));
 
-    expect(getByText('Flight not found')).toBeTruthy();
+    getByText('Flight not found');
   });
 });

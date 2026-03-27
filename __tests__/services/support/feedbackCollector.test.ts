@@ -39,7 +39,8 @@ describe('FeedbackCollector', () => {
       const result = await feedbackCollector.submitFeedback(feedbackData);
 
       expect(result.success).toBe(true);
-      expect(result.feedbackId).toBeDefined();
+      expect(typeof result.feedbackId).toBe('string');
+      expect(result.feedbackId!.length).toBeGreaterThan(0);
       expect(mmkvService.setString).toHaveBeenCalled();
     });
 
