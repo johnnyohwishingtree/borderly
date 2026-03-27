@@ -59,40 +59,40 @@ beforeEach(() => {
 describe('useReviewImport', () => {
   it('parses draft trip from route params', () => {
     const { result } = renderHook(() => useReviewImport());
-    expect(result.current.draftTrip.name).toBe('Tokyo Trip');
-    expect(result.current.draftTrip.legs).toHaveLength(1);
-    expect(result.current.draftTrip.legs[0].destinationCountry).toBe('JPN');
+    expect(result.current.draft.draftTrip.name).toBe('Tokyo Trip');
+    expect(result.current.draft.draftTrip.legs).toHaveLength(1);
+    expect(result.current.draft.draftTrip.legs[0].destinationCountry).toBe('JPN');
   });
 
   it('returns correct confidence level', () => {
     const { result } = renderHook(() => useReviewImport());
-    expect(result.current.confidence).toBe(0.8);
-    expect(result.current.confidenceLevel).toBe('high');
+    expect(result.current.draft.confidence).toBe(0.8);
+    expect(result.current.draft.confidenceLevel).toBe('high');
   });
 
   it('updates trip name', () => {
     const { result } = renderHook(() => useReviewImport());
-    act(() => result.current.updateTripName('Japan Adventure'));
-    expect(result.current.draftTrip.name).toBe('Japan Adventure');
+    act(() => result.current.actions.updateTripName('Japan Adventure'));
+    expect(result.current.draft.draftTrip.name).toBe('Japan Adventure');
   });
 
   it('updates a leg field', () => {
     const { result } = renderHook(() => useReviewImport());
-    act(() => result.current.updateLeg(0, { arrivalDate: '2025-08-01' }));
-    expect(result.current.draftTrip.legs[0].arrivalDate).toBe('2025-08-01');
+    act(() => result.current.actions.updateLeg(0, { arrivalDate: '2025-08-01' }));
+    expect(result.current.draft.draftTrip.legs[0].arrivalDate).toBe('2025-08-01');
   });
 
   it('removes a leg and reorders', () => {
     const { result } = renderHook(() => useReviewImport());
-    act(() => result.current.removeLeg(0));
-    expect(result.current.draftTrip.legs).toHaveLength(0);
+    act(() => result.current.actions.removeLeg(0));
+    expect(result.current.draft.draftTrip.legs).toHaveLength(0);
   });
 
   it('saves trip and navigates on confirm', async () => {
     const { result } = renderHook(() => useReviewImport());
 
     await act(async () => {
-      await result.current.handleConfirm();
+      await result.current.actions.handleConfirm();
     });
 
     expect(mockCreateTrip).toHaveBeenCalled();
@@ -106,26 +106,26 @@ describe('useReviewImport', () => {
     const { result } = renderHook(() => useReviewImport());
 
     await act(async () => {
-      await result.current.handleConfirm();
+      await result.current.actions.handleConfirm();
     });
 
-    expect(result.current.saveError).toContain('Could not save');
-    expect(result.current.isSaving).toBe(false);
+    expect(result.current.status.saveError).toContain('Could not save');
+    expect(result.current.status.isSaving).toBe(false);
   });
 
   it('navigates back on cancel', () => {
     const { result } = renderHook(() => useReviewImport());
-    act(() => result.current.handleCancel());
+    act(() => result.current.actions.handleCancel());
     expect(mockGoBack).toHaveBeenCalled();
   });
 
   it('detects missing fields', () => {
     const { result } = renderHook(() => useReviewImport());
     // Initially all fields are present
-    expect(result.current.hasMissingFields).toBe(false);
+    expect(result.current.draft.hasMissingFields).toBe(false);
 
     // Clear the trip name
-    act(() => result.current.updateTripName(''));
-    expect(result.current.hasMissingFields).toBe(true);
+    act(() => result.current.actions.updateTripName(''));
+    expect(result.current.draft.hasMissingFields).toBe(true);
   });
 });

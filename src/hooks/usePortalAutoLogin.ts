@@ -118,18 +118,24 @@ export function usePortalAutoLogin({
   }, [handleShowCredentialPrompt]);
 
   return {
-    autoLoginBannerState,
-    showSaveCredentialsPrompt,
-    extractedUsername,
-    autoLoginTriggeredRef,
-    prevPageTypeRef,
-    resetForNewPage,
-    attemptAutoLogin,
-    handleShowCredentialPrompt,
-    handleCredentialSave,
-    handleAutoLoginResult,
-    handleExtractedUsername,
-    checkAuthToFormTransition,
-    dismissCredentialPrompt: useCallback(() => setShowSaveCredentialsPrompt(false), []),
+    state: {
+      autoLoginBannerState,
+      showSaveCredentialsPrompt,
+      extractedUsername,
+    },
+    refs: {
+      autoLoginTriggeredRef,
+      prevPageTypeRef,
+    },
+    actions: {
+      resetForNewPage,
+      attemptAutoLogin,
+      handleShowCredentialPrompt,
+      handleCredentialSave,
+      handleAutoLoginResult,
+      handleExtractedUsername,
+      checkAuthToFormTransition,
+      dismissCredentialPrompt: useCallback(() => setShowSaveCredentialsPrompt(false), []),
+    },
   };
 }

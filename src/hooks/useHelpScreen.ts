@@ -8,18 +8,26 @@ import {
 } from '@/screens/support/HelpScreen/helpData';
 
 export interface UseHelpScreenReturn {
-  searchTerm: string;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
-  expandedFAQ: string | null;
-  isSearchVisible: boolean;
-  setIsSearchVisible: (visible: boolean) => void;
-  filteredFAQs: FAQItem[];
-  categories: HelpCategory[];
-  toggleFAQ: (faqId: string) => void;
-  handleContactSupport: (callbacks: ContactSupportCallbacks) => void;
-  handleSearchNavigate: (type: string, id: string, callbacks: SearchNavigateCallbacks) => void;
-  handleOpenDocumentation: () => void;
+  search: {
+    searchTerm: string;
+    isSearchVisible: boolean;
+    setIsSearchVisible: (visible: boolean) => void;
+    handleSearchNavigate: (type: string, id: string, callbacks: SearchNavigateCallbacks) => void;
+  };
+  faq: {
+    filteredFAQs: FAQItem[];
+    expandedFAQ: string | null;
+    toggleFAQ: (faqId: string) => void;
+  };
+  category: {
+    selectedCategory: string;
+    setSelectedCategory: (category: string) => void;
+    categories: HelpCategory[];
+  };
+  actions: {
+    handleContactSupport: (callbacks: ContactSupportCallbacks) => void;
+    handleOpenDocumentation: () => void;
+  };
 }
 
 export interface ContactSupportCallbacks {
@@ -106,18 +114,26 @@ export function useHelpScreen(): UseHelpScreenReturn {
   }, []);
 
   return {
-    searchTerm,
-    selectedCategory,
-    setSelectedCategory,
-    expandedFAQ,
-    isSearchVisible,
-    setIsSearchVisible,
-    filteredFAQs,
-    categories: HELP_CATEGORIES,
-    toggleFAQ,
-    handleContactSupport,
-    handleSearchNavigate,
-    handleOpenDocumentation,
+    search: {
+      searchTerm,
+      isSearchVisible,
+      setIsSearchVisible,
+      handleSearchNavigate,
+    },
+    faq: {
+      filteredFAQs,
+      expandedFAQ,
+      toggleFAQ,
+    },
+    category: {
+      selectedCategory,
+      setSelectedCategory,
+      categories: HELP_CATEGORIES,
+    },
+    actions: {
+      handleContactSupport,
+      handleOpenDocumentation,
+    },
   };
 }
 

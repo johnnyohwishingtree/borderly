@@ -124,8 +124,8 @@ describe('useSubmissionGuide', () => {
       useSubmissionGuide({ tripId: 'trip-1', legId: 'leg-1' } as any),
     );
 
-    expect(result.current.schema).toBeDefined();
-    expect(result.current.currentStep).toBe(1);
+    expect(result.current.data.schema).toBeDefined();
+    expect(result.current.state.currentStep).toBe(1);
   });
 
   it('exposes fieldsData as a record', async () => {
@@ -139,7 +139,7 @@ describe('useSubmissionGuide', () => {
     });
 
     // fieldsData should be an object (possibly empty if form hasn't loaded)
-    expect(typeof result.current.fieldsData).toBe('object');
+    expect(typeof result.current.data.fieldsData).toBe('object');
   });
 
   it('handleStepComplete advances to next step', async () => {
@@ -152,14 +152,14 @@ describe('useSubmissionGuide', () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    const initialStep = result.current.currentStep;
+    const initialStep = result.current.state.currentStep;
 
     act(() => {
-      result.current.handleStepComplete(initialStep);
+      result.current.actions.handleStepComplete(initialStep);
     });
 
     // Step should advance (or stay if at the end)
-    expect(result.current.currentStep).toBeGreaterThanOrEqual(initialStep);
+    expect(result.current.state.currentStep).toBeGreaterThanOrEqual(initialStep);
   });
 
   it('tracks completed steps', async () => {
@@ -173,10 +173,10 @@ describe('useSubmissionGuide', () => {
     });
 
     act(() => {
-      result.current.handleStepComplete(1);
+      result.current.actions.handleStepComplete(1);
     });
 
-    expect(Array.isArray(result.current.completedSteps)).toBe(true);
+    expect(Array.isArray(result.current.data.completedSteps)).toBe(true);
   });
 
   it('reports loading state', () => {
@@ -185,6 +185,6 @@ describe('useSubmissionGuide', () => {
     );
 
     // isLoading should be false once schema is loaded
-    expect(typeof result.current.isLoading).toBe('boolean');
+    expect(typeof result.current.state.isLoading).toBe('boolean');
   });
 });

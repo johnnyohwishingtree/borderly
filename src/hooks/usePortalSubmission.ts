@@ -142,7 +142,7 @@ export function usePortalSubmission() {
       lastUrlRef.current = state.url;
       setPageType('unknown');
       setPillDismissed(false);
-      autoLogin.resetForNewPage();
+      autoLogin.actions.resetForNewPage();
     }
   }, [autoLogin]);
 
@@ -157,7 +157,7 @@ export function usePortalSubmission() {
       onLoadComplete();
       setPageType('unknown');
       setPillDismissed(false);
-      autoLogin.resetForNewPage();
+      autoLogin.actions.resetForNewPage();
 
       if (!schema) return;
 
@@ -191,17 +191,17 @@ export function usePortalSubmission() {
 
           const detected = submissionCoordinator.detectPageType(html, formFieldCount);
 
-          autoLogin.checkAuthToFormTransition(autoLogin.prevPageTypeRef.current, detected);
+          autoLogin.actions.checkAuthToFormTransition(autoLogin.refs.prevPageTypeRef.current, detected);
           setPageType(detected);
 
           if (detected === 'auth') {
-            autoLogin.attemptAutoLogin();
+            autoLogin.actions.attemptAutoLogin();
           }
           return;
         }
 
         if (msgType === 'AUTO_LOGIN_RESULT') {
-          autoLogin.handleAutoLoginResult(msg.success === true);
+          autoLogin.actions.handleAutoLoginResult(msg.success === true);
           return;
         }
 
@@ -210,7 +210,7 @@ export function usePortalSubmission() {
           if (__DEV__) {
             console.log('[usePortalSubmission] Extracted username for save prompt:', username);
           }
-          autoLogin.handleExtractedUsername(username);
+          autoLogin.actions.handleExtractedUsername(username);
           return;
         }
 

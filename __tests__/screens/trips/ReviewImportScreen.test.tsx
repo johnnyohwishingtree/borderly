@@ -2,37 +2,43 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 
 const mockUseReviewImport = {
-  draftTrip: {
-    id: 'draft-1',
-    name: 'Tokyo Trip',
-    status: 'upcoming' as const,
-    legs: [
-      {
-        id: 'leg-1',
-        tripId: 'draft-1',
-        destinationCountry: 'JPN',
-        arrivalDate: '2025-07-15',
-        flightNumber: 'NH101',
-        arrivalAirport: 'NRT',
-        accommodation: { name: 'Hotel Tokyo', address: { line1: '', city: 'Tokyo', postalCode: '', country: 'JPN' } },
-        formStatus: 'not_started' as const,
-        submissionStatus: 'not_started' as const,
-        order: 0,
-      },
-    ],
-    createdAt: '',
-    updatedAt: '',
+  draft: {
+    draftTrip: {
+      id: 'draft-1',
+      name: 'Tokyo Trip',
+      status: 'upcoming' as const,
+      legs: [
+        {
+          id: 'leg-1',
+          tripId: 'draft-1',
+          destinationCountry: 'JPN',
+          arrivalDate: '2025-07-15',
+          flightNumber: 'NH101',
+          arrivalAirport: 'NRT',
+          accommodation: { name: 'Hotel Tokyo', address: { line1: '', city: 'Tokyo', postalCode: '', country: 'JPN' } },
+          formStatus: 'not_started' as const,
+          submissionStatus: 'not_started' as const,
+          order: 0,
+        },
+      ],
+      createdAt: '',
+      updatedAt: '',
+    },
+    confidence: 0.8,
+    confidenceLevel: 'high' as const,
+    hasMissingFields: false,
   },
-  confidence: 0.8,
-  confidenceLevel: 'high' as const,
-  isSaving: false,
-  saveError: '',
-  updateTripName: jest.fn(),
-  updateLeg: jest.fn(),
-  removeLeg: jest.fn(),
-  handleConfirm: jest.fn(),
-  handleCancel: jest.fn(),
-  hasMissingFields: false,
+  status: {
+    isSaving: false,
+    saveError: '',
+  },
+  actions: {
+    updateTripName: jest.fn(),
+    updateLeg: jest.fn(),
+    removeLeg: jest.fn(),
+    handleConfirm: jest.fn(),
+    handleCancel: jest.fn(),
+  },
 };
 
 jest.mock('@/hooks/useReviewImport', () => ({
@@ -67,9 +73,9 @@ import ReviewImportScreen from '@/screens/trips/ReviewImportScreen/ReviewImportS
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockUseReviewImport.isSaving = false;
-  mockUseReviewImport.saveError = '';
-  mockUseReviewImport.hasMissingFields = false;
+  mockUseReviewImport.status.isSaving = false;
+  mockUseReviewImport.status.saveError = '';
+  mockUseReviewImport.draft.hasMissingFields = false;
 });
 
 describe('ReviewImportScreen', () => {
@@ -98,42 +104,42 @@ describe('ReviewImportScreen', () => {
   it('calls updateTripName when name is changed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.changeText(getByTestId('review-trip-name'), 'Japan Trip');
-    expect(mockUseReviewImport.updateTripName).toHaveBeenCalledWith('Japan Trip');
+    expect(mockUseReviewImport.actions.updateTripName).toHaveBeenCalledWith('Japan Trip');
   });
 
   it('calls handleConfirm when create trip is pressed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.press(getByTestId('review-create-trip-button'));
-    expect(mockUseReviewImport.handleConfirm).toHaveBeenCalled();
+    expect(mockUseReviewImport.actions.handleConfirm).toHaveBeenCalled();
   });
 
   it('calls handleCancel when discard is pressed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.press(getByTestId('review-cancel-button'));
-    expect(mockUseReviewImport.handleCancel).toHaveBeenCalled();
+    expect(mockUseReviewImport.actions.handleCancel).toHaveBeenCalled();
   });
 
   it('calls removeLeg when remove button is pressed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.press(getByTestId('remove-leg-0'));
-    expect(mockUseReviewImport.removeLeg).toHaveBeenCalledWith(0);
+    expect(mockUseReviewImport.actions.removeLeg).toHaveBeenCalledWith(0);
   });
 
   it('shows loading when saving', () => {
-    mockUseReviewImport.isSaving = true;
+    mockUseReviewImport.status.isSaving = true;
     const { getByTestId } = render(<ReviewImportScreen />);
     expect(getByTestId('loading-state')).toBeTruthy();
   });
 
   it('shows save error message', () => {
-    mockUseReviewImport.saveError = 'Could not save';
+    mockUseReviewImport.status.saveError = 'Could not save';
     const { getByTestId, getByText } = render(<ReviewImportScreen />);
     expect(getByTestId('save-error-message')).toBeTruthy();
     expect(getByText('Could not save')).toBeTruthy();
   });
 
   it('shows missing fields warning', () => {
-    mockUseReviewImport.hasMissingFields = true;
+    mockUseReviewImport.draft.hasMissingFields = true;
     const { getByTestId } = render(<ReviewImportScreen />);
     expect(getByTestId('missing-fields-warning')).toBeTruthy();
   });

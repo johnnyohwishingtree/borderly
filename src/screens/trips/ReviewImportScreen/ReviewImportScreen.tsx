@@ -127,16 +127,9 @@ function LegCard({
 
 export default function ReviewImportScreen() {
   const {
-    draftTrip,
-    confidenceLevel,
-    isSaving,
-    saveError,
-    updateTripName,
-    updateLeg,
-    removeLeg,
-    handleConfirm,
-    handleCancel,
-    hasMissingFields,
+    draft: { draftTrip, confidenceLevel, hasMissingFields },
+    status: { isSaving, saveError },
+    actions: { updateTripName, updateLeg, removeLeg, handleConfirm, handleCancel },
   } = useReviewImport();
 
   if (isSaving) {

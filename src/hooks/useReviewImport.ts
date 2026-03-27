@@ -10,17 +10,23 @@ import { useTripStore } from '@/stores/useTripStore';
 type ConfidenceLevel = 'high' | 'medium' | 'low';
 
 interface UseReviewImportReturn {
-  draftTrip: Trip;
-  confidence: number;
-  confidenceLevel: ConfidenceLevel;
-  isSaving: boolean;
-  saveError: string;
-  updateTripName: (name: string) => void;
-  updateLeg: (legIndex: number, updates: Partial<TripLeg>) => void;
-  removeLeg: (legIndex: number) => void;
-  handleConfirm: () => void;
-  handleCancel: () => void;
-  hasMissingFields: boolean;
+  draft: {
+    draftTrip: Trip;
+    confidence: number;
+    confidenceLevel: ConfidenceLevel;
+    hasMissingFields: boolean;
+  };
+  status: {
+    isSaving: boolean;
+    saveError: string;
+  };
+  actions: {
+    updateTripName: (name: string) => void;
+    updateLeg: (legIndex: number, updates: Partial<TripLeg>) => void;
+    removeLeg: (legIndex: number) => void;
+    handleConfirm: () => void;
+    handleCancel: () => void;
+  };
 }
 
 function getConfidenceLevel(confidence: number): ConfidenceLevel {
@@ -102,16 +108,22 @@ export function useReviewImport(): UseReviewImportReturn {
   }, [navigation]);
 
   return {
-    draftTrip,
-    confidence,
-    confidenceLevel,
-    isSaving,
-    saveError,
-    updateTripName,
-    updateLeg,
-    removeLeg,
-    handleConfirm,
-    handleCancel,
-    hasMissingFields,
+    draft: {
+      draftTrip,
+      confidence,
+      confidenceLevel,
+      hasMissingFields,
+    },
+    status: {
+      isSaving,
+      saveError,
+    },
+    actions: {
+      updateTripName,
+      updateLeg,
+      removeLeg,
+      handleConfirm,
+      handleCancel,
+    },
   };
 }

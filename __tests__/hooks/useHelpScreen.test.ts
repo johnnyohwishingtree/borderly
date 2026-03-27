@@ -66,64 +66,64 @@ describe('useHelpScreen', () => {
   it('initializes with default state', () => {
     const { result } = renderHook(() => useHelpScreen());
 
-    expect(result.current.selectedCategory).toBe('all');
-    expect(result.current.expandedFAQ).toBeNull();
-    expect(result.current.isSearchVisible).toBe(false);
-    expect(result.current.filteredFAQs.length).toBe(FAQ_DATA.length);
-    expect(result.current.categories).toBe(HELP_CATEGORIES);
+    expect(result.current.category.selectedCategory).toBe('all');
+    expect(result.current.faq.expandedFAQ).toBeNull();
+    expect(result.current.search.isSearchVisible).toBe(false);
+    expect(result.current.faq.filteredFAQs.length).toBe(FAQ_DATA.length);
+    expect(result.current.category.categories).toBe(HELP_CATEGORIES);
   });
 
   it('filters FAQs when category changes', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.setSelectedCategory('security');
+      result.current.category.setSelectedCategory('security');
     });
 
-    expect(result.current.filteredFAQs.every(faq => faq.category === 'security')).toBe(true);
-    expect(result.current.filteredFAQs.length).toBeLessThan(FAQ_DATA.length);
+    expect(result.current.faq.filteredFAQs.every(faq => faq.category === 'security')).toBe(true);
+    expect(result.current.faq.filteredFAQs.length).toBeLessThan(FAQ_DATA.length);
   });
 
   it('toggleFAQ expands and collapses', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.toggleFAQ('faq-1');
+      result.current.faq.toggleFAQ('faq-1');
     });
-    expect(result.current.expandedFAQ).toBe('faq-1');
+    expect(result.current.faq.expandedFAQ).toBe('faq-1');
 
     act(() => {
-      result.current.toggleFAQ('faq-1');
+      result.current.faq.toggleFAQ('faq-1');
     });
-    expect(result.current.expandedFAQ).toBeNull();
+    expect(result.current.faq.expandedFAQ).toBeNull();
   });
 
   it('toggleFAQ switches to different FAQ', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.toggleFAQ('faq-1');
+      result.current.faq.toggleFAQ('faq-1');
     });
-    expect(result.current.expandedFAQ).toBe('faq-1');
+    expect(result.current.faq.expandedFAQ).toBe('faq-1');
 
     act(() => {
-      result.current.toggleFAQ('faq-2');
+      result.current.faq.toggleFAQ('faq-2');
     });
-    expect(result.current.expandedFAQ).toBe('faq-2');
+    expect(result.current.faq.expandedFAQ).toBe('faq-2');
   });
 
   it('setIsSearchVisible toggles search modal', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.setIsSearchVisible(true);
+      result.current.search.setIsSearchVisible(true);
     });
-    expect(result.current.isSearchVisible).toBe(true);
+    expect(result.current.search.isSearchVisible).toBe(true);
 
     act(() => {
-      result.current.setIsSearchVisible(false);
+      result.current.search.setIsSearchVisible(false);
     });
-    expect(result.current.isSearchVisible).toBe(false);
+    expect(result.current.search.isSearchVisible).toBe(false);
   });
 
   it('handleContactSupport shows alert with options', () => {
@@ -132,7 +132,7 @@ describe('useHelpScreen', () => {
     const onBugReport = jest.fn();
 
     act(() => {
-      result.current.handleContactSupport({ onFeedback, onBugReport });
+      result.current.actions.handleContactSupport({ onFeedback, onBugReport });
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -153,7 +153,7 @@ describe('useHelpScreen', () => {
     const onBugReport = jest.fn();
 
     act(() => {
-      result.current.handleContactSupport({ onFeedback, onBugReport });
+      result.current.actions.handleContactSupport({ onFeedback, onBugReport });
     });
 
     const alertButtons = (Alert.alert as jest.Mock).mock.calls[0][2];
@@ -167,7 +167,7 @@ describe('useHelpScreen', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.handleContactSupport({ onFeedback: jest.fn(), onBugReport: jest.fn() });
+      result.current.actions.handleContactSupport({ onFeedback: jest.fn(), onBugReport: jest.fn() });
     });
 
     const alertButtons = (Alert.alert as jest.Mock).mock.calls[0][2];
@@ -185,7 +185,7 @@ describe('useHelpScreen', () => {
     const onTroubleshooting = jest.fn();
 
     act(() => {
-      result.current.handleSearchNavigate('faq', 'faq-1', { onFAQ, onTroubleshooting });
+      result.current.search.handleSearchNavigate('faq', 'faq-1', { onFAQ, onTroubleshooting });
     });
 
     expect(onFAQ).toHaveBeenCalledWith('faq-1');
@@ -198,7 +198,7 @@ describe('useHelpScreen', () => {
     const onTroubleshooting = jest.fn();
 
     act(() => {
-      result.current.handleSearchNavigate('troubleshooting', 'ts-1', { onFAQ, onTroubleshooting });
+      result.current.search.handleSearchNavigate('troubleshooting', 'ts-1', { onFAQ, onTroubleshooting });
     });
 
     expect(onTroubleshooting).toHaveBeenCalledWith('ts-1');
@@ -209,7 +209,7 @@ describe('useHelpScreen', () => {
     const { result } = renderHook(() => useHelpScreen());
 
     act(() => {
-      result.current.handleOpenDocumentation();
+      result.current.actions.handleOpenDocumentation();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(

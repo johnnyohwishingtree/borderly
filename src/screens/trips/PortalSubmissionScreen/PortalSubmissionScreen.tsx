@@ -131,7 +131,7 @@ export default function PortalSubmissionScreen() {
       </View>
 
       {/* Auth page banners */}
-      {pageType === 'auth' && autoLogin.autoLoginBannerState === 'in_progress' && (
+      {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'in_progress' && (
         <View
           style={{ backgroundColor: '#EFF6FF', borderBottomWidth: 1, borderBottomColor: '#3B82F6', paddingHorizontal: 16, paddingVertical: 10 }}
           testID="auto-login-progress-banner"
@@ -142,7 +142,7 @@ export default function PortalSubmissionScreen() {
         </View>
       )}
 
-      {pageType === 'auth' && autoLogin.autoLoginBannerState === 'failed' && (
+      {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'failed' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
           testID="auto-login-failed-banner"
@@ -153,7 +153,7 @@ export default function PortalSubmissionScreen() {
         </View>
       )}
 
-      {pageType === 'auth' && autoLogin.autoLoginBannerState === 'idle' && (
+      {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'idle' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
           testID="auth-page-banner"
@@ -208,14 +208,14 @@ export default function PortalSubmissionScreen() {
       )}
 
       {/* Save credentials prompt */}
-      {autoLogin.showSaveCredentialsPrompt && (
+      {autoLogin.state.showSaveCredentialsPrompt && (
         <CredentialPrompt
           visible
           portalName={schema?.portalName ?? 'this portal'}
-          initialUsername={autoLogin.extractedUsername}
+          initialUsername={autoLogin.state.extractedUsername}
           title="Save your login for next time?"
-          onSave={autoLogin.handleCredentialSave}
-          onSkip={autoLogin.dismissCredentialPrompt}
+          onSave={autoLogin.actions.handleCredentialSave}
+          onSkip={autoLogin.actions.dismissCredentialPrompt}
           testID="save-credentials-prompt"
         />
       )}
