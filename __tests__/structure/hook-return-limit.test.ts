@@ -19,12 +19,7 @@ const MAX_RETURN_KEYS = 10;
  * Each entry should be removed once the hook is refactored.
  * Adding a NEW hook here is not allowed — fix the hook instead.
  */
-const KNOWN_VIOLATIONS = new Set([
-  'useHelpScreen',
-  'usePortalAutoLogin',
-  'useReviewImport',
-  'useSubmissionGuide',
-]);
+const KNOWN_VIOLATIONS = new Set<string>();
 
 /**
  * Parse the top-level return keys from a hook file.

@@ -56,9 +56,9 @@ describe('usePortalAutoLogin', () => {
     it('starts with idle banner and no credential prompt', () => {
       const { result } = renderAutoLogin();
 
-      expect(result.current.autoLoginBannerState).toBe('idle');
-      expect(result.current.showSaveCredentialsPrompt).toBe(false);
-      expect(result.current.extractedUsername).toBe('');
+      expect(result.current.state.autoLoginBannerState).toBe('idle');
+      expect(result.current.state.showSaveCredentialsPrompt).toBe(false);
+      expect(result.current.state.extractedUsername).toBe('');
     });
   });
 
@@ -68,18 +68,18 @@ describe('usePortalAutoLogin', () => {
 
       // Set banner to failed first
       act(() => {
-        result.current.handleAutoLoginResult(false);
+        result.current.actions.handleAutoLoginResult(false);
       });
-      expect(result.current.autoLoginBannerState).toBe('failed');
+      expect(result.current.state.autoLoginBannerState).toBe('failed');
 
       // Reset
       act(() => {
-        result.current.resetForNewPage();
+        result.current.actions.resetForNewPage();
       });
 
-      expect(result.current.autoLoginBannerState).toBe('idle');
-      expect(result.current.autoLoginTriggeredRef.current).toBe(false);
-      expect(result.current.prevPageTypeRef.current).toBe('unknown');
+      expect(result.current.state.autoLoginBannerState).toBe('idle');
+      expect(result.current.refs.autoLoginTriggeredRef.current).toBe(false);
+      expect(result.current.refs.prevPageTypeRef.current).toBe('unknown');
     });
   });
 
@@ -92,7 +92,7 @@ describe('usePortalAutoLogin', () => {
       const { result, webViewRef } = renderAutoLogin();
 
       await act(async () => {
-        await result.current.attemptAutoLogin();
+        await result.current.actions.attemptAutoLogin();
       });
 
       expect(mockResolveCredential).toHaveBeenCalled();
@@ -105,13 +105,13 @@ describe('usePortalAutoLogin', () => {
       // First attempt
       mockResolveCredential.mockResolvedValue(null);
       await act(async () => {
-        await result.current.attemptAutoLogin();
+        await result.current.actions.attemptAutoLogin();
       });
 
       // Second attempt — should skip
       mockResolveCredential.mockClear();
       await act(async () => {
-        await result.current.attemptAutoLogin();
+        await result.current.actions.attemptAutoLogin();
       });
 
       expect(mockResolveCredential).not.toHaveBeenCalled();
@@ -123,11 +123,11 @@ describe('usePortalAutoLogin', () => {
       const { result } = renderAutoLogin();
 
       await act(async () => {
-        await result.current.attemptAutoLogin();
+        await result.current.actions.attemptAutoLogin();
       });
 
       // Should not crash, banner stays idle or goes to failed
-      expect(result.current.autoLoginBannerState).not.toBe('in_progress');
+      expect(result.current.state.autoLoginBannerState).not.toBe('in_progress');
     });
   });
 
@@ -136,10 +136,10 @@ describe('usePortalAutoLogin', () => {
       const { result } = renderAutoLogin();
 
       act(() => {
-        result.current.handleAutoLoginResult(false);
+        result.current.actions.handleAutoLoginResult(false);
       });
 
-      expect(result.current.autoLoginBannerState).toBe('failed');
+      expect(result.current.state.autoLoginBannerState).toBe('failed');
     });
   });
 
@@ -150,7 +150,7 @@ describe('usePortalAutoLogin', () => {
       const { result } = renderAutoLogin();
 
       await act(async () => {
-        await result.current.handleCredentialSave('user', 'pass');
+        await result.current.actions.handleCredentialSave('user', 'pass');
       });
 
       expect(mockStoreCredential).toHaveBeenCalledWith(
@@ -167,14 +167,14 @@ describe('usePortalAutoLogin', () => {
       const { result } = renderAutoLogin();
 
       act(() => {
-        result.current.handleShowCredentialPrompt();
+        result.current.actions.handleShowCredentialPrompt();
       });
 
       act(() => {
-        result.current.dismissCredentialPrompt();
+        result.current.actions.dismissCredentialPrompt();
       });
 
-      expect(result.current.showSaveCredentialsPrompt).toBe(false);
+      expect(result.current.state.showSaveCredentialsPrompt).toBe(false);
     });
   });
 });

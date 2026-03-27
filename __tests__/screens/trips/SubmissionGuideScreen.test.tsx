@@ -42,31 +42,39 @@ jest.mock('@/stores/useTripStore', () => ({
 
 // Controlled hook mock — can be overridden per test
 const defaultGuideResult = {
-  isLoading: false,
-  schema: {
-    countryCode: 'JPN',
-    countryName: 'Japan',
-    portalName: 'Visit Japan Web',
-    portalUrl: 'https://vjw-lp.digital.go.jp/en/',
-    submissionGuide: [
-      { order: 1, title: 'Step 1', fieldsOnThisScreen: [] },
-      { order: 2, title: 'Step 2', fieldsOnThisScreen: [] },
-    ],
-    submission: { recommended: '3 days', earliestBeforeArrival: '14 days', latestBeforeArrival: '24 hours' },
+  state: {
+    isLoading: false,
+    currentStep: 2,
+    activeTravelerId: 'profile-1',
   },
-  filledForm: {
-    sections: [],
-    stats: { totalFields: 2, autoFilled: 2, userFilled: 0, remaining: 0, completionPercentage: 100 },
+  data: {
+    schema: {
+      countryCode: 'JPN',
+      countryName: 'Japan',
+      portalName: 'Visit Japan Web',
+      portalUrl: 'https://vjw-lp.digital.go.jp/en/',
+      submissionGuide: [
+        { order: 1, title: 'Step 1', fieldsOnThisScreen: [] },
+        { order: 2, title: 'Step 2', fieldsOnThisScreen: [] },
+      ],
+      submission: { recommended: '3 days', earliestBeforeArrival: '14 days', latestBeforeArrival: '24 hours' },
+    },
+    filledForm: {
+      sections: [],
+      stats: { totalFields: 2, autoFilled: 2, userFilled: 0, remaining: 0, completionPercentage: 100 },
+    },
+    currentTraveler: { id: 'profile-1', givenNames: 'John', surname: 'Doe' },
+    completedSteps: [1, 2],
+    fieldsData: {},
   },
-  currentTraveler: { id: 'profile-1', givenNames: 'John', surname: 'Doe' },
-  completedSteps: [1, 2],
-  currentStep: 2,
-  travelerTabs: [],
-  hasMultipleTravelers: false,
-  activeTravelerId: 'profile-1',
-  fieldsData: {},
-  handleStepComplete: jest.fn(),
-  handleSwitchTraveler: jest.fn(),
+  travelers: {
+    travelerTabs: [],
+    hasMultipleTravelers: false,
+  },
+  actions: {
+    handleStepComplete: jest.fn(),
+    handleSwitchTraveler: jest.fn(),
+  },
 };
 
 const mockUseSubmissionGuide = jest.fn(() => defaultGuideResult);
@@ -328,7 +336,10 @@ describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
   it('does not render mark-as-submitted-button when steps are not all complete', () => {
     mockUseSubmissionGuide.mockReturnValue({
       ...defaultGuideResult,
-      completedSteps: [1], // only 1 of 2 steps complete
+      data: {
+        ...defaultGuideResult.data,
+        completedSteps: [1], // only 1 of 2 steps complete
+      },
     });
     const { queryByTestId } = render(<SubmissionGuideScreen />);
     expect(queryByTestId('mark-as-submitted-button')).toBeNull();

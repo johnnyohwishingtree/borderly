@@ -40,18 +40,10 @@ export default function SubmissionGuideScreen() {
   const { updateLegSubmissionStatus } = useTripStore();
 
   const {
-    isLoading,
-    schema,
-    filledForm,
-    currentTraveler,
-    completedSteps,
-    currentStep,
-    travelerTabs,
-    hasMultipleTravelers,
-    activeTravelerId,
-    fieldsData,
-    handleStepComplete,
-    handleSwitchTraveler,
+    state: { isLoading, currentStep, activeTravelerId },
+    data: { schema, filledForm, currentTraveler, completedSteps, fieldsData },
+    travelers: { travelerTabs, hasMultipleTravelers },
+    actions: { handleStepComplete, handleSwitchTraveler },
   } = useSubmissionGuide({ tripId, legId, countryCode, travelerId });
 
   const handleMarkAsSubmitted = async () => {

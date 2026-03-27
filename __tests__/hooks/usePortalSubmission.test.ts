@@ -140,12 +140,25 @@ jest.mock('../../src/hooks/useLoadTimeout', () => ({
 
 jest.mock('../../src/hooks/usePortalAutoLogin', () => ({
   usePortalAutoLogin: () => ({
-    resetForNewPage: mockResetForNewPage,
-    attemptAutoLogin: mockAttemptAutoLogin,
-    handleAutoLoginResult: mockHandleAutoLoginResult,
-    handleExtractedUsername: mockHandleExtractedUsername,
-    checkAuthToFormTransition: mockCheckAuthToFormTransition,
-    prevPageTypeRef: { current: 'unknown' },
+    state: {
+      autoLoginBannerState: 'idle',
+      showSaveCredentialsPrompt: false,
+      extractedUsername: '',
+    },
+    refs: {
+      autoLoginTriggeredRef: { current: false },
+      prevPageTypeRef: { current: 'unknown' },
+    },
+    actions: {
+      resetForNewPage: mockResetForNewPage,
+      attemptAutoLogin: mockAttemptAutoLogin,
+      handleAutoLoginResult: mockHandleAutoLoginResult,
+      handleExtractedUsername: mockHandleExtractedUsername,
+      checkAuthToFormTransition: mockCheckAuthToFormTransition,
+      handleShowCredentialPrompt: jest.fn(),
+      handleCredentialSave: jest.fn(),
+      dismissCredentialPrompt: jest.fn(),
+    },
   }),
 }));
 

@@ -13,17 +13,10 @@ interface HelpScreenProps {
 export default function HelpScreen({ route: _route }: HelpScreenProps) {
   const navigation = useNavigation();
   const {
-    selectedCategory,
-    setSelectedCategory,
-    expandedFAQ,
-    isSearchVisible,
-    setIsSearchVisible,
-    filteredFAQs,
-    categories,
-    toggleFAQ,
-    handleContactSupport,
-    handleSearchNavigate,
-    handleOpenDocumentation,
+    search: { isSearchVisible, setIsSearchVisible, handleSearchNavigate },
+    faq: { filteredFAQs, expandedFAQ, toggleFAQ },
+    category: { selectedCategory, setSelectedCategory, categories },
+    actions: { handleContactSupport, handleOpenDocumentation },
   } = useHelpScreen();
 
   return (

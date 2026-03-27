@@ -30,30 +30,38 @@ interface UseSubmissionGuideOptions {
 }
 
 export interface UseSubmissionGuideResult {
-  /** True while the initial profile/schema load is in progress */
-  isLoading: boolean;
-  /** Resolved country schema (or null if not yet loaded) */
-  schema: any;
-  /** Filled form for the active traveler (or null if not yet generated) */
-  filledForm: any;
-  /** Profile of the currently-active traveler */
-  currentTraveler: TravelerProfile | null;
-  /** Steps completed by the currently-active traveler */
-  completedSteps: number[];
-  /** Which step the UI cursor is on */
-  currentStep: number;
-  /** Traveler tabs to display (empty when only 1 traveler assigned) */
-  travelerTabs: TravelerTab[];
-  /** Whether there are multiple assigned travelers */
-  hasMultipleTravelers: boolean;
-  /** ID of the currently-active traveler */
-  activeTravelerId: string | null;
-  /** Flat map of field data ready for StepCard consumption */
-  fieldsData: Record<string, { label: string; value: string; portalFieldName?: string }>;
-  /** Mark a step order as complete and advance the cursor */
-  handleStepComplete: (stepOrder: number) => void;
-  /** Switch the guide to a different traveler */
-  handleSwitchTraveler: (newTravelerId: string) => void;
+  state: {
+    /** True while the initial profile/schema load is in progress */
+    isLoading: boolean;
+    /** Which step the UI cursor is on */
+    currentStep: number;
+    /** ID of the currently-active traveler */
+    activeTravelerId: string | null;
+  };
+  data: {
+    /** Resolved country schema (or null if not yet loaded) */
+    schema: any;
+    /** Filled form for the active traveler (or null if not yet generated) */
+    filledForm: any;
+    /** Profile of the currently-active traveler */
+    currentTraveler: TravelerProfile | null;
+    /** Steps completed by the currently-active traveler */
+    completedSteps: number[];
+    /** Flat map of field data ready for StepCard consumption */
+    fieldsData: Record<string, { label: string; value: string; portalFieldName?: string }>;
+  };
+  travelers: {
+    /** Traveler tabs to display (empty when only 1 traveler assigned) */
+    travelerTabs: TravelerTab[];
+    /** Whether there are multiple assigned travelers */
+    hasMultipleTravelers: boolean;
+  };
+  actions: {
+    /** Mark a step order as complete and advance the cursor */
+    handleStepComplete: (stepOrder: number) => void;
+    /** Switch the guide to a different traveler */
+    handleSwitchTraveler: (newTravelerId: string) => void;
+  };
 }
 
 export function useSubmissionGuide({
@@ -230,17 +238,25 @@ export function useSubmissionGuide({
   );
 
   return {
-    isLoading,
-    schema,
-    filledForm,
-    currentTraveler,
-    completedSteps,
-    currentStep,
-    travelerTabs,
-    hasMultipleTravelers,
-    activeTravelerId,
-    fieldsData,
-    handleStepComplete,
-    handleSwitchTraveler,
+    state: {
+      isLoading,
+      currentStep,
+      activeTravelerId,
+    },
+    data: {
+      schema,
+      filledForm,
+      currentTraveler,
+      completedSteps,
+      fieldsData,
+    },
+    travelers: {
+      travelerTabs,
+      hasMultipleTravelers,
+    },
+    actions: {
+      handleStepComplete,
+      handleSwitchTraveler,
+    },
   };
 }
