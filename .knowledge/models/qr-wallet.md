@@ -18,6 +18,12 @@ QRCode *──1 QRCategory
 QRCode *──1 Trip (optional association)
 ```
 
+## Country Requirements
+- **QR required** (JPN, PHL, IDN): portal issues a QR code — travelers must present at border control
+- **Confirmation code** (SGP, KOR, IND, MYS, NZL, AUS, VNM): portal issues an email confirmation/reference code — travelers should save for reference
+- Canonical sets defined in `src/constants/countries.ts` (`QR_REQUIRED_COUNTRY_CODES`, `CONFIRMATION_CODE_COUNTRY_CODES`)
+- ReadinessService tracks both as separate categories (`qr`, `confirmation`)
+
 ## Invariants
 - QR data must be valid (parseable as QR content)
 - Deleted QR codes are permanently removed (no soft delete)

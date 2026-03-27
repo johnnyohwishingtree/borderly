@@ -746,7 +746,7 @@ describe('computeTripReadiness — AUS leg', () => {
     expect(deadlineItem!.detail).toBe('Submit within 72 hours before arrival');
   });
 
-  it('overallStatus is "ok" for AUS leg with submitted form, valid passport, no QR required', async () => {
+  it('overallStatus is "ok" for AUS leg with submitted form, valid passport, and confirmation code', async () => {
     const leg = makeLegWithDeparture(30, {
       id: 'leg-aus',
       destinationCountry: 'AUS',
@@ -754,7 +754,8 @@ describe('computeTripReadiness — AUS leg', () => {
       submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
-    const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, []);
+    const qr = makeQRCode({ legId: 'leg-aus' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, [qr]);
 
     expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
   });
@@ -804,7 +805,7 @@ describe('computeTripReadiness — NZL leg', () => {
     expect(deadlineItem!.detail).toBe('Submit at least 24 hours before arrival');
   });
 
-  it('overallStatus is "ok" for NZL leg with submitted form and valid passport', async () => {
+  it('overallStatus is "ok" for NZL leg with submitted form, valid passport, and confirmation code', async () => {
     const leg = makeLegWithDeparture(30, {
       id: 'leg-nzl',
       destinationCountry: 'NZL',
@@ -812,7 +813,8 @@ describe('computeTripReadiness — NZL leg', () => {
       submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
-    const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, []);
+    const qr = makeQRCode({ legId: 'leg-nzl' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, [qr]);
 
     expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
   });
@@ -860,7 +862,7 @@ describe('computeTripReadiness — KOR leg', () => {
     expect(deadlineItem).toBeDefined();
   });
 
-  it('overallStatus is "ok" for KOR leg with submitted form and valid passport', async () => {
+  it('overallStatus is "ok" for KOR leg with submitted form, valid passport, and confirmation code', async () => {
     const leg = makeLegWithDeparture(30, {
       id: 'leg-kor',
       destinationCountry: 'KOR',
@@ -868,7 +870,8 @@ describe('computeTripReadiness — KOR leg', () => {
       submissionStatus: 'not_started',
     });
     const profile = makeProfile({ passportExpiry: '2050-01-01' });
-    const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, []);
+    const qr = makeQRCode({ legId: 'leg-kor' });
+    const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, [qr]);
 
     expect(result.overallStatus).toBe<ReadinessItemStatus>('ok');
   });
@@ -916,8 +919,194 @@ describe('computeTripReadiness — multi-country trip with AUS, NZL, KOR', () =>
     expect(jpnQR).toBeDefined();
     expect(jpnQR!.status).toBe<ReadinessItemStatus>('missing');
 
-    // AUS should NOT emit a QR item
+    // AUS should NOT emit a QR item (but AUS emits a confirmation item)
     const ausQR = result.items.find((i) => i.id === 'qr-leg-aus');
     expect(ausQR).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeTripReadiness — PHL/IDN QR code expansion
+// ---------------------------------------------------------------------------
+
+function makePHLSchema(overrides: Partial<CountryFormSchema> = {}): CountryFormSchema {
+  return makeSchema({
+    countryCode: 'PHL',
+    countryName: 'Philippines',
+    portalName: 'eTravel',
+    submissionDeadlineHours: 0,
+    recommendedLeadTimeHours: 72,
+    submissionWindowNote: 'Submit within 72 hours before arrival',
+    passportValidityMonths: 6,
+    ...overrides,
+  });
+}
+
+function makeIDNSchema(overrides: Partial<CountryFormSchema> = {}): CountryFormSchema {
+  return makeSchema({
+    countryCode: 'IDN',
+    countryName: 'Indonesia',
+    portalName: 'Indonesia e-CD',
+    submissionDeadlineHours: 0,
+    recommendedLeadTimeHours: 48,
+    submissionWindowNote: 'Submit before arrival',
+    passportValidityMonths: 6,
+    ...overrides,
+  });
+}
+
+describe('computeTripReadiness — PHL QR requirement', () => {
+  const phlSchemas: Record<string, CountryFormSchema> = { PHL: makePHLSchema() };
+
+  it('status is "missing" for PHL leg with no QR code saved', async () => {
+    const leg = makeLeg({ id: 'leg-phl', destinationCountry: 'PHL' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], phlSchemas, []);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-phl');
+    expect(qrItem).toBeDefined();
+    expect(qrItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(qrItem!.category).toBe('qr');
+  });
+
+  it('status is "ok" for PHL leg with QR code saved', async () => {
+    const leg = makeLeg({ id: 'leg-phl', destinationCountry: 'PHL' });
+    const qr = makeQRCode({ legId: 'leg-phl' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], phlSchemas, [qr]);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-phl');
+    expect(qrItem).toBeDefined();
+    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+});
+
+describe('computeTripReadiness — IDN QR requirement', () => {
+  const idnSchemas: Record<string, CountryFormSchema> = { IDN: makeIDNSchema() };
+
+  it('status is "missing" for IDN leg with no QR code saved', async () => {
+    const leg = makeLeg({ id: 'leg-idn', destinationCountry: 'IDN' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], idnSchemas, []);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-idn');
+    expect(qrItem).toBeDefined();
+    expect(qrItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(qrItem!.category).toBe('qr');
+  });
+
+  it('status is "ok" for IDN leg with QR code saved', async () => {
+    const leg = makeLeg({ id: 'leg-idn', destinationCountry: 'IDN' });
+    const qr = makeQRCode({ legId: 'leg-idn' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], idnSchemas, [qr]);
+
+    const qrItem = result.items.find((i) => i.id === 'qr-leg-idn');
+    expect(qrItem).toBeDefined();
+    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeTripReadiness — confirmation code tracking
+// ---------------------------------------------------------------------------
+
+describe('computeTripReadiness — confirmation code signal', () => {
+  it('emits "missing" confirmation item for SGP leg with no codes saved', async () => {
+    const sgpSchema: Record<string, CountryFormSchema> = { SGP: makeSGPSchema() };
+    const leg = makeLeg({ id: 'leg-sgp', destinationCountry: 'SGP' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], sgpSchema, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-sgp');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.category).toBe('confirmation');
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirmItem!.detail).toContain('No confirmation code saved');
+    expect(confirmItem!.actionScreen).toBe('QRWallet');
+  });
+
+  it('emits "ok" confirmation item for SGP leg with code saved', async () => {
+    const sgpSchema: Record<string, CountryFormSchema> = { SGP: makeSGPSchema() };
+    const leg = makeLeg({ id: 'leg-sgp', destinationCountry: 'SGP' });
+    const qr = makeQRCode({ legId: 'leg-sgp' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], sgpSchema, [qr]);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-sgp');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(confirmItem!.detail).toContain('confirmation code(s) saved');
+  });
+
+  it('emits "missing" confirmation item for KOR leg with no codes saved', async () => {
+    const korSchemas: Record<string, CountryFormSchema> = { KOR: makeKORSchema() };
+    const leg = makeLeg({ id: 'leg-kor', destinationCountry: 'KOR' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-kor');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+  });
+
+  it('emits "ok" confirmation item for AUS leg with code saved', async () => {
+    const ausSchemas: Record<string, CountryFormSchema> = { AUS: makeAUSSchema() };
+    const leg = makeLeg({ id: 'leg-aus', destinationCountry: 'AUS' });
+    const qr = makeQRCode({ legId: 'leg-aus' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, [qr]);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-aus');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('ok');
+  });
+
+  it('emits "missing" confirmation item for NZL leg with no codes', async () => {
+    const nzlSchemas: Record<string, CountryFormSchema> = { NZL: makeNZLSchema() };
+    const leg = makeLeg({ id: 'leg-nzl', destinationCountry: 'NZL' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-nzl');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+  });
+
+  it('emits "missing" confirmation item for VNM leg with no codes', async () => {
+    const vnmSchema: Record<string, CountryFormSchema> = {
+      VNM: makeSchema({
+        countryCode: 'VNM',
+        countryName: 'Vietnam',
+      }),
+    };
+    const leg = makeLeg({ id: 'leg-vnm', destinationCountry: 'VNM' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], vnmSchema, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-vnm');
+    expect(confirmItem).toBeDefined();
+    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+  });
+
+  it('does NOT emit confirmation item for JPN (QR country, not confirmation)', async () => {
+    const leg = makeLeg({ id: 'leg-jpn', destinationCountry: 'JPN' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], defaultSchemas, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-jpn');
+    expect(confirmItem).toBeUndefined();
+  });
+
+  it('does NOT emit confirmation item for PHL (QR country, not confirmation)', async () => {
+    const phlSchemas: Record<string, CountryFormSchema> = { PHL: makePHLSchema() };
+    const leg = makeLeg({ id: 'leg-phl', destinationCountry: 'PHL' });
+    const result = await computeTripReadiness(makeTrip([leg]), [], phlSchemas, []);
+
+    const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-phl');
+    expect(confirmItem).toBeUndefined();
+  });
+
+  it('only counts codes for the correct leg', async () => {
+    const sgpSchema: Record<string, CountryFormSchema> = { SGP: makeSGPSchema() };
+    const leg1 = makeLeg({ id: 'leg-sgp-1', destinationCountry: 'SGP' });
+    const leg2 = makeLeg({ id: 'leg-sgp-2', destinationCountry: 'SGP' });
+    const qr = makeQRCode({ legId: 'leg-sgp-2' });
+
+    const result = await computeTripReadiness(makeTrip([leg1, leg2]), [], sgpSchema, [qr]);
+
+    const confirm1 = result.items.find((i) => i.id === 'confirmation-leg-sgp-1');
+    const confirm2 = result.items.find((i) => i.id === 'confirmation-leg-sgp-2');
+    expect(confirm1!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirm2!.status).toBe<ReadinessItemStatus>('ok');
   });
 });
