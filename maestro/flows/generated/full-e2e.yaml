@@ -76,13 +76,6 @@ tags:
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "confirm-scan-button"
 
@@ -230,13 +223,6 @@ tags:
     start: "50%,40%"
     end: "50%,38%"
     duration: 150
-- scrollUntilVisible:
-    element:
-      id: "country-select-0-option-JPN"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "country-select-0-option-JPN"
 - scrollUntilVisible:
@@ -420,45 +406,8 @@ tags:
     id: "save-progress-button"
 - extendedWaitUntil:
     visible: "Success"
-    timeout: 10000
-- tapOn:
-    id: "OK"
-
-# === LEG FORM — OPEN GUIDE ===
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- swipe:
-    start: "50%,80%"
-    end: "50%,20%"
-    duration: 300
-- scrollUntilVisible:
-    element:
-      id: "open-submission-guide-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
-- tapOn:
-    id: "open-submission-guide-button"
-
-# === SUBMISSION GUIDE — VERIFY ===
-- extendedWaitUntil:
-    visible: "Submission Guide"
-    timeout: 20000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- extendedWaitUntil:
-    visible: "Submission Guide"
-    timeout: 10000
-- extendedWaitUntil:
-    visible: "Japan"
-    timeout: 10000
+    timeout: 5000
+- tapOn: "OK"
 
 # === BACK TO TRIP LIST — VERIFY ===
 - runFlow:

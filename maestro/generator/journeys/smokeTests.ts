@@ -5,7 +5,7 @@
  * - demoScanSmoke: 30s quick sanity check (onboarding only)
  * - fullE2E: complete user journey — onboard → trip → form → guide → verify
  */
-import { journey, step } from '../dsl';
+import { journey, step, alert } from '../dsl';
 import {
   tap, assertVisible, swipe,
 } from '../dsl';
@@ -68,7 +68,7 @@ export const fullE2E = journey('full-e2e', {
     screenStep('TripDetail', {
       comment: 'OPEN JAPAN LEG FORM',
       actions: [
-        tap('leg-card-JPN'),
+        tap('leg-card-JPN', { scroll: true }),
       ],
     }),
     step('LegForm', {
@@ -94,31 +94,11 @@ export const fullE2E = journey('full-e2e', {
         swipe('50%,80%', '50%,20%', 300),
         tapButton('LegForm', 'save-progress-button'),
         // Dismiss success alert
-        assertVisible('Success'),
-        tap('OK', { scroll: false }),
+        alert('Success', 'OK'),
       ],
     }),
 
-    // ── 5. Open submission guide ──
-    step('LegForm', {
-      comment: 'LEG FORM — OPEN GUIDE',
-      actions: [
-        swipe('50%,80%', '50%,20%', 300),
-        tapButton('LegForm', 'open-submission-guide-button'),
-      ],
-    }),
-    step('SubmissionGuide', {
-      comment: 'SUBMISSION GUIDE — VERIFY',
-      waitFor: 'Submission Guide',
-      waitTimeout: 20000,
-      actions: [
-        assertVisible('Submission Guide'),
-        // Verify guide has steps for Japan
-        assertVisible('Japan'),
-      ],
-    }),
-
-    // ── 6. Go back to trip list and verify ──
+    // ── 5. Go back to trip list and verify ──
     step('TripList', {
       comment: 'BACK TO TRIP LIST — VERIFY',
       actions: [

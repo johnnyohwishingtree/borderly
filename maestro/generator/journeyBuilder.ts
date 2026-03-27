@@ -163,7 +163,7 @@ export function tapButton(screenName: string, buttonTestID: string): Action {
     );
   }
 
-  return tap(buttonTestID);
+  return tap(buttonTestID, { scroll: true });
 }
 
 /**

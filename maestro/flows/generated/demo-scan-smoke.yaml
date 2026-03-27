@@ -75,13 +75,6 @@ tags:
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "confirm-scan-button"
 

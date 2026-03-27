@@ -32,8 +32,8 @@ const createJapanTrip = () => screenStep('CreateTrip', {
     // Add destination
     tapButton('CreateTrip', 'add-destination-button'),
     // Country select (manual — Maestro depth issue with SearchableSelect)
-    tap('country-select-0-trigger'),
-    tap('country-select-0-search'),
+    tap('country-select-0-trigger', { scroll: true }),
+    tap('country-select-0-search', { scroll: true }),
     inputText('Japan'),
     swipe('50%,40%', '50%,38%', 150),
     tap('country-select-0-option-JPN'),

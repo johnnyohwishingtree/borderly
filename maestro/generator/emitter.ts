@@ -43,7 +43,7 @@ function emitAction(action: Action, depth = 0): string[] {
 
   switch (action.type) {
     case 'tap':
-      if (action.scroll !== false) {
+      if (action.scroll) {
         lines.push(...emitScroll(d, action.testID));
       }
       lines.push(
