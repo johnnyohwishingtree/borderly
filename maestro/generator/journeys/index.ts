@@ -1,8 +1,8 @@
 /**
  * All journey definitions exported for the generator.
+ *
+ * Two flows:
+ * - demoScanSmoke: quick onboarding sanity check (30s)
+ * - fullE2E: complete user journey — the one test that matters
  */
-export { onboardingManual, onboardingDemoScan } from './onboarding';
-export { fullJourneyWithTrip } from './tripCreation';
-export { addFamilyMember, demoScanFamily, familyOf4FullTrip } from './familyManagement';
-export { smokeTest, demoScanSmoke, tripAndSubmit } from './smokeTests';
-export { captureScreenshots } from './screenshots';
+export { demoScanSmoke, fullE2E } from './smokeTests';

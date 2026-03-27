@@ -1,237 +1,167 @@
 /**
- * Screen registry — declarative metadata for every screen.
+ * Screen registry — auto-generated from source files.
  *
- * This is the source of truth for what each screen contains, how to
- * interact with it, and what to expect. Manually maintained alongside
- * journey definitions. Used by:
+ * DO NOT EDIT testIDs, fields, buttons, alerts, or navigatesTo manually.
+ * These are parsed from screen source files by:
+ *   npx tsx scripts/generate-screen-registry.ts --write
  *
- * - **Maestro generator** — journey authors look up fields, alerts, waitFor
- * - **UI/UX skills** — /visual-audit, /ux-review reference this for context
- * - **QA skill** — /qa uses this to know what to test on each screen
- *
- * When you modify a screen, update its entry here. Run `pnpm maestro:generate`
- * to validate testIDs still exist in source code.
+ * Human-authored fields (waitFor, notes) are preserved across regenerations.
+ * Edit those directly in this file.
  */
 
 // ── Types ──
 
 export interface FieldSpec {
-  /** testID of the field (use ${index} for dynamic testIDs) */
   testID: string;
-  /** Human-readable label */
   label: string;
-  /** Component type (must match a key in COMPONENT_CATALOG) */
-  componentType: keyof typeof import('./componentCatalog').COMPONENT_CATALOG | 'other';
-  /** Whether the field is required for form submission */
+  componentType: string;
   required: boolean;
-  /** Whether the testID contains dynamic segments like ${index} */
   dynamic?: boolean;
-  /** Placeholder text shown in the field */
-  placeholder?: string;
-  /** Example value for test data */
-  exampleValue?: string;
 }
 
 export interface AlertSpec {
-  /** Alert title (used for waitFor + assertVisible) */
   title: string;
-  /** Button labels on the alert */
   buttons: string[];
-  /** Which button to tap to proceed (for happy path) */
   happyPathButton?: string;
-  /** What triggers this alert */
   trigger: string;
-  /** What happens after tapping the happy path button */
-  outcome?: string;
 }
 
 export interface ScreenSpec {
-  /** Screen name as registered in the navigator */
   name: string;
-  /** Path to the screen source file */
   sourceFile: string;
-  /** Text to wait for when this screen appears (for Maestro waitFor) */
   waitFor: string | string[];
-  /** Ordered list of interactive fields (top to bottom as rendered) */
   fields: FieldSpec[];
-  /** Alerts that can appear on this screen */
   alerts: AlertSpec[];
-  /** testIDs of action buttons (not form fields) */
   actionButtons: { testID: string; label: string; description: string }[];
-  /** Screens this screen navigates to */
   navigatesTo: string[];
-  /** Notes for test authors */
-  notes?: string[];
+  notes: string[];
 }
 
-// ── Screen Definitions ──
+// ── Helper ──
+
+export function getScreen(name: string): ScreenSpec | undefined {
+  return SCREENS[name];
+}
+
+export function getRequiredFields(screenName: string): FieldSpec[] {
+  const screen = getScreen(screenName);
+  if (!screen) return [];
+  return screen.fields.filter(f => f.required);
+}
+
+// ── Registry ──
 
 export const SCREENS: Record<string, ScreenSpec> = {
-  Welcome: {
-    name: 'Welcome',
-    sourceFile: 'src/screens/onboarding/WelcomeScreen/WelcomeScreen.tsx',
-    waitFor: 'Borderly',
-    fields: [],
-    alerts: [],
-    actionButtons: [
-      { testID: 'take-tutorial-button', label: 'Take Quick Tutorial', description: 'Begin tutorial then onboarding' },
-      { testID: 'skip-tutorial-button', label: 'Skip Tutorial', description: 'Skip tutorial, go to PassportScan' },
-      { testID: 'restore-backup-link', label: 'Restore from Backup', description: 'Open restore flow' },
-    ],
-    navigatesTo: ['Tutorial'],
-  },
-
-  Tutorial: {
-    name: 'Tutorial',
-    sourceFile: 'src/screens/onboarding/TutorialScreen/TutorialScreen.tsx',
-    waitFor: 'Step 1 of 3',
-    fields: [],
-    alerts: [],
-    actionButtons: [
-      { testID: 'next-step-button', label: 'Next', description: 'Next tutorial step' },
-      { testID: 'tutorial-skip-button', label: 'Skip', description: 'Skip tutorial' },
-      { testID: 'previous-step-button', label: 'Previous', description: 'Previous tutorial step' },
-    ],
-    navigatesTo: ['PassportScan'],
-    notes: ['3 tutorial pages — tap Next or Skip to advance.'],
-  },
-
-  PassportScan: {
-    name: 'PassportScan',
-    sourceFile: 'src/screens/onboarding/PassportScanScreen/PassportScanScreen.tsx',
-    waitFor: 'Passport Information',
-    fields: [
-      { testID: 'passport-number-input', label: 'Passport Number', componentType: 'Input', required: true, exampleValue: 'L12345678' },
-      { testID: 'surname-input', label: 'Surname', componentType: 'Input', required: true, exampleValue: 'SMITH' },
-      { testID: 'given-names-input', label: 'Given Names', componentType: 'Input', required: true, exampleValue: 'JOHN MICHAEL' },
-      { testID: 'nationality-input', label: 'Nationality', componentType: 'SearchableSelect', required: true, exampleValue: 'USA' },
-      { testID: 'dob-input', label: 'Date of Birth', componentType: 'DatePickerField', required: true },
-      { testID: 'gender-${value}-button', label: 'Gender', componentType: 'other', required: true, dynamic: true, exampleValue: 'Male' },
-      { testID: 'passport-expiry-input', label: 'Passport Expiry', componentType: 'DatePickerField', required: true },
-      { testID: 'issuing-country-input', label: 'Issuing Country', componentType: 'SearchableSelect', required: true, exampleValue: 'USA' },
-    ],
-    alerts: [],
-    actionButtons: [
-      { testID: 'start-camera-scan-button', label: 'Scan Passport', description: 'Open camera for MRZ scan' },
-      { testID: 'enter-manually-button', label: 'Enter Manually', description: 'Show manual entry form' },
-      { testID: 'demo-scan-adult', label: 'Demo Scan (Adult)', description: 'Fill with sample adult passport data' },
-      { testID: 'demo-scan-spouse', label: 'Demo Scan (Spouse)', description: 'Fill with sample spouse passport data' },
-      { testID: 'demo-scan-child', label: 'Demo Scan (Child)', description: 'Fill with sample child passport data' },
-      { testID: 'confirm-scan-button', label: 'Confirm Scan', description: 'Confirm scanned/demo passport data' },
-      { testID: 'passport-continue-button', label: 'Save & Continue', description: 'Save manual entry and proceed' },
-      { testID: 'passport-back-button', label: 'Back', description: 'Go back to previous screen' },
-    ],
-    navigatesTo: ['ConfirmProfile'],
-    notes: [
-      'Three entry modes: camera scan, demo data, manual entry.',
-      'Demo scan fills all fields with sample data — tap confirm-scan-button to proceed.',
-      'Manual entry shows the form fields listed above.',
-      'Gender uses radio buttons: gender-Male-button, gender-Female-button, gender-Other-button.',
-    ],
-  },
-
-  ConfirmProfile: {
-    name: 'ConfirmProfile',
-    sourceFile: 'src/screens/onboarding/ConfirmProfileScreen/ConfirmProfileScreen.tsx',
-    waitFor: 'Confirm Your Profile',
-    fields: [],
-    alerts: [],
-    actionButtons: [
-      { testID: 'continue-to-security-button', label: 'Continue', description: 'Proceed to AddCompanions' },
-      { testID: 'edit-information-button', label: 'Edit Information', description: 'Go back to PassportScan' },
-    ],
-    navigatesTo: ['AddCompanions'],
-    notes: ['Read-only display of passport data. No editable fields.'],
-  },
-
   AddCompanions: {
     name: 'AddCompanions',
     sourceFile: 'src/screens/onboarding/AddCompanionsScreen/AddCompanionsScreen.tsx',
     waitFor: 'Traveling with family?',
-    fields: [],
-    alerts: [],
-    actionButtons: [
-      { testID: 'add-companion-button', label: 'Add Companion', description: 'Open relationship picker to add a family member' },
-      { testID: 'companions-continue-button', label: 'Skip for now', description: 'Proceed to BiometricSetup (text is "Skip for now" when no companions added)' },
+    fields: [
     ],
-    navigatesTo: ['BiometricSetup'],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'add-companion-button', label: 'add companion', description: 'add companion' },
+      { testID: 'companions-continue-button', label: 'companions continue', description: 'companions continue' },
+      { testID: 'relationship-picker-modal', label: 'relationship picker modal', description: 'relationship picker modal' },
+      { testID: 'relationship-picker-backdrop', label: 'relationship picker backdrop', description: 'relationship picker backdrop' },
+      { testID: 'relationship-picker-title', label: 'relationship picker title', description: 'relationship picker title' },
+      { testID: 'relationship-picker-close', label: 'relationship picker close', description: 'relationship picker close' },
+      { testID: 'relationship-option-${value}', label: 'relationship option ${value}', description: 'relationship option ${value}' },
+    ],
+    navigatesTo: ['PassportScan', 'BiometricSetup'],
     notes: [
       'Optional step — can continue without adding anyone.',
-      'Skip button text is "Skip for now" when no companions added.',
+      'Skip button text is ',
+      ' when no companions added.',
       'Relationship picker modal has testIDs: relationship-option-{spouse|child|parent|sibling|other}.',
     ],
+  },
+
+  AddFamilyMember: {
+    name: 'AddFamilyMember',
+    sourceFile: 'src/screens/profile/AddFamilyMemberScreen/AddFamilyMemberScreen.tsx',
+    waitFor: '',
+    fields: [
+      { testID: 'relationship-select', label: 'Family Relationship', componentType: 'Select', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'start-camera-scan-button', label: 'Start Camera Scan', description: 'Start Camera Scan' },
+      { testID: 'enter-manually-family-button', label: 'Enter Manually', description: 'Enter Manually' },
+    ],
+    navigatesTo: ['PassportScan'],
+    notes: [],
+  },
+
+  AddQR: {
+    name: 'AddQR',
+    sourceFile: 'src/screens/wallet/AddQRScreen/AddQRScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: [],
+    notes: [],
   },
 
   BiometricSetup: {
     name: 'BiometricSetup',
     sourceFile: 'src/screens/onboarding/BiometricSetupScreen/BiometricSetupScreen.tsx',
     waitFor: 'Secure Your Profile',
-    fields: [],
+    fields: [
+    ],
     alerts: [
-      {
-        title: 'Setup Complete!',
-        buttons: ['Get Started'],
-        happyPathButton: 'Get Started',
-        trigger: 'enable-biometric-button',
-        outcome: 'Navigate to NotificationPermission',
-      },
-      {
-        title: 'Skip Biometric Setup?',
-        buttons: ['Go Back', 'Skip'],
-        happyPathButton: 'Skip',
-        trigger: 'skip-biometric-button',
-        outcome: 'Navigate to NotificationPermission',
-      },
-      {
-        title: 'Setup Failed',
-        buttons: ['OK'],
-        happyPathButton: 'OK',
-        trigger: 'enable-biometric-button (error)',
-        outcome: 'Stay on screen',
-      },
+      { title: 'Skip Biometric Setup?', buttons: ['Go Back', 'Skip'], happyPathButton: 'Skip', trigger: 'skip-biometric-button' },
     ],
     actionButtons: [
-      { testID: 'enable-biometric-button', label: 'Enable Biometrics', description: 'Enable Face ID / Touch ID' },
-      { testID: 'skip-biometric-button', label: 'Skip', description: 'Skip biometric setup' },
+      { testID: 'enable-biometric-button', label: 'enable biometric', description: 'enable biometric' },
+      { testID: 'skip-biometric-button', label: 'Skip for Now', description: 'Skip for Now' },
+      { testID: 'biometric-back-button', label: 'Skip for Now', description: 'Skip for Now' },
     ],
     navigatesTo: ['NotificationPermission'],
     notes: [
       'On simulator, biometric always fails — use skip-biometric-button.',
-      'Tapping "Skip" shows a confirmation alert — must tap "Skip" again on the alert.',
+      'Tapping ',
+      ' shows a confirmation alert — must tap ',
+      ' again on the alert.',
     ],
   },
 
-  NotificationPermission: {
-    name: 'NotificationPermission',
-    sourceFile: 'src/screens/onboarding/NotificationPermissionScreen/NotificationPermissionScreen.tsx',
-    waitFor: 'Stay on Top of Deadlines',
-    fields: [],
-    alerts: [],
+  BugReport: {
+    name: 'BugReport',
+    sourceFile: 'src/screens/support/BugReportScreen/BugReportScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
     actionButtons: [
-      { testID: 'allow-notifications-button', label: 'Allow Notifications', description: 'Request notification permission' },
-      { testID: 'skip-notifications-button', label: 'Skip for Now', description: 'Skip notification setup' },
     ],
     navigatesTo: [],
-    notes: [
-      'Last onboarding screen — completing it sets onboardingComplete=true.',
-      'On iOS simulator, notifications are often already authorized, causing auto-skip.',
-      'Auto-skip has a 500ms delay to prevent navigator swap race condition.',
-    ],
+    notes: [],
   },
 
-  TripList: {
-    name: 'TripList',
-    sourceFile: 'src/screens/trips/TripListScreen/TripListScreen.tsx',
-    waitFor: 'Your Trips',
-    fields: [],
-    alerts: [],
-    actionButtons: [
-      { testID: 'create-first-trip-button', label: 'Create Your First Trip', description: 'Shown when no trips exist' },
+  ConfirmProfile: {
+    name: 'ConfirmProfile',
+    sourceFile: 'src/screens/onboarding/ConfirmProfileScreen/ConfirmProfileScreen.tsx',
+    waitFor: 'Confirm Your Profile',
+    fields: [
     ],
-    navigatesTo: ['CreateTrip', 'TripDetail'],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'confirm-go-back-button', label: 'Go Back', description: 'Go Back' },
+      { testID: 'continue-to-security-button', label: 'Continue', description: 'Continue' },
+      { testID: 'edit-information-button', label: 'Continue', description: 'Continue' },
+    ],
+    navigatesTo: ['AddCompanions'],
     notes: [
-      'Empty state shows create-first-trip-button.',
-      'With existing trips, shows trip cards + FAB.',
+      'Read-only display of passport data. No editable fields.',
     ],
   },
 
@@ -240,32 +170,29 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/CreateTripScreen/CreateTripScreen.tsx',
     waitFor: 'Create New Trip',
     fields: [
-      // Trip-level fields
-      { testID: 'trip-name-input', label: 'Trip Name', componentType: 'Input', required: true, placeholder: 'e.g., Asia Summer 2025', exampleValue: 'Japan Trip 2026' },
-      // Per-leg fields (index starts at 0)
-      { testID: 'country-select-${index}', label: 'Country', componentType: 'SearchableSelect', required: true, dynamic: true, exampleValue: 'JPN' },
+      { testID: 'trip-name-input', label: 'e.g., Asia Summer 2025', componentType: 'Input', required: true },
+      { testID: 'country-select-${index}', label: 'Country', componentType: 'SearchableSelect', required: true, dynamic: true },
       { testID: 'leg-${index}-arrival-date', label: 'Arrival Date', componentType: 'DatePickerField', required: true, dynamic: true },
-      { testID: 'leg-${index}-departure-date', label: 'Departure Date', componentType: 'DatePickerField', required: false, dynamic: true },
-      { testID: 'leg-${index}-flight-number', label: 'Flight Number', componentType: 'Input', required: false, dynamic: true },
-      { testID: 'leg-${index}-airline-code', label: 'Airline Code', componentType: 'Input', required: false, dynamic: true },
-      { testID: 'leg-${index}-arrival-airport', label: 'Arrival Airport', componentType: 'SearchableSelect', required: false, dynamic: true },
-      { testID: 'leg-${index}-accommodation-name', label: 'Accommodation Name', componentType: 'Input', required: true, dynamic: true, placeholder: 'e.g., Park Hyatt Tokyo', exampleValue: 'Park Hyatt Tokyo' },
-      { testID: 'leg-${index}-accommodation-address', label: 'Accommodation Address', componentType: 'AddressAutocomplete', required: false, dynamic: true },
+      { testID: 'leg-${index}-departure-date', label: 'leg ${index} departure', componentType: 'DatePickerField', required: true, dynamic: true },
+      { testID: 'leg-${index}-flight-number', label: 'Flight Number', componentType: 'Input', required: true, dynamic: true },
+      { testID: 'leg-${index}-airline-code', label: 'Airline Code', componentType: 'Input', required: true, dynamic: true },
+      { testID: 'leg-${index}-arrival-airport', label: 'Arrival Airport', componentType: 'SearchableSelect', required: true, dynamic: true },
+      { testID: 'leg-${index}-travelers-synced', label: 'leg travelers synced', componentType: 'SearchableSelect', required: true, dynamic: true },
+      { testID: 'leg-${index}-accommodation-address', label: 'leg accommodation address', componentType: 'AddressAutocomplete', required: true, dynamic: true },
     ],
     alerts: [
-      { title: 'Validation Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'create-trip-button (validation fails)', outcome: 'Stay on screen, fix errors' },
-      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'create-trip-button (success)', outcome: 'Navigate to TripDetail' },
-      { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'create-trip-button (error)', outcome: 'Stay on screen' },
-      { title: 'Destination Not Supported', buttons: ['Add Manually', 'Cancel'], happyPathButton: 'Add Manually', trigger: 'Boarding pass scan with unsupported country', outcome: 'Add leg anyway' },
     ],
     actionButtons: [
-      { testID: 'add-destination-button', label: 'Add Destination', description: 'Add a new leg to the trip' },
-      { testID: 'scan-destination-button', label: 'Scan Boarding Pass', description: 'Scan boarding pass to auto-fill leg' },
-      { testID: 'smart-import-button', label: 'Smart Import', description: 'Import trip data from text/flight' },
-      { testID: 'create-trip-button', label: 'Create Trip', description: 'Submit the trip form' },
-      { testID: 'remove-leg-${index}-button', label: 'Remove', description: 'Remove a leg from the trip' },
+      { testID: 'add-companion-cta-button', label: 'add companion', description: 'add companion' },
+      { testID: 'create-trip-button', label: 'create trip', description: 'create trip' },
+      { testID: 'smart-import-button', label: 'Import', description: 'Import' },
+      { testID: 'scan-destination-button', label: 'Import', description: 'Import' },
+      { testID: 'add-destination-button', label: 'Import', description: 'Import' },
+      { testID: 'empty-state-scan-button', label: 'Scan Boarding Pass', description: 'Scan Boarding Pass' },
+      { testID: 'empty-state-add-button', label: 'Scan Boarding Pass', description: 'Scan Boarding Pass' },
+      { testID: 'remove-leg-${index}-button', label: 'Remove', description: 'Remove' },
     ],
-    navigatesTo: ['TripDetail'],
+    navigatesTo: ['Profile'],
     notes: [
       'Required fields per leg: country, arrival date, accommodation name, ≥1 traveler.',
       'First leg is added automatically via add-destination-button tap.',
@@ -275,44 +202,137 @@ export const SCREENS: Record<string, ScreenSpec> = {
     ],
   },
 
-  TripDetail: {
-    name: 'TripDetail',
-    sourceFile: 'src/screens/trips/TripDetailScreen/TripDetailScreen.tsx',
-    waitFor: 'Itinerary',
-    fields: [],
+  EditProfile: {
+    name: 'EditProfile',
+    sourceFile: 'src/screens/profile/EditProfileScreen/EditProfileScreen.tsx',
+    waitFor: 'Edit Profile',
+    fields: [
+      { testID: 'occupation-select', label: 'Occupation', componentType: 'SearchableSelect', required: true },
+      { testID: 'marital-status-select', label: 'Marital Status', componentType: 'SearchableSelect', required: true },
+      { testID: 'home-address', label: 'home address', componentType: 'AddressAutocomplete', required: true },
+    ],
     alerts: [
-      { title: 'Delete Trip', buttons: ['Cancel', 'Delete'], happyPathButton: 'Cancel', trigger: 'delete trip action', outcome: 'Delete → navigate to TripList' },
-      { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Mark as submitted (error)', outcome: 'Stay on screen' },
     ],
     actionButtons: [
-      { testID: 'edit-trip-button', label: 'Edit', description: 'Toggle edit mode for trip' },
-      { testID: 'add-destination-button', label: 'Add Destination', description: 'Add another leg' },
-      { testID: 'checklist-card', label: 'Pre-Departure Checklist', description: 'Navigate to TripChecklist' },
     ],
-    navigatesTo: ['LegForm', 'SubmissionGuide', 'PortalSubmission', 'TripChecklist'],
+    navigatesTo: [],
     notes: [
-      'Shows leg cards with testID leg-card-{COUNTRY_CODE} (e.g., leg-card-JPN).',
-      'Tapping a leg card navigates to LegForm.',
-      'Trip readiness summary shows "X of N legs ready".',
+      'All fields are optional. Passport info is read-only on this screen.',
     ],
+  },
+
+  ExportBackupModal: {
+    name: 'ExportBackupModal',
+    sourceFile: 'src/screens/settings/ExportBackupModal/ExportBackupModal.tsx',
+    waitFor: '',
+    fields: [
+      { testID: 'passphrase-input', label: 'Passphrase', componentType: 'Input', required: true },
+      { testID: 'confirm-passphrase-input', label: 'Confirm Passphrase', componentType: 'Input', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'export-backup-close-button', label: 'export backup close', description: 'export backup close' },
+      { testID: 'export-backup-submit-button', label: 'Export Backup', description: 'Export Backup' },
+      { testID: 'export-backup-cancel-button', label: 'Cancel', description: 'Cancel' },
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  FamilyManagement: {
+    name: 'FamilyManagement',
+    sourceFile: 'src/screens/profile/FamilyManagementScreen/FamilyManagementScreen.tsx',
+    waitFor: 'Family Members',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'add-member-button', label: 'Add Member', description: 'Add Member' },
+    ],
+    navigatesTo: ['AddFamilyMember', 'EditProfile', 'PassportScan'],
+    notes: [],
+  },
+
+  FAQ: {
+    name: 'FAQ',
+    sourceFile: 'src/screens/help/FAQScreen/FAQScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  Feedback: {
+    name: 'Feedback',
+    sourceFile: 'src/screens/support/FeedbackScreen/FeedbackScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  Help: {
+    name: 'Help',
+    sourceFile: 'src/screens/support/HelpScreen/HelpScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: ['FAQ', 'Troubleshooting', 'Feedback', 'BugReport'],
+    notes: [],
+  },
+
+  ImportTrip: {
+    name: 'ImportTrip',
+    sourceFile: 'src/screens/trips/ImportTripScreen/ImportTripScreen.tsx',
+    waitFor: 'import-confirmation-input',
+    fields: [
+      { testID: 'import-confirmation-input', label: 'Paste your booking confirmation here...', componentType: 'Input', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'import-tab-paste', label: 'import tab paste', description: 'import tab paste' },
+      { testID: 'import-tab-scan', label: 'import tab scan', description: 'import tab scan' },
+      { testID: 'import-try-again-button', label: 'import try again', description: 'import try again' },
+      { testID: 'import-parse-button', label: 'Import trip', description: 'Import trip' },
+    ],
+    navigatesTo: [],
+    notes: [],
   },
 
   LegForm: {
     name: 'LegForm',
     sourceFile: 'src/screens/trips/LegFormScreen/LegFormScreen.tsx',
     waitFor: [],
-    fields: [],
+    fields: [
+    ],
     alerts: [
-      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-progress-button', outcome: 'Stay on screen' },
-      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'mark-ready-button', outcome: 'Navigate back to TripDetail' },
-      { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Portal URL error', outcome: 'Stay on screen' },
+      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-progress-button' },
+      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'mark-ready-button' },
     ],
     actionButtons: [
-      { testID: 'save-progress-button', label: 'Save Progress', description: 'Save form data' },
-      { testID: 'mark-ready-button', label: 'Mark as Ready', description: 'Mark form as ready for submission' },
-      { testID: 'submit-in-app-button', label: 'Submit in App', description: 'Navigate to PortalSubmission' },
-      { testID: 'open-submission-guide-button', label: 'Guide', description: 'Navigate to SubmissionGuide' },
-      { testID: 'smart-delta-button', label: 'Smart Delta', description: 'Toggle showing only country-specific fields' },
+      { testID: 'smart-delta-button', label: 'smart delta', description: 'smart delta' },
+      { testID: 'mark-ready-button', label: 'Mark as Ready', description: 'Mark as Ready' },
+      { testID: 'save-progress-button', label: 'Mark as Ready', description: 'Mark as Ready' },
+      { testID: 'submit-in-app-button', label: 'submit in app', description: 'submit in app' },
+      { testID: 'open-submission-guide-button', label: 'Guide', description: 'Guide' },
+      { testID: 'save-progress-button', label: 'Save Progress', description: 'Save Progress' },
     ],
     navigatesTo: ['PortalSubmission', 'SubmissionGuide'],
     notes: [
@@ -323,94 +343,196 @@ export const SCREENS: Record<string, ScreenSpec> = {
     ],
   },
 
+  Lock: {
+    name: 'Lock',
+    sourceFile: 'src/screens/lock/LockScreen/LockScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'lock-screen-biometric-button', label: 'lock screen biometric', description: 'lock screen biometric' },
+      { testID: 'lock-screen-pin-button', label: 'Use PIN Instead', description: 'Use PIN Instead' },
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  NotificationPermission: {
+    name: 'NotificationPermission',
+    sourceFile: 'src/screens/onboarding/NotificationPermissionScreen/NotificationPermissionScreen.tsx',
+    waitFor: 'Stay on Top of Deadlines',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'allow-notifications-button', label: 'allow notifications', description: 'allow notifications' },
+      { testID: 'skip-notifications-button', label: 'Skip for Now', description: 'Skip for Now' },
+    ],
+    navigatesTo: [],
+    notes: [
+      'Last onboarding screen — completing it sets onboardingComplete=true.',
+      'On iOS simulator, notifications are often already authorized, causing auto-skip.',
+      'Auto-skip has a 500ms delay to prevent navigator swap race condition.',
+    ],
+  },
+
+  NotificationPreferences: {
+    name: 'NotificationPreferences',
+    sourceFile: 'src/screens/settings/NotificationPreferences/NotificationPreferences.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'timing-${option.value}', label: 'timing ${option.value}', description: 'timing ${option.value}' },
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  PassportScan: {
+    name: 'PassportScan',
+    sourceFile: 'src/screens/onboarding/PassportScanScreen/PassportScanScreen.tsx',
+    waitFor: 'Passport Information',
+    fields: [
+      { testID: 'passport-number-input', label: 'Passport Number', componentType: 'Input', required: true },
+      { testID: 'surname-input', label: 'Surname (Family Name)', componentType: 'Input', required: true },
+      { testID: 'given-names-input', label: 'Given Names', componentType: 'Input', required: true },
+      { testID: 'nationality-input', label: 'Nationality', componentType: 'SearchableSelect', required: true },
+      { testID: 'dob-input', label: 'Date of Birth', componentType: 'DatePickerField', required: true },
+      { testID: 'passport-expiry-input', label: 'Passport Expiry Date', componentType: 'DatePickerField', required: true },
+      { testID: 'issuing-country-input', label: 'Issuing Country', componentType: 'SearchableSelect', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'dismiss-performance-hint-button', label: 'Dismiss', description: 'Dismiss' },
+      { testID: 'start-camera-scan-button', label: 'Start Camera Scan', description: 'Start Camera Scan' },
+      { testID: 'enter-manually-button', label: 'Start Camera Scan', description: 'Start Camera Scan' },
+      { testID: 'demo-scan-adult', label: 'Demo: Adult', description: 'Demo: Adult' },
+      { testID: 'demo-scan-spouse', label: 'Demo: Adult', description: 'Demo: Adult' },
+      { testID: 'demo-scan-child', label: 'Demo: Spouse', description: 'Demo: Spouse' },
+      { testID: 'gender-${option.label}-button', label: 'gender ${option.label}', description: 'gender ${option.label}' },
+      { testID: 'passport-continue-button', label: 'Continue', description: 'Continue' },
+      { testID: 'passport-back-button', label: 'Continue', description: 'Continue' },
+    ],
+    navigatesTo: [],
+    notes: [
+      'Three entry modes: camera scan, demo data, manual entry.',
+      'Demo scan fills all fields with sample data — tap confirm-scan-button to proceed.',
+      'Manual entry shows the form fields listed above.',
+      'Gender uses radio buttons: gender-Male-button, gender-Female-button, gender-Other-button.',
+    ],
+  },
+
+  PortalSubmission: {
+    name: 'PortalSubmission',
+    sourceFile: 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'close-portal-button', label: 'close portal', description: 'close portal' },
+      { testID: 'toolbar-back-button', label: 'toolbar back', description: 'toolbar back' },
+      { testID: 'toolbar-forward-button', label: 'toolbar forward', description: 'toolbar forward' },
+      { testID: 'toolbar-refresh-button', label: 'toolbar refresh', description: 'toolbar refresh' },
+      { testID: 'manual-guide-button', label: 'manual guide', description: 'manual guide' },
+      { testID: 'error-try-again-button', label: 'error try again', description: 'error try again' },
+      { testID: 'error-continue-manually-button', label: 'error continue manually', description: 'error continue manually' },
+      { testID: 'submit-in-app-button', label: 'submit in app', description: 'submit in app' },
+      { testID: 'toggle-fields-panel', label: 'toggle fields panel', description: 'toggle fields panel' },
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  PrivacyPolicy: {
+    name: 'PrivacyPolicy',
+    sourceFile: 'src/screens/settings/PrivacyPolicyScreen/PrivacyPolicyScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
   Profile: {
     name: 'Profile',
     sourceFile: 'src/screens/profile/ProfileScreen/ProfileScreen.tsx',
     waitFor: 'Your Profile',
-    fields: [],
+    fields: [
+    ],
     alerts: [
-      { title: 'Authentication Failed', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Biometric auth fails', outcome: 'Stay on screen' },
     ],
     actionButtons: [
-      { testID: 'edit-contact-button', label: 'Edit Contact Info', description: 'Navigate to EditProfile' },
-      { testID: 'family-summary-row', label: 'Family', description: 'Navigate to FamilyManagement' },
+      { testID: 'unlock-biometrics-button', label: 'Unlock with Biometrics', description: 'Unlock with Biometrics' },
+      { testID: 'edit-contact-button', label: 'Edit', description: 'Edit' },
+      { testID: 'family-summary-row', label: 'family summary row', description: 'family summary row' },
     ],
     navigatesTo: ['EditProfile', 'FamilyManagement'],
+    notes: [],
   },
 
-  EditProfile: {
-    name: 'EditProfile',
-    sourceFile: 'src/screens/profile/EditProfileScreen/EditProfileScreen.tsx',
-    waitFor: 'Edit Profile',
+  QRDetail: {
+    name: 'QRDetail',
+    sourceFile: 'src/screens/wallet/QRDetailScreen/QRDetailScreen.tsx',
+    waitFor: '',
     fields: [
-      { testID: 'home-address', label: 'Home Address', componentType: 'AddressAutocomplete', required: false },
     ],
     alerts: [
-      { title: 'Validation Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'Save with invalid data', outcome: 'Stay on screen' },
-      { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-profile-button (success)', outcome: 'Navigate back' },
-      { title: 'Error', buttons: ['OK'], happyPathButton: 'OK', trigger: 'save-profile-button (error)', outcome: 'Stay on screen' },
     ],
-    actionButtons: [],
+    actionButtons: [
+    ],
     navigatesTo: [],
-    notes: ['All fields are optional. Passport info is read-only on this screen.'],
+    notes: [],
   },
 
-  FamilyManagement: {
-    name: 'FamilyManagement',
-    sourceFile: 'src/screens/profile/FamilyManagementScreen/FamilyManagementScreen.tsx',
-    waitFor: 'Family Members',
-    fields: [],
+  QRWallet: {
+    name: 'QRWallet',
+    sourceFile: 'src/screens/wallet/QRWalletScreen/QRWalletScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
     alerts: [
-      { title: 'Remove Family Member', buttons: ['Cancel', 'Remove'], happyPathButton: 'Cancel', trigger: 'Delete button on member card', outcome: 'Remove member from family' },
     ],
     actionButtons: [
-      { testID: 'add-member-button', label: 'Add Member', description: 'Navigate to AddFamilyMember' },
     ],
-    navigatesTo: ['AddFamilyMember'],
+    navigatesTo: [],
+    notes: [],
   },
 
-  TripChecklist: {
-    name: 'TripChecklist',
-    sourceFile: 'src/screens/trips/TripChecklistScreen/TripChecklistScreen.tsx',
-    waitFor: 'checklist-progress',
-    fields: [],
-    alerts: [],
-    actionButtons: [],
-    navigatesTo: ['LegForm', 'QRWallet', 'Profile', 'TripDetail'],
-  },
-
-  Templates: {
-    name: 'Templates',
-    sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
-    waitFor: 'Trip Templates',
+  RestoreBackupModal: {
+    name: 'RestoreBackupModal',
+    sourceFile: 'src/screens/settings/RestoreBackupModal/RestoreBackupModal.tsx',
+    waitFor: '',
     fields: [
-      { testID: 'rename-template-input', label: 'Template Name', componentType: 'Input', required: true },
+      { testID: 'passphrase-input', label: 'Enter passphrase…', componentType: 'Input', required: true },
     ],
-    alerts: [],
+    alerts: [
+    ],
     actionButtons: [
-      { testID: 'templates-list', label: 'Templates List', description: 'List of saved trip templates' },
-      { testID: 'rename-template-modal', label: 'Rename Template Modal', description: 'Modal for renaming a template' },
-      { testID: 'rename-modal-cancel', label: 'Cancel Rename', description: 'Cancel renaming' },
-      { testID: 'rename-modal-confirm', label: 'Confirm Rename', description: 'Save renamed template' },
+      { testID: 'pick-file-button', label: 'Pick a Backup File', description: 'Pick a Backup File' },
+      { testID: 'toggle-secure-entry', label: 'toggle secure entry', description: 'toggle secure entry' },
+      { testID: 'submit-passphrase-button', label: 'Decrypt & Restore', description: 'Decrypt & Restore' },
+      { testID: 'cancel-passphrase-button', label: 'Decrypt & Restore', description: 'Decrypt & Restore' },
+      { testID: 'confirm-replace-button', label: 'Replace all data', description: 'Replace all data' },
+      { testID: 'cancel-replace-button', label: 'Replace all data', description: 'Replace all data' },
+      { testID: 'go-to-home-button', label: 'Go to Home', description: 'Go to Home' },
+      { testID: 'restore-step-error', label: 'Go to Home', description: 'Go to Home' },
+      { testID: 'try-again-button', label: 'Try again', description: 'Try again' },
     ],
-    navigatesTo: ['CreateTrip'],
-  },
-
-  ImportTrip: {
-    name: 'ImportTrip',
-    sourceFile: 'src/screens/trips/ImportTripScreen/ImportTripScreen.tsx',
-    waitFor: 'import-confirmation-input',
-    fields: [
-      { testID: 'import-confirmation-input', label: 'Booking confirmation text', componentType: 'other', required: true },
-    ],
-    alerts: [],
-    actionButtons: [
-      { testID: 'import-tab-paste', label: 'Paste Confirmation', description: 'Switch to paste mode' },
-      { testID: 'import-tab-scan', label: 'Scan Boarding Pass', description: 'Switch to camera scan mode' },
-      { testID: 'import-parse-button', label: 'Import Trip', description: 'Parse and import the confirmation text' },
-      { testID: 'import-try-again-button', label: 'Try Again', description: 'Retry after error' },
-    ],
-    navigatesTo: ['ReviewImport'],
+    navigatesTo: [],
+    notes: [],
   },
 
   ReviewImport: {
@@ -418,73 +540,189 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/ReviewImportScreen/ReviewImportScreen.tsx',
     waitFor: 'review-trip-name',
     fields: [
-      { testID: 'review-trip-name', label: 'Trip Name', componentType: 'other', required: true },
-      { testID: 'leg-arrival-date-${index}', label: 'Arrival Date', componentType: 'other', required: true, dynamic: true },
     ],
-    alerts: [],
+    alerts: [
+    ],
     actionButtons: [
-      { testID: 'review-create-trip-button', label: 'Create Trip', description: 'Save trip and navigate to detail' },
-      { testID: 'review-cancel-button', label: 'Discard', description: 'Discard changes and go back' },
-      { testID: 'remove-leg-${index}', label: 'Remove Leg', description: 'Remove a destination leg' },
+      { testID: 'remove-leg-${index}', label: 'remove leg ${index}', description: 'remove leg ${index}' },
+      { testID: 'review-create-trip-button', label: 'Create trip', description: 'Create trip' },
+      { testID: 'review-cancel-button', label: 'Create trip', description: 'Create trip' },
     ],
-    navigatesTo: ['TripDetail'],
+    navigatesTo: [],
+    notes: [],
   },
 
   Settings: {
     name: 'Settings',
     sourceFile: 'src/screens/settings/SettingsScreen/SettingsScreen.tsx',
     waitFor: 'Settings',
-    fields: [],
+    fields: [
+      { testID: 'app-lock-timeout-select', label: 'Lock After', componentType: 'Select', required: true },
+    ],
     alerts: [
-      { title: 'Delete All Data', buttons: ['Cancel', 'Delete All'], happyPathButton: 'Cancel', trigger: 'delete-all-data-button', outcome: 'Shows second confirmation' },
-      { title: 'Are you sure?', buttons: ['Cancel', 'Delete All Data'], happyPathButton: 'Cancel', trigger: 'Second delete confirmation', outcome: 'Delete all data, return to onboarding' },
-      { title: 'Clear Cache', buttons: ['Cancel', 'Clear'], happyPathButton: 'Cancel', trigger: 'clear-cache-button', outcome: 'Clear cache' },
-      { title: 'Enable Biometric Authentication', buttons: ['Cancel', 'Enable'], happyPathButton: 'Enable', trigger: 'Biometric toggle ON', outcome: 'Enable biometric' },
-      { title: 'Disable Biometric Authentication', buttons: ['Cancel', 'Disable'], happyPathButton: 'Cancel', trigger: 'Biometric toggle OFF', outcome: 'Disable biometric' },
     ],
     actionButtons: [
-      { testID: 'restore-backup-button', label: 'Restore from Backup', description: 'Open RestoreBackupModal' },
-      { testID: 'refresh-schemas-button', label: 'Refresh Schemas', description: 'Refresh country form schemas' },
-      { testID: 'app-lock-toggle', label: 'App Lock', description: 'Toggle app lock on/off' },
-      { testID: 'settings-theme-selector', label: 'Theme', description: 'Select light/dark/system theme' },
+      { testID: 'notification-preferences-row', label: 'notification preferences row', description: 'notification preferences row' },
+      { testID: 'refresh-schemas-button', label: 'refresh schemas', description: 'refresh schemas' },
     ],
-    navigatesTo: ['PrivacyPolicy', 'Help', 'Feedback', 'BugReport', 'NotificationPreferences'],
-    notes: ['Delete All Data requires TWO confirmation alerts.'],
+    navigatesTo: ['NotificationPreferences', 'RestoreBackup', 'Help', 'Feedback', 'BugReport', 'PrivacyPolicy'],
+    notes: [
+      'Delete All Data requires TWO confirmation alerts.',
+    ],
   },
-  NotificationPreferences: {
-    name: 'NotificationPreferences',
-    sourceFile: 'src/screens/settings/NotificationPreferences/NotificationPreferences.tsx',
-    waitFor: 'Notifications',
-    fields: [],
-    alerts: [],
+
+  SubmissionGuide: {
+    name: 'SubmissionGuide',
+    sourceFile: 'src/screens/trips/SubmissionGuideScreen/SubmissionGuideScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
     actionButtons: [
-      { testID: 'notification-master-toggle', label: 'Deadline Reminders', description: 'Toggle all deadline notifications' },
-      { testID: 'timing-${option.value}', label: '48/24/6 hours before', description: 'Toggle timing reminder' },
-      { testID: 'quiet-hours-toggle', label: 'Quiet Hours', description: 'Toggle quiet hours' },
+      { testID: 'submit-in-app-button', label: 'Submit in App', description: 'Submit in App' },
+      { testID: 'open-in-browser-button', label: 'Open in Browser', description: 'Open in Browser' },
+      { testID: 'mark-as-submitted-button', label: 'Mark as Submitted', description: 'Mark as Submitted' },
+      { testID: 'save-qr-button', label: 'Save QR Code', description: 'Save QR Code' },
+    ],
+    navigatesTo: ['TripDetail', 'PortalSubmission', 'AddQR'],
+    notes: [],
+  },
+
+  Templates: {
+    name: 'Templates',
+    sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
+    waitFor: 'Trip Templates',
+    fields: [
+      { testID: 'rename-template-input', label: 'rename template', componentType: 'Input', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'rename-modal-cancel', label: 'rename modal cancel', description: 'rename modal cancel' },
+      { testID: 'rename-modal-confirm', label: 'rename modal confirm', description: 'rename modal confirm' },
+      { testID: 'rename-template-${template.id}', label: 'rename template ${template.id}', description: 'rename template ${template.id}' },
+      { testID: 'delete-template-${template.id}', label: 'delete template ${template.id}', description: 'delete template ${template.id}' },
+      { testID: 'use-template-${template.id}', label: 'use template ${template.id}', description: 'use template ${template.id}' },
     ],
     navigatesTo: [],
-    notes: ['At least one timing option must remain selected.'],
+    notes: [],
   },
+
+  TripChecklist: {
+    name: 'TripChecklist',
+    sourceFile: 'src/screens/trips/TripChecklistScreen/TripChecklistScreen.tsx',
+    waitFor: 'checklist-progress',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'checklist-item-${item.id}', label: 'checklist item ${item.id}', description: 'checklist item ${item.id}' },
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  TripDetail: {
+    name: 'TripDetail',
+    sourceFile: 'src/screens/trips/TripDetailScreen/TripDetailScreen.tsx',
+    waitFor: 'Itinerary',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'trip-detail-go-back-button', label: 'Go Back', description: 'Go Back' },
+      { testID: 'duplicate-trip-button', label: 'duplicate trip', description: 'duplicate trip' },
+      { testID: 'edit-trip-button', label: 'edit trip', description: 'edit trip' },
+      { testID: 'save-as-template-button', label: 'save as template', description: 'save as template' },
+      { testID: 'add-destination-button', label: 'add destination', description: 'add destination' },
+      { testID: 'add-destination-empty-button', label: 'Add Destination', description: 'Add Destination' },
+    ],
+    navigatesTo: ['TripDetail', 'TripChecklist'],
+    notes: [
+      'Shows leg cards with testID leg-card-{COUNTRY_CODE} (e.g., leg-card-JPN).',
+      'Tapping a leg card navigates to LegForm.',
+      'Trip readiness summary shows ',
+      '.',
+    ],
+  },
+
+  TripList: {
+    name: 'TripList',
+    sourceFile: 'src/screens/trips/TripListScreen/TripListScreen.tsx',
+    waitFor: 'Your Trips',
+    fields: [
+      { testID: 'trip-search-input', label: 'Search trips...', componentType: 'Input', required: true },
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'create-first-trip-button', label: 'No trips yet', description: 'No trips yet' },
+      { testID: 'use-template-button', label: 'No trips yet', description: 'No trips yet' },
+      { testID: 'import-trip-button', label: 'import trip', description: 'import trip' },
+      { testID: 'templates-nav-button', label: 'templates nav', description: 'templates nav' },
+      { testID: 'trip-search-clear', label: 'trip search clear', description: 'trip search clear' },
+      { testID: 'trip-filter-${tab.key}', label: 'trip filter ${tab.key}', description: 'trip filter ${tab.key}' },
+      { testID: 'fab-from-template-button', label: 'fab from template', description: 'fab from template' },
+    ],
+    navigatesTo: [],
+    notes: [
+      'Empty state shows create-first-trip-button.',
+      'With existing trips, shows trip cards + FAB.',
+    ],
+  },
+
+  Troubleshooting: {
+    name: 'Troubleshooting',
+    sourceFile: 'src/screens/help/TroubleshootingScreen/TroubleshootingScreen.tsx',
+    waitFor: '',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+    ],
+    navigatesTo: [],
+    notes: [],
+  },
+
+  Tutorial: {
+    name: 'Tutorial',
+    sourceFile: 'src/screens/onboarding/TutorialScreen/TutorialScreen.tsx',
+    waitFor: 'Step 1 of 3',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'tutorial-skip-button', label: 'Skip', description: 'Skip' },
+      { testID: 'next-step-button', label: 'next step', description: 'next step' },
+      { testID: 'previous-step-button', label: 'Previous', description: 'Previous' },
+      { testID: 'tutorial-step-indicator', label: 'Previous', description: 'Previous' },
+    ],
+    navigatesTo: ['PassportScan'],
+    notes: [
+      '3 tutorial pages — tap Next or Skip to advance.',
+    ],
+  },
+
+  Welcome: {
+    name: 'Welcome',
+    sourceFile: 'src/screens/onboarding/WelcomeScreen/WelcomeScreen.tsx',
+    waitFor: 'Borderly',
+    fields: [
+    ],
+    alerts: [
+    ],
+    actionButtons: [
+      { testID: 'take-tutorial-button', label: 'Take Quick Tutorial', description: 'Take Quick Tutorial' },
+      { testID: 'skip-tutorial-button', label: 'Take Quick Tutorial', description: 'Take Quick Tutorial' },
+      { testID: 'restore-backup-link', label: 'Skip Tutorial', description: 'Skip Tutorial' },
+    ],
+    navigatesTo: ['Tutorial', 'PassportScan', 'RestoreBackup'],
+    notes: [],
+  },
+
 };
-
-// ── Lookup helpers ──
-
-/** Get a screen spec by name. Returns undefined if not registered. */
-export function getScreen(name: string): ScreenSpec | undefined {
-  return SCREENS[name];
-}
-
-/** Get all required fields for a screen. */
-export function getRequiredFields(name: string): FieldSpec[] {
-  return SCREENS[name]?.fields.filter(f => f.required) ?? [];
-}
-
-/** Get the happy-path alert sequence for a screen action. */
-export function getAlertForTrigger(screenName: string, trigger: string): AlertSpec | undefined {
-  return SCREENS[screenName]?.alerts.find(a => a.trigger.includes(trigger));
-}
-
-/** List all registered screen names. */
-export function listScreens(): string[] {
-  return Object.keys(SCREENS);
-}

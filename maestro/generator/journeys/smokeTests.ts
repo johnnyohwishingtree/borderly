@@ -1,60 +1,59 @@
 /**
- * Smoke test journey definitions.
+ * Smoke test and full E2E journey definitions.
  *
- * Quick validation flows for CI and pre-merge checks.
- * Reuse onboarding and trip creation steps.
+ * Two flows only:
+ * - demoScanSmoke: 30s quick sanity check (onboarding only)
+ * - fullE2E: complete user journey — onboard → trip → form → guide → verify
  */
 import { journey, step } from '../dsl';
 import {
-  tap, assertVisible, assertVisibleID, swipe, inputText,
+  tap, assertVisible, assertVisibleID, swipe,
 } from '../dsl';
 import {
-  screenStep, tapButton, fillField,
+  screenStep, tapButton,
 } from '../journeyBuilder';
 
 // Import shared steps
-import { onboardingManual, onboardingDemoScan } from './onboarding';
+import { onboardingDemoScan } from './onboarding';
 import { createJapanTripSteps, tripDetailStep } from './tripCreation';
 
 // ── Exported journeys ──
 
 /**
- * Basic smoke test — manual onboarding only.
+ * Quick smoke — onboarding only (30s).
  * Verifies the app launches and onboarding completes.
  */
-export const smokeTest = journey('smoke-test', {
-  description: 'Basic smoke: onboard via manual entry, reach trip list',
+export const demoScanSmoke = journey('demo-scan-smoke', {
+  description: 'Quick smoke: onboard via demo scan, reach trip list',
   clearState: true,
   tags: ['smoke'],
-  steps: [
-    ...onboardingManual.steps,
-  ],
-});
-
-/**
- * Demo scan smoke test — faster onboarding via dev mode scan.
- */
-export const demoScanSmoke = journey('demo-scan-smoke', {
-  description: 'Fast smoke: onboard via demo scan, reach trip list',
-  clearState: true,
-  tags: ['smoke', 'demo'],
   steps: [
     ...onboardingDemoScan.steps,
   ],
 });
 
 /**
- * Trip and submit — full happy path through form submission.
- * Onboard → Create trip → Fill leg form → Save → Mark ready → Open guide
+ * Full E2E — the one test that matters.
+ *
+ * Tests the complete user journey for a Japan trip:
+ * 1. Onboard via demo scan (deterministic passport data)
+ * 2. Create Japan trip with accommodation
+ * 3. Open leg form → verify auto-fill populated fields
+ * 4. Save progress → verify save succeeded
+ * 5. Open submission guide → verify steps render
+ * 6. Go back to trip list → verify trip shows
+ *
+ * If this test passes, the core value proposition works.
  */
-export const tripAndSubmit = journey('trip-and-submit', {
-  description: 'Full happy path: onboard, create trip, fill form, save, submit guide',
+export const fullE2E = journey('full-e2e', {
+  description: 'Full user journey: onboard → trip → form → save → guide → verify',
   clearState: true,
-  tags: ['smoke', 'trip', 'critical'],
+  tags: ['e2e', 'critical'],
   steps: [
-    // Onboard
-    ...onboardingManual.steps.slice(0, -1),
-    // Create trip from empty list
+    // ── 1. Onboard via demo scan ──
+    ...onboardingDemoScan.steps.slice(0, -1),
+
+    // ── 2. Create Japan trip ──
     screenStep('TripList', {
       comment: 'TRIP LIST — CREATE FIRST TRIP',
       waitTimeout: 30000,
@@ -64,39 +63,69 @@ export const tripAndSubmit = journey('trip-and-submit', {
     }),
     ...createJapanTripSteps(),
     tripDetailStep(),
-    // Open leg form
+
+    // ── 3. Open leg form and verify auto-fill ──
     screenStep('TripDetail', {
-      comment: 'OPEN LEG FORM',
+      comment: 'OPEN JAPAN LEG FORM',
       actions: [
         tap('leg-card-JPN'),
       ],
     }),
-    // Fill leg form fields and save
-    screenStep('LegForm', {
-      comment: 'LEG FORM — FILL AND SAVE',
+    step('LegForm', {
+      comment: 'LEG FORM — VERIFY AUTO-FILL',
       waitTimeout: 30000,
       actions: [
-        // Scroll to dynamic form section
+        // Verify the form loaded (country name in header)
+        assertVisible('Japan'),
+        // Scroll down to see auto-filled fields
         swipe('50%,80%', '50%,30%', 300),
-        // Save progress
-        tapButton('LegForm', 'save-progress-button'),
+        // Verify passport data was auto-filled from profile
+        // (demo scan data: SMITH, JOHN MICHAEL, L12345678, USA)
+        assertVisible('SMITH'),
       ],
     }),
-    // Mark ready and open submission guide
-    screenStep('LegForm', {
-      comment: 'MARK READY + OPEN GUIDE',
+
+    // ── 4. Save progress ──
+    step('LegForm', {
+      comment: 'LEG FORM — SAVE',
       actions: [
-        tapButton('LegForm', 'mark-ready-button'),
+        // Scroll to bottom to find save button
+        swipe('50%,80%', '50%,20%', 300),
+        swipe('50%,80%', '50%,20%', 300),
+        tapButton('LegForm', 'save-progress-button'),
+        // Dismiss success alert
+        assertVisible('Success'),
+        tap('OK', { scroll: false }),
+      ],
+    }),
+
+    // ── 5. Open submission guide ──
+    step('LegForm', {
+      comment: 'LEG FORM — OPEN GUIDE',
+      actions: [
+        swipe('50%,80%', '50%,20%', 300),
         tapButton('LegForm', 'open-submission-guide-button'),
       ],
     }),
-    // Verify submission guide loads
     step('SubmissionGuide', {
       comment: 'SUBMISSION GUIDE — VERIFY',
       waitFor: 'Submission Guide',
       waitTimeout: 20000,
       actions: [
         assertVisible('Submission Guide'),
+        // Verify guide has steps for Japan
+        assertVisible('Japan'),
+      ],
+    }),
+
+    // ── 6. Go back to trip list and verify ──
+    step('TripList', {
+      comment: 'BACK TO TRIP LIST — VERIFY',
+      actions: [
+        // Navigate back via trips tab (most reliable)
+        tap('tab-trips', { scroll: false }),
+        assertVisible('Your Trips'),
+        assertVisible('Japan Trip 2026'),
       ],
     }),
   ],

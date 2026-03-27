@@ -66,9 +66,9 @@ const passportDemoScan = () => screenStep('PassportScan', {
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
     tapButton('PassportScan', 'demo-scan-adult'),
-    // Preview shows scanned data — confirm it
+    // Preview shows scanned data — confirm it (confirm-scan-button is in PassportPreview component)
     assertVisible('SMITH'),
-    tapButton('PassportScan', 'confirm-scan-button'),
+    tap('confirm-scan-button'),
   ],
 });
 
