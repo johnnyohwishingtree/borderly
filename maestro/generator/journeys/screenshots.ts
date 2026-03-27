@@ -6,7 +6,7 @@
  */
 import { journey, step } from '../dsl';
 import {
-  tap, tapText, assertVisible, swipe,
+  tap, tapText, assertVisible,
 } from '../dsl';
 import {
   screenStep, tapButton,

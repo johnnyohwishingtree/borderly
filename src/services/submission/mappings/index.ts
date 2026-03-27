@@ -18,6 +18,7 @@ import CAN_MAPPING from './CAN';
 import GBR_MAPPING from './GBR';
 import THA_MAPPING from './THA';
 import VNM_MAPPING from './VNM';
+import IDN_MAPPING from './IDN';
 
 /** Re-export the AutomationScript type under the CountryFieldMappings alias. */
 export type CountryFieldMappings = AutomationScript;
@@ -32,4 +33,5 @@ export const ALL_COUNTRY_MAPPINGS: CountryFieldMappings[] = [
   GBR_MAPPING,
   THA_MAPPING,
   VNM_MAPPING,
+  IDN_MAPPING,
 ];
