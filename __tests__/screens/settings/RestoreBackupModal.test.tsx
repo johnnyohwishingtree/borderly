@@ -136,12 +136,12 @@ describe('RestoreBackupModal — passphrase step', () => {
 
   it('renders passphrase input', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    expect(getByTestId('passphrase-input')).toBeTruthy();
+    expect(getByTestId('passphrase-field')).toBeTruthy();
   });
 
   it('calls setPassphrase on text change', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
-    fireEvent.changeText(getByTestId('passphrase-input'), 'mysecret');
+    fireEvent.changeText(getByTestId('passphrase-field'), 'mysecret');
     expect(mockSetPassphrase).toHaveBeenCalledWith('mysecret');
   });
 

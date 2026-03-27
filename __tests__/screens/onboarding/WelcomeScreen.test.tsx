@@ -253,13 +253,13 @@ describe('WelcomeScreen — navigation', () => {
   it('renders "Restore from backup" link', () => {
     render(<WelcomeScreen />);
 
-    expect(screen.getByTestId('restore-backup-link')).toBeTruthy();
+    expect(screen.getByTestId('restore-backup-link-button')).toBeTruthy();
   });
 
   it('pressing "Restore from backup" navigates to RestoreBackup screen', () => {
     render(<WelcomeScreen />);
 
-    fireEvent.press(screen.getByTestId('restore-backup-link'));
+    fireEvent.press(screen.getByTestId('restore-backup-link-button'));
 
     expect(mockNavigate).toHaveBeenCalledWith('RestoreBackup');
   });

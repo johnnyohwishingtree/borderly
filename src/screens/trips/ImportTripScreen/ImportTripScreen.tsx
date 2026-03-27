@@ -86,14 +86,14 @@ export default function ImportTripScreen() {
           icon={<ClipboardPaste size={16} color="#2563eb" />}
           active={true}
           onPress={() => setMode('paste')}
-          testID="import-tab-paste"
+          testID="import-tab-paste-button"
         />
         <TabButton
           label="Scan boarding pass"
           icon={<Camera size={16} color="#6b7280" />}
           active={false}
           onPress={() => setMode('scan')}
-          testID="import-tab-scan"
+          testID="import-tab-scan-button"
         />
       </View>
 
@@ -113,7 +113,7 @@ export default function ImportTripScreen() {
           numberOfLines={8}
           textAlignVertical="top"
           className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-base text-gray-900 dark:text-gray-100 mb-4 min-h-[160px] bg-white dark:bg-gray-800"
-          testID="import-confirmation-input"
+          testID="import-confirmation-field"
           accessibilityLabel="Booking confirmation text"
           accessibilityHint="Paste your booking email or confirmation text here"
         />

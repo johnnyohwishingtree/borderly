@@ -119,13 +119,13 @@ describe('RestoreBackupModal — passphrase step', () => {
 
   it('passphrase input has correct accessibilityLabel', () => {
     render(<RestoreBackupModal />);
-    const input = screen.getByTestId('passphrase-input');
+    const input = screen.getByTestId('passphrase-field');
     expect(input.props.accessibilityLabel).toBe('Backup passphrase, required');
   });
 
   it('passphrase input has secureTextEntry by default', () => {
     render(<RestoreBackupModal />);
-    const input = screen.getByTestId('passphrase-input');
+    const input = screen.getByTestId('passphrase-field');
     expect(input.props.secureTextEntry).toBe(true);
   });
 

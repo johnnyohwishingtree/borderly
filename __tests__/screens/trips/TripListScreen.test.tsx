@@ -264,7 +264,7 @@ describe('TripListScreen — rendering with trips', () => {
   it('renders search input when trips exist', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('trip-search-input')).toBeTruthy();
+    expect(screen.getByTestId('trip-search-field')).toBeTruthy();
   });
 
   it('renders filter tabs when trips exist', () => {
@@ -327,7 +327,7 @@ describe('TripListScreen — empty state', () => {
   it('does not show search or filter tabs when no trips', () => {
     render(<TripListScreen />);
 
-    expect(screen.queryByTestId('trip-search-input')).toBeNull();
+    expect(screen.queryByTestId('trip-search-field')).toBeNull();
     expect(screen.queryByTestId('trip-filter-all')).toBeNull();
   });
 

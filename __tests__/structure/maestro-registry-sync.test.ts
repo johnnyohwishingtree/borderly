@@ -124,7 +124,7 @@ describe('Maestro screenRegistry ↔ source code sync', () => {
         // Direct match in source
         if (testIDExistsInSource(id)) continue;
 
-        // Check if it's a component sub-testID (e.g., nationality-input-trigger)
+        // Check if it's a component sub-testID (e.g., nationality-field-trigger)
         const isComponentSub = componentSuffixes.some(suffix => {
           if (!id.endsWith(suffix)) return false;
           const base = id.slice(0, -suffix.length);

@@ -53,13 +53,13 @@ beforeEach(() => {
 describe('ImportTripScreen', () => {
   it('renders paste and scan tab buttons', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('import-tab-paste')).toBeTruthy();
-    expect(getByTestId('import-tab-scan')).toBeTruthy();
+    expect(getByTestId('import-tab-paste-button')).toBeTruthy();
+    expect(getByTestId('import-tab-scan-button')).toBeTruthy();
   });
 
   it('renders confirmation text input', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    expect(getByTestId('import-confirmation-input')).toBeTruthy();
+    expect(getByTestId('import-confirmation-field')).toBeTruthy();
   });
 
   it('renders import button', () => {
@@ -69,13 +69,13 @@ describe('ImportTripScreen', () => {
 
   it('calls setMode when scan tab is pressed', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    fireEvent.press(getByTestId('import-tab-scan'));
+    fireEvent.press(getByTestId('import-tab-scan-button'));
     expect(mockUseImportTrip.setMode).toHaveBeenCalledWith('scan');
   });
 
   it('calls setConfirmationText when text input changes', () => {
     const { getByTestId } = render(<ImportTripScreen />);
-    fireEvent.changeText(getByTestId('import-confirmation-input'), 'NH101');
+    fireEvent.changeText(getByTestId('import-confirmation-field'), 'NH101');
     expect(mockUseImportTrip.setConfirmationText).toHaveBeenCalledWith('NH101');
   });
 

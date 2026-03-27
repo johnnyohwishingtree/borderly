@@ -177,7 +177,7 @@ export default function WelcomeScreen() {
           {/* Restore from backup link for returning users on fresh installs */}
           <Pressable
             onPress={() => navigation.navigate('RestoreBackup')}
-            testID="restore-backup-link"
+            testID="restore-backup-link-button"
             accessible
             accessibilityRole="button"
             accessibilityLabel="Restore from backup"

@@ -47,15 +47,15 @@ const passportManualEntry = (data: {
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
     tapButton('PassportScan', 'enter-manually-button'),
     // Fill fields using registry-driven actions (componentType → DSL action)
-    ...fillField('PassportScan', 'passport-number-input', { text: data.number }),
-    ...fillField('PassportScan', 'surname-input', { text: data.surname }),
-    ...fillField('PassportScan', 'given-names-input', { text: data.givenNames }),
-    ...fillField('PassportScan', 'nationality-input', { search: data.nationality.search, code: data.nationality.code }),
-    ...fillField('PassportScan', 'dob-input'),
+    ...fillField('PassportScan', 'passport-number-field', { text: data.number }),
+    ...fillField('PassportScan', 'surname-field', { text: data.surname }),
+    ...fillField('PassportScan', 'given-names-field', { text: data.givenNames }),
+    ...fillField('PassportScan', 'nationality-field', { search: data.nationality.search, code: data.nationality.code }),
+    ...fillField('PassportScan', 'dob-field'),
     // Gender uses radio buttons (componentType 'other') — manual action
     tap(`gender-${data.gender}-button`),
-    ...fillField('PassportScan', 'passport-expiry-input'),
-    ...fillField('PassportScan', 'issuing-country-input', { search: data.issuingCountry.search, code: data.issuingCountry.code }),
+    ...fillField('PassportScan', 'passport-expiry-field'),
+    ...fillField('PassportScan', 'issuing-country-field', { search: data.issuingCountry.search, code: data.issuingCountry.code }),
     tapButton('PassportScan', 'passport-continue-button'),
   ],
 });
@@ -65,7 +65,7 @@ const passportDemoScan = () => screenStep('PassportScan', {
   comment: 'PASSPORT — DEMO SCAN',
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
-    tapButton('PassportScan', 'demo-scan-adult'),
+    tapButton('PassportScan', 'demo-scan-adult-button'),
     // Preview shows scanned data — confirm it (confirm-scan-button is in PassportPreview component)
     assertVisible('SMITH'),
     tap('confirm-scan-button'),

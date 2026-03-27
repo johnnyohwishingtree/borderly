@@ -145,7 +145,7 @@ export default function RestoreBackupModal() {
                   autoCorrect={false}
                   returnKeyType="done"
                   onSubmitEditing={submitPassphrase}
-                  testID="passphrase-input"
+                  testID="passphrase-field"
                   accessibilityLabel="Backup passphrase, required"
                   accessibilityHint="Enter the passphrase used when this backup was created"
                   className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-base text-gray-900 dark:text-white bg-white dark:bg-gray-800 pr-12"

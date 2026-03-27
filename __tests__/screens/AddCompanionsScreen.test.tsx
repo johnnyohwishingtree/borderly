@@ -150,10 +150,10 @@ describe('AddCompanionsScreen', () => {
     fireEvent.press(getByTestId('add-companion-button'));
 
     await waitFor(() => {
-      expect(getByTestId('relationship-picker-close')).toBeTruthy();
+      expect(getByTestId('relationship-picker-close-button')).toBeTruthy();
     });
 
-    fireEvent.press(getByTestId('relationship-picker-close'));
+    fireEvent.press(getByTestId('relationship-picker-close-button'));
 
     expect(mockNavigation.navigate).not.toHaveBeenCalled();
   });

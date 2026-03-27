@@ -66,7 +66,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'relationship-picker-modal', label: 'relationship picker modal', description: 'relationship picker modal' },
       { testID: 'relationship-picker-backdrop', label: 'relationship picker backdrop', description: 'relationship picker backdrop' },
       { testID: 'relationship-picker-title', label: 'relationship picker title', description: 'relationship picker title' },
-      { testID: 'relationship-picker-close', label: 'relationship picker close', description: 'relationship picker close' },
+      { testID: 'relationship-picker-close-button', label: 'relationship picker close', description: 'relationship picker close' },
       { testID: 'relationship-option-${value}', label: 'relationship option ${value}', description: 'relationship option ${value}' },
     ],
     navigatesTo: ['PassportScan', 'BiometricSetup'],
@@ -170,7 +170,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/CreateTripScreen/CreateTripScreen.tsx',
     waitFor: 'Create New Trip',
     fields: [
-      { testID: 'trip-name-input', label: 'e.g., Asia Summer 2025', componentType: 'Input', required: true },
+      { testID: 'trip-name-field', label: 'e.g., Asia Summer 2025', componentType: 'Input', required: true },
       { testID: 'country-select-${index}', label: 'Country', componentType: 'SearchableSelect', required: true, dynamic: true },
       { testID: 'leg-${index}-arrival-date', label: 'Arrival Date', componentType: 'DatePickerField', required: true, dynamic: true },
       { testID: 'leg-${index}-departure-date', label: 'leg ${index} departure', componentType: 'DatePickerField', required: true, dynamic: true },
@@ -226,8 +226,8 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/settings/ExportBackupModal/ExportBackupModal.tsx',
     waitFor: '',
     fields: [
-      { testID: 'passphrase-input', label: 'Passphrase', componentType: 'Input', required: true },
-      { testID: 'confirm-passphrase-input', label: 'Confirm Passphrase', componentType: 'Input', required: true },
+      { testID: 'passphrase-field', label: 'Passphrase', componentType: 'Input', required: true },
+      { testID: 'confirm-passphrase-field', label: 'Confirm Passphrase', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
@@ -300,15 +300,15 @@ export const SCREENS: Record<string, ScreenSpec> = {
   ImportTrip: {
     name: 'ImportTrip',
     sourceFile: 'src/screens/trips/ImportTripScreen/ImportTripScreen.tsx',
-    waitFor: 'import-confirmation-input',
+    waitFor: 'import-confirmation-field',
     fields: [
-      { testID: 'import-confirmation-input', label: 'Paste your booking confirmation here...', componentType: 'Input', required: true },
+      { testID: 'import-confirmation-field', label: 'Paste your booking confirmation here...', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
     actionButtons: [
-      { testID: 'import-tab-paste', label: 'import tab paste', description: 'import tab paste' },
-      { testID: 'import-tab-scan', label: 'import tab scan', description: 'import tab scan' },
+      { testID: 'import-tab-paste-button', label: 'import tab paste', description: 'import tab paste' },
+      { testID: 'import-tab-scan-button', label: 'import tab scan', description: 'import tab scan' },
       { testID: 'import-try-again-button', label: 'import try again', description: 'import try again' },
       { testID: 'import-parse-button', label: 'Import trip', description: 'Import trip' },
     ],
@@ -399,13 +399,13 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/onboarding/PassportScanScreen/PassportScanScreen.tsx',
     waitFor: 'Passport Information',
     fields: [
-      { testID: 'passport-number-input', label: 'Passport Number', componentType: 'Input', required: true },
-      { testID: 'surname-input', label: 'Surname (Family Name)', componentType: 'Input', required: true },
-      { testID: 'given-names-input', label: 'Given Names', componentType: 'Input', required: true },
-      { testID: 'nationality-input', label: 'Nationality', componentType: 'SearchableSelect', required: true },
-      { testID: 'dob-input', label: 'Date of Birth', componentType: 'DatePickerField', required: true },
-      { testID: 'passport-expiry-input', label: 'Passport Expiry Date', componentType: 'DatePickerField', required: true },
-      { testID: 'issuing-country-input', label: 'Issuing Country', componentType: 'SearchableSelect', required: true },
+      { testID: 'passport-number-field', label: 'Passport Number', componentType: 'Input', required: true },
+      { testID: 'surname-field', label: 'Surname (Family Name)', componentType: 'Input', required: true },
+      { testID: 'given-names-field', label: 'Given Names', componentType: 'Input', required: true },
+      { testID: 'nationality-field', label: 'Nationality', componentType: 'SearchableSelect', required: true },
+      { testID: 'dob-field', label: 'Date of Birth', componentType: 'DatePickerField', required: true },
+      { testID: 'passport-expiry-field', label: 'Passport Expiry Date', componentType: 'DatePickerField', required: true },
+      { testID: 'issuing-country-field', label: 'Issuing Country', componentType: 'SearchableSelect', required: true },
     ],
     alerts: [
     ],
@@ -413,9 +413,9 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'dismiss-performance-hint-button', label: 'Dismiss', description: 'Dismiss' },
       { testID: 'start-camera-scan-button', label: 'Start Camera Scan', description: 'Start Camera Scan' },
       { testID: 'enter-manually-button', label: 'Start Camera Scan', description: 'Start Camera Scan' },
-      { testID: 'demo-scan-adult', label: 'Demo: Adult', description: 'Demo: Adult' },
-      { testID: 'demo-scan-spouse', label: 'Demo: Adult', description: 'Demo: Adult' },
-      { testID: 'demo-scan-child', label: 'Demo: Spouse', description: 'Demo: Spouse' },
+      { testID: 'demo-scan-adult-button', label: 'Demo: Adult', description: 'Demo: Adult' },
+      { testID: 'demo-scan-spouse-button', label: 'Demo: Spouse', description: 'Demo: Spouse' },
+      { testID: 'demo-scan-child-button', label: 'Demo: Child', description: 'Demo: Child' },
       { testID: 'gender-${option.label}-button', label: 'gender ${option.label}', description: 'gender ${option.label}' },
       { testID: 'passport-continue-button', label: 'Continue', description: 'Continue' },
       { testID: 'passport-back-button', label: 'Continue', description: 'Continue' },
@@ -516,7 +516,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/settings/RestoreBackupModal/RestoreBackupModal.tsx',
     waitFor: '',
     fields: [
-      { testID: 'passphrase-input', label: 'Enter passphrase…', componentType: 'Input', required: true },
+      { testID: 'passphrase-field', label: 'Enter passphrase…', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
@@ -594,7 +594,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
     waitFor: 'Trip Templates',
     fields: [
-      { testID: 'rename-template-input', label: 'rename template', componentType: 'Input', required: true },
+      { testID: 'rename-template-field', label: 'rename template', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
@@ -654,7 +654,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/TripListScreen/TripListScreen.tsx',
     waitFor: 'Your Trips',
     fields: [
-      { testID: 'trip-search-input', label: 'Search trips...', componentType: 'Input', required: true },
+      { testID: 'trip-search-field', label: 'Search trips...', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
@@ -719,7 +719,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     actionButtons: [
       { testID: 'take-tutorial-button', label: 'Take Quick Tutorial', description: 'Take Quick Tutorial' },
       { testID: 'skip-tutorial-button', label: 'Take Quick Tutorial', description: 'Take Quick Tutorial' },
-      { testID: 'restore-backup-link', label: 'Skip Tutorial', description: 'Skip Tutorial' },
+      { testID: 'restore-backup-link-button', label: 'Skip Tutorial', description: 'Skip Tutorial' },
     ],
     navigatesTo: ['Tutorial', 'PassportScan', 'RestoreBackup'],
     notes: [],
