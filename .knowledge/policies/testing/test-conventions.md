@@ -33,6 +33,9 @@ __tests__/, src/**/*.test.ts
 - Re-running CI to check if a fix worked instead of writing a unit test
 - `useNavigation: () => ({ goBack: mockFn })` creates a new object per render → infinite useEffect loop; use `const mockNav = { goBack: mockFn }; useNavigation: () => mockNav`
 - Using `queryByText(...).toBeNull()` to test Modal hidden state — RN `Modal` renders children even when `visible={false}` in RNTL. Use `UNSAFE_getByType(Modal).props.visible` to assert visibility instead
+- `Animated.loop()` / `Animated.sequence()` return objects without `stop()` in test environment — patch them in `beforeAll` to return `{ start: jest.fn(), stop: jest.fn() }` and restore in `afterAll`
+- `getByLabelText('Loading')` fails when both `ActivityIndicator` and its container have `accessibilityLabel="Loading"` — use `(toJSON() as ReactTestRendererJSON).props.accessibilityLabel` to assert on the root
+- Components that render `Button` need `AccessibilityStateHelpers`, `TouchTargetUtils`, and `HapticFeedback` mocked — mock `@/utils/accessibility` and `./HapticFeedback` with all methods used by Button
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit
