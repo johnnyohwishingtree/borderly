@@ -11,17 +11,23 @@ export interface ProfileCompleteness {
 }
 
 export interface UseProfileScreenReturn {
-  profile: TravelerProfile | null;
-  secureProfile: TravelerProfile | null;
-  isUnlocked: boolean;
-  isLoading: boolean;
-  error: string | null;
-  biometricEnabled: boolean;
-  familyProfiles: FamilyProfileCollection;
-  completeness: ProfileCompleteness;
-  handleUnlockProfile: () => Promise<void>;
-  maskPassportNumber: (passportNumber: string) => string;
-  loadProfile: () => void;
+  data: {
+    profile: TravelerProfile | null;
+    secureProfile: TravelerProfile | null;
+    familyProfiles: FamilyProfileCollection;
+    completeness: ProfileCompleteness;
+  };
+  state: {
+    isUnlocked: boolean;
+    isLoading: boolean;
+    error: string | null;
+    biometricEnabled: boolean;
+  };
+  actions: {
+    handleUnlockProfile: () => Promise<void>;
+    maskPassportNumber: (passportNumber: string) => string;
+    loadProfile: () => void;
+  };
 }
 
 const REQUIRED_FIELDS = [
@@ -110,17 +116,23 @@ export function useProfileScreen(): UseProfileScreenReturn {
   }, [preferences.biometricEnabled, profile]);
 
   return {
-    profile,
-    secureProfile,
-    isUnlocked,
-    isLoading,
-    error,
-    biometricEnabled: preferences.biometricEnabled,
-    familyProfiles,
-    completeness,
-    handleUnlockProfile,
-    maskPassportNumber,
-    loadProfile,
+    data: {
+      profile,
+      secureProfile,
+      familyProfiles,
+      completeness,
+    },
+    state: {
+      isUnlocked,
+      isLoading,
+      error,
+      biometricEnabled: preferences.biometricEnabled,
+    },
+    actions: {
+      handleUnlockProfile,
+      maskPassportNumber,
+      loadProfile,
+    },
   };
 }
 

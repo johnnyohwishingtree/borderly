@@ -24,19 +24,26 @@ const qrTypeOptions = [
 ] as const;
 
 const defaultUseAddQRReturn = {
-  isLoading: false,
-  capturedImage: null as string | null,
-  progressiveImage: null as { placeholder?: string; lowQuality?: string; mediumQuality?: string; fullQuality: string } | null,
-  imageQuality: null as { warnings: string[]; overallScore: number } | null,
-  compressionInfo: null as { success: boolean; originalSize: number; compressedSize: number; compressionRatio: number } | null,
-  formData: { label: '', type: 'combined' as 'immigration' | 'customs' | 'health' | 'combined' },
-  setFormData: mockSetFormData,
-  devicePerformance: 'medium' as 'low' | 'medium' | 'high',
-  qrTypeOptions,
-  handleCameraCapture: mockHandleCameraCapture,
-  handleLibraryImport: mockHandleLibraryImport,
-  handleSaveQR: mockHandleSaveQR,
-  handleReset: mockHandleReset,
+  image: {
+    capturedImage: null as string | null,
+    base64Image: null as string | null,
+    progressiveImage: null as { placeholder?: string; lowQuality?: string; mediumQuality?: string; fullQuality: string } | null,
+    imageQuality: null as { warnings: string[]; overallScore: number } | null,
+    compressionInfo: null as { success: boolean; originalSize: number; compressedSize: number; compressionRatio: number } | null,
+    devicePerformance: 'medium' as 'low' | 'medium' | 'high',
+  },
+  form: {
+    formData: { label: '', type: 'combined' as 'immigration' | 'customs' | 'health' | 'combined' },
+    setFormData: mockSetFormData,
+    qrTypeOptions,
+  },
+  actions: {
+    isLoading: false,
+    handleCameraCapture: mockHandleCameraCapture,
+    handleLibraryImport: mockHandleLibraryImport,
+    handleSaveQR: mockHandleSaveQR,
+    handleReset: mockHandleReset,
+  },
 };
 
 let mockUseAddQRReturn = { ...defaultUseAddQRReturn };
@@ -114,7 +121,10 @@ describe('AddQRScreen — header', () => {
 
 describe('AddQRScreen — loading state', () => {
   it('shows loading spinner when isLoading is true', () => {
-    mockUseAddQRReturn = { ...defaultUseAddQRReturn, isLoading: true };
+    mockUseAddQRReturn = {
+      ...defaultUseAddQRReturn,
+      actions: { ...defaultUseAddQRReturn.actions, isLoading: true },
+    };
 
     render(<AddQRScreen />);
 
@@ -170,8 +180,8 @@ describe('AddQRScreen — captured image preview', () => {
   beforeEach(() => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Test QR', type: 'immigration' },
+      image: { ...defaultUseAddQRReturn.image, capturedImage: 'file:///some/image.jpg' },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Test QR', type: 'immigration' } },
     };
   });
 
@@ -210,8 +220,8 @@ describe('AddQRScreen — form fields', () => {
   beforeEach(() => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: '', type: 'combined' },
+      image: { ...defaultUseAddQRReturn.image, capturedImage: 'file:///some/image.jpg' },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: '', type: 'combined' } },
     };
   });
 
@@ -245,8 +255,8 @@ describe('AddQRScreen — save button', () => {
   it('save button is disabled when label is empty', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: '', type: 'combined' },
+      image: { ...defaultUseAddQRReturn.image, capturedImage: 'file:///some/image.jpg' },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: '', type: 'combined' } },
     };
 
     render(<AddQRScreen />);
@@ -258,8 +268,8 @@ describe('AddQRScreen — save button', () => {
   it('save button is enabled when label has text', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Japan Entry QR', type: 'immigration' },
+      image: { ...defaultUseAddQRReturn.image, capturedImage: 'file:///some/image.jpg' },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Japan Entry QR', type: 'immigration' } },
     };
 
     render(<AddQRScreen />);
@@ -271,8 +281,8 @@ describe('AddQRScreen — save button', () => {
   it('pressing save calls handleSaveQR when form is valid', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Japan Entry QR', type: 'immigration' },
+      image: { ...defaultUseAddQRReturn.image, capturedImage: 'file:///some/image.jpg' },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Japan Entry QR', type: 'immigration' } },
     };
 
     render(<AddQRScreen />);
@@ -289,12 +299,15 @@ describe('AddQRScreen — image quality warnings', () => {
   it('shows quality warnings when imageQuality has warnings', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Test QR', type: 'combined' },
-      imageQuality: {
-        warnings: ['Image is slightly blurry', 'Low contrast detected'],
-        overallScore: 0.6,
+      image: {
+        ...defaultUseAddQRReturn.image,
+        capturedImage: 'file:///some/image.jpg',
+        imageQuality: {
+          warnings: ['Image is slightly blurry', 'Low contrast detected'],
+          overallScore: 0.6,
+        },
       },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Test QR', type: 'combined' } },
     };
 
     render(<AddQRScreen />);
@@ -307,12 +320,15 @@ describe('AddQRScreen — image quality warnings', () => {
   it('does not show quality warnings when no warnings', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Test QR', type: 'combined' },
-      imageQuality: {
-        warnings: [],
-        overallScore: 0.95,
+      image: {
+        ...defaultUseAddQRReturn.image,
+        capturedImage: 'file:///some/image.jpg',
+        imageQuality: {
+          warnings: [],
+          overallScore: 0.95,
+        },
       },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Test QR', type: 'combined' } },
     };
 
     render(<AddQRScreen />);
@@ -323,15 +339,18 @@ describe('AddQRScreen — image quality warnings', () => {
   it('shows compression info when available', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Test QR', type: 'combined' },
-      imageQuality: { warnings: [], overallScore: 0.9 },
-      compressionInfo: {
-        success: true,
-        originalSize: 2 * 1024 * 1024,
-        compressedSize: 500 * 1024,
-        compressionRatio: 0.25,
+      image: {
+        ...defaultUseAddQRReturn.image,
+        capturedImage: 'file:///some/image.jpg',
+        imageQuality: { warnings: [], overallScore: 0.9 },
+        compressionInfo: {
+          success: true,
+          originalSize: 2 * 1024 * 1024,
+          compressedSize: 500 * 1024,
+          compressionRatio: 0.25,
+        },
       },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Test QR', type: 'combined' } },
     };
 
     render(<AddQRScreen />);
@@ -342,10 +361,13 @@ describe('AddQRScreen — image quality warnings', () => {
   it('shows device-optimized message for low-end devices', () => {
     mockUseAddQRReturn = {
       ...defaultUseAddQRReturn,
-      capturedImage: 'file:///some/image.jpg',
-      formData: { label: 'Test QR', type: 'combined' },
-      imageQuality: { warnings: [], overallScore: 0.9 },
-      devicePerformance: 'low',
+      image: {
+        ...defaultUseAddQRReturn.image,
+        capturedImage: 'file:///some/image.jpg',
+        imageQuality: { warnings: [], overallScore: 0.9 },
+        devicePerformance: 'low',
+      },
+      form: { ...defaultUseAddQRReturn.form, formData: { label: 'Test QR', type: 'combined' } },
     };
 
     render(<AddQRScreen />);

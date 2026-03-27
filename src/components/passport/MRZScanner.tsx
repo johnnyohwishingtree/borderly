@@ -31,19 +31,10 @@ export default function MRZScannerComponent({
   lowPowerMode = false,
 }: MRZScannerProps) {
   const {
-    cameraRef,
-    scanResult,
-    flashMode,
-    cameraStatus,
-    performanceMetrics,
-    handleTextRecognition,
-    handleCameraReady,
-    handleStatusChange,
-    handleMountError,
-    startDemoScan,
-    toggleFlash,
-    getGuidanceColor,
-    getConfidenceColor,
+    state: { scanResult, cameraStatus, performanceMetrics, lowPowerMode: isLowPower },
+    camera: { cameraRef, flashMode, handleCameraReady, handleStatusChange, handleMountError, toggleFlash },
+    scanning: { handleTextRecognition, startDemoScan },
+    ui: { getGuidanceColor, getConfidenceColor },
   } = useMRZScanner({
     onScanSuccess,
     ...(onScanError != null && { onScanError }),
@@ -178,7 +169,7 @@ export default function MRZScannerComponent({
           )}
 
           {/* Performance info (dev mode only) */}
-          {__DEV__ && performanceMetrics && !lowPowerMode && (
+          {__DEV__ && performanceMetrics && !isLowPower && (
             <View className="mt-2 px-2 py-1 bg-black/60 rounded">
               <Text className="text-xs text-gray-300 text-center">
                 Success: {Math.round(performanceMetrics.successRate * 100)}% |
@@ -261,7 +252,7 @@ export default function MRZScannerComponent({
         onCameraReady={handleCameraReady}
         onMountError={handleMountError}
         onStatusChange={handleStatusChange}
-        ratio={lowPowerMode ? "4:3" : "16:9"}
+        ratio={isLowPower ? "4:3" : "16:9"}
         autoFocusPointOfInterest={{ x: 0.5, y: 0.7 }}
       >
         {scanOverlay}

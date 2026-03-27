@@ -174,43 +174,43 @@ describe('useProfileScreen', () => {
 
   it('returns profile data from store', () => {
     const { result } = renderHook(() => useProfileScreen());
-    expect(result.current.profile).toEqual(mockProfile);
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(result.current.data.profile).toEqual(mockProfile);
+    expect(result.current.state.isLoading).toBe(false);
+    expect(result.current.state.error).toBeNull();
   });
 
   describe('completeness', () => {
     it('returns 100% for a complete profile', () => {
       const { result } = renderHook(() => useProfileScreen());
-      expect(result.current.completeness.percentage).toBe(100);
-      expect(result.current.completeness.missing).toEqual([]);
+      expect(result.current.data.completeness.percentage).toBe(100);
+      expect(result.current.data.completeness.missing).toEqual([]);
     });
 
     it('returns 0% when profile is null', () => {
       mockProfile = null;
       const { result } = renderHook(() => useProfileScreen());
-      expect(result.current.completeness.percentage).toBe(0);
+      expect(result.current.data.completeness.percentage).toBe(0);
     });
 
     it('reports missing fields for incomplete profile', () => {
       mockProfile = makeProfile({ email: undefined, phoneNumber: undefined });
       const { result } = renderHook(() => useProfileScreen());
-      expect(result.current.completeness.percentage).toBe(50);
-      expect(result.current.completeness.missing).toContain('Email');
-      expect(result.current.completeness.missing).toContain('Phone Number');
+      expect(result.current.data.completeness.percentage).toBe(50);
+      expect(result.current.data.completeness.missing).toContain('Email');
+      expect(result.current.data.completeness.missing).toContain('Phone Number');
     });
 
     it('detects incomplete home address', () => {
       mockProfile = makeProfile({ homeAddress: { line1: '', city: '', country: '' } });
       const { result } = renderHook(() => useProfileScreen());
-      expect(result.current.completeness.missing).toContain('Home Address');
-      expect(result.current.completeness.percentage).toBe(75);
+      expect(result.current.data.completeness.missing).toContain('Home Address');
+      expect(result.current.data.completeness.percentage).toBe(75);
     });
 
     it('detects missing home address', () => {
       mockProfile = makeProfile({ homeAddress: undefined });
       const { result } = renderHook(() => useProfileScreen());
-      expect(result.current.completeness.missing).toContain('Home Address');
+      expect(result.current.data.completeness.missing).toContain('Home Address');
     });
   });
 
@@ -219,14 +219,14 @@ describe('useProfileScreen', () => {
       mockBiometricEnabled = false;
       const { result } = renderHook(() => useProfileScreen());
 
-      expect(result.current.isUnlocked).toBe(false);
+      expect(result.current.state.isUnlocked).toBe(false);
 
       await act(async () => {
-        await result.current.handleUnlockProfile();
+        await result.current.actions.handleUnlockProfile();
       });
 
-      expect(result.current.isUnlocked).toBe(true);
-      expect(result.current.secureProfile).toEqual(mockProfile);
+      expect(result.current.state.isUnlocked).toBe(true);
+      expect(result.current.data.secureProfile).toEqual(mockProfile);
     });
 
     it('loads fresh profile via getState when biometric is enabled', async () => {
@@ -240,11 +240,11 @@ describe('useProfileScreen', () => {
       const { result } = renderHook(() => useProfileScreen());
 
       await act(async () => {
-        await result.current.handleUnlockProfile();
+        await result.current.actions.handleUnlockProfile();
       });
 
-      expect(result.current.isUnlocked).toBe(true);
-      expect(result.current.secureProfile).toEqual(freshProfile);
+      expect(result.current.state.isUnlocked).toBe(true);
+      expect(result.current.data.secureProfile).toEqual(freshProfile);
     });
 
     it('shows alert when biometric authentication fails', async () => {
@@ -257,10 +257,10 @@ describe('useProfileScreen', () => {
       const { result } = renderHook(() => useProfileScreen());
 
       await act(async () => {
-        await result.current.handleUnlockProfile();
+        await result.current.actions.handleUnlockProfile();
       });
 
-      expect(result.current.isUnlocked).toBe(false);
+      expect(result.current.state.isUnlocked).toBe(false);
       expect(Alert.alert).toHaveBeenCalledWith(
         'Authentication Failed',
         'Could not authenticate. Please try again.',

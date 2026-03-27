@@ -63,24 +63,24 @@ describe('useMRZScanner', () => {
     it('starts with scanning enabled and camera pending', () => {
       const { result } = renderScanner();
 
-      expect(result.current.isScanning).toBe(true);
-      expect(result.current.cameraStatus).toBe('pending');
-      expect(result.current.scanResult).toBeNull();
-      expect(result.current.flashMode).toBe('off');
+      expect(result.current.state.isScanning).toBe(true);
+      expect(result.current.state.cameraStatus).toBe('pending');
+      expect(result.current.state.scanResult).toBeNull();
+      expect(result.current.camera.flashMode).toBe('off');
     });
 
     it('initializes performance metrics when not in low power mode', () => {
       const { result } = renderScanner({ lowPowerMode: false });
 
       // Performance metrics should be available (may be null initially until interval fires)
-      expect(result.current.lowPowerMode).toBe(false);
+      expect(result.current.state.lowPowerMode).toBe(false);
     });
 
     it('skips performance monitoring in low power mode', () => {
       const { result } = renderScanner({ lowPowerMode: true });
 
-      expect(result.current.lowPowerMode).toBe(true);
-      expect(result.current.performanceMetrics).toBeNull();
+      expect(result.current.state.lowPowerMode).toBe(true);
+      expect(result.current.state.performanceMetrics).toBeNull();
     });
   });
 
@@ -89,30 +89,30 @@ describe('useMRZScanner', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleCameraReady();
+        result.current.camera.handleCameraReady();
       });
 
-      expect(result.current.cameraStatus).toBe('ready');
+      expect(result.current.state.cameraStatus).toBe('ready');
     });
 
     it('marks camera unavailable on mount error', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleMountError(new Error('camera init failed'));
+        result.current.camera.handleMountError(new Error('camera init failed'));
       });
 
-      expect(result.current.cameraStatus).toBe('unavailable');
+      expect(result.current.state.cameraStatus).toBe('unavailable');
     });
 
     it('detects permission denial', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.handleStatusChange({ cameraStatus: 'NOT_AUTHORIZED' });
+        result.current.camera.handleStatusChange({ cameraStatus: 'NOT_AUTHORIZED' });
       });
 
-      expect(result.current.cameraStatus).toBe('denied');
+      expect(result.current.state.cameraStatus).toBe('denied');
     });
   });
 
@@ -120,13 +120,13 @@ describe('useMRZScanner', () => {
     it('toggles between off and on', () => {
       const { result } = renderScanner();
 
-      expect(result.current.flashMode).toBe('off');
+      expect(result.current.camera.flashMode).toBe('off');
 
       act(() => {
-        result.current.toggleFlash();
+        result.current.camera.toggleFlash();
       });
 
-      expect(result.current.flashMode).toBe('on');
+      expect(result.current.camera.flashMode).toBe('on');
     });
   });
 
@@ -135,10 +135,10 @@ describe('useMRZScanner', () => {
       const { result } = renderScanner();
 
       act(() => {
-        result.current.startDemoScan();
+        result.current.scanning.startDemoScan();
       });
 
-      expect(result.current.cameraStatus).toBe('demo');
+      expect(result.current.state.cameraStatus).toBe('demo');
     });
   });
 
@@ -146,7 +146,7 @@ describe('useMRZScanner', () => {
     it('returns a string for various result types', () => {
       const { result } = renderScanner();
 
-      const color = result.current.getGuidanceColor({
+      const color = result.current.ui.getGuidanceColor({
         type: 'partial',
         confidence: 0.6,
         guidance: 'Hold steady',

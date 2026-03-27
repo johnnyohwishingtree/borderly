@@ -276,19 +276,25 @@ export function useAddQR() {
   }, [clearImageMemory]);
 
   return {
-    isLoading,
-    capturedImage,
-    base64Image,
-    progressiveImage,
-    imageQuality,
-    compressionInfo,
-    formData,
-    setFormData,
-    devicePerformance,
-    qrTypeOptions,
-    handleCameraCapture,
-    handleLibraryImport,
-    handleSaveQR,
-    handleReset,
+    image: {
+      capturedImage,
+      base64Image,
+      progressiveImage,
+      imageQuality,
+      compressionInfo,
+      devicePerformance,
+    },
+    form: {
+      formData,
+      setFormData,
+      qrTypeOptions,
+    },
+    actions: {
+      isLoading,
+      handleCameraCapture,
+      handleLibraryImport,
+      handleSaveQR,
+      handleReset,
+    },
   };
 }

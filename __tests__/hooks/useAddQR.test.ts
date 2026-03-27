@@ -128,10 +128,10 @@ describe('useAddQR', () => {
     it('returns isLoading=false, capturedImage=null, base64Image=null, and default formData', () => {
       const { result } = renderAddQR();
 
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.capturedImage).toBeNull();
-      expect(result.current.base64Image).toBeNull();
-      expect(result.current.formData).toEqual({
+      expect(result.current.actions.isLoading).toBe(false);
+      expect(result.current.image.capturedImage).toBeNull();
+      expect(result.current.image.base64Image).toBeNull();
+      expect(result.current.form.formData).toEqual({
         label: '',
         type: 'combined',
       });
@@ -142,7 +142,7 @@ describe('useAddQR', () => {
     it('includes immigration, customs, health, and combined types', () => {
       const { result } = renderAddQR();
 
-      const values = result.current.qrTypeOptions.map(
+      const values = result.current.form.qrTypeOptions.map(
         (opt: { value: string }) => opt.value,
       );
       expect(values).toContain('immigration');
@@ -157,10 +157,10 @@ describe('useAddQR', () => {
       const { result } = renderAddQR();
 
       act(() => {
-        result.current.setFormData({ label: 'My QR', type: 'immigration' });
+        result.current.form.setFormData({ label: 'My QR', type: 'immigration' });
       });
 
-      expect(result.current.formData).toEqual({
+      expect(result.current.form.formData).toEqual({
         label: 'My QR',
         type: 'immigration',
       });
@@ -173,19 +173,19 @@ describe('useAddQR', () => {
 
       // First set some data
       act(() => {
-        result.current.setFormData({ label: 'Test Label', type: 'customs' });
+        result.current.form.setFormData({ label: 'Test Label', type: 'customs' });
       });
 
-      expect(result.current.formData.label).toBe('Test Label');
+      expect(result.current.form.formData.label).toBe('Test Label');
 
       // Now reset
       act(() => {
-        result.current.handleReset();
+        result.current.actions.handleReset();
       });
 
-      expect(result.current.capturedImage).toBeNull();
-      expect(result.current.base64Image).toBeNull();
-      expect(result.current.formData).toEqual({
+      expect(result.current.image.capturedImage).toBeNull();
+      expect(result.current.image.base64Image).toBeNull();
+      expect(result.current.form.formData).toEqual({
         label: '',
         type: 'combined',
       });
@@ -197,7 +197,7 @@ describe('useAddQR', () => {
       const { result } = renderAddQR();
 
       await act(async () => {
-        await result.current.handleSaveQR();
+        await result.current.actions.handleSaveQR();
       });
 
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -229,7 +229,7 @@ describe('useAddQR', () => {
       // Actually, the simplest approach is to just verify the behavior:
       // with no image, it should show the image error, not the label error.
       await act(async () => {
-        await result.current.handleSaveQR();
+        await result.current.actions.handleSaveQR();
       });
 
       // First validation is the image check
@@ -254,23 +254,23 @@ describe('useAddQR', () => {
       });
 
       await act(async () => {
-        await result.current.handleCameraCapture();
+        await result.current.actions.handleCameraCapture();
       });
 
       // After capture, capturedImage and base64Image should be set
-      expect(result.current.capturedImage).toBe('file:///test-image.jpg');
-      expect(result.current.base64Image).toBeTruthy();
+      expect(result.current.image.capturedImage).toBe('file:///test-image.jpg');
+      expect(result.current.image.base64Image).toBeTruthy();
 
       // The auto-generated label should be set, but let's set our own
       act(() => {
-        result.current.setFormData({
+        result.current.form.setFormData({
           label: 'My Travel QR',
           type: 'immigration',
         });
       });
 
       await act(async () => {
-        await result.current.handleSaveQR();
+        await result.current.actions.handleSaveQR();
       });
 
       // Should have called database service
@@ -312,16 +312,16 @@ describe('useAddQR', () => {
       });
 
       await act(async () => {
-        await result.current.handleCameraCapture();
+        await result.current.actions.handleCameraCapture();
       });
 
       // Clear the auto-generated label
       act(() => {
-        result.current.setFormData({ label: '', type: 'combined' });
+        result.current.form.setFormData({ label: '', type: 'combined' });
       });
 
       await act(async () => {
-        await result.current.handleSaveQR();
+        await result.current.actions.handleSaveQR();
       });
 
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -336,7 +336,7 @@ describe('useAddQR', () => {
       const { result } = renderAddQR();
 
       await waitFor(() => {
-        expect(result.current.devicePerformance).toBe('high');
+        expect(result.current.image.devicePerformance).toBe('high');
       });
 
       const { detectDevicePerformance } = jest.requireMock(

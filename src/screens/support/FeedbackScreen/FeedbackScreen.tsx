@@ -5,19 +5,10 @@ import { useFeedback } from '@/hooks/useFeedback';
 
 export default function FeedbackScreen() {
   const {
-    feedbackType,
-    setFeedbackType,
-    rating,
-    subject,
-    setSubject,
-    message,
-    setMessage,
-    isSubmitting,
-    feedbackTypeOptions,
-    handleRatingPress,
-    handleSubmitFeedback,
-    getRatingEmoji,
-    getRatingText,
+    fields: { feedbackType, setFeedbackType, rating, subject, setSubject, message, setMessage },
+    submission: { isSubmitting, handleSubmitFeedback },
+    options: { feedbackTypeOptions },
+    ratingHelpers: { handleRatingPress, getRatingEmoji, getRatingText },
   } = useFeedback();
 
   return (

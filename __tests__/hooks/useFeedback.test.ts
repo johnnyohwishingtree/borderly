@@ -46,11 +46,11 @@ describe('useFeedback', () => {
     it('returns correct default values', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.feedbackType).toBe('general');
-      expect(result.current.rating).toBe(0);
-      expect(result.current.subject).toBe('');
-      expect(result.current.message).toBe('');
-      expect(result.current.isSubmitting).toBe(false);
+      expect(result.current.fields.feedbackType).toBe('general');
+      expect(result.current.fields.rating).toBe(0);
+      expect(result.current.fields.subject).toBe('');
+      expect(result.current.fields.message).toBe('');
+      expect(result.current.submission.isSubmitting).toBe(false);
     });
   });
 
@@ -59,24 +59,24 @@ describe('useFeedback', () => {
       const { result } = renderHook(() => useFeedback());
 
       act(() => {
-        result.current.handleRatingPress(4);
+        result.current.ratingHelpers.handleRatingPress(4);
       });
 
-      expect(result.current.rating).toBe(4);
+      expect(result.current.fields.rating).toBe(4);
     });
 
     it('can change rating to a different value', () => {
       const { result } = renderHook(() => useFeedback());
 
       act(() => {
-        result.current.handleRatingPress(3);
+        result.current.ratingHelpers.handleRatingPress(3);
       });
-      expect(result.current.rating).toBe(3);
+      expect(result.current.fields.rating).toBe(3);
 
       act(() => {
-        result.current.handleRatingPress(5);
+        result.current.ratingHelpers.handleRatingPress(5);
       });
-      expect(result.current.rating).toBe(5);
+      expect(result.current.fields.rating).toBe(5);
     });
   });
 
@@ -86,11 +86,11 @@ describe('useFeedback', () => {
 
       // Set a rating but leave message empty
       act(() => {
-        result.current.handleRatingPress(3);
+        result.current.ratingHelpers.handleRatingPress(3);
       });
 
       await act(async () => {
-        await result.current.handleSubmitFeedback();
+        await result.current.submission.handleSubmitFeedback();
       });
 
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -103,12 +103,12 @@ describe('useFeedback', () => {
       const { result } = renderHook(() => useFeedback());
 
       act(() => {
-        result.current.handleRatingPress(3);
-        result.current.setMessage('   ');
+        result.current.ratingHelpers.handleRatingPress(3);
+        result.current.fields.setMessage('   ');
       });
 
       await act(async () => {
-        await result.current.handleSubmitFeedback();
+        await result.current.submission.handleSubmitFeedback();
       });
 
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -121,11 +121,11 @@ describe('useFeedback', () => {
       const { result } = renderHook(() => useFeedback());
 
       act(() => {
-        result.current.setMessage('Great app!');
+        result.current.fields.setMessage('Great app!');
       });
 
       await act(async () => {
-        await result.current.handleSubmitFeedback();
+        await result.current.submission.handleSubmitFeedback();
       });
 
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -138,20 +138,20 @@ describe('useFeedback', () => {
       const { result } = renderHook(() => useFeedback());
 
       act(() => {
-        result.current.handleRatingPress(5);
-        result.current.setMessage('Excellent app!');
-        result.current.setSubject('Praise');
-        result.current.setFeedbackType('feature');
+        result.current.ratingHelpers.handleRatingPress(5);
+        result.current.fields.setMessage('Excellent app!');
+        result.current.fields.setSubject('Praise');
+        result.current.fields.setFeedbackType('feature');
       });
 
       // Start submission
       let submitPromise: Promise<void>;
       act(() => {
-        submitPromise = result.current.handleSubmitFeedback();
+        submitPromise = result.current.submission.handleSubmitFeedback();
       });
 
       // isSubmitting should be true while awaiting
-      expect(result.current.isSubmitting).toBe(true);
+      expect(result.current.submission.isSubmitting).toBe(true);
 
       // Advance past the simulated delay
       await act(async () => {
@@ -160,7 +160,7 @@ describe('useFeedback', () => {
       });
 
       // isSubmitting should be false after completion
-      expect(result.current.isSubmitting).toBe(false);
+      expect(result.current.submission.isSubmitting).toBe(false);
 
       // Alert.alert should have been called with success message
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -179,10 +179,10 @@ describe('useFeedback', () => {
       });
 
       // Form should be reset
-      expect(result.current.feedbackType).toBe('general');
-      expect(result.current.rating).toBe(0);
-      expect(result.current.subject).toBe('');
-      expect(result.current.message).toBe('');
+      expect(result.current.fields.feedbackType).toBe('general');
+      expect(result.current.fields.rating).toBe(0);
+      expect(result.current.fields.subject).toBe('');
+      expect(result.current.fields.message).toBe('');
 
       // Navigation should go back
       expect(mockGoBack).toHaveBeenCalledTimes(1);
@@ -193,19 +193,19 @@ describe('useFeedback', () => {
     it('returns correct emoji for each rating value', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.getRatingEmoji(1)).toBe('\u{1F61E}');
-      expect(result.current.getRatingEmoji(2)).toBe('\u{1F615}');
-      expect(result.current.getRatingEmoji(3)).toBe('\u{1F610}');
-      expect(result.current.getRatingEmoji(4)).toBe('\u{1F60A}');
-      expect(result.current.getRatingEmoji(5)).toBe('\u{1F929}');
+      expect(result.current.ratingHelpers.getRatingEmoji(1)).toBe('\u{1F61E}');
+      expect(result.current.ratingHelpers.getRatingEmoji(2)).toBe('\u{1F615}');
+      expect(result.current.ratingHelpers.getRatingEmoji(3)).toBe('\u{1F610}');
+      expect(result.current.ratingHelpers.getRatingEmoji(4)).toBe('\u{1F60A}');
+      expect(result.current.ratingHelpers.getRatingEmoji(5)).toBe('\u{1F929}');
     });
 
     it('returns star emoji for invalid rating', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.getRatingEmoji(0)).toBe('\u2B50');
-      expect(result.current.getRatingEmoji(6)).toBe('\u2B50');
-      expect(result.current.getRatingEmoji(-1)).toBe('\u2B50');
+      expect(result.current.ratingHelpers.getRatingEmoji(0)).toBe('\u2B50');
+      expect(result.current.ratingHelpers.getRatingEmoji(6)).toBe('\u2B50');
+      expect(result.current.ratingHelpers.getRatingEmoji(-1)).toBe('\u2B50');
     });
   });
 
@@ -213,18 +213,18 @@ describe('useFeedback', () => {
     it('returns correct text for each rating value', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.getRatingText(1)).toBe('Very Poor');
-      expect(result.current.getRatingText(2)).toBe('Poor');
-      expect(result.current.getRatingText(3)).toBe('Average');
-      expect(result.current.getRatingText(4)).toBe('Good');
-      expect(result.current.getRatingText(5)).toBe('Excellent');
+      expect(result.current.ratingHelpers.getRatingText(1)).toBe('Very Poor');
+      expect(result.current.ratingHelpers.getRatingText(2)).toBe('Poor');
+      expect(result.current.ratingHelpers.getRatingText(3)).toBe('Average');
+      expect(result.current.ratingHelpers.getRatingText(4)).toBe('Good');
+      expect(result.current.ratingHelpers.getRatingText(5)).toBe('Excellent');
     });
 
     it('returns default text for invalid rating', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.getRatingText(0)).toBe('Tap to rate');
-      expect(result.current.getRatingText(6)).toBe('Tap to rate');
+      expect(result.current.ratingHelpers.getRatingText(0)).toBe('Tap to rate');
+      expect(result.current.ratingHelpers.getRatingText(6)).toBe('Tap to rate');
     });
   });
 
@@ -232,7 +232,7 @@ describe('useFeedback', () => {
     it('returns all feedback type options', () => {
       const { result } = renderHook(() => useFeedback());
 
-      expect(result.current.feedbackTypeOptions).toEqual([
+      expect(result.current.options.feedbackTypeOptions).toEqual([
         { label: 'General Feedback', value: 'general' },
         { label: 'Feature Request', value: 'feature' },
         { label: 'User Experience', value: 'ux' },
