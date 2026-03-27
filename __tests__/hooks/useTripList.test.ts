@@ -147,22 +147,22 @@ describe('useTripList', () => {
   it('resolves travelers per trip from family members', async () => {
     const { result } = renderHook(() => useTripList());
     await waitFor(() => {
-      expect(result.current.travelersByTripId['1']).toHaveLength(2);
+      expect(result.current.travelers.travelersByTripId['1']).toHaveLength(2);
     });
-    expect(result.current.travelersByTripId['1']![0].id).toBe('t1');
-    expect(result.current.travelersByTripId['1']![1].id).toBe('t2');
+    expect(result.current.travelers.travelersByTripId['1']![0].id).toBe('t1');
+    expect(result.current.travelers.travelersByTripId['1']![1].id).toBe('t2');
   });
 
   it('does not show schema banner when no refresh occurred', () => {
     const { result } = renderHook(() => useTripList());
-    expect(result.current.showSchemaBanner).toBe(false);
+    expect(result.current.schemaBanner.showSchemaBanner).toBe(false);
   });
 
   describe('navigation handlers', () => {
     it('handleTripPress navigates to TripDetail', () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleTripPress(mockTrips[0]);
+        result.current.navigation.handleTripPress(mockTrips[0]);
       });
       expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: '1' });
     });
@@ -170,7 +170,7 @@ describe('useTripList', () => {
     it('handleCreateTrip navigates to CreateTrip', () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleCreateTrip();
+        result.current.navigation.handleCreateTrip();
       });
       expect(mockNavigate).toHaveBeenCalledWith('CreateTrip');
     });
@@ -178,7 +178,7 @@ describe('useTripList', () => {
     it('handleCreateFromTemplate navigates to Templates', () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleCreateFromTemplate();
+        result.current.navigation.handleCreateFromTemplate();
       });
       expect(mockNavigate).toHaveBeenCalledWith('Templates');
     });
@@ -186,7 +186,7 @@ describe('useTripList', () => {
     it('handleGoToForm navigates to LegForm with tripId and legId', () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleGoToForm('trip-1', 'leg-1');
+        result.current.navigation.handleGoToForm('trip-1', 'leg-1');
       });
       expect(mockNavigate).toHaveBeenCalledWith('LegForm', { tripId: 'trip-1', legId: 'leg-1' });
     });
@@ -195,29 +195,29 @@ describe('useTripList', () => {
   describe('duplicate trip flow', () => {
     it('opens and closes the duplicate modal', () => {
       const { result } = renderHook(() => useTripList());
-      expect(result.current.duplicateTargetId).toBeNull();
+      expect(result.current.duplicate.duplicateTargetId).toBeNull();
 
       act(() => {
-        result.current.handleOpenDuplicateModal(mockTrips[0]);
+        result.current.duplicate.handleOpenDuplicateModal(mockTrips[0]);
       });
-      expect(result.current.duplicateTargetId).toBe('1');
+      expect(result.current.duplicate.duplicateTargetId).toBe('1');
 
       act(() => {
-        result.current.handleCloseDuplicateModal();
+        result.current.duplicate.handleCloseDuplicateModal();
       });
-      expect(result.current.duplicateTargetId).toBeNull();
+      expect(result.current.duplicate.duplicateTargetId).toBeNull();
     });
 
     it('handleConfirmDuplicate calls duplicateTrip and navigates', async () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleOpenDuplicateModal(mockTrips[0]);
+        result.current.duplicate.handleOpenDuplicateModal(mockTrips[0]);
       });
-      expect(result.current.duplicateTargetId).toBe('1');
+      expect(result.current.duplicate.duplicateTargetId).toBe('1');
 
       // Fire and forget — the async callback will update state
       act(() => {
-        void result.current.handleConfirmDuplicate('2026-06-01');
+        void result.current.duplicate.handleConfirmDuplicate('2026-06-01');
       });
 
       await waitFor(() => {
@@ -229,17 +229,17 @@ describe('useTripList', () => {
     it('handleConfirmDuplicate sets error on failure', async () => {
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleOpenDuplicateModal(mockTrips[0]);
+        result.current.duplicate.handleOpenDuplicateModal(mockTrips[0]);
       });
-      expect(result.current.duplicateTargetId).toBe('1');
+      expect(result.current.duplicate.duplicateTargetId).toBe('1');
 
       mockDuplicateTrip.mockRejectedValueOnce(new Error('fail'));
       act(() => {
-        void result.current.handleConfirmDuplicate('2026-06-01');
+        void result.current.duplicate.handleConfirmDuplicate('2026-06-01');
       });
 
       await waitFor(() => {
-        expect(result.current.duplicateError).toBe('Failed to duplicate trip. Please try again.');
+        expect(result.current.duplicate.duplicateError).toBe('Failed to duplicate trip. Please try again.');
       });
     });
   });
@@ -249,7 +249,7 @@ describe('useTripList', () => {
       const { Alert } = require('react-native');
       const { result } = renderHook(() => useTripList());
       act(() => {
-        result.current.handleDeleteTrip(mockTrips[0]);
+        result.current.navigation.handleDeleteTrip(mockTrips[0]);
       });
       expect(Alert.alert).toHaveBeenCalledWith(
         'Delete Trip',

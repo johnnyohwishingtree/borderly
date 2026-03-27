@@ -20,25 +20,31 @@ import type { TripLeg } from '@/types/trip';
 import LegFormSection from './LegFormSection';
 
 interface EditHookShape {
-  editingLegId: string | null;
-  editLegData: any;
-  editName: string;
-  setEditName: (name: string) => void;
+  tripName: {
+    editName: string;
+    setEditName: (name: string) => void;
+    isUpdatingName: boolean;
+    handleUpdateTripName: () => Promise<boolean>;
+  };
+  legEdit: {
+    editingLegId: string | null;
+    editLegData: any;
+    isUpdatingLeg: boolean;
+    startEditLeg: (leg: TripLeg) => void;
+    cancelEditLeg: () => void;
+    updateEditLegField: (field: string, value: string) => void;
+    updateEditLegAddress: (address: any) => void;
+    handleSaveLeg: () => Promise<boolean>;
+  };
+  addDestination: {
+    newLegData: any;
+    isAddingDestination: boolean;
+    startAddDestination: () => void;
+    updateNewLegField: (field: string, value: string) => void;
+    updateNewLegAddress: (address: any) => void;
+    handleAddDestination: () => Promise<boolean>;
+  };
   errors: Record<string, string>;
-  isUpdatingName: boolean;
-  isUpdatingLeg: boolean;
-  isAddingDestination: boolean;
-  newLegData: any;
-  cancelEditLeg: () => void;
-  startEditLeg: (leg: TripLeg) => void;
-  startAddDestination: () => void;
-  updateEditLegField: (field: string, value: string) => void;
-  updateEditLegAddress: (address: any) => void;
-  updateNewLegField: (field: string, value: string) => void;
-  updateNewLegAddress: (address: any) => void;
-  handleUpdateTripName: () => Promise<boolean>;
-  handleSaveLeg: () => Promise<boolean>;
-  handleAddDestination: () => Promise<boolean>;
 }
 
 // ── Edit Trip Modal ─────────────────────────────────────────────────────────
@@ -61,11 +67,11 @@ export function EditTripModal({
   editModalTitleRef,
 }: EditTripModalProps) {
   const handleSaveLeg = async () => {
-    await editHook.handleSaveLeg();
+    await editHook.legEdit.handleSaveLeg();
   };
 
   const handleSaveTripName = async () => {
-    await editHook.handleUpdateTripName();
+    await editHook.tripName.handleUpdateTripName();
   };
 
   return (
@@ -81,8 +87,8 @@ export function EditTripModal({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View className="bg-white dark:bg-gray-800 px-4 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700 flex-row items-center justify-between">
-          {editHook.editingLegId ? (
-            <TouchableOpacity onPress={editHook.cancelEditLeg} activeOpacity={0.7}>
+          {editHook.legEdit.editingLegId ? (
+            <TouchableOpacity onPress={editHook.legEdit.cancelEditLeg} activeOpacity={0.7}>
               <ChevronLeft size={24} color="#2563eb" />
             </TouchableOpacity>
           ) : (
@@ -95,17 +101,17 @@ export function EditTripModal({
             className="text-lg font-bold text-gray-900 dark:text-white"
             accessibilityRole="header"
           >
-            {editHook.editingLegId ? 'Edit Destination' : 'Edit Trip'}
+            {editHook.legEdit.editingLegId ? 'Edit Destination' : 'Edit Trip'}
           </Text>
-          {editHook.editingLegId ? (
+          {editHook.legEdit.editingLegId ? (
             <TouchableOpacity
               onPress={handleSaveLeg}
               activeOpacity={0.7}
               testID="save-leg-button"
-              disabled={editHook.isUpdatingLeg}
+              disabled={editHook.legEdit.isUpdatingLeg}
             >
               <Text className="text-blue-600 dark:text-blue-400 font-medium">
-                {editHook.isUpdatingLeg ? 'Saving…' : 'Save'}
+                {editHook.legEdit.isUpdatingLeg ? 'Saving…' : 'Save'}
               </Text>
             </TouchableOpacity>
           ) : (
@@ -114,11 +120,11 @@ export function EditTripModal({
         </View>
 
         <ScrollView className="flex-1" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
-          {editHook.editingLegId && editHook.editLegData ? (
+          {editHook.legEdit.editingLegId && editHook.legEdit.editLegData ? (
             <LegFormSection
-              legData={editHook.editLegData}
-              onUpdateField={editHook.updateEditLegField}
-              onAddressChange={editHook.updateEditLegAddress}
+              legData={editHook.legEdit.editLegData}
+              onUpdateField={editHook.legEdit.updateEditLegField}
+              onAddressChange={editHook.legEdit.updateEditLegAddress}
               errors={editHook.errors}
               testIDPrefix="edit-leg"
             />
@@ -127,20 +133,20 @@ export function EditTripModal({
               <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
                 <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Trip Name</Text>
                 <Input
-                  value={editHook.editName}
-                  onChangeText={editHook.setEditName}
+                  value={editHook.tripName.editName}
+                  onChangeText={editHook.tripName.setEditName}
                   placeholder="e.g., Asia Summer 2025"
                   error={editHook.errors.name}
                   testID="edit-trip-name-input"
                 />
                 <View className="mt-3">
                   <Button
-                    title={editHook.isUpdatingName ? 'Saving…' : 'Save Name'}
+                    title={editHook.tripName.isUpdatingName ? 'Saving…' : 'Save Name'}
                     onPress={handleSaveTripName}
                     variant="primary"
                     size="small"
-                    loading={editHook.isUpdatingName}
-                    disabled={editHook.isUpdatingName}
+                    loading={editHook.tripName.isUpdatingName}
+                    disabled={editHook.tripName.isUpdatingName}
                     testID="save-trip-name-button"
                   />
                 </View>
@@ -163,7 +169,7 @@ export function EditTripModal({
                           <Text className="text-sm text-gray-600 dark:text-gray-400">{leg.arrivalDate}</Text>
                         </View>
                         <TouchableOpacity
-                          onPress={() => editHook.startEditLeg(leg)}
+                          onPress={() => editHook.legEdit.startEditLeg(leg)}
                           className="bg-blue-50 dark:bg-blue-950 px-3 py-1.5 rounded-lg ml-3"
                           activeOpacity={0.7}
                           testID={`edit-leg-${leg.id}-button`}
@@ -198,7 +204,7 @@ export interface AddDestinationModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
-  editHook: Pick<EditHookShape, 'isAddingDestination' | 'newLegData' | 'updateNewLegField' | 'updateNewLegAddress' | 'errors'>;
+  editHook: Pick<EditHookShape, 'addDestination' | 'errors'>;
   addModalTitleRef: any;
 }
 
@@ -236,20 +242,20 @@ export function AddDestinationModal({
             onPress={onConfirm}
             activeOpacity={0.7}
             testID="confirm-add-destination-button"
-            disabled={editHook.isAddingDestination}
+            disabled={editHook.addDestination.isAddingDestination}
           >
             <Text className="text-blue-600 dark:text-blue-400 font-medium">
-              {editHook.isAddingDestination ? 'Adding…' : 'Add'}
+              {editHook.addDestination.isAddingDestination ? 'Adding…' : 'Add'}
             </Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView className="flex-1" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
-          {editHook.newLegData && (
+          {editHook.addDestination.newLegData && (
             <LegFormSection
-              legData={editHook.newLegData}
-              onUpdateField={editHook.updateNewLegField}
-              onAddressChange={editHook.updateNewLegAddress}
+              legData={editHook.addDestination.newLegData}
+              onUpdateField={editHook.addDestination.updateNewLegField}
+              onAddressChange={editHook.addDestination.updateNewLegAddress}
               errors={editHook.errors}
               testIDPrefix="new-leg"
             />

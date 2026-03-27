@@ -23,51 +23,55 @@ const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 export interface UseTripListReturn {
   /** All trips from the store */
   trips: Trip[];
-  /** Loading state for initial load */
-  loadingState: 'idle' | 'loading' | 'error' | 'success' | 'timeout';
-  /** Store-level error */
-  storeError: string | null;
-  /** Whether more trips are loading (pagination) */
-  isLoading: boolean;
-  isLoadingMore: boolean;
-  hasMoreTrips: boolean;
-  loadMoreTrips: () => void;
-  /** Reset loading state */
-  resetLoading: () => void;
-  /** Refresh trips */
-  handleRefresh: () => Promise<void>;
-
+  /** Loading state group */
+  loading: {
+    state: 'idle' | 'loading' | 'error' | 'success' | 'timeout';
+    storeError: string | null;
+    isLoading: boolean;
+    isLoadingMore: boolean;
+    hasMoreTrips: boolean;
+    loadMoreTrips: () => void;
+    resetLoading: () => void;
+    handleRefresh: () => Promise<void>;
+  };
   /** Family members resolved per trip */
-  travelersByTripId: Record<string, FamilyMember[]>;
-
+  travelers: {
+    travelersByTripId: Record<string, FamilyMember[]>;
+  };
   /** Deadline data */
-  urgencyByTripId: Record<string, import('@/hooks/useTripListDeadlines').TripUrgency>;
-  deadlineSummary: import('@/hooks/useDeadlineSummary').UseDeadlineSummaryReturn;
-
+  deadlines: {
+    urgencyByTripId: Record<string, import('@/hooks/useTripListDeadlines').TripUrgency>;
+    deadlineSummary: import('@/hooks/useDeadlineSummary').UseDeadlineSummaryReturn;
+  };
   /** Schema banner */
-  showSchemaBanner: boolean;
-  schemaBannerMessage: string;
-  dismissSchemaBanner: () => void;
-
+  schemaBanner: {
+    showSchemaBanner: boolean;
+    schemaBannerMessage: string;
+    dismissSchemaBanner: () => void;
+  };
   /** First run prompt */
-  hasSeenFirstRunPrompt: boolean;
-  dismissFirstRunPrompt: () => void;
-
+  firstRun: {
+    hasSeenFirstRunPrompt: boolean;
+    dismissFirstRunPrompt: () => void;
+  };
   /** Duplicate trip flow */
-  duplicateTargetId: string | null;
-  isDuplicating: boolean;
-  duplicateError: string | null;
-  handleOpenDuplicateModal: (trip: Trip) => void;
-  handleCloseDuplicateModal: () => void;
-  handleConfirmDuplicate: (newDepartureDate: string) => Promise<void>;
-
+  duplicate: {
+    duplicateTargetId: string | null;
+    isDuplicating: boolean;
+    duplicateError: string | null;
+    handleOpenDuplicateModal: (trip: Trip) => void;
+    handleCloseDuplicateModal: () => void;
+    handleConfirmDuplicate: (newDepartureDate: string) => Promise<void>;
+  };
   /** Navigation handlers */
-  handleTripPress: (trip: Trip) => void;
-  handleCreateTrip: () => void;
-  handleCreateFromTemplate: () => void;
-  handleImportTrip: () => void;
-  handleGoToForm: (tripId: string, legId: string) => void;
-  handleDeleteTrip: (trip: Trip) => void;
+  navigation: {
+    handleTripPress: (trip: Trip) => void;
+    handleCreateTrip: () => void;
+    handleCreateFromTemplate: () => void;
+    handleImportTrip: () => void;
+    handleGoToForm: (tripId: string, legId: string) => void;
+    handleDeleteTrip: (trip: Trip) => void;
+  };
 }
 
 export function useTripList(): UseTripListReturn {
@@ -266,33 +270,35 @@ export function useTripList(): UseTripListReturn {
 
   return {
     trips,
-    loadingState,
-    storeError,
-    isLoading,
-    isLoadingMore,
-    hasMoreTrips,
-    loadMoreTrips,
-    resetLoading,
-    handleRefresh,
-    travelersByTripId,
-    urgencyByTripId,
-    deadlineSummary,
-    showSchemaBanner,
-    schemaBannerMessage,
-    dismissSchemaBanner,
-    hasSeenFirstRunPrompt,
-    dismissFirstRunPrompt,
-    duplicateTargetId,
-    isDuplicating,
-    duplicateError,
-    handleOpenDuplicateModal,
-    handleCloseDuplicateModal,
-    handleConfirmDuplicate,
-    handleTripPress,
-    handleCreateTrip,
-    handleCreateFromTemplate,
-    handleImportTrip,
-    handleGoToForm,
-    handleDeleteTrip,
+    loading: {
+      state: loadingState,
+      storeError,
+      isLoading,
+      isLoadingMore,
+      hasMoreTrips,
+      loadMoreTrips,
+      resetLoading,
+      handleRefresh,
+    },
+    travelers: { travelersByTripId },
+    deadlines: { urgencyByTripId, deadlineSummary },
+    schemaBanner: { showSchemaBanner, schemaBannerMessage, dismissSchemaBanner },
+    firstRun: { hasSeenFirstRunPrompt, dismissFirstRunPrompt },
+    duplicate: {
+      duplicateTargetId,
+      isDuplicating,
+      duplicateError,
+      handleOpenDuplicateModal,
+      handleCloseDuplicateModal,
+      handleConfirmDuplicate,
+    },
+    navigation: {
+      handleTripPress,
+      handleCreateTrip,
+      handleCreateFromTemplate,
+      handleImportTrip,
+      handleGoToForm,
+      handleDeleteTrip,
+    },
   };
 }

@@ -20,26 +20,17 @@ export default function QRWalletScreen() {
   const { ref: filterModalTitleRef } = useAccessibilityFocus({ shouldFocus: false, delay: 350 });
 
   const {
-    qrCodes,
-    isRefreshing,
-    selectedQR,
-    fullScreenVisible,
-    travelers,
-    selectedTravelerFilter,
-    showFilterModal,
-    state,
-    error,
-    filteredQRCodes,
-    setSelectedTravelerFilter,
-    setShowFilterModal,
-    onRefresh,
-    handleRetry,
-    handleCloseFilterModal,
-    handleQRPress,
-    handleQRLongPress,
-    handleDeleteQR,
-    handleAddQR,
-    handleCloseFullScreen,
+    data: { qrCodes, filteredQRCodes, travelers },
+    loading: { state, error, isRefreshing, onRefresh, handleRetry },
+    fullScreen: { selectedQR, fullScreenVisible, handleQRPress, handleCloseFullScreen },
+    filter: {
+      selectedTravelerFilter,
+      setSelectedTravelerFilter,
+      showFilterModal,
+      setShowFilterModal,
+      handleCloseFilterModal,
+    },
+    actions: { handleQRLongPress, handleDeleteQR, handleAddQR },
   } = useQRWallet({ filterTriggerRef });
 
   // Handle loading and error states

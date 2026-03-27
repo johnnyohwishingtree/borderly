@@ -42,26 +42,37 @@ const mockSetSelectedTravelerFilter = jest.fn();
 const mockSetShowFilterModal = jest.fn();
 
 const defaultUseQRWalletReturn = {
-  qrCodes: [makeQR()],
-  isRefreshing: false,
-  selectedQR: null as ReturnType<typeof makeQR> | null,
-  fullScreenVisible: false,
-  travelers: new Map([['traveler_1', makeTraveler()]]),
-  selectedTravelerFilter: null as string | null,
-  showFilterModal: false,
-  state: 'success' as 'idle' | 'loading' | 'error' | 'success' | 'timeout',
-  error: null as string | null,
-  filteredQRCodes: [makeQR()],
-  setSelectedTravelerFilter: mockSetSelectedTravelerFilter,
-  setShowFilterModal: mockSetShowFilterModal,
-  onRefresh: mockOnRefresh,
-  handleRetry: mockHandleRetry,
-  handleCloseFilterModal: mockHandleCloseFilterModal,
-  handleQRPress: mockHandleQRPress,
-  handleQRLongPress: mockHandleQRLongPress,
-  handleDeleteQR: mockHandleDeleteQR,
-  handleAddQR: mockHandleAddQR,
-  handleCloseFullScreen: mockHandleCloseFullScreen,
+  data: {
+    qrCodes: [makeQR()],
+    filteredQRCodes: [makeQR()],
+    travelers: new Map([['traveler_1', makeTraveler()]]),
+  },
+  loading: {
+    state: 'success' as 'idle' | 'loading' | 'error' | 'success' | 'timeout',
+    error: null as string | null,
+    isRefreshing: false,
+    loadQRCodes: jest.fn(),
+    onRefresh: mockOnRefresh,
+    handleRetry: mockHandleRetry,
+  },
+  fullScreen: {
+    selectedQR: null as ReturnType<typeof makeQR> | null,
+    fullScreenVisible: false,
+    handleQRPress: mockHandleQRPress,
+    handleCloseFullScreen: mockHandleCloseFullScreen,
+  },
+  filter: {
+    selectedTravelerFilter: null as string | null,
+    setSelectedTravelerFilter: mockSetSelectedTravelerFilter,
+    showFilterModal: false,
+    setShowFilterModal: mockSetShowFilterModal,
+    handleCloseFilterModal: mockHandleCloseFilterModal,
+  },
+  actions: {
+    handleQRLongPress: mockHandleQRLongPress,
+    handleDeleteQR: mockHandleDeleteQR,
+    handleAddQR: mockHandleAddQR,
+  },
 };
 
 let mockUseQRWalletReturn = { ...defaultUseQRWalletReturn };
@@ -176,8 +187,7 @@ describe('QRWalletScreen — rendering with QR codes', () => {
     const qr2 = makeQR({ id: 'qr_2', label: 'Malaysia Customs QR' });
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      qrCodes: [makeQR(), qr2],
-      filteredQRCodes: [makeQR(), qr2],
+      data: { ...defaultUseQRWalletReturn.data, qrCodes: [makeQR(), qr2], filteredQRCodes: [makeQR(), qr2] },
     };
 
     render(<QRWalletScreen />);
@@ -202,8 +212,7 @@ describe('QRWalletScreen — rendering with QR codes', () => {
     const qr2 = makeQR({ id: 'qr_2', label: 'Second QR' });
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      qrCodes: [makeQR(), qr2],
-      filteredQRCodes: [makeQR(), qr2],
+      data: { ...defaultUseQRWalletReturn.data, qrCodes: [makeQR(), qr2], filteredQRCodes: [makeQR(), qr2] },
     };
 
     render(<QRWalletScreen />);
@@ -224,8 +233,7 @@ describe('QRWalletScreen — empty state', () => {
   beforeEach(() => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      qrCodes: [],
-      filteredQRCodes: [],
+      data: { ...defaultUseQRWalletReturn.data, qrCodes: [], filteredQRCodes: [] },
     };
   });
 
@@ -257,8 +265,8 @@ describe('QRWalletScreen — loading state', () => {
   it('shows loading indicator when state is loading and no QR codes', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      qrCodes: [],
-      state: 'loading',
+      data: { ...defaultUseQRWalletReturn.data, qrCodes: [] },
+      loading: { ...defaultUseQRWalletReturn.loading, state: 'loading' },
     };
 
     render(<QRWalletScreen />);
@@ -274,8 +282,7 @@ describe('QRWalletScreen — error state', () => {
   it('shows error state when state is error', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      state: 'error',
-      error: 'Database connection failed',
+      loading: { ...defaultUseQRWalletReturn.loading, state: 'error', error: 'Database connection failed' },
     };
 
     render(<QRWalletScreen />);
@@ -287,8 +294,7 @@ describe('QRWalletScreen — error state', () => {
   it('shows default error message when error is null', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      state: 'error',
-      error: null,
+      loading: { ...defaultUseQRWalletReturn.loading, state: 'error', error: null },
     };
 
     render(<QRWalletScreen />);
@@ -299,8 +305,7 @@ describe('QRWalletScreen — error state', () => {
   it('retry button calls handleRetry', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      state: 'error',
-      error: 'Failed',
+      loading: { ...defaultUseQRWalletReturn.loading, state: 'error', error: 'Failed' },
     };
 
     render(<QRWalletScreen />);
@@ -321,7 +326,7 @@ describe('QRWalletScreen — filter button and modal', () => {
     ]);
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      travelers,
+      data: { ...defaultUseQRWalletReturn.data, travelers },
     };
 
     render(<QRWalletScreen />);
@@ -338,8 +343,8 @@ describe('QRWalletScreen — filter button and modal', () => {
   it('shows filtered count subtitle when a traveler filter is active', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      selectedTravelerFilter: 'traveler_1',
-      filteredQRCodes: [makeQR()],
+      filter: { ...defaultUseQRWalletReturn.filter, selectedTravelerFilter: 'traveler_1' },
+      data: { ...defaultUseQRWalletReturn.data, filteredQRCodes: [makeQR()] },
     };
 
     render(<QRWalletScreen />);
@@ -350,7 +355,7 @@ describe('QRWalletScreen — filter button and modal', () => {
   it('shows "Clear filter" button when filter is active', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      selectedTravelerFilter: 'traveler_1',
+      filter: { ...defaultUseQRWalletReturn.filter, selectedTravelerFilter: 'traveler_1' },
     };
 
     render(<QRWalletScreen />);
@@ -361,7 +366,7 @@ describe('QRWalletScreen — filter button and modal', () => {
   it('pressing "Clear filter" calls setSelectedTravelerFilter with null', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      selectedTravelerFilter: 'traveler_1',
+      filter: { ...defaultUseQRWalletReturn.filter, selectedTravelerFilter: 'traveler_1' },
     };
 
     render(<QRWalletScreen />);
@@ -406,8 +411,7 @@ describe('QRWalletScreen — full screen QR display', () => {
   it('renders QRFullScreen when fullScreenVisible is true', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      selectedQR: makeQR(),
-      fullScreenVisible: true,
+      fullScreen: { ...defaultUseQRWalletReturn.fullScreen, selectedQR: makeQR(), fullScreenVisible: true },
     };
 
     render(<QRWalletScreen />);
@@ -437,7 +441,7 @@ describe('QRWalletScreen — pull to refresh', () => {
   it('renders without crashing when isRefreshing is true', () => {
     mockUseQRWalletReturn = {
       ...defaultUseQRWalletReturn,
-      isRefreshing: true,
+      loading: { ...defaultUseQRWalletReturn.loading, isRefreshing: true },
     };
 
     const { toJSON } = render(<QRWalletScreen />);

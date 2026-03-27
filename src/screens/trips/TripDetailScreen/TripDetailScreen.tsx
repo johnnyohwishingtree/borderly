@@ -259,7 +259,7 @@ export default function TripDetailScreen() {
         onSwitchToAdd={() => {
           modals.setShowEditModal(false);
           setTimeout(() => {
-            editHook.startAddDestination();
+            editHook.addDestination.startAddDestination();
             modals.handleOpenAddDestination();
           }, 300);
         }}

@@ -67,76 +67,55 @@ const mockResetLoading = jest.fn();
 const mockLoadMoreTrips = jest.fn();
 const mockToggleExpanded = jest.fn();
 
-const defaultUseTripListReturn: {
-  trips: Trip[];
-  loadingState: 'idle' | 'loading' | 'error' | 'success' | 'timeout';
-  storeError: string | null;
-  isLoading: boolean;
-  isLoadingMore: boolean;
-  hasMoreTrips: boolean;
-  loadMoreTrips: jest.Mock;
-  resetLoading: jest.Mock;
-  handleRefresh: jest.Mock;
-  travelersByTripId: Record<string, unknown>;
-  urgencyByTripId: Record<string, unknown>;
-  deadlineSummary: {
-    items: Array<Record<string, unknown>>;
-    hasUrgentItems: boolean;
-    isExpanded: boolean;
-    toggleExpanded: jest.Mock;
-  };
-  showSchemaBanner: boolean;
-  schemaBannerMessage: string;
-  dismissSchemaBanner: jest.Mock;
-  hasSeenFirstRunPrompt: boolean;
-  dismissFirstRunPrompt: jest.Mock;
-  duplicateTargetId: string | null;
-  isDuplicating: boolean;
-  duplicateError: string | null;
-  handleOpenDuplicateModal: jest.Mock;
-  handleCloseDuplicateModal: jest.Mock;
-  handleConfirmDuplicate: jest.Mock;
-  handleTripPress: jest.Mock;
-  handleCreateTrip: jest.Mock;
-  handleCreateFromTemplate: jest.Mock;
-  handleImportTrip: jest.Mock;
-  handleGoToForm: jest.Mock;
-  handleDeleteTrip: jest.Mock;
-} = {
+const defaultUseTripListReturn = {
   trips: [baseTrip],
-  loadingState: 'success',
-  storeError: null,
-  isLoading: false,
-  isLoadingMore: false,
-  hasMoreTrips: false,
-  loadMoreTrips: mockLoadMoreTrips,
-  resetLoading: mockResetLoading,
-  handleRefresh: mockHandleRefresh,
-  travelersByTripId: {},
-  urgencyByTripId: {},
-  deadlineSummary: {
-    items: [],
-    hasUrgentItems: false,
-    isExpanded: false,
-    toggleExpanded: mockToggleExpanded,
+  loading: {
+    state: 'success' as 'idle' | 'loading' | 'error' | 'success' | 'timeout',
+    storeError: null as string | null,
+    isLoading: false,
+    isLoadingMore: false,
+    hasMoreTrips: false,
+    loadMoreTrips: mockLoadMoreTrips,
+    resetLoading: mockResetLoading,
+    handleRefresh: mockHandleRefresh,
   },
-  showSchemaBanner: false,
-  schemaBannerMessage: '',
-  dismissSchemaBanner: mockDismissSchemaBanner,
-  hasSeenFirstRunPrompt: true,
-  dismissFirstRunPrompt: mockDismissFirstRunPrompt,
-  duplicateTargetId: null,
-  isDuplicating: false,
-  duplicateError: null,
-  handleOpenDuplicateModal: mockHandleOpenDuplicateModal,
-  handleCloseDuplicateModal: mockHandleCloseDuplicateModal,
-  handleConfirmDuplicate: mockHandleConfirmDuplicate,
-  handleTripPress: mockHandleTripPress,
-  handleCreateTrip: mockHandleCreateTrip,
-  handleCreateFromTemplate: mockHandleCreateFromTemplate,
-  handleImportTrip: mockHandleImportTrip,
-  handleGoToForm: mockHandleGoToForm,
-  handleDeleteTrip: mockHandleDeleteTrip,
+  travelers: {
+    travelersByTripId: {} as Record<string, unknown>,
+  },
+  deadlines: {
+    urgencyByTripId: {} as Record<string, unknown>,
+    deadlineSummary: {
+      items: [] as Array<Record<string, unknown>>,
+      hasUrgentItems: false,
+      isExpanded: false,
+      toggleExpanded: mockToggleExpanded,
+    },
+  },
+  schemaBanner: {
+    showSchemaBanner: false,
+    schemaBannerMessage: '',
+    dismissSchemaBanner: mockDismissSchemaBanner,
+  },
+  firstRun: {
+    hasSeenFirstRunPrompt: true,
+    dismissFirstRunPrompt: mockDismissFirstRunPrompt,
+  },
+  duplicate: {
+    duplicateTargetId: null as string | null,
+    isDuplicating: false,
+    duplicateError: null as string | null,
+    handleOpenDuplicateModal: mockHandleOpenDuplicateModal,
+    handleCloseDuplicateModal: mockHandleCloseDuplicateModal,
+    handleConfirmDuplicate: mockHandleConfirmDuplicate,
+  },
+  navigation: {
+    handleTripPress: mockHandleTripPress,
+    handleCreateTrip: mockHandleCreateTrip,
+    handleCreateFromTemplate: mockHandleCreateFromTemplate,
+    handleImportTrip: mockHandleImportTrip,
+    handleGoToForm: mockHandleGoToForm,
+    handleDeleteTrip: mockHandleDeleteTrip,
+  },
 };
 
 let mockUseTripListReturn = { ...defaultUseTripListReturn };
@@ -381,11 +360,14 @@ describe('TripListScreen — deadline summary', () => {
   it('passes DeadlineSummary as ListHeaderComponent when hasUrgentItems is true', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      deadlineSummary: {
-        items: [{ tripId: 'trip_1', legId: 'leg_1', label: 'Japan form', dueDate: '2026-03-30', urgency: 'critical' }],
-        hasUrgentItems: true,
-        isExpanded: false,
-        toggleExpanded: mockToggleExpanded,
+      deadlines: {
+        ...defaultUseTripListReturn.deadlines,
+        deadlineSummary: {
+          items: [{ tripId: 'trip_1', legId: 'leg_1', label: 'Japan form', dueDate: '2026-03-30', urgency: 'critical' }],
+          hasUrgentItems: true,
+          isExpanded: false,
+          toggleExpanded: mockToggleExpanded,
+        },
       },
     };
 
@@ -410,8 +392,11 @@ describe('TripListScreen — schema update banner', () => {
   it('shows schema banner when showSchemaBanner is true', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      showSchemaBanner: true,
-      schemaBannerMessage: 'Form data updated — Japan entry form has new fields.',
+      schemaBanner: {
+        ...defaultUseTripListReturn.schemaBanner,
+        showSchemaBanner: true,
+        schemaBannerMessage: 'Form data updated — Japan entry form has new fields.',
+      },
     };
 
     render(<TripListScreen />);
@@ -429,8 +414,11 @@ describe('TripListScreen — schema update banner', () => {
   it('dismisses schema banner on dismiss press', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      showSchemaBanner: true,
-      schemaBannerMessage: 'Updated.',
+      schemaBanner: {
+        ...defaultUseTripListReturn.schemaBanner,
+        showSchemaBanner: true,
+        schemaBannerMessage: 'Updated.',
+      },
     };
 
     render(<TripListScreen />);
@@ -447,7 +435,7 @@ describe('TripListScreen — first-run welcome banner', () => {
   it('shows first-run banner when hasSeenFirstRunPrompt is false', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      hasSeenFirstRunPrompt: false,
+      firstRun: { ...defaultUseTripListReturn.firstRun, hasSeenFirstRunPrompt: false },
     };
 
     render(<TripListScreen />);
@@ -465,7 +453,7 @@ describe('TripListScreen — first-run welcome banner', () => {
   it('dismisses first-run banner on dismiss press', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      hasSeenFirstRunPrompt: false,
+      firstRun: { ...defaultUseTripListReturn.firstRun, hasSeenFirstRunPrompt: false },
     };
 
     render(<TripListScreen />);
@@ -483,7 +471,7 @@ describe('TripListScreen — loading state', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
       trips: [],
-      loadingState: 'loading',
+      loading: { ...defaultUseTripListReturn.loading, state: 'loading' },
     };
 
     render(<TripListScreen />);
@@ -495,7 +483,7 @@ describe('TripListScreen — loading state', () => {
   it('shows error state when loadingState is error', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      loadingState: 'error',
+      loading: { ...defaultUseTripListReturn.loading, state: 'error' },
     };
 
     render(<TripListScreen />);
@@ -506,7 +494,7 @@ describe('TripListScreen — loading state', () => {
   it('shows error state when storeError exists', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      storeError: 'Database connection failed',
+      loading: { ...defaultUseTripListReturn.loading, storeError: 'Database connection failed' },
     };
 
     render(<TripListScreen />);
@@ -517,7 +505,7 @@ describe('TripListScreen — loading state', () => {
   it('retry button calls handleRefresh in error state', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      loadingState: 'error',
+      loading: { ...defaultUseTripListReturn.loading, state: 'error' },
     };
 
     render(<TripListScreen />);
@@ -580,7 +568,7 @@ describe('TripListScreen — duplicate trip modal', () => {
   it('renders DuplicateTripModal as visible when duplicateTargetId is set', () => {
     mockUseTripListReturn = {
       ...defaultUseTripListReturn,
-      duplicateTargetId: 'trip_1',
+      duplicate: { ...defaultUseTripListReturn.duplicate, duplicateTargetId: 'trip_1' },
     };
 
     render(<TripListScreen />);

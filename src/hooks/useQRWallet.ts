@@ -229,31 +229,16 @@ export function useQRWallet({ filterTriggerRef }: UseQRWalletOptions) {
   }, []);
 
   return {
-    // State
-    qrCodes,
-    isRefreshing,
-    selectedQR,
-    fullScreenVisible,
-    travelers,
-    selectedTravelerFilter,
-    showFilterModal,
-    state,
-    error,
-    filteredQRCodes,
-
-    // State setters
-    setSelectedTravelerFilter,
-    setShowFilterModal,
-
-    // Callbacks
-    loadQRCodes,
-    onRefresh,
-    handleRetry,
-    handleCloseFilterModal,
-    handleQRPress,
-    handleQRLongPress,
-    handleDeleteQR,
-    handleAddQR,
-    handleCloseFullScreen,
+    data: { qrCodes, filteredQRCodes, travelers },
+    loading: { state, error, isRefreshing, loadQRCodes, onRefresh, handleRetry },
+    fullScreen: { selectedQR, fullScreenVisible, handleQRPress, handleCloseFullScreen },
+    filter: {
+      selectedTravelerFilter,
+      setSelectedTravelerFilter,
+      showFilterModal,
+      setShowFilterModal,
+      handleCloseFilterModal,
+    },
+    actions: { handleQRLongPress, handleDeleteQR, handleAddQR },
   };
 }

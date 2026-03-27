@@ -3,10 +3,12 @@ import { useAccessibilityFocus } from './useAccessibilityFocus';
 
 interface UseTripDetailModalsOptions {
   editHook: {
-    startAddDestination: () => void;
-    cancelEditLeg: () => void;
-    cancelAddDestination: () => void;
-    handleAddDestination: () => Promise<boolean>;
+    legEdit: { cancelEditLeg: () => void };
+    addDestination: {
+      startAddDestination: () => void;
+      cancelAddDestination: () => void;
+      handleAddDestination: () => Promise<boolean>;
+    };
   };
   resetDuplicateError: () => void;
   handleConfirmDuplicate: (newDepartureDate: string) => Promise<{ id: string } | null>;
@@ -52,24 +54,24 @@ export function useTripDetailModals({
   };
 
   const handleOpenAddDestination = () => {
-    editHook.startAddDestination();
+    editHook.addDestination.startAddDestination();
     setShowAddModal(true);
   };
 
   const handleCloseEditModal = () => {
-    editHook.cancelEditLeg();
+    editHook.legEdit.cancelEditLeg();
     setShowEditModal(false);
     setTimeout(focusEditTrigger, 100);
   };
 
   const handleCloseAddModal = () => {
-    editHook.cancelAddDestination();
+    editHook.addDestination.cancelAddDestination();
     setShowAddModal(false);
     setTimeout(focusAddTrigger, 100);
   };
 
   const handleConfirmAddDestination = async () => {
-    const added = await editHook.handleAddDestination();
+    const added = await editHook.addDestination.handleAddDestination();
     if (added) {
       setShowAddModal(false);
     }
