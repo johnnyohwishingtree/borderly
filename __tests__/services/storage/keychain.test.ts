@@ -255,4 +255,72 @@ describe('KeychainService', () => {
       );
     });
   });
+
+  describe('authenticateWithBiometric', () => {
+    it('returns true when biometric auth succeeds', async () => {
+      (Keychain.getGenericPassword as jest.Mock).mockResolvedValue({
+        username: 'user',
+        password: 'pass',
+      });
+
+      const result = await keychainService.authenticateWithBiometric(
+        'borderly',
+        { title: 'Authenticate', subtitle: 'Verify your identity', cancel: 'Cancel' },
+      );
+
+      expect(result).toBe(true);
+      expect(Keychain.getGenericPassword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          service: 'borderly',
+          authenticationPrompt: { title: 'Authenticate', subtitle: 'Verify your identity', cancel: 'Cancel' },
+        }),
+      );
+    });
+
+    it('returns false when biometric auth is cancelled', async () => {
+      (Keychain.getGenericPassword as jest.Mock).mockResolvedValue(false);
+
+      const result = await keychainService.authenticateWithBiometric(
+        'borderly',
+        { title: 'Auth', subtitle: 'Test', cancel: 'Cancel' },
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it('returns false when biometric auth throws an error', async () => {
+      (Keychain.getGenericPassword as jest.Mock).mockRejectedValue(new Error('Sensor unavailable'));
+
+      const result = await keychainService.authenticateWithBiometric(
+        'borderly',
+        { title: 'Auth', subtitle: 'Test', cancel: 'Cancel' },
+      );
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('clearSensitiveMemory', () => {
+    it('resets the sensitive data refs without throwing', () => {
+      expect(() => keychainService.clearSensitiveMemory()).not.toThrow();
+    });
+  });
+
+  describe('secureCleanup', () => {
+    it('resets generic password and clears memory', async () => {
+      (Keychain.resetGenericPassword as jest.Mock).mockResolvedValue(true);
+
+      await keychainService.secureCleanup();
+
+      expect(Keychain.resetGenericPassword).toHaveBeenCalledWith(
+        expect.objectContaining({ service: 'borderly' }),
+      );
+    });
+
+    it('does not throw when resetGenericPassword fails', async () => {
+      (Keychain.resetGenericPassword as jest.Mock).mockRejectedValue(new Error('Reset failed'));
+
+      await expect(keychainService.secureCleanup()).resolves.not.toThrow();
+    });
+  });
 });
