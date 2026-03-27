@@ -8,6 +8,15 @@ argument-hint: "[goal description]"
 
 Break a high-level goal into a structured set of GitHub Issues: one Epic and its Stories.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+None
+
+## Skills
+- `/pipeline`
+- `/plan-feature`
+- `/test-suite`
+
 ## Before Planning
 
 1. Read `CLAUDE.md` for project context and architecture

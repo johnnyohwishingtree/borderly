@@ -10,6 +10,15 @@ Checks whether code follows the policies declared in `.knowledge/policies/`, ver
 
 Uses the knowledge graph engine (`scripts/knowledge-graph.ts`) for structural queries.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/workflow/fix-strategy.md`
+- `policies/workflow/verification.md`
+- `policies/workflow/learning.md`
+
+## Skills
+None
+
 ## Step 1: Graph health check
 
 Run the graph engine queries to find structural issues:

@@ -8,6 +8,13 @@ argument-hint: "[--dry-run]"
 
 Reads `.knowledge/gaps.md` for pending findings, resolves them by updating knowledge or flagging code fixes, and compresses files that have grown too long.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+None
+
+## Skills
+None
+
 ## Step 1: Read gaps
 
 ```bash

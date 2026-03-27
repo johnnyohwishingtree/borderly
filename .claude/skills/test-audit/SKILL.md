@@ -8,6 +8,14 @@ argument-hint: "[--scope path/] [--dry-run] [--tier 3-4]"
 
 Scores existing tests against `.knowledge/policies/testing/test-quality.md`, identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/testing/test-quality.md`
+- `policies/workflow/verification.md`
+
+## Skills
+None
+
 ## Usage
 ```
 /test-audit                          # Audit all tests

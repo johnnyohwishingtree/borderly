@@ -7,6 +7,16 @@ description: Capture screenshots of every app screen and component, generating m
 
 Captures screenshots of every screen and component in the app via Playwright and generates manifests documenting the current visual state. This is the source of truth for what the app looks like.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+None
+
+## Skills
+- `/visual-audit`
+- `/visual-implement`
+- `/ux-review`
+- `/ux-implement`
+
 ## Automatic vs Manual Capture
 
 **Component screenshots** can be captured in parallel and are quick to regenerate. You usually only need to recapture them when component styling changes.

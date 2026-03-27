@@ -8,6 +8,18 @@ argument-hint: "[--issue N]"
 
 Same as `/pipeline` but runs in an isolated git worktree so it doesn't disturb the user's working directory. Designed for Claude Desktop or CLI running on the user's machine.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- .knowledge/policies/workflow/story-implementation.md
+- .knowledge/policies/workflow/fix-strategy.md
+- .knowledge/policies/workflow/bug-fix.md
+- .knowledge/policies/workflow/verification.md
+- .knowledge/policies/workflow/learning.md
+- .knowledge/policies/workflow/self-review.md
+
+## Skills
+- /optimize (Step 8)
+
 **Scheduled task prompt (Claude Desktop):**
 ```
 Read CLAUDE.md for project context.

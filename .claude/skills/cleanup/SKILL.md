@@ -7,6 +7,13 @@ description: Find and remove unused, temporary, or accidentally committed files
 
 Find and remove unused source files, dead imports, temporary artifacts, and accidentally committed files.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/workflow/verification.md`
+
+## Skills
+None
+
 ## Usage
 ```
 /cleanup                # Full cleanup scan

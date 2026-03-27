@@ -8,39 +8,31 @@ argument-hint: "[optional args]"
 
 <One paragraph: what this skill does and when to use it.>
 
-**Matching rubric:** `.knowledge/rubrics/skill-quality.md`
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- .knowledge/policies/workflow/verification.md
+- .knowledge/policies/workflow/fix-strategy.md
 
-## Usage
-```
-/<skill-name>              # Default invocation
-/<skill-name> --flag       # With options
-```
+## Skills
+<!-- Other skills this skill invokes. Graph engine parses this section. -->
+- /optimize (Step N)
 
 ## Steps
 
-### Step 1: <Check preconditions>
+### Step 1: <Name>
+<What to do. Reference policies inline: "Follow `.knowledge/policies/workflow/verification.md`." >
 
-Before doing work, verify the environment is ready. Exit early if not.
+### Step 2: <Name>
+...
 
-### Step 2: <Do the work>
+### Step N: Verify
+Follow `.knowledge/policies/workflow/verification.md`.
 
-<Clear instructions with explicit commands.>
+### Step N+1: Report
+<Summary of what was done.>
 
-### Step 3: <Verify the work>
+## What NOT to do
+- <Guardrails specific to this skill>
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
-
-If verification fails:
-- <What to fix>
-- <How many retries>
-- <What to do if all retries fail>
-
-### Step 4: <Deliver the result>
-
-Only reached if Step 3 passed.
-
-## Template Maintenance
-
-<!-- Update this skill when: conditions that should trigger an update -->
+## Matching rubric
+`.knowledge/rubrics/skill-quality.md`

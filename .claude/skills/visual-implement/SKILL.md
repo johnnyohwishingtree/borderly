@@ -7,6 +7,15 @@ description: Implement UI/UX fixes from a visual audit report, then re-capture s
 
 Takes findings from a `/visual-audit` report and implements the fixes in code. After applying changes, re-captures screenshots to verify the improvements.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/workflow/bug-fix.md`
+- `policies/workflow/fix-strategy.md`
+- `policies/workflow/verification.md`
+
+## Skills
+- `/capture-screens`
+
 ## Prerequisites
 
 - A completed `/visual-audit` report (either from the current session or a previous one)

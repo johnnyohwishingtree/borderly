@@ -157,29 +157,31 @@ function buildGraph(): { nodes: Node[]; edges: Edge[] } {
 
       const content = readFileSync(skillFile, 'utf-8');
 
-      // Skill → knowledge policy references (FOLLOWS)
-      const knowledgeRefs = content.matchAll(/\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
-      for (const ref of knowledgeRefs) {
-        edges.push({ from: skillId, to: ref[1], type: 'FOLLOWS' });
+      // Parse structured ## Policies section (machine-readable)
+      const policiesMatch = content.match(/## Policies\n(?:<!--[^>]*-->\n)?([\s\S]*?)(?=\n## )/);
+      if (policiesMatch && !policiesMatch[1].trim().startsWith('None')) {
+        const policyLines = policiesMatch[1].matchAll(/`?policies\/([a-zA-Z0-9/_.-]+\.md)`?/g);
+        for (const ref of policyLines) {
+          edges.push({ from: skillId, to: `policies/${ref[1]}`, type: 'FOLLOWS' });
+        }
       }
 
-      // Skill → rule references (FOLLOWS)
+      // Parse structured ## Skills section (machine-readable)
+      const skillsMatch = content.match(/## Skills\n([\s\S]*?)(?=\n## )/);
+      if (skillsMatch && !skillsMatch[1].trim().startsWith('None')) {
+        const invokedSkills = skillsMatch[1].matchAll(/\/([a-z][-a-z]+)/g);
+        for (const ref of invokedSkills) {
+          const targetSkill = ref[1];
+          if (targetSkill !== entry && existsSync(join(SKILLS_DIR, targetSkill))) {
+            edges.push({ from: skillId, to: `skill:${targetSkill}`, type: 'INVOKES' });
+          }
+        }
+      }
+
+      // Also scan body for rule references (FOLLOWS)
       const ruleRefs = content.matchAll(/\.claude\/rules\/([a-zA-Z0-9/_.-]+\.md)/g);
       for (const ref of ruleRefs) {
         edges.push({ from: skillId, to: `rule:${ref[1]}`, type: 'FOLLOWS' });
-      }
-
-      // Skill → skill references (INVOKES)
-      const skillRefs = content.matchAll(/`\/([a-z][-a-z]+)`|skills\/([a-z][-a-z]+)\//g);
-      for (const ref of skillRefs) {
-        const targetSkill = ref[1] || ref[2];
-        if (targetSkill && targetSkill !== entry) {
-          const targetId = `skill:${targetSkill}`;
-          // Only add if it's a real skill directory
-          if (existsSync(join(SKILLS_DIR, targetSkill))) {
-            edges.push({ from: skillId, to: targetId, type: 'INVOKES' });
-          }
-        }
       }
     }
   }

@@ -8,6 +8,16 @@ argument-hint: "[target area, e.g. 'services/forms', 'components/trips']"
 
 Find untested code, write missing tests, and fix any bugs the new tests reveal.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/testing/test-quality.md`
+- `policies/testing/test-conventions.md`
+- `policies/workflow/bug-fix.md`
+- `policies/workflow/verification.md`
+
+## Skills
+None
+
 ## Usage
 ```
 /test-suite                        # Audit entire test suite

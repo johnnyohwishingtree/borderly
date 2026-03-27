@@ -8,6 +8,13 @@ argument-hint: "[specific flow to test, e.g. 'onboarding', 'trip creation']"
 
 Walk through the app's functionality like a real user. Document every bug, UX issue, and inconsistency found. This skill reads code and screenshots to simulate user journeys.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/workflow/bug-fix.md`
+
+## Skills
+None
+
 ## Usage
 ```
 /qa                    # Full app walkthrough

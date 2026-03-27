@@ -7,6 +7,13 @@ description: Update architecture diagrams and documentation after code changes
 
 Update architecture documentation to reflect the current state of the codebase. Run this after navigation changes, new screens, or storage layer modifications.
 
+## Policies
+<!-- Machine-readable. Graph engine parses this section. -->
+- `policies/workflow/verification.md`
+
+## Skills
+None
+
 ## Usage
 ```
 /update-architecture               # Update all docs
