@@ -169,7 +169,7 @@ export default function LoadingIndicator({
 
   const renderDotsIndicator = () => {
     return (
-      <View className="flex-row items-center justify-center" style={{ gap: 8 }}>
+      <View className="flex-row items-center justify-center gap-2">
         {dotAnims.map((dotAnim, index) => (
           <Animated.View
             key={index}
@@ -193,12 +193,10 @@ export default function LoadingIndicator({
         }}
       >
         <Animated.View
-          className="absolute w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full"
-          style={{ opacity: 0.6 }}
+          className="absolute w-12 h-12 bg-blue-100 dark:bg-blue-900/40 rounded-full opacity-60"
         />
         <Animated.View
-          className="absolute inset-1 w-10 h-10 bg-blue-200 dark:bg-blue-800/60 rounded-full"
-          style={{ opacity: 0.8 }}
+          className="absolute inset-1 w-10 h-10 bg-blue-200 dark:bg-blue-800/60 rounded-full opacity-80"
         />
         <View className="absolute inset-3 w-6 h-6 bg-blue-600 dark:bg-blue-500 rounded-full" />
       </Animated.View>

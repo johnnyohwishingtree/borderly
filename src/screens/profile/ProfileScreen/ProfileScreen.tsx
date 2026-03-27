@@ -112,7 +112,7 @@ export default function ProfileScreen() {
             </View>
             {isPassportExpiringSoon(profile.passportExpiry) && (
               <View className="flex-row items-center">
-                <TriangleAlert size={12} color="#ea580c" style={{ marginRight: 4 }} />
+                <View className="mr-1"><TriangleAlert size={12} color="#ea580c" /></View>
                 <Text className="text-xs text-orange-600">Expiring Soon</Text>
               </View>
             )}
@@ -165,7 +165,7 @@ export default function ProfileScreen() {
                     </Text>
                     {isPassportExpiringSoon(profile.passportExpiry) && (
                       <View className="flex-row items-center">
-                        <TriangleAlert size={12} color="#ea580c" style={{ marginRight: 4 }} />
+                        <View className="mr-1"><TriangleAlert size={12} color="#ea580c" /></View>
                         <Text className="text-xs text-orange-600">Expiring Soon</Text>
                       </View>
                     )}
@@ -299,7 +299,7 @@ export default function ProfileScreen() {
 
           {/* Security Notice */}
           <View className="flex-row items-start">
-            <Lock size={18} color="#374151" style={{ marginRight: 8 }} />
+            <View className="mr-2"><Lock size={18} color="#374151" /></View>
             <View className="flex-1">
               <Text className="text-sm font-medium text-gray-900 dark:text-white">Local-First Security</Text>
               <Text className="text-xs text-gray-600 dark:text-gray-400 mt-1">

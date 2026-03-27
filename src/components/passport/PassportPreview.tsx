@@ -120,7 +120,9 @@ export default function PassportPreview({
       {/* Security indicator */}
       <Card className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
         <View className="flex-row items-center">
-          <Lock size={20} color="#2563eb" style={{ marginRight: 8 }} />
+          <View className="mr-2">
+            <Lock size={20} color="#2563eb" />
+          </View>
           <View className="flex-1">
             <Text className="font-medium text-blue-900 dark:text-blue-100 mb-1">
               Secure Local Storage
@@ -154,7 +156,9 @@ export default function PassportPreview({
       {validation && validation.warnings.length > 0 && (
         <Card className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
           <View className="flex-row items-start">
-            <TriangleAlert size={20} color="#ca8a04" style={{ marginRight: 8 }} />
+            <View className="mr-2">
+              <TriangleAlert size={20} color="#ca8a04" />
+            </View>
             <View className="flex-1">
               <Text className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">
                 Validation Warnings

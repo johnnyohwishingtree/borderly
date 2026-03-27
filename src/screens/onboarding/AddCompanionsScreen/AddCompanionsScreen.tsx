@@ -174,7 +174,7 @@ export default function AddCompanionsScreen() {
           {!hasCompanions && (
             <View className="mb-8" testID={ADD_COMPANIONS_IDS.benefitsSection.id}>
               <View className="flex-row items-center mb-4">
-                <Users size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <View className="mr-2.5"><Users size={20} color="#6366f1" /></View>
                 <Text
                   className="text-sm text-gray-800 flex-1"
                   accessible={true}
@@ -183,7 +183,7 @@ export default function AddCompanionsScreen() {
                 </Text>
               </View>
               <View className="flex-row items-center mb-4">
-                <Clock size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <View className="mr-2.5"><Clock size={20} color="#6366f1" /></View>
                 <Text
                   className="text-sm text-gray-800 flex-1"
                   accessible={true}
@@ -192,7 +192,7 @@ export default function AddCompanionsScreen() {
                 </Text>
               </View>
               <View className="flex-row items-center">
-                <Shield size={20} color="#6366f1" style={{ marginRight: 10 }} />
+                <View className="mr-2.5"><Shield size={20} color="#6366f1" /></View>
                 <Text
                   className="text-sm text-gray-800 flex-1"
                   accessible={true}
