@@ -519,14 +519,14 @@ describe('TripDetailScreen — family member loading via useFocusEffect', () => 
     // useFocusEffect fires the callback immediately in the test mock.
     // Use waitFor to let the async load() complete.
     await waitFor(() => {
-      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalledWith();
     });
   });
 
   it('calls getAllProfiles on screen focus to populate family members', async () => {
     render(<TripDetailScreen />);
     await waitFor(() => {
-      expect(mockGetAllProfiles).toHaveBeenCalled();
+      expect(mockGetAllProfiles).toHaveBeenCalledWith();
     });
   });
 
@@ -534,7 +534,7 @@ describe('TripDetailScreen — family member loading via useFocusEffect', () => 
     // First mount — focus fires and load runs
     const { unmount } = render(<TripDetailScreen />);
     await waitFor(() => {
-      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalledWith();
     });
     unmount();
 
@@ -543,7 +543,7 @@ describe('TripDetailScreen — family member loading via useFocusEffect', () => 
     // Second mount (simulates returning to TripDetailScreen) — focus fires again
     render(<TripDetailScreen />);
     await waitFor(() => {
-      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalledWith();
     });
   });
 });

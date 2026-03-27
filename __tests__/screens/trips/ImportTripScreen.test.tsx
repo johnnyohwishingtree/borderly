@@ -83,7 +83,7 @@ describe('ImportTripScreen', () => {
     mockUseImportTrip.confirmationText = 'NH101';
     const { getByTestId } = render(<ImportTripScreen />);
     fireEvent.press(getByTestId('import-parse-button'));
-    expect(mockUseImportTrip.handleParseConfirmation).toHaveBeenCalled();
+    expect(mockUseImportTrip.handleParseConfirmation).toHaveBeenCalledWith();
   });
 
   it('shows loading state when status is parsing', () => {
@@ -105,6 +105,6 @@ describe('ImportTripScreen', () => {
     mockUseImportTrip.errorMessage = 'Error';
     const { getByTestId } = render(<ImportTripScreen />);
     fireEvent.press(getByTestId('import-try-again-button'));
-    expect(mockUseImportTrip.handleRetry).toHaveBeenCalled();
+    expect(mockUseImportTrip.handleRetry).toHaveBeenCalledWith();
   });
 });

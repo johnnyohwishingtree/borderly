@@ -242,7 +242,7 @@ describe('FamilyManagementScreen', () => {
 
       render(<FamilyManagementScreen />);
 
-      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalledWith();
     });
 
     it('should call getAllFamilyProfiles to get all members', async () => {
@@ -252,7 +252,7 @@ describe('FamilyManagementScreen', () => {
       render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        expect(mockGetAll).toHaveBeenCalled();
+        expect(mockGetAll).toHaveBeenCalledWith();
       });
     });
   });

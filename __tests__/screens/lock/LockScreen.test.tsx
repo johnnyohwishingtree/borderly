@@ -130,7 +130,7 @@ describe('LockScreen — unlock success', () => {
     fireEvent.press(screen.getByTestId('lock-screen-biometric-button'));
 
     await waitFor(() => {
-      expect(mockUnlock).toHaveBeenCalled();
+      expect(mockUnlock).toHaveBeenCalledWith();
     });
   });
 });

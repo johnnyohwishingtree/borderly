@@ -133,7 +133,7 @@ describe('PortalMonitor', () => {
 
       const allActive = monitor.getAllActiveAlerts();
       expect(allActive).toHaveLength(0);
-      expect(mockedHealthChecker.clearHistory).toHaveBeenCalled();
+      expect(mockedHealthChecker.clearHistory).toHaveBeenCalledWith();
     });
 
     it('can be called multiple times without error', () => {

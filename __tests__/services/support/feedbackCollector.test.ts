@@ -41,7 +41,10 @@ describe('FeedbackCollector', () => {
       expect(result.success).toBe(true);
       expect(typeof result.feedbackId).toBe('string');
       expect(result.feedbackId!.length).toBeGreaterThan(0);
-      expect(mmkvService.setString).toHaveBeenCalled();
+      expect(mmkvService.setString).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining('Great app'),
+      );
     });
 
     it('should reject feedback with invalid rating', async () => {

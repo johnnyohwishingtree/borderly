@@ -303,7 +303,7 @@ describe('BugReportScreen — submit button', () => {
 
     fireEvent.press(screen.getByText('Submit Bug Report'));
 
-    expect(mockHandleSubmitBugReport).toHaveBeenCalled();
+    expect(mockHandleSubmitBugReport).toHaveBeenCalledWith();
   });
 
   it('shows "Submitting Report..." when isSubmitting is true', () => {

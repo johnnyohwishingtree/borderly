@@ -41,7 +41,7 @@ describe('ErrorMessage Component', () => {
     
     
     fireEvent.press(retryButton);
-    expect(onRetryMock).toHaveBeenCalled();
+    expect(onRetryMock).toHaveBeenCalledWith();
   });
 
   it('shows dismiss button when onDismiss is provided', () => {
@@ -57,7 +57,7 @@ describe('ErrorMessage Component', () => {
     
     
     fireEvent.press(dismissButton);
-    expect(onDismissMock).toHaveBeenCalled();
+    expect(onDismissMock).toHaveBeenCalledWith();
   });
 
   it('applies different variants correctly', () => {

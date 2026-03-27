@@ -56,7 +56,7 @@ describe('Input', () => {
       <Input placeholder="Focus me" onFocus={onFocus} />,
     );
     fireEvent(getByPlaceholderText('Focus me'), 'focus');
-    expect(onFocus).toHaveBeenCalled();
+    expect(onFocus).toHaveBeenCalledWith(undefined);
   });
 
   it('has accessible text input role', () => {

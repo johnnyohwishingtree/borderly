@@ -142,7 +142,7 @@ describe('DynamicForm', () => {
     fireEvent.press(selectButton);
 
     await waitFor(() => {
-      expect(mockOnFormDataChange).toHaveBeenCalled();
+      expect(mockOnFormDataChange).toHaveBeenCalledWith(expect.any(Object));
     });
   });
 

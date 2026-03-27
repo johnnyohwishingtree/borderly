@@ -92,7 +92,7 @@ describe('useTripCreationImport', () => {
         result.current.handleScanSuccess(makeBoardingPass());
       });
 
-      expect(opts.setLegs).toHaveBeenCalled();
+      expect(opts.setLegs).toHaveBeenCalledWith(expect.any(Function));
       // The updater should add a leg with the boarding pass data
       const updater = opts.setLegs.mock.calls[0][0];
       const newLegs = updater([]);
@@ -130,7 +130,7 @@ describe('useTripCreationImport', () => {
         result.current.handleScanSuccess(makeBoardingPass({ destinationCountry: 'JPN' }));
       });
 
-      expect(opts.setTripData).toHaveBeenCalled();
+      expect(opts.setTripData).toHaveBeenCalledWith(expect.any(Function));
       const updater = opts.setTripData.mock.calls[0][0];
       const updated = updater({ name: '', status: 'upcoming' });
       expect(updated.name).toBe('Trip to Japan');
@@ -194,7 +194,7 @@ describe('useTripCreationImport', () => {
         result.current.handleSmartImport(makeSmartImportResult());
       });
 
-      expect(opts.setLegs).toHaveBeenCalled();
+      expect(opts.setLegs).toHaveBeenCalledWith(expect.any(Function));
       const updater = opts.setLegs.mock.calls[0][0];
       const newLegs = updater([]);
       expect(newLegs).toHaveLength(1);
@@ -313,7 +313,7 @@ describe('useTripCreationImport', () => {
       });
 
       expect(result.current.showScanner).toBe(false);
-      expect(opts.addLeg).toHaveBeenCalled();
+      expect(opts.addLeg).toHaveBeenCalledWith();
     });
   });
 });

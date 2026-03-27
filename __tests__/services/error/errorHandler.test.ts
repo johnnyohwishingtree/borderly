@@ -68,7 +68,10 @@ describe('ErrorHandler', () => {
       });
 
       expect(result.recovered).toBe(true);
-      expect(retryAsync).toHaveBeenCalled();
+      expect(retryAsync).toHaveBeenCalledWith(
+        mockRecovery,
+        expect.objectContaining({ maxAttempts: expect.any(Number) }),
+      );
     });
 
     it('executes fallback action when recovery fails', async () => {
@@ -88,7 +91,7 @@ describe('ErrorHandler', () => {
       });
 
       expect(result.recovered).toBe(true);
-      expect(mockFallback).toHaveBeenCalled();
+      expect(mockFallback).toHaveBeenCalledWith();
     });
   });
 

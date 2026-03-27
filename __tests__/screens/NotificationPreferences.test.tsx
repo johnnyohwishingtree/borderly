@@ -70,7 +70,7 @@ describe('NotificationPreferences', () => {
     fireEvent(toggle, 'press');
 
     // The Toggle calls onValueChange with the new value
-    expect(mockUpdateNotificationPreferences).toHaveBeenCalled();
+    expect(mockUpdateNotificationPreferences).toHaveBeenCalledWith({ enabled: false });
   });
 
   it('toggles timing option off', () => {

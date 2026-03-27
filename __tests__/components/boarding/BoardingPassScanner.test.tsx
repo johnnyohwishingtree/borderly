@@ -137,7 +137,7 @@ describe('BoardingPassScanner Component', () => {
     });
 
     fireEvent.press(getByText('Enter Manually Instead'));
-    expect(mockProps.onManualEntry).toHaveBeenCalled();
+    expect(mockProps.onManualEntry).toHaveBeenCalledWith();
   });
 
   it('calls onScanCancel when cancel button is pressed', () => {
@@ -145,7 +145,7 @@ describe('BoardingPassScanner Component', () => {
     
     const cancelButton = getByText('Cancel');
     fireEvent.press(cancelButton);
-    expect(mockProps.onScanCancel).toHaveBeenCalled();
+    expect(mockProps.onScanCancel).toHaveBeenCalledWith();
   });
 
   it('handles successful barcode scan', () => {

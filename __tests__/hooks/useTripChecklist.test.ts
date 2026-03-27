@@ -173,6 +173,6 @@ describe('useTripChecklist', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(mockGetAllProfiles).toHaveBeenCalled();
+    expect(mockGetAllProfiles).toHaveBeenCalledWith();
   });
 });

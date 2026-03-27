@@ -105,7 +105,7 @@ describe('StepCard', () => {
     );
 
     fireEvent.press(getByText('Mark as Complete'));
-    expect(mockOnMarkComplete).toHaveBeenCalled();
+    expect(mockOnMarkComplete).toHaveBeenCalledWith();
   });
 
   it('does not show mark complete button for completed step', () => {

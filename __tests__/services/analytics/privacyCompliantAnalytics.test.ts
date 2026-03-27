@@ -391,7 +391,10 @@ describe('PrivacyCompliantAnalyticsService', () => {
       });
 
       // Verify sanitizeObject was called
-      expect(sanitizeObject).toHaveBeenCalled();
+      expect(sanitizeObject).toHaveBeenCalledWith(
+        { passportNumber: 'AB1234567', screen: 'ProfileScreen' },
+        expect.objectContaining({ preserveStructure: true }),
+      );
     });
 
     it('strips names from event properties', () => {

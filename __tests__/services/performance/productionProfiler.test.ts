@@ -96,11 +96,11 @@ describe('ProductionProfiler', () => {
       const result = await resultPromise;
       
       expect(result).toBe('result');
-      expect(mockOperation).toHaveBeenCalled();
-      
+      expect(mockOperation).toHaveBeenCalledWith();
+
       const metrics = productionProfiler.getCurrentMetrics();
       expect(metrics.formGenerationTime).toBeGreaterThan(0);
-      
+
       // Restore Date.now
       jest.restoreAllMocks();
     });
@@ -108,12 +108,12 @@ describe('ProductionProfiler', () => {
     it('should handle errors in async operations', async () => {
       const mockError = new Error('Test error');
       const mockOperation = jest.fn().mockRejectedValue(mockError);
-      
+
       await expect(
         productionProfiler.measureAsync('form-generation', mockOperation)
       ).rejects.toThrow('Test error');
-      
-      expect(mockOperation).toHaveBeenCalled();
+
+      expect(mockOperation).toHaveBeenCalledWith();
     });
 
     it('should map operations to correct metrics', async () => {
@@ -145,7 +145,7 @@ describe('ProductionProfiler', () => {
       const result = productionProfiler.measureSync('data-processing', mockOperation);
       
       expect(result).toBe('result');
-      expect(mockOperation).toHaveBeenCalled();
+      expect(mockOperation).toHaveBeenCalledWith();
     });
 
     it('should handle errors in sync operations', () => {
@@ -153,12 +153,12 @@ describe('ProductionProfiler', () => {
       const mockOperation = jest.fn().mockImplementation(() => {
         throw mockError;
       });
-      
+
       expect(() =>
         productionProfiler.measureSync('data-processing', mockOperation)
       ).toThrow('Test error');
-      
-      expect(mockOperation).toHaveBeenCalled();
+
+      expect(mockOperation).toHaveBeenCalledWith();
     });
   });
 
@@ -248,21 +248,37 @@ describe('ProductionProfiler', () => {
       // Trigger alert
       productionProfiler.recordMetric('appStartTime', 6000);
       
-      expect(listener1).toHaveBeenCalled();
-      expect(listener2).toHaveBeenCalled();
-      
+      expect(listener1).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metric: 'appStartTime',
+          severity: 'critical',
+          actualValue: 6000,
+        })
+      );
+      expect(listener2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metric: 'appStartTime',
+          severity: 'critical',
+          actualValue: 6000,
+        })
+      );
+
       // Unsubscribe first listener
       unsubscribe1();
-      
+
       // Clear previous calls
       listener1.mockClear();
       listener2.mockClear();
-      
+
       // Trigger another alert
       productionProfiler.recordMetric('formGenerationTime', 1000);
-      
+
       expect(listener1).not.toHaveBeenCalled();
-      expect(listener2).toHaveBeenCalled();
+      expect(listener2).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metric: 'formGenerationTime',
+        })
+      );
       
       // Unsubscribe second listener
       unsubscribe2();

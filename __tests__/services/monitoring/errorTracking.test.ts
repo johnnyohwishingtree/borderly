@@ -108,7 +108,11 @@ describe('Error Tracking Service', () => {
       const error = new Error('Hook test');
       customTracker.captureError(error);
 
-      expect(beforeSendMock).toHaveBeenCalled();
+      expect(beforeSendMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.objectContaining({ message: 'Hook test' }),
+        }),
+      );
     });
 
     it('should filter out errors via beforeSend hook', () => {

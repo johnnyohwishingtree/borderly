@@ -208,7 +208,10 @@ describe('useAccountSetupStore', () => {
         statuses: { 'p1__JPN': { profileId: 'p1', portalCode: 'JPN', status: 'ready' } },
       });
       useAccountSetupStore.getState().clearProfileStatuses('p1');
-      expect(mockMmkvService.setString).toHaveBeenCalled();
+      expect(mockMmkvService.setString).toHaveBeenCalledWith(
+        'account_setup_statuses',
+        expect.any(String),
+      );
     });
   });
 

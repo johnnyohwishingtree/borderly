@@ -208,7 +208,7 @@ describe('DatabaseService', () => {
       });
 
       await databaseService.createTrip({ name: 'New Trip' } as any);
-      expect(mockCreate).toHaveBeenCalled();
+      expect(mockCreate).toHaveBeenCalledWith(expect.any(Function));
     });
 
     it('defaults status to upcoming', async () => {
@@ -233,7 +233,7 @@ describe('DatabaseService', () => {
 
       await databaseService.updateTrip('trip-1', { name: 'Updated' } as any);
       expect(mockDb.collections.get('trips').find).toHaveBeenCalledWith('trip-1');
-      expect(tripRecord.update).toHaveBeenCalled();
+      expect(tripRecord.update).toHaveBeenCalledWith(expect.any(Function));
     });
   });
 
@@ -243,7 +243,7 @@ describe('DatabaseService', () => {
       mockDb.collections.get('trips').find.mockResolvedValue(tripRecord);
 
       await databaseService.deleteTrip('trip-1');
-      expect(tripRecord.markAsDeleted).toHaveBeenCalled();
+      expect(tripRecord.markAsDeleted).toHaveBeenCalledWith();
     });
 
     it('throws when trip not found', async () => {
@@ -353,7 +353,7 @@ describe('DatabaseService', () => {
       });
 
       await databaseService.saveQRCode({ legId: 'leg-1' } as any);
-      expect(mockCreate).toHaveBeenCalled();
+      expect(mockCreate).toHaveBeenCalledWith(expect.any(Function));
     });
 
     it('deleteQRCode marks QR as deleted', async () => {
@@ -361,7 +361,7 @@ describe('DatabaseService', () => {
       mockDb.collections.get('saved_qr_codes').find.mockResolvedValue(qrRecord);
 
       await databaseService.deleteQRCode('qr-1');
-      expect(qrRecord.markAsDeleted).toHaveBeenCalled();
+      expect(qrRecord.markAsDeleted).toHaveBeenCalledWith();
     });
   });
 

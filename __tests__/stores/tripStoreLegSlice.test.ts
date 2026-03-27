@@ -173,8 +173,14 @@ describe('createLegSlice', () => {
       const slice = createLegSlice(set, get);
       await slice.addTripLeg('trip-1', legData);
 
-      expect(mockComputeLegDeadline).toHaveBeenCalled();
-      expect(mockScheduleDeadlineNotifications).toHaveBeenCalled();
+      expect(mockComputeLegDeadline).toHaveBeenCalledWith(
+        expect.objectContaining({ destinationCountry: 'SGP' }),
+        expect.objectContaining({ countryCode: 'SGP' }),
+      );
+      expect(mockScheduleDeadlineNotifications).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'trip-1' }),
+        [expect.objectContaining({ legId: 'leg-1', deadline: '2025-06-30' })],
+      );
     });
 
     it('sets error on failure', async () => {
@@ -241,7 +247,7 @@ describe('createLegSlice', () => {
       const slice = createLegSlice(set, get);
       await slice.updateTripLeg('leg-1', { departureDate: '2025-07-15' });
 
-      expect(mockCancelLegNotifications).toHaveBeenCalled();
+      expect(mockCancelLegNotifications).toHaveBeenCalledWith('leg-1', 'trip-1');
     });
 
     it('sets error on failure', async () => {

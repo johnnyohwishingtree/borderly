@@ -173,7 +173,9 @@ describe('createFamilyManagementSlice', () => {
         'family_profiles',
         expect.any(String),
       );
-      expect(set).toHaveBeenCalled();
+      expect(set).toHaveBeenCalledWith(expect.objectContaining({
+        familyProfiles: expect.objectContaining({ primaryProfileId: 'p2' }),
+      }));
       const setArg = set.mock.calls[0][0] as { familyProfiles: FamilyProfileCollection };
       expect(setArg.familyProfiles.primaryProfileId).toBe('p2');
     });
@@ -312,7 +314,7 @@ describe('createLegacySlice', () => {
       const slice = createLegacySlice(set, get);
       await slice.loadProfile();
 
-      expect(mockLoadFamilyProfiles).toHaveBeenCalled();
+      expect(mockLoadFamilyProfiles).toHaveBeenCalledWith();
     });
   });
 });

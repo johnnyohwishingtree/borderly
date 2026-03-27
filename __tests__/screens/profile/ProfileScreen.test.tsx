@@ -197,7 +197,7 @@ describe('ProfileScreen', () => {
       });
 
       // loadProfile was called via getState()
-      expect(mockLoadProfile).toHaveBeenCalled();
+      expect(mockLoadProfile).toHaveBeenCalledWith();
 
       // The freshly-loaded passport number (from getState().profile) is now displayed
       getByText('XY9876543');

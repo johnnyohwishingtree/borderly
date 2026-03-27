@@ -249,7 +249,7 @@ describe('UI Components', () => {
       const input = getByDisplayValue('test');
       fireEvent(input, 'blur');
 
-      expect(onBlur).toHaveBeenCalled();
+      expect(onBlur).toHaveBeenCalledWith();
     });
   });
 
@@ -331,7 +331,7 @@ describe('UI Components', () => {
       const submitButton = getByText('Submit');
       fireEvent.press(submitButton);
 
-      expect(onPress).toHaveBeenCalled();
+      expect(onPress).toHaveBeenCalledWith();
     });
 
     it('should show error states properly in form', () => {

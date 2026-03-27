@@ -110,13 +110,13 @@ describe('ReviewImportScreen', () => {
   it('calls handleConfirm when create trip is pressed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.press(getByTestId('review-create-trip-button'));
-    expect(mockUseReviewImport.actions.handleConfirm).toHaveBeenCalled();
+    expect(mockUseReviewImport.actions.handleConfirm).toHaveBeenCalledWith();
   });
 
   it('calls handleCancel when discard is pressed', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
     fireEvent.press(getByTestId('review-cancel-button'));
-    expect(mockUseReviewImport.actions.handleCancel).toHaveBeenCalled();
+    expect(mockUseReviewImport.actions.handleCancel).toHaveBeenCalledWith();
   });
 
   it('calls removeLeg when remove button is pressed', () => {

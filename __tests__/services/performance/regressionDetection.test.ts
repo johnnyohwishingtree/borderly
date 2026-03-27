@@ -289,7 +289,12 @@ describe('RegressionDetection', () => {
       // Trigger alert with very extreme value
       regressionDetection.analyzeMetric('appStartTime', 10000);
       
-      expect(alertListener).toHaveBeenCalled();
+      expect(alertListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metric: 'appStartTime',
+          currentValue: 10000,
+        })
+      );
       
       // Test unsubscribe
       unsubscribe();

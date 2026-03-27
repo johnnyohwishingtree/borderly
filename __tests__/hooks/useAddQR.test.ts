@@ -275,9 +275,9 @@ describe('useAddQR', () => {
       });
 
       // Should have called database service
-      expect(mockGetDatabase).toHaveBeenCalled();
-      expect(mockWrite).toHaveBeenCalled();
-      expect(mockCreate).toHaveBeenCalled();
+      expect(mockGetDatabase).toHaveBeenCalledWith();
+      expect(mockWrite).toHaveBeenCalledWith(expect.any(Function));
+      expect(mockCreate).toHaveBeenCalledWith(expect.any(Function));
 
       // Should show success alert
       expect(Alert.alert).toHaveBeenCalledWith(
@@ -295,7 +295,7 @@ describe('useAddQR', () => {
       const okButton = successCall[2][0];
       okButton.onPress();
 
-      expect(mockGoBack).toHaveBeenCalled();
+      expect(mockGoBack).toHaveBeenCalledWith();
     });
   });
 
@@ -343,7 +343,7 @@ describe('useAddQR', () => {
       const { detectDevicePerformance } = jest.requireMock(
         '@/utils/imageUtils',
       );
-      expect(detectDevicePerformance).toHaveBeenCalled();
+      expect(detectDevicePerformance).toHaveBeenCalledWith();
     });
   });
 });

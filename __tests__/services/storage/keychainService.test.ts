@@ -276,7 +276,7 @@ describe('KeychainServiceImpl', () => {
       const key = await svc.generateEncryptionKey();
 
       expect(key).toBe('enc-key-123');
-      expect(mockGenEncKey).toHaveBeenCalled();
+      expect(mockGenEncKey).toHaveBeenCalledWith(expect.any(Object));
     });
 
     it('getEncryptionKey delegates to encryption module', async () => {
@@ -284,7 +284,7 @@ describe('KeychainServiceImpl', () => {
       const key = await svc.getEncryptionKey();
 
       expect(key).toBe('enc-key-123');
-      expect(mockGetEncKey).toHaveBeenCalled();
+      expect(mockGetEncKey).toHaveBeenCalledWith(expect.any(Object));
     });
 
     it('getEncryptionKey returns null when no key exists', async () => {
@@ -356,7 +356,12 @@ describe('KeychainServiceImpl', () => {
       const svc = await loadService();
       await svc.deleteProfileById('profile-1');
 
-      expect(mockDeleteById).toHaveBeenCalled();
+      expect(mockDeleteById).toHaveBeenCalledWith(
+        expect.any(Object),
+        'profile-1',
+        expect.any(Function),
+        expect.any(Function),
+      );
     });
 
     it('profileExists delegates to multi-profile module', async () => {
@@ -490,7 +495,11 @@ describe('KeychainServiceImpl', () => {
       const result = await svc.migrateLegacyProfile();
 
       expect(result).toBe('migrated-id');
-      expect(mockMigrateLegacy).toHaveBeenCalled();
+      expect(mockMigrateLegacy).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Function),
+        expect.any(Function),
+      );
     });
 
     it('returns null when no legacy profile exists', async () => {

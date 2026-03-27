@@ -179,7 +179,7 @@ describe('Navigation Flow Tests', () => {
 
       // Should still render something while loading
       expect(root).not.toBeNull();
-      expect(mockProfileStore.loadProfile).toHaveBeenCalled();
+      expect(mockProfileStore.loadProfile).toHaveBeenCalledWith();
     });
 
     it('should handle error state gracefully', () => {

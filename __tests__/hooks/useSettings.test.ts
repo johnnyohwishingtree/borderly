@@ -143,10 +143,10 @@ describe('useSettings', () => {
     // Wait for async effects
     await act(async () => {});
 
-    expect(mockLoadPreferences).toHaveBeenCalled();
-    expect(mockIsAvailable).toHaveBeenCalled();
+    expect(mockLoadPreferences).toHaveBeenCalledWith();
+    expect(mockIsAvailable).toHaveBeenCalledWith();
     expect(mockGetPortalCredentialsForProfile).toHaveBeenCalledWith('profile-1');
-    expect(mockGetSchemaMetadata).toHaveBeenCalled();
+    expect(mockGetSchemaMetadata).toHaveBeenCalledWith();
   });
 
   // 3. handleBiometricToggle shows Alert when enabling
@@ -300,7 +300,7 @@ describe('useSettings', () => {
       result.current.actions.handleRefreshSettings();
     });
 
-    expect(mockLoadPreferences).toHaveBeenCalled();
+    expect(mockLoadPreferences).toHaveBeenCalledWith();
     expect(Alert.alert).toHaveBeenCalledWith('Refreshed', 'Settings refreshed successfully.');
   });
 

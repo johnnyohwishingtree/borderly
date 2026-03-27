@@ -449,7 +449,7 @@ describe('usePortalSubmission — handleNavigationChange', () => {
 
     expect(result.current.state.pillDismissed).toBe(false);
     expect(result.current.state.pageType).toBe('unknown');
-    expect(mockResetForNewPage).toHaveBeenCalled();
+    expect(mockResetForNewPage).toHaveBeenCalledWith();
   });
 
   it('does not reset when URL stays the same', () => {

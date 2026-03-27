@@ -135,7 +135,7 @@ describe('MRZScanner Component', () => {
     });
 
     fireEvent.press(getByText('Enter Manually Instead'));
-    expect(mockProps.onManualEntry).toHaveBeenCalled();
+    expect(mockProps.onManualEntry).toHaveBeenCalledWith();
   });
 
   it('cleans up on unmount', () => {
