@@ -23,6 +23,7 @@ import { TripTemplate } from '@/types/trip';
 import { CountryFlag } from '@/components/trips';
 import { Card, ScreenContainer, EmptyState } from '@/components/ui';
 import { useTemplates } from '@/hooks/useTemplates';
+import { TEMPLATES_IDS } from './testIDs';
 
 // ---------------------------------------------------------------------------
 // RenameModal — inline subcomponent (tightly coupled to this screen)
@@ -62,7 +63,7 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
       presentationStyle="pageSheet"
       onRequestClose={onCancel}
       onShow={onOpen}
-      testID="rename-template-modal"
+      testID={TEMPLATES_IDS.renameTemplateModal.id}
       accessibilityViewIsModal={true}
     >
       <KeyboardAvoidingView
@@ -74,7 +75,7 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
             onPress={onCancel}
             disabled={isSaving}
             activeOpacity={0.7}
-            testID="rename-modal-cancel"
+            testID={TEMPLATES_IDS.renameModalCancel.id}
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Cancel"
@@ -90,7 +91,7 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
             onPress={handleConfirm}
             disabled={isSaving || !name.trim()}
             activeOpacity={0.7}
-            testID="rename-modal-confirm"
+            testID={TEMPLATES_IDS.renameModalConfirm.id}
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Confirm rename"
@@ -124,7 +125,7 @@ function RenameModal({ visible, currentName, onConfirm, onCancel, isSaving }: Re
               returnKeyType="done"
               onSubmitEditing={handleConfirm}
               className="text-base text-gray-900 dark:text-white"
-              testID="rename-template-field"
+              testID={TEMPLATES_IDS.renameTemplateField.id}
               accessibilityLabel="Template name, required"
               autoFocus
             />
@@ -173,7 +174,7 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
             <TouchableOpacity
               onPress={onRename}
               activeOpacity={0.7}
-              testID={`rename-template-${template.id}`}
+              testID={TEMPLATES_IDS.renameTemplateButton.id.replace('${id}', template.id)}
               accessible={true}
               accessibilityRole="button"
               accessibilityLabel={`Rename template ${template.name}`}
@@ -184,7 +185,7 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
             <TouchableOpacity
               onPress={onDelete}
               activeOpacity={0.7}
-              testID={`delete-template-${template.id}`}
+              testID={TEMPLATES_IDS.deleteTemplateButton.id.replace('${id}', template.id)}
               accessible={true}
               accessibilityRole="button"
               accessibilityLabel={`Delete template ${template.name}`}
@@ -224,7 +225,7 @@ export function TemplateCard({ template, onRename, onDelete, onUse }: TemplateCa
         <TouchableOpacity
           onPress={onUse}
           activeOpacity={0.7}
-          testID={`use-template-${template.id}`}
+          testID={TEMPLATES_IDS.useTemplateButton.id.replace('${id}', template.id)}
           accessible={true}
           accessibilityRole="button"
           accessibilityLabel={`Use template ${template.name}`}
@@ -293,7 +294,7 @@ export default function TemplatesScreen() {
           contentContainerStyle={{ padding: 16 }}
           showsVerticalScrollIndicator={false}
           accessibilityLabel="List of saved trip templates"
-          testID="templates-list"
+          testID={TEMPLATES_IDS.templatesList.id}
         />
       )}
 

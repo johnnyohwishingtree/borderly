@@ -7,6 +7,7 @@ import { Fingerprint, ShieldCheck, Zap, KeyRound, Lightbulb } from 'lucide-react
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
+import { BIOMETRIC_SETUP_IDS } from './testIDs';
 
 type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'BiometricSetup'>;
 
@@ -177,7 +178,7 @@ export default function BiometricSetupScreen() {
             loading={isEnabling}
             size="large"
             fullWidth
-            testID="enable-biometric-button"
+            testID={BIOMETRIC_SETUP_IDS.enableBiometricButton.id}
           />
 
           <View className="border-2 border-gray-300 dark:border-gray-600 rounded-xl">
@@ -187,7 +188,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="large"
               fullWidth
-              testID="skip-biometric-button"
+              testID={BIOMETRIC_SETUP_IDS.skipBiometricButton.id}
             />
           </View>
 
@@ -198,7 +199,7 @@ export default function BiometricSetupScreen() {
               variant="outline"
               size="medium"
               fullWidth
-              testID="biometric-back-button"
+              testID={BIOMETRIC_SETUP_IDS.biometricBackButton.id}
             />
           </View>
         </View>

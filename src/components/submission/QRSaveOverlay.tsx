@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { CheckCircle, Download, X } from 'lucide-react-native';
 import { getPortalName } from '../../utils/countryUtils';
+import { QR_SAVE_OVERLAY_IDS } from './testIDs';
 
 export interface QRPageDetectedPayload {
   /** ISO 3166-1 alpha-3 country code */
@@ -115,7 +116,7 @@ export function QRSaveOverlay({
   return (
     <Animated.View
       style={[styles.container, { transform: [{ translateY }] }]}
-      testID={testID ?? 'qr-save-overlay'}
+      testID={testID ?? QR_SAVE_OVERLAY_IDS.container.id}
     >
       <View className="bg-white rounded-t-[20px] shadow-lg elevation-16 pb-8">
         {/* Drag handle */}
@@ -127,16 +128,16 @@ export function QRSaveOverlay({
             {overlayState === 'saved' ? (
               <View className="flex-row items-center">
                 <CheckCircle size={20} color="#16A34A" />
-                <Text className="ml-2 text-base font-bold text-green-900" testID="qr-overlay-title">
+                <Text className="ml-2 text-base font-bold text-green-900" testID={QR_SAVE_OVERLAY_IDS.title.id}>
                   QR Code Saved!
                 </Text>
               </View>
             ) : (
-              <Text className="text-base font-bold text-gray-900" testID="qr-overlay-title">
+              <Text className="text-base font-bold text-gray-900" testID={QR_SAVE_OVERLAY_IDS.title.id}>
                 QR Code Detected
               </Text>
             )}
-            <Text className="text-[13px] text-gray-500 mt-0.5" testID="qr-overlay-subtitle">
+            <Text className="text-[13px] text-gray-500 mt-0.5" testID={QR_SAVE_OVERLAY_IDS.subtitle.id}>
               {overlayState === 'saved'
                 ? `Saved from ${portalName} to your QR Wallet`
                 : `${portalName} generated a QR code`}
@@ -151,7 +152,7 @@ export function QRSaveOverlay({
                 { opacity: pressed ? 0.6 : 1 },
               ]}
               accessibilityLabel="Dismiss QR save prompt"
-              testID="qr-overlay-dismiss"
+              testID={QR_SAVE_OVERLAY_IDS.dismissButton.id}
             >
               <X size={20} color="#6B7280" />
             </Pressable>
@@ -160,22 +161,22 @@ export function QRSaveOverlay({
 
         {/* QR image preview */}
         {payload?.qrImageBase64 && overlayState !== 'saved' && (
-          <View className="items-center mb-4 px-5" testID="qr-overlay-preview">
+          <View className="items-center mb-4 px-5" testID={QR_SAVE_OVERLAY_IDS.preview.id}>
             <Image
               source={{ uri: payload.qrImageBase64 }}
               className="w-[140px] h-[140px] rounded-lg border border-gray-200"
               resizeMode="contain"
               accessibilityLabel="Detected QR code preview"
-              testID="qr-overlay-image"
+              testID={QR_SAVE_OVERLAY_IDS.image.id}
             />
           </View>
         )}
 
         {/* Confirmation number */}
         {payload?.confirmationNumber && overlayState !== 'saved' && (
-          <View className="mx-5 mb-4 bg-gray-50 rounded-lg p-3" testID="qr-overlay-confirmation">
+          <View className="mx-5 mb-4 bg-gray-50 rounded-lg p-3" testID={QR_SAVE_OVERLAY_IDS.confirmation.id}>
             <Text className="text-xs text-gray-500 mb-0.5">Reference Number</Text>
-            <Text className="text-sm font-semibold text-gray-900" testID="qr-overlay-ref-number">
+            <Text className="text-sm font-semibold text-gray-900" testID={QR_SAVE_OVERLAY_IDS.refNumber.id}>
               {payload.confirmationNumber}
             </Text>
           </View>
@@ -183,7 +184,7 @@ export function QRSaveOverlay({
 
         {/* Error message */}
         {overlayState === 'error' && errorMessage && (
-          <View className="mx-5 mb-3 bg-red-50 rounded-lg p-3 border border-red-200" testID="qr-overlay-error">
+          <View className="mx-5 mb-3 bg-red-50 rounded-lg p-3 border border-red-200" testID={QR_SAVE_OVERLAY_IDS.error.id}>
             <Text className="text-[13px] text-red-900">{errorMessage}</Text>
           </View>
         )}
@@ -198,7 +199,7 @@ export function QRSaveOverlay({
                 onPressOut={() => setPrimaryPressed(false)}
                 className={`rounded-xl py-3.5 items-center ${primaryPressed ? 'bg-blue-700' : 'bg-blue-600'}`}
                 accessibilityLabel="Open QR wallet"
-                testID="qr-overlay-open-wallet"
+                testID={QR_SAVE_OVERLAY_IDS.openWalletButton.id}
               >
                 <Text className="text-white font-bold text-[15px]">Open QR Wallet</Text>
               </Pressable>
@@ -208,7 +209,7 @@ export function QRSaveOverlay({
                 onPressOut={() => setSecondaryPressed(false)}
                 className={`rounded-xl py-3.5 items-center border border-gray-200 mt-2.5 ${secondaryPressed ? 'bg-gray-100' : 'bg-white'}`}
                 accessibilityLabel="Back to trip"
-                testID="qr-overlay-back-to-trip"
+                testID={QR_SAVE_OVERLAY_IDS.backToTripButton.id}
               >
                 <Text className="text-gray-700 font-semibold text-[15px]">Back to Trip</Text>
               </Pressable>
@@ -228,7 +229,7 @@ export function QRSaveOverlay({
                     : 'bg-blue-600'
                 }`}
                 accessibilityLabel="Save QR code to wallet"
-                testID="qr-overlay-save-button"
+                testID={QR_SAVE_OVERLAY_IDS.saveButton.id}
               >
                 <View className="mr-2">
                   <Download size={18} color="#FFFFFF" />
@@ -244,7 +245,7 @@ export function QRSaveOverlay({
                 onPressOut={() => setSkipPressed(false)}
                 className={`rounded-xl py-3.5 items-center mt-2.5 ${skipPressed ? 'bg-gray-100' : 'bg-white'}`}
                 accessibilityLabel="Skip saving QR code"
-                testID="qr-overlay-skip-button"
+                testID={QR_SAVE_OVERLAY_IDS.skipButton.id}
               >
                 <Text className="text-gray-500 font-semibold text-[15px]">
                   {overlayState === 'error' ? 'Skip (Screenshot Manually)' : 'Skip'}

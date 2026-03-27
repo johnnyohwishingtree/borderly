@@ -2,6 +2,7 @@ import { View, Text } from 'react-native';
 import { MapPin, Globe } from 'lucide-react-native';
 import { Button, Card } from '@/components/ui';
 import { CreateTripLegCard } from './CreateTripScreen.LegCard';
+import { CREATE_TRIP_IDS } from './testIDs';
 import type { LegFormData } from '@/hooks/useTripCreation';
 import type { FamilyMember } from '@/types/profile';
 
@@ -43,21 +44,21 @@ export function Destinations({
             onPress={onShowSmartImport}
             variant="outline"
             size="small"
-            testID="smart-import-button"
+            testID={CREATE_TRIP_IDS.smartImportButton.id}
           />
           <Button
             title="Scan"
             onPress={onShowScanner}
             variant="outline"
             size="small"
-            testID="scan-destination-button"
+            testID={CREATE_TRIP_IDS.scanDestinationButton.id}
           />
           <Button
             title="+ Add"
             onPress={addLeg}
             variant="primary"
             size="small"
-            testID="add-destination-button"
+            testID={CREATE_TRIP_IDS.addDestinationButton.id}
           />
         </View>
       </View>
@@ -79,13 +80,13 @@ export function Destinations({
                 title="Scan Boarding Pass"
                 onPress={onShowScanner}
                 variant="primary"
-                testID="empty-state-scan-button"
+                testID={CREATE_TRIP_IDS.emptyStateScanButton.id}
               />
               <Button
                 title="Add Manually"
                 onPress={addLeg}
                 variant="outline"
-                testID="empty-state-add-button"
+                testID={CREATE_TRIP_IDS.emptyStateAddButton.id}
               />
             </View>
           </View>

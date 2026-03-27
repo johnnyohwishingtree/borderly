@@ -24,6 +24,7 @@ import {
 } from 'react-native';
 import { Input, Button, Card } from '@/components/ui';
 import { useBackupExport, type PassphraseStrength } from '@/hooks/useBackupExport';
+import { EXPORT_BACKUP_IDS } from './testIDs';
 
 // ---------------------------------------------------------------------------
 // Sub-component: strength indicator
@@ -51,7 +52,7 @@ function StrengthIndicator({ strength, visible }: StrengthIndicatorProps) {
       accessible={true}
       accessibilityRole="text"
       accessibilityLabel={`Passphrase strength: ${label}`}
-      testID="passphrase-strength-indicator"
+      testID={EXPORT_BACKUP_IDS.passphraseStrengthIndicator.id}
     >
       {/* Bar segments */}
       <View className="flex-row gap-1 mb-1">
@@ -119,7 +120,7 @@ export default function ExportBackupModal({
         className="flex-1 bg-white dark:bg-gray-900"
         contentContainerStyle={{ padding: 24 }}
         keyboardShouldPersistTaps="handled"
-        testID="export-backup-modal"
+        testID={EXPORT_BACKUP_IDS.modal.id}
       >
         {/* Header row */}
         <View className="flex-row items-center justify-between mb-6">
@@ -134,7 +135,7 @@ export default function ExportBackupModal({
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Close backup modal"
-            testID="export-backup-close-button"
+            testID={EXPORT_BACKUP_IDS.exportBackupCloseButton.id}
             className="p-2"
           >
             <Text className="text-base text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
@@ -164,7 +165,7 @@ export default function ExportBackupModal({
             accessibilityLabel="Passphrase, required, minimum 8 characters"
             autoCapitalize="none"
             autoComplete="password-new"
-            testID="passphrase-field"
+            testID={EXPORT_BACKUP_IDS.passphraseField.id}
           />
 
           {/* Strength indicator — shown once user starts typing */}
@@ -184,7 +185,7 @@ export default function ExportBackupModal({
             accessibilityLabel="Confirm passphrase, required"
             autoCapitalize="none"
             autoComplete="password-new"
-            testID="confirm-passphrase-field"
+            testID={EXPORT_BACKUP_IDS.confirmPassphraseField.id}
           />
 
           {/* Inline error (live region so screen readers announce it) */}
@@ -194,7 +195,7 @@ export default function ExportBackupModal({
               accessible={true}
               accessibilityRole="text"
               accessibilityLiveRegion="polite"
-              testID="export-error-message"
+              testID={EXPORT_BACKUP_IDS.exportErrorMessage.id}
             >
               <Text className="text-sm text-red-700 dark:text-red-300">{error}</Text>
             </View>
@@ -241,7 +242,7 @@ export default function ExportBackupModal({
               fullWidth
               accessibilityLabel="Export encrypted backup file"
               accessibilityHint="Encrypts your data and opens the share sheet"
-              testID="export-backup-submit-button"
+              testID={EXPORT_BACKUP_IDS.exportBackupSubmitButton.id}
             />
           )}
 
@@ -254,7 +255,7 @@ export default function ExportBackupModal({
               size="medium"
               fullWidth
               accessibilityLabel="Cancel and close backup modal"
-              testID="export-backup-cancel-button"
+              testID={EXPORT_BACKUP_IDS.exportBackupCancelButton.id}
             />
           </View>
         </View>

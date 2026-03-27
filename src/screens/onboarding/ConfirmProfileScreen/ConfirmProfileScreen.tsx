@@ -9,6 +9,7 @@ import {
 } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
+import { CONFIRM_PROFILE_IDS } from './testIDs';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 
@@ -60,7 +61,7 @@ export default function ConfirmProfileScreen() {
           variant="primary"
           size="large"
           fullWidth
-          testID="confirm-go-back-button"
+          testID={CONFIRM_PROFILE_IDS.confirmGoBackButton.id}
         />
       </View>
     );
@@ -89,7 +90,7 @@ export default function ConfirmProfileScreen() {
           </View>
           <Text
             className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center"
-            testID="confirm-profile-title"
+            testID={CONFIRM_PROFILE_IDS.confirmProfileTitle.id}
           >
             Confirm Your Profile
           </Text>
@@ -118,7 +119,7 @@ export default function ConfirmProfileScreen() {
                   <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{field.label}</Text>
                   <Text
                     className="text-lg font-semibold text-gray-900 dark:text-white"
-                    testID={`profile-field-${field.label.toLowerCase().replace(/ /g, '-')}`}
+                    testID={CONFIRM_PROFILE_IDS.profileField.dynamic.replace('{label}', field.label.toLowerCase().replace(/ /g, '-'))}
                   >
                     {field.value}
                   </Text>
@@ -159,7 +160,7 @@ export default function ConfirmProfileScreen() {
             onPress={handleContinue}
             size="large"
             fullWidth
-            testID="continue-to-security-button"
+            testID={CONFIRM_PROFILE_IDS.continueToSecurityButton.id}
           />
 
           <Button
@@ -168,7 +169,7 @@ export default function ConfirmProfileScreen() {
             variant="outline"
             size="large"
             fullWidth
-            testID="edit-information-button"
+            testID={CONFIRM_PROFILE_IDS.editInformationButton.id}
           />
         </View>
       </View>

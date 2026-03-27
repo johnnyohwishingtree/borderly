@@ -4,4 +4,5 @@ export const IMPORT_TRIP_IDS = {
   importConfirmationField: { id: 'import-confirmation-field', type: 'TextInput' as const },
   importParseButton: { id: 'import-parse-button', type: 'button' as const },
   importTryAgainButton: { id: 'import-try-again-button', type: 'button' as const },
+  importErrorMessage: { id: 'import-error-message', type: 'View' as const },
 };

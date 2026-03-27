@@ -1,0 +1,15 @@
+export const QR_SAVE_OVERLAY_IDS = {
+  container: { id: 'qr-save-overlay', type: 'container' as const },
+  title: { id: 'qr-overlay-title', type: 'text' as const },
+  subtitle: { id: 'qr-overlay-subtitle', type: 'text' as const },
+  dismissButton: { id: 'qr-overlay-dismiss', type: 'button' as const },
+  preview: { id: 'qr-overlay-preview', type: 'container' as const },
+  image: { id: 'qr-overlay-image', type: 'image' as const },
+  confirmation: { id: 'qr-overlay-confirmation', type: 'container' as const },
+  refNumber: { id: 'qr-overlay-ref-number', type: 'text' as const },
+  error: { id: 'qr-overlay-error', type: 'container' as const },
+  openWalletButton: { id: 'qr-overlay-open-wallet', type: 'button' as const },
+  backToTripButton: { id: 'qr-overlay-back-to-trip', type: 'button' as const },
+  saveButton: { id: 'qr-overlay-save-button', type: 'button' as const },
+  skipButton: { id: 'qr-overlay-skip-button', type: 'button' as const },
+};

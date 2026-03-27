@@ -6,6 +6,7 @@ import { TripCard, DuplicateTripModal, DeadlineSummary } from '@/components/trip
 import { EmptyState, InfoBanner, ScreenContainer } from '@/components/ui';
 import LoadingStates from '@/components/ui/LoadingStates';
 import { Trip } from '@/types/trip';
+import { TRIP_LIST_IDS } from './testIDs';
 
 const FILTER_TABS: { key: TripStatusFilter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -81,14 +82,14 @@ export default function TripListScreen() {
         onPress: handleCreateTrip,
         variant: "primary",
         size: "large",
-        testID: "create-first-trip-button",
+        testID: TRIP_LIST_IDS.createFirstTripButton.id,
       }}
       secondaryButtonProps={{
         title: "Use a Template",
         onPress: handleCreateFromTemplate,
         variant: "outline",
         size: "large",
-        testID: "use-template-button",
+        testID: TRIP_LIST_IDS.useTemplateButton.id,
       }}
       variant="illustration"
     />
@@ -129,7 +130,7 @@ export default function TripListScreen() {
         <InfoBanner
           message="You're all set! Create your first trip to get started."
           onDismiss={dismissFirstRunPrompt}
-          testID="first-run-welcome-banner"
+          testID={TRIP_LIST_IDS.firstRunWelcomeBanner.id}
         />
       )}
 
@@ -138,7 +139,7 @@ export default function TripListScreen() {
         <InfoBanner
           message={schemaBannerMessage}
           onDismiss={dismissSchemaBanner}
-          testID="schema-update-banner"
+          testID={TRIP_LIST_IDS.schemaUpdateBanner.id}
         />
       )}
 
@@ -159,7 +160,7 @@ export default function TripListScreen() {
               onPress={handleImportTrip}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
               activeOpacity={0.7}
-              testID="import-trip-button"
+              testID={TRIP_LIST_IDS.importTripButton.id}
               accessibilityRole="button"
               accessibilityLabel="Import trip"
               accessibilityHint="Import a trip from a booking confirmation or boarding pass"
@@ -170,7 +171,7 @@ export default function TripListScreen() {
               onPress={handleCreateFromTemplate}
               className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
               activeOpacity={0.7}
-              testID="templates-nav-button"
+              testID={TRIP_LIST_IDS.templatesNavButton.id}
               accessibilityRole="button"
               accessibilityLabel="Create trip from template"
               accessibilityHint="Choose a saved template to pre-fill destinations"
@@ -207,7 +208,7 @@ export default function TripListScreen() {
               onChangeText={setSearchQuery}
               accessibilityLabel="Search trips"
               accessibilityHint="Filter trips by name"
-              testID="trip-search-field"
+              testID={TRIP_LIST_IDS.tripSearchField.id}
               returnKeyType="search"
               autoCorrect={false}
             />
@@ -217,7 +218,7 @@ export default function TripListScreen() {
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 accessibilityRole="button"
                 accessibilityLabel="Clear search"
-                testID="trip-search-clear"
+                testID={TRIP_LIST_IDS.tripSearchClear.id}
               >
                 <X size={18} color="#9CA3AF" />
               </TouchableOpacity>
@@ -245,7 +246,7 @@ export default function TripListScreen() {
                   accessibilityRole="tab"
                   accessibilityState={{ selected: isSelected }}
                   accessibilityLabel={`${tab.label} trips`}
-                  testID={`trip-filter-${tab.key}`}
+                  testID={TRIP_LIST_IDS.tripFilterTab.id.replace('${key}', tab.key)}
                 >
                   <Text
                     className={`text-sm font-medium ${
@@ -287,7 +288,7 @@ export default function TripListScreen() {
                 isExpanded={deadlineSummary.isExpanded}
                 onToggleExpanded={deadlineSummary.toggleExpanded}
                 onGoToForm={handleGoToForm}
-                testID="trip-list-deadline-summary"
+                testID={TRIP_LIST_IDS.tripListDeadlineSummary.id}
               />
             ) : null
           }
@@ -347,7 +348,7 @@ export default function TripListScreen() {
             onPress={handleCreateFromTemplate}
             className="bg-white dark:bg-gray-700 px-4 h-11 rounded-full items-center justify-center shadow-md flex-row"
             activeOpacity={0.8}
-            testID="fab-from-template-button"
+            testID={TRIP_LIST_IDS.fabFromTemplateButton.id}
             accessibilityRole="button"
             accessibilityLabel="Create trip from template"
             accessibilityHint="Choose a saved template to pre-fill destinations"
@@ -377,7 +378,7 @@ export default function TripListScreen() {
         onConfirm={handleConfirmDuplicate}
         loading={isDuplicating}
         error={duplicateError}
-        testID="trip-list-duplicate-trip-modal"
+        testID={TRIP_LIST_IDS.tripListDuplicateTripModal.id}
       />
     </ScreenContainer>
   );

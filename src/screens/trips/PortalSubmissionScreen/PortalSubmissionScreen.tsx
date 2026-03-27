@@ -22,6 +22,7 @@ import { AutoFillPill } from '@/components/submission/AutoFillPill';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CopyableField } from '@/components/guide';
 import { usePortalSubmission } from '@/hooks/usePortalSubmission';
+import { PORTAL_SUBMISSION_IDS } from './testIDs';
 
 export default function PortalSubmissionScreen() {
   const {
@@ -43,7 +44,7 @@ export default function PortalSubmissionScreen() {
   } = usePortalSubmission();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" testID="portal-submission-screen">
+    <SafeAreaView className="flex-1 bg-white" testID={PORTAL_SUBMISSION_IDS.screen.id}>
       {/* Header */}
       <View className="bg-white border-b border-gray-200 px-4 py-2">
         <View className="flex-row items-center justify-between">
@@ -54,7 +55,7 @@ export default function PortalSubmissionScreen() {
             onPress={handleClose}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4 })}
             accessibilityLabel="Close portal and go back to trip"
-            testID="close-portal-button"
+            testID={PORTAL_SUBMISSION_IDS.closeButton.id}
           >
             <X size={22} color="#374151" />
           </Pressable>
@@ -80,7 +81,7 @@ export default function PortalSubmissionScreen() {
                   backgroundColor: '#3B82F6',
                   borderRadius: 9999,
                 }}
-                testID="progress-bar"
+                testID={PORTAL_SUBMISSION_IDS.progressBar.id}
               />
             </View>
           </View>
@@ -91,7 +92,7 @@ export default function PortalSubmissionScreen() {
       {navState.loading && loadError === null && (
         <View
           style={{ backgroundColor: '#EFF6FF', borderBottomWidth: 1, borderBottomColor: '#BFDBFE', paddingHorizontal: 16, paddingVertical: 4 }}
-          testID="portal-loading-indicator"
+          testID={PORTAL_SUBMISSION_IDS.loadingIndicator.id}
         >
           <Text style={{ fontSize: 12, color: '#1D4ED8' }}>Loading portal...</Text>
         </View>
@@ -104,7 +105,7 @@ export default function PortalSubmissionScreen() {
           disabled={!navState.canGoBack}
           style={({ pressed }) => ({ opacity: pressed || !navState.canGoBack ? 0.4 : 1, padding: 6 })}
           accessibilityLabel="Go back"
-          testID="toolbar-back-button"
+          testID={PORTAL_SUBMISSION_IDS.toolbarBackButton.id}
         >
           <ArrowLeft size={20} color="#374151" />
         </Pressable>
@@ -113,7 +114,7 @@ export default function PortalSubmissionScreen() {
           disabled={!navState.canGoForward}
           style={({ pressed }) => ({ opacity: pressed || !navState.canGoForward ? 0.4 : 1, padding: 6 })}
           accessibilityLabel="Go forward"
-          testID="toolbar-forward-button"
+          testID={PORTAL_SUBMISSION_IDS.toolbarForwardButton.id}
         >
           <ArrowRight size={20} color="#374151" />
         </Pressable>
@@ -121,7 +122,7 @@ export default function PortalSubmissionScreen() {
           onPress={handleRefresh}
           style={({ pressed }) => ({ opacity: pressed ? 0.4 : 1, padding: 6 })}
           accessibilityLabel="Refresh page"
-          testID="toolbar-refresh-button"
+          testID={PORTAL_SUBMISSION_IDS.toolbarRefreshButton.id}
         >
           <RefreshCw size={20} color="#374151" />
         </Pressable>
@@ -134,7 +135,7 @@ export default function PortalSubmissionScreen() {
       {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'in_progress' && (
         <View
           style={{ backgroundColor: '#EFF6FF', borderBottomWidth: 1, borderBottomColor: '#3B82F6', paddingHorizontal: 16, paddingVertical: 10 }}
-          testID="auto-login-progress-banner"
+          testID={PORTAL_SUBMISSION_IDS.autoLoginProgressBanner.id}
         >
           <Text style={{ fontSize: 13, color: '#1D4ED8', fontWeight: '500' }}>
             🔐 Logging in automatically...
@@ -145,7 +146,7 @@ export default function PortalSubmissionScreen() {
       {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'failed' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
-          testID="auto-login-failed-banner"
+          testID={PORTAL_SUBMISSION_IDS.autoLoginFailedBanner.id}
         >
           <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
             ⚠️ Auto-login failed. Please log in manually.
@@ -156,7 +157,7 @@ export default function PortalSubmissionScreen() {
       {pageType === 'auth' && autoLogin.state.autoLoginBannerState === 'idle' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
-          testID="auth-page-banner"
+          testID={PORTAL_SUBMISSION_IDS.authPageBanner.id}
         >
           <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
             🔐 Log in to continue
@@ -167,7 +168,7 @@ export default function PortalSubmissionScreen() {
       {pageType === 'captcha' && (
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B', paddingHorizontal: 16, paddingVertical: 10 }}
-          testID="captcha-page-banner"
+          testID={PORTAL_SUBMISSION_IDS.captchaPageBanner.id}
         >
           <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
             🤖 Complete the verification to continue
@@ -182,7 +183,7 @@ export default function PortalSubmissionScreen() {
           total={autoFill.bannerState.total}
           {...(autoFill.bannerState.results ? { results: autoFill.bannerState.results } : {})}
           onDismiss={autoFill.dismissBanner}
-          testID="autofill-banner"
+          testID={PORTAL_SUBMISSION_IDS.autofillBanner.id}
         />
       )}
 
@@ -191,7 +192,7 @@ export default function PortalSubmissionScreen() {
         <View
           style={{ backgroundColor: '#FEF3C7', borderBottomWidth: 1, borderBottomColor: '#F59E0B' }}
           className="px-4 py-2 flex-row items-center justify-between"
-          testID="low-fill-warning-banner"
+          testID={PORTAL_SUBMISSION_IDS.lowFillWarningBanner.id}
         >
           <Text style={{ flex: 1, fontSize: 12, color: '#92400E' }}>
             {"Auto-fill couldn't complete all fields. Would you like to use the manual guide?"}
@@ -200,7 +201,7 @@ export default function PortalSubmissionScreen() {
             onPress={handleContinueManually}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, marginLeft: 8 })}
             accessibilityLabel="Switch to manual submission guide"
-            testID="manual-guide-button"
+            testID={PORTAL_SUBMISSION_IDS.manualGuideButton.id}
           >
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#92400E' }}>Manual Guide</Text>
           </Pressable>
@@ -216,7 +217,7 @@ export default function PortalSubmissionScreen() {
           title="Save your login for next time?"
           onSave={autoLogin.actions.handleCredentialSave}
           onSkip={autoLogin.actions.dismissCredentialPrompt}
-          testID="save-credentials-prompt"
+          testID={PORTAL_SUBMISSION_IDS.saveCredentialsPrompt.id}
         />
       )}
 
@@ -230,7 +231,7 @@ export default function PortalSubmissionScreen() {
           onLoadStart={handleLoadStart}
           onMessage={handleMessage}
           onError={handleWebViewError}
-          testID="portal-webview"
+          testID={PORTAL_SUBMISSION_IDS.portalWebview.id}
         />
 
         {pageType === 'form' && !pillDismissed && availableProfiles.length > 0 && (
@@ -240,7 +241,7 @@ export default function PortalSubmissionScreen() {
             onProfileChange={handleProfileChange}
             onAutoFill={autoFill.handleAutoFill}
             onDismiss={dismissPill}
-            testID="autofill-pill"
+            testID={PORTAL_SUBMISSION_IDS.autofillPill.id}
           />
         )}
 
@@ -254,7 +255,7 @@ export default function PortalSubmissionScreen() {
               alignItems: 'center',
               padding: 24,
             }}
-            testID="load-error-overlay"
+            testID={PORTAL_SUBMISSION_IDS.loadErrorOverlay.id}
           >
             <View
               style={{
@@ -285,7 +286,7 @@ export default function PortalSubmissionScreen() {
                   opacity: pressed ? 0.8 : 1,
                 })}
                 accessibilityLabel="Try again"
-                testID="error-try-again-button"
+                testID={PORTAL_SUBMISSION_IDS.errorTryAgainButton.id}
               >
                 <Text style={{ color: '#fff', fontWeight: '600', textAlign: 'center' }}>
                   Try Again
@@ -301,7 +302,7 @@ export default function PortalSubmissionScreen() {
                   opacity: pressed ? 0.8 : 1,
                 })}
                 accessibilityLabel="Continue with manual guide"
-                testID="error-continue-manually-button"
+                testID={PORTAL_SUBMISSION_IDS.errorContinueManuallyButton.id}
               >
                 <Text style={{ color: '#374151', fontWeight: '600', textAlign: 'center' }}>
                   Continue Manually
@@ -316,18 +317,18 @@ export default function PortalSubmissionScreen() {
       {qrPayload === null && (
         <View
           style={{ backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingHorizontal: 16, paddingTop: 10, paddingBottom: 4 }}
-          testID="submit-in-app-section"
+          testID={PORTAL_SUBMISSION_IDS.submitInAppSection.id}
         >
           {showIncompleteMessage && (
             <View
               style={{ backgroundColor: '#FEF3C7', borderRadius: 8, padding: 10, marginBottom: 8 }}
-              testID="incomplete-form-message"
+              testID={PORTAL_SUBMISSION_IDS.incompleteFormMessage.id}
             >
               <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
                 {'Complete required fields first:'}
               </Text>
               {autoFill.missingRequiredFields.length > 0 && (
-                <Text style={{ fontSize: 12, color: '#92400E', marginTop: 2 }} testID="missing-fields-list">
+                <Text style={{ fontSize: 12, color: '#92400E', marginTop: 2 }} testID={PORTAL_SUBMISSION_IDS.missingFieldsList.id}>
                   {autoFill.missingRequiredFields.join(', ')}
                 </Text>
               )}
@@ -348,7 +349,7 @@ export default function PortalSubmissionScreen() {
                 : 'Submit in app — disabled until all required fields are complete'
             }
             accessibilityState={{ disabled: !autoFill.isFormComplete }}
-            testID="submit-in-app-button"
+            testID={PORTAL_SUBMISSION_IDS.submitInAppButton.id}
           >
             <Text style={{ color: '#fff', fontWeight: '600', fontSize: 15 }}>
               Submit in App
@@ -365,7 +366,7 @@ export default function PortalSubmissionScreen() {
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             className="flex-row items-center justify-between px-4 py-3"
             accessibilityLabel={isPanelOpen ? 'Collapse fields panel' : 'Expand fields panel'}
-            testID="toggle-fields-panel"
+            testID={PORTAL_SUBMISSION_IDS.toggleFieldsPanel.id}
           >
             <Text className="text-sm font-semibold text-gray-700">
               Fields for this page
@@ -383,7 +384,7 @@ export default function PortalSubmissionScreen() {
               style={{ maxHeight: 220 }}
               contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 12 }}
               keyboardShouldPersistTaps="handled"
-              testID="fields-panel"
+              testID={PORTAL_SUBMISSION_IDS.fieldsPanel.id}
             >
               {currentStepFields.length === 0 ? (
                 <Text className="text-sm text-gray-500 py-2">
@@ -410,7 +411,7 @@ export default function PortalSubmissionScreen() {
         onSave={handleSaveQR}
         onDismiss={dismissQrPayload}
         onOpenWallet={handleOpenWallet}
-        testID="qr-save-overlay"
+        testID={PORTAL_SUBMISSION_IDS.qrSaveOverlay.id}
       />
     </SafeAreaView>
   );

@@ -8,6 +8,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '@/components/passport';
 import { ContextualHelp, HelpContent } from '@/components/help';
 import { usePassportScan } from '@/hooks/usePassportScan';
+import { PASSPORT_SCAN_IDS } from './testIDs';
 import { getTodayISO } from '@/utils/dateUtils';
 
 export default function PassportScanScreen() {
@@ -127,7 +128,7 @@ export default function PassportScanScreen() {
                   onPress={() => ui.setShowPerformanceHint(false)}
                   variant="outline"
                   size="small"
-                  testID="dismiss-performance-hint-button"
+                  testID={PASSPORT_SCAN_IDS.dismissPerformanceHintButton.id}
                 />
               </View>
             </View>
@@ -152,7 +153,7 @@ export default function PassportScanScreen() {
                 onPress={scan.handleStart}
                 variant="primary"
                 size="large"
-                testID="start-camera-scan-button"
+                testID={PASSPORT_SCAN_IDS.startCameraScanButton.id}
               />
             </View>
 
@@ -162,7 +163,7 @@ export default function PassportScanScreen() {
                 onPress={scan.handleManualEntry}
                 variant="outline"
                 size="medium"
-                testID="enter-manually-button"
+                testID={PASSPORT_SCAN_IDS.enterManuallyButton.id}
               />
             </View>
 
@@ -175,21 +176,21 @@ export default function PassportScanScreen() {
                     onPress={() => scan.handleDemo('adult')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-adult-button"
+                    testID={PASSPORT_SCAN_IDS.demoScanAdultButton.id}
                   />
                   <Button
                     title="Demo: Spouse"
                     onPress={() => scan.handleDemo('spouse')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-spouse-button"
+                    testID={PASSPORT_SCAN_IDS.demoScanSpouseButton.id}
                   />
                   <Button
                     title="Demo: Child"
                     onPress={() => scan.handleDemo('child')}
                     variant="outline"
                     size="small"
-                    testID="demo-scan-child-button"
+                    testID={PASSPORT_SCAN_IDS.demoScanChildButton.id}
                   />
                 </View>
               </View>
@@ -220,7 +221,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.passportNumber?.message}
                   autoCapitalize="characters"
-                  testID="passport-number-field"
+                  testID={PASSPORT_SCAN_IDS.passportNumberField.id}
                 />
               )}
             />
@@ -237,7 +238,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.surname?.message}
                   autoCapitalize="words"
-                  testID="surname-field"
+                  testID={PASSPORT_SCAN_IDS.surnameField.id}
                 />
               )}
             />
@@ -254,7 +255,7 @@ export default function PassportScanScreen() {
                   onBlur={onBlur}
                   error={errors.givenNames?.message}
                   autoCapitalize="words"
-                  testID="given-names-field"
+                  testID={PASSPORT_SCAN_IDS.givenNamesField.id}
                 />
               )}
             />
@@ -271,7 +272,7 @@ export default function PassportScanScreen() {
                     onValueChange={onChange}
                     placeholder="Search nationality..."
                     error={errors.nationality?.message}
-                    testID="nationality-field"
+                    testID={PASSPORT_SCAN_IDS.nationalityField.id}
                   />
                 </View>
               )}
@@ -287,7 +288,7 @@ export default function PassportScanScreen() {
                   onChange={onChange}
                   error={errors.dateOfBirth?.message}
                   maxDate={getTodayISO()}
-                  testID="dob-field"
+                  testID={PASSPORT_SCAN_IDS.dobField.id}
                   placeholder="Select date of birth"
                 />
               )}
@@ -313,7 +314,7 @@ export default function PassportScanScreen() {
                         onPress={() => onChange(option.value)}
                         variant={value === option.value ? 'primary' : 'outline'}
                         size="small"
-                        testID={`gender-${option.label}-button`}
+                        testID={PASSPORT_SCAN_IDS.genderButton.dynamic.replace('{label}', option.label)}
                       />
                     ))}
                   </View>
@@ -334,7 +335,7 @@ export default function PassportScanScreen() {
                   onChange={onChange}
                   error={errors.passportExpiry?.message}
                   minDate={getTodayISO()}
-                  testID="passport-expiry-field"
+                  testID={PASSPORT_SCAN_IDS.passportExpiryField.id}
                   placeholder="Select expiry date"
                 />
               )}
@@ -352,7 +353,7 @@ export default function PassportScanScreen() {
                     onValueChange={onChange}
                     placeholder="Search issuing country..."
                     error={errors.issuingCountry?.message}
-                    testID="issuing-country-field"
+                    testID={PASSPORT_SCAN_IDS.issuingCountryField.id}
                   />
                 </View>
               )}
@@ -368,7 +369,7 @@ export default function PassportScanScreen() {
               loading={profile.isSubmitting}
               size="large"
               fullWidth
-              testID="passport-continue-button"
+              testID={PASSPORT_SCAN_IDS.passportContinueButton.id}
             />
           )}
 
@@ -378,7 +379,7 @@ export default function PassportScanScreen() {
             variant="outline"
             size="large"
             fullWidth
-            testID="passport-back-button"
+            testID={PASSPORT_SCAN_IDS.passportBackButton.id}
           />
         </View>
       </View>

@@ -8,6 +8,7 @@ import { ALL_AIRPORTS } from '@/constants/airports';
 import { usePassportValidity } from '@/hooks/usePassportValidity';
 import type { LegFormData } from '@/hooks/useTripCreation';
 import type { FamilyMember } from '@/types/profile';
+import { CREATE_TRIP_IDS } from './testIDs';
 
 const FieldHeader = ({ label, autoFilled }: { label: string; autoFilled?: boolean }) => (
   <View className="flex-row items-center justify-between mb-2">
@@ -33,7 +34,7 @@ function LegPassportWarning({
       countryName={warningData.countryName}
       requiredMonths={warningData.requiredMonths}
       passportExpiry={warningData.passportExpiry}
-      testID={`create-trip-passport-validity-warning-${legIndex}`}
+      testID={CREATE_TRIP_IDS.legPassportValidityWarning.id.replace('${index}', String(legIndex))}
     />
   );
 }
@@ -78,7 +79,7 @@ export function CreateTripLegCard({
             onPress={() => removeLeg(index)}
             variant="outline"
             size="small"
-            testID={`remove-leg-${index}-button`}
+            testID={CREATE_TRIP_IDS.removeLegButton.id.replace('${index}', String(index))}
           />
         </View>
 
@@ -90,7 +91,7 @@ export function CreateTripLegCard({
               value={leg.destinationCountry}
               onValueChange={(val) => updateLeg(index, 'destinationCountry', val)}
               placeholder="Search country..."
-              testID={`country-select-${index}`}
+              testID={CREATE_TRIP_IDS.countrySelect.id.replace('${index}', String(index))}
               error={errors[`leg${index}.country`]}
             />
           </View>
@@ -109,7 +110,7 @@ export function CreateTripLegCard({
               <DatePickerField
                 value={leg.arrivalDate}
                 onChange={(date) => updateLeg(index, 'arrivalDate', date)}
-                testID={`leg-${index}-arrival-date`}
+                testID={CREATE_TRIP_IDS.legArrivalDate.id.replace('${index}', String(index))}
                 placeholder="Arrival date"
                 minDate={new Date().toISOString().split('T')[0]}
                 maxDate={`${new Date().getFullYear() + 3}-12-31`}
@@ -121,7 +122,7 @@ export function CreateTripLegCard({
               <DatePickerField
                 value={leg.departureDate}
                 onChange={(date) => updateLeg(index, 'departureDate', date)}
-                testID={`leg-${index}-departure-date`}
+                testID={CREATE_TRIP_IDS.legDepartureDate.id.replace('${index}', String(index))}
                 placeholder="Departure date"
                 minDate={leg.arrivalDate || new Date().toISOString().split('T')[0]}
                 maxDate={`${new Date().getFullYear() + 3}-12-31`}
@@ -137,7 +138,7 @@ export function CreateTripLegCard({
                 onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
                 placeholder="e.g., NH123"
                 autoCapitalize="characters"
-                testID={`leg-${index}-flight-number`}
+                testID={CREATE_TRIP_IDS.legFlightNumber.id.replace('${index}', String(index))}
               />
             </View>
             <View className="flex-1">
@@ -147,7 +148,7 @@ export function CreateTripLegCard({
                 onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
                 placeholder="e.g., NH"
                 autoCapitalize="characters"
-                testID={`leg-${index}-airline-code`}
+                testID={CREATE_TRIP_IDS.legAirlineCode.id.replace('${index}', String(index))}
               />
             </View>
           </View>
@@ -159,14 +160,14 @@ export function CreateTripLegCard({
               onValueChange={(val) => updateLeg(index, 'arrivalAirport', val)}
               options={ALL_AIRPORTS}
               placeholder="Search airport..."
-              testID={`leg-${index}-arrival-airport`}
+              testID={CREATE_TRIP_IDS.legArrivalAirport.id.replace('${index}', String(index))}
             />
           </View>
 
           {familyMembers.length > 0 && (
             <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
               {applyToAllLegs ? (
-                <View testID={`leg-${index}-travelers-synced`}>
+                <View testID={CREATE_TRIP_IDS.legTravelersSynced.id.replace('${index}', String(index))}>
                   <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Travelers
                   </Text>
@@ -209,7 +210,7 @@ export function CreateTripLegCard({
                     if (resolved.country) updateLeg(index, 'accommodation.address.country', resolved.country);
                   }}
                   countryHint={leg.destinationCountry}
-                  testID={`leg-${index}-accommodation-name`}
+                  testID={CREATE_TRIP_IDS.legAccommodationName.id.replace('${index}', String(index))}
                   error={errors[`leg${index}.accommodation`]}
                 />
               </View>
@@ -217,7 +218,7 @@ export function CreateTripLegCard({
               <AddressAutocomplete
                 value={leg.accommodation.address}
                 onAddressChange={(address) => updateLeg(index, 'accommodation.address', address)}
-                testID={`leg-${index}-accommodation-address`}
+                testID={CREATE_TRIP_IDS.legAccommodationAddress.id.replace('${index}', String(index))}
               />
 
               <View>

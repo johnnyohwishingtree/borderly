@@ -6,6 +6,7 @@ import ThemeSelector from '@/components/settings/ThemeSelector';
 import { PortalAccountsCard } from '@/components/settings/PortalAccountsCard';
 import { DataManagementCard } from '@/components/settings/DataManagementCard';
 import { useSettings } from '@/hooks/useSettings';
+import { SETTINGS_IDS } from './testIDs';
 
 export default function SettingsScreen() {
   const {
@@ -115,7 +116,7 @@ export default function SettingsScreen() {
         </Card>
 
         {/* App Lock */}
-        <Card testID="app-lock-card">
+        <Card testID={SETTINGS_IDS.appLockCard.id}>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">App Lock</Text>
             <StatusBadge
@@ -126,7 +127,7 @@ export default function SettingsScreen() {
           </View>
 
           {!isBiometricAvailable ? (
-            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" testID="app-lock-unavailable">
+            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg" testID={SETTINGS_IDS.appLockUnavailable.id}>
               <Text className="text-sm text-gray-500 dark:text-gray-400">
                 App lock is not available on this device. Biometric authentication (Face ID / Touch ID / Fingerprint) is required.
               </Text>
@@ -147,20 +148,20 @@ export default function SettingsScreen() {
                       onValueChange={handleLockToggle}
                       accessibilityLabel="Enable app lock"
                       accessibilityHint="Locks the app after a period of inactivity"
-                      testID="app-lock-toggle"
+                      testID={SETTINGS_IDS.appLockToggle.id}
                     />
                   </View>
                 </View>
               </View>
 
               {isLockEnabled && (
-                <View testID="app-lock-timeout-section">
+                <View testID={SETTINGS_IDS.appLockTimeoutSection.id}>
                   <Select
                     label="Lock After"
                     options={lockTimeoutOptions}
                     value={String(lockTimeoutMinutes)}
                     onValueChange={handleLockTimeoutChange}
-                    testID="app-lock-timeout-select"
+                    testID={SETTINGS_IDS.appLockTimeoutSelect.id}
                   />
                   <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Duration of inactivity before the app locks automatically
@@ -172,13 +173,13 @@ export default function SettingsScreen() {
         </Card>
 
         {/* Notifications */}
-        <Card testID="notification-settings-card">
+        <Card testID={SETTINGS_IDS.notificationSettingsCard.id}>
           <Pressable
             onPress={() => navigation.navigate('NotificationPreferences')}
             accessibilityRole="button"
             accessibilityLabel="Notification Preferences"
             accessibilityHint="Configure deadline reminder notifications"
-            testID="notification-preferences-row"
+            testID={SETTINGS_IDS.notificationPreferencesRow.id}
           >
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center flex-1">
@@ -207,7 +208,7 @@ export default function SettingsScreen() {
           <View className="space-y-4">
             <View>
               <Text className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Theme</Text>
-              <ThemeSelector value={themePreference} onValueChange={setTheme} testID="settings-theme-selector" />
+              <ThemeSelector value={themePreference} onValueChange={setTheme} testID={SETTINGS_IDS.settingsThemeSelector.id} />
               <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">Choose how the app appears on your device</Text>
             </View>
             <View>
@@ -271,7 +272,7 @@ export default function SettingsScreen() {
         />
 
         {/* Form Data */}
-        <Card testID="form-data-card">
+        <Card testID={SETTINGS_IDS.formDataCard.id}>
           <View className="flex-row items-center mb-4">
             <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Form Data</Text>
             <StatusBadge status="info" size="small" text="Country Schemas" />
@@ -285,7 +286,7 @@ export default function SettingsScreen() {
           ) : (
             <View className="space-y-2 mb-4">
               {schemaMetadata.map(meta => (
-                <View key={meta.countryCode} testID={`schema-row-${meta.countryCode}`} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                <View key={meta.countryCode} testID={`${SETTINGS_IDS.schemaRow.id}-${meta.countryCode}`} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
                   <View className="flex-row items-center justify-between mb-1">
                     <Text className="text-sm font-medium text-gray-900 dark:text-white">{meta.countryName}</Text>
                     <StatusBadge status="neutral" size="small" text={`v${meta.schemaVersion}`} />
@@ -295,7 +296,7 @@ export default function SettingsScreen() {
               ))}
             </View>
           )}
-          <Button title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'} onPress={handleRefreshSchemas} variant="outline" fullWidth disabled={isRefreshingSchemas} testID="refresh-schemas-button" />
+          <Button title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'} onPress={handleRefreshSchemas} variant="outline" fullWidth disabled={isRefreshingSchemas} testID={SETTINGS_IDS.refreshSchemasButton.id} />
           <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">Manually check for updated country form definitions</Text>
         </Card>
 

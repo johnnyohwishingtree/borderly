@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users, UserPlus, ChevronRight, CheckCircle, X, Clock, Shield } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
+import { ADD_COMPANIONS_IDS } from './testIDs';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { FamilyMember, FamilyRelationship } from '@/types/profile';
@@ -92,13 +93,13 @@ export default function AddCompanionsScreen() {
             </View>
             <Text
               className="text-2xl font-bold text-gray-900 mb-2 text-center"
-              testID="add-companions-title"
+              testID={ADD_COMPANIONS_IDS.addCompanionsTitle.id}
             >
               Traveling with family?
             </Text>
             <Text
               className="text-base text-gray-600 text-center"
-              testID="add-companions-subtitle"
+              testID={ADD_COMPANIONS_IDS.addCompanionsSubtitle.id}
             >
               Scan their passports now so forms auto-fill for everyone
             </Text>
@@ -126,7 +127,7 @@ export default function AddCompanionsScreen() {
                     <View
                       key={companion.id}
                       className="flex-row items-center py-3 border-b border-gray-100 last:border-b-0"
-                      testID={`companion-item-${companion.id}`}
+                      testID={ADD_COMPANIONS_IDS.companionItem.dynamic.replace('{id}', companion.id)}
                     >
                       <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
                         <CheckCircle size={20} color="#4f46e5" />
@@ -153,7 +154,7 @@ export default function AddCompanionsScreen() {
           <TouchableOpacity
             onPress={handleAddCompanion}
             className="flex-row items-center p-4 border-2 border-dashed border-indigo-300 rounded-xl mb-6 bg-indigo-50/50"
-            testID="add-companion-button"
+            testID={ADD_COMPANIONS_IDS.addCompanionButton.id}
           >
             <View className="w-10 h-10 bg-indigo-100 rounded-full items-center justify-center mr-3">
               <UserPlus size={20} color="#4f46e5" />
@@ -171,7 +172,7 @@ export default function AddCompanionsScreen() {
 
           {/* Benefits section — visible when no companions added yet */}
           {!hasCompanions && (
-            <View className="mb-8" testID="benefits-section">
+            <View className="mb-8" testID={ADD_COMPANIONS_IDS.benefitsSection.id}>
               <View className="flex-row items-center mb-4">
                 <Users size={20} color="#6366f1" style={{ marginRight: 10 }} />
                 <Text
@@ -209,7 +210,7 @@ export default function AddCompanionsScreen() {
             size="large"
             fullWidth
             variant={hasCompanions ? 'primary' : 'outline'}
-            testID="companions-continue-button"
+            testID={ADD_COMPANIONS_IDS.companionsContinueButton.id}
           />
         </View>
       </ScrollView>
@@ -221,12 +222,12 @@ export default function AddCompanionsScreen() {
         transparent
         animationType="slide"
         onRequestClose={() => setShowRelationshipPicker(false)}
-        testID="relationship-picker-modal"
+        testID={ADD_COMPANIONS_IDS.relationshipPickerModal.id}
       >
         <Pressable
           className="flex-1 bg-black/50 justify-end"
           onPress={() => setShowRelationshipPicker(false)}
-          testID="relationship-picker-backdrop"
+          testID={ADD_COMPANIONS_IDS.relationshipPickerBackdrop.id}
         >
           <Pressable
             className="bg-white rounded-t-3xl px-6 pt-6 pb-10"
@@ -237,12 +238,12 @@ export default function AddCompanionsScreen() {
 
             {/* Header */}
             <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-xl font-bold text-gray-900" testID="relationship-picker-title">
+              <Text className="text-xl font-bold text-gray-900" testID={ADD_COMPANIONS_IDS.relationshipPickerTitle.id}>
                 Who are you adding?
               </Text>
               <TouchableOpacity
                 onPress={() => setShowRelationshipPicker(false)}
-                testID="relationship-picker-close-button"
+                testID={ADD_COMPANIONS_IDS.relationshipPickerCloseButton.id}
               >
                 <X size={24} color="#6b7280" />
               </TouchableOpacity>
@@ -257,7 +258,7 @@ export default function AddCompanionsScreen() {
                     key={value}
                     onPress={() => handleRelationshipSelect(value)}
                     className="flex-row items-center p-4 rounded-xl border border-gray-200"
-                    testID={`relationship-option-${value}`}
+                    testID={ADD_COMPANIONS_IDS.relationshipOption.dynamic.replace('{value}', value)}
                   >
                     <Text className="text-2xl mr-4">{emoji}</Text>
                     <Text className="text-gray-900 font-medium text-base flex-1">{label}</Text>

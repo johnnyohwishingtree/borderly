@@ -13,6 +13,7 @@ import {
 } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
+import { WELCOME_IDS } from './testIDs';
 import { Button } from '@/components/ui/gluestack/button';
 import { Card } from '@/components/ui/gluestack/card';
 import { Icon } from '@/components/ui/gluestack/icon';
@@ -159,7 +160,7 @@ export default function WelcomeScreen() {
             onPress={handleTutorial}
             size="lg"
             className="mb-4"
-            testID="take-tutorial-button"
+            testID={WELCOME_IDS.takeTutorialButton.id}
           />
 
           <View className="flex-row items-center justify-center">
@@ -169,7 +170,7 @@ export default function WelcomeScreen() {
               variant="outline"
               size="md"
               className="border-0"
-              testID="skip-tutorial-button"
+              testID={WELCOME_IDS.skipTutorialButton.id}
             />
             <Icon as={HelpCircle} size={18} color="#9ca3af" className="ml-1" />
           </View>
@@ -177,7 +178,7 @@ export default function WelcomeScreen() {
           {/* Restore from backup link for returning users on fresh installs */}
           <Pressable
             onPress={() => navigation.navigate('RestoreBackup')}
-            testID="restore-backup-link-button"
+            testID={WELCOME_IDS.restoreBackupLinkButton.id}
             accessible
             accessibilityRole="button"
             accessibilityLabel="Restore from backup"
