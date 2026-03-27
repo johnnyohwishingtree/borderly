@@ -107,10 +107,10 @@ describe('useTripDetailModals', () => {
     const opts = makeOptions();
     const { result } = renderHook(() => useTripDetailModals(opts));
 
-    expect(result.current.showEditModal).toBe(false);
-    expect(result.current.showAddModal).toBe(false);
-    expect(result.current.showSaveTemplateModal).toBe(false);
-    expect(result.current.showDuplicateModal).toBe(false);
+    expect(result.current.editModal.showEditModal).toBe(false);
+    expect(result.current.addModal.showAddModal).toBe(false);
+    expect(result.current.templateModal.showSaveTemplateModal).toBe(false);
+    expect(result.current.duplicateModal.showDuplicateModal).toBe(false);
   });
 
   // -- Edit modal -------------------------------------------------------------
@@ -120,10 +120,10 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.setShowEditModal(true);
+      result.current.editModal.setShowEditModal(true);
     });
 
-    expect(result.current.showEditModal).toBe(true);
+    expect(result.current.editModal.showEditModal).toBe(true);
   });
 
   it('closes edit modal and restores focus', () => {
@@ -131,14 +131,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.setShowEditModal(true);
+      result.current.editModal.setShowEditModal(true);
     });
 
     act(() => {
-      result.current.handleCloseEditModal();
+      result.current.editModal.handleCloseEditModal();
     });
 
-    expect(result.current.showEditModal).toBe(false);
+    expect(result.current.editModal.showEditModal).toBe(false);
     expect(opts.editHook.legEdit.cancelEditLeg).toHaveBeenCalled();
 
     act(() => {
@@ -155,11 +155,11 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenAddDestination();
+      result.current.addModal.handleOpenAddDestination();
     });
 
     expect(opts.editHook.addDestination.startAddDestination).toHaveBeenCalled();
-    expect(result.current.showAddModal).toBe(true);
+    expect(result.current.addModal.showAddModal).toBe(true);
   });
 
   it('closes add destination modal and restores focus', () => {
@@ -167,14 +167,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenAddDestination();
+      result.current.addModal.handleOpenAddDestination();
     });
 
     act(() => {
-      result.current.handleCloseAddModal();
+      result.current.addModal.handleCloseAddModal();
     });
 
-    expect(result.current.showAddModal).toBe(false);
+    expect(result.current.addModal.showAddModal).toBe(false);
     expect(opts.editHook.addDestination.cancelAddDestination).toHaveBeenCalled();
 
     act(() => {
@@ -189,15 +189,15 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenAddDestination();
+      result.current.addModal.handleOpenAddDestination();
     });
 
     await act(async () => {
-      await result.current.handleConfirmAddDestination();
+      await result.current.addModal.handleConfirmAddDestination();
     });
 
     expect(opts.editHook.addDestination.handleAddDestination).toHaveBeenCalled();
-    expect(result.current.showAddModal).toBe(false);
+    expect(result.current.addModal.showAddModal).toBe(false);
   });
 
   it('handleConfirmAddDestination keeps modal open on failure', async () => {
@@ -206,14 +206,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenAddDestination();
+      result.current.addModal.handleOpenAddDestination();
     });
 
     await act(async () => {
-      await result.current.handleConfirmAddDestination();
+      await result.current.addModal.handleConfirmAddDestination();
     });
 
-    expect(result.current.showAddModal).toBe(true);
+    expect(result.current.addModal.showAddModal).toBe(true);
   });
 
   // -- Duplicate modal --------------------------------------------------------
@@ -223,10 +223,10 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenDuplicateModal();
+      result.current.duplicateModal.handleOpenDuplicateModal();
     });
 
-    expect(result.current.showDuplicateModal).toBe(true);
+    expect(result.current.duplicateModal.showDuplicateModal).toBe(true);
     expect(opts.resetDuplicateError).toHaveBeenCalled();
   });
 
@@ -235,14 +235,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenDuplicateModal();
+      result.current.duplicateModal.handleOpenDuplicateModal();
     });
 
     act(() => {
-      result.current.handleCloseDuplicateModal();
+      result.current.duplicateModal.handleCloseDuplicateModal();
     });
 
-    expect(result.current.showDuplicateModal).toBe(false);
+    expect(result.current.duplicateModal.showDuplicateModal).toBe(false);
     expect(opts.resetDuplicateError).toHaveBeenCalledTimes(2);
 
     act(() => {
@@ -257,15 +257,15 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenDuplicateModal();
+      result.current.duplicateModal.handleOpenDuplicateModal();
     });
 
     await act(async () => {
-      await result.current.handleDuplicateConfirm('2026-06-01');
+      await result.current.duplicateModal.handleDuplicateConfirm('2026-06-01');
     });
 
     expect(opts.handleConfirmDuplicate).toHaveBeenCalledWith('2026-06-01');
-    expect(result.current.showDuplicateModal).toBe(false);
+    expect(result.current.duplicateModal.showDuplicateModal).toBe(false);
     expect(opts.navigateToTrip).toHaveBeenCalledWith('new-trip-1');
   });
 
@@ -275,14 +275,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.handleOpenDuplicateModal();
+      result.current.duplicateModal.handleOpenDuplicateModal();
     });
 
     await act(async () => {
-      await result.current.handleDuplicateConfirm('2026-06-01');
+      await result.current.duplicateModal.handleDuplicateConfirm('2026-06-01');
     });
 
-    expect(result.current.showDuplicateModal).toBe(true);
+    expect(result.current.duplicateModal.showDuplicateModal).toBe(true);
     expect(opts.navigateToTrip).not.toHaveBeenCalled();
   });
 
@@ -293,10 +293,10 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.setShowSaveTemplateModal(true);
+      result.current.templateModal.setShowSaveTemplateModal(true);
     });
 
-    expect(result.current.showSaveTemplateModal).toBe(true);
+    expect(result.current.templateModal.showSaveTemplateModal).toBe(true);
   });
 
   it('onSaveAsTemplate closes modal on success', async () => {
@@ -304,15 +304,15 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.setShowSaveTemplateModal(true);
+      result.current.templateModal.setShowSaveTemplateModal(true);
     });
 
     await act(async () => {
-      await result.current.onSaveAsTemplate('My Template');
+      await result.current.templateModal.onSaveAsTemplate('My Template');
     });
 
     expect(opts.handleSaveAsTemplate).toHaveBeenCalledWith('My Template');
-    expect(result.current.showSaveTemplateModal).toBe(false);
+    expect(result.current.templateModal.showSaveTemplateModal).toBe(false);
   });
 
   it('onSaveAsTemplate keeps modal open on failure', async () => {
@@ -321,14 +321,14 @@ describe('useTripDetailModals', () => {
     const { result } = renderHook(() => useTripDetailModals(opts));
 
     act(() => {
-      result.current.setShowSaveTemplateModal(true);
+      result.current.templateModal.setShowSaveTemplateModal(true);
     });
 
     await act(async () => {
-      await result.current.onSaveAsTemplate('My Template');
+      await result.current.templateModal.onSaveAsTemplate('My Template');
     });
 
-    expect(result.current.showSaveTemplateModal).toBe(true);
+    expect(result.current.templateModal.showSaveTemplateModal).toBe(true);
   });
 
   // -- Refs exposed -----------------------------------------------------------
@@ -337,10 +337,10 @@ describe('useTripDetailModals', () => {
     const opts = makeOptions();
     const { result } = renderHook(() => useTripDetailModals(opts));
 
-    expect(result.current.editTriggerRef).toBeDefined();
-    expect(result.current.addTriggerRef).toBeDefined();
-    expect(result.current.duplicateTriggerRef).toBeDefined();
-    expect(result.current.editModalTitleRef).toBeDefined();
-    expect(result.current.addModalTitleRef).toBeDefined();
+    expect(result.current.editModal.editTriggerRef).toBeDefined();
+    expect(result.current.addModal.addTriggerRef).toBeDefined();
+    expect(result.current.duplicateModal.duplicateTriggerRef).toBeDefined();
+    expect(result.current.editModal.editModalTitleRef).toBeDefined();
+    expect(result.current.addModal.addModalTitleRef).toBeDefined();
   });
 });

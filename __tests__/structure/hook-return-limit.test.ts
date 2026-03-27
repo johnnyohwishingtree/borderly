@@ -21,17 +21,13 @@ const MAX_RETURN_KEYS = 10;
  */
 const KNOWN_VIOLATIONS = new Set([
   'useAddQR',
-  'useBugReport',
   'useFeedback',
   'useHelpScreen',
-  'useLegForm',
   'useMRZScanner',
   'usePortalAutoLogin',
   'useProfileScreen',
   'useReviewImport',
   'useSubmissionGuide',
-  'useTripCreation',
-  'useTripDetailModals',
 ]);
 
 /**

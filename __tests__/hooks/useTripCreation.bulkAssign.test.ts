@@ -69,54 +69,54 @@ describe('useTripCreation — applyToAllLegs', () => {
     const { result } = renderHook(() => useTripCreation());
 
     await waitFor(() => {
-      expect(result.current.familyMembers.length).toBe(2);
+      expect(result.current.travelers.familyMembers.length).toBe(2);
     });
 
-    expect(result.current.applyToAllLegs).toBe(true);
+    expect(result.current.travelers.applyToAllLegs).toBe(true);
   });
 
   it('syncs all legs when trip-level traveler toggled with applyToAllLegs on', async () => {
     const { result } = renderHook(() => useTripCreation());
 
     await waitFor(() => {
-      expect(result.current.familyMembers.length).toBe(2);
+      expect(result.current.travelers.familyMembers.length).toBe(2);
     });
 
     // Add two legs
-    act(() => { result.current.addLeg(); });
-    act(() => { result.current.addLeg(); });
+    act(() => { result.current.legs.addLeg(); });
+    act(() => { result.current.legs.addLeg(); });
 
-    expect(result.current.legs).toHaveLength(2);
+    expect(result.current.legs.items).toHaveLength(2);
 
     // Toggle spouse at trip level
-    act(() => { result.current.handleTripTravelerToggle('p2'); });
+    act(() => { result.current.travelers.handleTripTravelerToggle('p2'); });
 
     // Both legs should have both travelers
-    expect(result.current.legs[0].assignedTravelers).toContain('p1');
-    expect(result.current.legs[0].assignedTravelers).toContain('p2');
-    expect(result.current.legs[1].assignedTravelers).toContain('p1');
-    expect(result.current.legs[1].assignedTravelers).toContain('p2');
+    expect(result.current.legs.items[0].assignedTravelers).toContain('p1');
+    expect(result.current.legs.items[0].assignedTravelers).toContain('p2');
+    expect(result.current.legs.items[1].assignedTravelers).toContain('p1');
+    expect(result.current.legs.items[1].assignedTravelers).toContain('p2');
   });
 
   it('turning toggle off preserves current per-leg selections', async () => {
     const { result } = renderHook(() => useTripCreation());
 
     await waitFor(() => {
-      expect(result.current.familyMembers.length).toBe(2);
+      expect(result.current.travelers.familyMembers.length).toBe(2);
     });
 
-    act(() => { result.current.addLeg(); });
-    act(() => { result.current.handleTripTravelerToggle('p2'); });
+    act(() => { result.current.legs.addLeg(); });
+    act(() => { result.current.travelers.handleTripTravelerToggle('p2'); });
 
     // All legs have [p1, p2]
-    expect(result.current.legs[0].assignedTravelers).toEqual(expect.arrayContaining(['p1', 'p2']));
+    expect(result.current.legs.items[0].assignedTravelers).toEqual(expect.arrayContaining(['p1', 'p2']));
 
     // Turn toggle off
-    act(() => { result.current.setApplyToAllLegs(false); });
+    act(() => { result.current.travelers.setApplyToAllLegs(false); });
 
-    expect(result.current.applyToAllLegs).toBe(false);
+    expect(result.current.travelers.applyToAllLegs).toBe(false);
     // Selections preserved
-    expect(result.current.legs[0].assignedTravelers).toEqual(expect.arrayContaining(['p1', 'p2']));
+    expect(result.current.legs.items[0].assignedTravelers).toEqual(expect.arrayContaining(['p1', 'p2']));
   });
 
   it('turning toggle on with no overrides syncs immediately without confirmation', async () => {
@@ -124,17 +124,17 @@ describe('useTripCreation — applyToAllLegs', () => {
     const { result } = renderHook(() => useTripCreation());
 
     await waitFor(() => {
-      expect(result.current.familyMembers.length).toBe(2);
+      expect(result.current.travelers.familyMembers.length).toBe(2);
     });
 
-    act(() => { result.current.addLeg(); });
+    act(() => { result.current.legs.addLeg(); });
 
     // Turn off then on — no overrides exist
-    act(() => { result.current.setApplyToAllLegs(false); });
-    act(() => { result.current.setApplyToAllLegs(true); });
+    act(() => { result.current.travelers.setApplyToAllLegs(false); });
+    act(() => { result.current.travelers.setApplyToAllLegs(true); });
 
     expect(alertSpy).not.toHaveBeenCalled();
-    expect(result.current.applyToAllLegs).toBe(true);
+    expect(result.current.travelers.applyToAllLegs).toBe(true);
     alertSpy.mockRestore();
   });
 });

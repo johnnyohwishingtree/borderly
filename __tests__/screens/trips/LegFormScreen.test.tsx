@@ -147,7 +147,7 @@ const mockDismissError = jest.fn();
 const mockSwitchToTraveler = jest.fn();
 
 function makeLegFormResult(overrides?: Record<string, unknown>) {
-  return {
+  const flat = {
     trip: { name: 'Japan Trip' },
     leg: { destinationCountry: 'JPN', formStatus: 'draft', departureDate: '2026-06-01', formData: {} },
     currentForm: {
@@ -173,6 +173,37 @@ function makeLegFormResult(overrides?: Record<string, unknown>) {
     travelerTabs: [],
     switchToTraveler: mockSwitchToTraveler,
     ...overrides,
+  };
+
+  return {
+    tripData: { trip: flat.trip, leg: flat.leg },
+    form: {
+      currentForm: flat.currentForm,
+      formData: flat.formData,
+      isValid: flat.isValid,
+      isLoading: flat.isLoading,
+      handleFormDataChange: flat.handleFormDataChange,
+      reloadForm: flat.reloadForm,
+    },
+    submission: {
+      isSubmitting: flat.isSubmitting,
+      handleSaveForm: flat.handleSaveForm,
+      handleMarkAsReady: flat.handleMarkAsReady,
+      retryLastOperation: flat.retryLastOperation,
+    },
+    errors: {
+      formError: flat.formError,
+      loadError: flat.loadError,
+      clearLoadError: flat.clearLoadError,
+      clearFormError: jest.fn(),
+      dismissError: flat.dismissError,
+    },
+    travelers: {
+      hasMultipleTravelers: flat.hasMultipleTravelers,
+      activeTravelerId: flat.activeTravelerId,
+      travelerTabs: flat.travelerTabs,
+      switchToTraveler: flat.switchToTraveler,
+    },
   };
 }
 

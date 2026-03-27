@@ -313,31 +313,16 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       })
     : [];
 
+  const dismissError = useCallback(() => {
+    setFormError(null);
+    setLastFailedOperation(null);
+  }, []);
+
   return {
-    trip,
-    leg,
-    currentForm,
-    formData,
-    isValid,
-    isLoading,
-    isSubmitting,
-    formError,
-    loadError,
-    clearFormError,
-    clearLoadError,
-    handleFormDataChange,
-    handleSaveForm,
-    handleMarkAsReady,
-    retryLastOperation,
-    reloadForm,
-    // Multi-traveler
-    hasMultipleTravelers,
-    activeTravelerId,
-    travelerTabs,
-    switchToTraveler,
-    dismissError: useCallback(() => {
-      setFormError(null);
-      setLastFailedOperation(null);
-    }, []),
+    tripData: { trip, leg },
+    form: { currentForm, formData, isValid, isLoading, handleFormDataChange, reloadForm },
+    submission: { isSubmitting, handleSaveForm, handleMarkAsReady, retryLastOperation },
+    errors: { formError, loadError, clearFormError, clearLoadError, dismissError },
+    travelers: { hasMultipleTravelers, activeTravelerId, travelerTabs, switchToTraveler },
   };
 }

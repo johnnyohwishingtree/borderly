@@ -24,27 +24,11 @@ export default function LegFormScreen() {
   const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(false);
 
   const {
-    trip,
-    leg,
-    currentForm,
-    formData,
-    isValid,
-    isLoading,
-    isSubmitting,
-    formError,
-    loadError,
-    clearLoadError,
-    handleFormDataChange,
-    handleSaveForm,
-    handleMarkAsReady,
-    retryLastOperation,
-    reloadForm,
-    dismissError,
-    // Multi-traveler
-    hasMultipleTravelers,
-    activeTravelerId,
-    travelerTabs,
-    switchToTraveler,
+    tripData: { trip, leg },
+    form: { currentForm, formData, isValid, isLoading, handleFormDataChange, reloadForm },
+    submission: { isSubmitting, handleSaveForm, handleMarkAsReady, retryLastOperation },
+    errors: { formError, loadError, clearLoadError, dismissError },
+    travelers: { hasMultipleTravelers, activeTravelerId, travelerTabs, switchToTraveler },
   } = useLegForm({ tripId, legId });
 
   // Passport validity check — called unconditionally (hooks rule)

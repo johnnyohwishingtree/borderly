@@ -98,8 +98,8 @@ export default function TripDetailScreen() {
             </View>
             <View className="flex-row items-center">
               <TouchableOpacity
-                ref={modals.duplicateTriggerRef}
-                onPress={modals.handleOpenDuplicateModal}
+                ref={modals.duplicateModal.duplicateTriggerRef}
+                onPress={modals.duplicateModal.handleOpenDuplicateModal}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
                 testID="duplicate-trip-button"
@@ -109,8 +109,8 @@ export default function TripDetailScreen() {
                 <Copy size={20} color="#2563eb" />
               </TouchableOpacity>
               <TouchableOpacity
-                ref={modals.editTriggerRef}
-                onPress={() => modals.setShowEditModal(true)}
+                ref={modals.editModal.editTriggerRef}
+                onPress={() => modals.editModal.setShowEditModal(true)}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
                 testID="edit-trip-button"
@@ -204,8 +204,8 @@ export default function TripDetailScreen() {
           legs={trip.legs}
           familyMembers={familyMembers}
           deadlineMap={deadlineMap}
-          addTriggerRef={modals.addTriggerRef}
-          onAddDestination={modals.handleOpenAddDestination}
+          addTriggerRef={modals.addModal.addTriggerRef}
+          onAddDestination={modals.addModal.handleOpenAddDestination}
           onLegPress={handleLegPress}
           onMarkAsSubmitted={handleMarkAsSubmitted}
         />
@@ -214,7 +214,7 @@ export default function TripDetailScreen() {
         <View className="px-4 pb-8">
           <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
             <TouchableOpacity
-              onPress={() => modals.setShowSaveTemplateModal(true)}
+              onPress={() => modals.templateModal.setShowSaveTemplateModal(true)}
               className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
               activeOpacity={0.7}
               testID="save-as-template-button"
@@ -246,39 +246,39 @@ export default function TripDetailScreen() {
       </ScrollView>
 
       <SaveTemplateModal
-        visible={modals.showSaveTemplateModal}
+        visible={modals.templateModal.showSaveTemplateModal}
         initialName={trip.name}
-        onSave={modals.onSaveAsTemplate}
-        onCancel={() => modals.setShowSaveTemplateModal(false)}
+        onSave={modals.templateModal.onSaveAsTemplate}
+        onCancel={() => modals.templateModal.setShowSaveTemplateModal(false)}
         testID="save-template-modal"
       />
 
       <EditTripModal
-        visible={modals.showEditModal}
-        onClose={modals.handleCloseEditModal}
+        visible={modals.editModal.showEditModal}
+        onClose={modals.editModal.handleCloseEditModal}
         onSwitchToAdd={() => {
-          modals.setShowEditModal(false);
+          modals.editModal.setShowEditModal(false);
           setTimeout(() => {
             editHook.addDestination.startAddDestination();
-            modals.handleOpenAddDestination();
+            modals.addModal.handleOpenAddDestination();
           }, 300);
         }}
         editHook={editHook}
         legs={trip.legs}
-        editModalTitleRef={modals.editModalTitleRef}
+        editModalTitleRef={modals.editModal.editModalTitleRef}
       />
       <AddDestinationModal
-        visible={modals.showAddModal}
-        onClose={modals.handleCloseAddModal}
-        onConfirm={modals.handleConfirmAddDestination}
+        visible={modals.addModal.showAddModal}
+        onClose={modals.addModal.handleCloseAddModal}
+        onConfirm={modals.addModal.handleConfirmAddDestination}
         editHook={editHook}
-        addModalTitleRef={modals.addModalTitleRef}
+        addModalTitleRef={modals.addModal.addModalTitleRef}
       />
 
       <DuplicateTripModal
-        visible={modals.showDuplicateModal}
-        onClose={modals.handleCloseDuplicateModal}
-        onConfirm={modals.handleDuplicateConfirm}
+        visible={modals.duplicateModal.showDuplicateModal}
+        onClose={modals.duplicateModal.handleCloseDuplicateModal}
+        onConfirm={modals.duplicateModal.handleDuplicateConfirm}
         loading={isDuplicating}
         error={duplicateError}
         testID="duplicate-trip-modal"

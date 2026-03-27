@@ -85,24 +85,32 @@ export function useTripDetailModals({
   };
 
   return {
-    showEditModal,
-    setShowEditModal,
-    showAddModal,
-    showSaveTemplateModal,
-    setShowSaveTemplateModal,
-    showDuplicateModal,
-    editTriggerRef,
-    addTriggerRef,
-    duplicateTriggerRef,
-    editModalTitleRef,
-    addModalTitleRef,
-    handleOpenDuplicateModal,
-    handleCloseDuplicateModal,
-    handleDuplicateConfirm,
-    handleOpenAddDestination,
-    handleCloseEditModal,
-    handleCloseAddModal,
-    handleConfirmAddDestination,
-    onSaveAsTemplate,
+    editModal: {
+      showEditModal,
+      setShowEditModal,
+      handleCloseEditModal,
+      editTriggerRef,
+      editModalTitleRef,
+    },
+    addModal: {
+      showAddModal,
+      handleOpenAddDestination,
+      handleCloseAddModal,
+      handleConfirmAddDestination,
+      addTriggerRef,
+      addModalTitleRef,
+    },
+    duplicateModal: {
+      showDuplicateModal,
+      handleOpenDuplicateModal,
+      handleCloseDuplicateModal,
+      handleDuplicateConfirm,
+      duplicateTriggerRef,
+    },
+    templateModal: {
+      showSaveTemplateModal,
+      setShowSaveTemplateModal,
+      onSaveAsTemplate,
+    },
   };
 }
