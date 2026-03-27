@@ -5,7 +5,7 @@
  * identifying friction points, and optimizing user experience.
  */
 
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from '@/services/storage/mmkv';
 import { sanitizePII } from '../../utils/piiSanitizer';
 import { PREDEFINED_FLOWS } from './userFlowAnalyticsTypes';
 import type {

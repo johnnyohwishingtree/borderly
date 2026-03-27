@@ -4,7 +4,7 @@
  * Handles threshold checking, alert storage, and alert retrieval.
  */
 
-import type { MMKV } from 'react-native-mmkv';
+import type { MMKV } from '@/services/storage/mmkv';
 import { sanitizePII } from '../../../utils/piiSanitizer';
 import type { PerformanceAlert, PerformanceMetrics } from './productionProfilerTypes';
 

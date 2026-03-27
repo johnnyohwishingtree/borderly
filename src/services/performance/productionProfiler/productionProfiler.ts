@@ -6,7 +6,7 @@
  * persistence to focused helper modules.
  */
 
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from '@/services/storage/mmkv';
 import {
   generateRecommendation,
   getMetricStatus,
