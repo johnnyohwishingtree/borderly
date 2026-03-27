@@ -17,6 +17,7 @@ import CAN from '@/schemas/CAN.json';
 import AUS from '@/schemas/AUS.json';
 import NZL from '@/schemas/NZL.json';
 import KOR from '@/schemas/KOR.json';
+import { DOCUMENT_VALIDITY_CARD_IDS } from './testIDs';
 
 export interface DocumentValidityCardProps {
   /** ISO 8601 passport expiry date string. Returns null when falsy. */
@@ -134,7 +135,7 @@ export default function DocumentValidityCard({
         <PassportExpiryBadge
           expiryDate={passportExpiry}
           today={today}
-          testID="expiry-badge"
+          testID={DOCUMENT_VALIDITY_CARD_IDS.expiryBadge.id}
         />
       </View>
 
@@ -156,7 +157,7 @@ export default function DocumentValidityCard({
             return (
               <View
                 key={country.code}
-                testID={`country-validity-${country.code}`}
+                testID={DOCUMENT_VALIDITY_CARD_IDS.countryValidity(country.code).id}
                 className="w-1/2 flex-row items-center py-1.5 pr-2"
                 accessible={true}
                 accessibilityRole="text"

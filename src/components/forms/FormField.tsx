@@ -8,6 +8,7 @@ import { ALL_AIRPORTS } from '../../constants/airports';
 import { ALL_AIRLINES } from '../../constants/airlines';
 import { Address } from '../../types/profile';
 import { SemanticUtils } from '../../utils/accessibility';
+import { FORM_FIELD_IDS } from './testIDs';
 
 /**
  * Returns the appropriate autoCapitalize value for a text input based on the
@@ -108,7 +109,7 @@ export default function FormField({
       value: String(fieldValue || ''),
       placeholder: field.label,
       disabled: disabled || (field.source === 'auto' && !field.needsUserInput),
-      testID: `input-${field.id}`,
+      testID: FORM_FIELD_IDS.input(field.id).id,
       ...(hasError && effectiveError ? { error: effectiveError } : {}),
     };
 
@@ -205,7 +206,7 @@ export default function FormField({
             value={String(fieldValue || '')}
             onChange={(isoDate: string) => handleValueChange(isoDate)}
             disabled={baseProps.disabled}
-            testID={`input-${field.id}`}
+            testID={FORM_FIELD_IDS.input(field.id).id}
             placeholder="Select a date"
             {...(hasError && error ? { error } : {})}
           />
@@ -225,7 +226,7 @@ export default function FormField({
               onNameChange={(name) => onValueChange(field.id, name)}
               onAddressResolved={(address) => onValueChange(addressFieldId, address)}
               disabled={baseProps.disabled}
-              testID={`accommodation-${field.id}`}
+              testID={FORM_FIELD_IDS.accommodation(field.id).id}
               {...(hasError && error ? { error } : {})}
             />
           );
@@ -253,7 +254,7 @@ export default function FormField({
             placeholder={`Search ${field.label}...`}
             label={field.label}
             disabled={baseProps.disabled}
-            testID={`searchable-select-${field.id}`}
+            testID={FORM_FIELD_IDS.searchableSelect(field.id).id}
             {...(hasError && error ? { error } : {})}
           />
         );
@@ -277,7 +278,7 @@ export default function FormField({
             label={field.label}
             required={isRequired}
             disabled={baseProps.disabled}
-            testID={`select-${field.id}`}
+            testID={FORM_FIELD_IDS.select(field.id).id}
             {...(hasError && error ? { error } : {})}
           />
         );
@@ -301,7 +302,7 @@ export default function FormField({
             value={addressValue}
             onAddressChange={(addr) => handleValueChange(addr)}
             disabled={baseProps.disabled}
-            testID={`address-${field.id}`}
+            testID={FORM_FIELD_IDS.address(field.id).id}
           />
         );
       }
@@ -312,7 +313,7 @@ export default function FormField({
             value={fieldValue as boolean}
             onValueChange={handleValueChange}
             disabled={baseProps.disabled}
-            testID={`field-${field.id}`}
+            testID={FORM_FIELD_IDS.field(field.id).id}
             accessibilityLabel={isRequired ? `${field.label}, required` : field.label}
           />
         );
@@ -332,7 +333,7 @@ export default function FormField({
                          (field.source === 'auto' || field.source === 'user');
 
   return (
-    <View className="mb-4" testID={`field-${field.id}`}>
+    <View className="mb-4" testID={FORM_FIELD_IDS.field(field.id).id}>
       {/* Field Label and Badge */}
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center flex-1">

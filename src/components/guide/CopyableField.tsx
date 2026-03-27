@@ -3,6 +3,7 @@ import { View, Text, Pressable, Alert } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { Check, Copy } from 'lucide-react-native';
 import { copyWithTimeout } from '@/utils/clipboard';
+import { COPYABLE_FIELD_IDS } from './testIDs';
 
 export interface CopyableFieldProps {
   label: string;
@@ -127,7 +128,7 @@ export default function CopyableField({
           className="flex-row items-center"
           accessibilityLiveRegion="polite"
           accessibilityLabel={copied ? 'Copied to clipboard' : undefined}
-          testID="copy-status-area"
+          testID={COPYABLE_FIELD_IDS.copyStatusArea.id}
         >
           {copied ? (
             <>

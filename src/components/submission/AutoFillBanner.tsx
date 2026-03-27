@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, Text, View, ScrollView } from 'react-native';
 import { X, ChevronDown, ChevronUp, CheckCircle, AlertCircle } from 'lucide-react-native';
+import { AUTOFILL_BANNER_IDS } from './testIDs';
 
 /** Individual field result from the auto-fill script. */
 export interface AutoFillFieldResult {
@@ -71,7 +72,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
   const messageText = isWarning ? 'text-amber-900' : 'text-green-900';
 
   return (
-    <Animated.View style={{ opacity }} testID={testID ?? 'autofill-banner'}>
+    <Animated.View style={{ opacity }} testID={testID ?? AUTOFILL_BANNER_IDS.container.id}>
       <View
         className={`${bannerBg} border-t ${bannerBorder}`}
       >
@@ -79,7 +80,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
         <View className="flex-row items-center px-4 py-2.5">
           <Text
             className={`flex-1 text-[13px] ${messageText} font-medium`}
-            testID="autofill-banner-message"
+            testID={AUTOFILL_BANNER_IDS.message.id}
           >
             {filled} of {total} {fieldWord} auto-filled — please review before continuing
           </Text>
@@ -90,7 +91,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
               onPress={() => setIsExpanded(prev => !prev)}
               className="ml-1 p-1"
               accessibilityLabel={isExpanded ? 'Hide field details' : 'Show field details'}
-              testID="autofill-banner-expand-toggle"
+              testID={AUTOFILL_BANNER_IDS.expandToggle.id}
             >
               {isExpanded ? (
                 <ChevronUp size={14} color={iconColor} />
@@ -104,7 +105,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
             onPress={dismiss}
             className="ml-1 p-1"
             accessibilityLabel="Dismiss auto-fill notification"
-            testID="autofill-banner-dismiss"
+            testID={AUTOFILL_BANNER_IDS.dismiss.id}
           >
             <X size={16} color={iconColor} />
           </Pressable>
@@ -115,7 +116,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
           <ScrollView
             className="max-h-[160px]"
             contentContainerClassName="px-4 pb-2.5"
-            testID="autofill-banner-details"
+            testID={AUTOFILL_BANNER_IDS.details.id}
           >
             {filledResults.length > 0 && (
               <>
@@ -126,7 +127,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
                   <View
                     key={r.id}
                     className="flex-row items-center mb-0.5"
-                    testID={`autofill-result-${r.id}`}
+                    testID={AUTOFILL_BANNER_IDS.result(r.id).id}
                   >
                     <CheckCircle size={12} color="#16A34A" />
                     <Text className="text-xs text-green-900 ml-1">{r.id}</Text>
@@ -144,7 +145,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
                   <View
                     key={r.id}
                     className="flex-row items-center mb-0.5"
-                    testID={`autofill-result-${r.id}`}
+                    testID={AUTOFILL_BANNER_IDS.result(r.id).id}
                   >
                     <AlertCircle size={12} color="#B45309" />
                     <Text className="text-xs text-amber-900 ml-1">
@@ -164,7 +165,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
                   <View
                     key={r.id}
                     className="flex-row items-center mb-0.5"
-                    testID={`autofill-result-${r.id}`}
+                    testID={AUTOFILL_BANNER_IDS.result(r.id).id}
                   >
                     <Text className="text-xs text-gray-500 ml-4">{r.id}</Text>
                   </View>

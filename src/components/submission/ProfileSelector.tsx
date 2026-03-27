@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { ChevronDown, ChevronUp, User } from 'lucide-react-native';
+import { PROFILE_SELECTOR_IDS } from './testIDs';
 
 export interface ProfileOption {
   id: string;
@@ -39,7 +40,7 @@ export function ProfileSelector({
     : 'Select profile';
 
   return (
-    <View testID={testID ?? 'profile-selector'}>
+    <View testID={testID ?? PROFILE_SELECTOR_IDS.container.id}>
       {/* Trigger button */}
       <Pressable
         onPress={() => setIsOpen(prev => !prev)}
@@ -47,10 +48,10 @@ export function ProfileSelector({
         onPressOut={() => setIsPressed(false)}
         className={`flex-row items-center rounded-lg px-2.5 py-2 gap-1.5 ${isPressed ? 'bg-gray-200' : 'bg-gray-100'}`}
         accessibilityLabel="Select profile for auto-fill"
-        testID="profile-selector-trigger"
+        testID={PROFILE_SELECTOR_IDS.trigger.id}
       >
         <User size={14} color="#6B7280" />
-        <Text className="flex-1 text-[13px] text-gray-700 font-medium" numberOfLines={1} testID="profile-selector-label">
+        <Text className="flex-1 text-[13px] text-gray-700 font-medium" numberOfLines={1} testID={PROFILE_SELECTOR_IDS.label.id}>
           {displayLabel}
         </Text>
         {isOpen ? (
@@ -66,7 +67,7 @@ export function ProfileSelector({
           className="max-h-[200px] mt-1 bg-white rounded-lg border border-gray-200 shadow-sm elevation-3"
           contentContainerClassName="py-1"
           nestedScrollEnabled
-          testID="profile-selector-dropdown"
+          testID={PROFILE_SELECTOR_IDS.dropdown.id}
         >
           {profiles.map(profile => {
             const isSelected = profile.id === selectedProfileId;
@@ -79,7 +80,7 @@ export function ProfileSelector({
                 }}
                 className={`flex-row items-center px-3 py-2.5 ${isSelected ? 'bg-blue-50' : ''}`}
                 accessibilityLabel={`Select ${profile.name}`}
-                testID={`profile-option-${profile.id}`}
+                testID={PROFILE_SELECTOR_IDS.option(profile.id).id}
               >
                 <Text
                   className={`flex-1 text-[13px] ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
@@ -88,7 +89,7 @@ export function ProfileSelector({
                   {profile.name} ({profile.relationship})
                 </Text>
                 {isSelected && (
-                  <View className="w-2 h-2 rounded-full bg-blue-600 ml-2" testID={`profile-selected-dot-${profile.id}`} />
+                  <View className="w-2 h-2 rounded-full bg-blue-600 ml-2" testID={PROFILE_SELECTOR_IDS.selectedDot(profile.id).id} />
                 )}
               </Pressable>
             );

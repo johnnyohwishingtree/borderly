@@ -2,6 +2,7 @@ import { ActivityIndicator, View, Text } from 'react-native';
 import { Button, Card, StatusBadge } from '@/components/ui';
 import { getPortalName } from '@/utils/countryUtils';
 import type { PortalCredential } from '@/types/submission';
+import { PORTAL_ACCOUNTS_CARD_IDS } from './testIDs';
 
 interface PortalAccountsCardProps {
   portalCredentials: PortalCredential[];
@@ -17,7 +18,7 @@ export function PortalAccountsCard({
   onDeleteAllCredentials,
 }: PortalAccountsCardProps) {
   return (
-    <Card testID="portal-accounts-card">
+    <Card testID={PORTAL_ACCOUNTS_CARD_IDS.container.id}>
       <View className="flex-row items-center mb-4">
         <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Portal Accounts</Text>
         <StatusBadge
@@ -46,7 +47,7 @@ export function PortalAccountsCard({
           {portalCredentials.map(cred => (
             <View
               key={cred.portalCode}
-              testID={`portal-credential-row-${cred.portalCode}`}
+              testID={PORTAL_ACCOUNTS_CARD_IDS.credentialRow(cred.portalCode).id}
               className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex-row items-center justify-between"
             >
               <View className="flex-1 mr-3">

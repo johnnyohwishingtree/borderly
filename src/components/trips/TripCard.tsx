@@ -6,6 +6,7 @@ import type { FamilyMember } from '../../types/profile';
 import type { UrgencyLevel } from '../../services/deadline/deadlineService';
 import CountryFlag from './CountryFlag';
 import TravelerAvatars from './TravelerAvatars';
+import { TRIP_CARD_IDS } from './testIDs';
 
 export interface TripUrgency {
   level: UrgencyLevel;
@@ -165,7 +166,7 @@ const TripCard = memo<TripCardProps>(({
       onPress={onPress}
       onLongPress={hasContextMenu ? handleLongPress : undefined}
       activeOpacity={onPress || hasContextMenu ? 0.7 : 1}
-      testID={`trip-card-${trip.name}`}
+      testID={TRIP_CARD_IDS.card(trip.name).id}
       accessibilityLabel={trip.name}
       accessibilityRole={onPress || hasContextMenu ? 'button' : undefined}
       accessibilityHint={
@@ -224,7 +225,7 @@ const TripCard = memo<TripCardProps>(({
           {urgency && urgency.level !== 'normal' && trip.status !== 'completed' && (
             <View
               className="mb-4 flex-row items-center"
-              testID={`trip-card-urgency-${trip.name}`}
+              testID={TRIP_CARD_IDS.urgency(trip.name).id}
             >
               <CountryFlag countryCode={urgency.countryCode} size="small" />
               <View
@@ -245,7 +246,7 @@ const TripCard = memo<TripCardProps>(({
                 travelers={travelers}
                 maxVisible={3}
                 size="small"
-                testID={`trip-card-travelers-${trip.name}`}
+                testID={TRIP_CARD_IDS.travelers(trip.name).id}
               />
             </View>
           )}
@@ -274,7 +275,7 @@ const TripCard = memo<TripCardProps>(({
                     ? 'All legs submitted'
                     : `${submissionIndicator.submitted} of ${submissionIndicator.total} legs submitted`
                 }
-                testID="trip-card-submission-indicator"
+                testID={TRIP_CARD_IDS.submissionIndicator.id}
                 className="mt-2"
               >
                 {submissionIndicator.allSubmitted ? (

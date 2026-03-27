@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Sparkles, X } from 'lucide-react-native';
 import { ProfileSelector } from './ProfileSelector';
 import type { ProfileOption } from './ProfileSelector';
+import { AUTOFILL_PILL_IDS } from './testIDs';
 
 export type { ProfileOption };
 
@@ -42,7 +43,7 @@ export function AutoFillPill({
   const [fillPressed, setFillPressed] = useState(false);
 
   return (
-    <View className="absolute bottom-4 left-4 right-4 z-50" testID={testID ?? 'autofill-pill'} pointerEvents="box-none">
+    <View className="absolute bottom-4 left-4 right-4 z-50" testID={testID ?? AUTOFILL_PILL_IDS.container.id} pointerEvents="box-none">
       <View className="bg-white rounded-xl p-3.5 shadow-lg elevation-8 border border-gray-200">
         {/* Header row */}
         <View className="flex-row items-center mb-2.5 gap-1.5">
@@ -53,7 +54,7 @@ export function AutoFillPill({
             className="p-0.5"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityLabel="Dismiss auto-fill pill"
-            testID="autofill-pill-dismiss"
+            testID={AUTOFILL_PILL_IDS.dismiss.id}
           >
             <X size={16} color="#9CA3AF" />
           </Pressable>
@@ -68,7 +69,7 @@ export function AutoFillPill({
                 profiles={profiles}
                 selectedProfileId={selectedProfileId}
                 onSelect={onProfileChange}
-                testID="autofill-pill-profile-selector"
+                testID={AUTOFILL_PILL_IDS.profileSelector.id}
               />
             </View>
           </View>
@@ -76,7 +77,7 @@ export function AutoFillPill({
 
         {/* Single profile label (shown when only one profile) */}
         {!showProfileSelector && profiles.length === 1 && (
-          <Text className="text-[13px] text-gray-500 mb-3" testID="autofill-pill-single-profile">
+          <Text className="text-[13px] text-gray-500 mb-3" testID={AUTOFILL_PILL_IDS.singleProfile.id}>
             Fill as: {profiles[0].name} ({profiles[0].relationship})
           </Text>
         )}
@@ -88,7 +89,7 @@ export function AutoFillPill({
           onPressOut={() => setFillPressed(false)}
           className={`rounded-lg py-[11px] items-center ${fillPressed ? 'bg-blue-700' : 'bg-blue-600'}`}
           accessibilityLabel="Auto-fill form fields now"
-          testID="autofill-pill-fill-button"
+          testID={AUTOFILL_PILL_IDS.fillButton.id}
         >
           <Text className="text-white text-sm font-semibold">Auto-fill Now</Text>
         </Pressable>

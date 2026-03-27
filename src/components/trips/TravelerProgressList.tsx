@@ -9,6 +9,7 @@ import { memo } from 'react';
 import { View, Text } from 'react-native';
 import { ProgressBar } from '../ui';
 import type { TravelerProgress } from '../../services/readiness/travelerProgress';
+import { TRAVELER_PROGRESS_LIST_IDS } from './testIDs';
 
 export interface TravelerProgressListProps {
   travelers: TravelerProgress[];
@@ -33,7 +34,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const TravelerProgressList = memo<TravelerProgressListProps>(({
   travelers,
-  testID = 'traveler-progress-list',
+  testID = TRAVELER_PROGRESS_LIST_IDS.container.id,
 }) => {
   if (travelers.length === 0) {
     return null;
@@ -59,7 +60,7 @@ const TravelerProgressList = memo<TravelerProgressListProps>(({
           <View
             key={traveler.profileId}
             className="mb-3"
-            testID={`traveler-progress-${traveler.profileId}`}
+            testID={TRAVELER_PROGRESS_LIST_IDS.travelerRow(traveler.profileId).id}
             accessible={true}
             accessibilityLabel={a11yLabel}
             accessibilityRole="text"

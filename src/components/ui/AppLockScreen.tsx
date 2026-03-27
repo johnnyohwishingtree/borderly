@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { Lock } from 'lucide-react-native';
 import { Button } from '@/components/ui';
+import { APP_LOCK_SCREEN_IDS } from './testIDs';
 
 interface AppLockScreenProps {
   onUnlock: () => Promise<boolean>;
@@ -31,7 +32,7 @@ export default function AppLockScreen({ onUnlock }: AppLockScreenProps) {
   return (
     <View
       className="flex-1 bg-gray-900 items-center justify-center p-8"
-      testID="app-lock-screen"
+      testID={APP_LOCK_SCREEN_IDS.container.id}
     >
       <View className="items-center mb-8">
         <View className="bg-blue-600 rounded-full p-6 mb-6">

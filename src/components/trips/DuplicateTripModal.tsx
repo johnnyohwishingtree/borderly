@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { DatePickerField } from '@/components/ui';
 import { useAccessibilityFocus } from '@/hooks/useAccessibilityFocus';
+import { DUPLICATE_TRIP_MODAL_IDS } from './testIDs';
 
 export interface DuplicateTripModalProps {
   visible: boolean;
@@ -31,7 +32,7 @@ export default function DuplicateTripModal({
   onConfirm,
   loading = false,
   error = null,
-  testID = 'duplicate-trip-modal',
+  testID = DUPLICATE_TRIP_MODAL_IDS.modal.id,
 }: DuplicateTripModalProps) {
   const [departureDate, setDepartureDate] = useState('');
   const [dateError, setDateError] = useState<string | null>(null);
@@ -70,7 +71,7 @@ export default function DuplicateTripModal({
           <TouchableOpacity
             onPress={handleClose}
             activeOpacity={0.7}
-            testID="duplicate-trip-modal-cancel"
+            testID={DUPLICATE_TRIP_MODAL_IDS.cancelButton.id}
             accessibilityLabel="Cancel duplicate trip"
             accessibilityRole="button"
             accessibilityState={{ disabled: loading }}
@@ -83,7 +84,7 @@ export default function DuplicateTripModal({
             ref={titleRef}
             className="text-lg font-bold text-gray-900 dark:text-white"
             accessibilityRole="header"
-            testID="duplicate-trip-modal-title"
+            testID={DUPLICATE_TRIP_MODAL_IDS.title.id}
           >
             Duplicate Trip
           </Text>
@@ -91,14 +92,14 @@ export default function DuplicateTripModal({
           <TouchableOpacity
             onPress={handleConfirm}
             activeOpacity={0.7}
-            testID="duplicate-trip-modal-confirm"
+            testID={DUPLICATE_TRIP_MODAL_IDS.confirmButton.id}
             accessibilityLabel="Confirm duplicate trip"
             accessibilityRole="button"
             accessibilityState={{ disabled: loading }}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator size="small" color="#2563eb" testID="duplicate-trip-loading-indicator" />
+              <ActivityIndicator size="small" color="#2563eb" testID={DUPLICATE_TRIP_MODAL_IDS.loadingIndicator.id} />
             ) : (
               <Text className="text-blue-600 dark:text-blue-400 font-medium">Duplicate</Text>
             )}
@@ -124,7 +125,7 @@ export default function DuplicateTripModal({
               placeholder="Select departure date"
               required
               error={dateError ?? undefined}
-              testID="duplicate-trip-departure-date"
+              testID={DUPLICATE_TRIP_MODAL_IDS.departureDate.id}
             />
           </View>
 
@@ -134,7 +135,7 @@ export default function DuplicateTripModal({
               className="mt-3 bg-red-50 dark:bg-red-900/20 rounded-lg p-3"
               accessibilityLiveRegion="polite"
               accessibilityRole="text"
-              testID="duplicate-trip-modal-error"
+              testID={DUPLICATE_TRIP_MODAL_IDS.error.id}
             >
               <Text className="text-red-600 dark:text-red-400 text-sm">{error}</Text>
             </View>

@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import { Button, Card, StatusBadge, Divider } from '@/components/ui';
+import { DATA_MANAGEMENT_CARD_IDS } from './testIDs';
 
 interface StorageStats {
   profileSize: string;
@@ -78,7 +79,7 @@ export function DataManagementCard({
             onPress={onRestoreBackup}
             variant="outline"
             fullWidth
-            testID="restore-backup-button"
+            testID={DATA_MANAGEMENT_CARD_IDS.restoreBackupButton.id}
             accessibilityRole="button"
             accessibilityLabel="Restore from backup"
             accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
