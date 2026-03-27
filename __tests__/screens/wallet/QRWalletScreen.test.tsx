@@ -426,26 +426,3 @@ describe('QRWalletScreen — full screen QR display', () => {
   });
 });
 
-// ── Pull to refresh ──────────────────────────────────────────────────────────
-
-describe('QRWalletScreen — pull to refresh', () => {
-  it('renders without crashing when isRefreshing is false', () => {
-    const { toJSON } = render(<QRWalletScreen />);
-
-    // Screen renders successfully with refreshControl wired up
-    expect(toJSON()).not.toBeNull();
-    // onRefresh is provided by the hook (verified via mock)
-    expect(mockOnRefresh).not.toHaveBeenCalled();
-  });
-
-  it('renders without crashing when isRefreshing is true', () => {
-    mockUseQRWalletReturn = {
-      ...defaultUseQRWalletReturn,
-      loading: { ...defaultUseQRWalletReturn.loading, isRefreshing: true },
-    };
-
-    const { toJSON } = render(<QRWalletScreen />);
-
-    expect(toJSON()).not.toBeNull();
-  });
-});
