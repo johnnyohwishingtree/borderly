@@ -35,6 +35,27 @@ export interface LegDeadline {
 const MS_PER_HOUR = 60 * 60 * 1000;
 
 /**
+ * Country code → submission deadline in hours before arrival.
+ * 0 means no hard deadline.
+ */
+const SUBMISSION_DEADLINES: Record<string, number> = {
+  JPN: 24,
+  KOR: 72,
+  SGP: 72,
+  USA: 72,
+  VNM: 72,
+  NZL: 24,
+};
+
+/**
+ * Returns the submission deadline window in hours for a given country code.
+ * Returns 0 for countries with no known deadline.
+ */
+export function getSubmissionDeadlineHours(countryCode: string): number {
+  return SUBMISSION_DEADLINES[countryCode] ?? 0;
+}
+
+/**
  * Derives the submission status from form progress and deadline state.
  */
 function deriveStatus(

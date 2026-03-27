@@ -13,6 +13,7 @@ import {
   computeLegDeadline,
   computeTripDeadlines,
   getUrgencyLevel,
+  getSubmissionDeadlineHours,
   DeadlineStatus,
   LegDeadline,
 } from '../../src/services/deadline/deadlineService';
@@ -377,5 +378,51 @@ describe('getUrgencyLevel', () => {
   it('returns "warning" when hoursRemaining is exactly 25', () => {
     const deadline = makeDeadlineWithHours(25);
     expect(getUrgencyLevel(deadline)).toBe('warning');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getSubmissionDeadlineHours
+// ---------------------------------------------------------------------------
+
+describe('getSubmissionDeadlineHours', () => {
+  it('returns 24 for JPN', () => {
+    expect(getSubmissionDeadlineHours('JPN')).toBe(24);
+  });
+
+  it('returns 72 for KOR', () => {
+    expect(getSubmissionDeadlineHours('KOR')).toBe(72);
+  });
+
+  it('returns 72 for SGP', () => {
+    expect(getSubmissionDeadlineHours('SGP')).toBe(72);
+  });
+
+  it('returns 72 for USA', () => {
+    expect(getSubmissionDeadlineHours('USA')).toBe(72);
+  });
+
+  it('returns 72 for VNM', () => {
+    expect(getSubmissionDeadlineHours('VNM')).toBe(72);
+  });
+
+  it('returns 24 for NZL', () => {
+    expect(getSubmissionDeadlineHours('NZL')).toBe(24);
+  });
+
+  it('returns 0 for unknown country', () => {
+    expect(getSubmissionDeadlineHours('XYZ')).toBe(0);
+  });
+
+  it('returns 0 for empty string', () => {
+    expect(getSubmissionDeadlineHours('')).toBe(0);
+  });
+
+  it('returns 0 for AUS (no hard deadline)', () => {
+    expect(getSubmissionDeadlineHours('AUS')).toBe(0);
+  });
+
+  it('returns 0 for MYS (no hard deadline)', () => {
+    expect(getSubmissionDeadlineHours('MYS')).toBe(0);
   });
 });

@@ -10,7 +10,7 @@ import { TravelerProfile } from '../../types/profile';
 import { CountryFormSchema } from '../../types/schema';
 import { QR_REQUIRED_COUNTRY_CODES, CONFIRMATION_CODE_COUNTRY_CODES } from '../../constants/countries';
 import { checkPassportValidity } from '../documents/documentValidityService';
-import { computeLegDeadline, getUrgencyLevel } from '../deadline/deadlineService';
+import { computeLegDeadline, getUrgencyLevel, getSubmissionDeadlineHours } from '../deadline/deadlineService';
 import { ReadinessItem, ReadinessItemStatus, TripReadiness } from './readinessTypes';
 
 // ---------------------------------------------------------------------------
@@ -218,7 +218,12 @@ export async function computeTripReadiness(
     // 5. Deadline status
     // -----------------------------------------------------------------------
     if (schema) {
-      const deadline = computeLegDeadline(leg, schema);
+      // Use country-specific fallback when schema has no deadline hours
+      const effectiveSchema =
+        schema.submissionDeadlineHours === 0
+          ? { ...schema, submissionDeadlineHours: getSubmissionDeadlineHours(countryCode) }
+          : schema;
+      const deadline = computeLegDeadline(leg, effectiveSchema);
       const urgency = getUrgencyLevel(deadline);
 
       let deadlineStatus: ReadinessItemStatus;

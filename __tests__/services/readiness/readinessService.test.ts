@@ -529,11 +529,12 @@ describe('computeTripReadiness — deadline signal', () => {
   });
 
   it('status is "ok" when schema has no deadline (no-deadline)', async () => {
+    // Use a country with no known deadline fallback (MYS) to test the no-deadline path
     const schemas: Record<string, CountryFormSchema> = {
-      JPN: makeSchema({ submissionDeadlineHours: 0 }),
+      MYS: makeSchema({ countryCode: 'MYS', countryName: 'Malaysia', submissionDeadlineHours: 0 }),
     };
     // No departureDate → triggers no-deadline path in DeadlineService
-    const leg = makeLegNoDeparture();
+    const leg = makeLegNoDeparture({ destinationCountry: 'MYS' });
     const result = await computeTripReadiness(makeTrip([leg]), [], schemas, []);
 
     const deadlineItem = result.items.find((i) => i.category === 'deadline');
