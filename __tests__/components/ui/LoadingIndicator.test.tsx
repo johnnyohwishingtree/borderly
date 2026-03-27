@@ -26,7 +26,6 @@ afterAll(() => {
 describe('LoadingIndicator', () => {
   it('renders with default props', () => {
     const { toJSON } = render(<LoadingIndicator />);
-    expect(toJSON()).toBeTruthy();
     expect((toJSON() as ReactTestRendererJSON).props.accessibilityLabel).toBe('Loading');
   });
 
@@ -38,7 +37,7 @@ describe('LoadingIndicator', () => {
 
   it('renders custom loading text', () => {
     const { getByText } = render(<LoadingIndicator text="Please wait..." />);
-    expect(getByText('Please wait...')).toBeTruthy();
+    getByText('Please wait...');
   });
 
   it('renders dots variant without crashing', () => {
@@ -51,21 +50,21 @@ describe('LoadingIndicator', () => {
 
   it('renders pulse variant', () => {
     const { toJSON } = render(<LoadingIndicator variant="pulse" />);
-    expect(toJSON()).toBeTruthy();
+    expect(toJSON()).not.toBeNull();
   });
 
   it('shows progress percentage when showProgress is true', () => {
     const { getByText } = render(
       <LoadingIndicator showProgress progress={0.75} />,
     );
-    expect(getByText('75%')).toBeTruthy();
+    getByText('75%');
   });
 
   it('renders 0% when progress is 0', () => {
     const { getByText } = render(
       <LoadingIndicator showProgress progress={0} />,
     );
-    expect(getByText('0%')).toBeTruthy();
+    getByText('0%');
   });
 
   it('does not show progress when showProgress is false', () => {

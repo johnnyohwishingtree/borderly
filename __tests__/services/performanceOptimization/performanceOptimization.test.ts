@@ -124,7 +124,7 @@ describe('performanceOptimization singleton', () => {
     it('returns failure result for unknown strategy', async () => {
       const result = await performanceOptimization.executeStrategy('nonexistent');
       expect(result.success).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.error).toContain('Strategy nonexistent not found');
     });
   });
 

@@ -15,14 +15,14 @@ describe('CredentialPrompt', () => {
 
   it('renders the modal when visible is true', () => {
     const { getByTestId } = render(<CredentialPrompt {...baseProps} />);
-    expect(getByTestId('credential-prompt-modal')).toBeTruthy();
+    getByTestId('credential-prompt-modal');
   });
 
   it('renders with a custom testID', () => {
     const { getByTestId } = render(
       <CredentialPrompt {...baseProps} testID="my-cred-prompt" />
     );
-    expect(getByTestId('my-cred-prompt')).toBeTruthy();
+    getByTestId('my-cred-prompt');
   });
 
   it('renders default title when no title prop is provided', () => {
@@ -61,8 +61,8 @@ describe('CredentialPrompt', () => {
 
   it('renders username and password inputs', () => {
     const { getByTestId } = render(<CredentialPrompt {...baseProps} />);
-    expect(getByTestId('credential-prompt-username')).toBeTruthy();
-    expect(getByTestId('credential-prompt-password')).toBeTruthy();
+    getByTestId('credential-prompt-username');
+    getByTestId('credential-prompt-password');
   });
 
   it('password field starts with secureTextEntry', () => {
@@ -148,16 +148,16 @@ describe('CredentialPrompt', () => {
 
   it('renders both Skip and Save buttons', () => {
     const { getByTestId } = render(<CredentialPrompt {...baseProps} />);
-    expect(getByTestId('credential-prompt-skip')).toBeTruthy();
-    expect(getByTestId('credential-prompt-save')).toBeTruthy();
+    getByTestId('credential-prompt-skip');
+    getByTestId('credential-prompt-save');
   });
 
   it('has correct accessibility labels', () => {
     const { getByLabelText } = render(<CredentialPrompt {...baseProps} />);
-    expect(getByLabelText('Email or username')).toBeTruthy();
-    expect(getByLabelText('Password')).toBeTruthy();
-    expect(getByLabelText('Skip saving credentials')).toBeTruthy();
-    expect(getByLabelText('Save credentials securely')).toBeTruthy();
-    expect(getByLabelText('Show password')).toBeTruthy();
+    getByLabelText('Email or username');
+    getByLabelText('Password');
+    getByLabelText('Skip saving credentials');
+    getByLabelText('Save credentials securely');
+    getByLabelText('Show password');
   });
 });

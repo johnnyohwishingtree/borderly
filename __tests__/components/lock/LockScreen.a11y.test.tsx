@@ -79,7 +79,7 @@ describe('LockScreen a11y — unlock button role and label', () => {
   it('unlock button has an accessibilityHint describing the action', async () => {
     renderLockScreen();
     const btn = screen.getByTestId('lock-screen-biometric-button');
-    expect(btn.props.accessibilityHint).toBeTruthy();
+    expect(typeof btn.props.accessibilityHint).toBe('string');
     expect(btn.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 });
@@ -248,7 +248,8 @@ describe('LockScreen a11y — retry / PIN fallback button', () => {
   it('PIN button has an accessibilityHint', () => {
     renderLockScreen();
     const btn = screen.getByTestId('lock-screen-pin-button');
-    expect(btn.props.accessibilityHint).toBeTruthy();
+    expect(typeof btn.props.accessibilityHint).toBe('string');
+    expect(btn.props.accessibilityHint.length).toBeGreaterThan(0);
   });
 });
 

@@ -61,7 +61,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Normal content')).toBeTruthy();
+    getByText('Normal content');
   });
 
   it('renders default fallback UI when a child throws', () => {
@@ -71,8 +71,8 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Something went wrong')).toBeTruthy();
-    expect(getByText(/sorry for the inconvenience/i)).toBeTruthy();
+    getByText('Something went wrong');
+    getByText(/sorry for the inconvenience/i);
   });
 
   it('renders a "Try Again" button in the default fallback UI', () => {
@@ -82,7 +82,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Try Again')).toBeTruthy();
+    getByText('Try Again');
   });
 
   it('recovers to non-error state when "Try Again" is pressed after underlying issue is resolved', () => {
@@ -103,7 +103,7 @@ describe('ErrorBoundary', () => {
     );
 
     // Error fallback is shown
-    expect(getByText('Something went wrong')).toBeTruthy();
+    getByText('Something went wrong');
 
     // Fix the underlying issue before retrying
     shouldThrowRef.current = false;
@@ -112,7 +112,7 @@ describe('ErrorBoundary', () => {
     fireEvent.press(getByText('Try Again'));
 
     // Component renders normally after recovery
-    expect(getByText('Recovered!')).toBeTruthy();
+    getByText('Recovered!');
     expect(queryByText('Something went wrong')).toBeNull();
   });
 
@@ -130,7 +130,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Custom error: Test render error')).toBeTruthy();
+    getByText('Custom error: Test render error');
   });
 
   it('calls onError callback when a child throws', () => {
@@ -171,7 +171,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Working component')).toBeTruthy();
+    getByText('Working component');
     expect(onError).not.toHaveBeenCalled();
   });
 
@@ -187,7 +187,7 @@ describe('ErrorBoundary', () => {
     );
 
     // In dev mode, the error message should be shown
-    expect(getByText('Test render error')).toBeTruthy();
+    getByText('Test render error');
 
     g['__DEV__'] = originalDev;
   });
@@ -230,9 +230,9 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(getByText('Child 1')).toBeTruthy();
-    expect(getByText('Child 2')).toBeTruthy();
-    expect(getByText('Child 3')).toBeTruthy();
+    getByText('Child 1');
+    getByText('Child 2');
+    getByText('Child 3');
   });
 });
 
@@ -259,12 +259,12 @@ describe('useErrorHandler hook', () => {
     );
 
     // Initially renders fine
-    expect(getByText('Trigger Error')).toBeTruthy();
+    getByText('Trigger Error');
 
     // Pressing the button triggers an error which propagates to ErrorBoundary
     fireEvent.press(getByTestId('trigger'));
 
     // ErrorBoundary should now show the fallback UI
-    expect(getByText('Something went wrong')).toBeTruthy();
+    getByText('Something went wrong');
   });
 });

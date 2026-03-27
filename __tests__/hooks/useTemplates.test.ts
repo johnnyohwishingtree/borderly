@@ -110,7 +110,7 @@ describe('useTemplates — handleDelete', () => {
       onPress?: () => void;
     }>;
     const cancelButton = buttons.find((b) => b.text === 'Cancel');
-    expect(cancelButton).toBeDefined();
+    expect(cancelButton).toEqual(expect.objectContaining({ text: 'Cancel' }));
 
     // Cancel button has no onPress or calling it does nothing destructive
     if (cancelButton?.onPress) {
@@ -136,7 +136,7 @@ describe('useTemplates — handleDelete', () => {
       onPress?: () => void;
     }>;
     const deleteButton = buttons.find((b) => b.text === 'Delete');
-    expect(deleteButton).toBeDefined();
+    expect(deleteButton).toEqual(expect.objectContaining({ text: 'Delete' }));
 
     act(() => {
       deleteButton!.onPress!();
@@ -224,7 +224,7 @@ describe('useTemplates — openRename / closeRename', () => {
     act(() => {
       result.current.openRename(template);
     });
-    expect(result.current.renameTarget).not.toBeNull();
+    expect(result.current.renameTarget).toEqual(template);
 
     act(() => {
       result.current.closeRename();

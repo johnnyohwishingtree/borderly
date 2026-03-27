@@ -165,7 +165,7 @@ describe('scanStringForLeaks', () => {
 
     expect(leaks.length).toBeGreaterThan(0);
     const passportLeak = leaks.find(l => l.type === 'passport');
-    expect(passportLeak).toBeDefined();
+    expect(passportLeak).not.toBeUndefined();
     expect(passportLeak!.location).toBe('mmkv:profile');
   });
 
@@ -194,7 +194,7 @@ describe('scanStringForLeaks', () => {
     scanStringForLeaks('Passport: AB7654321', 'mmkv:config', leaks);
 
     const passportLeak = leaks.find(l => l.type === 'passport');
-    expect(passportLeak).toBeDefined();
+    expect(passportLeak).not.toBeUndefined();
     expect(passportLeak!.remediation).toContain('MMKV');
   });
 
@@ -222,7 +222,7 @@ describe('scanStringForLeaks', () => {
     scanStringForLeaks('ID: AB7654321', 'mmkv:data', leaks);
 
     const passportLeak = leaks.find(l => l.type === 'passport');
-    expect(passportLeak).toBeDefined();
+    expect(passportLeak).not.toBeUndefined();
     expect(passportLeak!.detectedValue).toContain('*');
     expect(passportLeak!.detectedValue).not.toBe('AB7654321');
   });

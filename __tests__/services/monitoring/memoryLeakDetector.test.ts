@@ -134,8 +134,11 @@ describe('MemoryLeakDetectionService', () => {
       detector.trackComponentUnmount(id);
 
       const report = detector.getLeakReport();
-      expect(report.summary).toBeDefined();
-      expect(report.summary.recommendation).toBeDefined();
+      expect(report.summary).toEqual(expect.objectContaining({
+        totalLeaks: expect.any(Number),
+        criticalLeaks: expect.any(Number),
+        estimatedLeakage: expect.any(Number),
+      }));
       expect(['safe', 'warning', 'critical']).toContain(
         report.summary.recommendation
       );

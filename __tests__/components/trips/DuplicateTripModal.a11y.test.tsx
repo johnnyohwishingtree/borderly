@@ -64,7 +64,7 @@ const DEFAULT_PROPS = {
 describe('DuplicateTripModal — renders', () => {
   it('renders when visible=true', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('duplicate-trip-modal')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal');
   });
 
   it('does not crash when visible=false', () => {
@@ -72,7 +72,7 @@ describe('DuplicateTripModal — renders', () => {
       <DuplicateTripModal {...DEFAULT_PROPS} visible={false} />,
     );
     // Modal renders its children regardless (React Native Modal controls visibility)
-    expect(toJSON()).toBeTruthy();
+    expect(toJSON()).not.toBeNull();
   });
 });
 
@@ -89,7 +89,7 @@ describe('DuplicateTripModal — title heading', () => {
 
   it('title text is "Duplicate Trip"', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} />);
-    expect(screen.getByText('Duplicate Trip')).toBeTruthy();
+    screen.getByText('Duplicate Trip');
   });
 });
 
@@ -113,7 +113,7 @@ describe('DuplicateTripModal — Cancel button', () => {
   it('is not disabled when loading=false', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} loading={false} />);
     const cancel = screen.getByTestId('duplicate-trip-modal-cancel');
-    expect(cancel.props.accessibilityState?.disabled).toBeFalsy();
+    expect(cancel.props.accessibilityState?.disabled).not.toBe(true);
   });
 
   it('is disabled when loading=true', () => {
@@ -143,7 +143,7 @@ describe('DuplicateTripModal — Confirm (Duplicate) button', () => {
   it('is not disabled when loading=false', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} loading={false} />);
     const confirm = screen.getByTestId('duplicate-trip-modal-confirm');
-    expect(confirm.props.accessibilityState?.disabled).toBeFalsy();
+    expect(confirm.props.accessibilityState?.disabled).not.toBe(true);
   });
 
   it('is disabled when loading=true', () => {
@@ -154,7 +154,7 @@ describe('DuplicateTripModal — Confirm (Duplicate) button', () => {
 
   it('shows loading indicator when loading=true', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} loading={true} />);
-    expect(screen.getByTestId('duplicate-trip-loading-indicator')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-loading-indicator');
   });
 });
 
@@ -165,7 +165,7 @@ describe('DuplicateTripModal — Confirm (Duplicate) button', () => {
 describe('DuplicateTripModal — date picker accessibility', () => {
   it('renders DatePickerField with testID "duplicate-trip-departure-date"', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('duplicate-trip-departure-date')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-departure-date');
   });
 
   it('DatePickerField has accessibilityRole="button"', () => {
@@ -195,7 +195,7 @@ describe('DuplicateTripModal — error live region', () => {
     render(
       <DuplicateTripModal {...DEFAULT_PROPS} error="Something went wrong" />,
     );
-    expect(screen.getByTestId('duplicate-trip-modal-error')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal-error');
   });
 
   it('error region has accessibilityLiveRegion="polite"', () => {
@@ -217,7 +217,7 @@ describe('DuplicateTripModal — error live region', () => {
   it('error message text is rendered inside the error region', () => {
     const errorMsg = 'Please try again';
     render(<DuplicateTripModal {...DEFAULT_PROPS} error={errorMsg} />);
-    expect(screen.getByText(errorMsg)).toBeTruthy();
+    screen.getByText(errorMsg);
   });
 });
 
@@ -230,11 +230,11 @@ describe('DuplicateTripModal — custom testID', () => {
     render(
       <DuplicateTripModal {...DEFAULT_PROPS} testID="my-duplicate-modal" />,
     );
-    expect(screen.getByTestId('my-duplicate-modal')).toBeTruthy();
+    screen.getByTestId('my-duplicate-modal');
   });
 
   it('defaults to "duplicate-trip-modal" when testID not provided', () => {
     render(<DuplicateTripModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('duplicate-trip-modal')).toBeTruthy();
+    screen.getByTestId('duplicate-trip-modal');
   });
 });

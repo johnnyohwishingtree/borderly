@@ -31,7 +31,7 @@ describe('ErrorBoundary', () => {
         <Text>Child content</Text>
       </ErrorBoundary>,
     );
-    expect(getByText('Child content')).toBeTruthy();
+    getByText('Child content');
   });
 
   it('renders fallback UI when a child throws', () => {
@@ -40,7 +40,7 @@ describe('ErrorBoundary', () => {
         <ThrowingComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
-    expect(getByText(/something went wrong/i)).toBeTruthy();
+    getByText(/something went wrong/i);
   });
 
   it('shows a try again button in the default fallback', () => {
@@ -77,7 +77,7 @@ describe('ErrorBoundary', () => {
     );
 
     fireEvent.press(getByTestId('reset-btn'));
-    expect(getByText('Recovered')).toBeTruthy();
+    getByText('Recovered');
   });
 
   it('calls onError callback when error occurs', () => {
@@ -103,6 +103,6 @@ describe('ErrorBoundary', () => {
         <ThrowingComponent shouldThrow={true} />
       </ErrorBoundary>,
     );
-    expect(getByText('Custom error: Test component error')).toBeTruthy();
+    getByText('Custom error: Test component error');
   });
 });

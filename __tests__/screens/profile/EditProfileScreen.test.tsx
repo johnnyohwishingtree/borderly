@@ -155,7 +155,6 @@ describe('EditProfileScreen', () => {
       expect(mockGoBack).not.toHaveBeenCalled();
 
       // The alert should have a single OK button with an onPress callback
-      expect(capturedButtons).toBeDefined();
       expect(capturedButtons).toHaveLength(1);
       expect(capturedButtons![0].text).toBe('OK');
       expect(typeof capturedButtons![0].onPress).toBe('function');
@@ -284,7 +283,7 @@ describe('EditProfileScreen', () => {
     it('renders a fallback message when profile is null', () => {
       setupMocks({ profile: null });
       const { getByText } = render(<EditProfileScreen />);
-      expect(getByText('No profile to edit')).toBeTruthy();
+      getByText('No profile to edit');
     });
   });
 });

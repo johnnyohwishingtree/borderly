@@ -69,7 +69,7 @@ describe('ReadinessChecklist — header', () => {
       totalCount: 2,
     });
     render(<ReadinessChecklist tripReadiness={readiness} onNavigate={jest.fn()} />);
-    expect(screen.getByText('Ready to travel')).toBeTruthy();
+    screen.getByText('Ready to travel');
   });
 
   it('renders singular "1 item needs attention" when 1 item is not ready', () => {
@@ -79,7 +79,7 @@ describe('ReadinessChecklist — header', () => {
       totalCount: 4,
     });
     render(<ReadinessChecklist tripReadiness={readiness} onNavigate={jest.fn()} />);
-    expect(screen.getByText('1 item needs attention')).toBeTruthy();
+    screen.getByText('1 item needs attention');
   });
 
   it('renders plural "2 items need attention" when 2 items are not ready', () => {
@@ -89,14 +89,14 @@ describe('ReadinessChecklist — header', () => {
       totalCount: 4,
     });
     render(<ReadinessChecklist tripReadiness={readiness} onNavigate={jest.fn()} />);
-    expect(screen.getByText('2 items need attention')).toBeTruthy();
+    screen.getByText('2 items need attention');
   });
 
   it('renders the header button with testID readiness-checklist-header', () => {
     render(
       <ReadinessChecklist tripReadiness={makeTripReadiness()} onNavigate={jest.fn()} />,
     );
-    expect(screen.getByTestId('readiness-checklist-header')).toBeTruthy();
+    screen.getByTestId('readiness-checklist-header');
   });
 });
 
@@ -120,7 +120,7 @@ describe('ReadinessChecklist — expand/collapse', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByTestId('readiness-checklist-body')).toBeTruthy();
+    screen.getByTestId('readiness-checklist-body');
   });
 
   it('tapping header expands the body', () => {
@@ -129,7 +129,7 @@ describe('ReadinessChecklist — expand/collapse', () => {
     );
     expect(screen.queryByTestId('readiness-checklist-body')).toBeNull();
     fireEvent.press(screen.getByTestId('readiness-checklist-header'));
-    expect(screen.getByTestId('readiness-checklist-body')).toBeTruthy();
+    screen.getByTestId('readiness-checklist-body');
   });
 
   it('tapping header again collapses the body', () => {
@@ -140,7 +140,7 @@ describe('ReadinessChecklist — expand/collapse', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByTestId('readiness-checklist-body')).toBeTruthy();
+    screen.getByTestId('readiness-checklist-body');
     fireEvent.press(screen.getByTestId('readiness-checklist-header'));
     expect(screen.queryByTestId('readiness-checklist-body')).toBeNull();
   });
@@ -159,10 +159,10 @@ describe('ReadinessChecklist — category grouping', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByText('Passport')).toBeTruthy();
-    expect(screen.getByText('Forms')).toBeTruthy();
-    expect(screen.getByText('QR Codes')).toBeTruthy();
-    expect(screen.getByText('Deadlines')).toBeTruthy();
+    screen.getByText('Passport');
+    screen.getByText('Forms');
+    screen.getByText('QR Codes');
+    screen.getByText('Deadlines');
   });
 
   it('does NOT render a category header when no items belong to that category', () => {
@@ -174,7 +174,7 @@ describe('ReadinessChecklist — category grouping', () => {
     render(
       <ReadinessChecklist tripReadiness={readiness} onNavigate={jest.fn()} initialExpanded={true} />,
     );
-    expect(screen.getByText('Passport')).toBeTruthy();
+    screen.getByText('Passport');
     expect(screen.queryByText('Forms')).toBeNull();
     expect(screen.queryByText('QR Codes')).toBeNull();
     expect(screen.queryByText('Deadlines')).toBeNull();
@@ -188,10 +188,10 @@ describe('ReadinessChecklist — category grouping', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByTestId('readiness-category-passport')).toBeTruthy();
-    expect(screen.getByTestId('readiness-category-form')).toBeTruthy();
-    expect(screen.getByTestId('readiness-category-qr')).toBeTruthy();
-    expect(screen.getByTestId('readiness-category-deadline')).toBeTruthy();
+    screen.getByTestId('readiness-category-passport');
+    screen.getByTestId('readiness-category-form');
+    screen.getByTestId('readiness-category-qr');
+    screen.getByTestId('readiness-category-deadline');
   });
 
   it('renders item labels within their category sections', () => {
@@ -202,10 +202,10 @@ describe('ReadinessChecklist — category grouping', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByText('Passport valid')).toBeTruthy();
-    expect(screen.getByText('Japan form incomplete')).toBeTruthy();
-    expect(screen.getByText('Japan QR missing')).toBeTruthy();
-    expect(screen.getByText('Deadline OK')).toBeTruthy();
+    screen.getByText('Passport valid');
+    screen.getByText('Japan form incomplete');
+    screen.getByText('Japan QR missing');
+    screen.getByText('Deadline OK');
   });
 });
 
@@ -222,7 +222,7 @@ describe('ReadinessChecklist — detail text', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByText('Missing occupation field')).toBeTruthy();
+    screen.getByText('Missing occupation field');
   });
 
   it('does not render detail text when detail is absent', () => {
@@ -311,7 +311,7 @@ describe('ReadinessChecklist — empty items', () => {
         initialExpanded={true}
       />,
     );
-    expect(screen.getByText('No readiness items.')).toBeTruthy();
+    screen.getByText('No readiness items.');
   });
 });
 
@@ -324,7 +324,7 @@ describe('ReadinessChecklist — testID', () => {
     render(
       <ReadinessChecklist tripReadiness={makeTripReadiness()} onNavigate={jest.fn()} />,
     );
-    expect(screen.getByTestId('readiness-checklist')).toBeTruthy();
+    screen.getByTestId('readiness-checklist');
   });
 
   it('accepts a custom testID', () => {
@@ -335,6 +335,6 @@ describe('ReadinessChecklist — testID', () => {
         testID="my-checklist"
       />,
     );
-    expect(screen.getByTestId('my-checklist')).toBeTruthy();
+    screen.getByTestId('my-checklist');
   });
 });

@@ -115,13 +115,13 @@ describe('VNM field mappings', () => {
 
   it('nationality field has country_code transform', () => {
     const nationalityMapping = fieldMappings['nationality'];
-    expect(nationalityMapping).toBeDefined();
+    expect(nationalityMapping).not.toBeUndefined();
     expect(nationalityMapping.transform?.type).toBe('country_code');
   });
 
   it('previousVietnamVisit field has boolean_to_yesno transform', () => {
     const visitMapping = fieldMappings['previousVietnamVisit'];
-    expect(visitMapping).toBeDefined();
+    expect(visitMapping).not.toBeUndefined();
     expect(visitMapping.transform?.type).toBe('boolean_to_yesno');
   });
 

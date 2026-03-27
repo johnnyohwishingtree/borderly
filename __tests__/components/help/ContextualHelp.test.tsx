@@ -56,22 +56,22 @@ describe('ContextualHelp', () => {
     const { getByLabelText } = render(
       <ContextualHelp content={baseContent} />,
     );
-    expect(getByLabelText('Get help')).toBeTruthy();
+    getByLabelText('Get help');
   });
 
   it('renders text variant with "Help" label', () => {
     const { getByText, getByLabelText } = render(
       <ContextualHelp content={baseContent} variant="text" />,
     );
-    expect(getByText('Help')).toBeTruthy();
-    expect(getByLabelText('Get help')).toBeTruthy();
+    getByText('Help');
+    getByLabelText('Get help');
   });
 
   it('renders minimal variant', () => {
     const { getByLabelText } = render(
       <ContextualHelp content={baseContent} variant="minimal" />,
     );
-    expect(getByLabelText('Get help')).toBeTruthy();
+    getByLabelText('Get help');
   });
 
   // ─── Modal open/close ─────────────────────────────────────────────────────
@@ -81,8 +81,8 @@ describe('ContextualHelp', () => {
       <ContextualHelp content={baseContent} />,
     );
     fireEvent.press(getByLabelText('Get help'));
-    expect(getByText('Test Help')).toBeTruthy();
-    expect(getByText('This is a test description.')).toBeTruthy();
+    getByText('Test Help');
+    getByText('This is a test description.');
   });
 
   it('closes modal when X button is pressed', () => {
@@ -116,8 +116,8 @@ describe('ContextualHelp', () => {
       <ContextualHelp content={fullContent} />,
     );
     fireEvent.press(getByLabelText('Get help'));
-    expect(getByText('Full Help')).toBeTruthy();
-    expect(getByText('Full description with tips and links.')).toBeTruthy();
+    getByText('Full Help');
+    getByText('Full description with tips and links.');
   });
 
   it('renders tips list', () => {
@@ -125,9 +125,9 @@ describe('ContextualHelp', () => {
       <ContextualHelp content={fullContent} />,
     );
     fireEvent.press(getByLabelText('Get help'));
-    expect(getByText('Tip one')).toBeTruthy();
-    expect(getByText('Tip two')).toBeTruthy();
-    expect(getByText('Tip three')).toBeTruthy();
+    getByText('Tip one');
+    getByText('Tip two');
+    getByText('Tip three');
   });
 
   it('renders action links', () => {
@@ -135,8 +135,8 @@ describe('ContextualHelp', () => {
       <ContextualHelp content={fullContent} />,
     );
     fireEvent.press(getByLabelText('Get help'));
-    expect(getByText('Link A')).toBeTruthy();
-    expect(getByText('Link B')).toBeTruthy();
+    getByText('Link A');
+    getByText('Link B');
   });
 
   it('fires action link callback on press (with delay)', () => {

@@ -8,12 +8,12 @@ import LoadingSpinner from '../../../src/components/ui/LoadingSpinner';
 describe('LoadingSpinner', () => {
   it('renders a spinner by default', () => {
     const { getByLabelText } = render(<LoadingSpinner />);
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
   });
 
   it('renders loading text when provided', () => {
     const { getByText } = render(<LoadingSpinner text="Please wait..." />);
-    expect(getByText('Please wait...')).toBeTruthy();
+    getByText('Please wait...');
   });
 
   it('renders skeleton variant with pulsing bars', () => {
@@ -28,12 +28,12 @@ describe('LoadingSpinner', () => {
     const { getByLabelText } = render(
       <LoadingSpinner variant="overlay" />,
     );
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
   });
 
   it('renders in fullScreen mode', () => {
     const { getByLabelText } = render(<LoadingSpinner fullScreen />);
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
   });
 
   it('shows timeout message after specified duration', () => {
@@ -48,7 +48,7 @@ describe('LoadingSpinner', () => {
       jest.advanceTimersByTime(2500);
     });
 
-    expect(getByText(/taking longer/i)).toBeTruthy();
+    getByText(/taking longer/i);
     jest.useRealTimers();
   });
 
@@ -70,7 +70,7 @@ describe('LoadingSpinner', () => {
     const { getByText } = render(
       <LoadingSpinner cancelable onCancel={onCancel} />,
     );
-    expect(getByText('Cancel')).toBeTruthy();
+    getByText('Cancel');
   });
 
   it('calls onCancel when cancel button is pressed', () => {
@@ -91,9 +91,9 @@ describe('LoadingSpinner', () => {
     const { getByLabelText, rerender } = render(
       <LoadingSpinner size="small" />,
     );
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
 
     rerender(<LoadingSpinner size="large" />);
-    expect(getByLabelText('Loading')).toBeTruthy();
+    getByLabelText('Loading');
   });
 });

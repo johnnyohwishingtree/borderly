@@ -14,7 +14,7 @@ describe('errorMessages utility', () => {
       const message = getEnhancedErrorMessage(ERROR_CODES.UNKNOWN_ERROR);
       expect(message.title).toBe('Unexpected Error');
       expect(message.message).toBe('Something unexpected happened.');
-      expect(message.recoverySteps).toBeTruthy();
+      expect(message.recoverySteps.length).toBeGreaterThan(0);
       expect(Array.isArray(message.recoverySteps)).toBe(true);
     });
 

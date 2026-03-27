@@ -149,7 +149,8 @@ describe('SchemaManager', () => {
 
       const storedJson = mockSetString.mock.calls[0][1];
       const stored = JSON.parse(storedJson);
-      expect(stored.schemas).toBeDefined();
+      expect(typeof stored.schemas).toBe('object');
+      expect(stored.schemas).not.toBeNull();
       expect(stored.metadata.version).toBe('1.0.0');
       expect(stored.metadata.supportedCountries.length).toBeGreaterThan(0);
 
@@ -361,9 +362,12 @@ describe('SchemaManager', () => {
       await mgr.initialize();
 
       const exported = mgr.exportSchemas();
-      expect(exported.schemas).toBeDefined();
-      expect(exported.metadata).toBeDefined();
-      expect(exported.migrations).toBeDefined();
+      expect(typeof exported.schemas).toBe('object');
+      expect(exported.schemas).not.toBeNull();
+      expect(typeof exported.metadata).toBe('object');
+      expect(exported.metadata).not.toBeNull();
+      expect(typeof exported.migrations).toBe('object');
+      expect(exported.migrations).not.toBeNull();
 
       mgr.destroy();
     });

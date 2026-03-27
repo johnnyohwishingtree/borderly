@@ -175,14 +175,14 @@ describe('PassportValidityWarning — accessibilityLabel content', () => {
 describe('PassportValidityWarning — testID', () => {
   it('uses default testID "passport-validity-warning-<Country>" when no testID prop provided', () => {
     render(<PassportValidityWarning {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('passport-validity-warning-Japan')).toBeTruthy();
+    screen.getByTestId('passport-validity-warning-Japan');
   });
 
   it('uses custom testID when provided', () => {
     render(
       <PassportValidityWarning {...DEFAULT_PROPS} testID="custom-warning-id" />,
     );
-    expect(screen.getByTestId('custom-warning-id')).toBeTruthy();
+    screen.getByTestId('custom-warning-id');
   });
 });
 

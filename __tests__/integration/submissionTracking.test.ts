@@ -274,7 +274,8 @@ describe('Submission Status Tracking — full lifecycle integration', () => {
 
     // Error should be set in store
     const { error } = useTripStore.getState();
-    expect(error).toBeTruthy();
+    expect(typeof error).toBe('string');
+    expect(error!.length).toBeGreaterThan(0);
   });
 
   it('markLegAsSubmitted delegates to updateTripLeg and sets formStatus to submitted', async () => {

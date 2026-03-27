@@ -147,7 +147,7 @@ describe('AlertingService', () => {
       const acknowledged = all.find(a => a.id === alert.id);
       expect(acknowledged?.status).toBe('acknowledged');
       expect(acknowledged?.acknowledgedBy).toBe('tester');
-      expect(acknowledged?.acknowledgedAt).toBeDefined();
+      expect(typeof acknowledged?.acknowledgedAt).toBe('number');
     });
 
     it('returns false when acknowledging a non-existent alert', () => {
@@ -163,7 +163,7 @@ describe('AlertingService', () => {
       const all = service.getAlerts();
       const resolved = all.find(a => a.id === alert.id);
       expect(resolved?.status).toBe('resolved');
-      expect(resolved?.resolvedAt).toBeDefined();
+      expect(typeof resolved?.resolvedAt).toBe('number');
     });
 
     it('resolves an acknowledged alert', () => {

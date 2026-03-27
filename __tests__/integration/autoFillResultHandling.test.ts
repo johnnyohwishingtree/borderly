@@ -366,7 +366,7 @@ describe('autoFillResultHandling — round-trip simulation', () => {
     ];
 
     const script = formFiller.buildAutoFillScript(fields);
-    expect(script).toBeTruthy();
+    expect(script).toContain('AUTO_FILL_RESULT');
 
     // Simulate all fields not found
     const payload = makeMessage({

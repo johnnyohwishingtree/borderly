@@ -139,7 +139,7 @@ describe('airline search logic', () => {
 describe('getAirlineByCode', () => {
   it('returns the airline for Singapore Airlines (SQ)', () => {
     const airline = getAirlineByCode('SQ');
-    expect(airline).toBeDefined();
+    expect(airline).not.toBeUndefined();
     expect(airline?.value).toBe('SQ');
     expect(airline?.label).toContain('Singapore');
     expect(airline?.label).toContain('SQ');
@@ -147,14 +147,14 @@ describe('getAirlineByCode', () => {
 
   it('returns the airline for All Nippon Airways (NH)', () => {
     const airline = getAirlineByCode('NH');
-    expect(airline).toBeDefined();
+    expect(airline).not.toBeUndefined();
     expect(airline?.label).toContain('Nippon');
     expect(airline?.label).toContain('NH');
   });
 
   it('returns the airline for Emirates (EK)', () => {
     const airline = getAirlineByCode('EK');
-    expect(airline).toBeDefined();
+    expect(airline).not.toBeUndefined();
     expect(airline?.label).toContain('Emirates');
   });
 

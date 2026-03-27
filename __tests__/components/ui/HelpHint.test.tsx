@@ -10,22 +10,22 @@ describe('HelpHint', () => {
     const { getByText } = render(
       <HelpHint content="Fill in all required fields" />,
     );
-    expect(getByText('Fill in all required fields')).toBeTruthy();
+    getByText('Fill in all required fields');
   });
 
   it('renders title when provided', () => {
     const { getByText } = render(
       <HelpHint title="Tip" content="Use passport number" />,
     );
-    expect(getByText('Tip')).toBeTruthy();
-    expect(getByText('Use passport number')).toBeTruthy();
+    getByText('Tip');
+    getByText('Use passport number');
   });
 
   it('does not render title when not provided', () => {
     const { queryByText, getByText } = render(
       <HelpHint content="Just content" />,
     );
-    expect(getByText('Just content')).toBeTruthy();
+    getByText('Just content');
     // No title text element with font-semibold should exist
     expect(queryByText('Tip')).toBeNull();
   });

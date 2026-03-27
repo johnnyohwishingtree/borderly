@@ -93,22 +93,22 @@ describe('ExportBackupModal — rendering', () => {
     const { getByText } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Create Backup')).toBeTruthy();
+    getByText('Create Backup');
   });
 
   it('renders passphrase and confirm passphrase inputs', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByTestId('passphrase-field')).toBeTruthy();
-    expect(getByTestId('confirm-passphrase-field')).toBeTruthy();
+    getByTestId('passphrase-field');
+    getByTestId('confirm-passphrase-field');
   });
 
   it('renders the export button when not loading', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByTestId('export-backup-submit-button')).toBeTruthy();
+    getByTestId('export-backup-submit-button');
   });
 
   it('shows loading indicator instead of export button when isLoading', () => {
@@ -117,7 +117,7 @@ describe('ExportBackupModal — rendering', () => {
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
     expect(queryByTestId('export-backup-submit-button')).toBeNull();
-    expect(getByText('Encrypting backup…')).toBeTruthy();
+    getByText('Encrypting backup…');
   });
 });
 
@@ -162,7 +162,7 @@ describe('ExportBackupModal — strength indicator', () => {
     const { getByTestId } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByTestId('passphrase-strength-indicator')).toBeTruthy();
+    getByTestId('passphrase-strength-indicator');
   });
 
   it('hides strength indicator when passphrase is empty', () => {
@@ -178,7 +178,7 @@ describe('ExportBackupModal — strength indicator', () => {
     const { getByLabelText } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByLabelText('Passphrase strength: Strong')).toBeTruthy();
+    getByLabelText('Passphrase strength: Strong');
   });
 });
 
@@ -196,8 +196,8 @@ describe('ExportBackupModal — error display', () => {
     const { getByTestId, getByText } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByTestId('export-error-message')).toBeTruthy();
-    expect(getByText('Passphrases do not match.')).toBeTruthy();
+    getByTestId('export-error-message');
+    getByText('Passphrases do not match.');
   });
 
   it('does not show error message when error is null', () => {
@@ -262,7 +262,7 @@ describe('ExportBackupModal — validation hints', () => {
     const { getByText } = render(
       <ExportBackupModal visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText(/✓/)).toBeTruthy();
+    getByText(/✓/);
   });
 
   it('shows matching checkmark when passphrases match', () => {

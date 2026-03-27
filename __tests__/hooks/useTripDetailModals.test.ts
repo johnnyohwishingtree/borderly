@@ -337,10 +337,10 @@ describe('useTripDetailModals', () => {
     const opts = makeOptions();
     const { result } = renderHook(() => useTripDetailModals(opts));
 
-    expect(result.current.editModal.editTriggerRef).toBeDefined();
-    expect(result.current.addModal.addTriggerRef).toBeDefined();
-    expect(result.current.duplicateModal.duplicateTriggerRef).toBeDefined();
-    expect(result.current.editModal.editModalTitleRef).toBeDefined();
-    expect(result.current.addModal.addModalTitleRef).toBeDefined();
+    expect(result.current.editModal.editTriggerRef).toEqual({ current: null });
+    expect(result.current.addModal.addTriggerRef).toEqual({ current: null });
+    expect(result.current.duplicateModal.duplicateTriggerRef).toEqual({ current: null });
+    expect(result.current.editModal.editModalTitleRef).toEqual({ current: null });
+    expect(result.current.addModal.addModalTitleRef).toEqual({ current: null });
   });
 });

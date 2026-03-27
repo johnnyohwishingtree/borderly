@@ -155,7 +155,8 @@ describe('useEditTrip — trip name editing', () => {
 
     expect(success).toBe(false);
     expect(mockUpdateTrip).not.toHaveBeenCalled();
-    expect(result.current.errors.name).toBeTruthy();
+    expect(typeof result.current.errors.name).toBe('string');
+    expect(result.current.errors.name.length).toBeGreaterThan(0);
   });
 
   it('handleUpdateTripName returns false when trip is null', async () => {
@@ -275,7 +276,8 @@ describe('useEditTrip — leg editing', () => {
 
     expect(success).toBe(false);
     expect(mockUpdateTripLeg).not.toHaveBeenCalled();
-    expect(result.current.errors.country).toBeTruthy();
+    expect(typeof result.current.errors.country).toBe('string');
+    expect(result.current.errors.country.length).toBeGreaterThan(0);
   });
 
   it('handleSaveLeg persists assignedTravelers changes', async () => {
@@ -352,10 +354,11 @@ describe('useEditTrip — add destination', () => {
 
     act(() => { result.current.addDestination.startAddDestination(); });
 
-    expect(result.current.addDestination.newLegData).not.toBeNull();
-    expect(result.current.addDestination.newLegData?.destinationCountry).toBe('');
-    expect(result.current.addDestination.newLegData?.arrivalDate).toBe('');
-    expect(result.current.addDestination.newLegData?.accommodation.name).toBe('');
+    expect(result.current.addDestination.newLegData).toMatchObject({
+      destinationCountry: '',
+      arrivalDate: '',
+      accommodation: { name: '' },
+    });
   });
 
   it('startAddDestination assigns the primary traveler when family is loaded', async () => {
@@ -442,7 +445,8 @@ describe('useEditTrip — add destination', () => {
 
     expect(success).toBe(false);
     expect(mockAddTripLeg).not.toHaveBeenCalled();
-    expect(result.current.errors.country).toBeTruthy();
+    expect(typeof result.current.errors.country).toBe('string');
+    expect(result.current.errors.country.length).toBeGreaterThan(0);
   });
 
   it('handleAddDestination validates and returns false when arrival date is missing', async () => {
@@ -458,7 +462,8 @@ describe('useEditTrip — add destination', () => {
     await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
-    expect(result.current.errors.arrivalDate).toBeTruthy();
+    expect(typeof result.current.errors.arrivalDate).toBe('string');
+    expect(result.current.errors.arrivalDate.length).toBeGreaterThan(0);
   });
 
   it('handleAddDestination validates and returns false when accommodation name is missing', async () => {
@@ -474,7 +479,8 @@ describe('useEditTrip — add destination', () => {
     await act(async () => { success = await result.current.addDestination.handleAddDestination(); });
 
     expect(success).toBe(false);
-    expect(result.current.errors.accommodationName).toBeTruthy();
+    expect(typeof result.current.errors.accommodationName).toBe('string');
+    expect(result.current.errors.accommodationName.length).toBeGreaterThan(0);
   });
 
   it('handleAddDestination returns false when trip is null', async () => {

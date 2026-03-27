@@ -125,7 +125,7 @@ describe('GBR field mappings', () => {
 
   it('nationality field has country_code transform', () => {
     const nationalityMapping = fieldMappings['nationality'];
-    expect(nationalityMapping).toBeDefined();
+    expect(nationalityMapping).not.toBeUndefined();
     expect(nationalityMapping.transform?.type).toBe('country_code');
   });
 });

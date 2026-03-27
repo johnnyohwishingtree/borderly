@@ -313,8 +313,7 @@ describe('computeTripReadiness — passport signal', () => {
     const result = await computeTripReadiness(trip, [profile], defaultSchemas, []);
 
     const passportItem = result.items.find((i) => i.category === 'passport');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(passportItem).toMatchObject({ category: 'passport', status: 'ok' });
   });
 
   it('status is "critical" when passport expires before departure', async () => {
@@ -326,8 +325,7 @@ describe('computeTripReadiness — passport signal', () => {
     const result = await computeTripReadiness(trip, [profile], defaultSchemas, []);
 
     const passportItem = result.items.find((i) => i.category === 'passport');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('critical');
+    expect(passportItem).toMatchObject({ category: 'passport', status: 'critical' });
   });
 
   it('status is "warning" when passport expires after departure but within validity window', async () => {
@@ -340,8 +338,7 @@ describe('computeTripReadiness — passport signal', () => {
     const result = await computeTripReadiness(trip, [profile], defaultSchemas, []);
 
     const passportItem = result.items.find((i) => i.category === 'passport');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('warning');
+    expect(passportItem).toMatchObject({ category: 'passport', status: 'warning' });
   });
 
   it('surfaces the worst passport status when multiple profiles are assigned', async () => {
@@ -444,7 +441,7 @@ describe('computeTripReadiness — form signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], {}, []);
 
     const formItem = result.items.find((i) => i.category === 'form');
-    expect(formItem).toBeDefined();
+    expect(formItem).toMatchObject({ category: 'form' });
   });
 
   it('form item has actionScreen "LegForm"', async () => {
@@ -466,8 +463,7 @@ describe('computeTripReadiness — QR signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], defaultSchemas, []);
 
     const qrItem = result.items.find((i) => i.category === 'qr');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(qrItem).toMatchObject({ category: 'qr', status: 'missing' });
   });
 
   it('status is "ok" for Japan leg with QR code saved', async () => {
@@ -476,8 +472,7 @@ describe('computeTripReadiness — QR signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], defaultSchemas, [qr]);
 
     const qrItem = result.items.find((i) => i.category === 'qr');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(qrItem).toMatchObject({ category: 'qr', status: 'ok' });
   });
 
   it('no QR item emitted for non-QR country with no codes', async () => {
@@ -496,8 +491,7 @@ describe('computeTripReadiness — QR signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], sgpSchema, [qr]);
 
     const qrItem = result.items.find((i) => i.category === 'qr');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(qrItem).toMatchObject({ category: 'qr', status: 'ok' });
   });
 
   it('only counts QR codes for the correct leg', async () => {
@@ -712,8 +706,7 @@ describe('computeTripReadiness — AUS leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, []);
 
     const formItem = result.items.find((i) => i.id === 'form-leg-aus');
-    expect(formItem).toBeDefined();
-    expect(formItem!.status).toBe<ReadinessItemStatus>('critical');
+    expect(formItem).toMatchObject({ id: 'form-leg-aus', status: 'critical' });
   });
 
   it('emits passport item for AUS leg when profile and schema are present', async () => {
@@ -726,8 +719,7 @@ describe('computeTripReadiness — AUS leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [profile], ausSchemas, []);
 
     const passportItem = result.items.find((i) => i.id === 'passport-leg-aus');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(passportItem).toMatchObject({ id: 'passport-leg-aus', status: 'ok' });
   });
 
   it('does NOT emit a QR item for AUS leg (AUS does not require a QR code)', async () => {
@@ -743,8 +735,7 @@ describe('computeTripReadiness — AUS leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, []);
 
     const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-aus');
-    expect(deadlineItem).toBeDefined();
-    expect(deadlineItem!.detail).toBe('Submit within 72 hours before arrival');
+    expect(deadlineItem).toMatchObject({ id: 'deadline-leg-aus', detail: 'Submit within 72 hours before arrival' });
   });
 
   it('overallStatus is "ok" for AUS leg with submitted form, valid passport, and confirmation code', async () => {
@@ -770,8 +761,7 @@ describe('computeTripReadiness — NZL leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
 
     const formItem = result.items.find((i) => i.id === 'form-leg-nzl');
-    expect(formItem).toBeDefined();
-    expect(formItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(formItem).toMatchObject({ id: 'form-leg-nzl', status: 'ok' });
   });
 
   it('emits passport warning for NZL when passport expires within 3 months of departure', async () => {
@@ -785,8 +775,7 @@ describe('computeTripReadiness — NZL leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [profile], nzlSchemas, []);
 
     const passportItem = result.items.find((i) => i.id === 'passport-leg-nzl');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('warning');
+    expect(passportItem).toMatchObject({ id: 'passport-leg-nzl', status: 'warning' });
   });
 
   it('does NOT emit a QR item for NZL leg (NZL does not require a QR code)', async () => {
@@ -802,8 +791,7 @@ describe('computeTripReadiness — NZL leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
 
     const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-nzl');
-    expect(deadlineItem).toBeDefined();
-    expect(deadlineItem!.detail).toBe('Submit at least 24 hours before arrival');
+    expect(deadlineItem).toMatchObject({ id: 'deadline-leg-nzl', detail: 'Submit at least 24 hours before arrival' });
   });
 
   it('overallStatus is "ok" for NZL leg with submitted form, valid passport, and confirmation code', async () => {
@@ -829,8 +817,7 @@ describe('computeTripReadiness — KOR leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
 
     const formItem = result.items.find((i) => i.id === 'form-leg-kor');
-    expect(formItem).toBeDefined();
-    expect(formItem!.status).toBe<ReadinessItemStatus>('warning');
+    expect(formItem).toMatchObject({ id: 'form-leg-kor', status: 'warning' });
   });
 
   it('emits passport item for KOR leg', async () => {
@@ -843,8 +830,7 @@ describe('computeTripReadiness — KOR leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [profile], korSchemas, []);
 
     const passportItem = result.items.find((i) => i.id === 'passport-leg-kor');
-    expect(passportItem).toBeDefined();
-    expect(passportItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(passportItem).toMatchObject({ id: 'passport-leg-kor', status: 'ok' });
   });
 
   it('does NOT emit a QR item for KOR leg (KOR does not require a QR code)', async () => {
@@ -860,7 +846,7 @@ describe('computeTripReadiness — KOR leg', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
 
     const deadlineItem = result.items.find((i) => i.id === 'deadline-leg-kor');
-    expect(deadlineItem).toBeDefined();
+    expect(deadlineItem).toMatchObject({ id: 'deadline-leg-kor', category: 'deadline' });
   });
 
   it('overallStatus is "ok" for KOR leg with submitted form, valid passport, and confirmation code', async () => {
@@ -917,8 +903,7 @@ describe('computeTripReadiness — multi-country trip with AUS, NZL, KOR', () =>
 
     // JPN should still emit a QR missing item
     const jpnQR = result.items.find((i) => i.id === 'qr-leg-jpn');
-    expect(jpnQR).toBeDefined();
-    expect(jpnQR!.status).toBe<ReadinessItemStatus>('missing');
+    expect(jpnQR).toMatchObject({ id: 'qr-leg-jpn', status: 'missing' });
 
     // AUS should NOT emit a QR item (but AUS emits a confirmation item)
     const ausQR = result.items.find((i) => i.id === 'qr-leg-aus');
@@ -964,9 +949,7 @@ describe('computeTripReadiness — PHL QR requirement', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], phlSchemas, []);
 
     const qrItem = result.items.find((i) => i.id === 'qr-leg-phl');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('missing');
-    expect(qrItem!.category).toBe('qr');
+    expect(qrItem).toMatchObject({ id: 'qr-leg-phl', status: 'missing', category: 'qr' });
   });
 
   it('status is "ok" for PHL leg with QR code saved', async () => {
@@ -975,8 +958,7 @@ describe('computeTripReadiness — PHL QR requirement', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], phlSchemas, [qr]);
 
     const qrItem = result.items.find((i) => i.id === 'qr-leg-phl');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(qrItem).toMatchObject({ id: 'qr-leg-phl', status: 'ok' });
   });
 });
 
@@ -988,9 +970,7 @@ describe('computeTripReadiness — IDN QR requirement', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], idnSchemas, []);
 
     const qrItem = result.items.find((i) => i.id === 'qr-leg-idn');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('missing');
-    expect(qrItem!.category).toBe('qr');
+    expect(qrItem).toMatchObject({ id: 'qr-leg-idn', status: 'missing', category: 'qr' });
   });
 
   it('status is "ok" for IDN leg with QR code saved', async () => {
@@ -999,8 +979,7 @@ describe('computeTripReadiness — IDN QR requirement', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], idnSchemas, [qr]);
 
     const qrItem = result.items.find((i) => i.id === 'qr-leg-idn');
-    expect(qrItem).toBeDefined();
-    expect(qrItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(qrItem).toMatchObject({ id: 'qr-leg-idn', status: 'ok' });
   });
 });
 
@@ -1015,11 +994,13 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], sgpSchema, []);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-sgp');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.category).toBe('confirmation');
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirmItem).toMatchObject({
+      id: 'confirmation-leg-sgp',
+      category: 'confirmation',
+      status: 'missing',
+      actionScreen: 'QRWallet',
+    });
     expect(confirmItem!.detail).toContain('No confirmation code saved');
-    expect(confirmItem!.actionScreen).toBe('QRWallet');
   });
 
   it('emits "ok" confirmation item for SGP leg with code saved', async () => {
@@ -1029,8 +1010,7 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], sgpSchema, [qr]);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-sgp');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(confirmItem).toMatchObject({ id: 'confirmation-leg-sgp', status: 'ok' });
     expect(confirmItem!.detail).toContain('confirmation code(s) saved');
   });
 
@@ -1040,8 +1020,7 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], korSchemas, []);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-kor');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirmItem).toMatchObject({ id: 'confirmation-leg-kor', status: 'missing' });
   });
 
   it('emits "ok" confirmation item for AUS leg with code saved', async () => {
@@ -1051,8 +1030,7 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], ausSchemas, [qr]);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-aus');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('ok');
+    expect(confirmItem).toMatchObject({ id: 'confirmation-leg-aus', status: 'ok' });
   });
 
   it('emits "missing" confirmation item for NZL leg with no codes', async () => {
@@ -1061,8 +1039,7 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], nzlSchemas, []);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-nzl');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirmItem).toMatchObject({ id: 'confirmation-leg-nzl', status: 'missing' });
   });
 
   it('emits "missing" confirmation item for VNM leg with no codes', async () => {
@@ -1076,8 +1053,7 @@ describe('computeTripReadiness — confirmation code signal', () => {
     const result = await computeTripReadiness(makeTrip([leg]), [], vnmSchema, []);
 
     const confirmItem = result.items.find((i) => i.id === 'confirmation-leg-vnm');
-    expect(confirmItem).toBeDefined();
-    expect(confirmItem!.status).toBe<ReadinessItemStatus>('missing');
+    expect(confirmItem).toMatchObject({ id: 'confirmation-leg-vnm', status: 'missing' });
   });
 
   it('does NOT emit confirmation item for JPN (QR country, not confirmation)', async () => {

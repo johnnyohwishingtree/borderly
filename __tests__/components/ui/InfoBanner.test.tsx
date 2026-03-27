@@ -11,7 +11,7 @@ describe('InfoBanner', () => {
     const { getByText } = render(
       <InfoBanner message="New feature available" onDismiss={jest.fn()} />,
     );
-    expect(getByText(/New feature available/)).toBeTruthy();
+    getByText(/New feature available/);
   });
 
   it('calls onDismiss when close button is pressed', () => {
@@ -34,20 +34,20 @@ describe('InfoBanner', () => {
     const { getByTestId } = render(
       <InfoBanner message="Info" onDismiss={jest.fn()} testID="banner" />,
     );
-    expect(getByTestId('banner')).toBeTruthy();
+    getByTestId('banner');
   });
 
   it('applies testID to dismiss button', () => {
     const { getByTestId } = render(
       <InfoBanner message="Info" onDismiss={jest.fn()} testID="banner" />,
     );
-    expect(getByTestId('banner-dismiss')).toBeTruthy();
+    getByTestId('banner-dismiss');
   });
 
   it('sets accessibility label on container to message', () => {
     const { getByLabelText } = render(
       <InfoBanner message="Update ready" onDismiss={jest.fn()} />,
     );
-    expect(getByLabelText('Update ready')).toBeTruthy();
+    getByLabelText('Update ready');
   });
 });

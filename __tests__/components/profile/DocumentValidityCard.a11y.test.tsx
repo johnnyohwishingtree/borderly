@@ -75,7 +75,7 @@ describe('PassportExpiryBadge — accessibility', () => {
     render(
       <PassportExpiryBadge expiryDate={EXPIRY_VALID} today={TODAY} testID="custom-badge" />,
     );
-    expect(screen.getByTestId('custom-badge')).toBeTruthy();
+    screen.getByTestId('custom-badge');
   });
 });
 
@@ -109,8 +109,7 @@ describe('DocumentValidityCard — expiry date row', () => {
     render(<DocumentValidityCard passportExpiry={EXPIRY_VALID} today={TODAY} />);
     // The row wrapping both date text and badge should have an accessible label
     // describing both expiry date and days remaining
-    const row = screen.getByLabelText(/Passport expires/i);
-    expect(row).toBeTruthy();
+    screen.getByLabelText(/Passport expires/i);
   });
 
   it('expiry row label includes days remaining for valid passport', () => {
@@ -148,15 +147,15 @@ describe('DocumentValidityCard — per-country grid accessibility', () => {
 
   it('valid country label reads "<Country>: Valid"', () => {
     render(<DocumentValidityCard passportExpiry={EXPIRY_VALID} today={TODAY} />);
-    expect(screen.getByLabelText('Japan: Valid')).toBeTruthy();
-    expect(screen.getByLabelText('Canada: Valid')).toBeTruthy();
+    screen.getByLabelText('Japan: Valid');
+    screen.getByLabelText('Canada: Valid');
   });
 
   it('invalid country label reads "<Country>: Invalid"', () => {
     const shortExpiry = toISO(daysFrom(10, TODAY));
     render(<DocumentValidityCard passportExpiry={shortExpiry} today={TODAY} />);
-    expect(screen.getByLabelText('Japan: Invalid')).toBeTruthy();
-    expect(screen.getByLabelText('Singapore: Invalid')).toBeTruthy();
+    screen.getByLabelText('Japan: Invalid');
+    screen.getByLabelText('Singapore: Invalid');
   });
 
   it('decorative icons are hidden from screen readers', () => {
@@ -217,7 +216,7 @@ describe('DocumentValidityCard — combined accessibility for all statuses', () 
     const badge = screen.getByTestId('expiry-badge');
     expect(badge.props.accessibilityLabel).toMatch(/Expiring Soon/);
     // Countries with short expiry should all be invalid
-    expect(screen.getByLabelText('Japan: Invalid')).toBeTruthy();
+    screen.getByLabelText('Japan: Invalid');
   });
 
   it('renders accessible structure for expired passport', () => {
@@ -225,6 +224,6 @@ describe('DocumentValidityCard — combined accessibility for all statuses', () 
     render(<DocumentValidityCard passportExpiry={pastExpiry} today={TODAY} />);
     const badge = screen.getByTestId('expiry-badge');
     expect(badge.props.accessibilityLabel).toMatch(/Expired/);
-    expect(screen.getByLabelText('Vietnam: Invalid')).toBeTruthy();
+    screen.getByLabelText('Vietnam: Invalid');
   });
 });

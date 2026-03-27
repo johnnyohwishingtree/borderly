@@ -98,7 +98,7 @@ describe('FormEngine — Thailand (THA) Integration', () => {
     it('should auto-fill personal information fields from the profile', () => {
       const result = generateFilledForm(mockProfile, mockThaLeg, thaSchema);
       const personal = result.sections.find(s => s.id === 'personal');
-      expect(personal).toBeDefined();
+      expect(personal).not.toBeUndefined();
 
       const fields = personal!.fields;
       const fieldMap = Object.fromEntries(fields.map(f => [f.id, f]));
@@ -137,7 +137,7 @@ describe('FormEngine — Thailand (THA) Integration', () => {
     it('should auto-fill travel information fields from the trip leg', () => {
       const result = generateFilledForm(mockProfile, mockThaLeg, thaSchema);
       const travel = result.sections.find(s => s.id === 'travel');
-      expect(travel).toBeDefined();
+      expect(travel).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(travel!.fields.map(f => [f.id, f]));
 
@@ -160,7 +160,7 @@ describe('FormEngine — Thailand (THA) Integration', () => {
     it('should auto-fill accommodation fields from the trip leg', () => {
       const result = generateFilledForm(mockProfile, mockThaLeg, thaSchema);
       const accommodation = result.sections.find(s => s.id === 'accommodation');
-      expect(accommodation).toBeDefined();
+      expect(accommodation).not.toBeUndefined();
 
       const fieldMap = Object.fromEntries(accommodation!.fields.map(f => [f.id, f]));
 

@@ -106,13 +106,13 @@ describe('THA field mappings', () => {
 
   it('nationality field has country_code transform', () => {
     const nationalityMapping = fieldMappings['nationality'];
-    expect(nationalityMapping).toBeDefined();
+    expect(nationalityMapping).not.toBeUndefined();
     expect(nationalityMapping.transform?.type).toBe('country_code');
   });
 
   it('hasInsurance field has boolean_to_yesno transform', () => {
     const insuranceMapping = fieldMappings['hasInsurance'];
-    expect(insuranceMapping).toBeDefined();
+    expect(insuranceMapping).not.toBeUndefined();
     expect(insuranceMapping.transform?.type).toBe('boolean_to_yesno');
   });
 });

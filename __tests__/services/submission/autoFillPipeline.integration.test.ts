@@ -185,7 +185,8 @@ describe('Integration: JPN auto-fill pipeline', () => {
 
   it('generates a non-empty filled form for JPN', () => {
     const form = generateFilledForm(primaryProfile, jpnLeg, jpnSchema);
-    expect(form).toBeDefined();
+    expect(form).not.toBeUndefined();
+    expect(form).not.toBeNull();
     expect(form.countryCode).toBe('JPN');
     expect(form.sections.length).toBeGreaterThan(0);
     expect(form.stats.totalFields).toBeGreaterThan(0);
@@ -194,7 +195,7 @@ describe('Integration: JPN auto-fill pipeline', () => {
   it('auto-fills surname from profile', () => {
     const form = generateFilledForm(primaryProfile, jpnLeg, jpnSchema);
     const surname = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'surname');
-    expect(surname).toBeDefined();
+    expect(surname).not.toBeUndefined();
     expect(surname!.currentValue).toBe('SMITH');
     expect(surname!.source).toBe('auto');
   });
@@ -202,7 +203,7 @@ describe('Integration: JPN auto-fill pipeline', () => {
   it('auto-fills passport number from profile', () => {
     const form = generateFilledForm(primaryProfile, jpnLeg, jpnSchema);
     const passport = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'passportNumber');
-    expect(passport).toBeDefined();
+    expect(passport).not.toBeUndefined();
     expect(passport!.currentValue).toBe('AB1234567');
     expect(passport!.source).toBe('auto');
   });
@@ -210,20 +211,20 @@ describe('Integration: JPN auto-fill pipeline', () => {
   it('auto-fills given names from profile', () => {
     const form = generateFilledForm(primaryProfile, jpnLeg, jpnSchema);
     const givenNames = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'givenNames');
-    expect(givenNames).toBeDefined();
+    expect(givenNames).not.toBeUndefined();
     expect(givenNames!.currentValue).toBe('JOHN WILLIAM');
   });
 
   it('auto-fills date of birth from profile', () => {
     const form = generateFilledForm(primaryProfile, jpnLeg, jpnSchema);
     const dob = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'dateOfBirth');
-    expect(dob).toBeDefined();
+    expect(dob).not.toBeUndefined();
     expect(dob!.currentValue).toBe('1985-03-15');
   });
 
   it('applies YYYY-MM-DD → YYYY/MM/DD date transform for JPN dateOfBirth', () => {
     const dobMapping = jpnScript.fieldMappings['dateOfBirth'];
-    expect(dobMapping).toBeDefined();
+    expect(dobMapping).not.toBeUndefined();
     expect(dobMapping.transform?.type).toBe('date_format');
     expect(dobMapping.transform?.config?.to).toBe('YYYY/MM/DD');
 
@@ -233,7 +234,7 @@ describe('Integration: JPN auto-fill pipeline', () => {
 
   it('applies country_code transform for JPN nationality field', () => {
     const nationalityMapping = jpnScript.fieldMappings['nationality'];
-    expect(nationalityMapping).toBeDefined();
+    expect(nationalityMapping).not.toBeUndefined();
     expect(nationalityMapping.transform?.type).toBe('country_code');
 
     const transformed = AutomationScriptUtils.applyTransform('USA', nationalityMapping.transform);
@@ -318,7 +319,8 @@ describe('Integration: MYS auto-fill pipeline', () => {
 
   it('generates a non-empty filled form for MYS', () => {
     const form = generateFilledForm(primaryProfile, mysLeg, mysSchema);
-    expect(form).toBeDefined();
+    expect(form).not.toBeUndefined();
+    expect(form).not.toBeNull();
     expect(form.countryCode).toBe('MYS');
     expect(form.stats.totalFields).toBeGreaterThan(0);
   });
@@ -326,20 +328,20 @@ describe('Integration: MYS auto-fill pipeline', () => {
   it('auto-fills surname from profile for MYS', () => {
     const form = generateFilledForm(primaryProfile, mysLeg, mysSchema);
     const surname = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'surname');
-    expect(surname).toBeDefined();
+    expect(surname).not.toBeUndefined();
     expect(surname!.currentValue).toBe('SMITH');
   });
 
   it('auto-fills passport number from profile for MYS', () => {
     const form = generateFilledForm(primaryProfile, mysLeg, mysSchema);
     const passport = form.sections.flatMap((s) => s.fields).find((f) => f.id === 'passportNumber');
-    expect(passport).toBeDefined();
+    expect(passport).not.toBeUndefined();
     expect(passport!.currentValue).toBe('AB1234567');
   });
 
   it('MYS dateOfBirth mapping uses DD/MM/YYYY target format (not yet implemented)', () => {
     const dobMapping = mysScript.fieldMappings['dateOfBirth'];
-    expect(dobMapping).toBeDefined();
+    expect(dobMapping).not.toBeUndefined();
     expect(dobMapping.transform?.type).toBe('date_format');
     expect(dobMapping.transform?.config?.to).toBe('DD/MM/YYYY');
   });

@@ -223,9 +223,12 @@ describe('tripAutoCreator', () => {
 
       const { trip } = createTripFromParsedData(result);
 
-      expect(trip.id).toBeTruthy();
-      expect(trip.legs[0].id).toBeTruthy();
-      expect(trip.legs[1].id).toBeTruthy();
+      expect(typeof trip.id).toBe('string');
+      expect(trip.id.length).toBeGreaterThan(0);
+      expect(typeof trip.legs[0].id).toBe('string');
+      expect(trip.legs[0].id.length).toBeGreaterThan(0);
+      expect(typeof trip.legs[1].id).toBe('string');
+      expect(trip.legs[1].id.length).toBeGreaterThan(0);
       // All IDs are unique
       const ids = [trip.id, trip.legs[0].id, trip.legs[1].id];
       expect(new Set(ids).size).toBe(3);

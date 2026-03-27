@@ -50,7 +50,7 @@ describe('AnimatedCard', () => {
     const { getByText } = render(
       <AnimatedCard><Text>Card Content</Text></AnimatedCard>,
     );
-    expect(getByText('Card Content')).toBeTruthy();
+    getByText('Card Content');
   });
 
   it('calls onPress when pressed', () => {
@@ -101,7 +101,7 @@ describe('AnimatedCard', () => {
     const { getByTestId } = render(
       <AnimatedCard testID="my-card"><Text>Content</Text></AnimatedCard>,
     );
-    expect(getByTestId('my-card')).toBeTruthy();
+    getByTestId('my-card');
   });
 
   it('sets accessibility label when provided', () => {
@@ -118,7 +118,7 @@ describe('AnimatedCard', () => {
     const { getByText, toJSON } = render(
       <AnimatedCard><Text>Static card</Text></AnimatedCard>,
     );
-    expect(getByText('Static card')).toBeTruthy();
+    getByText('Static card');
     // Without onPress, no Pressable wrapper — just Animated.View > View
     const json = JSON.stringify(toJSON());
     expect(json).not.toContain('Pressable');

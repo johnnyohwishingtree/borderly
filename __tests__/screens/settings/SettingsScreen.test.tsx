@@ -242,13 +242,13 @@ describe('SettingsScreen — App Lock section', () => {
   it('renders the App Lock card when biometric is available', () => {
     setupMocks({ isBiometricAvailable: true });
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('app-lock-card')).toBeTruthy();
+    getByTestId('app-lock-card');
   });
 
   it('shows the toggle when biometric is available', () => {
     setupMocks({ isBiometricAvailable: true });
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('app-lock-toggle')).toBeTruthy();
+    getByTestId('app-lock-toggle');
   });
 
   it('toggle reflects isLockEnabled=false from store', () => {
@@ -342,8 +342,8 @@ describe('SettingsScreen — App Lock section', () => {
   it('shows timeout select when lock is enabled', () => {
     setupMocks({ isBiometricAvailable: true, isLockEnabled: true, lockTimeoutMinutes: 5 });
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('app-lock-timeout-section')).toBeTruthy();
-    expect(getByTestId('app-lock-timeout-select')).toBeTruthy();
+    getByTestId('app-lock-timeout-section');
+    getByTestId('app-lock-timeout-select');
   });
 
   it('hides timeout select when lock is disabled', () => {
@@ -355,10 +355,10 @@ describe('SettingsScreen — App Lock section', () => {
   it('displays all four timeout options', () => {
     setupMocks({ isBiometricAvailable: true, isLockEnabled: true, lockTimeoutMinutes: 5 });
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('app-lock-timeout-select-option-1')).toBeTruthy();
-    expect(getByTestId('app-lock-timeout-select-option-5')).toBeTruthy();
-    expect(getByTestId('app-lock-timeout-select-option-15')).toBeTruthy();
-    expect(getByTestId('app-lock-timeout-select-option-30')).toBeTruthy();
+    getByTestId('app-lock-timeout-select-option-1');
+    getByTestId('app-lock-timeout-select-option-5');
+    getByTestId('app-lock-timeout-select-option-15');
+    getByTestId('app-lock-timeout-select-option-30');
   });
 
   it('calls setLockTimeoutMinutes with selected minute value', async () => {
@@ -388,7 +388,7 @@ describe('SettingsScreen — App Lock section', () => {
   it('hides lock controls and shows unavailable message when biometric is not available', () => {
     setupMocks({ isBiometricAvailable: false });
     const { getByTestId, queryByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('app-lock-unavailable')).toBeTruthy();
+    getByTestId('app-lock-unavailable');
     expect(queryByTestId('app-lock-toggle')).toBeNull();
   });
 });
@@ -405,72 +405,72 @@ describe('SettingsScreen — section rendering', () => {
 
   it('renders the Settings header', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Settings')).toBeTruthy();
-    expect(getByText('App preferences and data management')).toBeTruthy();
+    getByText('Settings');
+    getByText('App preferences and data management');
   });
 
   it('renders Security & Privacy section', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Security & Privacy')).toBeTruthy();
-    expect(getByText('Biometric Authentication')).toBeTruthy();
+    getByText('Security & Privacy');
+    getByText('Biometric Authentication');
   });
 
   it('renders Appearance & Language section', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Appearance & Language')).toBeTruthy();
-    expect(getByText('Theme')).toBeTruthy();
+    getByText('Appearance & Language');
+    getByText('Theme');
   });
 
   it('renders Analytics & Diagnostics section', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Analytics & Diagnostics')).toBeTruthy();
-    expect(getByText('Anonymous Analytics')).toBeTruthy();
-    expect(getByText('Crash Reporting')).toBeTruthy();
+    getByText('Analytics & Diagnostics');
+    getByText('Anonymous Analytics');
+    getByText('Crash Reporting');
   });
 
   it('renders Form Data section', () => {
     const { getByTestId, getByText } = render(<SettingsScreen />);
-    expect(getByTestId('form-data-card')).toBeTruthy();
-    expect(getByText('Form Data')).toBeTruthy();
+    getByTestId('form-data-card');
+    getByText('Form Data');
   });
 
   it('renders App Information section with version', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('App Information')).toBeTruthy();
-    expect(getByText('1.0.0 (MVP)')).toBeTruthy();
+    getByText('App Information');
+    getByText('1.0.0 (MVP)');
   });
 
   it('renders supported countries in App Information', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Japan • Malaysia • Singapore')).toBeTruthy();
+    getByText('Japan • Malaysia • Singapore');
   });
 
   it('renders Quick Actions section', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Quick Actions')).toBeTruthy();
-    expect(getByText('Refresh')).toBeTruthy();
-    expect(getByText('Reset')).toBeTruthy();
+    getByText('Quick Actions');
+    getByText('Refresh');
+    getByText('Reset');
   });
 
   it('renders Help & Support section', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Help & Support')).toBeTruthy();
-    expect(getByText('Help & FAQ')).toBeTruthy();
-    expect(getByText('Send Feedback')).toBeTruthy();
-    expect(getByText('Privacy Policy')).toBeTruthy();
+    getByText('Help & Support');
+    getByText('Help & FAQ');
+    getByText('Send Feedback');
+    getByText('Privacy Policy');
   });
 
   it('renders Notification Preferences row', () => {
     const { getByTestId, getByText } = render(<SettingsScreen />);
-    expect(getByTestId('notification-preferences-row')).toBeTruthy();
-    expect(getByText('Notification Preferences')).toBeTruthy();
-    expect(getByText('Deadline reminders, timing, quiet hours')).toBeTruthy();
+    getByTestId('notification-preferences-row');
+    getByText('Notification Preferences');
+    getByText('Deadline reminders, timing, quiet hours');
   });
 
   it('renders Local-First Privacy info', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Local-First Privacy')).toBeTruthy();
-    expect(getByText('Your data never leaves this device unless you explicitly share it.')).toBeTruthy();
+    getByText('Local-First Privacy');
+    getByText('Your data never leaves this device unless you explicitly share it.');
   });
 });
 
@@ -486,7 +486,7 @@ describe('SettingsScreen — theme', () => {
 
   it('renders ThemeSelector component', () => {
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('theme-selector')).toBeTruthy();
+    getByTestId('theme-selector');
   });
 });
 
@@ -502,19 +502,19 @@ describe('SettingsScreen — security badge', () => {
   it('shows "Protected" badge when biometric is enabled', () => {
     setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: true } });
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Protected')).toBeTruthy();
+    getByText('Protected');
   });
 
   it('shows "Basic" badge when biometric is disabled', () => {
     setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: false } });
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Basic')).toBeTruthy();
+    getByText('Basic');
   });
 
   it('shows "Enhanced Security Active" message when biometric enabled', () => {
     setupMocks({ preferences: { ...DEFAULT_APP_STORE.preferences, biometricEnabled: true } });
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText(/Enhanced Security Active/)).toBeTruthy();
+    getByText(/Enhanced Security Active/);
   });
 });
 
@@ -571,11 +571,11 @@ describe('SettingsScreen — form data', () => {
 
   it('shows "No schema data available yet" when no schemas exist', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('No schema data available yet.')).toBeTruthy();
+    getByText('No schema data available yet.');
   });
 
   it('renders refresh schemas button', () => {
     const { getByTestId } = render(<SettingsScreen />);
-    expect(getByTestId('refresh-schemas-button')).toBeTruthy();
+    getByTestId('refresh-schemas-button');
   });
 });

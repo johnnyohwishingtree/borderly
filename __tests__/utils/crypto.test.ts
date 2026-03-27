@@ -88,10 +88,10 @@ describe('deriveKeyFromPassphrase', () => {
   it('derives a CryptoKey from passphrase and salt', async () => {
     const salt = generateSalt();
     const key = await deriveKeyFromPassphrase('test-pass', salt);
-    expect(key).toBeDefined();
+    expect(key).not.toBeUndefined();
     // CryptoKey type check
     expect(key.type).toBe('secret');
-    expect(key.algorithm).toBeDefined();
+    expect(key.algorithm).not.toBeUndefined();
   });
 
   it('derives different keys for different passphrases', async () => {

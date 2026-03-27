@@ -23,7 +23,7 @@ describe('ProfileSelector', () => {
         onSelect={jest.fn()}
       />,
     );
-    expect(getByTestId('profile-selector')).toBeTruthy();
+    getByTestId('profile-selector');
   });
 
   it('renders with a custom testID', () => {
@@ -35,7 +35,7 @@ describe('ProfileSelector', () => {
         testID="my-selector"
       />,
     );
-    expect(getByTestId('my-selector')).toBeTruthy();
+    getByTestId('my-selector');
   });
 
   it('shows the trigger button', () => {
@@ -46,7 +46,7 @@ describe('ProfileSelector', () => {
         onSelect={jest.fn()}
       />,
     );
-    expect(getByTestId('profile-selector-trigger')).toBeTruthy();
+    getByTestId('profile-selector-trigger');
   });
 
   it('shows the selected profile name and relationship in the trigger', () => {
@@ -93,7 +93,7 @@ describe('ProfileSelector', () => {
       />,
     );
     fireEvent.press(getByTestId('profile-selector-trigger'));
-    expect(getByTestId('profile-selector-dropdown')).toBeTruthy();
+    getByTestId('profile-selector-dropdown');
   });
 
   it('closes dropdown when trigger is pressed a second time', () => {
@@ -105,7 +105,7 @@ describe('ProfileSelector', () => {
       />,
     );
     fireEvent.press(getByTestId('profile-selector-trigger'));
-    expect(getByTestId('profile-selector-dropdown')).toBeTruthy();
+    getByTestId('profile-selector-dropdown');
 
     fireEvent.press(getByTestId('profile-selector-trigger'));
     expect(queryByTestId('profile-selector-dropdown')).toBeNull();
@@ -121,9 +121,9 @@ describe('ProfileSelector', () => {
     );
     fireEvent.press(getByTestId('profile-selector-trigger'));
 
-    expect(getByTestId('profile-option-p1')).toBeTruthy();
-    expect(getByTestId('profile-option-p2')).toBeTruthy();
-    expect(getByTestId('profile-option-p3')).toBeTruthy();
+    getByTestId('profile-option-p1');
+    getByTestId('profile-option-p2');
+    getByTestId('profile-option-p3');
   });
 
   it('renders each profile with name and relationship', () => {
@@ -165,7 +165,7 @@ describe('ProfileSelector', () => {
       />,
     );
     fireEvent.press(getByTestId('profile-selector-trigger'));
-    expect(getByTestId('profile-selector-dropdown')).toBeTruthy();
+    getByTestId('profile-selector-dropdown');
 
     fireEvent.press(getByTestId('profile-option-p2'));
     expect(queryByTestId('profile-selector-dropdown')).toBeNull();
@@ -182,7 +182,7 @@ describe('ProfileSelector', () => {
     fireEvent.press(getByTestId('profile-selector-trigger'));
 
     // Selected profile has a dot indicator
-    expect(getByTestId('profile-selected-dot-p2')).toBeTruthy();
+    getByTestId('profile-selected-dot-p2');
   });
 
   it('does not show selected dot for non-selected profiles', () => {
@@ -207,7 +207,7 @@ describe('ProfileSelector', () => {
         onSelect={jest.fn()}
       />,
     );
-    expect(getByLabelText('Select profile for auto-fill')).toBeTruthy();
+    getByLabelText('Select profile for auto-fill');
   });
 
   it('each profile option has correct accessibility label', () => {
@@ -220,8 +220,8 @@ describe('ProfileSelector', () => {
     );
     fireEvent.press(getByTestId('profile-selector-trigger'));
 
-    expect(getByLabelText('Select Alice Smith')).toBeTruthy();
-    expect(getByLabelText('Select Bob Smith')).toBeTruthy();
-    expect(getByLabelText('Select Charlie Smith')).toBeTruthy();
+    getByLabelText('Select Alice Smith');
+    getByLabelText('Select Bob Smith');
+    getByLabelText('Select Charlie Smith');
   });
 });

@@ -8,7 +8,7 @@ import ProgressBar from '../../../src/components/ui/ProgressBar';
 describe('ProgressBar', () => {
   it('renders without crashing', () => {
     const { getByLabelText } = render(<ProgressBar progress={50} />);
-    expect(getByLabelText(/50.*percent/i)).toBeTruthy();
+    getByLabelText(/50.*percent/i);
   });
 
   it('has correct accessibility value for 0%', () => {
@@ -41,14 +41,14 @@ describe('ProgressBar', () => {
     const { getByText } = render(
       <ProgressBar progress={60} label="Form completion" />,
     );
-    expect(getByText('Form completion')).toBeTruthy();
+    getByText('Form completion');
   });
 
   it('shows percentage text when showPercentage is true', () => {
     const { getByText } = render(
       <ProgressBar progress={75} showPercentage />,
     );
-    expect(getByText('75%')).toBeTruthy();
+    getByText('75%');
   });
 
   it('does not show percentage when showPercentage is false', () => {
@@ -60,20 +60,20 @@ describe('ProgressBar', () => {
     const { getByLabelText, rerender } = render(
       <ProgressBar progress={50} size="small" />,
     );
-    expect(getByLabelText(/50.*percent/i)).toBeTruthy();
+    getByLabelText(/50.*percent/i);
 
     rerender(<ProgressBar progress={50} size="large" />);
-    expect(getByLabelText(/50.*percent/i)).toBeTruthy();
+    getByLabelText(/50.*percent/i);
   });
 
   it('renders with different colors', () => {
     const { getByLabelText, rerender } = render(
       <ProgressBar progress={50} color="green" />,
     );
-    expect(getByLabelText(/50.*percent/i)).toBeTruthy();
+    getByLabelText(/50.*percent/i);
 
     rerender(<ProgressBar progress={50} color="red" />);
-    expect(getByLabelText(/50.*percent/i)).toBeTruthy();
+    getByLabelText(/50.*percent/i);
   });
 
   it('has accessibility text with percentage', () => {

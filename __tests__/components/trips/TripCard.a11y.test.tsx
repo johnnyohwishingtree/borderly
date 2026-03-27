@@ -46,13 +46,13 @@ function makeTrip(overrides?: Partial<Trip>): Trip {
 describe('TripCard accessibilityLabel', () => {
   it('has accessibilityLabel set to the trip name', () => {
     render(<TripCard trip={makeTrip()} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('Asia Adventure 2025')).toBeTruthy();
+    screen.getByLabelText('Asia Adventure 2025');
   });
 
   it('accessibilityLabel updates when trip name changes', () => {
     const trip = makeTrip({ name: 'Europe Summer 2026' });
     render(<TripCard trip={trip} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('Europe Summer 2026')).toBeTruthy();
+    screen.getByLabelText('Europe Summer 2026');
   });
 });
 
@@ -133,7 +133,7 @@ describe('TripCard decorative elements hidden from screen readers', () => {
 describe('TripCard testID', () => {
   it('renders with testID matching the trip name', () => {
     render(<TripCard trip={makeTrip()} onPress={jest.fn()} />);
-    expect(screen.getByTestId('trip-card-Asia Adventure 2025')).toBeTruthy();
+    screen.getByTestId('trip-card-Asia Adventure 2025');
   });
 });
 
@@ -145,7 +145,7 @@ describe('TripCard with no legs', () => {
   it('still renders with correct accessibilityLabel when legs are empty', () => {
     const trip = makeTrip({ legs: [] });
     render(<TripCard trip={trip} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('Asia Adventure 2025')).toBeTruthy();
+    screen.getByLabelText('Asia Adventure 2025');
   });
 });
 
@@ -212,7 +212,7 @@ describe('TripCard submission indicator a11y — zero submitted', () => {
       ],
     });
     render(<TripCard trip={trip} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('0 of 1 legs submitted')).toBeTruthy();
+    screen.getByLabelText('0 of 1 legs submitted');
   });
 });
 
@@ -306,7 +306,7 @@ describe('TripCard submission indicator a11y — partial submitted', () => {
       ],
     });
     render(<TripCard trip={trip} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('1 of 2 legs submitted')).toBeTruthy();
+    screen.getByLabelText('1 of 2 legs submitted');
   });
 });
 
@@ -386,7 +386,7 @@ describe('TripCard submission indicator a11y — all submitted', () => {
       ],
     });
     render(<TripCard trip={trip} onPress={jest.fn()} />);
-    expect(screen.getByLabelText('All legs submitted')).toBeTruthy();
+    screen.getByLabelText('All legs submitted');
   });
 
   it('all-submitted indicator has accessible=true and no accessibilityRole (it is informational)', () => {

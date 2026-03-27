@@ -174,22 +174,22 @@ describe('Airport Lookup Service', () => {
   describe('Airport Database Validation', () => {
     it('should have all required supported destination airports', () => {
       // Japan airports
-      expect(AIRPORT_DATABASE.NRT).toBeDefined();
-      expect(AIRPORT_DATABASE.HND).toBeDefined();
-      expect(AIRPORT_DATABASE.KIX).toBeDefined();
-      expect(AIRPORT_DATABASE.FUK).toBeDefined();
-      expect(AIRPORT_DATABASE.CTS).toBeDefined();
-      expect(AIRPORT_DATABASE.ITM).toBeDefined();
+      expect(AIRPORT_DATABASE.NRT).toMatchObject({ code: 'NRT', country: 'JPN' });
+      expect(AIRPORT_DATABASE.HND).toMatchObject({ code: 'HND', country: 'JPN' });
+      expect(AIRPORT_DATABASE.KIX).toMatchObject({ code: 'KIX', country: 'JPN' });
+      expect(AIRPORT_DATABASE.FUK).toMatchObject({ code: 'FUK', country: 'JPN' });
+      expect(AIRPORT_DATABASE.CTS).toMatchObject({ code: 'CTS', country: 'JPN' });
+      expect(AIRPORT_DATABASE.ITM).toMatchObject({ code: 'ITM', country: 'JPN' });
 
       // Malaysia airports
-      expect(AIRPORT_DATABASE.KUL).toBeDefined();
-      expect(AIRPORT_DATABASE.PEN).toBeDefined();
-      expect(AIRPORT_DATABASE.BKI).toBeDefined();
-      expect(AIRPORT_DATABASE.KCH).toBeDefined();
-      expect(AIRPORT_DATABASE.LGK).toBeDefined();
+      expect(AIRPORT_DATABASE.KUL).toMatchObject({ code: 'KUL', country: 'MYS' });
+      expect(AIRPORT_DATABASE.PEN).toMatchObject({ code: 'PEN', country: 'MYS' });
+      expect(AIRPORT_DATABASE.BKI).toMatchObject({ code: 'BKI', country: 'MYS' });
+      expect(AIRPORT_DATABASE.KCH).toMatchObject({ code: 'KCH', country: 'MYS' });
+      expect(AIRPORT_DATABASE.LGK).toMatchObject({ code: 'LGK', country: 'MYS' });
 
       // Singapore airports
-      expect(AIRPORT_DATABASE.SIN).toBeDefined();
+      expect(AIRPORT_DATABASE.SIN).toMatchObject({ code: 'SIN', country: 'SGP' });
     });
 
     it('should have valid airport data structure', () => {

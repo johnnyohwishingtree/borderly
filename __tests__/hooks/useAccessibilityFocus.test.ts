@@ -20,7 +20,7 @@ describe('useAccessibilityFocus', () => {
 
   it('returns a ref and focusElement callback', () => {
     const { result } = renderHook(() => useAccessibilityFocus());
-    expect(result.current.ref).toBeDefined();
+    expect(result.current.ref).toEqual({ current: null });
     expect(typeof result.current.focusElement).toBe('function');
   });
 

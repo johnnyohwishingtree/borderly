@@ -125,8 +125,7 @@ describe('useQRDetail', () => {
   it('loads QR code on mount', async () => {
     const { result } = await renderAndWaitForLoad();
 
-    expect(result.current.qrCode).toBeTruthy();
-    expect(result.current.qrCode!.label).toBe('Japan Immigration');
+    expect(result.current.qrCode).toMatchObject({ label: 'Japan Immigration' });
   });
 
   it('shows error alert when loading fails', async () => {

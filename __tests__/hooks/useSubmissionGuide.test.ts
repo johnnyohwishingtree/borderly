@@ -124,7 +124,7 @@ describe('useSubmissionGuide', () => {
       useSubmissionGuide({ tripId: 'trip-1', legId: 'leg-1' } as any),
     );
 
-    expect(result.current.data.schema).toBeDefined();
+    expect(result.current.data.schema).toMatchObject({ countryCode: 'JPN' });
     expect(result.current.state.currentStep).toBe(1);
   });
 

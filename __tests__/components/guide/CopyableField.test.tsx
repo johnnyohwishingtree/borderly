@@ -43,9 +43,9 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('Test Field')).toBeTruthy();
-    expect(getByText('Test Value')).toBeTruthy();
-    expect(getByText('Copy')).toBeTruthy();
+    getByText('Test Field');
+    getByText('Test Value');
+    getByText('Copy');
   });
 
   it('displays portal field name when provided', () => {
@@ -57,7 +57,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('Portal field: Portal Field Name')).toBeTruthy();
+    getByText('Portal field: Portal Field Name');
   });
 
   it('displays help text when provided', () => {
@@ -69,7 +69,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('This is helpful information')).toBeTruthy();
+    getByText('This is helpful information');
   });
 
   it('formats value using custom formatter', () => {
@@ -82,7 +82,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('Formatted: Original Value')).toBeTruthy();
+    getByText('Formatted: Original Value');
   });
 
   it('shows "Not provided" for empty values', () => {
@@ -93,7 +93,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('Not provided')).toBeTruthy();
+    getByText('Not provided');
   });
 
   it('copies value to clipboard when pressed', async () => {
@@ -126,7 +126,7 @@ describe('CopyableField', () => {
     fireEvent.press(copyButton);
 
     await waitFor(() => {
-      expect(getByText('Copied!')).toBeTruthy();
+      getByText('Copied!');
     });
   });
 
@@ -196,7 +196,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('true')).toBeTruthy();
+    getByText('true');
   });
 
   it('handles number values correctly', () => {
@@ -207,7 +207,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByText('42')).toBeTruthy();
+    getByText('42');
   });
 
   it('applies accessibility label correctly', () => {
@@ -219,7 +219,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByLabelText('Custom accessibility label')).toBeTruthy();
+    getByLabelText('Custom accessibility label');
   });
 
   it('uses default accessibility label when not provided', () => {
@@ -230,7 +230,7 @@ describe('CopyableField', () => {
       />
     );
 
-    expect(getByLabelText('Copy Test Field: Test Value')).toBeTruthy();
+    getByLabelText('Copy Test Field: Test Value');
   });
 
   it('copy status area has accessibilityLiveRegion polite for screen reader announcement', () => {
@@ -276,7 +276,7 @@ describe('CopyableField', () => {
     fireEvent.press(copyButton);
 
     // First wait for the "Copied!" text to confirm state updated
-    await waitFor(() => expect(getByText('Copied!')).toBeTruthy());
+    await waitFor(() => getByText('Copied!'));
 
     // Now verify the status area View has the screen-reader announcement label
     const statusArea = getByTestId('copy-status-area');

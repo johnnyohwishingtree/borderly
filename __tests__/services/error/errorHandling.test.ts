@@ -396,7 +396,7 @@ describe('isAppError', () => {
   });
 
   it('returns false for null', () => {
-    expect(isAppError(null)).toBeFalsy();
+    expect(isAppError(null)).toBe(null);
   });
 
   it('returns false for an object missing required fields', () => {

@@ -148,9 +148,7 @@ describe('usePortalAutoFill', () => {
         });
       });
 
-      expect(result.current.bannerState).toBeDefined();
-      expect(result.current.bannerState?.filled).toBe(3);
-      expect(result.current.bannerState?.total).toBe(5);
+      expect(result.current.bannerState).toMatchObject({ filled: 3, total: 5 });
     });
 
     it('ignores messages with zero total', () => {
@@ -176,7 +174,7 @@ describe('usePortalAutoFill', () => {
           results: [{ id: 'f1', filled: true }],
         });
       });
-      expect(result.current.bannerState).not.toBeNull();
+      expect(result.current.bannerState).toMatchObject({ filled: 1, total: 2 });
 
       // Dismiss
       act(() => {

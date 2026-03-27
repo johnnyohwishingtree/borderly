@@ -18,18 +18,18 @@ describe('South Korea (KOR) Schema', () => {
   });
 
   test('should have lastUpdated in ISO format', () => {
-    expect(schema.lastUpdated).toBeDefined();
+    expect(typeof schema.lastUpdated).toBe('string');
     expect(() => new Date(schema.lastUpdated)).not.toThrow();
   });
 
   test('should have implementationStatus set to complete', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
   test('should have metadata with expected fields', () => {
     const metadata = schema.metadata;
-    expect(metadata.priority).toBeDefined();
+    expect(typeof metadata.priority).toBe('number');
     expect(metadata.complexity).toBe('medium');
     expect(metadata.popularity).toBeGreaterThan(0);
     expect(metadata.supportedLanguages).toContain('en');
@@ -48,12 +48,12 @@ describe('South Korea (KOR) Schema', () => {
   });
 
   test('submissionWindowNote should mention 72 hours', () => {
-    expect(schema.submissionWindowNote).toBeDefined();
+    expect(typeof schema.submissionWindowNote).toBe('string');
     expect(schema.submissionWindowNote.toLowerCase()).toContain('72');
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.latestBeforeArrival).toBe('72h');
   });
 
@@ -66,23 +66,23 @@ describe('South Korea (KOR) Schema', () => {
   // ── 4. Portal flow ──────────────────────────────────────────────────────────
 
   test('portalFlow should have requiresAccount set to true', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(true);
   });
 
   test('portalFlow should have signupUrl', () => {
-    expect(schema.portalFlow.signupUrl).toBeDefined();
+    expect(typeof schema.portalFlow.signupUrl).toBe('string');
     expect(schema.portalFlow.signupUrl).toContain('k-eta');
   });
 
   test('portalFlow should have family policy', () => {
     const portalFlow = schema.portalFlow;
-    expect(portalFlow.familyPolicy).toBeDefined();
+    expect(portalFlow.familyPolicy).not.toBeUndefined();
     expect(portalFlow.familyPolicy!.type).toBe('individual');
   });
 
   test('portalFlow should have prerequisites including passport and account', () => {
-    expect(schema.portalFlow.prerequisites).toBeDefined();
+    expect(schema.portalFlow.prerequisites).not.toBeUndefined();
     expect(schema.portalFlow.prerequisites!.length).toBeGreaterThanOrEqual(2);
 
     const prereqDescriptions = schema.portalFlow.prerequisites!.map(p => p.description.toLowerCase());
@@ -108,7 +108,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('passport section should have core fields with autoFillSource', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -143,7 +143,7 @@ describe('South Korea (KOR) Schema', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport')!;
     const genderField = passportSection.fields.find(f => f.id === 'gender')!;
 
-    expect(genderField).toBeDefined();
+    expect(genderField).not.toBeUndefined();
     expect(genderField.type).toBe('searchable_select');
     expect(genderField.autoFillSource).toBe('profile.gender');
 
@@ -156,7 +156,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('personal_info section should have contact and occupation fields', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal_info');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('email');
@@ -169,11 +169,11 @@ describe('South Korea (KOR) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal_info')!;
     const occupationField = personalSection.fields.find(f => f.id === 'occupation')!;
 
-    expect(occupationField).toBeDefined();
+    expect(occupationField).not.toBeUndefined();
     expect(occupationField.type).toBe('searchable_select');
     expect(occupationField.countrySpecific).toBe(true);
     expect(occupationField.required).toBe(true);
-    expect(occupationField.options).toBeDefined();
+    expect(occupationField.options).not.toBeUndefined();
     expect(occupationField.options!.length).toBeGreaterThan(0);
   });
 
@@ -181,7 +181,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('travel section should have K-ETA specific fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('purposeOfVisit');
@@ -195,7 +195,7 @@ describe('South Korea (KOR) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.type).toBe('searchable_select');
     expect(purposeField.countrySpecific).toBe(true);
     expect(purposeField.required).toBe(true);
@@ -222,7 +222,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('accommodation section should have hotel fields', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation');
-    expect(accommodationSection).toBeDefined();
+    expect(accommodationSection).not.toBeUndefined();
 
     const fieldIds = accommodationSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hotelName');
@@ -239,7 +239,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('health_declaration section should have health screening fields', () => {
     const healthSection = schema.sections.find(s => s.id === 'health_declaration');
-    expect(healthSection).toBeDefined();
+    expect(healthSection).not.toBeUndefined();
 
     const fieldIds = healthSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hasSymptoms');
@@ -261,7 +261,7 @@ describe('South Korea (KOR) Schema', () => {
 
   test('customs_declaration section should have required fields', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declaration');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const fieldIds = customsSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('carryingProhibitedItems');
@@ -275,7 +275,7 @@ describe('South Korea (KOR) Schema', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declaration')!;
     const dutyField = customsSection.fields.find(f => f.id === 'exceedsDutyFreeAllowance')!;
 
-    expect(dutyField).toBeDefined();
+    expect(dutyField).not.toBeUndefined();
     expect(dutyField.type).toBe('boolean');
     expect(dutyField.label + ' ' + (dutyField.helpText ?? '')).toContain('800');
   });
@@ -284,7 +284,7 @@ describe('South Korea (KOR) Schema', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declaration')!;
     const currencyField = customsSection.fields.find(f => f.id === 'carryingCurrencyOverLimit')!;
 
-    expect(currencyField).toBeDefined();
+    expect(currencyField).not.toBeUndefined();
     expect(currencyField.type).toBe('boolean');
     expect(currencyField.label + ' ' + (currencyField.helpText ?? '')).toContain('10,000');
   });
@@ -372,14 +372,14 @@ describe('South Korea (KOR) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('KOR');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('KOR');
   });
 
   // ── 16. changeDetection ─────────────────────────────────────────────────────
 
   test('should have changeDetection with non-empty monitoredSelectors', () => {
-    expect(schema.changeDetection).toBeDefined();
+    expect(schema.changeDetection).not.toBeUndefined();
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
@@ -394,7 +394,7 @@ describe('South Korea (KOR) Schema', () => {
     // K-ETA approval takes up to 72 hours — travellers must apply well in advance.
     // This is captured in the submissionDeadlineHours and submissionWindowNote.
     expect(schema.submissionDeadlineHours).toBe(72);
-    expect(schema.submissionWindowNote).toBeDefined();
+    expect(typeof schema.submissionWindowNote).toBe('string');
     expect(schema.submissionWindowNote.toLowerCase()).toContain('processing');
     expect(schema.submissionWindowNote.toLowerCase()).toContain('72');
   });

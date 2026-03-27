@@ -29,9 +29,9 @@ describe('Schema Validation Testing', () => {
     it('should validate basic schema structure', () => {
       const schema = TestDataFactory.createSampleSchema();
 
-      expect(schema.countryCode).toBeTruthy();
+      expect(typeof schema.countryCode).toBe('string');
       expect(ValidationHelpers.validateCountryCode(schema.countryCode)).toBe(true);
-      expect(schema.sections).toBeDefined();
+      expect(schema.sections).not.toBeUndefined();
       expect(Array.isArray(schema.sections)).toBe(true);
       expect(schema.sections.length).toBeGreaterThan(0);
       expect(ValidationHelpers.validateURL(schema.portalUrl)).toBe(true);
@@ -41,14 +41,14 @@ describe('Schema Validation Testing', () => {
       const schema = TestDataFactory.createSampleSchema();
 
       schema.sections.forEach(section => {
-        expect(section.id).toBeTruthy();
-        expect(section.title).toBeTruthy();
+        expect(typeof section.id).toBe('string');
+        expect(typeof section.title).toBe('string');
         expect(Array.isArray(section.fields)).toBe(true);
 
         section.fields.forEach(field => {
-          expect(field.id).toBeTruthy();
-          expect(field.label).toBeTruthy();
-          expect(field.type).toBeTruthy();
+          expect(typeof field.id).toBe('string');
+          expect(typeof field.label).toBe('string');
+          expect(typeof field.type).toBe('string');
           expect(typeof field.required).toBe('boolean');
         });
       });
@@ -319,8 +319,8 @@ describe('Schema Validation Testing', () => {
 
       // Both should have valid basic structure
       [v1Schema, v2Schema].forEach(schema => {
-        expect(schema.countryCode).toBeTruthy();
-        expect(schema.sections).toBeDefined();
+        expect(typeof schema.countryCode).toBe('string');
+        expect(schema.sections).not.toBeUndefined();
         expect(schema.sections.length).toBeGreaterThan(0);
       });
     });
@@ -328,7 +328,7 @@ describe('Schema Validation Testing', () => {
     it('should validate schema update timestamps', () => {
       const schema = TestDataFactory.createSampleSchema();
 
-      expect(schema.lastUpdated).toBeTruthy();
+      expect(typeof schema.lastUpdated).toBe('string');
       expect(ValidationHelpers.validateDateFormat(schema.lastUpdated.split('T')[0])).toBe(true);
     });
 

@@ -197,12 +197,12 @@ describe('Auto-Fill Pipeline — all 8 countries', () => {
       const mapping = getCountryMapping(countryCode);
 
       it('schema is registered', () => {
-        expect(schema).toBeDefined();
+        expect(schema).not.toBeUndefined();
         expect(schema.countryCode).toBe(countryCode);
       });
 
       it('field mapping is registered in ALL_COUNTRY_MAPPINGS', () => {
-        expect(mapping).toBeDefined();
+        expect(mapping).not.toBeUndefined();
         expect(mapping!.countryCode).toBe(countryCode);
       });
 
@@ -269,8 +269,8 @@ describe('Auto-Fill Pipeline — date format transforms', () => {
     const dobMapping = jpnMapping.fieldMappings['dateOfBirth'];
     const dobField = allFields.find((f) => f.id === 'dateOfBirth');
 
-    expect(dobMapping).toBeDefined();
-    expect(dobField).toBeDefined();
+    expect(dobMapping).not.toBeUndefined();
+    expect(dobField).not.toBeUndefined();
     expect(dobField!.currentValue).toBe('1985-06-15');
 
     const transformed = applyTransform(dobField!.currentValue, dobMapping!.transform);
@@ -321,7 +321,7 @@ describe('Auto-Fill Pipeline — date format transforms', () => {
     const dobMapping = usaMapping.fieldMappings['dateOfBirth'];
     const dobField = allFields.find((f) => f.id === 'dateOfBirth');
 
-    expect(dobField).toBeDefined();
+    expect(dobField).not.toBeUndefined();
     if (dobField && dobMapping?.transform?.type === 'date_format') {
       const transformed = applyTransform(dobField.currentValue, dobMapping.transform);
       expect(transformed).toBe('06/15/1985');
@@ -391,8 +391,10 @@ describe('Auto-Fill Pipeline — boolean_to_yesno transforms', () => {
     if (prohibitedMapping?.transform?.type === 'boolean_to_yesno') {
       const falseResult = applyTransform(false, prohibitedMapping.transform);
       const trueResult = applyTransform(true, prohibitedMapping.transform);
-      expect(falseResult).toBeDefined();
-      expect(trueResult).toBeDefined();
+      expect(typeof falseResult).toBe('string');
+      expect(typeof trueResult).toBe('string');
+      expect(falseResult.length).toBeGreaterThan(0);
+      expect(trueResult.length).toBeGreaterThan(0);
       // False value should differ from true value
       expect(falseResult).not.toBe(trueResult);
     }
@@ -434,8 +436,8 @@ describe('Auto-Fill Pipeline — field count verification', () => {
 
       // Each spec must have a non-empty selector and id
       specs.forEach((spec) => {
-        expect(spec.id).toBeTruthy();
-        expect(spec.selector).toBeTruthy();
+        expect(spec.id).not.toBe('');
+        expect(spec.selector).not.toBe('');
         expect(spec.inputType).toMatch(/^(text|select|radio|checkbox|date)$/);
       });
     });

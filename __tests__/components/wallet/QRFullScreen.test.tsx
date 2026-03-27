@@ -58,8 +58,8 @@ describe('QRFullScreen', () => {
     const { getByText } = render(
       <QRFullScreen qrCode={qr as any} visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Japan Immigration')).toBeTruthy();
-    expect(getByText('Immigration')).toBeTruthy();
+    getByText('Japan Immigration');
+    getByText('Immigration');
   });
 
   it('passes visible=false to Modal when not visible', () => {
@@ -154,8 +154,8 @@ describe('QRFullScreen', () => {
     const { getByText } = render(
       <QRFullScreen qrCode={qr as any} visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Japan Immigration')).toBeTruthy();
-    expect(getByText(/March 20, 2026/)).toBeTruthy();
+    getByText('Japan Immigration');
+    getByText(/March 20, 2026/);
   });
 
   it('renders type label in header', () => {
@@ -163,6 +163,6 @@ describe('QRFullScreen', () => {
     const { getByText } = render(
       <QRFullScreen qrCode={qr as any} visible={true} onClose={jest.fn()} />,
     );
-    expect(getByText('Customs')).toBeTruthy();
+    getByText('Customs');
   });
 });

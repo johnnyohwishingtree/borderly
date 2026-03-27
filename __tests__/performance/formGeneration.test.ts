@@ -243,7 +243,7 @@ describe('Form Generation Performance Tests', () => {
 
       const duration = endTime - startTime;
 
-      expect(validation.isComplete).toBeDefined();
+      expect(typeof validation.isComplete).toBe('boolean');
       expect(Array.isArray(validation.missingFields)).toBe(true);
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.formValidation);
       
@@ -431,9 +431,9 @@ describe('Form Generation Performance Tests', () => {
       const duration = endTime - startTime;
       
       expect(forms).toHaveLength(3);
-      expect(exportedData).toBeDefined();
-      expect(validation).toBeDefined();
-      expect(progress).toBeDefined();
+      expect(exportedData).not.toBeUndefined();
+      expect(validation).not.toBeUndefined();
+      expect(progress).not.toBeUndefined();
       
       // Entire workflow should complete quickly
       expect(duration).toBeLessThan(50); // 50ms for complete workflow

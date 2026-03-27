@@ -125,12 +125,12 @@ describe('JPN automation script (assets/automation/scripts/JPN.js)', () => {
   });
 
   test('exports fieldMappings object', () => {
-    expect(automation.fieldMappings).toBeDefined();
+    expect(automation.fieldMappings).not.toBeUndefined();
     expect(typeof automation.fieldMappings).toBe('object');
   });
 
   test('exports pageDetectors object with at least one detector', () => {
-    expect(automation.pageDetectors).toBeDefined();
+    expect(automation.pageDetectors).not.toBeUndefined();
     expect(Object.keys(automation.pageDetectors as object).length).toBeGreaterThan(0);
   });
 
@@ -210,12 +210,12 @@ describe('MYS automation script (assets/automation/scripts/MYS.js)', () => {
   });
 
   test('exports fieldMappings object', () => {
-    expect(automation.fieldMappings).toBeDefined();
+    expect(automation.fieldMappings).not.toBeUndefined();
     expect(typeof automation.fieldMappings).toBe('object');
   });
 
   test('exports pageDetectors object with at least one detector', () => {
-    expect(automation.pageDetectors).toBeDefined();
+    expect(automation.pageDetectors).not.toBeUndefined();
     expect(Object.keys(automation.pageDetectors as object).length).toBeGreaterThan(0);
   });
 
@@ -296,12 +296,12 @@ describe('SGP automation script (assets/automation/scripts/SGP.js)', () => {
   });
 
   test('exports fieldMappings object', () => {
-    expect(automation.fieldMappings).toBeDefined();
+    expect(automation.fieldMappings).not.toBeUndefined();
     expect(typeof automation.fieldMappings).toBe('object');
   });
 
   test('exports pageDetectors object with at least one detector', () => {
-    expect(automation.pageDetectors).toBeDefined();
+    expect(automation.pageDetectors).not.toBeUndefined();
     expect(Object.keys(automation.pageDetectors as object).length).toBeGreaterThan(0);
   });
 

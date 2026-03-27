@@ -30,14 +30,14 @@ describe('Select', () => {
     const utils = render(
       <Select options={options} onValueChange={jest.fn()} />,
     );
-    expect(findTrigger(utils)).toBeDefined();
+    expect(findTrigger(utils)).not.toBeUndefined();
   });
 
   it('renders label text when provided', () => {
     const { getByText } = render(
       <Select options={options} onValueChange={jest.fn()} label="Country" />,
     );
-    expect(getByText('Country')).toBeTruthy();
+    getByText('Country');
   });
 
   it('trigger shows "No selection" when value is empty', () => {

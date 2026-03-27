@@ -41,14 +41,14 @@ describe('NotificationPreferences', () => {
 
   it('renders the master toggle', () => {
     const { getByTestId } = render(<NotificationPreferences />);
-    expect(getByTestId('notification-master-toggle')).toBeTruthy();
+    getByTestId('notification-master-toggle');
   });
 
   it('renders timing options when enabled', () => {
     const { getByTestId } = render(<NotificationPreferences />);
-    expect(getByTestId('timing-48h')).toBeTruthy();
-    expect(getByTestId('timing-24h')).toBeTruthy();
-    expect(getByTestId('timing-6h')).toBeTruthy();
+    getByTestId('timing-48h');
+    getByTestId('timing-24h');
+    getByTestId('timing-6h');
   });
 
   it('hides timing options when disabled', () => {
@@ -108,7 +108,7 @@ describe('NotificationPreferences', () => {
 
   it('renders quiet hours toggle', () => {
     const { getByTestId } = render(<NotificationPreferences />);
-    expect(getByTestId('quiet-hours-toggle')).toBeTruthy();
+    getByTestId('quiet-hours-toggle');
   });
 
   it('shows quiet hours times when enabled', () => {
@@ -118,8 +118,8 @@ describe('NotificationPreferences', () => {
     });
 
     const { getByTestId } = render(<NotificationPreferences />);
-    expect(getByTestId('quiet-hours-start')).toBeTruthy();
-    expect(getByTestId('quiet-hours-end')).toBeTruthy();
+    getByTestId('quiet-hours-start');
+    getByTestId('quiet-hours-end');
   });
 
   it('hides quiet hours card when notifications disabled', () => {

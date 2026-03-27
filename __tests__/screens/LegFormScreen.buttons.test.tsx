@@ -114,8 +114,8 @@ describe('LegFormScreen action buttons', () => {
     it('shows "Save Progress" as the primary button', () => {
       mockCompletionPercentage = 40;
       const { getByTestId, getByText } = render(<LegFormScreen />);
-      expect(getByTestId('save-progress-button')).toBeTruthy();
-      expect(getByText('Save Progress')).toBeTruthy();
+      getByTestId('save-progress-button');
+      getByText('Save Progress');
     });
 
     it('does not show "Mark as Ready" button', () => {
@@ -152,20 +152,20 @@ describe('LegFormScreen action buttons', () => {
 
     it('shows "Mark as Ready" as the primary button', () => {
       const { getByTestId, getByText } = render(<LegFormScreen />);
-      expect(getByTestId('mark-ready-button')).toBeTruthy();
-      expect(getByText('Mark as Ready')).toBeTruthy();
+      getByTestId('mark-ready-button');
+      getByText('Mark as Ready');
     });
 
     it('shows "Save Draft" as a secondary button', () => {
       const { getByTestId, getByText } = render(<LegFormScreen />);
-      expect(getByTestId('save-progress-button')).toBeTruthy();
-      expect(getByText('Save Draft')).toBeTruthy();
+      getByTestId('save-progress-button');
+      getByText('Save Draft');
     });
 
     it('shows "Submit in App" and "Guide" buttons', () => {
       const { getByTestId } = render(<LegFormScreen />);
-      expect(getByTestId('submit-in-app-button')).toBeTruthy();
-      expect(getByTestId('open-submission-guide-button')).toBeTruthy();
+      getByTestId('submit-in-app-button');
+      getByTestId('open-submission-guide-button');
     });
   });
 
@@ -174,7 +174,7 @@ describe('LegFormScreen action buttons', () => {
       mockIsValid = false;
       mockCompletionPercentage = 40;
       const { getByTestId, queryByTestId } = render(<LegFormScreen />);
-      expect(getByTestId('save-progress-button')).toBeTruthy();
+      getByTestId('save-progress-button');
       expect(queryByTestId('mark-ready-button')).toBeNull();
     });
 
@@ -182,8 +182,8 @@ describe('LegFormScreen action buttons', () => {
       mockIsValid = true;
       mockCompletionPercentage = 100;
       const { getByTestId } = render(<LegFormScreen />);
-      expect(getByTestId('mark-ready-button')).toBeTruthy();
-      expect(getByTestId('save-progress-button')).toBeTruthy();
+      getByTestId('mark-ready-button');
+      getByTestId('save-progress-button');
     });
   });
 
@@ -191,22 +191,22 @@ describe('LegFormScreen action buttons', () => {
     it('shows "Not Started" when completion is 0%', () => {
       mockCompletionPercentage = 0;
       const { getByText } = render(<LegFormScreen />);
-      expect(getByText('Not Started')).toBeTruthy();
+      getByText('Not Started');
     });
 
     it('shows "In Progress" when completion is between 1-99%', () => {
       mockCompletionPercentage = 50;
       const { getByText } = render(<LegFormScreen />);
-      expect(getByText('In Progress')).toBeTruthy();
-      expect(getByText('50% complete')).toBeTruthy();
+      getByText('In Progress');
+      getByText('50% complete');
     });
 
     it('shows "Ready" when form is valid', () => {
       mockIsValid = true;
       mockCompletionPercentage = 100;
       const { getByText } = render(<LegFormScreen />);
-      expect(getByText('Ready')).toBeTruthy();
-      expect(getByText('100% complete')).toBeTruthy();
+      getByText('Ready');
+      getByText('100% complete');
     });
   });
 });

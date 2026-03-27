@@ -286,11 +286,11 @@ describe('MMKVService', () => {
     it('should use MMKV as storage backend', () => {
       // mmkvService is a singleton that wraps MMKV
       // Verify it exposes the expected interface
-      expect(mmkvService.getPreferences).toBeDefined();
-      expect(mmkvService.setPreference).toBeDefined();
-      expect(mmkvService.getFeatureFlag).toBeDefined();
-      expect(mmkvService.getCacheItem).toBeDefined();
-      expect(mmkvService.getString).toBeDefined();
+      expect(typeof mmkvService.getPreferences).toBe('function');
+      expect(typeof mmkvService.setPreference).toBe('function');
+      expect(typeof mmkvService.getFeatureFlag).toBe('function');
+      expect(typeof mmkvService.getCacheItem).toBe('function');
+      expect(typeof mmkvService.getString).toBe('function');
     });
   });
 });

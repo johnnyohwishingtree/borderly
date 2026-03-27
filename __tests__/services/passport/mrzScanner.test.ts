@@ -65,8 +65,7 @@ describe('MRZ Scanner Service', () => {
       const result = processCameraText(textRecognition);
 
       expect(result.type).toBe('success');
-      expect(result.mrz).toBeDefined();
-      expect(result.mrz!.success).toBe(true);
+      expect(result.mrz).toEqual(expect.objectContaining({ success: true }));
       expect(result.confidence).toBeGreaterThan(0.7);
       expect(result.guidance).toContain('complete');
     });
@@ -108,7 +107,7 @@ describe('MRZ Scanner Service', () => {
       const result = processCameraText(textRecognition);
 
       expect(result.type).toBe('success');
-      expect(result.mrz).toBeDefined();
+      expect(result.mrz).toEqual(expect.objectContaining({ success: true }));
     });
   });
 
@@ -397,7 +396,6 @@ describe('MRZ Scanner Service', () => {
       // Should work with default config when none provided
       const result = processCameraText(textRecognition);
 
-      expect(result).toBeDefined();
       expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
   });
@@ -416,7 +414,6 @@ describe('MRZ Scanner Service', () => {
       const result = processCameraText(textRecognition);
 
       // Should not crash, even with invalid data
-      expect(result).toBeDefined();
       expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
 
@@ -428,7 +425,6 @@ describe('MRZ Scanner Service', () => {
 
       const result = processCameraText(textRecognition);
 
-      expect(result).toBeDefined();
       expect(result.guidance).toContain('MRZ');
     });
 
@@ -457,7 +453,7 @@ describe('MRZ Scanner Service', () => {
 
       const result = processCameraText(textRecognition);
 
-      expect(result).toBeDefined();
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
 
     it('should handle null or undefined text recognition gracefully', () => {
@@ -477,7 +473,6 @@ describe('MRZ Scanner Service', () => {
 
       const result = processCameraText(textRecognition as any);
 
-      expect(result).toBeDefined();
       expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
   });
@@ -495,8 +490,8 @@ describe('MRZ Scanner Service', () => {
       const highResult = highTierScanner.processFrame(textRecognition);
 
       // Both should process successfully
-      expect(lowResult).toBeDefined();
-      expect(highResult).toBeDefined();
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(lowResult.type);
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(highResult.type);
     });
 
     it('should handle invalid performance tier gracefully', () => {
@@ -507,7 +502,7 @@ describe('MRZ Scanner Service', () => {
       const scanner = new MRZScanner(defaultScannerConfig, 'invalid' as any);
       const result = scanner.processFrame(textRecognition);
 
-      expect(result).toBeDefined();
+      expect(['success', 'partial', 'error', 'no_mrz']).toContain(result.type);
     });
   });
 
@@ -524,7 +519,7 @@ describe('MRZ Scanner Service', () => {
       const stats = scanner.getStats();
       
       expect(stats.attempts).toBeGreaterThan(0);
-      expect(stats.lastScan).toBeDefined();
+      expect(stats.lastScan).not.toBeNull();
       expect(stats.lastScan?.type).toBe('success');
     });
 
@@ -587,8 +582,7 @@ describe('MRZ Scanner Service', () => {
       const scanner = new MRZScanner(defaultScannerConfig, 'low');
       
       // Just verify scanner was created with tier
-      expect(scanner).toBeDefined();
-      expect(typeof scanner).toBe('object');
+      expect(scanner).toBeInstanceOf(MRZScanner);
     });
   });
 
@@ -611,7 +605,7 @@ describe('MRZ Scanner Service', () => {
       const validation = validateScannedPassport(result);
 
       // Should not crash, but should indicate missing important fields
-      expect(validation.isValid).toBeDefined();
+      expect(typeof validation.isValid).toBe('boolean');
       expect(Array.isArray(validation.warnings)).toBe(true);
     });
 
@@ -662,7 +656,7 @@ describe('MRZ Scanner Service', () => {
       const validation = validateScannedPassport(result);
 
       // Just verify validation completed without errors
-      expect(validation).toBeDefined();
+      expect(typeof validation.isValid).toBe('boolean');
       expect(Array.isArray(validation.warnings)).toBe(true);
     });
   });

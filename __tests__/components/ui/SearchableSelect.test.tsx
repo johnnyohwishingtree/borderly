@@ -16,7 +16,7 @@ describe('SearchableSelect', () => {
     const { getByText } = render(
       <SearchableSelect options={options} onValueChange={jest.fn()} />,
     );
-    expect(getByText('Select an option')).toBeTruthy();
+    getByText('Select an option');
   });
 
   it('renders custom placeholder', () => {
@@ -27,14 +27,14 @@ describe('SearchableSelect', () => {
         placeholder="Choose country"
       />,
     );
-    expect(getByText('Choose country')).toBeTruthy();
+    getByText('Choose country');
   });
 
   it('shows selected option label', () => {
     const { getByText } = render(
       <SearchableSelect options={options} value="jp" onValueChange={jest.fn()} />,
     );
-    expect(getByText('Japan')).toBeTruthy();
+    getByText('Japan');
   });
 
   it('opens dropdown panel on press', () => {
@@ -47,7 +47,7 @@ describe('SearchableSelect', () => {
     );
     expect(queryByTestId('country-panel')).toBeNull();
     fireEvent.press(getByTestId('country-trigger'));
-    expect(getByTestId('country-panel')).toBeTruthy();
+    getByTestId('country-panel');
   });
 
   it('closes panel on trigger press when already open', () => {
@@ -59,7 +59,7 @@ describe('SearchableSelect', () => {
       />,
     );
     fireEvent.press(getByTestId('country-trigger'));
-    expect(getByTestId('country-panel')).toBeTruthy();
+    getByTestId('country-panel');
     fireEvent.press(getByTestId('country-trigger'));
     expect(queryByTestId('country-panel')).toBeNull();
   });
@@ -74,7 +74,7 @@ describe('SearchableSelect', () => {
     );
     fireEvent.press(getByTestId('country-trigger'));
     // Search input should be visible when panel is open
-    expect(getByTestId('country-search')).toBeTruthy();
+    getByTestId('country-search');
   });
 
   it('shows label and required indicator', () => {
@@ -87,8 +87,8 @@ describe('SearchableSelect', () => {
       />,
     );
     // "Country" and " *" are nested Texts — use regex to match the composite
-    expect(getByText(/Country/)).toBeTruthy();
-    expect(getByText(' *')).toBeTruthy();
+    getByText(/Country/);
+    getByText(' *');
   });
 
   it('shows error message when not open', () => {
@@ -99,7 +99,7 @@ describe('SearchableSelect', () => {
         error="Selection required"
       />,
     );
-    expect(getByText('Selection required')).toBeTruthy();
+    getByText('Selection required');
   });
 
   it('does not open when disabled', () => {

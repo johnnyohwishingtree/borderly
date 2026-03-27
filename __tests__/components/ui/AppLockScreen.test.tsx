@@ -36,9 +36,9 @@ describe('AppLockScreen', () => {
     const { getByText, getByTestId } = render(
       <AppLockScreen onUnlock={jest.fn().mockResolvedValue(true)} />,
     );
-    expect(getByTestId('app-lock-screen')).toBeTruthy();
-    expect(getByText('Borderly Locked')).toBeTruthy();
-    expect(getByText('Unlock with Biometrics')).toBeTruthy();
+    getByTestId('app-lock-screen');
+    getByText('Borderly Locked');
+    getByText('Unlock with Biometrics');
   });
 
   it('calls onUnlock when unlock button pressed', async () => {
@@ -55,7 +55,7 @@ describe('AppLockScreen', () => {
     const { getByText } = render(<AppLockScreen onUnlock={onUnlock} />);
     fireEvent.press(getByText('Unlock with Biometrics'));
     await waitFor(() => {
-      expect(getByText('Authentication failed. Please try again.')).toBeTruthy();
+      getByText('Authentication failed. Please try again.');
     });
   });
 
@@ -63,6 +63,6 @@ describe('AppLockScreen', () => {
     const { getByText } = render(
       <AppLockScreen onUnlock={jest.fn().mockResolvedValue(true)} />,
     );
-    expect(getByText(/locked after 5 minutes/)).toBeTruthy();
+    getByText(/locked after 5 minutes/);
   });
 });

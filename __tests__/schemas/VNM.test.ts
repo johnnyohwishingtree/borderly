@@ -14,7 +14,7 @@ describe('Vietnam (VNM) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('30d');
     expect(schema.submission.recommended).toBe('14d');
   });
@@ -24,12 +24,12 @@ describe('Vietnam (VNM) Schema', () => {
   });
 
   test('portalFlow should not require account registration', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('implementation status should be planned', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('planned');
   });
 
@@ -46,7 +46,7 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('personal section should include Vietnam-specific religion field', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
@@ -55,7 +55,7 @@ describe('Vietnam (VNM) Schema', () => {
     expect(fieldIds).toContain('religion');
 
     const religionField = personalSection!.fields.find(f => f.id === 'religion');
-    expect(religionField).toBeDefined();
+    expect(religionField).not.toBeUndefined();
     expect(religionField!.countrySpecific).toBe(true);
     expect(religionField!.required).toBe(true);
   });
@@ -73,7 +73,7 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('passport section should have all required passport fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -93,10 +93,10 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('travel section should have Vietnam-specific port of entry field', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const entryPortField = travelSection!.fields.find(f => f.id === 'entryPort');
-    expect(entryPortField).toBeDefined();
+    expect(entryPortField).not.toBeUndefined();
     expect(entryPortField!.countrySpecific).toBe(true);
 
     const portCodes = entryPortField!.options?.map(o => o.value) ?? [];
@@ -109,7 +109,7 @@ describe('Vietnam (VNM) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit');
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
     const purposes = (purposeField as any).options!.map((o: any) => o.value);
@@ -123,8 +123,8 @@ describe('Vietnam (VNM) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const durationField = travelSection.fields.find(f => f.id === 'stayDuration')!;
 
-    expect(durationField).toBeDefined();
-    expect((durationField as any).validation).toBeDefined();
+    expect(durationField).not.toBeUndefined();
+    expect((durationField as any).validation).not.toBeUndefined();
     expect((durationField as any).validation!.min).toBe(1);
     expect((durationField as any).validation!.max).toBe(30);
   });
@@ -133,7 +133,7 @@ describe('Vietnam (VNM) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const prevVisitField = travelSection.fields.find(f => f.id === 'previousVietnamVisit')!;
 
-    expect(prevVisitField).toBeDefined();
+    expect(prevVisitField).not.toBeUndefined();
     expect(prevVisitField.type).toBe('boolean');
     expect(prevVisitField.countrySpecific).toBe(true);
     expect(prevVisitField.required).toBe(true);
@@ -141,10 +141,10 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('accommodation section should have Vietnam city/province selector', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation');
-    expect(accommodationSection).toBeDefined();
+    expect(accommodationSection).not.toBeUndefined();
 
     const cityField = accommodationSection!.fields.find(f => f.id === 'cityOfStay');
-    expect(cityField).toBeDefined();
+    expect(cityField).not.toBeUndefined();
     expect(cityField!.countrySpecific).toBe(true);
 
     const cities = (cityField as any).options!.map((o: any) => o.value);
@@ -163,7 +163,7 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('contact section should have emergency contact fields', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact');
-    expect(contactSection).toBeDefined();
+    expect(contactSection).not.toBeUndefined();
 
     const fieldIds = contactSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('email');
@@ -182,8 +182,8 @@ describe('Vietnam (VNM) Schema', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact')!;
     const emailField = contactSection.fields.find(f => f.id === 'email')!;
 
-    expect((emailField as any).validation).toBeDefined();
-    expect((emailField as any).validation!.pattern).toBeDefined();
+    expect((emailField as any).validation).not.toBeUndefined();
+    expect(typeof (emailField as any).validation!.pattern).toBe('string');
     expect((emailField as any).validation!.pattern).toContain('@');
   });
 
@@ -237,7 +237,7 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('VNM');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('VNM');
   });
 
@@ -248,10 +248,10 @@ describe('Vietnam (VNM) Schema', () => {
 
   test('portalFlow should require payment prerequisite', () => {
     const prerequisites = schema.portalFlow.prerequisites;
-    expect(prerequisites).toBeDefined();
+    expect(prerequisites).not.toBeUndefined();
 
     const paymentPrereq = prerequisites!.find((p: any) => p.type === 'payment');
-    expect(paymentPrereq).toBeDefined();
+    expect(paymentPrereq).toEqual(expect.objectContaining({ type: 'payment', required: true }));
     expect(paymentPrereq!.required).toBe(true);
   });
 });

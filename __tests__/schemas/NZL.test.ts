@@ -18,12 +18,12 @@ describe('New Zealand (NZL) Schema', () => {
   });
 
   test('should have lastUpdated in ISO format', () => {
-    expect(schema.lastUpdated).toBeDefined();
+    expect(typeof schema.lastUpdated).toBe('string');
     expect(() => new Date(schema.lastUpdated)).not.toThrow();
   });
 
   test('should have implementationStatus set to complete', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
@@ -36,7 +36,7 @@ describe('New Zealand (NZL) Schema', () => {
   // ── 2. Submission timing ────────────────────────────────────────────────────
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.latestBeforeArrival).toBe('24h');
     expect(schema.submission.recommended).toBe('48h');
   });
@@ -50,7 +50,7 @@ describe('New Zealand (NZL) Schema', () => {
   });
 
   test('submissionWindowNote should describe the 24h window', () => {
-    expect(schema.submissionWindowNote).toBeDefined();
+    expect(typeof schema.submissionWindowNote).toBe('string');
     expect(schema.submissionWindowNote.toLowerCase()).toContain('24');
   });
 
@@ -63,19 +63,19 @@ describe('New Zealand (NZL) Schema', () => {
   // ── 4. Portal flow ──────────────────────────────────────────────────────────
 
   test('portalFlow should have requiresAccount set to false', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('portalFlow should have family policy with no account requirement', () => {
     const portalFlow = schema.portalFlow;
-    expect(portalFlow.familyPolicy).toBeDefined();
+    expect(portalFlow.familyPolicy).not.toBeUndefined();
     expect(portalFlow.familyPolicy!.type).toBe('none');
     expect(portalFlow.familyPolicy!.description).toContain('No account required');
   });
 
   test('portalFlow should have prerequisites', () => {
-    expect(schema.portalFlow.prerequisites).toBeDefined();
+    expect(schema.portalFlow.prerequisites).not.toBeUndefined();
     expect(schema.portalFlow.prerequisites!.length).toBeGreaterThanOrEqual(2);
 
     const prereqDescriptions = schema.portalFlow.prerequisites!.map(p => p.description);
@@ -99,7 +99,7 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('personal section should have core passport fields with autoFillSource', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('familyName');
@@ -134,7 +134,7 @@ describe('New Zealand (NZL) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const genderField = personalSection.fields.find(f => f.id === 'gender')!;
 
-    expect(genderField).toBeDefined();
+    expect(genderField).not.toBeUndefined();
     expect(genderField.type).toBe('searchable_select');
     expect(genderField.autoFillSource).toBe('profile.gender');
 
@@ -147,7 +147,7 @@ describe('New Zealand (NZL) Schema', () => {
   test('email field should auto-fill from profile', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
-    expect(emailField).toBeDefined();
+    expect(emailField).not.toBeUndefined();
     expect(emailField.autoFillSource).toBe('profile.email');
   });
 
@@ -155,7 +155,7 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('travel section should have NZTD-specific fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('flightNumber');
@@ -181,7 +181,7 @@ describe('New Zealand (NZL) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.type).toBe('searchable_select');
     expect(purposeField.countrySpecific).toBe(true);
 
@@ -195,7 +195,7 @@ describe('New Zealand (NZL) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const departureField = travelSection.fields.find(f => f.id === 'departureCountry')!;
 
-    expect(departureField).toBeDefined();
+    expect(departureField).not.toBeUndefined();
     expect(departureField.type).toBe('searchable_select');
     expect(departureField.countrySpecific).toBe(true);
   });
@@ -204,7 +204,7 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('address section should have NZ address fields', () => {
     const addressSection = schema.sections.find(s => s.id === 'address');
-    expect(addressSection).toBeDefined();
+    expect(addressSection).not.toBeUndefined();
 
     const fieldIds = addressSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('nzAddressLine1');
@@ -225,7 +225,7 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('biosecurity section should have all biosecurity declaration fields', () => {
     const biosecuritySection = schema.sections.find(s => s.id === 'biosecurity');
-    expect(biosecuritySection).toBeDefined();
+    expect(biosecuritySection).not.toBeUndefined();
 
     const fieldIds = biosecuritySection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hasFoodItems');
@@ -248,7 +248,7 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('goods section should have goods declaration fields', () => {
     const goodsSection = schema.sections.find(s => s.id === 'goods');
-    expect(goodsSection).toBeDefined();
+    expect(goodsSection).not.toBeUndefined();
 
     const fieldIds = goodsSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('hasCurrencyOver10000');
@@ -260,7 +260,7 @@ describe('New Zealand (NZL) Schema', () => {
     const goodsSection = schema.sections.find(s => s.id === 'goods')!;
     const currencyField = goodsSection.fields.find(f => f.id === 'hasCurrencyOver10000')!;
 
-    expect(currencyField).toBeDefined();
+    expect(currencyField).not.toBeUndefined();
     expect(currencyField.type).toBe('boolean');
     expect(currencyField.label).toContain('10,000');
     expect(currencyField.countrySpecific).toBe(true);
@@ -359,14 +359,14 @@ describe('New Zealand (NZL) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('NZL');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('NZL');
   });
 
   // ── 15. changeDetection ─────────────────────────────────────────────────────
 
   test('should have changeDetection with non-empty monitoredSelectors', () => {
-    expect(schema.changeDetection).toBeDefined();
+    expect(schema.changeDetection).not.toBeUndefined();
     expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
     expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });

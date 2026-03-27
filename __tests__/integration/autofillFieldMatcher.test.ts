@@ -187,9 +187,9 @@ describe('AutoFill Field Matcher — Real Schema Integration', () => {
       const schema = loadSchema('JPN');
       const allFields = schema.sections.flatMap(s => s.fields);
       const occupation = allFields.find(f => f.id === 'occupation');
-      expect(occupation).toBeDefined();
+      expect(occupation).not.toBeUndefined();
       // Occupation should have options for the dropdown
-      expect(occupation!.options).toBeDefined();
+      expect(occupation!.options).not.toBeUndefined();
       expect(occupation!.options!.length).toBeGreaterThan(0);
     });
   });

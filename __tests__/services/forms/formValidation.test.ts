@@ -37,7 +37,7 @@ describe('validateFieldEnhanced', () => {
   it('fails for empty required field', () => {
     const result = validateFieldEnhanced(makeTextField(), '');
     expect(result.isValid).toBe(false);
-    expect(result.error).toBeTruthy();
+    expect(typeof result.error).toBe('string');
   });
 
   it('adds Japan-specific meat warning', () => {
@@ -106,7 +106,7 @@ describe('validateFormWithCrossChecks', () => {
     const fields = [makeTextField({ id: 'name', required: true })];
     const result = validateFormWithCrossChecks(fields, { name: '' });
     expect(result.isValid).toBe(false);
-    expect(result.errors.name).toBeTruthy();
+    expect(typeof result.errors.name).toBe('string');
   });
 });
 

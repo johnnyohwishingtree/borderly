@@ -240,52 +240,52 @@ describe('TripListScreen — rendering with trips', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByText('2 trips')).toBeTruthy();
+    screen.getByText('2 trips');
   });
 
   it('renders singular "trip" when only one trip exists', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByText('1 trip')).toBeTruthy();
+    screen.getByText('1 trip');
   });
 
   it('renders the "Your Trips" header', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByText('Your Trips')).toBeTruthy();
+    screen.getByText('Your Trips');
   });
 
   it('renders the + Add Trip button when trips exist', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByText('+ Add Trip')).toBeTruthy();
+    screen.getByText('+ Add Trip');
   });
 
   it('renders search input when trips exist', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('trip-search-field')).toBeTruthy();
+    screen.getByTestId('trip-search-field');
   });
 
   it('renders filter tabs when trips exist', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('trip-filter-all')).toBeTruthy();
-    expect(screen.getByTestId('trip-filter-upcoming')).toBeTruthy();
-    expect(screen.getByTestId('trip-filter-active')).toBeTruthy();
-    expect(screen.getByTestId('trip-filter-completed')).toBeTruthy();
+    screen.getByTestId('trip-filter-all');
+    screen.getByTestId('trip-filter-upcoming');
+    screen.getByTestId('trip-filter-active');
+    screen.getByTestId('trip-filter-completed');
   });
 
   it('renders import trip button', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('import-trip-button')).toBeTruthy();
+    screen.getByTestId('import-trip-button');
   });
 
   it('renders templates nav button', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('templates-nav-button')).toBeTruthy();
+    screen.getByTestId('templates-nav-button');
   });
 });
 
@@ -300,14 +300,14 @@ describe('TripListScreen — empty state', () => {
   it('shows empty state when no trips exist', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByText('No trips yet')).toBeTruthy();
-    expect(screen.getByText('Create your first trip to start planning your travel declarations')).toBeTruthy();
+    screen.getByText('No trips yet');
+    screen.getByText('Create your first trip to start planning your travel declarations');
   });
 
   it('shows "Create Your First Trip" button in empty state', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('create-first-trip-button')).toBeTruthy();
+    screen.getByTestId('create-first-trip-button');
   });
 
   it('pressing "Create Your First Trip" calls handleCreateTrip', () => {
@@ -321,7 +321,7 @@ describe('TripListScreen — empty state', () => {
   it('shows "Manage your travel itineraries" subtitle when no trips', () => {
     render(<TripListScreen />);
 
-    expect(screen.getByText('Manage your travel itineraries')).toBeTruthy();
+    screen.getByText('Manage your travel itineraries');
   });
 
   it('does not show search or filter tabs when no trips', () => {
@@ -350,7 +350,7 @@ describe('TripListScreen — no search results', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByText('No trips match your search')).toBeTruthy();
+    screen.getByText('No trips match your search');
   });
 });
 
@@ -401,8 +401,8 @@ describe('TripListScreen — schema update banner', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('schema-update-banner')).toBeTruthy();
-    expect(screen.getByText('Form data updated — Japan entry form has new fields.')).toBeTruthy();
+    screen.getByTestId('schema-update-banner');
+    screen.getByText('Form data updated — Japan entry form has new fields.');
   });
 
   it('does not show schema banner when showSchemaBanner is false', () => {
@@ -440,8 +440,8 @@ describe('TripListScreen — first-run welcome banner', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('first-run-welcome-banner')).toBeTruthy();
-    expect(screen.getByText("You're all set! Create your first trip to get started.")).toBeTruthy();
+    screen.getByTestId('first-run-welcome-banner');
+    screen.getByText("You're all set! Create your first trip to get started.");
   });
 
   it('does not show first-run banner when hasSeenFirstRunPrompt is true', () => {
@@ -476,8 +476,8 @@ describe('TripListScreen — loading state', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('loading-states-loading')).toBeTruthy();
-    expect(screen.getByText('Loading your trips...')).toBeTruthy();
+    screen.getByTestId('loading-states-loading');
+    screen.getByText('Loading your trips...');
   });
 
   it('shows error state when loadingState is error', () => {
@@ -488,7 +488,7 @@ describe('TripListScreen — loading state', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('loading-states-error')).toBeTruthy();
+    screen.getByTestId('loading-states-error');
   });
 
   it('shows error state when storeError exists', () => {
@@ -499,7 +499,7 @@ describe('TripListScreen — loading state', () => {
 
     render(<TripListScreen />);
 
-    expect(screen.getByTestId('loading-states-error')).toBeTruthy();
+    screen.getByTestId('loading-states-error');
   });
 
   it('retry button calls handleRefresh in error state', () => {
@@ -526,7 +526,7 @@ describe('TripListScreen — navigation interactions', () => {
 
     // Invoke renderItem manually to verify it wires up onPress correctly
     const rendered = flatList.props.renderItem({ item: baseTrip });
-    expect(rendered.props.onPress).toBeDefined();
+    expect(typeof rendered.props.onPress).toBe('function');
   });
 
   it('pressing + Add Trip calls handleCreateTrip', () => {
@@ -561,8 +561,7 @@ describe('TripListScreen — duplicate trip modal', () => {
     render(<TripListScreen />);
 
     // When visible=false, testID is suffixed with -hidden
-    const modal = screen.getByTestId('trip-list-duplicate-trip-modal-hidden');
-    expect(modal).toBeTruthy();
+    screen.getByTestId('trip-list-duplicate-trip-modal-hidden');
   });
 
   it('renders DuplicateTripModal as visible when duplicateTargetId is set', () => {
@@ -573,7 +572,6 @@ describe('TripListScreen — duplicate trip modal', () => {
 
     render(<TripListScreen />);
 
-    const modal = screen.getByTestId('trip-list-duplicate-trip-modal');
-    expect(modal).toBeTruthy();
+    screen.getByTestId('trip-list-duplicate-trip-modal');
   });
 });

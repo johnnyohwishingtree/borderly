@@ -278,7 +278,7 @@ describe('Form Engine Performance', () => {
       const duration = endTime - startTime;
       
       expect(duration).toBeLessThan(500);
-      expect(result).toBeDefined();
+      expect(result.countryCode).toBe('JPN');
       expect(result.sections).toHaveLength(3);
       expect(result.stats.totalFields).toBe(13);
       
@@ -300,7 +300,7 @@ describe('Form Engine Performance', () => {
 
       expect(warmDuration).toBeLessThan(coldDuration);
       expect(warmDuration).toBeLessThan(50); // Should be much faster with cache
-      expect(result).toBeDefined();
+      expect(result.countryCode).toBe('JPN');
       
       console.log(`Cold cache: ${coldDuration.toFixed(2)}ms, Warm cache: ${warmDuration.toFixed(2)}ms`);
       console.log(`Cache speedup: ${(coldDuration / warmDuration).toFixed(2)}x faster`);

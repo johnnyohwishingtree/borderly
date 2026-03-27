@@ -27,12 +27,12 @@ describe('AppStoreComplianceValidator', () => {
     it('should return a complete compliance report', async () => {
       const report = await validator.validateCompliance();
 
-      expect(report).toBeDefined();
+      expect(report).not.toBeUndefined();
       expect(report.appVersion).toBe('1.0.0');
       expect(report.platform).toBe('ios');
       expect(report.checks).toBeInstanceOf(Array);
       expect(report.checks.length).toBeGreaterThan(0);
-      expect(report.summary).toBeDefined();
+      expect(report.summary).not.toBeUndefined();
       expect(report.summary.total).toBe(report.checks.length);
     });
 
@@ -108,7 +108,7 @@ describe('AppStoreComplianceValidator', () => {
       const configChecks = await validator.validateCategory('configuration');
       const appIconCheck = configChecks.find(check => check.id === 'app_icon_present');
       
-      expect(appIconCheck).toBeDefined();
+      expect(appIconCheck).not.toBeUndefined();
       expect(appIconCheck?.status).toBe('pass'); // Mock implementation returns true
     });
 
@@ -116,7 +116,7 @@ describe('AppStoreComplianceValidator', () => {
       const privacyChecks = await validator.validateCategory('privacy');
       const noServerCheck = privacyChecks.find(check => check.id === 'no_server_data_collection');
       
-      expect(noServerCheck).toBeDefined();
+      expect(noServerCheck).not.toBeUndefined();
       expect(noServerCheck?.status).toBe('pass'); // App is local-first
     });
 
@@ -124,7 +124,7 @@ describe('AppStoreComplianceValidator', () => {
       const contentChecks = await validator.validateCategory('content');
       const ageRatingCheck = contentChecks.find(check => check.id === 'age_rating_appropriate');
       
-      expect(ageRatingCheck).toBeDefined();
+      expect(ageRatingCheck).not.toBeUndefined();
       expect(ageRatingCheck?.status).toBe('pass'); // App has no inappropriate content
     });
   });
@@ -141,13 +141,13 @@ describe('Check Structure Validation', () => {
     const report = await validator.validateCompliance();
 
     report.checks.forEach(check => {
-      expect(check.id).toBeDefined();
-      expect(check.name).toBeDefined();
-      expect(check.category).toBeDefined();
-      expect(check.platform).toBeDefined();
+      expect(typeof check.id).toBe('string');
+      expect(typeof check.name).toBe('string');
+      expect(typeof check.category).toBe('string');
+      expect(typeof check.platform).toBe('string');
       expect(typeof check.required).toBe('boolean');
       expect(['pass', 'fail', 'warning', 'unknown']).toContain(check.status);
-      expect(check.message).toBeDefined();
+      expect(typeof check.message).toBe('string');
       
       // fixAction is optional but if present should be a string
       if (check.fixAction) {
@@ -192,7 +192,7 @@ describe('Error Handling', () => {
     // The validator should handle any errors internally
     const report = await validator.validateCompliance();
     
-    expect(report).toBeDefined();
+    expect(report).not.toBeUndefined();
     expect(report.checks).toBeInstanceOf(Array);
     
     // If any checks failed to run, they should have status 'unknown'

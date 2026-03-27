@@ -178,7 +178,9 @@ describe('useLegForm', () => {
       useLegForm({ tripId: 'nonexistent', legId: 'leg_1' })
     );
 
-    expect(result.current.errors.loadError).not.toBeNull();
+    expect(result.current.errors.loadError).toMatchObject({
+      userMessage: expect.any(String),
+    });
   });
 
   it('handleFormDataChange updates the form store', () => {
@@ -281,8 +283,7 @@ describe('useLegForm', () => {
     const activeTab = result.current.travelers.travelerTabs.find(
       (t) => t.id === result.current.travelers.activeTravelerId
     );
-    expect(activeTab).toBeDefined();
-    expect(activeTab?.id).toBe('profile_1');
+    expect(activeTab).toEqual(expect.objectContaining({ id: 'profile_1' }));
   });
 
   it('inactive traveler tab has correct formStatus from stored data', async () => {

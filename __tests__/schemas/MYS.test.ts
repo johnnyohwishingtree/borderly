@@ -14,7 +14,7 @@ describe('Malaysia (MYS) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('3d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('24h');
@@ -38,7 +38,7 @@ describe('Malaysia (MYS) Schema', () => {
 
   test('personal information section should include email and phone', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('email');
@@ -48,10 +48,10 @@ describe('Malaysia (MYS) Schema', () => {
 
   test('travel section should have Malaysia-specific port of entry airport autocomplete', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const airportField = travelSection!.fields.find(f => f.id === 'arrivalAirport');
-    expect(airportField).toBeDefined();
+    expect(airportField).not.toBeUndefined();
     expect(airportField!.countrySpecific).toBe(true);
     // Field now uses the bundled airport database rather than inline options
     expect(airportField!.type).toBe('searchable_select');
@@ -71,7 +71,7 @@ describe('Malaysia (MYS) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit');
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
     const purposes = (purposeField as any).options!.map((o: any) => o.value);
@@ -82,7 +82,7 @@ describe('Malaysia (MYS) Schema', () => {
 
   test('should have health declaration section', () => {
     const healthSection = schema.sections.find(s => s.id === 'health_declarations');
-    expect(healthSection).toBeDefined();
+    expect(healthSection).not.toBeUndefined();
 
     const fieldIds = healthSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('healthCondition');
@@ -93,7 +93,7 @@ describe('Malaysia (MYS) Schema', () => {
     const healthSection = schema.sections.find(s => s.id === 'health_declarations');
     const currencyField = healthSection!.fields.find(f => f.id === 'carryingCurrency');
 
-    expect(currencyField).toBeDefined();
+    expect(currencyField).not.toBeUndefined();
     expect(currencyField!.label).toContain('RM10,000');
     expect((currencyField as any).helpText).toContain('Malaysian Ringgit');
   });
@@ -102,8 +102,8 @@ describe('Malaysia (MYS) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     const durationField = travelSection!.fields.find(f => f.id === 'durationOfStay');
 
-    expect(durationField).toBeDefined();
-    expect((durationField as any).validation).toBeDefined();
+    expect(durationField).not.toBeUndefined();
+    expect((durationField as any).validation).not.toBeUndefined();
     expect((durationField as any).validation!.min).toBe(1);
     expect((durationField as any).validation!.max).toBe(90);
   });
@@ -135,8 +135,8 @@ describe('Malaysia (MYS) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
 
-    expect((emailField as any).validation).toBeDefined();
-    expect((emailField as any).validation!.pattern).toBeDefined();
+    expect((emailField as any).validation).not.toBeUndefined();
+    expect(typeof (emailField as any).validation!.pattern).toBe('string');
     expect((emailField as any).validation!.pattern).toContain('@');
   });
 
@@ -149,7 +149,7 @@ describe('Malaysia (MYS) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('MYS');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('MYS');
   });
 

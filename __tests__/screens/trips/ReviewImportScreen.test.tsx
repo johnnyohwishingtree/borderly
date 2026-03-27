@@ -87,18 +87,18 @@ describe('ReviewImportScreen', () => {
 
   it('renders confidence badge', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
-    expect(getByTestId('confidence-badge')).toBeTruthy();
+    getByTestId('confidence-badge');
   });
 
   it('renders leg cards', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
-    expect(getByTestId('review-leg-0')).toBeTruthy();
+    getByTestId('review-leg-0');
   });
 
   it('renders create trip and cancel buttons', () => {
     const { getByTestId } = render(<ReviewImportScreen />);
-    expect(getByTestId('review-create-trip-button')).toBeTruthy();
-    expect(getByTestId('review-cancel-button')).toBeTruthy();
+    getByTestId('review-create-trip-button');
+    getByTestId('review-cancel-button');
   });
 
   it('calls updateTripName when name is changed', () => {
@@ -128,24 +128,24 @@ describe('ReviewImportScreen', () => {
   it('shows loading when saving', () => {
     mockUseReviewImport.status.isSaving = true;
     const { getByTestId } = render(<ReviewImportScreen />);
-    expect(getByTestId('loading-state')).toBeTruthy();
+    getByTestId('loading-state');
   });
 
   it('shows save error message', () => {
     mockUseReviewImport.status.saveError = 'Could not save';
     const { getByTestId, getByText } = render(<ReviewImportScreen />);
-    expect(getByTestId('save-error-message')).toBeTruthy();
-    expect(getByText('Could not save')).toBeTruthy();
+    getByTestId('save-error-message');
+    getByText('Could not save');
   });
 
   it('shows missing fields warning', () => {
     mockUseReviewImport.draft.hasMissingFields = true;
     const { getByTestId } = render(<ReviewImportScreen />);
-    expect(getByTestId('missing-fields-warning')).toBeTruthy();
+    getByTestId('missing-fields-warning');
   });
 
   it('renders accommodation info on leg card', () => {
     const { getByText } = render(<ReviewImportScreen />);
-    expect(getByText('Hotel Tokyo')).toBeTruthy();
+    getByText('Hotel Tokyo');
   });
 });

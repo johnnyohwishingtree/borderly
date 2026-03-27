@@ -14,7 +14,7 @@ describe('Indonesia (IDN) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('7d');
     expect(schema.submission.recommended).toBe('24h');
   });
@@ -24,17 +24,17 @@ describe('Indonesia (IDN) Schema', () => {
   });
 
   test('portalFlow should not require account registration', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
   test('portalFlow should support family declarations', () => {
-    expect(schema.portalFlow.familyPolicy).toBeDefined();
+    expect(schema.portalFlow.familyPolicy).not.toBeUndefined();
     expect(schema.portalFlow.familyPolicy!.type).toBe('family');
   });
 
   test('implementation status should be complete', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
@@ -52,7 +52,7 @@ describe('Indonesia (IDN) Schema', () => {
 
   test('personal section should include Indonesia-specific occupation field', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
@@ -61,7 +61,7 @@ describe('Indonesia (IDN) Schema', () => {
     expect(fieldIds).toContain('occupation');
 
     const occupationField = personalSection!.fields.find(f => f.id === 'occupation');
-    expect(occupationField).toBeDefined();
+    expect(occupationField).not.toBeUndefined();
     expect(occupationField!.countrySpecific).toBe(true);
     expect(occupationField!.type).toBe('searchable_select');
   });
@@ -70,14 +70,14 @@ describe('Indonesia (IDN) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const occupationField = personalSection.fields.find(f => f.id === 'occupation')!;
 
-    expect((occupationField as any).autoFillMapping).toBeDefined();
+    expect((occupationField as any).autoFillMapping).not.toBeUndefined();
     expect((occupationField as any).autoFillMapping._default).toBe('other');
     expect((occupationField as any).autoFillMapping.Student).toBe('student');
   });
 
   test('passport section should have required passport fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -96,10 +96,10 @@ describe('Indonesia (IDN) Schema', () => {
 
   test('flight section should have Indonesia-specific port of arrival', () => {
     const flightSection = schema.sections.find(s => s.id === 'flight');
-    expect(flightSection).toBeDefined();
+    expect(flightSection).not.toBeUndefined();
 
     const portField = flightSection!.fields.find(f => f.id === 'portOfArrival');
-    expect(portField).toBeDefined();
+    expect(portField).not.toBeUndefined();
     expect(portField!.countrySpecific).toBe(true);
 
     const portCodes = portField!.options?.map(o => o.value) ?? [];
@@ -110,10 +110,10 @@ describe('Indonesia (IDN) Schema', () => {
 
   test('accommodation section should have Indonesia city selector', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation');
-    expect(accommodationSection).toBeDefined();
+    expect(accommodationSection).not.toBeUndefined();
 
     const cityField = accommodationSection!.fields.find(f => f.id === 'cityOfStay');
-    expect(cityField).toBeDefined();
+    expect(cityField).not.toBeUndefined();
     expect(cityField!.countrySpecific).toBe(true);
 
     const cities = cityField!.options?.map(o => o.value) ?? [];
@@ -126,15 +126,15 @@ describe('Indonesia (IDN) Schema', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
     const durationField = accommodationSection.fields.find(f => f.id === 'stayDuration')!;
 
-    expect(durationField).toBeDefined();
-    expect((durationField as any).validation).toBeDefined();
+    expect(durationField).not.toBeUndefined();
+    expect((durationField as any).validation).not.toBeUndefined();
     expect((durationField as any).validation.min).toBe(1);
     expect((durationField as any).validation.max).toBe(30);
   });
 
   test('customs section should have currency and goods declaration fields', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const fieldIds = customsSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('carryingCurrency');
@@ -152,20 +152,20 @@ describe('Indonesia (IDN) Schema', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs')!;
 
     const alcoholField = customsSection.fields.find(f => f.id === 'alcoholQuantity');
-    expect(alcoholField).toBeDefined();
+    expect(alcoholField).not.toBeUndefined();
     expect(alcoholField!.type).toBe('number');
 
     const tobaccoField = customsSection.fields.find(f => f.id === 'tobaccoQuantity');
-    expect(tobaccoField).toBeDefined();
+    expect(tobaccoField).not.toBeUndefined();
     expect(tobaccoField!.type).toBe('number');
   });
 
   test('contact section should have email with validation', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact');
-    expect(contactSection).toBeDefined();
+    expect(contactSection).not.toBeUndefined();
 
     const emailField = contactSection!.fields.find(f => f.id === 'email')!;
-    expect((emailField as any).validation).toBeDefined();
+    expect((emailField as any).validation).not.toBeUndefined();
     expect((emailField as any).validation.pattern).toContain('@');
   });
 
@@ -219,7 +219,7 @@ describe('Indonesia (IDN) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('IDN');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('IDN');
   });
 

@@ -169,17 +169,17 @@ describe('airport search logic', () => {
 describe('getAirportByCode', () => {
   it('returns the airport for a known IATA code', () => {
     const airport = getAirportByCode('NRT');
-    expect(airport).toBeDefined();
-    expect(airport?.value).toBe('NRT');
-    expect(airport?.label).toContain('Tokyo');
-    expect(airport?.label).toContain('NRT');
+    expect(airport).toEqual(expect.objectContaining({ value: 'NRT' }));
+    expect(airport!.value).toBe('NRT');
+    expect(airport!.label).toContain('Tokyo');
+    expect(airport!.label).toContain('NRT');
   });
 
   it('returns the airport for Singapore Changi', () => {
     const airport = getAirportByCode('SIN');
-    expect(airport).toBeDefined();
-    expect(airport?.label).toContain('Singapore');
-    expect(airport?.label).toContain('SIN');
+    expect(airport).toEqual(expect.objectContaining({ value: 'SIN' }));
+    expect(airport!.label).toContain('Singapore');
+    expect(airport!.label).toContain('SIN');
   });
 
   it('returns undefined for an unknown code', () => {
@@ -429,7 +429,7 @@ describe('FormField — airport autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByTestId('searchable-select-arrivalAirport-trigger')).toBeTruthy();
+    screen.getByTestId('searchable-select-arrivalAirport-trigger');
   });
 
   it('shows the field label in the form', () => {
@@ -469,8 +469,8 @@ describe('FormField — airport autocomplete rendering', () => {
 
     fireEvent.press(screen.getByTestId('searchable-select-arrivalAirport-trigger'));
 
-    expect(screen.getByTestId('searchable-select-arrivalAirport-panel')).toBeTruthy();
-    expect(screen.getByTestId('searchable-select-arrivalAirport-search')).toBeTruthy();
+    screen.getByTestId('searchable-select-arrivalAirport-panel');
+    screen.getByTestId('searchable-select-arrivalAirport-search');
   });
 
   it('displays a placeholder hint for the trigger button', () => {
@@ -489,7 +489,7 @@ describe('FormField — airport autocomplete rendering', () => {
     );
 
     // Default SearchableSelect placeholder contains the label
-    expect(screen.getByText('Search Arrival Airport...')).toBeTruthy();
+    screen.getByText('Search Arrival Airport...');
   });
 
   it('displays the selected airport label when a value is already set', () => {
@@ -509,7 +509,7 @@ describe('FormField — airport autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Kuala Lumpur KLIA (KUL)')).toBeTruthy();
+    screen.getByText('Kuala Lumpur KLIA (KUL)');
   });
 
   it('shows required asterisk when field is required', () => {
@@ -528,7 +528,7 @@ describe('FormField — airport autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('*')).toBeTruthy();
+    screen.getByText('*');
   });
 
   it('renders an error message when error prop is provided', () => {
@@ -590,7 +590,7 @@ describe('FormField — airport autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Search by airport name or IATA code')).toBeTruthy();
+    screen.getByText('Search by airport name or IATA code');
   });
 });
 
@@ -614,7 +614,7 @@ describe('FormField — country autocomplete (regression)', () => {
       />,
     );
 
-    expect(screen.getByTestId('searchable-select-nationality-trigger')).toBeTruthy();
+    screen.getByTestId('searchable-select-nationality-trigger');
   });
 
   it('falls back to inline options when optionsSource is unrecognised', () => {
@@ -635,7 +635,7 @@ describe('FormField — country autocomplete (regression)', () => {
     );
 
     // "Foo" is in the inline options so the selected label should display
-    expect(screen.getByText('Foo')).toBeTruthy();
+    screen.getByText('Foo');
   });
 });
 
@@ -725,10 +725,10 @@ describe('airline search logic', () => {
 describe('getAirlineByCode', () => {
   it('returns the airline for a known IATA code', () => {
     const airline = getAirlineByCode('SQ');
-    expect(airline).toBeDefined();
-    expect(airline?.value).toBe('SQ');
-    expect(airline?.label).toContain('Singapore');
-    expect(airline?.label).toContain('SQ');
+    expect(airline).toEqual(expect.objectContaining({ value: 'SQ' }));
+    expect(airline!.value).toBe('SQ');
+    expect(airline!.label).toContain('Singapore');
+    expect(airline!.label).toContain('SQ');
   });
 
   it('returns undefined for an unknown code', () => {
@@ -770,7 +770,7 @@ describe('FormField — airline autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByTestId('searchable-select-airlineCode-trigger')).toBeTruthy();
+    screen.getByTestId('searchable-select-airlineCode-trigger');
   });
 
   it('shows the field label in the form', () => {
@@ -809,8 +809,8 @@ describe('FormField — airline autocomplete rendering', () => {
 
     fireEvent.press(screen.getByTestId('searchable-select-airlineCode-trigger'));
 
-    expect(screen.getByTestId('searchable-select-airlineCode-panel')).toBeTruthy();
-    expect(screen.getByTestId('searchable-select-airlineCode-search')).toBeTruthy();
+    screen.getByTestId('searchable-select-airlineCode-panel');
+    screen.getByTestId('searchable-select-airlineCode-search');
   });
 
   it('displays a placeholder hint for the trigger button', () => {
@@ -828,7 +828,7 @@ describe('FormField — airline autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Search Airline...')).toBeTruthy();
+    screen.getByText('Search Airline...');
   });
 
   it('displays the selected airline label when a value is already set', () => {
@@ -848,7 +848,7 @@ describe('FormField — airline autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Singapore Airlines (SQ)')).toBeTruthy();
+    screen.getByText('Singapore Airlines (SQ)');
   });
 
   it('shows help text when provided', () => {
@@ -867,7 +867,7 @@ describe('FormField — airline autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Search by airline name or IATA code')).toBeTruthy();
+    screen.getByText('Search by airline name or IATA code');
   });
 
   it('is disabled when the disabled prop is true', () => {
@@ -920,7 +920,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
     );
 
     // The AccommodationAutocomplete renders a text input (not a searchable-select trigger)
-    expect(screen.getByTestId('accommodation-hotelName')).toBeTruthy();
+    screen.getByTestId('accommodation-hotelName');
   });
 
   it('renders the field label', () => {
@@ -1001,7 +1001,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('*')).toBeTruthy();
+    screen.getByText('*');
   });
 
   it('renders an error message when error prop is provided', () => {
@@ -1062,7 +1062,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByText('Search for your hotel in Japan')).toBeTruthy();
+    screen.getByText('Search for your hotel in Japan');
   });
 
   it('works with accommodationName field id (Singapore schema pattern)', () => {
@@ -1080,7 +1080,7 @@ describe('FormField — accommodation autocomplete rendering', () => {
       />,
     );
 
-    expect(screen.getByTestId('accommodation-accommodationName')).toBeTruthy();
+    screen.getByTestId('accommodation-accommodationName');
   });
 
   it('calls onValueChange with the name field when typing (accommodationName pattern)', () => {

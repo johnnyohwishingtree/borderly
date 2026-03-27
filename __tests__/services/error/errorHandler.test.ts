@@ -37,8 +37,8 @@ describe('ErrorHandler', () => {
       });
 
       expect(result.recovered).toBe(false);
-      expect(result.error).toBeDefined();
-      expect(result.error?.code).toBe(ERROR_CODES.UNKNOWN_ERROR);
+      expect(result.error).not.toBeUndefined();
+      expect(result.error!.code).toBe(ERROR_CODES.UNKNOWN_ERROR);
     });
 
     it('preserves AppError', async () => {
@@ -147,7 +147,7 @@ describe('ErrorHandler', () => {
         { showUserFeedback: false, enableRetry: false }
       );
 
-      await expect(wrappedFunction('arg1', 'arg2')).rejects.toBeDefined();
+      await expect(wrappedFunction('arg1', 'arg2')).rejects.toMatchObject({ code: expect.any(String) });
       expect(testFunction).toHaveBeenCalledWith('arg1', 'arg2');
     });
 

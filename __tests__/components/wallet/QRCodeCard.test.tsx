@@ -47,14 +47,14 @@ describe('QRCodeCard', () => {
   it('renders label from qrCode prop', () => {
     const qr = makeQRCode();
     const { getByText } = render(<QRCodeCard qrCode={qr as any} />);
-    expect(getByText('Japan Immigration')).toBeTruthy();
+    getByText('Japan Immigration');
   });
 
   it('renders formatted date from qrCode prop', () => {
     const qr = makeQRCode();
     const { getByText } = render(<QRCodeCard qrCode={qr as any} />);
     // Date format: "Saved Mar 20, 10:00 AM" (locale-dependent, check partial match)
-    expect(getByText(/Mar 20/)).toBeTruthy();
+    getByText(/Mar 20/);
   });
 
   // ─── Type badge for each type ─────────────────────────────────────────────
@@ -67,7 +67,7 @@ describe('QRCodeCard', () => {
   ] as const)('renders correct type badge for %s', (type, expectedLabel) => {
     const qr = makeQRCode({ type });
     const { getByText } = render(<QRCodeCard qrCode={qr as any} />);
-    expect(getByText(expectedLabel)).toBeTruthy();
+    getByText(expectedLabel);
   });
 
   // ─── Press callbacks ──────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ describe('QRCodeCard', () => {
     const { getByText, getByLabelText } = render(
       <QRCodeCard qrCode={qr as any} compact />,
     );
-    expect(getByText('Japan Immigration')).toBeTruthy();
+    getByText('Japan Immigration');
     expect(getByLabelText('Japan Immigration').props.accessibilityHint).toBe(
       'Opens QR code full screen',
     );
@@ -122,7 +122,7 @@ describe('QRCodeCard', () => {
     const { getByText } = render(
       <QRCodeCard qrCode={qr as any} showTravelerInfo travelerName="Alice" />,
     );
-    expect(getByText('Alice')).toBeTruthy();
+    getByText('Alice');
   });
 
   it('does not show traveler name when showTravelerInfo=false', () => {

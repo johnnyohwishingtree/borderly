@@ -74,21 +74,20 @@ describe('BoardingPassScanner Component', () => {
   });
 
   it('renders without crashing', () => {
-    const component = render(<BoardingPassScanner {...mockProps} />);
-    expect(component).toBeTruthy();
+    render(<BoardingPassScanner {...mockProps} />);
   });
 
   it('renders camera scanning UI when camera initializes immediately', () => {
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
     // Camera mock fires onCameraReady immediately, so we see the scanning UI
-    expect(getByText('Position boarding pass barcode in frame')).toBeTruthy();
+    getByText('Position boarding pass barcode in frame');
   });
 
   it('shows loading overlay when camera has not initialized yet', () => {
     autoFireCameraReady = false;
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
     // Camera hasn't called onCameraReady, so loading overlay should show
-    expect(getByText('Initializing camera...')).toBeTruthy();
+    getByText('Initializing camera...');
   });
 
   it('shows error state after camera initialization timeout', async () => {
@@ -96,7 +95,7 @@ describe('BoardingPassScanner Component', () => {
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
 
     // Initially shows loading
-    expect(getByText('Initializing camera...')).toBeTruthy();
+    getByText('Initializing camera...');
 
     // Advance past the 10-second timeout
     act(() => {
@@ -105,11 +104,11 @@ describe('BoardingPassScanner Component', () => {
 
     // Should show camera unavailable screen (timeout = hardware issue, not permission)
     await waitFor(() => {
-      expect(getByText('Camera Not Available')).toBeTruthy();
+      getByText('Camera Not Available');
     });
 
     // Manual entry button should be available
-    expect(getByText('Enter Manually Instead')).toBeTruthy();
+    getByText('Enter Manually Instead');
   });
 
   it('shows demo scan button when camera is unavailable', async () => {
@@ -121,7 +120,7 @@ describe('BoardingPassScanner Component', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Try Demo Scan')).toBeTruthy();
+      getByText('Try Demo Scan');
     });
   });
 
@@ -134,7 +133,7 @@ describe('BoardingPassScanner Component', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Enter Manually Instead')).toBeTruthy();
+      getByText('Enter Manually Instead');
     });
 
     fireEvent.press(getByText('Enter Manually Instead'));
@@ -150,12 +149,11 @@ describe('BoardingPassScanner Component', () => {
   });
 
   it('handles successful barcode scan', () => {
-    const component = render(<BoardingPassScanner {...mockProps} />);
-    
+    render(<BoardingPassScanner {...mockProps} />);
+
     // Simulate a successful barcode read
     // We'll test this through the component's internal logic since we can't directly trigger onBarCodeRead
     expect(mockProps.onScanSuccess).not.toHaveBeenCalled();
-    expect(component).toBeTruthy();
   });
 
   it('handles parse error gracefully', () => {
@@ -163,14 +161,12 @@ describe('BoardingPassScanner Component', () => {
     const { parseBoardingPass } = require('../../../src/services/boarding/boardingPassParser');
     parseBoardingPass.mockReturnValue(mockParseError);
 
-    const component = render(<BoardingPassScanner {...mockProps} />);
-    expect(component).toBeTruthy();
+    render(<BoardingPassScanner {...mockProps} />);
     // Error handling is internal to component, verified that it doesn't crash
   });
 
   it('supports low power mode', () => {
-    const component = render(<BoardingPassScanner {...mockProps} lowPowerMode />);
-    expect(component).toBeTruthy();
+    render(<BoardingPassScanner {...mockProps} lowPowerMode />);
   });
 
   it('starts demo scan when camera unavailable and demo button pressed', async () => {
@@ -182,14 +178,14 @@ describe('BoardingPassScanner Component', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Try Demo Scan')).toBeTruthy();
+      getByText('Try Demo Scan');
     });
 
     fireEvent.press(getByText('Try Demo Scan'));
     
     // Should show demo scanning UI
     await waitFor(() => {
-      expect(getByText('Demo: Scanning sample boarding pass')).toBeTruthy();
+      getByText('Demo: Scanning sample boarding pass');
     });
   });
 
@@ -202,7 +198,7 @@ describe('BoardingPassScanner Component', () => {
     });
 
     await waitFor(() => {
-      expect(getByText('Try Demo Scan')).toBeTruthy();
+      getByText('Try Demo Scan');
     });
 
     fireEvent.press(getByText('Try Demo Scan'));
@@ -223,8 +219,7 @@ describe('BoardingPassScanner Component', () => {
 
   it('handles camera permission denied state', async () => {
     // We can't easily mock the camera status callback, but we can test the error state UI
-    const component = render(<BoardingPassScanner {...mockProps} />);
-    expect(component).toBeTruthy();
+    render(<BoardingPassScanner {...mockProps} />);
   });
 
   it('toggles flash when flash button is pressed', () => {
@@ -240,8 +235,7 @@ describe('BoardingPassScanner Component', () => {
   });
 
   it('shows confidence indicator when scanning', () => {
-    const component = render(<BoardingPassScanner {...mockProps} />);
-    expect(component).toBeTruthy();
+    render(<BoardingPassScanner {...mockProps} />);
     // Confidence indicator display is tested through render without crash
   });
 
@@ -249,6 +243,6 @@ describe('BoardingPassScanner Component', () => {
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
     
     // Should show initial guidance
-    expect(getByText('Scan the barcode on your boarding pass')).toBeTruthy();
+    getByText('Scan the barcode on your boarding pass');
   });
 });

@@ -61,19 +61,19 @@ describe('BiometricSetupScreen — header', () => {
   it('renders "Secure Your Profile" title', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Secure Your Profile')).toBeTruthy();
+    screen.getByText('Secure Your Profile');
   });
 
   it('renders description about biometric authentication', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText(/Enable biometric authentication/)).toBeTruthy();
+    screen.getByText(/Enable biometric authentication/);
   });
 
   it('renders progress bar at 100%', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByTestId('progress-bar')).toBeTruthy();
+    screen.getByTestId('progress-bar');
   });
 });
 
@@ -83,22 +83,22 @@ describe('BiometricSetupScreen — security benefits', () => {
   it('renders "Quick Access" benefit', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Quick Access')).toBeTruthy();
-    expect(screen.getByText('Instant access to your profile')).toBeTruthy();
+    screen.getByText('Quick Access');
+    screen.getByText('Instant access to your profile');
   });
 
   it('renders "Additional Security" benefit', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Additional Security')).toBeTruthy();
-    expect(screen.getByText('Extra protection for your data')).toBeTruthy();
+    screen.getByText('Additional Security');
+    screen.getByText('Extra protection for your data');
   });
 
   it('renders "No Passwords" benefit', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('No Passwords')).toBeTruthy();
-    expect(screen.getByText('Nothing to remember or forget')).toBeTruthy();
+    screen.getByText('No Passwords');
+    screen.getByText('Nothing to remember or forget');
   });
 });
 
@@ -108,13 +108,13 @@ describe('BiometricSetupScreen — optional setup notice', () => {
   it('renders "Optional Setup" heading', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Optional Setup')).toBeTruthy();
+    screen.getByText('Optional Setup');
   });
 
   it('renders skip explanation text', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText(/can skip this step/)).toBeTruthy();
+    screen.getByText(/can skip this step/);
   });
 });
 
@@ -126,8 +126,8 @@ describe('BiometricSetupScreen — platform biometric type', () => {
 
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Touch ID / Face ID')).toBeTruthy();
-    expect(screen.getByText('Enable Touch ID / Face ID')).toBeTruthy();
+    screen.getByText('Touch ID / Face ID');
+    screen.getByText('Enable Touch ID / Face ID');
   });
 
   it('shows "Fingerprint / Face Unlock" on Android', () => {
@@ -135,8 +135,8 @@ describe('BiometricSetupScreen — platform biometric type', () => {
 
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByText('Fingerprint / Face Unlock')).toBeTruthy();
-    expect(screen.getByText('Enable Fingerprint / Face Unlock')).toBeTruthy();
+    screen.getByText('Fingerprint / Face Unlock');
+    screen.getByText('Enable Fingerprint / Face Unlock');
   });
 });
 
@@ -146,7 +146,7 @@ describe('BiometricSetupScreen — enable biometric', () => {
   it('renders enable biometric button', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByTestId('enable-biometric-button')).toBeTruthy();
+    screen.getByTestId('enable-biometric-button');
   });
 
   it('pressing enable button triggers Alert after setup completes', async () => {
@@ -158,7 +158,7 @@ describe('BiometricSetupScreen — enable biometric', () => {
     });
 
     // Shows loading title while enabling
-    expect(screen.getByText(/Setting up Touch ID/)).toBeTruthy();
+    screen.getByText(/Setting up Touch ID/);
 
     // Advance the 2-second timer
     await act(async () => {
@@ -181,7 +181,7 @@ describe('BiometricSetupScreen — skip', () => {
   it('renders "Skip for Now" button', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByTestId('skip-biometric-button')).toBeTruthy();
+    screen.getByTestId('skip-biometric-button');
   });
 
   it('pressing "Skip for Now" shows confirmation Alert', () => {
@@ -220,7 +220,7 @@ describe('BiometricSetupScreen — back navigation', () => {
   it('renders "Back" button', () => {
     render(<BiometricSetupScreen />);
 
-    expect(screen.getByTestId('biometric-back-button')).toBeTruthy();
+    screen.getByTestId('biometric-back-button');
   });
 
   it('pressing "Back" calls goBack', () => {

@@ -27,7 +27,7 @@ const DEFAULT_PROPS = {
 describe('SaveTemplateModal — renders', () => {
   it('renders when visible=true', () => {
     render(<SaveTemplateModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('save-template-modal')).toBeTruthy();
+    screen.getByTestId('save-template-modal');
   });
 
   it('has accessibilityViewIsModal=true on the Modal element', () => {
@@ -50,7 +50,7 @@ describe('SaveTemplateModal — title heading', () => {
 
   it('title text is "Save as Template"', () => {
     render(<SaveTemplateModal {...DEFAULT_PROPS} />);
-    expect(screen.getByText('Save as Template')).toBeTruthy();
+    screen.getByText('Save as Template');
   });
 });
 
@@ -110,7 +110,7 @@ describe('SaveTemplateModal — Save button', () => {
   it('is enabled when name is non-empty', () => {
     render(<SaveTemplateModal {...DEFAULT_PROPS} initialName="Japan Loop" />);
     const save = screen.getByTestId('save-template-modal-save');
-    expect(save.props.accessibilityState?.disabled).toBeFalsy();
+    expect(save.props.accessibilityState?.disabled).not.toBe(true);
   });
 
   it('is disabled when name is empty', () => {
@@ -127,7 +127,7 @@ describe('SaveTemplateModal — Save button', () => {
 describe('SaveTemplateModal — name input', () => {
   it('renders the name input', () => {
     render(<SaveTemplateModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('save-template-modal-name-input')).toBeTruthy();
+    screen.getByTestId('save-template-modal-name-input');
   });
 
   it('has accessibilityLabel="Template name, required"', () => {
@@ -221,23 +221,23 @@ describe('SaveTemplateModal — custom testID', () => {
     render(
       <SaveTemplateModal {...DEFAULT_PROPS} testID="my-save-modal" />,
     );
-    expect(screen.getByTestId('my-save-modal')).toBeTruthy();
+    screen.getByTestId('my-save-modal');
   });
 
   it('derives sub-element testIDs from the custom testID prefix', () => {
     render(
       <SaveTemplateModal {...DEFAULT_PROPS} testID="my-save-modal" />,
     );
-    expect(screen.getByTestId('my-save-modal-cancel')).toBeTruthy();
-    expect(screen.getByTestId('my-save-modal-save')).toBeTruthy();
-    expect(screen.getByTestId('my-save-modal-name-input')).toBeTruthy();
-    expect(screen.getByTestId('my-save-modal-title')).toBeTruthy();
+    screen.getByTestId('my-save-modal-cancel');
+    screen.getByTestId('my-save-modal-save');
+    screen.getByTestId('my-save-modal-name-input');
+    screen.getByTestId('my-save-modal-title');
   });
 
   it('defaults to "save-template-modal" prefix when testID not provided', () => {
     render(<SaveTemplateModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('save-template-modal')).toBeTruthy();
-    expect(screen.getByTestId('save-template-modal-cancel')).toBeTruthy();
-    expect(screen.getByTestId('save-template-modal-save')).toBeTruthy();
+    screen.getByTestId('save-template-modal');
+    screen.getByTestId('save-template-modal-cancel');
+    screen.getByTestId('save-template-modal-save');
   });
 });

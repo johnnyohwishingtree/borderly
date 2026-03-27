@@ -343,12 +343,12 @@ describe('PortalSubmissionScreen — Submit in App button gating', () => {
 
   it('renders the submit-in-app-button', () => {
     const { getByTestId } = renderScreen();
-    expect(getByTestId('submit-in-app-button')).toBeTruthy();
+    getByTestId('submit-in-app-button');
   });
 
   it('renders the submit-in-app-section container', () => {
     const { getByTestId } = renderScreen();
-    expect(getByTestId('submit-in-app-section')).toBeTruthy();
+    getByTestId('submit-in-app-section');
   });
 
   // ── Disabled state (form incomplete) ───────────────────────────────────
@@ -379,7 +379,7 @@ describe('PortalSubmissionScreen — Submit in App button gating', () => {
       fireEvent.press(getByTestId('submit-in-app-button'));
     });
 
-    expect(getByTestId('incomplete-form-message')).toBeTruthy();
+    getByTestId('incomplete-form-message');
   });
 
   it('shows missing field names inside the incomplete message', () => {
@@ -391,7 +391,7 @@ describe('PortalSubmissionScreen — Submit in App button gating', () => {
     });
 
     const list = queryByTestId('missing-fields-list');
-    expect(list).toBeTruthy();
+    expect(list).not.toBeNull();
     expect(list?.props.children).toContain('Purpose of Visit');
   });
 
@@ -403,7 +403,7 @@ describe('PortalSubmissionScreen — Submit in App button gating', () => {
       fireEvent.press(getByTestId('submit-in-app-button'));
     });
 
-    expect(getByTestId('incomplete-form-message')).toBeTruthy();
+    getByTestId('incomplete-form-message');
 
     act(() => {
       jest.advanceTimersByTime(3000);

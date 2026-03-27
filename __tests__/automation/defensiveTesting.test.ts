@@ -127,8 +127,7 @@ describe('Defensive Automation Testing', () => {
         c.checkName === 'No Automated Submission'
       );
       
-      expect(testingCheck).toBeDefined();
-      expect(testingCheck!.status).toBe('passed');
+      expect(testingCheck).toEqual(expect.objectContaining({ status: 'passed' }));
     });
 
     it('should detect PII leakage in forms', async () => {
@@ -274,7 +273,7 @@ describe('Defensive Automation Testing', () => {
       expect(report.countryBreakdown).toHaveLength(1);
       expect(report.countryBreakdown[0].countryCode).toBe('JPN');
       expect(report.performanceTrends.length).toBeGreaterThan(0);
-      expect(report.userExperienceInsights).toBeDefined();
+      expect(report.userExperienceInsights).not.toBeUndefined();
     });
 
     it('should protect against PII collection', () => {
@@ -387,10 +386,10 @@ describe('Defensive Automation Testing', () => {
       expect(requestLog).toHaveLength(0); // No real government URLs should be logged
 
       // Verify testing framework is initialized properly
-      expect(complianceValidator).toBeDefined();
-      expect(portalMonitor).toBeDefined();
-      expect(submissionAnalytics).toBeDefined();
-      expect(testEnv).toBeDefined();
+      expect(complianceValidator).toBeInstanceOf(ComplianceValidator);
+      expect(portalMonitor).toBeInstanceOf(PortalMonitor);
+      expect(submissionAnalytics).toBeInstanceOf(SubmissionAnalytics);
+      expect(testEnv).not.toBeUndefined();
     });
   });
 

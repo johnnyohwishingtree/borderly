@@ -58,7 +58,7 @@ describe('TravelerAvatars — visibility', () => {
 
   it('renders when 2+ travelers are provided', () => {
     render(<TravelerAvatars travelers={[self, spouse]} />);
-    expect(screen.getByTestId('traveler-avatars')).toBeTruthy();
+    screen.getByTestId('traveler-avatars');
   });
 });
 
@@ -67,14 +67,14 @@ describe('TravelerAvatars — initials', () => {
     render(<TravelerAvatars travelers={[self, spouse]} />);
     // Both John Doe and Jane Doe have initials "JD" — verify via getAllByText
     expect(screen.getAllByText('JD')).toHaveLength(2);
-    expect(screen.getByTestId('traveler-avatar-p1')).toBeTruthy();
-    expect(screen.getByTestId('traveler-avatar-p2')).toBeTruthy();
+    screen.getByTestId('traveler-avatar-p1');
+    screen.getByTestId('traveler-avatar-p2');
   });
 
   it('shows initials AD for Alex Doe', () => {
     render(<TravelerAvatars travelers={[self, child1]} />);
-    expect(screen.getByTestId('traveler-avatar-p3')).toBeTruthy();
-    expect(screen.getByText('AD')).toBeTruthy();
+    screen.getByTestId('traveler-avatar-p3');
+    screen.getByText('AD');
   });
 });
 
@@ -86,8 +86,8 @@ describe('TravelerAvatars — overflow', () => {
         maxVisible={3}
       />,
     );
-    expect(screen.getByTestId('traveler-avatar-overflow')).toBeTruthy();
-    expect(screen.getByText('+2')).toBeTruthy();
+    screen.getByTestId('traveler-avatar-overflow');
+    screen.getByText('+2');
   });
 
   it('does not show overflow badge when within maxVisible', () => {
@@ -107,15 +107,15 @@ describe('TravelerAvatars — overflow', () => {
         maxVisible={3}
       />,
     );
-    expect(screen.getByText('+1')).toBeTruthy();
+    screen.getByText('+1');
   });
 });
 
 describe('TravelerAvatars — count', () => {
   it('shows traveler count text by default', () => {
     render(<TravelerAvatars travelers={[self, spouse]} />);
-    expect(screen.getByTestId('traveler-count')).toBeTruthy();
-    expect(screen.getByText('2 travelers')).toBeTruthy();
+    screen.getByTestId('traveler-count');
+    screen.getByText('2 travelers');
   });
 
   it('hides count text when showCount=false', () => {

@@ -37,7 +37,7 @@ describe('Canonical enums', () => {
     });
 
     it('includes an OTHER option', () => {
-      expect(options.find((o) => o.value === 'OTHER')).toBeDefined();
+      expect(options.find((o) => o.value === 'OTHER')).not.toBeUndefined();
     });
   });
 

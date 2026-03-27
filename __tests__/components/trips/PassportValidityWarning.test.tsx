@@ -54,7 +54,7 @@ describe('PassportValidityWarning — valid passport', () => {
 describe('PassportValidityWarning — invalid passport renders correctly', () => {
   it('renders the warning container with testID', () => {
     render(<PassportValidityWarning {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId('passport-validity-warning-test')).toBeTruthy();
+    screen.getByTestId('passport-validity-warning-test');
   });
 
   it('uses default testID based on country name when testID prop is omitted', () => {
@@ -66,7 +66,7 @@ describe('PassportValidityWarning — invalid passport renders correctly', () =>
         passportExpiry="2025-04-30"
       />,
     );
-    expect(screen.getByTestId('passport-validity-warning-Japan')).toBeTruthy();
+    screen.getByTestId('passport-validity-warning-Japan');
   });
 });
 

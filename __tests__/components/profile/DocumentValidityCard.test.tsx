@@ -116,17 +116,17 @@ describe('DocumentValidityCard — renders section header', () => {
 
   it('renders "Document Validity" heading', () => {
     render(<DocumentValidityCard passportExpiry={expiryFuture} today={today} />);
-    expect(screen.getByText('Document Validity')).toBeTruthy();
+    screen.getByText('Document Validity');
   });
 
   it('renders expiry date text', () => {
     render(<DocumentValidityCard passportExpiry={expiryFuture} today={today} />);
-    expect(screen.getByText('June 1, 2027')).toBeTruthy();
+    screen.getByText('June 1, 2027');
   });
 
   it('renders the expiry badge with testID "expiry-badge"', () => {
     render(<DocumentValidityCard passportExpiry={expiryFuture} today={today} />);
-    expect(screen.getByTestId('expiry-badge')).toBeTruthy();
+    screen.getByTestId('expiry-badge');
   });
 });
 
@@ -178,7 +178,7 @@ describe('DocumentValidityCard — per-country validity grid', () => {
     render(<DocumentValidityCard passportExpiry={expiry} today={today} />);
     const countries = ['JPN', 'MYS', 'SGP', 'THA', 'VNM', 'GBR', 'USA', 'CAN'];
     for (const code of countries) {
-      expect(screen.getByTestId(`country-validity-${code}`)).toBeTruthy();
+      screen.getByTestId(`country-validity-${code}`);
     }
   });
 
@@ -236,6 +236,6 @@ describe('DocumentValidityCard — custom testID', () => {
         testID="my-validity-card"
       />,
     );
-    expect(screen.getByTestId('my-validity-card')).toBeTruthy();
+    screen.getByTestId('my-validity-card');
   });
 });

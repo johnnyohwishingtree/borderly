@@ -402,7 +402,7 @@ describe('Biometric Security Validation', () => {
 
       const result = await keychainValidator.validateKeychainSecurity();
 
-      expect(result).toBeDefined();
+      expect(result).not.toBeUndefined();
       expect(result.isValid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
       // Security level should be poor or fair with complete failure
@@ -415,7 +415,7 @@ describe('Biometric Security Validation', () => {
 
       const result = await keychainValidator.validateKeychainSecurity();
 
-      expect(result).toBeDefined();
+      expect(result).not.toBeUndefined();
       // Should have some successful validations despite biometric failure
     });
   });

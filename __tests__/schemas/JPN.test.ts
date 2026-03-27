@@ -15,7 +15,7 @@ describe('Japan (JPN) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('14d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('72h');
@@ -40,7 +40,7 @@ describe('Japan (JPN) Schema', () => {
 
   test('passport section should have required fields matching VJW portal', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -62,7 +62,7 @@ describe('Japan (JPN) Schema', () => {
 
   test('basic info section should have occupation and home address fields', () => {
     const basicInfoSection = schema.sections.find(s => s.id === 'basic_info');
-    expect(basicInfoSection).toBeDefined();
+    expect(basicInfoSection).not.toBeUndefined();
 
     const fieldIds = basicInfoSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('occupation');
@@ -80,10 +80,10 @@ describe('Japan (JPN) Schema', () => {
 
   test('travel section should have Japan-specific fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit') as any;
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.countrySpecific).toBe(true);
     expect(purposeField.options).toHaveLength(5);
     expect(purposeField.options.map((o: any) => o.value)).toContain('tourism');
@@ -92,10 +92,10 @@ describe('Japan (JPN) Schema', () => {
 
   test('customs declarations should have Japan-specific currency threshold', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const currencyField = customsSection!.fields.find(f => f.id === 'currencyOver1M');
-    expect(currencyField).toBeDefined();
+    expect(currencyField).not.toBeUndefined();
     expect(currencyField!.countrySpecific).toBe(true);
     expect(currencyField!.label).toContain('¥1,000,000');
     expect((currencyField as any).helpText).toContain('Japan-specific threshold');
@@ -105,7 +105,7 @@ describe('Japan (JPN) Schema', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
     const meatField = customsSection!.fields.find(f => f.id === 'meatProducts');
 
-    expect(meatField).toBeDefined();
+    expect(meatField).not.toBeUndefined();
     expect(meatField!.countrySpecific).toBe(true);
     expect((meatField as any).helpText).toContain('strictly prohibits all meat products');
   });
@@ -159,7 +159,7 @@ describe('Japan (JPN) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('JPN');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('JPN');
   });
 
@@ -199,13 +199,13 @@ describe('Japan (JPN) Schema', () => {
     const basicInfoSection = schema.sections.find(s => s.id === 'basic_info')!;
     const occupationField = basicInfoSection.fields.find(f => f.id === 'occupation') as any;
 
-    expect(occupationField.autoFillMapping).toBeDefined();
+    expect(occupationField.autoFillMapping).not.toBeUndefined();
     expect(occupationField.autoFillMapping._default).toBe('other');
 
     // Every canonical occupation value should have a mapping
     for (const occ of OCCUPATIONS) {
       const mapped = occupationField.autoFillMapping[occ.value] ?? occupationField.autoFillMapping._default;
-      expect(mapped).toBeDefined();
+      expect(mapped).toEqual(expect.any(String));
       // Mapped value should be one of the portal options
       const portalValues = occupationField.options.map((o: any) => o.value);
       expect(portalValues).toContain(mapped);
@@ -217,13 +217,13 @@ describe('Japan (JPN) Schema', () => {
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit') as any;
 
     expect(purposeField.autoFillSource).toBe('profile.purposeOfVisit');
-    expect(purposeField.autoFillMapping).toBeDefined();
+    expect(purposeField.autoFillMapping).not.toBeUndefined();
     expect(purposeField.autoFillMapping._default).toBe('other');
 
     // Every canonical purpose value should have a mapping
     for (const purpose of PURPOSES_OF_VISIT) {
       const mapped = purposeField.autoFillMapping[purpose.value] ?? purposeField.autoFillMapping._default;
-      expect(mapped).toBeDefined();
+      expect(mapped).toEqual(expect.any(String));
       const portalValues = purposeField.options.map((o: any) => o.value);
       expect(portalValues).toContain(mapped);
     }

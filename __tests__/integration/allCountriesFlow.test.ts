@@ -129,7 +129,7 @@ describe('All Countries Integration Flow', () => {
         });
 
         it('should load country schema successfully', async () => {
-          expect(schema).toBeDefined();
+          expect(schema).not.toBeUndefined();
           expect(schema.countryCode).toBe(countryCode);
           expect(schema.sections).toBeInstanceOf(Array);
           expect(schema.sections.length).toBeGreaterThanOrEqual(0);
@@ -138,7 +138,7 @@ describe('All Countries Integration Flow', () => {
         it('should generate form with correct auto-filled fields', () => {
           const form = generateFilledForm(testProfile, leg, schema);
           
-          expect(form).toBeDefined();
+          expect(form).not.toBeUndefined();
           expect(form.countryCode).toBe(countryCode);
           expect(form.sections).toBeInstanceOf(Array);
           expect(form.stats.totalFields).toBeGreaterThanOrEqual(0);
@@ -152,7 +152,11 @@ describe('All Countries Integration Flow', () => {
           // just verify the form structure is correct
           expect(form.sections).toBeInstanceOf(Array);
           expect(form.countryCode).toBe(countryCode);
-          expect(form.stats).toBeDefined();
+          expect(form.stats).toEqual(expect.objectContaining({
+            totalFields: expect.any(Number),
+            autoFilled: expect.any(Number),
+            completionPercentage: expect.any(Number),
+          }));
           expect(typeof form.stats.totalFields).toBe('number');
           expect(typeof form.stats.autoFilled).toBe('number');
           expect(typeof form.stats.completionPercentage).toBe('number');
@@ -190,7 +194,9 @@ describe('All Countries Integration Flow', () => {
           // Check that auto-filled required fields have values
           const autoFilledRequiredFields = requiredFields.filter((field: any) => field.source === 'auto');
           autoFilledRequiredFields.forEach((field: any) => {
-            expect(field.currentValue).toBeTruthy();
+            expect(field.currentValue).not.toBe('');
+            expect(field.currentValue).not.toBeNull();
+            expect(field.currentValue).not.toBeUndefined();
           });
         });
 
@@ -345,7 +351,7 @@ describe('All Countries Integration Flow', () => {
       const schema = validateSchema(mockSchema, 'JPN');
       const form = generateFilledForm(incompleteProfile as UserProfile, leg, schema);
 
-      expect(form).toBeDefined();
+      expect(form.countryCode).toBe('JPN');
       expect(form.stats.remaining).toBeGreaterThanOrEqual(0);
       
       // Should not crash even with missing data
@@ -396,15 +402,16 @@ describe('All Countries Integration Flow', () => {
       const schema = validateSchema(mockSchema, 'SGP');
       const form = generateFilledForm(profileWithSpecialChars, leg, schema);
 
-      expect(form).toBeDefined();
-      
+      expect(form.countryCode).toBe('SGP');
+
       // Check that special characters are handled correctly
       const nameFields = form.sections
         .flatMap((s: any) => s.fields)
         .filter((f: any) => f.source === 'auto' && f.currentValue && typeof f.currentValue === 'string');
       
       nameFields.forEach((field: any) => {
-        expect(field.currentValue).toBeTruthy();
+        expect(field.currentValue).not.toBe('');
+        expect(field.currentValue).not.toBeNull();
         // Should contain the original characters or appropriate transliteration
         expect(typeof field.currentValue).toBe('string');
       });
@@ -434,11 +441,11 @@ describe('All Countries Integration Flow', () => {
 
         // Required schema properties
         expect(schema.countryCode).toBe(countryCode);
-        expect(schema.countryName).toBeTruthy();
-        expect(schema.schemaVersion).toBeTruthy();
-        expect(schema.lastUpdated).toBeTruthy();
-        expect(schema.portalUrl).toBeTruthy();
-        expect(schema.portalName).toBeTruthy();
+        expect(schema.countryName).toBe(`Country ${countryCode}`);
+        expect(schema.schemaVersion).toBe('1.0.0');
+        expect(schema.lastUpdated).toBe('2024-01-01');
+        expect(schema.portalUrl).toBe(`https://${countryCode.toLowerCase()}.gov/portal`);
+        expect(schema.portalName).toBe(`${countryCode} Portal`);
         
         // Should have sections and submission guide arrays (even if empty)
         expect(schema.sections).toBeInstanceOf(Array);

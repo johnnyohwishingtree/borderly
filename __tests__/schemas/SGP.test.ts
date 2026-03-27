@@ -14,22 +14,17 @@ describe('Singapore (SGP) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('3d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('24h');
   });
 
   test('should have submission deadline metadata', () => {
-    expect((schema as any).submissionDeadlineHours).toBeDefined();
     expect((schema as any).submissionDeadlineHours).toBe(72);
-    expect((schema as any).submissionDeadlineHours).toBeGreaterThanOrEqual(0);
 
-    expect((schema as any).recommendedLeadTimeHours).toBeDefined();
     expect((schema as any).recommendedLeadTimeHours).toBe(168);
-    expect((schema as any).recommendedLeadTimeHours).toBeGreaterThan(0);
 
-    expect((schema as any).submissionWindowNote).toBeDefined();
     expect(typeof (schema as any).submissionWindowNote).toBe('string');
     expect((schema as any).submissionWindowNote.length).toBeGreaterThan(0);
   });
@@ -47,7 +42,7 @@ describe('Singapore (SGP) Schema', () => {
 
   test('travel section should have Singapore-specific fields', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const fieldIds = travelSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('arrivalTime');
@@ -56,10 +51,10 @@ describe('Singapore (SGP) Schema', () => {
 
   test('accommodation should have type selection', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation');
-    expect(accommodationSection).toBeDefined();
+    expect(accommodationSection).not.toBeUndefined();
 
     const typeField = accommodationSection!.fields.find(f => f.id === 'accommodationType');
-    expect(typeField).toBeDefined();
+    expect(typeField).not.toBeUndefined();
     expect(typeField!.countrySpecific).toBe(true);
 
     const types = (typeField as any).options!.map((o: any) => o.value);
@@ -70,7 +65,7 @@ describe('Singapore (SGP) Schema', () => {
 
   test('health declarations should be comprehensive', () => {
     const healthSection = schema.sections.find(s => s.id === 'health_declarations');
-    expect(healthSection).toBeDefined();
+    expect(healthSection).not.toBeUndefined();
 
     const fieldIds = healthSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('feverSymptoms');
@@ -86,15 +81,15 @@ describe('Singapore (SGP) Schema', () => {
 
   test('customs declarations should have Singapore-specific thresholds', () => {
     const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
-    expect(customsSection).toBeDefined();
+    expect(customsSection).not.toBeUndefined();
 
     const cashField = customsSection!.fields.find(f => f.id === 'carryingCash');
-    expect(cashField).toBeDefined();
+    expect(cashField).not.toBeUndefined();
     expect(cashField!.label).toContain('S$20,000');
     expect((cashField as any).helpText).toContain('Singapore Dollars');
 
     const allowanceField = customsSection!.fields.find(f => f.id === 'exceedsAllowance');
-    expect(allowanceField).toBeDefined();
+    expect(allowanceField).not.toBeUndefined();
     expect((allowanceField as any).helpText).toContain('chocolate');
     expect((allowanceField as any).helpText).toContain('S$150');
   });
@@ -103,7 +98,7 @@ describe('Singapore (SGP) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit');
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField!.countrySpecific).toBe(true);
 
     const purposes = (purposeField as any).options!.map((o: any) => o.value);
@@ -140,8 +135,8 @@ describe('Singapore (SGP) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
     const lengthField = travelSection!.fields.find(f => f.id === 'intendedLengthOfStay');
 
-    expect(lengthField).toBeDefined();
-    expect((lengthField as any).validation).toBeDefined();
+    expect(lengthField).not.toBeUndefined();
+    expect((lengthField as any).validation).not.toBeUndefined();
     expect((lengthField as any).validation!.min).toBe(1);
     expect((lengthField as any).validation!.max).toBe(90);
   });
@@ -150,7 +145,7 @@ describe('Singapore (SGP) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
     const expiryField = personalSection!.fields.find(f => f.id === 'passportExpiry');
 
-    expect(expiryField).toBeDefined();
+    expect(expiryField).not.toBeUndefined();
     expect(expiryField!.required).toBe(true);
     expect((expiryField as any).autoFillSource).toBe('profile.passportExpiry');
   });
@@ -164,7 +159,7 @@ describe('Singapore (SGP) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('SGP');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('SGP');
   });
 

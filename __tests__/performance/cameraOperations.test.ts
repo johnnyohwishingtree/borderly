@@ -283,7 +283,7 @@ describe('Camera Operations Performance Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(preprocessed).toBeDefined();
+      expect(preprocessed).not.toBeUndefined();
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.imagePreprocessing);
       
       console.log(`Image preprocessing for MRZ: ${duration.toFixed(2)}ms`);
@@ -297,7 +297,7 @@ describe('Camera Operations Performance Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(enhanced).toBeDefined();
+      expect(enhanced).not.toBeUndefined();
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.imagePreprocessing);
       
       console.log(`Image enhancement for QR: ${duration.toFixed(2)}ms`);
@@ -314,7 +314,7 @@ describe('Camera Operations Performance Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(resized).toBeDefined();
+      expect(resized).not.toBeUndefined();
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.imagePreprocessing * 2); // Allow more time for large images
       
       console.log(`Image resizing: ${duration.toFixed(2)}ms`);
@@ -328,7 +328,7 @@ describe('Camera Operations Performance Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(rotated).toBeDefined();
+      expect(rotated).not.toBeUndefined();
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.imagePreprocessing);
       
       console.log(`Image rotation/orientation: ${duration.toFixed(2)}ms`);
@@ -404,7 +404,7 @@ describe('Camera Operations Performance Tests', () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      expect(camera).toBeDefined();
+      expect(camera).not.toBeUndefined();
       expect(duration).toBeLessThan(PERFORMANCE_THRESHOLDS.cameraInitialization);
       
       console.log(`Camera initialization: ${duration.toFixed(2)}ms`);

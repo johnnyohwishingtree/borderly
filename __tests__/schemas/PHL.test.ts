@@ -14,7 +14,7 @@ describe('Philippines (PHL) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).toBeDefined();
+    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('3d');
     expect(schema.submission.recommended).toBe('24h');
   });
@@ -24,12 +24,12 @@ describe('Philippines (PHL) Schema', () => {
   });
 
   test('portalFlow should require account registration', () => {
-    expect(schema.portalFlow).toBeDefined();
+    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(true);
   });
 
   test('portalFlow should support group registration for families', () => {
-    expect(schema.portalFlow.familyPolicy).toBeDefined();
+    expect(schema.portalFlow.familyPolicy).not.toBeUndefined();
     expect(schema.portalFlow.familyPolicy!.type).toBe('group');
   });
 
@@ -38,7 +38,7 @@ describe('Philippines (PHL) Schema', () => {
   });
 
   test('implementation status should be complete', () => {
-    expect(schema.metadata).toBeDefined();
+    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
@@ -55,7 +55,7 @@ describe('Philippines (PHL) Schema', () => {
 
   test('personal section should include Philippines-specific occupation field', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).toBeDefined();
+    expect(personalSection).not.toBeUndefined();
 
     const fieldIds = personalSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
@@ -65,7 +65,7 @@ describe('Philippines (PHL) Schema', () => {
     expect(fieldIds).toContain('occupation');
 
     const occupationField = personalSection!.fields.find(f => f.id === 'occupation');
-    expect(occupationField).toBeDefined();
+    expect(occupationField).not.toBeUndefined();
     expect(occupationField!.countrySpecific).toBe(true);
     expect(occupationField!.type).toBe('searchable_select');
   });
@@ -84,13 +84,13 @@ describe('Philippines (PHL) Schema', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const occupationField = personalSection.fields.find(f => f.id === 'occupation')!;
 
-    expect((occupationField as any).autoFillMapping).toBeDefined();
+    expect((occupationField as any).autoFillMapping).not.toBeUndefined();
     expect((occupationField as any).autoFillMapping._default).toBe('other');
   });
 
   test('passport section should have required passport fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).toBeDefined();
+    expect(passportSection).not.toBeUndefined();
 
     const fieldIds = passportSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
@@ -109,10 +109,10 @@ describe('Philippines (PHL) Schema', () => {
 
   test('travel section should have Philippines-specific port of arrival', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).toBeDefined();
+    expect(travelSection).not.toBeUndefined();
 
     const portField = travelSection!.fields.find(f => f.id === 'portOfArrival');
-    expect(portField).toBeDefined();
+    expect(portField).not.toBeUndefined();
     expect(portField!.countrySpecific).toBe(true);
 
     const portCodes = portField!.options?.map(o => o.value) ?? [];
@@ -126,7 +126,7 @@ describe('Philippines (PHL) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfTravel')!;
 
-    expect(purposeField).toBeDefined();
+    expect(purposeField).not.toBeUndefined();
     expect(purposeField.countrySpecific).toBe(true);
 
     const purposes = purposeField.options?.map(o => o.value) ?? [];
@@ -139,8 +139,8 @@ describe('Philippines (PHL) Schema', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const durationField = travelSection.fields.find(f => f.id === 'stayDuration')!;
 
-    expect(durationField).toBeDefined();
-    expect((durationField as any).validation).toBeDefined();
+    expect(durationField).not.toBeUndefined();
+    expect((durationField as any).validation).not.toBeUndefined();
     expect((durationField as any).validation.min).toBe(1);
     expect((durationField as any).validation.max).toBe(30);
   });
@@ -148,13 +148,13 @@ describe('Philippines (PHL) Schema', () => {
   test('travel section should have Philippines-specific contact number field', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const contactField = travelSection.fields.find(f => f.id === 'contactNumberInPhilippines');
-    expect(contactField).toBeDefined();
+    expect(contactField).not.toBeUndefined();
     expect(contactField!.countrySpecific).toBe(true);
   });
 
   test('health section should have symptom and contact fields', () => {
     const healthSection = schema.sections.find(s => s.id === 'health');
-    expect(healthSection).toBeDefined();
+    expect(healthSection).not.toBeUndefined();
 
     const fieldIds = healthSection!.fields.map(f => f.id);
     expect(fieldIds).toContain('countriesVisitedLast30Days');
@@ -168,10 +168,10 @@ describe('Philippines (PHL) Schema', () => {
 
   test('contact section should have email with validation', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact');
-    expect(contactSection).toBeDefined();
+    expect(contactSection).not.toBeUndefined();
 
     const emailField = contactSection!.fields.find(f => f.id === 'email')!;
-    expect((emailField as any).validation).toBeDefined();
+    expect((emailField as any).validation).not.toBeUndefined();
     expect((emailField as any).validation.pattern).toContain('@');
   });
 
@@ -225,7 +225,7 @@ describe('Philippines (PHL) Schema', () => {
 
   test('should be accessible via schema registry', async () => {
     const registrySchema = await getSchemaByCountryCode('PHL');
-    expect(registrySchema).toBeDefined();
+    expect(registrySchema).not.toBeUndefined();
     expect(registrySchema?.countryCode).toBe('PHL');
   });
 

@@ -112,8 +112,8 @@ describe('AddQRScreen — header', () => {
   it('renders the "Add QR Code" header', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Add QR Code')).toBeTruthy();
-    expect(screen.getByText('Save a QR code to your wallet')).toBeTruthy();
+    screen.getByText('Add QR Code');
+    screen.getByText('Save a QR code to your wallet');
   });
 });
 
@@ -128,8 +128,8 @@ describe('AddQRScreen — loading state', () => {
 
     render(<AddQRScreen />);
 
-    expect(screen.getByTestId('loading-spinner')).toBeTruthy();
-    expect(screen.getByText('Processing...')).toBeTruthy();
+    screen.getByTestId('loading-spinner');
+    screen.getByText('Processing...');
   });
 
   it('does not show loading spinner when isLoading is false', () => {
@@ -145,9 +145,9 @@ describe('AddQRScreen — capture section (no image)', () => {
   it('shows capture section with camera and library buttons when no image', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Capture QR Code')).toBeTruthy();
-    expect(screen.getByText('Take Photo')).toBeTruthy();
-    expect(screen.getByText('Choose from Library')).toBeTruthy();
+    screen.getByText('Capture QR Code');
+    screen.getByText('Take Photo');
+    screen.getByText('Choose from Library');
   });
 
   it('pressing Take Photo calls handleCameraCapture', () => {
@@ -188,8 +188,8 @@ describe('AddQRScreen — captured image preview', () => {
   it('shows captured image preview after capture', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Captured QR Code')).toBeTruthy();
-    expect(screen.getByText('QR code image captured successfully')).toBeTruthy();
+    screen.getByText('Captured QR Code');
+    screen.getByText('QR code image captured successfully');
   });
 
   it('does not show capture buttons when image is captured', () => {
@@ -202,7 +202,7 @@ describe('AddQRScreen — captured image preview', () => {
   it('shows reset button to clear captured image', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByLabelText('Reset captured image')).toBeTruthy();
+    screen.getByLabelText('Reset captured image');
   });
 
   it('pressing reset calls handleReset', () => {
@@ -228,24 +228,24 @@ describe('AddQRScreen — form fields', () => {
   it('renders label input and type selector', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Label *')).toBeTruthy();
-    expect(screen.getByText('Type')).toBeTruthy();
-    expect(screen.getByTestId('type-select')).toBeTruthy();
+    screen.getByText('Label *');
+    screen.getByText('Type');
+    screen.getByTestId('type-select');
   });
 
   it('renders label input with placeholder', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByPlaceholderText('e.g., Visit Japan Web - Customs')).toBeTruthy();
+    screen.getByPlaceholderText('e.g., Visit Japan Web - Customs');
   });
 
   it('renders type selector with all QR type options', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Immigration')).toBeTruthy();
-    expect(screen.getByText('Customs')).toBeTruthy();
-    expect(screen.getByText('Health')).toBeTruthy();
-    expect(screen.getByText('Combined')).toBeTruthy();
+    screen.getByText('Immigration');
+    screen.getByText('Customs');
+    screen.getByText('Health');
+    screen.getByText('Combined');
   });
 });
 
@@ -312,9 +312,9 @@ describe('AddQRScreen — image quality warnings', () => {
 
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Quality Notes:')).toBeTruthy();
-    expect(screen.getByText('• Image is slightly blurry')).toBeTruthy();
-    expect(screen.getByText('• Low contrast detected')).toBeTruthy();
+    screen.getByText('Quality Notes:');
+    screen.getByText('• Image is slightly blurry');
+    screen.getByText('• Low contrast detected');
   });
 
   it('does not show quality warnings when no warnings', () => {
@@ -355,7 +355,7 @@ describe('AddQRScreen — image quality warnings', () => {
 
     render(<AddQRScreen />);
 
-    expect(screen.getByText(/Processing: 25%/)).toBeTruthy();
+    screen.getByText(/Processing: 25%/);
   });
 
   it('shows device-optimized message for low-end devices', () => {
@@ -372,7 +372,7 @@ describe('AddQRScreen — image quality warnings', () => {
 
     render(<AddQRScreen />);
 
-    expect(screen.getByText(/Device-optimized processing applied/)).toBeTruthy();
+    screen.getByText(/Device-optimized processing applied/);
   });
 });
 
@@ -382,10 +382,10 @@ describe('AddQRScreen — tips section', () => {
   it('renders QR code capture tips', () => {
     render(<AddQRScreen />);
 
-    expect(screen.getByText('Tips for QR Code Capture')).toBeTruthy();
-    expect(screen.getByText(/Make sure the QR code is clearly visible/)).toBeTruthy();
-    expect(screen.getByText(/Ensure good lighting/)).toBeTruthy();
-    expect(screen.getByText(/Keep the QR code flat/)).toBeTruthy();
-    expect(screen.getByText(/QR codes work best when captured straight-on/)).toBeTruthy();
+    screen.getByText('Tips for QR Code Capture');
+    screen.getByText(/Make sure the QR code is clearly visible/);
+    screen.getByText(/Ensure good lighting/);
+    screen.getByText(/Keep the QR code flat/);
+    screen.getByText(/QR codes work best when captured straight-on/);
   });
 });

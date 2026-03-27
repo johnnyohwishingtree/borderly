@@ -83,7 +83,7 @@ describe('SubmissionAnalytics', () => {
       const metrics = exported['JPN'];
       expect(metrics).toHaveLength(2);
       expect(metrics[0].id).not.toBe(metrics[1].id);
-      expect(metrics[0].timestamp).toBeDefined();
+      expect(typeof metrics[0].timestamp).toBe('string');
     });
 
     it('stores metrics under separate country keys', () => {

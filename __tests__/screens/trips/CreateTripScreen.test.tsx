@@ -95,14 +95,14 @@ describe('CreateTripScreen — without template', () => {
   it('renders "Create New Trip" header when no templateId is provided', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Create New Trip')).toBeTruthy();
+      screen.getByText('Create New Trip');
     });
   });
 
   it('shows the default subtitle', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Plan your multi-country journey')).toBeTruthy();
+      screen.getByText('Plan your multi-country journey');
     });
   });
 });
@@ -116,16 +116,14 @@ describe('CreateTripScreen — with templateId', () => {
   it('renders "Trip from Template" header when templateId is provided', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Trip from Template')).toBeTruthy();
+      screen.getByText('Trip from Template');
     });
   });
 
   it('shows the template-specific subtitle prompting user to set dates', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(
-        screen.getByText('Destinations pre-filled from template — set your dates to continue'),
-      ).toBeTruthy();
+      screen.getByText('Destinations pre-filled from template — set your dates to continue');
     });
   });
 
@@ -142,8 +140,8 @@ describe('CreateTripScreen — with templateId', () => {
     render(<CreateTripScreen />);
     // Two legs from the template → two country selects
     await waitFor(() => {
-      expect(screen.getByTestId('country-select-0')).toBeTruthy();
-      expect(screen.getByTestId('country-select-1')).toBeTruthy();
+      screen.getByTestId('country-select-0');
+      screen.getByTestId('country-select-1');
     });
   });
 });
@@ -157,7 +155,7 @@ describe('CreateTripScreen — with unknown templateId', () => {
   it('renders "Trip from Template" header but shows empty destinations', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByText('Trip from Template')).toBeTruthy();
+      screen.getByText('Trip from Template');
     });
     // No country selects since template was not found → no legs pre-filled
     expect(screen.queryByTestId('country-select-0')).toBeNull();
@@ -177,16 +175,16 @@ describe('CreateTripScreen — family empty state', () => {
   it('shows "Traveling with family?" CTA when no family members exist', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('family-empty-state-card')).toBeTruthy();
+      screen.getByTestId('family-empty-state-card');
     });
-    expect(screen.getByText('Traveling with family?')).toBeTruthy();
-    expect(screen.getByText('Add a travel companion')).toBeTruthy();
+    screen.getByText('Traveling with family?');
+    screen.getByText('Add a travel companion');
   });
 
   it('CTA button has correct accessibility properties', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      expect(screen.getByTestId('add-companion-cta-button')).toBeTruthy();
+      screen.getByTestId('add-companion-cta-button');
     });
     const button = screen.getByTestId('add-companion-cta-button');
     expect(button.props.accessibilityRole).toBe('button');

@@ -142,7 +142,8 @@ describe('useAccountSetupStore', () => {
 
       const status = useAccountSetupStore.getState().statuses['p1__JPN'];
 
-      expect(status?.lastChecked).toBeDefined();
+      expect(typeof status?.lastChecked).toBe('string');
+      expect(new Date(status!.lastChecked!).toISOString()).toBe(status!.lastChecked);
       const checkedMs = new Date(status!.lastChecked!).getTime();
       expect(checkedMs).toBeGreaterThanOrEqual(beforeMs);
       expect(checkedMs).toBeLessThanOrEqual(afterMs);

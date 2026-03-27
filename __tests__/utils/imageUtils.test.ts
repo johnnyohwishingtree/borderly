@@ -59,7 +59,7 @@ describe('compressBase64Image', () => {
     const result = await compressBase64Image('not-base64');
 
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    expect(result.error).toEqual(expect.any(String));
   });
 
   it('accepts compression options without error', async () => {
@@ -133,15 +133,15 @@ describe('generateProgressiveVersions', () => {
 
     expect(result.success).toBe(true);
     expect(result.fullQuality).toBe(image);
-    expect(result.lowQuality).toBeDefined();
-    expect(result.mediumQuality).toBeDefined();
+    expect(typeof result.lowQuality).toBe('string');
+    expect(typeof result.mediumQuality).toBe('string');
   });
 
   it('generates blur placeholder by default', async () => {
     const image = makeValidImage();
     const result = await generateProgressiveVersions(image);
 
-    expect(result.placeholder).toBeDefined();
+    expect(typeof result.placeholder).toBe('string');
   });
 
   it('skips blur placeholder when disabled', async () => {
@@ -185,7 +185,7 @@ describe('ImageProcessor', () => {
 
       expect(result.success).toBe(true);
       expect(result.memoryOptimized).toBe(true);
-      expect(result.processedBase64).toBeDefined();
+      expect(typeof result.processedBase64).toBe('string');
     });
 
     it('accepts custom compression options', async () => {
@@ -203,7 +203,7 @@ describe('ImageProcessor', () => {
 
       expect(result.success).toBe(false);
       expect(result.memoryOptimized).toBe(true);
-      expect(result.error).toBeDefined();
+      expect(typeof result.error).toBe('string');
     });
 
     it('tracks currently processing count', async () => {

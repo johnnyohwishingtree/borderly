@@ -70,26 +70,26 @@ describe('LoadingState', () => {
     const { getByTestId } = render(
       <LoadingState state="loading" text="Fetching data…" />,
     );
-    expect(getByTestId('loading-indicator')).toBeTruthy();
+    getByTestId('loading-indicator');
   });
 
   it('renders success message when state is success', () => {
     const { getByText } = render(
       <LoadingState state="success" successMessage="All done!" />,
     );
-    expect(getByText('All done!')).toBeTruthy();
+    getByText('All done!');
   });
 
   it('renders default success message', () => {
     const { getByText } = render(<LoadingState state="success" />);
-    expect(getByText('Completed successfully')).toBeTruthy();
+    getByText('Completed successfully');
   });
 
   it('renders error message when state is error', () => {
     const { getByText } = render(
       <LoadingState state="error" errorMessage="Something went wrong" />,
     );
-    expect(getByText('Something went wrong')).toBeTruthy();
+    getByText('Something went wrong');
   });
 
   it('renders retry button and calls onRetry when pressed', () => {
@@ -110,7 +110,7 @@ describe('LoadingState', () => {
         showRetryButton
       />,
     );
-    expect(getByText('Reload')).toBeTruthy();
+    getByText('Reload');
   });
 
   it('renders cancel button and calls onCancel when pressed', () => {
@@ -124,7 +124,7 @@ describe('LoadingState', () => {
 
   it('renders timeout state message', () => {
     const { getByText } = render(<LoadingState state="timeout" />);
-    expect(getByText('Request Timed Out')).toBeTruthy();
+    getByText('Request Timed Out');
   });
 });
 

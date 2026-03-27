@@ -90,8 +90,9 @@ describe('DatabaseService', () => {
     it('returns a database instance', async () => {
       await databaseService.close();
       const db = await databaseService.initialize();
-      expect(db).toBeDefined();
-      expect(db.collections).toBeDefined();
+      expect(db).not.toBeUndefined();
+      expect(db).not.toBeNull();
+      expect(db.collections).not.toBeUndefined();
     });
 
     it('returns same instance on subsequent calls', async () => {
@@ -104,8 +105,9 @@ describe('DatabaseService', () => {
   describe('getDatabase', () => {
     it('returns the initialized database', async () => {
       const db = await databaseService.getDatabase();
-      expect(db).toBeDefined();
-      expect(db.collections).toBeDefined();
+      expect(db).not.toBeUndefined();
+      expect(db).not.toBeNull();
+      expect(db.collections).not.toBeUndefined();
     });
   });
 
@@ -399,7 +401,8 @@ describe('DatabaseService', () => {
 
       // After close, getDatabase should trigger re-initialization
       const db = await databaseService.getDatabase();
-      expect(db).toBeDefined();
+      expect(db).not.toBeUndefined();
+      expect(db).not.toBeNull();
     });
   });
 });

@@ -45,7 +45,7 @@ describe('UI Components', () => {
       const onPress = jest.fn();
       const { getByText } = render(<Button title="Test Button" onPress={onPress} />);
 
-      expect(getByText('Test Button')).toBeTruthy();
+      getByText('Test Button');
     });
 
     it('should call onPress when pressed', () => {
@@ -99,7 +99,7 @@ describe('UI Components', () => {
           <Button title="Primary" onPress={onPress} variant="primary" />
         );
 
-        expect(getByText('Primary')).toBeTruthy();
+        getByText('Primary');
       });
 
       it('should render secondary variant correctly', () => {
@@ -108,7 +108,7 @@ describe('UI Components', () => {
           <Button title="Secondary" onPress={onPress} variant="secondary" />
         );
 
-        expect(getByText('Secondary')).toBeTruthy();
+        getByText('Secondary');
       });
 
       it('should render outline variant correctly', () => {
@@ -117,7 +117,7 @@ describe('UI Components', () => {
           <Button title="Outline" onPress={onPress} variant="outline" />
         );
 
-        expect(getByText('Outline')).toBeTruthy();
+        getByText('Outline');
       });
     });
 
@@ -128,7 +128,7 @@ describe('UI Components', () => {
           <Button title="Small" onPress={onPress} size="small" />
         );
 
-        expect(getByText('Small')).toBeTruthy();
+        getByText('Small');
       });
 
       it('should render medium size correctly', () => {
@@ -137,7 +137,7 @@ describe('UI Components', () => {
           <Button title="Medium" onPress={onPress} size="medium" />
         );
 
-        expect(getByText('Medium')).toBeTruthy();
+        getByText('Medium');
       });
 
       it('should render large size correctly', () => {
@@ -146,7 +146,7 @@ describe('UI Components', () => {
           <Button title="Large" onPress={onPress} size="large" />
         );
 
-        expect(getByText('Large')).toBeTruthy();
+        getByText('Large');
       });
     });
 
@@ -156,7 +156,7 @@ describe('UI Components', () => {
         <Button title="Full Width" onPress={onPress} fullWidth />
       );
 
-      expect(getByText('Full Width')).toBeTruthy();
+      getByText('Full Width');
     });
   });
 
@@ -164,7 +164,7 @@ describe('UI Components', () => {
     it('should render with default props', () => {
       const { getByDisplayValue } = render(<Input value="test" onChangeText={() => {}} />);
 
-      expect(getByDisplayValue('test')).toBeTruthy();
+      getByDisplayValue('test');
     });
 
     it('should render with label', () => {
@@ -172,7 +172,7 @@ describe('UI Components', () => {
         <Input label="Test Label" value="" onChangeText={() => {}} />
       );
 
-      expect(getByText('Test Label')).toBeTruthy();
+      getByText('Test Label');
     });
 
     it('should render required indicator when required', () => {
@@ -180,8 +180,8 @@ describe('UI Components', () => {
         <Input label="Required Field" value="" onChangeText={() => {}} required />
       );
 
-      expect(getByText('Required Field')).toBeTruthy();
-      expect(getByText('*')).toBeTruthy();
+      getByText('Required Field');
+      getByText('*');
     });
 
     it('should render error message when error provided', () => {
@@ -189,7 +189,7 @@ describe('UI Components', () => {
         <Input value="" onChangeText={() => {}} error="This is an error" />
       );
 
-      expect(getByText('This is an error')).toBeTruthy();
+      getByText('This is an error');
     });
 
     it('should render helper text when provided and no error', () => {
@@ -197,7 +197,7 @@ describe('UI Components', () => {
         <Input value="" onChangeText={() => {}} helperText="This is helper text" />
       );
 
-      expect(getByText('This is helper text')).toBeTruthy();
+      getByText('This is helper text');
     });
 
     it('should not render helper text when error is present', () => {
@@ -211,7 +211,7 @@ describe('UI Components', () => {
       );
 
       expect(queryByText('Helper text')).toBeNull();
-      expect(queryByText('Error message')).toBeTruthy();
+      expect(queryByText('Error message')).not.toBeNull();
     });
 
     it('should call onChangeText when text changes', () => {
@@ -237,7 +237,7 @@ describe('UI Components', () => {
         />
       );
 
-      expect(getByPlaceholderText('Enter text here')).toBeTruthy();
+      getByPlaceholderText('Enter text here');
     });
 
     it('should handle onBlur events', () => {
@@ -261,7 +261,7 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Card Content')).toBeTruthy();
+      getByText('Card Content');
     });
 
     it('should render with default variant', () => {
@@ -271,7 +271,7 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Default Card')).toBeTruthy();
+      getByText('Default Card');
     });
 
     it('should render with elevated variant', () => {
@@ -281,7 +281,7 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Elevated Card')).toBeTruthy();
+      getByText('Elevated Card');
     });
 
     it('should render with outlined variant', () => {
@@ -291,7 +291,7 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Outlined Card')).toBeTruthy();
+      getByText('Outlined Card');
     });
 
     it('should accept custom className', () => {
@@ -301,7 +301,7 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Custom Card')).toBeTruthy();
+      getByText('Custom Card');
     });
   });
 
@@ -323,10 +323,10 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Username')).toBeTruthy();
-      expect(getByText('*')).toBeTruthy();
-      expect(getByPlaceholderText('Enter username')).toBeTruthy();
-      expect(getByText('Submit')).toBeTruthy();
+      getByText('Username');
+      getByText('*');
+      getByPlaceholderText('Enter username');
+      getByText('Submit');
 
       const submitButton = getByText('Submit');
       fireEvent.press(submitButton);
@@ -348,9 +348,9 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Email')).toBeTruthy();
-      expect(getByText('Please enter a valid email')).toBeTruthy();
-      expect(getByText('Submit')).toBeTruthy();
+      getByText('Email');
+      getByText('Please enter a valid email');
+      getByText('Submit');
     });
   });
 
@@ -366,7 +366,7 @@ describe('UI Components', () => {
         />
       );
 
-      expect(getByText('Accessible Button')).toBeTruthy();
+      getByText('Accessible Button');
     });
 
     it('should support accessibility props on Input', () => {
@@ -381,7 +381,7 @@ describe('UI Components', () => {
       );
 
       // Input should be accessible
-      expect(getByDisplayValue('')).toBeTruthy();
+      getByDisplayValue('');
     });
   });
 
@@ -406,7 +406,7 @@ describe('UI Components', () => {
       );
 
       // Should render without crashing
-      expect(root).toBeTruthy();
+      expect(root).not.toBeNull();
     });
 
     it('should handle complex children in Card', () => {
@@ -419,8 +419,8 @@ describe('UI Components', () => {
         </Card>
       );
 
-      expect(getByText('Complex content')).toBeTruthy();
-      expect(getByText('Nested button')).toBeTruthy();
+      getByText('Complex content');
+      getByText('Nested button');
     });
   });
 });

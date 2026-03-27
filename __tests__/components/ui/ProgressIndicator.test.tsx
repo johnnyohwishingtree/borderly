@@ -42,17 +42,17 @@ describe('ProgressIndicator', () => {
         labels={['Personal', 'Passport', 'Review']}
       />,
     );
-    expect(getByText('Personal')).toBeTruthy();
-    expect(getByText('Passport')).toBeTruthy();
-    expect(getByText('Review')).toBeTruthy();
+    getByText('Personal');
+    getByText('Passport');
+    getByText('Review');
   });
 
   it('uses default labels when custom labels not provided', () => {
     const { getByLabelText } = render(
       <ProgressIndicator currentStep={0} totalSteps={2} />,
     );
-    expect(getByLabelText('Step 1 of 2: Step 1')).toBeTruthy();
-    expect(getByLabelText('Step 2 of 2: Step 2')).toBeTruthy();
+    getByLabelText('Step 1 of 2: Step 1');
+    getByLabelText('Step 2 of 2: Step 2');
   });
 
   it('renders dots variant', () => {
@@ -81,8 +81,8 @@ describe('ProgressIndicator', () => {
         labels={['Info', 'Confirm']}
       />,
     );
-    expect(getByText('Info')).toBeTruthy();
-    expect(getByText('Confirm')).toBeTruthy();
+    getByText('Info');
+    getByText('Confirm');
   });
 
   it('sets accessibility value on each step', () => {

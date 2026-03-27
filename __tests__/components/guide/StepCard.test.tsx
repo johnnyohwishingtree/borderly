@@ -32,10 +32,10 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Step 1')).toBeTruthy();
-    expect(getByText('Test Step')).toBeTruthy();
-    expect(getByText('This is a test step description')).toBeTruthy();
-    expect(getByText('Current')).toBeTruthy();
+    getByText('Step 1');
+    getByText('Test Step');
+    getByText('This is a test step description');
+    getByText('Current');
   });
 
   it('shows completed status correctly', () => {
@@ -47,7 +47,7 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Completed')).toBeTruthy();
+    getByText('Completed');
   });
 
   it('shows fields when step is current', () => {
@@ -60,7 +60,7 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Information needed for this step:')).toBeTruthy();
+    getByText('Information needed for this step:');
   });
 
   it('shows tips when step is current', () => {
@@ -72,9 +72,9 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Tips & Reminders:')).toBeTruthy();
-    expect(getByText('Tip 1')).toBeTruthy();
-    expect(getByText('Tip 2')).toBeTruthy();
+    getByText('Tips & Reminders:');
+    getByText('Tip 1');
+    getByText('Tip 2');
   });
 
   it('shows mark complete button for current incomplete step', () => {
@@ -89,7 +89,7 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Mark as Complete')).toBeTruthy();
+    getByText('Mark as Complete');
   });
 
   it('calls onMarkComplete when button is pressed', () => {
@@ -132,7 +132,7 @@ describe('StepCard', () => {
       />
     );
 
-    expect(getByText('Complete previous steps to unlock this step')).toBeTruthy();
+    getByText('Complete previous steps to unlock this step');
   });
 
   it('does not show fields and tips for future steps', () => {
@@ -221,9 +221,9 @@ describe('StepCard', () => {
     );
 
     // All should render the basic step structure
-    expect(completedStep.getByText('Test Step')).toBeTruthy();
-    expect(currentStep.getByText('Test Step')).toBeTruthy();
-    expect(futureStep.getByText('Test Step')).toBeTruthy();
+    completedStep.getByText('Test Step');
+    currentStep.getByText('Test Step');
+    futureStep.getByText('Test Step');
   });
 
   it('renders with empty tips array', () => {
@@ -258,6 +258,6 @@ describe('StepCard', () => {
     );
 
     // Should still render normally (screenshot handling would be in implementation)
-    expect(getByText('Test Step')).toBeTruthy();
+    getByText('Test Step');
   });
 });
