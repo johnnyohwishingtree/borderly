@@ -5,7 +5,7 @@
  * techniques. Provides early warning for performance degradations.
  */
 
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from '@/services/storage/mmkv';
 import { sanitizePII } from '../../utils/piiSanitizer';
 import type { PerformanceMetrics } from './productionProfiler';
 import {

@@ -41,7 +41,7 @@ Scan for:
 
 ### Step 2: Check Domain Placement
 
-Source files should be in their correct domain. Read folder `CLAUDE.md` files (e.g., `src/services/CLAUDE.md`, `src/app/CLAUDE.md`) to understand the expected directory structure and domain boundaries.
+Source files should be in their correct domain. Read folder `CLAUDE.md` files (e.g., `src/services/CLAUDE.md`, `src/stores/CLAUDE.md`) to understand the expected directory structure and domain boundaries.
 
 Look for files in `src/utils/` that belong in a service domain.
 

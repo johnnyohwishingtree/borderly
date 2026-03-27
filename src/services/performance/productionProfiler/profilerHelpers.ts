@@ -5,7 +5,7 @@
  * for recommendation generation and trend analysis.
  */
 
-import type { MMKV } from 'react-native-mmkv';
+import type { MMKV } from '@/services/storage/mmkv';
 
 import type {
   PerformanceBenchmark,

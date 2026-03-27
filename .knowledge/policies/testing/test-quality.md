@@ -51,7 +51,7 @@ __tests__/, src/**/*.test.ts, src/**/*.test.tsx
 - Testing generated/derived values that are guaranteed by TypeScript types
 
 ## Enforcement
-`__tests__/structure/test-quality-audit.test.ts` (structural — scans for anti-patterns)
+Enforced by `/test-audit` skill when run on schedule
 
 ## References
 - Related: rubrics/test-quality.md (evaluation criteria with weights)

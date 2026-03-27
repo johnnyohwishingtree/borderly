@@ -5,7 +5,7 @@
  * retrieval of historical data, and error tracking.
  */
 
-import type { MMKV } from 'react-native-mmkv';
+import type { MMKV } from '@/services/storage/mmkv';
 import { sanitizePII } from '../../../utils/piiSanitizer';
 import type { PerformanceMetrics } from './productionProfilerTypes';
 

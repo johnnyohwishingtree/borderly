@@ -1,5 +1,9 @@
 import { MMKV } from 'react-native-mmkv';
 
+// Re-export MMKV class for services that need custom storage instances
+// (e.g., performance monitoring). Import from here, not react-native-mmkv directly.
+export { MMKV };
+
 export interface AppPreferences {
   language: string;
   onboardingComplete: boolean;

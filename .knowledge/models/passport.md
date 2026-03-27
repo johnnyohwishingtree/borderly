@@ -9,7 +9,7 @@
 
 ### MRZ (Machine Readable Zone)
 - Format: TD3 (passport), 2 lines, 44 characters each
-- Parsed by: `src/services/passport/mrzScanner.ts`
+- Parsed by: `src/services/passport/mrzScanner/mrzScanner.ts`
 - Captured via: camera (ML Kit text recognition) or manual entry
 
 ### FamilyMember
@@ -36,7 +36,7 @@ TravelerProfile 1──* TripLeg (via assignedTravelers)
 - Some countries require 6+ months validity from entry date
 
 ## Key Files
-- `src/services/passport/mrzScanner.ts` — MRZ parsing
-- `src/services/storage/keychain.ts` — Keychain CRUD
+- `src/services/passport/mrzScanner/mrzScanner.ts` — MRZ parsing
+- `src/services/storage/keychain/keychainService.ts` — Keychain CRUD
 - `src/hooks/usePassportScan.ts` — scan orchestration
 - `src/hooks/usePassportValidity.ts` — expiry checks
