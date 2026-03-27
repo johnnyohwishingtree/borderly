@@ -17,7 +17,7 @@
     "supportedLanguages": [
       "en"
     ],
-    "implementationStatus": "planned",
+    "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {

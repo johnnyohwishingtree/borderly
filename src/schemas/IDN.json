@@ -15,7 +15,7 @@
     "popularity": 80,
     "lastVerified": "2026-03-25T00:00:00Z",
     "supportedLanguages": ["en", "id"],
-    "implementationStatus": "planned",
+    "implementationStatus": "complete",
     "maintenanceFrequency": "monthly"
   },
   "changeDetection": {
