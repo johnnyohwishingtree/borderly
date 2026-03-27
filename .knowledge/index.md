@@ -67,7 +67,7 @@ form-engine, passport, qr-wallet, submission-guide, stores, user-journeys
 
 ### Domain
 
-`domain/countries/` (15 countries)
+`domain/countries/` (14 countries)
 
 ### Other
 
