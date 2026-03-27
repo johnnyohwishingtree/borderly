@@ -227,16 +227,21 @@ function processFormField(
 
   // Field needs user input - set appropriate default value
   const defaultValue = getDefaultValue(field);
-  const isEmpty = defaultValue === '' || defaultValue === null || defaultValue === undefined;
 
-  // Boolean fields with a default of false are "answered" — the user
-  // doesn't need to explicitly toggle "No" for every declaration.
-  const hasUsableDefault = field.type === 'boolean' && defaultValue === false;
+  // Boolean fields default to false (toggle off = "No") when no default is set.
+  // Users shouldn't need to explicitly toggle "No" for every declaration.
+  const isBooleanField = field.type === 'boolean';
+  const effectiveDefault = isBooleanField && (defaultValue === undefined || defaultValue === null)
+    ? false
+    : defaultValue;
+
+  const isEmpty = effectiveDefault === '' || effectiveDefault === null || effectiveDefault === undefined;
+  const hasUsableDefault = isBooleanField && effectiveDefault === false;
 
   return {
     ...field,
-    currentValue: defaultValue,
-    source: isEmpty ? 'empty' : 'default',
+    currentValue: effectiveDefault,
+    source: isEmpty ? 'empty' : (hasUsableDefault ? 'default' : 'default'),
     needsUserInput: !hasUsableDefault,
   };
 }
