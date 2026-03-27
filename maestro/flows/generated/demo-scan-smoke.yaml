@@ -62,7 +62,7 @@ tags:
     end: "50%,50%"
     duration: 200
 - tapOn:
-    id: "demo-scan-adult"
+    id: "demo-scan-adult-button"
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000

@@ -14,4 +14,5 @@ export const PASSPORT_SCAN_IDS = {
   issuingCountryField: { id: 'issuing-country-field', type: 'SearchableSelect' as const },
   passportContinueButton: { id: 'passport-continue-button', type: 'button' as const },
   passportBackButton: { id: 'passport-back-button', type: 'button' as const },
+  genderButton: { id: 'gender-button', type: 'button' as const, dynamic: 'gender-{label}-button' },
 };

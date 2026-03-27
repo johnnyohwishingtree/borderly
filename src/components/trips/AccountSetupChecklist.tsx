@@ -15,6 +15,7 @@ import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
 import { CountryFormSchema } from '@/types/schema';
 import { TripLeg } from '@/types/trip';
 import { TravelerProfile } from '@/types/profile';
+import { ACCOUNT_SETUP_CHECKLIST_IDS } from './testIDs';
 
 export interface AccountSetupChecklistProps {
   /** The legs of the trip to show account setup items for */
@@ -222,7 +223,7 @@ export default function AccountSetupChecklist({
 
   return (
     <View
-      testID={testID ?? 'account-setup-checklist'}
+      testID={testID ?? ACCOUNT_SETUP_CHECKLIST_IDS.container.id}
       className="bg-white mx-4 mb-4 rounded-xl shadow-sm border border-gray-100"
     >
       {/* Section header */}
@@ -236,7 +237,7 @@ export default function AccountSetupChecklist({
       {/* Portal rows */}
       {loading ? (
         <View className="py-6 items-center">
-          <ActivityIndicator size="small" color="#6b7280" testID="account-setup-loading" />
+          <ActivityIndicator size="small" color="#6b7280" testID={ACCOUNT_SETUP_CHECKLIST_IDS.loading.id} />
         </View>
       ) : (
         <View className="py-1">
@@ -255,7 +256,7 @@ export default function AccountSetupChecklist({
               return (
                 <View
                   key={info.countryCode}
-                  testID={`account-row-${info.countryCode}`}
+                  testID={ACCOUNT_SETUP_CHECKLIST_IDS.accountRow(info.countryCode).id}
                   className="flex-row items-center px-4 py-3"
                 >
                   <Text className="text-base mr-2">ℹ️</Text>
@@ -273,7 +274,7 @@ export default function AccountSetupChecklist({
             return (
               <TouchableOpacity
                 key={info.countryCode}
-                testID={`account-row-${info.countryCode}`}
+                testID={ACCOUNT_SETUP_CHECKLIST_IDS.accountRow(info.countryCode).id}
                 onPress={() => {
                   if (!isReady) {
                     handleOpenSignup(info);
@@ -305,7 +306,7 @@ export default function AccountSetupChecklist({
                   {isReady && !hasCredentials && (
                     <Text
                       className="text-xs text-blue-600 mt-0.5"
-                      testID={`save-credentials-hint-${info.countryCode}`}
+                      testID={ACCOUNT_SETUP_CHECKLIST_IDS.saveCredentialsHint(info.countryCode).id}
                     >
                       Tap to save login credentials
                     </Text>
@@ -330,7 +331,7 @@ export default function AccountSetupChecklist({
                 )}
                 {isReady && (
                   <TouchableOpacity
-                    testID={`reset-account-${info.countryCode}`}
+                    testID={ACCOUNT_SETUP_CHECKLIST_IDS.resetAccount(info.countryCode).id}
                     onPress={() => resetPortalStatus(info.countryCode)}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
@@ -348,7 +349,7 @@ export default function AccountSetupChecklist({
         visible={signupModal !== null}
         animationType="slide"
         presentationStyle="pageSheet"
-        testID="signup-webview-modal"
+        testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupWebviewModal.id}
         onRequestClose={handleCloseModal}
       >
         <SafeAreaView className="flex-1 bg-white">
@@ -356,7 +357,7 @@ export default function AccountSetupChecklist({
           <View className="flex-row items-center px-4 py-3 border-b border-gray-200">
             <TouchableOpacity
               onPress={handleCloseModal}
-              testID="signup-modal-close"
+              testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupModalClose.id}
               className="mr-4"
             >
               <Text className="text-base text-blue-600">Close</Text>
@@ -372,7 +373,7 @@ export default function AccountSetupChecklist({
                 signupModal &&
                 handleMarkReady(signupModal.portalCode, signupModal.portalName)
               }
-              testID="signup-modal-mark-ready"
+              testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupModalMarkReady.id}
               className="ml-4"
             >
               <Text className="text-base font-medium text-green-600">Mark Ready</Text>
@@ -384,12 +385,12 @@ export default function AccountSetupChecklist({
             <View className="flex-1">
               {webviewLoading && (
                 <View className="absolute inset-0 items-center justify-center z-10 bg-white">
-                  <ActivityIndicator size="large" color="#2563eb" testID="signup-webview-loading" />
+                  <ActivityIndicator size="large" color="#2563eb" testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupWebviewLoading.id} />
                   <Text className="text-sm text-gray-500 mt-2">Loading signup page…</Text>
                 </View>
               )}
               <WebView
-                testID="signup-webview"
+                testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupWebview.id}
                 source={{ uri: signupModal.url }}
                 onLoadStart={() => setWebviewLoading(true)}
                 onLoadEnd={() => setWebviewLoading(false)}
@@ -409,7 +410,7 @@ export default function AccountSetupChecklist({
         title="Account created! Save your login?"
         onSave={handleCredentialSave}
         onSkip={handleCredentialSkip}
-        testID="account-setup-credential-prompt"
+        testID={ACCOUNT_SETUP_CHECKLIST_IDS.credentialPrompt.id}
       />
     </View>
   );

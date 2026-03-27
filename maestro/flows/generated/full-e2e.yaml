@@ -63,7 +63,7 @@ tags:
     end: "50%,50%"
     duration: 200
 - tapOn:
-    id: "demo-scan-adult"
+    id: "demo-scan-adult-button"
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000
@@ -165,7 +165,7 @@ tags:
     end: "50%,50%"
     duration: 200
 - tapOn:
-    id: "trip-name-input"
+    id: "trip-name-field"
 - inputText: "Japan Trip 2026"
 - swipe:
     start: "50%,40%"

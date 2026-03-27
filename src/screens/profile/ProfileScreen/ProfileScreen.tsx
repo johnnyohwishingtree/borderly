@@ -6,6 +6,7 @@ import { ProfileStackParamList } from '@/app/navigation/types';
 import { Button, Card, StatusBadge, Divider, ProgressBar, LoadingSpinner, EmptyState, ScreenContainer } from '@/components/ui';
 import { DocumentValidityCard } from '@/components/profile';
 import { useProfileScreen, formatDate, isPassportExpiringSoon } from '@/hooks/useProfileScreen';
+import { PROFILE_SCREEN_IDS } from './testIDs';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'Profile'>;
 
@@ -127,7 +128,7 @@ export default function ProfileScreen() {
                 onPress={handleUnlockProfile}
                 variant="primary"
                 fullWidth
-                testID="unlock-biometrics-button"
+                testID={PROFILE_SCREEN_IDS.unlockBiometricsButton.id}
               />
             </View>
           ) : (
@@ -196,7 +197,7 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('EditProfile')}
               variant="outline"
               size="small"
-              testID="edit-contact-button"
+              testID={PROFILE_SCREEN_IDS.editContactButton.id}
             />
           </View>
 
@@ -263,7 +264,7 @@ export default function ProfileScreen() {
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('FamilyManagement')}
-            testID="family-summary-row"
+            testID={PROFILE_SCREEN_IDS.familySummaryRow.id}
             activeOpacity={0.7}
           >
             <View className="flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">

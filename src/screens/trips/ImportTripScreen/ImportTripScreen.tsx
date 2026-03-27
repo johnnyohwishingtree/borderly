@@ -4,6 +4,7 @@ import { ScreenContainer, Button } from '@/components/ui';
 import LoadingStates from '@/components/ui/LoadingStates';
 import { BoardingPassScanner } from '@/components/boarding';
 import { useImportTrip } from '@/hooks/useImportTrip';
+import { IMPORT_TRIP_IDS } from './testIDs';
 
 function TabButton({
   label,
@@ -86,14 +87,14 @@ export default function ImportTripScreen() {
           icon={<ClipboardPaste size={16} color="#2563eb" />}
           active={true}
           onPress={() => setMode('paste')}
-          testID="import-tab-paste-button"
+          testID={IMPORT_TRIP_IDS.importTabPasteButton.id}
         />
         <TabButton
           label="Scan boarding pass"
           icon={<Camera size={16} color="#6b7280" />}
           active={false}
           onPress={() => setMode('scan')}
-          testID="import-tab-scan-button"
+          testID={IMPORT_TRIP_IDS.importTabScanButton.id}
         />
       </View>
 
@@ -113,7 +114,7 @@ export default function ImportTripScreen() {
           numberOfLines={8}
           textAlignVertical="top"
           className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 text-base text-gray-900 dark:text-gray-100 mb-4 min-h-[160px] bg-white dark:bg-gray-800"
-          testID="import-confirmation-field"
+          testID={IMPORT_TRIP_IDS.importConfirmationField.id}
           accessibilityLabel="Booking confirmation text"
           accessibilityHint="Paste your booking email or confirmation text here"
         />
@@ -123,7 +124,7 @@ export default function ImportTripScreen() {
           <View
             className="flex-row items-start bg-red-50 dark:bg-red-900/20 p-4 rounded-lg mb-4"
             accessibilityLiveRegion="polite"
-            testID="import-error-message"
+            testID={IMPORT_TRIP_IDS.importErrorMessage.id}
           >
             <AlertCircle size={18} color="#DC2626" />
             <View className="flex-1 ml-2">
@@ -133,7 +134,7 @@ export default function ImportTripScreen() {
               <TouchableOpacity
                 onPress={handleRetry}
                 className="mt-2 min-h-[44px] justify-center"
-                testID="import-try-again-button"
+                testID={IMPORT_TRIP_IDS.importTryAgainButton.id}
                 accessibilityRole="button"
                 accessibilityLabel="Try again"
               >
@@ -151,7 +152,7 @@ export default function ImportTripScreen() {
           variant="primary"
           fullWidth
           disabled={!confirmationText.trim()}
-          testID="import-parse-button"
+          testID={IMPORT_TRIP_IDS.importParseButton.id}
         />
       </ScrollView>
     </ScreenContainer>

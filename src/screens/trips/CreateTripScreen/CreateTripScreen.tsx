@@ -8,6 +8,7 @@ import { BoardingPassScanner } from '@/components/boarding';
 import { SmartImportSheet } from '@/components/import';
 import { useTripCreation } from '@/hooks/useTripCreation';
 import { Destinations } from './CreateTripScreen.Destinations';
+import { CREATE_TRIP_IDS } from './testIDs';
 import type { TripStackParamList } from '@/app/navigation/types';
 
 type CreateTripRouteProp = RouteProp<TripStackParamList, 'CreateTrip'>;
@@ -62,7 +63,7 @@ export default function CreateTripScreen() {
                   onChangeText={(text) => setTripData(prev => ({ ...prev, name: text }))}
                   placeholder="e.g., Asia Summer 2025"
                   error={errors.tripName}
-                  testID="trip-name-field"
+                  testID={CREATE_TRIP_IDS.tripNameField.id}
                 />
                 {errors.tripName && (
                   <Text className="text-red-500 text-sm mt-1">{errors.tripName}</Text>
@@ -91,7 +92,7 @@ export default function CreateTripScreen() {
                 {legs.length >= 2 && familyMembers.length >= 2 && (
                   <View
                     className="flex-row items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
-                    testID="apply-to-all-toggle-row"
+                    testID={CREATE_TRIP_IDS.applyToAllToggleRow.id}
                   >
                     <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Apply to all destinations
@@ -101,14 +102,14 @@ export default function CreateTripScreen() {
                       onValueChange={setApplyToAllLegs}
                       accessibilityLabel="Apply travelers to all destinations"
                       accessibilityHint="When on, all destinations share the same travelers"
-                      testID="apply-to-all-toggle"
+                      testID={CREATE_TRIP_IDS.applyToAllToggle.id}
                     />
                   </View>
                 )}
               </View>
             </Card>
           ) : (
-            <Card className="mb-6" variant="outlined" testID="family-empty-state-card">
+            <Card className="mb-6" variant="outlined" testID={CREATE_TRIP_IDS.familyEmptyStateCard.id}>
               <View className="p-5">
                 <View className="flex-row items-center mb-3">
                   <Users size={28} color="#6366f1" style={{ marginRight: 12 }} />
@@ -121,7 +122,7 @@ export default function CreateTripScreen() {
                   onPress={() => (rootNavigation as any).navigate('Profile', { screen: 'AddFamilyMember' })}
                   className="flex-row items-center bg-indigo-50 dark:bg-indigo-950 px-4 py-3 rounded-lg"
                   activeOpacity={0.7}
-                  testID="add-companion-cta-button"
+                  testID={CREATE_TRIP_IDS.addCompanionCtaButton.id}
                   accessibilityRole="button"
                   accessibilityLabel="Add a travel companion"
                   accessibilityHint="Navigate to add a family member"
@@ -155,7 +156,7 @@ export default function CreateTripScreen() {
               fullWidth
               loading={isCreating}
               disabled={legs.length === 0 || !tripData.name.trim()}
-              testID="create-trip-button"
+              testID={CREATE_TRIP_IDS.createTripButton.id}
             />
             {(legs.length === 0 || !tripData.name.trim()) && (
               <Text className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">

@@ -11,6 +11,7 @@ import { EditTripModal, AddDestinationModal } from '@/components/trips/TripDetai
 import { computeTravelerProgress } from '@/services/readiness/travelerProgress';
 import { Checklists } from './TripDetailScreen.Checklists';
 import { Itinerary } from './TripDetailScreen.Itinerary';
+import { TRIP_DETAIL_IDS } from './testIDs';
 
 interface RouteParams {
   tripId: string;
@@ -72,7 +73,7 @@ export default function TripDetailScreen() {
             title="Go Back"
             onPress={() => navigation.goBack()}
             variant="outline"
-            testID="trip-detail-go-back-button"
+            testID={TRIP_DETAIL_IDS.goBackButton.id}
           />
         </View>
       </View>
@@ -102,7 +103,7 @@ export default function TripDetailScreen() {
                 onPress={modals.duplicateModal.handleOpenDuplicateModal}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
-                testID="duplicate-trip-button"
+                testID={TRIP_DETAIL_IDS.duplicateTripButton.id}
                 accessibilityLabel="Duplicate trip"
                 accessibilityRole="button"
               >
@@ -113,7 +114,7 @@ export default function TripDetailScreen() {
                 onPress={() => modals.editModal.setShowEditModal(true)}
                 className="ml-2 p-2"
                 activeOpacity={0.7}
-                testID="edit-trip-button"
+                testID={TRIP_DETAIL_IDS.editTripButton.id}
                 accessibilityLabel="Edit trip"
                 accessibilityRole="button"
               >
@@ -126,7 +127,7 @@ export default function TripDetailScreen() {
           {tripTravelers.length > 1 && (
             <View
               className="mb-4"
-              testID="trip-detail-travelers"
+              testID={TRIP_DETAIL_IDS.travelersContainer.id}
               accessible={true}
               accessibilityRole="text"
               accessibilityLabel={`${tripTravelers.length} travelers: ${tripTravelers.map(t => `${t.givenNames} ${t.surname}`).join(', ')}`}
@@ -168,7 +169,7 @@ export default function TripDetailScreen() {
               </View>
               <View
                 className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600 flex-row items-center justify-between"
-                testID="submission-progress-summary"
+                testID={TRIP_DETAIL_IDS.submissionProgressSummary.id}
                 accessible={true}
                 accessibilityRole="text"
                 accessibilityLabel={`${submissionProgress.submitted} of ${submissionProgress.total} leg${submissionProgress.total !== 1 ? 's' : ''} submitted`}
@@ -217,7 +218,7 @@ export default function TripDetailScreen() {
               onPress={() => modals.templateModal.setShowSaveTemplateModal(true)}
               className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
               activeOpacity={0.7}
-              testID="save-as-template-button"
+              testID={TRIP_DETAIL_IDS.saveAsTemplateButton.id}
               accessible={true}
               accessibilityRole="button"
               accessibilityLabel="Save as Template"
@@ -250,7 +251,7 @@ export default function TripDetailScreen() {
         initialName={trip.name}
         onSave={modals.templateModal.onSaveAsTemplate}
         onCancel={() => modals.templateModal.setShowSaveTemplateModal(false)}
-        testID="save-template-modal"
+        testID={TRIP_DETAIL_IDS.saveTemplateModal.id}
       />
 
       <EditTripModal
@@ -281,7 +282,7 @@ export default function TripDetailScreen() {
         onConfirm={modals.duplicateModal.handleDuplicateConfirm}
         loading={isDuplicating}
         error={duplicateError}
-        testID="duplicate-trip-modal"
+        testID={TRIP_DETAIL_IDS.duplicateTripModal.id}
       />
     </ScreenContainer>
   );

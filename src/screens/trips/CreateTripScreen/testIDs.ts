@@ -16,4 +16,9 @@ export const CREATE_TRIP_IDS = {
   legAccommodationAddress: { id: 'leg-${index}-accommodation-address', type: 'AddressAutocomplete' as const, dynamic: true as const },
   countrySelect: { id: 'country-select-${index}', type: 'SearchableSelect' as const, dynamic: true as const },
   removeLegButton: { id: 'remove-leg-${index}-button', type: 'button' as const, dynamic: true as const },
+  applyToAllToggleRow: { id: 'apply-to-all-toggle-row', type: 'View' as const },
+  applyToAllToggle: { id: 'apply-to-all-toggle', type: 'Toggle' as const },
+  familyEmptyStateCard: { id: 'family-empty-state-card', type: 'Card' as const },
+  legPassportValidityWarning: { id: 'create-trip-passport-validity-warning-${index}', type: 'View' as const, dynamic: true as const },
+  legTravelersSynced: { id: 'leg-${index}-travelers-synced', type: 'View' as const, dynamic: true as const },
 };

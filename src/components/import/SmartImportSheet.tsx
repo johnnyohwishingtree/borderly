@@ -22,6 +22,7 @@ import type {
   ParsedHotelInfo,
   ConfirmationParseResult,
 } from '../../types/import';
+import { SMART_IMPORT_SHEET_IDS } from './testIDs';
 
 type Tab = 'paste' | 'flight';
 
@@ -48,7 +49,7 @@ export default function SmartImportSheet({
         <Text className="text-lg font-bold text-gray-900">Smart Import</Text>
         <TouchableOpacity
           onPress={onClose}
-          testID="smart-import-close"
+          testID={SMART_IMPORT_SHEET_IDS.closeButton.id}
           accessibilityLabel="Close"
         >
           <X size={24} color="#374151" />
@@ -62,14 +63,14 @@ export default function SmartImportSheet({
           icon={<ClipboardPaste size={16} color={activeTab === 'paste' ? '#2563eb' : '#6b7280'} />}
           active={activeTab === 'paste'}
           onPress={() => setActiveTab('paste')}
-          testID="tab-paste"
+          testID={SMART_IMPORT_SHEET_IDS.tabPaste.id}
         />
         <TabButton
           label="Flight Lookup"
           icon={<Search size={16} color={activeTab === 'flight' ? '#2563eb' : '#6b7280'} />}
           active={activeTab === 'flight'}
           onPress={() => setActiveTab('flight')}
-          testID="tab-flight"
+          testID={SMART_IMPORT_SHEET_IDS.tabFlight.id}
         />
       </View>
 
@@ -163,7 +164,7 @@ function PasteTab({
         numberOfLines={8}
         textAlignVertical="top"
         className="border border-gray-300 rounded-lg p-3 text-base text-gray-900 mb-4 min-h-[160px]"
-        testID="paste-confirmation-field"
+        testID={SMART_IMPORT_SHEET_IDS.pasteConfirmationField.id}
       />
 
       <Button
@@ -172,7 +173,7 @@ function PasteTab({
         variant="primary"
         fullWidth
         disabled={!text.trim()}
-        testID="parse-confirmation-button"
+        testID={SMART_IMPORT_SHEET_IDS.parseConfirmationButton.id}
       />
 
       {parseResult && !hasResults && (
@@ -209,7 +210,7 @@ function PasteTab({
             onPress={handleImport}
             variant="primary"
             fullWidth
-            testID="import-parsed-data-button"
+            testID={SMART_IMPORT_SHEET_IDS.importParsedDataButton.id}
           />
         </View>
       )}
@@ -270,7 +271,7 @@ function FlightTab({
           placeholder="e.g., NH101, JL723, SQ12"
           autoCapitalize="characters"
           className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-          testID="flight-number-field"
+          testID={SMART_IMPORT_SHEET_IDS.flightNumberField.id}
         />
       </View>
 
@@ -286,7 +287,7 @@ function FlightTab({
             autoCapitalize="characters"
             maxLength={3}
             className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-            testID="departure-airport-field"
+            testID={SMART_IMPORT_SHEET_IDS.departureAirportField.id}
           />
         </View>
         <View className="flex-1">
@@ -300,7 +301,7 @@ function FlightTab({
             autoCapitalize="characters"
             maxLength={3}
             className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-            testID="arrival-airport-field"
+            testID={SMART_IMPORT_SHEET_IDS.arrivalAirportField.id}
           />
         </View>
       </View>
@@ -314,7 +315,7 @@ function FlightTab({
           onChangeText={setDate}
           placeholder="YYYY-MM-DD"
           className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
-          testID="flight-date-field"
+          testID={SMART_IMPORT_SHEET_IDS.flightDateField.id}
         />
       </View>
 
@@ -324,7 +325,7 @@ function FlightTab({
         variant="primary"
         fullWidth
         disabled={!flightNumber.trim()}
-        testID="lookup-flight-button"
+        testID={SMART_IMPORT_SHEET_IDS.lookupFlightButton.id}
       />
 
       {error && (
@@ -341,7 +342,7 @@ function FlightTab({
             onPress={handleImport}
             variant="primary"
             fullWidth
-            testID="import-flight-button"
+            testID={SMART_IMPORT_SHEET_IDS.importFlightButton.id}
           />
         </View>
       )}

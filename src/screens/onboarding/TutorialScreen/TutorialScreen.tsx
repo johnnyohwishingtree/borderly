@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, Check, Globe, Shield } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
+import { TUTORIAL_IDS } from './testIDs';
 import { Button, ProgressIndicator, ScreenContainer } from '@/components/ui';
 
 type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
@@ -133,7 +134,7 @@ export default function TutorialScreen() {
             size="small"
             accessibilityLabel="Skip tutorial"
             accessibilityHint="Skip the tutorial and go directly to passport scanning"
-            testID="tutorial-skip-button"
+            testID={TUTORIAL_IDS.tutorialSkipButton.id}
           />
         </View>
 
@@ -155,7 +156,7 @@ export default function TutorialScreen() {
           {/* Text content */}
           <View className="bg-white border border-gray-200 rounded-xl p-4">
             <View className="items-center text-center">
-              <Text className="text-2xl font-bold text-gray-900 text-center mb-2" testID="tutorial-slide-title">
+              <Text className="text-2xl font-bold text-gray-900 text-center mb-2" testID={TUTORIAL_IDS.tutorialSlideTitle.id}>
                 {step.title}
               </Text>
               <Text className="text-lg text-gray-500 font-semibold text-center mb-4">
@@ -176,7 +177,7 @@ export default function TutorialScreen() {
             variant="primary"
             size="large"
             fullWidth
-            testID="next-step-button"
+            testID={TUTORIAL_IDS.nextStepButton.id}
             accessibilityLabel={currentStep === tutorialSteps.length - 1 ? 'Get started' : 'Next step'}
             accessibilityHint={
               currentStep === tutorialSteps.length - 1
@@ -193,13 +194,13 @@ export default function TutorialScreen() {
               fullWidth
               accessibilityLabel="Previous step"
               accessibilityHint="Go to the previous tutorial step"
-              testID="previous-step-button"
+              testID={TUTORIAL_IDS.previousStepButton.id}
             />
           )}
         </View>
 
         {/* Step indicator text */}
-        <Text className="text-center text-sm text-gray-500 mt-4" testID="tutorial-step-indicator">
+        <Text className="text-center text-sm text-gray-500 mt-4" testID={TUTORIAL_IDS.tutorialStepIndicator.id}>
           Step {currentStep + 1} of {tutorialSteps.length}
         </Text>
       </View>
