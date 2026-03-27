@@ -28,11 +28,21 @@ src/components/, src/screens/, maestro/
 - Non-interactive display components don't need testIDs
 - Option testIDs in SearchableSelect are data-driven (country codes)
 
+## Debugging Maestro Failures
+
+When a flow fails, check app logs BEFORE screenshots:
+```bash
+xcrun simctl spawn booted log show --last 2m --predicate 'process == "Borderly"' | grep -i "error\|exception\|fail"
+```
+This shows JS errors, Keychain failures, navigation crashes — the actual root cause. Screenshots only show what's visible, not why it failed.
+
 ## Anti-patterns
 - `<Pressable onPress={...}>` without testID — invisible to Maestro
 - `tapOn: "City"` in Maestro flow — breaks when label text changes
 - Updating screen UI without updating `screenRegistry.ts`
 - Component that only commits value on suggestion tap (not on blur)
+- Debugging Maestro failures by screenshot alone — check `xcrun simctl log show` first
+- Keychain access groups on simulator without provisioning — use `USE_SHARED_ACCESS_GROUP` flag to skip in `__DEV__`
 
 ## Enforcement
 - `__tests__/structure/maestro-registry-sync.test.ts` — registry ↔ source sync
