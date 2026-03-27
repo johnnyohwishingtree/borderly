@@ -15,9 +15,9 @@ Pipeline Step 9, `/epic-planner` skill
 
 When the story queue is empty, plan the next epic in this order. Pick the first category that has work to do:
 
-1. **UX/UI issues** — findings from `/ux-review` or `/visual-audit` that are in `gaps.md`. Users feel these directly.
-2. **Feature gaps** — missing functionality from the product roadmap or user requests. Check GitHub issues labeled `feature`.
-3. **Bug fixes** — known bugs in `gaps.md` under Code fixes. Users hit these.
+1. **Bug fixes** — known bugs in `gaps.md` under Code fixes. Users hit these. Fix first.
+2. **UX/UI issues** — findings from `/ux-review` or `/visual-audit` in `gaps.md`. Users feel these directly.
+3. **Feature gaps** — missing functionality from the product roadmap or user requests. Check GitHub issues labeled `feature`.
 4. **Architecture debt** — findings from `/code-audit` (dependency violations, drift, dead code). Prevents future bugs.
 5. **Test quality** — findings from `/test-audit` (Tier 3-4 tests to delete/rewrite). Reduces false confidence.
 6. **Test coverage** — untested business logic ONLY. Not "write tests for every component."
