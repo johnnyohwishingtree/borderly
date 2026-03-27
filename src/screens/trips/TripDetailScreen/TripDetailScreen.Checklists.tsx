@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { AccountSetupChecklist, ReadinessChecklist, TravelerProgressList } from '@/components/trips';
 import { StatusBadge } from '@/components/ui';
+import { useAccountSetup } from '@/hooks/useAccountSetup';
 import type { UseTripChecklistResult } from '@/hooks/useTripChecklist';
 import type { FamilyMember } from '@/types/profile';
 import type { TripLeg } from '@/types/trip';
@@ -30,6 +31,8 @@ export function Checklists({
   onReadinessNavigate,
   onChecklistPress,
 }: ChecklistsProps) {
+  const accountSetup = useAccountSetup(currentProfileId ?? '');
+
   return (
     <>
       {/* Per-traveler Progress */}
@@ -70,7 +73,7 @@ export function Checklists({
         <View className="pt-4">
           <AccountSetupChecklist
             legs={legs}
-            profileId={currentProfileId}
+            accountSetup={accountSetup}
             familyProfileIds={familyMembers
               .filter(m => m.id !== currentProfileId)
               .map(m => m.id)}
