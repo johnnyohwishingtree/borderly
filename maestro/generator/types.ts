@@ -22,7 +22,8 @@ export type Action =
   | { type: 'swipe'; from: string; to: string; duration?: number }
   | { type: 'wait'; ms: number }
   | { type: 'runSubflow'; file: string }
-  | { type: 'screenshot'; name: string };
+  | { type: 'screenshot'; name: string }
+  | { type: 'eraseText'; count: number };
 
 // ── Journey step — a screen visit with actions ──
 

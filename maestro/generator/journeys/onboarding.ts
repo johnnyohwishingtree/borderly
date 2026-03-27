@@ -27,11 +27,13 @@ const welcomeStep = () => screenStep('Welcome', {
   ],
 });
 
-/** Tutorial screen — skip to passport scan */
+/** Tutorial screen — advance through all 3 steps (Skip button unreliable on iOS 26) */
 const tutorialSkipStep = () => screenStep('Tutorial', {
-  comment: 'TUTORIAL — SKIP',
+  comment: 'TUTORIAL — ADVANCE THROUGH STEPS',
   actions: [
-    tapButton('Tutorial', 'tutorial-skip-button'),
+    tapButton('Tutorial', 'next-step-button'),
+    tapButton('Tutorial', 'next-step-button'),
+    tapButton('Tutorial', 'next-step-button'),
   ],
 });
 

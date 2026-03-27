@@ -4,7 +4,7 @@
  * These assume onboarding is already complete (reuse onboarding steps).
  * Screen metadata is loaded from the screen registry at generation time.
  */
-import { journey, date, fill, alert } from '../dsl';
+import { journey, date, fill, alert, eraseText } from '../dsl';
 import {
   tap, inputText, assertVisible, assertVisibleID, swipe,
 } from '../dsl';
@@ -34,6 +34,7 @@ const createJapanTrip = () => screenStep('CreateTrip', {
     // Country select (manual — Maestro depth issue with SearchableSelect)
     tap('country-select-0-trigger', { scroll: true }),
     tap('country-select-0-search', { scroll: true }),
+    eraseText(20),
     inputText('Japan'),
     swipe('50%,40%', '50%,38%', 150),
     tap('country-select-0-option-JPN'),
@@ -65,6 +66,43 @@ export const tripDetailStep = () => screenStep('TripDetail', {
 
 /** Reusable: create Japan trip steps (for composition in other journeys) */
 export const createJapanTripSteps = () => [createJapanTrip()];
+
+/**
+ * Create a Malaysia trip — no account required, direct portal form.
+ * Used for full E2E that tests auto-fill on the portal.
+ */
+const createMalaysiaTrip = () => screenStep('CreateTrip', {
+  comment: 'CREATE TRIP — MALAYSIA',
+  actions: [
+    fill('trip-name-field', 'Malaysia Trip 2026'),
+    tapButton('CreateTrip', 'add-destination-button'),
+    tap('country-select-0-trigger', { scroll: true }),
+    tap('country-select-0-search', { scroll: true }),
+    eraseText(20),
+    inputText('Malaysia'),
+    swipe('50%,40%', '50%,38%', 150),
+    tap('country-select-0-option-MYS'),
+    date('leg-0-arrival-date'),
+    fill('leg-0-accommodation-name', 'Mandarin Oriental Kuala Lumpur'),
+    fill('leg-0-accommodation-address-line1', 'Kuala Lumpur City Centre'),
+    fill('leg-0-accommodation-address-city', 'Kuala Lumpur'),
+    fill('leg-0-accommodation-address-postal-code', '50088'),
+    fill('leg-0-accommodation-address-country', 'MYS'),
+    tapButton('CreateTrip', 'create-trip-button'),
+    alert('Success', 'OK'),
+  ],
+});
+
+export const malaysiaTripDetailStep = () => screenStep('TripDetail', {
+  comment: 'TRIP DETAIL — MALAYSIA VERIFY',
+  waitTimeout: 20000,
+  actions: [
+    assertVisible('Malaysia Trip 2026'),
+    assertVisibleID('leg-card-MYS'),
+  ],
+});
+
+export const createMalaysiaTripSteps = () => [createMalaysiaTrip()];
 
 // ── Exported journeys ──
 

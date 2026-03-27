@@ -209,6 +209,10 @@ function emitAction(action: Action, depth = 0): string[] {
         line(d, `    path: "maestro/output/${action.name}"`),
       );
       break;
+
+    case 'eraseText':
+      lines.push(line(d, `- eraseText: ${action.count}`));
+      break;
   }
 
   return lines;

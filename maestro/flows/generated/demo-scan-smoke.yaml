@@ -30,7 +30,7 @@ tags:
 - tapOn:
     id: "take-tutorial-button"
 
-# === TUTORIAL — SKIP ===
+# === TUTORIAL — ADVANCE THROUGH STEPS ===
 - extendedWaitUntil:
     visible: "Step 1 of 3"
     timeout: 15000
@@ -41,13 +41,31 @@ tags:
       - tapOn: "Dismiss"
 - scrollUntilVisible:
     element:
-      id: "tutorial-skip-button"
+      id: "next-step-button"
     direction: DOWN
     timeout: 15000
     visibilityPercentage: 30
     centerElement: true
 - tapOn:
-    id: "tutorial-skip-button"
+    id: "next-step-button"
+- scrollUntilVisible:
+    element:
+      id: "next-step-button"
+    direction: DOWN
+    timeout: 15000
+    visibilityPercentage: 30
+    centerElement: true
+- tapOn:
+    id: "next-step-button"
+- scrollUntilVisible:
+    element:
+      id: "next-step-button"
+    direction: DOWN
+    timeout: 15000
+    visibilityPercentage: 30
+    centerElement: true
+- tapOn:
+    id: "next-step-button"
 
 # === PASSPORT — DEMO SCAN ===
 - extendedWaitUntil:

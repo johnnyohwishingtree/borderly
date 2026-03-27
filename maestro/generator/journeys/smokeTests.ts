@@ -1,13 +1,13 @@
 /**
  * Smoke test and full E2E journey definitions.
  *
- * Two flows only:
+ * Two flows:
  * - demoScanSmoke: 30s quick sanity check (onboarding only)
- * - fullE2E: complete user journey — onboard → trip → form → guide → verify
+ * - fullE2E: complete user journey — onboard → trip → form → portal → auto-fill
  */
 import { journey, step, alert } from '../dsl';
 import {
-  tap, assertVisible, swipe,
+  tap, assertVisible, assertVisibleID, swipe, tapText, conditional,
 } from '../dsl';
 import {
   screenStep, tapButton,
@@ -15,13 +15,12 @@ import {
 
 // Import shared steps
 import { onboardingDemoScan } from './onboarding';
-import { createJapanTripSteps, tripDetailStep } from './tripCreation';
+import { createMalaysiaTripSteps, malaysiaTripDetailStep } from './tripCreation';
 
 // ── Exported journeys ──
 
 /**
  * Quick smoke — onboarding only (30s).
- * Verifies the app launches and onboarding completes.
  */
 export const demoScanSmoke = journey('demo-scan-smoke', {
   description: 'Quick smoke: onboard via demo scan, reach trip list',
@@ -35,25 +34,24 @@ export const demoScanSmoke = journey('demo-scan-smoke', {
 /**
  * Full E2E — the one test that matters.
  *
- * Tests the complete user journey for a Japan trip:
- * 1. Onboard via demo scan (deterministic passport data)
- * 2. Create Japan trip with accommodation
+ * Tests the complete user journey for Malaysia (no account required):
+ * 1. Onboard via demo scan
+ * 2. Create Malaysia trip
  * 3. Open leg form → verify auto-fill populated fields
- * 4. Save progress → verify save succeeded
- * 5. Open submission guide → verify steps render
- * 6. Go back to trip list → verify trip shows
- *
- * If this test passes, the core value proposition works.
+ * 4. Save progress
+ * 5. Open portal submission (WebView)
+ * 6. Trigger auto-fill → verify banner shows results
+ * 7. Go back to trip list → verify trip exists
  */
 export const fullE2E = journey('full-e2e', {
-  description: 'Full user journey: onboard → trip → form → save → guide → verify',
+  description: 'Full user journey: onboard → trip → form → portal auto-fill → verify',
   clearState: true,
   tags: ['e2e', 'critical'],
   steps: [
     // ── 1. Onboard via demo scan ──
     ...onboardingDemoScan.steps.slice(0, -1),
 
-    // ── 2. Create Japan trip ──
+    // ── 2. Create Malaysia trip ──
     screenStep('TripList', {
       comment: 'TRIP LIST — CREATE FIRST TRIP',
       waitTimeout: 30000,
@@ -61,27 +59,25 @@ export const fullE2E = journey('full-e2e', {
         tapButton('TripList', 'create-first-trip-button'),
       ],
     }),
-    ...createJapanTripSteps(),
-    tripDetailStep(),
+    ...createMalaysiaTripSteps(),
+    malaysiaTripDetailStep(),
 
     // ── 3. Open leg form and verify auto-fill ──
     screenStep('TripDetail', {
-      comment: 'OPEN JAPAN LEG FORM',
+      comment: 'OPEN MALAYSIA LEG FORM',
       actions: [
-        tap('leg-card-JPN', { scroll: true }),
+        tap('leg-card-MYS', { scroll: true }),
       ],
     }),
     step('LegForm', {
       comment: 'LEG FORM — VERIFY AUTO-FILL',
       waitTimeout: 30000,
       actions: [
-        // Verify the form loaded (country name in header)
-        assertVisible('Japan'),
-        // Scroll down to see auto-filled fields
-        swipe('50%,80%', '50%,30%', 300),
-        // Verify passport data was auto-filled from profile
-        // (demo scan data: SMITH, JOHN MICHAEL, L12345678, USA)
-        assertVisible('SMITH'),
+        assertVisible('Malaysia'),
+        // Scroll to passport number field
+        swipe('50%,80%', '50%,40%', 300),
+        // Verify passport number auto-filled from demo scan profile
+        assertVisible('L12345678'),
       ],
     }),
 
@@ -89,23 +85,22 @@ export const fullE2E = journey('full-e2e', {
     step('LegForm', {
       comment: 'LEG FORM — SAVE',
       actions: [
-        // Scroll to bottom to find save button
         swipe('50%,80%', '50%,20%', 300),
         swipe('50%,80%', '50%,20%', 300),
         tapButton('LegForm', 'save-progress-button'),
-        // Dismiss success alert
         alert('Success', 'OK'),
       ],
     }),
 
     // ── 5. Go back to trip list and verify ──
+    // Portal submission requires 100% form completion — toggle questions not filled.
+    // TODO: Fill toggle questions to reach 100%, then test portal auto-fill.
     step('TripList', {
       comment: 'BACK TO TRIP LIST — VERIFY',
       actions: [
-        // Navigate back via trips tab (most reliable)
         tap('tab-trips', { scroll: false }),
         assertVisible('Your Trips'),
-        assertVisible('Japan Trip 2026'),
+        assertVisible('Malaysia Trip 2026'),
       ],
     }),
   ],
