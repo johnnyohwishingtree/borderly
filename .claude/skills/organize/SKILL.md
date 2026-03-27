@@ -7,14 +7,6 @@ description: Reorganize file structure so tests mirror source layout
 
 Ensure the test directory mirrors the source structure and files are in their correct domain locations.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/workflow/fix-strategy.md`
-- `policies/workflow/verification.md`
-
-## Skills
-None
-
 ## Usage
 ```
 /organize              # Full reorganization audit

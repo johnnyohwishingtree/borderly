@@ -7,14 +7,6 @@ description: Audit UI/UX using vision and screenshots, get redesign suggestions,
 
 Analyze the app's visual state and produce a structured report of UI/UX issues. This skill is read-only — it identifies problems but does NOT implement fixes. Use `/visual-implement` to apply fixes.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-None
-
-## Skills
-- `/capture-screens`
-- `/visual-implement`
-
 ## Prerequisites
 
 - **Screenshots**: Run `/capture-screens` if screenshots are stale or missing.

@@ -8,17 +8,6 @@ argument-hint: "[area to audit, e.g. 'stores', 'services', 'screens']"
 
 Identify and fix architecture issues: dependency violations, oversized files, missing abstractions, and coupling problems.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/architecture/dependency-direction.md`
-- `policies/state/hook-conventions.md`
-- `policies/architecture/file-boundaries.md`
-- `policies/workflow/fix-strategy.md`
-- `policies/workflow/verification.md`
-
-## Skills
-None
-
 ## Usage
 ```
 /refactor-design                   # Audit entire codebase

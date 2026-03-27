@@ -8,14 +8,6 @@ argument-hint: "[specific finding or 'all' to implement everything from the revi
 
 Takes findings from a `/ux-review` report and implements the flow changes in code. This may involve creating new screens, restructuring navigation, modifying stores, and updating onboarding flows.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/workflow/bug-fix.md`
-- `policies/workflow/verification.md`
-
-## Skills
-- `/visual-implement`
-
 **How this differs from `/visual-implement`:**
 - `/visual-implement` applies per-screen styling fixes (Tailwind classes, spacing, colors)
 - `/ux-implement` restructures user flows — new screens, navigation changes, store modifications

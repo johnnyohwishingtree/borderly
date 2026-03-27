@@ -8,19 +8,6 @@ argument-hint: "[--issue N]"
 
 Implements pending stories, verifies quality, merges, updates the knowledge graph, and plans new work when the queue is empty.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- .knowledge/policies/workflow/story-implementation.md
-- .knowledge/policies/workflow/fix-strategy.md
-- .knowledge/policies/workflow/bug-fix.md
-- .knowledge/policies/workflow/verification.md
-- .knowledge/policies/workflow/learning.md
-- .knowledge/policies/workflow/self-review.md
-- .knowledge/policies/testing/e2e-testability.md
-
-## Skills
-- /optimize (Step 8)
-
 **Scheduled task prompt:**
 ```
 Read CLAUDE.md for project context.

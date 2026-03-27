@@ -8,14 +8,6 @@ argument-hint: "[feature description]"
 
 Plan and implement a new feature for Borderly. Reads existing code first, plans the approach, implements with tests, and verifies.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/workflow/verification.md`
-- `policies/workflow/bug-fix.md`
-
-## Skills
-None
-
 ## Usage
 ```
 /plan-feature add QR code sharing      # Implement a specific feature

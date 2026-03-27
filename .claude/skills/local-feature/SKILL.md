@@ -8,18 +8,6 @@ argument-hint: "[feature description]"
 
 Develop a feature in an isolated git worktree. Use this when you want to work on something without disturbing your current branch or uncommitted changes.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/testing/test-quality.md`
-- `policies/workflow/bug-fix.md`
-- `policies/workflow/verification.md`
-- `policies/workflow/learning.md`
-- `policies/workflow/self-review.md`
-- `policies/workflow/fix-strategy.md`
-
-## Skills
-None
-
 ## Steps
 
 1. **Fetch latest master** — run `git fetch origin master` before creating the worktree.

@@ -8,14 +8,6 @@ argument-hint: "[--dry-run]"
 
 Checks that code follows folder-level CLAUDE.md conventions, detects drift, dead code, and architecture violations. Writes all findings to `.knowledge/gaps.md` and creates fix stories.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/architecture/dependency-direction.md`
-- `policies/workflow/verification.md`
-
-## Skills
-None
-
 **Scheduled task prompt:**
 ```
 Read CLAUDE.md for project context.

@@ -8,16 +8,6 @@ argument-hint: "<knowledge-file> [--dry-run] [--scope src/components]"
 
 Takes a single `.knowledge/` file, scans the relevant codebase for violations, and fixes them. Unlike `/knowledge-audit` (which audits ALL knowledge but only reports), this skill focuses on ONE knowledge file and actively implements fixes.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-- `policies/workflow/fix-strategy.md`
-- `policies/workflow/verification.md`
-- `policies/architecture/testable-architecture.md`
-- `policies/testing/e2e-testability.md`
-
-## Skills
-None
-
 ## Usage
 ```
 /apply-knowledge styling.md                    # Fix styling violations everywhere

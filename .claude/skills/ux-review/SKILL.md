@@ -8,15 +8,6 @@ argument-hint: "[flow or area to review, e.g. 'onboarding', 'trip creation', 'fa
 
 Analyze the app's user experience at the **flow level** — navigation paths, tap counts, feature discoverability, information architecture, and onboarding completeness. This skill is read-only — it identifies problems but does NOT implement fixes. Use `/ux-implement` to apply fixes.
 
-## Policies
-<!-- Machine-readable. Graph engine parses this section. -->
-None
-
-## Skills
-- `/visual-audit`
-- `/ux-implement`
-- `/epic-planner`
-
 **How this differs from `/visual-audit`:**
 - `/visual-audit` evaluates individual screens (spacing, contrast, touch targets)
 - `/ux-review` evaluates how screens connect — the journeys users take to accomplish goals
