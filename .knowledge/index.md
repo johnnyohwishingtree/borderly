@@ -63,7 +63,7 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 
 ### Models
 
-form-engine, passport, qr-wallet, submission-guide, stores, user-journeys
+form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, maestro-generator, system-architecture
 
 ### Domain
 
