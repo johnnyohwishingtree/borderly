@@ -40,6 +40,7 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 | `skills/organize/` | Reorganize file structure | `/organize` |
 | `skills/cleanup/` | Remove unused files | `/cleanup` |
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
+| `skills/test-audit/` | Score tests for quality, find junk, recommend deletions | `/test-audit` |
 
 ## .knowledge/ — Five Engine Types
 
@@ -55,11 +56,11 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 | Scope | Policies |
 |-------|---------|
-| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
+| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary, pipeline-learning |
 | `data/` | storage-tiers, pii-boundary, schema-fields |
 | `ui/` | styling, typography, motion, accessibility, ux-writing |
 | `state/` | hook-conventions, store-boundaries |
-| `testing/` | test-conventions, e2e-testability, drift-detection |
+| `testing/` | test-conventions, test-quality, e2e-testability, drift-detection |
 | `platform/` | native-modules, navigation |
 
 ### Models
@@ -68,7 +69,7 @@ form-engine, passport, qr-wallet, submission-guide, stores
 
 ### Domain
 
-`domain/countries/` (14 countries)
+`domain/countries/` (15 countries)
 
 ### Other
 

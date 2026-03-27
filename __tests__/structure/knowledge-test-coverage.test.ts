@@ -35,8 +35,10 @@ const DESIGN_GUIDELINES = new Set([
   'ui/motion.md',
   'ui/ux-writing.md',
   'testing/test-conventions.md',
+  'testing/test-quality.md', // enforced by test-quality-audit.test.ts (pending)
   'data/schema-fields.md',
   'architecture/utils-boundary.md', // structural test pending (story #853)
+  'architecture/pipeline-learning.md', // enforced by pipeline-learning-audit.test.ts (pending)
 ]);
 
 describe('Knowledge test coverage', () => {

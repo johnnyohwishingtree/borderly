@@ -86,10 +86,16 @@ If still failing after 6 → push WIP branch, create draft PR, reset to `pending
 
 ## Step 5: Learn — update the knowledge graph
 
-1. **Missing guidance?** → Add to `.knowledge/gaps.md` with test strategy
-2. **New constraint?** → Create `.knowledge/policies/<scope>/<name>.md` (SCOPE/RULES/ENFORCEMENT format) + structural test
-3. **New business entity?** → Create `.knowledge/models/<name>.md` (ENTITIES/RELATIONSHIPS format)
-4. **Directory-specific?** → Create folder CLAUDE.md pointer with `See:` links to relevant policies/models
+**Mandatory.** See `.knowledge/policies/architecture/pipeline-learning.md`. PRs with 5+ files MUST include knowledge updates.
+
+1. **Anti-patterns learned?** → Add to the relevant policy's Anti-patterns section
+2. **New constraint?** → Create `.knowledge/policies/<scope>/<name>.md` + structural test
+3. **New business entity/architecture?** → Create/update `.knowledge/models/<name>.md`
+4. **Testing patterns?** → Add workarounds to `policies/testing/test-conventions.md`
+5. **Directory-specific?** → Create folder CLAUDE.md with `See:` links
+6. **Stale knowledge?** → Update the file or add to `gaps.md`
+
+Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsider.
 
 ## Step 6: Self-review against rubrics
 

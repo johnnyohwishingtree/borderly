@@ -74,34 +74,48 @@ If still failing after 6 attempts → push WIP branch, create draft PR, reset st
 
 ## Step 5: Learn — update the knowledge graph
 
-After verify passes, reflect on each task you implemented:
+**This step is mandatory, not optional.** See `.knowledge/policies/architecture/pipeline-learning.md` for the full policy. PRs with 5+ files changed MUST include a knowledge update.
 
-1. **Did you have to figure something out not covered by any `.knowledge/` file?**
-   → Add an entry to `.knowledge/gaps.md` with a test strategy to prevent recurrence:
-   ```markdown
-   ## Knowledge updates
-   - `.knowledge/<file>.md` missing guidance on <topic> — found in <where>. Test: <how to catch this automatically>. (#$NUMBER)
-   ```
+After verify passes, check each category:
 
-2. **Did you discover a rule/constraint that isn't documented?**
-   → Is it enforceable (ALLOW/DENY/REQUIRE)? Create a policy:
-     `.knowledge/policies/<scope>/<name>.md` using the policy format (SCOPE, RULES, EXCEPTIONS, ANTI-PATTERNS, ENFORCEMENT).
-     Scope groups: `architecture/`, `data/`, `ui/`, `state/`, `testing/`, `platform/`.
-   → Also create the structural test referenced in the ENFORCEMENT section.
+### 5a. Anti-patterns learned
+Did a bug, test failure, or wrong approach teach you something?
+→ Add it to the relevant policy's Anti-patterns section.
+→ Examples: mock pattern that causes OOM, import that breaks at runtime, timing issue in tests.
 
-3. **Did you encounter business logic the pipeline should know?**
-   → Create or update `.knowledge/models/<name>.md` using the model format (ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES).
+### 5b. New constraints discovered
+Did you find a rule that isn't documented?
+→ Create a policy: `.knowledge/policies/<scope>/<name>.md` (SCOPE, RULES, EXCEPTIONS, ANTI-PATTERNS, ENFORCEMENT).
+→ Also create the structural test referenced in ENFORCEMENT.
 
-4. **Did you discover a convention specific to a directory you worked in?**
-   → Check if that directory has a `CLAUDE.md` already
-   → If not, create one following `.knowledge/templates/folder-claude-md.md` — max 5 lines, `See:` links to relevant policies/models
-   → If yes but it's missing a relevant link, add the "See:" line
+### 5c. Business logic or architecture
+Did you build something with new entities, relationships, or architectural concepts?
+→ Create or update `.knowledge/models/<name>.md` (ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES).
+→ New architecture (App Groups, extensions, import pipelines) always needs a model.
 
-See `.knowledge/ENGINE-TYPES.md` for the full format reference for each engine type.
+### 5d. Testing patterns
+Did you write 5+ tests? Did any test require a non-obvious workaround?
+→ Add testing patterns to `policies/testing/test-conventions.md` Anti-patterns section.
+→ If you extracted hooks, document the return value pattern in `policies/state/hook-conventions.md`.
 
-If nothing was missing — do nothing. No gaps = knowledge graph is working well.
+### 5e. Directory conventions
+Did you work in a directory without a `CLAUDE.md`?
+→ Create one following `.knowledge/templates/folder-claude-md.md` — max 5 lines.
+→ If one exists but is missing a relevant `See:` link, add it.
 
-Include modified `.knowledge/` files and any new folder `CLAUDE.md` files in your commit.
+### 5f. Stale knowledge
+Did any `.knowledge/` file give you wrong or outdated guidance?
+→ Update it. If unsure, add to `gaps.md` under Knowledge updates.
+
+### Self-check before committing
+Count your changed files. If 5+ files changed and zero `.knowledge/` files updated, stop and reconsider:
+- What did you learn that future pipeline runs would benefit from?
+- What went wrong that should be documented as an anti-pattern?
+- What was missing that caused you to spend extra time?
+
+If genuinely nothing was learned, add a comment to the PR body: "No new knowledge: <reason>".
+
+See `.knowledge/ENGINE-TYPES.md` for format reference.
 
 ## Step 6: Self-review against rubrics
 
