@@ -58,7 +58,11 @@ function computeCompleteness(profile: TravelerProfile | null): ProfileCompletene
 }
 
 export function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  // Parse as local date to avoid UTC timezone shift
+  // '2026-01-15' → Jan 15 (not Jan 14 in west of UTC)
+  const [year, month, day] = dateString.split('T')[0].split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
