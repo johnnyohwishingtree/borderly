@@ -24,14 +24,13 @@ const mockProfile1: TravelerProfile = {
   updatedAt: '2024-01-01T00:00:00.000Z',
 };
 
-// Additional profile for multi-profile testing (if needed later)
-// const mockProfile2: TravelerProfile = {
-//   ...mockProfile1,
-//   id: 'profile-2',
-//   givenNames: 'Jane',
-//   email: 'jane@example.com',
-//   passportNumber: 'B12345678',
-// };
+const mockProfile2: TravelerProfile = {
+  ...mockProfile1,
+  id: 'profile-2',
+  givenNames: 'Jane',
+  email: 'jane@example.com',
+  passportNumber: 'B12345678',
+};
 
 // Mock react-native-keychain
 jest.mock('react-native-keychain', () => ({
@@ -288,6 +287,85 @@ describe('Keychain Service Multi-Profile', () => {
       expect(Keychain.resetInternetCredentials).toHaveBeenCalledWith({
         server: 'borderly_traveler_profile'
       });
+    });
+  });
+
+  describe('Profile data isolation', () => {
+    it('stores profiles under separate keychain keys', async () => {
+      (Keychain.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+
+      await keychainService.storeProfileById('profile-1', mockProfile1);
+      await keychainService.storeProfileById('profile-2', mockProfile2);
+
+      const calls = (Keychain.setInternetCredentials as jest.Mock).mock.calls;
+      const keys = calls.map((c: unknown[]) => c[0]);
+      expect(keys).toContain('borderly_profile_profile-1');
+      expect(keys).toContain('borderly_profile_profile-2');
+    });
+
+    it('retrieves the correct profile by ID without cross-contamination', async () => {
+      // Mock returns profile-2 data when asked for profile-2 key
+      (Keychain.getInternetCredentials as jest.Mock).mockImplementation((key: string) => {
+        if (key === 'borderly_profile_profile-1') {
+          return Promise.resolve({ username: 'borderly_user', password: JSON.stringify(mockProfile1) });
+        }
+        if (key === 'borderly_profile_profile-2') {
+          return Promise.resolve({ username: 'borderly_user', password: JSON.stringify(mockProfile2) });
+        }
+        return Promise.resolve(false);
+      });
+
+      const p1 = await keychainService.getProfileById('profile-1');
+      const p2 = await keychainService.getProfileById('profile-2');
+
+      expect(p1?.id).toBe('profile-1');
+      expect(p1?.givenNames).toBe('John');
+      expect(p2?.id).toBe('profile-2');
+      expect(p2?.givenNames).toBe('Jane');
+    });
+
+    it('deleting one profile does not affect another', async () => {
+      (Keychain.resetInternetCredentials as jest.Mock).mockResolvedValue(true);
+
+      await keychainService.deleteProfileById('profile-1');
+
+      // Should only delete profile-1 key (plus enc key + portal creds)
+      const deleteKeys = (Keychain.resetInternetCredentials as jest.Mock).mock.calls
+        .map((c: unknown[]) => (c[0] as { server: string }).server);
+      expect(deleteKeys.some((k: string) => k.includes('profile-1'))).toBe(true);
+      expect(deleteKeys.some((k: string) => k.includes('profile-2'))).toBe(false);
+    });
+  });
+
+  describe('Corrupted data recovery', () => {
+    it('returns null when stored profile data is invalid JSON', async () => {
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({
+        username: 'borderly_user',
+        password: 'not-valid-json{{{',
+      });
+
+      const profile = await keychainService.getProfileById('profile-1');
+
+      expect(profile).toBeNull();
+    });
+
+    it('returns false for profileExists when getFromKeychain throws', async () => {
+      (Keychain.getInternetCredentials as jest.Mock).mockRejectedValue(new Error('Corrupted'));
+
+      const exists = await keychainService.profileExists('profile-1');
+
+      expect(exists).toBe(false);
+    });
+
+    it('migration returns null when legacy data is corrupted JSON', async () => {
+      (Keychain.getInternetCredentials as jest.Mock).mockResolvedValue({
+        username: 'user',
+        password: '{invalid json',
+      });
+
+      const result = await keychainService.migrateLegacyProfile();
+
+      expect(result).toBeNull();
     });
   });
 });

@@ -356,6 +356,56 @@ describe('KeychainService — portal credentials', () => {
     });
   });
 
+  // ── Per-profile scoping ─────────────────────────────────────────────────────
+
+  describe('per-profile scoping', () => {
+    it('stores credentials under profile-specific keychain keys', async () => {
+      (KeychainModule.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+
+      await keychainService.storePortalCredential('profile-A', 'JPN', 'userA@test.com', 'pw-a');
+      await keychainService.storePortalCredential('profile-B', 'JPN', 'userB@test.com', 'pw-b');
+
+      const keys = (KeychainModule.setInternetCredentials as jest.Mock).mock.calls
+        .map((c: unknown[]) => c[0]);
+      expect(keys).toContain('borderly_portal_cred_profile-A_JPN');
+      expect(keys).toContain('borderly_portal_cred_profile-B_JPN');
+    });
+
+    it('uses separate MMKV index keys per profile', async () => {
+      (KeychainModule.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+
+      await keychainService.storePortalCredential('profile-A', 'JPN', 'userA@test.com', 'pw-a');
+
+      jest.clearAllMocks();
+      (KeychainModule.setInternetCredentials as jest.Mock).mockResolvedValue(true);
+      (mmkvService.getString as jest.Mock).mockReturnValue(undefined);
+
+      await keychainService.storePortalCredential('profile-B', 'JPN', 'userB@test.com', 'pw-b');
+
+      const indexKeys = (mmkvService.setString as jest.Mock).mock.calls
+        .map((c: unknown[]) => c[0]);
+      expect(indexKeys).toContain('borderly_portal_cred_index_profile-B');
+    });
+
+    it('getPortalCredentialsForProfile returns only credentials for that profile', async () => {
+      // Profile A has 2 credentials
+      const profileAIndex = JSON.stringify([
+        { portalCode: 'JPN', profileId: 'profile-A', username: 'a@test.com', createdAt: '2024-01-01T00:00:00.000Z' },
+        { portalCode: 'SGP', profileId: 'profile-A', username: 'a@test.com', createdAt: '2024-01-02T00:00:00.000Z' },
+      ]);
+      (mmkvService.getString as jest.Mock).mockImplementation((key: string) => {
+        if (key === 'borderly_portal_cred_index_profile-A') return profileAIndex;
+        return undefined;
+      });
+
+      const resultA = await keychainService.getPortalCredentialsForProfile('profile-A');
+      const resultB = await keychainService.getPortalCredentialsForProfile('profile-B');
+
+      expect(resultA).toHaveLength(2);
+      expect(resultB).toEqual([]);
+    });
+  });
+
   // ── Security level ────────────────────────────────────────────────────────────
 
   describe('security requirements', () => {
