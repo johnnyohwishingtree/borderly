@@ -66,19 +66,19 @@ describe('useBugReport', () => {
   it('returns correct initial state values', () => {
     const { result } = renderHook(() => useBugReport());
 
-    expect(result.current.severity).toBe('medium');
-    expect(result.current.category).toBe('general');
-    expect(result.current.title).toBe('');
-    expect(result.current.description).toBe('');
-    expect(result.current.stepsToReproduce).toBe('');
-    expect(result.current.includeDiagnostics).toBe(true);
-    expect(result.current.isSubmitting).toBe(false);
+    expect(result.current.fields.severity).toBe('medium');
+    expect(result.current.fields.category).toBe('general');
+    expect(result.current.fields.title).toBe('');
+    expect(result.current.fields.description).toBe('');
+    expect(result.current.fields.stepsToReproduce).toBe('');
+    expect(result.current.diagnostics.includeDiagnostics).toBe(true);
+    expect(result.current.submission.isSubmitting).toBe(false);
   });
 
   it('exposes severity and category options', () => {
     const { result } = renderHook(() => useBugReport());
 
-    expect(result.current.severityOptions).toEqual(
+    expect(result.current.options.severityOptions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: 'low' }),
         expect.objectContaining({ value: 'medium' }),
@@ -87,7 +87,7 @@ describe('useBugReport', () => {
       ])
     );
 
-    expect(result.current.categoryOptions).toEqual(
+    expect(result.current.options.categoryOptions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ value: 'general' }),
         expect.objectContaining({ value: 'passport-scan' }),
@@ -98,41 +98,41 @@ describe('useBugReport', () => {
   it('generates diagnostic info on mount', () => {
     const { result } = renderHook(() => useBugReport());
 
-    expect(result.current.diagnosticInfo).not.toBeNull();
-    expect(result.current.diagnosticInfo?.platform).toBe(Platform.OS);
-    expect(result.current.diagnosticInfo?.language).toBe('en');
-    expect(result.current.diagnosticInfo?.theme).toBe('light');
-    expect(result.current.diagnosticInfo?.deviceInfo.tripsCount).toBe(2);
-    expect(result.current.diagnosticInfo?.deviceInfo.hasProfile).toBe(true);
+    expect(result.current.diagnostics.diagnosticInfo).not.toBeNull();
+    expect(result.current.diagnostics.diagnosticInfo?.platform).toBe(Platform.OS);
+    expect(result.current.diagnostics.diagnosticInfo?.language).toBe('en');
+    expect(result.current.diagnostics.diagnosticInfo?.theme).toBe('light');
+    expect(result.current.diagnostics.diagnosticInfo?.deviceInfo.tripsCount).toBe(2);
+    expect(result.current.diagnostics.diagnosticInfo?.deviceInfo.hasProfile).toBe(true);
   });
 
   it('updates state via setters', () => {
     const { result } = renderHook(() => useBugReport());
 
-    act(() => result.current.setSeverity('high'));
-    expect(result.current.severity).toBe('high');
+    act(() => result.current.fields.setSeverity('high'));
+    expect(result.current.fields.severity).toBe('high');
 
-    act(() => result.current.setCategory('passport-scan'));
-    expect(result.current.category).toBe('passport-scan');
+    act(() => result.current.fields.setCategory('passport-scan'));
+    expect(result.current.fields.category).toBe('passport-scan');
 
-    act(() => result.current.setTitle('Crash on scan'));
-    expect(result.current.title).toBe('Crash on scan');
+    act(() => result.current.fields.setTitle('Crash on scan'));
+    expect(result.current.fields.title).toBe('Crash on scan');
 
-    act(() => result.current.setDescription('App crashes when scanning'));
-    expect(result.current.description).toBe('App crashes when scanning');
+    act(() => result.current.fields.setDescription('App crashes when scanning'));
+    expect(result.current.fields.description).toBe('App crashes when scanning');
 
-    act(() => result.current.setStepsToReproduce('1. Open scanner\n2. Scan'));
-    expect(result.current.stepsToReproduce).toBe('1. Open scanner\n2. Scan');
+    act(() => result.current.fields.setStepsToReproduce('1. Open scanner\n2. Scan'));
+    expect(result.current.fields.stepsToReproduce).toBe('1. Open scanner\n2. Scan');
 
-    act(() => result.current.setIncludeDiagnostics(false));
-    expect(result.current.includeDiagnostics).toBe(false);
+    act(() => result.current.diagnostics.setIncludeDiagnostics(false));
+    expect(result.current.diagnostics.includeDiagnostics).toBe(false);
   });
 
   it('shows alert when title is empty on submit', async () => {
     const { result } = renderHook(() => useBugReport());
 
     await act(async () => {
-      await result.current.handleSubmitBugReport();
+      await result.current.submission.handleSubmitBugReport();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith('Missing Information', 'Please provide a bug title.');
@@ -141,10 +141,10 @@ describe('useBugReport', () => {
   it('shows alert when description is empty on submit', async () => {
     const { result } = renderHook(() => useBugReport());
 
-    act(() => result.current.setTitle('Some bug'));
+    act(() => result.current.fields.setTitle('Some bug'));
 
     await act(async () => {
-      await result.current.handleSubmitBugReport();
+      await result.current.submission.handleSubmitBugReport();
     });
 
     expect(Alert.alert).toHaveBeenCalledWith(
@@ -156,19 +156,19 @@ describe('useBugReport', () => {
   it('getSeverityStatus returns correct status', () => {
     const { result } = renderHook(() => useBugReport());
 
-    expect(result.current.getSeverityStatus('low')).toBe('info');
-    expect(result.current.getSeverityStatus('medium')).toBe('warning');
-    expect(result.current.getSeverityStatus('high')).toBe('error');
-    expect(result.current.getSeverityStatus('critical')).toBe('error');
-    expect(result.current.getSeverityStatus('unknown')).toBe('neutral');
+    expect(result.current.helpers.getSeverityStatus('low')).toBe('info');
+    expect(result.current.helpers.getSeverityStatus('medium')).toBe('warning');
+    expect(result.current.helpers.getSeverityStatus('high')).toBe('error');
+    expect(result.current.helpers.getSeverityStatus('critical')).toBe('error');
+    expect(result.current.helpers.getSeverityStatus('unknown')).toBe('neutral');
   });
 
   it('getSeverityEmoji returns correct emoji', () => {
     const { result } = renderHook(() => useBugReport());
 
-    expect(result.current.getSeverityEmoji('low')).toBe('\u{1F7E2}');
-    expect(result.current.getSeverityEmoji('medium')).toBe('\u{1F7E1}');
-    expect(result.current.getSeverityEmoji('high')).toBe('\u{1F7E0}');
-    expect(result.current.getSeverityEmoji('critical')).toBe('\u{1F534}');
+    expect(result.current.helpers.getSeverityEmoji('low')).toBe('\u{1F7E2}');
+    expect(result.current.helpers.getSeverityEmoji('medium')).toBe('\u{1F7E1}');
+    expect(result.current.helpers.getSeverityEmoji('high')).toBe('\u{1F7E0}');
+    expect(result.current.helpers.getSeverityEmoji('critical')).toBe('\u{1F534}');
   });
 });

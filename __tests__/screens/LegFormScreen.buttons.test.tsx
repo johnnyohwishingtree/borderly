@@ -32,36 +32,47 @@ const mockHandleMarkAsReady = jest.fn();
 
 jest.mock('@/hooks/useLegForm', () => ({
   useLegForm: () => ({
-    trip: { id: 'trip-1', name: 'Test Trip' },
-    leg: {
-      id: 'leg-1',
-      destinationCountry: 'JPN',
-      formStatus: 'in_progress',
-      departureDate: '2026-06-01',
+    tripData: {
+      trip: { id: 'trip-1', name: 'Test Trip' },
+      leg: {
+        id: 'leg-1',
+        destinationCountry: 'JPN',
+        formStatus: 'in_progress',
+        departureDate: '2026-06-01',
+        formData: { field1: 'value1' },
+      },
+    },
+    form: {
+      currentForm: {
+        countryName: 'Japan',
+        portalName: 'Visit Japan Web',
+        stats: { completionPercentage: mockCompletionPercentage },
+      },
       formData: { field1: 'value1' },
+      isValid: mockIsValid,
+      isLoading: false,
+      handleFormDataChange: jest.fn(),
+      reloadForm: jest.fn(),
     },
-    currentForm: {
-      countryName: 'Japan',
-      portalName: 'Visit Japan Web',
-      stats: { completionPercentage: mockCompletionPercentage },
+    submission: {
+      isSubmitting: false,
+      handleSaveForm: mockHandleSaveForm,
+      handleMarkAsReady: mockHandleMarkAsReady,
+      retryLastOperation: jest.fn(),
     },
-    formData: { field1: 'value1' },
-    isValid: mockIsValid,
-    isLoading: false,
-    isSubmitting: false,
-    formError: null,
-    loadError: null,
-    clearLoadError: jest.fn(),
-    handleFormDataChange: jest.fn(),
-    handleSaveForm: mockHandleSaveForm,
-    handleMarkAsReady: mockHandleMarkAsReady,
-    retryLastOperation: jest.fn(),
-    reloadForm: jest.fn(),
-    dismissError: jest.fn(),
-    hasMultipleTravelers: false,
-    activeTravelerId: null,
-    travelerTabs: [],
-    switchToTraveler: jest.fn(),
+    errors: {
+      formError: null,
+      loadError: null,
+      clearFormError: jest.fn(),
+      clearLoadError: jest.fn(),
+      dismissError: jest.fn(),
+    },
+    travelers: {
+      hasMultipleTravelers: false,
+      activeTravelerId: null,
+      travelerTabs: [],
+      switchToTraveler: jest.fn(),
+    },
   }),
 }));
 

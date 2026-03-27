@@ -18,69 +18,89 @@ const mockSetIncludeDiagnostics = jest.fn();
 const mockHandleSubmitBugReport = jest.fn();
 
 interface MockHookReturn {
-  severity: string;
-  setSeverity: jest.Mock;
-  category: string;
-  setCategory: jest.Mock;
-  title: string;
-  setTitle: jest.Mock;
-  description: string;
-  setDescription: jest.Mock;
-  stepsToReproduce: string;
-  setStepsToReproduce: jest.Mock;
-  includeDiagnostics: boolean;
-  setIncludeDiagnostics: jest.Mock;
-  isSubmitting: boolean;
-  diagnosticInfo: {
-    platform: string;
-    platformVersion: string;
-    appVersion: string;
-    deviceInfo: { tripsCount: number; hasProfile: boolean };
-  } | null;
-  severityOptions: Array<{ label: string; value: string }>;
-  categoryOptions: Array<{ label: string; value: string }>;
-  handleSubmitBugReport: jest.Mock;
-  getSeverityStatus: (s: string) => string;
-  getSeverityEmoji: (s: string) => string;
+  fields: {
+    severity: string;
+    setSeverity: jest.Mock;
+    category: string;
+    setCategory: jest.Mock;
+    title: string;
+    setTitle: jest.Mock;
+    description: string;
+    setDescription: jest.Mock;
+    stepsToReproduce: string;
+    setStepsToReproduce: jest.Mock;
+  };
+  diagnostics: {
+    includeDiagnostics: boolean;
+    setIncludeDiagnostics: jest.Mock;
+    diagnosticInfo: {
+      platform: string;
+      platformVersion: string;
+      appVersion: string;
+      deviceInfo: { tripsCount: number; hasProfile: boolean };
+    } | null;
+  };
+  submission: {
+    isSubmitting: boolean;
+    handleSubmitBugReport: jest.Mock;
+  };
+  options: {
+    severityOptions: Array<{ label: string; value: string }>;
+    categoryOptions: Array<{ label: string; value: string }>;
+  };
+  helpers: {
+    getSeverityStatus: (s: string) => string;
+    getSeverityEmoji: (s: string) => string;
+  };
 }
 
 let mockHookReturn: MockHookReturn;
 
 function resetMockHook() {
   mockHookReturn = {
-    severity: 'medium',
-    setSeverity: mockSetSeverity,
-    category: 'general',
-    setCategory: mockSetCategory,
-    title: '',
-    setTitle: mockSetTitle,
-    description: '',
-    setDescription: mockSetDescription,
-    stepsToReproduce: '',
-    setStepsToReproduce: mockSetStepsToReproduce,
-    includeDiagnostics: false,
-    setIncludeDiagnostics: mockSetIncludeDiagnostics,
-    isSubmitting: false,
-    diagnosticInfo: {
-      platform: 'iOS',
-      platformVersion: '17.0',
-      appVersion: '1.0.0',
-      deviceInfo: { tripsCount: 3, hasProfile: true },
+    fields: {
+      severity: 'medium',
+      setSeverity: mockSetSeverity,
+      category: 'general',
+      setCategory: mockSetCategory,
+      title: '',
+      setTitle: mockSetTitle,
+      description: '',
+      setDescription: mockSetDescription,
+      stepsToReproduce: '',
+      setStepsToReproduce: mockSetStepsToReproduce,
     },
-    severityOptions: [
-      { label: 'Low', value: 'low' },
-      { label: 'Medium', value: 'medium' },
-      { label: 'High', value: 'high' },
-      { label: 'Critical', value: 'critical' },
-    ],
-    categoryOptions: [
-      { label: 'General', value: 'general' },
-      { label: 'Passport Scanning', value: 'passport' },
-      { label: 'Forms', value: 'forms' },
-    ],
-    handleSubmitBugReport: mockHandleSubmitBugReport,
-    getSeverityStatus: (s: string) => s === 'critical' ? 'error' : 'warning',
-    getSeverityEmoji: (s: string) => s === 'critical' ? '🔴' : '🟡',
+    diagnostics: {
+      includeDiagnostics: false,
+      setIncludeDiagnostics: mockSetIncludeDiagnostics,
+      diagnosticInfo: {
+        platform: 'iOS',
+        platformVersion: '17.0',
+        appVersion: '1.0.0',
+        deviceInfo: { tripsCount: 3, hasProfile: true },
+      },
+    },
+    submission: {
+      isSubmitting: false,
+      handleSubmitBugReport: mockHandleSubmitBugReport,
+    },
+    options: {
+      severityOptions: [
+        { label: 'Low', value: 'low' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'High', value: 'high' },
+        { label: 'Critical', value: 'critical' },
+      ],
+      categoryOptions: [
+        { label: 'General', value: 'general' },
+        { label: 'Passport Scanning', value: 'passport' },
+        { label: 'Forms', value: 'forms' },
+      ],
+    },
+    helpers: {
+      getSeverityStatus: (s: string) => s === 'critical' ? 'error' : 'warning',
+      getSeverityEmoji: (s: string) => s === 'critical' ? '🔴' : '🟡',
+    },
   };
 }
 
@@ -236,7 +256,7 @@ describe('BugReportScreen — diagnostics toggle', () => {
   });
 
   it('shows diagnostic info preview when toggle is on', () => {
-    mockHookReturn.includeDiagnostics = true;
+    mockHookReturn.diagnostics.includeDiagnostics = true;
     render(<BugReportScreen />);
     expect(screen.getByText(/Diagnostic Information Preview/)).toBeTruthy();
     expect(screen.getByText('iOS 17.0')).toBeTruthy();
@@ -244,7 +264,7 @@ describe('BugReportScreen — diagnostics toggle', () => {
   });
 
   it('hides diagnostic info when toggle is off', () => {
-    mockHookReturn.includeDiagnostics = false;
+    mockHookReturn.diagnostics.includeDiagnostics = false;
     render(<BugReportScreen />);
     expect(screen.queryByText(/Diagnostic Information Preview/)).toBeNull();
   });
@@ -259,8 +279,8 @@ describe('BugReportScreen — submit button', () => {
   });
 
   it('submit button is disabled when title is empty', () => {
-    mockHookReturn.title = '';
-    mockHookReturn.description = 'Some description';
+    mockHookReturn.fields.title = '';
+    mockHookReturn.fields.description = 'Some description';
     render(<BugReportScreen />);
 
     const submitButton = screen.getByText('Submit Bug Report').parent;
@@ -268,8 +288,8 @@ describe('BugReportScreen — submit button', () => {
   });
 
   it('submit button is disabled when description is empty', () => {
-    mockHookReturn.title = 'Some title';
-    mockHookReturn.description = '';
+    mockHookReturn.fields.title = 'Some title';
+    mockHookReturn.fields.description = '';
     render(<BugReportScreen />);
 
     const submitButton = screen.getByText('Submit Bug Report').parent;
@@ -277,8 +297,8 @@ describe('BugReportScreen — submit button', () => {
   });
 
   it('submit button calls handleSubmitBugReport when title and description are filled', () => {
-    mockHookReturn.title = 'App crashes';
-    mockHookReturn.description = 'When scanning passport';
+    mockHookReturn.fields.title = 'App crashes';
+    mockHookReturn.fields.description = 'When scanning passport';
     render(<BugReportScreen />);
 
     fireEvent.press(screen.getByText('Submit Bug Report'));
@@ -287,7 +307,7 @@ describe('BugReportScreen — submit button', () => {
   });
 
   it('shows "Submitting Report..." when isSubmitting is true', () => {
-    mockHookReturn.isSubmitting = true;
+    mockHookReturn.submission.isSubmitting = true;
     render(<BugReportScreen />);
     expect(screen.getByText('Submitting Report...')).toBeTruthy();
   });

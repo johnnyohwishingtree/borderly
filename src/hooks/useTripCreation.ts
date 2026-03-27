@@ -366,22 +366,10 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
   });
 
   return {
-    tripData,
-    setTripData,
-    legs,
-    tripTravelers,
-    legOverrides,
-    applyToAllLegs,
-    setApplyToAllLegs,
-    isCreating,
-    errors,
-    familyMembers,
-    addLeg,
-    removeLeg,
-    updateLeg,
-    handleTripTravelerToggle,
-    handleTravelerToggle,
-    handleCreateTrip,
-    ...importHook,
+    tripData: { data: tripData, setTripData },
+    legs: { items: legs, addLeg, removeLeg, updateLeg },
+    travelers: { familyMembers, tripTravelers, legOverrides, applyToAllLegs, setApplyToAllLegs, handleTripTravelerToggle, handleTravelerToggle },
+    creation: { isCreating, errors, handleCreateTrip },
+    import: importHook,
   };
 }

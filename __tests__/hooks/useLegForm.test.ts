@@ -169,8 +169,8 @@ describe('useLegForm', () => {
       useLegForm({ tripId: 'trip_1', legId: 'leg_1' })
     );
 
-    expect(result.current.trip).toEqual(mockTrip);
-    expect(result.current.leg).toEqual(mockSingleTravelerLeg);
+    expect(result.current.tripData.trip).toEqual(mockTrip);
+    expect(result.current.tripData.leg).toEqual(mockSingleTravelerLeg);
   });
 
   it('sets loadError when trip is not found', () => {
@@ -178,7 +178,7 @@ describe('useLegForm', () => {
       useLegForm({ tripId: 'nonexistent', legId: 'leg_1' })
     );
 
-    expect(result.current.loadError).not.toBeNull();
+    expect(result.current.errors.loadError).not.toBeNull();
   });
 
   it('handleFormDataChange updates the form store', () => {
@@ -187,7 +187,7 @@ describe('useLegForm', () => {
     );
 
     act(() => {
-      result.current.handleFormDataChange({ surname: 'Smith' });
+      result.current.form.handleFormDataChange({ surname: 'Smith' });
     });
 
     const storeData = useFormStore.getState().formData;
@@ -200,10 +200,10 @@ describe('useLegForm', () => {
     );
 
     act(() => {
-      result.current.dismissError();
+      result.current.errors.dismissError();
     });
 
-    expect(result.current.formError).toBeNull();
+    expect(result.current.errors.formError).toBeNull();
   });
 
   // ─── Single-traveler: hasMultipleTravelers flag ───────────────────────────
@@ -213,9 +213,9 @@ describe('useLegForm', () => {
       useLegForm({ tripId: 'trip_1', legId: 'leg_1' })
     );
 
-    expect(result.current.hasMultipleTravelers).toBe(false);
-    expect(result.current.travelerTabs).toHaveLength(0);
-    expect(result.current.activeTravelerId).toBeNull();
+    expect(result.current.travelers.hasMultipleTravelers).toBe(false);
+    expect(result.current.travelers.travelerTabs).toHaveLength(0);
+    expect(result.current.travelers.activeTravelerId).toBeNull();
   });
 
   // ─── Multi-traveler tests ─────────────────────────────────────────────────
@@ -225,7 +225,7 @@ describe('useLegForm', () => {
       useLegForm({ tripId: 'trip_1', legId: 'leg_2' })
     );
 
-    expect(result.current.hasMultipleTravelers).toBe(true);
+    expect(result.current.travelers.hasMultipleTravelers).toBe(true);
   });
 
   it('loads traveler profiles and sets active traveler for multi-traveler leg', async () => {
@@ -235,7 +235,7 @@ describe('useLegForm', () => {
 
     // Wait for the profiles to be loaded (combined atomic update)
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     expect(mockGetProfile).toHaveBeenCalledWith('profile_1');
@@ -248,10 +248,10 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
-    expect(result.current.travelerTabs).toHaveLength(2);
+    expect(result.current.travelers.travelerTabs).toHaveLength(2);
   });
 
   it('travelerTabs shows traveler first names once profiles are loaded', async () => {
@@ -261,10 +261,10 @@ describe('useLegForm', () => {
 
     // Wait for atomic state update: profiles + activeTravelerId set together
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
-    const names = result.current.travelerTabs.map((t) => t.name);
+    const names = result.current.travelers.travelerTabs.map((t) => t.name);
     expect(names).toContain('John');
     expect(names).toContain('Jane');
   });
@@ -275,11 +275,11 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
-    const activeTab = result.current.travelerTabs.find(
-      (t) => t.id === result.current.activeTravelerId
+    const activeTab = result.current.travelers.travelerTabs.find(
+      (t) => t.id === result.current.travelers.activeTravelerId
     );
     expect(activeTab).toBeDefined();
     expect(activeTab?.id).toBe('profile_1');
@@ -291,11 +291,11 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     // profile_2 has not_started status in stored data
-    const janeTab = result.current.travelerTabs.find((t) => t.id === 'profile_2');
+    const janeTab = result.current.travelers.travelerTabs.find((t) => t.id === 'profile_2');
     expect(janeTab?.formStatus).toBe('not_started');
   });
 
@@ -306,15 +306,15 @@ describe('useLegForm', () => {
 
     // Wait for profiles to load
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     // Switch to the second traveler
     await act(async () => {
-      await result.current.switchToTraveler('profile_2');
+      await result.current.travelers.switchToTraveler('profile_2');
     });
 
-    expect(result.current.activeTravelerId).toBe('profile_2');
+    expect(result.current.travelers.activeTravelerId).toBe('profile_2');
   });
 
   it('switchToTraveler calls updateTripLeg to save current traveler data before switching', async () => {
@@ -323,11 +323,11 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     await act(async () => {
-      await result.current.switchToTraveler('profile_2');
+      await result.current.travelers.switchToTraveler('profile_2');
     });
 
     expect(mockUpdateTripLeg).toHaveBeenCalledWith(
@@ -344,12 +344,12 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     // Switch to same traveler
     await act(async () => {
-      await result.current.switchToTraveler('profile_1');
+      await result.current.travelers.switchToTraveler('profile_1');
     });
 
     // updateTripLeg should NOT have been called (no save needed for same traveler)
@@ -364,11 +364,11 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     await act(async () => {
-      await result.current.handleSaveForm();
+      await result.current.submission.handleSaveForm();
     });
 
     // updateTripLeg must be called with formStatus (not just travelerFormsData)
@@ -387,12 +387,12 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     // isValid is false (form not complete) — save should produce in_progress
     await act(async () => {
-      await result.current.handleSaveForm();
+      await result.current.submission.handleSaveForm();
     });
 
     // profile_1 is saved as in_progress, profile_2 is not_started → leg is in_progress
@@ -406,7 +406,7 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     act(() => {
@@ -414,7 +414,7 @@ describe('useLegForm', () => {
     });
 
     await act(async () => {
-      await result.current.handleMarkAsReady();
+      await result.current.submission.handleMarkAsReady();
     });
 
     // updateTripLeg must be called with formStatus
@@ -434,7 +434,7 @@ describe('useLegForm', () => {
     );
 
     await waitFor(() => {
-      expect(result.current.activeTravelerId).toBe('profile_1');
+      expect(result.current.travelers.activeTravelerId).toBe('profile_1');
     });
 
     act(() => {
@@ -442,7 +442,7 @@ describe('useLegForm', () => {
     });
 
     await act(async () => {
-      await result.current.handleMarkAsReady();
+      await result.current.submission.handleMarkAsReady();
     });
 
     const lastCall = mockUpdateTripLeg.mock.calls[mockUpdateTripLeg.mock.calls.length - 1];

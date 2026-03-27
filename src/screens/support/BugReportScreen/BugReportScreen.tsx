@@ -4,27 +4,16 @@ import { Button, Card, StatusBadge, Select, Toggle, ScreenContainer } from '@/co
 import { useBugReport } from '@/hooks/useBugReport';
 
 export default function BugReportScreen() {
+  const { fields, diagnostics, submission, options, helpers } = useBugReport();
   const {
-    severity,
-    setSeverity,
-    category,
-    setCategory,
-    title,
-    setTitle,
-    description,
-    setDescription,
-    stepsToReproduce,
-    setStepsToReproduce,
-    includeDiagnostics,
-    setIncludeDiagnostics,
-    isSubmitting,
-    diagnosticInfo,
-    severityOptions,
-    categoryOptions,
-    handleSubmitBugReport,
-    getSeverityStatus,
-    getSeverityEmoji,
-  } = useBugReport();
+    severity, setSeverity, category, setCategory,
+    title, setTitle, description, setDescription,
+    stepsToReproduce, setStepsToReproduce,
+  } = fields;
+  const { includeDiagnostics, setIncludeDiagnostics, diagnosticInfo } = diagnostics;
+  const { isSubmitting, handleSubmitBugReport } = submission;
+  const { severityOptions, categoryOptions } = options;
+  const { getSeverityStatus, getSeverityEmoji } = helpers;
 
   return (
     <ScreenContainer className="bg-gray-50">

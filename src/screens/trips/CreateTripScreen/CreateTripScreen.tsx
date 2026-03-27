@@ -17,31 +17,12 @@ export default function CreateTripScreen() {
   const route = useRoute<CreateTripRouteProp>();
   const templateId = route.params?.templateId;
 
-  const {
-    tripData,
-    setTripData,
-    legs,
-    tripTravelers,
-    isCreating,
-    errors,
-    showScanner,
-    setShowScanner,
-    showSmartImport,
-    setShowSmartImport,
-    familyMembers,
-    addLeg,
-    removeLeg,
-    updateLeg,
-    handleTripTravelerToggle,
-    handleTravelerToggle,
-    handleScanSuccess,
-    handleScanCancel,
-    handleManualEntry,
-    handleCreateTrip,
-    handleSmartImport,
-    applyToAllLegs,
-    setApplyToAllLegs,
-  } = useTripCreation(templateId ? { templateId } : {});
+  const hook = useTripCreation(templateId ? { templateId } : {});
+  const { data: tripData, setTripData } = hook.tripData;
+  const { items: legs, addLeg, removeLeg, updateLeg } = hook.legs;
+  const { familyMembers, tripTravelers, handleTripTravelerToggle, handleTravelerToggle, applyToAllLegs, setApplyToAllLegs } = hook.travelers;
+  const { isCreating, errors, handleCreateTrip } = hook.creation;
+  const { showScanner, setShowScanner, showSmartImport, setShowSmartImport, handleScanSuccess, handleScanCancel, handleManualEntry, handleSmartImport } = hook.import;
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">

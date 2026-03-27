@@ -170,31 +170,34 @@ export function useBugReport() {
   };
 
   return {
-    // State
-    severity,
-    setSeverity,
-    category,
-    setCategory,
-    title,
-    setTitle,
-    description,
-    setDescription,
-    stepsToReproduce,
-    setStepsToReproduce,
-    includeDiagnostics,
-    setIncludeDiagnostics,
-    isSubmitting,
-    diagnosticInfo,
-
-    // Constants
-    severityOptions,
-    categoryOptions,
-
-    // Callbacks
-    handleSubmitBugReport,
-
-    // Helpers
-    getSeverityStatus,
-    getSeverityEmoji,
+    fields: {
+      severity,
+      setSeverity,
+      category,
+      setCategory,
+      title,
+      setTitle,
+      description,
+      setDescription,
+      stepsToReproduce,
+      setStepsToReproduce,
+    },
+    diagnostics: {
+      includeDiagnostics,
+      setIncludeDiagnostics,
+      diagnosticInfo,
+    },
+    submission: {
+      isSubmitting,
+      handleSubmitBugReport,
+    },
+    options: {
+      severityOptions,
+      categoryOptions,
+    },
+    helpers: {
+      getSeverityStatus,
+      getSeverityEmoji,
+    },
   };
 }
