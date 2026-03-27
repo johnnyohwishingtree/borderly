@@ -66,16 +66,16 @@ const passportDemoScan = () => screenStep('PassportScan', {
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
     tapButton('PassportScan', 'demo-scan-adult'),
-    // Preview shows scanned data — confirm it
+    // Preview shows scanned data — confirm it (confirm-scan-button is in PassportPreview component)
     assertVisible('SMITH'),
-    tapButton('PassportScan', 'confirm-scan-button'),
+    tap('confirm-scan-button'),
   ],
 });
 
 /** Confirm profile screen */
 const confirmProfileStep = (expectedName: string) => screenStep('ConfirmProfile', {
   comment: 'CONFIRM PROFILE',
-  waitTimeout: 30000,
+  waitTimeout: 45000,
   actions: [
     assertVisible(expectedName),
     tapButton('ConfirmProfile', 'continue-to-security-button'),

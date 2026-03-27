@@ -4,12 +4,12 @@
  * These assume onboarding is already complete (reuse onboarding steps).
  * Screen metadata is loaded from the screen registry at generation time.
  */
-import { journey } from '../dsl';
+import { journey, date, fill } from '../dsl';
 import {
   tap, inputText, assertVisible, assertVisibleID, swipe,
 } from '../dsl';
 import {
-  screenStep, tapButton, handleAlert, fillField,
+  screenStep, tapButton,
 } from '../journeyBuilder';
 
 // Import shared onboarding steps
@@ -27,48 +27,32 @@ import { onboardingManual } from './onboarding';
 const createJapanTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — JAPAN',
   actions: [
-    // Fill trip name (Input → fill DSL action)
-    ...fillField('CreateTrip', 'trip-name-input', { text: 'Japan Trip 2026' }),
-    // Add a destination leg
+    // Trip name
+    fill('trip-name-input', 'Japan Trip 2026'),
+    // Add destination
     tapButton('CreateTrip', 'add-destination-button'),
-    // Country select: use manual tap actions (Maestro depth issue with SearchableSelect)
+    // Country select (manual — Maestro depth issue with SearchableSelect)
     tap('country-select-0-trigger'),
     tap('country-select-0-search'),
     inputText('Japan'),
     swipe('50%,40%', '50%,38%', 150),
     tap('country-select-0-option-JPN'),
-    // Arrival date (required) — DatePickerField → date DSL action
-    ...fillField('CreateTrip', 'leg-${index}-arrival-date', 'default', { index: 0 }),
-    // Accommodation name (required) — Input → fill DSL action
-    ...fillField('CreateTrip', 'leg-${index}-accommodation-name', { text: 'Park Hyatt Tokyo' }, { index: 0 }),
-    // Address sub-fields (AddressAutocomplete generates sub-testIDs)
-    // fillField returns [] for AddressAutocomplete, so we fill sub-fields manually
-    ...fillField('CreateTrip', 'leg-${index}-accommodation-address', undefined, { index: 0 }),
-    // Address line 1
-    tap('leg-0-accommodation-address-line1'),
-    inputText('3-7-1-2 Nishi Shinjuku'),
-    swipe('50%,40%', '50%,35%', 200),
-    // City
-    tap('leg-0-accommodation-address-city'),
-    inputText('Tokyo'),
-    swipe('50%,40%', '50%,35%', 200),
-    // Postal code
-    tap('leg-0-accommodation-address-postal-code'),
-    inputText('163-1055'),
-    swipe('50%,40%', '50%,35%', 200),
-    // Country
-    tap('leg-0-accommodation-address-country'),
-    inputText('JPN'),
-    swipe('50%,40%', '50%,35%', 200),
-    // Create the trip
+    // Arrival date
+    date('leg-0-arrival-date'),
+    // Accommodation
+    fill('leg-0-accommodation-name', 'Park Hyatt Tokyo'),
+    // Address sub-fields
+    fill('leg-0-accommodation-address-line1', '3-7-1-2 Nishi Shinjuku'),
+    fill('leg-0-accommodation-address-city', 'Tokyo'),
+    fill('leg-0-accommodation-address-postal-code', '163-1055'),
+    fill('leg-0-accommodation-address-country', 'JPN'),
+    // Create
     tapButton('CreateTrip', 'create-trip-button'),
-    // Dismiss success alert using registry's happy-path button
-    handleAlert('CreateTrip', 'success'),
   ],
 });
 
 /** Verify trip detail screen after creation */
-const tripDetailStep = () => screenStep('TripDetail', {
+export const tripDetailStep = () => screenStep('TripDetail', {
   comment: 'TRIP DETAIL — VERIFY',
   waitTimeout: 20000,
   actions: [
@@ -76,6 +60,9 @@ const tripDetailStep = () => screenStep('TripDetail', {
     assertVisibleID('leg-card-JPN'),
   ],
 });
+
+/** Reusable: create Japan trip steps (for composition in other journeys) */
+export const createJapanTripSteps = () => [createJapanTrip()];
 
 // ── Exported journeys ──
 

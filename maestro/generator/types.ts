@@ -8,7 +8,7 @@
 // ── Actions that can be taken at each step ──
 
 export type Action =
-  | { type: 'tap'; testID: string }
+  | { type: 'tap'; testID: string; scroll?: boolean }
   | { type: 'tapText'; text: string }
   | { type: 'fill'; testID: string; value: string }
   | { type: 'inputText'; text: string }
@@ -21,7 +21,8 @@ export type Action =
   | { type: 'conditional'; whenVisible: string; actions: Action[] }
   | { type: 'swipe'; from: string; to: string; duration?: number }
   | { type: 'wait'; ms: number }
-  | { type: 'runSubflow'; file: string };
+  | { type: 'runSubflow'; file: string }
+  | { type: 'screenshot'; name: string };
 
 // ── Journey step — a screen visit with actions ──
 

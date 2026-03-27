@@ -15,6 +15,7 @@ import type { KeychainOps } from './keychainEncryption';
 import { getPortalCredentialIndex } from './keychainPortalCredentials';
 import {
   SHARED_KEYCHAIN_ACCESS_GROUP,
+  USE_SHARED_ACCESS_GROUP,
   KEYCHAIN_SERVICE,
 } from './sharedAccessConfig';
 import {
@@ -59,7 +60,7 @@ class KeychainServiceImpl implements KeychainService {
     const baseOptions: Keychain.SetOptions = {
       service: KEYCHAIN_SERVICE,
       accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-      accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
+      ...(USE_SHARED_ACCESS_GROUP ? { accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP } : {}),
     };
 
     try {
@@ -88,7 +89,7 @@ class KeychainServiceImpl implements KeychainService {
   private get keychainGetOptions(): Keychain.GetOptions {
     return {
       service: KEYCHAIN_SERVICE,
-      accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
+      ...(USE_SHARED_ACCESS_GROUP ? { accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP } : {}),
     };
   }
 
@@ -215,7 +216,7 @@ class KeychainServiceImpl implements KeychainService {
       await Keychain.setInternetCredentials(testKey, 'test', testData, {
         service: KEYCHAIN_SERVICE,
         accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-        accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP,
+        ...(USE_SHARED_ACCESS_GROUP ? { accessGroup: SHARED_KEYCHAIN_ACCESS_GROUP } : {}),
       });
 
       const retrieved = await Keychain.getInternetCredentials(testKey, this.keychainGetOptions);

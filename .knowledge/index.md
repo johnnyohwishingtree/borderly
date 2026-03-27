@@ -59,7 +59,7 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | `state/` | hook-conventions, store-boundaries |
 | `testing/` | test-conventions, test-quality, e2e-testability, drift-detection |
 | `platform/` | native-modules, navigation |
-| `workflow/` | verification, learning, self-review, fix-strategy, bug-fix, story-implementation |
+| `workflow/` | verification, learning, self-review, fix-strategy, bug-fix, story-implementation, epic-planning |
 
 ### Models
 
@@ -71,6 +71,6 @@ form-engine, passport, qr-wallet, submission-guide, stores, user-journeys
 
 ### Other
 
-templates/ (6), patterns/ (3), rubrics/ (3)
+templates/ (6), patterns/ (4), rubrics/ (3)
 
 Gaps → `.knowledge/gaps.md`. Folder CLAUDE.md files auto-load relevant policies/models per directory.

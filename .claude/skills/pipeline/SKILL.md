@@ -111,9 +111,17 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 
 ## Step 9: Plan next epic (when queue is empty and optimization is done)
 
-Read the codebase and `.knowledge/` knowledge graph. Identify the highest-impact improvement. Create an epic with 2-4 stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
+Follow `.knowledge/policies/workflow/epic-planning.md` for priority order.
 
-Populate every story section — especially Knowledge (which policies/models apply) and Tasks (which templates/patterns to follow).
+Check each category in order — pick the first one that has work:
+1. Bug fixes in `gaps.md`
+2. UX/UI issues in `gaps.md` (from `/ux-review`)
+3. Feature gaps (GitHub issues labeled `feature`)
+4. Architecture debt (from `/code-audit`)
+5. Test quality improvements (from `/test-audit` — rewrite, not add)
+6. Test coverage (untested business logic ONLY — follow `.knowledge/patterns/add-test.md`)
+
+Create an epic with stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
 
 ## Guardrails
 

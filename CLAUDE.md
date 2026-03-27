@@ -78,10 +78,12 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 
 ## Skills Reference
 
-See `.knowledge/index.md` for all 17 skills. Key pipeline skills:
-- `/pipeline` — Autonomous story loop (hourly scheduled task)
-- `/code-audit` — Code vs policy compliance (3x daily scheduled task)
-- `/optimize` — Resolve knowledge gaps, compress bloated files
+See `.knowledge/index.md` for all skills. Key skills:
+- `/pipeline` — Autonomous story loop
+- `/code-audit` — Code vs policy compliance
+- `/knowledge-audit` — Knowledge graph health
+- `/ux-review` — UX flow analysis → creates stories
+- `/test-audit` — Test quality scoring → creates stories
 
 ## Autonomous Workflow
 
@@ -91,6 +93,9 @@ Borderly is orchestrated by Claude Code scheduled tasks — no GitHub Actions ru
 
 **Scheduled task prompts:**
 ```
-Hourly:    Read CLAUDE.md. Read .claude/skills/pipeline/SKILL.md and follow every step.
-3x daily:  Read CLAUDE.md. Read .claude/skills/code-audit/SKILL.md and follow every step.
+Hourly:     Read CLAUDE.md. Read .claude/skills/pipeline/SKILL.md and follow every step.
+1x daily:   Read CLAUDE.md. Read .claude/skills/code-audit/SKILL.md and follow every step.
+1x daily:   Read CLAUDE.md. Read .claude/skills/knowledge-audit/SKILL.md and follow every step.
+1x daily:   Read CLAUDE.md. Read .claude/skills/ux-review/SKILL.md and follow every step.
+1x weekly:  Read CLAUDE.md. Read .claude/skills/test-audit/SKILL.md and follow every step.
 ```
