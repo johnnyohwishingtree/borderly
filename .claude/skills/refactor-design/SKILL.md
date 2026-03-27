@@ -80,8 +80,3 @@ Report:
 - Files created, moved, or split
 - Dependency graph improvements
 - Remaining issues (if any) with rationale
-
-## Related Skills
-- `/audit` — finds architecture violations at a higher level (this skill fixes them)
-- `/organize` — reorganizes file structure (this skill focuses on architecture patterns)
-- `/apply-knowledge dependency-direction.md` — fix import boundary violations specifically

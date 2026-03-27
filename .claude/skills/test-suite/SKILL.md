@@ -76,7 +76,3 @@ Report what was added:
 - Coverage before/after
 - Bugs found and fixed by new tests
 - Remaining gaps (if any) with rationale for skipping
-
-## Related Skills
-- `/test-audit` — evaluates quality of existing tests (this skill adds missing tests, test-audit scores existing ones)
-- `/apply-knowledge testing/test-quality.md` — fix tests that violate quality policy
