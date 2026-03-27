@@ -36,6 +36,7 @@ __tests__/, src/**/*.test.ts
 - `Animated.loop()` / `Animated.sequence()` return objects without `stop()` in test environment — patch them in `beforeAll` to return `{ start: jest.fn(), stop: jest.fn() }` and restore in `afterAll`
 - `getByLabelText('Loading')` fails when both `ActivityIndicator` and its container have `accessibilityLabel="Loading"` — use `(toJSON() as ReactTestRendererJSON).props.accessibilityLabel` to assert on the root
 - Components that render `Button` need `AccessibilityStateHelpers`, `TouchTargetUtils`, and `HapticFeedback` mocked — mock `@/utils/accessibility` and `./HapticFeedback` with all methods used by Button
+- Existing `.snap` files in the repo — migrate to `toMatchInlineSnapshot()` or replace with explicit assertions when the test is touched
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit

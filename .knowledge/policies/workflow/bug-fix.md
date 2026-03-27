@@ -24,10 +24,16 @@ All skills that discover or fix bugs.
 | Country schemas (`src/schemas/`) | Jest | `__tests__/schemas/<ISO>.test.ts` |
 | E2E rendering issues | Playwright | `e2e/tests/<relevant>.spec.ts` |
 
+## Why this order matters
+- Tests give instant feedback (< 1s vs minutes for CI)
+- Tests pinpoint the exact failure (CI logs just show a symptom)
+- Tests prevent regressions permanently
+- Iterating on fixes without tests wastes time and risks repeating bugs
+
 ## Anti-patterns
 - Fixing first, writing test after (test may not actually reproduce the bug)
 - Writing a test that passes with any implementation (too loose)
-- Skipping the test because "CI will cover it"
+- Skipping the test because "CI will cover it" — CI takes minutes, unit tests take seconds
 - Testing the symptom instead of the root cause
 
 ## Enforcement
