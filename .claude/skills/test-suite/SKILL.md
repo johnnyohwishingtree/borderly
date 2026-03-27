@@ -55,17 +55,14 @@ Follow these conventions:
 - Use `renderHook` from `@testing-library/react-hooks` for hook tests
 
 **For each new test file:**
-1. Write the tests
+1. Write the tests following `.knowledge/policies/testing/test-quality.md` (Tier 1-2 tests only)
 2. Run `pnpm typecheck` to verify imports
 3. Run the specific test: `pnpm test -- <test-file-path>`
-4. Fix any bugs the test reveals (TDD — see `.claude/rules/bug-fix-workflow.md`)
+4. Fix any bugs the test reveals — follow `.knowledge/policies/workflow/bug-fix.md`
 
 ### Step 4: Verify
 
-Run the full suite:
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 Re-run coverage to confirm improvement:
 ```bash

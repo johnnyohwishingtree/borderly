@@ -35,7 +35,7 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 8**.
 
-**Important:** Only pick up stories labeled `pending`. Never pick up `in-progress` stories — another pipeline session owns them. If all stories are `in-progress` or `blocked`, treat it the same as "no pending stories" and skip to Step 8.
+Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules (only `pending`, never `in-progress`).
 
 ## Step 3: Implement
 
@@ -45,107 +45,28 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git fetch origin master && git checkout -b story/issue-$NUMBER origin/master
 ```
 
-Read the story body. Implementation order:
-1. Read the **Knowledge** section — these `.knowledge/` files give you context
-2. Read the **Tasks** section — each task references a template or pattern to follow
-3. Read the **Context** section — the minimum source files to read
-4. Implement each task following the referenced `.knowledge/` file
+Follow `.knowledge/policies/workflow/story-implementation.md` — read Knowledge → Tasks → Context → Implement.
 
-## Step 4: Verify (up to 6 attempts)
+When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
+When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
 
-Run your project's verification commands (from CLAUDE.md):
-```bash
-pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
-```
+## Step 4: Verify
 
-**If you changed screen UI (testIDs, button text, navigation):**
-Follow `.knowledge/policies/testing/e2e-testability.md` — update screenRegistry, regenerate flows, commit.
+Follow `.knowledge/policies/workflow/verification.md` — lint, typecheck, test (up to 6 attempts).
 
-If checks fail → fix → rerun. Up to 6 attempts.
+If you changed screen UI, also follow `.knowledge/policies/testing/e2e-testability.md`.
 
-If still failing after 6 attempts → push WIP branch, create draft PR, reset story to `pending`, stop.
+## Step 5: Learn
 
-**Failure discipline:**
-- If the same failure repeats after a fix attempt, try a different approach — don't retry the same fix
-- If a failure is pre-existing (exists on master too), fix it now or add it to `.knowledge/gaps.md` as a code fix so a future story picks it up. Never ignore it — every pipeline run will hit it.
-- If you created a test, run it individually before committing. If it OOMs or crashes, that's a bug in your test (likely unstable mock references or heavy imports) — fix it, don't label it "environment issue"
-- Run verification in the foreground — never spawn background processes to "wait and see"
-- Clean up any processes you started before moving to the next step
+**Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
 
-## Step 5: Learn — update the knowledge graph
+Check all 6 categories: anti-patterns, constraints, architecture, testing patterns, directory conventions, stale knowledge.
 
-**This step is mandatory, not optional.** See `.knowledge/policies/architecture/pipeline-learning.md` for the full policy. PRs with 5+ files changed MUST include a knowledge update.
+Self-check: if 5+ files changed and zero `.knowledge/` files updated, stop and reconsider.
 
-After verify passes, check each category:
+## Step 6: Self-review
 
-### 5a. Anti-patterns learned
-Did a bug, test failure, or wrong approach teach you something?
-→ Add it to the relevant policy's Anti-patterns section.
-→ Examples: mock pattern that causes OOM, import that breaks at runtime, timing issue in tests.
-
-### 5b. New constraints discovered
-Did you find a rule that isn't documented?
-→ Create a policy: `.knowledge/policies/<scope>/<name>.md` (SCOPE, RULES, EXCEPTIONS, ANTI-PATTERNS, ENFORCEMENT).
-→ Also create the structural test referenced in ENFORCEMENT.
-
-### 5c. Business logic or architecture
-Did you build something with new entities, relationships, or architectural concepts?
-→ Create or update `.knowledge/models/<name>.md` (ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES).
-→ New architecture (App Groups, extensions, import pipelines) always needs a model.
-
-### 5d. Testing patterns
-Did you write 5+ tests? Did any test require a non-obvious workaround?
-→ Add testing patterns to `policies/testing/test-conventions.md` Anti-patterns section.
-→ If you extracted hooks, document the return value pattern in `policies/state/hook-conventions.md`.
-
-### 5e. Directory conventions
-Did you work in a directory without a `CLAUDE.md`?
-→ Create one following `.knowledge/templates/folder-claude-md.md` — max 5 lines.
-→ If one exists but is missing a relevant `See:` link, add it.
-
-### 5f. Stale knowledge
-Did any `.knowledge/` file give you wrong or outdated guidance?
-→ Update it. If unsure, add to `gaps.md` under Knowledge updates.
-
-### Self-check before committing
-Count your changed files. If 5+ files changed and zero `.knowledge/` files updated, stop and reconsider:
-- What did you learn that future pipeline runs would benefit from?
-- What went wrong that should be documented as an anti-pattern?
-- What was missing that caused you to spend extra time?
-
-If genuinely nothing was learned, add a comment to the PR body: "No new knowledge: <reason>".
-
-See `.knowledge/ENGINE-TYPES.md` for format reference.
-
-## Step 6: Self-review against rubrics
-
-Before committing, review your own diff against the relevant rubrics. This catches quality issues that verification (lint/typecheck/test) misses.
-
-```bash
-git diff --cached --stat  # or git diff if not yet staged
-```
-
-Read the diff and check against:
-- `.knowledge/rubrics/code-quality.md` — for any source files changed
-- `.knowledge/rubrics/test-quality.md` — for any test files changed
-- `.knowledge/rubrics/skill-quality.md` — for any skill files changed
-
-For each criterion in the rubric, scan the diff:
-
-**Fix immediately** (don't commit until fixed):
-- `any` types — find the real type
-- Unused imports or variables — delete them
-- Empty catch blocks — add error handling
-- Missing tests for new functions — write them
-- Functions over 50 lines — split them
-- Anti-patterns listed in the relevant `.knowledge/` convention files
-
-**Add to gaps.md** (can't fix without human input):
-- Architectural questions about where code belongs
-- Unclear requirements that led to guesswork
-- Convention gaps discovered during review
-
-After fixing, re-run verification (`pnpm lint && pnpm typecheck && pnpm test`) to confirm fixes don't break anything.
+Follow `.knowledge/policies/workflow/self-review.md` — review diff against rubrics, fix issues, re-verify.
 
 ## Step 7: Push, PR, merge
 
@@ -186,6 +107,4 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 
 Read the codebase and `.knowledge/` knowledge graph. Identify the highest-impact improvement. Create an epic with 2-4 stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
 
-Populate every story section — especially Knowledge (which policies/models apply) and Tasks (which templates/patterns to follow). This minimizes token waste during implementation.
-
-The next pipeline run picks up the first new story.
+Populate every story section — especially Knowledge (which policies/models apply) and Tasks (which templates/patterns to follow).

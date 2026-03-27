@@ -61,10 +61,8 @@ Collect all violations with file path, line number, and the specific rule violat
 
 ## Step 4: Fix violations (if not --dry-run)
 
-For each violation, apply the fix:
-- One file at a time (per `.claude/rules/fix-strategy.md`)
-- Run `pnpm typecheck` after each file to catch breakage
-- If a fix requires judgment (not mechanical), skip and add to gaps.md
+Follow `.knowledge/policies/workflow/fix-strategy.md` — one file at a time, typecheck after each.
+If a fix requires judgment (not mechanical), skip and add to gaps.md.
 
 ### Fix patterns by knowledge type:
 
@@ -102,9 +100,7 @@ Every fix must have a test. See `.claude/rules/knowledge-must-have-tests.md`.
 
 ## Step 7: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ## Step 8: Report
 

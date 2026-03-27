@@ -74,11 +74,7 @@ rm <file>                  # For untracked files
 
 ### Step 6: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
-
-Ensure no imports broke from the removals.
+Follow `.knowledge/policies/workflow/verification.md`. Ensure no imports broke from the removals.
 
 ### Step 7: Summary
 

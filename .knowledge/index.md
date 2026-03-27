@@ -56,12 +56,13 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 | Scope | Policies |
 |-------|---------|
-| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary, pipeline-learning |
+| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
 | `data/` | storage-tiers, pii-boundary, schema-fields |
 | `ui/` | styling, typography, motion, accessibility, ux-writing |
 | `state/` | hook-conventions, store-boundaries |
 | `testing/` | test-conventions, test-quality, e2e-testability, drift-detection |
 | `platform/` | native-modules, navigation |
+| `workflow/` | verification, learning, self-review, fix-strategy, bug-fix, story-implementation |
 
 ### Models
 

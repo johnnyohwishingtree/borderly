@@ -52,10 +52,7 @@ Use `git mv` to preserve history:
 git mv old/path/file.ts new/path/file.ts
 ```
 
-After each move:
-1. Update all imports that referenced the old path
-2. Update barrel `index.ts` files
-3. Run `pnpm typecheck` to catch broken imports
+After each move, follow `.knowledge/policies/workflow/fix-strategy.md` — update imports, barrels, typecheck after each file.
 
 ### Step 4: Remove Duplicates
 
@@ -66,9 +63,7 @@ If duplicate test files exist (same tests, different locations):
 
 ### Step 5: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ### Step 6: Summary
 

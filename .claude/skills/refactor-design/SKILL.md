@@ -62,23 +62,16 @@ Present the plan before implementing if it touches 5+ files.
 
 ### Step 4: Implement (One File at a Time)
 
-Follow `.claude/rules/fix-strategy.md`:
-1. Fix one file
-2. Run `pnpm typecheck` — verify error count didn't increase
-3. Fix any new errors before moving on
-4. Repeat
+Follow `.knowledge/policies/workflow/fix-strategy.md` — one file at a time, typecheck after each.
 
 **When splitting files:**
 - New subdirectory gets a barrel `index.ts`
 - Update all imports from the old file
 - Verify no direct imports of the old file remain
-- Run `pnpm test` after all splits
 
 ### Step 5: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ### Step 6: Summary
 

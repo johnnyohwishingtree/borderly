@@ -60,16 +60,12 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 
 ### Step 5: Verify
 
-Run all checks in parallel:
+Follow `.knowledge/policies/workflow/verification.md`.
+
+Also run bundle check:
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm e2e
 npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js
 ```
-
-If any fail, fix and re-run. Do not proceed until all pass.
 
 ### Step 6: Self-Update Check
 

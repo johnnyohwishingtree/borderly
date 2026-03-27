@@ -38,7 +38,12 @@ const DESIGN_GUIDELINES = new Set([
   'testing/test-quality.md', // enforced by test-quality-audit.test.ts (pending)
   'data/schema-fields.md',
   'architecture/utils-boundary.md', // structural test pending (story #853)
-  'architecture/pipeline-learning.md', // enforced by pipeline-learning-audit.test.ts (pending)
+  'workflow/verification.md', // process policy — enforced by skills, not structural tests
+  'workflow/learning.md', // process policy — enforced by skills
+  'workflow/self-review.md', // process policy — enforced by skills
+  'workflow/fix-strategy.md', // process policy — rules/fix-strategy.md is the auto-loaded pointer
+  'workflow/bug-fix.md', // process policy — rules/bug-fix-workflow.md is the auto-loaded pointer
+  'workflow/story-implementation.md', // process policy — enforced by pipeline skills
 ]);
 
 describe('Knowledge test coverage', () => {

@@ -81,25 +81,15 @@ To add a screen to onboarding:
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 
-If a finding involves broken behavior (not just flow restructuring), follow the TDD workflow:
-
-1. Write a failing test that reproduces the issue
-2. Fix the code so the test passes
-3. Run the test suite to verify no regressions
+If a finding involves broken behavior, follow `.knowledge/policies/workflow/bug-fix.md`.
 
 Pure flow additions (new screens, navigation wiring) don't need pre-existing failing tests, but DO need new tests added.
 
 ### Step 4: Verify
 
-Run all checks after implementation:
+Follow `.knowledge/policies/workflow/verification.md`.
 
-```bash
-pnpm typecheck    # Must pass
-pnpm test         # Must pass
-pnpm lint         # No new errors
-```
-
-If screens were added or modified:
+If screens were added or modified, also run:
 ```bash
 pnpm e2e          # E2E tests must pass
 ```

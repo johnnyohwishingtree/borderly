@@ -29,18 +29,7 @@ Before making changes, read the current screenshots from `src/screens/<domain>/<
 
 #### Bug Fixes (TDD Required)
 
-Findings that involve broken behavior — screens not rendering, incorrect data displayed, loading states that never resolve, missing UI elements that should exist — are **bugs**, not styling issues. Follow the project's TDD bug-fix workflow (`.claude/rules/bug-fix-workflow.md`):
-
-1. **Read the relevant source code** to understand the root cause
-2. **Write a failing test** that reproduces the exact bug (must fail before the fix)
-3. **Fix the code** so the test passes
-4. **Run the test suite** to verify no regressions
-
-| Bug location | Test tool | Test file |
-|-------------|-----------|-----------|
-| App code (`src/`) | Jest | `__tests__/<matching-path>.test.ts` |
-| E2E rendering issues | Playwright | `e2e/tests/<relevant>.spec.ts` |
-| Components (`src/components/`) | Jest + RNTL | `__tests__/components/<matching-path>.test.tsx` |
+Findings that involve broken behavior are **bugs**, not styling issues. Follow `.knowledge/policies/workflow/bug-fix.md` — write failing test first, then fix.
 
 #### Styling Fixes (No Test Required)
 
@@ -65,12 +54,7 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 
 ### Step 4: Verify
 
-Run all checks:
-```bash
-pnpm typecheck    # Must pass
-pnpm test         # Must pass
-pnpm lint         # No new errors
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ### Step 5: Re-Capture Screenshots
 

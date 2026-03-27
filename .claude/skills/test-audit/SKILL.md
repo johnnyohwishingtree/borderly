@@ -94,11 +94,9 @@ Summary table:
 
 ## Step 5: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
-Test count may go DOWN — that's fine if quality went up. Track:
+Test count may go DOWN — that's expected if quality went up. Track:
 - Tests before / after
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after

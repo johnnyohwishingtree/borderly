@@ -77,10 +77,7 @@ For each bug found, record:
 
 ### Step 5: Fix Critical Bugs
 
-Follow `.claude/rules/bug-fix-workflow.md`:
-1. Write a failing test that reproduces the bug
-2. Fix the code so the test passes
-3. Run `pnpm typecheck && pnpm test`
+Follow `.knowledge/policies/workflow/bug-fix.md` — write failing test first, then fix.
 
 ### Step 6: Create Issues for Non-Critical Bugs
 
