@@ -115,7 +115,7 @@ export default function BiometricSetupScreen() {
         <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
           <View className="bg-gradient-to-r from-blue-500 to-blue-600 -m-6 mb-6 p-6 rounded-t-xl">
             <View className="flex-row items-center mb-2">
-              <Fingerprint size={28} color="#ffffff" style={{ marginRight: 12 }} />
+              <View className="mr-3"><Fingerprint size={28} color="#ffffff" /></View>
               <Text className="text-xl font-bold text-white">
                 {biometricType}
               </Text>
@@ -158,7 +158,7 @@ export default function BiometricSetupScreen() {
 
         <Card variant="outlined" className="mb-8 border-2 border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10">
           <View className="flex-row items-start">
-            <Lightbulb size={28} color="#3b82f6" style={{ marginRight: 12 }} />
+            <View className="mr-3"><Lightbulb size={28} color="#3b82f6" /></View>
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                 Optional Setup

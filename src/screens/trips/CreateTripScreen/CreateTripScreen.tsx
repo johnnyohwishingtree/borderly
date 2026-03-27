@@ -52,7 +52,7 @@ export default function CreateTripScreen() {
           <Card className="mb-6" variant="outlined">
             <View className="p-5">
               <View className="flex-row items-center mb-4">
-                <Plane size={32} color="#374151" style={{ marginRight: 12 }} />
+                <View className="mr-3"><Plane size={32} color="#374151" /></View>
                 <Text className="text-xl font-bold text-gray-900 dark:text-white">Trip Details</Text>
               </View>
 
@@ -77,7 +77,7 @@ export default function CreateTripScreen() {
             <Card className="mb-6" variant="outlined">
               <View className="p-5">
                 <View className="flex-row items-center mb-4">
-                  <Users size={32} color="#374151" style={{ marginRight: 12 }} />
+                  <View className="mr-3"><Users size={32} color="#374151" /></View>
                   <Text className="text-xl font-bold text-gray-900 dark:text-white">Who's Traveling?</Text>
                 </View>
                 <TravelerSelector
@@ -112,7 +112,7 @@ export default function CreateTripScreen() {
             <Card className="mb-6" variant="outlined" testID={CREATE_TRIP_IDS.familyEmptyStateCard.id}>
               <View className="p-5">
                 <View className="flex-row items-center mb-3">
-                  <Users size={28} color="#6366f1" style={{ marginRight: 12 }} />
+                  <View className="mr-3"><Users size={28} color="#6366f1" /></View>
                   <Text className="text-lg font-semibold text-gray-900 dark:text-white">Traveling with family?</Text>
                 </View>
                 <Text className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -127,7 +127,7 @@ export default function CreateTripScreen() {
                   accessibilityLabel="Add a travel companion"
                   accessibilityHint="Navigate to add a family member"
                 >
-                  <UserPlus size={20} color="#6366f1" style={{ marginRight: 8 }} />
+                  <View className="mr-2"><UserPlus size={20} color="#6366f1" /></View>
                   <Text className="text-indigo-700 dark:text-indigo-300 font-medium">Add a travel companion</Text>
                 </TouchableOpacity>
               </View>

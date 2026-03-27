@@ -91,12 +91,10 @@ export default function ContextualHelp({
       default: // 'icon'
         return (
           <TouchableOpacity
-            className={baseClasses}
-            style={{ 
-              width: config.buttonSize, 
+            className={`${baseClasses} items-center justify-center`}
+            style={{
+              width: config.buttonSize,
               height: config.buttonSize,
-              alignItems: 'center',
-              justifyContent: 'center'
             }}
             onPress={() => setIsVisible(true)}
             accessibilityRole="button"
@@ -134,7 +132,9 @@ export default function ContextualHelp({
               {/* Header */}
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center flex-1">
-                  <CircleHelp size={24} color="#2563eb" style={{ marginRight: 8 }} />
+                  <View className="mr-2">
+                    <CircleHelp size={24} color="#2563eb" />
+                  </View>
                   <Text className="text-lg font-semibold text-gray-900 flex-1">
                     {content.title}
                   </Text>
