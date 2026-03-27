@@ -33,9 +33,9 @@ describe('Indonesia (IDN) Schema', () => {
     expect(schema.portalFlow.familyPolicy!.type).toBe('family');
   });
 
-  test('implementation status should be planned', () => {
+  test('implementation status should be complete', () => {
     expect(schema.metadata).toBeDefined();
-    expect(schema.metadata.implementationStatus).toBe('planned');
+    expect(schema.metadata.implementationStatus).toBe('complete');
   });
 
   test('should have all required sections', () => {
