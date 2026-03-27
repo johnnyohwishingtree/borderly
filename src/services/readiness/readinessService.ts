@@ -8,6 +8,7 @@
 import { Trip, SavedQRCode } from '../../types/trip';
 import { TravelerProfile } from '../../types/profile';
 import { CountryFormSchema } from '../../types/schema';
+import { QR_REQUIRED_COUNTRY_CODES, CONFIRMATION_CODE_COUNTRY_CODES } from '../../constants/countries';
 import { checkPassportValidity } from '../documents/documentValidityService';
 import { computeLegDeadline, getUrgencyLevel } from '../deadline/deadlineService';
 import { ReadinessItem, ReadinessItemStatus, TripReadiness } from './readinessTypes';
@@ -16,11 +17,6 @@ import { ReadinessItem, ReadinessItemStatus, TripReadiness } from './readinessTy
 // Internal constants
 // ---------------------------------------------------------------------------
 
-/**
- * Country codes whose portals issue a QR code upon submission that travelers
- * must present at border control (e.g. Visit Japan Web e-Gate QR).
- */
-const QR_REQUIRED_COUNTRIES = new Set<string>(['JPN']);
 
 /**
  * Numeric severity ordering so we can compare ReadinessItemStatus values.
@@ -171,7 +167,7 @@ export async function computeTripReadiness(
     // 3. QR code presence
     // -----------------------------------------------------------------------
     const legQrCodes = qrCodes.filter((qr) => qr.legId === leg.id);
-    const requiresQr = QR_REQUIRED_COUNTRIES.has(countryCode);
+    const requiresQr = QR_REQUIRED_COUNTRY_CODES.has(countryCode);
 
     if (requiresQr) {
       const qrStatus: ReadinessItemStatus = legQrCodes.length > 0 ? 'ok' : 'missing';
@@ -199,7 +195,27 @@ export async function computeTripReadiness(
     }
 
     // -----------------------------------------------------------------------
-    // 4. Deadline status
+    // 4. Confirmation code presence
+    // -----------------------------------------------------------------------
+    if (CONFIRMATION_CODE_COUNTRY_CODES.has(countryCode)) {
+      const legConfirmationCodes = qrCodes.filter((qr) => qr.legId === leg.id);
+      const confirmationStatus: ReadinessItemStatus =
+        legConfirmationCodes.length > 0 ? 'ok' : 'missing';
+      items.push({
+        id: `confirmation-${leg.id}`,
+        category: 'confirmation',
+        label: `Confirmation code — ${countryLabel}`,
+        status: confirmationStatus,
+        detail:
+          legConfirmationCodes.length > 0
+            ? `${legConfirmationCodes.length} confirmation code(s) saved`
+            : 'No confirmation code saved — check email for reference code',
+        actionScreen: 'QRWallet',
+      });
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. Deadline status
     // -----------------------------------------------------------------------
     if (schema) {
       const deadline = computeLegDeadline(leg, schema);

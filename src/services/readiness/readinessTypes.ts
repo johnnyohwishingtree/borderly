@@ -21,7 +21,7 @@ export interface ReadinessItem {
   id: string;
 
   /** Which category of health signal this represents. */
-  category: 'passport' | 'form' | 'qr' | 'deadline';
+  category: 'passport' | 'form' | 'qr' | 'deadline' | 'confirmation';
 
   /** Short human-readable label shown in the UI. */
   label: string;

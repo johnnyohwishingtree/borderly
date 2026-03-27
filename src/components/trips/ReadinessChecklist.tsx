@@ -34,12 +34,14 @@ const CATEGORY_LABELS: Record<ReadinessItem['category'], string> = {
   form: 'Forms',
   qr: 'QR Codes',
   deadline: 'Deadlines',
+  confirmation: 'Confirmation Codes',
 };
 
 const CATEGORY_ORDER: ReadinessItem['category'][] = [
   'passport',
   'form',
   'qr',
+  'confirmation',
   'deadline',
 ];
 

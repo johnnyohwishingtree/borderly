@@ -304,6 +304,20 @@ export const ALL_COUNTRIES: { value: string; label: string }[] = [
 ];
 
 /**
+ * Country codes whose portals issue a QR code upon submission that travelers
+ * must present at border control (e.g. Visit Japan Web e-Gate QR, eTravel PHL).
+ */
+export const QR_REQUIRED_COUNTRY_CODES = new Set<string>(['JPN', 'PHL', 'IDN']);
+
+/**
+ * Country codes whose portals issue a confirmation/reference code via email
+ * that travelers should save in the QR wallet for border control reference.
+ */
+export const CONFIRMATION_CODE_COUNTRY_CODES = new Set<string>([
+  'SGP', 'KOR', 'IND', 'MYS', 'NZL', 'AUS', 'VNM',
+]);
+
+/**
  * ISO country codes for all supported countries.
  * Use this when you need just the codes (e.g., validation, schema loading).
  */
