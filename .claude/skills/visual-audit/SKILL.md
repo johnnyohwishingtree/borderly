@@ -155,11 +155,7 @@ Before auditing, read the metadata files for context on what each screen contain
 - **COMPONENTS**: Check `src/components/ui/` before suggesting new primitives.
 - **SPACING**: Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px). Never use arbitrary values.
 
-## Running This Skill
+## Guardrails
 
-1. **Full audit** (recommended): `/visual-audit` — reads existing screen + component screenshots
-2. **Fresh screenshots first**: `/capture-screens` then `/visual-audit` — if screenshots are stale
-3. **Specific screens**: `/visual-audit` then say "audit the Settings and Profile screens"
-4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
-
-After the audit, use `/visual-implement` to apply the fixes.
+- Read-only — identify problems, don't implement fixes
+- Process one domain at a time to stay within context limits

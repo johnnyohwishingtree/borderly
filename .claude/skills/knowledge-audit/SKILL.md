@@ -10,6 +10,12 @@ Checks whether code follows the policies declared in `.knowledge/policies/`, ver
 
 Uses the knowledge graph engine (`scripts/knowledge-graph.ts`) for structural queries.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Knowledge graph engine available (`scripts/knowledge-graph.ts`)
+- On `master` branch with latest changes pulled
+
 ## Step 1: Graph health check
 
 Run the graph engine queries to find structural issues:
@@ -95,7 +101,7 @@ Each gap entry includes: what's wrong, where, test strategy to prevent recurrenc
 Follow `.knowledge/policies/workflow/verification.md`.
 Follow `.knowledge/policies/workflow/learning.md`.
 
-## What NOT to flag
+## Guardrails
 - Violations already listed in `gaps.md`
 - Design guidelines that can't be structurally tested (note them, don't flag)
 - Empty directories

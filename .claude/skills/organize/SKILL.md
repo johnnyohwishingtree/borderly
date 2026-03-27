@@ -7,6 +7,12 @@ description: Reorganize file structure so tests mirror source layout
 
 Ensure the test directory mirrors the source structure and files are in their correct domain locations.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Git working tree is clean (no uncommitted changes)
+- Existing test and source structure has been reviewed
+
 ## Usage
 ```
 /organize              # Full reorganization audit
@@ -72,3 +78,8 @@ Report:
 - Duplicates removed
 - Import updates made
 - Test count before/after (should be equal — reorganizing, not deleting)
+
+## Guardrails
+
+- Use `git mv` to preserve history
+- Run typecheck after each move

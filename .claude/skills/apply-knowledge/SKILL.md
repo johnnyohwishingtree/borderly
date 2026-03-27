@@ -8,6 +8,12 @@ argument-hint: "<knowledge-file> [--dry-run] [--scope src/components]"
 
 Takes a single `.knowledge/` file, scans the relevant codebase for violations, and fixes them. Unlike `/knowledge-audit` (which audits ALL knowledge but only reports), this skill focuses on ONE knowledge file and actively implements fixes.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Knowledge graph engine available (`scripts/knowledge-graph.ts`)
+- The target `.knowledge/` file exists and has concrete rules
+
 ## Usage
 ```
 /apply-knowledge styling.md                    # Fix styling violations everywhere
@@ -111,7 +117,7 @@ Summary of what was done:
 - Violations skipped (needs judgment — added to gaps.md)
 - Tests created/updated
 
-## What NOT to fix
+## Guardrails
 - Design guideline violations (typography, motion, ux-writing) that require subjective judgment — report them but let a human decide
 - Violations in generated files (`maestro/flows/generated/`) — regenerate instead
 - Violations that would break other code — add to gaps.md for a story

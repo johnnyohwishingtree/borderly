@@ -136,7 +136,7 @@ Present what was implemented:
 - **State** in Zustand stores — one store per domain
 - **Sensitive data** (passport) stays in OS Keychain — never in MMKV or WatermelonDB directly
 
-## What NOT to Do
+## Guardrails
 
 - **Don't change visual styling** unless it's part of a flow change — that's `/visual-implement`
 - **Don't refactor architecture** — that's `/refactor-design`
@@ -144,9 +144,3 @@ Present what was implemented:
 - **Don't break existing navigation** — verify back button and deep links still work
 - **Don't add features beyond the finding** — implement exactly what the review identified
 
-## Running This Skill
-
-1. **After a UX review**: `/ux-implement` — applies findings from the review
-2. **Specific finding**: `/ux-implement` then say "implement the family onboarding flow"
-3. **With a report**: Paste UX review findings, then `/ux-implement`
-4. **Plan first**: `/ux-review` → `/epic-planner` → implement stories individually

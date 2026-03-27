@@ -8,7 +8,7 @@ argument-hint: "[goal description]"
 
 Break a high-level goal into a structured set of GitHub Issues: one Epic and its Stories.
 
-## Before Planning
+## Prerequisites
 
 1. Read `CLAUDE.md` for project context and architecture
 2. Understand where the goal fits in the existing codebase
@@ -135,3 +135,8 @@ After running this skill:
 ## Starting the Pipeline
 
 Tell the user: "Stories are labeled `pending` — the scheduled task will pick them up on the next hourly run. To start immediately, run `/pipeline`."
+
+## Guardrails
+
+- Each story must be completable in one session
+- Don't create stories without acceptance criteria

@@ -7,6 +7,12 @@ description: Capture screenshots of every app screen and component, generating m
 
 Captures screenshots of every screen and component in the app via Playwright and generates manifests documenting the current visual state. This is the source of truth for what the app looks like.
 
+## Prerequisites
+
+- Playwright installed and configured
+- React Native Web build available (`pnpm web` can serve the app)
+- `e2e/` directory with screenshot capture tests present
+
 ## Automatic vs Manual Capture
 
 **Component screenshots** can be captured in parallel and are quick to regenerate. You usually only need to recapture them when component styling changes.
@@ -96,9 +102,7 @@ Screenshots render via React Native Web in Chromium. Limitations:
 
 Screenshots are part of the source tree — update them in the same PR as the code change.
 
-## Integration with Other Skills
+## Guardrails
 
-- **`/visual-audit`** — Reads screen + component screenshots for analysis
-- **`/visual-implement`** — Updates UI based on audit findings, then re-captures to verify
-- **`/ux-review`** — Reads flow graph to analyze navigation paths, tap counts, and flow efficiency
-- **`/ux-implement`** — Uses flow graph to understand current structure before restructuring
+- Screen captures must use `--workers=1`
+- Don't capture during active development — wait for a stable state

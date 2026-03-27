@@ -8,6 +8,12 @@ argument-hint: "[--dry-run]"
 
 Reads `.knowledge/gaps.md` for pending findings, resolves them by updating knowledge or flagging code fixes, and compresses files that have grown too long.
 
+## Prerequisites
+
+- On `master` branch with clean working tree
+- `pnpm install` completed
+- `.knowledge/gaps.md` may or may not exist
+
 ## Step 1: Read gaps
 
 ```bash
@@ -86,3 +92,8 @@ fi
 ```bash
 git push origin master
 ```
+
+## Guardrails
+
+- Don't resolve code fixes directly — create stories for them
+- Don't delete gaps.md if entries remain

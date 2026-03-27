@@ -8,6 +8,12 @@ argument-hint: "[target area, e.g. 'services/forms', 'components/trips']"
 
 Find untested code, write missing tests, and fix any bugs the new tests reveal.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` passes)
+- `pnpm test` runs (may have failures — that's what we're fixing)
+- Jest and RNTL available in dev dependencies
+
 ## Usage
 ```
 /test-suite                        # Audit entire test suite
@@ -76,3 +82,8 @@ Report what was added:
 - Coverage before/after
 - Bugs found and fixed by new tests
 - Remaining gaps (if any) with rationale for skipping
+
+## Guardrails
+
+- Don't write tests that only assert `toBeDefined()`
+- Follow test-quality policy for Tier 1-2 tests only

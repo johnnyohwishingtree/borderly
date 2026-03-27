@@ -14,6 +14,12 @@ Read CLAUDE.md for project context.
 Read .claude/skills/pipeline/SKILL.md and follow every step.
 ```
 
+## Prerequisites
+
+- `gh` CLI authenticated with repo access
+- On `master` branch with clean working tree
+- `pnpm install` completed
+
 ## Step 1: Merge open PRs
 
 ```bash
@@ -108,3 +114,9 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 Read the codebase and `.knowledge/` knowledge graph. Identify the highest-impact improvement. Create an epic with 2-4 stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
 
 Populate every story section — especially Knowledge (which policies/models apply) and Tasks (which templates/patterns to follow).
+
+## Guardrails
+
+- Only pick up `pending` stories — never `in-progress`
+- Never push to master directly — always go through a PR
+- If 6 verify attempts fail, push WIP and stop

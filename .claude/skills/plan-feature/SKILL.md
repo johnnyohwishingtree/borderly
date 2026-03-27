@@ -8,6 +8,12 @@ argument-hint: "[feature description]"
 
 Plan and implement a new feature for Borderly. Reads existing code first, plans the approach, implements with tests, and verifies.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Relevant `.knowledge/` policies and patterns reviewed
+- Existing code in the target area has been read
+
 ## Usage
 ```
 /plan-feature add QR code sharing      # Implement a specific feature
@@ -87,3 +93,8 @@ npx react-native bundle --platform ios --dev false --entry-file index.js --bundl
 
 1. Add icon mapping in `RELATIONSHIP_ICON` in `FamilyMemberCard.tsx`
 2. Add display label case in `getRelationshipDisplay()`
+
+## Guardrails
+
+- Read existing code before proposing changes
+- Don't skip tests for new functionality

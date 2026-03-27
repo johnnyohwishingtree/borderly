@@ -14,6 +14,12 @@ Read CLAUDE.md for project context.
 Read .claude/skills/audit/SKILL.md and follow every step.
 ```
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` passes)
+- `gh` CLI authenticated (for creating fix stories)
+- On `master` branch with latest changes pulled
+
 ## Step 1: Convention compliance
 
 For each folder CLAUDE.md file, read it and all its `See:` linked `.knowledge/` files. Then check whether the code in that folder actually follows the stated rules.
@@ -141,7 +147,7 @@ git add .knowledge/gaps.md
 git diff --cached --quiet || git commit -m "chore: audit findings ($DATE)" && git push origin master
 ```
 
-## What NOT to flag
+## Guardrails
 - Empty `.knowledge/` directories (they fill up over time)
 - Missing domain knowledge files (created when needed)
 - Violations already listed in `gaps.md` (don't duplicate)

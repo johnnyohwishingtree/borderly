@@ -8,6 +8,12 @@ argument-hint: "[feature description]"
 
 Develop a feature in an isolated git worktree. Use this when you want to work on something without disturbing your current branch or uncommitted changes.
 
+## Prerequisites
+
+- Git worktree support available
+- `pnpm` installed globally
+- Feature description or story issue identified
+
 ## Steps
 
 1. **Fetch latest master** — run `git fetch origin master` before creating the worktree.
@@ -31,3 +37,8 @@ Develop a feature in an isolated git worktree. Use this when you want to work on
 - Follow `.knowledge/policies/workflow/fix-strategy.md` when modifying code
 - Keep changes focused — don't refactor unrelated code
 - Commit and push frequently (every 2-3 file changes)
+
+## Guardrails
+
+- Keep changes focused — don't refactor unrelated code
+- Exit worktree with `keep` — let user decide when to remove

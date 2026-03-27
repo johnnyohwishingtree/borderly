@@ -81,30 +81,10 @@ E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=s
 
 The screenshot capture test automatically writes per-screen `manifest.json` files in each `__screenshots__/` folder. Verify they reflect the current state.
 
-## What NOT to Do
+## Guardrails
 
 - **Don't skip tests for bugs** — if a screen doesn't render, data is wrong, or behavior is broken, write a test first
 - **Don't add new dependencies** without checking `src/components/ui/` first
 - **Don't refactor unrelated code** — stay focused on the audit findings
 - **Don't skip the re-capture step** — the before/after comparison is the proof
 
-## Example Workflow
-
-```
-User: /visual-audit
-→ Report: "Settings screen shows Loading forever (bug), Profile has low-contrast text (styling)"
-
-User: /visual-implement
-→ Reads before screenshots
-→ BUG: SettingsScreen loading — writes failing test, finds async init never resolves in web, fixes it, test passes
-→ STYLING: ProfileScreen text contrast — changes text-gray-400 → text-gray-600
-→ Runs typecheck + tests (including new test)
-→ Re-captures screenshots
-→ Shows before/after comparison
-```
-
-## Running This Skill
-
-1. **After a visual audit**: `/visual-implement` — applies all findings from the audit
-2. **Specific screens**: `/visual-implement` then say "fix the Settings screen spacing"
-3. **With a report**: Paste audit findings, then `/visual-implement`

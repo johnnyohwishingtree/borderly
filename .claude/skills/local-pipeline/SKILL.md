@@ -14,6 +14,12 @@ Read CLAUDE.md for project context.
 Read .claude/skills/local-pipeline/SKILL.md and follow every step.
 ```
 
+## Prerequisites
+
+- `gh` CLI authenticated with repo access
+- Git worktree support available
+- `pnpm` installed globally
+
 ## Step 0: Set up worktree
 
 ```bash
@@ -128,3 +134,8 @@ git worktree prune
 ## Step 10: Report
 
 Print summary: what was implemented, branch name, tests added, knowledge updated, worktree cleaned up.
+
+## Guardrails
+
+- Always clean up worktree, even if steps fail
+- Only pick up `pending` stories — never `in-progress`

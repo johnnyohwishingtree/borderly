@@ -8,6 +8,12 @@ argument-hint: "[area to audit, e.g. 'stores', 'services', 'screens']"
 
 Identify and fix architecture issues: dependency violations, oversized files, missing abstractions, and coupling problems.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Architecture policies reviewed (dependency-direction, hook-conventions)
+- Existing code in the target area has been read
+
 ## Usage
 ```
 /refactor-design                   # Audit entire codebase
@@ -80,3 +86,8 @@ Report:
 - Files created, moved, or split
 - Dependency graph improvements
 - Remaining issues (if any) with rationale
+
+## Guardrails
+
+- Present plan before implementing if 5+ files touched
+- Don't refactor without running tests

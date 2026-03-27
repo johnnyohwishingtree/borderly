@@ -7,6 +7,12 @@ description: Update architecture diagrams and documentation after code changes
 
 Update architecture documentation to reflect the current state of the codebase. Run this after navigation changes, new screens, or storage layer modifications.
 
+## Prerequisites
+
+- Recent code changes to document (check `git log --oneline -10`)
+- `pnpm typecheck` passes if type definitions were updated
+- Knowledge graph scripts available (`scripts/knowledge-graph.ts`)
+
 ## Usage
 ```
 /update-architecture               # Update all docs
@@ -80,3 +86,8 @@ Report:
 - Docs updated (with specific sections changed)
 - Flow graph regenerated (if applicable)
 - Stale documentation identified but not updated (if any)
+
+## Guardrails
+
+- Only update docs, don't change code
+- Verify type definitions if `types.ts` was updated

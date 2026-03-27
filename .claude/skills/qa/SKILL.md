@@ -8,6 +8,12 @@ argument-hint: "[specific flow to test, e.g. 'onboarding', 'trip creation']"
 
 Walk through the app's functionality like a real user. Document every bug, UX issue, and inconsistency found. This skill reads code and screenshots to simulate user journeys.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Screen registry available at `maestro/generator/screenRegistry.ts`
+- `gh` CLI authenticated (for creating bug issues)
+
 ## Usage
 ```
 /qa                    # Full app walkthrough
@@ -95,3 +101,8 @@ Report:
 - Bugs fixed in this session
 - Issues created for deferred bugs
 - Flows that passed without issues
+
+## Guardrails
+
+- Fix critical bugs immediately, create issues for non-critical
+- Follow bug-fix policy for all fixes

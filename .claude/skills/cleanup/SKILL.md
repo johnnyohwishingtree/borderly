@@ -7,6 +7,12 @@ description: Find and remove unused, temporary, or accidentally committed files
 
 Find and remove unused source files, dead imports, temporary artifacts, and accidentally committed files.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Git working tree is clean (no uncommitted changes)
+- Import graph understood (know what depends on what)
+
 ## Usage
 ```
 /cleanup                # Full cleanup scan
@@ -82,3 +88,8 @@ Report:
 - Files removed (with rationale for each)
 - `.gitignore` patterns added
 - Disk space recovered
+
+## Guardrails
+
+- Don't delete files that other code imports
+- Verify no imports broke after removal
