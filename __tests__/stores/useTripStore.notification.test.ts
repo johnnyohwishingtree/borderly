@@ -227,7 +227,7 @@ describe('useTripStore — notification scheduler integration', () => {
       expect(calledDeadlines[0]).toBe(mockDeadline);
     });
 
-    it('skips scheduling when the country schema is not found', async () => {
+    it('adds the leg to state but skips scheduling when the country schema is not found', async () => {
       mockGetSchema.mockReturnValue(null);
       const trip = makeTrip({ legs: [] });
       useTripStore.setState({ trips: [trip] });
@@ -251,6 +251,10 @@ describe('useTripStore — notification scheduler integration', () => {
         await Promise.resolve();
       });
 
+      // Leg was still added to state even though scheduling was skipped
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs).toHaveLength(1);
+      expect(trips[0].legs[0].destinationCountry).toBe('JPN');
       expect(mockScheduleDeadlineNotifications).not.toHaveBeenCalled();
     });
   });
@@ -364,7 +368,7 @@ describe('useTripStore — notification scheduler integration', () => {
       expect(callOrder).toEqual(['cancel', 'schedule']);
     });
 
-    it('skips rescheduling when schema is not found', async () => {
+    it('updates departure date in state but skips rescheduling when schema is not found', async () => {
       mockGetSchema.mockReturnValue(null);
       const trip = makeTrip();
       useTripStore.setState({ trips: [trip] });
@@ -376,8 +380,10 @@ describe('useTripStore — notification scheduler integration', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
       });
 
-      // cancelLegNotifications should not be called if there's no schema
-      // (there's no reschedule to perform)
+      // Departure date was still updated in state
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].departureDate).toBe('2026-05-10');
+      // But no notifications were scheduled
       expect(mockScheduleDeadlineNotifications).not.toHaveBeenCalled();
     });
   });
@@ -417,7 +423,7 @@ describe('useTripStore — notification scheduler integration', () => {
       expect(mockCancelLegNotifications).toHaveBeenCalledWith('leg-1', 'trip-1');
     });
 
-    it('does not reschedule when formStatus is ready', async () => {
+    it('updates formStatus to ready in state but does not reschedule notifications', async () => {
       const trip = makeTrip();
       useTripStore.setState({ trips: [trip] });
 
@@ -429,6 +435,10 @@ describe('useTripStore — notification scheduler integration', () => {
         await Promise.resolve();
       });
 
+      // formStatus was updated in state
+      const { trips } = useTripStore.getState();
+      expect(trips[0].legs[0].formStatus).toBe('ready');
+      // Notifications were cancelled but not rescheduled
       expect(mockScheduleDeadlineNotifications).not.toHaveBeenCalled();
     });
   });
