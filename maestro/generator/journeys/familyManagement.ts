@@ -6,7 +6,7 @@
  */
 import { journey } from '../dsl';
 import {
-  tap, tapText, inputText, assertVisible, conditional, swipe, fill, select, date,
+  tap, tapText, assertVisible, conditional, fill, select, date,
 } from '../dsl';
 import {
   screenStep, tapButton,
