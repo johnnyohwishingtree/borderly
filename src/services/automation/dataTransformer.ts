@@ -17,7 +17,8 @@ export class DataTransformer {
       let parsedDate: Date;
 
       if (fromFormat === 'YYYY-MM-DD') {
-        parsedDate = new Date(date);
+        const [year, month, day] = date.split('-');
+        parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       } else if (fromFormat === 'DD/MM/YYYY') {
         const [day, month, year] = date.split('/');
         parsedDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
@@ -35,7 +36,7 @@ export class DataTransformer {
       // Format according to target format
       switch (toFormat) {
         case 'YYYY-MM-DD':
-          return parsedDate.toISOString().split('T')[0];
+          return `${parsedDate.getFullYear()}-${(parsedDate.getMonth() + 1).toString().padStart(2, '0')}-${parsedDate.getDate().toString().padStart(2, '0')}`;
 
         case 'DD/MM/YYYY':
           return `${parsedDate.getDate().toString().padStart(2, '0')}/${(parsedDate.getMonth() + 1).toString().padStart(2, '0')}/${parsedDate.getFullYear()}`;

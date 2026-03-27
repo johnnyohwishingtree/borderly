@@ -18,7 +18,9 @@
 
 ### 2. Register in navigator
 - Add to appropriate navigator in `src/app/navigation/`
-- Add type to `src/app/navigation/types.ts` — no hardcoded route strings
+- Add type to the stack's param list in `src/app/navigation/types.ts`
+- Add a lazy import and `<Stack.Screen>` entry in the relevant navigator
+- If adding to onboarding flow, update `OnboardingStackParamList` and wire navigation from the preceding/following screens
 
 ### 3. Update screenRegistry
 - Add screen to `maestro/generator/screenRegistry.ts` with testIDs, buttons, alerts

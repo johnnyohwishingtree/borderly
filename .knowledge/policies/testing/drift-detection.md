@@ -30,7 +30,7 @@ src/, maestro/, .knowledge/, .claude/
 
 ## Enforcement
 - `__tests__/structure/maestro-registry-sync.test.ts` — testID drift
-- `/audit` skill — path references, index sync
+- `/code-audit` skill — path references, drift detection
 
 ## References
 - Related: policies/testing/e2e-testability.md

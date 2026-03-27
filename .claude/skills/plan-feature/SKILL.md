@@ -8,6 +8,12 @@ argument-hint: "[feature description]"
 
 Plan and implement a new feature for Borderly. Reads existing code first, plans the approach, implements with tests, and verifies.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Relevant `.knowledge/` policies and patterns reviewed
+- Existing code in the target area has been read
+
 ## Usage
 ```
 /plan-feature add QR code sharing      # Implement a specific feature
@@ -41,10 +47,11 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 3. Follow existing patterns in surrounding code
 
 **Key rules:**
+- Read the relevant folder `CLAUDE.md` for directory conventions before creating files
 - Use NativeWind `className` for styling (no inline styles)
-- Use existing `src/components/ui/` components before creating new ones
+- Use existing UI components before creating new ones
 - Use Lucide icons from `lucide-react-native` (not vector-icons)
-- Extract business logic into hooks in `src/hooks/` if a screen has 3+ useState calls
+- Extract business logic into hooks if a screen has 3+ useState calls
 - Use smart components where required (see `.knowledge/models/form-engine.md`)
 - Never use `any` types — fix the root cause
 
@@ -60,23 +67,19 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 
 ### Step 5: Verify
 
-Run all checks in parallel:
+Follow `.knowledge/policies/workflow/verification.md`.
+
+Also run bundle check:
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm e2e
 npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js
 ```
 
-If any fail, fix and re-run. Do not proceed until all pass.
-
 ### Step 6: Self-Update Check
 
-- **New screen?** Add E2E test in `e2e/tests/`, add web mock if new native dep
-- **New navigation route?** Update `src/app/navigation/types.ts`
+- **New screen?** Follow `.knowledge/patterns/add-screen.md` for the full checklist
+- **New navigation route?** Update navigation type definitions (read the relevant folder `CLAUDE.md` for conventions)
 - **New `.claude/` or `.knowledge/` file?** Update `.knowledge/index.md`
-- **New native dependency?** Add mock in `e2e/mocks/`, alias in `webpack.config.js`, run `cd ios && pod install`
+- **New native dependency?** Follow `.knowledge/patterns/add-native-dep.md` for the full checklist
 
 ## Domain-Specific Checklists
 
@@ -91,3 +94,8 @@ If any fail, fix and re-run. Do not proceed until all pass.
 
 1. Add icon mapping in `RELATIONSHIP_ICON` in `FamilyMemberCard.tsx`
 2. Add display label case in `getRelationshipDisplay()`
+
+## Guardrails
+
+- Read existing code before proposing changes
+- Don't skip tests for new functionality

@@ -7,6 +7,12 @@ description: Reorganize file structure so tests mirror source layout
 
 Ensure the test directory mirrors the source structure and files are in their correct domain locations.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Git working tree is clean (no uncommitted changes)
+- Existing test and source structure has been reviewed
+
 ## Usage
 ```
 /organize              # Full reorganization audit
@@ -35,13 +41,7 @@ Scan for:
 
 ### Step 2: Check Domain Placement
 
-Source files should be in their correct domain:
-- Storage services in `src/services/storage/`
-- Form engine in `src/services/forms/`
-- Submission logic in `src/services/submission/`
-- Error handling in `src/services/error/`
-- Monitoring in `src/services/monitoring/`
-- Navigation in `src/app/navigation/`
+Source files should be in their correct domain. Read folder `CLAUDE.md` files (e.g., `src/services/CLAUDE.md`, `src/app/CLAUDE.md`) to understand the expected directory structure and domain boundaries.
 
 Look for files in `src/utils/` that belong in a service domain.
 
@@ -52,10 +52,7 @@ Use `git mv` to preserve history:
 git mv old/path/file.ts new/path/file.ts
 ```
 
-After each move:
-1. Update all imports that referenced the old path
-2. Update barrel `index.ts` files
-3. Run `pnpm typecheck` to catch broken imports
+After each move, follow `.knowledge/policies/workflow/fix-strategy.md`.
 
 ### Step 4: Remove Duplicates
 
@@ -66,9 +63,7 @@ If duplicate test files exist (same tests, different locations):
 
 ### Step 5: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ### Step 6: Summary
 
@@ -77,3 +72,8 @@ Report:
 - Duplicates removed
 - Import updates made
 - Test count before/after (should be equal — reorganizing, not deleting)
+
+## Guardrails
+
+- Use `git mv` to preserve history
+- Run typecheck after each move

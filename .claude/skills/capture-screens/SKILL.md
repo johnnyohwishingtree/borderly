@@ -7,6 +7,12 @@ description: Capture screenshots of every app screen and component, generating m
 
 Captures screenshots of every screen and component in the app via Playwright and generates manifests documenting the current visual state. This is the source of truth for what the app looks like.
 
+## Prerequisites
+
+- Playwright installed and configured
+- React Native Web build available (`pnpm web` can serve the app)
+- `e2e/` directory with screenshot capture tests present
+
 ## Automatic vs Manual Capture
 
 **Component screenshots** can be captured in parallel and are quick to regenerate. You usually only need to recapture them when component styling changes.
@@ -67,19 +73,9 @@ This produces `e2e/screenshots/flow-graph.json` — a machine-readable map of st
 
 ## Output
 
-**Screen screenshots** — currently **37 screens** across 7 domains:
+**Screen screenshots** — Read `maestro/generator/screenRegistry.ts` for the current screen inventory. Screen domains are discovered by listing directories under `src/screens/`.
 
-| Domain | Screens | Count |
-|--------|---------|-------|
-| onboarding | Welcome, Tutorial, PassportScan (method/empty/filled), ConfirmProfile, AddCompanions, BiometricSetup | 8 |
-| trips | TripList (empty/with-trip), CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN) | 15 |
-| wallet | QRWallet, AddQR, QRDetail | 3 |
-| profile | Profile, EditProfile, FamilyManagement, AddFamilyMember | 4 |
-| settings | Settings, PrivacyPolicy | 2 |
-| support | Help, Feedback, BugReport | 3 |
-| help | FAQ, Troubleshooting | 2 |
-
-**Component screenshots** — **31 components / 87 variants** across 6 domains (ui, trips, guide, forms, profile, submission). Registered in `e2e/component-registry.tsx`.
+**Component screenshots** — Read `e2e/component-registry.tsx` for the component registry and current variant counts.
 
 **Flow graph** at `e2e/screenshots/flow-graph.json`.
 
@@ -96,9 +92,7 @@ Screenshots render via React Native Web in Chromium. Limitations:
 
 Screenshots are part of the source tree — update them in the same PR as the code change.
 
-## Integration with Other Skills
+## Guardrails
 
-- **`/visual-audit`** — Reads screen + component screenshots for analysis
-- **`/visual-implement`** — Updates UI based on audit findings, then re-captures to verify
-- **`/ux-review`** — Reads flow graph to analyze navigation paths, tap counts, and flow efficiency
-- **`/ux-implement`** — Uses flow graph to understand current structure before restructuring
+- Screen captures must use `--workers=1`
+- Don't capture during active development — wait for a stable state

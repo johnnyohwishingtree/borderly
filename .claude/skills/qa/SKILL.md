@@ -8,6 +8,12 @@ argument-hint: "[specific flow to test, e.g. 'onboarding', 'trip creation']"
 
 Walk through the app's functionality like a real user. Document every bug, UX issue, and inconsistency found. This skill reads code and screenshots to simulate user journeys.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Screen registry available at `maestro/generator/screenRegistry.ts`
+- `gh` CLI authenticated (for creating bug issues)
+
 ## Usage
 ```
 /qa                    # Full app walkthrough
@@ -20,24 +26,15 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 ### Step 1: Load App Context
 
 1. Read `CLAUDE.md` for architecture and feature list
-2. Read `maestro/generator/screenRegistry.ts` for per-screen metadata (fields, alerts, buttons)
+2. Read `maestro/generator/screenRegistry.ts` for the current screen inventory and per-screen metadata (fields, alerts, buttons)
 3. Read `maestro/generator/componentCatalog.ts` for component interaction patterns
 4. Read `e2e/screenshots/flow-graph.json` for navigation edges
 
 ### Step 2: Define Test Plan
 
-List every user-facing flow to test. If user specified a flow, focus on that. Otherwise test all:
+Read `.knowledge/models/user-journeys.md` for the core user flows and what to verify for each.
 
-| Flow | Key screens | What to verify |
-|------|------------|----------------|
-| Onboarding | Welcome, PassportScan, ConfirmProfile, BiometricSetup | Data persists, navigation correct, skip paths work |
-| Trip creation | CreateTrip, TripDetail, LegForm | Form validation, auto-fill, country selection |
-| Form completion | LegForm, DynamicForm | Smart delta, auto-fill accuracy, field types correct |
-| Portal submission | SubmissionGuide, PortalSubmission | Steps render, copyable fields work, QR capture |
-| Family management | FamilyManagement, AddFamilyMember | Add/edit/delete, profile switching, data isolation |
-| QR wallet | QRWallet, AddQR, QRDetail | Import, display, search, full-screen view |
-| Profile | Profile, EditProfile | View, edit, save, passport validity display |
-| Settings | Settings, PrivacyPolicy, Backup/Restore | All toggles work, backup/restore flow |
+If user specified a flow, focus on that. Otherwise test all journeys listed in the model.
 
 ### Step 3: Walk Through Each Flow
 
@@ -77,10 +74,7 @@ For each bug found, record:
 
 ### Step 5: Fix Critical Bugs
 
-Follow `.claude/rules/bug-fix-workflow.md`:
-1. Write a failing test that reproduces the bug
-2. Fix the code so the test passes
-3. Run `pnpm typecheck && pnpm test`
+Follow `.knowledge/policies/workflow/bug-fix.md`.
 
 ### Step 6: Create Issues for Non-Critical Bugs
 
@@ -98,3 +92,8 @@ Report:
 - Bugs fixed in this session
 - Issues created for deferred bugs
 - Flows that passed without issues
+
+## Guardrails
+
+- Fix critical bugs immediately, create issues for non-critical
+- Follow bug-fix policy for all fixes

@@ -35,22 +35,15 @@ Component screenshots can be captured in parallel and are quick to regenerate wh
 
 Process screenshots **one domain at a time** to stay within context limits.
 
-**Screen domains** (at `src/screens/<domain>/<ScreenName>/__screenshots__/`):
-- **onboarding** — Welcome, Tutorial, PassportScan, ConfirmProfile, AddCompanions, BiometricSetup
-- **trips** — TripList, CreateTrip, TripDetail, LegForm, SubmissionGuide (JPN/MYS/SGP/VNM/CAN), PortalSubmission (JPN/MYS/SGP/VNM/CAN)
-- **wallet** — QRWallet, AddQR, QRDetail
-- **profile** — Profile, EditProfile, FamilyManagement, AddFamilyMember
-- **settings** — Settings, PrivacyPolicy
-- **support** — Help, Feedback, BugReport
-- **help** — FAQ, Troubleshooting
+Find screen domains by listing directories under `src/screens/`. Find component domains by listing directories under `src/components/`. Read per-domain screenshots from `__screenshots__/manifest.json` files.
 
-**Component domains** (at `src/components/<domain>/<Component>/__screenshots__/`):
-- **ui** — Button, Card, StatusBadge, Toggle, Input, Select, ProgressBar, LoadingStates, etc.
-- **trips** — TripCard, CountryFlag, DeadlineBadge, PassportValidityWarning
-- **guide** — StepCard, CopyableField, GuideProgress
-- **forms** — AutoFilledBadge
-- **profile** — DocumentValidityCard, FamilyMemberCard, PassportExpiryBadge
-- **submission** — AutoFillBanner
+To discover the current inventory:
+```bash
+ls src/screens/          # Screen domains
+ls src/components/       # Component domains
+find src/screens -path "*/__screenshots__/manifest.json"     # Screen manifests
+find src/components -path "*/__screenshots__/manifest.json"  # Component manifests
+```
 
 For each domain batch:
 1. **Read all screenshots** in that domain using the Read tool (it supports image files)
@@ -155,11 +148,7 @@ Before auditing, read the metadata files for context on what each screen contain
 - **COMPONENTS**: Check `src/components/ui/` before suggesting new primitives.
 - **SPACING**: Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px). Never use arbitrary values.
 
-## Running This Skill
+## Guardrails
 
-1. **Full audit** (recommended): `/visual-audit` — reads existing screen + component screenshots
-2. **Fresh screenshots first**: `/capture-screens` then `/visual-audit` — if screenshots are stale
-3. **Specific screens**: `/visual-audit` then say "audit the Settings and Profile screens"
-4. **Manual screenshots**: Drop screenshots into chat, then `/visual-audit`
-
-After the audit, use `/visual-implement` to apply the fixes.
+- Read-only — identify problems, don't implement fixes
+- Process one domain at a time to stay within context limits

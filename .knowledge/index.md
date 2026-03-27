@@ -4,17 +4,14 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 ## .claude/ (read-only — human edits only)
 
-### Rules (auto-loaded every session)
+### Rules (auto-loaded every session — keep minimal)
 
 | File | Constraint |
 |------|-----------|
-| `rules/bug-fix-workflow.md` | Write a failing test before fixing any bug |
 | `rules/commit-gate.md` | Run lint + typecheck + tests before every commit |
-| `rules/file-size-limits.md` | Keep source files under 500 lines |
-| `rules/fix-strategy.md` | Fix one file at a time; re-check after each fix |
-| `rules/no-snapshot-files.md` | Use inline snapshots, not .snap files |
 | `rules/output-location.md` | All output must be inside the project root |
-| `rules/knowledge-must-have-tests.md` | Every testable policy needs a structural test |
+
+Other rules migrated to policies (loaded on-demand by skills, not every session).
 
 ### Skills
 
@@ -22,7 +19,7 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 |-------|---------|------------|
 | `skills/pipeline/` | Autonomous story loop | `/pipeline` |
 | `skills/local-pipeline/` | Same, for local CLI / Claude Desktop | `/local-pipeline` |
-| `skills/audit/` | Drift detection, dead code, index sync | `/audit` |
+| `skills/code-audit/` | Code vs policy compliance, drift, dead code | `/code-audit` |
 | `skills/knowledge-audit/` | Policy compliance + test coverage + consistency | `/knowledge-audit` |
 | `skills/apply-knowledge/` | Scan and fix against one knowledge file | `/apply-knowledge` |
 | `skills/optimize/` | Resolve gaps, compress bloated files | `/optimize` |
@@ -56,16 +53,17 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 | Scope | Policies |
 |-------|---------|
-| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary, pipeline-learning |
+| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
 | `data/` | storage-tiers, pii-boundary, schema-fields |
 | `ui/` | styling, typography, motion, accessibility, ux-writing |
 | `state/` | hook-conventions, store-boundaries |
 | `testing/` | test-conventions, test-quality, e2e-testability, drift-detection |
 | `platform/` | native-modules, navigation |
+| `workflow/` | verification, learning, self-review, fix-strategy, bug-fix, story-implementation |
 
 ### Models
 
-form-engine, passport, qr-wallet, submission-guide, stores
+form-engine, passport, qr-wallet, submission-guide, stores, user-journeys
 
 ### Domain
 

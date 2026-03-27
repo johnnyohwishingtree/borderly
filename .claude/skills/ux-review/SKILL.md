@@ -149,18 +149,10 @@ Group findings into actionable themes:
 3. **New features** — New screens or navigation paths needed
 4. **Architecture changes** — Store/service changes to support better flows
 
-## What NOT to Evaluate
+## Guardrails
 
 - Individual screen visual polish (that's `/visual-audit`)
 - Code quality or architecture (that's `/refactor-design`)
 - Test coverage (that's `/test-suite`)
 - Performance (separate concern)
 
-## Running This Skill
-
-1. **Full review**: `/ux-review` — reviews all core user journeys
-2. **Specific flow**: `/ux-review onboarding` — reviews only the onboarding flow
-3. **After visual audit**: Run `/ux-review` to complement per-screen findings with flow-level analysis
-4. **Before epic planning**: `/ux-review` → `/epic-planner` to create issues from findings
-
-After the review, use `/ux-implement` to apply the flow changes.

@@ -36,10 +36,12 @@ __tests__/, src/**/*.test.ts
 - `Animated.loop()` / `Animated.sequence()` return objects without `stop()` in test environment — patch them in `beforeAll` to return `{ start: jest.fn(), stop: jest.fn() }` and restore in `afterAll`
 - `getByLabelText('Loading')` fails when both `ActivityIndicator` and its container have `accessibilityLabel="Loading"` — use `(toJSON() as ReactTestRendererJSON).props.accessibilityLabel` to assert on the root
 - Components that render `Button` need `AccessibilityStateHelpers`, `TouchTargetUtils`, and `HapticFeedback` mocked — mock `@/utils/accessibility` and `./HapticFeedback` with all methods used by Button
+- Existing `.snap` files in the repo — migrate to `toMatchInlineSnapshot()` or replace with explicit assertions when the test is touched
+- `new Date('2024-03-15')` parses as UTC midnight → `getDate()` returns 14 in UTC-7/UTC-8. Parse date-only strings with `new Date(year, month - 1, day)` to avoid timezone shift. Tests pass in UTC cloud but fail locally.
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit
-- `.claude/rules/no-snapshot-files.md` — inline snapshots only
+- DENY rule on `toMatchSnapshot()` enforced by this policy directly
 
 ## References
 - Related: policies/testing/e2e-testability.md

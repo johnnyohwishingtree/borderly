@@ -8,6 +8,12 @@ argument-hint: "<knowledge-file> [--dry-run] [--scope src/components]"
 
 Takes a single `.knowledge/` file, scans the relevant codebase for violations, and fixes them. Unlike `/knowledge-audit` (which audits ALL knowledge but only reports), this skill focuses on ONE knowledge file and actively implements fixes.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
+- Knowledge graph engine available (`scripts/knowledge-graph.ts`)
+- The target `.knowledge/` file exists and has concrete rules
+
 ## Usage
 ```
 /apply-knowledge styling.md                    # Fix styling violations everywhere
@@ -29,25 +35,12 @@ If the file is a **model** (`models/`), read its INVARIANTS — check the code e
 
 ## Step 2: Determine what to scan
 
-For policies: read the **SCOPE** section — it lists the exact directories.
-For models: read the **KEY FILES** section — those are the files to check.
+Read the knowledge file's **SCOPE** section — it lists the exact directories to scan.
+For models, read the **KEY FILES** section.
 
-| Knowledge file | Default scan scope |
-|---|---|
-| `styling.md` | `src/components/`, `src/screens/` |
-| `state-management.md` | `src/hooks/`, `src/screens/` |
-| `dependency-direction.md` | `src/stores/`, `src/services/`, `src/components/`, `src/hooks/` |
-| `e2e-testability.md` | `src/components/`, `maestro/` |
-| `storage.md` | `src/services/`, `src/hooks/` |
-| `native-modules.md` | `ios/`, `e2e/mocks/`, `jest.setup.js` |
-| `testing.md` | `__tests__/` |
-| `form-engine.md` | `src/schemas/`, `src/services/forms/`, `src/components/forms/` |
-| `typography.md` | `src/components/ui/`, `src/screens/` |
-| `motion.md` | `src/components/ui/` |
-| `ux-writing.md` | `src/screens/`, `src/components/` |
-| `accessibility/*` | `src/components/` |
+If `--scope` provided, use that override instead.
 
-Override with `--scope` if provided.
+If the file has no SCOPE section, infer from its content — which directories do its rules apply to?
 
 ## Step 3: Scan for violations
 
@@ -61,10 +54,8 @@ Collect all violations with file path, line number, and the specific rule violat
 
 ## Step 4: Fix violations (if not --dry-run)
 
-For each violation, apply the fix:
-- One file at a time (per `.claude/rules/fix-strategy.md`)
-- Run `pnpm typecheck` after each file to catch breakage
-- If a fix requires judgment (not mechanical), skip and add to gaps.md
+Follow `.knowledge/policies/workflow/fix-strategy.md`.
+If a fix requires judgment (not mechanical), skip and add to gaps.md.
 
 ### Fix patterns by knowledge type:
 
@@ -98,13 +89,11 @@ For each fix, check if a structural test already catches it:
 - If yes → verify the test passes with the fix
 - If no → create or update the structural test in `__tests__/structure/`
 
-Every fix must have a test. See `.claude/rules/knowledge-must-have-tests.md`.
+Every fix must have a test per `.knowledge/policies/architecture/testable-architecture.md`.
 
 ## Step 7: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ## Step 8: Report
 
@@ -115,7 +104,7 @@ Summary of what was done:
 - Violations skipped (needs judgment — added to gaps.md)
 - Tests created/updated
 
-## What NOT to fix
+## Guardrails
 - Design guideline violations (typography, motion, ux-writing) that require subjective judgment — report them but let a human decide
 - Violations in generated files (`maestro/flows/generated/`) — regenerate instead
 - Violations that would break other code — add to gaps.md for a story

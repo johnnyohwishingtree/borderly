@@ -8,6 +8,12 @@ argument-hint: "[target area, e.g. 'services/forms', 'components/trips']"
 
 Find untested code, write missing tests, and fix any bugs the new tests reveal.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` passes)
+- `pnpm test` runs (may have failures — that's what we're fixing)
+- Jest and RNTL available in dev dependencies
+
 ## Usage
 ```
 /test-suite                        # Audit entire test suite
@@ -49,23 +55,20 @@ Check for:
 Follow these conventions:
 - Use Jest + React Native Testing Library
 - Use RNTL accessibility queries in priority order: `getByRole` > `getByLabelText` > `getByTestId`
-- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (no `.snap` files)
+- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per `.knowledge/policies/testing/test-conventions.md`)
 - Mock native modules in `jest.setup.js` — don't add new mocks unless necessary
 - Tests must run in under 1 second each
 - Use `renderHook` from `@testing-library/react-hooks` for hook tests
 
 **For each new test file:**
-1. Write the tests
+1. Write the tests following `.knowledge/policies/testing/test-quality.md` (Tier 1-2 tests only)
 2. Run `pnpm typecheck` to verify imports
 3. Run the specific test: `pnpm test -- <test-file-path>`
-4. Fix any bugs the test reveals (TDD — see `.claude/rules/bug-fix-workflow.md`)
+4. Fix any bugs the test reveals — follow `.knowledge/policies/workflow/bug-fix.md`
 
 ### Step 4: Verify
 
-Run the full suite:
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 Re-run coverage to confirm improvement:
 ```bash
@@ -79,3 +82,8 @@ Report what was added:
 - Coverage before/after
 - Bugs found and fixed by new tests
 - Remaining gaps (if any) with rationale for skipping
+
+## Guardrails
+
+- Don't write tests that only assert `toBeDefined()`
+- Follow test-quality policy for Tier 1-2 tests only

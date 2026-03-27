@@ -29,18 +29,7 @@ Before making changes, read the current screenshots from `src/screens/<domain>/<
 
 #### Bug Fixes (TDD Required)
 
-Findings that involve broken behavior — screens not rendering, incorrect data displayed, loading states that never resolve, missing UI elements that should exist — are **bugs**, not styling issues. Follow the project's TDD bug-fix workflow (`.claude/rules/bug-fix-workflow.md`):
-
-1. **Read the relevant source code** to understand the root cause
-2. **Write a failing test** that reproduces the exact bug (must fail before the fix)
-3. **Fix the code** so the test passes
-4. **Run the test suite** to verify no regressions
-
-| Bug location | Test tool | Test file |
-|-------------|-----------|-----------|
-| App code (`src/`) | Jest | `__tests__/<matching-path>.test.ts` |
-| E2E rendering issues | Playwright | `e2e/tests/<relevant>.spec.ts` |
-| Components (`src/components/`) | Jest + RNTL | `__tests__/components/<matching-path>.test.tsx` |
+Findings that involve broken behavior are **bugs**, not styling issues. Follow `.knowledge/policies/workflow/bug-fix.md`.
 
 #### Styling Fixes (No Test Required)
 
@@ -61,16 +50,11 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 1. Read the screen source file
 2. Identify the exact code to modify
 3. Apply the fix (with TDD for bugs, directly for styling)
-4. Run `pnpm typecheck` after each file to catch errors immediately
+4. Follow `.knowledge/policies/workflow/fix-strategy.md`
 
 ### Step 4: Verify
 
-Run all checks:
-```bash
-pnpm typecheck    # Must pass
-pnpm test         # Must pass
-pnpm lint         # No new errors
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
 ### Step 5: Re-Capture Screenshots
 
@@ -97,30 +81,10 @@ E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=s
 
 The screenshot capture test automatically writes per-screen `manifest.json` files in each `__screenshots__/` folder. Verify they reflect the current state.
 
-## What NOT to Do
+## Guardrails
 
 - **Don't skip tests for bugs** — if a screen doesn't render, data is wrong, or behavior is broken, write a test first
 - **Don't add new dependencies** without checking `src/components/ui/` first
 - **Don't refactor unrelated code** — stay focused on the audit findings
 - **Don't skip the re-capture step** — the before/after comparison is the proof
 
-## Example Workflow
-
-```
-User: /visual-audit
-→ Report: "Settings screen shows Loading forever (bug), Profile has low-contrast text (styling)"
-
-User: /visual-implement
-→ Reads before screenshots
-→ BUG: SettingsScreen loading — writes failing test, finds async init never resolves in web, fixes it, test passes
-→ STYLING: ProfileScreen text contrast — changes text-gray-400 → text-gray-600
-→ Runs typecheck + tests (including new test)
-→ Re-captures screenshots
-→ Shows before/after comparison
-```
-
-## Running This Skill
-
-1. **After a visual audit**: `/visual-implement` — applies all findings from the audit
-2. **Specific screens**: `/visual-implement` then say "fix the Settings screen spacing"
-3. **With a report**: Paste audit findings, then `/visual-implement`

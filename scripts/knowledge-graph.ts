@@ -1,13 +1,13 @@
 #!/usr/bin/env npx tsx
 /**
- * Knowledge Graph — treats .knowledge/ as a graph database.
+ * Knowledge Graph — treats .knowledge/, .claude/skills/, and .claude/rules/ as a graph database.
  *
- * Nodes: every .md file in .knowledge/ and every folder CLAUDE.md
+ * Nodes: .knowledge/ files, folder CLAUDE.md files, skills, rules
  * Edges: typed relationships (REFERENCES, ENFORCED_BY, SCOPES, etc.)
  *
  * Supports queries like:
  *   npx tsx scripts/knowledge-graph.ts orphans        # nodes with no incoming edges
- *   npx tsx scripts/knowledge-graph.ts unreferenced   # policies no CLAUDE.md points to
+ *   npx tsx scripts/knowledge-graph.ts unreferenced   # policies no CLAUDE.md or skill points to
  *   npx tsx scripts/knowledge-graph.ts unenforced     # policies with no structural test
  *   npx tsx scripts/knowledge-graph.ts impact <file>  # what's affected if this file changes
  *   npx tsx scripts/knowledge-graph.ts deps <file>    # what this file depends on
@@ -20,10 +20,12 @@ import { resolve, join, relative } from 'path';
 
 const ROOT = resolve(__dirname, '..');
 const KNOWLEDGE_DIR = resolve(ROOT, '.knowledge');
+const SKILLS_DIR = resolve(ROOT, '.claude/skills');
+const RULES_DIR = resolve(ROOT, '.claude/rules');
 
 // ── Node types (labels in graph DB terms) ──
 
-type NodeType = 'policy' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational';
+type NodeType = 'policy' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational' | 'skill' | 'rule';
 
 interface Node {
   id: string;           // relative path from .knowledge/ or project root
@@ -41,7 +43,8 @@ type EdgeType =
   | 'ENFORCED_BY'    // policy is enforced by a structural test
   | 'SCOPES'         // policy governs a directory
   | 'MATCHES'        // template matches a rubric
-  | 'FOLLOWS'        // pattern references a policy
+  | 'FOLLOWS'        // skill/rule references a policy
+  | 'INVOKES'        // skill references another skill
   | 'EVALUATED_BY';  // template evaluated by rubric
 
 interface Edge {
@@ -114,14 +117,12 @@ function buildGraph(): { nodes: Node[]; edges: Edge[] } {
       const folderPath = relative(ROOT, dir);
       const folderId = `folder:${folderPath}`;
 
-      // Add folder as a node
       nodes.push({
         id: folderId,
         type: 'folder-claude',
         name: folderPath,
       });
 
-      // Add See: edges
       const seeRefs = content.matchAll(/See:\s*\.knowledge\/([^\s]+)/g);
       for (const ref of seeRefs) {
         edges.push({ from: folderId, to: ref[1], type: 'REFERENCED_BY' });
@@ -138,6 +139,70 @@ function buildGraph(): { nodes: Node[]; edges: Edge[] } {
   for (const d of ['src', 'e2e', '__tests__', 'maestro']) {
     const dir = resolve(ROOT, d);
     if (existsSync(dir)) walkSource(dir);
+  }
+
+  // Collect skills as nodes
+  if (existsSync(SKILLS_DIR)) {
+    for (const entry of readdirSync(SKILLS_DIR)) {
+      const skillDir = join(SKILLS_DIR, entry);
+      const skillFile = join(skillDir, 'SKILL.md');
+      if (!statSync(skillDir).isDirectory() || !existsSync(skillFile)) continue;
+
+      const skillId = `skill:${entry}`;
+      nodes.push({
+        id: skillId,
+        type: 'skill',
+        name: entry,
+      });
+
+      const content = readFileSync(skillFile, 'utf-8');
+
+      // Skill → knowledge policy references (FOLLOWS)
+      const knowledgeRefs = content.matchAll(/\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
+      for (const ref of knowledgeRefs) {
+        edges.push({ from: skillId, to: ref[1], type: 'FOLLOWS' });
+      }
+
+      // Skill → rule references (FOLLOWS)
+      const ruleRefs = content.matchAll(/\.claude\/rules\/([a-zA-Z0-9/_.-]+\.md)/g);
+      for (const ref of ruleRefs) {
+        edges.push({ from: skillId, to: `rule:${ref[1]}`, type: 'FOLLOWS' });
+      }
+
+      // Skill → skill references (INVOKES)
+      const skillRefs = content.matchAll(/`\/([a-z][-a-z]+)`|skills\/([a-z][-a-z]+)\//g);
+      for (const ref of skillRefs) {
+        const targetSkill = ref[1] || ref[2];
+        if (targetSkill && targetSkill !== entry) {
+          const targetId = `skill:${targetSkill}`;
+          // Only add if it's a real skill directory
+          if (existsSync(join(SKILLS_DIR, targetSkill))) {
+            edges.push({ from: skillId, to: targetId, type: 'INVOKES' });
+          }
+        }
+      }
+    }
+  }
+
+  // Collect rules as nodes
+  if (existsSync(RULES_DIR)) {
+    for (const entry of readdirSync(RULES_DIR)) {
+      if (!entry.endsWith('.md')) continue;
+      const ruleId = `rule:${entry}`;
+      nodes.push({
+        id: ruleId,
+        type: 'rule',
+        name: entry.replace('.md', ''),
+      });
+
+      const content = readFileSync(join(RULES_DIR, entry), 'utf-8');
+
+      // Rule → knowledge policy references (FOLLOWS)
+      const knowledgeRefs = content.matchAll(/\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
+      for (const ref of knowledgeRefs) {
+        edges.push({ from: ruleId, to: ref[1], type: 'FOLLOWS' });
+      }
+    }
   }
 
   // Add enforcement edges for policies
@@ -177,17 +242,19 @@ function queryOrphans(nodes: Node[], edges: Edge[]): Node[] {
     n.type !== 'template' &&
     n.type !== 'pattern' &&
     n.type !== 'rubric' &&
+    n.type !== 'skill' &&
+    n.type !== 'rule' &&
     !hasIncoming.has(n.id)
   );
 }
 
 function queryUnreferenced(nodes: Node[], edges: Edge[]): Node[] {
-  const referencedByFolder = new Set(
-    edges.filter(e => e.type === 'REFERENCED_BY').map(e => e.to)
+  const referencedByAnything = new Set(
+    edges.filter(e => e.type === 'REFERENCED_BY' || e.type === 'FOLLOWS').map(e => e.to)
   );
   return nodes.filter(n =>
     (n.type === 'policy' || n.type === 'model') &&
-    !referencedByFolder.has(n.id)
+    !referencedByAnything.has(n.id)
   );
 }
 
@@ -196,7 +263,6 @@ function queryUnenforced(nodes: Node[]): Node[] {
 }
 
 function queryImpact(nodeId: string, nodes: Node[], edges: Edge[]): string[] {
-  // What other nodes reference this one? (reverse edges)
   const affected = new Set<string>();
   const queue = [nodeId];
 
@@ -230,7 +296,6 @@ function queryStats(nodes: Node[], edges: Edge[]) {
 function visualize(nodes: Node[], edges: Edge[]): string {
   const lines: string[] = ['digraph KnowledgeGraph {', '  rankdir=LR;', '  node [shape=box, style=rounded];', ''];
 
-  // Color by type
   const colors: Record<string, string> = {
     policy: '#FF6B6B',
     model: '#4ECDC4',
@@ -240,10 +305,12 @@ function visualize(nodes: Node[], edges: Edge[]): string {
     'folder-claude': '#EAEAEA',
     country: '#DFE6E9',
     operational: '#FFEAA7',
+    skill: '#A29BFE',
+    rule: '#FD79A8',
   };
 
   for (const node of nodes) {
-    if (node.type === 'folder-claude') continue; // skip for readability
+    if (node.type === 'folder-claude') continue;
     const color = colors[node.type] || '#FFFFFF';
     const label = node.name.length > 25 ? node.name.slice(0, 22) + '...' : node.name;
     lines.push(`  "${node.id}" [label="${label}", fillcolor="${color}", style="filled,rounded"];`);
@@ -253,7 +320,7 @@ function visualize(nodes: Node[], edges: Edge[]): string {
 
   for (const edge of edges) {
     if (edge.from.startsWith('folder:') || edge.to.startsWith('scope:') || edge.to.startsWith('test:')) continue;
-    const style = edge.type === 'ENFORCED_BY' ? 'dashed' : 'solid';
+    const style = edge.type === 'ENFORCED_BY' ? 'dashed' : edge.type === 'INVOKES' ? 'bold' : 'solid';
     lines.push(`  "${edge.from}" -> "${edge.to}" [label="${edge.type}", style=${style}];`);
   }
 
@@ -276,7 +343,7 @@ switch (command) {
   }
   case 'unreferenced': {
     const unref = queryUnreferenced(nodes, edges);
-    if (unref.length === 0) console.log('All policies/models referenced by folder CLAUDE.md.');
+    if (unref.length === 0) console.log('All policies/models referenced by a CLAUDE.md or skill.');
     else unref.forEach(u => console.log(`  ${u.type}: ${u.id}`));
     break;
   }

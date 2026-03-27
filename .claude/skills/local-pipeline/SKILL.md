@@ -14,9 +14,13 @@ Read CLAUDE.md for project context.
 Read .claude/skills/local-pipeline/SKILL.md and follow every step.
 ```
 
-## Step 0: Set up worktree
+## Prerequisites
 
-Create an isolated worktree so the user's working directory is untouched:
+- `gh` CLI authenticated with repo access
+- Git worktree support available
+- `pnpm` installed globally
+
+## Step 0: Set up worktree
 
 ```bash
 REPO="johnnyohwishingtree/borderly"  # CUSTOMIZE
@@ -50,7 +54,7 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 8**.
 
-**Important:** Only pick up stories labeled `pending`. Never pick up `in-progress` stories.
+Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules.
 
 ## Step 3: Implement
 
@@ -60,46 +64,26 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git checkout -b story/issue-$NUMBER
 ```
 
-Read the story body. Implementation order:
-1. Read the **Knowledge** section
-2. Read the **Tasks** section
-3. Read the **Context** section
-4. Implement each task following the referenced `.knowledge/` file
+Follow `.knowledge/policies/workflow/story-implementation.md`.
 
-## Step 4: Verify (up to 6 attempts)
+When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
+When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
-```
+## Step 4: Verify
 
-**If you changed screen UI:** Follow `.knowledge/policies/testing/e2e-testability.md`.
-
-If checks fail → fix → rerun. Up to 6 attempts.
+Follow `.knowledge/policies/workflow/verification.md`.
 
 If still failing after 6 → push WIP branch, create draft PR, reset to `pending`, skip to cleanup.
 
-**Failure discipline:**
-- Don't retry the same fix
-- Fix or log pre-existing failures
-- Run verification foreground — no background processes
-- If you created a test, run it individually first
+## Step 5: Learn
 
-## Step 5: Learn — update the knowledge graph
-
-**Mandatory.** See `.knowledge/policies/architecture/pipeline-learning.md`. PRs with 5+ files MUST include knowledge updates.
-
-1. **Anti-patterns learned?** → Add to the relevant policy's Anti-patterns section
-2. **New constraint?** → Create `.knowledge/policies/<scope>/<name>.md` + structural test
-3. **New business entity/architecture?** → Create/update `.knowledge/models/<name>.md`
-4. **Testing patterns?** → Add workarounds to `policies/testing/test-conventions.md`
-5. **Directory-specific?** → Create folder CLAUDE.md with `See:` links
-6. **Stale knowledge?** → Update the file or add to `gaps.md`
+**Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
 
 Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsider.
 
-## Step 6: Self-review against rubrics
+## Step 6: Self-review
 
-Review diff against `.knowledge/rubrics/`. Fix issues, re-verify.
+Follow `.knowledge/policies/workflow/self-review.md`.
 
 ## Step 7: Push, PR, merge
 
@@ -150,3 +134,8 @@ git worktree prune
 ## Step 10: Report
 
 Print summary: what was implemented, branch name, tests added, knowledge updated, worktree cleaned up.
+
+## Guardrails
+
+- Always clean up worktree, even if steps fail
+- Only pick up `pending` stories — never `in-progress`

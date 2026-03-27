@@ -8,6 +8,12 @@ argument-hint: "[--scope path/] [--dry-run] [--tier 3-4]"
 
 Scores existing tests against `.knowledge/policies/testing/test-quality.md`, identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm typecheck` passes)
+- `pnpm test` runs (results inform the audit)
+- Test quality policy available at `.knowledge/policies/testing/test-quality.md`
+
 ## Usage
 ```
 /test-audit                          # Audit all tests
@@ -94,11 +100,9 @@ Summary table:
 
 ## Step 5: Verify
 
-```bash
-pnpm lint && pnpm typecheck && pnpm test
-```
+Follow `.knowledge/policies/workflow/verification.md`.
 
-Test count may go DOWN — that's fine if quality went up. Track:
+Test count may go DOWN — that's expected if quality went up. Track:
 - Tests before / after
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after
@@ -110,7 +114,7 @@ If patterns were found during the audit:
 - Add new anti-patterns to `policies/testing/test-conventions.md`
 - Update `gaps.md` with test files that need human judgment
 
-## What NOT to delete
+## Guardrails
 - Bug regression tests (even if simple — they prevent specific bugs)
 - Structural tests in `__tests__/structure/` (they enforce policies)
 - Tests for security-critical code (PII, keychain, encryption)

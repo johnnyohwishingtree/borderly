@@ -67,39 +67,19 @@ Follow the project's standard patterns for each type of change:
 
 #### Onboarding Flow Changes
 
-The onboarding stack is in `src/app/navigation/RootNavigator.tsx`:
-```
-Welcome → Tutorial → PassportScan → ConfirmProfile → BiometricSetup
-```
-
-To add a screen to onboarding:
-1. Create the screen in `src/screens/onboarding/`
-2. Add to `OnboardingStackParamList` in `types.ts`
-3. Add a lazy import and `<OnboardingStack.Screen>` entry in `RootNavigator.tsx`
-4. Update the screen that navigates TO and FROM the new screen
-5. Export from `src/screens/onboarding/index.ts`
+Follow `.knowledge/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 
-If a finding involves broken behavior (not just flow restructuring), follow the TDD workflow:
-
-1. Write a failing test that reproduces the issue
-2. Fix the code so the test passes
-3. Run the test suite to verify no regressions
+If a finding involves broken behavior, follow `.knowledge/policies/workflow/bug-fix.md`.
 
 Pure flow additions (new screens, navigation wiring) don't need pre-existing failing tests, but DO need new tests added.
 
 ### Step 4: Verify
 
-Run all checks after implementation:
+Follow `.knowledge/policies/workflow/verification.md`.
 
-```bash
-pnpm typecheck    # Must pass
-pnpm test         # Must pass
-pnpm lint         # No new errors
-```
-
-If screens were added or modified:
+If screens were added or modified, also run:
 ```bash
 pnpm e2e          # E2E tests must pass
 ```
@@ -146,7 +126,7 @@ Present what was implemented:
 - **State** in Zustand stores — one store per domain
 - **Sensitive data** (passport) stays in OS Keychain — never in MMKV or WatermelonDB directly
 
-## What NOT to Do
+## Guardrails
 
 - **Don't change visual styling** unless it's part of a flow change — that's `/visual-implement`
 - **Don't refactor architecture** — that's `/refactor-design`
@@ -154,9 +134,3 @@ Present what was implemented:
 - **Don't break existing navigation** — verify back button and deep links still work
 - **Don't add features beyond the finding** — implement exactly what the review identified
 
-## Running This Skill
-
-1. **After a UX review**: `/ux-implement` — applies findings from the review
-2. **Specific finding**: `/ux-implement` then say "implement the family onboarding flow"
-3. **With a report**: Paste UX review findings, then `/ux-implement`
-4. **Plan first**: `/ux-review` → `/epic-planner` → implement stories individually
