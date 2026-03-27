@@ -8,7 +8,7 @@
 // ── Actions that can be taken at each step ──
 
 export type Action =
-  | { type: 'tap'; testID: string }
+  | { type: 'tap'; testID: string; scroll?: boolean }
   | { type: 'tapText'; text: string }
   | { type: 'fill'; testID: string; value: string }
   | { type: 'inputText'; text: string }

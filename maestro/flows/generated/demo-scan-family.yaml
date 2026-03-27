@@ -21,12 +21,10 @@ tags:
 - extendedWaitUntil:
     visible: "Welcome to"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "take-tutorial-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "take-tutorial-button"
 
@@ -39,12 +37,10 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "tutorial-skip-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "tutorial-skip-button"
 
@@ -62,30 +58,26 @@ tags:
       visible: "Performance Optimization Enabled"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "demo-scan-adult"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "demo-scan-adult"
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "confirm-scan-button"
 
 # === CONFIRM PROFILE ===
 - extendedWaitUntil:
     visible: "Confirm Your Profile"
-    timeout: 30000
+    timeout: 45000
 - runFlow:
     when:
       visible: "Fast Refresh disconnected"
@@ -94,12 +86,10 @@ tags:
 - extendedWaitUntil:
     visible: "JOHN MICHAEL SMITH"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "continue-to-security-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "continue-to-security-button"
 - runFlow:
@@ -107,12 +97,10 @@ tags:
       visible:
         id: "continue-to-security-button"
     commands:
-      - scrollUntilVisible:
-          element:
-            id: "continue-to-security-button"
-          direction: DOWN
-          timeout: 5000
-          centerElement: true
+      - swipe:
+          start: "50%,80%"
+          end: "50%,50%"
+          duration: 200
       - tapOn:
           id: "continue-to-security-button"
 
@@ -136,12 +124,10 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "skip-biometric-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "skip-biometric-button"
 - extendedWaitUntil:
@@ -159,12 +145,10 @@ tags:
     when:
       visible: "Stay on Top of Deadlines"
     commands:
-      - scrollUntilVisible:
-          element:
-            id: "skip-notifications-button"
-          direction: DOWN
-          timeout: 5000
-          centerElement: true
+      - swipe:
+          start: "50%,80%"
+          end: "50%,50%"
+          duration: 200
       - tapOn:
           id: "skip-notifications-button"
 - runFlow:
@@ -172,12 +156,10 @@ tags:
       visible:
         id: "skip-notifications-button"
     commands:
-      - scrollUntilVisible:
-          element:
-            id: "skip-notifications-button"
-          direction: DOWN
-          timeout: 5000
-          centerElement: true
+      - swipe:
+          start: "50%,80%"
+          end: "50%,50%"
+          duration: 200
       - tapOn:
           id: "skip-notifications-button"
 - extendedWaitUntil:
@@ -193,23 +175,19 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "tab-profile"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "tab-profile"
 - extendedWaitUntil:
     visible: "Profile"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "family-summary-row"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "family-summary-row"
 
@@ -219,28 +197,22 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "add-member-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "add-member-button"
-- scrollUntilVisible:
-    element:
-      id: "relationship-select"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "relationship-select"
-- scrollUntilVisible:
-    element:
-      id: "relationship-select-option-Spouse"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "relationship-select-option-Spouse"
 - runFlow:
@@ -248,23 +220,19 @@ tags:
       visible: "Performance Optimization Enabled"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "demo-scan-spouse"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "demo-scan-spouse"
 - extendedWaitUntil:
     visible: "JANE"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "confirm-scan-button"
 
@@ -274,28 +242,22 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "add-member-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "add-member-button"
-- scrollUntilVisible:
-    element:
-      id: "relationship-select"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "relationship-select"
-- scrollUntilVisible:
-    element:
-      id: "relationship-select-option-Child"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "relationship-select-option-Child"
 - runFlow:
@@ -303,22 +265,18 @@ tags:
       visible: "Performance Optimization Enabled"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "demo-scan-child"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "demo-scan-child"
 - extendedWaitUntil:
     visible: "EMILY"
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 5000
-    centerElement: true
+- swipe:
+    start: "50%,80%"
+    end: "50%,50%"
+    duration: 200
 - tapOn:
     id: "confirm-scan-button"

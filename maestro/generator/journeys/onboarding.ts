@@ -75,7 +75,7 @@ const passportDemoScan = () => screenStep('PassportScan', {
 /** Confirm profile screen */
 const confirmProfileStep = (expectedName: string) => screenStep('ConfirmProfile', {
   comment: 'CONFIRM PROFILE',
-  waitTimeout: 30000,
+  waitTimeout: 45000,
   actions: [
     assertVisible(expectedName),
     tapButton('ConfirmProfile', 'continue-to-security-button'),

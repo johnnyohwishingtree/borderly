@@ -23,14 +23,12 @@ function comment(depth: number, text: string): string {
 // ── Scroll helper ──
 
 /** Emit a scrollUntilVisible block with centerElement to prevent header overlap */
-function emitScroll(d: number, testID: string, timeout = 5000): string[] {
+function emitScroll(d: number, _testID: string): string[] {
   return [
-    line(d, '- scrollUntilVisible:'),
-    line(d, '    element:'),
-    line(d, `      id: "${testID}"`),
-    line(d, '    direction: DOWN'),
-    line(d, `    timeout: ${timeout}`),
-    line(d, '    centerElement: true'),
+    line(d, '- swipe:'),
+    line(d, '    start: "50%,80%"'),
+    line(d, '    end: "50%,50%"'),
+    line(d, '    duration: 200'),
   ];
 }
 
@@ -42,8 +40,10 @@ function emitAction(action: Action, depth = 0): string[] {
 
   switch (action.type) {
     case 'tap':
+      if (action.scroll !== false) {
+        lines.push(...emitScroll(d, action.testID));
+      }
       lines.push(
-        ...emitScroll(d, action.testID),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
       );

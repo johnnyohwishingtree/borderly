@@ -17,5 +17,10 @@ export const APP_GROUP_IDENTIFIER = 'group.com.borderly.shared';
 /** Shared Keychain access group for cross-target Keychain access */
 export const SHARED_KEYCHAIN_ACCESS_GROUP = 'com.borderly.shared-keychain';
 
+/** Whether to use the shared access group.
+ * On simulator without provisioning profile, access groups cause
+ * "required entitlement isn't present" errors. Skip in __DEV__. */
+export const USE_SHARED_ACCESS_GROUP = !__DEV__;
+
 /** Keychain service identifier (used as the `service` param in react-native-keychain) */
 export const KEYCHAIN_SERVICE = 'borderly';

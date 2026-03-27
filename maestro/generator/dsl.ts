@@ -8,7 +8,7 @@ import type { Action, Journey, JourneyStep } from './types';
 
 // ── Action builders ──
 
-export const tap = (testID: string): Action => ({ type: 'tap', testID });
+export const tap = (testID: string, opts?: { scroll?: boolean }): Action => ({ type: 'tap', testID, scroll: opts?.scroll });
 export const tapText = (text: string): Action => ({ type: 'tapText', text });
 
 export const fill = (testID: string, value: string): Action => ({
