@@ -31,4 +31,4 @@ All skills that discover or fix bugs.
 - Testing the symptom instead of the root cause
 
 ## Enforcement
-- `.claude/rules/bug-fix-workflow.md` (auto-loaded — thin pointer to this policy)
+- Skills reference this policy when bugs are discovered

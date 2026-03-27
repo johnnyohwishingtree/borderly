@@ -4,17 +4,14 @@ Read this first. Maps every artifact in the system. See `ENGINE-TYPES.md` for fo
 
 ## .claude/ (read-only — human edits only)
 
-### Rules (auto-loaded every session)
+### Rules (auto-loaded every session — keep minimal)
 
 | File | Constraint |
 |------|-----------|
-| `rules/bug-fix-workflow.md` | Write a failing test before fixing any bug |
 | `rules/commit-gate.md` | Run lint + typecheck + tests before every commit |
-| `rules/file-size-limits.md` | Keep source files under 500 lines |
-| `rules/fix-strategy.md` | Fix one file at a time; re-check after each fix |
-| `rules/no-snapshot-files.md` | Use inline snapshots, not .snap files |
 | `rules/output-location.md` | All output must be inside the project root |
-| `rules/knowledge-must-have-tests.md` | Every testable policy needs a structural test |
+
+Other rules migrated to policies (loaded on-demand by skills, not every session).
 
 ### Skills
 

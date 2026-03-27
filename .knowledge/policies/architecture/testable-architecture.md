@@ -37,4 +37,4 @@ Ask: "Can I write a test in `__tests__/structure/` that catches violations in un
 
 ## Enforcement
 - `__tests__/structure/knowledge-test-coverage.test.ts` — meta-test
-- `.claude/rules/knowledge-must-have-tests.md` — auto-loaded rule
+- Skills reference this policy when creating new policies

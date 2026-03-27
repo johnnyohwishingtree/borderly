@@ -34,4 +34,4 @@ All skills that modify source code to fix violations, bugs, or refactors.
 - Moving on before confirming the fix didn't introduce new errors
 
 ## Enforcement
-- `.claude/rules/fix-strategy.md` (auto-loaded — thin pointer to this policy)
+- Skills reference this policy when modifying code

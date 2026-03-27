@@ -25,4 +25,4 @@ src/**/*.ts, src/**/*.tsx
 ## Enforcement
 - `__tests__/structure/hooks-barrel.test.ts` — barrel completeness + naming
 - `__tests__/structure/screen-folder-convention.test.ts` — screen naming
-- `.claude/rules/file-size-limits.md` — 500-line rule (auto-loaded)
+- Skills reference this policy directly when splitting files

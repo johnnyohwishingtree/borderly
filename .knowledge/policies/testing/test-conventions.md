@@ -39,7 +39,7 @@ __tests__/, src/**/*.test.ts
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit
-- `.claude/rules/no-snapshot-files.md` — inline snapshots only
+- DENY rule on `toMatchSnapshot()` enforced by this policy directly
 
 ## References
 - Related: policies/testing/e2e-testability.md

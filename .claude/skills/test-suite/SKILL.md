@@ -49,7 +49,7 @@ Check for:
 Follow these conventions:
 - Use Jest + React Native Testing Library
 - Use RNTL accessibility queries in priority order: `getByRole` > `getByLabelText` > `getByTestId`
-- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per `.claude/rules/no-snapshot-files.md`)
+- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per `.knowledge/policies/testing/test-conventions.md`)
 - Mock native modules in `jest.setup.js` — don't add new mocks unless necessary
 - Tests must run in under 1 second each
 - Use `renderHook` from `@testing-library/react-hooks` for hook tests
