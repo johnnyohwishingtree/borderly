@@ -3,7 +3,7 @@
  * Covers: PullToRefreshScrollView rendering, children, props.
  */
 import { render } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
 import { PullToRefreshScrollView } from '../../../src/components/ui/PullToRefresh';
 
 describe('PullToRefreshScrollView', () => {
@@ -16,22 +16,26 @@ describe('PullToRefreshScrollView', () => {
     getByText('Content');
   });
 
-  it('renders with refreshing true without crashing', () => {
-    const { getByText } = render(
+  it('passes refreshing state to the scroll view refresh control', () => {
+    const { UNSAFE_getByType } = render(
       <PullToRefreshScrollView refreshing={true} onRefresh={jest.fn()}>
         <Text>Refreshing content</Text>
       </PullToRefreshScrollView>,
     );
-    getByText('Refreshing content');
+    const scrollView = UNSAFE_getByType(ScrollView);
+    expect(scrollView.props.refreshControl.props.refreshing).toBe(true);
   });
 
-  it('renders without crashing when hapticFeedback is disabled', () => {
-    const { getByText } = render(
-      <PullToRefreshScrollView refreshing={false} onRefresh={jest.fn()} hapticFeedback={false}>
+  it('invokes onRefresh callback when hapticFeedback is disabled', () => {
+    const onRefresh = jest.fn();
+    const { UNSAFE_getByType } = render(
+      <PullToRefreshScrollView refreshing={false} onRefresh={onRefresh} hapticFeedback={false}>
         <Text>No haptic</Text>
       </PullToRefreshScrollView>,
     );
-    getByText('No haptic');
+    const scrollView = UNSAFE_getByType(ScrollView);
+    scrollView.props.refreshControl.props.onRefresh();
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
   it('accepts custom tintColor', () => {

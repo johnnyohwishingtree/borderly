@@ -26,11 +26,14 @@ function findTrigger(utils: ReturnType<typeof render>) {
 }
 
 describe('Select', () => {
-  it('renders without crashing', () => {
+  it('shows "No selection" in accessibility label when no value is selected', () => {
     const utils = render(
       <Select options={options} onValueChange={jest.fn()} />,
     );
-    expect(findTrigger(utils)).not.toBeUndefined();
+    const trigger = findTrigger(utils)!;
+    expect(trigger.props.accessibilityLabel).toContain('No selection');
+    expect(trigger.props.accessibilityLabel).toContain('Collapsed');
+    expect(trigger.props.accessibilityState?.expanded).toBe(false);
   });
 
   it('renders label text when provided', () => {

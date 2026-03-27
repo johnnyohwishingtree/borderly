@@ -46,12 +46,6 @@ const mockParsedPass = {
   destinationCountry: 'DEU',
 };
 
-const mockParseError = {
-  code: 'PARSE_ERROR',
-  message: 'Failed to parse boarding pass',
-  originalData: 'invalid_data',
-};
-
 describe('BoardingPassScanner Component', () => {
   const mockProps = {
     onScanSuccess: jest.fn(),
@@ -73,8 +67,10 @@ describe('BoardingPassScanner Component', () => {
     jest.useRealTimers();
   });
 
-  it('renders without crashing', () => {
-    render(<BoardingPassScanner {...mockProps} />);
+  it('shows cancel and manual entry buttons when camera is ready', () => {
+    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
+    getByText('Cancel');
+    getByText('Manual');
   });
 
   it('renders camera scanning UI when camera initializes immediately', () => {
@@ -156,17 +152,10 @@ describe('BoardingPassScanner Component', () => {
     expect(mockProps.onScanSuccess).not.toHaveBeenCalled();
   });
 
-  it('handles parse error gracefully', () => {
-    // Mock parse error
-    const { parseBoardingPass } = require('../../../src/services/boarding/boardingPassParser');
-    parseBoardingPass.mockReturnValue(mockParseError);
-
-    render(<BoardingPassScanner {...mockProps} />);
-    // Error handling is internal to component, verified that it doesn't crash
-  });
-
-  it('supports low power mode', () => {
-    render(<BoardingPassScanner {...mockProps} lowPowerMode />);
+  it('renders scanning guidance in low power mode', () => {
+    const { getByText } = render(<BoardingPassScanner {...mockProps} lowPowerMode />);
+    getByText('Scan the barcode on your boarding pass');
+    getByText('Cancel');
   });
 
   it('starts demo scan when camera unavailable and demo button pressed', async () => {
@@ -234,9 +223,9 @@ describe('BoardingPassScanner Component', () => {
     }
   });
 
-  it('shows confidence indicator when scanning', () => {
-    render(<BoardingPassScanner {...mockProps} />);
-    // Confidence indicator display is tested through render without crash
+  it('displays guidance text when scanning is active', () => {
+    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
+    getByText('Position boarding pass barcode in frame');
   });
 
   it('displays correct guidance messages', () => {

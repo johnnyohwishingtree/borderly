@@ -84,8 +84,10 @@ describe('MRZScanner Component', () => {
     jest.useRealTimers();
   });
 
-  it('renders without crashing', () => {
-    render(<MRZScanner {...mockProps} />);
+  it('shows cancel and manual entry buttons when camera is ready', () => {
+    const { getByText } = render(<MRZScanner {...mockProps} />);
+    getByText('Cancel');
+    getByText('Manual');
   });
 
   it('renders camera scanning UI when camera initializes immediately', () => {

@@ -6,9 +6,13 @@ import { render } from '@testing-library/react-native';
 import ProgressBar from '../../../src/components/ui/ProgressBar';
 
 describe('ProgressBar', () => {
-  it('renders without crashing', () => {
+  it('displays progress fill width matching the progress value', () => {
     const { getByLabelText } = render(<ProgressBar progress={50} />);
-    getByLabelText(/50.*percent/i);
+    const bar = getByLabelText(/50.*percent/i);
+    expect(bar.props.accessibilityRole).toBe('progressbar');
+    expect(bar.props.accessibilityValue?.now).toBe(50);
+    expect(bar.props.accessibilityValue?.min).toBe(0);
+    expect(bar.props.accessibilityValue?.max).toBe(100);
   });
 
   it('has correct accessibility value for 0%', () => {
