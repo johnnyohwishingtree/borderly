@@ -32,9 +32,9 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 
 ### Step 2: Define Test Plan
 
-List every user-facing flow to test. If user specified a flow, focus on that. Otherwise test all.
+Read `.knowledge/models/user-journeys.md` for the core user flows and what to verify for each.
 
-Read `maestro/generator/screenRegistry.ts` for the current screen inventory. Group screens by domain to define test flows. For each flow, identify key screens and what to verify (data persistence, form validation, navigation correctness, edge cases).
+If user specified a flow, focus on that. Otherwise test all journeys listed in the model.
 
 ### Step 3: Walk Through Each Flow
 
