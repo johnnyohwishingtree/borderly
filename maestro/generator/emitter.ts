@@ -23,12 +23,15 @@ function comment(depth: number, text: string): string {
 // ── Scroll helper ──
 
 /** Emit a scrollUntilVisible block with centerElement to prevent header overlap */
-function emitScroll(d: number, _testID: string): string[] {
+function emitScroll(d: number, testID: string): string[] {
   return [
-    line(d, '- swipe:'),
-    line(d, '    start: "50%,80%"'),
-    line(d, '    end: "50%,50%"'),
-    line(d, '    duration: 200'),
+    line(d, '- scrollUntilVisible:'),
+    line(d, '    element:'),
+    line(d, `      id: "${testID}"`),
+    line(d, '    direction: DOWN'),
+    line(d, '    timeout: 15000'),
+    line(d, '    visibilityPercentage: 30'),
+    line(d, '    centerElement: true'),
   ];
 }
 
@@ -102,10 +105,17 @@ function emitAction(action: Action, depth = 0): string[] {
         ...emitScroll(d, action.testID),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
+        // Retry tap if date picker didn't open (scroll animation can swallow first tap)
+        line(d, '- runFlow:'),
+        line(d, '    when:'),
+        line(d, '      notVisible: "Done"'),
+        line(d, '    commands:'),
+        line(d, '      - tapOn:'),
+        line(d, `          id: "${action.testID}"`),
         // Date picker modal — confirm default date
         line(d, '- extendedWaitUntil:'),
         line(d, '    visible: "Done"'),
-        line(d, '    timeout: 5000'),
+        line(d, '    timeout: 10000'),
         line(d, '- tapOn: "Done"'),
       );
       break;

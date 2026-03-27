@@ -4,7 +4,7 @@
  * These assume onboarding is already complete (reuse onboarding steps).
  * Screen metadata is loaded from the screen registry at generation time.
  */
-import { journey, date, fill } from '../dsl';
+import { journey, date, fill, alert } from '../dsl';
 import {
   tap, inputText, assertVisible, assertVisibleID, swipe,
 } from '../dsl';
@@ -48,6 +48,8 @@ const createJapanTrip = () => screenStep('CreateTrip', {
     fill('leg-0-accommodation-address-country', 'JPN'),
     // Create
     tapButton('CreateTrip', 'create-trip-button'),
+    // Dismiss success alert
+    alert('Success', 'OK'),
   ],
 });
 
