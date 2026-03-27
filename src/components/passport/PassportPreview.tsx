@@ -16,6 +16,7 @@ import { type MRZParseResult } from '../../services/passport/mrzScanner/mrzParse
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import StatusBadge from '../ui/StatusBadge';
+import { PASSPORT_PREVIEW_IDS } from './testIDs';
 
 export interface PassportPreviewProps {
   profile: Partial<TravelerProfile>;
@@ -251,7 +252,7 @@ export default function PassportPreview({
           fullWidth
           disabled={isLoading}
           loading={isLoading}
-          testID="confirm-scan-button"
+          testID={PASSPORT_PREVIEW_IDS.confirmScanButton.id}
         />
         
         <View className="flex-row gap-3">

@@ -12,6 +12,7 @@ import {
   getOverallLegFormStatus
 } from '../../services/forms/formEngine';
 import { LegDeadline } from '../../services/deadline/deadlineService';
+import { LEG_CARD_IDS } from './testIDs';
 
 export interface LegCardProps {
   leg: TripLeg;
@@ -106,7 +107,7 @@ export default function LegCard({
     <CardComponent
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
-      testID={`leg-card-${leg.destinationCountry}`}
+      testID={LEG_CARD_IDS.card(leg.destinationCountry).id}
       accessibilityLabel={getCountryName(leg.destinationCountry)}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityHint={onPress ? 'Opens destination form details' : undefined}
@@ -188,7 +189,7 @@ export default function LegCard({
 
           {/* Mini traveler status indicators when details are hidden */}
           {!showTravelerDetails && leg.assignedTravelers && leg.assignedTravelers.length > 1 && (
-            <View className="mt-2 flex-row items-center" testID={`leg-card-traveler-indicators-${leg.destinationCountry}`}>
+            <View className="mt-2 flex-row items-center" testID={LEG_CARD_IDS.travelerIndicators(leg.destinationCountry).id}>
               {getAssignedTravelers().map((travelerInfo) => {
                 if (!travelerInfo) return null;
                 const { member, status } = travelerInfo;
@@ -204,7 +205,7 @@ export default function LegCard({
                     key={member.id}
                     className={`w-6 h-6 rounded-full items-center justify-center mr-1 ${dotColor}`}
                     accessibilityLabel={`${member.givenNames} ${member.surname}: ${getStatusText(status)}`}
-                    testID={`leg-traveler-dot-${member.id}`}
+                    testID={LEG_CARD_IDS.travelerDot(member.id).id}
                   >
                     <Text className="text-xs font-bold text-white">{initial}</Text>
                   </View>
@@ -228,14 +229,14 @@ export default function LegCard({
           <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex-row items-center justify-between">
             <SubmissionStatusBadge
               status={leg.submissionStatus ?? 'not_started'}
-              testID={`submission-status-badge-${leg.destinationCountry}`}
+              testID={LEG_CARD_IDS.submissionStatusBadge(leg.destinationCountry).id}
             />
             {onMarkAsSubmitted && leg.submissionStatus !== 'submitted' && (
               <TouchableOpacity
                 onPress={onMarkAsSubmitted}
                 className="bg-green-600 dark:bg-green-700 px-3 py-1.5 rounded-lg"
                 activeOpacity={0.7}
-                testID={`mark-submitted-${leg.destinationCountry}`}
+                testID={LEG_CARD_IDS.markSubmitted(leg.destinationCountry).id}
                 accessible={true}
                 accessibilityRole="button"
                 accessibilityLabel={`Mark ${getCountryName(leg.destinationCountry)} leg as submitted`}

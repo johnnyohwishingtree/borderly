@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Check } from 'lucide-react-native';
+import { TRAVELER_TABS_IDS } from './testIDs';
 
 export interface TravelerTab {
   id: string;
@@ -24,7 +25,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
   return (
     <View
       className="bg-white border-b border-gray-200"
-      testID={testID ?? 'traveler-tabs'}
+      testID={testID ?? TRAVELER_TABS_IDS.container.id}
     >
       <ScrollView
         horizontal
@@ -40,7 +41,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
             <TouchableOpacity
               key={tab.id}
               onPress={() => onTabPress(tab.id)}
-              testID={`traveler-tab-${tab.id}`}
+              testID={TRAVELER_TABS_IDS.tab(tab.id).id}
               activeOpacity={0.7}
               className={`
                 mr-2 px-4 py-2 rounded-lg border flex-row items-center
@@ -63,7 +64,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
                       : 'bg-gray-300'
                   }
                 `}
-                testID={`traveler-tab-indicator-${tab.id}`}
+                testID={TRAVELER_TABS_IDS.tabIndicator(tab.id).id}
               >
                 {isReady ? (
                   <Check size={12} color="white" />

@@ -28,6 +28,7 @@ import {
   getPlacesApiKey,
   PlaceSuggestion,
 } from '../../services/places/placesService';
+import { ACCOMMODATION_AUTOCOMPLETE_IDS } from './testIDs';
 
 export interface AccommodationAutocompleteProps {
   /** Current hotel/accommodation name value */
@@ -187,7 +188,7 @@ export default function AccommodationAutocomplete({
           autoCorrect={false}
           editable={!disabled && !isLoadingDetails}
           error={error}
-          testID={testID ? `${testID}-input` : 'accommodation-name-input'}
+          testID={testID ? `${testID}-input` : ACCOMMODATION_AUTOCOMPLETE_IDS.nameInput.id}
         />
 
         {/* Loading indicator while fetching place details */}
@@ -202,7 +203,7 @@ export default function AccommodationAutocomplete({
       {showSuggestions && (
         <View
           style={styles.suggestionsContainer}
-          testID={testID ? `${testID}-suggestions` : 'accommodation-suggestions'}
+          testID={testID ? `${testID}-suggestions` : ACCOMMODATION_AUTOCOMPLETE_IDS.suggestions.id}
         >
           {isLoadingSuggestions && (
             <View style={styles.loadingRow}>
@@ -216,7 +217,7 @@ export default function AccommodationAutocomplete({
                 key={suggestion.placeId}
                 style={styles.suggestionRow}
                 onPress={() => handleSuggestionPress(suggestion)}
-                testID={`accommodation-suggestion-${suggestion.placeId}`}
+                testID={ACCOMMODATION_AUTOCOMPLETE_IDS.suggestion(suggestion.placeId).id}
                 accessible
                 accessibilityRole="button"
                 accessibilityLabel={suggestion.description}

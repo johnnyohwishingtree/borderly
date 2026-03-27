@@ -10,6 +10,7 @@ import {
   ReadinessItem,
   ReadinessItemStatus,
 } from '../../services/readiness/readinessTypes';
+import { READINESS_CHECKLIST_IDS } from './testIDs';
 
 // ---------------------------------------------------------------------------
 // Public interface
@@ -142,7 +143,7 @@ function ItemRow({ item, onNavigate }: ItemRowProps) {
 
   return (
     <View
-      testID={`readiness-item-${item.id}`}
+      testID={READINESS_CHECKLIST_IDS.item(item.id).id}
       className="flex-row items-start py-2 px-1"
       accessible={true}
       accessibilityLabel={a11yLabel}
@@ -197,7 +198,7 @@ interface CategorySectionProps {
 
 function CategorySection({ category, items, onNavigate }: CategorySectionProps) {
   return (
-    <View testID={`readiness-category-${category}`} className="mb-2">
+    <View testID={READINESS_CHECKLIST_IDS.category(category).id} className="mb-2">
       {/* Section header */}
       <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 pb-1">
         {CATEGORY_LABELS[category]}
@@ -254,12 +255,12 @@ export default function ReadinessChecklist({
 
   return (
     <View
-      testID={testID ?? 'readiness-checklist'}
+      testID={testID ?? READINESS_CHECKLIST_IDS.container.id}
       className="rounded-xl border border-gray-200 bg-white overflow-hidden"
     >
       {/* Header row */}
       <TouchableOpacity
-        testID="readiness-checklist-header"
+        testID={READINESS_CHECKLIST_IDS.header.id}
         onPress={toggleExpanded}
         accessible={true}
         accessibilityRole="button"
@@ -296,7 +297,7 @@ export default function ReadinessChecklist({
       {/* Expandable body */}
       {expanded ? (
         <View
-          testID="readiness-checklist-body"
+          testID={READINESS_CHECKLIST_IDS.body.id}
           className="px-4 pb-3 border-t border-gray-100"
         >
           {groups.length === 0 ? (

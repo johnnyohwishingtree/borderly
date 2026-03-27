@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import type { FamilyMember, FamilyRelationship } from '../../types/profile';
+import { TRAVELER_AVATARS_IDS } from './testIDs';
 
 export interface TravelerAvatarsProps {
   travelers: FamilyMember[];
@@ -42,7 +43,7 @@ const TravelerAvatars = memo<TravelerAvatarsProps>(({
   maxVisible = 3,
   size = 'small',
   showCount = true,
-  testID = 'traveler-avatars',
+  testID = TRAVELER_AVATARS_IDS.container.id,
 }) => {
   const visible = useMemo(() => travelers.slice(0, maxVisible), [travelers, maxVisible]);
   const overflow = travelers.length - maxVisible;
@@ -73,7 +74,7 @@ const TravelerAvatars = memo<TravelerAvatarsProps>(({
             key={member.id}
             className={`${sizeClasses.pill} ${colors.bg} rounded-full items-center justify-center mr-1`}
             accessibilityLabel={`${fullName}, ${relationLabel}`}
-            testID={`traveler-avatar-${member.id}`}
+            testID={TRAVELER_AVATARS_IDS.avatar(member.id).id}
           >
             <Text className={`${sizeClasses.text} font-semibold ${colors.text}`}>
               {getInitials(member)}
@@ -84,7 +85,7 @@ const TravelerAvatars = memo<TravelerAvatarsProps>(({
       {overflow > 0 && (
         <View
           className={`${sizeClasses.pill} bg-gray-100 rounded-full items-center justify-center mr-1`}
-          testID="traveler-avatar-overflow"
+          testID={TRAVELER_AVATARS_IDS.overflow.id}
         >
           <Text className={`${sizeClasses.text} font-semibold text-gray-600`}>
             +{overflow}
@@ -94,7 +95,7 @@ const TravelerAvatars = memo<TravelerAvatarsProps>(({
       {showCount && (
         <Text
           className="text-xs text-gray-500 dark:text-gray-400 ml-1"
-          testID="traveler-count"
+          testID={TRAVELER_AVATARS_IDS.count.id}
         >
           {travelers.length} travelers
         </Text>

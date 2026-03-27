@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { FilledForm, updateFormData, validateFormCompletion, getCountrySpecificFields } from '../../services/forms/formEngine';
 import FormSection from './FormSection';
 import AutoFilledBadge from './AutoFilledBadge';
+import { DYNAMIC_FORM_IDS } from './testIDs';
 
 interface DynamicFormProps {
   form: FilledForm;
@@ -191,7 +192,7 @@ export default function DynamicForm({
 
     return (
       <View
-        testID="validation-summary"
+        testID={DYNAMIC_FORM_IDS.validationSummary.id}
         className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg"
         accessibilityLiveRegion="polite"
         accessible={true}
@@ -216,7 +217,7 @@ export default function DynamicForm({
   }
 
   return (
-    <View className="bg-gray-50 dark:bg-gray-900 p-4" testID="dynamic-form">
+    <View className="bg-gray-50 dark:bg-gray-900 p-4" testID={DYNAMIC_FORM_IDS.container.id}>
       {/* Form Header */}
       <View className="mb-6">
         <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -249,7 +250,7 @@ export default function DynamicForm({
         <Pressable
           onPress={validateAllFields}
           className="mt-4 p-3 bg-blue-500 rounded-lg"
-          testID="validate-all-button"
+          testID={DYNAMIC_FORM_IDS.validateAllButton.id}
         >
           <Text className="text-white text-center font-medium">
             Validate All Fields

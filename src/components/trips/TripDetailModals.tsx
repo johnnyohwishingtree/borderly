@@ -19,6 +19,7 @@ import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { TripLeg } from '@/types/trip';
 import type { PassportValidityWarningData } from '@/hooks/usePassportValidity';
 import LegFormSection from './LegFormSection';
+import { EDIT_TRIP_MODAL_IDS, ADD_DESTINATION_MODAL_IDS } from './testIDs';
 
 interface EditHookShape {
   tripName: {
@@ -83,7 +84,7 @@ export function EditTripModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
-      testID="edit-trip-modal"
+      testID={EDIT_TRIP_MODAL_IDS.modal.id}
     >
       <KeyboardAvoidingView
         className="flex-1 bg-gray-50 dark:bg-gray-900"
@@ -95,7 +96,7 @@ export function EditTripModal({
               <ChevronLeft size={24} color="#2563eb" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={onClose} activeOpacity={0.7} testID="edit-modal-cancel">
+            <TouchableOpacity onPress={onClose} activeOpacity={0.7} testID={EDIT_TRIP_MODAL_IDS.cancelButton.id}>
               <Text className="text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
             </TouchableOpacity>
           )}
@@ -110,7 +111,7 @@ export function EditTripModal({
             <TouchableOpacity
               onPress={handleSaveLeg}
               activeOpacity={0.7}
-              testID="save-leg-button"
+              testID={EDIT_TRIP_MODAL_IDS.saveLegButton.id}
               disabled={editHook.legEdit.isUpdatingLeg}
             >
               <Text className="text-blue-600 dark:text-blue-400 font-medium">
@@ -141,7 +142,7 @@ export function EditTripModal({
                   onChangeText={editHook.tripName.setEditName}
                   placeholder="e.g., Asia Summer 2025"
                   error={editHook.errors.name}
-                  testID="edit-trip-name-field"
+                  testID={EDIT_TRIP_MODAL_IDS.tripNameField.id}
                 />
                 <View className="mt-3">
                   <Button
@@ -151,7 +152,7 @@ export function EditTripModal({
                     size="small"
                     loading={editHook.tripName.isUpdatingName}
                     disabled={editHook.tripName.isUpdatingName}
-                    testID="save-trip-name-button"
+                    testID={EDIT_TRIP_MODAL_IDS.saveTripNameButton.id}
                   />
                 </View>
               </View>
@@ -176,7 +177,7 @@ export function EditTripModal({
                           onPress={() => editHook.legEdit.startEditLeg(leg)}
                           className="bg-blue-50 dark:bg-blue-950 px-3 py-1.5 rounded-lg ml-3"
                           activeOpacity={0.7}
-                          testID={`edit-leg-${leg.id}-button`}
+                          testID={EDIT_TRIP_MODAL_IDS.editLegButton(leg.id).id}
                         >
                           <Text className="text-blue-600 dark:text-blue-400 font-medium text-sm">Edit</Text>
                         </TouchableOpacity>
@@ -189,7 +190,7 @@ export function EditTripModal({
                 onPress={onSwitchToAdd}
                 className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4 flex-row items-center"
                 activeOpacity={0.7}
-                testID="edit-modal-add-destination"
+                testID={EDIT_TRIP_MODAL_IDS.addDestinationButton.id}
               >
                 <Plus size={20} color="#2563eb" className="mr-2" />
                 <Text className="text-blue-600 dark:text-blue-400 font-medium">Add New Destination</Text>
@@ -227,14 +228,14 @@ export function AddDestinationModal({
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
-      testID="add-destination-modal"
+      testID={ADD_DESTINATION_MODAL_IDS.modal.id}
     >
       <KeyboardAvoidingView
         className="flex-1 bg-gray-50 dark:bg-gray-900"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View className="bg-white dark:bg-gray-800 px-4 pt-6 pb-4 border-b border-gray-100 dark:border-gray-700 flex-row items-center justify-between">
-          <TouchableOpacity onPress={onClose} activeOpacity={0.7} testID="add-modal-cancel">
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7} testID={ADD_DESTINATION_MODAL_IDS.cancelButton.id}>
             <Text className="text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
           </TouchableOpacity>
           <Text
@@ -247,7 +248,7 @@ export function AddDestinationModal({
           <TouchableOpacity
             onPress={onConfirm}
             activeOpacity={0.7}
-            testID="confirm-add-destination-button"
+            testID={ADD_DESTINATION_MODAL_IDS.confirmButton.id}
             disabled={editHook.addDestination.isAddingDestination}
           >
             <Text className="text-blue-600 dark:text-blue-400 font-medium">

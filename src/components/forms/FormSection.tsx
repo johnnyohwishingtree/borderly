@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FilledFormSection } from '../../services/forms/formEngine';
 import FormField from './FormField';
+import { FORM_SECTION_IDS } from './testIDs';
 
 interface FormSectionProps {
   section: FilledFormSection;
@@ -79,7 +80,7 @@ export default function FormSection({
           accessibilityState={{ expanded: isExpanded }}
           accessibilityLabel={`${section.title}${completionLabel ? ', ' + completionLabel : ''}${errorsLabel}${expandedLabel}`}
           accessibilityHint="Double tap to toggle section"
-          testID={`section-header-${section.id}`}
+          testID={FORM_SECTION_IDS.sectionHeader(section.id).id}
         >
           {headerContent}
         </Pressable>

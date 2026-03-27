@@ -28,6 +28,7 @@ import {
   getPlacesApiKey,
   PlaceSuggestion,
 } from '../../services/places/placesService';
+import { ADDRESS_AUTOCOMPLETE_IDS } from './testIDs';
 
 export interface AddressAutocompleteProps {
   value: Address;
@@ -198,7 +199,7 @@ export default function AddressAutocomplete({
           autoCorrect={false}
           editable={!disabled && !isLoadingDetails}
           error={errors.line1}
-          testID={testID ? `${testID}-line1` : 'address-line1'}
+          testID={testID ? `${testID}-line1` : ADDRESS_AUTOCOMPLETE_IDS.line1.id}
         />
 
         {/* Loading indicator while fetching details */}
@@ -210,7 +211,7 @@ export default function AddressAutocomplete({
 
         {/* Autocomplete suggestions dropdown */}
         {showSuggestions && (
-          <View style={styles.suggestionsContainer} testID="address-suggestions">
+          <View style={styles.suggestionsContainer} testID={ADDRESS_AUTOCOMPLETE_IDS.suggestions.id}>
             {isLoadingSuggestions && (
               <View style={styles.loadingRow}>
                 <ActivityIndicator size="small" color="#6b7280" />
@@ -223,7 +224,7 @@ export default function AddressAutocomplete({
                   key={suggestion.placeId}
                   style={styles.suggestionRow}
                   onPress={() => handleSuggestionPress(suggestion)}
-                  testID={`suggestion-${suggestion.placeId}`}
+                  testID={ADDRESS_AUTOCOMPLETE_IDS.suggestion(suggestion.placeId).id}
                   accessible
                   accessibilityRole="button"
                   accessibilityLabel={suggestion.description}
@@ -253,7 +254,7 @@ export default function AddressAutocomplete({
         autoCapitalize="words"
         editable={!disabled}
         error={errors.line2}
-        testID={testID ? `${testID}-line2` : 'address-line2'}
+        testID={testID ? `${testID}-line2` : ADDRESS_AUTOCOMPLETE_IDS.line2.id}
       />
 
       {/* City and State row */}
@@ -267,7 +268,7 @@ export default function AddressAutocomplete({
             autoCapitalize="words"
             editable={!disabled}
             error={errors.city}
-            testID={testID ? `${testID}-city` : 'address-city'}
+            testID={testID ? `${testID}-city` : ADDRESS_AUTOCOMPLETE_IDS.city.id}
           />
         </View>
         <View className="flex-1">
@@ -279,7 +280,7 @@ export default function AddressAutocomplete({
             autoCapitalize="characters"
             editable={!disabled}
             error={errors.state}
-            testID={testID ? `${testID}-state` : 'address-state'}
+            testID={testID ? `${testID}-state` : ADDRESS_AUTOCOMPLETE_IDS.state.id}
           />
         </View>
       </View>
@@ -295,7 +296,7 @@ export default function AddressAutocomplete({
             autoCapitalize="characters"
             editable={!disabled}
             error={errors.postalCode}
-            testID={testID ? `${testID}-postal-code` : 'address-postal-code'}
+            testID={testID ? `${testID}-postal-code` : ADDRESS_AUTOCOMPLETE_IDS.postalCode.id}
           />
         </View>
         <View className="flex-1">
@@ -307,7 +308,7 @@ export default function AddressAutocomplete({
             autoCapitalize="characters"
             editable={!disabled}
             error={errors.country}
-            testID={testID ? `${testID}-country` : 'address-country'}
+            testID={testID ? `${testID}-country` : ADDRESS_AUTOCOMPLETE_IDS.country.id}
           />
         </View>
       </View>

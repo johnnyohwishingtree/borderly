@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { colors } from '../../utils/colors';
+import { CREDENTIAL_PROMPT_IDS } from './testIDs';
 
 export interface CredentialPromptProps {
   /** Whether the prompt is visible */
@@ -82,7 +83,7 @@ export function CredentialPrompt({
       animationType="slide"
       transparent
       onRequestClose={onSkip}
-      testID={testID ?? 'credential-prompt-modal'}
+      testID={testID ?? CREDENTIAL_PROMPT_IDS.modal.id}
     >
       <View className="flex-1">
         {/* Tap-outside-to-dismiss overlay */}
@@ -90,14 +91,14 @@ export function CredentialPrompt({
           className="flex-1"
           activeOpacity={1}
           onPress={onSkip}
-          testID="credential-prompt-backdrop"
+          testID={CREDENTIAL_PROMPT_IDS.backdrop.id}
           accessibilityLabel="Dismiss credential prompt"
         />
 
         {/* Bottom sheet */}
         <View
           className="bg-white rounded-t-2xl px-5 pt-4 pb-8 shadow-lg elevation-8"
-          testID="credential-prompt-sheet"
+          testID={CREDENTIAL_PROMPT_IDS.sheet.id}
         >
           {/* Handle */}
           <View className="w-10 h-1 bg-gray-300 rounded-full self-center mb-4" />
@@ -105,7 +106,7 @@ export function CredentialPrompt({
           {/* Title */}
           <Text
             className="text-[17px] font-semibold text-gray-900 mb-1.5"
-            testID="credential-prompt-title"
+            testID={CREDENTIAL_PROMPT_IDS.title.id}
           >
             {resolvedTitle}
           </Text>
@@ -113,7 +114,7 @@ export function CredentialPrompt({
           {/* Subtitle */}
           <Text
             className="text-[13px] text-gray-500 leading-[18px] mb-5"
-            testID="credential-prompt-subtitle"
+            testID={CREDENTIAL_PROMPT_IDS.subtitle.id}
           >
             {resolvedSubtitle}
           </Text>
@@ -134,7 +135,7 @@ export function CredentialPrompt({
                 autoCorrect={false}
                 keyboardType="email-address"
                 textContentType="username"
-                testID="credential-prompt-username"
+                testID={CREDENTIAL_PROMPT_IDS.username.id}
                 accessibilityLabel="Email or username"
               />
             </View>
@@ -155,13 +156,13 @@ export function CredentialPrompt({
                   autoCapitalize="none"
                   autoCorrect={false}
                   textContentType="password"
-                  testID="credential-prompt-password"
+                  testID={CREDENTIAL_PROMPT_IDS.password.id}
                   accessibilityLabel="Password"
                 />
                 <TouchableOpacity
                   className="absolute right-3 top-0 bottom-0 justify-center"
                   onPress={() => setShowPassword(s => !s)}
-                  testID="credential-prompt-toggle-password"
+                  testID={CREDENTIAL_PROMPT_IDS.togglePassword.id}
                   accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <Text className="text-xs text-gray-500">
@@ -176,7 +177,7 @@ export function CredentialPrompt({
               <TouchableOpacity
                 className="flex-1 py-3 rounded-[10px] border border-gray-300 items-center"
                 onPress={onSkip}
-                testID="credential-prompt-skip"
+                testID={CREDENTIAL_PROMPT_IDS.skip.id}
                 accessibilityLabel="Skip saving credentials"
               >
                 <Text className="text-[15px] font-medium text-gray-700">Skip</Text>
@@ -186,7 +187,7 @@ export function CredentialPrompt({
                 className={`flex-[2] py-3 rounded-[10px] items-center ${canSave ? 'bg-blue-600' : 'bg-blue-300'}`}
                 onPress={handleSave}
                 disabled={!canSave}
-                testID="credential-prompt-save"
+                testID={CREDENTIAL_PROMPT_IDS.save.id}
                 accessibilityLabel="Save credentials securely"
               >
                 <Text className="text-[15px] font-semibold text-white">
