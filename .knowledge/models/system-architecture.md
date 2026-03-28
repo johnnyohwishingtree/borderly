@@ -26,8 +26,15 @@ How the three layers (rules, policies, skills) and the knowledge graph work toge
 - Reference policies inline: "Follow `.knowledge/policies/workflow/verification.md`."
 - No hardcoded project specifics — read from knowledge dynamically
 
+### Beliefs (.knowledge/beliefs/)
+- Tracked product assumptions with status lifecycle: Hypothesis → Working assumption → Confirmed
+- Format: STATUS, STATEMENT, EVIDENCE, CONFIRMATION/INVALIDATION criteria, REFERENCED BY
+- Checked during pipeline pre-flight (Step 3) and updated during learning (Step 6)
+- Justify policies — a belief like "local-first is a differentiator" underpins the local-first policy
+- Knowledge-audit checks for stale hypotheses (no evidence updates in 60+ days)
+
 ### Knowledge Graph (scripts/knowledge-graph.ts)
-- 105+ nodes: policies, models, templates, patterns, rubrics, folder-claude, skills, rules
+- 105+ nodes: policies, models, beliefs, templates, patterns, rubrics, folder-claude, skills, rules
 - Edge types: REFERENCES, REFERENCED_BY, ENFORCED_BY, SCOPES, MATCHES, FOLLOWS, INVOKES
 - Parses `Follow .knowledge/...` from skill step body — no metadata sections
 - Queries: stats, orphans, unreferenced, unenforced, impact, deps, visualize
@@ -47,6 +54,8 @@ Skills ──INVOKES──→ Other Skills
 Folder CLAUDE.md ──REFERENCED_BY──→ Policies
 Policies ──ENFORCED_BY──→ Structural Tests
 Policies ──REFERENCES──→ Other Policies
+Beliefs ──JUSTIFIES──→ Policies (why constraints exist)
+Pipeline ──CHECKS──→ Beliefs (pre-flight + learning)
 ```
 
 ## Invariants
@@ -64,6 +73,7 @@ Policies ──REFERENCES──→ Other Policies
 - `.knowledge/models/` — business entities and system models
 - `.knowledge/templates/` — file structure templates
 - `.knowledge/patterns/` — multi-step recipes
+- `.knowledge/beliefs/` — tracked product assumptions
 - `.knowledge/rubrics/` — quality evaluation criteria
 - `scripts/knowledge-graph.ts` — graph query engine
 - `__tests__/structure/` — policy enforcement tests

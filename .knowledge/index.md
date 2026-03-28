@@ -39,12 +39,13 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
 | `skills/test-audit/` | Score tests for quality, find junk, recommend deletions | `/test-audit` |
 
-## .knowledge/ — Five Engine Types
+## .knowledge/ — Six Engine Types
 
 | Engine | Directory | Format | Purpose |
 |--------|-----------|--------|---------|
 | **Policy** | `policies/` | SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ENFORCEMENT | Enforce constraints |
 | **Model** | `models/` | ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES | Business context |
+| **Belief** | `beliefs/` | STATUS, STATEMENT, EVIDENCE, CONFIRMATION/INVALIDATION | Track product assumptions |
 | **Template** | `templates/` | STRUCTURE, RULES, MATCHING RUBRIC | File generation |
 | **Pattern** | `patterns/` | STEPS, FILES, CHECKLIST | Multi-step recipes |
 | **Rubric** | `rubrics/` | CRITERIA (weighted), ANTI-PATTERNS | Quality evaluation |
@@ -64,6 +65,10 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 ### Models
 
 form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, maestro-generator, system-architecture
+
+### Beliefs
+
+scan-once-fill-everywhere (confirmed), schema-driven-forms-scale (confirmed), guided-submission-over-automation (confirmed), local-first-is-differentiator (working assumption), smart-delta-increases-completion (working assumption), asia-pacific-first-market (working assumption), auto-fill-40-percent-threshold (hypothesis)
 
 ### Domain
 

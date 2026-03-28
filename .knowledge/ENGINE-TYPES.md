@@ -1,6 +1,6 @@
 # Knowledge Engine Types
 
-The `.knowledge/` directory contains five types of knowledge, each with its own format and purpose. Think of them as different "engines" that serve different functions in the system.
+The `.knowledge/` directory contains six types of knowledge, each with its own format and purpose. Think of them as different "engines" that serve different functions in the system.
 
 ## 1. Policy Engine (`policies/`)
 
@@ -26,7 +26,28 @@ The `.knowledge/` directory contains five types of knowledge, each with its own 
 - `testing/` — test conventions, E2E, drift detection
 - `platform/` — native modules, navigation, build config
 
-## 2. Domain Model (`models/`)
+## 2. Belief Engine (`beliefs/`)
+
+**What it does:** Tracks product assumptions and working hypotheses that drive architecture and UX decisions. Unlike policies (which enforce constraints), beliefs capture the reasoning behind why those constraints exist.
+**When it's read:** During pipeline pre-flight (Step 3) to check if a story touches code driven by unconfirmed beliefs. During pipeline learning (Step 6) to update beliefs based on implementation experience. During knowledge-audit (Step 2) to check for stale hypotheses.
+**How it's enforced:** Not enforced directly — beliefs inform judgment, not rules. The pipeline flags low-confidence beliefs before implementing code that depends on them.
+
+**Format:**
+```markdown
+# Belief: <Name>
+## Status — Hypothesis | Working assumption | Confirmed
+## Statement — what we believe and why it matters
+## Evidence — what supports this belief
+## What would confirm — criteria to promote the belief
+## What would invalidate — criteria to archive the belief
+## Referenced by — files and knowledge nodes that depend on this belief
+```
+
+**Status lifecycle:** `Hypothesis` → `Working assumption` → `Confirmed`. Beliefs can also be `Invalidated` (archived with reason).
+
+**Key difference from policies:** A policy says "DENY: cloud sync of passport data." A belief says "We believe local-first privacy is a differentiator" — it's the reasoning that justifies the policy. If the belief gets invalidated, the policy should be revisited.
+
+## 3. Domain Model (`models/`)
 
 **What it does:** Describes business entities, their relationships, fields, and invariants. Like a relational database schema.
 **When it's read:** When implementing features that touch business logic.
@@ -41,7 +62,7 @@ The `.knowledge/` directory contains five types of knowledge, each with its own 
 ## Key Files — where the implementation lives
 ```
 
-## 3. Templates (`templates/`)
+## 4. Templates (`templates/`)
 
 **What it does:** Defines file structure for new files. Like a code generator.
 **When it's read:** When creating new modules, tests, stories, skills.
@@ -55,7 +76,7 @@ The `.knowledge/` directory contains five types of knowledge, each with its own 
 ## Matching rubric — quality criteria for evaluation
 ```
 
-## 4. Patterns (`patterns/`)
+## 5. Patterns (`patterns/`)
 
 **What it does:** Multi-step recipes for cross-cutting changes. Like a workflow engine.
 **When it's read:** When implementing a task that touches multiple files.
@@ -69,7 +90,7 @@ The `.knowledge/` directory contains five types of knowledge, each with its own 
 ## Checklist — verification before done
 ```
 
-## 5. Rubrics (`rubrics/`)
+## 6. Rubrics (`rubrics/`)
 
 **What it does:** Evaluates quality of output. Like a grading engine.
 **When it's read:** During pipeline Step 6 (self-review).
@@ -98,10 +119,12 @@ gaps.md (work queue)
 Optimize / Pipeline stories
     ↓ may create new
 Policies (constraints)   ←──── with structural test
-    ↓ enforced by
-Structural Tests
-    ↓ informed by
-Domain Models (business context)
+    ↓ enforced by            ↑ justified by
+Structural Tests         Beliefs (assumptions)
+    ↓ informed by            ↓ checked during
+Domain Models            Pipeline pre-flight (Step 3)
+(business context)       Pipeline learn (Step 6)
+                         Knowledge-audit (Step 2)
 
 Patterns (how to build)
     ↓ references

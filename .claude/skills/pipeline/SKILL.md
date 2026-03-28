@@ -39,11 +39,33 @@ git checkout master && git pull origin master
 gh issue list --repo $REPO --label "story" --label "pending" --state open --json number,title --jq '.[0]'
 ```
 
-If no pending stories → skip to **Step 8**.
+If no pending stories → skip to **Step 9**.
 
 Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules (only `pending`, never `in-progress`).
 
-## Step 3: Implement
+## Step 3: Pre-flight analysis
+
+Before implementing, assess the knowledge impact of the story:
+
+1. **Identify affected files** — read the story's Tasks and Context sections to list files that will be created or modified.
+
+2. **Check knowledge impact** — for each affected file, run:
+   ```bash
+   npx tsx scripts/knowledge-graph.ts impact <file>
+   ```
+   Review which policies, models, and beliefs are connected to the files being changed.
+
+3. **Check belief dependencies** — read `.knowledge/beliefs/` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
+
+4. **Check temporal staleness** — if the story touches a country schema or form engine logic, check that the relevant schema's `metadata.lastVerified` is within its `metadata.maintenanceFrequency` window. If stale, verify the portal before implementing.
+
+If risks are found (low-confidence beliefs, stale schemas, policy conflicts), comment on the issue before proceeding:
+```
+Pre-flight: This story touches [file] which depends on belief [X] (status: hypothesis).
+Proceeding, but flagging for awareness.
+```
+
+## Step 4: Implement
 
 ```bash
 NUMBER=<issue number>
@@ -56,25 +78,27 @@ Follow `.knowledge/policies/workflow/story-implementation.md`.
 When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
 When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
 
-## Step 4: Verify
+## Step 5: Verify
 
 Follow `.knowledge/policies/workflow/verification.md`.
 
 If you changed screen UI, also follow `.knowledge/policies/testing/e2e-testability.md`.
 
-## Step 5: Learn
+## Step 6: Learn
 
 **Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
 
 Check all 6 categories: anti-patterns, constraints, architecture, testing patterns, directory conventions, stale knowledge.
 
+Additionally, check if any `.knowledge/beliefs/` files need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
+
 Self-check: if 5+ files changed and zero `.knowledge/` files updated, stop and reconsider.
 
-## Step 6: Self-review
+## Step 7: Self-review
 
 Follow `.knowledge/policies/workflow/self-review.md`.
 
-## Step 7: Push, PR, merge
+## Step 8: Push, PR, merge
 
 ```bash
 git add <specific files>
@@ -105,11 +129,11 @@ if [ -n "$EPIC_LABEL" ] && [ "$EPIC_LABEL" != "null" ]; then
 fi
 ```
 
-## Step 8: Optimize (when queue is empty)
+## Step 9: Optimize (when queue is empty)
 
 Read and follow `.claude/skills/optimize/SKILL.md`.
 
-## Step 9: Plan next epic (when queue is empty and optimization is done)
+## Step 10: Plan next epic (when queue is empty and optimization is done)
 
 Follow `.knowledge/policies/workflow/epic-planning.md` for priority order.
 
