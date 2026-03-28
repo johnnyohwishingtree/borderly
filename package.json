@@ -14,6 +14,7 @@
     "e2e:build": "npx webpack --config webpack.config.js",
     "e2e:test": "npx playwright test",
     "e2e": "npx webpack --config webpack.config.js && npx playwright test",
+    "e2e:mobile": "jest --config e2e/mobile/jest.config.js --runInBand",
     "bundle-size": "node scripts/measure-bundle-size.js",
     "bundle-size:ios": "node scripts/measure-bundle-size.js ios",
     "bundle-size:android": "node scripts/measure-bundle-size.js android",
@@ -29,8 +30,8 @@
     "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts"
   },
   "dependencies": {
-    "@notifee/react-native": "^9.1.8",
     "@hookform/resolvers": "^3.10.0",
+    "@notifee/react-native": "^9.1.8",
     "@nozbe/simdjson": "^3.9.4",
     "@nozbe/watermelondb": "^0.28.0",
     "@react-native-async-storage/async-storage": "^3.0.1",
@@ -72,6 +73,7 @@
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
     "@expo/webpack-config": "^19.0.1",
+    "@mobilenext/mobilecli": "^0.1.62",
     "@playwright/test": "^1.58.2",
     "@react-native-community/cli": "^20.1.2",
     "@react-native/babel-preset": "0.84.1",
