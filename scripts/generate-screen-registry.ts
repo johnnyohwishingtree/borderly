@@ -42,7 +42,7 @@ interface ButtonSpec {
   testID: string;
   label: string;
   description: string;
-  fixed?: boolean;
+  zone?: string;
 }
 
 interface ScreenData {
@@ -70,23 +70,21 @@ function parseScreenFile(filePath: string): ScreenData | null {
   }
   const relPath = relative(ROOT, filePath);
 
-  // Read testIDs.ts for fixed-position metadata
+  // Read testIDs.ts for zone metadata
   const testIDsFile = join(dir, 'testIDs.ts');
-  // Parse testIDs.ts for typed constants (authoritative source when it exists)
-  const fixedTestIDs = new Set<string>();
-  const testIDsFromConstants: { id: string; type: string; fixed: boolean }[] = [];
+  const testIDsFromConstants: { id: string; type: string; zone?: string }[] = [];
   if (existsSync(testIDsFile)) {
     const testIDsContent = readFileSync(testIDsFile, 'utf-8');
-    // Parse all entries: { id: '...', type: '...' [, fixed: true] }
+    // Parse all entries: { id: '...', type: '...' [, zone: '...'] }
     const entryMatches = testIDsContent.matchAll(/id:\s*['"]([^'"]+)['"]\s*,\s*type:\s*['"]([^'"]+)['"]/g);
     for (const m of entryMatches) {
       const id = m[1];
       const type = m[2];
-      // Check if this entry has fixed: true (look ahead in the same line/block)
-      const afterMatch = testIDsContent.slice(m.index! + m[0].length, m.index! + m[0].length + 50);
-      const isFixed = /fixed:\s*true/.test(afterMatch);
-      if (isFixed) fixedTestIDs.add(id);
-      testIDsFromConstants.push({ id, type, fixed: isFixed });
+      // Check for zone (look ahead for zone: 'header'|'footer'|'scroll')
+      const afterMatch = testIDsContent.slice(m.index! + m[0].length, m.index! + m[0].length + 80);
+      const zoneMatch = afterMatch.match(/zone:\s*['"](\w+)['"]/);
+      const zone = zoneMatch ? zoneMatch[1] : undefined;
+      testIDsFromConstants.push({ id, type, zone });
     }
   }
 
@@ -120,7 +118,7 @@ function parseScreenFile(filePath: string): ScreenData | null {
         testID,
         label,
         description: label,
-        ...(fixedTestIDs.has(testID) ? { fixed: true } : {}),
+        ...(testIDsFromConstants.find(c => c.id === testID)?.zone ? { zone: testIDsFromConstants.find(c => c.id === testID)!.zone } : {}),
       });
     } else if (testID.endsWith('-input') || testID.endsWith('-select') || testID.endsWith('-date')) {
       // Determine component type from context
@@ -152,7 +150,7 @@ function parseScreenFile(filePath: string): ScreenData | null {
       } else if (isButton) {
         const titleMatch = before.match(/title="([^"]+)"/);
         const label = titleMatch ? titleMatch[1] : testID.replace(/-/g, ' ');
-        actionButtons.push({ testID, label, description: label, ...(fixedTestIDs.has(testID) ? { fixed: true } : {}) });
+        actionButtons.push({ testID, label, description: label, ...(testIDsFromConstants.find(c => c.id === testID)?.zone ? { zone: testIDsFromConstants.find(c => c.id === testID)!.zone } : {}) });
       }
       // Skip non-interactive testIDs (containers, cards, views)
     }
@@ -164,7 +162,7 @@ function parseScreenFile(filePath: string): ScreenData | null {
     if (inlineTestIDs.has(entry.id)) continue; // Already found via inline parsing
     if (entry.type === 'button') {
       const label = entry.id.replace(/-button$/, '').replace(/-/g, ' ');
-      actionButtons.push({ testID: entry.id, label, description: label, ...(entry.fixed ? { fixed: true } : {}) });
+      actionButtons.push({ testID: entry.id, label, description: label, ...(entry.zone ? { zone: entry.zone } : {}) });
     } else if (entry.type !== 'container') {
       // Field types: Input, SearchableSelect, DatePickerField, etc.
       const label = entry.id.replace(/-field$/, '').replace(/-/g, ' ');
@@ -349,14 +347,16 @@ if (writeMode) {
     '',
     '// ── Types ──',
     '',
+    "export type TestZone = 'scroll' | 'header' | 'footer';",
+    '',
     'export interface FieldSpec {',
     '  testID: string;',
     '  label: string;',
     '  componentType: string;',
     '  required: boolean;',
     '  dynamic?: boolean;',
-    '  /** Element is in a fixed position (outside ScrollView) — no scrolling needed */',
-    '  fixed?: boolean;',
+    '  /** Where this element is on screen: scroll, header, or footer */',
+    '  zone?: string;',
     '}',
     '',
     'export interface AlertSpec {',
@@ -372,7 +372,7 @@ if (writeMode) {
     '  waitFor: string | string[];',
     '  fields: FieldSpec[];',
     '  alerts: AlertSpec[];',
-    '  actionButtons: { testID: string; label: string; description: string; fixed?: boolean }[];',
+    '  actionButtons: { testID: string; label: string; description: string; zone?: TestZone }[];',
     '  navigatesTo: string[];',
     '  notes: string[];',
     '}',
@@ -423,8 +423,8 @@ if (writeMode) {
     // Action buttons
     lines.push(`    actionButtons: [`);
     for (const b of screen.actionButtons) {
-      const fixedStr = b.fixed ? ', fixed: true' : '';
-      lines.push(`      { testID: '${b.testID}', label: '${b.label.replace(/'/g, "\\'")}', description: '${b.description.replace(/'/g, "\\'")}' ${fixedStr}},`);
+      const zoneStr = b.zone ? `, zone: '${b.zone}'` : '';
+      lines.push(`      { testID: '${b.testID}', label: '${b.label.replace(/'/g, "\\'")}', description: '${b.description.replace(/'/g, "\\'")}' ${zoneStr}},`);
     }
     lines.push(`    ],`);
 

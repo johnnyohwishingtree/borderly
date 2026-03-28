@@ -93,6 +93,10 @@ export function fillField(
 
   const resolved = resolveTestID(field.testID, vars);
 
+  // Determine if this field needs scrolling based on its zone
+  const needsScroll = !field.zone || field.zone === 'scroll';
+  const scrollOpts = needsScroll ? undefined : { scroll: false };
+
   switch (field.componentType) {
     case 'Input':
     case 'AccommodationAutocomplete': {
@@ -102,7 +106,7 @@ export function fillField(
       if (!('text' in value)) {
         throw new Error(`fillField: Input "${fieldTestID}" requires { text: string }`);
       }
-      return [fill(resolved, value.text)];
+      return [fill(resolved, value.text, scrollOpts)];
     }
 
     case 'SearchableSelect': {
@@ -112,11 +116,11 @@ export function fillField(
       if (!('search' in value) || !('code' in value)) {
         throw new Error(`fillField: SearchableSelect "${fieldTestID}" requires { search, code }`);
       }
-      return [select(resolved, value.search, value.code)];
+      return [select(resolved, value.search, value.code, scrollOpts)];
     }
 
     case 'DatePickerField':
-      return [date(resolved)];
+      return [date(resolved, scrollOpts)];
 
     case 'Select': {
       if (!value || value === 'default') {
@@ -163,7 +167,8 @@ export function tapButton(screenName: string, buttonTestID: string): Action {
     );
   }
 
-  return tap(buttonTestID, { scroll: !btn.fixed });
+  const needsScroll = !btn.zone || btn.zone === 'scroll';
+  return tap(buttonTestID, { scroll: needsScroll });
 }
 
 /**

@@ -11,14 +11,16 @@
 
 // ── Types ──
 
+export type TestZone = 'scroll' | 'header' | 'footer';
+
 export interface FieldSpec {
   testID: string;
   label: string;
   componentType: string;
   required: boolean;
   dynamic?: boolean;
-  /** Element is in a fixed position (outside ScrollView) — no scrolling needed */
-  fixed?: boolean;
+  /** Where this element is on screen: scroll, header, or footer */
+  zone?: string;
 }
 
 export interface AlertSpec {
@@ -34,7 +36,7 @@ export interface ScreenSpec {
   waitFor: string | string[];
   fields: FieldSpec[];
   alerts: AlertSpec[];
-  actionButtons: { testID: string; label: string; description: string; fixed?: boolean }[];
+  actionButtons: { testID: string; label: string; description: string; zone?: TestZone }[];
   navigatesTo: string[];
   notes: string[];
 }
@@ -344,12 +346,12 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { title: 'Success', buttons: ['OK'], happyPathButton: 'OK', trigger: 'mark-ready-button' },
     ],
     actionButtons: [
-      { testID: 'smart-delta-button', label: 'smart delta', description: 'smart delta' },
-      { testID: 'mark-ready-button', label: 'Mark as Ready', description: 'Mark as Ready' , fixed: true},
-      { testID: 'save-progress-button', label: 'Mark as Ready', description: 'Mark as Ready' , fixed: true},
-      { testID: 'submit-in-app-button', label: 'submit in app', description: 'submit in app' , fixed: true},
-      { testID: 'open-submission-guide-button', label: 'Guide', description: 'Guide' , fixed: true},
-      { testID: 'save-progress-button', label: 'Save Progress', description: 'Save Progress' , fixed: true},
+      { testID: 'smart-delta-button', label: 'smart delta', description: 'smart delta' , zone: 'header'},
+      { testID: 'mark-ready-button', label: 'Mark as Ready', description: 'Mark as Ready' , zone: 'footer'},
+      { testID: 'save-progress-button', label: 'Mark as Ready', description: 'Mark as Ready' , zone: 'footer'},
+      { testID: 'submit-in-app-button', label: 'submit in app', description: 'submit in app' , zone: 'footer'},
+      { testID: 'open-submission-guide-button', label: 'Guide', description: 'Guide' , zone: 'footer'},
+      { testID: 'save-progress-button', label: 'Save Progress', description: 'Save Progress' , zone: 'footer'},
     ],
     navigatesTo: ['PortalSubmission', 'SubmissionGuide'],
     notes: [
@@ -689,22 +691,18 @@ export const SCREENS: Record<string, ScreenSpec> = {
     sourceFile: 'src/screens/trips/TripListScreen/TripListScreen.tsx',
     waitFor: 'Your Trips',
     fields: [
-      { testID: 'trip-search-field', label: 'trip search', componentType: 'TextInput', required: true },
-      { testID: 'first-run-welcome-banner', label: 'first run welcome banner', componentType: 'InfoBanner', required: true },
-      { testID: 'schema-update-banner', label: 'schema update banner', componentType: 'InfoBanner', required: true },
-      { testID: 'trip-list-deadline-summary', label: 'trip list deadline summary', componentType: 'View', required: true },
-      { testID: 'trip-list-duplicate-trip-modal', label: 'trip list duplicate trip modal', componentType: 'Modal', required: true },
+      { testID: 'trip-search-field', label: 'trip search', componentType: 'Input', required: true },
     ],
     alerts: [
     ],
     actionButtons: [
-      { testID: 'import-trip-button', label: 'import trip', description: 'import trip' },
-      { testID: 'templates-nav-button', label: 'templates nav', description: 'templates nav' },
-      { testID: 'trip-search-clear', label: 'trip search clear', description: 'trip search clear' },
-      { testID: 'fab-from-template-button', label: 'fab from template', description: 'fab from template' , fixed: true},
-      { testID: 'trip-filter-${key}', label: 'trip filter ${key}', description: 'trip filter ${key}' },
-      { testID: 'create-first-trip-button', label: 'create first trip', description: 'create first trip' },
-      { testID: 'use-template-button', label: 'use template', description: 'use template' },
+      { testID: 'import-trip-button', label: 'import trip', description: 'import trip' , zone: 'header'},
+      { testID: 'templates-nav-button', label: 'templates nav', description: 'templates nav' , zone: 'header'},
+      { testID: 'trip-search-clear', label: 'trip search clear', description: 'trip search clear' , zone: 'header'},
+      { testID: 'create-first-trip-button', label: 'create first trip', description: 'create first trip' , zone: 'scroll'},
+      { testID: 'use-template-button', label: 'use template', description: 'use template' , zone: 'scroll'},
+      { testID: 'trip-filter-${key}', label: 'trip filter ${key}', description: 'trip filter ${key}' , zone: 'header'},
+      { testID: 'fab-from-template-button', label: 'fab from template', description: 'fab from template' , zone: 'footer'},
     ],
     navigatesTo: [],
     notes: [
