@@ -31,3 +31,11 @@ src/schemas/*.json, src/services/forms/, src/services/schemas/
 ## References
 - Related: models/form-engine.md
 - Related: patterns/add-country.md
+
+## Derives From
+- `principles/declarative-over-imperative.md`
+- `facts/domain.md#f:domain:every-country-unique-rules`
+- `facts/domain.md#f:domain:field-semantics-stable-labels-vary`
+- `facts/domain.md#f:domain:boolean-fields-default-false`
+- `facts/organizational.md#f:org:schema-first-development`
+- `facts/tool.md#f:tool:searchable-select-for-long-lists`

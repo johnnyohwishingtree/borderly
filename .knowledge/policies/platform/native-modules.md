@@ -34,3 +34,8 @@ ios/, e2e/mocks/, jest.setup.js, webpack.config.js
 
 ## References
 - Related: policies/testing/test-conventions.md
+
+## Derives From
+- `principles/centralized-access-patterns.md`
+- `facts/tool.md#f:tool:bare-rn-not-expo`
+- `facts/craft.md#f:craft:interfaces-over-implementations`

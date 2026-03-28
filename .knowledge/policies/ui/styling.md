@@ -35,3 +35,8 @@ src/components/, src/screens/
 ## References
 - Related: policies/ui/typography.md
 - Related: policies/ui/motion.md
+
+## Derives From
+- `principles/accessibility-is-non-negotiable.md`
+- `facts/tool.md#f:tool:nativewind-is-tailwind-for-rn`
+- `facts/cognitive.md#f:cog:44pt-minimum-touch-target`

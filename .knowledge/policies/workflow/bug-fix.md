@@ -38,3 +38,9 @@ All skills that discover or fix bugs.
 
 ## Enforcement
 - Skills reference this policy when bugs are discovered
+
+## Derives From
+- `principles/test-before-fix.md`
+- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/craft.md#f:craft:fail-fast`
+- `facts/domain.md#f:domain:errors-have-consequences`

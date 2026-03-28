@@ -37,3 +37,9 @@ src/screens/, src/components/ (user-facing text)
 ## Enforcement
 - Design guideline — not structurally testable
 - Reviewed during pipeline Step 6 (self-review)
+
+## Derives From
+- `facts/cognitive.md#f:cog:fewer-fields-higher-completion`
+- `facts/cognitive.md#f:cog:users-skip-error-messages`
+- `facts/customer.md#f:cust:users-dont-understand-portal-jargon`
+- `facts/domain.md#f:domain:errors-have-consequences`

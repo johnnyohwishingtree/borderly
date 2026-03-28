@@ -38,3 +38,10 @@ Ask: "Can I write a test in `__tests__/structure/` that catches violations in un
 ## Enforcement
 - `__tests__/structure/knowledge-test-coverage.test.ts` — meta-test
 - Skills reference this policy when creating new policies
+
+## Derives From
+- `principles/naming-enables-enforcement.md`
+- `principles/source-of-truth-prevents-drift.md`
+- `facts/craft.md#f:craft:naming-enables-automation`
+- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/organizational.md#f:org:structural-tests-enforce-policies`

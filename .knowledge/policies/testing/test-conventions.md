@@ -46,3 +46,10 @@ __tests__/, src/**/*.test.ts
 ## References
 - Related: policies/testing/e2e-testability.md
 - Related: policies/testing/drift-detection.md
+
+## Derives From
+- `principles/test-before-fix.md`
+- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/craft.md#f:craft:fail-fast`
+- `facts/tool.md#f:tool:jest-fake-timers-hang-with-renderhook`
+- `facts/tool.md#f:tool:date-string-parsing-shifts-timezone`

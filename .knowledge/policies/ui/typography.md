@@ -40,3 +40,8 @@ src/components/ui/, src/screens/
 ## Enforcement
 - Design guideline — not structurally testable
 - Reviewed during pipeline Step 6 (self-review)
+
+## Derives From
+- `principles/accessibility-is-non-negotiable.md`
+- `facts/cognitive.md#f:cog:three-font-sizes-max`
+- `facts/cognitive.md#f:cog:centered-text-slows-reading`

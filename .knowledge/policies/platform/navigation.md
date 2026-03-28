@@ -28,3 +28,9 @@ src/screens/, src/app/navigation/
 
 ## References
 - Related: policies/architecture/file-boundaries.md (screen naming)
+
+## Derives From
+- `principles/directional-dependency-graph.md`
+- `principles/naming-enables-enforcement.md`
+- `facts/craft.md#f:craft:naming-enables-automation`
+- `facts/craft.md#f:craft:separation-of-concerns`

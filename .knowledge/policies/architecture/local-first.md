@@ -28,3 +28,12 @@ src/services/, src/stores/, src/components/ (any code handling user data)
 ## References
 - Related: policies/data/pii-boundary.md
 - Related: policies/data/storage-tiers.md
+
+## Derives From
+- `principles/security-through-storage-tiers.md`
+- `principles/user-always-submits.md`
+- `facts/regulatory.md#f:reg:gdpr-data-minimization`
+- `facts/regulatory.md#f:reg:pii-has-special-handling-requirements`
+- `facts/customer.md#f:cust:travelers-fill-forms-at-borders`
+- `facts/customer.md#f:cust:family-travelers-share-devices`
+- `facts/organizational.md#f:org:three-tier-storage`

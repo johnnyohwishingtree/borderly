@@ -1,8 +1,21 @@
 # Model: System Architecture
 
-How the three layers (rules, policies, skills) and the knowledge graph work together.
+How the knowledge hierarchy (facts → principles → policies), rules, skills, and the knowledge graph work together.
 
 ## Entities
+
+### Facts (.knowledge/facts/)
+- Atomic truths about the world — the foundation everything else derives from
+- 7 types: craft, domain, tool, regulatory, customer, organizational, cognitive
+- Each fact has an ID (e.g., `f:craft:separation-of-concerns`) and `Referenced by` pointers
+- Facts justify why principles and policies exist
+- Pipeline CAN edit facts — new truths discovered during implementation
+
+### Principles (.knowledge/principles/)
+- Shared reasoning connecting multiple facts to multiple policies
+- Each principle has `Derives from` (facts) and `Implemented by` (policies)
+- When a principle changes, all implementing policies should be revisited
+- Pipeline CAN edit principles
 
 ### Rules (.claude/rules/)
 - Auto-loaded every session — always in context
@@ -13,16 +26,16 @@ How the three layers (rules, policies, skills) and the knowledge graph work toge
 
 ### Policies (.knowledge/policies/)
 - Loaded on-demand when a skill says "Follow .knowledge/policies/..."
-- Structured format: SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ANTI-PATTERNS, ENFORCEMENT
+- Structured format: SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ANTI-PATTERNS, ENFORCEMENT, DERIVES FROM
 - 7 scopes: architecture, data, ui, state, testing, platform, workflow
-- Workflow policies govern skill behavior (verification, learning, fix-strategy, etc.)
+- Each policy now has `Derives From` pointing to its justifying facts and principles
 - Pipeline CAN edit policies — this is where learning happens
 
 ### Skills (.claude/skills/)
 - Loaded on invocation (`/skill-name`)
 - Orchestrators — sequence of steps referencing policies
 - Structure: Prerequisites → Steps → Guardrails
-- Pipeline CANNOT edit skills — all learnable content must be in policies
+- Pipeline CANNOT edit skills — all learnable content must be in policies/facts/principles
 - Reference policies inline: "Follow `.knowledge/policies/workflow/verification.md`."
 - No hardcoded project specifics — read from knowledge dynamically
 
@@ -48,15 +61,20 @@ How the three layers (rules, policies, skills) and the knowledge graph work toge
 
 ## Relationships
 ```
+Facts ──DERIVES INTO──→ Principles
+Principles ──IMPLEMENTED BY──→ Policies
+Policies ──DERIVES FROM──→ Facts + Principles (traceability)
+Policies ──ENFORCED_BY──→ Structural Tests
 Rules (auto-loaded) ──thin pointers──→ Policies
 Skills ──FOLLOWS──→ Policies (loaded on-demand)
 Skills ──INVOKES──→ Other Skills
 Folder CLAUDE.md ──REFERENCED_BY──→ Policies
-Policies ──ENFORCED_BY──→ Structural Tests
 Policies ──REFERENCES──→ Other Policies
 Beliefs ──JUSTIFIES──→ Policies (why constraints exist)
-Pipeline ──CHECKS──→ Beliefs (pre-flight + learning)
+Pipeline ──CHECKS──→ Beliefs + Facts (pre-flight + learning)
 ```
+
+Full chain: **Fact → Principle → Policy → Rule → Structural Test**
 
 ## Invariants
 - Skills never contain hardcoded project specifics
@@ -69,11 +87,13 @@ Pipeline ──CHECKS──→ Beliefs (pre-flight + learning)
 ## Key Files
 - `.claude/rules/` — 2 auto-loaded guardrails
 - `.claude/skills/*/SKILL.md` — workflow orchestrators
-- `.knowledge/policies/` — structured constraints (7 scopes)
+- `.knowledge/facts/` — atomic truths (7 type files)
+- `.knowledge/principles/` — shared reasoning (10 principles)
+- `.knowledge/policies/` — structured constraints (7 scopes, 28 policies)
+- `.knowledge/beliefs/` — tracked product assumptions (7 beliefs)
 - `.knowledge/models/` — business entities and system models
 - `.knowledge/templates/` — file structure templates
 - `.knowledge/patterns/` — multi-step recipes
-- `.knowledge/beliefs/` — tracked product assumptions
 - `.knowledge/rubrics/` — quality evaluation criteria
 - `scripts/knowledge-graph.ts` — graph query engine
 - `__tests__/structure/` — policy enforcement tests

@@ -35,3 +35,7 @@ All skills that modify source code to fix violations, bugs, or refactors.
 
 ## Enforcement
 - Skills reference this policy when modifying code
+
+## Derives From
+- `facts/craft.md#f:craft:fail-fast`
+- `facts/craft.md#f:craft:tests-are-specifications`

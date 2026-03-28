@@ -43,3 +43,10 @@ src/stores/, src/services/, src/components/, src/hooks/, src/screens/
 See `.knowledge/models/stores.md` for the canonical store inventory.
 - useFormStore — form generation, validation, auto-fill
 - useAppStore — preferences, feature flags, app lock
+
+## Derives From
+- `principles/directional-dependency-graph.md`
+- `principles/centralized-access-patterns.md`
+- `facts/craft.md#f:craft:separation-of-concerns`
+- `facts/craft.md#f:craft:interfaces-over-implementations`
+- `facts/craft.md#f:craft:state-is-the-source-of-bugs`

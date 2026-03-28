@@ -56,3 +56,8 @@ Enforced by `/test-audit` skill when run on schedule
 ## References
 - Related: rubrics/test-quality.md (evaluation criteria with weights)
 - Related: policies/testing/test-conventions.md (mechanical rules)
+
+## Derives From
+- `principles/test-before-fix.md`
+- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/domain.md#f:domain:errors-have-consequences`

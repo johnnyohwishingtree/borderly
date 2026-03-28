@@ -39,16 +39,36 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
 | `skills/test-audit/` | Score tests for quality, find junk, recommend deletions | `/test-audit` |
 
-## .knowledge/ — Six Engine Types
+## .knowledge/ — Eight Engine Types
 
 | Engine | Directory | Format | Purpose |
 |--------|-----------|--------|---------|
-| **Policy** | `policies/` | SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ENFORCEMENT | Enforce constraints |
-| **Model** | `models/` | ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES | Business context |
+| **Fact** | `facts/` | ID, STATEMENT, REFERENCED BY | Atomic truths (7 types: craft, domain, tool, regulatory, customer, organizational, cognitive) |
+| **Principle** | `principles/` | STATEMENT, DERIVES FROM, IMPLEMENTED BY | Shared reasoning connecting facts to policies |
+| **Policy** | `policies/` | SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ENFORCEMENT, DERIVES FROM | Enforce constraints |
 | **Belief** | `beliefs/` | STATUS, STATEMENT, EVIDENCE, CONFIRMATION/INVALIDATION | Track product assumptions |
+| **Model** | `models/` | ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES | Business context |
 | **Template** | `templates/` | STRUCTURE, RULES, MATCHING RUBRIC | File generation |
 | **Pattern** | `patterns/` | STEPS, FILES, CHECKLIST | Multi-step recipes |
 | **Rubric** | `rubrics/` | CRITERIA (weighted), ANTI-PATTERNS | Quality evaluation |
+
+**Derivation chain:** Facts → Principles → Policies → Rules → Structural Tests
+
+### Facts (by type)
+
+| Type | File | Count | Decay rate |
+|------|------|-------|------------|
+| Craft | `facts/craft.md` | 8 | Very slow |
+| Domain | `facts/domain.md` | 8 | Slow (governments change rules) |
+| Tool | `facts/tool.md` | 8 | Medium (tools update) |
+| Regulatory | `facts/regulatory.md` | 5 | Slow but sudden |
+| Customer | `facts/customer.md` | 5 | Fast (user base evolves) |
+| Organizational | `facts/organizational.md` | 6 | Medium (process changes) |
+| Cognitive | `facts/cognitive.md` | 6 | Very slow |
+
+### Principles (10)
+
+directional-dependency-graph, naming-enables-enforcement, security-through-storage-tiers, centralized-access-patterns, declarative-over-imperative, source-of-truth-prevents-drift, test-before-fix, user-always-submits, accessibility-is-non-negotiable, knowledge-is-living-documentation
 
 ### Policies (by scope)
 

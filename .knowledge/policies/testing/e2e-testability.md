@@ -81,3 +81,9 @@ This collects: screenshot, failing step, visible testIDs from accessibility tree
 ## References
 - Related: policies/testing/drift-detection.md
 - Related: policies/testing/test-conventions.md
+
+## Derives From
+- `principles/naming-enables-enforcement.md`
+- `principles/source-of-truth-prevents-drift.md`
+- `facts/craft.md#f:craft:naming-enables-automation`
+- `facts/craft.md#f:craft:tests-are-specifications`

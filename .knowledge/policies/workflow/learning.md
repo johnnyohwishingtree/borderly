@@ -49,3 +49,8 @@ After completing work, check each category:
 
 ## Enforcement
 Checked by `/code-audit` skill — flags PRs with high file count but no knowledge updates
+
+## Derives From
+- `principles/knowledge-is-living-documentation.md`
+- `facts/organizational.md#f:org:pipeline-learning-is-mandatory`
+- `facts/craft.md#f:craft:tests-are-specifications`

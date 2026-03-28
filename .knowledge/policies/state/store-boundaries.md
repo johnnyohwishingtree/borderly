@@ -27,3 +27,8 @@ See `.knowledge/models/stores.md` for the canonical store inventory.
 ## References
 - Related: policies/state/hook-conventions.md
 - Related: policies/architecture/dependency-direction.md
+
+## Derives From
+- `principles/directional-dependency-graph.md`
+- `facts/craft.md#f:craft:separation-of-concerns`
+- `facts/craft.md#f:craft:state-is-the-source-of-bugs`
