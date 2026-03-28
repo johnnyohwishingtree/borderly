@@ -64,7 +64,7 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | Tool | `facts/tool/` | 8 | Medium (tools update) |
 | Regulatory | `facts/regulatory/` | 5 | Slow but sudden |
 | Customer | `facts/customer/` | 5 | Fast (user base evolves) |
-| Organizational | `facts/organizational/` | 6 | Medium (process changes) |
+| Organizational | `facts/organizational/` | 9 | Medium (process changes) |
 | Cognitive | `facts/cognitive/` | 6 | Very slow |
 | Market | `facts/market/` | 3 | Fast (competitors change) |
 | Temporal | `facts/temporal/` | 14 | By definition expires (portal schemas) |
@@ -91,11 +91,11 @@ form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, maest
 
 ### Beliefs
 
-scan-once-fill-everywhere (confirmed), schema-driven-forms-scale (confirmed), guided-submission-over-automation (confirmed), local-first-is-differentiator (working assumption), smart-delta-increases-completion (working assumption), asia-pacific-first-market (working assumption), auto-fill-40-percent-threshold (hypothesis)
+scan-once-fill-everywhere (confirmed), schema-driven-forms-scale (confirmed), guided-submission-over-automation (confirmed), test-count-is-not-a-goal (confirmed), local-first-is-differentiator (working assumption), smart-delta-increases-completion (working assumption), asia-pacific-first-market (working assumption), integration-tests-over-unit-tests (working assumption), auto-fill-40-percent-threshold (hypothesis)
 
-### Decisions (5)
+### Decisions (6)
 
-001-three-tier-storage, 002-schema-driven-forms, 003-local-first-no-cloud, 004-guided-not-automated-submission, 005-bare-react-native
+001-three-tier-storage, 002-schema-driven-forms, 003-local-first-no-cloud, 004-guided-not-automated-submission, 005-bare-react-native, 006-testing-strategy
 
 ### Domain
 
