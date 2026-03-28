@@ -701,7 +701,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
       { testID: 'import-trip-button', label: 'import trip', description: 'import trip' },
       { testID: 'templates-nav-button', label: 'templates nav', description: 'templates nav' },
       { testID: 'trip-search-clear', label: 'trip search clear', description: 'trip search clear' },
-      { testID: 'fab-from-template-button', label: 'fab from template', description: 'fab from template' },
+      { testID: 'fab-from-template-button', label: 'fab from template', description: 'fab from template' , fixed: true},
       { testID: 'trip-filter-${key}', label: 'trip filter ${key}', description: 'trip filter ${key}' },
       { testID: 'create-first-trip-button', label: 'create first trip', description: 'create first trip' },
       { testID: 'use-template-button', label: 'use template', description: 'use template' },

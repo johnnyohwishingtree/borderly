@@ -3,7 +3,7 @@ export const TRIP_LIST_IDS = {
   templatesNavButton: { id: 'templates-nav-button', type: 'button' as const },
   tripSearchField: { id: 'trip-search-field', type: 'TextInput' as const },
   tripSearchClear: { id: 'trip-search-clear', type: 'button' as const },
-  fabFromTemplateButton: { id: 'fab-from-template-button', type: 'button' as const },
+  fabFromTemplateButton: { id: 'fab-from-template-button', type: 'button' as const, fixed: true as const },
   firstRunWelcomeBanner: { id: 'first-run-welcome-banner', type: 'InfoBanner' as const },
   schemaUpdateBanner: { id: 'schema-update-banner', type: 'InfoBanner' as const },
   tripFilterTab: { id: 'trip-filter-${key}', type: 'button' as const, dynamic: true as const },
