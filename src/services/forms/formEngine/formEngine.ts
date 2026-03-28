@@ -106,16 +106,15 @@ export function generateFilledForm(
   // Count field statistics
   sections.forEach(section => {
     section.fields.forEach(field => {
-      switch (field.source) {
-        case 'auto':
-          autoFilled++;
-          break;
-        case 'user':
-          userFilled++;
-          break;
-        default:
-          remaining++;
-          break;
+      if (field.source === 'auto') {
+        autoFilled++;
+      } else if (field.source === 'user') {
+        userFilled++;
+      } else if (!field.needsUserInput) {
+        // Fields with usable defaults (e.g., boolean toggle = false) count as filled
+        autoFilled++;
+      } else {
+        remaining++;
       }
     });
   });

@@ -310,10 +310,10 @@ describe('FormEngine', () => {
 
       // 10 total fields: personal (3) + travel (3) + accommodation (2) + customs (2)
       expect(result.stats.totalFields).toBe(10);
-      expect(result.stats.autoFilled).toBe(8); // surname, givenNames, passportNumber, arrivalDate, durationOfStay, hotelName, hotelAddress, carryingProhibitedItems
+      expect(result.stats.autoFilled).toBe(9); // surname, givenNames, passportNumber, arrivalDate, durationOfStay, hotelName, hotelAddress, carryingProhibitedItems, currencyOver1M (boolean defaults to false)
       expect(result.stats.userFilled).toBe(0);
-      expect(result.stats.remaining).toBe(2); // purposeOfVisit, currencyOver1M
-      expect(result.stats.completionPercentage).toBe(80); // 8/10 = 80%
+      expect(result.stats.remaining).toBe(1); // purposeOfVisit (searchable_select with no autoFillSource match)
+      expect(result.stats.completionPercentage).toBe(90); // 9/10 = 90%
     });
 
     it('should handle missing auto-fill sources gracefully', () => {
