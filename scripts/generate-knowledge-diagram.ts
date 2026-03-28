@@ -162,6 +162,7 @@ function findOrphans(allFiles: string[], folderRefs: FolderRef[]): string[] {
     if (f.startsWith('facts/')) return false;
     if (f.startsWith('principles/')) return false;
     if (f.startsWith('beliefs/')) return false;
+    if (f.startsWith('decisions/')) return false;
     return !referenced.has(f);
   });
 }

@@ -39,14 +39,15 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | `skills/local-feature/` | Develop feature in isolated worktree | `/local-feature` |
 | `skills/test-audit/` | Score tests for quality, find junk, recommend deletions | `/test-audit` |
 
-## .knowledge/ — Eight Engine Types
+## .knowledge/ — Nine Engine Types
 
 | Engine | Directory | Format | Purpose |
 |--------|-----------|--------|---------|
-| **Fact** | `facts/` | ID, STATEMENT, REFERENCED BY | Atomic truths (7 types: craft, domain, tool, regulatory, customer, organizational, cognitive) |
+| **Fact** | `facts/` | STATEMENT (minimal) | Atomic truths (9 types: craft, domain, tool, regulatory, customer, organizational, cognitive, market, temporal) |
 | **Principle** | `principles/` | STATEMENT, DERIVES FROM, IMPLEMENTED BY | Shared reasoning connecting facts to policies |
 | **Policy** | `policies/` | SCOPE, RULES (ALLOW/DENY/REQUIRE), EXCEPTIONS, ENFORCEMENT, DERIVES FROM | Enforce constraints |
 | **Belief** | `beliefs/` | STATUS, STATEMENT, EVIDENCE, CONFIRMATION/INVALIDATION | Track product assumptions |
+| **Decision** | `decisions/` | STATUS, CONTEXT, DECISION, DERIVES FROM, CONSEQUENCES | Architecture decision records |
 | **Model** | `models/` | ENTITIES, RELATIONSHIPS, INVARIANTS, KEY FILES | Business context |
 | **Template** | `templates/` | STRUCTURE, RULES, MATCHING RUBRIC | File generation |
 | **Pattern** | `patterns/` | STEPS, FILES, CHECKLIST | Multi-step recipes |
@@ -65,6 +66,8 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 | Customer | `facts/customer/` | 5 | Fast (user base evolves) |
 | Organizational | `facts/organizational/` | 6 | Medium (process changes) |
 | Cognitive | `facts/cognitive/` | 6 | Very slow |
+| Market | `facts/market/` | 3 | Fast (competitors change) |
+| Temporal | `facts/temporal/` | 14 | By definition expires (portal schemas) |
 
 ### Principles (10)
 
@@ -89,6 +92,10 @@ form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, maest
 ### Beliefs
 
 scan-once-fill-everywhere (confirmed), schema-driven-forms-scale (confirmed), guided-submission-over-automation (confirmed), local-first-is-differentiator (working assumption), smart-delta-increases-completion (working assumption), asia-pacific-first-market (working assumption), auto-fill-40-percent-threshold (hypothesis)
+
+### Decisions (5)
+
+001-three-tier-storage, 002-schema-driven-forms, 003-local-first-no-cloud, 004-guided-not-automated-submission, 005-bare-react-native
 
 ### Domain
 

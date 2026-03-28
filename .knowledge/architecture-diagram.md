@@ -8,13 +8,16 @@
 ```
 .knowledge/
 ├── beliefs/    asia-pacific-first-market, auto-fill-40-percent-threshold, guided-submission-over-automation, local-first-is-differentiator, scan-once-fill-everywhere, schema-driven-forms-scale, smart-delta-increases-completion
+├── decisions/    001-three-tier-storage, 002-schema-driven-forms, 003-local-first-no-cloud, 004-guided-not-automated-submission, 005-bare-react-native
 ├── domain/countries/    australia, canada, india, indonesia, japan, malaysia, new-zealand, philippines, singapore, south-korea, thailand, uk, usa, vietnam
 ├── facts/cognitive/    44pt-minimum-touch-target, centered-text-slows-reading, fewer-fields-higher-completion, reduced-motion-is-accessibility, three-font-sizes-max, users-skip-error-messages
 ├── facts/craft/    caching-trades-freshness-for-speed, fail-fast, interfaces-over-implementations, naming-enables-automation, separation-of-concerns, size-indicates-scope-creep, state-is-the-source-of-bugs, tests-are-specifications
 ├── facts/customer/    family-travelers-share-devices, multi-leg-trips-are-common, travelers-fill-forms-at-borders, users-dont-understand-portal-jargon, users-wont-verify-auto-filled-values-carefully
 ├── facts/domain/    boolean-fields-default-false, errors-have-consequences, every-country-unique-rules, field-semantics-stable-labels-vary, forms-change-without-notice, passport-mrz-is-standardized, portals-are-not-apis, submission-deadlines-vary-widely
+├── facts/market/    government-portals-have-no-third-party-integrations, no-competitor-does-auto-fill, travel-form-apps-are-guides-not-fillers
 ├── facts/organizational/    biometric-asymmetric-ux, pipeline-learning-is-mandatory, policies-over-rules, schema-first-development, structural-tests-enforce-policies, three-tier-storage
 ├── facts/regulatory/    clipboard-is-readable-by-other-apps, gdpr-data-minimization, human-must-be-actor-of-record, pii-has-special-handling-requirements, portal-tos-prohibit-automation
+├── facts/temporal/    aus-portal, can-portal, gbr-portal, idn-portal, ind-portal, jpn-portal, kor-portal, mys-portal, nzl-portal, phl-portal, sgp-portal, tha-portal, usa-portal, vnm-portal
 ├── facts/tool/    bare-rn-not-expo, date-string-parsing-shifts-timezone, jest-fake-timers-hang-with-renderhook, keychain-is-os-secure-storage, mmkv-is-fast-but-unencrypted, nativewind-is-tailwind-for-rn, searchable-select-for-long-lists, watermelondb-encrypts-at-rest
 ├── models/    form-engine, maestro-generator, passport, qr-wallet, stores, submission-guide, system-architecture, user-journeys
 ├── patterns/    add-country, add-native-dep, add-screen, add-test
@@ -91,6 +94,7 @@ patterns/add-test                        → policies/testing/test-conventions
 patterns/add-test                        → policies/workflow/bug-fix
 policies/architecture/dependency-direction → models/stores
 policies/state/store-boundaries          → models/stores
+policies/workflow/epic-planning          → templates/story
 policies/workflow/self-review            → rubrics/code-quality
 policies/workflow/self-review            → rubrics/test-quality
 policies/workflow/self-review            → rubrics/skill-quality

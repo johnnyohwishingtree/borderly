@@ -1,6 +1,6 @@
 # Knowledge Engine Types
 
-The `.knowledge/` directory contains eight types of knowledge, each with its own format and purpose. Think of them as different "engines" that serve different functions in the system.
+The `.knowledge/` directory contains nine types of knowledge, each with its own format and purpose. Think of them as different "engines" that serve different functions in the system.
 
 ## 1. Fact Engine (`facts/`)
 
@@ -25,6 +25,12 @@ Facts are intentionally minimal — just a title and statement. No metadata, no 
 - `facts/customer/` — truths about users derived from observation (change as user base evolves)
 - `facts/organizational/` — decisions about how Borderly is built (change when process changes)
 - `facts/cognitive/` — truths about human perception and reasoning (rarely change)
+
+**Special subtype — temporal facts (`facts/temporal/`):**
+Temporal facts have a `valid_until` date and require periodic verification. Used for country portal schemas that change without notice. Format adds a `## Temporal` section with valid_until, maintenance frequency, schema file path, and portal URL. The knowledge-audit skill checks these for staleness.
+
+**Special subtype — market facts (`facts/market/`):**
+Truths about the competitive landscape, market dynamics, and industry positioning. These inform product strategy and epic planning — an agent planning features should know what competitors do and don't offer.
 
 **Key difference from policies:** A fact says "clipboard contents can be read by other apps." A policy says "REQUIRE: clipboard auto-clear after 60 seconds." The fact is WHY. The policy is WHAT.
 
@@ -146,6 +152,24 @@ Facts are intentionally minimal — just a title and statement. No metadata, no 
 ## Anti-patterns — what fails the rubric
 ```
 
+## 9. Decisions (`decisions/`)
+
+**What it does:** Captures architecture decision records (ADRs) — the WHY behind major structural choices. Unlike facts (truths about the world) or beliefs (assumptions), decisions are explicit choices with known trade-offs.
+**When it's read:** When an agent encounters code that seems unusual and needs to understand why it was built that way. When proposing changes that might conflict with a prior decision. During epic planning to check if a proposed feature contradicts an accepted decision.
+**How it's enforced:** Not enforced directly — decisions are reference material. Policies enforce the rules that flow from decisions.
+
+**Format:**
+```markdown
+# Decision: <Name>
+## Status — Accepted | Superseded | Deprecated
+## Context — what problem prompted this decision
+## Decision — what we chose and why
+## Derives from — facts, principles, beliefs that justify it
+## Consequences — trade-offs and implications
+```
+
+**Key difference from policies:** A policy says DENY/REQUIRE — it's a rule. A decision says "we chose X because of Y, accepting trade-off Z." Decisions explain the reasoning; policies enforce the outcome.
+
 ## Operational Artifacts (not an engine type)
 
 **`gaps.md`** — a transient work queue, not knowledge. Entries are created by `/audit`, `/knowledge-audit`, and `/pipeline` Step 5 when violations or missing knowledge are found. Each entry includes a test strategy. Entries are removed after the fix is merged.
@@ -157,19 +181,19 @@ Not an engine type because: it's a single file, entries are temporary, and it do
 The full derivation chain from atomic truths to code enforcement:
 
 ```
-Facts (atomic truths about the world)
+Facts (atomic truths)  ←── Temporal facts (time-bounded, need verification)
     ↓ derive into
 Principles (shared reasoning connecting facts to policies)
     ↓ implemented by
 Policies (constraints)   ←── justified by ── Beliefs (assumptions)
-    ↓ enforced by
-Structural Tests
+    ↓ enforced by                               ↑ referenced by
+Structural Tests                            Decisions (ADRs — why we chose X)
     ↓ informed by
 Domain Models (business context)
 
 Audit / Knowledge-Audit / Pipeline
-    ↓ discovers gaps
-gaps.md (work queue)
+    ↓ discovers gaps or new facts/beliefs
+gaps.md (work queue)  +  facts/ and beliefs/ (knowledge discoveries)
     ↓ resolved by
 Optimize / Pipeline stories
 

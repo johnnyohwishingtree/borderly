@@ -25,7 +25,7 @@ const RULES_DIR = resolve(ROOT, '.claude/rules');
 
 // ── Node types (labels in graph DB terms) ──
 
-type NodeType = 'fact' | 'principle' | 'policy' | 'belief' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational' | 'skill' | 'rule';
+type NodeType = 'fact' | 'principle' | 'policy' | 'belief' | 'decision' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational' | 'skill' | 'rule';
 
 interface Node {
   id: string;           // relative path from .knowledge/ or project root
@@ -240,6 +240,7 @@ function inferNodeType(path: string): NodeType {
   if (path.startsWith('principles/')) return 'principle';
   if (path.startsWith('policies/')) return 'policy';
   if (path.startsWith('beliefs/')) return 'belief';
+  if (path.startsWith('decisions/')) return 'decision';
   if (path.startsWith('models/')) return 'model';
   if (path.startsWith('templates/')) return 'template';
   if (path.startsWith('patterns/')) return 'pattern';
@@ -257,7 +258,7 @@ function queryOrphans(nodes: Node[], edges: Edge[]): Node[] {
   const excludedTypes: NodeType[] = [
     'folder-claude', 'operational', 'country', 'template',
     'pattern', 'rubric', 'skill', 'rule',
-    'fact', 'principle', 'belief',  // referenced via DERIVES_FROM and ## Referenced by
+    'fact', 'principle', 'belief', 'decision',  // referenced via DERIVES_FROM, not folder See:
   ];
   return nodes.filter(n =>
     !excludedTypes.includes(n.type) &&
@@ -320,6 +321,7 @@ function visualize(nodes: Node[], edges: Edge[]): string {
     principle: '#55EFC4',
     policy: '#FF6B6B',
     belief: '#FDCB6E',
+    decision: '#E17055',
     model: '#4ECDC4',
     template: '#95E1D3',
     pattern: '#F38181',
