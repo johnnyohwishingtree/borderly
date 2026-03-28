@@ -37,7 +37,11 @@ src/components/, src/screens/, maestro/
 - REQUIRE: `zone: 'footer'` for elements fixed at bottom (outside ScrollView)
 - REQUIRE: `zone: 'scroll'` (or omit — default) for elements inside ScrollView
 - REQUIRE: screenRegistry includes `ScreenLayout` with `scrollable`, `fitsOnScreen`, `elementOrder`
+- REQUIRE: `ScreenLayout` is auto-inferred by the generator from source code (ScrollView detection, element count, testID order)
+- REQUIRE: structural test verifies generated registry matches source — catches layout drift
 - DENY: blind scrolling — emitter must check screen layout before scrolling
+- DENY: manual layout maps or overrides for scrollable/fitsOnScreen — always derived from source
+- DENY: hardcoding scroll behavior in journey definitions when the emitter can infer it from layout
 
 ## testIDs.ts Format
 ```typescript

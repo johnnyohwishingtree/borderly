@@ -19,13 +19,19 @@ The E2E test flow generation system. Produces Maestro YAML from TypeScript journ
 ### screenRegistry.ts
 - Auto-generated from source files by `scripts/generate-screen-registry.ts --write`
 - Per-screen: layout (scrollable, fitsOnScreen, elementOrder), fields, actionButtons, alerts, navigatesTo, waitFor, notes
+- `ScreenLayout` is **auto-inferred** by the generator from source:
+  - `scrollable` — detected from ScrollView/FlatList in the .tsx file
+  - `fitsOnScreen` — inferred from element count + viewport patterns
+  - `elementOrder` — extracted from testID declaration order in source
 - `ScreenLayout` tells the emitter whether to scroll: `fitsOnScreen: true` → never scroll
-- Human-authored fields (waitFor, notes, alerts, layout overrides) preserved via `registry-overrides.json`
+- Human-authored fields (waitFor, notes, alerts) preserved via `registry-overrides.json`
+- Layout is NEVER manually maintained — always derived from source code
 
 ### registry-overrides.json
-- Human-authored alerts, waitFor, notes, and layout overrides
+- Human-authored alerts, waitFor, and notes that can't be parsed from source
 - Merged into auto-generated registry during generation
-- Use for: alerts (can't be parsed from source), layout corrections, waitFor text
+- Use for: alerts (can't be parsed from source), waitFor text
+- NOT for layout — layout is auto-inferred from source
 
 ### Journey definitions (journeys/*.ts)
 - TypeScript files composing screen steps into user flows
