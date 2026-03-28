@@ -36,3 +36,13 @@ src/services/storage/, src/hooks/, src/services/**
 ## References
 - Related: policies/data/pii-boundary.md
 - Related: policies/architecture/local-first.md
+
+## Derives From
+- `principles/security-through-storage-tiers.md`
+- `principles/centralized-access-patterns.md`
+- `facts/organizational/three-tier-storage.md`
+- `facts/regulatory/pii-has-special-handling-requirements.md`
+- `facts/tool/keychain-is-os-secure-storage.md`
+- `facts/tool/watermelondb-encrypts-at-rest.md`
+- `facts/tool/mmkv-is-fast-but-unencrypted.md`
+- `facts/craft/interfaces-over-implementations.md`

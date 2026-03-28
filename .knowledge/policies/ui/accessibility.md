@@ -35,3 +35,8 @@ src/components/, src/screens/
 
 ## References
 - Related: policies/ui/styling.md (touch targets)
+
+## Derives From
+- `principles/accessibility-is-non-negotiable.md`
+- `facts/cognitive/44pt-minimum-touch-target.md`
+- `facts/customer/travelers-fill-forms-at-borders.md`

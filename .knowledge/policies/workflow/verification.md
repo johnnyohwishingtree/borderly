@@ -28,3 +28,7 @@ All skills that modify source code or tests.
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — gate before every commit
+
+## Derives From
+- `facts/craft/fail-fast.md`
+- `facts/craft/tests-are-specifications.md`

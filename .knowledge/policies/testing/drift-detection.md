@@ -34,3 +34,8 @@ src/, maestro/, .knowledge/, .claude/
 
 ## References
 - Related: policies/testing/e2e-testability.md
+
+## Derives From
+- `principles/source-of-truth-prevents-drift.md`
+- `facts/domain/forms-change-without-notice.md`
+- `facts/craft/naming-enables-automation.md`

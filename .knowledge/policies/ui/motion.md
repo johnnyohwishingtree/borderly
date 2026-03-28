@@ -32,3 +32,7 @@ src/components/ui/, src/components/**/
 ## Enforcement
 - Design guideline — not structurally testable
 - Reviewed during pipeline Step 6 (self-review)
+
+## Derives From
+- `principles/accessibility-is-non-negotiable.md`
+- `facts/cognitive/reduced-motion-is-accessibility.md`

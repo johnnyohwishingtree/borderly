@@ -31,3 +31,14 @@ src/services/, src/hooks/, src/utils/, src/schemas/
 ## References
 - Related: policies/data/storage-tiers.md
 - Related: policies/architecture/local-first.md
+
+## Derives From
+- `principles/security-through-storage-tiers.md`
+- `facts/regulatory/pii-has-special-handling-requirements.md`
+- `facts/regulatory/gdpr-data-minimization.md`
+- `facts/regulatory/clipboard-is-readable-by-other-apps.md`
+- `facts/organizational/three-tier-storage.md`
+- `facts/organizational/biometric-asymmetric-ux.md`
+- `facts/tool/keychain-is-os-secure-storage.md`
+- `facts/tool/mmkv-is-fast-but-unencrypted.md`
+- `facts/customer/family-travelers-share-devices.md`

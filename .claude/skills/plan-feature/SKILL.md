@@ -32,8 +32,10 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 
 1. Identify files to create or modify
 2. Check if relevant patterns exist in `.knowledge/patterns/`
-3. Determine the dependency order (stores before hooks before screens)
-4. List tests that need to be written
+3. Check `.knowledge/beliefs/` — does this feature depend on any unconfirmed beliefs? If so, note the risk and consider whether to implement defensively
+4. Check `.knowledge/facts/` — are there domain or customer facts that should inform the design?
+5. Determine the dependency order (stores before hooks before screens)
+6. List tests that need to be written
 
 Present the plan before implementing if the scope is large (3+ files).
 

@@ -55,3 +55,9 @@ Extract logic into custom hooks under `src/hooks/` per `policies/state/hook-conv
 - `__tests__/structure/hooks-barrel.test.ts` — barrel completeness + naming
 - `__tests__/structure/screen-folder-convention.test.ts` — screen naming
 - Skills reference this policy directly when splitting files
+
+## Derives From
+- `principles/naming-enables-enforcement.md`
+- `facts/craft/size-indicates-scope-creep.md`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/separation-of-concerns.md`

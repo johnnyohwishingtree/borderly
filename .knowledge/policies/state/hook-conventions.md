@@ -33,3 +33,11 @@ src/hooks/, src/screens/
 ## References
 - Related: policies/state/store-boundaries.md
 - Related: policies/architecture/dependency-direction.md
+
+## Derives From
+- `principles/directional-dependency-graph.md`
+- `principles/naming-enables-enforcement.md`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/state-is-the-source-of-bugs.md`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/size-indicates-scope-creep.md`

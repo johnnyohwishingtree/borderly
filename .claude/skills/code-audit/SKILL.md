@@ -63,17 +63,26 @@ Also check general CLAUDE.md health:
 - `.knowledge/` or `.claude/` path references pointing to files that don't exist
 - README commands that don't match actual CLI behavior
 
-## Step 4: Evaluate each finding
+## Step 4: Classify each finding
 
-For every violation, decide:
+For every violation, decide what type of finding it is:
 
-**Is the code wrong?** The policy is correct but code doesn't follow it.
+**Code violation?** The policy is correct but code doesn't follow it.
 → Add to `gaps.md` as a code fix
 
-**Is the knowledge stale?** The code is intentionally different and the policy needs updating.
+**Knowledge stale?** The code is intentionally different and the policy needs updating.
 → Add to `gaps.md` as a knowledge update
 
-Don't blindly flag violations — understand whether reality or documentation is wrong.
+**New truth discovered?** The audit revealed something true about the world, the user, or the tools that isn't captured in `.knowledge/facts/`.
+→ Create or update a fact file in `.knowledge/facts/<type>/`
+
+**Assumption invalidated?** The audit found evidence that contradicts a belief in `.knowledge/beliefs/`.
+→ Update the belief's status (lower certainty or add counter-evidence)
+
+**New constraint discovered?** A pattern appeared across multiple violations that should be a permanent rule.
+→ Create a new policy with enforcement test (existing behavior — unchanged)
+
+Don't blindly flag violations — understand whether reality or documentation is wrong, and whether the finding is transient (fix it) or permanent (capture it in the graph).
 
 ## Step 5: Write findings to gaps.md
 

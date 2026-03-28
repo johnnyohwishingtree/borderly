@@ -7,6 +7,9 @@ Pipeline Step 9, `/epic-planner` skill
 - REQUIRE: check the priority order below before planning a new epic
 - REQUIRE: only plan test coverage epics if all higher priorities are clear
 - REQUIRE: check existing open stories/epics first — don't duplicate
+- REQUIRE: check `.knowledge/beliefs/` — if the epic depends on a hypothesis or working assumption, note it in the epic's Beliefs & Assumptions section
+- REQUIRE: each story's Knowledge section must list relevant beliefs and facts (use `.knowledge/templates/story.md`)
+- DENY: creating epics that depend entirely on unconfirmed hypotheses without flagging the risk
 - DENY: creating test-coverage epics when UX issues or feature gaps exist
 - DENY: creating more than 2 test stories in a single epic
 - DENY: planning "write tests for every file" epics — test coverage is not a goal, catching bugs is
@@ -43,3 +46,8 @@ When the story queue is empty, plan the next epic in this order. Pick the first 
 
 ## Enforcement
 - `/code-audit` flags when test stories outnumber feature/UX stories in recent history
+
+## Derives From
+- `facts/craft/tests-are-specifications.md`
+- `facts/domain/errors-have-consequences.md`
+- `facts/cognitive/fewer-fields-higher-completion.md`

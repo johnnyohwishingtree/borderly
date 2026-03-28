@@ -6,6 +6,15 @@
 
 <Why this matters now. What prompted this epic — a gap in test coverage, a missing feature, a UX review finding, etc.>
 
+## Beliefs & Assumptions
+
+<Which beliefs does this epic depend on? If any are hypotheses or working assumptions, note the risk.>
+
+- `beliefs/<name>.md` (status: <confirmed/working assumption/hypothesis>)
+- <Or: "No unconfirmed beliefs — this epic is grounded in confirmed facts.">
+
+<If an epic depends on a hypothesis, flag it: "This epic assumes [X]. If [X] is invalidated, stories 3-5 should be reconsidered.">
+
 ## Stories
 
 - [ ] #__ Story 1: <title>

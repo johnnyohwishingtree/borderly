@@ -4,6 +4,13 @@
 __tests__/, src/**/*.test.ts, src/**/*.test.tsx
 
 ## Rules
+
+### Before writing any test
+- REQUIRE: answer "What bug would this test catch?" — if the answer is "none specifically" or "it would only catch a crash," don't write it
+- REQUIRE: prefer integration tests (real form engine, real schemas, real profile data) over unit tests with mocks for form/auto-fill logic
+- REQUIRE: for new country schemas, write at least one integration test that verifies auto-fill correctness end-to-end (profile + leg + schema → verify field values)
+
+### Test assertions
 - REQUIRE: every test asserts behavior, not existence — `expect(result).toBe(42)` not `expect(result).toBeDefined()`
 - REQUIRE: at least one error/edge case per describe block — happy path only is not a test
 - REQUIRE: mocks are minimal — if you can test with real logic, do it; mock only I/O and platform boundaries
@@ -15,6 +22,7 @@ __tests__/, src/**/*.test.ts, src/**/*.test.tsx
 - DENY: testing private/internal implementation details (internal state shape, private method calls)
 - DENY: duplicate coverage — two tests asserting the same code path with the same inputs
 - DENY: asserting `toHaveBeenCalled()` without verifying the call arguments or the resulting state change
+- DENY: writing tests to increase count — test count is not a metric
 
 ## Quality Tiers
 
@@ -56,3 +64,13 @@ Enforced by `/test-audit` skill when run on schedule
 ## References
 - Related: rubrics/test-quality.md (evaluation criteria with weights)
 - Related: policies/testing/test-conventions.md (mechanical rules)
+
+## Derives From
+- `principles/test-before-fix.md`
+- `facts/craft/tests-are-specifications.md`
+- `facts/domain/errors-have-consequences.md`
+- `facts/organizational/test-count-inflates-confidence.md`
+- `facts/organizational/render-tests-catch-no-bugs.md`
+- `decisions/006-testing-strategy.md`
+- `beliefs/test-count-is-not-a-goal.md`
+- `beliefs/integration-tests-over-unit-tests.md`

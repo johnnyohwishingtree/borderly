@@ -110,9 +110,14 @@ Prioritize:
 2. **Flow improvements** — reduce tap counts, add missing states
 3. **Composition cleanup** — deduplicate journey steps
 
-### Step 7: Update knowledge
+### Step 7: Classify findings and update knowledge
 
 Follow `.knowledge/policies/workflow/learning.md`.
+
+For each finding, classify it:
+- **UX bug to fix** → already handled in Steps 5-6 (gaps.md + stories)
+- **New customer truth discovered** (e.g., "users abandon the form at the accommodation step") → create or update a fact in `.knowledge/facts/customer/`
+- **UX belief invalidated** (e.g., "smart delta confused users — they wanted to see all fields") → update the relevant belief in `.knowledge/beliefs/`
 
 If new UX patterns were discovered, update `models/user-journeys.md`.
 

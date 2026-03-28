@@ -26,6 +26,17 @@
 - `src/<path/to/file.ts>` — <why: "you're adding a hook here">
 - `src/<path/to/file.ts:N-M>` — <why: "see how existing screens are structured">
 
+## Knowledge
+
+<Facts, beliefs, and policies relevant to this story. The pipeline pre-flight checks these before implementing.>
+
+- `.knowledge/policies/<relevant>.md` — <constraint to follow>
+- `.knowledge/beliefs/<relevant>.md` (<status>) — <why it matters to this story>
+- `.knowledge/facts/<type>/<relevant>.md` — <truth this story depends on>
+
+<If a belief is a hypothesis, note: "Depends on unconfirmed belief — implement defensively.">
+<If none apply, write "No belief dependencies.">
+
 ## Patterns & Templates
 
 <Which patterns/templates apply to this story? Read these INSTEAD of reverse-engineering conventions from existing code.>

@@ -28,7 +28,43 @@ Fix any issues found:
 - **Unreferenced** → add `See:` link to the relevant folder CLAUDE.md
 - **Unenforced** → write the structural test or mark as design guideline
 
-## Step 2: Test coverage
+## Step 2: Schema temporal health
+
+Check every country schema for staleness by comparing `metadata.lastVerified` against `metadata.maintenanceFrequency`:
+
+```bash
+node -e "
+const fs = require('fs');
+const now = new Date();
+const freqDays = { weekly: 7, monthly: 30, quarterly: 90, annually: 365, as_needed: 180 };
+const schemas = fs.readdirSync('src/schemas').filter(f => f.endsWith('.json') && f !== 'manifest.json');
+let stale = [];
+schemas.forEach(f => {
+  const s = JSON.parse(fs.readFileSync('src/schemas/' + f, 'utf8'));
+  const verified = new Date(s.metadata?.lastVerified || s.lastUpdated);
+  const freq = s.metadata?.maintenanceFrequency || 'monthly';
+  const maxDays = freqDays[freq] || 30;
+  const daysSince = Math.floor((now - verified) / 86400000);
+  if (daysSince > maxDays) {
+    stale.push(f.replace('.json','') + ' | ' + daysSince + ' days since verified (max ' + maxDays + ' for ' + freq + ')');
+  }
+});
+if (stale.length) { console.log('STALE SCHEMAS:'); stale.forEach(s => console.log('  - ' + s)); }
+else { console.log('All schemas within maintenance window.'); }
+"
+```
+
+For each stale schema:
+1. Check if the portal URL still resolves (HEAD request or manual check)
+2. Add to `gaps.md` under `## Drift` with: which schema, how many days overdue, what to verify
+3. If the portal URL fails, create a story to investigate and update the schema
+
+Also check `.knowledge/beliefs/` for staleness:
+- Read each belief file
+- If a belief has status `Hypothesis` and no evidence updates in 60+ days, flag it for review
+- Add to `gaps.md` under `## Knowledge updates`
+
+## Step 3: Test coverage
 
 Run `pnpm jest --ci __tests__/structure/knowledge-test-coverage.test.ts` to verify all policies are mapped.
 
@@ -38,7 +74,7 @@ For any policy without a structural test:
 3. If design guideline → skip but note it
 4. Add new policies to `knowledge-test-coverage.test.ts` mapping
 
-## Step 3: Consistency check
+## Step 4: Consistency check
 
 Scan for contradictions between knowledge files:
 
@@ -56,15 +92,16 @@ When a conflict is found:
 - Update the other file to reference the authoritative rule
 - Add to gaps.md under `## Knowledge updates`
 
-## Step 4: Index sync
+## Step 5: Index sync
 
 Compare `.knowledge/index.md` against what exists on disk:
 - Skills listed that don't exist (deleted but not removed from index)
 - Skills that exist but aren't listed
 - Policy scopes on disk but not in index
+- Beliefs directory and files indexed
 - Fix mismatches directly — don't add to gaps
 
-## Step 5: Regenerate diagram
+## Step 6: Regenerate diagram
 
 ```bash
 npx tsx scripts/generate-knowledge-diagram.ts
@@ -72,16 +109,16 @@ npx tsx scripts/generate-knowledge-diagram.ts
 
 Commit if the diagram changed.
 
-## Step 6: Write findings to gaps.md
+## Step 7: Write findings to gaps.md
 
 Each entry includes: what's wrong, where, and test strategy to prevent recurrence.
 
-## Step 7: Fix or create stories (if not --dry-run)
+## Step 8: Fix or create stories (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline following `.knowledge/policies/workflow/fix-strategy.md`
 - **Larger fixes**: create a story with test strategy in acceptance criteria
 
-## Step 8: Verify
+## Step 9: Verify
 
 Follow `.knowledge/policies/workflow/verification.md`.
 Follow `.knowledge/policies/workflow/learning.md`.

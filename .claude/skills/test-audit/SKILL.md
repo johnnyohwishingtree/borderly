@@ -123,9 +123,14 @@ gh issue create --repo $REPO \
 After completing fixes, remove resolved entries from .knowledge/gaps.md."
 ```
 
-## Step 7: Update knowledge
+## Step 7: Classify findings and update knowledge
 
 Follow `.knowledge/policies/workflow/learning.md`.
+
+For each finding, classify it:
+- **Test to fix/delete** → already handled in Steps 4-6
+- **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → create or update a fact in `.knowledge/facts/tool/`
+- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `.knowledge/beliefs/`
 
 If patterns were found during the audit:
 - Add new anti-patterns to `policies/testing/test-quality.md`

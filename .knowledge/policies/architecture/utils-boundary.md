@@ -37,3 +37,10 @@ src/utils/, src/services/
 - Structural test: `__tests__/structure/utils-boundary.test.ts`
 - Runs at `pnpm test` time — catches storage imports, oversized directories, and lifecycle exports
 - All violations resolved — structural test fully enforces the policy with no exceptions
+
+## Derives From
+- `principles/centralized-access-patterns.md`
+- `principles/directional-dependency-graph.md`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/size-indicates-scope-creep.md`
+- `facts/craft/interfaces-over-implementations.md`

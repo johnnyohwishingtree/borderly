@@ -154,11 +154,15 @@ function findOrphans(allFiles: string[], folderRefs: FolderRef[]): string[] {
   }
 
   return allFiles.filter(f => {
-    // Skip country files, templates, patterns, rubrics (loaded on-demand by skills)
+    // Skip types loaded on-demand or via DERIVES_FROM (not folder CLAUDE.md See: links)
     if (f.startsWith('domain/countries/')) return false;
     if (f.startsWith('templates/')) return false;
     if (f.startsWith('patterns/')) return false;
     if (f.startsWith('rubrics/')) return false;
+    if (f.startsWith('facts/')) return false;
+    if (f.startsWith('principles/')) return false;
+    if (f.startsWith('beliefs/')) return false;
+    if (f.startsWith('decisions/')) return false;
     return !referenced.has(f);
   });
 }

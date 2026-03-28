@@ -23,14 +23,15 @@ Takes a single `.knowledge/` file, scans the relevant codebase for violations, a
 /apply-knowledge form-engine.md --dry-run       # Report only, don't fix
 ```
 
-## Step 1: Load the knowledge file
+## Step 1: Load the knowledge file and check assumptions
 
 Read the specified `.knowledge/` file. Extract:
 - **Rules**: concrete "do this" statements
 - **Anti-patterns**: concrete "never do this" statements
 - **Scope**: which directories/file types the rules apply to (infer from the content or use `--scope`)
 
-If the file is a **policy** (`policies/`), read its SCOPE section — it tells you exactly what directories to scan and what RULES to check.
+If the file is a **policy** (`policies/`), read its SCOPE section — it tells you exactly what directories to scan and what RULES to check. Also read its `## Derives From` section — check if any referenced beliefs are hypotheses. If the policy is justified by an unconfirmed belief, note this before mass-fixing code against it.
+
 If the file is a **model** (`models/`), read its INVARIANTS — check the code enforces them.
 
 ## Step 2: Determine what to scan

@@ -24,12 +24,17 @@ If `gaps.md` doesn't exist or has no entries → skip to Step 3.
 
 ## Step 2: Resolve each gap
 
+Before resolving, classify each gap entry — some may be knowledge discoveries, not just work items:
+
 ### Knowledge updates
 
 For each entry under `## Knowledge updates`:
 
 1. Read the referenced `.knowledge/` file
-2. Add the missing guidance — be specific, include code examples from the reference
+2. Determine: is this a missing policy/model update, or is it a new fact or changed belief?
+   - **Missing guidance** → add to the referenced knowledge file
+   - **New truth about the world/users/tools** → create a fact in `.knowledge/facts/<type>/`
+   - **Assumption proven wrong** → update the belief in `.knowledge/beliefs/`
 3. Remove the resolved entry from `gaps.md`
 4. Commit:
    ```bash

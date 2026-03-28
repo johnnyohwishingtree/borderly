@@ -25,7 +25,7 @@ const RULES_DIR = resolve(ROOT, '.claude/rules');
 
 // ── Node types (labels in graph DB terms) ──
 
-type NodeType = 'policy' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational' | 'skill' | 'rule';
+type NodeType = 'fact' | 'principle' | 'policy' | 'belief' | 'decision' | 'model' | 'template' | 'pattern' | 'rubric' | 'country' | 'folder-claude' | 'test' | 'operational' | 'skill' | 'rule';
 
 interface Node {
   id: string;           // relative path from .knowledge/ or project root
@@ -41,6 +41,7 @@ type EdgeType =
   | 'REFERENCES'     // knowledge file mentions another knowledge file
   | 'REFERENCED_BY'  // folder CLAUDE.md points to a knowledge file (See:)
   | 'ENFORCED_BY'    // policy is enforced by a structural test
+  | 'DERIVES_FROM'   // policy/principle derives from a fact or principle
   | 'SCOPES'         // policy governs a directory
   | 'MATCHES'        // template matches a rubric
   | 'FOLLOWS'        // skill/rule references a policy
@@ -91,8 +92,22 @@ function buildGraph(): { nodes: Node[]; edges: Edge[] } {
 
         nodes.push(node);
 
-        // Extract cross-references (edges)
-        const refs = content.matchAll(/\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
+        // Extract Derives From sections (policies → facts/principles, principles → facts)
+        const derivesMatch = content.match(/## Derives [Ff]rom\n([\s\S]*?)(?=\n## |\n$|$)/);
+        if (derivesMatch) {
+          const derivesRefs = derivesMatch[1].matchAll(/`([a-zA-Z0-9/_.-]+\.md(?:#[^`]*)?)`/g);
+          for (const ref of derivesRefs) {
+            // Strip fragment identifiers for edge target (e.g., facts/craft.md#f:craft:foo → facts/craft.md)
+            const target = ref[1].replace(/#.*$/, '');
+            if (target !== relPath) {
+              edges.push({ from: relPath, to: target, type: 'DERIVES_FROM' });
+            }
+          }
+        }
+
+        // Extract cross-references (edges) — skip Derives From section to avoid duplicates
+        const contentWithoutDerivesFrom = content.replace(/## Derives [Ff]rom\n[\s\S]*?(?=\n## |\n$|$)/, '');
+        const refs = contentWithoutDerivesFrom.matchAll(/\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
         for (const ref of refs) {
           if (ref[1] !== relPath) {
             edges.push({ from: relPath, to: ref[1], type: 'REFERENCES' });
@@ -221,7 +236,11 @@ function buildGraph(): { nodes: Node[]; edges: Edge[] } {
 }
 
 function inferNodeType(path: string): NodeType {
+  if (path.startsWith('facts/')) return 'fact';
+  if (path.startsWith('principles/')) return 'principle';
   if (path.startsWith('policies/')) return 'policy';
+  if (path.startsWith('beliefs/')) return 'belief';
+  if (path.startsWith('decisions/')) return 'decision';
   if (path.startsWith('models/')) return 'model';
   if (path.startsWith('templates/')) return 'template';
   if (path.startsWith('patterns/')) return 'pattern';
@@ -235,25 +254,29 @@ function inferNodeType(path: string): NodeType {
 
 function queryOrphans(nodes: Node[], edges: Edge[]): Node[] {
   const hasIncoming = new Set(edges.map(e => e.to));
+  // Exclude types that are loaded on-demand or have special loading patterns
+  const excludedTypes: NodeType[] = [
+    'folder-claude', 'operational', 'country', 'template',
+    'pattern', 'rubric', 'skill', 'rule',
+    'fact', 'principle', 'belief', 'decision',  // referenced via DERIVES_FROM, not folder See:
+  ];
   return nodes.filter(n =>
-    n.type !== 'folder-claude' &&
-    n.type !== 'operational' &&
-    n.type !== 'country' &&
-    n.type !== 'template' &&
-    n.type !== 'pattern' &&
-    n.type !== 'rubric' &&
-    n.type !== 'skill' &&
-    n.type !== 'rule' &&
+    !excludedTypes.includes(n.type) &&
     !hasIncoming.has(n.id)
   );
 }
 
 function queryUnreferenced(nodes: Node[], edges: Edge[]): Node[] {
   const referencedByAnything = new Set(
-    edges.filter(e => e.type === 'REFERENCED_BY' || e.type === 'FOLLOWS').map(e => e.to)
+    edges.filter(e =>
+      e.type === 'REFERENCED_BY' || e.type === 'FOLLOWS' || e.type === 'DERIVES_FROM'
+    ).map(e => e.to)
   );
+  // Temporal facts are loaded by knowledge-audit for staleness, not via DERIVES_FROM
+  // Market facts may not be referenced by policies yet — flag them but don't panic
   return nodes.filter(n =>
-    (n.type === 'policy' || n.type === 'model') &&
+    (n.type === 'policy' || n.type === 'model' || n.type === 'fact' || n.type === 'principle') &&
+    !n.id.startsWith('facts/temporal/') &&  // checked by knowledge-audit, not DERIVES_FROM
     !referencedByAnything.has(n.id)
   );
 }
@@ -297,7 +320,11 @@ function visualize(nodes: Node[], edges: Edge[]): string {
   const lines: string[] = ['digraph KnowledgeGraph {', '  rankdir=LR;', '  node [shape=box, style=rounded];', ''];
 
   const colors: Record<string, string> = {
+    fact: '#74B9FF',
+    principle: '#55EFC4',
     policy: '#FF6B6B',
+    belief: '#FDCB6E',
+    decision: '#E17055',
     model: '#4ECDC4',
     template: '#95E1D3',
     pattern: '#F38181',

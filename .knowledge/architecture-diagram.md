@@ -7,15 +7,28 @@
 
 ```
 .knowledge/
+├── beliefs/    asia-pacific-first-market, auto-fill-40-percent-threshold, guided-submission-over-automation, local-first-is-differentiator, scan-once-fill-everywhere, schema-driven-forms-scale, smart-delta-increases-completion
+├── decisions/    001-three-tier-storage, 002-schema-driven-forms, 003-local-first-no-cloud, 004-guided-not-automated-submission, 005-bare-react-native
 ├── domain/countries/    australia, canada, india, indonesia, japan, malaysia, new-zealand, philippines, singapore, south-korea, thailand, uk, usa, vietnam
-├── models/    form-engine, passport, qr-wallet, stores, submission-guide
-├── patterns/    add-country, add-native-dep, add-screen
+├── facts/cognitive/    44pt-minimum-touch-target, centered-text-slows-reading, fewer-fields-higher-completion, reduced-motion-is-accessibility, three-font-sizes-max, users-skip-error-messages
+├── facts/craft/    caching-trades-freshness-for-speed, fail-fast, interfaces-over-implementations, naming-enables-automation, separation-of-concerns, size-indicates-scope-creep, state-is-the-source-of-bugs, tests-are-specifications
+├── facts/customer/    family-travelers-share-devices, multi-leg-trips-are-common, travelers-fill-forms-at-borders, users-dont-understand-portal-jargon, users-wont-verify-auto-filled-values-carefully
+├── facts/domain/    boolean-fields-default-false, errors-have-consequences, every-country-unique-rules, field-semantics-stable-labels-vary, forms-change-without-notice, passport-mrz-is-standardized, portals-are-not-apis, submission-deadlines-vary-widely
+├── facts/market/    government-portals-have-no-third-party-integrations, no-competitor-does-auto-fill, travel-form-apps-are-guides-not-fillers
+├── facts/organizational/    biometric-asymmetric-ux, pipeline-learning-is-mandatory, policies-over-rules, schema-first-development, structural-tests-enforce-policies, three-tier-storage
+├── facts/regulatory/    clipboard-is-readable-by-other-apps, gdpr-data-minimization, human-must-be-actor-of-record, pii-has-special-handling-requirements, portal-tos-prohibit-automation
+├── facts/temporal/    aus-portal, can-portal, gbr-portal, idn-portal, ind-portal, jpn-portal, kor-portal, mys-portal, nzl-portal, phl-portal, sgp-portal, tha-portal, usa-portal, vnm-portal
+├── facts/tool/    bare-rn-not-expo, date-string-parsing-shifts-timezone, jest-fake-timers-hang-with-renderhook, keychain-is-os-secure-storage, mmkv-is-fast-but-unencrypted, nativewind-is-tailwind-for-rn, searchable-select-for-long-lists, watermelondb-encrypts-at-rest
+├── models/    form-engine, maestro-generator, passport, qr-wallet, stores, submission-guide, system-architecture, user-journeys
+├── patterns/    add-country, add-native-dep, add-screen, add-test
 ├── policies/architecture/    dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary
 ├── policies/data/    pii-boundary, schema-fields, storage-tiers
 ├── policies/platform/    native-modules, navigation
 ├── policies/state/    hook-conventions, store-boundaries
-├── policies/testing/    drift-detection, e2e-testability, test-conventions
+├── policies/testing/    drift-detection, e2e-testability, test-conventions, test-quality
 ├── policies/ui/    accessibility, motion, styling, typography, ux-writing
+├── policies/workflow/    bug-fix, epic-planning, fix-strategy, learning, self-review, story-implementation, verification
+├── principles/    accessibility-is-non-negotiable, centralized-access-patterns, declarative-over-imperative, directional-dependency-graph, knowledge-is-living-documentation, naming-enables-enforcement, security-through-storage-tiers, source-of-truth-prevents-drift, test-before-fix, user-always-submits
 ├── rubrics/    code-quality, skill-quality, test-quality
 ├── templates/    epic, folder-claude-md, module, skill, story, test
 ```
@@ -26,24 +39,24 @@
 __tests__                    → policies/testing/test-conventions
 __tests__/structure          → policies/architecture/testable-architecture
 e2e                          → policies/testing/test-conventions, policies/platform/native-modules
-maestro                      → policies/testing/e2e-testability, policies/testing/drift-detection
-src                          → policies/architecture/local-first, policies/architecture/dependency-direction, policies/data/storage-tiers
-src/components               → policies/architecture/dependency-direction, policies/testing/e2e-testability, policies/ui/motion
+maestro                      → models/maestro-generator, policies/testing/e2e-testability, policies/testing/drift-detection
+src                          → policies/architecture/local-first, policies/data/storage-tiers
+src/components               → policies/architecture/dependency-direction, policies/testing/e2e-testability
 src/components/forms         → models/form-engine
-src/components/ui            → policies/ui/styling, policies/ui/accessibility, policies/ui/typography
-src/components/wallet        → models/qr-wallet, policies/ui/styling
-src/hooks                    → policies/state/hook-conventions, policies/architecture/file-boundaries
-src/schemas                  → models/form-engine, policies/data/schema-fields, policies/testing/drift-detection
+src/components/ui            → policies/ui/styling, policies/ui/accessibility, policies/ui/typography, policies/ui/motion
+src/components/wallet        → models/qr-wallet
+src/hooks                    → policies/state/hook-conventions
+src/schemas                  → models/form-engine, policies/data/schema-fields, beliefs/auto-fill-40-percent-threshold
 src/screens                  → policies/state/hook-conventions, policies/platform/navigation, policies/ui/ux-writing
-src/screens/wallet           → models/qr-wallet, policies/testing/e2e-testability
+src/screens/wallet           → models/qr-wallet
 src/services                 → policies/architecture/dependency-direction
 src/services/backup          → policies/data/storage-tiers, policies/data/pii-boundary
-src/services/forms           → models/form-engine
-src/services/import          → models/form-engine, policies/architecture/dependency-direction
+src/services/forms           → models/form-engine, beliefs/smart-delta-increases-completion
+src/services/import          → models/form-engine
 src/services/notification    → policies/architecture/dependency-direction, policies/platform/native-modules
 src/services/passport        → models/passport
-src/services/storage         → policies/data/storage-tiers, policies/data/pii-boundary
-src/services/submission      → models/submission-guide, policies/architecture/local-first
+src/services/storage         → policies/data/storage-tiers, policies/data/pii-boundary, beliefs/local-first-is-differentiator
+src/services/submission      → models/submission-guide, policies/architecture/local-first, beliefs/guided-submission-over-automation
 src/stores                   → models/stores, policies/state/store-boundaries
 src/utils                    → policies/architecture/utils-boundary
 ```
@@ -51,6 +64,20 @@ src/utils                    → policies/architecture/utils-boundary
 ## Knowledge Cross-References
 
 ```
+beliefs/asia-pacific-first-market        → patterns/add-country
+beliefs/auto-fill-40-percent-threshold   → patterns/add-country
+beliefs/auto-fill-40-percent-threshold   → policies/data/schema-fields
+beliefs/guided-submission-over-automation → models/submission-guide
+beliefs/guided-submission-over-automation → models/user-journeys
+beliefs/local-first-is-differentiator    → policies/architecture/local-first
+beliefs/local-first-is-differentiator    → policies/data/pii-boundary
+beliefs/local-first-is-differentiator    → policies/data/storage-tiers
+beliefs/scan-once-fill-everywhere        → models/passport
+beliefs/scan-once-fill-everywhere        → models/form-engine
+beliefs/schema-driven-forms-scale        → models/form-engine
+beliefs/schema-driven-forms-scale        → patterns/add-country
+beliefs/smart-delta-increases-completion → models/form-engine
+models/system-architecture               → policies/workflow/verification
 patterns/add-country                     → policies/data/schema-fields
 patterns/add-country                     → policies/testing/drift-detection
 patterns/add-country                     → models/form-engine
@@ -62,8 +89,15 @@ patterns/add-screen                      → policies/ui/accessibility
 patterns/add-screen                      → policies/testing/e2e-testability
 patterns/add-screen                      → policies/state/hook-conventions
 patterns/add-screen                      → policies/architecture/file-boundaries
+patterns/add-test                        → policies/testing/test-quality
+patterns/add-test                        → policies/testing/test-conventions
+patterns/add-test                        → policies/workflow/bug-fix
 policies/architecture/dependency-direction → models/stores
 policies/state/store-boundaries          → models/stores
+policies/workflow/epic-planning          → templates/story
+policies/workflow/self-review            → rubrics/code-quality
+policies/workflow/self-review            → rubrics/test-quality
+policies/workflow/self-review            → rubrics/skill-quality
 rubrics/code-quality                     → templates/module
 rubrics/skill-quality                    → templates/skill
 rubrics/test-quality                     → templates/test
@@ -72,7 +106,7 @@ templates/folder-claude-md               → policies/state/hook-conventions
 templates/folder-claude-md               → policies/architecture/dependency-direction
 templates/module                         → rubrics/code-quality
 templates/module                         → templates/test
-templates/skill                          → rubrics/skill-quality
+templates/skill                          → policies/workflow/verification
 templates/test                           → rubrics/test-quality
 ```
 
@@ -81,14 +115,17 @@ templates/test                           → rubrics/test-quality
 ```
 accessibility-props            → policies/ui/accessibility
 dependency-direction           → policies/architecture/dependency-direction
+hook-return-limit              → policies/state/hook-conventions
 hooks-barrel                   → policies/state/hook-conventions
 inline-styles                  → policies/ui/styling
 knowledge-test-coverage        → policies/architecture/testable-architecture
 native-module-mocks            → policies/platform/native-modules
 no-space-x                     → policies/ui/styling
 pii-boundary                   → policies/data/pii-boundary
+skill-structure                → policies/architecture/testable-architecture
 smart-component-usage          → policies/ui/styling
 storage-boundary               → policies/data/storage-tiers
+system-integrity               → policies/architecture/testable-architecture
 utils-boundary                 → policies/architecture/utils-boundary
 ```
 
@@ -96,17 +133,29 @@ utils-boundary                 → policies/architecture/utils-boundary
 
 | File | References |
 |---|---|
-| `policies/architecture/dependency-direction` | 7 |
-| `models/form-engine` | 6 |
-| `policies/ui/styling` | 6 |
-| `policies/state/hook-conventions` | 5 |
-| `policies/data/storage-tiers` | 4 |
-| `policies/testing/e2e-testability` | 4 |
+| `models/form-engine` | 9 |
+| `policies/state/hook-conventions` | 6 |
+| `policies/data/storage-tiers` | 5 |
+| `policies/architecture/dependency-direction` | 5 |
+| `policies/ui/styling` | 5 |
+| `policies/data/pii-boundary` | 4 |
 | `policies/platform/native-modules` | 4 |
-| `policies/ui/accessibility` | 3 |
-| `policies/testing/drift-detection` | 3 |
-| `policies/data/pii-boundary` | 3 |
+| `policies/testing/test-conventions` | 4 |
+| `policies/architecture/testable-architecture` | 4 |
+| `policies/architecture/local-first` | 3 |
 
 ## Orphaned Nodes
 
-None — all policy and model files are referenced by at least one folder CLAUDE.md.
+| File | Issue |
+|---|---|
+| `models/system-architecture.md` | Not referenced by any folder CLAUDE.md |
+| `models/user-journeys.md` | Not referenced by any folder CLAUDE.md |
+| `policies/architecture/file-boundaries.md` | Not referenced by any folder CLAUDE.md |
+| `policies/testing/test-quality.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/bug-fix.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/epic-planning.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/fix-strategy.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/learning.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/self-review.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/story-implementation.md` | Not referenced by any folder CLAUDE.md |
+| `policies/workflow/verification.md` | Not referenced by any folder CLAUDE.md |
