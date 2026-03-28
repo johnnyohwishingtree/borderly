@@ -31,14 +31,23 @@ src/components/, src/screens/, maestro/
 - DENY: hand-writing Maestro YAML when the generator can handle it
 - DENY: text-based taps (`tapOn: "Submit"`) — use testID-based
 
+### Screen layout metadata
+- REQUIRE: every screen's testIDs.ts declares `zone` for elements outside the scroll area
+- REQUIRE: `zone: 'header'` for elements fixed at top (always visible)
+- REQUIRE: `zone: 'footer'` for elements fixed at bottom (outside ScrollView)
+- REQUIRE: `zone: 'scroll'` (or omit — default) for elements inside ScrollView
+- REQUIRE: screenRegistry includes `ScreenLayout` with `scrollable`, `fitsOnScreen`, `elementOrder`
+- DENY: blind scrolling — emitter must check screen layout before scrolling
+
 ## testIDs.ts Format
 ```typescript
-// src/screens/trips/CreateTripScreen/testIDs.ts
-export const CREATE_TRIP_IDS = {
-  nameField: { id: 'create-trip-name-field', type: 'Input' as const },
-  countryField: { id: 'create-trip-country-field', type: 'SearchableSelect' as const },
-  arrivalDateField: { id: 'leg-${index}-arrival-field', type: 'DatePickerField' as const, dynamic: true as const },
-  createButton: { id: 'create-trip-button', type: 'button' as const },
+// src/screens/trips/LegFormScreen/testIDs.ts
+import type { TestMeta } from '@/types/testMeta';
+
+export const LEG_FORM_IDS: Record<string, TestMeta> = {
+  smartDeltaButton: { id: 'smart-delta-button', type: 'button', zone: 'header' },
+  dynamicForm: { id: 'dynamic-form', type: 'container', zone: 'scroll' },
+  saveProgressButton: { id: 'save-progress-button', type: 'button', zone: 'footer' },
 };
 ```
 
