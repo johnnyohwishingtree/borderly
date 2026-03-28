@@ -406,21 +406,6 @@ tags:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
-- swipe:
-    start: "50%,80%"
-    end: "50%,20%"
-    duration: 300
-- swipe:
-    start: "50%,80%"
-    end: "50%,20%"
-    duration: 300
-- scrollUntilVisible:
-    element:
-      id: "save-progress-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "save-progress-button"
 - extendedWaitUntil:

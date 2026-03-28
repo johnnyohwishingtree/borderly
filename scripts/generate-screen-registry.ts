@@ -42,6 +42,7 @@ interface ButtonSpec {
   testID: string;
   label: string;
   description: string;
+  fixed?: boolean;
 }
 
 interface ScreenData {
@@ -68,6 +69,26 @@ function parseScreenFile(filePath: string): ScreenData | null {
     }
   }
   const relPath = relative(ROOT, filePath);
+
+  // Read testIDs.ts for fixed-position metadata
+  const testIDsFile = join(dir, 'testIDs.ts');
+  // Parse testIDs.ts for typed constants (authoritative source when it exists)
+  const fixedTestIDs = new Set<string>();
+  const testIDsFromConstants: { id: string; type: string; fixed: boolean }[] = [];
+  if (existsSync(testIDsFile)) {
+    const testIDsContent = readFileSync(testIDsFile, 'utf-8');
+    // Parse all entries: { id: '...', type: '...' [, fixed: true] }
+    const entryMatches = testIDsContent.matchAll(/id:\s*['"]([^'"]+)['"]\s*,\s*type:\s*['"]([^'"]+)['"]/g);
+    for (const m of entryMatches) {
+      const id = m[1];
+      const type = m[2];
+      // Check if this entry has fixed: true (look ahead in the same line/block)
+      const afterMatch = testIDsContent.slice(m.index! + m[0].length, m.index! + m[0].length + 50);
+      const isFixed = /fixed:\s*true/.test(afterMatch);
+      if (isFixed) fixedTestIDs.add(id);
+      testIDsFromConstants.push({ id, type, fixed: isFixed });
+    }
+  }
 
   // Extract screen name from path
   const fileName = basename(filePath, '.tsx');
@@ -99,6 +120,7 @@ function parseScreenFile(filePath: string): ScreenData | null {
         testID,
         label,
         description: label,
+        ...(fixedTestIDs.has(testID) ? { fixed: true } : {}),
       });
     } else if (testID.endsWith('-input') || testID.endsWith('-select') || testID.endsWith('-date')) {
       // Determine component type from context
@@ -130,9 +152,23 @@ function parseScreenFile(filePath: string): ScreenData | null {
       } else if (isButton) {
         const titleMatch = before.match(/title="([^"]+)"/);
         const label = titleMatch ? titleMatch[1] : testID.replace(/-/g, ' ');
-        actionButtons.push({ testID, label, description: label });
+        actionButtons.push({ testID, label, description: label, ...(fixedTestIDs.has(testID) ? { fixed: true } : {}) });
       }
       // Skip non-interactive testIDs (containers, cards, views)
+    }
+  }
+
+  // Merge testIDs from constants (testIDs.ts) — these are authoritative
+  const inlineTestIDs = new Set([...fields.map(f => f.testID), ...actionButtons.map(b => b.testID)]);
+  for (const entry of testIDsFromConstants) {
+    if (inlineTestIDs.has(entry.id)) continue; // Already found via inline parsing
+    if (entry.type === 'button') {
+      const label = entry.id.replace(/-button$/, '').replace(/-/g, ' ');
+      actionButtons.push({ testID: entry.id, label, description: label, ...(entry.fixed ? { fixed: true } : {}) });
+    } else if (entry.type !== 'container') {
+      // Field types: Input, SearchableSelect, DatePickerField, etc.
+      const label = entry.id.replace(/-field$/, '').replace(/-/g, ' ');
+      fields.push({ testID: entry.id, label, componentType: entry.type, required: true });
     }
   }
 
@@ -319,6 +355,8 @@ if (writeMode) {
     '  componentType: string;',
     '  required: boolean;',
     '  dynamic?: boolean;',
+    '  /** Element is in a fixed position (outside ScrollView) — no scrolling needed */',
+    '  fixed?: boolean;',
     '}',
     '',
     'export interface AlertSpec {',
@@ -334,7 +372,7 @@ if (writeMode) {
     '  waitFor: string | string[];',
     '  fields: FieldSpec[];',
     '  alerts: AlertSpec[];',
-    '  actionButtons: { testID: string; label: string; description: string }[];',
+    '  actionButtons: { testID: string; label: string; description: string; fixed?: boolean }[];',
     '  navigatesTo: string[];',
     '  notes: string[];',
     '}',
@@ -385,7 +423,8 @@ if (writeMode) {
     // Action buttons
     lines.push(`    actionButtons: [`);
     for (const b of screen.actionButtons) {
-      lines.push(`      { testID: '${b.testID}', label: '${b.label.replace(/'/g, "\\'")}', description: '${b.description.replace(/'/g, "\\'")}' },`);
+      const fixedStr = b.fixed ? ', fixed: true' : '';
+      lines.push(`      { testID: '${b.testID}', label: '${b.label.replace(/'/g, "\\'")}', description: '${b.description.replace(/'/g, "\\'")}' ${fixedStr}},`);
     }
     lines.push(`    ],`);
 
