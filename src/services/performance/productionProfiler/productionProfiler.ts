@@ -50,6 +50,8 @@ const OPERATION_MAP: Record<string, keyof PerformanceMetrics> = {
 class ProductionProfiler {
   private storage: MMKV;
   private metricsBuffer: Array<PerformanceMetrics & { timestamp: number }> = [];
+  private memoryTrackingIntervalId?: ReturnType<typeof setInterval>;
+  private flushIntervalId?: ReturnType<typeof setInterval>;
   private alertListeners: Array<(alert: PerformanceAlert) => void> = [];
 
   // Performance thresholds
@@ -78,14 +80,19 @@ class ProductionProfiler {
   }
 
   private startPerformanceTracking(): void {
-    setInterval(() => {
+    this.memoryTrackingIntervalId = setInterval(() => {
       trackMemoryUsage((metric, value) => this.recordMetric(metric, value));
     }, 30000);
 
-    setInterval(() => {
+    this.flushIntervalId = setInterval(() => {
       flushMetricsBuffer(this.storage, this.metricsBuffer);
       this.metricsBuffer = [];
     }, 300000);
+  }
+
+  dispose(): void {
+    if (this.memoryTrackingIntervalId) clearInterval(this.memoryTrackingIntervalId);
+    if (this.flushIntervalId) clearInterval(this.flushIntervalId);
   }
 
   recordMetric(metric: keyof PerformanceMetrics, value: number): void {

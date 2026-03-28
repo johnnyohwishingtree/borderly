@@ -12,17 +12,17 @@ export const tap = (testID: string, opts?: { scroll?: boolean }): Action => ({ t
 export const eraseText = (count = 20): Action => ({ type: 'eraseText', count });
 export const tapText = (text: string): Action => ({ type: 'tapText', text });
 
-export const fill = (testID: string, value: string): Action => ({
-  type: 'fill', testID, value,
+export const fill = (testID: string, value: string, opts?: { scroll?: boolean }): Action => ({
+  type: 'fill', testID, value, scroll: opts?.scroll,
 });
 
 /** Interact with a SearchableSelect: tap trigger → search → select option */
-export const select = (testID: string, search: string, optionCode: string): Action => ({
-  type: 'select', testID, search, optionCode,
+export const select = (testID: string, search: string, optionCode: string, opts?: { scroll?: boolean }): Action => ({
+  type: 'select', testID, search, optionCode, scroll: opts?.scroll,
 });
 
 /** Open a DatePickerField and confirm the default date */
-export const date = (testID: string): Action => ({ type: 'date', testID });
+export const date = (testID: string, opts?: { scroll?: boolean }): Action => ({ type: 'date', testID, scroll: opts?.scroll });
 
 /** Wait for an alert and tap a button on it */
 export const alert = (title: string, tapButton: string): Action => ({

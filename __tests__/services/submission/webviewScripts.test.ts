@@ -118,9 +118,19 @@ describe('validateJavaScript', () => {
 describe('createTimeout', () => {
   it('rejects with the given message after the specified time', async () => {
     jest.useFakeTimers();
-    const promise = createTimeout(100, 'timed out');
+    const { promise, cancel } = createTimeout(100, 'timed out');
     jest.advanceTimersByTime(100);
     await expect(promise).rejects.toThrow('timed out');
+    cancel();
+    jest.useRealTimers();
+  });
+
+  it('can be cancelled to prevent timer leak', () => {
+    jest.useFakeTimers();
+    const { cancel } = createTimeout(5000, 'should not fire');
+    cancel();
+    // No unhandled rejection after cancellation
+    jest.advanceTimersByTime(5000);
     jest.useRealTimers();
   });
 });

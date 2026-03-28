@@ -10,10 +10,10 @@
 export type Action =
   | { type: 'tap'; testID: string; scroll?: boolean }
   | { type: 'tapText'; text: string }
-  | { type: 'fill'; testID: string; value: string }
+  | { type: 'fill'; testID: string; value: string; scroll?: boolean }
   | { type: 'inputText'; text: string }
-  | { type: 'select'; testID: string; search: string; optionCode: string }
-  | { type: 'date'; testID: string }
+  | { type: 'select'; testID: string; search: string; optionCode: string; scroll?: boolean }
+  | { type: 'date'; testID: string; scroll?: boolean }
   | { type: 'alert'; title: string; tapButton: string }
   | { type: 'assertVisible'; text: string }
   | { type: 'assertVisibleID'; testID: string }

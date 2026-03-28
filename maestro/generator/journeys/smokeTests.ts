@@ -81,20 +81,17 @@ export const fullE2E = journey('full-e2e', {
       ],
     }),
 
-    // ── 4. Save progress ──
+
+    // ── 4. Save progress (fixed bottom bar — no scroll needed) ──
     step('LegForm', {
       comment: 'LEG FORM — SAVE',
       actions: [
-        swipe('50%,80%', '50%,20%', 300),
-        swipe('50%,80%', '50%,20%', 300),
         tapButton('LegForm', 'save-progress-button'),
         alert('Success', 'OK'),
       ],
     }),
 
     // ── 5. Go back to trip list and verify ──
-    // Portal submission requires 100% form completion — toggle questions not filled.
-    // TODO: Fill toggle questions to reach 100%, then test portal auto-fill.
     step('TripList', {
       comment: 'BACK TO TRIP LIST — VERIFY',
       actions: [

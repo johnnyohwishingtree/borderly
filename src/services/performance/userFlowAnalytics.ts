@@ -448,14 +448,22 @@ class UserFlowAnalytics {
     });
   }
 
+  private flushIntervalId?: ReturnType<typeof setInterval>;
+  private cleanupIntervalId?: ReturnType<typeof setInterval>;
+
   private startPeriodicFlush(): void {
-    setInterval(() => {
+    this.flushIntervalId = setInterval(() => {
       this.flushActionBuffer();
     }, 300000);
 
-    setInterval(() => {
+    this.cleanupIntervalId = setInterval(() => {
       this.cleanupOldData();
     }, 86400000);
+  }
+
+  dispose(): void {
+    if (this.flushIntervalId) clearInterval(this.flushIntervalId);
+    if (this.cleanupIntervalId) clearInterval(this.cleanupIntervalId);
   }
 
   private flushActionBuffer(): void {

@@ -46,6 +46,10 @@ describe('ProductionProfiler', () => {
     jest.useRealTimers();
   });
 
+  afterAll(() => {
+    productionProfiler.dispose();
+  });
+
   describe('recordMetric', () => {
     it('should record performance metrics', () => {
       productionProfiler.recordMetric('formGenerationTime', 250);

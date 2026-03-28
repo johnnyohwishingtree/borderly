@@ -39,6 +39,8 @@ class RegressionDetection {
   private models: Map<keyof PerformanceMetrics, RegressionModel> = new Map();
   private alertListeners: Array<(alert: RegressionAlert) => void> = [];
   private thresholds: Record<keyof PerformanceMetrics, RegressionThreshold>;
+  private analysisIntervalId?: ReturnType<typeof setInterval>;
+  private cleanupIntervalId?: ReturnType<typeof setInterval>;
 
   constructor() {
     this.storage = new MMKV({ id: 'regression-detection' });
@@ -376,8 +378,13 @@ class RegressionDetection {
   }
 
   private startPeriodicAnalysis(): void {
-    setInterval(() => this.updateAllModels(), 3600000);
-    setInterval(() => this.cleanupOldData(), 86400000);
+    this.analysisIntervalId = setInterval(() => this.updateAllModels(), 3600000);
+    this.cleanupIntervalId = setInterval(() => this.cleanupOldData(), 86400000);
+  }
+
+  dispose(): void {
+    if (this.analysisIntervalId) clearInterval(this.analysisIntervalId);
+    if (this.cleanupIntervalId) clearInterval(this.cleanupIntervalId);
   }
 
   private updateAllModels(): void {

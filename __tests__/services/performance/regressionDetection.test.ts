@@ -45,6 +45,10 @@ describe('RegressionDetection', () => {
     jest.useRealTimers();
   });
 
+  afterAll(() => {
+    regressionDetection.dispose();
+  });
+
   describe('analyzeMetric', () => {
     it('should detect performance regression for high metric values', () => {
       // Feed some baseline data first

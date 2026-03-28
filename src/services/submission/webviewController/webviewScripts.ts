@@ -100,10 +100,12 @@ export function validateJavaScript(code: string): SecurityValidationResult {
 /**
  * Create a Promise that rejects after `ms` milliseconds.
  */
-export function createTimeout(ms: number, message: string): Promise<never> {
-  return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(message)), ms);
+export function createTimeout(ms: number, message: string): { promise: Promise<never>; cancel: () => void } {
+  let timerId: ReturnType<typeof setTimeout>;
+  const promise = new Promise<never>((_, reject) => {
+    timerId = setTimeout(() => reject(new Error(message)), ms);
   });
+  return { promise, cancel: () => clearTimeout(timerId) };
 }
 
 /**

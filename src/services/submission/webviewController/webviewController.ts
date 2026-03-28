@@ -135,12 +135,13 @@ export class WebViewController {
       throw new Error(`JavaScript security validation failed: ${securityResult.errors.join(', ')}`);
     }
 
+    const timeout = createTimeout(payload.timeout, 'JavaScript execution timeout');
     try {
       const wrappedCode = wrapJavaScriptCode(payload.code, payload.timeout);
 
       const result = await Promise.race([
         this.webviewImpl!.executeJavaScript(wrappedCode),
-        createTimeout(payload.timeout, 'JavaScript execution timeout')
+        timeout.promise,
       ]);
 
       if (getResponseSize(result) > this.securityConstraints.maxResponseSize) {
@@ -151,6 +152,8 @@ export class WebViewController {
 
     } catch (error) {
       throw new Error(`JavaScript execution failed: ${(error as Error).message}`);
+    } finally {
+      timeout.cancel();
     }
   }
 

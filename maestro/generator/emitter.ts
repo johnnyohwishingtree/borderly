@@ -58,7 +58,7 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'fill':
       lines.push(
-        ...emitScroll(d, action.testID),
+        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         line(d, `- inputText: "${action.value}"`),
@@ -72,9 +72,8 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'select':
       lines.push(
-        ...emitScroll(d, action.testID),
-        // Center the trigger so dropdown options have room below
-        ...emitScroll(d, `${action.testID}-trigger`, 3000),
+        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
+        ...(action.scroll !== false ? emitScroll(d, `${action.testID}-trigger`) : []),
         line(d, '- swipe:'),
         line(d, '    start: "50%,50%"'),
         line(d, '    end: "50%,40%"'),
@@ -102,7 +101,7 @@ function emitAction(action: Action, depth = 0): string[] {
 
     case 'date':
       lines.push(
-        ...emitScroll(d, action.testID),
+        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         // Retry tap if date picker didn't open (scroll animation can swallow first tap)

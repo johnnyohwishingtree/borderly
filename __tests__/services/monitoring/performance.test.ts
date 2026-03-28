@@ -13,6 +13,10 @@ describe('Performance Monitoring Service', () => {
     performanceMonitor.setEnabled(true);
   });
 
+  afterAll(() => {
+    performanceMonitor.setEnabled(false);
+  });
+
   describe('basic metrics recording', () => {
     it('should record a simple metric', () => {
       recordMetric('test_metric', 100, 'ms', 'navigation');
