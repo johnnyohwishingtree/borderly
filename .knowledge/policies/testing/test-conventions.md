@@ -38,6 +38,9 @@ __tests__/, src/**/*.test.ts
 - Components that render `Button` need `AccessibilityStateHelpers`, `TouchTargetUtils`, and `HapticFeedback` mocked — mock `@/utils/accessibility` and `./HapticFeedback` with all methods used by Button
 - Existing `.snap` files in the repo — migrate to `toMatchInlineSnapshot()` or replace with explicit assertions when the test is touched
 - `new Date('2024-03-15')` parses as UTC midnight → `getDate()` returns 14 in UTC-7/UTC-8. Parse date-only strings with `new Date(year, month - 1, day)` to avoid timezone shift. Tests pass in UTC cloud but fail locally.
+- `setInterval()` without saving the ID → can never be cleared → Jest worker force-exit. Always save interval IDs and provide a `dispose()` method. Tests must call `dispose()` in `afterAll`.
+- `setTimeout` inside `new Promise()` (e.g., `createTimeout`) leaks if the promise is used in `Promise.race` — the losing timeout keeps running. Return `{ promise, cancel }` and call `cancel()` in `finally`.
+- Services that start timers in their constructor leak in every test that imports them. Prefer explicit `start()` over constructor-time initialization.
 
 ## Enforcement
 - `.claude/rules/commit-gate.md` — must pass before commit

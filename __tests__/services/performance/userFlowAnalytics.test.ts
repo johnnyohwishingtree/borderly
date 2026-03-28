@@ -45,6 +45,10 @@ describe('UserFlowAnalytics', () => {
     jest.useRealTimers();
   });
 
+  afterAll(() => {
+    userFlowAnalytics.dispose();
+  });
+
   describe('session management', () => {
     it('should start a new session', () => {
       userFlowAnalytics.startNewSession();
