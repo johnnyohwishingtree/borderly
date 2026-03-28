@@ -56,10 +56,12 @@ export const CREATE_TRIP_IDS = {
 
 ## Debugging Maestro Failures
 
-When a flow fails, check app logs BEFORE screenshots:
+Run the diagnostic script first — one command gives you everything:
 ```bash
-xcrun simctl spawn booted log show --last 2m --predicate 'process == "Borderly"' | grep -i "error\|exception\|fail"
+scripts/diagnose-maestro.sh              # Latest failure
+scripts/diagnose-maestro.sh /path/to/dir # Specific failure
 ```
+This collects: screenshot, failing step, visible testIDs from accessibility tree, app logs, and quick checks.
 
 ## Anti-patterns
 - `<Pressable onPress={...}>` without testID — invisible to Maestro
