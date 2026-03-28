@@ -14,6 +14,7 @@ Break a high-level goal into a structured set of GitHub Issues: one Epic and its
 2. Understand where the goal fits in the existing codebase
 3. Check if any existing code can be reused
 4. Read existing scaffolding/stubs to understand what's already built
+5. Read `.knowledge/beliefs/` — identify which beliefs the goal depends on and note their status
 
 ## Epic Structure
 
@@ -58,6 +59,10 @@ gh label create "epic:<slug>" --color "0E8A16" --description "Epic: <title>" 2>/
 
 ### Create the Epic
 
+Follow `.knowledge/templates/epic.md` for structure. Include the Beliefs & Assumptions section.
+
+Follow `.knowledge/policies/workflow/epic-planning.md` for priority order and belief rules.
+
 ```bash
 gh issue create \
   --title "Epic: <goal description>" \
@@ -66,6 +71,9 @@ gh issue create \
   --body "$(cat <<'EOF'
 ## Goal
 <what we're trying to achieve>
+
+## Beliefs & Assumptions
+- `beliefs/<name>.md` (status) — <why relevant>
 
 ## Stories
 - [ ] #__ Story 1: <title>

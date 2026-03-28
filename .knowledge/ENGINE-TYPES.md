@@ -10,20 +10,21 @@ The `.knowledge/` directory contains eight types of knowledge, each with its own
 
 **Format:**
 ```markdown
-# Facts: <Type>
-## f:<type>:<name>
-<Statement of what is true and why it matters.>
-**Referenced by:** <policies, beliefs, principles that depend on this fact>
+# Fact: <Human readable name>
+
+<Statement of what is true and why it matters. Keep it to 1-3 sentences.>
 ```
 
-**Fact types (one file per type):**
-- `craft.md` — universal software engineering truths (rarely change)
-- `domain.md` — truths about customs, immigration, travel documents (change when governments change rules)
-- `tool.md` — truths about specific technologies in the stack (change when tools update)
-- `regulatory.md` — truths because a governing body says so (change when laws change)
-- `customer.md` — truths about users derived from observation (change as user base evolves)
-- `organizational.md` — decisions about how Borderly is built (change when process changes)
-- `cognitive.md` — truths about human perception and reasoning (rarely change)
+Facts are intentionally minimal — just a title and statement. No metadata, no reverse pointers. The graph engine computes what depends on each fact dynamically via `DERIVES_FROM` edge traversal. Adding structure to facts would create maintenance burden that scales with the number of policies referencing them.
+
+**One file per fact, organized in subdirectories by type:**
+- `facts/craft/` — universal software engineering truths (rarely change)
+- `facts/domain/` — truths about customs, immigration, travel documents (change when governments change rules)
+- `facts/tool/` — truths about specific technologies in the stack (change when tools update)
+- `facts/regulatory/` — truths because a governing body says so (change when laws change)
+- `facts/customer/` — truths about users derived from observation (change as user base evolves)
+- `facts/organizational/` — decisions about how Borderly is built (change when process changes)
+- `facts/cognitive/` — truths about human perception and reasoning (rarely change)
 
 **Key difference from policies:** A fact says "clipboard contents can be read by other apps." A policy says "REQUIRE: clipboard auto-clear after 60 seconds." The fact is WHY. The policy is WHAT.
 
