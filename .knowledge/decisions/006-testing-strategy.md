@@ -58,6 +58,9 @@ Profile + trip leg + country schema → filled form → verify every field value
 - `facts/craft/tests-are-specifications.md`
 - `facts/domain/errors-have-consequences.md`
 - `facts/customer/users-wont-verify-auto-filled-values-carefully.md`
+- `facts/organizational/test-count-inflates-confidence.md`
+- `facts/organizational/parameterized-tests-dominate-count.md`
+- `facts/organizational/render-tests-catch-no-bugs.md`
 - `principles/test-before-fix.md`
 
 ## Consequences

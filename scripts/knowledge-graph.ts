@@ -272,8 +272,11 @@ function queryUnreferenced(nodes: Node[], edges: Edge[]): Node[] {
       e.type === 'REFERENCED_BY' || e.type === 'FOLLOWS' || e.type === 'DERIVES_FROM'
     ).map(e => e.to)
   );
+  // Temporal facts are loaded by knowledge-audit for staleness, not via DERIVES_FROM
+  // Market facts may not be referenced by policies yet — flag them but don't panic
   return nodes.filter(n =>
     (n.type === 'policy' || n.type === 'model' || n.type === 'fact' || n.type === 'principle') &&
+    !n.id.startsWith('facts/temporal/') &&  // checked by knowledge-audit, not DERIVES_FROM
     !referencedByAnything.has(n.id)
   );
 }

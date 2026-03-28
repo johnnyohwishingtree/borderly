@@ -11,6 +11,8 @@ The primary value of Borderly is that users enter their identity and travel data
 - Every country schema defines autoFillSource paths back to the same canonical profile fields
 - The smart delta design directly implements this: show only what can't be auto-filled
 - User journey model starts with profile setup, then assumes data reuse across trips
+- No competitor does auto-fill (`facts/market/no-competitor-does-auto-fill.md`)
+- Existing travel apps are guides, not fillers (`facts/market/travel-form-apps-are-guides-not-fillers.md`)
 
 ## What would confirm
 - Already confirmed by architecture commitment — this is the product

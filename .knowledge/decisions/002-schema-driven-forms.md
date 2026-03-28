@@ -14,6 +14,8 @@ Auto-fill uses dot-notation paths (`profile.passportNumber`, `leg.arrivalDate`) 
 ## Derives from
 - `facts/domain/every-country-unique-rules.md`
 - `facts/domain/field-semantics-stable-labels-vary.md`
+- `facts/customer/multi-leg-trips-are-common.md`
+- `facts/craft/caching-trades-freshness-for-speed.md`
 - `facts/organizational/schema-first-development.md`
 - `principles/declarative-over-imperative.md`
 - `beliefs/schema-driven-forms-scale.md`

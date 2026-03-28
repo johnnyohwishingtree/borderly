@@ -14,6 +14,7 @@ The app pre-fills and validates form data, then guides the user through the gove
 - `facts/regulatory/human-must-be-actor-of-record.md`
 - `facts/domain/portals-are-not-apis.md`
 - `facts/market/government-portals-have-no-third-party-integrations.md`
+- `facts/domain/submission-deadlines-vary-widely.md`
 - `principles/user-always-submits.md`
 - `beliefs/guided-submission-over-automation.md`
 
