@@ -47,6 +47,6 @@ See `.knowledge/models/stores.md` for the canonical store inventory.
 ## Derives From
 - `principles/directional-dependency-graph.md`
 - `principles/centralized-access-patterns.md`
-- `facts/craft.md#f:craft:separation-of-concerns`
-- `facts/craft.md#f:craft:interfaces-over-implementations`
-- `facts/craft.md#f:craft:state-is-the-source-of-bugs`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/interfaces-over-implementations.md`
+- `facts/craft/state-is-the-source-of-bugs.md`

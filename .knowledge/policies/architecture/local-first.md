@@ -32,8 +32,8 @@ src/services/, src/stores/, src/components/ (any code handling user data)
 ## Derives From
 - `principles/security-through-storage-tiers.md`
 - `principles/user-always-submits.md`
-- `facts/regulatory.md#f:reg:gdpr-data-minimization`
-- `facts/regulatory.md#f:reg:pii-has-special-handling-requirements`
-- `facts/customer.md#f:cust:travelers-fill-forms-at-borders`
-- `facts/customer.md#f:cust:family-travelers-share-devices`
-- `facts/organizational.md#f:org:three-tier-storage`
+- `facts/regulatory/gdpr-data-minimization.md`
+- `facts/regulatory/pii-has-special-handling-requirements.md`
+- `facts/customer/travelers-fill-forms-at-borders.md`
+- `facts/customer/family-travelers-share-devices.md`
+- `facts/organizational/three-tier-storage.md`

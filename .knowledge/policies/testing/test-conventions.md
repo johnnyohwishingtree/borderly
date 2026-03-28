@@ -49,7 +49,7 @@ __tests__/, src/**/*.test.ts
 
 ## Derives From
 - `principles/test-before-fix.md`
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/craft.md#f:craft:fail-fast`
-- `facts/tool.md#f:tool:jest-fake-timers-hang-with-renderhook`
-- `facts/tool.md#f:tool:date-string-parsing-shifts-timezone`
+- `facts/craft/tests-are-specifications.md`
+- `facts/craft/fail-fast.md`
+- `facts/tool/jest-fake-timers-hang-with-renderhook.md`
+- `facts/tool/date-string-parsing-shifts-timezone.md`

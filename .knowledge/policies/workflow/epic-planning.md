@@ -45,6 +45,6 @@ When the story queue is empty, plan the next epic in this order. Pick the first 
 - `/code-audit` flags when test stories outnumber feature/UX stories in recent history
 
 ## Derives From
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/domain.md#f:domain:errors-have-consequences`
-- `facts/cognitive.md#f:cog:fewer-fields-higher-completion`
+- `facts/craft/tests-are-specifications.md`
+- `facts/domain/errors-have-consequences.md`
+- `facts/cognitive/fewer-fields-higher-completion.md`

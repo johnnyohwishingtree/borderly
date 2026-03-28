@@ -37,5 +37,5 @@ src/, maestro/, .knowledge/, .claude/
 
 ## Derives From
 - `principles/source-of-truth-prevents-drift.md`
-- `facts/domain.md#f:domain:forms-change-without-notice`
-- `facts/craft.md#f:craft:naming-enables-automation`
+- `facts/domain/forms-change-without-notice.md`
+- `facts/craft/naming-enables-automation.md`

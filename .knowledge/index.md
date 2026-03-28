@@ -56,15 +56,15 @@ Other rules migrated to policies (loaded on-demand by skills, not every session)
 
 ### Facts (by type)
 
-| Type | File | Count | Decay rate |
-|------|------|-------|------------|
-| Craft | `facts/craft.md` | 8 | Very slow |
-| Domain | `facts/domain.md` | 8 | Slow (governments change rules) |
-| Tool | `facts/tool.md` | 8 | Medium (tools update) |
-| Regulatory | `facts/regulatory.md` | 5 | Slow but sudden |
-| Customer | `facts/customer.md` | 5 | Fast (user base evolves) |
-| Organizational | `facts/organizational.md` | 6 | Medium (process changes) |
-| Cognitive | `facts/cognitive.md` | 6 | Very slow |
+| Type | Directory | Count | Decay rate |
+|------|-----------|-------|------------|
+| Craft | `facts/craft/` | 8 | Very slow |
+| Domain | `facts/domain/` | 8 | Slow (governments change rules) |
+| Tool | `facts/tool/` | 8 | Medium (tools update) |
+| Regulatory | `facts/regulatory/` | 5 | Slow but sudden |
+| Customer | `facts/customer/` | 5 | Fast (user base evolves) |
+| Organizational | `facts/organizational/` | 6 | Medium (process changes) |
+| Cognitive | `facts/cognitive/` | 6 | Very slow |
 
 ### Principles (10)
 

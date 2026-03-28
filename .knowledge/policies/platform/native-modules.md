@@ -37,5 +37,5 @@ ios/, e2e/mocks/, jest.setup.js, webpack.config.js
 
 ## Derives From
 - `principles/centralized-access-patterns.md`
-- `facts/tool.md#f:tool:bare-rn-not-expo`
-- `facts/craft.md#f:craft:interfaces-over-implementations`
+- `facts/tool/bare-rn-not-expo.md`
+- `facts/craft/interfaces-over-implementations.md`

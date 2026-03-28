@@ -34,8 +34,8 @@ src/schemas/*.json, src/services/forms/, src/services/schemas/
 
 ## Derives From
 - `principles/declarative-over-imperative.md`
-- `facts/domain.md#f:domain:every-country-unique-rules`
-- `facts/domain.md#f:domain:field-semantics-stable-labels-vary`
-- `facts/domain.md#f:domain:boolean-fields-default-false`
-- `facts/organizational.md#f:org:schema-first-development`
-- `facts/tool.md#f:tool:searchable-select-for-long-lists`
+- `facts/domain/every-country-unique-rules.md`
+- `facts/domain/field-semantics-stable-labels-vary.md`
+- `facts/domain/boolean-fields-default-false.md`
+- `facts/organizational/schema-first-development.md`
+- `facts/tool/searchable-select-for-long-lists.md`

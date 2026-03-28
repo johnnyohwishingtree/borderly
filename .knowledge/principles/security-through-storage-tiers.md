@@ -3,11 +3,11 @@
 Data sensitivity determines where data lives. PII goes in the most secure tier (Keychain), structured app data in the middle tier (WatermelonDB, encrypted), and config/prefs in the fastest tier (MMKV, unencrypted). Data never crosses tiers upward — PII never goes in MMKV.
 
 ## Derives from
-- `facts/regulatory.md#f:reg:pii-has-special-handling-requirements`
-- `facts/tool.md#f:tool:keychain-is-os-secure-storage`
-- `facts/tool.md#f:tool:watermelondb-encrypts-at-rest`
-- `facts/tool.md#f:tool:mmkv-is-fast-but-unencrypted`
-- `facts/organizational.md#f:org:three-tier-storage`
+- `facts/regulatory/pii-has-special-handling-requirements.md`
+- `facts/tool/keychain-is-os-secure-storage.md`
+- `facts/tool/watermelondb-encrypts-at-rest.md`
+- `facts/tool/mmkv-is-fast-but-unencrypted.md`
+- `facts/organizational/three-tier-storage.md`
 
 ## Implemented by
 - `policies/data/storage-tiers.md`

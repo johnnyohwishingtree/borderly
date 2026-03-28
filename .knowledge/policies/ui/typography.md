@@ -43,5 +43,5 @@ src/components/ui/, src/screens/
 
 ## Derives From
 - `principles/accessibility-is-non-negotiable.md`
-- `facts/cognitive.md#f:cog:three-font-sizes-max`
-- `facts/cognitive.md#f:cog:centered-text-slows-reading`
+- `facts/cognitive/three-font-sizes-max.md`
+- `facts/cognitive/centered-text-slows-reading.md`

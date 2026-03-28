@@ -42,6 +42,6 @@ Ask: "Can I write a test in `__tests__/structure/` that catches violations in un
 ## Derives From
 - `principles/naming-enables-enforcement.md`
 - `principles/source-of-truth-prevents-drift.md`
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/organizational.md#f:org:structural-tests-enforce-policies`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/tests-are-specifications.md`
+- `facts/organizational/structural-tests-enforce-policies.md`

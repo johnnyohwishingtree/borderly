@@ -9,7 +9,13 @@
 .knowledge/
 ├── beliefs/    asia-pacific-first-market, auto-fill-40-percent-threshold, guided-submission-over-automation, local-first-is-differentiator, scan-once-fill-everywhere, schema-driven-forms-scale, smart-delta-increases-completion
 ├── domain/countries/    australia, canada, india, indonesia, japan, malaysia, new-zealand, philippines, singapore, south-korea, thailand, uk, usa, vietnam
-├── facts/    cognitive, craft, customer, domain, organizational, regulatory, tool
+├── facts/cognitive/    44pt-minimum-touch-target, centered-text-slows-reading, fewer-fields-higher-completion, reduced-motion-is-accessibility, three-font-sizes-max, users-skip-error-messages
+├── facts/craft/    caching-trades-freshness-for-speed, fail-fast, interfaces-over-implementations, naming-enables-automation, separation-of-concerns, size-indicates-scope-creep, state-is-the-source-of-bugs, tests-are-specifications
+├── facts/customer/    family-travelers-share-devices, multi-leg-trips-are-common, travelers-fill-forms-at-borders, users-dont-understand-portal-jargon, users-wont-verify-auto-filled-values-carefully
+├── facts/domain/    boolean-fields-default-false, errors-have-consequences, every-country-unique-rules, field-semantics-stable-labels-vary, forms-change-without-notice, passport-mrz-is-standardized, portals-are-not-apis, submission-deadlines-vary-widely
+├── facts/organizational/    biometric-asymmetric-ux, pipeline-learning-is-mandatory, policies-over-rules, schema-first-development, structural-tests-enforce-policies, three-tier-storage
+├── facts/regulatory/    clipboard-is-readable-by-other-apps, gdpr-data-minimization, human-must-be-actor-of-record, pii-has-special-handling-requirements, portal-tos-prohibit-automation
+├── facts/tool/    bare-rn-not-expo, date-string-parsing-shifts-timezone, jest-fake-timers-hang-with-renderhook, keychain-is-os-secure-storage, mmkv-is-fast-but-unencrypted, nativewind-is-tailwind-for-rn, searchable-select-for-long-lists, watermelondb-encrypts-at-rest
 ├── models/    form-engine, maestro-generator, passport, qr-wallet, stores, submission-guide, system-architecture, user-journeys
 ├── patterns/    add-country, add-native-dep, add-screen, add-test
 ├── policies/architecture/    dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary
@@ -37,17 +43,17 @@ src/components/forms         → models/form-engine
 src/components/ui            → policies/ui/styling, policies/ui/accessibility, policies/ui/typography, policies/ui/motion
 src/components/wallet        → models/qr-wallet
 src/hooks                    → policies/state/hook-conventions
-src/schemas                  → models/form-engine, policies/data/schema-fields
+src/schemas                  → models/form-engine, policies/data/schema-fields, beliefs/auto-fill-40-percent-threshold
 src/screens                  → policies/state/hook-conventions, policies/platform/navigation, policies/ui/ux-writing
 src/screens/wallet           → models/qr-wallet
 src/services                 → policies/architecture/dependency-direction
 src/services/backup          → policies/data/storage-tiers, policies/data/pii-boundary
-src/services/forms           → models/form-engine
+src/services/forms           → models/form-engine, beliefs/smart-delta-increases-completion
 src/services/import          → models/form-engine
 src/services/notification    → policies/architecture/dependency-direction, policies/platform/native-modules
 src/services/passport        → models/passport
-src/services/storage         → policies/data/storage-tiers, policies/data/pii-boundary
-src/services/submission      → models/submission-guide, policies/architecture/local-first
+src/services/storage         → policies/data/storage-tiers, policies/data/pii-boundary, beliefs/local-first-is-differentiator
+src/services/submission      → models/submission-guide, policies/architecture/local-first, beliefs/guided-submission-over-automation
 src/stores                   → models/stores, policies/state/store-boundaries
 src/utils                    → policies/architecture/utils-boundary
 ```

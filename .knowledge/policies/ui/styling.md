@@ -38,5 +38,5 @@ src/components/, src/screens/
 
 ## Derives From
 - `principles/accessibility-is-non-negotiable.md`
-- `facts/tool.md#f:tool:nativewind-is-tailwind-for-rn`
-- `facts/cognitive.md#f:cog:44pt-minimum-touch-target`
+- `facts/tool/nativewind-is-tailwind-for-rn.md`
+- `facts/cognitive/44pt-minimum-touch-target.md`

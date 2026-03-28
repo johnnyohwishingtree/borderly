@@ -35,4 +35,4 @@ src/components/ui/, src/components/**/
 
 ## Derives From
 - `principles/accessibility-is-non-negotiable.md`
-- `facts/cognitive.md#f:cog:reduced-motion-is-accessibility`
+- `facts/cognitive/reduced-motion-is-accessibility.md`

@@ -85,5 +85,5 @@ This collects: screenshot, failing step, visible testIDs from accessibility tree
 ## Derives From
 - `principles/naming-enables-enforcement.md`
 - `principles/source-of-truth-prevents-drift.md`
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/tests-are-specifications.md`

@@ -39,5 +39,5 @@ Built into pipeline Step 6 and local-pipeline Step 6
 
 ## Derives From
 - `principles/knowledge-is-living-documentation.md`
-- `facts/craft.md#f:craft:fail-fast`
-- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/craft/fail-fast.md`
+- `facts/craft/tests-are-specifications.md`

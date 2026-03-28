@@ -41,6 +41,6 @@ src/utils/, src/services/
 ## Derives From
 - `principles/centralized-access-patterns.md`
 - `principles/directional-dependency-graph.md`
-- `facts/craft.md#f:craft:separation-of-concerns`
-- `facts/craft.md#f:craft:size-indicates-scope-creep`
-- `facts/craft.md#f:craft:interfaces-over-implementations`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/size-indicates-scope-creep.md`
+- `facts/craft/interfaces-over-implementations.md`

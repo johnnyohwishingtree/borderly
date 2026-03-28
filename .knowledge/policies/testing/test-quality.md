@@ -59,5 +59,5 @@ Enforced by `/test-audit` skill when run on schedule
 
 ## Derives From
 - `principles/test-before-fix.md`
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/domain.md#f:domain:errors-have-consequences`
+- `facts/craft/tests-are-specifications.md`
+- `facts/domain/errors-have-consequences.md`

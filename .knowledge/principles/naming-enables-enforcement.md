@@ -3,9 +3,9 @@
 Predictable naming patterns (prefixes, suffixes, folder conventions) make constraints greppable and therefore mechanically enforceable via structural tests. Without naming conventions, policy enforcement requires human review — which drifts.
 
 ## Derives from
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/organizational.md#f:org:structural-tests-enforce-policies`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/tests-are-specifications.md`
+- `facts/organizational/structural-tests-enforce-policies.md`
 
 ## Implemented by
 - `policies/architecture/testable-architecture.md`

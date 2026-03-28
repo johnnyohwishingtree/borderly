@@ -40,9 +40,9 @@ src/services/storage/, src/hooks/, src/services/**
 ## Derives From
 - `principles/security-through-storage-tiers.md`
 - `principles/centralized-access-patterns.md`
-- `facts/organizational.md#f:org:three-tier-storage`
-- `facts/regulatory.md#f:reg:pii-has-special-handling-requirements`
-- `facts/tool.md#f:tool:keychain-is-os-secure-storage`
-- `facts/tool.md#f:tool:watermelondb-encrypts-at-rest`
-- `facts/tool.md#f:tool:mmkv-is-fast-but-unencrypted`
-- `facts/craft.md#f:craft:interfaces-over-implementations`
+- `facts/organizational/three-tier-storage.md`
+- `facts/regulatory/pii-has-special-handling-requirements.md`
+- `facts/tool/keychain-is-os-secure-storage.md`
+- `facts/tool/watermelondb-encrypts-at-rest.md`
+- `facts/tool/mmkv-is-fast-but-unencrypted.md`
+- `facts/craft/interfaces-over-implementations.md`

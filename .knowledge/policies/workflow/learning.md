@@ -52,5 +52,5 @@ Checked by `/code-audit` skill — flags PRs with high file count but no knowled
 
 ## Derives From
 - `principles/knowledge-is-living-documentation.md`
-- `facts/organizational.md#f:org:pipeline-learning-is-mandatory`
-- `facts/craft.md#f:craft:tests-are-specifications`
+- `facts/organizational/pipeline-learning-is-mandatory.md`
+- `facts/craft/tests-are-specifications.md`

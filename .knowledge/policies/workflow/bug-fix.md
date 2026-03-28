@@ -41,6 +41,6 @@ All skills that discover or fix bugs.
 
 ## Derives From
 - `principles/test-before-fix.md`
-- `facts/craft.md#f:craft:tests-are-specifications`
-- `facts/craft.md#f:craft:fail-fast`
-- `facts/domain.md#f:domain:errors-have-consequences`
+- `facts/craft/tests-are-specifications.md`
+- `facts/craft/fail-fast.md`
+- `facts/domain/errors-have-consequences.md`

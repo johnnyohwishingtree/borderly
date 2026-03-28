@@ -3,9 +3,9 @@
 All dependencies must form an acyclic graph. Data flows in one direction: components <- hooks <- stores/services <- storage. Circular imports break the module system and create untestable coupling.
 
 ## Derives from
-- `facts/craft.md#f:craft:separation-of-concerns`
-- `facts/craft.md#f:craft:interfaces-over-implementations`
-- `facts/craft.md#f:craft:state-is-the-source-of-bugs`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/interfaces-over-implementations.md`
+- `facts/craft/state-is-the-source-of-bugs.md`
 
 ## Implemented by
 - `policies/architecture/dependency-direction.md`

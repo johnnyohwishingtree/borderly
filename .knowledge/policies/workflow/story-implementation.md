@@ -27,4 +27,4 @@ Built into pipeline Step 3 and local-pipeline Step 3
 
 ## Derives From
 - `principles/knowledge-is-living-documentation.md`
-- `facts/organizational.md#f:org:policies-over-rules`
+- `facts/organizational/policies-over-rules.md`

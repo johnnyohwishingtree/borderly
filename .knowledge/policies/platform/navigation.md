@@ -32,5 +32,5 @@ src/screens/, src/app/navigation/
 ## Derives From
 - `principles/directional-dependency-graph.md`
 - `principles/naming-enables-enforcement.md`
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:separation-of-concerns`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/separation-of-concerns.md`

@@ -58,6 +58,6 @@ Extract logic into custom hooks under `src/hooks/` per `policies/state/hook-conv
 
 ## Derives From
 - `principles/naming-enables-enforcement.md`
-- `facts/craft.md#f:craft:size-indicates-scope-creep`
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:separation-of-concerns`
+- `facts/craft/size-indicates-scope-creep.md`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/separation-of-concerns.md`

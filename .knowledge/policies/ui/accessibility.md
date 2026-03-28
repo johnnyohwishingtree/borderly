@@ -38,5 +38,5 @@ src/components/, src/screens/
 
 ## Derives From
 - `principles/accessibility-is-non-negotiable.md`
-- `facts/cognitive.md#f:cog:44pt-minimum-touch-target`
-- `facts/customer.md#f:cust:travelers-fill-forms-at-borders`
+- `facts/cognitive/44pt-minimum-touch-target.md`
+- `facts/customer/travelers-fill-forms-at-borders.md`

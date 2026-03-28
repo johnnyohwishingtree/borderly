@@ -30,5 +30,5 @@ See `.knowledge/models/stores.md` for the canonical store inventory.
 
 ## Derives From
 - `principles/directional-dependency-graph.md`
-- `facts/craft.md#f:craft:separation-of-concerns`
-- `facts/craft.md#f:craft:state-is-the-source-of-bugs`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/state-is-the-source-of-bugs.md`

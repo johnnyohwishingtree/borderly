@@ -37,7 +37,7 @@ src/hooks/, src/screens/
 ## Derives From
 - `principles/directional-dependency-graph.md`
 - `principles/naming-enables-enforcement.md`
-- `facts/craft.md#f:craft:separation-of-concerns`
-- `facts/craft.md#f:craft:state-is-the-source-of-bugs`
-- `facts/craft.md#f:craft:naming-enables-automation`
-- `facts/craft.md#f:craft:size-indicates-scope-creep`
+- `facts/craft/separation-of-concerns.md`
+- `facts/craft/state-is-the-source-of-bugs.md`
+- `facts/craft/naming-enables-automation.md`
+- `facts/craft/size-indicates-scope-creep.md`
