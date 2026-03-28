@@ -45,10 +45,17 @@ interface ButtonSpec {
   zone?: string;
 }
 
+interface ScreenLayout {
+  scrollable: boolean;
+  fitsOnScreen: boolean;
+  elementOrder: string[];
+}
+
 interface ScreenData {
   name: string;
   sourceFile: string;
   waitFor: string | string[];
+  layout: ScreenLayout;
   fields: FieldSpec[];
   alerts: AlertSpec[];
   actionButtons: ButtonSpec[];
@@ -182,10 +189,42 @@ function parseScreenFile(filePath: string): ScreenData | null {
     }
   }
 
+  // ── Auto-infer layout from source ──
+  const hasScrollView = /\bScrollView\b|\bKeyboardAwareScrollView\b|\bFlatList\b|\bSectionList\b/.test(content);
+  // Viewport-fill: ScrollView with minHeight set to screen height (single-page screen)
+  const hasViewportFill = /contentContainerStyle.*minHeight:\s*height|contentContainerStyle.*minHeight:\s*screenHeight/.test(content);
+  const interactiveCount = fields.length + actionButtons.length;
+
+  const scrollable = hasScrollView;
+  // fitsOnScreen: conservative — only true when there's no ScrollView at all.
+  // Scrollable screens always get scrollUntilVisible; the zone (header/footer)
+  // prevents unnecessary scrolling for fixed-position elements.
+  const fitsOnScreen = !hasScrollView;
+
+  // Element order: collect all testIDs in source order
+  const elementOrder: string[] = [];
+  const orderRegex = /testID[=:]\s*"([^"]+)"|testID=\{[^}]*\.(\w+)\.id\}|testID=\{`([^`]+)`\}/g;
+  let orderMatch;
+  while ((orderMatch = orderRegex.exec(content)) !== null) {
+    const id = orderMatch[1] || orderMatch[3];
+    if (id && !elementOrder.includes(id)) {
+      elementOrder.push(id);
+    }
+  }
+  // Also add testIDs from constants in declaration order
+  for (const entry of testIDsFromConstants) {
+    if (!elementOrder.includes(entry.id)) {
+      elementOrder.push(entry.id);
+    }
+  }
+
+  const layout: ScreenLayout = { scrollable, fitsOnScreen, elementOrder };
+
   return {
     name: screenName,
     sourceFile: relPath,
     waitFor: '', // Human-authored — preserved from existing registry
+    layout,
     fields,
     alerts,
     actionButtons,
@@ -366,10 +405,20 @@ if (writeMode) {
     '  trigger: string;',
     '}',
     '',
+    'export interface ScreenLayout {',
+    '  /** Whether the screen has a ScrollView/FlatList */',
+    '  scrollable: boolean;',
+    '  /** Whether all interactive elements fit on screen without scrolling */',
+    '  fitsOnScreen: boolean;',
+    '  /** Ordered list of element testIDs from top to bottom */',
+    '  elementOrder: string[];',
+    '}',
+    '',
     'export interface ScreenSpec {',
     '  name: string;',
     '  sourceFile: string;',
     '  waitFor: string | string[];',
+    '  layout: ScreenLayout;',
     '  fields: FieldSpec[];',
     '  alerts: AlertSpec[];',
     '  actionButtons: { testID: string; label: string; description: string; zone?: TestZone }[];',
@@ -404,6 +453,11 @@ if (writeMode) {
     } else {
       lines.push(`    waitFor: '${screen.waitFor}',`);
     }
+
+    // Layout
+    const lo = screen.layout;
+    const orderStr = lo.elementOrder.map(id => `'${id}'`).join(', ');
+    lines.push(`    layout: { scrollable: ${lo.scrollable}, fitsOnScreen: ${lo.fitsOnScreen}, elementOrder: [${orderStr}] },`);
 
     // Fields
     lines.push(`    fields: [`);

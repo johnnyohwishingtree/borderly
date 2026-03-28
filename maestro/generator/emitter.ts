@@ -2,10 +2,12 @@
  * Maestro YAML emitter.
  *
  * Converts Journey objects into valid Maestro YAML flow files.
- * Handles all the Maestro-specific boilerplate: scrollUntilVisible,
- * keyboard dismissal swipes, extended waits, etc.
+ * Screen-aware: uses ScreenLayout metadata to make deterministic
+ * scroll decisions. Never scrolls blindly.
  */
 import type { Action, Journey, JourneyStep } from './types';
+import type { ScreenLayout, ScreenSpec } from './screenRegistry';
+import { getScreen } from './screenRegistry';
 
 const APP_ID = 'com.borderly.app';
 const INDENT = '  ';
@@ -20,10 +22,10 @@ function comment(depth: number, text: string): string {
   return line(depth, `# ${text}`);
 }
 
-// ── Scroll helper ──
+// ── Scroll emission ──
 
-/** Emit a scrollUntilVisible block with centerElement to prevent header overlap */
-function emitScroll(d: number, testID: string): string[] {
+/** Emit a scrollUntilVisible block */
+function emitScrollBlock(d: number, testID: string): string[] {
   return [
     line(d, '- scrollUntilVisible:'),
     line(d, '    element:'),
@@ -35,16 +37,68 @@ function emitScroll(d: number, testID: string): string[] {
   ];
 }
 
+// ── Screen-aware scroll decision ──
+
+interface EmitContext {
+  screenName: string;
+  layout: ScreenLayout;
+  screen?: ScreenSpec;
+}
+
+const DEFAULT_LAYOUT: ScreenLayout = {
+  scrollable: true,
+  fitsOnScreen: false,
+  elementOrder: [],
+};
+
+/**
+ * Deterministic scroll decision based on screen layout metadata.
+ *
+ * Priority:
+ * 1. Action explicitly says scroll: false → don't scroll (manual override)
+ * 2. Action explicitly says scroll: true → scroll (manual override)
+ * 3. Screen fitsOnScreen → don't scroll (everything visible)
+ * 4. Screen not scrollable → don't scroll
+ * 5. Element zone is header/footer → don't scroll
+ * 6. Default: scroll (element is in scroll zone of a scrollable screen)
+ */
+function shouldScroll(
+  testID: string,
+  explicitScroll: boolean | undefined,
+  ctx: EmitContext,
+): boolean {
+  // 1-2. Manual override takes priority
+  if (explicitScroll === false) return false;
+  if (explicitScroll === true) return true;
+
+  // 3. Screen fits on one viewport — never scroll
+  if (ctx.layout.fitsOnScreen) return false;
+
+  // 4. Screen has no ScrollView — never scroll
+  if (!ctx.layout.scrollable) return false;
+
+  // 5. Check element zone from registry
+  if (ctx.screen) {
+    const field = ctx.screen.fields.find(f => f.testID === testID);
+    const button = ctx.screen.actionButtons.find(b => b.testID === testID);
+    const zone = field?.zone ?? button?.zone;
+    if (zone === 'header' || zone === 'footer') return false;
+  }
+
+  // 6. Default: scroll (element is in scroll content of a scrollable screen)
+  return true;
+}
+
 // ── Action → YAML lines ──
 
-function emitAction(action: Action, depth = 0): string[] {
+function emitAction(action: Action, depth: number, ctx: EmitContext): string[] {
   const lines: string[] = [];
   const d = depth;
 
   switch (action.type) {
     case 'tap':
-      if (action.scroll) {
-        lines.push(...emitScroll(d, action.testID));
+      if (shouldScroll(action.testID, action.scroll, ctx)) {
+        lines.push(...emitScrollBlock(d, action.testID));
       }
       lines.push(
         line(d, '- tapOn:'),
@@ -57,8 +111,10 @@ function emitAction(action: Action, depth = 0): string[] {
       break;
 
     case 'fill':
+      if (shouldScroll(action.testID, action.scroll, ctx)) {
+        lines.push(...emitScrollBlock(d, action.testID));
+      }
       lines.push(
-        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         line(d, `- inputText: "${action.value}"`),
@@ -71,9 +127,11 @@ function emitAction(action: Action, depth = 0): string[] {
       break;
 
     case 'select':
+      if (shouldScroll(action.testID, action.scroll, ctx)) {
+        lines.push(...emitScrollBlock(d, action.testID));
+        lines.push(...emitScrollBlock(d, `${action.testID}-trigger`));
+      }
       lines.push(
-        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
-        ...(action.scroll !== false ? emitScroll(d, `${action.testID}-trigger`) : []),
         line(d, '- swipe:'),
         line(d, '    start: "50%,50%"'),
         line(d, '    end: "50%,40%"'),
@@ -100,8 +158,10 @@ function emitAction(action: Action, depth = 0): string[] {
       break;
 
     case 'date':
+      if (shouldScroll(action.testID, action.scroll, ctx)) {
+        lines.push(...emitScrollBlock(d, action.testID));
+      }
       lines.push(
-        ...(action.scroll !== false ? emitScroll(d, action.testID) : []),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         // Retry tap if date picker didn't open (scroll animation can swallow first tap)
@@ -152,8 +212,6 @@ function emitAction(action: Action, depth = 0): string[] {
       break;
 
     case 'conditional': {
-      // If the condition looks like a testID (no spaces, lowercase/hyphens),
-      // use id-based visibility check. Otherwise use text matching.
       const isTestID = /^[a-z0-9-]+$/.test(action.whenVisible);
       lines.push(
         line(d, '- runFlow:'),
@@ -171,7 +229,7 @@ function emitAction(action: Action, depth = 0): string[] {
       }
       lines.push(line(d, '    commands:'));
       for (const sub of action.actions) {
-        lines.push(...emitAction(sub, d + 3));
+        lines.push(...emitAction(sub, d + 3, ctx));
       }
       break;
     }
@@ -190,7 +248,6 @@ function emitAction(action: Action, depth = 0): string[] {
       break;
 
     case 'wait':
-      // No native Maestro wait — use a no-op assertion as delay
       lines.push(
         line(d, '- extendedWaitUntil:'),
         line(d, `    visible: ""`),
@@ -222,6 +279,14 @@ function emitAction(action: Action, depth = 0): string[] {
 function emitStep(step: JourneyStep): string[] {
   const lines: string[] = [];
 
+  // Build screen context for scroll decisions
+  const screen = getScreen(step.screen);
+  const ctx: EmitContext = {
+    screenName: step.screen,
+    layout: screen?.layout ?? DEFAULT_LAYOUT,
+    screen,
+  };
+
   // Section comment
   lines.push('');
   lines.push(comment(0, `=== ${step.comment ?? step.screen.toUpperCase()} ===`));
@@ -247,9 +312,9 @@ function emitStep(step: JourneyStep): string[] {
     '      - tapOn: "Dismiss"',
   );
 
-  // Emit each action
+  // Emit each action with screen context
   for (const action of step.actions) {
-    lines.push(...emitAction(action));
+    lines.push(...emitAction(action, 0, ctx));
   }
 
   return lines;

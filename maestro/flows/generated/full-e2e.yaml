@@ -94,6 +94,13 @@ tags:
 - extendedWaitUntil:
     visible: "SMITH"
     timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: "confirm-scan-button"
+    direction: DOWN
+    timeout: 15000
+    visibilityPercentage: 30
+    centerElement: true
 - tapOn:
     id: "confirm-scan-button"
 
@@ -242,6 +249,13 @@ tags:
     start: "50%,40%"
     end: "50%,38%"
     duration: 150
+- scrollUntilVisible:
+    element:
+      id: "country-select-0-option-MYS"
+    direction: DOWN
+    timeout: 15000
+    visibilityPercentage: 30
+    centerElement: true
 - tapOn:
     id: "country-select-0-option-MYS"
 - scrollUntilVisible:

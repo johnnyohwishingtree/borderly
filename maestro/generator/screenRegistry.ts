@@ -30,10 +30,20 @@ export interface AlertSpec {
   trigger: string;
 }
 
+export interface ScreenLayout {
+  /** Whether the screen has a ScrollView/FlatList */
+  scrollable: boolean;
+  /** Whether all interactive elements fit on screen without scrolling */
+  fitsOnScreen: boolean;
+  /** Ordered list of element testIDs from top to bottom */
+  elementOrder: string[];
+}
+
 export interface ScreenSpec {
   name: string;
   sourceFile: string;
   waitFor: string | string[];
+  layout: ScreenLayout;
   fields: FieldSpec[];
   alerts: AlertSpec[];
   actionButtons: { testID: string; label: string; description: string; zone?: TestZone }[];
@@ -60,6 +70,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'AddCompanions',
     sourceFile: 'src/screens/onboarding/AddCompanionsScreen/AddCompanionsScreen.tsx',
     waitFor: 'Traveling with family?',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['add-companion-button', 'companions-continue-button', 'relationship-picker-close-button', 'relationship-picker-modal', 'add-companions-title', 'add-companions-subtitle', 'companion-item', 'benefits-section', 'relationship-picker-backdrop', 'relationship-picker-title', 'relationship-option'] },
     fields: [
       { testID: 'relationship-picker-modal', label: 'relationship picker modal', componentType: 'Modal', required: true },
       { testID: 'add-companions-title', label: 'add companions title', componentType: 'text', required: true },
@@ -90,6 +101,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'AddFamilyMember',
     sourceFile: 'src/screens/profile/AddFamilyMemberScreen/AddFamilyMemberScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['relationship-select', 'start-camera-scan-button', 'enter-manually-family-button'] },
     fields: [
       { testID: 'relationship-select', label: 'Family Relationship', componentType: 'Select', required: true },
     ],
@@ -107,6 +119,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'AddQR',
     sourceFile: 'src/screens/wallet/AddQRScreen/AddQRScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -121,6 +134,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'BiometricSetup',
     sourceFile: 'src/screens/onboarding/BiometricSetupScreen/BiometricSetupScreen.tsx',
     waitFor: 'Secure Your Profile',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['enable-biometric-button', 'skip-biometric-button', 'biometric-back-button'] },
     fields: [
     ],
     alerts: [
@@ -144,6 +158,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'BugReport',
     sourceFile: 'src/screens/support/BugReportScreen/BugReportScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -158,6 +173,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'ConfirmProfile',
     sourceFile: 'src/screens/onboarding/ConfirmProfileScreen/ConfirmProfileScreen.tsx',
     waitFor: 'Confirm Your Profile',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['confirm-go-back-button', 'continue-to-security-button', 'edit-information-button', 'confirm-profile-title', 'profile-field'] },
     fields: [
       { testID: 'confirm-profile-title', label: 'confirm profile title', componentType: 'text', required: true },
       { testID: 'profile-field', label: 'profile', componentType: 'text', required: true },
@@ -179,6 +195,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'CreateTrip',
     sourceFile: 'src/screens/trips/CreateTripScreen/CreateTripScreen.tsx',
     waitFor: 'Create New Trip',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['trip-name-field', 'create-trip-button', 'add-companion-cta-button', 'smart-import-button', 'scan-destination-button', 'add-destination-button', 'empty-state-scan-button', 'empty-state-add-button', 'leg-${index}-arrival-date', 'leg-${index}-departure-date', 'leg-${index}-flight-number', 'leg-${index}-airline-code', 'leg-${index}-arrival-airport', 'leg-${index}-accommodation-name', 'leg-${index}-accommodation-address', 'country-select-${index}', 'remove-leg-${index}-button', 'apply-to-all-toggle-row', 'apply-to-all-toggle', 'family-empty-state-card', 'create-trip-passport-validity-warning-${index}', 'leg-${index}-travelers-synced'] },
     fields: [
       { testID: 'trip-name-field', label: 'trip name', componentType: 'Input', required: true },
       { testID: 'leg-${index}-arrival-date', label: 'leg ${index} arrival date', componentType: 'DatePickerField', required: true },
@@ -221,6 +238,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'EditProfile',
     sourceFile: 'src/screens/profile/EditProfileScreen/EditProfileScreen.tsx',
     waitFor: 'Edit Profile',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['occupation-select', 'marital-status-select', 'home-address'] },
     fields: [
       { testID: 'occupation-select', label: 'Occupation', componentType: 'SearchableSelect', required: true },
       { testID: 'marital-status-select', label: 'Marital Status', componentType: 'SearchableSelect', required: true },
@@ -240,6 +258,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'ExportBackupModal',
     sourceFile: 'src/screens/settings/ExportBackupModal/ExportBackupModal.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['export-backup-modal', 'export-backup-close-button', 'passphrase-strength-indicator', 'passphrase-field', 'confirm-passphrase-field', 'export-error-message', 'export-backup-submit-button', 'export-backup-cancel-button'] },
     fields: [
       { testID: 'export-backup-modal', label: 'export backup modal', componentType: 'ScrollView', required: true },
       { testID: 'passphrase-strength-indicator', label: 'passphrase strength indicator', componentType: 'View', required: true },
@@ -262,6 +281,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'FamilyManagement',
     sourceFile: 'src/screens/profile/FamilyManagementScreen/FamilyManagementScreen.tsx',
     waitFor: 'Family Members',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['add-member-button', 'family-member-card-${member.id}'] },
     fields: [
     ],
     alerts: [
@@ -277,6 +297,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'FAQ',
     sourceFile: 'src/screens/help/FAQScreen/FAQScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -291,6 +312,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Feedback',
     sourceFile: 'src/screens/support/FeedbackScreen/FeedbackScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -305,6 +327,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Help',
     sourceFile: 'src/screens/support/HelpScreen/HelpScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -319,6 +342,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'ImportTrip',
     sourceFile: 'src/screens/trips/ImportTripScreen/ImportTripScreen.tsx',
     waitFor: 'import-confirmation-field',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['import-tab-paste-button', 'import-tab-scan-button', 'import-confirmation-field', 'import-parse-button', 'import-try-again-button', 'import-error-message'] },
     fields: [
       { testID: 'import-confirmation-field', label: 'import confirmation', componentType: 'TextInput', required: true },
       { testID: 'import-error-message', label: 'import error message', componentType: 'View', required: true },
@@ -339,6 +363,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'LegForm',
     sourceFile: 'src/screens/trips/LegFormScreen/LegFormScreen.tsx',
     waitFor: [],
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['smart-delta-button', 'leg-form-traveler-tabs', 'leg-form-passport-validity-warning', 'action-buttons-bar', 'mark-ready-button', 'save-progress-button', 'submit-in-app-button', 'open-submission-guide-button', 'dynamic-form'] },
     fields: [
     ],
     alerts: [
@@ -366,6 +391,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Lock',
     sourceFile: 'src/screens/lock/LockScreen/LockScreen.tsx',
     waitFor: '',
+    layout: { scrollable: false, fitsOnScreen: true, elementOrder: ['lock-screen', 'lock-screen-error', 'lock-screen-biometric-button', 'lock-screen-pin-button'] },
     fields: [
     ],
     alerts: [
@@ -382,6 +408,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'NotificationPermission',
     sourceFile: 'src/screens/onboarding/NotificationPermissionScreen/NotificationPermissionScreen.tsx',
     waitFor: 'Stay on Top of Deadlines',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['allow-notifications-button', 'skip-notifications-button'] },
     fields: [
     ],
     alerts: [
@@ -402,6 +429,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'NotificationPreferences',
     sourceFile: 'src/screens/settings/NotificationPreferences/NotificationPreferences.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['notification-master-card', 'notification-master-toggle', 'notification-timing-card', 'timing-${option.value}', 'notification-quiet-hours-card', 'quiet-hours-toggle', 'quiet-hours-start', 'quiet-hours-end'] },
     fields: [
     ],
     alerts: [
@@ -417,6 +445,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'PassportScan',
     sourceFile: 'src/screens/onboarding/PassportScanScreen/PassportScanScreen.tsx',
     waitFor: 'Passport Information',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['dismiss-performance-hint-button', 'start-camera-scan-button', 'enter-manually-button', 'demo-scan-adult-button', 'demo-scan-spouse-button', 'demo-scan-child-button', 'passport-number-field', 'surname-field', 'given-names-field', 'nationality-field', 'dob-field', 'passport-expiry-field', 'issuing-country-field', 'passport-continue-button', 'passport-back-button', 'gender-button'] },
     fields: [
       { testID: 'passport-number-field', label: 'passport number', componentType: 'Input', required: true },
       { testID: 'surname-field', label: 'surname', componentType: 'Input', required: true },
@@ -452,6 +481,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'PortalSubmission',
     sourceFile: 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['portal-submission-screen', 'close-portal-button', 'progress-bar', 'portal-loading-indicator', 'toolbar-back-button', 'toolbar-forward-button', 'toolbar-refresh-button', 'auto-login-progress-banner', 'auto-login-failed-banner', 'auth-page-banner', 'captcha-page-banner', 'autofill-banner', 'low-fill-warning-banner', 'manual-guide-button', 'save-credentials-prompt', 'portal-webview', 'autofill-pill', 'load-error-overlay', 'error-try-again-button', 'error-continue-manually-button', 'submit-in-app-section', 'incomplete-form-message', 'missing-fields-list', 'submit-in-app-button', 'toggle-fields-panel', 'fields-panel', 'qr-save-overlay'] },
     fields: [
     ],
     alerts: [
@@ -475,6 +505,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'PrivacyPolicy',
     sourceFile: 'src/screens/settings/PrivacyPolicyScreen/PrivacyPolicyScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['privacy-policy-screen'] },
     fields: [
     ],
     alerts: [
@@ -489,6 +520,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Profile',
     sourceFile: 'src/screens/profile/ProfileScreen/ProfileScreen.tsx',
     waitFor: 'Your Profile',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['unlock-biometrics-button', 'edit-contact-button', 'family-summary-row'] },
     fields: [
     ],
     alerts: [
@@ -506,6 +538,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'QRDetail',
     sourceFile: 'src/screens/wallet/QRDetailScreen/QRDetailScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -520,6 +553,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'QRWallet',
     sourceFile: 'src/screens/wallet/QRWalletScreen/QRWalletScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -534,6 +568,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'RestoreBackupModal',
     sourceFile: 'src/screens/settings/RestoreBackupModal/RestoreBackupModal.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['restore-backup-screen', 'restore-backup-heading', 'restore-step-idle', 'pick-file-button', 'restore-step-passphrase', 'passphrase-field', 'toggle-secure-entry', 'submit-passphrase-button', 'cancel-passphrase-button', 'restore-step-loading', 'restore-step-conflict', 'confirm-replace-button', 'cancel-replace-button', 'restore-step-success', 'go-to-home-button', 'restore-step-error', 'error-message', 'try-again-button'] },
     fields: [
       { testID: 'restore-backup-screen', label: 'restore backup screen', componentType: 'ScrollView', required: true },
       { testID: 'restore-backup-heading', label: 'restore backup heading', componentType: 'Text', required: true },
@@ -566,6 +601,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'ReviewImport',
     sourceFile: 'src/screens/trips/ReviewImportScreen/ReviewImportScreen.tsx',
     waitFor: 'review-trip-name',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['confidence-badge', 'review-leg-${index}', 'remove-leg-${index}', 'leg-arrival-date-${index}', 'review-trip-name', 'missing-fields-warning', 'save-error-message', 'review-create-trip-button', 'review-cancel-button'] },
     fields: [
     ],
     alerts: [
@@ -583,6 +619,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Settings',
     sourceFile: 'src/screens/settings/SettingsScreen/SettingsScreen.tsx',
     waitFor: 'Settings',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['app-lock-card', 'app-lock-unavailable', 'app-lock-toggle', 'app-lock-timeout-section', 'app-lock-timeout-select', 'notification-settings-card', 'notification-preferences-row', 'settings-theme-selector', 'form-data-card', 'schema-row', 'refresh-schemas-button'] },
     fields: [
       { testID: 'app-lock-card', label: 'app lock card', componentType: 'Card', required: true },
       { testID: 'app-lock-unavailable', label: 'app lock unavailable', componentType: 'View', required: true },
@@ -610,6 +647,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'SubmissionGuide',
     sourceFile: 'src/screens/trips/SubmissionGuideScreen/SubmissionGuideScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['submission-guide-traveler-tabs', 'submit-in-app-button', 'open-in-browser-button', 'mark-as-submitted-button', 'save-qr-button'] },
     fields: [
     ],
     alerts: [
@@ -628,6 +666,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Templates',
     sourceFile: 'src/screens/trips/TemplatesScreen/TemplatesScreen.tsx',
     waitFor: 'Trip Templates',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['rename-template-field', 'rename-modal-cancel', 'rename-modal-confirm', 'rename-template-modal', 'rename-template-${id}', 'delete-template-${id}', 'use-template-${id}', 'templates-list'] },
     fields: [
       { testID: 'rename-template-field', label: 'rename template', componentType: 'TextInput', required: true },
       { testID: 'rename-template-modal', label: 'rename template modal', componentType: 'Modal', required: true },
@@ -650,6 +689,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'TripChecklist',
     sourceFile: 'src/screens/trips/TripChecklistScreen/TripChecklistScreen.tsx',
     waitFor: 'checklist-progress',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['checklist-item-${item.id}', 'checklist-progress', 'checklist-empty', 'checklist-scroll'] },
     fields: [
     ],
     alerts: [
@@ -665,6 +705,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'TripDetail',
     sourceFile: 'src/screens/trips/TripDetailScreen/TripDetailScreen.tsx',
     waitFor: 'Itinerary',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['trip-detail-traveler-${member.id}', 'trip-detail-traveler-progress', 'readiness-checklist-loading', 'readiness-checklist', 'trip-detail-account-checklist', 'checklist-card', 'add-destination-button', 'add-destination-empty-button', 'trip-detail-go-back-button', 'duplicate-trip-button', 'edit-trip-button', 'trip-detail-travelers', 'submission-progress-summary', 'save-as-template-button', 'save-template-modal', 'duplicate-trip-modal'] },
     fields: [
     ],
     alerts: [
@@ -690,6 +731,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'TripList',
     sourceFile: 'src/screens/trips/TripListScreen/TripListScreen.tsx',
     waitFor: 'Your Trips',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['import-trip-button', 'templates-nav-button', 'trip-search-field', 'trip-search-clear', 'create-first-trip-button', 'use-template-button', 'trip-list-deadline-summary', 'first-run-welcome-banner', 'schema-update-banner', 'trip-filter-${key}', 'fab-from-template-button', 'trip-list-duplicate-trip-modal'] },
     fields: [
       { testID: 'trip-search-field', label: 'trip search', componentType: 'Input', required: true },
     ],
@@ -715,6 +757,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Troubleshooting',
     sourceFile: 'src/screens/help/TroubleshootingScreen/TroubleshootingScreen.tsx',
     waitFor: '',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: [] },
     fields: [
     ],
     alerts: [
@@ -729,6 +772,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Tutorial',
     sourceFile: 'src/screens/onboarding/TutorialScreen/TutorialScreen.tsx',
     waitFor: 'Step 1 of 3',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['tutorial-skip-button', 'next-step-button', 'previous-step-button', 'tutorial-slide-title', 'tutorial-step-indicator'] },
     fields: [
       { testID: 'tutorial-slide-title', label: 'tutorial slide title', componentType: 'text', required: true },
       { testID: 'tutorial-step-indicator', label: 'tutorial step indicator', componentType: 'text', required: true },
@@ -750,6 +794,7 @@ export const SCREENS: Record<string, ScreenSpec> = {
     name: 'Welcome',
     sourceFile: 'src/screens/onboarding/WelcomeScreen/WelcomeScreen.tsx',
     waitFor: 'Borderly',
+    layout: { scrollable: true, fitsOnScreen: false, elementOrder: ['take-tutorial-button', 'skip-tutorial-button', 'restore-backup-link-button'] },
     fields: [
     ],
     alerts: [
