@@ -24,16 +24,19 @@ function comment(depth: number, text: string): string {
 
 // ── Scroll emission ──
 
-/** Emit a scrollUntilVisible block */
+/** Emit a scrollUntilVisible block.
+ * waitToSettleTimeoutMs ensures scroll animation completes before the next action. */
+/** Emit a scrollUntilVisible block. */
 function emitScrollBlock(d: number, testID: string): string[] {
   return [
     line(d, '- scrollUntilVisible:'),
     line(d, '    element:'),
     line(d, `      id: "${testID}"`),
     line(d, '    direction: DOWN'),
-    line(d, '    timeout: 15000'),
+    line(d, '    timeout: 8000'),
     line(d, '    visibilityPercentage: 30'),
     line(d, '    centerElement: true'),
+    line(d, '    waitToSettleTimeoutMs: 200'),
   ];
 }
 
@@ -54,13 +57,16 @@ const DEFAULT_LAYOUT: ScreenLayout = {
 /**
  * Deterministic scroll decision based on screen layout metadata.
  *
- * Priority:
+ * Without centerElement, scrollUntilVisible is a no-op for already-visible
+ * elements — Maestro checks visibility at runtime and only scrolls if needed.
+ * So we emit scrollUntilVisible liberally and let Maestro handle it.
+ *
+ * We only skip the scroll command entirely when we KNOW it's unnecessary:
  * 1. Action explicitly says scroll: false → don't scroll (manual override)
  * 2. Action explicitly says scroll: true → scroll (manual override)
- * 3. Screen fitsOnScreen → don't scroll (everything visible)
- * 4. Screen not scrollable → don't scroll
- * 5. Element zone is header/footer → don't scroll
- * 6. Default: scroll (element is in scroll zone of a scrollable screen)
+ * 3. Screen not scrollable (no ScrollView) → don't scroll
+ * 4. Element zone is header/footer → don't scroll (fixed position)
+ * 5. Default: emit scrollUntilVisible (Maestro skips it if element is visible)
  */
 function shouldScroll(
   testID: string,
@@ -71,13 +77,10 @@ function shouldScroll(
   if (explicitScroll === false) return false;
   if (explicitScroll === true) return true;
 
-  // 3. Screen fits on one viewport — never scroll
-  if (ctx.layout.fitsOnScreen) return false;
-
-  // 4. Screen has no ScrollView — never scroll
+  // 3. Screen has no ScrollView — never scroll
   if (!ctx.layout.scrollable) return false;
 
-  // 5. Check element zone from registry
+  // 4. Check element zone from registry — fixed elements don't scroll
   if (ctx.screen) {
     const field = ctx.screen.fields.find(f => f.testID === testID);
     const button = ctx.screen.actionButtons.find(b => b.testID === testID);
@@ -85,7 +88,7 @@ function shouldScroll(
     if (zone === 'header' || zone === 'footer') return false;
   }
 
-  // 6. Default: scroll (element is in scroll content of a scrollable screen)
+  // 5. Default: emit scrollUntilVisible — Maestro handles visibility at runtime
   return true;
 }
 
@@ -118,42 +121,36 @@ function emitAction(action: Action, depth: number, ctx: EmitContext): string[] {
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}"`),
         line(d, `- inputText: "${action.value}"`),
-        // Dismiss keyboard with small swipe
-        line(d, '- swipe:'),
-        line(d, '    start: "50%,40%"'),
-        line(d, '    end: "50%,35%"'),
-        line(d, '    duration: 200'),
+        // Dismiss keyboard
+        line(d, '- hideKeyboard'),
       );
       break;
 
     case 'select':
-      if (shouldScroll(action.testID, action.scroll, ctx)) {
-        lines.push(...emitScrollBlock(d, action.testID));
+      // Scroll to the trigger button (not the wrapper View — wrapper may be too large)
+      if (shouldScroll(`${action.testID}-trigger`, action.scroll, ctx)) {
         lines.push(...emitScrollBlock(d, `${action.testID}-trigger`));
       }
       lines.push(
-        line(d, '- swipe:'),
-        line(d, '    start: "50%,50%"'),
-        line(d, '    end: "50%,40%"'),
-        line(d, '    duration: 200'),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}-trigger"`),
         line(d, '- extendedWaitUntil:'),
         line(d, '    visible:'),
         line(d, `      id: "${action.testID}-search"`),
-        line(d, '    timeout: 5000'),
+        line(d, '    timeout: 3000'),
         line(d, '- tapOn:'),
         line(d, `    id: "${action.testID}-search"`),
         line(d, '- eraseText: 20'),
         line(d, `- inputText: "${action.search}"`),
         line(d, '- pressKey: Enter'),
-        // Scroll to reveal option if below screen edge
-        line(d, '- swipe:'),
-        line(d, '    start: "50%,70%"'),
-        line(d, '    end: "50%,50%"'),
-        line(d, '    duration: 200'),
-        line(d, '- tapOn:'),
-        line(d, `    id: "${action.testID}-option-${action.optionCode}"`),
+        // If Enter selected the only match, dropdown is closed — tap option as fallback
+        line(d, '- runFlow:'),
+        line(d, '    when:'),
+        line(d, '      visible:'),
+        line(d, `        id: "${action.testID}-option-${action.optionCode}"`),
+        line(d, '    commands:'),
+        line(d, '      - tapOn:'),
+        line(d, `          id: "${action.testID}-option-${action.optionCode}"`),
       );
       break;
 
@@ -174,7 +171,7 @@ function emitAction(action: Action, depth: number, ctx: EmitContext): string[] {
         // Date picker modal — confirm default date
         line(d, '- extendedWaitUntil:'),
         line(d, '    visible: "Done"'),
-        line(d, '    timeout: 10000'),
+        line(d, '    timeout: 3000'),
         line(d, '- tapOn: "Done"'),
       );
       break;
@@ -183,25 +180,21 @@ function emitAction(action: Action, depth: number, ctx: EmitContext): string[] {
       lines.push(
         line(d, '- extendedWaitUntil:'),
         line(d, `    visible: "${action.title}"`),
-        line(d, '    timeout: 5000'),
+        line(d, '    timeout: 3000'),
         line(d, `- tapOn: "${action.tapButton}"`),
       );
       break;
 
     case 'assertVisible':
       lines.push(
-        line(d, '- extendedWaitUntil:'),
-        line(d, `    visible: "${action.text}"`),
-        line(d, '    timeout: 10000'),
+        line(d, `- assertVisible: "${action.text}"`),
       );
       break;
 
     case 'assertVisibleID':
       lines.push(
-        line(d, '- extendedWaitUntil:'),
-        line(d, '    visible:'),
-        line(d, `      id: "${action.testID}"`),
-        line(d, '    timeout: 10000'),
+        line(d, '- assertVisible:'),
+        line(d, `    id: "${action.testID}"`),
       );
       break;
 
@@ -298,19 +291,10 @@ function emitStep(step: JourneyStep): string[] {
       lines.push(
         `- extendedWaitUntil:`,
         `    visible: "${text}"`,
-        `    timeout: ${step.waitTimeout ?? 15000}`,
+        `    timeout: ${step.waitTimeout ?? 3000}`,
       );
     }
   }
-
-  // Dismiss Fast Refresh banner if present (common in dev builds)
-  lines.push(
-    '- runFlow:',
-    '    when:',
-    '      visible: "Fast Refresh disconnected"',
-    '    commands:',
-    '      - tapOn: "Dismiss"',
-  );
 
   // Emit each action with screen context
   for (const action of step.actions) {
@@ -345,6 +329,15 @@ export function emitJourney(journey: Journey): string {
     lines.push('- launchApp:');
     lines.push('    clearState: true');
   }
+
+  // Dismiss Fast Refresh banner once at launch (dev builds only)
+  lines.push(
+    '- runFlow:',
+    '    when:',
+    '      visible: "Fast Refresh disconnected"',
+    '    commands:',
+    '      - tapOn: "Dismiss"',
+  );
 
   // Emit each step
   for (const step of journey.steps) {

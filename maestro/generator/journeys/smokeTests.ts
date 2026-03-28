@@ -7,7 +7,7 @@
  */
 import { journey, step, alert } from '../dsl';
 import {
-  tap, assertVisible, assertVisibleID, swipe, tapText, conditional,
+  tap, assertVisible, swipe,
 } from '../dsl';
 import {
   screenStep, tapButton,
@@ -54,9 +54,9 @@ export const fullE2E = journey('full-e2e', {
     // ── 2. Create Malaysia trip ──
     screenStep('TripList', {
       comment: 'TRIP LIST — CREATE FIRST TRIP',
-      waitTimeout: 30000,
+      waitTimeout: 10000,
       actions: [
-        tapButton('TripList', 'create-first-trip-button'),
+        tap('create-first-trip-button', { scroll: false }),
       ],
     }),
     ...createMalaysiaTripSteps(),

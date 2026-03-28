@@ -27,13 +27,13 @@ const welcomeStep = () => screenStep('Welcome', {
   ],
 });
 
-/** Tutorial screen — advance through all 3 steps (Skip button unreliable on iOS 26) */
+/** Tutorial screen — advance through all 3 steps (buttons always visible) */
 const tutorialSkipStep = () => screenStep('Tutorial', {
   comment: 'TUTORIAL — ADVANCE THROUGH STEPS',
   actions: [
-    tapButton('Tutorial', 'next-step-button'),
-    tapButton('Tutorial', 'next-step-button'),
-    tapButton('Tutorial', 'next-step-button'),
+    tap('next-step-button', { scroll: false }),
+    tap('next-step-button', { scroll: false }),
+    tap('next-step-button', { scroll: false }),
   ],
 });
 
@@ -62,22 +62,21 @@ const passportManualEntry = (data: {
   ],
 });
 
-/** Passport scan — demo scan (dev mode) */
+/** Passport scan — demo scan (dev mode). Demo buttons visible after dismiss. */
 const passportDemoScan = () => screenStep('PassportScan', {
   comment: 'PASSPORT — DEMO SCAN',
   actions: [
     conditional('Performance Optimization Enabled', tapText('Dismiss')),
-    tapButton('PassportScan', 'demo-scan-adult-button'),
-    // Preview shows scanned data — confirm it (confirm-scan-button is in PassportPreview component)
+    tap('demo-scan-adult-button', { scroll: false }),
     assertVisible('SMITH'),
-    tap('confirm-scan-button'),
+    tap('confirm-scan-button', { scroll: false }),
   ],
 });
 
 /** Confirm profile screen */
 const confirmProfileStep = (expectedName: string) => screenStep('ConfirmProfile', {
   comment: 'CONFIRM PROFILE',
-  waitTimeout: 45000,
+  waitTimeout: 10000,
   actions: [
     assertVisible(expectedName),
     tapButton('ConfirmProfile', 'continue-to-security-button'),
@@ -94,11 +93,11 @@ const addCompanionsSkipStep = () => screenStep('AddCompanions', {
   ],
 });
 
-/** Biometric setup screen — skip */
+/** Biometric setup screen — skip (buttons visible without scroll) */
 const biometricSkipStep = () => screenStep('BiometricSetup', {
   comment: 'BIOMETRIC SETUP — SKIP',
   actions: [
-    tapButton('BiometricSetup', 'skip-biometric-button'),
+    tap('skip-biometric-button', { scroll: false }),
     handleAlert('BiometricSetup', 'skip-biometric-button'),
   ],
 });

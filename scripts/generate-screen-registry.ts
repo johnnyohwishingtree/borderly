@@ -191,10 +191,6 @@ function parseScreenFile(filePath: string): ScreenData | null {
 
   // ── Auto-infer layout from source ──
   const hasScrollView = /\bScrollView\b|\bKeyboardAwareScrollView\b|\bFlatList\b|\bSectionList\b/.test(content);
-  // Viewport-fill: ScrollView with minHeight set to screen height (single-page screen)
-  const hasViewportFill = /contentContainerStyle.*minHeight:\s*height|contentContainerStyle.*minHeight:\s*screenHeight/.test(content);
-  const interactiveCount = fields.length + actionButtons.length;
-
   const scrollable = hasScrollView;
   // fitsOnScreen: conservative — only true when there's no ScrollView at all.
   // Scrollable screens always get scrollUntilVisible; the zone (header/footer)

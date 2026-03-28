@@ -86,7 +86,15 @@ export default function SearchableSelect({
               placeholder="Type to filter..."
               value={search}
               onChangeText={setSearch}
+              onSubmitEditing={() => {
+                if (filtered.length === 1) {
+                  handleSelect(filtered[0].value);
+                }
+              }}
               autoFocus
+              autoCorrect={false}
+              autoCapitalize="none"
+              returnKeyType="done"
               testID={testID ? `${testID}-search` : undefined}
             />
           </View>

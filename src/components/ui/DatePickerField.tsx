@@ -200,7 +200,6 @@ export default function DatePickerField({
         onPress={handleOpen}
         disabled={disabled}
         testID={testID}
-        accessible={true}
         accessibilityRole="button"
         accessibilityLabel={label ? `${label} date picker` : 'Date picker'}
         accessibilityValue={{ text: displayDate || placeholder }}

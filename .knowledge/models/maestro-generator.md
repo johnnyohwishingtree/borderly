@@ -68,6 +68,19 @@ Emitter ──reads──→ screenRegistry.layout → decides scroll behavior
 Emitter ──converts──→ Journey → YAML flows
 ```
 
+## iOS Keyboard Handling
+- Maestro `inputText` types through the iOS software keyboard — triggers autocorrect/predictive text
+- **All search TextInputs** must have `autoCorrect={false}` and `autoCapitalize="none"`
+- SearchableSelect supports `onSubmitEditing` — Enter selects the single matching result
+- Emitter's `select` action uses `pressKey: Enter` after typing to dismiss predictions AND select
+- Option tap after Enter is conditional (`runFlow: when: visible`) — Enter may have already closed dropdown
+- If a component is hard to test, adjust the component code to support simpler interaction patterns
+
+## Known Issues & Migration Plan
+- **Maestro is a poor fit for agentic E2E**: `scrollUntilVisible` uses brute-force incremental scrolling with settle timeouts. It can't see the screen or know element positions — fundamentally incompatible with how AI agents interact (see: mobile-mcp can do this precisely). The tool is fine for simple smoke tests but fights complex scrollable forms.
+- **Migration to Detox planned**: Detox (by Wix) is purpose-built for React Native — gray-box testing, knows RN render cycle, auto-waits, precise element coordinates. It's the "Playwright for mobile" equivalent. Migration will replace Maestro for the full E2E flow.
+- **Current workaround**: explicit `{ scroll: false }` on elements known to be visible from walkthrough data. Works but requires manual annotation per element.
+
 ## Invariants
 - Only 2 flows: `demo-scan-smoke` (quick sanity) and `full-e2e` (complete journey)
 - Zero hand-written YAML — all flows generated from journey definitions
@@ -75,6 +88,7 @@ Emitter ──converts──→ Journey → YAML flows
 - screenRegistry regenerated after screen changes: `npx tsx scripts/generate-screen-registry.ts --write`
 - Flows regenerated after journey or registry changes: `pnpm maestro:generate`
 - testIDs follow naming convention: `-button` for actions, `-field` for form fields
+- Components should support keyboard interaction as alternative to taps for testability
 
 ## Key Files
 - `src/types/testMeta.ts` — extensible testID metadata type

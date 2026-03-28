@@ -4,9 +4,9 @@
  * These assume onboarding is already complete (reuse onboarding steps).
  * Screen metadata is loaded from the screen registry at generation time.
  */
-import { journey, date, fill, alert, eraseText } from '../dsl';
+import { journey, date, fill, alert, select } from '../dsl';
 import {
-  tap, inputText, assertVisible, assertVisibleID, swipe,
+  tap, assertVisible, assertVisibleID,
 } from '../dsl';
 import {
   screenStep, tapButton,
@@ -28,16 +28,13 @@ const createJapanTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — JAPAN',
   actions: [
     // Trip name
-    fill('trip-name-field', 'Japan Trip 2026'),
-    // Add destination
-    tapButton('CreateTrip', 'add-destination-button'),
-    // Country select (manual — Maestro depth issue with SearchableSelect)
-    tap('country-select-0-trigger', { scroll: true }),
-    tap('country-select-0-search', { scroll: true }),
-    eraseText(20),
-    inputText('Japan'),
-    swipe('50%,40%', '50%,38%', 150),
-    tap('country-select-0-option-JPN'),
+    fill('trip-name-field', 'Japan Trip 2026', { scroll: false }),
+    tap('add-destination-button', { scroll: true }),
+    // Wait for leg card to render before interacting with its elements
+    assertVisible('Destination 1'),
+    // Country select — select() handles trigger tap, search, Enter to dismiss
+    // iOS predictions, swipe to reveal option, and tap option
+    select('country-select-0', 'Japan', 'JPN'),
     // Arrival date
     date('leg-0-arrival-date'),
     // Accommodation
@@ -74,14 +71,13 @@ export const createJapanTripSteps = () => [createJapanTrip()];
 const createMalaysiaTrip = () => screenStep('CreateTrip', {
   comment: 'CREATE TRIP — MALAYSIA',
   actions: [
-    fill('trip-name-field', 'Malaysia Trip 2026'),
-    tapButton('CreateTrip', 'add-destination-button'),
-    tap('country-select-0-trigger', { scroll: true }),
-    tap('country-select-0-search', { scroll: true }),
-    eraseText(20),
-    inputText('Malaysia'),
-    swipe('50%,40%', '50%,38%', 150),
-    tap('country-select-0-option-MYS'),
+    fill('trip-name-field', 'Malaysia Trip 2026', { scroll: false }),
+    tap('add-destination-button', { scroll: true }),
+    // Wait for leg card to render before interacting with its elements
+    assertVisible('Destination 1'),
+    // Country select — select() handles trigger tap, search, Enter to dismiss
+    // iOS predictions, swipe to reveal option, and tap option
+    select('country-select-0', 'Malaysia', 'MYS'),
     date('leg-0-arrival-date'),
     fill('leg-0-accommodation-name', 'Mandarin Oriental Kuala Lumpur'),
     fill('leg-0-accommodation-address-line1', 'Kuala Lumpur City Centre'),

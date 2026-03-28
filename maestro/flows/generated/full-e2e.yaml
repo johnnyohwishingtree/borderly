@@ -8,121 +8,67 @@ tags:
 ---
 - launchApp:
     clearState: true
-
-# === WELCOME SCREEN ===
-- extendedWaitUntil:
-    visible: "Borderly"
-    timeout: 15000
 - runFlow:
     when:
       visible: "Fast Refresh disconnected"
     commands:
       - tapOn: "Dismiss"
+
+# === WELCOME SCREEN ===
 - extendedWaitUntil:
-    visible: "Welcome to"
-    timeout: 10000
+    visible: "Borderly"
+    timeout: 3000
+- assertVisible: "Welcome to"
 - scrollUntilVisible:
     element:
       id: "take-tutorial-button"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "take-tutorial-button"
 
 # === TUTORIAL — ADVANCE THROUGH STEPS ===
 - extendedWaitUntil:
     visible: "Step 1 of 3"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "next-step-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+    timeout: 3000
 - tapOn:
     id: "next-step-button"
-- scrollUntilVisible:
-    element:
-      id: "next-step-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "next-step-button"
-- scrollUntilVisible:
-    element:
-      id: "next-step-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "next-step-button"
 
 # === PASSPORT — DEMO SCAN ===
 - extendedWaitUntil:
     visible: "Passport Information"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
+    timeout: 3000
 - runFlow:
     when:
       visible: "Performance Optimization Enabled"
     commands:
       - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "demo-scan-adult-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
 - tapOn:
     id: "demo-scan-adult-button"
-- extendedWaitUntil:
-    visible: "SMITH"
-    timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: "confirm-scan-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+- assertVisible: "SMITH"
 - tapOn:
     id: "confirm-scan-button"
 
 # === CONFIRM PROFILE ===
 - extendedWaitUntil:
     visible: "Confirm Your Profile"
-    timeout: 45000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- extendedWaitUntil:
-    visible: "JOHN MICHAEL SMITH"
     timeout: 10000
+- assertVisible: "JOHN MICHAEL SMITH"
 - scrollUntilVisible:
     element:
       id: "continue-to-security-button"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "continue-to-security-button"
 - runFlow:
@@ -134,137 +80,90 @@ tags:
           element:
             id: "continue-to-security-button"
           direction: DOWN
-          timeout: 15000
+          timeout: 8000
           visibilityPercentage: 30
           centerElement: true
+          waitToSettleTimeoutMs: 200
       - tapOn:
           id: "continue-to-security-button"
 
 # === ADD COMPANIONS — SKIP ===
 - extendedWaitUntil:
     visible: "Traveling with family?"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
+    timeout: 3000
 - tapOn: "Skip for now"
 
 # === BIOMETRIC SETUP — SKIP ===
 - extendedWaitUntil:
     visible: "Secure Your Profile"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "skip-biometric-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+    timeout: 3000
 - tapOn:
     id: "skip-biometric-button"
 - extendedWaitUntil:
     visible: "Skip Biometric Setup?"
-    timeout: 5000
+    timeout: 3000
 - tapOn: "Skip"
 
 # === TRIP LIST — CREATE FIRST TRIP ===
 - extendedWaitUntil:
     visible: "Your Trips"
-    timeout: 30000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "create-first-trip-button"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+    timeout: 10000
 - tapOn:
     id: "create-first-trip-button"
 
 # === CREATE TRIP — MALAYSIA ===
 - extendedWaitUntil:
     visible: "Create New Trip"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- scrollUntilVisible:
-    element:
-      id: "trip-name-field"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+    timeout: 3000
 - tapOn:
     id: "trip-name-field"
 - inputText: "Malaysia Trip 2026"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "add-destination-button"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "add-destination-button"
+- assertVisible: "Destination 1"
 - scrollUntilVisible:
     element:
       id: "country-select-0-trigger"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "country-select-0-trigger"
-- scrollUntilVisible:
-    element:
+- extendedWaitUntil:
+    visible:
       id: "country-select-0-search"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
+    timeout: 3000
 - tapOn:
     id: "country-select-0-search"
 - eraseText: 20
 - inputText: "Malaysia"
-- swipe:
-    start: "50%,40%"
-    end: "50%,38%"
-    duration: 150
-- scrollUntilVisible:
-    element:
-      id: "country-select-0-option-MYS"
-    direction: DOWN
-    timeout: 15000
-    visibilityPercentage: 30
-    centerElement: true
-- tapOn:
-    id: "country-select-0-option-MYS"
+- pressKey: Enter
+- runFlow:
+    when:
+      visible:
+        id: "country-select-0-option-MYS"
+    commands:
+      - tapOn:
+          id: "country-select-0-option-MYS"
 - scrollUntilVisible:
     element:
       id: "leg-0-arrival-date"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-arrival-date"
 - runFlow:
@@ -275,169 +174,124 @@ tags:
           id: "leg-0-arrival-date"
 - extendedWaitUntil:
     visible: "Done"
-    timeout: 10000
+    timeout: 3000
 - tapOn: "Done"
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-name"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-accommodation-name"
 - inputText: "Mandarin Oriental Kuala Lumpur"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-address-line1"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-accommodation-address-line1"
 - inputText: "Kuala Lumpur City Centre"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-address-city"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-accommodation-address-city"
 - inputText: "Kuala Lumpur"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-address-postal-code"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-accommodation-address-postal-code"
 - inputText: "50088"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "leg-0-accommodation-address-country"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-0-accommodation-address-country"
 - inputText: "MYS"
-- swipe:
-    start: "50%,40%"
-    end: "50%,35%"
-    duration: 200
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "create-trip-button"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "create-trip-button"
 - extendedWaitUntil:
     visible: "Success"
-    timeout: 5000
+    timeout: 3000
 - tapOn: "OK"
 
 # === TRIP DETAIL — MALAYSIA VERIFY ===
 - extendedWaitUntil:
     visible: "Itinerary"
     timeout: 20000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- extendedWaitUntil:
-    visible: "Malaysia Trip 2026"
-    timeout: 10000
-- extendedWaitUntil:
-    visible:
-      id: "leg-card-MYS"
-    timeout: 10000
+- assertVisible: "Malaysia Trip 2026"
+- assertVisible:
+    id: "leg-card-MYS"
 
 # === OPEN MALAYSIA LEG FORM ===
 - extendedWaitUntil:
     visible: "Itinerary"
-    timeout: 15000
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
+    timeout: 3000
 - scrollUntilVisible:
     element:
       id: "leg-card-MYS"
     direction: DOWN
-    timeout: 15000
+    timeout: 8000
     visibilityPercentage: 30
     centerElement: true
+    waitToSettleTimeoutMs: 200
 - tapOn:
     id: "leg-card-MYS"
 
 # === LEG FORM — VERIFY AUTO-FILL ===
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
-- extendedWaitUntil:
-    visible: "Malaysia"
-    timeout: 10000
+- assertVisible: "Malaysia"
 - swipe:
     start: "50%,80%"
     end: "50%,40%"
     duration: 300
-- extendedWaitUntil:
-    visible: "L12345678"
-    timeout: 10000
+- assertVisible: "L12345678"
 
 # === LEG FORM — SAVE ===
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
 - tapOn:
     id: "save-progress-button"
 - extendedWaitUntil:
     visible: "Success"
-    timeout: 5000
+    timeout: 3000
 - tapOn: "OK"
 
 # === BACK TO TRIP LIST — VERIFY ===
-- runFlow:
-    when:
-      visible: "Fast Refresh disconnected"
-    commands:
-      - tapOn: "Dismiss"
 - tapOn:
     id: "tab-trips"
-- extendedWaitUntil:
-    visible: "Your Trips"
-    timeout: 10000
-- extendedWaitUntil:
-    visible: "Malaysia Trip 2026"
-    timeout: 10000
+- assertVisible: "Your Trips"
+- assertVisible: "Malaysia Trip 2026"
