@@ -31,14 +31,27 @@ src/components/, src/screens/, maestro/
 - DENY: hand-writing Maestro YAML when the generator can handle it
 - DENY: text-based taps (`tapOn: "Submit"`) — use testID-based
 
+### Screen layout metadata
+- REQUIRE: every screen's testIDs.ts declares `zone` for elements outside the scroll area
+- REQUIRE: `zone: 'header'` for elements fixed at top (always visible)
+- REQUIRE: `zone: 'footer'` for elements fixed at bottom (outside ScrollView)
+- REQUIRE: `zone: 'scroll'` (or omit — default) for elements inside ScrollView
+- REQUIRE: screenRegistry includes `ScreenLayout` with `scrollable`, `fitsOnScreen`, `elementOrder`
+- REQUIRE: `ScreenLayout` is auto-inferred by the generator from source code (ScrollView detection, element count, testID order)
+- REQUIRE: structural test verifies generated registry matches source — catches layout drift
+- DENY: blind scrolling — emitter must check screen layout before scrolling
+- DENY: manual layout maps or overrides for scrollable/fitsOnScreen — always derived from source
+- DENY: hardcoding scroll behavior in journey definitions when the emitter can infer it from layout
+
 ## testIDs.ts Format
 ```typescript
-// src/screens/trips/CreateTripScreen/testIDs.ts
-export const CREATE_TRIP_IDS = {
-  nameField: { id: 'create-trip-name-field', type: 'Input' as const },
-  countryField: { id: 'create-trip-country-field', type: 'SearchableSelect' as const },
-  arrivalDateField: { id: 'leg-${index}-arrival-field', type: 'DatePickerField' as const, dynamic: true as const },
-  createButton: { id: 'create-trip-button', type: 'button' as const },
+// src/screens/trips/LegFormScreen/testIDs.ts
+import type { TestMeta } from '@/types/testMeta';
+
+export const LEG_FORM_IDS: Record<string, TestMeta> = {
+  smartDeltaButton: { id: 'smart-delta-button', type: 'button', zone: 'header' },
+  dynamicForm: { id: 'dynamic-form', type: 'container', zone: 'scroll' },
+  saveProgressButton: { id: 'save-progress-button', type: 'button', zone: 'footer' },
 };
 ```
 
@@ -75,7 +88,7 @@ This collects: screenshot, failing step, visible testIDs from accessibility tree
 - Keychain access groups on simulator without provisioning — use `USE_SHARED_ACCESS_GROUP` flag
 
 ## Enforcement
-- `__tests__/structure/maestro-registry-sync.test.ts` — registry ↔ source sync
+- `e2e/mobile/full-e2e.test.ts — mobilecli-based E2E
 - `__tests__/structure/component-testids.test.ts` — interactive elements have testID
 
 ## References

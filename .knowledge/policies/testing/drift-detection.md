@@ -29,7 +29,7 @@ src/, maestro/, .knowledge/, .claude/
 - Trusting CI will catch drift (most drift is in docs/config, not code)
 
 ## Enforcement
-- `__tests__/structure/maestro-registry-sync.test.ts` — testID drift
+- `e2e/mobile/full-e2e.test.ts — mobilecli-based E2E
 - `/code-audit` skill — path references, drift detection
 
 ## References

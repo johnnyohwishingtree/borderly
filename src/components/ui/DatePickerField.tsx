@@ -200,7 +200,6 @@ export default function DatePickerField({
         onPress={handleOpen}
         disabled={disabled}
         testID={testID}
-        accessible={true}
         accessibilityRole="button"
         accessibilityLabel={label ? `${label} date picker` : 'Date picker'}
         accessibilityValue={{ text: displayDate || placeholder }}
@@ -244,6 +243,8 @@ export default function DatePickerField({
               <TouchableOpacity
                 onPress={handleClear}
                 testID={testID ? `${testID}-clear` : undefined}
+                accessibilityRole="button"
+                accessibilityLabel="Clear"
               >
                 <Text className="text-base text-gray-500 font-medium">Clear</Text>
               </TouchableOpacity>
@@ -253,6 +254,8 @@ export default function DatePickerField({
               <TouchableOpacity
                 onPress={handleConfirm}
                 testID={testID ? `${testID}-confirm` : undefined}
+                accessibilityRole="button"
+                accessibilityLabel="Done"
               >
                 <Text className="text-base text-blue-600 font-semibold">Done</Text>
               </TouchableOpacity>

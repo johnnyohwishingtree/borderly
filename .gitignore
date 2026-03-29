@@ -4,9 +4,8 @@ ios/Pods/
 ios/build/
 android/build/
 
-# Maestro
-maestro/.maestro/
-maestro/screenshots/
+# MCP servers
+.serena/
 # e2e/screenshots/ — committed for visual audit skills
 maestro/test-output/
 .maestro-output/
