@@ -205,3 +205,26 @@ Rubrics (quality check)
 ```
 
 **Reading the chain:** A fact like "clipboard is readable by other apps" derives into the "security through storage tiers" principle, which is implemented by the "PII boundary" policy, which has the rule "REQUIRE: clipboard auto-clear after 60 seconds", which is enforced by `pii-boundary.test.ts`. If the fact changes (e.g., OS makes clipboard private), the entire chain should be revisited.
+
+## Knowledge Lifecycle
+
+All work in the system — audits, user requests, pipeline stories — follows this lifecycle:
+
+```
+Discover → Capture → Gap → Story → Implement → Update
+```
+
+1. **Discover** — observe something true about the system or domain
+2. **Capture** — write it as a fact (what IS) or belief (what SHOULD BE)
+3. **Gap** — identify where facts and beliefs diverge
+4. **Story** — the gap IS the story (references both fact and belief)
+5. **Implement** — close the gap by changing the code
+6. **Update** — update the fact to reflect the new state
+
+**Type transitions:**
+- A **belief** that gets implemented and validated becomes a **policy** (enforced by tests)
+- A **fact** gets updated (never deleted) when the system changes — it tracks current state
+- A **story** is closed when the fact matches the belief
+- A **policy** that loses its justifying facts should be revisited
+
+**Self-healing:** The knowledge-audit runs periodically and reclassifies mistyped entries (facts that are really beliefs, beliefs that are really facts). The graph converges toward coherence through normal usage — no big-bang migration needed.
