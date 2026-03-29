@@ -88,7 +88,7 @@ This collects: screenshot, failing step, visible testIDs from accessibility tree
 - Keychain access groups on simulator without provisioning — use `USE_SHARED_ACCESS_GROUP` flag
 
 ## Enforcement
-- `__tests__/structure/maestro-registry-sync.test.ts` — registry ↔ source sync
+- `e2e/mobile/full-e2e.test.ts — mobilecli-based E2E
 - `__tests__/structure/component-testids.test.ts` — interactive elements have testID
 
 ## References

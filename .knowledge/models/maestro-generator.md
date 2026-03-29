@@ -1,104 +1,60 @@
-# Model: Maestro Generator
+# Model: Mobile E2E Testing
 
-The E2E test flow generation system. Produces Maestro YAML from TypeScript journey definitions using screen metadata. Deterministic — given the same registry + journey, the same YAML is always produced.
+The E2E test system for Borderly. Uses `@mobilenext/mobilecli` — the same tool chain Claude uses via mobile-mcp for interactive debugging.
 
-## Entities
+## Architecture
 
-### TestMeta (src/types/testMeta.ts)
-- Extensible metadata for testIDs — the single type all testIDs.ts files use
-- Fields: `id` (string), `type` (button/Input/SearchableSelect/...), `zone` (scroll/header/footer)
-- Components use `testID={meta.id}` — only the id string reaches React Native
-- Generator reads the full object for zone, type, and future metadata
-- Adding new metadata: add a field to TestMeta, generator picks it up. No component changes.
-
-### testIDs.ts (per screen directory)
-- Declares all testIDs for a screen with their TestMeta
-- Zones indicate position: `scroll` (in ScrollView), `header` (fixed top), `footer` (fixed bottom)
-- Source of truth for the registry — generator reads these files
-
-### screenRegistry.ts
-- Auto-generated from source files by `scripts/generate-screen-registry.ts --write`
-- Per-screen: layout (scrollable, fitsOnScreen, elementOrder), fields, actionButtons, alerts, navigatesTo, waitFor, notes
-- `ScreenLayout` is **auto-inferred** by the generator from source:
-  - `scrollable` — detected from ScrollView/FlatList in the .tsx file
-  - `fitsOnScreen` — inferred from element count + viewport patterns
-  - `elementOrder` — extracted from testID declaration order in source
-- `ScreenLayout` tells the emitter whether to scroll: `fitsOnScreen: true` → never scroll
-- Human-authored fields (waitFor, notes, alerts) preserved via `registry-overrides.json`
-- Layout is NEVER manually maintained — always derived from source code
-
-### registry-overrides.json
-- Human-authored alerts, waitFor, and notes that can't be parsed from source
-- Merged into auto-generated registry during generation
-- Use for: alerts (can't be parsed from source), waitFor text
-- NOT for layout — layout is auto-inferred from source
-
-### Journey definitions (journeys/*.ts)
-- TypeScript files composing screen steps into user flows
-- Use DSL helpers: `tap()`, `fill()`, `select()`, `date()`, `alert()`, `assertVisible()`, `eraseText()`
-- Use journey builder: `screenStep()`, `tapButton()`, `fillField()`
-- Reusable via function composition: `onboardingDemoScan.steps`, `createMalaysiaTripSteps()`
-
-### Emitter (emitter.ts)
-- Converts Journey objects into Maestro YAML
-- **Screen-aware**: receives screen context (ScreenLayout) for each step
-- Scroll decision is deterministic via `shouldScroll()`:
-  1. Explicit `scroll: false/true` on action → respect it (manual override)
-  2. `fitsOnScreen: true` → never scroll (single-page screen)
-  3. `scrollable: false` → never scroll
-  4. Zone is header/footer → never scroll
-  5. Zone is scroll → scrollUntilVisible
-- No guessing, no blind swiping
-
-### DSL (dsl.ts)
-- Type-safe action builders with optional `{ scroll }` override
-- Step and journey builders: `step()`, `journey()`
-
-### Diagnostic script (scripts/diagnose-maestro.sh)
-- One command collects: screenshot, failing step, visible testIDs from accessibility tree, app logs
-- Run after any Maestro failure: `scripts/diagnose-maestro.sh`
-
-## Relationships
 ```
-testIDs.ts ──declares──→ TestMeta (id, type, zone)
-generate-screen-registry.ts ──reads──→ testIDs.ts + source files → screenRegistry.ts
-registry-overrides.json ──merges into──→ screenRegistry.ts
-Journey definitions ──use──→ DSL helpers + Journey builder ──reads──→ screenRegistry
-Emitter ──reads──→ screenRegistry.layout → decides scroll behavior
-Emitter ──converts──→ Journey → YAML flows
+Jest test (e2e/mobile/) → MobileDriver → mobilecli CLI → iOS Simulator
+                                ↕
+Claude debugging:     mobile-mcp → mobilecli CLI → iOS Simulator
 ```
 
-## iOS Keyboard Handling
-- Maestro `inputText` types through the iOS software keyboard — triggers autocorrect/predictive text
-- **All search TextInputs** must have `autoCorrect={false}` and `autoCapitalize="none"`
-- SearchableSelect supports `onSubmitEditing` — Enter selects the single matching result
-- Emitter's `select` action uses `pressKey: Enter` after typing to dismiss predictions AND select
-- Option tap after Enter is conditional (`runFlow: when: visible`) — Enter may have already closed dropdown
-- If a component is hard to test, adjust the component code to support simpler interaction patterns
+Same tool for both development (AI-driven) and CI (deterministic). No translation layer.
 
-## Known Issues & Migration Plan
-- **Maestro is a poor fit for agentic E2E**: `scrollUntilVisible` uses brute-force incremental scrolling with settle timeouts. It can't see the screen or know element positions — fundamentally incompatible with how AI agents interact (see: mobile-mcp can do this precisely). The tool is fine for simple smoke tests but fights complex scrollable forms.
-- **Migration to Detox planned**: Detox (by Wix) is purpose-built for React Native — gray-box testing, knows RN render cycle, auto-waits, precise element coordinates. It's the "Playwright for mobile" equivalent. Migration will replace Maestro for the full E2E flow.
-- **Current workaround**: explicit `{ scroll: false }` on elements known to be visible from walkthrough data. Works but requires manual annotation per element.
+## MobileDriver (e2e/mobile/driver.ts)
 
-## Invariants
-- Only 2 flows: `demo-scan-smoke` (quick sanity) and `full-e2e` (complete journey)
-- Zero hand-written YAML — all flows generated from journey definitions
-- Emitter scroll behavior is deterministic — derived from screen layout metadata
-- screenRegistry regenerated after screen changes: `npx tsx scripts/generate-screen-registry.ts --write`
-- Flows regenerated after journey or registry changes: `pnpm maestro:generate`
-- testIDs follow naming convention: `-button` for actions, `-field` for form fields
-- Components should support keyboard interaction as alternative to taps for testability
+Thin wrapper around `mobilecli` binary with smart helpers:
+
+- `tapById(testID)` — lists elements → finds by testID → taps at coordinates. If not found, swipes and retries.
+- `fillById(testID, text)` — taps field, types, dismisses keyboard with Enter.
+- `selectById(testID, search)` — taps trigger, types search, presses Enter to select single match.
+- `assertVisible(text)` — polls element list until text found (3s default timeout).
+- `swipe(direction)` — single gesture scroll.
+- `tapElement(el)` — viewport-aware: if element center is off-screen, swipes first then re-finds.
+
+## Test Structure
+
+```typescript
+// e2e/mobile/full-e2e.test.ts
+const device = await MobileDriver.connect();
+await device.launch('com.borderly.app', { clearState: true });
+await device.tapById('take-tutorial-button');
+await device.fillById('trip-name-field', 'Malaysia Trip 2026');
+await device.selectById('country-select-0', 'Malaysia');
+```
+
+Run: `pnpm e2e:mobile`
+
+## How Tests Stay in Sync with Code
+
+1. **CI runs the deterministic test** — no AI needed
+2. **When test fails** (testID renamed, flow changed): AI agent uses mobile-mcp to see the new UI and updates the test
+3. **Structural tests** catch testID drift early
+4. **testIDs.ts files** per screen organize IDs — same source for test and components
+
+## Component Testability Requirements
+
+Components must be accessible to the test framework (mobilecli uses the accessibility tree):
+- All interactive elements need `testID`
+- Buttons in modals need `accessibilityRole="button"` and `accessibilityLabel`
+- SearchableSelect: `autoCorrect={false}`, `onSubmitEditing` for Enter-to-select
+- If a component is hard to test, adjust the code to make it testable
 
 ## Key Files
-- `src/types/testMeta.ts` — extensible testID metadata type
-- `src/screens/*/testIDs.ts` — per-screen testID declarations with zones
-- `maestro/generator/screenRegistry.ts` — auto-generated screen metadata with layout
-- `maestro/generator/registry-overrides.json` — human-authored overrides
-- `maestro/generator/journeys/*.ts` — journey definitions
-- `maestro/generator/emitter.ts` — screen-aware YAML emitter
-- `maestro/generator/dsl.ts` — type-safe action builders
-- `maestro/generator/journeyBuilder.ts` — registry-aware step builder
-- `maestro/flows/generated/*.yaml` — generated flows (don't edit)
-- `scripts/generate-screen-registry.ts` — registry auto-generator
-- `scripts/diagnose-maestro.sh` — failure diagnosis tool
+
+- `e2e/mobile/driver.ts` — MobileDriver class wrapping mobilecli
+- `e2e/mobile/full-e2e.test.ts` — full user journey test
+- `e2e/mobile/jest.config.js` — Jest config for mobile E2E
+- `src/screens/*/testIDs.ts` — per-screen testID declarations
+- `maestro/output/walkthrough/` — reference screenshots from manual walkthrough

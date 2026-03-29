@@ -20,11 +20,6 @@
     "bundle-size:android": "node scripts/measure-bundle-size.js android",
     "bundle-size:compare": "node scripts/measure-bundle-size.js ios compare",
     "build:analyze": "npm run bundle-size:ios && npm run bundle-size:android",
-    "maestro:generate": "npx tsx maestro/generator/index.ts",
-    "maestro:metadata": "npx tsx maestro/generator/screenMetadata.ts",
-    "maestro": "maestro test maestro/flows/generated/",
-    "maestro:family": "maestro test maestro/flows/family-of-4-full-trip.yaml",
-    "maestro:onboarding": "maestro test maestro/flows/onboarding-self.yaml",
     "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
     "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel",
     "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts"

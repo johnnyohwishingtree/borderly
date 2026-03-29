@@ -1,8 +1,8 @@
-# Maestro E2E Flows
+# Maestro (Legacy)
 
-Generated from journey definitions — don't hand-edit generated/ files.
-Update screenRegistry.ts + run `pnpm maestro:generate` after UI changes.
+Maestro has been replaced by the mobilecli-based E2E framework in `e2e/mobile/`.
+The `maestro/output/` directory contains walkthrough screenshots used as ground truth reference.
 
-See: .knowledge/models/maestro-generator.md
-See: .knowledge/policies/testing/e2e-testability.md
-See: .knowledge/policies/testing/drift-detection.md
+New E2E: `pnpm e2e:mobile`
+See: e2e/mobile/driver.ts — MobileDriver wraps @mobilenext/mobilecli
+See: e2e/mobile/full-e2e.test.ts — full user journey test
