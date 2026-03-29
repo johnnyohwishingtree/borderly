@@ -248,7 +248,12 @@ export class MobileDriver {
     await this.tapText(buttonText);
   }
 
-  // ── Private helpers ──
+  // ── Helpers ──
+
+  /** Wait for a duration. */
+  sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   private async tapElement(el: ElementInfo): Promise<void> {
     const centerX = el.rect.x + el.rect.width / 2;
@@ -266,10 +271,6 @@ export class MobileDriver {
       }
     }
     await this.tap(centerX, centerY);
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private async findAppBundle(): Promise<string> {
