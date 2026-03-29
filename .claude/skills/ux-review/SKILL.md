@@ -56,17 +56,37 @@ Run these checks against the registry and journey data:
 - Count steps in each journey definition. Flag journeys with 10+ steps to complete a core task
 - Compare against `.knowledge/models/user-journeys.md` — are actual journeys longer than expected?
 
+**Screen complexity (test complexity = user complexity)**
+
+If a screen is hard to E2E test, it's hard for a user to use. Use the E2E test (`e2e/mobile/full-e2e.test.ts`) and screenshots (`e2e/screenshots/`) as signals:
+
+- **Field count**: Flag screens with 6+ interactive fields visible at once. Consider splitting into multi-step wizard or collapsible sections.
+- **Scroll requirement**: Flag screens that require scrolling to reach the primary action. The CTA should be visible without scrolling.
+- **Coordinate taps in E2E test**: If the test uses raw `device.tap(x, y)` instead of `tapById`, the UI element isn't accessible — it's either buried in a WebView, obscured by overlays, or has poor affordance.
+- **Sleep/waits in E2E test**: Excessive `device.sleep()` calls indicate screens with unpredictable load times or animations that block interaction.
+- **Try/catch blocks in E2E test**: These indicate screens that may or may not appear — conditional or flaky UI flow.
+
+**Steps-to-value**
+- Count screens from app launch to the first moment of user value (e.g., first auto-filled form)
+- Flag onboarding flows with 5+ screens before reaching the main app
+- Question each onboarding screen: is this essential NOW, or can it be deferred to settings/first use?
+  - Tutorials: could the welcome screen convey enough?
+  - Companion setup: ask when creating a family trip, not during onboarding
+  - Biometric: default to on, let users disable in settings
+  - Notification permissions: defer to first relevant moment (e.g., trip deadline approaching)
+
+**Feature bloat**
+- Flag features visible in the UI that add cognitive load but aren't part of core journeys
+- Look for duplicate entry points (two buttons that do the same thing)
+- Question: would removing this feature make the core flow simpler without losing value?
+
 **Unreachable features**
-- Screens in the registry not visited by any journey — the feature exists but no flow tests it
+- Screens not visited by any E2E test journey — the feature exists but nothing exercises it
 - Action buttons that no journey taps — the button exists but nothing exercises it
 
 **Smart component gaps**
 - Fields with componentType `Input` that should be `SearchableSelect`, `DatePickerField`, or `AccommodationAutocomplete` based on their testID/label
 - Read `.knowledge/models/form-engine.md` for smart component mappings
-
-**Flow composition quality**
-- Journey files that duplicate steps instead of reusing shared functions
-- Steps that could be extracted into reusable functions (same screen + actions in 2+ journeys)
 
 ### Step 3: Journey-level analysis
 
@@ -79,9 +99,9 @@ For each journey in `.knowledge/models/user-journeys.md`:
 
 ### Step 4: Rate findings
 
-- **Critical**: Dead end, unreachable core feature, missing error handling on destructive action
-- **Major**: 10+ taps for common task, missing empty state, orphaned screen
-- **Minor**: Duplicate journey steps, missing exampleValue, suboptimal component type
+- **Critical**: Dead end, unreachable core feature, missing error handling on destructive action, 15+ steps to reach core value
+- **Major**: 10+ taps for common task, missing empty state, orphaned screen, screen with 6+ fields requiring scroll, onboarding screen that could be deferred
+- **Minor**: Duplicate entry points, suboptimal component type, E2E test uses coordinate taps for app-owned UI
 
 ### Step 5: Write findings to gaps.md
 
