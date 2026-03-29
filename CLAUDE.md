@@ -58,9 +58,15 @@ pnpm e2e              # E2E smoke tests (Playwright)
 
 Project knowledge lives in `.knowledge/` — the pipeline reads and improves these files.
 
+**Derivation chain — always create bottom-up:** `Facts → Principles → Policies`. When adding a new policy or principle, first create the underlying facts that justify it. Never create a policy without grounding it in facts.
+
 | Engine | Directory | Purpose |
 |--------|-----------|---------|
+| Facts | `facts/` | Atomic truths — the WHY behind rules |
+| Principles | `principles/` | Shared reasoning connecting facts to policies |
 | Policies | `policies/` | ALLOW/DENY/REQUIRE rules (architecture, data, ui, state, testing, platform) |
+| Beliefs | `beliefs/` | Tracked assumptions (Hypothesis → Confirmed/Invalidated) |
+| Decisions | `decisions/` | Architecture decision records (immutable once accepted) |
 | Models | `models/` | Business entities (form-engine, passport, qr-wallet, submission-guide) |
 | Domain | `domain/countries/` | Per-country portal metadata |
 | Patterns | `patterns/` | Multi-step recipes (add-country, add-screen, add-native-dep) |
