@@ -122,7 +122,19 @@ For any policy without a structural test:
 3. If design guideline → skip but note it
 4. Add new policies to `knowledge-test-coverage.test.ts` mapping
 
-## Step 4: Consistency check
+## Step 4: Knowledge coherence (self-healing)
+
+Check that existing knowledge conforms to the facts-first pattern:
+
+1. **Policies without facts**: Every policy should have `Derives From` referencing facts. Scan for policies missing this section — create the missing facts.
+2. **Facts vs beliefs**: Scan `facts/` for entries that are actually beliefs (design opinions, hypotheses, "should" statements). Reclassify as beliefs.
+3. **Beliefs vs facts**: Scan `beliefs/` for entries that are actually measurable truths. Reclassify as facts.
+4. **Stale facts**: Facts with measurable claims (numbers, counts, file paths) — verify against current code. Update if stale.
+5. **Stories without gaps**: Check open GitHub issues with `story` label — do they reference facts and beliefs? Flag those that don't.
+
+This step heals the knowledge graph incrementally. Each audit run cleans a few more entries, converging toward full coherence over time.
+
+## Step 5: Consistency check
 
 Scan for contradictions between knowledge files:
 
@@ -140,7 +152,7 @@ When a conflict is found:
 - Update the other file to reference the authoritative rule
 - Add to gaps.md under `## Knowledge updates`
 
-## Step 5: Index sync
+## Step 6: Index sync
 
 Compare `.knowledge/index.md` against what exists on disk:
 - Skills listed that don't exist (deleted but not removed from index)
@@ -149,7 +161,7 @@ Compare `.knowledge/index.md` against what exists on disk:
 - Beliefs directory and files indexed
 - Fix mismatches directly — don't add to gaps
 
-## Step 6: Regenerate diagram
+## Step 7: Regenerate diagram
 
 ```bash
 npx tsx scripts/generate-knowledge-diagram.ts
@@ -157,16 +169,16 @@ npx tsx scripts/generate-knowledge-diagram.ts
 
 Commit if the diagram changed.
 
-## Step 7: Write findings to gaps.md
+## Step 8: Write findings to gaps.md
 
 Each entry includes: what's wrong, where, and test strategy to prevent recurrence.
 
-## Step 8: Fix or create stories (if not --dry-run)
+## Step 9: Fix or create stories from gaps (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline following `.knowledge/policies/workflow/fix-strategy.md`
 - **Larger fixes**: create a story with test strategy in acceptance criteria
 
-## Step 9: Verify
+## Step 10: Verify
 
 Follow `.knowledge/policies/workflow/verification.md`.
 Follow `.knowledge/policies/workflow/learning.md`.

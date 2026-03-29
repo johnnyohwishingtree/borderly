@@ -26,16 +26,23 @@
 - `src/<path/to/file.ts>` — <why: "you're adding a hook here">
 - `src/<path/to/file.ts:N-M>` — <why: "see how existing screens are structured">
 
+## Gap
+
+<Every story exists because of a gap between what IS (facts) and what SHOULD BE (beliefs). State both clearly.>
+
+**Fact:** `.knowledge/facts/<type>/<relevant>.md` — <what is currently true about the system>
+**Belief:** `.knowledge/beliefs/<relevant>.md` — <what we believe should be true>
+**Gap:** <the delta between fact and belief — this IS the story>
+
+<If the fact or belief doesn't exist yet, create it before creating the story.>
+
 ## Knowledge
 
-<Facts, beliefs, and policies relevant to this story. The pipeline pre-flight checks these before implementing.>
+<Additional policies and constraints relevant to implementation.>
 
 - `.knowledge/policies/<relevant>.md` — <constraint to follow>
-- `.knowledge/beliefs/<relevant>.md` (<status>) — <why it matters to this story>
-- `.knowledge/facts/<type>/<relevant>.md` — <truth this story depends on>
 
-<If a belief is a hypothesis, note: "Depends on unconfirmed belief — implement defensively.">
-<If none apply, write "No belief dependencies.">
+<If none apply, write "Standard policies.">
 
 ## Patterns & Templates
 
@@ -64,3 +71,5 @@ None / Depends on #<number>
 ## Verification Notes
 
 <Any specific things to check. Leave blank if standard verification is sufficient.>
+
+**After implementation:** Update the fact referenced in ## Gap to reflect the new state. The fact should now match the belief. If it doesn't, the story isn't complete.

@@ -84,24 +84,20 @@ For every violation, decide what type of finding it is:
 
 Don't blindly flag violations — understand whether reality or documentation is wrong, and whether the finding is transient (fix it) or permanent (capture it in the graph).
 
-## Step 5: Write findings to gaps.md
+## Step 5: Capture knowledge (facts-first)
 
-Each gap entry must include a **test strategy** — how to prevent recurrence:
+Before creating stories, capture what you discovered:
 
-```markdown
-## Code fixes
-- `src/path/file` violates <policy> rule "<rule text>" — <what to fix>. Test: <strategy>. (code-audit-YYYY-MM-DD)
+1. **New truths** → create/update facts in `.knowledge/facts/<type>/`
+2. **Invalidated assumptions** → update beliefs in `.knowledge/beliefs/`
+3. **New constraints** → create policies with structural tests
+4. **Code violations** → these are gaps between existing policies (beliefs about how code should be) and facts (how code actually is)
 
-## Knowledge updates
-- `policies/X.md` says Y but codebase does Z everywhere — update policy. (code-audit-YYYY-MM-DD)
+Every finding should trace to a fact (what IS) and a policy/belief (what SHOULD BE). The gap between them is the story.
 
-## Drift
-- E2E test references `id:X` but source uses `id:Y`. (code-audit-YYYY-MM-DD)
-```
+## Step 6: Create fix stories from gaps (if not --dry-run)
 
-If `gaps.md` already exists, **merge** — don't duplicate entries.
-
-## Step 6: Create fix stories (if not --dry-run)
+Each story must reference the fact and belief/policy that define the gap. Follow `.knowledge/templates/story.md`.
 
 Group findings by category. For each group with 2+ items, create a story:
 

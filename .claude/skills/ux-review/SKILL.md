@@ -103,39 +103,48 @@ For each journey in `.knowledge/models/user-journeys.md`:
 - **Major**: 10+ taps for common task, missing empty state, orphaned screen, screen with 6+ fields requiring scroll, onboarding screen that could be deferred
 - **Minor**: Duplicate entry points, suboptimal component type, E2E test uses coordinate taps for app-owned UI
 
-### Step 5: Write findings to gaps.md
+### Step 5: Capture knowledge (facts-first)
 
-Add to `.knowledge/gaps.md`. Each entry includes severity and what to change.
+For each finding, ask: "what truth did I discover about the system?"
 
-### Step 6: Create stories
+1. **Write or update facts** — measurable observations about the current system state
+   - `facts/customer/` — user-facing truths ("onboarding requires 32 interactions before value")
+   - `facts/craft/` — technical truths ("WebView captures accessibility tree from native overlays")
+   - Facts describe what IS, not what should be. They get updated when the system changes.
 
-Group findings by theme. For each group with 2+ items, create a story:
+2. **Write or validate beliefs** — what we think SHOULD be true
+   - `beliefs/` — design hypotheses ("trip creation should require only name + country")
+   - If a finding challenges an existing belief, update the belief's certainty or add counter-evidence
+
+3. **Identify gaps** — where facts and beliefs diverge
+   - A gap IS a story. "We believe X (belief), but the system currently does Y (fact)."
+
+### Step 6: Create stories from gaps
+
+Each story must reference the fact and belief that define the gap. Follow `.knowledge/templates/story.md`.
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
 DATE=$(date +%Y-%m-%d)
 
 gh issue create --repo $REPO \
-  --title "Story: Fix <theme> UX issues from $DATE ux-review" \
+  --title "Story: <close the gap between fact and belief>" \
   --label "story,pending" \
-  --body "<follow .knowledge/templates/story.md>
-
-After completing fixes, remove resolved entries from .knowledge/gaps.md."
+  --body "<follow .knowledge/templates/story.md — must include ## Gap section>"
 ```
 
 Prioritize:
-1. **Critical fixes** — dead ends, missing error handling
-2. **Flow improvements** — reduce tap counts, add missing states
-3. **Composition cleanup** — deduplicate journey steps
+1. **Critical gaps** — facts that directly block users from reaching value
+2. **Major gaps** — facts that significantly degrade the experience
+3. **Minor gaps** — polish items, small divergences from beliefs
 
-### Step 7: Classify findings and update knowledge
+### Step 7: Update knowledge graph
 
 Follow `.knowledge/policies/workflow/learning.md`.
 
-For each finding, classify it:
-- **UX bug to fix** → already handled in Steps 5-6 (gaps.md + stories)
-- **New customer truth discovered** (e.g., "users abandon the form at the accommodation step") → create or update a fact in `.knowledge/facts/customer/`
-- **UX belief invalidated** (e.g., "smart delta confused users — they wanted to see all fields") → update the relevant belief in `.knowledge/beliefs/`
+- New facts and beliefs already captured in Step 5
+- Check if findings invalidate or strengthen existing beliefs
+- If new patterns emerge across multiple findings, consider creating a new policy
 
 If new UX patterns were discovered, update `models/user-journeys.md`.
 
