@@ -57,8 +57,7 @@ pnpm e2e              # E2E smoke tests (Playwright)
 ## Knowledge Graph
 
 Project knowledge lives in `.knowledge/` — the pipeline reads and improves these files.
-
-**Derivation chain — always create bottom-up:** `Facts → Principles → Policies`. When adding a new policy or principle, first create the underlying facts that justify it. Never create a policy without grounding it in facts.
+When creating or updating knowledge files, follow `.knowledge/policies/workflow/learning.md`.
 
 | Engine | Directory | Purpose |
 |--------|-----------|---------|
