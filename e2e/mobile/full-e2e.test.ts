@@ -126,18 +126,17 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.assertVisible('Form Summary', { timeout: 10000 });
     console.log('[E2E] Leg form loaded');
 
-    // ── Fill remaining required fields for Malaysia MDAC ──
-    console.log('[E2E] Fill remaining form fields');
+    // ── Expand all sections to reveal missing fields ──
+    console.log('[E2E] Expand sections and fill remaining fields');
+    await device.tapById('smart-delta-button'); // expands all sections + highlights gaps
 
-    // Expand Personal Information section and fill email/phone
-    await device.tapById('section-header-personal');
+    // Fill Personal Information fields
     await device.fillById('input-email', 'test@borderly.app');
     await device.fillById('input-phoneNumber', '+60123456789');
 
-    // Expand Travel Information section and fill airport/flight
-    await device.tapById('section-header-travel');
-    await device.selectById('searchable-select-arrivalAirport', 'KUL');
+    // Fill Travel Information fields (scroll down to find them)
     await device.fillById('input-flightNumber', 'MH123');
+    await device.selectById('searchable-select-arrivalAirport', 'KUL');
 
     // ── Save progress ──
     console.log('[E2E] Save progress');
