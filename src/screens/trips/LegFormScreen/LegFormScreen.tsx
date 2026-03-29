@@ -175,77 +175,54 @@ export default function LegFormScreen() {
 
       {/* Action Buttons — fixed bottom bar, always visible regardless of scroll position */}
       <View testID="action-buttons-bar" className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
-        {isValid ? (
-          <View className="space-y-2">
+        <Button
+          title="Save Progress"
+          onPress={handleSaveForm}
+          variant={isValid ? 'outline' : 'primary'}
+          size="medium"
+          fullWidth
+          loading={isSubmitting}
+          disabled={Object.keys(formData).length === 0}
+          testID="save-progress-button"
+        />
+        <View className="mt-2 flex-row gap-3">
+          <View className="flex-1">
             <Button
-              title="Mark as Ready"
-              onPress={handleMarkAsReady}
-              variant="primary"
-              size="medium"
-              fullWidth
-              loading={isSubmitting}
-              testID="mark-ready-button"
-            />
-            <Button
-              title="Save Draft"
-              onPress={handleSaveForm}
-              variant="outline"
-              size="medium"
-              fullWidth
-              loading={isSubmitting}
-              testID="save-progress-button"
-            />
-            <View className="mt-1 flex-row gap-3">
-              <View className="flex-1">
-                <Button
-                  title="Submit in App"
-                  onPress={() => {
-                    const countryCode = leg.destinationCountry;
-                    const schema = schemaRegistry.getSchema(countryCode);
-                    if (schema?.portalUrl) {
-                      navigation.navigate('PortalSubmission', {
-                        url: schema.portalUrl,
-                        countryCode,
-                        tripId,
-                        legId,
-                      });
-                    } else {
-                      Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
-                    }
-                  }}
-                  variant="primary"
-                  testID="submit-in-app-button"
-                  size="medium"
-                  fullWidth
-                />
-              </View>
-              <Button
-                title="Guide"
-                onPress={() => {
-                  navigation.navigate('SubmissionGuide', {
+              title="Submit in App"
+              onPress={() => {
+                const countryCode = leg.destinationCountry;
+                const schema = schemaRegistry.getSchema(countryCode);
+                if (schema?.portalUrl) {
+                  navigation.navigate('PortalSubmission', {
+                    url: schema.portalUrl,
+                    countryCode,
                     tripId,
                     legId,
-                    countryCode: leg.destinationCountry,
                   });
-                }}
-                variant="secondary"
-                testID="open-submission-guide-button"
-                size="medium"
-              />
-            </View>
+                } else {
+                  Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
+                }
+              }}
+              variant="primary"
+              testID="submit-in-app-button"
+              size="medium"
+              fullWidth
+            />
           </View>
-        ) : (
           <Button
-            title="Save Progress"
-            onPress={handleSaveForm}
-            variant="primary"
+            title="Guide"
+            onPress={() => {
+              navigation.navigate('SubmissionGuide', {
+                tripId,
+                legId,
+                countryCode: leg.destinationCountry,
+              });
+            }}
+            variant="secondary"
+            testID="open-submission-guide-button"
             size="medium"
-            fullWidth
-            loading={isSubmitting}
-            disabled={Object.keys(formData).length === 0}
-            testID="save-progress-button"
           />
-        )}
+        </View>
       </View>
     </ScreenContainer>
     </KeyboardAvoidingView>

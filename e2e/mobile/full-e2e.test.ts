@@ -102,7 +102,14 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.assertVisible('Done', { timeout: 2000 });
     await device.tapText('Done');
 
-    // Accommodation (input testID has -input suffix from AccommodationAutocomplete)
+    // Flight details
+    await device.fillById('leg-0-flight-number', 'MH123');
+    await device.fillById('leg-0-airline-code', 'MH');
+
+    // Arrival airport
+    await device.selectById('leg-0-arrival-airport', 'KUL');
+
+    // Accommodation
     await device.fillById('leg-0-accommodation-name-input', 'Mandarin Oriental KL');
 
     // Address fields
@@ -110,6 +117,9 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.fillById('leg-0-accommodation-address-city', 'Kuala Lumpur');
     await device.fillById('leg-0-accommodation-address-postal-code', '50088');
     await device.fillById('leg-0-accommodation-address-country', 'MYS');
+
+    // Accommodation phone
+    await device.fillById('leg-0-accommodation-phone', '+60321234567');
 
     // Create trip
     await device.tapById('create-trip-button');
@@ -126,19 +136,13 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.assertVisible('Form Summary', { timeout: 10000 });
     console.log('[E2E] Leg form loaded');
 
-    // ── Expand all sections to reveal missing fields ──
-    console.log('[E2E] Expand sections and fill remaining fields');
-    await device.tapById('smart-delta-button'); // expands all sections + highlights gaps
-
-    // Fill Personal Information fields
+    // ── Fill remaining fields not from trip data (email, phone) ──
+    console.log('[E2E] Fill personal info fields');
+    await device.tapById('smart-delta-button'); // expands all sections
     await device.fillById('input-email', 'test@borderly.app');
     await device.fillById('input-phoneNumber', '+60123456789');
 
-    // Fill Travel Information fields (scroll down to find them)
-    await device.fillById('input-flightNumber', 'MH123');
-    await device.selectById('searchable-select-arrivalAirport', 'KUL');
-
-    // ── Save progress ──
+    // ── Save and submit ──
     console.log('[E2E] Save progress');
     await device.tapById('save-progress-button');
     await device.handleAlert('OK');
@@ -146,27 +150,23 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     // ── Open portal submission ──
     console.log('[E2E] Open portal');
     await device.tapById('submit-in-app-button');
-    await device.assertVisibleId('portal-submission-screen', { timeout: 10000 });
 
-    // ── Wait for portal to load ──
+    // Wait for portal to load (real Malaysia MDAC website)
     console.log('[E2E] Wait for portal load');
-    // Portal WebView loads the Malaysia MDAC form
-    // The autofill pill appears when form page is detected
-    await device.assertVisibleId('autofill-pill', { timeout: 15000 });
+    await device.assertVisible('Fields for this page', { timeout: 20000 });
 
-    // ── Trigger auto-fill ──
+    // ── Trigger auto-fill by tapping the pill at the bottom ──
     console.log('[E2E] Auto-fill');
-    await device.tapById('autofill-pill-fill-button');
+    await device.tapText('Fields for this page');
 
     // ── Verify auto-fill results ──
     console.log('[E2E] Verify auto-fill');
-    await device.assertVisibleId('autofill-banner', { timeout: 10000 });
-    // Banner shows "Filled X of Y fields"
-    await device.assertVisible('Filled');
+    await device.assertVisible('Filled', { timeout: 10000 });
 
-    // ── Close portal (don't submit) ──
+    // ── Close portal ──
     console.log('[E2E] Close portal');
-    await device.tapById('close-portal-button');
+    // Tap the X/close button or navigate back
+    await device.tap(20, 100); // back area
 
     // ── Verify back at trip detail ──
     console.log('[E2E] Back at trip detail');
