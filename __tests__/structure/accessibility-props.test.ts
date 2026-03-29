@@ -4,7 +4,9 @@
  * Interactive elements (Button, TouchableOpacity, Pressable with onPress)
  * must have accessibilityRole and accessibilityLabel.
  *
- * See: .knowledge/policies/ui/accessibility.md
+ * Why: 44pt touch targets required by Apple HIG (.context/external/cognitive/44pt-minimum-touch-target.md)
+ *      Reduced motion affects 35% of adults over 40 (.context/external/cognitive/reduced-motion-is-accessibility.md)
+ *      Travelers use the app stressed, one-handed (.context/external/customer/travelers-fill-forms-at-borders.md)
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

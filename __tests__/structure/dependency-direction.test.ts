@@ -5,8 +5,9 @@
  *   Screens → Hooks → Stores → Services
  *   Components → Props only (no stores, no hooks with side effects)
  *
- * Catches violations at `pnpm test` time (< 1 second).
- * See: .knowledge/policies/architecture/dependency-direction.md
+ * Why: Unidirectional flow prevents circular dependencies and makes
+ *      the codebase testable — services can be tested without UI,
+ *      stores without hooks, components without global state.
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

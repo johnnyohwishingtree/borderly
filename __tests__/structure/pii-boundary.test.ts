@@ -4,7 +4,9 @@
  * Verifies that code paths saving form data to WatermelonDB
  * use stripPIIFromFormData() to remove passport/personal data.
  *
- * See: .knowledge/policies/data/pii-boundary.md
+ * Why: GDPR requires data minimization (.context/external/regulatory/gdpr-data-minimization.md)
+ *      PII needs hardware-backed encryption (.context/external/regulatory/pii-handling-requirements.md)
+ *      Clipboard is readable by other apps (.context/external/regulatory/clipboard-readable-by-other-apps.md)
  */
 
 import { readFileSync } from 'fs';

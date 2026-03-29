@@ -1,5 +1,5 @@
 # Structural Tests
 
-Enforce .knowledge/ conventions at pnpm test time (< 1s each); every testable convention needs a test here.
-
-See: .knowledge/policies/architecture/testable-architecture.md
+These tests ARE the constraints. Each test enforces an architectural rule.
+The "Why" comments at the top of each test reference `.context/external/` for justification.
+Runs in < 1s at `pnpm test` time.
