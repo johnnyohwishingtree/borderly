@@ -87,7 +87,7 @@ directional-dependency-graph, naming-enables-enforcement, security-through-stora
 
 ### Models
 
-form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, maestro-generator, system-architecture
+form-engine, passport, qr-wallet, submission-guide, stores, user-journeys, mobile-e2e, system-architecture
 
 ### Beliefs
 
