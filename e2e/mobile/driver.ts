@@ -142,9 +142,8 @@ export class MobileDriver {
    * Tap an element by testID. If not visible, swipes down and retries.
    * This is the core helper — same approach Claude uses via mobile-mcp.
    */
-  async tapById(testID: string, opts?: { maxSwipes?: number; swipeDirection?: 'up' | 'down' }): Promise<void> {
+  async tapById(testID: string, opts?: { maxSwipes?: number }): Promise<void> {
     const maxSwipes = opts?.maxSwipes ?? 5;
-    const direction = opts?.swipeDirection ?? 'up'; // swipe up = scroll down
 
     // First check: is it visible right now?
     let el = await this.findById(testID);
@@ -153,18 +152,23 @@ export class MobileDriver {
       return;
     }
 
-    // Not visible — swipe and retry
+    // Try scrolling DOWN (swipe up)
     for (let i = 0; i < maxSwipes; i++) {
-      await this.swipe(direction);
-      await this.sleep(300); // wait for scroll to settle
+      await this.swipe('up');
+      await this.sleep(300);
       el = await this.findById(testID);
-      if (el) {
-        await this.tapElement(el);
-        return;
-      }
+      if (el) { await this.tapElement(el); return; }
     }
 
-    throw new Error(`tapById: element "${testID}" not found after ${maxSwipes} swipes`);
+    // Not found — scroll back UP (swipe down) to search above
+    for (let i = 0; i < maxSwipes * 2; i++) {
+      await this.swipe('down');
+      await this.sleep(300);
+      el = await this.findById(testID);
+      if (el) { await this.tapElement(el); return; }
+    }
+
+    throw new Error(`tapById: "${testID}" not found after searching both directions`);
   }
 
   /** Type into a field by testID — taps the field, types, dismisses keyboard. */

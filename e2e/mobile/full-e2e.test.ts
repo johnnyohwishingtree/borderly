@@ -120,20 +120,59 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.assertVisibleId('leg-card-MYS');
 
     // ── Open leg form ──
-    console.log('[E2E] Open leg form');
+    console.log('[E2E] Open leg form — tapping leg card');
     await device.tapById('leg-card-MYS');
-    await device.assertVisible('Malaysia Declaration', { timeout: 5000 });
+    console.log('[E2E] Tapped leg card, waiting for form');
+    await device.assertVisible('Form Summary', { timeout: 10000 });
+    console.log('[E2E] Leg form loaded');
+
+    // ── Fill remaining required fields for Malaysia MDAC ──
+    console.log('[E2E] Fill remaining form fields');
+
+    // Expand Personal Information section and fill email/phone
+    await device.tapById('section-header-personal');
+    await device.fillById('input-email', 'test@borderly.app');
+    await device.fillById('input-phoneNumber', '+60123456789');
+
+    // Expand Travel Information section and fill airport/flight
+    await device.tapById('section-header-travel');
+    await device.selectById('searchable-select-arrivalAirport', 'KUL');
+    await device.fillById('input-flightNumber', 'MH123');
 
     // ── Save progress ──
     console.log('[E2E] Save progress');
     await device.tapById('save-progress-button');
-    // Handle success alert
     await device.handleAlert('OK');
 
-    // ── Back to trip list ──
-    console.log('[E2E] Back to trip list');
-    await device.tapText('Trips');
-    await device.assertVisible('Your Trips');
-    await device.assertVisible('Malaysia Trip 2026');
+    // ── Open portal submission ──
+    console.log('[E2E] Open portal');
+    await device.tapById('submit-in-app-button');
+    await device.assertVisibleId('portal-submission-screen', { timeout: 10000 });
+
+    // ── Wait for portal to load ──
+    console.log('[E2E] Wait for portal load');
+    // Portal WebView loads the Malaysia MDAC form
+    // The autofill pill appears when form page is detected
+    await device.assertVisibleId('autofill-pill', { timeout: 15000 });
+
+    // ── Trigger auto-fill ──
+    console.log('[E2E] Auto-fill');
+    await device.tapById('autofill-pill-fill-button');
+
+    // ── Verify auto-fill results ──
+    console.log('[E2E] Verify auto-fill');
+    await device.assertVisibleId('autofill-banner', { timeout: 10000 });
+    // Banner shows "Filled X of Y fields"
+    await device.assertVisible('Filled');
+
+    // ── Close portal (don't submit) ──
+    console.log('[E2E] Close portal');
+    await device.tapById('close-portal-button');
+
+    // ── Verify back at trip detail ──
+    console.log('[E2E] Back at trip detail');
+    await device.assertVisible('Malaysia Trip 2026', { timeout: 5000 });
+
+    console.log('[E2E] ✓ Full flow complete');
   }, 300000); // 5 minute timeout for full flow
 });
