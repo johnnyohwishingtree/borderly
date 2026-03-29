@@ -57,7 +57,6 @@ pnpm e2e              # E2E smoke tests (Playwright)
 ## Knowledge Graph
 
 Project knowledge lives in `.knowledge/` — the pipeline reads and improves these files.
-When creating or updating knowledge files, follow `.knowledge/policies/workflow/learning.md`.
 
 | Engine | Directory | Purpose |
 |--------|-----------|---------|
