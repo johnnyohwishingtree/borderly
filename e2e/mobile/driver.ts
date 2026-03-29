@@ -249,6 +249,18 @@ export class MobileDriver {
   private async tapElement(el: ElementInfo): Promise<void> {
     const centerX = el.rect.x + el.rect.width / 2;
     const centerY = el.rect.y + el.rect.height / 2;
+    // If element center is off-screen, scroll first
+    if (centerY > 800 || centerY < 60) {
+      await this.swipe(centerY > 800 ? 'up' : 'down');
+      await this.sleep(300);
+      // Re-find element after scroll
+      const fresh = await this.listElements();
+      const updated = fresh.find(e => e.identifier === el.identifier || e.name === el.name);
+      if (updated) {
+        await this.tap(updated.rect.x + updated.rect.width / 2, updated.rect.y + updated.rect.height / 2);
+        return;
+      }
+    }
     await this.tap(centerX, centerY);
   }
 
