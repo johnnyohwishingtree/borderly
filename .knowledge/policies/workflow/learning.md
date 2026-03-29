@@ -13,21 +13,11 @@ All skills that implement features, fix bugs, or write tests.
 - DENY: writing 10+ test files without capturing testing patterns learned
 - DENY: shipping a feature with new architecture but no model
 
-## Creation Order
-When creating new knowledge, always build bottom-up through the derivation chain:
-
-1. **Facts first** — write the atomic truth in `facts/` (the WHY)
-2. **Principle next** — if multiple facts share reasoning, create a principle in `principles/` with `## Derives from` pointing to the facts
-3. **Policy last** — create the constraint in `policies/` with `## Derives From` pointing to facts and principles
-4. **Beliefs** — if the insight is uncertain, create a belief in `beliefs/` with status `Hypothesis` instead of a fact
-
-Never create a policy without grounding it in facts. If you can't articulate the fact, the policy isn't justified yet.
-
 ## What to Capture
 After completing work, check each category:
 
 1. **Anti-patterns** — Did a wrong approach teach you something? → Add to relevant policy
-2. **Constraints** — Did you discover an undocumented rule? → Create facts first, then a policy with ENFORCEMENT
+2. **Constraints** — Did you discover an undocumented rule? → Create a policy with ENFORCEMENT
 3. **Business logic** — New entities or relationships? → Create/update a model
 4. **Testing patterns** — Non-obvious workaround? → Add to test-conventions anti-patterns
 5. **Directory conventions** — Worked in a dir without CLAUDE.md? → Create one
