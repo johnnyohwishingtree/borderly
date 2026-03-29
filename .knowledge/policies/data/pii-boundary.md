@@ -32,13 +32,11 @@ src/services/, src/hooks/, src/utils/, src/schemas/
 - Related: policies/data/storage-tiers.md
 - Related: policies/architecture/local-first.md
 
-## Derives From
-- `principles/security-through-storage-tiers.md`
-- `facts/regulatory/pii-has-special-handling-requirements.md`
-- `facts/regulatory/gdpr-data-minimization.md`
-- `facts/regulatory/clipboard-is-readable-by-other-apps.md`
-- `facts/organizational/three-tier-storage.md`
-- `facts/organizational/biometric-asymmetric-ux.md`
-- `facts/tool/keychain-is-os-secure-storage.md`
-- `facts/tool/mmkv-is-fast-but-unencrypted.md`
-- `facts/customer/family-travelers-share-devices.md`
+## Context
+- `.context/external/regulatory/pii-has-special-handling-requirements.md`
+- `.context/external/regulatory/gdpr-data-minimization.md`
+- `.context/external/regulatory/clipboard-is-readable-by-other-apps.md`
+- `.context/decisions/001-three-tier-storage.md`
+- `.context/external/tools/keychain-is-os-secure-storage.md`
+- `.context/external/tools/mmkv-is-fast-but-unencrypted.md`
+- `.context/external/customer/family-travelers-share-devices.md`

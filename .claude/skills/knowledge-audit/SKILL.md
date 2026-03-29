@@ -104,13 +104,13 @@ else { console.log('All schemas within maintenance window.'); }
 
 For each stale schema:
 1. Check if the portal URL still resolves (HEAD request or manual check)
-2. Add to `gaps.md` under `## Drift` with: which schema, how many days overdue, what to verify
+2. Create a GitHub issue noting which schema is overdue and what to verify
 3. If the portal URL fails, create a story to investigate and update the schema
 
-Also check `.knowledge/beliefs/` for staleness:
-- Read each belief file
+Also check `src/config/beliefs.ts` for staleness:
+- Read the beliefs config
 - If a belief has status `Hypothesis` and no evidence updates in 60+ days, flag it for review
-- Add to `gaps.md` under `## Knowledge updates`
+- Create a GitHub issue for beliefs that need re-evaluation
 
 ## Step 3: Test coverage
 
@@ -124,13 +124,11 @@ For any policy without a structural test:
 
 ## Step 4: Knowledge coherence (self-healing)
 
-Check that existing knowledge conforms to the facts-first pattern:
+Check that existing knowledge is coherent:
 
-1. **Policies without facts**: Every policy should have `Derives From` referencing facts. Scan for policies missing this section — create the missing facts.
-2. **Facts vs beliefs**: Scan `facts/` for entries that are actually beliefs (design opinions, hypotheses, "should" statements). Reclassify as beliefs.
-3. **Beliefs vs facts**: Scan `beliefs/` for entries that are actually measurable truths. Reclassify as facts.
-4. **Stale facts**: Facts with measurable claims (numbers, counts, file paths) — verify against current code. Update if stale.
-5. **Stories without gaps**: Check open GitHub issues with `story` label — do they reference facts and beliefs? Flag those that don't.
+1. **Policies without justification**: Every policy should explain why it exists. Scan for policies missing rationale.
+2. **Beliefs consistency**: Read `src/config/beliefs.ts` and check that beliefs with status `Hypothesis` or `Working assumption` are still relevant to the codebase. Flag any that have been confirmed or invalidated by code changes.
+3. **Stories without context**: Check open GitHub issues with `story` label — do they have clear acceptance criteria? Flag those that don't.
 
 This step heals the knowledge graph incrementally. Each audit run cleans a few more entries, converging toward full coherence over time.
 
@@ -150,16 +148,14 @@ For files that share topics, verify they agree:
 When a conflict is found:
 - Determine which file is authoritative (usually the more specific one)
 - Update the other file to reference the authoritative rule
-- Add to gaps.md under `## Knowledge updates`
+- Create a GitHub issue if the fix is non-trivial
 
-## Step 6: Index sync
+## Step 6: Skill and policy inventory sync
 
-Compare `.knowledge/index.md` against what exists on disk:
-- Skills listed that don't exist (deleted but not removed from index)
-- Skills that exist but aren't listed
-- Policy scopes on disk but not in index
-- Beliefs directory and files indexed
-- Fix mismatches directly — don't add to gaps
+Compare what exists on disk against CLAUDE.md:
+- Skills in `.claude/skills/` that aren't mentioned in `CLAUDE.md`
+- Policies in `.knowledge/policies/` that no folder CLAUDE.md or skill references
+- Fix mismatches directly
 
 ## Step 7: Regenerate diagram
 
@@ -169,14 +165,14 @@ npx tsx scripts/generate-knowledge-diagram.ts
 
 Commit if the diagram changed.
 
-## Step 8: Write findings to gaps.md
+## Step 8: Record findings
 
-Each entry includes: what's wrong, where, and test strategy to prevent recurrence.
+For each finding, note: what's wrong, where, and test strategy to prevent recurrence.
 
-## Step 9: Fix or create stories from gaps (if not --dry-run)
+## Step 9: Fix or create stories (if not --dry-run)
 
 - **Quick fixes** (< 5 minutes): fix inline following `.knowledge/policies/workflow/fix-strategy.md`
-- **Larger fixes**: create a story with test strategy in acceptance criteria
+- **Larger fixes**: create a GitHub issue with test strategy in acceptance criteria
 
 ## Step 10: Verify
 
@@ -185,6 +181,6 @@ Follow `.knowledge/policies/workflow/learning.md`.
 
 ## Guardrails
 - Don't check code against policies — that's `/code-audit`
-- Don't flag violations already listed in `gaps.md`
+- Don't flag violations that already have an open GitHub issue
 - Don't flag design guidelines that can't be structurally tested (note them)
 - Don't flag empty `.knowledge/` directories

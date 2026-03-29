@@ -36,7 +36,6 @@ src/components/, src/screens/
 - Related: policies/ui/typography.md
 - Related: policies/ui/motion.md
 
-## Derives From
-- `principles/accessibility-is-non-negotiable.md`
-- `facts/tool/nativewind-is-tailwind-for-rn.md`
-- `facts/cognitive/44pt-minimum-touch-target.md`
+## Context
+- `.context/external/tools/nativewind-is-tailwind-for-rn.md`
+- `.context/external/cognitive/44pt-minimum-touch-target.md`

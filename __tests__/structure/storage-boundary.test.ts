@@ -6,7 +6,7 @@
  *
  * Why: Keychain is hardware-backed (.context/external/tools/keychain-is-os-secure-storage.md)
  *      MMKV is unencrypted (.context/external/tools/mmkv-is-fast-but-unencrypted.md)
- *      PII requires encryption at rest (.context/external/regulatory/pii-handling-requirements.md)
+ *      PII requires encryption at rest (.context/external/regulatory/pii-has-special-handling-requirements.md)
  * Decision: Three-tier storage (.context/decisions/001-three-tier-storage.md)
  */
 

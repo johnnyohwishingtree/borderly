@@ -38,8 +38,8 @@ src/screens/, src/components/ (user-facing text)
 - Design guideline — not structurally testable
 - Reviewed during pipeline Step 6 (self-review)
 
-## Derives From
-- `facts/cognitive/fewer-fields-higher-completion.md`
-- `facts/cognitive/users-skip-error-messages.md`
-- `facts/customer/users-dont-understand-portal-jargon.md`
-- `facts/domain/errors-have-consequences.md`
+## Context
+- `.context/external/cognitive/fewer-fields-higher-completion.md`
+- `.context/external/cognitive/users-skip-error-messages.md`
+- `.context/external/customer/users-dont-understand-portal-jargon.md`
+- `.context/external/countries/errors-have-consequences.md`

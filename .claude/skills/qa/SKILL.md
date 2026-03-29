@@ -32,7 +32,7 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 
 ### Step 2: Define Test Plan
 
-Read `.knowledge/models/user-journeys.md` for the core user flows and what to verify for each.
+Read `e2e/mobile/full-e2e.test.ts` for the core user flows and what to verify for each.
 
 If user specified a flow, focus on that. Otherwise test all journeys listed in the model.
 

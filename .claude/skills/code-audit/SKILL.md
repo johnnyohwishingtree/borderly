@@ -68,38 +68,32 @@ Also check general CLAUDE.md health:
 For every violation, decide what type of finding it is:
 
 **Code violation?** The policy is correct but code doesn't follow it.
-→ Add to `gaps.md` as a code fix
+→ Create a GitHub issue for the code fix.
 
 **Knowledge stale?** The code is intentionally different and the policy needs updating.
-→ Add to `gaps.md` as a knowledge update
+→ Create a GitHub issue for the knowledge update.
 
-**New truth discovered?** The audit revealed something true about the world, the user, or the tools that isn't captured in `.knowledge/facts/`.
-→ Create or update a fact file in `.knowledge/facts/<type>/`
-
-**Assumption invalidated?** The audit found evidence that contradicts a belief in `.knowledge/beliefs/`.
-→ Update the belief's status (lower certainty or add counter-evidence)
+**Assumption invalidated?** The audit found evidence that contradicts a belief in `src/config/beliefs.ts`.
+→ Update the belief entry in `src/config/beliefs.ts` (lower certainty or add counter-evidence).
 
 **New constraint discovered?** A pattern appeared across multiple violations that should be a permanent rule.
-→ Create a new policy with enforcement test (existing behavior — unchanged)
+→ Create a new policy with enforcement test (existing behavior — unchanged).
 
 Don't blindly flag violations — understand whether reality or documentation is wrong, and whether the finding is transient (fix it) or permanent (capture it in the graph).
 
-## Step 5: Capture knowledge (facts-first)
+## Step 5: Capture knowledge
 
 Before creating stories, capture what you discovered:
 
-1. **New truths** → create/update facts in `.knowledge/facts/<type>/`
-2. **Invalidated assumptions** → update beliefs in `.knowledge/beliefs/`
-3. **New constraints** → create policies with structural tests
-4. **Code violations** → these are gaps between existing policies (beliefs about how code should be) and facts (how code actually is)
+1. **Invalidated assumptions** → update beliefs in `src/config/beliefs.ts`
+2. **New constraints** → create policies with structural tests
+3. **Code violations** → these are gaps between existing policies and how code actually is
 
-Every finding should trace to a fact (what IS) and a policy/belief (what SHOULD BE). The gap between them is the story.
+Every finding should trace to a policy or belief (what SHOULD BE) vs the current code (what IS). The gap between them is the story.
 
 ## Step 6: Create fix stories from gaps (if not --dry-run)
 
-Each story must reference the fact and belief/policy that define the gap. Follow `.knowledge/templates/story.md`.
-
-Group findings by category. For each group with 2+ items, create a story:
+Group findings by category. For each group with 2+ items, create a GitHub issue:
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
@@ -108,9 +102,16 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Fix <category> issues from $DATE code-audit" \
   --label "story,pending" \
-  --body "<follow .knowledge/templates/story.md>
+  --body "$(cat <<'EOF'
+## Description
+<describe the policy violations found>
 
-After completing fixes, remove resolved entries from .knowledge/gaps.md."
+## Acceptance Criteria
+- [ ] All violations fixed
+- [ ] Tests pass
+- [ ] No new violations introduced
+EOF
+)"
 ```
 
 ## Step 7: Verify and commit
@@ -118,12 +119,12 @@ After completing fixes, remove resolved entries from .knowledge/gaps.md."
 Follow `.knowledge/policies/workflow/verification.md` if code was changed.
 
 ```bash
-git add .knowledge/gaps.md
+git add <changed files>
 git diff --cached --quiet || git commit -m "chore: code-audit findings ($DATE)" && git push origin master
 ```
 
 ## Guardrails
 - Don't hardcode folder-specific checks — read them from policies
-- Don't flag violations already listed in `gaps.md`
+- Don't flag violations that already have an open GitHub issue
 - Don't flag empty `.knowledge/` directories
 - Don't flag design guidelines that can't be mechanically verified

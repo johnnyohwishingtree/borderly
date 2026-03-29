@@ -29,13 +29,11 @@ src/schemas/*.json, src/services/forms/, src/services/schemas/
 - Per-country tests in `__tests__/schemas/<ISO>.test.ts`
 
 ## References
-- Related: models/form-engine.md
-- Related: patterns/add-country.md
+- Related: src/types/schema.ts
+- Related: .context/patterns/add-country.md
 
-## Derives From
-- `principles/declarative-over-imperative.md`
-- `facts/domain/every-country-unique-rules.md`
-- `facts/domain/field-semantics-stable-labels-vary.md`
-- `facts/domain/boolean-fields-default-false.md`
-- `facts/organizational/schema-first-development.md`
-- `facts/tool/searchable-select-for-long-lists.md`
+## Context
+- `.context/external/countries/every-country-unique-rules.md`
+- `.context/external/countries/field-semantics-stable-labels-vary.md`
+- `.context/decisions/002-schema-driven-forms.md`
+- `.context/external/tools/searchable-select-for-long-lists.md`

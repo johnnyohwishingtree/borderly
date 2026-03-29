@@ -29,8 +29,5 @@ src/screens/, src/app/navigation/
 ## References
 - Related: policies/architecture/file-boundaries.md (screen naming)
 
-## Derives From
-- `principles/directional-dependency-graph.md`
-- `principles/naming-enables-enforcement.md`
-- `facts/craft/naming-enables-automation.md`
-- `facts/craft/separation-of-concerns.md`
+## Context
+Enforced by structural test. See test file for justification.

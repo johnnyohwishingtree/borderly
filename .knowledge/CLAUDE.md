@@ -1,5 +1,8 @@
-# Knowledge
+# Knowledge (legacy — migrating to .context/)
 
-Creation order — always bottom-up: Facts → Principles → Policies.
-Never create a policy without first creating the facts that justify it.
-See: .knowledge/ENGINE-TYPES.md for formats.
+Only policies remain here. Everything else graduated:
+- Models → TypeScript types (src/types/)
+- Beliefs → src/config/beliefs.ts
+- Facts → .context/external/
+- Decisions → .context/decisions/
+- Patterns → .context/patterns/

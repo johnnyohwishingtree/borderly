@@ -1,6 +1,6 @@
 # Schemas
 
 Country form schemas. `autoFillSource` for profile fields, `countrySpecific: true` otherwise.
-See: .knowledge/models/form-engine.md
+See: src/types/schema.ts
 See: .knowledge/policies/data/schema-fields.md
-See: .knowledge/beliefs/auto-fill-40-percent-threshold.md
+See: src/config/beliefs.ts

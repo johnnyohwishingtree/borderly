@@ -67,7 +67,7 @@ Follow the project's standard patterns for each type of change:
 
 #### Onboarding Flow Changes
 
-Follow `.knowledge/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
+Follow `.context/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 

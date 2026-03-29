@@ -40,13 +40,9 @@ src/stores/, src/services/, src/components/, src/hooks/, src/screens/
 - Related: policies/state/hook-conventions.md
 
 ## Current Stores
-See `.knowledge/models/stores.md` for the canonical store inventory.
+See `src/stores/` for the canonical store inventory.
 - useFormStore — form generation, validation, auto-fill
 - useAppStore — preferences, feature flags, app lock
 
-## Derives From
-- `principles/directional-dependency-graph.md`
-- `principles/centralized-access-patterns.md`
-- `facts/craft/separation-of-concerns.md`
-- `facts/craft/interfaces-over-implementations.md`
-- `facts/craft/state-is-the-source-of-bugs.md`
+## Context
+Enforced by structural test. See test file for justification.

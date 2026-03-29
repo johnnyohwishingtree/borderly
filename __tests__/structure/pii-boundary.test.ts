@@ -5,8 +5,8 @@
  * use stripPIIFromFormData() to remove passport/personal data.
  *
  * Why: GDPR requires data minimization (.context/external/regulatory/gdpr-data-minimization.md)
- *      PII needs hardware-backed encryption (.context/external/regulatory/pii-handling-requirements.md)
- *      Clipboard is readable by other apps (.context/external/regulatory/clipboard-readable-by-other-apps.md)
+ *      PII needs hardware-backed encryption (.context/external/regulatory/pii-has-special-handling-requirements.md)
+ *      Clipboard is readable by other apps (.context/external/regulatory/clipboard-is-readable-by-other-apps.md)
  */
 
 import { readFileSync } from 'fs';

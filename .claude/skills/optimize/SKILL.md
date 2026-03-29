@@ -6,53 +6,46 @@ argument-hint: "[--dry-run]"
 
 # /optimize — Resolve Gaps and Compress Knowledge
 
-Reads `.knowledge/gaps.md` for pending findings, resolves them by updating knowledge or flagging code fixes, and compresses files that have grown too long.
+Reads open GitHub issues for pending findings, resolves them by updating knowledge or flagging code fixes, and compresses files that have grown too long.
 
 ## Prerequisites
 
 - On `master` branch with clean working tree
 - `pnpm install` completed
-- `.knowledge/gaps.md` may or may not exist
+- `gh` CLI authenticated
 
-## Step 1: Read gaps
+## Step 1: Read pending issues
 
 ```bash
-cat .knowledge/gaps.md 2>/dev/null || echo "No gaps.md found"
+REPO="johnnyohwishingtree/borderly"
+gh issue list --repo $REPO --label "story" --label "pending" --state open --json number,title --jq '.[]'
 ```
 
-If `gaps.md` doesn't exist or has no entries → skip to Step 3.
+If no pending issues → skip to Step 3.
 
-## Step 2: Resolve each gap
+## Step 2: Resolve findings
 
-Before resolving, classify each gap entry — some may be knowledge discoveries, not just work items:
+Before resolving, classify each finding:
 
 ### Knowledge updates
 
-For each entry under `## Knowledge updates`:
+For knowledge-related issues:
 
 1. Read the referenced `.knowledge/` file
-2. Determine: is this a missing policy/model update, or is it a new fact or changed belief?
+2. Determine: is this a missing policy update, or is it a changed belief?
    - **Missing guidance** → add to the referenced knowledge file
-   - **New truth about the world/users/tools** → create a fact in `.knowledge/facts/<type>/`
-   - **Assumption proven wrong** → update the belief in `.knowledge/beliefs/`
-3. Remove the resolved entry from `gaps.md`
-4. Commit:
-   ```bash
-   git add .knowledge/<path>.md .knowledge/gaps.md
-   git commit -m "optimize: add guidance to <file>"
-   ```
+   - **Assumption proven wrong** → update the belief in `src/config/beliefs.ts`
+3. Commit the fix and close the issue.
 
 ### Code fixes
 
-Entries under `## Code fixes` are for the pipeline to handle via fix stories.
-- If a fix story already exists for the entry → leave it
-- If no fix story exists → create one (follow `.knowledge/templates/story.md`)
-- **Include the test strategy** from the gap entry in the story's acceptance criteria. Every fix must have a test that prevents recurrence.
-- Add reminder in the story body: "After completing fixes, remove resolved entries from `.knowledge/gaps.md`."
+Code fix issues are for the pipeline to handle via story implementation.
+- If a fix story already exists → leave it
+- If no fix story exists → create a GitHub issue with the test strategy in acceptance criteria. Every fix must have a test that prevents recurrence.
 
 ### Drift
 
-Entries under `## Drift` — fix the drift directly if it's a documentation/config issue. If it requires code changes, create a fix story.
+Drift issues — fix the drift directly if it's a documentation/config issue. If it requires code changes, create a fix story.
 
 ## Step 3: Compress bloated files
 
@@ -80,16 +73,11 @@ For each bloated file, choose one of two strategies:
 
 Choose promote over compress when different stories would need different parts of the file.
 
-## Step 4: Clean up gaps.md
+## Step 4: Close resolved issues
 
-If all entries have been resolved or converted to stories, delete `gaps.md`:
+Close any GitHub issues that were resolved in this session:
 ```bash
-# Only delete if no entries remain
-if ! grep -q "^- " .knowledge/gaps.md 2>/dev/null; then
-  rm .knowledge/gaps.md
-  git add .knowledge/gaps.md
-  git commit -m "optimize: all gaps resolved, removing gaps.md"
-fi
+gh issue close <number> --repo $REPO --comment "Resolved during optimize run."
 ```
 
 ## Step 5: Push
@@ -101,4 +89,4 @@ git push origin master
 ## Guardrails
 
 - Don't resolve code fixes directly — create stories for them
-- Don't delete gaps.md if entries remain
+- Don't close issues that still have unresolved work

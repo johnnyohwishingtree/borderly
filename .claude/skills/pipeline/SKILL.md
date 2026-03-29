@@ -55,7 +55,7 @@ Before implementing, assess the knowledge impact of the story:
    ```
    Review which policies, models, and beliefs are connected to the files being changed.
 
-3. **Check belief dependencies** — read `.knowledge/beliefs/` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
+3. **Check belief dependencies** — read `src/config/beliefs.ts` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
 
 4. **Check temporal staleness** — if the story touches a country schema or form engine logic, check that the relevant schema's `metadata.lastVerified` is within its `metadata.maintenanceFrequency` window. If stale, verify the portal before implementing.
 
@@ -90,7 +90,7 @@ If you changed screen UI, also follow `.knowledge/policies/testing/e2e-testabili
 
 Check all 6 categories: anti-patterns, constraints, architecture, testing patterns, directory conventions, stale knowledge.
 
-Additionally, check if any `.knowledge/beliefs/` files need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
+Additionally, check if any beliefs in `src/config/beliefs.ts` need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
 
 Self-check: if 5+ files changed and zero `.knowledge/` files updated, stop and reconsider.
 
@@ -138,14 +138,14 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 Follow `.knowledge/policies/workflow/epic-planning.md` for priority order.
 
 Check each category in order — pick the first one that has work:
-1. Bug fixes in `gaps.md`
-2. UX/UI issues in `gaps.md` (from `/ux-review`)
+1. Bug fixes (GitHub issues labeled `bug`)
+2. UX/UI issues (from `/ux-review`)
 3. Feature gaps (GitHub issues labeled `feature`)
 4. Architecture debt (from `/code-audit`)
 5. Test quality improvements (from `/test-audit` — rewrite, not add)
-6. Test coverage (untested business logic ONLY — follow `.knowledge/patterns/add-test.md`)
+6. Test coverage (untested business logic ONLY — read existing tests for patterns)
 
-Create an epic with stories following `.knowledge/templates/epic.md` and `.knowledge/templates/story.md`.
+Create an epic with stories using `/epic-planner`.
 
 ## Guardrails
 

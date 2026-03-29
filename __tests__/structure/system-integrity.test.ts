@@ -1,14 +1,13 @@
 /**
  * Structural test: system integrity.
  *
- * Verifies all cross-references across the three layers resolve:
- * - Rules (.claude/rules/) → policies (.knowledge/)
- * - Skills (.claude/skills/) → policies, rules, and other skills
- * - Policies (.knowledge/) → other policies
- * - Folder CLAUDE.md → policies
- * - Index (.knowledge/index.md) → skills, policy scopes, rules on disk
+ * Verifies all cross-references resolve:
+ * - Folder CLAUDE.md See: links → .knowledge/ policies, .context/, src/ types
+ * - Skills → policies and rules
+ * - Policies → other policies (Derives From within .knowledge/)
+ * - Test file references → policies and rules
  *
- * See: .knowledge/policies/architecture/testable-architecture.md
+ * Why: Broken references mean the LLM gets wrong guidance when editing code.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
@@ -52,11 +51,28 @@ describe('System integrity', () => {
 
     for (const file of claudeMds) {
       const content = readFileSync(file, 'utf-8');
-      const seeRefs = extractReferences(content, /See:\s*\.knowledge\/([^\s]+)/g);
-      for (const ref of seeRefs) {
+      // Check .knowledge/ references
+      const knowledgeRefs = extractReferences(content, /See:\s*\.knowledge\/([^\s]+)/g);
+      for (const ref of knowledgeRefs) {
         const target = resolve(KNOWLEDGE_DIR, ref);
         if (!existsSync(target)) {
           broken.push(`${relative(ROOT, file)} → .knowledge/${ref}`);
+        }
+      }
+      // Check .context/ references
+      const contextRefs = extractReferences(content, /See:\s*\.context\/([^\s]+)/g);
+      for (const ref of contextRefs) {
+        const target = resolve(ROOT, '.context', ref);
+        if (!existsSync(target)) {
+          broken.push(`${relative(ROOT, file)} → .context/${ref}`);
+        }
+      }
+      // Check src/ references
+      const srcRefs = extractReferences(content, /See:\s*(src\/[^\s]+)/g);
+      for (const ref of srcRefs) {
+        const target = resolve(ROOT, ref);
+        if (!existsSync(target)) {
+          broken.push(`${relative(ROOT, file)} → ${ref}`);
         }
       }
     }
@@ -143,56 +159,23 @@ describe('System integrity', () => {
     }
   });
 
-  it('index.md lists all skills that exist on disk', () => {
-    const indexContent = readFileSync(resolve(KNOWLEDGE_DIR, 'index.md'), 'utf-8');
-    const skillDirs = readdirSync(SKILLS_DIR).filter(d =>
-      statSync(join(SKILLS_DIR, d)).isDirectory()
-    );
+  it('all .context/ references in test files point to existing files', () => {
+    const testFiles = walk(resolve(ROOT, '__tests__/structure'), '.ts');
+    const broken: string[] = [];
 
-    const unlisted: string[] = [];
-    for (const skill of skillDirs) {
-      if (!indexContent.includes(`skills/${skill}/`)) {
-        unlisted.push(skill);
+    for (const file of testFiles) {
+      const content = readFileSync(file, 'utf-8');
+      const contextRefs = extractReferences(content, /\.context\/([a-zA-Z0-9/_.-]+\.md)/g);
+      for (const ref of contextRefs) {
+        const target = resolve(ROOT, '.context', ref);
+        if (!existsSync(target)) {
+          broken.push(`${relative(ROOT, file)} → .context/${ref}`);
+        }
       }
     }
 
-    if (unlisted.length > 0) {
-      throw new Error(`Skills on disk but not in index.md:\n${unlisted.map(s => `  - ${s}`).join('\n')}`);
-    }
-  });
-
-  it('index.md lists all policy scopes that exist on disk', () => {
-    const indexContent = readFileSync(resolve(KNOWLEDGE_DIR, 'index.md'), 'utf-8');
-    const policiesDir = resolve(KNOWLEDGE_DIR, 'policies');
-    const scopes = readdirSync(policiesDir).filter(d =>
-      statSync(join(policiesDir, d)).isDirectory()
-    );
-
-    const unlisted: string[] = [];
-    for (const scope of scopes) {
-      if (!indexContent.includes(`\`${scope}/\``)) {
-        unlisted.push(scope);
-      }
-    }
-
-    if (unlisted.length > 0) {
-      throw new Error(`Policy scopes on disk but not in index.md:\n${unlisted.map(s => `  - ${s}`).join('\n')}`);
-    }
-  });
-
-  it('all rules referenced in index.md exist on disk', () => {
-    const indexContent = readFileSync(resolve(KNOWLEDGE_DIR, 'index.md'), 'utf-8');
-    const ruleRefs = extractReferences(indexContent, /rules\/([a-zA-Z0-9_-]+\.md)/g);
-    const missing: string[] = [];
-
-    for (const ref of ruleRefs) {
-      if (!existsSync(resolve(RULES_DIR, ref))) {
-        missing.push(ref);
-      }
-    }
-
-    if (missing.length > 0) {
-      throw new Error(`Rules in index.md that don't exist:\n${missing.map(r => `  - ${r}`).join('\n')}`);
+    if (broken.length > 0) {
+      throw new Error(`Broken .context/ references in test files:\n${broken.map(b => `  - ${b}`).join('\n')}`);
     }
   });
 });

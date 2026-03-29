@@ -40,7 +40,7 @@ Apply the quality tiers from `.knowledge/policies/testing/test-quality.md`:
 - `it()` blocks with zero assertions
 - Tests that mock the function under test
 - Tests where assertions are so loose they pass with any implementation
-- Flaky tests (if known from gaps.md)
+- Flaky tests (if known from GitHub issues)
 - Tests that only assert `toBeDefined()` or `toBeTruthy()` on return values
 
 ### Tier 3 checks (rewrite candidates)
@@ -107,9 +107,9 @@ Test count may go DOWN — that's expected if quality went up. Track:
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after
 
-## Step 6: Write findings to gaps.md and create stories
+## Step 6: Create stories for remaining work
 
-Add findings to `.knowledge/gaps.md`. For Tier 3-4 groups with 5+ tests, create a story:
+For Tier 3-4 groups with 5+ tests, create a GitHub issue:
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
@@ -118,9 +118,16 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Clean up Tier <N> tests from $DATE test-audit" \
   --label "story,pending" \
-  --body "<follow .knowledge/templates/story.md>
+  --body "$(cat <<'EOF'
+## Description
+<describe the test quality issues found>
 
-After completing fixes, remove resolved entries from .knowledge/gaps.md."
+## Acceptance Criteria
+- [ ] All Tier N tests rewritten or deleted
+- [ ] Test suite still passes
+- [ ] No coverage regressions on business logic
+EOF
+)"
 ```
 
 ## Step 7: Classify findings and update knowledge
@@ -129,8 +136,8 @@ Follow `.knowledge/policies/workflow/learning.md`.
 
 For each finding, classify it:
 - **Test to fix/delete** → already handled in Steps 4-6
-- **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → create or update a fact in `.knowledge/facts/tool/`
-- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `.knowledge/beliefs/`
+- **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → add a comment in the relevant test or policy file
+- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `src/config/beliefs.ts`
 
 If patterns were found during the audit:
 - Add new anti-patterns to `policies/testing/test-quality.md`
@@ -141,7 +148,7 @@ If patterns were found during the audit:
 Follow `.knowledge/policies/workflow/verification.md`.
 
 ```bash
-git add .knowledge/gaps.md
+git add <changed files>
 git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" && git push origin master
 ```
 
@@ -150,4 +157,4 @@ git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" 
 - Don't delete structural tests in `__tests__/structure/`
 - Don't delete tests for security-critical code (PII, keychain, encryption)
 - Don't delete tests the user explicitly asked for
-- Follow `.knowledge/patterns/add-test.md` for what's worth testing
+- Read existing tests for patterns on what's worth testing

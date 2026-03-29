@@ -28,7 +28,7 @@ Identify and fix architecture issues: dependency violations, oversized files, mi
 Read the enforced constraints:
 - `.knowledge/policies/architecture/dependency-direction.md` — Screens -> Hooks -> Stores -> Services
 - `.knowledge/policies/state/hook-conventions.md` — Extract business logic into hooks
-- `.knowledge/models/form-engine.md` — Smart components for specialized fields
+- `src/types/schema.ts` — Form engine types and smart component definitions
 - `.knowledge/policies/architecture/file-boundaries.md` — Files under 500 lines
 
 ### Step 2: Scan for Violations

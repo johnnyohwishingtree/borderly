@@ -2,4 +2,4 @@
 
 QR code capture, display, and management. All data stored in WatermelonDB.
 
-See: .knowledge/models/qr-wallet.md
+See: src/types/trip.ts (SavedQRCode)

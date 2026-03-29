@@ -62,15 +62,9 @@ __tests__/, src/**/*.test.ts, src/**/*.test.tsx
 Enforced by `/test-audit` skill when run on schedule
 
 ## References
-- Related: rubrics/test-quality.md (evaluation criteria with weights)
 - Related: policies/testing/test-conventions.md (mechanical rules)
 
-## Derives From
-- `principles/test-before-fix.md`
-- `facts/craft/tests-are-specifications.md`
-- `facts/domain/errors-have-consequences.md`
-- `facts/organizational/test-count-inflates-confidence.md`
-- `facts/organizational/render-tests-catch-no-bugs.md`
-- `decisions/006-testing-strategy.md`
-- `beliefs/test-count-is-not-a-goal.md`
-- `beliefs/integration-tests-over-unit-tests.md`
+## Context
+- `.context/external/countries/errors-have-consequences.md`
+- `.context/decisions/006-testing-strategy.md`
+- `src/config/beliefs.ts`

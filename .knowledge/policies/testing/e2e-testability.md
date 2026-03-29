@@ -89,8 +89,5 @@ export const LEG_FORM_IDS: Record<string, TestMeta> = {
 - Related: policies/testing/drift-detection.md
 - Related: policies/testing/test-conventions.md
 
-## Derives From
-- `principles/naming-enables-enforcement.md`
-- `principles/source-of-truth-prevents-drift.md`
-- `facts/craft/naming-enables-automation.md`
-- `facts/craft/tests-are-specifications.md`
+## Context
+Enforced by structural test. See test file for justification.

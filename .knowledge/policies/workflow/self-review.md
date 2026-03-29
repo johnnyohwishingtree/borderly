@@ -4,10 +4,10 @@
 All skills that commit code changes.
 
 ## Rules
-- REQUIRE: review your diff against the relevant rubrics before committing
-- REQUIRE: check `.knowledge/rubrics/code-quality.md` for source file changes
-- REQUIRE: check `.knowledge/rubrics/test-quality.md` for test file changes
-- REQUIRE: check `.knowledge/rubrics/skill-quality.md` for skill file changes
+- REQUIRE: review your diff before committing — check architecture, testing, code style, error handling
+- REQUIRE: source changes — correct dependency direction, no unused code, types not `any`
+- REQUIRE: test changes — meaningful assertions, no render-only tests, proper isolation
+- REQUIRE: skill changes — prerequisites, sequential steps, guardrails present
 
 ## Fix Immediately (don't commit until resolved)
 - `any` types — find the real type
@@ -26,7 +26,7 @@ All skills that commit code changes.
 Re-run verification (`policies/workflow/verification.md`) to confirm fixes don't break anything.
 
 ## Exceptions
-- Knowledge-only changes (gaps.md, index.md) don't need rubric review
+- Context-only changes (.context/) don't need code review
 - Automated fixes from linters (already machine-verified)
 
 ## Anti-patterns
@@ -37,7 +37,5 @@ Re-run verification (`policies/workflow/verification.md`) to confirm fixes don't
 ## Enforcement
 Built into pipeline Step 6 and local-pipeline Step 6
 
-## Derives From
-- `principles/knowledge-is-living-documentation.md`
-- `facts/craft/fail-fast.md`
-- `facts/craft/tests-are-specifications.md`
+## Context
+Enforced by structural test. See test file for justification.

@@ -68,7 +68,7 @@ Before implementing, assess the knowledge impact of the story:
    ```
    Review which policies, models, and beliefs are connected to the files being changed.
 
-3. **Check belief dependencies** — read `.knowledge/beliefs/` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
+3. **Check belief dependencies** — read `src/config/beliefs.ts` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
 
 4. **Check temporal staleness** — if the story touches a country schema or form engine logic, check that the relevant schema's `metadata.lastVerified` is within its `metadata.maintenanceFrequency` window. If stale, verify the portal before implementing.
 
@@ -101,7 +101,7 @@ If still failing after 6 → push WIP branch, create draft PR, reset to `pending
 
 **Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
 
-Additionally, check if any `.knowledge/beliefs/` files need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
+Additionally, check if any beliefs in `src/config/beliefs.ts` need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
 
 Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsider.
 

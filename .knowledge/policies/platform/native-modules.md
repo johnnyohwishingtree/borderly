@@ -35,7 +35,5 @@ ios/, e2e/mocks/, jest.setup.js, webpack.config.js
 ## References
 - Related: policies/testing/test-conventions.md
 
-## Derives From
-- `principles/centralized-access-patterns.md`
-- `facts/tool/bare-rn-not-expo.md`
-- `facts/craft/interfaces-over-implementations.md`
+## Context
+- `.context/decisions/005-bare-react-native.md`

@@ -69,9 +69,7 @@ All systems, tools, and patterns that interact with AI agents (MCP servers, E2E 
 - Code review: any new MCP integration must document its token cost profile
 - Code review: any new hook must produce zero stdout
 
-## Derives From
-- `principles/collect-now-process-later.md`
-- `principles/source-of-truth-prevents-drift.md`
-- `facts/craft/shell-beats-llm-for-deterministic-work.md`
-- `facts/craft/hook-stdout-is-token-cost.md`
-- `facts/craft/llm-analysis-is-batchable.md`
+## Context
+- `.context/external/tools/shell-beats-llm-for-deterministic-work.md`
+- `.context/external/tools/hook-stdout-is-token-cost.md`
+- `.context/external/tools/llm-analysis-is-batchable.md`

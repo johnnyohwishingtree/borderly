@@ -60,14 +60,7 @@ Read `docs/mvp-proposal.md` and update if:
 - Security model changed
 - New screens affect the user flow diagrams
 
-### Step 4: Update .knowledge/index.md
-
-If any `.claude/` or `.knowledge/` files were added, removed, or renamed:
-- Update the Rules table
-- Update the Skills table
-- Update the Knowledge table
-
-### Step 5: Regenerate Flow Graph
+### Step 4: Regenerate Flow Graph
 
 If navigation structure changed:
 ```bash
@@ -76,11 +69,11 @@ npx tsx e2e/scripts/generate-flow-graph.ts
 
 Verify the output at `e2e/screenshots/flow-graph.json`.
 
-### Step 6: Verify
+### Step 5: Verify
 
 Run `pnpm typecheck`. Documentation-only changes don't need full verification per `policies/workflow/verification.md`, but verify type definitions if `types.ts` was updated.
 
-### Step 7: Summary
+### Step 6: Summary
 
 Report:
 - Docs updated (with specific sections changed)
