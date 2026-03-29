@@ -52,6 +52,13 @@ Components must be accessible to the test framework (mobilecli uses the accessib
 - SearchableSelect: `autoCorrect={false}`, `onSubmitEditing` for Enter-to-select
 - If a component is hard to test, adjust the code to make it testable
 
+## Coordinate System
+
+Taps use **screen coordinates** (device pixels), independent of screenshot resolution. Screenshots are resized for viewing — never change their size to match screen coordinates.
+
+See: `facts/tool/ios-simulator-screen-geometry.md` — device-specific values (screen size, safe area, tab bar position)
+See: `facts/tool/screenshot-coordinates-are-not-screen-coordinates.md` — how to derive tap coordinates from screenshots
+
 ## Key Files
 
 - `e2e/mobile/driver.ts` — MobileDriver class wrapping mobilecli

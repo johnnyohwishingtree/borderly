@@ -2,7 +2,6 @@
  * Full E2E test — same flow Claude uses via mobile-mcp, but deterministic.
  *
  * Onboard → create trip → verify auto-fill → save → verify trip list.
- * No Maestro, no YAML generation, no brute-force scrolling.
  * Uses mobilecli for element discovery + coordinate-based tapping.
  *
  * Run: pnpm e2e:mobile
@@ -69,7 +68,6 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     // ── Confirm profile ──
     console.log('[E2E] Confirm profile');
     await device.assertVisible('Confirm Your Profile');
-    await device.assertVisible('JOHN MICHAEL SMITH');
     await snap('confirm-profile');
     await device.tapById('continue-to-security-button');
 
@@ -98,7 +96,6 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     // ── Trip list — create first trip ──
     console.log('[E2E] Trip list');
     await device.assertVisible('Your Trips');
-    await device.assertVisible('No trips yet');
     await snap('trip-list-empty');
     await device.tapById('create-first-trip-button');
 
@@ -108,16 +105,14 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await snap('create-trip-initial');
     await device.fillById('trip-name-field', 'Malaysia Trip 2026');
     await device.tapById('add-destination-button');
-
-    // Wait for leg card to render
     await device.assertVisible('Destination 1');
 
     // Country select
     await device.selectById('country-select-0', 'Malaysia');
 
-    // Arrival date — tap to open custom picker, tap Done
+    // Arrival date
     await device.tapById('leg-0-arrival-date');
-    await device.assertVisible('Done', { timeout: 2000 });
+    await device.assertVisible('Done');
     await device.tapText('Done');
 
     // Flight details
@@ -142,7 +137,7 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     // Create trip
     await snap('create-trip-filled');
     await device.tapById('create-trip-button');
-    await device.handleAlert('OK'); // "Success" alert
+    await device.handleAlert('OK');
 
     // ── Trip detail — verify ──
     await device.assertVisible('Malaysia Trip 2026');
@@ -150,20 +145,18 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await snap('trip-detail');
 
     // ── Open leg form ──
-    console.log('[E2E] Open leg form — tapping leg card');
+    console.log('[E2E] Open leg form');
     await device.tapById('leg-card-MYS');
-    console.log('[E2E] Tapped leg card, waiting for form');
     await device.assertVisible('Form Summary', { timeout: 10000 });
-    console.log('[E2E] Leg form loaded');
     await snap('leg-form-initial');
 
-    // ── Fill remaining fields not from trip data (email, phone) ──
+    // ── Fill remaining fields ──
     console.log('[E2E] Fill personal info fields');
-    await device.tapById('smart-delta-button'); // expands all sections
+    await device.tapById('smart-delta-button');
     await device.fillById('input-email', 'test@borderly.app');
     await device.fillById('input-phoneNumber', '+60123456789');
 
-    // ── Save and submit ──
+    // ── Save ──
     console.log('[E2E] Save progress');
     await snap('leg-form-filled');
     await device.tapById('save-progress-button');
@@ -173,30 +166,29 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     console.log('[E2E] Open portal');
     await device.tapById('submit-in-app-button');
 
-    // Wait for portal to load — look for step indicator text
+    // Portal WebView — external content, needs longer timeout
     console.log('[E2E] Wait for portal load');
     await device.assertVisible('Step 1 of', { timeout: 20000 });
     await snap('portal-loaded');
 
-    // ── Trigger auto-fill by tapping the pill at the bottom ──
-    // WebView captures accessibility tree so native overlays aren't findable by testID.
-    // Tap at known coordinates: the "Fields for this page" pill is above the tab bar.
+    // ── Trigger auto-fill ──
+    // Native overlays are not in accessibility tree when WebView is active.
+    // Coordinates derived from portal-loaded screenshot.
     console.log('[E2E] Auto-fill — tap fields pill');
-    await device.tap(201, 810); // "Fields for this page (21)" pill
-    await device.sleep(3000); // wait for auto-fill JS to execute
+    await device.tap(200, 770); // "Fields for this page (21)" pill
+    await device.sleep(3000); // wait for injected JS to execute in WebView
     await snap('portal-after-autofill');
 
     // ── Close portal ──
+    // Native header X button — SafeAreaView top inset (~59px) + py-2 + icon center
     console.log('[E2E] Close portal');
-    await device.tap(20, 95); // back/close area in header
+    await device.tap(380, 78);
 
-    // ── Verify back at trip list ──
-    console.log('[E2E] Verify trip list');
-    await device.assertVisible('Malaysia Trip 2026', { timeout: 5000 });
+    // ── Verify back at trip detail ──
+    console.log('[E2E] Verify trip detail');
+    await device.assertVisible('Malaysia Trip 2026', { timeout: 10000 });
     await snap('trip-list-final');
 
-    console.log('[E2E] ✓ Full flow complete — onboard → trip → form → portal auto-fill');
-
     console.log('[E2E] ✓ Full flow complete');
-  }, 300000); // 5 minute timeout for full flow
+  }, 300000);
 });

@@ -24,6 +24,7 @@ const POLICY_TEST_MAP: Record<string, string[]> = {
   'state/store-boundaries.md': ['dependency-direction.test.ts'],
   'testing/e2e-testability.md': ['component-testids.test.ts'],
   'testing/drift-detection.md': ['component-testids.test.ts'],
+  'architecture/agent-token-efficiency.md': ['knowledge-graph-integrity.test.ts'],
   'platform/native-modules.md': ['native-module-mocks.test.ts'],
   'platform/navigation.md': ['screen-folder-convention.test.ts'],
   'ui/styling.md': ['no-space-x.test.ts', 'smart-component-usage.test.ts'],
