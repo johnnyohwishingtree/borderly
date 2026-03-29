@@ -23,7 +23,7 @@ __tests__/, src/**/*.test.ts
 - DENY: mocked native module tests as proof the feature works (verify at runtime too)
 
 ## Exceptions
-- E2E tests (Playwright, Maestro) may take longer than 1 second
+- E2E tests (Playwright, mobilecli) may take longer than 1 second
 - Generated test data factories don't need their own tests
 
 ## Anti-patterns

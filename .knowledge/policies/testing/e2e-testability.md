@@ -1,7 +1,7 @@
 # Policy: E2E Testability
 
 ## Scope
-src/components/, src/screens/, maestro/
+src/components/, src/screens/, e2e/mobile/
 
 ## Rules
 
@@ -24,12 +24,10 @@ src/components/, src/screens/, maestro/
 - DENY: inline testID strings in JSX (`testID="my-button"`) — import from testIDs.ts
 - DENY: `testID: "..."` in prop objects — use the constant
 
-### Registry and generation
-- REQUIRE: `screenRegistry.ts` is auto-generated from testIDs.ts files
-- REQUIRE: `pnpm maestro:generate` after any UI text/testID changes
-- REQUIRE: typed text commits on blur (components must work for Maestro, not just users)
-- DENY: hand-writing Maestro YAML when the generator can handle it
-- DENY: text-based taps (`tapOn: "Submit"`) — use testID-based
+### E2E test maintenance
+- REQUIRE: update `e2e/mobile/full-e2e.test.ts` after any UI text/testID changes
+- REQUIRE: interactive elements are accessible via mobilecli (accessibility tree)
+- DENY: text-based taps when testID is available — use testID-based
 
 ### Screen layout metadata
 - REQUIRE: every screen's testIDs.ts declares `zone` for elements outside the scroll area
@@ -67,24 +65,20 @@ export const LEG_FORM_IDS: Record<string, TestMeta> = {
 - Non-interactive display components don't need testIDs
 - Option testIDs in SearchableSelect are data-driven (country codes)
 
-## Debugging Maestro Failures
+## Debugging E2E Failures
 
-Run the diagnostic script first — one command gives you everything:
-```bash
-scripts/diagnose-maestro.sh              # Latest failure
-scripts/diagnose-maestro.sh /path/to/dir # Specific failure
-```
-This collects: screenshot, failing step, visible testIDs from accessibility tree, app logs, and quick checks.
+1. Check the saved screenshots in `e2e/screenshots/` — they're captured at each step
+2. Read the test console output for the failing step
+3. Use mobile-mcp `save_screenshot` for live debugging (never `take_screenshot`)
+4. Read source code for testIDs before interacting with the simulator
 
 ## Anti-patterns
-- `<Pressable onPress={...}>` without testID — invisible to Maestro
-- `tapOn: "City"` in Maestro flow — breaks when label text changes
+- `<Pressable onPress={...}>` without testID — invisible to mobilecli
 - Updating screen UI without updating testIDs.ts
 - Inline testID strings in JSX — drift when refactored
 - `-input` suffix for a SearchableSelect — misleading suffix; use `nationality-field`
 - Suffix-less testIDs — parser can't classify; use `demo-scan-adult-button`
 - `testID: "..."` in prop objects — use constant import
-- Debugging Maestro failures by screenshot alone — check simulator logs first
 - Keychain access groups on simulator without provisioning — use `USE_SHARED_ACCESS_GROUP` flag
 
 ## Enforcement

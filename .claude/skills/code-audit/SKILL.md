@@ -25,7 +25,7 @@ Read .claude/skills/code-audit/SKILL.md and follow every step.
 
 Find all folder CLAUDE.md files:
 ```bash
-find src __tests__ e2e maestro -name "CLAUDE.md" 2>/dev/null
+find src __tests__ e2e -name "CLAUDE.md" 2>/dev/null
 ```
 
 If `--scope` provided, filter to that directory only.
@@ -59,7 +59,7 @@ Also check general CLAUDE.md health:
 - Source files over 500 lines (per `.knowledge/policies/architecture/file-boundaries.md`)
 
 ### Drift
-- testIDs referenced in Maestro flows that don't exist in source
+- testIDs referenced in E2E tests that don't exist in source
 - `.knowledge/` or `.claude/` path references pointing to files that don't exist
 - README commands that don't match actual CLI behavior
 
@@ -96,7 +96,7 @@ Each gap entry must include a **test strategy** — how to prevent recurrence:
 - `policies/X.md` says Y but codebase does Z everywhere — update policy. (code-audit-YYYY-MM-DD)
 
 ## Drift
-- Maestro flow references `id:X` but source uses `id:Y`. Test: maestro-registry-sync.test.ts. (code-audit-YYYY-MM-DD)
+- E2E test references `id:X` but source uses `id:Y`. (code-audit-YYYY-MM-DD)
 ```
 
 If `gaps.md` already exists, **merge** — don't duplicate entries.

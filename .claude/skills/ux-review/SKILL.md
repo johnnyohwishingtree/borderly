@@ -9,33 +9,31 @@ argument-hint: "[flow or area to review, e.g. 'onboarding', 'trip creation', 'fa
 Analyzes user experience by reading the screen registry and journey definitions. Finds structural UX issues (dead ends, missing error handling, excessive tap counts, unreachable screens) and creates stories for fixes.
 
 **Data sources (all code — no simulator needed):**
-- `maestro/generator/screenRegistry.ts` — per-screen metadata (fields, buttons, alerts, navigation)
-- `maestro/generator/journeys/*.ts` — actual flow sequences with composable steps
+- `src/screens/*/testIDs.ts` — per-screen element declarations (testID, type, zone)
+- `e2e/mobile/full-e2e.test.ts` — deterministic E2E test covering core journeys
+- `e2e/screenshots/` — auto-captured screenshots from each test run
 - `.knowledge/models/user-journeys.md` — expected user journeys with verification criteria
 
 ## Prerequisites
-- Journey definitions up to date (`pnpm maestro:generate` runs cleanly)
-- Screen registry matches current source code
+- E2E test passes (`pnpm e2e:mobile`)
+- testIDs.ts files up to date
 
 ## Steps
 
 ### Step 1: Load data
 
-Read these three sources:
+Read these sources:
 
-1. **`maestro/generator/screenRegistry.ts`** — for every screen, extract:
-   - `fields` — interactive elements (testID, componentType, required/optional)
-   - `actionButtons` — buttons (testID, label, description)
-   - `alerts` — Alert.alert() calls (trigger, title, buttons, happyPathButton)
-   - `navigatesTo` — where this screen can go next
-   - `notes` — context about the screen
+1. **`src/screens/*/testIDs.ts`** — for every screen, extract:
+   - Interactive elements (testID, type: button/field/container, zone: header/scroll/footer)
 
-2. **`maestro/generator/journeys/*.ts`** — for every journey, extract:
+2. **`e2e/mobile/full-e2e.test.ts`** — the deterministic test flow:
    - Step sequence (which screens in what order)
-   - Step count (= approximate tap count)
-   - Shared steps (reused across journeys via function composition)
+   - Assertions (what's verified at each step)
 
-3. **`.knowledge/models/user-journeys.md`** — expected journeys with verification criteria.
+3. **`e2e/screenshots/`** — visual record of each screen from the latest test run.
+
+4. **`.knowledge/models/user-journeys.md`** — expected journeys with verification criteria.
 
 ### Step 2: Structural analysis
 
@@ -74,10 +72,10 @@ Run these checks against the registry and journey data:
 
 For each journey in `.knowledge/models/user-journeys.md`:
 
-1. Find the matching journey definition in `maestro/generator/journeys/*.ts`
+1. Check if the journey is covered in `e2e/mobile/full-e2e.test.ts`
 2. Count the actual steps vs expected steps
-3. Check if all **Verify** criteria from the model can be validated by the journey
-4. Flag journeys in the model that have no matching journey definition
+3. Check if all **Verify** criteria from the model can be validated by the E2E test
+4. Flag journeys in the model that have no E2E test coverage
 
 ### Step 4: Rate findings
 

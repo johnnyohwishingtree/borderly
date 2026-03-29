@@ -19,7 +19,7 @@
 ├── facts/regulatory/    clipboard-is-readable-by-other-apps, gdpr-data-minimization, human-must-be-actor-of-record, pii-has-special-handling-requirements, portal-tos-prohibit-automation
 ├── facts/temporal/    aus-portal, can-portal, gbr-portal, idn-portal, ind-portal, jpn-portal, kor-portal, mys-portal, nzl-portal, phl-portal, sgp-portal, tha-portal, usa-portal, vnm-portal
 ├── facts/tool/    bare-rn-not-expo, date-string-parsing-shifts-timezone, jest-fake-timers-hang-with-renderhook, keychain-is-os-secure-storage, mmkv-is-fast-but-unencrypted, nativewind-is-tailwind-for-rn, searchable-select-for-long-lists, watermelondb-encrypts-at-rest
-├── models/    form-engine, maestro-generator, passport, qr-wallet, stores, submission-guide, system-architecture, user-journeys
+├── models/    form-engine, mobile-e2e, passport, qr-wallet, stores, submission-guide, system-architecture, user-journeys
 ├── patterns/    add-country, add-native-dep, add-screen, add-test
 ├── policies/architecture/    dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary
 ├── policies/data/    pii-boundary, schema-fields, storage-tiers
@@ -39,7 +39,7 @@
 __tests__                    → policies/testing/test-conventions
 __tests__/structure          → policies/architecture/testable-architecture
 e2e                          → policies/testing/test-conventions, policies/platform/native-modules
-maestro                      → models/maestro-generator, policies/testing/e2e-testability, policies/testing/drift-detection
+e2e/mobile                   → models/mobile-e2e, policies/testing/e2e-testability, policies/testing/drift-detection
 src                          → policies/architecture/local-first, policies/data/storage-tiers
 src/components               → policies/architecture/dependency-direction, policies/testing/e2e-testability
 src/components/forms         → models/form-engine

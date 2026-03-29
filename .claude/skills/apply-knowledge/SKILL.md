@@ -107,5 +107,5 @@ Summary of what was done:
 
 ## Guardrails
 - Design guideline violations (typography, motion, ux-writing) that require subjective judgment — report them but let a human decide
-- Violations in generated files (`maestro/flows/generated/`) — regenerate instead
+- Violations in generated files (`e2e/screenshots/`) — regenerate by running E2E test
 - Violations that would break other code — add to gaps.md for a story

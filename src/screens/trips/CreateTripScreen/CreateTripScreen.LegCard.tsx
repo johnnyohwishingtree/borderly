@@ -228,6 +228,7 @@ export function CreateTripLegCard({
                   onChangeText={(text) => updateLeg(index, 'accommodation.phone', text)}
                   placeholder="Hotel phone number"
                   keyboardType="phone-pad"
+                  testID={`leg-${index}-accommodation-phone`}
                 />
               </View>
             </View>

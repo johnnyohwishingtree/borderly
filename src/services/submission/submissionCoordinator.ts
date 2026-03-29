@@ -47,8 +47,10 @@ class SubmissionCoordinator {
    */
   detectPageType(html: string, formFieldCount: number): PageType {
     if (pageDetector.isCaptchaPage(html)) return 'captcha';
-    if (pageDetector.isAuthPage(html)) return 'auth';
+    // Form fields take priority over auth patterns — many government portals
+    // show login/auth text on pages that are primarily forms (e.g., Malaysia MDAC)
     if (formFieldCount > 0) return 'form';
+    if (pageDetector.isAuthPage(html)) return 'auth';
     return 'unknown';
   }
 

@@ -12,6 +12,52 @@ Checks the health of the knowledge system: graph integrity, policy consistency, 
 - Knowledge graph engine available (`scripts/knowledge-graph.ts`)
 - On `master` branch with latest changes pulled
 
+## Step 0: Drift detection from tracked file changes
+
+A PostToolUse hook silently tracks source file changes in `.claude/dirty-files` across all conversations. This accumulates between audit runs. Combined with a saved commit hash, it gives you focused diffs of exactly what changed since the last audit.
+
+**Read the signals:**
+```bash
+cat .claude/dirty-files 2>/dev/null
+cat .claude/last-audit-hash 2>/dev/null
+```
+
+If dirty-files is non-empty:
+
+1. **Get focused diffs** — what actually changed in each file:
+   ```bash
+   LAST_HASH=$(cat .claude/last-audit-hash 2>/dev/null || git rev-list --max-parents=0 HEAD)
+   git diff "$LAST_HASH"..HEAD -- $(cat .claude/dirty-files | tr '\n' ' ')
+   ```
+   Also check for uncommitted changes:
+   ```bash
+   git diff -- $(cat .claude/dirty-files | tr '\n' ' ')
+   ```
+
+2. **Find affected knowledge** — which knowledge files reference these dirty files:
+   ```bash
+   for f in $(cat .claude/dirty-files); do
+     echo "--- $f ---"
+     grep -rl "$(basename "$f")" .knowledge/ 2>/dev/null || echo "(no references)"
+   done
+   ```
+
+3. **Assess drift** — for each affected knowledge file, compare the diff against what the knowledge file claims. Common drift patterns:
+   - **Models**: new exports/actions not listed in entity inventory
+   - **Temporal facts**: schema field count changed
+   - **Policies**: new patterns that violate or extend existing rules
+   - **Country domain files**: schema fields added/removed
+
+4. **Prioritize** — check the affected knowledge files first in Steps 1-8 below. Drift from actual code changes is higher priority than general graph health.
+
+If dirty-files is empty or missing, proceed normally — the remaining steps cover full graph health regardless.
+
+**Cleanup** (after Step 9 completes):
+```bash
+git rev-parse HEAD > .claude/last-audit-hash
+> .claude/dirty-files
+```
+
 ## Step 1: Graph health check
 
 Run the graph engine queries:

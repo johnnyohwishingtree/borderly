@@ -16,12 +16,13 @@ Same tool for both development (AI-driven) and CI (deterministic). No translatio
 
 Thin wrapper around `mobilecli` binary with smart helpers:
 
-- `tapById(testID)` — lists elements → finds by testID → taps at coordinates. If not found, swipes and retries.
+- `tapById(testID, opts?)` — finds by testID → taps. If not found, scrolls down then back up searching both directions. `opts.maxSwipes` controls search depth (default 5).
 - `fillById(testID, text)` — taps field, types, dismisses keyboard with Enter.
 - `selectById(testID, search)` — taps trigger, types search, presses Enter to select single match.
 - `assertVisible(text)` — polls element list until text found (3s default timeout).
 - `swipe(direction)` — single gesture scroll.
 - `tapElement(el)` — viewport-aware: if element center is off-screen, swipes first then re-finds.
+- `sleep(ms)` — public wait helper (used in tests for WebView loading, auto-fill execution).
 
 ## Test Structure
 
@@ -57,4 +58,4 @@ Components must be accessible to the test framework (mobilecli uses the accessib
 - `e2e/mobile/full-e2e.test.ts` — full user journey test
 - `e2e/mobile/jest.config.js` — Jest config for mobile E2E
 - `src/screens/*/testIDs.ts` — per-screen testID declarations
-- `maestro/output/walkthrough/` — reference screenshots from manual walkthrough
+- `e2e/screenshots/` — auto-captured screenshots from each test run (committed to git)

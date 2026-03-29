@@ -5,7 +5,7 @@ All skills that modify source code or tests.
 
 ## Rules
 - REQUIRE: run checks in this order — `pnpm lint`, `pnpm typecheck`, `pnpm test`
-- REQUIRE: if screen UI changed (testIDs, button text, navigation), also run `pnpm e2e` and update Maestro flows per `policies/testing/e2e-testability.md`
+- REQUIRE: if screen UI changed (testIDs, button text, navigation), also run `pnpm e2e` and update `e2e/mobile/full-e2e.test.ts` per `policies/testing/e2e-testability.md`
 - REQUIRE: if checks fail, fix and rerun — up to 6 attempts
 - REQUIRE: after 6 failed attempts, push WIP branch, create draft PR, stop
 - DENY: spawning background processes to "wait and see" — run verification foreground

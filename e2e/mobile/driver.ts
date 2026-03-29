@@ -134,6 +134,8 @@ export class MobileDriver {
 
   async screenshot(path: string): Promise<void> {
     await this.cli(['screenshot', '-o', path, '-f', 'jpeg', '-q', '50']);
+    // Resize to 300px wide for low context cost — small enough for AI to read, big enough to see UI
+    await exec('sips', ['--resampleWidth', '300', path], { timeout: 5000 });
   }
 
   // ── Smart helpers (same logic mobile-mcp + Claude uses) ──
@@ -142,9 +144,8 @@ export class MobileDriver {
    * Tap an element by testID. If not visible, swipes down and retries.
    * This is the core helper — same approach Claude uses via mobile-mcp.
    */
-  async tapById(testID: string, opts?: { maxSwipes?: number; swipeDirection?: 'up' | 'down' }): Promise<void> {
+  async tapById(testID: string, opts?: { maxSwipes?: number }): Promise<void> {
     const maxSwipes = opts?.maxSwipes ?? 5;
-    const direction = opts?.swipeDirection ?? 'up'; // swipe up = scroll down
 
     // First check: is it visible right now?
     let el = await this.findById(testID);
@@ -153,18 +154,23 @@ export class MobileDriver {
       return;
     }
 
-    // Not visible — swipe and retry
+    // Try scrolling DOWN (swipe up)
     for (let i = 0; i < maxSwipes; i++) {
-      await this.swipe(direction);
-      await this.sleep(300); // wait for scroll to settle
+      await this.swipe('up');
+      await this.sleep(300);
       el = await this.findById(testID);
-      if (el) {
-        await this.tapElement(el);
-        return;
-      }
+      if (el) { await this.tapElement(el); return; }
     }
 
-    throw new Error(`tapById: element "${testID}" not found after ${maxSwipes} swipes`);
+    // Not found — scroll back UP (swipe down) to search above
+    for (let i = 0; i < maxSwipes * 2; i++) {
+      await this.swipe('down');
+      await this.sleep(300);
+      el = await this.findById(testID);
+      if (el) { await this.tapElement(el); return; }
+    }
+
+    throw new Error(`tapById: "${testID}" not found after searching both directions`);
   }
 
   /** Type into a field by testID — taps the field, types, dismisses keyboard. */
@@ -239,12 +245,17 @@ export class MobileDriver {
   /**
    * Handle an alert — wait for title, tap button.
    */
-  async handleAlert(buttonText: string, opts?: { timeout?: number }): Promise<void> {
+  async handleAlert(buttonText: string, _opts?: { timeout?: number }): Promise<void> {
     await this.sleep(500);
     await this.tapText(buttonText);
   }
 
-  // ── Private helpers ──
+  // ── Helpers ──
+
+  /** Wait for a duration. */
+  sleep(ms: number): Promise<void> {
+    return new Promise(r => setTimeout(r, ms));
+  }
 
   private async tapElement(el: ElementInfo): Promise<void> {
     const centerX = el.rect.x + el.rect.width / 2;
@@ -262,10 +273,6 @@ export class MobileDriver {
       }
     }
     await this.tap(centerX, centerY);
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   private async findAppBundle(): Promise<string> {

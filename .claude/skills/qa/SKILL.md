@@ -11,7 +11,7 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
-- Screen registry available at `maestro/generator/screenRegistry.ts`
+- Screen testIDs available at `src/screens/*/testIDs.ts`
 - `gh` CLI authenticated (for creating bug issues)
 
 ## Usage
@@ -26,9 +26,9 @@ Walk through the app's functionality like a real user. Document every bug, UX is
 ### Step 1: Load App Context
 
 1. Read `CLAUDE.md` for architecture and feature list
-2. Read `maestro/generator/screenRegistry.ts` for the current screen inventory and per-screen metadata (fields, alerts, buttons)
-3. Read `maestro/generator/componentCatalog.ts` for component interaction patterns
-4. Read `e2e/screenshots/flow-graph.json` for navigation edges
+2. Read `src/screens/*/testIDs.ts` for per-screen element declarations
+3. Read `e2e/screenshots/` for visual reference of current screen state
+4. Read `e2e/mobile/full-e2e.test.ts` for the deterministic test flow
 
 ### Step 2: Define Test Plan
 
