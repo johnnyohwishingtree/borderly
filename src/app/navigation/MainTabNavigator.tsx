@@ -1,9 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Platform, TouchableOpacity } from 'react-native';
 import { Plane, QrCode, User, Settings } from 'lucide-react-native';
 
 import { MainTabParamList } from './types';
 import TripNavigator from './TripStack';
+
+/** Screens in nested stacks that should hide the tab bar. */
+const TAB_BAR_HIDDEN_SCREENS = new Set(['PortalSubmission']);
 import WalletNavigator from './WalletStack';
 import ProfileNavigator from './ProfileStack';
 import SettingsNavigator from './SettingsStack';
@@ -50,8 +54,18 @@ export default function MainTabNavigator() {
       <Tab.Screen
         name="Trips"
         component={TripNavigator}
-        options={{
+        options={({ route }) => ({
           tabBarLabel: 'Trips',
+          tabBarStyle: TAB_BAR_HIDDEN_SCREENS.has(getFocusedRouteNameFromRoute(route) ?? '')
+            ? { display: 'none' as const }
+            : {
+                backgroundColor: 'white',
+                borderTopColor: '#e5e7eb',
+                borderTopWidth: 1,
+                minHeight: 60,
+                paddingBottom: 8,
+                paddingTop: 8,
+              },
           tabBarButton: (props: any) => {
             const safeProps = stripWebHref(props);
             return (
@@ -66,7 +80,7 @@ export default function MainTabNavigator() {
             );
           },
           tabBarIcon: ({ color, size }) => <Plane size={size} color={color} />,
-        }}
+        })}
       />
       <Tab.Screen
         name="Wallet"
