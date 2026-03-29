@@ -77,7 +77,7 @@ directional-dependency-graph, naming-enables-enforcement, security-through-stora
 
 | Scope | Policies |
 |-------|---------|
-| `architecture/` | dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
+| `architecture/` | agent-token-efficiency, dependency-direction, file-boundaries, local-first, testable-architecture, utils-boundary |
 | `data/` | storage-tiers, pii-boundary, schema-fields |
 | `ui/` | styling, typography, motion, accessibility, ux-writing |
 | `state/` | hook-conventions, store-boundaries |

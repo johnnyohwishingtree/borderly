@@ -14,6 +14,8 @@ Checks the health of the knowledge system: graph integrity, policy consistency, 
 
 ## Step 0: Drift detection from tracked file changes
 
+Follow `.knowledge/policies/architecture/agent-token-efficiency.md` — the hook system is designed for zero per-conversation token cost.
+
 A PostToolUse hook silently tracks source file changes in `.claude/dirty-files` across all conversations. This accumulates between audit runs. Combined with a saved commit hash, it gives you focused diffs of exactly what changed since the last audit.
 
 **Read the signals:**
