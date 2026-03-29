@@ -13,6 +13,7 @@ const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
 const mockNavigation = { navigate: mockNavigate, goBack: mockGoBack };
 const mockLoadProfile = jest.fn();
+const mockSetOnboardingComplete = jest.fn();
 
 const mockProfile = {
   passportNumber: 'L12345678',
@@ -29,12 +30,14 @@ interface MockStoreReturn {
   profile: typeof mockProfile | null;
   loadProfile: jest.Mock;
   isLoading: boolean;
+  setOnboardingComplete: jest.Mock;
 }
 
 let mockStoreReturn: MockStoreReturn = {
   profile: mockProfile,
   loadProfile: mockLoadProfile,
   isLoading: false,
+  setOnboardingComplete: mockSetOnboardingComplete,
 };
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -87,6 +90,7 @@ beforeEach(() => {
     profile: mockProfile,
     loadProfile: mockLoadProfile,
     isLoading: false,
+    setOnboardingComplete: mockSetOnboardingComplete,
   };
 });
 
@@ -209,12 +213,12 @@ describe('ConfirmProfileScreen — navigation', () => {
     screen.getByTestId('continue-to-security-button');
   });
 
-  it('pressing "Continue" navigates to AddCompanions', () => {
+  it('pressing "Continue" completes onboarding', () => {
     render(<ConfirmProfileScreen />);
 
     fireEvent.press(screen.getByTestId('continue-to-security-button'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('AddCompanions');
+    expect(mockSetOnboardingComplete).toHaveBeenCalledWith(true);
   });
 
   it('renders "Edit Information" button', () => {

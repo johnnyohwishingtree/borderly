@@ -5,11 +5,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Fingerprint, ShieldCheck, Zap, KeyRound, Lightbulb } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '@/app/navigation/types';
+import { ParamListBase } from '@react-navigation/native';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { BIOMETRIC_SETUP_IDS } from './testIDs';
 
-type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'BiometricSetup'>;
+type BiometricSetupScreenNavigationProp = NativeStackNavigationProp<ParamListBase>;
 
 export default function BiometricSetupScreen() {
   const navigation = useNavigation<BiometricSetupScreenNavigationProp>();

@@ -222,32 +222,32 @@ describe('WelcomeScreen — privacy notice', () => {
 // ── Navigation buttons ────────────────────────────────────────────────────────
 
 describe('WelcomeScreen — navigation', () => {
-  it('renders "Take Quick Tutorial" button', () => {
+  it('renders "Get Started" button', () => {
     render(<WelcomeScreen />);
 
     screen.getByTestId('take-tutorial-button');
   });
 
-  it('pressing "Take Quick Tutorial" navigates to Tutorial screen', () => {
+  it('pressing "Get Started" navigates to PassportScan screen', () => {
     render(<WelcomeScreen />);
 
     fireEvent.press(screen.getByTestId('take-tutorial-button'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('Tutorial');
+    expect(mockNavigate).toHaveBeenCalledWith('PassportScan');
   });
 
-  it('renders "Skip Tutorial" button', () => {
+  it('renders "Restore from Backup" button', () => {
     render(<WelcomeScreen />);
 
     screen.getByTestId('skip-tutorial-button');
   });
 
-  it('pressing "Skip Tutorial" navigates to PassportScan screen', () => {
+  it('pressing "Restore from Backup" navigates to RestoreBackup screen', () => {
     render(<WelcomeScreen />);
 
     fireEvent.press(screen.getByTestId('skip-tutorial-button'));
 
-    expect(mockNavigate).toHaveBeenCalledWith('PassportScan');
+    expect(mockNavigate).toHaveBeenCalledWith('RestoreBackup');
   });
 
   it('renders "Restore from backup" link', () => {

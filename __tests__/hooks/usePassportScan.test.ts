@@ -17,7 +17,6 @@ const mockRouteParams: {
   familyMode?: boolean;
   relationship?: string;
   profileId?: string;
-  returnTo?: 'AddCompanions';
 } = {};
 const mockRoute = { params: mockRouteParams };
 
@@ -544,19 +543,6 @@ describe('usePassportScan — family mode', () => {
     expect(mockNavigate).toHaveBeenCalledWith('FamilyManagement');
   });
 
-  it('navigates to AddCompanions when returnTo is AddCompanions', async () => {
-    mockRouteParams.familyMode = true;
-    mockRouteParams.relationship = 'child';
-    mockRouteParams.returnTo = 'AddCompanions';
-
-    const { result } = renderHook(() => usePassportScan());
-
-    await act(async () => {
-      await result.current.profile.save(validPassportData);
-    });
-
-    expect(mockNavigate).toHaveBeenCalledWith('AddCompanions');
-  });
 });
 
 // ── Device performance ────────────────────────────────────────────────────────

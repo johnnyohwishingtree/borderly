@@ -17,14 +17,14 @@ type ConfirmProfileScreenNavigationProp = NativeStackNavigationProp<OnboardingSt
 
 export default function ConfirmProfileScreen() {
   const navigation = useNavigation<ConfirmProfileScreenNavigationProp>();
-  const { profile, loadProfile, isLoading } = useProfileStore();
+  const { profile, loadProfile, isLoading, setOnboardingComplete } = useProfileStore();
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
   const handleContinue = () => {
-    navigation.navigate('AddCompanions');
+    setOnboardingComplete(true);
   };
 
   const handleBack = () => {

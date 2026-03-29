@@ -155,22 +155,22 @@ describe('Onboarding Flow Integration Tests', () => {
       getByText('Privacy First');
     });
 
-    it('should navigate to PassportScan when Skip Tutorial is pressed', () => {
+    it('should navigate to PassportScan when Get Started is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const skipButton = getByText('Skip Tutorial');
-      fireEvent.press(skipButton);
+      const startButton = getByText('Get Started');
+      fireEvent.press(startButton);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 
-    it('should navigate to Tutorial when Take Quick Tutorial is pressed', () => {
+    it('should navigate to RestoreBackup when Restore from Backup is pressed', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      const tutorialButton = getByText('Take Quick Tutorial');
-      fireEvent.press(tutorialButton);
+      const restoreButton = getByText('Restore from Backup');
+      fireEvent.press(restoreButton);
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Tutorial');
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('RestoreBackup');
     });
 
     it('should display privacy information prominently', () => {
@@ -239,10 +239,10 @@ describe('Onboarding Flow Integration Tests', () => {
   });
 
   describe('Onboarding Flow Integration', () => {
-    it('should start with Welcome and navigate to PassportScan via Skip Tutorial', () => {
+    it('should start with Welcome and navigate to PassportScan via Get Started', () => {
       const { getByText } = render(<WelcomeScreen />);
 
-      fireEvent.press(getByText('Skip Tutorial'));
+      fireEvent.press(getByText('Get Started'));
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 

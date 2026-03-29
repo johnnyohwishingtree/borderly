@@ -20,12 +20,8 @@ const LockScreen = lazy(() =>
 
 // Lazy load onboarding screens
 const WelcomeScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.WelcomeScreen })));
-const TutorialScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.TutorialScreen })));
 const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
 const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
-const AddCompanionsScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.AddCompanionsScreen })));
-const BiometricSetupScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.BiometricSetupScreen })));
-const NotificationPermissionScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.NotificationPermissionScreen })));
 const RestoreBackupModal = lazy(() => import('@/screens/settings').then(m => ({ default: m.RestoreBackupModal })));
 
 // Enhanced loading component for lazy-loaded screens
@@ -46,12 +42,8 @@ const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 const SCREEN_TITLES: Record<string, string> = {
   // Onboarding
   Welcome: 'Welcome',
-  Tutorial: 'Tutorial',
   PassportScan: 'Passport Scan',
   ConfirmProfile: 'Confirm Profile',
-  AddCompanions: 'Add Companions',
-  BiometricSetup: 'Biometric Setup',
-  NotificationPermission: 'Notification Permission',
   RestoreBackup: 'Restore from Backup',
   // Main tabs
   Trips: 'Trips',
@@ -122,18 +114,6 @@ function OnboardingNavigator() {
         )}
       </OnboardingStack.Screen>
       <OnboardingStack.Screen
-        name="Tutorial"
-        options={{
-          ...STANDARD_TRANSITIONS.slideFromRight,
-        }}
-      >
-        {() => (
-          <Suspense fallback={<ScreenLoader />}>
-            <TutorialScreen />
-          </Suspense>
-        )}
-      </OnboardingStack.Screen>
-      <OnboardingStack.Screen
         name="PassportScan"
         options={{
           ...CONTEXT_TRANSITIONS.camera,
@@ -154,42 +134,6 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <ConfirmProfileScreen />
-          </Suspense>
-        )}
-      </OnboardingStack.Screen>
-      <OnboardingStack.Screen
-        name="AddCompanions"
-        options={{
-          ...STANDARD_TRANSITIONS.slideFromRight,
-        }}
-      >
-        {() => (
-          <Suspense fallback={<ScreenLoader />}>
-            <AddCompanionsScreen />
-          </Suspense>
-        )}
-      </OnboardingStack.Screen>
-      <OnboardingStack.Screen
-        name="BiometricSetup"
-        options={{
-          ...STANDARD_TRANSITIONS.slideFromRight,
-        }}
-      >
-        {() => (
-          <Suspense fallback={<ScreenLoader />}>
-            <BiometricSetupScreen />
-          </Suspense>
-        )}
-      </OnboardingStack.Screen>
-      <OnboardingStack.Screen
-        name="NotificationPermission"
-        options={{
-          ...STANDARD_TRANSITIONS.slideFromRight,
-        }}
-      >
-        {() => (
-          <Suspense fallback={<ScreenLoader />}>
-            <NotificationPermissionScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>

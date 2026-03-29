@@ -39,17 +39,7 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     console.log('[E2E] Welcome screen');
     await device.assertVisible('Welcome to');
     await snap('welcome-initial');
-    await device.tapById('take-tutorial-button');
-
-    // ── Tutorial (3 steps — buttons always visible) ──
-    console.log('[E2E] Tutorial');
-    await device.assertVisible('Step 1 of 3');
-    await snap('tutorial-step1');
-    await device.tapById('next-step-button');
-    await snap('tutorial-step2');
-    await device.tapById('next-step-button');
-    await snap('tutorial-step3');
-    await device.tapById('next-step-button');
+    await device.tapById('take-tutorial-button'); // Now labeled "Get Started"
 
     // ── Passport — demo scan ──
     console.log('[E2E] Passport scan');
@@ -65,33 +55,11 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await snap('passport-preview');
     await device.tapById('confirm-scan-button');
 
-    // ── Confirm profile ──
+    // ── Confirm profile — completes onboarding ──
     console.log('[E2E] Confirm profile');
     await device.assertVisible('Confirm Your Profile');
     await snap('confirm-profile');
-    await device.tapById('continue-to-security-button');
-
-    // ── Add companions — skip ──
-    console.log('[E2E] Add companions');
-    await device.assertVisible('Traveling with family?');
-    await snap('add-companions');
-    await device.tapText('Skip for now');
-
-    // ── Biometric setup — skip ──
-    console.log('[E2E] Biometric setup');
-    await device.assertVisible('Secure Your Profile');
-    await snap('biometric-setup');
-    await device.tapById('skip-biometric-button');
-    await device.handleAlert('Skip');
-
-    // ── Notification permission — skip if present ──
-    console.log('[E2E] Notification permission');
-    try {
-      await device.assertVisible('Stay on Top of Deadlines', { timeout: 2000 });
-      await device.tapById('skip-notifications-button');
-    } catch {
-      // Screen may auto-skip
-    }
+    await device.tapById('continue-to-security-button'); // Now completes onboarding
 
     // ── Trip list — create first trip ──
     console.log('[E2E] Trip list');

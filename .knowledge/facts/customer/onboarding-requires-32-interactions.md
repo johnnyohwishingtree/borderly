@@ -1,12 +1,13 @@
-# Fact: Onboarding Requires 32 Interactions Before Value
+# Fact: Onboarding Requires ~20 Interactions Before Value
 
-From app launch to first auto-fill of a government portal form, the user must complete approximately 32 interactions across 9 onboarding screens + trip creation + form filling + portal navigation.
+From app launch to first auto-fill of a government portal form, the user completes approximately 20 interactions across 3 onboarding screens + trip creation + form filling + portal navigation.
 
 Breakdown:
-- Welcome (1) → Tutorial x3 (4) → Passport (5) → Preview (6) → Confirm (7)
-- Companions (8) → Biometric (9) → Notifications (10)
-- Trip list (11) → Create trip with 12 fields (23) → Trip detail (24)
-- Leg form (25) → Smart Delta (26) → Fill 2 fields (28) → Save (29)
-- Submit in App (30) → Portal loads (31) → Tap pill (32) → Auto-fill
+- Welcome (1) → Passport (2) → Preview (3) → Confirm (4)
+- Trip list (5) → Create trip with 12 fields (17) → Trip detail (18)
+- Leg form (19) → Smart Delta (20) → Fill 2 fields (22) → Save (23)
+- Submit in App (24) → Portal loads (25) → Tap pill (26) → Auto-fill
 
-Measured from E2E test: `e2e/mobile/full-e2e.test.ts` (155s runtime, March 2026).
+Previously 32 interactions across 9 onboarding screens (March 2026). Reduced by removing tutorial (3 screens), companions, biometric, and notification permission from onboarding.
+
+E2E test runtime: 135s (down from 155s). Measured from `e2e/mobile/full-e2e.test.ts`.

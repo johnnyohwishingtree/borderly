@@ -28,11 +28,7 @@ export default function WelcomeScreen() {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
   const { colors } = useTheme();
 
-  const handleTutorial = () => {
-    navigation.navigate('Tutorial');
-  };
-
-  const handleSkipTutorial = () => {
+  const handleGetStarted = () => {
     navigation.navigate('PassportScan');
   };
 
@@ -156,8 +152,8 @@ export default function WelcomeScreen() {
         {/* CTA section */}
         <View className="mt-auto pt-4">
           <Button
-            title="Take Quick Tutorial"
-            onPress={handleTutorial}
+            title="Get Started"
+            onPress={handleGetStarted}
             size="lg"
             className="mb-4"
             testID={WELCOME_IDS.takeTutorialButton.id}
@@ -165,8 +161,8 @@ export default function WelcomeScreen() {
 
           <View className="flex-row items-center justify-center">
             <Button
-              title="Skip Tutorial"
-              onPress={handleSkipTutorial}
+              title="Restore from Backup"
+              onPress={() => navigation.navigate('RestoreBackup')}
               variant="outline"
               size="md"
               className="border-0"

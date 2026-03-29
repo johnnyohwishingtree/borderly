@@ -4,13 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users, UserPlus, ChevronRight, CheckCircle, X, Clock, Shield } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '@/app/navigation/types';
+import { ParamListBase } from '@react-navigation/native';
 import { ADD_COMPANIONS_IDS } from './testIDs';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { FamilyMember, FamilyRelationship } from '@/types/profile';
 
-type AddCompanionsScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'AddCompanions'>;
+type AddCompanionsScreenNavigationProp = NativeStackNavigationProp<ParamListBase>;
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
   self: 'Primary',

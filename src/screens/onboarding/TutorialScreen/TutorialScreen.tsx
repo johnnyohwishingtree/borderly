@@ -4,11 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Camera, Check, Globe, Shield } from 'lucide-react-native';
 
-import { OnboardingStackParamList } from '@/app/navigation/types';
+import { ParamListBase } from '@react-navigation/native';
 import { TUTORIAL_IDS } from './testIDs';
 import { Button, ProgressIndicator, ScreenContainer } from '@/components/ui';
 
-type TutorialScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'Tutorial'>;
+type TutorialScreenNavigationProp = NativeStackNavigationProp<ParamListBase>;
 
 const tutorialSteps = [
   {
