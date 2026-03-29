@@ -174,7 +174,7 @@ export default function LegFormScreen() {
     </ScrollView>
 
       {/* Action Buttons — fixed bottom bar, always visible regardless of scroll position */}
-      <View testID="action-buttons-bar" className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
+      <View testID="action-buttons-bar" className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
         {isValid ? (
           <View className="space-y-2">
             <Button
