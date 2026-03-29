@@ -138,7 +138,6 @@ jest.mock('@/components/ui/ErrorMessage', () => {
 // ---------------------------------------------------------------------------
 
 const mockHandleSaveForm = jest.fn();
-const mockHandleMarkAsReady = jest.fn();
 const mockHandleFormDataChange = jest.fn();
 const mockRetryLastOperation = jest.fn();
 const mockReloadForm = jest.fn();
@@ -164,7 +163,6 @@ function makeLegFormResult(overrides?: Record<string, unknown>) {
     clearLoadError: mockClearLoadError,
     handleFormDataChange: mockHandleFormDataChange,
     handleSaveForm: mockHandleSaveForm,
-    handleMarkAsReady: mockHandleMarkAsReady,
     retryLastOperation: mockRetryLastOperation,
     reloadForm: mockReloadForm,
     dismissError: mockDismissError,
@@ -188,7 +186,6 @@ function makeLegFormResult(overrides?: Record<string, unknown>) {
     submission: {
       isSubmitting: flat.isSubmitting,
       handleSaveForm: flat.handleSaveForm,
-      handleMarkAsReady: flat.handleMarkAsReady,
       retryLastOperation: flat.retryLastOperation,
     },
     errors: {
@@ -340,18 +337,7 @@ describe('LegFormScreen — valid form actions', () => {
     setup({ isValid: true });
   });
 
-  it('shows "Mark as Ready" button when form is valid', () => {
-    const { getByTestId } = render(<LegFormScreen />);
-    getByTestId('mark-ready-button');
-  });
-
-  it('calls handleMarkAsReady when mark as ready is pressed', () => {
-    const { getByTestId } = render(<LegFormScreen />);
-    fireEvent.press(getByTestId('mark-ready-button'));
-    expect(mockHandleMarkAsReady).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows "Save Draft" button alongside mark as ready', () => {
+  it('shows "Save Progress" button when form is valid', () => {
     const { getByTestId } = render(<LegFormScreen />);
     getByTestId('save-progress-button');
   });

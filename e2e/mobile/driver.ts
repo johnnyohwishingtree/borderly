@@ -134,6 +134,8 @@ export class MobileDriver {
 
   async screenshot(path: string): Promise<void> {
     await this.cli(['screenshot', '-o', path, '-f', 'jpeg', '-q', '50']);
+    // Resize to 300px wide for low context cost — small enough for AI to read, big enough to see UI
+    await exec('sips', ['--resampleWidth', '300', path], { timeout: 5000 });
   }
 
   // ── Smart helpers (same logic mobile-mcp + Claude uses) ──
@@ -243,7 +245,7 @@ export class MobileDriver {
   /**
    * Handle an alert — wait for title, tap button.
    */
-  async handleAlert(buttonText: string, opts?: { timeout?: number }): Promise<void> {
+  async handleAlert(buttonText: string, _opts?: { timeout?: number }): Promise<void> {
     await this.sleep(500);
     await this.tapText(buttonText);
   }
@@ -252,7 +254,7 @@ export class MobileDriver {
 
   /** Wait for a duration. */
   sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(r => setTimeout(r, ms));
   }
 
   private async tapElement(el: ElementInfo): Promise<void> {

@@ -26,7 +26,7 @@ export default function LegFormScreen() {
   const {
     tripData: { trip, leg },
     form: { currentForm, formData, isValid, isLoading, handleFormDataChange, reloadForm },
-    submission: { isSubmitting, handleSaveForm, handleMarkAsReady, retryLastOperation },
+    submission: { isSubmitting, handleSaveForm, retryLastOperation },
     errors: { formError, loadError, clearLoadError, dismissError },
     travelers: { hasMultipleTravelers, activeTravelerId, travelerTabs, switchToTraveler },
   } = useLegForm({ tripId, legId });
