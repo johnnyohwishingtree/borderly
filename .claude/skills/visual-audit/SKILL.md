@@ -135,8 +135,8 @@ If Stitch is NOT connected, include specific NativeWind fix suggestions in the r
 
 Before auditing, read the metadata files for context on what each screen contains:
 
-- **`maestro/generator/screenRegistry.ts`** — Per-screen metadata: fields (with required/optional), alerts, action buttons, navigation targets, and notes. Helps understand what should be visible on each screen.
-- **`maestro/generator/componentCatalog.ts`** — Interaction patterns per component type: sub-testIDs, modal vs inline rendering, keyboard behavior. Helps understand expected component behavior.
+- **`src/screens/*/testIDs.ts`** — Per-screen element declarations (testID, type, zone). Helps understand what should be visible on each screen.
+- **`e2e/screenshots/`** — Auto-captured screenshots from the latest E2E test run. Visual reference for current screen state.
 
 ## Project-Specific Guidelines
 

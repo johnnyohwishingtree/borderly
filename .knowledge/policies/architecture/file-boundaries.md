@@ -14,7 +14,7 @@ src/**/*.ts, src/**/*.tsx
 ## Exceptions
 - Test helper files and type definition files have no size limit
 - Schema JSON files have no size limit
-- Generated files (maestro/flows/generated/) have no size limit
+- Generated files (e2e/screenshots/) have no size limit
 
 ## How to Split
 

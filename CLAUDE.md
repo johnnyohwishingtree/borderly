@@ -20,7 +20,7 @@ Read `docs/mvp-proposal.md` for complete technical details.
 | **Camera/OCR** | react-native-camera + ML Kit text recognition |
 | **Styling** | NativeWind (Tailwind for RN) |
 | **Forms** | React Hook Form + Zod |
-| **Testing** | Jest + RNTL, Playwright (E2E), Maestro (native E2E) |
+| **Testing** | Jest + RNTL, Playwright (E2E), mobilecli (native E2E) |
 | **Package Manager** | pnpm |
 
 ## Project Structure

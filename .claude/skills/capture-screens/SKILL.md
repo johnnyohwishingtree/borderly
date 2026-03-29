@@ -73,7 +73,7 @@ This produces `e2e/screenshots/flow-graph.json` — a machine-readable map of st
 
 ## Output
 
-**Screen screenshots** — Read `maestro/generator/screenRegistry.ts` for the current screen inventory. Screen domains are discovered by listing directories under `src/screens/`.
+**Screen screenshots** — Read `src/screens/*/testIDs.ts` for the current screen inventory. Screen domains are discovered by listing directories under `src/screens/`.
 
 **Component screenshots** — Read `e2e/component-registry.tsx` for the component registry and current variant counts.
 

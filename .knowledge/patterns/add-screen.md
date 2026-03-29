@@ -22,19 +22,15 @@
 - Add a lazy import and `<Stack.Screen>` entry in the relevant navigator
 - If adding to onboarding flow, update `OnboardingStackParamList` and wire navigation from the preceding/following screens
 
-### 3. Update screenRegistry
-- Add screen to `maestro/generator/screenRegistry.ts` with testIDs, buttons, alerts
-- Run `pnpm maestro:generate`
-
-### 4. Tests
+### 3. Tests
+- Update `e2e/mobile/full-e2e.test.ts` if the screen is part of a tested journey
 - `e2e/tests/<screen>.spec.ts` — Playwright E2E (add mock if new native module)
 - `__tests__/screens/<domain>/<ScreenName>.test.tsx` — unit test
 
 ## Checklist
 - [ ] Screen folder matches file name (`<Name>/<Name>.tsx`)
-- [ ] testIDs on all interactive elements
+- [ ] testIDs on all interactive elements (declared in `testIDs.ts`)
 - [ ] accessibilityRole on all Pressable/TouchableOpacity
 - [ ] Hook extracted if 3+ useState
 - [ ] Registered in navigator with typed route
-- [ ] Added to screenRegistry + maestro:generate
 - [ ] E2E and unit tests pass
