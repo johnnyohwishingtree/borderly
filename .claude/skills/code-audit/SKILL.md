@@ -63,7 +63,20 @@ Also check general CLAUDE.md health:
 - `.context/` or `__tests__/structure/` or `.claude/` path references pointing to files that don't exist
 - README commands that don't match actual CLI behavior
 
-## Step 4: Classify each finding
+## Step 4: Discover unenforced patterns
+
+Look for "every X has a Y" patterns in the codebase that aren't covered by structural tests:
+
+- Every screen directory has a CLAUDE.md → is this enforced?
+- Every hook is exported from its barrel → is this enforced?
+- Every store has a types file → is this enforced?
+- Every new entity (screen, service, store) follows the same structure → is this enforced?
+
+For each discovered pattern, check if a structural test in `__tests__/structure/` already covers it. If not, and the pattern holds across 3+ instances, write a new structural test with a `Constraint:` JSDoc header. The test IS the recipe — next time someone adds a screen without a CLAUDE.md, the test fails and tells them what's missing.
+
+This is how design patterns become permanent constraints: the audit discovers them from existing code, writes the test, and the test prevents deviation going forward.
+
+## Step 5: Classify each finding
 
 For every violation, decide what type of finding it is:
 
@@ -81,7 +94,7 @@ For every violation, decide what type of finding it is:
 
 Don't blindly flag violations — understand whether reality or the constraint is wrong.
 
-## Step 5: Capture learnings
+## Step 6: Capture learnings
 
 1. **Invalidated specs** → write a colocated `*.spec.test.ts` with `test.skip` asserting the correct state
 2. **New constraints** → write structural test with Constraint JSDoc header
@@ -90,7 +103,7 @@ Don't blindly flag violations — understand whether reality or the constraint i
 
 Every finding traces to a constraint (what SHOULD BE) vs current code (what IS). The gap becomes a failing test.
 
-## Step 6: Write failing tests for violations (if not --dry-run)
+## Step 7: Write failing tests for violations (if not --dry-run)
 
 For each violation found, write a failing test that asserts the correct state:
 
@@ -113,7 +126,7 @@ test.skip('TripCard does not import stores', () => {
 });
 ```
 
-## Step 7: Verify and commit
+## Step 8: Verify and commit
 
 Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts` if code was changed.
 
