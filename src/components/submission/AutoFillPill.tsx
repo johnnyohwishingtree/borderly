@@ -77,7 +77,7 @@ export function AutoFillPill({
 
         {/* Single profile label (shown when only one profile) */}
         {!showProfileSelector && profiles.length === 1 && (
-          <Text className="text-[13px] text-gray-500 mb-3" testID={AUTOFILL_PILL_IDS.singleProfile.id}>
+          <Text className="text-sm text-gray-500 mb-3" testID={AUTOFILL_PILL_IDS.singleProfile.id}>
             Fill as: {profiles[0].name} ({profiles[0].relationship})
           </Text>
         )}

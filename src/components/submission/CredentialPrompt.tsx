@@ -105,7 +105,7 @@ export function CredentialPrompt({
 
           {/* Title */}
           <Text
-            className="text-[17px] font-semibold text-gray-900 mb-1.5"
+            className="text-lg font-semibold text-gray-900 mb-1.5"
             testID={CREDENTIAL_PROMPT_IDS.title.id}
           >
             {resolvedTitle}
@@ -113,7 +113,7 @@ export function CredentialPrompt({
 
           {/* Subtitle */}
           <Text
-            className="text-[13px] text-gray-500 leading-[18px] mb-5"
+            className="text-sm text-gray-500 leading-5 mb-5"
             testID={CREDENTIAL_PROMPT_IDS.subtitle.id}
           >
             {resolvedSubtitle}
@@ -122,11 +122,11 @@ export function CredentialPrompt({
           <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={false}>
             {/* Username / email field */}
             <View className="mb-3">
-              <Text className="text-[13px] font-medium text-gray-700 mb-1">
+              <Text className="text-sm font-medium text-gray-700 mb-1">
                 Email / Username
               </Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-2.5 text-[15px] text-gray-900 bg-gray-50"
+                className="border border-gray-300 rounded-lg px-3 py-2.5 text-base text-gray-900 bg-gray-50"
                 value={username}
                 onChangeText={setUsername}
                 placeholder="you@example.com"
@@ -142,7 +142,7 @@ export function CredentialPrompt({
 
             {/* Password field */}
             <View className="mb-5">
-              <Text className="text-[13px] font-medium text-gray-700 mb-1">
+              <Text className="text-sm font-medium text-gray-700 mb-1">
                 Password
               </Text>
               <View className="relative">
@@ -180,7 +180,7 @@ export function CredentialPrompt({
                 testID={CREDENTIAL_PROMPT_IDS.skip.id}
                 accessibilityLabel="Skip saving credentials"
               >
-                <Text className="text-[15px] font-medium text-gray-700">Skip</Text>
+                <Text className="text-base font-medium text-gray-700">Skip</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -190,7 +190,7 @@ export function CredentialPrompt({
                 testID={CREDENTIAL_PROMPT_IDS.save.id}
                 accessibilityLabel="Save credentials securely"
               >
-                <Text className="text-[15px] font-semibold text-white">
+                <Text className="text-base font-semibold text-white">
                   Save securely 🔒
                 </Text>
               </TouchableOpacity>

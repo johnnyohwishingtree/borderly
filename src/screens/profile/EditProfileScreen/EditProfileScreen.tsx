@@ -32,7 +32,7 @@ export default function EditProfileScreen() {
 
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
-    <ScrollView className="flex-1">
+    <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">

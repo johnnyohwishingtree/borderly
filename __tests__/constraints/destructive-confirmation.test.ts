@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Destructive actions (delete, remove, clear data) must show a confirmation
+ * Constraint: Destructive Confirmation
+ *
+ * Scope: src/hooks/, src/screens/ (delete, remove, clear data) must show a confirmation
  * dialog before executing.
  * Constraint candidate — applies to all hooks and screens.
  *
@@ -31,7 +33,7 @@ function getAllTsFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('destructive actions show confirmation before executing', () => {
+test('destructive actions show confirmation before executing', () => {
   const files = [
     ...getAllTsFiles(resolve(ROOT, 'src/hooks')),
     ...getAllTsFiles(resolve(ROOT, 'src/screens')),

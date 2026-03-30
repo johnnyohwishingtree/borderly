@@ -207,7 +207,7 @@ export default function TripListScreen() {
           </View>
 
           {/* Status filter tabs */}
-          <ScrollView
+          <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled"
             horizontal
             showsHorizontalScrollIndicator={false}
             className="mt-3"

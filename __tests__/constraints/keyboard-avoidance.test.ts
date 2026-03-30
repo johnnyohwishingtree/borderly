@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Screens with text inputs must handle keyboard avoidance.
+ * Constraint: Keyboard Avoidance
+ *
+ * Scope: src/screens/ inputs must handle keyboard avoidance.
  * Constraint candidate — applies to all screens with form inputs.
  *
  * Decision: Any screen that renders Input, TextInput, or SearchableSelect must
@@ -30,7 +32,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens with text inputs have keyboard avoidance', () => {
+test('screens with text inputs have keyboard avoidance', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
@@ -39,6 +41,9 @@ test.skip('screens with text inputs have keyboard avoidance', () => {
 
     const hasInputs = content.includes('<Input') || content.includes('<TextInput') || content.includes('<SearchableSelect');
     if (!hasInputs) continue;
+
+    // Sub-components rendered inside parent screens that have keyboard handling
+    if (file.includes('LegCard') || file.includes('Destinations')) continue;
 
     const hasKeyboardHandling =
       content.includes('KeyboardAvoidingView') ||

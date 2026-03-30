@@ -51,7 +51,7 @@ export function ProfileSelector({
         testID={PROFILE_SELECTOR_IDS.trigger.id}
       >
         <User size={14} color="#6B7280" />
-        <Text className="flex-1 text-[13px] text-gray-700 font-medium" numberOfLines={1} testID={PROFILE_SELECTOR_IDS.label.id}>
+        <Text className="flex-1 text-sm text-gray-700 font-medium" numberOfLines={1} testID={PROFILE_SELECTOR_IDS.label.id}>
           {displayLabel}
         </Text>
         {isOpen ? (
@@ -83,7 +83,7 @@ export function ProfileSelector({
                 testID={PROFILE_SELECTOR_IDS.option(profile.id).id}
               >
                 <Text
-                  className={`flex-1 text-[13px] ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
+                  className={`flex-1 text-sm ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
                   numberOfLines={1}
                 >
                   {profile.name} ({profile.relationship})

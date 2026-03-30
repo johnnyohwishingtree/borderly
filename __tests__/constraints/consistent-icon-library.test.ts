@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: All icons must come from lucide-react-native. No mixing icon libraries.
+ * Constraint: Consistent Icon Library
+ *
+ * Scope: src/ must come from lucide-react-native. No mixing icon libraries.
  * Constraint candidate — applies to all source files.
  *
  * Decision: Lucide icons only — consistent visual weight, tree-shakeable, works
@@ -40,7 +42,7 @@ const FORBIDDEN_ICON_IMPORTS = [
   'AntDesign',
 ];
 
-test.skip('no non-Lucide icon library imports', () => {
+test('no non-Lucide icon library imports', () => {
   const files = getAllSourceFiles(resolve(ROOT, 'src'));
   const violations: string[] = [];
 

@@ -37,7 +37,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
 
   return (
     <ScreenContainer className="bg-gray-50">
-    <ScrollView className="flex-1">
+    <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">

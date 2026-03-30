@@ -137,7 +137,7 @@ export function QRSaveOverlay({
                 QR Code Detected
               </Text>
             )}
-            <Text className="text-[13px] text-gray-500 mt-0.5" testID={QR_SAVE_OVERLAY_IDS.subtitle.id}>
+            <Text className="text-sm text-gray-500 mt-0.5" testID={QR_SAVE_OVERLAY_IDS.subtitle.id}>
               {overlayState === 'saved'
                 ? `Saved from ${portalName} to your QR Wallet`
                 : `${portalName} generated a QR code`}
@@ -185,7 +185,7 @@ export function QRSaveOverlay({
         {/* Error message */}
         {overlayState === 'error' && errorMessage && (
           <View className="mx-5 mb-3 bg-red-50 rounded-lg p-3 border border-red-200" testID={QR_SAVE_OVERLAY_IDS.error.id}>
-            <Text className="text-[13px] text-red-900">{errorMessage}</Text>
+            <Text className="text-sm text-red-900">{errorMessage}</Text>
           </View>
         )}
 
@@ -201,7 +201,7 @@ export function QRSaveOverlay({
                 accessibilityLabel="Open QR wallet"
                 testID={QR_SAVE_OVERLAY_IDS.openWalletButton.id}
               >
-                <Text className="text-white font-bold text-[15px]">Open QR Wallet</Text>
+                <Text className="text-white font-bold text-base">Open QR Wallet</Text>
               </Pressable>
               <Pressable
                 onPress={onDismiss}
@@ -211,7 +211,7 @@ export function QRSaveOverlay({
                 accessibilityLabel="Back to trip"
                 testID={QR_SAVE_OVERLAY_IDS.backToTripButton.id}
               >
-                <Text className="text-gray-700 font-semibold text-[15px]">Back to Trip</Text>
+                <Text className="text-gray-700 font-semibold text-base">Back to Trip</Text>
               </Pressable>
             </>
           ) : (
@@ -234,7 +234,7 @@ export function QRSaveOverlay({
                 <View className="mr-2">
                   <Download size={18} color="#FFFFFF" />
                 </View>
-                <Text className="text-white font-bold text-[15px]">
+                <Text className="text-white font-bold text-base">
                   {overlayState === 'saving' ? 'Saving…' : 'Save QR to Wallet'}
                 </Text>
               </Pressable>
@@ -247,7 +247,7 @@ export function QRSaveOverlay({
                 accessibilityLabel="Skip saving QR code"
                 testID={QR_SAVE_OVERLAY_IDS.skipButton.id}
               >
-                <Text className="text-gray-500 font-semibold text-[15px]">
+                <Text className="text-gray-500 font-semibold text-base">
                   {overlayState === 'error' ? 'Skip (Screenshot Manually)' : 'Skip'}
                 </Text>
               </Pressable>
