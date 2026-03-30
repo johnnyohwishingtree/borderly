@@ -37,7 +37,7 @@ gh pr list --repo $REPO --state open --json number,title --jq '.[]'
 ## Step 2: Find skipped belief tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/beliefs/ 2>/dev/null
+grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/ 2>/dev/null | grep "\.beliefs\." | head -10
 ```
 
 If no skipped tests found → skip to **Step 7**.

@@ -20,7 +20,7 @@ This is the interactive version of what `/pipeline` does autonomously.
 ## Step 1: Find skipped tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip" __tests__/beliefs/ 2>/dev/null
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.beliefs\."
 ```
 
 If a specific test was provided, use that. Otherwise pick the first one found.

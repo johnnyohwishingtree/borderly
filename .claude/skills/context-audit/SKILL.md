@@ -98,9 +98,10 @@ For stale schemas: create a GitHub issue noting which schema is overdue.
 Read `src/config/beliefs.ts`. For each belief:
 - `hypothesis` status older than 60 days → flag for re-evaluation
 - Code changes that confirm or invalidate a `working` belief → update status
+- Beliefs with status `confirmed` → check if a structural test enforces them (if not, write one)
 - Beliefs no longer referenced by any code → flag for removal
 
-## Step 4: Constraint coverage
+## Step 5: Constraint coverage
 
 Run `pnpm jest --ci __tests__/structure/knowledge-test-coverage.test.ts`.
 

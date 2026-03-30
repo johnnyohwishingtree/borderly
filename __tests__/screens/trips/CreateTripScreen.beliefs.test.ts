@@ -13,7 +13,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-const ROOT = resolve(__dirname, '../..');
+const ROOT = resolve(__dirname, '../../..');
 
 describe('Belief: trip creation should be lightweight', () => {
   it('CreateTripScreen LegCard does not have flight detail fields', () => {

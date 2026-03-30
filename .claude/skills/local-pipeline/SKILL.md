@@ -31,7 +31,7 @@ All subsequent steps run inside `$WORKTREE_DIR`.
 ## Step 2: Find skipped belief tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip" __tests__/beliefs/ 2>/dev/null
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.beliefs\."
 ```
 
 If no skipped tests → skip to **Step 6**.
