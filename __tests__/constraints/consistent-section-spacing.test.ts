@@ -4,7 +4,11 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Top-level section spacing should use a consistent mb class.
+ * Constraint: Consistent Section Spacing
+ *
+ * Scope: src/screens/
+ *
+ * REQUIRE: Card sections use mb-4 or mb-6 spacing should use a consistent mb class.
  * Constraint candidate — applies to all screens.
  *
  * Decision: mb-6 (24px) between major sections, mb-4 (16px) for subsections.
@@ -26,7 +30,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('Card components use mb-4 or mb-6 for section spacing', () => {
+test('Card components use mb-4 or mb-6 for section spacing', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 

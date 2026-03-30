@@ -179,7 +179,7 @@ export default function LegFormScreen() {
           title="Save Progress"
           onPress={handleSaveForm}
           variant={isValid ? 'outline' : 'primary'}
-          size="medium"
+          size="large"
           fullWidth
           loading={isSubmitting}
           disabled={Object.keys(formData).length === 0}
@@ -203,9 +203,9 @@ export default function LegFormScreen() {
                   Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
                 }
               }}
-              variant="primary"
+              variant="outline"
               testID="submit-in-app-button"
-              size="medium"
+              size="large"
               fullWidth
             />
           </View>
@@ -218,9 +218,9 @@ export default function LegFormScreen() {
                 countryCode: leg.destinationCountry,
               });
             }}
-            variant="secondary"
+            variant="outline"
             testID="open-submission-guide-button"
-            size="medium"
+            size="large"
           />
         </View>
       </View>

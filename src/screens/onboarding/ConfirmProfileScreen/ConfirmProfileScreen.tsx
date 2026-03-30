@@ -130,7 +130,7 @@ export default function ConfirmProfileScreen() {
           </View>
         </Card>
 
-        <Card variant="outlined" className="mb-8 border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
+        <Card variant="outlined" className="mb-6 border-2 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10">
           <View className="flex-row items-start">
             <View className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg items-center justify-center mr-4 mt-1">
               <Lock size={24} color="#16a34a" />

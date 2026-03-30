@@ -16,10 +16,7 @@ import {
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
 import { WELCOME_IDS } from './testIDs';
-import { Button } from '@/components/ui/gluestack/button';
-import { Card } from '@/components/ui/gluestack/card';
-import { Icon } from '@/components/ui/gluestack/icon';
-import { ProgressBar, ScreenContainer } from '@/components/ui';
+import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import CountryFlag from '@/components/trips/CountryFlag';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import { useTheme } from '@/utils/theme';
@@ -57,7 +54,7 @@ export default function WelcomeScreen() {
             accessibilityLabel="Borderly app icon"
             accessibilityRole="image"
           >
-            <Icon as={Globe} size={40} color="white" />
+            <Globe size={40} color="white" />
           </View>
 
           <Text className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-1" accessibilityRole="header">
@@ -75,7 +72,7 @@ export default function WelcomeScreen() {
         <Card variant="elevated" className="mb-4 p-0 overflow-hidden">
           <View className="bg-primary-600 p-6">
             <View className="flex-row items-center mb-2">
-              <Icon as={Plane} size={20} color="white" className="mr-2" />
+              <Plane size={20} color="white" style={{ marginRight: 8 }} />
               <Text className="text-xl font-bold text-white">
                 Fill Once, Travel Everywhere
               </Text>
@@ -88,7 +85,7 @@ export default function WelcomeScreen() {
           <View className="p-6 space-y-6">
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Lock} size={20} color={colors.success} />
+                <Lock size={20} color={colors.success} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Private & Secure</Text>
@@ -97,7 +94,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Smartphone} size={20} color={colors.accent} />
+                <Smartphone size={20} color={colors.accent} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Works Offline</Text>
@@ -106,7 +103,7 @@ export default function WelcomeScreen() {
             </View>
             <View className="flex-row items-center">
               <View className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-4">
-                <Icon as={Zap} size={20} color={colors.accent} />
+                <Zap size={20} color={colors.accent} />
               </View>
               <View>
                 <Text className="text-gray-900 dark:text-white font-semibold">Lightning Fast</Text>
@@ -126,12 +123,12 @@ export default function WelcomeScreen() {
           <Card variant="outlined" className="bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <Icon as={Globe} size={20} color={colors.textPrimary} className="mr-2" />
+                <Globe size={20} color={colors.textPrimary} className="mr-2" />
                 <Text className="text-base font-semibold text-gray-900 dark:text-white">
                   {SUPPORTED_COUNTRIES.length} Countries Supported
                 </Text>
               </View>
-              <Icon as={showCountries ? ChevronUp : ChevronDown} size={20} color={colors.textSecondary} />
+              {showCountries ? <ChevronUp size={20} color={colors.textSecondary} /> : <ChevronDown size={20} color={colors.textSecondary} />}
             </View>
             {showCountries && (
               <View className="flex-row flex-wrap justify-around mt-4">
@@ -149,7 +146,7 @@ export default function WelcomeScreen() {
         {/* Privacy notice */}
         <Card variant="outlined" className="mb-4 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10">
           <View className="flex-row items-start">
-            <Icon as={ShieldCheck} size={24} color={colors.success} className="mr-3" />
+            <ShieldCheck size={24} color={colors.success} className="mr-3" />
             <View className="flex-1">
               <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
                 Privacy First
@@ -168,8 +165,8 @@ export default function WelcomeScreen() {
       <Button
         title="Get Started"
         onPress={handleGetStarted}
-        size="lg"
-        className="mb-3"
+        size="large"
+        fullWidth
         testID={WELCOME_IDS.takeTutorialButton.id}
       />
       <Pressable
@@ -181,7 +178,7 @@ export default function WelcomeScreen() {
         accessibilityHint="If you have a .borderly backup file, tap here to restore your data"
         className="flex-row items-center justify-center py-2"
       >
-        <Icon as={UploadCloud} size={16} color="#6b7280" />
+        <UploadCloud size={16} color="#6b7280" />
         <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
           Already have a backup?{' '}
           <Text className="text-primary-600 font-medium">Restore</Text>

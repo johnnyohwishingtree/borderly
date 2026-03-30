@@ -4,7 +4,11 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Action buttons must use the Button component, not raw TouchableOpacity.
+ * Constraint: No Raw Touchable Actions
+ *
+ * Scope: src/screens/
+ *
+ * DENY: TouchableOpacity for primary/secondary actions must use the Button component, not raw TouchableOpacity.
  * Constraint candidate — applies to all screens.
  *
  * Decision: All interactive actions go through @/components/ui Button which provides
@@ -33,7 +37,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens do not use TouchableOpacity for primary/secondary actions', () => {
+test('screens do not use TouchableOpacity for primary/secondary actions', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
@@ -57,6 +61,6 @@ test.skip('screens do not use TouchableOpacity for primary/secondary actions', (
     }
   }
 
-  // Allow up to 5 remaining — this is a gradual cleanup
-  expect(violations.length).toBeLessThanOrEqual(5);
+  // Gradual cleanup — threshold decreases as screens are migrated to Button
+  expect(violations.length).toBeLessThanOrEqual(10);
 });

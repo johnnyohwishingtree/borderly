@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Footer CTA buttons must use consistent design tokens.
+ * Constraint: Footer Button Tokens
+ *
+ * Scope: src/screens/ buttons must use consistent design tokens.
  * Constraint candidate — applies to all screens with footer CTAs.
  *
  * Decision: Footer primary CTAs are always variant="primary" size="large" fullWidth.
@@ -27,7 +29,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('footer buttons use size="large" not size="medium" or size="small"', () => {
+test('footer buttons use size="large" not size="medium" or size="small"', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
@@ -40,14 +42,19 @@ test.skip('footer buttons use size="large" not size="medium" or size="small"', (
 
     const footerContent = content.slice(scrollClose);
 
-    // Check for Button with size="medium" or size="small" in footer
-    const mediumInFooter = footerContent.match(/size=["']medium["']/g);
-    const smallInFooter = footerContent.match(/size=["']small["']/g);
+    // Check for Button components with size="medium" or size="small" in footer
+    const footerLines = footerContent.split('\n');
+    let inButton = false;
+    let nonLargeCount = 0;
+    for (const line of footerLines) {
+      if (line.includes('<Button')) inButton = true;
+      if (inButton && /size=["'](medium|small)["']/.test(line)) nonLargeCount++;
+      if (line.includes('/>') || line.includes('</Button>')) inButton = false;
+    }
 
-    if (mediumInFooter || smallInFooter) {
+    if (nonLargeCount > 0) {
       const relative = file.replace(ROOT + '/', '');
-      const count = (mediumInFooter?.length || 0) + (smallInFooter?.length || 0);
-      violations.push(`${relative} (${count} non-large buttons in footer)`);
+      violations.push(`${relative} (${nonLargeCount} non-large buttons in footer)`);
     }
   }
 

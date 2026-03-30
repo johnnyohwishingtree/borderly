@@ -37,6 +37,8 @@ jest.mock('lucide-react-native', () => {
     ShieldCheck: Icon,
     HelpCircle: Icon,
     UploadCloud: Icon,
+    ChevronDown: Icon,
+    ChevronUp: Icon,
   };
 });
 
@@ -46,6 +48,8 @@ jest.mock('../../../src/components/ui', () => {
     Button: ({ title, onPress, testID }: { title: string; onPress?: () => void; testID?: string }) =>
       React.createElement('TouchableOpacity', { onPress, testID },
         React.createElement('Text', null, title)),
+    Card: ({ children, ...props }: any) =>
+      React.createElement('View', props, children),
     ProgressBar: ({ accessibilityLabel, className }: { progress: number; accessibilityLabel?: string; className?: string }) =>
       React.createElement('View', { testID: 'progress-bar', accessibilityLabel, className }),
     ScreenContainer: ({ children, ...props }: any) =>
@@ -53,29 +57,6 @@ jest.mock('../../../src/components/ui', () => {
   };
 });
 
-jest.mock('../../../src/components/ui/gluestack/card', () => {
-  const React = require('react');
-  return {
-    Card: ({ children, ...props }: any) =>
-      React.createElement('View', props, children),
-  };
-});
-
-jest.mock('../../../src/components/ui/gluestack/icon', () => {
-  const React = require('react');
-  return {
-    Icon: ({ testID }: { testID?: string }) => React.createElement('View', { testID }),
-  };
-});
-
-jest.mock('../../../src/components/ui/gluestack/button', () => {
-  const React = require('react');
-  return {
-    Button: ({ title, onPress, testID }: { title: string; onPress?: () => void; testID?: string }) =>
-      React.createElement('TouchableOpacity', { onPress, testID },
-        React.createElement('Text', null, title)),
-  };
-});
 
 jest.mock('../../../src/components/trips/CountryFlag', () => {
   const React = require('react');

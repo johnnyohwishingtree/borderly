@@ -4,7 +4,11 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Content cards should use consistent variant tokens.
+ * Constraint: Consistent Card Variants
+ *
+ * Scope: src/screens/
+ *
+ * DENY: More than 2 distinct Card variants per screen should use consistent variant tokens.
  * Constraint candidate — applies to all screens.
  *
  * Decision: Two Card variants for content:
@@ -30,7 +34,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens use at most 2 Card variants', () => {
+test('screens use at most 2 Card variants', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 

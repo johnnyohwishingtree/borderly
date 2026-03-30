@@ -4,7 +4,11 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: No screen or component should import from gluestack wrappers.
+ * Constraint: No Gluestack Wrapper Imports
+ *
+ * Scope: src/screens/, src/components/
+ *
+ * DENY: Imports from ui/gluestack/ wrapper directory or component should import from gluestack wrappers.
  * Constraint candidate — applies to all source files.
  *
  * Decision: Standardize on custom @/components/ui components (35+ production-hardened
@@ -26,7 +30,7 @@ function getAllTsxFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('no imports from gluestack wrappers', () => {
+test('no imports from gluestack wrappers', () => {
   const files = [
     ...getAllTsxFiles(resolve(ROOT, 'src/screens')),
     ...getAllTsxFiles(resolve(ROOT, 'src/components')),
@@ -35,7 +39,7 @@ test.skip('no imports from gluestack wrappers', () => {
   const violations: string[] = [];
   for (const file of files) {
     const content = readFileSync(file, 'utf-8');
-    if (content.includes('from') && content.includes('gluestack')) {
+    if (content.includes('ui/gluestack/')) {
       const relative = file.replace(ROOT + '/', '');
       violations.push(relative);
     }
@@ -44,6 +48,6 @@ test.skip('no imports from gluestack wrappers', () => {
   expect(violations).toEqual([]);
 });
 
-test.skip('gluestack wrapper directory does not exist', () => {
+test('gluestack wrapper directory does not exist', () => {
   expect(existsSync(resolve(ROOT, 'src/components/ui/gluestack'))).toBe(false);
 });
