@@ -6,8 +6,8 @@
  * ALLOW: screens → hooks, stores, services, components
  * ALLOW: hooks → stores, services
  * ALLOW: stores → services, own types/helpers (relative imports)
- * ALLOW: components → props only
- * DENY:  components → stores (receive data via props)
+ * ALLOW: components → services (types, utilities, data access)
+ * DENY:  components → stores (receive state via props, not direct store access)
  * DENY:  services → stores (accept state as parameters)
  * DENY:  stores → other stores (coordinate in hooks)
  *
