@@ -55,7 +55,7 @@ export default function BoardingPassScanner({
           <Button
             title="Open Settings"
             onPress={() => Linking.openSettings()}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
         )}
@@ -73,7 +73,7 @@ export default function BoardingPassScanner({
           <Button
             title="Import from Photo"
             onPress={import_.handleImageImport}
-            variant="outline"
+            variant="secondary"
             fullWidth
             disabled={import_.isImporting}
           />
@@ -82,7 +82,7 @@ export default function BoardingPassScanner({
           <Button
             title="Enter Manually Instead"
             onPress={onManualEntry}
-            variant={isDenied ? 'primary' : 'outline'}
+            variant={isDenied ? 'primary' : 'secondary'}
             fullWidth
             disabled={import_.isImporting}
           />
@@ -170,7 +170,7 @@ export default function BoardingPassScanner({
           <Button
             title="Cancel"
             onPress={onScanCancel}
-            variant="outline"
+            variant="secondary"
             size="medium"
             disabled={import_.isImporting}
           />
@@ -212,7 +212,7 @@ export default function BoardingPassScanner({
           <Button
             title="Manual"
             onPress={onManualEntry}
-            variant="outline"
+            variant="secondary"
             size="medium"
             disabled={import_.isImporting}
           />

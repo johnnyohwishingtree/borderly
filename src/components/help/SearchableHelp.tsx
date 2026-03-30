@@ -415,7 +415,7 @@ export default function SearchableHelp({
                     onNavigate?.('help', 'main');
                     onClose();
                   }}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                 />
               </View>

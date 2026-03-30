@@ -184,7 +184,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
                 <Button
                   title="Edit"
                   onPress={onEdit}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                   accessibilityLabel={`Edit ${memberFullName}`}
                   accessibilityHint="Opens edit form for this family member"
@@ -196,7 +196,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
                 <Button
                   title="Remove"
                   onPress={onRemove}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                   accessibilityLabel={`Remove ${memberFullName}`}
                   accessibilityHint="Removes this family member from your profile"

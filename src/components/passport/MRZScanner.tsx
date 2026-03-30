@@ -58,7 +58,7 @@ export default function MRZScannerComponent({
           <Button
             title="Open Settings"
             onPress={() => Linking.openSettings()}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
         )}
@@ -76,7 +76,7 @@ export default function MRZScannerComponent({
           <Button
             title="Enter Manually Instead"
             onPress={onManualEntry}
-            variant={isDenied ? 'primary' : 'outline'}
+            variant={isDenied ? 'primary' : 'secondary'}
             fullWidth
           />
         </View>
@@ -185,7 +185,7 @@ export default function MRZScannerComponent({
           <Button
             title="Cancel"
             onPress={onScanCancel}
-            variant="outline"
+            variant="secondary"
             size="medium"
           />
 
@@ -208,7 +208,7 @@ export default function MRZScannerComponent({
           <Button
             title="Manual"
             onPress={onManualEntry}
-            variant="outline"
+            variant="secondary"
             size="medium"
           />
         </View>

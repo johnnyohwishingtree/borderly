@@ -191,7 +191,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                   <Button
                     title="Clear"
                     onPress={clearSearch}
-                    variant="outline"
+                    variant="secondary"
                     size="small"
                   />
                 </View>
@@ -218,7 +218,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                 key={category.value}
                 title={category.label}
                 onPress={() => setSelectedCategory(category.value)}
-                variant={selectedCategory === category.value ? "primary" : "outline"}
+                variant={selectedCategory === category.value ? "primary" : "secondary"}
                 size="small"
               />
             ))}
@@ -256,7 +256,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                 <Button
                   title="Clear Search"
                   onPress={clearSearch}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                 />
               )}
@@ -268,7 +268,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
-                    variant="outline"
+                    variant="secondary"
                     fullWidth
                   />
                   
@@ -303,7 +303,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               onPress={() => {
                 // This would navigate to user guide or open documentation
               }}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
@@ -311,7 +311,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               onPress={() => {
                 // This would navigate to troubleshooting screen
               }}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
@@ -319,7 +319,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
               onPress={() => {
                 // This would navigate to feedback screen
               }}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button

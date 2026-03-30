@@ -58,7 +58,7 @@ export default function QRDetailScreen() {
         <Button
           title="Go Back"
           onPress={() => navigation.goBack()}
-          variant="outline"
+          variant="secondary"
         />
       </View>
     );

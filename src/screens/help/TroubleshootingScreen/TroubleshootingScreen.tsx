@@ -66,7 +66,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
               />
               {searchTerm.length > 0 && (
                 <View className="absolute right-2 top-2">
-                  <Button title="Clear" onPress={clearSearch} variant="outline" size="small" />
+                  <Button title="Clear" onPress={clearSearch} variant="secondary" size="small" />
                 </View>
               )}
             </View>
@@ -89,7 +89,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
                 key={cat.value}
                 title={cat.label}
                 onPress={() => setSelectedCategory(cat.value)}
-                variant={selectedCategory === cat.value ? 'primary' : 'outline'}
+                variant={selectedCategory === cat.value ? 'primary' : 'secondary'}
                 size="small"
               />
             ))}
@@ -107,7 +107,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
             <View className="bg-gray-50 p-6 rounded-lg text-center">
               <Text className="text-lg text-gray-600 mb-2">No issues found</Text>
               <Text className="text-sm text-gray-500 mb-4">Try different search terms or browse categories</Text>
-              <Button title="Clear Search" onPress={clearSearch} variant="outline" size="small" />
+              <Button title="Clear Search" onPress={clearSearch} variant="secondary" size="small" />
             </View>
           ) : (
             <View className="space-y-3">
@@ -121,7 +121,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
                     <Button
                       title={expandedIssue === issue.id ? 'Hide Solutions' : 'Show Solutions'}
                       onPress={() => toggleIssue(issue.id)}
-                      variant="outline"
+                      variant="secondary"
                       size="small"
                       fullWidth
                     />
@@ -163,9 +163,9 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
         <Card>
           <Text className="text-lg font-semibold text-gray-900 mb-4">Still Having Issues?</Text>
           <View className="space-y-3">
-            <Button title="View FAQ" onPress={() => {}} variant="outline" fullWidth />
-            <Button title="User Guide" onPress={() => {}} variant="outline" fullWidth />
-            <Button title="Send Feedback" onPress={() => {}} variant="outline" fullWidth />
+            <Button title="View FAQ" onPress={() => {}} variant="secondary" fullWidth />
+            <Button title="User Guide" onPress={() => {}} variant="secondary" fullWidth />
+            <Button title="Send Feedback" onPress={() => {}} variant="secondary" fullWidth />
             <Button title="Contact Support" onPress={handleContactSupport} variant="primary" fullWidth />
           </View>
         </Card>

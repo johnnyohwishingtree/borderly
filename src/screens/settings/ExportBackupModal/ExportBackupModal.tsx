@@ -251,7 +251,7 @@ export default function ExportBackupModal({
             <Button
               title="Cancel"
               onPress={handleClose}
-              variant="outline"
+              variant="secondary"
               size="medium"
               fullWidth
               accessibilityLabel="Cancel and close backup modal"

@@ -127,7 +127,7 @@ export function ErrorMessage({
           <Button
             title="Dismiss"
             onPress={onDismiss}
-            variant="outline"
+            variant="secondary"
             size={currentSize.button}
           />
         )}

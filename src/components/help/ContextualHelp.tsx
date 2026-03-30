@@ -180,7 +180,7 @@ export default function ContextualHelp({
                       key={index}
                       title={link.title}
                       onPress={() => handleLinkPress(link.action)}
-                      variant="outline"
+                      variant="secondary"
                       size="small"
                       fullWidth
                     />

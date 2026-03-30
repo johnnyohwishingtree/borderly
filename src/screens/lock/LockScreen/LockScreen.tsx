@@ -173,7 +173,7 @@ export default function LockScreen() {
         <Button
           title="Use PIN Instead"
           onPress={handlePinFallback}
-          variant="outline"
+          variant="secondary"
           size="large"
           fullWidth
           testID="lock-screen-pin-button"

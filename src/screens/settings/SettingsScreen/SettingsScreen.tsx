@@ -296,7 +296,7 @@ export default function SettingsScreen() {
               ))}
             </View>
           )}
-          <Button title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'} onPress={handleRefreshSchemas} variant="outline" fullWidth disabled={isRefreshingSchemas} testID={SETTINGS_IDS.refreshSchemasButton.id} />
+          <Button title={isRefreshingSchemas ? 'Checking for updates…' : 'Refresh Now'} onPress={handleRefreshSchemas} variant="secondary" fullWidth disabled={isRefreshingSchemas} testID={SETTINGS_IDS.refreshSchemasButton.id} />
           <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">Manually check for updated country form definitions</Text>
         </Card>
 
@@ -331,8 +331,8 @@ export default function SettingsScreen() {
         <Card>
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</Text>
           <View className="flex-row gap-3">
-            <View className="flex-1"><Button title="Refresh" onPress={handleRefreshSettings} variant="outline" fullWidth /></View>
-            <View className="flex-1"><Button title="Reset" onPress={handleResetSettings} variant="outline" fullWidth /></View>
+            <View className="flex-1"><Button title="Refresh" onPress={handleRefreshSettings} variant="secondary" fullWidth /></View>
+            <View className="flex-1"><Button title="Reset" onPress={handleResetSettings} variant="secondary" fullWidth /></View>
           </View>
         </Card>
 
@@ -343,10 +343,10 @@ export default function SettingsScreen() {
             <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">📞 Need Help?</Text>
             <Text className="text-xs text-gray-600 dark:text-gray-400 mb-3">Having issues with forms or need support with specific country requirements?</Text>
             <View className="space-y-2">
-              <Button title="Help & FAQ" onPress={() => navigation.navigate('Help')} variant="outline" size="small" fullWidth />
-              <Button title="Send Feedback" onPress={() => navigation.navigate('Feedback')} variant="outline" size="small" fullWidth />
-              <Button title="Report Bug" onPress={() => navigation.navigate('BugReport')} variant="outline" size="small" fullWidth />
-              <Button title="Privacy Policy" onPress={() => navigation.navigate('PrivacyPolicy')} variant="outline" size="small" fullWidth />
+              <Button title="Help & FAQ" onPress={() => navigation.navigate('Help')} variant="secondary" size="small" fullWidth />
+              <Button title="Send Feedback" onPress={() => navigation.navigate('Feedback')} variant="secondary" size="small" fullWidth />
+              <Button title="Report Bug" onPress={() => navigation.navigate('BugReport')} variant="secondary" size="small" fullWidth />
+              <Button title="Privacy Policy" onPress={() => navigation.navigate('PrivacyPolicy')} variant="secondary" size="small" fullWidth />
             </View>
           </View>
         </Card>

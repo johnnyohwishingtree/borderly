@@ -58,12 +58,12 @@ export default function AddQRScreen() {
                   <Button
                     title="Take Photo"
                     onPress={handleCameraCapture}
-                    variant="outline"
+                    variant="secondary"
                   />
                   <Button
                     title="Choose from Library"
                     onPress={handleLibraryImport}
-                    variant="outline"
+                    variant="secondary"
                   />
                 </View>
               </View>

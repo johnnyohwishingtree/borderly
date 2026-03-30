@@ -227,7 +227,7 @@ export default function EditProfileScreen() {
                     navigation.goBack();
                   }
                 }}
-                variant="outline"
+                variant="secondary"
                 fullWidth
               />
             </View>

@@ -173,7 +173,7 @@ export default function RatingPrompt({
                       key={star}
                       title={getRatingEmoji(star)}
                       onPress={() => handleRatingPress(star)}
-                      variant={rating >= star ? "primary" : "outline"}
+                      variant={rating >= star ? "primary" : "secondary"}
                       disabled={isSubmitting}
                     />
                   ))}
@@ -199,7 +199,7 @@ export default function RatingPrompt({
                 <Button
                   title="Maybe Later"
                   onPress={handleClose}
-                  variant="outline"
+                  variant="secondary"
                   disabled={isSubmitting}
                   fullWidth
                 />
@@ -247,7 +247,7 @@ export default function RatingPrompt({
                 <Button
                   title="No Thanks"
                   onPress={handleSkipDetailedFeedback}
-                  variant="outline"
+                  variant="secondary"
                   fullWidth
                 />
               </View>

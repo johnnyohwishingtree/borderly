@@ -38,7 +38,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           <Button
             title="Search All Help Topics"
             onPress={() => setIsSearchVisible(true)}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
         </Card>
@@ -51,19 +51,19 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
             <Button
               title="Frequently Asked Questions"
               onPress={() => (navigation as any).navigate('FAQ')}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
               title="Troubleshooting Guide"
               onPress={() => (navigation as any).navigate('Troubleshooting')}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
               title="User Guide"
               onPress={handleOpenDocumentation}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
           </View>
@@ -77,13 +77,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
             <Button
               title="Send Feedback"
               onPress={() => (navigation as any).navigate('Feedback')}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
               title="Report Bug"
               onPress={() => (navigation as any).navigate('BugReport')}
-              variant="outline"
+              variant="secondary"
               fullWidth
             />
             <Button
@@ -149,7 +149,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
-                    variant="outline"
+                    variant="secondary"
                     fullWidth
                   />
 

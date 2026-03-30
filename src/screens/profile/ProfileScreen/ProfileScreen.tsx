@@ -195,7 +195,7 @@ export default function ProfileScreen() {
             <Button
               title="Edit"
               onPress={() => navigation.navigate('EditProfile')}
-              variant="outline"
+              variant="secondary"
               size="small"
               testID={PROFILE_SCREEN_IDS.editContactButton.id}
             />

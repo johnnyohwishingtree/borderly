@@ -128,7 +128,7 @@ export default function LoadingStates({
             <Button
               title="Cancel"
               onPress={onCancel}
-              variant="outline"
+              variant="secondary"
               accessibilityLabel="Cancel"
             />
           )}

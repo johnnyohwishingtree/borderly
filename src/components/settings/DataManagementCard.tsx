@@ -65,7 +65,7 @@ export function DataManagementCard({
           <Button
             title="Export Data"
             onPress={onExportData}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
           <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
@@ -77,7 +77,7 @@ export function DataManagementCard({
           <Button
             title="Restore from Backup"
             onPress={onRestoreBackup}
-            variant="outline"
+            variant="secondary"
             fullWidth
             testID={DATA_MANAGEMENT_CARD_IDS.restoreBackupButton.id}
             accessibilityRole="button"
@@ -93,7 +93,7 @@ export function DataManagementCard({
           <Button
             title={`Clear Cache (${storageStats?.cacheSize})`}
             onPress={onClearCache}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
           <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
@@ -107,7 +107,7 @@ export function DataManagementCard({
           <Button
             title="Delete All Data"
             onPress={onDeleteAllData}
-            variant="outline"
+            variant="secondary"
             fullWidth
           />
           <Text className="text-xs text-red-600 mt-1 text-center">

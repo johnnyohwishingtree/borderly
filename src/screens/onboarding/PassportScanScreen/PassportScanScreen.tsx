@@ -312,7 +312,7 @@ export default function PassportScanScreen() {
                         key={option.value}
                         title={option.label}
                         onPress={() => onChange(option.value)}
-                        variant={value === option.value ? 'primary' : 'outline'}
+                        variant={value === option.value ? 'primary' : 'secondary'}
                         size="small"
                         testID={PASSPORT_SCAN_IDS.genderButton.dynamic.replace('{label}', option.label)}
                       />

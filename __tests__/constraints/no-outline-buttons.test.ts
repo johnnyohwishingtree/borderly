@@ -4,20 +4,19 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: No Button component should use variant="outline".
- * Constraint candidate — applies to all screens and components.
+ * Constraint: No Outline Buttons
  *
- * Decision: Buttons have two variants only — primary (solid fill) and secondary
+ * Scope: src/screens/, src/components/
+ *
+ * Decision: Buttons have two variants — primary (solid fill) and secondary
  *   (text-only, blue text). Outline is for non-button elements (cards, inputs).
- * Rejected: outline on Buttons — thick grey border looks like a form input,
- *   competes visually with primary, inconsistent across screens.
+ * Rejected: outline on Buttons — thick border looks like a form input.
  *
- * Note: Full sweep triggers a NativeWind style sheet compilation crash.
- * Implement in batches, testing E2E after each batch to isolate the
- * problematic file. See .context/external/tools/nativewind-border-shorthand.md
- *
- * Confirm: App looks cleaner with primary + text-only secondary everywhere
- * Invalidate: NativeWind crash cannot be isolated and requires keeping outline
+ * Exceptions:
+ * - PassportPreview.tsx — two adjacent outline buttons in a flex-row trigger a
+ *   NativeWind compilation crash when changed to secondary. Kept as outline
+ *   until the NativeWind bug is resolved.
+ *   See: .context/external/tools/nativewind-border-shorthand.md
  */
 
 function getAllTsxFiles(dir: string): string[] {
@@ -32,7 +31,9 @@ function getAllTsxFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('no Button components use variant="outline"', () => {
+const EXCEPTIONS = ['PassportPreview.tsx'];
+
+test('no Button components use variant="outline" (except known NativeWind bugs)', () => {
   const files = [
     ...getAllTsxFiles(resolve(ROOT, 'src/screens')),
     ...getAllTsxFiles(resolve(ROOT, 'src/components')),
@@ -41,10 +42,10 @@ test.skip('no Button components use variant="outline"', () => {
   const violations: string[] = [];
 
   for (const file of files) {
+    if (EXCEPTIONS.some(e => file.includes(e))) continue;
+
     const content = readFileSync(file, 'utf-8');
-    // Static variant="outline" on Button
     const staticMatches = [...content.matchAll(/<Button[^>]*variant=["']outline["']/g)];
-    // Dynamic variant with outline
     const dynamicMatches = [...content.matchAll(/variant=\{[^}]*["']outline["'][^}]*\}/g)];
 
     const count = staticMatches.length + dynamicMatches.length;

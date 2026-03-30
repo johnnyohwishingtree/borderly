@@ -138,7 +138,7 @@ export default function AddFamilyMemberScreen() {
               <Button
                 title="Enter Manually"
                 onPress={handleManualEntry}
-                variant="outline"
+                variant="secondary"
                 size="medium"
                 testID="enter-manually-family-button"
               />
