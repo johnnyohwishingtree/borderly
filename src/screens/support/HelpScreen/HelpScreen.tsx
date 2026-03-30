@@ -110,7 +110,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
                 key={category.value}
                 title={category.label}
                 onPress={() => setSelectedCategory(category.value)}
-                variant={selectedCategory === category.value ? "primary" : "outline"}
+                variant={selectedCategory === category.value ? "primary" : "secondary"}
                 size="small"
               />
             ))}

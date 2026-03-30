@@ -43,7 +43,7 @@ export default function FeedbackScreen() {
                   key={star}
                   title={getRatingEmoji(star)}
                   onPress={() => handleRatingPress(star)}
-                  variant={rating >= star ? "primary" : "outline"}
+                  variant={rating >= star ? "primary" : "secondary"}
                   size="small"
                 />
               ))}

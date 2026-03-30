@@ -274,7 +274,7 @@ export default function SubmissionGuideScreen() {
                 <Button
                   title="Complete Form"
                   onPress={() => navigation.goBack()}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                   fullWidth={true}
                 />
@@ -314,7 +314,7 @@ export default function SubmissionGuideScreen() {
                 <Button
                   title="Mark as Submitted"
                   onPress={handleMarkAsSubmitted}
-                  variant="outline"
+                  variant="secondary"
                   size="medium"
                   fullWidth={true}
                   loading={isSubmitting}
@@ -333,7 +333,7 @@ export default function SubmissionGuideScreen() {
                         travelerId: currentTraveler?.id,
                       });
                     }}
-                    variant="outline"
+                    variant="secondary"
                     size="medium"
                     fullWidth={false}
                     testID="save-qr-button"

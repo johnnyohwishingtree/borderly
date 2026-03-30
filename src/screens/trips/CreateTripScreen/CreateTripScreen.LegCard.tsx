@@ -76,7 +76,7 @@ export function CreateTripLegCard({
           <Button
             title="Remove"
             onPress={() => removeLeg(index)}
-            variant="outline"
+            variant="secondary"
             size="small"
             testID={CREATE_TRIP_IDS.removeLegButton.id.replace('${index}', String(index))}
           />

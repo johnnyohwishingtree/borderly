@@ -82,7 +82,7 @@ export default function TripDetailScreen() {
           <Button
             title="Go Back"
             onPress={() => navigation.goBack()}
-            variant="outline"
+            variant="secondary"
             testID={TRIP_DETAIL_IDS.goBackButton.id}
           />
         </View>

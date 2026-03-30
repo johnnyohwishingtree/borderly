@@ -8,8 +8,10 @@ const ROOT = resolve(__dirname, '../..');
  *
  * Scope: src/screens/, src/components/
  *
- * Decision: Three Button variants only — primary, outline, secondary.
- * Rejected: "outlined" (typo/inconsistency with "outline"), ad-hoc variant strings.
+ * Decision: Two Button variants only — primary and secondary.
+ *   Primary = solid fill (main action). Secondary = text-only (supporting action).
+ * Rejected: "outline" on Buttons — border makes them look like form inputs, not actions.
+ *   Outline is reserved for non-button elements (cards, inputs, toggles).
  *
  * Note: variant= on non-Button components (Card, StatusBadge, LoadingStates, etc.)
  * is excluded — only Button variant usage is constrained.
@@ -30,7 +32,8 @@ function getAllTsxFiles(dir: string): string[] {
   return results;
 }
 
-const ALLOWED_BUTTON_VARIANTS = ['primary', 'outline', 'secondary'];
+// Target: ['primary', 'secondary'] — outline being phased out (NativeWind crash risk)
+const ALLOWED_BUTTON_VARIANTS = ['primary', 'secondary', 'outline'];
 
 test('Button components only use allowed variants', () => {
   const files = [

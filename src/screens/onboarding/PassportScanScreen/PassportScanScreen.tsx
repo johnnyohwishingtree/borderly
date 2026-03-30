@@ -126,7 +126,7 @@ export default function PassportScanScreen() {
                 <Button
                   title="Dismiss"
                   onPress={() => ui.setShowPerformanceHint(false)}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                   testID={PASSPORT_SCAN_IDS.dismissPerformanceHintButton.id}
                 />
@@ -174,21 +174,21 @@ export default function PassportScanScreen() {
                   <Button
                     title="Demo: Adult"
                     onPress={() => scan.handleDemo('adult')}
-                    variant="outline"
+                    variant="secondary"
                     size="small"
                     testID={PASSPORT_SCAN_IDS.demoScanAdultButton.id}
                   />
                   <Button
                     title="Demo: Spouse"
                     onPress={() => scan.handleDemo('spouse')}
-                    variant="outline"
+                    variant="secondary"
                     size="small"
                     testID={PASSPORT_SCAN_IDS.demoScanSpouseButton.id}
                   />
                   <Button
                     title="Demo: Child"
                     onPress={() => scan.handleDemo('child')}
-                    variant="outline"
+                    variant="secondary"
                     size="small"
                     testID={PASSPORT_SCAN_IDS.demoScanChildButton.id}
                   />

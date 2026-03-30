@@ -42,14 +42,14 @@ export function Destinations({
           <Button
             title="Import"
             onPress={onShowSmartImport}
-            variant="outline"
+            variant="secondary"
             size="small"
             testID={CREATE_TRIP_IDS.smartImportButton.id}
           />
           <Button
             title="Scan"
             onPress={onShowScanner}
-            variant="outline"
+            variant="secondary"
             size="small"
             testID={CREATE_TRIP_IDS.scanDestinationButton.id}
           />
@@ -79,13 +79,13 @@ export function Destinations({
               <Button
                 title="Scan Boarding Pass"
                 onPress={onShowScanner}
-                variant="outline"
+                variant="secondary"
                 testID={CREATE_TRIP_IDS.emptyStateScanButton.id}
               />
               <Button
                 title="Add Manually"
                 onPress={addLeg}
-                variant="outline"
+                variant="secondary"
                 testID={CREATE_TRIP_IDS.emptyStateAddButton.id}
               />
             </View>

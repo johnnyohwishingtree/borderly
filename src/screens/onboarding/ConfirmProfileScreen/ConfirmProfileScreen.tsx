@@ -171,7 +171,7 @@ export default function ConfirmProfileScreen() {
         <Button
           title="Edit Information"
           onPress={handleEdit}
-          variant="outline"
+          variant="secondary"
           size="large"
           fullWidth
           testID={CONFIRM_PROFILE_IDS.editInformationButton.id}
