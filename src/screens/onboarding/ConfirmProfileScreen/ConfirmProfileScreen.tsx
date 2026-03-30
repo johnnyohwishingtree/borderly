@@ -12,6 +12,7 @@ import { OnboardingStackParamList } from '@/app/navigation/types';
 import { CONFIRM_PROFILE_IDS } from './testIDs';
 import { Button, Card, ProgressBar, ScreenContainer } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
+import { formatDateForDisplay } from '@/utils/dateUtils';
 
 type ConfirmProfileScreenNavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'ConfirmProfile'>;
 
@@ -71,9 +72,9 @@ export default function ConfirmProfileScreen() {
     { icon: BookOpen, color: '#3b82f6', bg: 'bg-blue-100', label: 'Passport Number', value: profile.passportNumber },
     { icon: User, color: '#8b5cf6', bg: 'bg-purple-100', label: 'Full Name', value: `${profile.givenNames} ${profile.surname}` },
     { icon: Globe, color: '#ef4444', bg: 'bg-red-100', label: 'Nationality', value: profile.nationality },
-    { icon: CalendarDays, color: '#eab308', bg: 'bg-yellow-100', label: 'Date of Birth', value: profile.dateOfBirth },
+    { icon: CalendarDays, color: '#eab308', bg: 'bg-yellow-100', label: 'Date of Birth', value: formatDateForDisplay(profile.dateOfBirth) },
     { icon: Users, color: '#ec4899', bg: 'bg-pink-100', label: 'Gender', value: profile.gender === 'M' ? 'Male' : profile.gender === 'F' ? 'Female' : 'Other' },
-    { icon: CalendarClock, color: '#f97316', bg: 'bg-orange-100', label: 'Passport Expiry', value: profile.passportExpiry },
+    { icon: CalendarClock, color: '#f97316', bg: 'bg-orange-100', label: 'Passport Expiry', value: formatDateForDisplay(profile.passportExpiry) },
     { icon: Building2, color: '#14b8a6', bg: 'bg-teal-100', label: 'Issuing Country', value: profile.issuingCountry },
   ];
 

@@ -12,7 +12,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Dates displayed as YYYY-MM-DD
  * Gap: Dates should be formatted as "Month Day, Year"
  */
-test.skip('ConfirmProfileScreen formats dates in human-readable form', () => {
+test('ConfirmProfileScreen formats dates in human-readable form', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/onboarding/ConfirmProfileScreen/ConfirmProfileScreen.tsx'),
     'utf-8',

@@ -128,7 +128,7 @@ describe('ConfirmProfileScreen — profile fields', () => {
     render(<ConfirmProfileScreen />);
 
     screen.getByTestId('profile-field-date-of-birth');
-    screen.getByText('1990-01-15');
+    screen.getByText('January 15, 1990');
   });
 
   it('renders gender as "Male" for gender "M"', () => {
@@ -164,7 +164,7 @@ describe('ConfirmProfileScreen — profile fields', () => {
     render(<ConfirmProfileScreen />);
 
     screen.getByTestId('profile-field-passport-expiry');
-    screen.getByText('2030-06-20');
+    screen.getByText('June 20, 2030');
   });
 
   it('renders issuing country', () => {
