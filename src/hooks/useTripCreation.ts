@@ -297,7 +297,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
       const dest = getCountryName(leg.destinationCountry) || `Destination ${index + 1}`;
       if (!leg.destinationCountry) newErrors[`leg${index}.country`] = `${dest}: Country is required`;
       if (!leg.arrivalDate) newErrors[`leg${index}.arrival`] = `${dest}: Arrival date is required`;
-      if (!leg.accommodation.name) newErrors[`leg${index}.accommodation`] = `${dest}: Accommodation name is required`;
       if (leg.assignedTravelers.length === 0) newErrors[`leg${index}.travelers`] = `${dest}: Select at least one traveler`;
     });
     setErrors(newErrors);
