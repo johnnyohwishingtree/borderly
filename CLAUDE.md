@@ -79,7 +79,6 @@ Each structural test IS the constraint — it runs in < 1s at `pnpm test` time.
 | `.context/decisions/` | Architecture decision records (immutable) |
 | `.context/patterns/` | Multi-step recipes (add-country, add-screen) |
 | `src/config/beliefs.ts` | Tracked assumptions (Hypothesis -> Confirmed/Invalidated) |
-| `.knowledge/policies/architecture/` | Agent token efficiency (only remaining policy) |
 
 ## Rules
 
@@ -90,7 +89,7 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 
 ## Skills Reference
 
-See `.knowledge/index.md` for all skills. Key skills:
+Key skills:
 - `/pipeline` — Autonomous story loop
 - `/code-audit` — Code vs policy compliance
 - `/knowledge-audit` — Knowledge graph health

@@ -3,7 +3,7 @@
 ## Policies to follow
 - `__tests__/schemas/schemaValidation.test.ts` — field types, autoFillSource, autoFillMapping
 - `__tests__/structure/component-testids.test.ts` — drift detection, schema ↔ form rendering sync
-- `.knowledge/models/form-engine.md` — entity model for schemas and fields
+- `src/types/schema.ts` — entity types for schemas and fields
 
 ## Step 0: Audit the real portal
 
@@ -18,7 +18,7 @@ Before writing any code, document every field on the country's immigration/custo
 - **Section/page** the field appears on
 
 ### Where to document:
-Create `.knowledge/domain/countries/<iso>.md` with:
+Create `.context/external/countries/<iso>.md` with:
 - Portal name and URL
 - List of all screens/pages in the portal flow
 - Field inventory table with the metadata above
@@ -72,7 +72,7 @@ Add the new ISO code to the registry.
 
 Verify all fields have autoFillSource, types are valid, dropdown fields have options, required fields are present.
 
-## Step 4: `.knowledge/domain/countries/<iso>.md` — Country knowledge
+## Step 4: `.context/external/countries/<iso>.md` — Country knowledge
 
 Update with portal field documentation from Step 0.
 

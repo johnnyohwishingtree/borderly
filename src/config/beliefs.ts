@@ -107,4 +107,11 @@ export const BELIEFS = {
     'working',
     'Every extra onboarding step loses users. Scan passport, start trip.',
   ),
+
+  /** @belief Constraints should be executable code, not prose documentation */
+  constraintsDrivenDevelopment: belief(
+    true,
+    'working',
+    'Validated by knowledge→context migration: 178 prose files → structural tests + typed constants. Prose drifts from code; tests enforce.',
+  ),
 } as const;
