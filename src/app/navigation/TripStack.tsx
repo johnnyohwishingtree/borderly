@@ -11,7 +11,6 @@ const LegFormScreen = lazy(() => import('@/screens/trips').then(m => ({ default:
 const SubmissionGuideScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.SubmissionGuideScreen })));
 const PortalSubmissionScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.PortalSubmissionScreen })));
 const TripChecklistScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TripChecklistScreen })));
-const TemplatesScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.TemplatesScreen })));
 const ImportTripScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.ImportTripScreen })));
 const ReviewImportScreen = lazy(() => import('@/screens/trips').then(m => ({ default: m.ReviewImportScreen })));
 
@@ -55,9 +54,6 @@ export default function TripNavigator() {
         </Stack.Screen>
         <Stack.Screen name="TripChecklist" options={{ title: 'Pre-Departure Checklist' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><TripChecklistScreen /></Suspense>)}
-        </Stack.Screen>
-        <Stack.Screen name="Templates" options={{ title: 'Trip Templates' }}>
-          {() => (<Suspense fallback={<ScreenLoader />}><TemplatesScreen /></Suspense>)}
         </Stack.Screen>
         <Stack.Screen name="ImportTrip" options={{ title: 'Import Trip' }}>
           {() => (<Suspense fallback={<ScreenLoader />}><ImportTripScreen /></Suspense>)}

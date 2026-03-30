@@ -28,6 +28,4 @@ export interface TripFormData {
 }
 
 export interface UseTripCreationOptions {
-  /** When provided, legs are pre-populated from the matching template. */
-  templateId?: string;
 }

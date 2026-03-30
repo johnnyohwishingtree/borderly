@@ -4,7 +4,5 @@ export const TRIP_DETAIL_IDS = {
   editTripButton: { id: 'edit-trip-button', type: 'button' as const },
   travelersContainer: { id: 'trip-detail-travelers', type: 'container' as const },
   submissionProgressSummary: { id: 'submission-progress-summary', type: 'container' as const },
-  saveAsTemplateButton: { id: 'save-as-template-button', type: 'button' as const },
-  saveTemplateModal: { id: 'save-template-modal', type: 'container' as const },
   duplicateTripModal: { id: 'duplicate-trip-modal', type: 'container' as const },
 };

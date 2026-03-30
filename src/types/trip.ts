@@ -57,28 +57,4 @@ export interface Trip {
   updatedAt: string;
 }
 
-/** A single leg stored inside a TripTemplate — country code + typical stay duration. */
-export interface TripTemplateLeg {
-  /** ISO 3166-1 alpha-3 country code, e.g. "JPN". */
-  countryCode: string;
-  /** Typical number of days spent in this country. */
-  typicalDurationDays: number;
-  /** Leg ordering within the template. */
-  order: number;
-}
 
-/**
- * A reusable trip template.
- * Stores the trip name, ordered list of destinations with typical durations,
- * and creation timestamp.  Dates and submission data are NOT stored.
- */
-export interface TripTemplate {
-  /** UUID. */
-  id: string;
-  /** User-facing name for the template, e.g. "Japan–Singapore Loop". */
-  name: string;
-  /** Ordered list of destinations with typical durations. */
-  legs: TripTemplateLeg[];
-  /** ISO 8601 creation timestamp. */
-  createdAt: string;
-}

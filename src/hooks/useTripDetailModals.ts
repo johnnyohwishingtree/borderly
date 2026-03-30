@@ -12,7 +12,6 @@ interface UseTripDetailModalsOptions {
   };
   resetDuplicateError: () => void;
   handleConfirmDuplicate: (newDepartureDate: string) => Promise<{ id: string } | null>;
-  handleSaveAsTemplate: (name: string) => Promise<boolean | undefined>;
   navigateToTrip: (tripId: string) => void;
 }
 
@@ -20,12 +19,10 @@ export function useTripDetailModals({
   editHook,
   resetDuplicateError,
   handleConfirmDuplicate,
-  handleSaveAsTemplate,
   navigateToTrip,
 }: UseTripDetailModalsOptions) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState(false);
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   const { ref: editTriggerRef, focusElement: focusEditTrigger } = useAccessibilityFocus();
@@ -77,13 +74,6 @@ export function useTripDetailModals({
     }
   };
 
-  const onSaveAsTemplate = async (name: string) => {
-    const success = await handleSaveAsTemplate(name);
-    if (success) {
-      setShowSaveTemplateModal(false);
-    }
-  };
-
   return {
     editModal: {
       showEditModal,
@@ -106,11 +96,6 @@ export function useTripDetailModals({
       handleCloseDuplicateModal,
       handleDuplicateConfirm,
       duplicateTriggerRef,
-    },
-    templateModal: {
-      showSaveTemplateModal,
-      setShowSaveTemplateModal,
-      onSaveAsTemplate,
     },
   };
 }

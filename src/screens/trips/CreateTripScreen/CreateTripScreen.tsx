@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Modal, TouchableOpacity } from 'react-native';
 import { Plane, Users, UserPlus } from 'lucide-react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Button, Input, Card, ScreenContainer, Toggle } from '@/components/ui';
 import { TravelerSelector } from '@/components/trips';
 import { ContextualHelp, HelpContent } from '@/components/help';
@@ -9,16 +9,12 @@ import { SmartImportSheet } from '@/components/import';
 import { useTripCreation } from '@/hooks/useTripCreation';
 import { Destinations } from './CreateTripScreen.Destinations';
 import { CREATE_TRIP_IDS } from './testIDs';
-import type { TripStackParamList } from '@/app/navigation/types';
 
-type CreateTripRouteProp = RouteProp<TripStackParamList, 'CreateTrip'>;
 
 export default function CreateTripScreen() {
   const rootNavigation = useNavigation();
-  const route = useRoute<CreateTripRouteProp>();
-  const templateId = route.params?.templateId;
 
-  const hook = useTripCreation(templateId ? { templateId } : {});
+  const hook = useTripCreation();
   const { data: tripData, setTripData } = hook.tripData;
   const { items: legs, addLeg, removeLeg, updateLeg } = hook.legs;
   const { familyMembers, tripTravelers, handleTripTravelerToggle, handleTravelerToggle, applyToAllLegs, setApplyToAllLegs } = hook.travelers;
@@ -31,7 +27,7 @@ export default function CreateTripScreen() {
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between mb-2">
           <Text className="text-2xl font-bold text-gray-900 dark:text-white flex-1">
-            {templateId ? 'Trip from Template' : 'Create New Trip'}
+            Create New Trip
           </Text>
           <ContextualHelp
             content={HelpContent.tripManagement}
@@ -40,9 +36,7 @@ export default function CreateTripScreen() {
           />
         </View>
         <Text className="text-base text-gray-600 dark:text-gray-400">
-          {templateId
-            ? 'Destinations pre-filled from template — set your dates to continue'
-            : 'Plan your multi-country journey'}
+          Plan your multi-country journey
         </Text>
       </View>
 

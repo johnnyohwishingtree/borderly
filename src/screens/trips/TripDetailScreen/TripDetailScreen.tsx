@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { Trash2, Copy, BookmarkPlus } from 'lucide-react-native';
-import { SaveTemplateModal, DuplicateTripModal } from '@/components/trips';
+import { Trash2, Copy } from 'lucide-react-native';
+import { DuplicateTripModal } from '@/components/trips';
 import { Button, StatusBadge, ScreenContainer } from '@/components/ui';
 import { useTripDetail } from '@/hooks/useTripDetail';
 import { useTripChecklist } from '@/hooks/useTripChecklist';
@@ -32,7 +32,7 @@ export default function TripDetailScreen() {
     editHook,
     actions: {
       handleReadinessNavigate, handleLegPress, handleDeleteTrip,
-      handleSaveAsTemplate, handleConfirmDuplicate, handleMarkAsSubmitted,
+      handleConfirmDuplicate, handleMarkAsSubmitted,
       resetDuplicateError,
     },
     ui: { getStatusColor, getStatusText },
@@ -71,7 +71,6 @@ export default function TripDetailScreen() {
     editHook,
     resetDuplicateError,
     handleConfirmDuplicate,
-    handleSaveAsTemplate,
     navigateToTrip: (id) => (navigation as any).navigate('TripDetail', { tripId: id }),
   });
 
@@ -226,23 +225,6 @@ export default function TripDetailScreen() {
         <View className="px-4 pb-8">
           <View className="bg-white dark:bg-gray-800 rounded-lg p-4">
             <TouchableOpacity
-              onPress={() => modals.templateModal.setShowSaveTemplateModal(true)}
-              className="flex-row items-center py-3 border-b border-gray-100 dark:border-gray-700"
-              activeOpacity={0.7}
-              testID={TRIP_DETAIL_IDS.saveAsTemplateButton.id}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Save as Template"
-              accessibilityHint="Save this trip as a reusable template"
-            >
-              <BookmarkPlus size={28} color="#2563eb" style={{ marginRight: 12 }} />
-              <View>
-                <Text className="text-base font-medium text-blue-600 dark:text-blue-400">Save as Template</Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">Reuse destinations for future trips</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               onPress={handleDeleteTrip}
               className="flex-row items-center py-3"
               activeOpacity={0.7}
@@ -256,14 +238,6 @@ export default function TripDetailScreen() {
           </View>
         </View>
       </ScrollView>
-
-      <SaveTemplateModal
-        visible={modals.templateModal.showSaveTemplateModal}
-        initialName={trip.name}
-        onSave={modals.templateModal.onSaveAsTemplate}
-        onCancel={() => modals.templateModal.setShowSaveTemplateModal(false)}
-        testID={TRIP_DETAIL_IDS.saveTemplateModal.id}
-      />
 
       <EditTripModal
         visible={modals.editModal.showEditModal}

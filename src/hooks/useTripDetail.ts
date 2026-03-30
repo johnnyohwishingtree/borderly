@@ -6,7 +6,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Platform, ToastAndroid } from 'react-native';
+import { Alert } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -16,7 +16,6 @@ import {
   computeTripDeadlines,
   LegDeadline,
 } from '@/services/deadline/deadlineService';
-import { tripTemplateService } from '@/services/trips/tripTemplateService';
 import { getSchemaByCountryCode } from '@/schemas';
 import type { CountryFormSchema } from '@/types/schema';
 import type { Trip, TripLeg } from '@/types/trip';
@@ -177,24 +176,6 @@ export function useTripDetail({ tripId }: UseTripDetailOptions) {
     );
   }, [deleteTrip, tripId, navigation]);
 
-  const handleSaveAsTemplate = useCallback(
-    async (name: string) => {
-      if (!trip) return;
-      try {
-        tripTemplateService.saveFromTrip(trip, name);
-        if (Platform.OS === 'android') {
-          ToastAndroid.show('Template saved!', ToastAndroid.SHORT);
-        } else {
-          Alert.alert('Template Saved', `"${name}" has been saved as a template.`);
-        }
-        return true;
-      } catch {
-        Alert.alert('Error', 'Failed to save template. Please try again.');
-        return false;
-      }
-    },
-    [trip],
-  );
 
   const handleConfirmDuplicate = useCallback(
     async (newDepartureDate: string) => {
@@ -255,7 +236,6 @@ export function useTripDetail({ tripId }: UseTripDetailOptions) {
       handleReadinessNavigate,
       handleLegPress,
       handleDeleteTrip,
-      handleSaveAsTemplate,
       handleConfirmDuplicate,
       handleMarkAsSubmitted,
       resetDuplicateError,

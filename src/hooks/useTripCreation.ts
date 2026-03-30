@@ -9,12 +9,11 @@ import { TripLeg, Accommodation } from '../types/trip';
 import { FamilyMember } from '../types/profile';
 import { deepCopy } from '../utils/deepCopy';
 import { getCountryName } from '../constants/countries';
-import { tripTemplateService } from '../services/trips/tripTemplateService';
-import type { LegFormData, UseTripCreationOptions } from './useTripCreationTypes';
+import type { LegFormData } from './useTripCreationTypes';
 import { useTripCreationImport } from './useTripCreationImport';
 
 // Re-export types for backward compatibility
-export type { LegFormData, UseTripCreationOptions } from './useTripCreationTypes';
+export type { LegFormData } from './useTripCreationTypes';
 
 /**
  * Returns the ID of the primary traveler (relationship === 'self'),
@@ -31,10 +30,8 @@ function getPrimaryTravelerId(members: FamilyMember[]): string | undefined {
  * - Family member loading and traveler assignment
  * - Trip-level traveler selection with propagation to legs
  * - Validation and trip creation
- * - Optional pre-population from a saved TripTemplate
  */
-export function useTripCreation(options: UseTripCreationOptions = {}) {
-  const { templateId } = options;
+export function useTripCreation() {
   const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { createTrip, addTripLeg } = useTripStore();
   const { getAllProfiles, loadFamilyProfiles } = useProfileStore();
@@ -65,36 +62,6 @@ export function useTripCreation(options: UseTripCreationOptions = {}) {
    * Default: true for new trips.
    */
   const [applyToAllLegs, setApplyToAllLegsRaw] = useState(true);
-
-  /**
-   * Pre-populate legs (and trip name) from a saved template when `templateId`
-   * is provided.  Only runs once on mount.
-   */
-  useEffect(() => {
-    if (!templateId) return;
-    const template = tripTemplateService.getById(templateId);
-    if (!template) return;
-
-    const sortedLegs = [...template.legs].sort((a, b) => a.order - b.order);
-    const prefilledLegs: LegFormData[] = sortedLegs.map(templateLeg => ({
-      destinationCountry: templateLeg.countryCode,
-      arrivalDate: '',
-      departureDate: '',
-      flightNumber: '',
-      airlineCode: '',
-      arrivalAirport: '',
-      accommodation: {
-        name: '',
-        address: { line1: '', line2: '', city: '', state: '', country: templateLeg.countryCode, postalCode: '' },
-        phone: '',
-      },
-      assignedTravelers: [],
-    }));
-
-    setLegs(prefilledLegs);
-    setTripData(prev => ({ ...prev, name: template.name }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     const loadProfiles = async () => {

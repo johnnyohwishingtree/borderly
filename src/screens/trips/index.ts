@@ -5,6 +5,5 @@ export { default as LegFormScreen } from './LegFormScreen/LegFormScreen';
 export { default as SubmissionGuideScreen } from './SubmissionGuideScreen/SubmissionGuideScreen';
 export { default as PortalSubmissionScreen } from './PortalSubmissionScreen/PortalSubmissionScreen';
 export { default as TripChecklistScreen } from './TripChecklistScreen/TripChecklistScreen';
-export { default as TemplatesScreen } from './TemplatesScreen/TemplatesScreen';
 export { default as ImportTripScreen } from './ImportTripScreen/ImportTripScreen';
 export { default as ReviewImportScreen } from './ReviewImportScreen/ReviewImportScreen';

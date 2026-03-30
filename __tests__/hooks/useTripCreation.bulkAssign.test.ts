@@ -44,9 +44,6 @@ jest.mock('@/services/boarding/boardingPassParser', () => ({
   getUnsupportedDestinationMessage: jest.fn().mockReturnValue(''),
 }));
 
-jest.mock('@/services/trips/tripTemplateService', () => ({
-  tripTemplateService: { getById: jest.fn().mockReturnValue(null) },
-}));
 
 jest.mock('@/constants/countries', () => ({
   getCountryName: (code: string) => code,

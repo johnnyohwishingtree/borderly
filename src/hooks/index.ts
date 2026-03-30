@@ -31,7 +31,6 @@ export type { TripUrgency, UseTripListDeadlinesReturn } from './useTripListDeadl
 export { useDeadlineSummary } from './useDeadlineSummary';
 export type { DeadlineSummaryItem, UseDeadlineSummaryReturn } from './useDeadlineSummary';
 export { usePortalSubmission } from './usePortalSubmission';
-export { useTemplates } from './useTemplates';
 export { useSubmissionGuide } from './useSubmissionGuide';
 export { usePassportValidity } from './usePassportValidity';
 export { useAddQR } from './useAddQR';

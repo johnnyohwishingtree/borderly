@@ -175,13 +175,6 @@ describe('useTripList', () => {
       expect(mockNavigate).toHaveBeenCalledWith('CreateTrip');
     });
 
-    it('handleCreateFromTemplate navigates to Templates', () => {
-      const { result } = renderHook(() => useTripList());
-      act(() => {
-        result.current.navigation.handleCreateFromTemplate();
-      });
-      expect(mockNavigate).toHaveBeenCalledWith('Templates');
-    });
 
     it('handleGoToForm navigates to LegForm with tripId and legId', () => {
       const { result } = renderHook(() => useTripList());

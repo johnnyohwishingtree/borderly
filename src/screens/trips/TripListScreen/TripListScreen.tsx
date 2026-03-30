@@ -43,7 +43,6 @@ export default function TripListScreen() {
     navigation: {
       handleTripPress,
       handleCreateTrip,
-      handleCreateFromTemplate,
       handleImportTrip,
       handleGoToForm,
       handleDeleteTrip,
@@ -83,13 +82,6 @@ export default function TripListScreen() {
         variant: "primary",
         size: "large",
         testID: TRIP_LIST_IDS.createFirstTripButton.id,
-      }}
-      secondaryButtonProps={{
-        title: "Use a Template",
-        onPress: handleCreateFromTemplate,
-        variant: "outline",
-        size: "large",
-        testID: TRIP_LIST_IDS.useTemplateButton.id,
       }}
       variant="illustration"
     />
@@ -166,17 +158,6 @@ export default function TripListScreen() {
               accessibilityHint="Import a trip from a booking confirmation or boarding pass"
             >
               <FileDown size={16} color="#374151" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleCreateFromTemplate}
-              className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
-              activeOpacity={0.7}
-              testID={TRIP_LIST_IDS.templatesNavButton.id}
-              accessibilityRole="button"
-              accessibilityLabel="Create trip from template"
-              accessibilityHint="Choose a saved template to pre-fill destinations"
-            >
-              <Text className="text-gray-700 dark:text-gray-300 font-medium text-sm">From Template</Text>
             </TouchableOpacity>
             {trips.length > 0 && (
               <TouchableOpacity
@@ -344,17 +325,6 @@ export default function TripListScreen() {
       {/* Floating Action Buttons */}
       {trips.length > 0 && (
         <View className="absolute bottom-20 right-6 items-end space-y-3">
-          <TouchableOpacity
-            onPress={handleCreateFromTemplate}
-            className="bg-white dark:bg-gray-700 px-4 h-11 rounded-full items-center justify-center shadow-md flex-row"
-            activeOpacity={0.8}
-            testID={TRIP_LIST_IDS.fabFromTemplateButton.id}
-            accessibilityRole="button"
-            accessibilityLabel="Create trip from template"
-            accessibilityHint="Choose a saved template to pre-fill destinations"
-          >
-            <Text className="text-gray-700 dark:text-gray-200 font-medium text-sm">From Template</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             onPress={handleCreateTrip}
             className="bg-blue-600 dark:bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"

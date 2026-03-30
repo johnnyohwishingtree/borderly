@@ -19,7 +19,7 @@ export type OnboardingStackParamList = {
 
 export type TripStackParamList = {
   TripList: undefined;
-  CreateTrip: { templateId?: string } | undefined;
+  CreateTrip: undefined;
   TripDetail: { tripId: string };
   LegForm: { tripId: string; legId: string };
   SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
@@ -30,7 +30,6 @@ export type TripStackParamList = {
     legId: string;
   };
   TripChecklist: { tripId: string };
-  Templates: undefined;
   ImportTrip: undefined;
   ReviewImport: { draftTripJson: string }; // JSON-serialised DraftTripResult
 };

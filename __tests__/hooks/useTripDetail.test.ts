@@ -76,11 +76,6 @@ jest.mock('../../src/services/deadline/deadlineService', () => ({
   computeTripDeadlines: jest.fn().mockReturnValue([]),
 }));
 
-jest.mock('../../src/services/trips/tripTemplateService', () => ({
-  tripTemplateService: {
-    saveFromTrip: jest.fn(),
-  },
-}));
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 

@@ -53,7 +53,6 @@ const secondTrip: Trip = {
 
 const mockHandleTripPress = jest.fn();
 const mockHandleCreateTrip = jest.fn();
-const mockHandleCreateFromTemplate = jest.fn();
 const mockHandleImportTrip = jest.fn();
 const mockHandleRefresh = jest.fn();
 const mockHandleGoToForm = jest.fn();
@@ -111,7 +110,6 @@ const defaultUseTripListReturn = {
   navigation: {
     handleTripPress: mockHandleTripPress,
     handleCreateTrip: mockHandleCreateTrip,
-    handleCreateFromTemplate: mockHandleCreateFromTemplate,
     handleImportTrip: mockHandleImportTrip,
     handleGoToForm: mockHandleGoToForm,
     handleDeleteTrip: mockHandleDeleteTrip,
@@ -282,11 +280,6 @@ describe('TripListScreen — rendering with trips', () => {
     screen.getByTestId('import-trip-button');
   });
 
-  it('renders templates nav button', () => {
-    render(<TripListScreen />);
-
-    screen.getByTestId('templates-nav-button');
-  });
 });
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -545,13 +538,6 @@ describe('TripListScreen — navigation interactions', () => {
     expect(mockHandleImportTrip).toHaveBeenCalledTimes(1);
   });
 
-  it('pressing templates nav button calls handleCreateFromTemplate', () => {
-    render(<TripListScreen />);
-
-    fireEvent.press(screen.getByTestId('templates-nav-button'));
-
-    expect(mockHandleCreateFromTemplate).toHaveBeenCalledTimes(1);
-  });
 });
 
 // ── Duplicate trip modal ──────────────────────────────────────────────────────

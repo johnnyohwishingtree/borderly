@@ -2,7 +2,7 @@
  * Unit tests for useTripDetailModals hook.
  *
  * Tests modal open/close, accessibility focus management, duplicate trip
- * confirmation, add destination flow, and save-as-template flow.
+ * confirmation and add destination flow.
  * Mocks useAccessibilityFocus at module level with stable references.
  */
 import { renderHook, act } from '@testing-library/react-native';
@@ -63,7 +63,6 @@ interface MockOptions {
   };
   resetDuplicateError: jest.Mock;
   handleConfirmDuplicate: jest.Mock;
-  handleSaveAsTemplate: jest.Mock;
   navigateToTrip: jest.Mock;
 }
 
@@ -79,7 +78,6 @@ function makeOptions(): MockOptions {
     },
     resetDuplicateError: jest.fn(),
     handleConfirmDuplicate: jest.fn().mockResolvedValue({ id: 'new-trip-1' }),
-    handleSaveAsTemplate: jest.fn().mockResolvedValue(true),
     navigateToTrip: jest.fn(),
   };
 }
@@ -109,7 +107,6 @@ describe('useTripDetailModals', () => {
 
     expect(result.current.editModal.showEditModal).toBe(false);
     expect(result.current.addModal.showAddModal).toBe(false);
-    expect(result.current.templateModal.showSaveTemplateModal).toBe(false);
     expect(result.current.duplicateModal.showDuplicateModal).toBe(false);
   });
 
@@ -284,51 +281,6 @@ describe('useTripDetailModals', () => {
 
     expect(result.current.duplicateModal.showDuplicateModal).toBe(true);
     expect(opts.navigateToTrip).not.toHaveBeenCalled();
-  });
-
-  // -- Save as template modal -------------------------------------------------
-
-  it('opens save template modal via setShowSaveTemplateModal', () => {
-    const opts = makeOptions();
-    const { result } = renderHook(() => useTripDetailModals(opts));
-
-    act(() => {
-      result.current.templateModal.setShowSaveTemplateModal(true);
-    });
-
-    expect(result.current.templateModal.showSaveTemplateModal).toBe(true);
-  });
-
-  it('onSaveAsTemplate closes modal on success', async () => {
-    const opts = makeOptions();
-    const { result } = renderHook(() => useTripDetailModals(opts));
-
-    act(() => {
-      result.current.templateModal.setShowSaveTemplateModal(true);
-    });
-
-    await act(async () => {
-      await result.current.templateModal.onSaveAsTemplate('My Template');
-    });
-
-    expect(opts.handleSaveAsTemplate).toHaveBeenCalledWith('My Template');
-    expect(result.current.templateModal.showSaveTemplateModal).toBe(false);
-  });
-
-  it('onSaveAsTemplate keeps modal open on failure', async () => {
-    const opts = makeOptions();
-    opts.handleSaveAsTemplate.mockResolvedValue(false);
-    const { result } = renderHook(() => useTripDetailModals(opts));
-
-    act(() => {
-      result.current.templateModal.setShowSaveTemplateModal(true);
-    });
-
-    await act(async () => {
-      await result.current.templateModal.onSaveAsTemplate('My Template');
-    });
-
-    expect(result.current.templateModal.showSaveTemplateModal).toBe(true);
   });
 
   // -- Refs exposed -----------------------------------------------------------
