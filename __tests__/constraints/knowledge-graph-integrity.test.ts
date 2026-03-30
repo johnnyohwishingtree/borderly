@@ -28,18 +28,6 @@ function findMdFiles(dir: string): string[] {
   return results;
 }
 
-/** Extract "Derives From" references from a knowledge file. */
-function extractDerivesFrom(content: string): string[] {
-  const refs: string[] = [];
-  const section = content.match(/## Derives From\n([\s\S]*?)(?=\n##|$)/);
-  if (!section) return refs;
-  const lines = section[1].split('\n');
-  for (const line of lines) {
-    const match = line.match(/^- `(.+?)`/);
-    if (match) refs.push(match[1]);
-  }
-  return refs;
-}
 
 /** Extract "See:" references from a file. */
 function extractSeeRefs(content: string): string[] {

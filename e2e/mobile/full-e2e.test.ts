@@ -83,26 +83,7 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
     await device.assertVisible('Done');
     await device.tapText('Done');
 
-    // Flight details
-    await device.fillById('leg-0-flight-number', 'MH123');
-    await device.fillById('leg-0-airline-code', 'MH');
-
-    // Arrival airport
-    await device.selectById('leg-0-arrival-airport', 'KUL');
-
-    // Accommodation
-    await device.fillById('leg-0-accommodation-name-input', 'Mandarin Oriental KL');
-
-    // Address fields
-    await device.fillById('leg-0-accommodation-address-line1', 'Kuala Lumpur City Centre');
-    await device.fillById('leg-0-accommodation-address-city', 'Kuala Lumpur');
-    await device.fillById('leg-0-accommodation-address-postal-code', '50088');
-    await device.fillById('leg-0-accommodation-address-country', 'MYS');
-
-    // Accommodation phone
-    await device.fillById('leg-0-accommodation-phone', '+60321234567');
-
-    // Create trip
+    // Create trip — only name + country + date needed now
     await snap('create-trip-filled');
     await device.tapById('create-trip-button');
     await device.handleAlert('OK');

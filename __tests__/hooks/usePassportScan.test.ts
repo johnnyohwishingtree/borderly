@@ -87,7 +87,6 @@ beforeEach(() => {
   delete mockRouteParams.familyMode;
   delete mockRouteParams.relationship;
   delete mockRouteParams.profileId;
-  delete mockRouteParams.returnTo;
   mockSaveProfile.mockResolvedValue(undefined);
   mockAddProfile.mockResolvedValue(undefined);
   mockGetProfile.mockResolvedValue(null);

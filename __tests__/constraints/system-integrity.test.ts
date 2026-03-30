@@ -25,7 +25,7 @@ import { resolve, join, relative } from 'path';
 const ROOT = resolve(__dirname, '../..');
 const CONTEXT_DIR = resolve(ROOT, '.context');
 const SKILLS_DIR = resolve(ROOT, '.claude/skills');
-const RULES_DIR = resolve(ROOT, '.claude/rules');
+
 
 function walk(dir: string, ext: string): string[] {
   const results: string[] = [];
