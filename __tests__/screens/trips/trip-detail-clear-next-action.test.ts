@@ -12,7 +12,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Multiple sections compete for attention, no primary CTA
  * Gap: Should have a single prominent "next step" CTA (e.g., "Fill Malaysia Form")
  */
-test.skip('TripDetailScreen has a primary action button in footer zone', () => {
+test('TripDetailScreen has a primary action button in footer zone', () => {
   const testIDs = require(resolve(
     ROOT,
     'src/screens/trips/TripDetailScreen/testIDs.ts',

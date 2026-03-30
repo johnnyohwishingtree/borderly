@@ -239,6 +239,27 @@ export default function TripDetailScreen() {
         </View>
       </ScrollView>
 
+      {/* Primary CTA — always visible, shows next action based on trip state */}
+      {(() => {
+        const nextLeg = trip.legs.find(l => l.formStatus !== 'submitted' && l.formStatus !== 'ready');
+        if (!nextLeg) return null;
+        const label = nextLeg.formStatus === 'in_progress'
+          ? `Continue ${nextLeg.destinationCountry} Form`
+          : `Fill ${nextLeg.destinationCountry} Form`;
+        return (
+          <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+            <Button
+              title={label}
+              onPress={() => handleLegPress(nextLeg)}
+              variant="primary"
+              size="large"
+              fullWidth
+              testID={TRIP_DETAIL_IDS.primaryActionButton.id}
+            />
+          </View>
+        );
+      })()}
+
       <EditTripModal
         visible={modals.editModal.showEditModal}
         onClose={modals.editModal.handleCloseEditModal}

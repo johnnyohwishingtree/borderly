@@ -4,5 +4,6 @@ export const TRIP_DETAIL_IDS = {
   editTripButton: { id: 'edit-trip-button', type: 'button' as const },
   travelersContainer: { id: 'trip-detail-travelers', type: 'container' as const },
   submissionProgressSummary: { id: 'submission-progress-summary', type: 'container' as const },
+  primaryActionButton: { id: 'trip-detail-primary-action', type: 'button' as const, zone: 'footer' as const },
   duplicateTripModal: { id: 'duplicate-trip-modal', type: 'container' as const },
 };
