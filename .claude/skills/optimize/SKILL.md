@@ -31,9 +31,9 @@ Before resolving, classify each finding:
 
 For knowledge-related issues:
 
-1. Read the referenced `.knowledge/` file
-2. Determine: is this a missing policy update, or is it a changed belief?
-   - **Missing guidance** → add to the referenced knowledge file
+1. Read the referenced `.context/` file or structural test (`__tests__/structure/`)
+2. Determine: is this a missing constraint, or is it a changed belief?
+   - **Missing guidance** → add to the relevant `.context/` file or structural test JSDoc
    - **Assumption proven wrong** → update the belief in `src/config/beliefs.ts`
 3. Commit the fix and close the issue.
 
@@ -51,7 +51,7 @@ Drift issues — fix the drift directly if it's a documentation/config issue. If
 
 Check file sizes:
 ```bash
-for f in $(find .knowledge -name "*.md" -not -name "README.md" -not -name "gaps.md"); do
+for f in $(find .context -name "*.md" -not -name "README.md"); do
   LINES=$(wc -l < "$f" | tr -d ' ')
   if [ "$LINES" -gt 150 ]; then
     echo "BLOATED: $f ($LINES lines)"

@@ -1,5 +1,5 @@
 /**
- * Structural test: skill files follow the standard template.
+ * Constraint: Skill Structure
  *
  * Every skill SKILL.md must have:
  * - YAML frontmatter (name, description)

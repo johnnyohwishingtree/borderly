@@ -40,7 +40,7 @@ If dirty-files is non-empty:
    ```bash
    for f in $(cat .claude/dirty-files); do
      echo "--- $f ---"
-     grep -rl "$(basename "$f")" .knowledge/ 2>/dev/null || echo "(no references)"
+     grep -rl "$(basename "$f")" .context/ __tests__/structure/ 2>/dev/null || echo "(no references)"
    done
    ```
 
@@ -154,7 +154,7 @@ When a conflict is found:
 
 Compare what exists on disk against CLAUDE.md:
 - Skills in `.claude/skills/` that aren't mentioned in `CLAUDE.md`
-- Policies in `.knowledge/policies/` that no folder CLAUDE.md or skill references
+- Constraint files in `.context/` or `__tests__/structure/` that no folder CLAUDE.md or skill references
 - Fix mismatches directly
 
 ## Step 7: Regenerate diagram
@@ -183,4 +183,3 @@ Follow `the learning rules: capture anti-patterns, constraints, testing patterns
 - Don't check code against policies — that's `/code-audit`
 - Don't flag violations that already have an open GitHub issue
 - Don't flag design guidelines that can't be structurally tested (note them)
-- Don't flag empty `.knowledge/` directories

@@ -35,7 +35,7 @@ If `--scope` provided, filter to that directory only.
 For each folder CLAUDE.md:
 
 1. **Read the CLAUDE.md** — note the one-line description
-2. **Follow each `See:` link** — read the referenced `.knowledge/` file
+2. **Follow each `See:` link** — read the referenced structural test or `.context/` file
 3. **For each policy loaded**, read its `## Rules` section
 4. **For each RULE**, check the folder's code:
    - `DENY: import X` → grep folder files for the forbidden pattern
@@ -47,7 +47,7 @@ For each folder CLAUDE.md:
 
 Also check general CLAUDE.md health:
 - Every `See:` link resolves to an existing file
-- CLAUDE.md is 5 lines or fewer (content belongs in `.knowledge/`)
+- CLAUDE.md is 5 lines or fewer (content belongs in structural test JSDoc or `.context/`)
 
 ## Step 3: Structural checks
 
@@ -60,7 +60,7 @@ Also check general CLAUDE.md health:
 
 ### Drift
 - testIDs referenced in E2E tests that don't exist in source
-- `.knowledge/` or `.claude/` path references pointing to files that don't exist
+- `.context/` or `__tests__/structure/` or `.claude/` path references pointing to files that don't exist
 - README commands that don't match actual CLI behavior
 
 ## Step 4: Classify each finding
@@ -126,5 +126,4 @@ git diff --cached --quiet || git commit -m "chore: code-audit findings ($DATE)" 
 ## Guardrails
 - Don't hardcode folder-specific checks — read them from policies
 - Don't flag violations that already have an open GitHub issue
-- Don't flag empty `.knowledge/` directories
 - Don't flag design guidelines that can't be mechanically verified

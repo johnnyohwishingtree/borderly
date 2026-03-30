@@ -11,7 +11,7 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
-- Relevant `.knowledge/` policies and patterns reviewed
+- Relevant `.context/patterns/` and `__tests__/structure/` constraints reviewed
 - Existing code in the target area has been read
 
 ## Usage
@@ -30,7 +30,7 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ### Step 2: Plan
 
 1. Identify files to create or modify
-2. Check if relevant patterns exist in `.knowledge/patterns/`
+2. Check if relevant patterns exist in `.context/patterns/`
 3. Check `src/config/beliefs.ts` — does this feature depend on any unconfirmed beliefs? If so, note the risk and consider whether to implement defensively
 4. Determine the dependency order (stores before hooks before screens)
 6. List tests that need to be written

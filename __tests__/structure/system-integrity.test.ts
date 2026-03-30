@@ -1,31 +1,29 @@
 /**
- * Constraint: System Integrity (from Drift Detection)
+ * Constraint: System Integrity (Drift Detection)
  *
- * Scope: src/, e2e/, .knowledge/, .claude/
+ * Scope: src/, e2e/, .context/, .claude/
  *
  * Verifies all cross-references resolve:
- * - Folder CLAUDE.md See: links -> .knowledge/, .context/, src/ types
- * - Skills -> policies and rules
- * - Knowledge files -> other knowledge files
- * - Test file references -> policies and rules
+ * - Folder CLAUDE.md See: links → .context/, __tests__/structure/, src/ types
+ * - Skills → structural tests, rules, .context/ files
+ * - .context/ files → other .context/ files
+ * - Test file comments → .context/ files
  *
- * REQUIRE: after renaming/moving files -> grep for old paths in all .md and .yaml
- * DENY:    references to files that don't exist in .knowledge/ or .claude/ docs
+ * REQUIRE: after renaming/moving files → grep for old paths in all .md
+ * DENY:    references to files that don't exist
  *
  * Anti-patterns:
  * - Renaming a file without grepping for references
- * - Updating CLI output without updating README
  * - Trusting CI will catch drift (most drift is in docs/config, not code)
  *
  * Why: Broken references mean the LLM gets wrong guidance when editing code.
- *      Every dangling pointer is a potential source of incorrect behavior.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
 import { resolve, join, relative } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
-const KNOWLEDGE_DIR = resolve(ROOT, '.knowledge');
+const CONTEXT_DIR = resolve(ROOT, '.context');
 const SKILLS_DIR = resolve(ROOT, '.claude/skills');
 const RULES_DIR = resolve(ROOT, '.claude/rules');
 
@@ -62,14 +60,6 @@ describe('System integrity', () => {
 
     for (const file of claudeMds) {
       const content = readFileSync(file, 'utf-8');
-      // Check .knowledge/ references
-      const knowledgeRefs = extractReferences(content, /See:\s*\.knowledge\/([^\s]+)/g);
-      for (const ref of knowledgeRefs) {
-        const target = resolve(KNOWLEDGE_DIR, ref);
-        if (!existsSync(target)) {
-          broken.push(`${relative(ROOT, file)} → .knowledge/${ref}`);
-        }
-      }
       // Check .context/ references
       const contextRefs = extractReferences(content, /See:\s*\.context\/([^\s]+)/g);
       for (const ref of contextRefs) {
@@ -93,20 +83,21 @@ describe('System integrity', () => {
     }
   });
 
-  it('all skill policy references point to existing files', () => {
+  it('all skill references point to existing files', () => {
     const skillFiles = walk(SKILLS_DIR, '.md');
     const broken: string[] = [];
 
     for (const file of skillFiles) {
       const content = readFileSync(file, 'utf-8');
-      const knowledgeRefs = extractReferences(content, /\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
-      for (const ref of knowledgeRefs) {
-        const target = resolve(KNOWLEDGE_DIR, ref);
+      // Check .context/ references
+      const contextRefs = extractReferences(content, /\.context\/([a-zA-Z0-9/_.-]+\.md)/g);
+      for (const ref of contextRefs) {
+        const target = resolve(CONTEXT_DIR, ref);
         if (!existsSync(target)) {
-          broken.push(`${relative(ROOT, file)} → .knowledge/${ref}`);
+          broken.push(`${relative(ROOT, file)} → .context/${ref}`);
         }
       }
-
+      // Check .claude/rules/ references
       const ruleRefs = extractReferences(content, /\.claude\/rules\/([a-zA-Z0-9/_.-]+\.md)/g);
       for (const ref of ruleRefs) {
         const target = resolve(ROOT, '.claude/rules', ref);
@@ -121,52 +112,24 @@ describe('System integrity', () => {
     }
   });
 
-  it('all knowledge cross-references point to existing files', () => {
-    const knowledgeFiles = walk(KNOWLEDGE_DIR, '.md')
-      .filter(f => !f.endsWith('README.md'));
+  it('all .context/ cross-references point to existing files', () => {
+    const contextFiles = walk(CONTEXT_DIR, '.md')
+      .filter(f => !f.endsWith('README.md') && !f.endsWith('MIGRATION.md'));
     const broken: string[] = [];
 
-    for (const file of knowledgeFiles) {
+    for (const file of contextFiles) {
       const content = readFileSync(file, 'utf-8');
-      const refs = extractReferences(content, /\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
+      const refs = extractReferences(content, /\.context\/([a-zA-Z0-9/_.-]+\.md)/g);
       for (const ref of refs) {
-        const target = resolve(KNOWLEDGE_DIR, ref);
+        const target = resolve(CONTEXT_DIR, ref);
         if (!existsSync(target)) {
-          broken.push(`${relative(ROOT, file)} → .knowledge/${ref}`);
+          broken.push(`${relative(ROOT, file)} → .context/${ref}`);
         }
       }
     }
 
     if (broken.length > 0) {
-      throw new Error(`Broken cross-references in .knowledge/ files:\n${broken.map(b => `  - ${b}`).join('\n')}`);
-    }
-  });
-
-  it('all test file knowledge references point to existing files', () => {
-    const testFiles = walk(resolve(ROOT, '__tests__/structure'), '.ts');
-    const broken: string[] = [];
-
-    for (const file of testFiles) {
-      const content = readFileSync(file, 'utf-8');
-      const knowledgeRefs = extractReferences(content, /\.knowledge\/([a-zA-Z0-9/_.-]+\.md)/g);
-      for (const ref of knowledgeRefs) {
-        const target = resolve(KNOWLEDGE_DIR, ref);
-        if (!existsSync(target)) {
-          broken.push(`${relative(ROOT, file)} → .knowledge/${ref}`);
-        }
-      }
-
-      const ruleRefs = extractReferences(content, /\.claude\/rules\/([a-zA-Z0-9/_.-]+\.md)/g);
-      for (const ref of ruleRefs) {
-        const target = resolve(ROOT, '.claude/rules', ref);
-        if (!existsSync(target)) {
-          broken.push(`${relative(ROOT, file)} → .claude/rules/${ref}`);
-        }
-      }
-    }
-
-    if (broken.length > 0) {
-      throw new Error(`Broken references in test files:\n${broken.map(b => `  - ${b}`).join('\n')}`);
+      throw new Error(`Broken cross-references in .context/ files:\n${broken.map(b => `  - ${b}`).join('\n')}`);
     }
   });
 

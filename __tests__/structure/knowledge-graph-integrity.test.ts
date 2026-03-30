@@ -1,23 +1,17 @@
 /**
- * Structural test: knowledge graph integrity.
+ * Constraint: Knowledge Graph Integrity
  *
- * Validates that the knowledge graph is internally consistent:
- * - All "Derives From" references resolve to existing files
- * - All "See:" pointers in CLAUDE.md files resolve
- * - All policies have at least one "Derives From" fact
- * - All "Related:" references resolve
- *
- * This catches: missing facts, broken references, policies without justification.
- * State-based — checks the graph is valid NOW, not how it got that way.
- *
- * See: __tests__/structure/knowledge-test-coverage.test.ts (testable architecture constraint)
+ * Validates that the knowledge graph is internally consistent: all Context
+ * references resolve, all policies have a Context section, and all "See:"
+ * and "Related:" pointers in CLAUDE.md and knowledge files resolve to
+ * existing files.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { resolve, join } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
-const KNOWLEDGE = resolve(ROOT, '.knowledge');
+const CONTEXT = resolve(ROOT, '.context');
 
 /** Recursively find all .md files in a directory. */
 function findMdFiles(dir: string): string[] {
@@ -69,7 +63,7 @@ function extractRelatedRefs(content: string): string[] {
 }
 
 describe('Knowledge graph integrity', () => {
-  const knowledgeFiles = findMdFiles(KNOWLEDGE);
+  const knowledgeFiles = findMdFiles(CONTEXT);
 
   it('all Context references resolve to existing files', () => {
     const broken: string[] = [];
@@ -105,7 +99,7 @@ describe('Knowledge graph integrity', () => {
   });
 
   it('all policies have a Context section', () => {
-    const policiesDir = resolve(KNOWLEDGE, 'policies');
+    const policiesDir = resolve(CONTEXT, 'policies');
     const policyFiles = findMdFiles(policiesDir);
     const missing: string[] = [];
 
@@ -175,8 +169,8 @@ describe('Knowledge graph integrity', () => {
       for (const ref of refs) {
         // Try common locations — .knowledge/, .context/, src/, and project root
         const candidates = [
-          resolve(KNOWLEDGE, ref),
-          resolve(KNOWLEDGE, 'policies', ref),
+          resolve(CONTEXT, ref),
+          resolve(CONTEXT, 'policies', ref),
           resolve(ROOT, ref),
         ];
         const found = candidates.some(c => existsSync(c));

@@ -1,51 +1,50 @@
 ---
 name: apply-knowledge
-description: Scan codebase and fix violations against a specific .knowledge/ file
-argument-hint: "<knowledge-file> [--dry-run] [--scope src/components]"
+description: Scan codebase and fix violations against a structural test or .context/ file
+argument-hint: "<constraint-file> [--dry-run] [--scope src/components]"
 ---
 
-# /apply-knowledge — Scan and Fix Against a Knowledge File
+# /apply-knowledge — Scan and Fix Against a Constraint File
 
-Takes a single `.knowledge/` file, scans the relevant codebase for violations, and fixes them. Unlike `/knowledge-audit` (which audits ALL knowledge but only reports), this skill focuses on ONE knowledge file and actively implements fixes.
+Takes a single structural test (`__tests__/structure/*.test.ts`) or `.context/` file, scans the relevant codebase for violations, and fixes them. Unlike `/knowledge-audit` (which audits ALL knowledge but only reports), this skill focuses on ONE constraint source and actively implements fixes.
 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
 - Knowledge graph engine available (`scripts/knowledge-graph.ts`)
-- The target `.knowledge/` file exists and has concrete rules
+- The target constraint file exists and has concrete rules
 
 ## Usage
 ```
-/apply-knowledge styling.md                    # Fix styling violations everywhere
-/apply-knowledge e2e-testability.md             # Add missing testIDs
-/apply-knowledge dependency-direction.md        # Fix import boundary violations
-/apply-knowledge storage.md --scope src/hooks   # Only scan hooks directory
-/apply-knowledge form-engine.md --dry-run       # Report only, don't fix
+/apply-knowledge styling.test.ts                    # Fix styling violations everywhere
+/apply-knowledge component-testids.test.ts          # Add missing testIDs
+/apply-knowledge dependency-direction.test.ts       # Fix import boundary violations
+/apply-knowledge storage-boundary.test.ts --scope src/hooks       # Only scan hooks directory
+/apply-knowledge form-engine.test.ts --dry-run      # Report only, don't fix
 ```
 
-## Step 1: Load the knowledge file and check assumptions
+## Step 1: Load the constraint file and check assumptions
 
-Read the specified `.knowledge/` file. Extract:
-- **Rules**: concrete "do this" statements
+Read the specified structural test or `.context/` file. Extract:
+- **Rules**: concrete "do this" statements (from JSDoc headers in structural tests, or from `.context/` file content)
 - **Anti-patterns**: concrete "never do this" statements
 - **Scope**: which directories/file types the rules apply to (infer from the content or use `--scope`)
 
-If the file is a **policy** (`policies/`), read its SCOPE section — it tells you exactly what directories to scan and what RULES to check. Also read its `## Derives From` section — check if any referenced beliefs are hypotheses. If the policy is justified by an unconfirmed belief, note this before mass-fixing code against it.
+If the file is a **structural test** (`__tests__/structure/`), read its JSDoc header — it declares the constraints being enforced and the scope of directories to scan. Also check if any referenced beliefs in `src/config/beliefs.ts` are hypotheses. If a constraint is justified by an unconfirmed belief, note this before mass-fixing code against it.
 
-If the file is a **model** (`models/`), read its INVARIANTS — check the code enforces them.
+If the file is a **`.context/` file**, read its content for patterns, decisions, or external context that inform the rules.
 
 ## Step 2: Determine what to scan
 
-Read the knowledge file's **SCOPE** section — it lists the exact directories to scan.
-For models, read the **KEY FILES** section.
+Read the constraint file's scope — for structural tests, the JSDoc header or test assertions indicate which directories are covered. For `.context/` files, infer from the content.
 
 If `--scope` provided, use that override instead.
 
-If the file has no SCOPE section, infer from its content — which directories do its rules apply to?
+If the file has no clear scope, infer from its content — which directories do its rules apply to?
 
 ## Step 3: Scan for violations
 
-For each rule and anti-pattern in the knowledge file, scan the scope:
+For each rule and anti-pattern in the constraint file, scan the scope:
 
 - **Grep-based rules** ("never import X", "always use Y") → grep and collect violations
 - **Structural rules** ("files must follow pattern X") → list files and check
@@ -56,7 +55,7 @@ Collect all violations with file path, line number, and the specific rule violat
 ## Step 4: Fix violations (if not --dry-run)
 
 Follow the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any`.
-If a fix requires judgment (not mechanical), skip and add to gaps.md.
+If a fix requires judgment (not mechanical), skip and create a GitHub issue for it.
 
 ### Fix patterns by knowledge type:
 
@@ -102,10 +101,10 @@ Summary of what was done:
 - Files scanned
 - Violations found (by rule)
 - Violations fixed
-- Violations skipped (needs judgment — added to gaps.md)
+- Violations skipped (needs judgment — created GitHub issues)
 - Tests created/updated
 
 ## Guardrails
 - Design guideline violations (typography, motion, ux-writing) that require subjective judgment — report them but let a human decide
 - Violations in generated files (`e2e/screenshots/`) — regenerate by running E2E test
-- Violations that would break other code — add to gaps.md for a story
+- Violations that would break other code — create a GitHub issue for a story

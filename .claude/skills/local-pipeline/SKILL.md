@@ -103,7 +103,7 @@ If still failing after 6 → push WIP branch, create draft PR, reset to `pending
 
 Additionally, check if any beliefs in `src/config/beliefs.ts` need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
 
-Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsider.
+Self-check: if 5+ files changed, check whether any structural test JSDoc constraints (`__tests__/structure/`) or `src/config/beliefs.ts` needs updating.
 
 ## Step 7: Self-review
 
