@@ -164,11 +164,11 @@ describe('Onboarding Flow Integration Tests', () => {
       expect(mockNavigation.navigate).toHaveBeenCalledWith('PassportScan');
     });
 
-    it('should navigate to RestoreBackup when Restore from Backup is pressed', () => {
-      const { getByText } = render(<WelcomeScreen />);
+    it('should navigate to RestoreBackup when restore link is pressed', () => {
+      const { getByTestId } = render(<WelcomeScreen />);
 
-      const restoreButton = getByText('Restore from Backup');
-      fireEvent.press(restoreButton);
+      const restoreLink = getByTestId('restore-backup-link-button');
+      fireEvent.press(restoreLink);
 
       expect(mockNavigation.navigate).toHaveBeenCalledWith('RestoreBackup');
     });

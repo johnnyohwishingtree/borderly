@@ -361,29 +361,32 @@ export default function PassportScanScreen() {
           </View>
         )}
 
-        <View className="mt-6 space-y-4">
-          {scan.mode === 'manual' && (
-            <Button
-              title="Continue"
-              onPress={handleSubmit((data) => profile.save(data))}
-              loading={profile.isSubmitting}
-              size="large"
-              fullWidth
-              testID={PASSPORT_SCAN_IDS.passportContinueButton.id}
-            />
-          )}
-
-          <Button
-            title="Back"
-            onPress={navigation.handleBack}
-            variant="outline"
-            size="large"
-            fullWidth
-            testID={PASSPORT_SCAN_IDS.passportBackButton.id}
-          />
-        </View>
       </View>
     </ScrollView>
+
+    {/* Fixed footer CTA */}
+    <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+      {scan.mode === 'manual' && (
+        <Button
+          title="Continue"
+          onPress={handleSubmit((data) => profile.save(data))}
+          loading={profile.isSubmitting}
+          size="large"
+          fullWidth
+          testID={PASSPORT_SCAN_IDS.passportContinueButton.id}
+        />
+      )}
+      <View className={scan.mode === 'manual' ? 'mt-3' : ''}>
+        <Button
+          title="Back"
+          onPress={navigation.handleBack}
+          variant="outline"
+          size="large"
+          fullWidth
+          testID={PASSPORT_SCAN_IDS.passportBackButton.id}
+        />
+      </View>
+    </View>
     </ScreenContainer>
   );
 }

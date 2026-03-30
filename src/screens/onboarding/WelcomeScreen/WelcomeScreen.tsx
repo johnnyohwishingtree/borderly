@@ -1,4 +1,5 @@
-import { ScrollView, View, Text, Dimensions, Pressable } from 'react-native';
+import { useState } from 'react';
+import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -8,8 +9,9 @@ import {
   Smartphone,
   Zap,
   ShieldCheck,
-  HelpCircle,
   UploadCloud,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react-native';
 
 import { OnboardingStackParamList } from '@/app/navigation/types';
@@ -27,22 +29,20 @@ type WelcomeScreenNavigationProp = NativeStackNavigationProp<OnboardingStackPara
 export default function WelcomeScreen() {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
   const { colors } = useTheme();
+  const [showCountries, setShowCountries] = useState(false);
 
   const handleGetStarted = () => {
     navigation.navigate('PassportScan');
   };
 
-  const { height } = Dimensions.get('window');
-
   return (
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
     <ScrollView
       className="flex-1"
-      contentContainerStyle={{ minHeight: height }}
       accessibilityLabel="Welcome to Borderly screen"
-      accessibilityHint="Swipe up to read about features and get started"
+      accessibilityHint="Swipe up to read about features"
     >
-      <View className="flex-1 px-6 pt-12 pb-8">
+      <View className="flex-1 px-6 pt-12 pb-4">
         {/* Progress indicator */}
         <ProgressBar
           progress={25}
@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
 
         {/* Hero section */}
         <View className="items-center mb-6" accessibilityRole="header">
-          <View 
+          <View
             className="w-24 h-24 bg-primary-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
             accessibilityLabel="Borderly app icon"
             accessibilityRole="image"
@@ -116,23 +116,35 @@ export default function WelcomeScreen() {
           </View>
         </Card>
 
-        {/* Countries supported section */}
-        <Card variant="outlined" className="mb-4 bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800">
-          <View className="flex-row items-center mb-4">
-            <Icon as={Globe} size={20} color={colors.textPrimary} className="mr-2" />
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white">
-              Supported Countries
-            </Text>
-          </View>
-          <View className="flex-row flex-wrap justify-around">
-            {SUPPORTED_COUNTRIES.map((country) => (
-              <View key={country.code} className="items-center mb-3 w-1/4">
-                <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
-                <Text className="text-xs text-gray-600 dark:text-gray-400">{country.name}</Text>
+        {/* Countries supported — collapsed by default */}
+        <Pressable
+          onPress={() => setShowCountries(!showCountries)}
+          className="mb-4"
+          accessibilityRole="button"
+          accessibilityLabel={`${SUPPORTED_COUNTRIES.length} countries supported. Tap to ${showCountries ? 'collapse' : 'expand'}`}
+        >
+          <Card variant="outlined" className="bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <Icon as={Globe} size={20} color={colors.textPrimary} className="mr-2" />
+                <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                  {SUPPORTED_COUNTRIES.length} Countries Supported
+                </Text>
               </View>
-            ))}
-          </View>
-        </Card>
+              <Icon as={showCountries ? ChevronUp : ChevronDown} size={20} color={colors.textSecondary} />
+            </View>
+            {showCountries && (
+              <View className="flex-row flex-wrap justify-around mt-4">
+                {SUPPORTED_COUNTRIES.map((country) => (
+                  <View key={country.code} className="items-center mb-3 w-1/4">
+                    <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
+                    <Text className="text-xs text-gray-600 dark:text-gray-400">{country.name}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </Card>
+        </Pressable>
 
         {/* Privacy notice */}
         <Card variant="outlined" className="mb-4 border-green-200 dark:border-green-800 bg-green-50/30 dark:bg-green-900/10">
@@ -148,48 +160,34 @@ export default function WelcomeScreen() {
             </View>
           </View>
         </Card>
-
-        {/* CTA section */}
-        <View className="mt-auto pt-4">
-          <Button
-            title="Get Started"
-            onPress={handleGetStarted}
-            size="lg"
-            className="mb-4"
-            testID={WELCOME_IDS.takeTutorialButton.id}
-          />
-
-          <View className="flex-row items-center justify-center">
-            <Button
-              title="Restore from Backup"
-              onPress={() => navigation.navigate('RestoreBackup')}
-              variant="outline"
-              size="md"
-              className="border-0"
-              testID={WELCOME_IDS.skipTutorialButton.id}
-            />
-            <Icon as={HelpCircle} size={18} color="#9ca3af" className="ml-1" />
-          </View>
-
-          {/* Restore from backup link for returning users on fresh installs */}
-          <Pressable
-            onPress={() => navigation.navigate('RestoreBackup')}
-            testID={WELCOME_IDS.restoreBackupLinkButton.id}
-            accessible
-            accessibilityRole="button"
-            accessibilityLabel="Restore from backup"
-            accessibilityHint="If you have a .borderly backup file, tap here to restore your data"
-            className="mt-6 flex-row items-center justify-center py-3"
-          >
-            <Icon as={UploadCloud} size={16} color="#6b7280" />
-            <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-              Already have a backup?{' '}
-              <Text className="text-primary-600 font-medium">Restore from backup</Text>
-            </Text>
-          </Pressable>
-        </View>
       </View>
     </ScrollView>
+
+    {/* Fixed footer CTA — always visible without scrolling */}
+    <View className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+      <Button
+        title="Get Started"
+        onPress={handleGetStarted}
+        size="lg"
+        className="mb-3"
+        testID={WELCOME_IDS.takeTutorialButton.id}
+      />
+      <Pressable
+        onPress={() => navigation.navigate('RestoreBackup')}
+        testID={WELCOME_IDS.restoreBackupLinkButton.id}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel="Restore from backup"
+        accessibilityHint="If you have a .borderly backup file, tap here to restore your data"
+        className="flex-row items-center justify-center py-2"
+      >
+        <Icon as={UploadCloud} size={16} color="#6b7280" />
+        <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+          Already have a backup?{' '}
+          <Text className="text-primary-600 font-medium">Restore</Text>
+        </Text>
+      </Pressable>
+    </View>
     </ScreenContainer>
   );
 }

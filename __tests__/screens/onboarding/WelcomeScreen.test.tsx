@@ -158,48 +158,16 @@ describe('WelcomeScreen — feature cards', () => {
 // ── Supported countries ───────────────────────────────────────────────────────
 
 describe('WelcomeScreen — supported countries', () => {
-  it('renders "Supported Countries" heading', () => {
+  it('shows country count in collapsed state by default', () => {
     render(<WelcomeScreen />);
 
-    screen.getByText('Supported Countries');
+    screen.getByText(/\d+ Countries Supported/);
   });
 
-  it('renders country flag for each supported country', () => {
+  it('does not show individual country flags when collapsed', () => {
     render(<WelcomeScreen />);
 
-    screen.getByTestId('country-flag-JPN');
-    screen.getByTestId('country-flag-MYS');
-    screen.getByTestId('country-flag-SGP');
-    screen.getByTestId('country-flag-THA');
-    screen.getByTestId('country-flag-VNM');
-    screen.getByTestId('country-flag-GBR');
-    screen.getByTestId('country-flag-USA');
-    screen.getByTestId('country-flag-CAN');
-    screen.getByTestId('country-flag-AUS');
-    screen.getByTestId('country-flag-NZL');
-    screen.getByTestId('country-flag-KOR');
-    screen.getByTestId('country-flag-IND');
-    screen.getByTestId('country-flag-IDN');
-    screen.getByTestId('country-flag-PHL');
-  });
-
-  it('renders country names for all supported countries', () => {
-    render(<WelcomeScreen />);
-
-    screen.getByText('Japan');
-    screen.getByText('Malaysia');
-    screen.getByText('Singapore');
-    screen.getByText('Thailand');
-    screen.getByText('Vietnam');
-    screen.getByText('UK');
-    screen.getByText('USA');
-    screen.getByText('Canada');
-    screen.getByText('Australia');
-    screen.getByText('New Zealand');
-    screen.getByText('South Korea');
-    screen.getByText('India');
-    screen.getByText('Indonesia');
-    screen.getByText('Philippines');
+    expect(screen.queryByTestId('country-flag-JPN')).toBeNull();
   });
 });
 
@@ -234,20 +202,6 @@ describe('WelcomeScreen — navigation', () => {
     fireEvent.press(screen.getByTestId('take-tutorial-button'));
 
     expect(mockNavigate).toHaveBeenCalledWith('PassportScan');
-  });
-
-  it('renders "Restore from Backup" button', () => {
-    render(<WelcomeScreen />);
-
-    screen.getByTestId('skip-tutorial-button');
-  });
-
-  it('pressing "Restore from Backup" navigates to RestoreBackup screen', () => {
-    render(<WelcomeScreen />);
-
-    fireEvent.press(screen.getByTestId('skip-tutorial-button'));
-
-    expect(mockNavigate).toHaveBeenCalledWith('RestoreBackup');
   });
 
   it('renders "Restore from backup" link', () => {

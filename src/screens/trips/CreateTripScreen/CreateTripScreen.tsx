@@ -141,25 +141,27 @@ export default function CreateTripScreen() {
             </Card>
           ) : null}
 
-          <View className="pb-8">
-            <Button
-              title={isCreating ? 'Creating Trip...' : 'Create Trip'}
-              onPress={handleCreateTrip}
-              variant="primary"
-              size="large"
-              fullWidth
-              loading={isCreating}
-              disabled={legs.length === 0 || !tripData.name.trim()}
-              testID={CREATE_TRIP_IDS.createTripButton.id}
-            />
-            {(legs.length === 0 || !tripData.name.trim()) && (
-              <Text className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-                {!tripData.name.trim() ? 'Enter a trip name' : 'Add at least one destination'} to continue
-              </Text>
-            )}
-          </View>
         </View>
       </ScrollView>
+
+      {/* Fixed footer CTA */}
+      <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+        <Button
+          title={isCreating ? 'Creating Trip...' : 'Create Trip'}
+          onPress={handleCreateTrip}
+          variant="primary"
+          size="large"
+          fullWidth
+          loading={isCreating}
+          disabled={legs.length === 0 || !tripData.name.trim()}
+          testID={CREATE_TRIP_IDS.createTripButton.id}
+        />
+        {(legs.length === 0 || !tripData.name.trim()) && (
+          <Text className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
+            {!tripData.name.trim() ? 'Enter a trip name' : 'Add at least one destination'} to continue
+          </Text>
+        )}
+      </View>
 
       {/* Boarding Pass Scanner Modal */}
       <Modal

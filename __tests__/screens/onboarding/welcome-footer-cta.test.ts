@@ -12,7 +12,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Country flags grid renders before CTA, pushing it below fold
  * Gap: CTA should be in fixed footer. Country list collapsed to one line or moved.
  */
-test.skip('WelcomeScreen has CTA outside ScrollView as fixed footer', () => {
+test('WelcomeScreen has CTA outside ScrollView as fixed footer', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/onboarding/WelcomeScreen/WelcomeScreen.tsx'),
     'utf-8',
@@ -27,7 +27,7 @@ test.skip('WelcomeScreen has CTA outside ScrollView as fixed footer', () => {
   expect(ctaIdx).toBeGreaterThan(scrollViewCloseIdx);
 });
 
-test.skip('WelcomeScreen country list is collapsed (not a full grid)', () => {
+test('WelcomeScreen country list is collapsed (not a full grid)', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/onboarding/WelcomeScreen/WelcomeScreen.tsx'),
     'utf-8',

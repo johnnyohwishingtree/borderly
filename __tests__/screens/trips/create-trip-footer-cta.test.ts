@@ -13,7 +13,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Create Trip button inside ScrollView
  * Gap: Create Trip button in fixed footer outside ScrollView
  */
-test.skip('CreateTripScreen has Create Trip button outside ScrollView', () => {
+test('CreateTripScreen has Create Trip button outside ScrollView', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/CreateTripScreen/CreateTripScreen.tsx'),
     'utf-8',

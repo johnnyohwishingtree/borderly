@@ -13,7 +13,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Continue + Edit buttons inside ScrollView
  * Gap: Continue in fixed footer, Edit can stay in scroll content
  */
-test.skip('ConfirmProfileScreen has Continue button outside ScrollView', () => {
+test('ConfirmProfileScreen has Continue button outside ScrollView', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/onboarding/ConfirmProfileScreen/ConfirmProfileScreen.tsx'),
     'utf-8',

@@ -4,8 +4,9 @@ import { resolve } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Every screen's primary CTA must be in a fixed footer, not inside a ScrollView.
- * Constraint candidate — applies to all screens.
+ * Constraint: Footer CTA
+ *
+ * Scope: src/screens/
  *
  * Context: .context/external/cognitive/fewer-fields-higher-completion.md
  * Context: .context/external/customer/travelers-fill-forms-at-borders.md
@@ -17,7 +18,7 @@ const ROOT = resolve(__dirname, '../..');
  * Confirm: Users find and tap the CTA faster when it's always visible
  * Invalidate: Some screen genuinely has no primary action (display-only)
  */
-test.skip('all screen testIDs declare primary CTA in footer zone', () => {
+test('all screen testIDs declare primary CTA in footer zone', () => {
   const screenDirs = ['onboarding', 'trips', 'wallet', 'profile', 'settings'];
   const missing: string[] = [];
 
@@ -41,8 +42,11 @@ test.skip('all screen testIDs declare primary CTA in footer zone', () => {
 
   // These screens have no primary action (display-only or modal-based)
   const exceptions = [
-    'settings/SettingsScreen', // navigation list, no CTA
-    'profile/ProfileScreen',  // navigation list, no CTA
+    'settings/SettingsScreen',        // navigation list, no CTA
+    'profile/ProfileScreen',          // navigation list, no CTA
+    'trips/ImportTripScreen',         // tab-based input, CTA is contextual per tab
+    'trips/PortalSubmissionScreen',   // WebView with toolbar, CTA is close/submit in toolbar
+    'trips/TripListScreen',           // FAB-based navigation, no single CTA
   ];
 
   const violations = missing.filter(s => !exceptions.some(e => s === e));

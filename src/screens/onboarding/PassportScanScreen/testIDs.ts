@@ -12,7 +12,7 @@ export const PASSPORT_SCAN_IDS = {
   dobField: { id: 'dob-field', type: 'DatePickerField' as const },
   passportExpiryField: { id: 'passport-expiry-field', type: 'DatePickerField' as const },
   issuingCountryField: { id: 'issuing-country-field', type: 'SearchableSelect' as const },
-  passportContinueButton: { id: 'passport-continue-button', type: 'button' as const },
-  passportBackButton: { id: 'passport-back-button', type: 'button' as const },
+  passportContinueButton: { id: 'passport-continue-button', type: 'button' as const, zone: 'footer' as const },
+  passportBackButton: { id: 'passport-back-button', type: 'button' as const, zone: 'footer' as const },
   genderButton: { id: 'gender-button', type: 'button' as const, dynamic: 'gender-{label}-button' },
 };

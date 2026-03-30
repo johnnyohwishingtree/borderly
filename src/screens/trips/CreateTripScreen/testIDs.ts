@@ -1,6 +1,6 @@
 export const CREATE_TRIP_IDS = {
   tripNameField: { id: 'trip-name-field', type: 'Input' as const },
-  createTripButton: { id: 'create-trip-button', type: 'button' as const },
+  createTripButton: { id: 'create-trip-button', type: 'button' as const, zone: 'footer' as const },
   addCompanionCtaButton: { id: 'add-companion-cta-button', type: 'button' as const },
   smartImportButton: { id: 'smart-import-button', type: 'button' as const },
   scanDestinationButton: { id: 'scan-destination-button', type: 'button' as const },

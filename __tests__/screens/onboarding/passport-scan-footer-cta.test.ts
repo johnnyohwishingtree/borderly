@@ -13,18 +13,17 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: CTAs inside ScrollView
  * Gap: CTAs should be in fixed footer outside ScrollView
  */
-test.skip('PassportScanScreen has primary CTA outside ScrollView', () => {
+test('PassportScanScreen has primary CTA outside ScrollView', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/onboarding/PassportScanScreen/PassportScanScreen.tsx'),
     'utf-8',
   );
 
   const scrollViewCloseIdx = content.lastIndexOf('</ScrollView>');
-  // Primary CTA (Start Camera Scan or Continue) should be after ScrollView closes
-  const scanBtnIdx = content.indexOf('Start Camera Scan');
-  const continueBtnIdx = content.indexOf('takeCameraScanButton');
+  // Continue and Back buttons should be after ScrollView closes (in fixed footer)
+  const continueBtnIdx = content.indexOf('passportContinueButton');
+  const backBtnIdx = content.indexOf('passportBackButton');
 
-  const ctaIdx = Math.max(scanBtnIdx, continueBtnIdx);
   expect(scrollViewCloseIdx).toBeGreaterThan(-1);
-  expect(ctaIdx).toBeGreaterThan(scrollViewCloseIdx);
+  expect(Math.max(continueBtnIdx, backBtnIdx)).toBeGreaterThan(scrollViewCloseIdx);
 });

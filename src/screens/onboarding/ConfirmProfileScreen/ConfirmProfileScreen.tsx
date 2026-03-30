@@ -155,26 +155,29 @@ export default function ConfirmProfileScreen() {
           </View>
         </Card>
 
-        <View className="space-y-4">
-          <Button
-            title="Continue"
-            onPress={handleContinue}
-            size="large"
-            fullWidth
-            testID={CONFIRM_PROFILE_IDS.continueToSecurityButton.id}
-          />
-
-          <Button
-            title="Edit Information"
-            onPress={handleEdit}
-            variant="outline"
-            size="large"
-            fullWidth
-            testID={CONFIRM_PROFILE_IDS.editInformationButton.id}
-          />
-        </View>
       </View>
     </ScrollView>
+
+    {/* Fixed footer CTA */}
+    <View className="bg-gradient-to-b from-green-50 to-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+      <Button
+        title="Continue"
+        onPress={handleContinue}
+        size="large"
+        fullWidth
+        testID={CONFIRM_PROFILE_IDS.continueToSecurityButton.id}
+      />
+      <View className="mt-3">
+        <Button
+          title="Edit Information"
+          onPress={handleEdit}
+          variant="outline"
+          size="large"
+          fullWidth
+          testID={CONFIRM_PROFILE_IDS.editInformationButton.id}
+        />
+      </View>
+    </View>
     </ScreenContainer>
   );
 }
