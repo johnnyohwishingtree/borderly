@@ -1,90 +1,69 @@
 ---
 name: visual-implement
-description: Implement UI/UX fixes from a visual audit report, then re-capture screenshots to verify
+description: Implement UI/UX fixes from a visual audit, re-capture screenshots to verify
 ---
 
-# Visual Implement — Apply UI/UX Fixes
+# /visual-implement — Apply Visual Fixes
 
-Takes findings from a `/visual-audit` report and implements the fixes in code. After applying changes, re-captures screenshots to verify the improvements.
+Implements UI/UX fixes from `/visual-audit` findings. For bugs, writes a spec test first. For styling, applies directly. Re-captures screenshots to verify.
 
 ## Prerequisites
 
-- A completed `/visual-audit` report (either from the current session or a previous one)
-- Screenshots in colocated `__screenshots__/` folders (component screenshots are captured automatically in CI; screen screenshots may need a manual `/capture-screens` run)
+- A completed `/visual-audit` report (current session or provided by user)
+- Screenshots in `__screenshots__/` folders
 
-## Steps
+## Step 1: Review findings
 
-### Step 1: Review Audit Findings
+Prioritize by severity: Critical > Major > Minor.
 
-1. If the user provides a specific audit report, use it directly.
-2. If no report is provided, ask the user which screens to fix or run `/visual-audit` first.
-3. Prioritize by severity: Critical > Major > Minor.
-4. **Classify each finding** as either a **bug** (broken behavior, missing content, data errors) or a **styling fix** (spacing, colors, alignment). This determines the fix workflow.
+Classify each finding:
+- **Bug** (broken behavior, missing content, data errors) → needs spec test first
+- **Styling** (spacing, colors, alignment) → apply directly, no test
 
-### Step 2: Read Before Screenshots
+## Step 2: Bugs → write spec tests
 
-Before making changes, read the current screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/` for the screens being modified. Read the per-screen `manifest.json` in each `__screenshots__/` folder for variant descriptions. This establishes the "before" state.
+For each bug finding, write a `*.spec.test.ts` with `test.skip`:
 
-### Step 3: Implement Fixes
-
-#### Bug Fixes (TDD Required)
-
-Findings that involve broken behavior are **bugs**, not styling issues. Follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
-
-#### Styling Fixes (No Test Required)
-
-Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class adjustments — do not need new tests. Apply directly.
-
-**Styling Rules:**
-- Use NativeWind `className` props (not inline styles)
-- Use existing components from `src/components/ui/` when available
-- Use Lucide icons via `lucide-react-native` (not vector-icons)
-- Follow existing Tailwind class patterns in the codebase
-- Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px, etc). Never arbitrary values.
-
-**Screen files are in:** `src/screens/<domain>/<ScreenName>/<ScreenName>.tsx`
-
-**Component files are in:** `src/components/<domain>/` or `src/components/ui/`
-
-**Process for each fix:**
-1. Read the screen source file
-2. Identify the exact code to modify
-3. Apply the fix (with TDD for bugs, directly for styling)
-4. Follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``
-
-### Step 4: Verify
-
-Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
-
-### Step 5: Re-Capture Screenshots
-
-After all fixes are applied and checks pass, re-capture screenshots:
-
-```bash
-# Screen screenshots (serial)
-E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
-
-# Component screenshots (parallel) — only if components were modified
-E2E_PROJECT=screenshot-capture npx playwright test captureComponents --project=screenshot-capture
+```typescript
+// __tests__/screens/<domain>/<Screen>.spec.test.ts
+/**
+ * Spec: <what should be true about the screen>
+ * Found by: visual-audit
+ */
+test.skip('<specific assertion>', () => { ... });
 ```
 
-### Step 6: Before/After Comparison
+Then resolve it: unskip, implement the fix, graduate the test.
 
-1. Read the new screenshots from `src/screens/<domain>/<ScreenName>/__screenshots__/`
-2. Compare with the "before" screenshots from Step 2
-3. Present a summary to the user:
-   - What changed on each screen
-   - Which audit findings were addressed
-   - Any remaining issues that need design decisions
+Follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
-### Step 7: Verify Manifests
+## Step 3: Styling → apply directly
 
-The screenshot capture test automatically writes per-screen `manifest.json` files in each `__screenshots__/` folder. Verify they reflect the current state.
+Pure visual changes don't need tests:
+- Use NativeWind `className` (not inline styles)
+- Use existing `src/components/ui/` components
+- Use Tailwind spacing scale (p-2 = 8px, p-4 = 16px)
+- Use Lucide icons via `lucide-react-native`
+
+One file at a time. Run `pnpm typecheck` after each.
+
+## Step 4: Verify
+
+```bash
+pnpm lint && pnpm typecheck && pnpm test
+```
+
+## Step 5: Re-capture screenshots
+
+```bash
+E2E_PROJECT=screenshot-capture npx playwright test captureScreenshots --project=screenshot-capture --workers=1
+```
+
+Read new screenshots and compare with before state. Present summary of what changed.
 
 ## Guardrails
 
-- **Don't skip tests for bugs** — if a screen doesn't render, data is wrong, or behavior is broken, write a test first
-- **Don't add new dependencies** without checking `src/components/ui/` first
-- **Don't refactor unrelated code** — stay focused on the audit findings
-- **Don't skip the re-capture step** — the before/after comparison is the proof
-
+- Bugs get spec tests first — don't skip
+- Styling fixes don't need tests
+- Don't refactor unrelated code — stay focused on audit findings
+- Don't skip the re-capture step

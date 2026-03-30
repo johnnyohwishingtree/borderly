@@ -4,7 +4,8 @@
 
 When the user asks for a change (feature, fix, refactor, improvement):
 1. Run `/plan` to write skipped spec tests encoding what should be true
-2. Run `/implement` to resolve the skipped tests
+2. Run `/implement` to resolve the skipped tests (1-2 files)
+3. If restructuring is needed (new directories, file moves, test migration) → run `/refactor` instead
 
 When the user asks to audit or review: run the relevant audit skill directly.
 
