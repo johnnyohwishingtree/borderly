@@ -1,5 +1,13 @@
 # CLAUDE.md — Borderly: Universal Travel Declaration App
 
+## How to work on this codebase
+
+When the user asks for a change (feature, fix, refactor, improvement):
+1. Run `/plan` to write skipped belief tests encoding what should be true
+2. Run `/implement` to resolve the skipped tests
+
+When the user asks to audit or review: run the relevant audit skill directly.
+
 ## Quick Orientation
 
 Borderly is a **local-first mobile app** that stores your travel profile on-device, then auto-generates customs/immigration forms for each destination country. Fill out your info once, travel everywhere. No server stores your passport data.
