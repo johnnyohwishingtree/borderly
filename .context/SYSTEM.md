@@ -20,98 +20,58 @@ Source of truth hierarchy:
   Patterns (.context/patterns/)              ← recipes awaiting generator automation
 ```
 
-## How a story flows through the system
+## How work flows through the system
 
-### 1. Where stories come from
+### 1. Work enters as skipped belief tests
 
-Stories originate from four sources, each a different audit:
+Work comes from two sources:
 
-| Source | Skill | Frequency | What it finds |
+**Human requests** → run `/plan` which writes `test.skip` belief tests:
+```
+User: "simplify trip creation"
+/plan → reads CLAUDE.md, folder CLAUDE.md, identifies CreateTripScreen
+     → writes __tests__/screens/trips/CreateTripScreen.beliefs.test.ts (test.skip)
+```
+
+**Audits** → write `test.skip` belief tests for violations found:
+
+| Audit | Frequency | Discovers | Output |
 |---|---|---|---|
-| UX gaps | `/ux-review` | Daily | Dead ends, missing states, flow friction in user journeys |
-| Code violations | `/code-audit` | Daily | Code that violates structural test constraints |
-| Context drift | `/context-audit` | Daily | Stale schemas, invalidated beliefs, broken references |
-| Test quality | `/test-audit` | Weekly | Junk tests, missing coverage for critical paths |
+| `/code-audit` | Daily | Code violating structural test constraints | `*.beliefs.test.ts` with `test.skip` |
+| `/ux-review` | Daily | UX gaps in user journeys | `*.beliefs.test.ts` with `test.skip` |
+| `/test-audit` | Weekly | Junk tests needing rewrite | `*.beliefs.test.ts` with `test.skip` |
+| `/context-audit` | Daily | Drift, staleness, belief lifecycle | Updates context/beliefs directly |
 
-Each audit creates GitHub issues with `story` + `pending` + `source:<skill>` labels. The source label lets the pipeline prioritize by category. Humans can also create stories manually (no source label needed).
+### 2. Belief test anatomy
 
-### 2. Story creation process (`/epic-planner`)
-
-When creating a story (whether from an audit finding or a human goal), the epic-planner follows this process:
-
-**Step 1: Understand what exists.** Read CLAUDE.md, then read the folder CLAUDE.md files for the areas the story will touch. Each folder CLAUDE.md has `See:` links to structural tests — read the JSDoc headers to understand the constraints.
-
-**Step 2: Check beliefs.** Read `src/config/beliefs.ts`. Identify any belief this story depends on. If the belief has status `hypothesis` or `working`, the story must note this — it's building on unproven ground.
-
-**Step 3: Check external context.** If the story touches country portals, read `.context/external/countries/`. If it touches storage or PII, read `.context/decisions/001-three-tier-storage.md`. The external context tells you WHY constraints exist.
-
-**Step 4: Check patterns.** If the story involves adding a country or screen, read `.context/patterns/add-country.md` or `add-screen.md` for the multi-step recipe.
-
-**Step 5: Write the story.** A well-formed story has:
-
-```markdown
-**Parent Epic:** #<epic_number>
-**Skill:** /plan-feature (or /test-suite, /ux-implement, etc.)
-
-## Description
-<what needs to be implemented and why>
-
-## Constraints
-- `<test-file>.test.ts` — <which rules from the JSDoc apply>
-- `<belief-key>` (<status>) — <why this assumption matters>
-  confirm: <what would validate this>
-  invalidate: <what would kill this>
-
-## Acceptance Criteria
-- [ ] <specific, testable outcomes>
-- [ ] Structural tests pass (`pnpm test`)
-- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
-
-## Dependencies
-Depends on #<previous_story_number> (if applicable)
+```typescript
+// __tests__/screens/trips/CreateTripScreen.beliefs.test.ts
+/**
+ * Belief: Trip creation should be lightweight — name + country only.
+ *
+ * Status: hypothesis
+ * Confirm: Trip creation completion rate > 90% after simplifying
+ * Invalidate: Users need flight/accommodation at creation time
+ */
+test.skip('CreateTripScreen LegCard does not have flight detail fields', () => {
+  const content = readFileSync(resolve(ROOT, 'src/screens/.../LegCard.tsx'), 'utf-8');
+  expect(content).not.toMatch(/flightNumber/);
+});
 ```
 
-**What goes in the Constraints section:**
+Key properties:
+- **Colocated** — lives in `__tests__/` mirroring the source it tests, named `*.beliefs.test.ts`
+- **Skipped** — `test.skip` means "this should be true but isn't yet." Commits cleanly.
+- **Self-describing** — JSDoc has the what, why, confirm, and invalidate criteria
+- **Asserting end state** — "has 3 fields" not "remove 9 fields"
 
-The Constraints section is NOT a list of every structural test. It's the subset that's RELEVANT to this story:
-
-- If the story moves components between directories → `dependency-direction.test.ts`
-- If it touches form fields or PII → `pii-boundary.test.ts` + `storage-boundary.test.ts`
-- If it adds interactive elements → `component-testids.test.ts`
-- If it depends on a product assumption → the belief from `beliefs.ts` with its confirm/invalidate criteria
-
-The pipeline uses these to:
-1. **Pre-flight** (Step 3): Read the referenced tests and beliefs before implementing
-2. **Verify** (Step 5): Know which structural tests to watch for failures
-3. **Learn** (Step 6): Know which beliefs to re-evaluate after implementation
-
-**Example — Issue #1126 (Simplify trip creation):**
-
-```markdown
-## Constraints
-- `screen-folder-convention.test.ts` — screen naming, folder structure
-- `dependency-direction.test.ts` — moved fields must follow import direction rules
-- `component-testids.test.ts` — all interactive elements need testIDs
-- `tripCreationShouldBeLightweight` (working) in `src/config/beliefs.ts`
-  confirm: Trip creation completion rate > 90% after simplifying
-  invalidate: Users need flight/accommodation at creation time for auto-fill
-
-## Acceptance Criteria
-- [ ] Create trip form: trip name + destination country only
-- [ ] Flight, accommodation, address fields moved to leg form
-- [ ] E2E test updated with simpler trip creation
-- [ ] Belief promoted to `confirmed` if validated
-```
-
-### 3. Sizing stories
-
-Each story should be completable in a single Claude session. Split by layer (storage → UI → integration) or by vertical slice (one feature end-to-end). Combine steps that are small and tightly coupled. If a story has no meaningful acceptance criteria beyond "files exist," merge it with a related story.
+### 3. Pipeline resolves skipped tests (`/pipeline`, hourly)
 
 ### 4. Pipeline picks it up (`/pipeline`, hourly)
 
 ```
 Step 1: Sync — git pull + cleanup stale PRs
-Step 2: Find skipped belief tests — grep for test.skip in __tests__/beliefs/
+Step 2: Find skipped belief tests — grep for *.beliefs.test.ts with test.skip
 Step 3: Read the skipped test's JSDoc — understand intent
 Step 4: Read folder CLAUDE.md → constraints → types — understand context
 Step 5: Implement + unskip (test.skip → test)
@@ -127,7 +87,7 @@ Step 9: No skipped tests — run audits to discover new work
 
 Two kinds of tests drive the pipeline:
 
-**Belief tests** (`__tests__/beliefs/`) — product assumptions written as skipped tests:
+**Belief tests** (`*.beliefs.test.ts`, colocated with source) — product assumptions as skipped tests:
 ```typescript
 /**
  * Belief: Trip creation should be lightweight
@@ -152,9 +112,9 @@ The JSDoc IS the spec. The test IS the enforcement. The pipeline reads both to u
 
 | Audit | Writes failing tests for |
 |---|---|
-| `/code-audit` | Constraint violations → `test.skip` in `__tests__/beliefs/` |
-| `/ux-review` | UX gaps → `test.skip` in `__tests__/beliefs/` |
-| `/test-audit` | Junk tests → `test.skip` in `__tests__/beliefs/` |
+| `/code-audit` | Constraint violations → `test.skip` in `*.beliefs.test.ts` colocated with source |
+| `/ux-review` | UX gaps → `test.skip` in `*.beliefs.test.ts` colocated with source |
+| `/test-audit` | Junk tests → `test.skip` in `*.beliefs.test.ts` colocated with source |
 | `/context-audit` | Drift detection, staleness, belief lifecycle (no tests written) |
 
 After an audit writes skipped tests, the pipeline picks them up on the next cycle. Commit gate stays green because skipped tests don't run.

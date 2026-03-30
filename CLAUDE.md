@@ -110,7 +110,7 @@ Key skills:
 
 Borderly is orchestrated by Claude Code scheduled tasks — no GitHub Actions runners.
 
-**To start work:** write a `test.skip` in `__tests__/beliefs/` or run `/plan-feature`.
+**To start work:** run `/plan` to write skipped belief tests, then `/implement` to resolve them.
 
 **Scheduled task prompts:**
 ```
