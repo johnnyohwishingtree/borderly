@@ -55,7 +55,7 @@ export default function Button({
     } : {
       primary: 'bg-blue-600 dark:bg-blue-500 shadow-lg shadow-blue-600/25',
       secondary: 'bg-transparent',
-      outline: 'bg-transparent border border-gray-300 dark:border-gray-600',
+      outline: 'bg-transparent border-2 border-gray-300 dark:border-gray-600 shadow-sm',
     };
 
     const disabledStyles = disabled || loading ? 'opacity-50 shadow-none' : '';
