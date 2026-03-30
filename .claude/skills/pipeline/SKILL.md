@@ -107,7 +107,7 @@ All spec tests are active and passing. Run audits to discover new specs:
 
 Check each in order — run the first one that produces output:
 1. `/code-audit` — scans code against constraints, writes `test.skip` for violations
-2. `/ux-review` — evaluates user journeys, writes `test.skip` for UX gaps
+2. `/ux-audit` — evaluates user journeys, writes `test.skip` for UX gaps
 3. `/context-audit` — checks drift, schema staleness, spec lifecycle
 4. `/test-audit` — scores test quality, writes `test.skip` for rewrites
 

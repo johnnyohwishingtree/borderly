@@ -84,7 +84,7 @@ Go back to **Step 2** if more skipped tests remain.
 
 Run audits to discover new specs:
 1. `/code-audit` — writes `test.skip` for constraint violations
-2. `/ux-review` — writes `test.skip` for UX gaps
+2. `/ux-audit` — writes `test.skip` for UX gaps
 3. `/context-audit` — checks drift, staleness, spec lifecycle
 4. `/test-audit` — writes `test.skip` for junk test rewrites
 

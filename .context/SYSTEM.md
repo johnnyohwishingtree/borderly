@@ -76,7 +76,7 @@ User: "simplify trip creation"
 | Audit | Frequency | Discovers | Output |
 |---|---|---|---|
 | `/code-audit` | Daily | Code violating structural test constraints | `*.spec.test.ts` with `test.skip` |
-| `/ux-review` | Daily | UX gaps in user journeys | `*.spec.test.ts` with `test.skip` |
+| `/ux-audit` | Daily | UX gaps in user journeys | `*.spec.test.ts` with `test.skip` |
 | `/test-audit` | Weekly | Junk tests needing rewrite | `*.spec.test.ts` with `test.skip` |
 | `/context-audit` | Daily | Drift, staleness, spec lifecycle | Updates `.context/` and spec test JSDoc directly |
 
@@ -140,7 +140,7 @@ test('components never import stores', () => { ... });
 | Audit | What it does |
 |---|---|
 | `/code-audit` | Walks folder CLAUDE.md → reads structural test JSDoc → checks code → writes `*.spec.test.ts` for violations |
-| `/ux-review` | Evaluates user journeys → writes `*.spec.test.ts` for UX gaps |
+| `/ux-audit` | Evaluates user journeys → writes `*.spec.test.ts` for UX gaps |
 | `/test-audit` | Scores test quality → writes `*.spec.test.ts` for junk test rewrites |
 | `/context-audit` | Drift detection, schema staleness, spec lifecycle (no tests written) |
 

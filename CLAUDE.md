@@ -102,7 +102,7 @@ Key skills:
 - `/pipeline` — Autonomous loop: find skipped tests, implement, merge (scheduled hourly)
 - `/code-audit` — Scan code vs constraints, write `test.skip` for violations
 - `/context-audit` — Drift detection, schema staleness, spec lifecycle
-- `/ux-review` — UX flow analysis → write `test.skip` for gaps
+- `/ux-audit` — UX flow analysis → write `test.skip` for gaps
 - `/test-audit` — Test quality scoring → write `test.skip` for rewrites
 
 ## Autonomous Workflow
@@ -116,6 +116,6 @@ Borderly is orchestrated by Claude Code scheduled tasks — no GitHub Actions ru
 Hourly:     Read CLAUDE.md. Read .claude/skills/pipeline/SKILL.md and follow every step.
 1x daily:   Read CLAUDE.md. Read .claude/skills/code-audit/SKILL.md and follow every step.
 1x daily:   Read CLAUDE.md. Read .claude/skills/context-audit/SKILL.md and follow every step.
-1x daily:   Read CLAUDE.md. Read .claude/skills/ux-review/SKILL.md and follow every step.
+1x daily:   Read CLAUDE.md. Read .claude/skills/ux-audit/SKILL.md and follow every step.
 1x weekly:  Read CLAUDE.md. Read .claude/skills/test-audit/SKILL.md and follow every step.
 ```

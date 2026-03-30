@@ -1,5 +1,5 @@
 ---
-name: ux-review
+name: ux-audit
 description: Evaluate user journeys using screen registry and journey definitions — finds dead ends, missing states, and flow friction
 argument-hint: "[flow or area to review, e.g. 'onboarding', 'trip creation', 'family management']"
 ---
@@ -154,7 +154,7 @@ Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` i
 
 ```bash
 git add <changed files>
-git diff --cached --quiet || git commit -m "chore: ux-review findings ($DATE)" && git push origin master
+git diff --cached --quiet || git commit -m "chore: ux-audit findings ($DATE)" && git push origin master
 ```
 
 ## Guardrails
