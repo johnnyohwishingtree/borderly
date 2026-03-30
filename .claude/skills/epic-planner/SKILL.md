@@ -99,13 +99,14 @@ gh issue create \
 ## Description
 <what needs to be implemented>
 
+## Constraints
+- <structural test that governs this area> (e.g., `dependency-direction.test.ts`)
+- <relevant belief from `src/config/beliefs.ts`> (status)
+
 ## Acceptance Criteria
 - [ ] Implementation complete
-- [ ] Tests pass
-- [ ] Documentation updated if needed
-
-## Files to Create/Modify
-- <file paths>
+- [ ] Structural tests pass (`pnpm test`)
+- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
 
 ## Dependencies
 Depends on #<previous_story_number> (if applicable)

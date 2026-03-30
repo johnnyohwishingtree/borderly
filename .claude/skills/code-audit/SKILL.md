@@ -70,26 +70,25 @@ For every violation, decide what type of finding it is:
 **Code violation?** The policy is correct but code doesn't follow it.
 → Create a GitHub issue for the code fix.
 
-**Knowledge stale?** The code is intentionally different and the policy needs updating.
-→ Create a GitHub issue for the knowledge update.
+**Constraint stale?** The code is intentionally different and the constraint JSDoc needs updating.
+→ Update the structural test's JSDoc header in `__tests__/structure/`.
 
-**Assumption invalidated?** The audit found evidence that contradicts a belief in `src/config/beliefs.ts`.
-→ Update the belief entry in `src/config/beliefs.ts` (lower certainty or add counter-evidence).
+**Belief invalidated?** The audit found evidence that contradicts a belief in `src/config/beliefs.ts`.
+→ Update the belief status directly in `src/config/beliefs.ts`.
 
 **New constraint discovered?** A pattern appeared across multiple violations that should be a permanent rule.
-→ Create a new policy with enforcement test (existing behavior — unchanged).
+→ Write a new structural test in `__tests__/structure/` with a `Constraint:` JSDoc header.
 
-Don't blindly flag violations — understand whether reality or documentation is wrong, and whether the finding is transient (fix it) or permanent (capture it in the graph).
+Don't blindly flag violations — understand whether reality or the constraint is wrong.
 
-## Step 5: Capture knowledge
+## Step 5: Capture learnings
 
-Before creating stories, capture what you discovered:
+1. **Invalidated beliefs** → update status in `src/config/beliefs.ts`
+2. **New constraints** → write structural test with Constraint JSDoc header
+3. **External discoveries** → add to `.context/external/`
+4. **Anti-patterns** → add to relevant structural test's JSDoc Anti-patterns section
 
-1. **Invalidated assumptions** → update beliefs in `src/config/beliefs.ts`
-2. **New constraints** → create policies with structural tests
-3. **Code violations** → these are gaps between existing policies and how code actually is
-
-Every finding should trace to a policy or belief (what SHOULD BE) vs the current code (what IS). The gap between them is the story.
+Every finding traces to a constraint (what SHOULD BE) vs current code (what IS). The gap is the story.
 
 ## Step 6: Create fix stories from gaps (if not --dry-run)
 

@@ -144,13 +144,11 @@ Prioritize:
 2. **Major gaps** — facts that significantly degrade the experience
 3. **Minor gaps** — polish items, small divergences from beliefs
 
-### Step 7: Update knowledge graph
+### Step 7: Capture learnings
 
-Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
-
-- Beliefs already validated/updated in Step 5
-- Check if findings invalidate or strengthen existing beliefs in `src/config/beliefs.ts`
-- If new patterns emerge across multiple findings, consider creating a new policy
+- Update belief statuses in `src/config/beliefs.ts` if findings confirm or invalidate assumptions
+- If a new UX constraint emerged across multiple findings, write a structural test with Constraint JSDoc
+- If external user behavior was observed, add to `.context/external/customer/`
 
 ### Step 8: Verify and commit
 
