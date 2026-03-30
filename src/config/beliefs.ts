@@ -17,10 +17,17 @@ interface Belief<T> {
   value: T;
   status: BeliefStatus;
   note: string;
+  confirm?: string;    // what evidence would promote this to confirmed
+  invalidate?: string; // what evidence would kill this
 }
 
-function belief<T>(value: T, status: BeliefStatus, note: string): Belief<T> {
-  return { value, status, note };
+function belief<T>(
+  value: T,
+  status: BeliefStatus,
+  note: string,
+  lifecycle?: { confirm?: string; invalidate?: string },
+): Belief<T> {
+  return { value, status, note, ...lifecycle };
 }
 
 export const BELIEFS = {
@@ -29,6 +36,10 @@ export const BELIEFS = {
     0.5,
     'hypothesis',
     'May be too low for complex forms with 50+ fields',
+    {
+      confirm: 'User testing shows >= 80% of users proceed when auto-fill rate hits 50%',
+      invalidate: 'Users abandon forms even when 50% of fields are auto-filled',
+    },
   ),
 
   /** @belief The core product promise — enter data once, fill every form */
@@ -64,6 +75,10 @@ export const BELIEFS = {
     true,
     'working',
     'Fewer visible fields = less friction. Needs user research to confirm.',
+    {
+      confirm: 'Analytics show higher completion rate with smart delta enabled vs full form',
+      invalidate: 'Users toggle smart delta off or miss fields because they were hidden',
+    },
   ),
 
   /** @belief Integration tests catch more real bugs than unit tests for this app */
@@ -71,6 +86,10 @@ export const BELIEFS = {
     true,
     'working',
     'Got burned when mocked tests passed but real integration failed',
+    {
+      confirm: 'Integration tests catch 3x more regressions than unit tests over 6 months',
+      invalidate: 'Integration tests become too slow (> 30s suite) or too flaky to be useful',
+    },
   ),
 
   /** @belief Privacy as differentiator — users choose us because data stays on device */
@@ -78,6 +97,10 @@ export const BELIEFS = {
     true,
     'working',
     'Hypothesis: users care about passport data privacy. Needs validation.',
+    {
+      confirm: 'App store reviews or user interviews mention privacy as reason for choosing Borderly',
+      invalidate: 'Users ask for cloud sync / cross-device features despite privacy trade-off',
+    },
   ),
 
   /** @belief Southeast Asia is the right first market */
@@ -85,6 +108,10 @@ export const BELIEFS = {
     true,
     'working',
     'Highest volume of cross-border travel, most complex portal landscape',
+    {
+      confirm: 'First 1000 users are predominantly APAC travelers',
+      invalidate: 'European or North American travelers adopt faster despite fewer supported portals',
+    },
   ),
 
   /** @belief Users at borders won't spend 5min on trip setup */
@@ -92,6 +119,10 @@ export const BELIEFS = {
     true,
     'working',
     'Create trip should feel quick — minimal required fields upfront',
+    {
+      confirm: 'Trip creation completion rate > 90% after simplifying to name + country',
+      invalidate: 'Users need flight/accommodation at creation time for auto-fill to work on first form view',
+    },
   ),
 
   /** @belief Portal should take full screen — no app chrome competing for attention */
@@ -99,6 +130,10 @@ export const BELIEFS = {
     true,
     'working',
     'Government portals are complex enough without our UI on top',
+    {
+      confirm: 'Users don\'t try to navigate back to app while filling portal forms',
+      invalidate: 'Users get lost in portal and need app guidance overlay to find their way back',
+    },
   ),
 
   /** @belief Onboarding should be passport scan + go, not a wizard */
@@ -106,6 +141,10 @@ export const BELIEFS = {
     true,
     'working',
     'Every extra onboarding step loses users. Scan passport, start trip.',
+    {
+      confirm: 'Onboarding completion rate > 80% with scan-and-go flow',
+      invalidate: 'Users need manual profile entry because OCR fails > 30% of the time',
+    },
   ),
 
   /** @belief Constraints should be executable code, not prose documentation */
