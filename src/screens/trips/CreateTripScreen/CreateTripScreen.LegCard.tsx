@@ -1,10 +1,9 @@
 import { View, Text } from 'react-native';
-import { Button, Input, Card, DatePickerField, SearchableSelect, AddressAutocomplete, AccommodationAutocomplete } from '@/components/ui';
+import { Button, Card, DatePickerField, SearchableSelect } from '@/components/ui';
 import { CountryFlag, TravelerSelector } from '@/components/trips';
 import PassportValidityWarning from '@/components/trips/PassportValidityWarning';
 import { AutoFilledBadge } from '@/components/forms';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
-import { ALL_AIRPORTS } from '@/constants/airports';
 import { usePassportValidity } from '@/hooks/usePassportValidity';
 import type { LegFormData } from '@/hooks/useTripCreation';
 import type { FamilyMember } from '@/types/profile';
@@ -130,40 +129,6 @@ export function CreateTripLegCard({
             </View>
           </View>
 
-          <View className="flex-row gap-3">
-            <View className="flex-1">
-              <FieldHeader label="Flight Number" autoFilled={!!leg.autoFilledFields?.flightNumber} />
-              <Input
-                value={leg.flightNumber}
-                onChangeText={(text) => updateLeg(index, 'flightNumber', text)}
-                placeholder="e.g., NH123"
-                autoCapitalize="characters"
-                testID={CREATE_TRIP_IDS.legFlightNumber.id.replace('${index}', String(index))}
-              />
-            </View>
-            <View className="flex-1">
-              <FieldHeader label="Airline Code" autoFilled={!!leg.autoFilledFields?.airlineCode} />
-              <Input
-                value={leg.airlineCode}
-                onChangeText={(text) => updateLeg(index, 'airlineCode', text)}
-                placeholder="e.g., NH"
-                autoCapitalize="characters"
-                testID={CREATE_TRIP_IDS.legAirlineCode.id.replace('${index}', String(index))}
-              />
-            </View>
-          </View>
-
-          <View>
-            <FieldHeader label="Arrival Airport" autoFilled={!!leg.autoFilledFields?.arrivalAirport} />
-            <SearchableSelect
-              value={leg.arrivalAirport}
-              onValueChange={(val) => updateLeg(index, 'arrivalAirport', val)}
-              options={ALL_AIRPORTS}
-              placeholder="Search airport..."
-              testID={CREATE_TRIP_IDS.legArrivalAirport.id.replace('${index}', String(index))}
-            />
-          </View>
-
           {familyMembers.length > 0 && (
             <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
               {applyToAllLegs ? (
@@ -194,45 +159,6 @@ export function CreateTripLegCard({
             </View>
           )}
 
-          <View className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation</Text>
-
-            <View className="space-y-3">
-              <View>
-                <AccommodationAutocomplete
-                  value={leg.accommodation.name}
-                  onNameChange={(text) => updateLeg(index, 'accommodation.name', text)}
-                  onAddressResolved={(resolved) => {
-                    if (resolved.line1) updateLeg(index, 'accommodation.address.line1', resolved.line1);
-                    if (resolved.city) updateLeg(index, 'accommodation.address.city', resolved.city);
-                    if (resolved.state) updateLeg(index, 'accommodation.address.state', resolved.state);
-                    if (resolved.postalCode) updateLeg(index, 'accommodation.address.postalCode', resolved.postalCode);
-                    if (resolved.country) updateLeg(index, 'accommodation.address.country', resolved.country);
-                  }}
-                  countryHint={leg.destinationCountry}
-                  testID={CREATE_TRIP_IDS.legAccommodationName.id.replace('${index}', String(index))}
-                  error={errors[`leg${index}.accommodation`]}
-                />
-              </View>
-
-              <AddressAutocomplete
-                value={leg.accommodation.address}
-                onAddressChange={(address) => updateLeg(index, 'accommodation.address', address)}
-                testID={CREATE_TRIP_IDS.legAccommodationAddress.id.replace('${index}', String(index))}
-              />
-
-              <View>
-                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
-                <Input
-                  value={leg.accommodation.phone}
-                  onChangeText={(text) => updateLeg(index, 'accommodation.phone', text)}
-                  placeholder="Hotel phone number"
-                  keyboardType="phone-pad"
-                  testID={`leg-${index}-accommodation-phone`}
-                />
-              </View>
-            </View>
-          </View>
         </View>
       </View>
     </Card>

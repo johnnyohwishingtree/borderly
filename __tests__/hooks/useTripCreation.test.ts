@@ -583,7 +583,6 @@ describe('useTripCreation — template pre-fill', () => {
 
     const errors = result.current.creation.errors;
     expect(errors['leg0.arrival']).toBe('Japan: Arrival date is required');
-    expect(errors['leg0.accommodation']).toBe('Japan: Accommodation name is required');
   });
 
   it('validation errors use "Destination N" when no country is set', async () => {
