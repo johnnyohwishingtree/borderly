@@ -107,33 +107,28 @@ Test count may go DOWN — that's expected if quality went up. Track:
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after
 
-## Step 6: Create stories for remaining work
+## Step 6: Write failing tests for remaining work
 
-For Tier 3-4 groups with 5+ tests, create a GitHub issue:
+For Tier 3-4 tests that need rewriting, write a belief test that asserts the CORRECT version:
 
-```bash
-REPO="johnnyohwishingtree/borderly"
-DATE=$(date +%Y-%m-%d)
-
-gh issue create --repo $REPO \
-  --title "Story: Clean up Tier <N> tests from $DATE test-audit" \
-  --label "story,pending" \
-  --label "source:test-audit" \
-  --body "$(cat <<'EOF'
-## Constraints
-- `knowledge-test-coverage.test.ts` — every structural test needs Constraint JSDoc
-
-## Acceptance Criteria
-- [ ] All Tier N tests rewritten or deleted
-- [ ] Test suite still passes
-- [ ] No coverage regressions on business logic
-EOF
-)"
+```typescript
+// __tests__/beliefs/test-quality-<area>.test.ts
+/**
+ * Belief: <area> tests should catch real bugs, not just assert rendering.
+ * Status: hypothesis
+ * Found by test-audit: <N> Tier 3-4 tests in __tests__/<area>/
+ */
+test('<area> tests have meaningful assertions', () => {
+  // Read the test files, check for toBeDefined()-only tests
+  // Assert they have substantive assertions
+});
 ```
 
-## Step 7: Classify findings and update knowledge
+The pipeline will pick up the failing test and rewrite the junk tests.
 
-Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
+## Step 7: Capture learnings
+
+If patterns emerge across multiple findings, add to the relevant structural test's Anti-patterns JSDoc section.
 
 For each finding, classify it:
 - **Test to fix/delete** → already handled in Steps 4-6

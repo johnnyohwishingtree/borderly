@@ -88,30 +88,29 @@ Don't blindly flag violations — understand whether reality or the constraint i
 3. **External discoveries** → add to `.context/external/`
 4. **Anti-patterns** → add to relevant structural test's JSDoc Anti-patterns section
 
-Every finding traces to a constraint (what SHOULD BE) vs current code (what IS). The gap is the story.
+Every finding traces to a constraint (what SHOULD BE) vs current code (what IS). The gap becomes a failing test.
 
-## Step 6: Create fix stories from gaps (if not --dry-run)
+## Step 6: Write failing tests for violations (if not --dry-run)
 
-Group findings by category. For each group with 2+ items, create a GitHub issue:
+For each violation found, write a failing test that asserts the correct state:
 
-```bash
-REPO="johnnyohwishingtree/borderly"
-DATE=$(date +%Y-%m-%d)
+- **Constraint violations** → add assertions to the existing structural test, or write a new one in `__tests__/structure/`
+- **Belief violations** → write a new test in `__tests__/beliefs/` with JSDoc explaining the belief
+- **Pattern violations** → write a test in `__tests__/beliefs/` asserting the expected code structure
 
-gh issue create --repo $REPO \
-  --title "Story: Fix <category> issues from $DATE code-audit" \
-  --label "story,pending" \
-  --label "source:code-audit" \
-  --body "$(cat <<'EOF'
-## Constraints
-- `<structural-test>.test.ts` — <which constraint was violated>
+The failing test IS the fix specification. The pipeline will pick it up and make it pass.
 
-## Acceptance Criteria
-- [ ] All violations fixed
-- [ ] Structural tests pass (`pnpm test`)
-- [ ] No new violations introduced
-EOF
-)"
+Example:
+```typescript
+// __tests__/beliefs/no-store-imports-in-components.test.ts
+/**
+ * Belief: Components should receive data via props, not import stores.
+ * Found by code-audit: src/components/trips/TripCard.tsx imports useTripStore.
+ */
+test('TripCard does not import stores', () => {
+  const content = readFileSync('src/components/trips/TripCard.tsx', 'utf-8');
+  expect(content).not.toMatch(/import.*from.*stores/);
+});
 ```
 
 ## Step 7: Verify and commit

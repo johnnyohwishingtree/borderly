@@ -111,46 +111,58 @@ Each story should be completable in a single Claude session. Split by layer (sto
 
 ```
 Step 1: Merge any open PRs
-Step 2: Find next pending story
-Step 3: Pre-flight — read folder CLAUDE.md → structural test JSDoc → beliefs.ts
-Step 4: Implement
-Step 5: Verify — pnpm lint, typecheck, test (structural tests enforce constraints)
-Step 6: Learn — update beliefs, write new constraints, add external context
-Step 7: Self-review
-Step 8: Push, PR, merge
-Step 9: Plan next epic if queue empty
+Step 2: Run pnpm test — find failing tests
+Step 3: Read the failing test's JSDoc — understand intent
+Step 4: Read folder CLAUDE.md → constraints → types — understand context
+Step 5: Implement the fix
+Step 6: Verify — pnpm lint, typecheck, test (ALL tests must pass)
+Step 7: Push, PR, merge
+Step 8: Loop back to Step 2 if more failing tests remain
+Step 9: No failures — run audits to discover new work
 ```
 
-### 5. Constraints catch violations automatically
+Failing tests ARE the work queue. `pnpm test` shows the backlog. No GitHub issues, no labels, no story lifecycle.
 
-When the pipeline runs `pnpm test`, the structural tests in `__tests__/structure/` execute in < 1 second and catch:
+### 5. Tests as executable specifications
 
-- Import direction violations (components importing stores)
-- PII leaking to unencrypted storage
-- Missing testIDs on interactive elements
-- Native modules without web mocks
-- Screen files not in named folders
-- Hooks not exported from barrel
+Two kinds of tests drive the pipeline:
 
-Each test has a JSDoc header that IS the constraint specification — the LLM reads the rules, exceptions, and anti-patterns from the test file itself.
+**Belief tests** (`__tests__/beliefs/`) — product assumptions written as failing tests:
+```typescript
+/**
+ * Belief: Trip creation should be lightweight
+ * Confirm: completion rate > 90% after simplifying
+ */
+test('CreateTripScreen has at most 3 required fields', () => { ... });
+```
 
-### 6. Learning happens in code, not prose
+**Constraint tests** (`__tests__/structure/`) — architectural rules that enforce themselves:
+```typescript
+/**
+ * Constraint: Dependency Direction
+ * DENY: components importing stores
+ */
+test('components never import stores', () => { ... });
+```
 
-After implementing, the pipeline checks 5 categories:
+The JSDoc IS the spec. The test IS the enforcement. The pipeline reads both to understand what to build and whether it succeeded.
 
-| What was learned | Where it goes |
+### 6. Audits discover new work by writing failing tests
+
+| Audit | Writes failing tests for |
 |---|---|
-| A belief was confirmed/invalidated | Update status in `src/config/beliefs.ts` |
-| A new rule should be enforced | Write structural test in `__tests__/structure/` with Constraint JSDoc |
-| Something about an external system | Add to `.context/external/` |
-| A wrong approach was tried | Add to structural test's Anti-patterns JSDoc section |
-| A `.context/` file gave wrong guidance | Update the file directly |
+| `/code-audit` | Constraint violations (code doesn't match structural test rules) |
+| `/ux-review` | UX gaps (user journey doesn't match belief about experience) |
+| `/test-audit` | Junk tests (tests that don't catch bugs need rewriting) |
+| `/context-audit` | Drift (code changed but context/beliefs not updated) |
+
+After an audit writes failing tests, the pipeline picks them up on the next cycle.
 
 ## Daily audits
 
 ### `/code-audit` (daily)
 
-Walks every folder CLAUDE.md, follows `See:` links to structural tests, checks if code violates the constraint JSDoc rules. Creates fix stories for violations.
+Walks every folder CLAUDE.md, follows `See:` links to structural tests, checks if code violates the constraint JSDoc rules. Writes failing tests for violations found.
 
 ### `/context-audit` (daily)
 
@@ -162,11 +174,11 @@ Walks every folder CLAUDE.md, follows `See:` links to structural tests, checks i
 
 ### `/ux-review` (daily)
 
-Evaluates user journeys against `e2e/mobile/full-e2e.test.ts` (the test IS the journey definition). Creates stories for UX gaps.
+Evaluates user journeys against `e2e/mobile/full-e2e.test.ts` (the test IS the journey definition). Writes failing belief tests for UX gaps.
 
 ### `/test-audit` (weekly)
 
-Scores existing tests by "what bug would this catch?" — not coverage percentage. Creates stories to rewrite low-value tests.
+Scores existing tests by "what bug would this catch?" — not coverage percentage. Writes failing belief tests asserting the correct test quality.
 
 ## How the file change hook works
 
