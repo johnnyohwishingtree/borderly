@@ -8,6 +8,7 @@ import { useTripStore } from '../stores/useTripStore';
 import { schemaRegistry } from '../services/schemas/schemaRegistry';
 import { handleStorageError, handleValidationError } from '../services/error/errorHandler';
 import { ERROR_CODES, createAppError } from '../services/error/errorHandling';
+import { stripPIIFromFormData } from '../utils/piiSanitizer';
 import type { TripStackParamList } from '../app/navigation/types';
 import type { TravelerProfile } from '../types/profile';
 import type { TravelerFormData } from '../types/trip';
@@ -156,9 +157,9 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
       return;
     }
 
-    // Save current traveler's form data before switching
+    // Save current traveler's form data before switching (strip PII before DB persist)
     if (activeTravelerId) {
-      const currentFormData = getFormData();
+      const currentFormData = stripPIIFromFormData(getFormData());
       const completionPct = currentForm?.stats.completionPercentage ?? 0;
       const existingForms: TravelerFormData[] = leg.travelerFormsData ?? [];
       const updatedForms = upsertTravelerFormData(

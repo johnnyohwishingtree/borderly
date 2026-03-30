@@ -11,7 +11,7 @@ const ROOT = resolve(__dirname, '../..');
  * Confirm: updateTravelerFormData calls stripPIIFromFormData before databaseService.updateTripLeg
  * Invalidate: The function only receives non-PII field IDs
  */
-test.skip('updateTravelerFormData strips PII before database persist', () => {
+test('updateTravelerFormData strips PII before database persist', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/stores/tripTravelerSlice.ts'),
     'utf-8',

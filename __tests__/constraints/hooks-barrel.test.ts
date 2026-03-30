@@ -25,7 +25,7 @@
  */
 
 import { readdirSync, readFileSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
 const HOOKS_DIR = resolve(ROOT, 'src/hooks');
@@ -44,6 +44,24 @@ describe('Hooks barrel exports', () => {
     });
 
     expect(missing).toEqual([]);
+  });
+
+  it('all barrel-exported hooks are imported somewhere in src/', () => {
+    const indexContent = readFileSync(join(HOOKS_DIR, 'index.ts'), 'utf-8');
+    const hookNames = [...indexContent.matchAll(/as\s+(use\w+)/g)].map(m => m[1]);
+
+    const deadExports: string[] = [];
+    for (const hook of hookNames) {
+      const { execSync } = require('child_process');
+      const result = execSync(
+        `grep -rl "${hook}" src/screens/ src/components/ src/app/ 2>/dev/null || true`,
+        { cwd: ROOT, encoding: 'utf-8' },
+      ).trim();
+      if (!result) {
+        deadExports.push(hook);
+      }
+    }
+    expect(deadExports).toEqual([]);
   });
 
   it('hook files follow use<Domain><Action> naming', () => {

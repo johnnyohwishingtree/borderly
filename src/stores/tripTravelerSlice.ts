@@ -1,5 +1,6 @@
 import type { TravelerFormData } from '@/types/trip';
 import { databaseService } from '@/services/storage';
+import { stripPIIFromFormData } from '@/utils/piiSanitizer';
 import type { TripStore } from './useTripStoreTypes';
 
 type Set = (
@@ -97,8 +98,12 @@ export function createTravelerSlice(set: Set, get: Get) {
           ];
         }
 
-        // Persist to database
-        await databaseService.updateTripLeg(legId, { travelerFormsData: updatedTravelerFormsData });
+        // Strip PII before persisting to database
+        const sanitizedFormsData = updatedTravelerFormsData.map(t => ({
+          ...t,
+          formData: stripPIIFromFormData(t.formData as Record<string, unknown>),
+        }));
+        await databaseService.updateTripLeg(legId, { travelerFormsData: sanitizedFormsData });
 
         // Update in-memory state
         set(state => ({

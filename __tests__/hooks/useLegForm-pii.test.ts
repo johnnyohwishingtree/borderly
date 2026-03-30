@@ -11,7 +11,7 @@ const ROOT = resolve(__dirname, '../..');
  * Confirm: switchToTraveler calls stripPIIFromFormData before updateTripLeg
  * Invalidate: Form data in switchToTraveler never contains PII fields
  */
-test.skip('switchToTraveler strips PII before persisting form data', () => {
+test('switchToTraveler strips PII before persisting form data', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/hooks/useLegForm.ts'),
     'utf-8',
