@@ -1,5 +1,5 @@
 /**
- * Belief: Trip creation should be lightweight — name + destinations only.
+ * Spec: Trip creation should be lightweight — name + destinations only.
  *
  * Status: hypothesis
  * Confirm: CreateTripScreen has at most trip name + country selection per leg
@@ -15,7 +15,7 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../../..');
 
-describe('Belief: trip creation should be lightweight', () => {
+describe('Spec: trip creation should be lightweight', () => {
   it('CreateTripScreen LegCard does not have flight detail fields', () => {
     const legCard = readFileSync(
       resolve(ROOT, 'src/screens/trips/CreateTripScreen/CreateTripScreen.LegCard.tsx'),

@@ -109,12 +109,12 @@ Test count may go DOWN — that's expected if quality went up. Track:
 
 ## Step 6: Write failing tests for remaining work
 
-For Tier 3-4 tests that need rewriting, write a belief test that asserts the CORRECT version:
+For Tier 3-4 tests that need rewriting, write a spec test that asserts the CORRECT version:
 
 ```typescript
-// __tests__/<area>/test-quality-<area>.beliefs.test.ts
+// __tests__/<area>/test-quality-<area>.spec.test.ts
 /**
- * Belief: <area> tests should catch real bugs, not just assert rendering.
+ * Spec: <area> tests should catch real bugs, not just assert rendering.
  * Status: hypothesis
  * Found by test-audit: <N> Tier 3-4 tests in __tests__/<area>/
  */
@@ -133,7 +133,7 @@ If patterns emerge across multiple findings, add to the relevant structural test
 For each finding, classify it:
 - **Test to fix/delete** → already handled in Steps 4-6
 - **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → add a comment in the relevant test or policy file
-- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → write a colocated `*.beliefs.test.ts` with `test.skip` asserting the correct state
+- **Testing spec invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → write a colocated `*.spec.test.ts` with `test.skip` asserting the correct state
 
 If patterns were found during the audit:
 - Add new anti-patterns as comments in the relevant test file's JSDoc header

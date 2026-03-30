@@ -107,27 +107,27 @@ For each journey defined in `e2e/mobile/full-e2e.test.ts`:
 
 For each finding, ask: "what truth did I discover about the system?"
 
-1. **Validate beliefs** — check existing `*.beliefs.test.ts` files for relevant beliefs
-   - If a finding challenges an existing belief, update the belief's certainty or add counter-evidence
-   - If a finding confirms a belief, note it
+1. **Validate specs** — check existing `*.spec.test.ts` files for relevant specs
+   - If a finding challenges an existing spec, update the spec's certainty or add counter-evidence
+   - If a finding confirms a spec, note it
 
-2. **Identify gaps** — where beliefs and current system state diverge
-   - A gap IS a failing belief test. "We believe X (belief), but the system currently does Y."
+2. **Identify gaps** — where specs and current system state diverge
+   - A gap IS a failing spec test. "We specified X (spec), but the system currently does Y."
 
-### Step 6: Write failing belief tests for gaps
+### Step 6: Write failing spec tests for gaps
 
-Each gap becomes a colocated `*.beliefs.test.ts` file. The test asserts what SHOULD be true based on the belief, and fails because the code doesn't match yet.
+Each gap becomes a colocated `*.spec.test.ts` file. The test asserts what SHOULD be true based on the spec, and fails because the code doesn't match yet.
 
 ```typescript
-// __tests__/<area>/<descriptive-name>.beliefs.test.ts
+// __tests__/<area>/<descriptive-name>.spec.test.ts
 /**
- * Belief: <what we think should be true>
+ * Spec: <what we think should be true>
  * Status: hypothesis
  * Confirm: <what evidence would validate this>
  * Invalidate: <what evidence would kill this>
  *
  * Current state: <what the system actually does>
- * Gap: <the difference between belief and reality>
+ * Gap: <the difference between spec and reality>
  */
 test.skip('<specific assertion about expected state>', () => {
   // Read the relevant source file or component
@@ -138,13 +138,13 @@ test.skip('<specific assertion about expected state>', () => {
 Use `test.skip` so the test commits cleanly. The pipeline will find it, unskip it, implement the fix, and merge.
 
 Prioritize:
-1. **Critical gaps** — beliefs that directly block users from reaching value
-2. **Major gaps** — beliefs that significantly degrade the experience
-3. **Minor gaps** — polish items, small divergences from beliefs
+1. **Critical gaps** — specs that directly block users from reaching value
+2. **Major gaps** — specs that significantly degrade the experience
+3. **Minor gaps** — polish items, small divergences from specs
 
 ### Step 7: Capture learnings
 
-- Update belief statuses in colocated `*.beliefs.test.ts` JSDoc if findings confirm or invalidate assumptions
+- Update spec statuses in colocated `*.spec.test.ts` JSDoc if findings confirm or invalidate assumptions
 - If a new UX constraint emerged across multiple findings, write a structural test with Constraint JSDoc
 - If external user behavior was observed, add to `.context/external/customer/`
 

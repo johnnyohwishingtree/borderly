@@ -20,7 +20,7 @@
  *
  * Why: Smart components provide autocomplete, platform autofill hints, and
  *      API-powered suggestions. Plain Input loses all of these.
- *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ *      Smart components (AccommodationAutocomplete, AddressAutocomplete) provide consistent UX.
  */
 
 import * as fs from 'fs';

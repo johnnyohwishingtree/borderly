@@ -1,6 +1,6 @@
 ---
 name: local-pipeline
-description: Autonomous belief-driven pipeline in isolated worktree
+description: Autonomous spec-driven pipeline in isolated worktree
 argument-hint: ""
 ---
 
@@ -34,10 +34,10 @@ pnpm install --frozen-lockfile
 
 All subsequent steps run inside `$WORKTREE_DIR`.
 
-## Step 2: Find skipped belief tests
+## Step 2: Find skipped spec tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.beliefs\."
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.spec\."
 ```
 
 If no skipped tests → skip to **Step 6**.
@@ -54,7 +54,7 @@ git checkout -b fix/$(basename <test-file> .test.ts)
 
 1. Implement the changes to make the assertions true
 2. Change `test.skip` → `test`
-3. Graduate: merge into existing `.test.ts` (if one exists) and delete `.beliefs.test.ts`, or rename `.beliefs.test.ts` → `.test.ts`
+3. Graduate: merge into existing `.test.ts` (if one exists) and delete `.spec.test.ts`, or rename `.spec.test.ts` → `.test.ts`
 
 ## Step 4: Verify
 
@@ -72,8 +72,8 @@ git commit -m "<descriptive message>"
 git push -u origin fix/$(basename <test-file> .test.ts)
 
 gh pr create --repo $REPO --base master \
-  --title "fix: <what the belief test required>" \
-  --body "Resolved skipped belief test: <test file path>"
+  --title "fix: <what the spec test required>" \
+  --body "Resolved skipped spec test: <test file path>"
 PR_NUM=$(gh pr list --repo $REPO --head fix/$(basename <test-file> .test.ts) --json number --jq '.[0].number')
 gh pr merge $PR_NUM --repo $REPO --squash --delete-branch
 ```
@@ -82,10 +82,10 @@ Go back to **Step 2** if more skipped tests remain.
 
 ## Step 6: No skipped tests — run audits
 
-Run audits to discover new beliefs:
+Run audits to discover new specs:
 1. `/code-audit` — writes `test.skip` for constraint violations
 2. `/ux-review` — writes `test.skip` for UX gaps
-3. `/context-audit` — checks drift, staleness, belief lifecycle
+3. `/context-audit` — checks drift, staleness, spec lifecycle
 4. `/test-audit` — writes `test.skip` for junk test rewrites
 
 After an audit writes new skipped tests, go back to **Step 2**.

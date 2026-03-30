@@ -10,7 +10,7 @@
  * Why: space-x-* uses CSS margins that break when combined with flex-wrap
  *      (wrapped items get an unwanted left margin). gap-* works correctly
  *      in both wrapped and non-wrapped layouts.
- *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ *      NativeWind uses gap-* instead of space-x-* for consistent spacing.
  */
 
 import * as fs from 'fs';

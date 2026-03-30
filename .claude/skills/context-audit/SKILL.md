@@ -1,12 +1,12 @@
 ---
 name: context-audit
-description: Audit system health — drift detection, schema staleness, belief lifecycle, constraint coverage
+description: Audit system health — drift detection, schema staleness, spec lifecycle, constraint coverage
 argument-hint: "[--dry-run]"
 ---
 
 # /context-audit — System Health
 
-Checks that code, constraints, beliefs, and external context stay in sync.
+Checks that code, constraints, specs, and external context stay in sync.
 Unlike `/code-audit` (which checks code against constraints), this skill
 checks the system's meta-health.
 
@@ -53,7 +53,7 @@ If dirty-files is non-empty:
 4. **Assess drift** — compare diffs against what context files and constraint JSDoc claim:
    - Structural test JSDoc lists rules that code may now violate or extend
    - Country files may have stale field counts
-   - Beliefs in `*.beliefs.test.ts` JSDoc may be confirmed or invalidated
+   - Specs in `*.spec.test.ts` JSDoc may be confirmed or invalidated
 
 5. **Prioritize** — drift from actual code changes first, then general health.
 
@@ -93,13 +93,13 @@ else { console.log('All schemas within maintenance window.'); }
 
 For stale schemas: create a GitHub issue noting which schema is overdue.
 
-## Step 3: Belief lifecycle
+## Step 3: Spec lifecycle
 
-Find all `*.beliefs.test.ts` files across `__tests__/` and verify they have JSDoc with status/confirm/invalidate. For each belief:
+Find all `*.spec.test.ts` files across `__tests__/` and verify they have JSDoc with status/confirm/invalidate. For each spec:
 - `hypothesis` status older than 60 days → flag for re-evaluation
-- Code changes that confirm or invalidate a `working` belief → update status in JSDoc
-- Beliefs with status `confirmed` → check if a structural test enforces them (if not, write one)
-- Beliefs no longer referenced by any code → flag for removal
+- Code changes that confirm or invalidate a `working` spec → update status in JSDoc
+- Specs with status `confirmed` → check if a structural test enforces them (if not, write one)
+- Specs no longer referenced by any code → flag for removal
 
 ## Step 5: Constraint coverage
 
@@ -133,7 +133,7 @@ Fix any broken references directly.
 
 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order.
 
-If 5+ files changed, check if any structural test JSDoc or `*.beliefs.test.ts` JSDoc needs updating.
+If 5+ files changed, check if any structural test JSDoc or `*.spec.test.ts` JSDoc needs updating.
 
 ## Guardrails
 - Don't check code against constraints — that's `/code-audit`

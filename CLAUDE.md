@@ -3,7 +3,7 @@
 ## How to work on this codebase
 
 When the user asks for a change (feature, fix, refactor, improvement):
-1. Run `/plan` to write skipped belief tests encoding what should be true
+1. Run `/plan` to write skipped spec tests encoding what should be true
 2. Run `/implement` to resolve the skipped tests
 
 When the user asks to audit or review: run the relevant audit skill directly.
@@ -96,11 +96,11 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 ## Skills Reference
 
 Key skills:
-- `/plan` — Turn any request into skipped belief tests (`test.skip`)
-- `/implement` — Resolve skipped belief tests (read spec, implement, unskip, verify)
+- `/plan` — Turn any request into skipped spec tests (`test.skip`)
+- `/implement` — Resolve skipped spec tests (read spec, implement, unskip, verify)
 - `/pipeline` — Autonomous loop: find skipped tests, implement, merge (scheduled hourly)
 - `/code-audit` — Scan code vs constraints, write `test.skip` for violations
-- `/context-audit` — Drift detection, schema staleness, belief lifecycle
+- `/context-audit` — Drift detection, schema staleness, spec lifecycle
 - `/ux-review` — UX flow analysis → write `test.skip` for gaps
 - `/test-audit` — Test quality scoring → write `test.skip` for rewrites
 
@@ -108,7 +108,7 @@ Key skills:
 
 Borderly is orchestrated by Claude Code scheduled tasks — no GitHub Actions runners.
 
-**To start work:** run `/plan` to write skipped belief tests, then `/implement` to resolve them.
+**To start work:** run `/plan` to write skipped spec tests, then `/implement` to resolve them.
 
 **Scheduled task prompts:**
 ```

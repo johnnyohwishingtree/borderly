@@ -21,7 +21,7 @@
  *
  * Why: Inline hex colors bypass the design system's color tokens and make
  *      theme changes impossible. NativeWind className is the single source.
- *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ *      NativeWind (Tailwind for RN) is the styling framework — inline hex colors bypass it.
  */
 
 import * as fs from 'fs';
