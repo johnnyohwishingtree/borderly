@@ -149,7 +149,7 @@ git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" 
 
 ## Guardrails
 - Don't delete bug regression tests (even if simple)
-- Don't delete structural tests in `__tests__/structure/`
+- Don't delete structural tests in `__tests__/constraints/`
 - Don't delete tests for security-critical code (PII, keychain, encryption)
 - Don't delete tests the user explicitly asked for
 - Read existing tests for patterns on what's worth testing

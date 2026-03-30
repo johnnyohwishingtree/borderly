@@ -35,7 +35,7 @@ If `--scope` provided, filter to that directory only.
 For each folder CLAUDE.md:
 
 1. **Read the CLAUDE.md** — note the one-line description
-2. **Follow each `See:` link** — read the referenced structural test or `.context/` file. When the `See:` link points to a structural test (`__tests__/structure/*.test.ts`), read the JSDoc `Constraint:` header at the top — it contains the Scope, Rules, Exceptions, and Anti-patterns that govern that folder's code.
+2. **Follow each `See:` link** — read the referenced structural test or `.context/` file. When the `See:` link points to a structural test (`__tests__/constraints/*.test.ts`), read the JSDoc `Constraint:` header at the top — it contains the Scope, Rules, Exceptions, and Anti-patterns that govern that folder's code.
 3. **For each policy loaded**, read its `## Rules` section
 4. **For each RULE**, check the folder's code:
    - `DENY: import X` → grep folder files for the forbidden pattern
@@ -56,11 +56,11 @@ Also check general CLAUDE.md health:
 - Modules with no corresponding test file
 
 ### Architecture violations
-- Source files over 500 lines (per `__tests__/structure/screen-folder-convention.test.ts`)
+- Source files over 500 lines (per `__tests__/constraints/screen-folder-convention.test.ts`)
 
 ### Drift
 - testIDs referenced in E2E tests that don't exist in source
-- `.context/` or `__tests__/structure/` or `.claude/` path references pointing to files that don't exist
+- `.context/` or `__tests__/constraints/` or `.claude/` path references pointing to files that don't exist
 - README commands that don't match actual CLI behavior
 
 ## Step 4: Discover unenforced patterns
@@ -72,7 +72,7 @@ Look for "every X has a Y" patterns in the codebase that aren't covered by struc
 - Every store has a types file → is this enforced?
 - Every new entity (screen, service, store) follows the same structure → is this enforced?
 
-For each discovered pattern, check if a structural test in `__tests__/structure/` already covers it. If not, and the pattern holds across 3+ instances, write a new structural test with a `Constraint:` JSDoc header. The test IS the recipe — next time someone adds a screen without a CLAUDE.md, the test fails and tells them what's missing.
+For each discovered pattern, check if a structural test in `__tests__/constraints/` already covers it. If not, and the pattern holds across 3+ instances, write a new structural test with a `Constraint:` JSDoc header. The test IS the recipe — next time someone adds a screen without a CLAUDE.md, the test fails and tells them what's missing.
 
 This is how design patterns become permanent constraints: the audit discovers them from existing code, writes the test, and the test prevents deviation going forward.
 
@@ -84,13 +84,13 @@ For every violation, decide what type of finding it is:
 → Create a GitHub issue for the code fix.
 
 **Constraint stale?** The code is intentionally different and the constraint JSDoc needs updating.
-→ Update the structural test's JSDoc header in `__tests__/structure/`.
+→ Update the structural test's JSDoc header in `__tests__/constraints/`.
 
 **Spec invalidated?** The audit found evidence that contradicts an existing spec.
 → Write a `.spec.test.ts` with `test.skip` asserting the correct state.
 
 **New constraint discovered?** The same type of violation appeared in 3+ files, or this violation was already fixed by a previous spec and regressed.
-→ Don't write a spec (it would just get resolved and regress again). Write a permanent structural test in `__tests__/structure/` with a `Constraint:` JSDoc header. This is how specs get promoted to constraints — repeated violations prove the rule needs permanent enforcement.
+→ Don't write a spec (it would just get resolved and regress again). Write a permanent structural test in `__tests__/constraints/` with a `Constraint:` JSDoc header. This is how specs get promoted to constraints — repeated violations prove the rule needs permanent enforcement.
 
 Don't blindly flag violations — understand whether reality or the constraint is wrong.
 
@@ -107,7 +107,7 @@ Every finding traces to a constraint (what SHOULD BE) vs current code (what IS).
 
 For each violation found, write a failing test that asserts the correct state:
 
-- **Constraint violations** → add assertions to the existing structural test, or write a new one in `__tests__/structure/`
+- **Constraint violations** → add assertions to the existing structural test, or write a new one in `__tests__/constraints/`
 - **Spec violations** → write a colocated `*.spec.test.ts` with JSDoc explaining the spec
 - **Pattern violations** → write a colocated `*.spec.test.ts` asserting the expected code structure
 

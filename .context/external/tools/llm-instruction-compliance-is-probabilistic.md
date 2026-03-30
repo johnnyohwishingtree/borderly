@@ -7,6 +7,6 @@ Enforcement reliability hierarchy (highest to lowest):
 2. **`.claude/rules/`** — auto-loaded every session, always in context
 3. **Root `CLAUDE.md`** — loaded at conversation start, high visibility
 4. **Folder `CLAUDE.md`** — injected when files in that directory are read
-5. **Structural tests** (`__tests__/structure/`) — referenced on-demand via `See:` links
+5. **Structural tests** (`__tests__/constraints/`) — referenced on-demand via `See:` links
 
 Design critical constraints as structural tests, not as instructions. Use policies for guidance that tolerates occasional misses.

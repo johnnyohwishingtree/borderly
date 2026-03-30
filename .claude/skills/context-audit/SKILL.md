@@ -15,7 +15,7 @@ checks the system's meta-health.
 
 ## Step 1: Drift detection from tracked file changes
 
-The PostToolUse hook tracks source file changes in `.claude/dirty-files` (zero token cost — see `__tests__/structure/agent-token-efficiency.test.ts` constraint).
+The PostToolUse hook tracks source file changes in `.claude/dirty-files` (zero token cost — see `__tests__/constraints/agent-token-efficiency.test.ts` constraint).
 
 ```bash
 cat .claude/dirty-files 2>/dev/null
@@ -34,7 +34,7 @@ If dirty-files is non-empty:
    ```bash
    for f in $(cat .claude/dirty-files); do
      echo "--- $f ---"
-     grep -rl "$(basename "$f")" .context/ __tests__/structure/ 2>/dev/null || echo "(no references)"
+     grep -rl "$(basename "$f")" .context/ __tests__/constraints/ 2>/dev/null || echo "(no references)"
    done
    ```
 
@@ -103,13 +103,13 @@ Find all `*.spec.test.ts` files across `__tests__/` and verify they have JSDoc w
 
 ## Step 5: Constraint coverage
 
-Run `pnpm jest --ci __tests__/structure/knowledge-test-coverage.test.ts`.
+Run `pnpm jest --ci __tests__/constraints/knowledge-test-coverage.test.ts`.
 
 Check that every structural test has a `Constraint:` JSDoc header. If a new test was added without one, add it.
 
 ## Step 5: Cross-reference integrity
 
-Run `pnpm jest --ci __tests__/structure/system-integrity.test.ts __tests__/structure/knowledge-graph-integrity.test.ts`.
+Run `pnpm jest --ci __tests__/constraints/system-integrity.test.ts __tests__/constraints/knowledge-graph-integrity.test.ts`.
 
 These verify:
 - All folder CLAUDE.md `See:` links resolve

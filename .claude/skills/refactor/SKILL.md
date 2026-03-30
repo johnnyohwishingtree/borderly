@@ -57,7 +57,7 @@ For each moved/renamed source file:
 
 If spec tests drove this refactor:
 1. Unskip them (`test.skip` → `test`)
-2. Graduate: cross-cutting → `__tests__/structure/`, otherwise merge into `.test.ts` or rename
+2. Graduate: cross-cutting → `__tests__/constraints/`, otherwise merge into `.test.ts` or rename
 
 ## Step 6: Verify
 
@@ -68,7 +68,7 @@ pnpm lint && pnpm typecheck && pnpm test
 Up to 6 attempts. ALL tests must pass.
 
 Also verify:
-- No broken `See:` links in any CLAUDE.md (`pnpm test -- __tests__/structure/system-integrity`)
+- No broken `See:` links in any CLAUDE.md (`pnpm test -- __tests__/constraints/system-integrity`)
 - No orphaned test files pointing to deleted source files
 - New directories all have CLAUDE.md
 

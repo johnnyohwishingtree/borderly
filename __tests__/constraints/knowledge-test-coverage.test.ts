@@ -10,14 +10,14 @@
  *   group all found in production). "It renders" tests. Heavy-mock unit tests (4+ mocks).
  *   Parameterized mapping tests beyond basic validation (150 assertions/country is overkill).
  *
- * Scope: __tests__/structure/, .context/, src/
+ * Scope: __tests__/constraints/, .context/, src/
  *
- * REQUIRE: every architectural constraint has a structural test in __tests__/structure/
+ * REQUIRE: every architectural constraint has a structural test in __tests__/constraints/
  * REQUIRE: code structured so conventions are greppable (clear directory boundaries)
  * REQUIRE: naming patterns are predictable (structural tests can scan)
  * DENY:    conventions that can't be tested — restructure until testable
  *
- * When adding a new constraint, ask: "Can I write a test in __tests__/structure/
+ * When adding a new constraint, ask: "Can I write a test in __tests__/constraints/
  * that catches violations in under 1 second?"
  * - Yes: write the test with a JSDoc constraint header
  * - No, but could restructure: restructure first
@@ -52,7 +52,7 @@ describe('Constraint coverage', () => {
 
     if (missing.length > 0) {
       throw new Error(
-        `Structural tests without Constraint JSDoc header:\n${missing.map(m => `  - ${m}`).join('\n')}\n\nEvery test in __tests__/structure/ should have a /** Constraint: ... */ header.`
+        `Structural tests without Constraint JSDoc header:\n${missing.map(m => `  - ${m}`).join('\n')}\n\nEvery test in __tests__/constraints/ should have a /** Constraint: ... */ header.`
       );
     }
   });

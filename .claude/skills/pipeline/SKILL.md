@@ -37,7 +37,10 @@ gh pr list --repo $REPO --state open --json number,title --jq '.[]'
 ## Step 2: Find skipped spec tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/ 2>/dev/null | grep "\.spec\." | head -10
+# Specs (feature work)
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.spec\." | head -10
+# Constraints (new architectural rules pending validation)
+grep -rl "test\.skip\|it\.skip" __tests__/constraints/ 2>/dev/null | head -10
 ```
 
 If no skipped tests found → skip to **Step 7**.
@@ -46,7 +49,7 @@ If `--test <path>` was provided, focus on that specific test.
 
 Otherwise, pick ONE skipped test file. Prioritize by:
 1. Spec tests (`*.spec.test.ts` files) — product specs (highest priority)
-2. Any `.skip` tests in `__tests__/structure/` — constraint gaps
+2. Any `.skip` tests in `__tests__/constraints/` — constraint gaps
 
 ## Step 3: Understand intent
 
@@ -68,7 +71,7 @@ git fetch origin master && git checkout -b fix/$(basename <test-file> .test.ts) 
 2. Read the source code it references
 3. Implement the changes to make the assertions true
 4. Change `test.skip` → `test` (unskip)
-5. Graduate: if cross-cutting rule (applies to ALL files of a type) → move to `__tests__/structure/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete `.spec.test.ts`; otherwise rename `.spec.test.ts` → `.test.ts`
+5. Graduate: if cross-cutting rule (applies to ALL files of a type) → move to `__tests__/constraints/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete `.spec.test.ts`; otherwise rename `.spec.test.ts` → `.test.ts`
 
 When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
 

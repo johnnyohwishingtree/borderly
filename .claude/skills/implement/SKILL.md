@@ -23,7 +23,8 @@ Finds `*.spec.test.ts` files with `test.skip`, reads the JSDoc to understand int
 ## Step 1: Find skipped spec tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.spec\."
+# Specs (feature work) + Constraints (new architectural rules)
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep -E "\.spec\.|constraints/"
 ```
 
 If a specific test was provided, use that. Otherwise pick the first one found.
@@ -50,7 +51,7 @@ Make the skipped test's assertions true:
 
 The `.spec.` naming means "pending work." Once resolved, graduate it to one of three places:
 
-1. **Cross-cutting rule?** (applies to ALL files of a type, not just one) → move to `__tests__/structure/`, change JSDoc from `Spec:` to `Constraint:`. Example: "no component may import stores" applies to every component.
+1. **Cross-cutting rule?** (applies to ALL files of a type, not just one) → move to `__tests__/constraints/`, change JSDoc from `Spec:` to `Constraint:`. Example: "no component may import stores" applies to every component.
 
 2. **Matching test exists?** (e.g., `CreateTripScreen.test.ts`) → merge the assertions into it and delete the `.spec.test.ts` file.
 

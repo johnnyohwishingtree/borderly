@@ -4,7 +4,7 @@
  * Scope: src/, e2e/, .context/, .claude/
  *
  * Verifies all cross-references resolve:
- * - Folder CLAUDE.md See: links → .context/, __tests__/structure/, src/ types
+ * - Folder CLAUDE.md See: links → .context/, __tests__/constraints/, src/ types
  * - Skills → structural tests, rules, .context/ files
  * - .context/ files → other .context/ files
  * - Test file comments → .context/ files
@@ -134,7 +134,7 @@ describe('System integrity', () => {
   });
 
   it('all .context/ references in test files point to existing files', () => {
-    const testFiles = walk(resolve(ROOT, '__tests__/structure'), '.ts');
+    const testFiles = walk(resolve(ROOT, '__tests__/constraints'), '.ts');
     const broken: string[] = [];
 
     for (const file of testFiles) {

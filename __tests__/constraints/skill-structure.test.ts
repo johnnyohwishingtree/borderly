@@ -7,7 +7,7 @@
  * - Numbered steps (## Step N: or ### Step N:)
  * - ## Guardrails section
  *
- * See: __tests__/structure/knowledge-test-coverage.test.ts (testable architecture constraint)
+ * See: __tests__/constraints/knowledge-test-coverage.test.ts (testable architecture constraint)
  */
 
 import { readdirSync, readFileSync, statSync, existsSync } from 'fs';

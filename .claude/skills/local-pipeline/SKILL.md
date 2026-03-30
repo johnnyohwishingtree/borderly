@@ -37,7 +37,8 @@ All subsequent steps run inside `$WORKTREE_DIR`.
 ## Step 2: Find skipped spec tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.spec\."
+# Specs (feature work) + Constraints (new architectural rules)
+grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep -E "\.spec\.|constraints/"
 ```
 
 If no skipped tests → skip to **Step 6**.
@@ -54,7 +55,7 @@ git checkout -b fix/$(basename <test-file> .test.ts)
 
 1. Implement the changes to make the assertions true
 2. Change `test.skip` → `test`
-3. Graduate: if cross-cutting rule → move to `__tests__/structure/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete; otherwise rename `.spec.test.ts` → `.test.ts`
+3. Graduate: if cross-cutting rule → move to `__tests__/constraints/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete; otherwise rename `.spec.test.ts` → `.test.ts`
 
 ## Step 4: Verify
 

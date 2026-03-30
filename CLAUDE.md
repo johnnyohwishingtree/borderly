@@ -65,7 +65,7 @@ pnpm e2e              # E2E smoke tests (Playwright)
 
 ## Constraints
 
-Architecture constraints live as JSDoc headers in `__tests__/structure/` test files.
+Architecture constraints live as JSDoc headers in `__tests__/constraints/` test files.
 Each structural test IS the constraint — it runs in < 1s at `pnpm test` time.
 
 | Test File | Constraint |

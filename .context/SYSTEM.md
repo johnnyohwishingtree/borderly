@@ -8,7 +8,7 @@ Everything is a test. Work flows through three stages:
 
 ```
 Spec                    →    Test                    →    Structural test
-*.spec.test.ts               *.test.ts                    __tests__/structure/*.test.ts
+*.spec.test.ts               *.test.ts                    __tests__/constraints/*.test.ts
 test.skip                    active                       active + Constraint: JSDoc
 "build this"                 "this is true"               "this must ALWAYS be true"
 temporary                    permanent                    permanent, cross-cutting
@@ -16,7 +16,7 @@ temporary                    permanent                    permanent, cross-cutti
 
 - **Specs** — pending work. `test.skip` in `*.spec.test.ts`. The pipeline's backlog.
 - **Tests** — graduated specs. Regular `.test.ts` files. Prevent regression on specific code.
-- **Structural tests** — tests promoted to cross-cutting rules. Live in `__tests__/structure/` with `Constraint:` JSDoc headers. Enforce architectural patterns across the entire codebase.
+- **Constraint tests** — tests promoted to cross-cutting rules. Live in `__tests__/constraints/` with `Constraint:` JSDoc headers. Enforce architectural patterns across the entire codebase.
 
 Most specs graduate to regular tests. A spec only becomes a structural test when the rule applies to ALL code of that type (e.g., "no component may import a store" — not just one component).
 
@@ -25,10 +25,10 @@ Most specs graduate to regular tests. A spec only becomes a structural test when
 | Term | In this codebase | Example |
 |---|---|---|
 | **Spec** | A `test.skip` in a `*.spec.test.ts` file asserting what SHOULD be true about our code but isn't yet. The pipeline's work queue. | `test.skip('CreateTripScreen has at most 3 fields', () => {...})` |
-| **Constraint** | An active test in `__tests__/structure/` with a JSDoc header. Enforced automatically at `pnpm test`. Permanent. | `dependency-direction.test.ts` — DENY: components importing stores |
-| **Decision** | A record of a rejected alternative. Explains WHY the code is the way it is. Immutable once written. Prose in `.context/decisions/`. | "We chose bare RN over Expo because of native module access" |
+| **Constraint** | An active test in `__tests__/constraints/` with a JSDoc header. Enforced automatically at `pnpm test`. Permanent. | `dependency-direction.test.ts` — DENY: components importing stores |
+| **Decision** | A rejected alternative documented in a constraint test's JSDoc (`Decision:` / `Rejected:` fields). Explains WHY the code is the way it is. | `bare-react-native.test.ts` — "Rejected Expo because of native module access" |
 | **External context** | A truth about the world outside our code. We can't change it. Prose in `.context/external/`. | "GDPR requires data minimization", "Japan portal has 47 fields" |
-| **Folder CLAUDE.md** | A pointer file in source directories. `See:` links connect code to its governing constraints and types. | `src/stores/CLAUDE.md` → `See: __tests__/structure/dependency-direction.test.ts` |
+| **Folder CLAUDE.md** | A pointer file in source directories. `See:` links connect code to its governing constraints and types. | `src/stores/CLAUDE.md` → `See: __tests__/constraints/dependency-direction.test.ts` |
 
 ### What is NOT in this system
 
@@ -37,7 +37,8 @@ Most specs graduate to regular tests. A spec only becomes a structural test when
 | Knowledge files | Deleted. Constraints are tests. Models are types. |
 | Beliefs | Renamed to specs. `test.skip` in `*.spec.test.ts`. |
 | Facts | External → `.context/external/`. Internal → deleted (code IS the fact). |
-| Policies | Absorbed into structural test JSDoc headers. |
+| Policies | Absorbed into constraint test JSDoc headers. |
+| Decisions | Absorbed into constraint test JSDoc (Decision/Rejected fields). |
 | Stories/Epics | Eliminated. Specs replace stories. `test.skip` is the work queue. |
 | Models | TypeScript types in `src/types/`. |
 
@@ -50,12 +51,11 @@ What remains as prose (in `.context/`) is only what can't be code: government po
 ```
 Source of truth hierarchy:
 
-  Structural tests (__tests__/structure/)    ← constraints, enforced at pnpm test
+  Constraint tests (__tests__/constraints/)    ← constraints, enforced at pnpm test
   TypeScript types (src/types/)              ← models, enforced by compiler
   Spec tests (*.spec.test.ts)               ← pending work, tracked with JSDoc
   Folder CLAUDE.md (src/**/CLAUDE.md)        ← pointers to constraints + types
   External context (.context/external/)      ← things outside our control (prose)
-  Decisions (.context/decisions/)            ← rejected alternatives (permanent prose)
 ```
 
 ## How work flows through the system
@@ -126,7 +126,7 @@ test.skip('CreateTripScreen has at most 3 required fields', () => { ... });
 // Pipeline unskips → implements → graduates to .test.ts → merges
 ```
 
-**Constraint tests** (`__tests__/structure/`) — permanent architectural rules:
+**Constraint tests** (`__tests__/constraints/`) — permanent architectural rules:
 ```typescript
 /**
  * Constraint: Dependency Direction
@@ -156,7 +156,7 @@ You work normally
 /context-audit runs daily
   → Reads dirty-files + last-audit-hash
   → git diff <last-hash>..HEAD -- <dirty-files>
-  → Greps .context/ and __tests__/structure/ for references
+  → Greps .context/ and __tests__/constraints/ for references
   → Finds drift, updates context, clears dirty-files
 ```
 
@@ -170,7 +170,6 @@ You work normally
 └── settings.json              # Hook registration
 
 .context/
-├── decisions/                 # 7 ADRs — rejected alternatives (immutable)
 ├── external/
 │   ├── countries/             # 15 country files — government portal behavior
 │   ├── regulatory/            # 5 files — laws (GDPR, PII, ToS)
@@ -181,7 +180,7 @@ You work normally
 ├── CLAUDE.md                  # What goes here and what doesn't
 └── SYSTEM.md                  # This file
 
-__tests__/structure/           # 21 structural tests = 21 constraints
+__tests__/constraints/           # 21 structural tests = 21 constraints
 *.spec.test.ts                 # Specs as colocated test.skip (pending work)
 src/**/CLAUDE.md               # Folder guardrails pointing to constraints + types
 ```
