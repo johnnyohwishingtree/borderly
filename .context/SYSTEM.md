@@ -1,6 +1,23 @@
-# Borderly System: Spec-Driven Development
+# Borderly System: Constraint-Driven Development
 
 How the autonomous AI pipeline develops, verifies, and evolves the codebase.
+
+## Architecture
+
+Two layers:
+
+**Constraint-driven (the foundation)** — architectural rules enforced as structural tests in `__tests__/structure/`. These are permanent. They prevent the codebase from drifting. Every `pnpm test` run validates them in < 1 second. This is the system's immune system.
+
+**Spec-driven (the workflow)** — new work enters as `test.skip` in `*.spec.test.ts` files. The pipeline reads the spec, implements the code, unskips the test, graduates it. Specs are temporary — they exist until fulfilled. This is the system's engine.
+
+```
+Spec (drives new work)              Constraint (prevents regression)
+*.spec.test.ts (test.skip)    →    __tests__/structure/*.test.ts (permanent)
+"build this"                        "don't break this"
+temporary                           permanent
+```
+
+Not every spec becomes a constraint. Screen-level specs graduate to regular `.test.ts` files. Only cross-cutting architectural rules graduate to `__tests__/structure/`.
 
 ## Definitions
 
