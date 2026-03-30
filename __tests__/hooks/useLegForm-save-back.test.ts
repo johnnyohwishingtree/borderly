@@ -15,12 +15,12 @@ const ROOT = resolve(__dirname, '../..');
  * Confirm: Profile is enriched after first form save; second form auto-fills those fields
  * Invalidate: Save-back causes performance issues or data corruption
  */
-test.skip('persistFormData calls profileSaveBack after saving form', () => {
+test('useLegForm calls saveFormFieldsToProfile after saving form', () => {
   const content = readFileSync(
-    resolve(ROOT, 'src/hooks/useLegFormHelpers.ts'),
+    resolve(ROOT, 'src/hooks/useLegForm.ts'),
     'utf-8',
   );
 
   // Should import and call the save-back function
-  expect(content).toMatch(/profileSaveBack|saveFormFieldsToProfile/);
+  expect(content).toMatch(/saveFormFieldsToProfile/);
 });

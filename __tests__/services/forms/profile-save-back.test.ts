@@ -17,7 +17,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Confirm: Fields entered on first form auto-fill on second form for different country
  * Invalidate: Some form field values are country-specific and shouldn't save to profile
  */
-test.skip('profileSaveBack service exists and exports saveFormFieldsToProfile', () => {
+test('profileSaveBack service exists and exports saveFormFieldsToProfile', () => {
   const servicePath = resolve(ROOT, 'src/services/forms/profileSaveBack.ts');
   expect(existsSync(servicePath)).toBe(true);
 
@@ -25,7 +25,7 @@ test.skip('profileSaveBack service exists and exports saveFormFieldsToProfile', 
   expect(content).toMatch(/export.*saveFormFieldsToProfile/);
 });
 
-test.skip('profileSaveBack only saves fields with profile.* autoFillSource', () => {
+test('profileSaveBack only saves fields with profile.* autoFillSource', () => {
   const servicePath = resolve(ROOT, 'src/services/forms/profileSaveBack.ts');
   const content = readFileSync(servicePath, 'utf-8');
 

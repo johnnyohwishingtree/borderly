@@ -7,6 +7,7 @@ import { useProfileStore } from '../stores/useProfileStore';
 import { useTripStore } from '../stores/useTripStore';
 import { schemaRegistry } from '../services/schemas/schemaRegistry';
 import { handleStorageError, handleValidationError } from '../services/error/errorHandler';
+import { saveFormFieldsToProfile } from '../services/forms/profileSaveBack';
 import { ERROR_CODES, createAppError } from '../services/error/errorHandling';
 import { stripPIIFromFormData } from '../utils/piiSanitizer';
 import type { TripStackParamList } from '../app/navigation/types';
@@ -32,7 +33,7 @@ export { deriveLegFormStatus } from './useLegFormHelpers';
  */
 export function useLegForm({ tripId, legId }: UseLegFormOptions) {
   const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
-  const { profile, getProfile } = useProfileStore();
+  const { profile, getProfile, updateProfileById } = useProfileStore();
   const { getTripById, getLegById, updateTripLeg, getTravelerFormData } = useTripStore();
   const {
     currentForm,
@@ -212,6 +213,14 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
         activeTravelerId, assignedTravelers, getLegById, legId, updateTripLeg,
         completionPercentage: currentForm?.stats.completionPercentage ?? 0,
       });
+      // Save any new profile-mapped fields back to profile (progressive enrichment)
+      const activeProfile = activeTravelerId ? travelerProfiles.get(activeTravelerId) : profile;
+      if (activeProfile && currentForm) {
+        const profileUpdates = saveFormFieldsToProfile(currentForm.sections, getFormData(), activeProfile);
+        if (profileUpdates) {
+          await updateProfileById(activeProfile.id, profileUpdates);
+        }
+      }
       setLastFailedOperation(null);
       Alert.alert('Success', 'Form data saved successfully!');
     } catch (error) {
@@ -255,6 +264,14 @@ export function useLegForm({ tripId, legId }: UseLegFormOptions) {
         activeTravelerId, assignedTravelers, getLegById, legId, updateTripLeg,
         completionPercentage: 100, statusOverride: 'ready',
       });
+      // Save any new profile-mapped fields back to profile (progressive enrichment)
+      const activeProfile = activeTravelerId ? travelerProfiles.get(activeTravelerId) : profile;
+      if (activeProfile && currentForm) {
+        const profileUpdates = saveFormFieldsToProfile(currentForm.sections, getFormData(), activeProfile);
+        if (profileUpdates) {
+          await updateProfileById(activeProfile.id, profileUpdates);
+        }
+      }
       setLastFailedOperation(null);
       Alert.alert('Success', 'Form marked as ready for submission!', [
         { text: 'OK', onPress: () => navigation.goBack() },
