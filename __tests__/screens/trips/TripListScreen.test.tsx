@@ -149,7 +149,7 @@ jest.mock('../../../src/hooks/useTripFilter', () => ({
 jest.mock('lucide-react-native', () => {
   const React = require('react');
   const Icon = ({ testID }: { testID?: string }) => React.createElement('View', { testID });
-  return { Plane: Icon, Search: Icon, X: Icon, FileDown: Icon };
+  return { Plane: Icon, Search: Icon, X: Icon, ScanLine: Icon };
 });
 
 jest.mock('../../../src/components/trips', () => {
@@ -253,12 +253,6 @@ describe('TripListScreen — rendering with trips', () => {
     screen.getByText('Your Trips');
   });
 
-  it('renders the + Add Trip button when trips exist', () => {
-    render(<TripListScreen />);
-
-    screen.getByText('+ Add Trip');
-  });
-
   it('renders search input when trips exist', () => {
     render(<TripListScreen />);
 
@@ -324,11 +318,6 @@ describe('TripListScreen — empty state', () => {
     expect(screen.queryByTestId('trip-filter-all')).toBeNull();
   });
 
-  it('does not show + Add Trip button when no trips', () => {
-    render(<TripListScreen />);
-
-    expect(screen.queryByText('+ Add Trip')).toBeNull();
-  });
 });
 
 // ── Filter empty results ──────────────────────────────────────────────────────
@@ -520,14 +509,6 @@ describe('TripListScreen — navigation interactions', () => {
     // Invoke renderItem manually to verify it wires up onPress correctly
     const rendered = flatList.props.renderItem({ item: baseTrip });
     expect(typeof rendered.props.onPress).toBe('function');
-  });
-
-  it('pressing + Add Trip calls handleCreateTrip', () => {
-    render(<TripListScreen />);
-
-    fireEvent.press(screen.getByText('+ Add Trip'));
-
-    expect(mockHandleCreateTrip).toHaveBeenCalledTimes(1);
   });
 
   it('pressing import trip button calls handleImportTrip', () => {

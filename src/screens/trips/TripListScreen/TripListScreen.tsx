@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { Plane, Search, X, FileDown } from 'lucide-react-native';
+import { Plane, Search, X, ScanLine } from 'lucide-react-native';
 import { useTripFilter, TripStatusFilter } from '@/hooks/useTripFilter';
 import { useTripList } from '@/hooks/useTripList';
 import { TripCard, DuplicateTripModal, DeadlineSummary } from '@/components/trips';
@@ -147,31 +147,18 @@ export default function TripListScreen() {
               }
             </Text>
           </View>
-          <View className="flex-row items-center gap-x-2">
-            <TouchableOpacity
-              onPress={handleImportTrip}
-              className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] items-center justify-center"
-              activeOpacity={0.7}
-              testID={TRIP_LIST_IDS.importTripButton.id}
-              accessibilityRole="button"
-              accessibilityLabel="Import trip"
-              accessibilityHint="Import a trip from a booking confirmation or boarding pass"
-            >
-              <FileDown size={16} color="#374151" />
-            </TouchableOpacity>
-            {trips.length > 0 && (
-              <TouchableOpacity
-                onPress={handleCreateTrip}
-                className="bg-blue-600 dark:bg-blue-500 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] items-center justify-center"
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Add new trip"
-                accessibilityHint="Create a new travel itinerary"
-              >
-                <Text className="text-white font-semibold">+ Add Trip</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <TouchableOpacity
+            onPress={handleImportTrip}
+            className="bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg min-h-[44px] flex-row items-center justify-center gap-x-2"
+            activeOpacity={0.7}
+            testID={TRIP_LIST_IDS.importTripButton.id}
+            accessibilityRole="button"
+            accessibilityLabel="Import trip"
+            accessibilityHint="Import a trip from a booking confirmation or boarding pass"
+          >
+            <ScanLine size={16} color="#374151" />
+            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">Import</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
