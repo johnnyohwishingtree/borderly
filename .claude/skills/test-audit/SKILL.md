@@ -6,13 +6,13 @@ argument-hint: "[--scope path/] [--dry-run] [--tier 3-4]"
 
 # /test-audit — Test Quality Audit
 
-Scores existing tests against `.knowledge/policies/testing/test-quality.md`, identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
+Scores existing tests against the test quality rules (Tier 1-4 scoring, assert behavior not existence), identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` passes)
 - `pnpm test` runs (results inform the audit)
-- Test quality policy available at `.knowledge/policies/testing/test-quality.md`
+- Test quality policy available at the test quality rules (Tier 1-4 scoring, assert behavior not existence)
 
 ## Usage
 ```
@@ -34,13 +34,13 @@ Collect all test files matching the scope. For each test file, extract:
 
 ## Step 2: Score each test file
 
-Apply the quality tiers from `.knowledge/policies/testing/test-quality.md`:
+Apply the quality tiers from the test quality rules (Tier 1-4 scoring, assert behavior not existence):
 
 ### Tier 4 checks (delete candidates)
 - `it()` blocks with zero assertions
 - Tests that mock the function under test
 - Tests where assertions are so loose they pass with any implementation
-- Flaky tests (if known from gaps.md)
+- Flaky tests (if known from GitHub issues)
 - Tests that only assert `toBeDefined()` or `toBeTruthy()` on return values
 
 ### Tier 3 checks (rewrite candidates)
@@ -100,16 +100,16 @@ Summary table:
 
 ## Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 Test count may go DOWN — that's expected if quality went up. Track:
 - Tests before / after
 - Assertions before / after (should go up even if tests go down)
 - Tier distribution before / after
 
-## Step 6: Write findings to gaps.md and create stories
+## Step 6: Create stories for remaining work
 
-Add findings to `.knowledge/gaps.md`. For Tier 3-4 groups with 5+ tests, create a story:
+For Tier 3-4 groups with 5+ tests, create a GitHub issue:
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
@@ -118,30 +118,37 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Clean up Tier <N> tests from $DATE test-audit" \
   --label "story,pending" \
-  --body "<follow .knowledge/templates/story.md>
+  --label "source:test-audit" \
+  --body "$(cat <<'EOF'
+## Constraints
+- `knowledge-test-coverage.test.ts` — every structural test needs Constraint JSDoc
 
-After completing fixes, remove resolved entries from .knowledge/gaps.md."
+## Acceptance Criteria
+- [ ] All Tier N tests rewritten or deleted
+- [ ] Test suite still passes
+- [ ] No coverage regressions on business logic
+EOF
+)"
 ```
 
 ## Step 7: Classify findings and update knowledge
 
-Follow `.knowledge/policies/workflow/learning.md`.
+Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 For each finding, classify it:
 - **Test to fix/delete** → already handled in Steps 4-6
-- **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → create or update a fact in `.knowledge/facts/tool/`
-- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `.knowledge/beliefs/`
+- **New testing truth discovered** (e.g., "renderHook + fake timers causes OOM in this codebase") → add a comment in the relevant test or policy file
+- **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `src/config/beliefs.ts`
 
 If patterns were found during the audit:
-- Add new anti-patterns to `policies/testing/test-quality.md`
-- Add new anti-patterns to `policies/testing/test-conventions.md`
+- Add new anti-patterns as comments in the relevant test file's JSDoc header
 
 ## Step 8: Verify and commit
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 ```bash
-git add .knowledge/gaps.md
+git add <changed files>
 git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" && git push origin master
 ```
 
@@ -150,4 +157,4 @@ git diff --cached --quiet || git commit -m "chore: test-audit findings ($DATE)" 
 - Don't delete structural tests in `__tests__/structure/`
 - Don't delete tests for security-critical code (PII, keychain, encryption)
 - Don't delete tests the user explicitly asked for
-- Follow `.knowledge/patterns/add-test.md` for what's worth testing
+- Read existing tests for patterns on what's worth testing

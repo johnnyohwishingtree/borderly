@@ -26,10 +26,10 @@ Identify and fix architecture issues: dependency violations, oversized files, mi
 ### Step 1: Load Architecture Rules
 
 Read the enforced constraints:
-- `.knowledge/policies/architecture/dependency-direction.md` — Screens -> Hooks -> Stores -> Services
-- `.knowledge/policies/state/hook-conventions.md` — Extract business logic into hooks
-- `.knowledge/models/form-engine.md` — Smart components for specialized fields
-- `.knowledge/policies/architecture/file-boundaries.md` — Files under 500 lines
+- `__tests__/structure/dependency-direction.test.ts` — Screens -> Hooks -> Stores -> Services
+- `__tests__/structure/hooks-barrel.test.ts` — Extract business logic into hooks
+- `src/types/schema.ts` — Form engine types and smart component definitions
+- `__tests__/structure/screen-folder-convention.test.ts` — Files under 500 lines
 
 ### Step 2: Scan for Violations
 
@@ -54,7 +54,7 @@ Check for:
 **Coupling issues:**
 - Business logic in screen render functions
 - State management mixed with UI code
-- Storage boundary violations — check `.knowledge/policies/data/storage-tiers.md` for storage boundary rules
+- Storage boundary violations — check `__tests__/structure/storage-boundary.test.ts` for storage boundary rules
 
 ### Step 3: Plan Refactoring
 
@@ -68,7 +68,7 @@ Present the plan before implementing if it touches 5+ files.
 
 ### Step 4: Implement (One File at a Time)
 
-Follow `.knowledge/policies/workflow/fix-strategy.md`.
+Follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``.
 
 **When splitting files:**
 - New subdirectory gets a barrel `index.ts`
@@ -77,7 +77,7 @@ Follow `.knowledge/policies/workflow/fix-strategy.md`.
 
 ### Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 ### Step 6: Summary
 

@@ -3,10 +3,10 @@ import * as path from 'path';
 import { SUPPORTED_COUNTRY_CODES } from '../../src/constants/countries';
 
 /**
- * Ensures every supported country has a matching flag implementation.
+ * Constraint: Country Flag Coverage
  *
- * When a new country is added to SUPPORTED_COUNTRIES, this test will fail
- * until a `case '<CODE>':` is added to CountryFlag.tsx's renderFlag() switch.
+ * Ensures every supported country has a matching flag implementation in
+ * CountryFlag.tsx and no orphaned flag cases exist for unsupported countries.
  */
 
 const FLAG_COMPONENT_PATH = path.resolve(

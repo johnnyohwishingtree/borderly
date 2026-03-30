@@ -12,7 +12,7 @@ Analyzes user experience by reading the screen registry and journey definitions.
 - `src/screens/*/testIDs.ts` — per-screen element declarations (testID, type, zone)
 - `e2e/mobile/full-e2e.test.ts` — deterministic E2E test covering core journeys
 - `e2e/screenshots/` — auto-captured screenshots from each test run
-- `.knowledge/models/user-journeys.md` — expected user journeys with verification criteria
+- `e2e/mobile/full-e2e.test.ts` — deterministic E2E test covering core user journeys
 
 ## Prerequisites
 - E2E test passes (`pnpm e2e:mobile`)
@@ -33,7 +33,7 @@ Read these sources:
 
 3. **`e2e/screenshots/`** — visual record of each screen from the latest test run.
 
-4. **`.knowledge/models/user-journeys.md`** — expected journeys with verification criteria.
+4. **`e2e/mobile/full-e2e.test.ts`** — the E2E test defines expected journeys with verification criteria.
 
 ### Step 2: Structural analysis
 
@@ -54,7 +54,7 @@ Run these checks against the registry and journey data:
 
 **Excessive tap counts**
 - Count steps in each journey definition. Flag journeys with 10+ steps to complete a core task
-- Compare against `.knowledge/models/user-journeys.md` — are actual journeys longer than expected?
+- Compare against the E2E test flow — are actual journeys longer than expected?
 
 **Screen complexity (test complexity = user complexity)**
 
@@ -86,11 +86,11 @@ If a screen is hard to E2E test, it's hard for a user to use. Use the E2E test (
 
 **Smart component gaps**
 - Fields with componentType `Input` that should be `SearchableSelect`, `DatePickerField`, or `AccommodationAutocomplete` based on their testID/label
-- Read `.knowledge/models/form-engine.md` for smart component mappings
+- Read `src/types/schema.ts` for smart component type mappings
 
 ### Step 3: Journey-level analysis
 
-For each journey in `.knowledge/models/user-journeys.md`:
+For each journey defined in `e2e/mobile/full-e2e.test.ts`:
 
 1. Check if the journey is covered in `e2e/mobile/full-e2e.test.ts`
 2. Count the actual steps vs expected steps
@@ -103,34 +103,40 @@ For each journey in `.knowledge/models/user-journeys.md`:
 - **Major**: 10+ taps for common task, missing empty state, orphaned screen, screen with 6+ fields requiring scroll, onboarding screen that could be deferred
 - **Minor**: Duplicate entry points, suboptimal component type, E2E test uses coordinate taps for app-owned UI
 
-### Step 5: Capture knowledge (facts-first)
+### Step 5: Capture knowledge
 
 For each finding, ask: "what truth did I discover about the system?"
 
-1. **Write or update facts** — measurable observations about the current system state
-   - `facts/customer/` — user-facing truths ("onboarding requires 32 interactions before value")
-   - `facts/craft/` — technical truths ("WebView captures accessibility tree from native overlays")
-   - Facts describe what IS, not what should be. They get updated when the system changes.
-
-2. **Write or validate beliefs** — what we think SHOULD be true
-   - `beliefs/` — design hypotheses ("trip creation should require only name + country")
+1. **Validate beliefs** — check `src/config/beliefs.ts` for relevant beliefs
    - If a finding challenges an existing belief, update the belief's certainty or add counter-evidence
+   - If a finding confirms a belief, note it
 
-3. **Identify gaps** — where facts and beliefs diverge
-   - A gap IS a story. "We believe X (belief), but the system currently does Y (fact)."
+2. **Identify gaps** — where beliefs and current system state diverge
+   - A gap IS a story. "We believe X (belief), but the system currently does Y."
 
 ### Step 6: Create stories from gaps
 
-Each story must reference the fact and belief that define the gap. Follow `.knowledge/templates/story.md`.
+Each story should reference the belief and current system state that define the gap.
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
 DATE=$(date +%Y-%m-%d)
 
 gh issue create --repo $REPO \
-  --title "Story: <close the gap between fact and belief>" \
+  --title "Story: <close the gap between belief and current state>" \
   --label "story,pending" \
-  --body "<follow .knowledge/templates/story.md — must include ## Gap section>"
+  --label "source:ux-review" \
+  --body "$(cat <<'EOF'
+## Constraints
+- `<structural-test>.test.ts` — <which constraint applies>
+- `<belief-key>` (<status>) — <why this assumption matters>
+
+## Acceptance Criteria
+- [ ] <specific measurable criteria>
+- [ ] Structural tests pass (`pnpm test`)
+- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
+EOF
+)"
 ```
 
 Prioritize:
@@ -138,22 +144,18 @@ Prioritize:
 2. **Major gaps** — facts that significantly degrade the experience
 3. **Minor gaps** — polish items, small divergences from beliefs
 
-### Step 7: Update knowledge graph
+### Step 7: Capture learnings
 
-Follow `.knowledge/policies/workflow/learning.md`.
-
-- New facts and beliefs already captured in Step 5
-- Check if findings invalidate or strengthen existing beliefs
-- If new patterns emerge across multiple findings, consider creating a new policy
-
-If new UX patterns were discovered, update `models/user-journeys.md`.
+- Update belief statuses in `src/config/beliefs.ts` if findings confirm or invalidate assumptions
+- If a new UX constraint emerged across multiple findings, write a structural test with Constraint JSDoc
+- If external user behavior was observed, add to `.context/external/customer/`
 
 ### Step 8: Verify and commit
 
-Follow `.knowledge/policies/workflow/verification.md` if any files were changed.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts` if any files were changed.
 
 ```bash
-git add .knowledge/gaps.md
+git add <changed files>
 git diff --cached --quiet || git commit -m "chore: ux-review findings ($DATE)" && git push origin master
 ```
 
@@ -161,4 +163,4 @@ git diff --cached --quiet || git commit -m "chore: ux-review findings ($DATE)" &
 - Don't implement fixes — only identify and create stories
 - Don't evaluate visual design (spacing, colors) — that's `/visual-audit`
 - Don't evaluate code quality — that's `/code-audit`
-- Don't flag issues already in `gaps.md`
+- Don't flag issues that already have an open GitHub issue

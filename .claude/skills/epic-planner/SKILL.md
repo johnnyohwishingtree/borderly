@@ -14,7 +14,7 @@ Break a high-level goal into a structured set of GitHub Issues: one Epic and its
 2. Understand where the goal fits in the existing codebase
 3. Check if any existing code can be reused
 4. Read existing scaffolding/stubs to understand what's already built
-5. Read `.knowledge/beliefs/` — identify which beliefs the goal depends on and note their status
+5. Read `src/config/beliefs.ts` — identify which beliefs the goal depends on and note their status
 
 ## Epic Structure
 
@@ -59,9 +59,7 @@ gh label create "epic:<slug>" --color "0E8A16" --description "Epic: <title>" 2>/
 
 ### Create the Epic
 
-Follow `.knowledge/templates/epic.md` for structure. Include the Beliefs & Assumptions section.
-
-Follow `.knowledge/policies/workflow/epic-planning.md` for priority order and belief rules.
+Follow `the epic-planning priority order: 1. Bugs, 2. UX/UI, 3. Features, 4. Architecture, 5. Test quality, 6. Test coverage` for priority order and belief rules.
 
 ```bash
 gh issue create \
@@ -73,7 +71,7 @@ gh issue create \
 <what we're trying to achieve>
 
 ## Beliefs & Assumptions
-- `beliefs/<name>.md` (status) — <why relevant>
+- <belief name> (status) — <why relevant> (see src/config/beliefs.ts)
 
 ## Stories
 - [ ] #__ Story 1: <title>
@@ -101,13 +99,14 @@ gh issue create \
 ## Description
 <what needs to be implemented>
 
+## Constraints
+- <structural test that governs this area> (e.g., `dependency-direction.test.ts`)
+- <relevant belief from `src/config/beliefs.ts`> (status)
+
 ## Acceptance Criteria
 - [ ] Implementation complete
-- [ ] Tests pass
-- [ ] Documentation updated if needed
-
-## Files to Create/Modify
-- <file paths>
+- [ ] Structural tests pass (`pnpm test`)
+- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
 
 ## Dependencies
 Depends on #<previous_story_number> (if applicable)

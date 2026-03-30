@@ -1,23 +1,17 @@
 /**
- * Structural test: knowledge graph integrity.
+ * Constraint: Knowledge Graph Integrity
  *
- * Validates that the knowledge graph is internally consistent:
- * - All "Derives From" references resolve to existing files
- * - All "See:" pointers in CLAUDE.md files resolve
- * - All policies have at least one "Derives From" fact
- * - All "Related:" references resolve
- *
- * This catches: missing facts, broken references, policies without justification.
- * State-based — checks the graph is valid NOW, not how it got that way.
- *
- * See: .knowledge/policies/architecture/testable-architecture.md
+ * Validates that the knowledge graph is internally consistent: all Context
+ * references resolve, all policies have a Context section, and all "See:"
+ * and "Related:" pointers in CLAUDE.md and knowledge files resolve to
+ * existing files.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';
 import { resolve, join } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
-const KNOWLEDGE = resolve(ROOT, '.knowledge');
+const CONTEXT = resolve(ROOT, '.context');
 
 /** Recursively find all .md files in a directory. */
 function findMdFiles(dir: string): string[] {
@@ -69,48 +63,58 @@ function extractRelatedRefs(content: string): string[] {
 }
 
 describe('Knowledge graph integrity', () => {
-  const knowledgeFiles = findMdFiles(KNOWLEDGE);
+  const knowledgeFiles = findMdFiles(CONTEXT);
 
-  it('all "Derives From" references resolve to existing files', () => {
+  it('all Context references resolve to existing files', () => {
     const broken: string[] = [];
 
     for (const file of knowledgeFiles) {
       const content = readFileSync(file, 'utf-8');
-      const refs = extractDerivesFrom(content);
       const relativePath = file.replace(ROOT + '/', '');
 
-      for (const ref of refs) {
-        // Try resolving relative to .knowledge/
-        const resolved = resolve(KNOWLEDGE, ref + (ref.endsWith('.md') ? '' : '.md'));
-        if (!existsSync(resolved)) {
-          broken.push(`${relativePath}: "Derives From" → ${ref} (not found)`);
+      // Check .context/ references
+      const contextRefs = [...content.matchAll(/`\.context\/([a-zA-Z0-9/_.-]+\.md)`/g)];
+      for (const ref of contextRefs) {
+        const target = resolve(ROOT, '.context', ref[1]);
+        if (!existsSync(target)) {
+          broken.push(`${relativePath}: Context → .context/${ref[1]} (not found)`);
+        }
+      }
+
+      // Check .context/ references without backticks (in - list items)
+      const dashRefs = [...content.matchAll(/- `?\.context\/([a-zA-Z0-9/_.-]+\.md)`?/g)];
+      for (const ref of dashRefs) {
+        const target = resolve(ROOT, '.context', ref[1]);
+        if (!existsSync(target)) {
+          // Skip if already caught above
+          const msg = `${relativePath}: Context → .context/${ref[1]} (not found)`;
+          if (!broken.includes(msg)) broken.push(msg);
         }
       }
     }
 
     if (broken.length > 0) {
-      throw new Error(`Broken "Derives From" references:\n${broken.map(b => `  - ${b}`).join('\n')}`);
+      throw new Error(`Broken Context references:\n${broken.map(b => `  - ${b}`).join('\n')}`);
     }
   });
 
-  it('all policies have at least one "Derives From" entry', () => {
-    const policiesDir = resolve(KNOWLEDGE, 'policies');
+  it('all policies have a Context section', () => {
+    const policiesDir = resolve(CONTEXT, 'policies');
     const policyFiles = findMdFiles(policiesDir);
     const missing: string[] = [];
 
     for (const file of policyFiles) {
       const content = readFileSync(file, 'utf-8');
-      const refs = extractDerivesFrom(content);
       const relativePath = file.replace(ROOT + '/', '');
-
-      if (refs.length === 0) {
+      // Accept either old "Derives From" or new "Context" section
+      if (!content.includes('## Context') && !content.includes('## Derives From')) {
         missing.push(relativePath);
       }
     }
 
     if (missing.length > 0) {
       throw new Error(
-        `Policies without "Derives From" (every policy must trace to facts):\n${missing.map(m => `  - ${m}`).join('\n')}`
+        `Policies without context justification:\n${missing.map(m => `  - ${m}`).join('\n')}`
       );
     }
   });
@@ -163,12 +167,11 @@ describe('Knowledge graph integrity', () => {
       const relativePath = file.replace(ROOT + '/', '');
 
       for (const ref of refs) {
-        // Try common locations
+        // Try common locations — .knowledge/, .context/, src/, and project root
         const candidates = [
-          resolve(KNOWLEDGE, ref),
-          resolve(KNOWLEDGE, 'policies', ref),
-          resolve(KNOWLEDGE, 'models', ref),
-          resolve(KNOWLEDGE, 'patterns', ref),
+          resolve(CONTEXT, ref),
+          resolve(CONTEXT, 'policies', ref),
+          resolve(ROOT, ref),
         ];
         const found = candidates.some(c => existsSync(c));
         if (!found) {

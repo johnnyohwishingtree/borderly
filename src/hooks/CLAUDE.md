@@ -2,4 +2,5 @@
 
 Custom hooks extracted from screens. Naming: `use<Domain><Action>`.
 
-See: .knowledge/policies/state/hook-conventions.md
+See: __tests__/structure/hooks-barrel.test.ts
+See: __tests__/structure/hook-return-limit.test.ts

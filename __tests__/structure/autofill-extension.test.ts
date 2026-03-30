@@ -1,3 +1,11 @@
+/**
+ * Constraint: AutoFill Extension Structure
+ *
+ * Enforces that the iOS AutoFill Credential Provider extension has all required
+ * files, entitlements, Xcode targets, and that shared access config constants
+ * match between TypeScript and iOS entitlements.
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 

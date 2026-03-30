@@ -2,4 +2,4 @@
 
 Smart trip import: parse confirmations/boarding passes → draft trips. No external APIs.
 
-See: .knowledge/models/form-engine.md
+See: src/types/schema.ts

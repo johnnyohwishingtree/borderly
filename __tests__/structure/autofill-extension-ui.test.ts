@@ -1,3 +1,11 @@
+/**
+ * Constraint: AutoFill Extension UI
+ *
+ * Enforces that the iOS AutoFill extension's Swift UI includes required
+ * elements: profile display, field list, Fill All button, cancel action,
+ * empty state, clipboard security timeout, and Borderly visual styling.
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
 

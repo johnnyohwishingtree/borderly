@@ -24,17 +24,17 @@ Develop a feature in an isolated git worktree. Use this when you want to work on
 6. **Explore the codebase** to understand existing patterns relevant to the feature.
 7. **Plan the implementation** — identify files to create/modify.
 8. **Implement** — write the code following existing patterns.
-9. **Test** — write tests following `.knowledge/policies/testing/test-quality.md`. Fix bugs via `.knowledge/policies/workflow/bug-fix.md`.
-10. **Verify** — follow `.knowledge/policies/workflow/verification.md`.
-11. **Learn** — follow `.knowledge/policies/workflow/learning.md`.
-12. **Self-review** — follow `.knowledge/policies/workflow/self-review.md`.
+9. **Test** — write tests following the test quality rules (Tier 1-2 tests only, assert behavior not existence). Fix bugs via the bug-fix rules: write failing test first, verify it fails without the fix, then fix.
+10. **Verify** — follow the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts.
+11. **Learn** — follow the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge.
+12. **Self-review** — follow the self-review rules: review diff before committing, fix `any` types, unused imports, empty catches.
 13. **Commit** — stage specific files, commit with descriptive message.
 14. **Push the branch** so it's available for a PR.
 15. **Exit the worktree** using `ExitWorktree` with action `keep` (so you can return to it later if needed).
 
 ## Implementation Guidelines
 
-- Follow `.knowledge/policies/workflow/fix-strategy.md` when modifying code
+- Follow the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any` when modifying code
 - Keep changes focused — don't refactor unrelated code
 - Commit and push frequently (every 2-3 file changes)
 

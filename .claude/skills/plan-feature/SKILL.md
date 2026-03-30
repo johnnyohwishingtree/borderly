@@ -11,7 +11,7 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
-- Relevant `.knowledge/` policies and patterns reviewed
+- Relevant `.context/patterns/` and `__tests__/structure/` constraints reviewed
 - Existing code in the target area has been read
 
 ## Usage
@@ -25,16 +25,14 @@ Plan and implement a new feature for Borderly. Reads existing code first, plans 
 ### Step 1: Understand Context
 
 1. Read `CLAUDE.md` for project architecture and conventions
-2. Read `.knowledge/index.md` for the system map
-3. Read existing code in the area being modified — never propose changes to code you haven't read
+2. Read existing code in the area being modified — never propose changes to code you haven't read
 
 ### Step 2: Plan
 
 1. Identify files to create or modify
-2. Check if relevant patterns exist in `.knowledge/patterns/`
-3. Check `.knowledge/beliefs/` — does this feature depend on any unconfirmed beliefs? If so, note the risk and consider whether to implement defensively
-4. Check `.knowledge/facts/` — are there domain or customer facts that should inform the design?
-5. Determine the dependency order (stores before hooks before screens)
+2. Check if relevant patterns exist in `.context/patterns/`
+3. Check `src/config/beliefs.ts` — does this feature depend on any unconfirmed beliefs? If so, note the risk and consider whether to implement defensively
+4. Determine the dependency order (stores before hooks before screens)
 6. List tests that need to be written
 
 Present the plan before implementing if the scope is large (3+ files).
@@ -54,7 +52,7 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 - Use existing UI components before creating new ones
 - Use Lucide icons from `lucide-react-native` (not vector-icons)
 - Extract business logic into hooks if a screen has 3+ useState calls
-- Use smart components where required (see `.knowledge/models/form-engine.md`)
+- Use smart components where required (see `src/types/schema.ts` for form engine types)
 - Never use `any` types — fix the root cause
 
 ### Step 4: Write Tests
@@ -69,7 +67,7 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 
 ### Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 Also run bundle check:
 ```bash
@@ -78,10 +76,9 @@ npx react-native bundle --platform ios --dev false --entry-file index.js --bundl
 
 ### Step 6: Self-Update Check
 
-- **New screen?** Follow `.knowledge/patterns/add-screen.md` for the full checklist
+- **New screen?** Follow `.context/patterns/add-screen.md` for the full checklist
 - **New navigation route?** Update navigation type definitions (read the relevant folder `CLAUDE.md` for conventions)
-- **New `.claude/` or `.knowledge/` file?** Update `.knowledge/index.md`
-- **New native dependency?** Follow `.knowledge/patterns/add-native-dep.md` for the full checklist
+- **New native dependency?** Read existing mocks in `__mocks__/` for patterns on how to add native dependency mocks
 
 ## Domain-Specific Checklists
 

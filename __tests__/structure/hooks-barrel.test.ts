@@ -1,10 +1,27 @@
 /**
- * Structural test: hooks barrel export completeness.
+ * Constraint: Hooks Barrel Completeness (from Hook Conventions + File Boundaries)
  *
- * Every hook file in src/hooks/ must be exported from src/hooks/index.ts.
- * Missing exports mean hooks are unusable via the standard import path.
+ * Scope: src/hooks/
  *
- * See: .knowledge/policies/state/hook-conventions.md
+ * REQUIRE: all hooks exported from src/hooks/index.ts barrel
+ * REQUIRE: hook naming: use<Domain><Action> (e.g., useTripCreation)
+ * REQUIRE: screens with 3+ related useState — extract to custom hook
+ * REQUIRE: hooks own state + effects, return values AND callbacks
+ * DENY:    business logic in screen render functions
+ * DENY:    useState for derived data — compute inline or useMemo
+ * DENY:    hooks that return 10+ values — split or group into named objects
+ *
+ * Exceptions:
+ * - Modal visibility state (2-3 useState for show/hide) can stay in screens
+ * - Simple UI state (search text, tab selection) can stay in screens if < 3
+ *
+ * Anti-patterns:
+ * - Hook not in barrel — unusable via `from '@/hooks'`
+ * - Hook file not starting with `use` prefix
+ * - 9 useState calls in a screen file
+ *
+ * Why: The barrel ensures all hooks are discoverable via a single import path.
+ *      Consistent naming makes hooks greppable and predictable.
  */
 
 import { readdirSync, readFileSync } from 'fs';

@@ -67,17 +67,17 @@ Follow the project's standard patterns for each type of change:
 
 #### Onboarding Flow Changes
 
-Follow `.knowledge/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
+Follow `.context/patterns/add-screen.md` for adding new screens to any stack, including onboarding. Read the current navigator source to understand the existing screen order before inserting new screens.
 
 ### Step 3: Follow Bug-Fix TDD for Behavioral Changes
 
-If a finding involves broken behavior, follow `.knowledge/policies/workflow/bug-fix.md`.
+If a finding involves broken behavior, follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 Pure flow additions (new screens, navigation wiring) don't need pre-existing failing tests, but DO need new tests added.
 
 ### Step 4: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 If screens were added or modified, also run:
 ```bash
@@ -100,7 +100,7 @@ Per-screen and per-component manifests at `__screenshots__/manifest.json` are au
 
 ### Step 6: Update Architecture Docs
 
-If navigation structure changed, run `/update-architecture` or manually update:
+If navigation structure changed, manually update:
 - `CLAUDE.md` project structure section (if new directories/screens added)
 - `docs/mvp-proposal.md` (if user-facing flows changed)
 - Navigation type definitions
@@ -118,7 +118,7 @@ Present what was implemented:
 
 - **Screens** go in `src/screens/<domain>/` and are exported from domain barrel files
 - **Hooks** go in `src/hooks/` and are exported from `src/hooks/index.ts`
-- **Components** use props only — no direct store imports (see `.knowledge/policies/architecture/dependency-direction.md`)
+- **Components** use props only — no direct store imports (see `__tests__/structure/dependency-direction.test.ts`)
 - **Styling** uses NativeWind `className` everywhere — no inline styles
 - **Icons** from `lucide-react-native` only — not vector-icons
 - **UI primitives** from `src/components/ui/` — check before creating new ones

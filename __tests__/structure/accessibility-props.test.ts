@@ -1,10 +1,34 @@
 /**
- * Structural test: accessibility props on interactive components.
+ * Constraint: Accessibility Props
  *
- * Interactive elements (Button, TouchableOpacity, Pressable with onPress)
- * must have accessibilityRole and accessibilityLabel.
+ * Scope: src/components/, src/screens/
  *
- * See: .knowledge/policies/ui/accessibility.md
+ * REQUIRE: every interactive element has accessible={true} + accessibilityRole
+ * REQUIRE: accessibilityLabel describes intent ("Submit declaration form" not "Blue button")
+ * REQUIRE: errors announced via accessibilityLiveRegion="polite"
+ * REQUIRE: decorative elements hidden: accessibilityElementsHidden={true}
+ * REQUIRE: disabled/loading/selected state via accessibilityState
+ * REQUIRE: minimum 44x44pt touch targets
+ * DENY:    interactive elements without accessibilityRole
+ *
+ * Component Prop Requirements:
+ * - Button/Pressable: accessibilityRole="button" + accessibilityLabel
+ * - TextInput: accessibilityLabel or associated label
+ * - Switch/Toggle: accessibilityRole="switch" + accessibilityState
+ * - Link: accessibilityRole="link" + accessibilityLabel
+ * - Image (informative): accessibilityLabel with description
+ * - Image (decorative): accessibilityElementsHidden={true}
+ *
+ * Exceptions:
+ * - Decorative icons next to labeled text — hide with accessibilityElementsHidden
+ *
+ * Anti-patterns:
+ * - <TouchableOpacity onPress={...}> without accessibilityRole
+ * - accessibilityLabel="button" — describes appearance, not intent
+ * - Touch target smaller than 44x44pt
+ *
+ * Why: 44pt touch targets required by Apple HIG (.context/external/cognitive/44pt-minimum-touch-target.md)
+ *      Travelers use the app stressed, one-handed (.context/external/customer/travelers-fill-forms-at-borders.md)
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

@@ -2,15 +2,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Ensures all screen files use the responsive ScreenContainer wrapper.
+ * Constraint: Responsive Screen Containers
  *
- * ScreenContainer adds a max-width constraint on web/tablet so forms and
- * lists don't stretch edge-to-edge on wide viewports. On mobile it's a
- * transparent passthrough (just flex-1).
- *
- * Without this, screens render at 100% width on web — a 1440px-wide form
- * field is unusable. This test catches the root cause (missing responsive
- * container) rather than relying on multi-viewport screenshot capture.
+ * Enforces that all screen files use the ScreenContainer wrapper, which adds
+ * a max-width constraint on web/tablet viewports. Exempt screens must be
+ * listed in EXEMPT_SCREENS with a justification comment.
  */
 
 const SCREENS_DIR = path.resolve(__dirname, '../../src/screens');

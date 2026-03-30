@@ -1,12 +1,29 @@
 /**
- * Structural test: dependency direction enforcement.
+ * Constraint: Dependency Direction
  *
- * Verifies the architecture rule:
- *   Screens → Hooks → Stores → Services
- *   Components → Props only (no stores, no hooks with side effects)
+ * Scope: src/stores/, src/services/, src/components/, src/hooks/, src/screens/
  *
- * Catches violations at `pnpm test` time (< 1 second).
- * See: .knowledge/policies/architecture/dependency-direction.md
+ * ALLOW: screens → hooks, stores, services, components
+ * ALLOW: hooks → stores, services
+ * ALLOW: stores → services, own types/helpers (relative imports)
+ * ALLOW: components → props only
+ * DENY:  components → stores (receive data via props)
+ * DENY:  services → stores (accept state as parameters)
+ * DENY:  stores → other stores (coordinate in hooks)
+ *
+ * Exceptions:
+ * - Store barrel index.ts may re-export all stores
+ * - Type-only imports (import type) are allowed across any boundary
+ * - Store internal files (types, helpers, slices) may import each other via relative paths
+ *
+ * Anti-patterns:
+ * - `import { useTripStore } from '../stores'` in a component — pass data via props
+ * - `import { useProfileStore } from '@/stores'` in a service — accept state as parameter
+ * - Circular imports (A → B → A) — always a direction violation
+ *
+ * Why: Unidirectional flow prevents circular dependencies and makes
+ *      the codebase testable — services without UI, stores without hooks,
+ *      components without global state.
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

@@ -1,12 +1,30 @@
 /**
- * Structural test: utils boundary enforcement.
+ * Constraint: Utils Boundary
  *
- * Verifies the 3 core rules from the utils-boundary policy:
- * 1. No MMKV/Keychain/storage imports in src/utils/
- * 2. No utils subdirectory with 5+ .ts/.tsx files (must be a service)
- * 3. No lifecycle methods (init, cleanup, connect, disconnect exports) in utils
+ * Scope: src/utils/, src/services/
  *
- * See: .knowledge/policies/architecture/utils-boundary.md
+ * REQUIRE: utils are pure functions — no state, no storage, no side effects
+ * REQUIRE: utils are stateless — same input always produces same output
+ * DENY:    utils creating MMKV/storage instances (use src/services/storage/)
+ * DENY:    utils with their own lifecycle (init, cleanup, sessions)
+ * DENY:    utils with 5+ files in a subdirectory — promote to a service
+ *
+ * What belongs in utils/: pure transformers, formatters, validators, constants, test helpers
+ * What belongs in services/: anything with state, storage, lifecycle, or 5+ files
+ *
+ * Exceptions:
+ * - theme.ts uses reactive state for dark mode — OK because it's a React hook re-exported from hooks/
+ * - piiSanitizer.ts manages a field list — borderline but stateless (list is constant)
+ * - testHelpers and validation subdirectories are exempt from the 5-file limit
+ *
+ * Anti-patterns:
+ * - `new MMKV({ id: 'custom' })` in utils — belongs in a service
+ * - `performanceOptimization/` (5 files, own MMKV) — is a service, not a utility
+ * - `automation/` (6 files) — duplicates src/services/automation/
+ * - `portal/` (5 files, detection logic) — overlaps src/services/portal/
+ *
+ * Why: Utils must be pure so they're trivially testable and have no hidden
+ *      dependencies. Stateful code belongs in services with explicit lifecycle.
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

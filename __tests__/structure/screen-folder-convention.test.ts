@@ -1,15 +1,28 @@
 /**
- * Structural test: enforce screen folder convention.
+ * Constraint: Screen Folder Convention (from File Boundaries + Navigation)
  *
- * Every screen in src/screens/ must live in a named folder matching the
- * screen name:
- *   src/screens/<domain>/<ScreenName>/<ScreenName>.tsx
+ * Scope: src/screens/, src/app/navigation/
  *
- * Flat files like src/screens/trips/TripListScreen.tsx are not allowed.
- * This convention enables colocated __screenshots__/ directories next to
- * each screen for visual auditing.
+ * REQUIRE: each screen in a named folder: src/screens/<domain>/<ScreenName>/<ScreenName>.tsx
+ * REQUIRE: every subdirectory split gets a barrel index.ts re-exporting everything
+ * REQUIRE: typed route names from types.ts — no hardcoded strings
+ * REQUIRE: navigation logic in screens/hooks only — components receive onPress callbacks
+ * DENY:    source files over 500 lines — split into subdirectory with barrel
+ * DENY:    deep nesting of stacks (stack inside tab inside stack)
  *
- * Barrel index.ts files at the domain level are the only exception.
+ * Exceptions:
+ * - Barrel index.ts files at the domain level
+ * - Test helper files and type definition files have no size limit
+ * - Schema JSON files have no size limit
+ *
+ * Anti-patterns:
+ * - Flat file in domain: src/screens/trips/TripListScreen.tsx (must be in named folder)
+ * - SettingsScreen/Settings.tsx — should be SettingsScreen/SettingsScreen.tsx
+ * - navigation.navigate('TripDetail') hardcoded string — use typed routes
+ * - Component with useNavigation() — pass onPress via props instead
+ *
+ * Why: Named folders enable colocated __screenshots__/ directories for visual
+ *      auditing and keep screen-specific assets together.
  */
 
 import * as fs from 'fs';

@@ -102,7 +102,7 @@ collect_paths() {
     local rel="${p#$PROJECT_DIR/}"
 
     # EXCLUDE: paths the knowledge-sync agent writes to (prevents loops)
-    [[ "$rel" == .knowledge/* ]] && continue
+    [[ "$rel" == .context/* ]] && continue
     [[ "$rel" == tmp/* ]] && continue
     [[ "$rel" == .claude/* ]] && continue
 

@@ -54,29 +54,21 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 9**.
 
-Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules.
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress`` for story picking rules.
 
 ## Step 3: Pre-flight analysis
 
-Before implementing, assess the knowledge impact of the story:
+Before implementing, check constraints and beliefs:
 
-1. **Identify affected files** — read the story's Tasks and Context sections to list files that will be created or modified.
+1. **Identify affected files** — read the story's acceptance criteria to list files that will be created or modified.
 
-2. **Check knowledge impact** — for each affected file, run:
-   ```bash
-   npx tsx scripts/knowledge-graph.ts impact <file>
-   ```
-   Review which policies, models, and beliefs are connected to the files being changed.
+2. **Check constraints** — for each affected directory, read its folder CLAUDE.md `See:` links. Read the referenced structural test JSDoc to understand the rules.
 
-3. **Check belief dependencies** — read `.knowledge/beliefs/` and check if any belief with status `Hypothesis` or `Working assumption` is referenced by the affected files. If a low-confidence belief drives a design decision the story touches, note it in the PR body.
+3. **Check beliefs** — read `src/config/beliefs.ts`. If any belief with status `hypothesis` or `working` is relevant to this story, note it in the PR body.
 
-4. **Check temporal staleness** — if the story touches a country schema or form engine logic, check that the relevant schema's `metadata.lastVerified` is within its `metadata.maintenanceFrequency` window. If stale, verify the portal before implementing.
+4. **Check schema staleness** — if the story touches a country schema, check `metadata.lastVerified` is within its maintenance window. If stale, verify the portal before implementing.
 
-If risks are found (low-confidence beliefs, stale schemas, policy conflicts), comment on the issue before proceeding:
-```
-Pre-flight: This story touches [file] which depends on belief [X] (status: hypothesis).
-Proceeding, but flagging for awareness.
-```
+If risks are found (low-confidence beliefs, stale schemas), comment on the issue before proceeding.
 
 ## Step 4: Implement
 
@@ -86,28 +78,32 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git checkout -b story/issue-$NUMBER
 ```
 
-Follow `.knowledge/policies/workflow/story-implementation.md`.
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress``.
 
-When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
-When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
+When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``.
+When fixing bugs, follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 ## Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 If still failing after 6 → push WIP branch, create draft PR, reset to `pending`, skip to cleanup.
 
 ## Step 6: Learn
 
-**Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
+**Mandatory.** After implementing, check what the system learned:
 
-Additionally, check if any `.knowledge/beliefs/` files need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
+1. **Beliefs** — did implementation confirm or invalidate a belief in `src/config/beliefs.ts`? Update status if so.
+2. **Constraints** — did you discover a new rule that should be enforced? Write a structural test in `__tests__/structure/` with a Constraint JSDoc header.
+3. **External context** — did you learn something about a government portal, tool, or user behavior? Add to `.context/external/`.
+4. **Anti-patterns** — did a wrong approach teach you something? Add to the relevant structural test's JSDoc Anti-patterns section.
+5. **Stale context** — did any `.context/` file give wrong guidance? Update it.
 
-Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsider.
+Self-check: if 5+ files changed and zero of the above were updated, stop and reconsider.
 
 ## Step 7: Self-review
 
-Follow `.knowledge/policies/workflow/self-review.md`.
+Follow `the self-review rules: review diff before committing, fix `any` types, unused imports, empty catches`.
 
 ## Step 8: Push, PR, merge
 
@@ -140,11 +136,7 @@ if [ -n "$EPIC_LABEL" ] && [ "$EPIC_LABEL" != "null" ]; then
 fi
 ```
 
-## Step 9: Optimize (when queue is empty)
-
-Read and follow `.claude/skills/optimize/SKILL.md`.
-
-## Step 10: Cleanup worktree
+## Step 9: Cleanup worktree
 
 Always run this — even if steps above failed:
 

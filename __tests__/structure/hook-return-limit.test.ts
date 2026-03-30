@@ -1,10 +1,22 @@
 /**
- * Structural test: hook return value limit.
+ * Constraint: Hook Return Value Limit (from Hook Conventions)
  *
- * Hooks must not return more than 10 top-level keys.
- * Oversized return types should be grouped into named objects.
+ * Scope: src/hooks/
  *
- * See: .knowledge/policies/state/hook-conventions.md
+ * DENY:    hooks that return 10+ values — split or group into named objects
+ * REQUIRE: hooks own state + effects, return values AND callbacks
+ * REQUIRE: pass external deps as options objects, not positional args
+ * DENY:    positional hook arguments (useMyHook(true, false, 3))
+ *
+ * Exceptions:
+ * - Known pre-existing violations tracked in KNOWN_VIOLATIONS set
+ *
+ * Anti-patterns:
+ * - Hook returning 12 ungrouped keys — group related values into named objects
+ * - useMyHook(true, false, 3) — use useMyHook({ enabled: true, limit: 3 })
+ *
+ * Why: Oversized return types are hard to destructure and indicate the hook
+ *      is doing too much. Grouping into named objects improves readability.
  */
 
 import { readdirSync, readFileSync } from 'fs';

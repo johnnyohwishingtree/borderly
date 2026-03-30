@@ -55,20 +55,20 @@ Check for:
 Follow these conventions:
 - Use Jest + React Native Testing Library
 - Use RNTL accessibility queries in priority order: `getByRole` > `getByLabelText` > `getByTestId`
-- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per `.knowledge/policies/testing/test-conventions.md`)
+- Use `toMatchInlineSnapshot()` not `toMatchSnapshot()` (per the test conventions: `toMatchInlineSnapshot()` not `toMatchSnapshot()`, tests under 1s, mock heavy deps at module level)
 - Mock native modules in `jest.setup.js` — don't add new mocks unless necessary
 - Tests must run in under 1 second each
 - Use `renderHook` from `@testing-library/react-hooks` for hook tests
 
 **For each new test file:**
-1. Write the tests following `.knowledge/policies/testing/test-quality.md` (Tier 1-2 tests only)
+1. Write the tests following the test quality rules: every test answers "what bug would this catch?", Tier 1-2 tests only (Tier 1-2 tests only)
 2. Run `pnpm typecheck` to verify imports
 3. Run the specific test: `pnpm test -- <test-file-path>`
-4. Fix any bugs the test reveals — follow `.knowledge/policies/workflow/bug-fix.md`
+4. Fix any bugs the test reveals — follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`
 
 ### Step 4: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 Re-run coverage to confirm improvement:
 ```bash

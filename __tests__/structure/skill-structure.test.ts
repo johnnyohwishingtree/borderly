@@ -1,5 +1,5 @@
 /**
- * Structural test: skill files follow the standard template.
+ * Constraint: Skill Structure
  *
  * Every skill SKILL.md must have:
  * - YAML frontmatter (name, description)
@@ -7,7 +7,7 @@
  * - Numbered steps (## Step N: or ### Step N:)
  * - ## Guardrails section
  *
- * See: .knowledge/policies/architecture/testable-architecture.md
+ * See: __tests__/structure/knowledge-test-coverage.test.ts (testable architecture constraint)
  */
 
 import { readdirSync, readFileSync, statSync, existsSync } from 'fs';
