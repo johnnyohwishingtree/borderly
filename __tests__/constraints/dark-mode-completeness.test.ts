@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Every screen with light-mode color classes must have dark mode variants.
+ * Constraint: Dark Mode Completeness
+ *
+ * Scope: src/screens/ light-mode color classes must have dark mode variants.
  * Constraint candidate — applies to all screens.
  *
  * Decision: Full dark mode support on every screen. NativeWind dark: prefix
@@ -27,7 +29,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens with light colors also have dark mode variants', () => {
+test('screens with light colors also have dark mode variants', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
@@ -44,5 +46,9 @@ test.skip('screens with light colors also have dark mode variants', () => {
     }
   }
 
-  expect(violations).toEqual([]);
+  // Gradual cleanup — threshold decreases as screens get dark mode
+  // LockScreen intentionally uses light-only colors (full-screen dark overlay with light text)
+  const EXCEPTIONS = ['LockScreen'];
+  const filtered = violations.filter(v => !EXCEPTIONS.some(e => v.includes(e)));
+  expect(filtered.length).toBeLessThanOrEqual(6);
 });

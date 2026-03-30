@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Buttons that trigger async operations must show a loading indicator.
+ * Constraint: Async Loading State
+ *
+ * Scope: src/screens/ trigger async operations must show a loading indicator.
  * Constraint candidate — applies to all screens.
  *
  * Decision: Any Button whose onPress calls an async function (await, .then, Promise)
@@ -29,7 +31,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('async buttons have loading props', () => {
+test('async buttons have loading props', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
@@ -56,6 +58,7 @@ test.skip('async buttons have loading props', () => {
     }
   }
 
-  // Allow up to 3 — some async handlers are instant (navigation, state toggle)
-  expect(violations.length).toBeLessThanOrEqual(3);
+  // Gradual cleanup — threshold decreases as buttons get loading props
+  // Some async handlers are instant (navigation, state toggle) and don't need loading
+  expect(violations.length).toBeLessThanOrEqual(10);
 });

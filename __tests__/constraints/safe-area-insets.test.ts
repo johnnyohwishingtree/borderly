@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Every screen must use ScreenContainer or SafeAreaView to respect safe area insets.
+ * Constraint: Safe Area Insets
+ *
+ * Scope: src/screens/ must use ScreenContainer or SafeAreaView to respect safe area insets.
  * Constraint candidate — applies to all screens.
  *
  * Decision: All screens wrap content in ScreenContainer (which handles safe area insets,
@@ -27,11 +29,15 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('every screen uses ScreenContainer or SafeAreaView', () => {
+test('every screen uses ScreenContainer or SafeAreaView', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
+  // LockScreen is a full-bleed dark overlay — intentionally no safe area
+  const EXCEPTIONS = ['LockScreen'];
+
   for (const file of screenFiles) {
+    if (EXCEPTIONS.some(e => file.includes(e))) continue;
     const content = readFileSync(file, 'utf-8');
     const hasSafeArea =
       content.includes('ScreenContainer') ||

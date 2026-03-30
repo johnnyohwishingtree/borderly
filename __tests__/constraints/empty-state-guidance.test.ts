@@ -4,7 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Screens that render lists must handle the empty state with guidance text.
+ * Constraint: Empty State Guidance
+ *
+ * Scope: src/screens/ lists must handle the empty state with guidance text.
  * Constraint candidate — applies to all screens with FlatList or array.map.
  *
  * Decision: Every list/collection must show helpful empty state (icon + text + CTA)
@@ -29,7 +31,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens with lists have empty state handling', () => {
+test('screens with lists have empty state handling', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
