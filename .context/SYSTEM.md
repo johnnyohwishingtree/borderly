@@ -33,7 +33,7 @@ Stories originate from four sources, each a different audit:
 | Context drift | `/context-audit` | Daily | Stale schemas, invalidated beliefs, broken references |
 | Test quality | `/test-audit` | Weekly | Junk tests, missing coverage for critical paths |
 
-Each audit creates GitHub issues with `story` + `pending` labels. Humans can also create stories manually.
+Each audit creates GitHub issues with `story` + `pending` + `source:<skill>` labels. The source label lets the pipeline prioritize by category. Humans can also create stories manually (no source label needed).
 
 ### 2. Story creation process (`/epic-planner`)
 
