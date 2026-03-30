@@ -25,7 +25,7 @@ This skill does NOT implement — it writes the spec as skipped tests.
 
 ## Step 1: Understand the request
 
-Read CLAUDE.md. Read the folder CLAUDE.md files for the areas the request will touch. If the request involves a country, read `.context/external/countries/` and `.context/patterns/add-country.md`.
+Read CLAUDE.md. Read the folder CLAUDE.md files for the areas the request will touch. If the request involves a country, read `.context/external/countries/` for portal behavior context.
 
 Identify the primary source files that will be affected — this determines where the tests go.
 

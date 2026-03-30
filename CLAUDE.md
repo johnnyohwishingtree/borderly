@@ -85,7 +85,6 @@ Each structural test IS the constraint — it runs in < 1s at `pnpm test` time.
 |----------|---------|
 | `.context/external/` | Truths about systems we don't control (governments, laws, tools) |
 | `.context/decisions/` | Architecture decision records (immutable) |
-| `.context/patterns/` | Multi-step recipes (add-country, add-screen) |
 
 ## Rules
 

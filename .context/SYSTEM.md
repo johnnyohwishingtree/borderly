@@ -17,7 +17,6 @@ Source of truth hierarchy:
   Folder CLAUDE.md (src/**/CLAUDE.md)        ← pointers to constraints + types
   External context (.context/)               ← things outside our control (prose)
   Decisions (.context/decisions/)            ← rejected alternatives (permanent prose)
-  Patterns (.context/patterns/)              ← recipes awaiting generator automation
 ```
 
 ## How work flows through the system
@@ -175,7 +174,6 @@ You work normally
 │   ├── customer/           # 5 files — user behavior (borders, families)
 │   ├── market/             # 3 files — competitive landscape
 │   └── tools/              # 13 files — library/OS properties
-├── patterns/               # 2 files — add-country, add-screen
 ├── unvalidated/            # Staging area for new observations
 ├── CLAUDE.md               # Creation rules for context files
 └── SYSTEM.md               # This file
