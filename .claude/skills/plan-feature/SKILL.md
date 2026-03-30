@@ -36,9 +36,9 @@ Ask: "When this feature is done, what will be true about the code/UI/data that i
 
 Each answer becomes a failing test.
 
-## Step 3: Write failing tests
+## Step 3: Write skipped belief tests
 
-Create test files in `__tests__/beliefs/`:
+Create test files in `__tests__/beliefs/` using `test.skip`:
 
 ```typescript
 // __tests__/beliefs/<feature-name>.test.ts
@@ -57,11 +57,14 @@ import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../..');
 
-test('<specific assertion about expected state>', () => {
+test.skip('<specific assertion about expected state>', () => {
   // Assert something about file structure, code content, or data shape
-  // This test FAILS now and PASSES after the pipeline implements the feature
+  // This is SKIPPED now — the pipeline will unskip it, implement the code,
+  // and verify it passes before committing.
 });
 ```
+
+Use `test.skip` so the test commits cleanly (commit gate requires all tests to pass). The pipeline finds `.skip` tests and resolves them.
 
 ### What makes a good belief test
 
@@ -78,27 +81,32 @@ test('<specific assertion about expected state>', () => {
 | "Add Vietnam portal" | Assert VNM.json exists in src/schemas/ with required metadata |
 | "QR code sharing" | Assert a share button exists in QRDetail screen |
 
-## Step 4: Verify tests fail
+## Step 4: Verify skipped tests would fail if unskipped
+
+Temporarily unskip and run to confirm they fail on the current code:
 
 ```bash
+# Temporarily change test.skip → test, run, then revert
 pnpm test -- __tests__/beliefs/<feature-name> 2>&1
 ```
 
-ALL new tests should FAIL. If any pass, the feature (or part of it) already exists — remove that test.
+If any test PASSES, the feature (or part of it) already exists — remove that test.
 
-## Step 5: Commit the failing tests
+Then revert back to `test.skip` before committing.
+
+## Step 5: Commit the skipped tests
 
 ```bash
 git add __tests__/beliefs/<feature-name>.test.ts
-git commit -m "test: add failing belief tests for <feature>"
+git commit -m "test: add skipped belief tests for <feature>"
 git push origin master
 ```
 
-The pipeline will pick these up on its next cycle and start implementing.
+The pipeline will find the `.skip` tests on its next cycle, unskip them, implement the code, and merge.
 
 ## Guardrails
 
-- Do NOT implement the feature — only write the tests
-- Tests must fail on the current codebase
+- Do NOT implement the feature — only write the skipped tests
+- Use `test.skip`, not `test` — commit gate requires all tests to pass
 - Each test file should have a JSDoc header explaining the belief
 - Keep tests focused — one concern per test, one feature per file

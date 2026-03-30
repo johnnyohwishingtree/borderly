@@ -110,30 +110,31 @@ Each story should be completable in a single Claude session. Split by layer (sto
 ### 4. Pipeline picks it up (`/pipeline`, hourly)
 
 ```
-Step 1: Merge any open PRs
-Step 2: Run pnpm test — find failing tests
-Step 3: Read the failing test's JSDoc — understand intent
+Step 1: Sync — git pull + cleanup stale PRs
+Step 2: Find skipped belief tests — grep for test.skip in __tests__/beliefs/
+Step 3: Read the skipped test's JSDoc — understand intent
 Step 4: Read folder CLAUDE.md → constraints → types — understand context
-Step 5: Implement the fix
-Step 6: Verify — pnpm lint, typecheck, test (ALL tests must pass)
+Step 5: Implement + unskip (test.skip → test)
+Step 6: Verify — pnpm lint, typecheck, test (ALL tests must pass including the unskipped one)
 Step 7: Push, PR, merge
-Step 8: Loop back to Step 2 if more failing tests remain
-Step 9: No failures — run audits to discover new work
+Step 8: Loop back to Step 2 if more skipped tests remain
+Step 9: No skipped tests — run audits to discover new work
 ```
 
-Failing tests ARE the work queue. `pnpm test` shows the backlog. No GitHub issues, no labels, no story lifecycle.
+`test.skip` = the work queue. Unskipping + passing = work done. Commit gate is never violated because skipped tests don't run.
 
 ### 5. Tests as executable specifications
 
 Two kinds of tests drive the pipeline:
 
-**Belief tests** (`__tests__/beliefs/`) — product assumptions written as failing tests:
+**Belief tests** (`__tests__/beliefs/`) — product assumptions written as skipped tests:
 ```typescript
 /**
  * Belief: Trip creation should be lightweight
  * Confirm: completion rate > 90% after simplifying
  */
-test('CreateTripScreen has at most 3 required fields', () => { ... });
+test.skip('CreateTripScreen has at most 3 required fields', () => { ... });
+// Pipeline unskips → implements → verifies → merges
 ```
 
 **Constraint tests** (`__tests__/structure/`) — architectural rules that enforce themselves:
@@ -151,12 +152,12 @@ The JSDoc IS the spec. The test IS the enforcement. The pipeline reads both to u
 
 | Audit | Writes failing tests for |
 |---|---|
-| `/code-audit` | Constraint violations (code doesn't match structural test rules) |
-| `/ux-review` | UX gaps (user journey doesn't match belief about experience) |
-| `/test-audit` | Junk tests (tests that don't catch bugs need rewriting) |
-| `/context-audit` | Drift (code changed but context/beliefs not updated) |
+| `/code-audit` | Constraint violations → `test.skip` in `__tests__/beliefs/` |
+| `/ux-review` | UX gaps → `test.skip` in `__tests__/beliefs/` |
+| `/test-audit` | Junk tests → `test.skip` in `__tests__/beliefs/` |
+| `/context-audit` | Drift detection, staleness, belief lifecycle (no tests written) |
 
-After an audit writes failing tests, the pipeline picks them up on the next cycle.
+After an audit writes skipped tests, the pipeline picks them up on the next cycle. Commit gate stays green because skipped tests don't run.
 
 ## Daily audits
 

@@ -98,7 +98,7 @@ For each violation found, write a failing test that asserts the correct state:
 - **Belief violations** → write a new test in `__tests__/beliefs/` with JSDoc explaining the belief
 - **Pattern violations** → write a test in `__tests__/beliefs/` asserting the expected code structure
 
-The failing test IS the fix specification. The pipeline will pick it up and make it pass.
+Use `test.skip` so the test commits cleanly. The pipeline will find it, unskip it, implement the fix, and merge.
 
 Example:
 ```typescript
@@ -107,7 +107,7 @@ Example:
  * Belief: Components should receive data via props, not import stores.
  * Found by code-audit: src/components/trips/TripCard.tsx imports useTripStore.
  */
-test('TripCard does not import stores', () => {
+test.skip('TripCard does not import stores', () => {
   const content = readFileSync('src/components/trips/TripCard.tsx', 'utf-8');
   expect(content).not.toMatch(/import.*from.*stores/);
 });

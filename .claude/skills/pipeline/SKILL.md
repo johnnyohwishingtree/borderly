@@ -1,12 +1,14 @@
 ---
 name: pipeline
-description: Autonomous belief-driven pipeline — find failing tests, make them pass, merge
+description: Autonomous belief-driven pipeline — find skipped belief tests, implement them, merge
 argument-hint: "[--test <path>]"
 ---
 
 # /pipeline — Belief-Driven Pipeline
 
-Finds failing tests, reads their JSDoc to understand intent, implements the fix, verifies, and merges. Failing tests ARE the work queue — no stories or issues needed.
+Finds `test.skip` belief tests, reads their JSDoc to understand intent, implements the code to make them pass, unskips them, verifies, and merges.
+
+Skipped tests ARE the work queue. `test.skip` = "this should be true but isn't yet."
 
 **Scheduled task prompt:**
 ```
@@ -32,33 +34,30 @@ If any stale PRs exist from a previous failed run, merge or close them:
 gh pr list --repo $REPO --state open --json number,title --jq '.[]'
 ```
 
-## Step 2: Find failing tests
+## Step 2: Find skipped belief tests
 
 ```bash
-pnpm test 2>&1 | grep "FAIL" | head -10
+grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/beliefs/ 2>/dev/null
 ```
 
-If all tests pass → skip to **Step 7**.
+If no skipped tests found → skip to **Step 7**.
 
 If `--test <path>` was provided, focus on that specific test.
 
-Otherwise, prioritize by directory:
-1. `__tests__/beliefs/` — product beliefs to validate (highest priority)
-2. `__tests__/structure/` — constraint violations to fix
-3. `__tests__/` — general test failures (bugs)
-
-Pick ONE failing test suite to work on.
+Otherwise, pick ONE skipped test file. Prioritize by:
+1. `__tests__/beliefs/` — product beliefs (highest priority)
+2. Any `.skip` tests in `__tests__/structure/` — constraint gaps
 
 ## Step 3: Understand intent
 
-Read the failing test file. The JSDoc header at the top explains:
+Read the skipped test file. The JSDoc header explains:
 - **What** the test expects (the belief or constraint)
 - **Why** it matters (external context references)
-- **When to confirm vs invalidate** (for belief tests)
+- **Confirm/Invalidate** criteria (for belief tests)
 
 Then read the folder CLAUDE.md for the affected source directories — the `See:` links point to constraints and types.
 
-If the test references `src/config/beliefs.ts`, read the relevant belief entry for confirm/invalidate criteria.
+If the test references `src/config/beliefs.ts`, read the relevant belief entry.
 
 ## Step 4: Implement
 
@@ -66,7 +65,10 @@ If the test references `src/config/beliefs.ts`, read the relevant belief entry f
 git fetch origin master && git checkout -b fix/$(basename <test-file> .test.ts) origin/master
 ```
 
-Make the failing tests pass. Read the source code the test references, understand the current state, implement the change.
+1. Read the skipped test to understand what it asserts
+2. Read the source code it references
+3. Implement the changes to make the assertions true
+4. Change `test.skip` → `test` (unskip)
 
 When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
 
@@ -76,9 +78,9 @@ When fixing code, follow `the fix-strategy rules: fix one file at a time, run ty
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-Up to 6 attempts. ALL tests must pass, not just the one you fixed.
+Up to 6 attempts. ALL tests must pass — the unskipped test AND everything else.
 
-If still failing after 6 → push WIP branch, create draft PR, skip to Step 1 (next cycle will retry or a human will intervene).
+If still failing after 6 → re-skip the test, push WIP branch, create draft PR. Next cycle will retry or a human will intervene.
 
 ## Step 6: Push, PR, merge
 
@@ -88,8 +90,8 @@ git commit -m "<descriptive message>"
 git push -u origin fix/$(basename <test-file> .test.ts)
 
 gh pr create --repo $REPO --base master \
-  --title "fix: <what the belief/constraint test required>" \
-  --body "Made failing test pass: <test file path>.
+  --title "fix: <what the belief test required>" \
+  --body "Resolved skipped belief test: <test file path>.
 
 Changes: <brief description>"
 PR_NUM=$(gh pr list --repo $REPO --head fix/$(basename <test-file> .test.ts) --json number --jq '.[0].number')
@@ -97,25 +99,25 @@ gh pr merge $PR_NUM --repo $REPO --squash --delete-branch
 git checkout master && git pull origin master
 ```
 
-After merging, go back to **Step 2** to find the next failing test.
+After merging, go back to **Step 2** to find the next skipped test.
 
-## Step 7: No failing tests — discover new work
+## Step 7: No skipped tests — discover new work
 
-All tests pass. Run audits to discover new beliefs and constraints:
+All belief tests are active and passing. Run audits to discover new beliefs:
 
 Check each in order — run the first one that produces output:
-1. `/code-audit` — scans code against structural test constraints, writes failing tests for violations
-2. `/ux-review` — evaluates user journeys, writes failing tests for UX gaps
+1. `/code-audit` — scans code against constraints, writes `test.skip` for violations
+2. `/ux-review` — evaluates user journeys, writes `test.skip` for UX gaps
 3. `/context-audit` — checks drift, schema staleness, belief lifecycle
-4. `/test-audit` — scores test quality, writes failing tests for rewrites
+4. `/test-audit` — scores test quality, writes `test.skip` for rewrites
 
-After an audit writes new failing tests, go back to **Step 2**.
+After an audit writes new skipped tests, go back to **Step 2**.
 
 If all audits produce nothing → the system is healthy. Stop.
 
 ## Guardrails
 
 - Never push to master directly — always go through a PR
-- If 6 verify attempts fail, push WIP and stop
-- One failing test suite at a time — don't try to fix everything in one branch
+- If 6 verify attempts fail, re-skip the test and push WIP
+- One skipped test at a time — don't try to resolve multiple in one branch
 - Read the test JSDoc before implementing — understand intent, not just assertions

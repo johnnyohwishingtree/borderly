@@ -118,13 +118,13 @@ For Tier 3-4 tests that need rewriting, write a belief test that asserts the COR
  * Status: hypothesis
  * Found by test-audit: <N> Tier 3-4 tests in __tests__/<area>/
  */
-test('<area> tests have meaningful assertions', () => {
+test.skip('<area> tests have meaningful assertions', () => {
   // Read the test files, check for toBeDefined()-only tests
   // Assert they have substantive assertions
 });
 ```
 
-The pipeline will pick up the failing test and rewrite the junk tests.
+Use `test.skip` so the test commits cleanly. The pipeline will find it, unskip it, rewrite the junk tests, and merge.
 
 ## Step 7: Capture learnings
 

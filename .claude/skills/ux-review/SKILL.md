@@ -129,13 +129,13 @@ Each gap becomes a failing test in `__tests__/beliefs/`. The test asserts what S
  * Current state: <what the system actually does>
  * Gap: <the difference between belief and reality>
  */
-test('<specific assertion about expected state>', () => {
+test.skip('<specific assertion about expected state>', () => {
   // Read the relevant source file or component
   // Assert the expected behavior
 });
 ```
 
-The pipeline will pick up the failing test and make it pass.
+Use `test.skip` so the test commits cleanly. The pipeline will find it, unskip it, implement the fix, and merge.
 
 Prioritize:
 1. **Critical gaps** — beliefs that directly block users from reaching value

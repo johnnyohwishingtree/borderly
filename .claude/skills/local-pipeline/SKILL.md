@@ -46,28 +46,27 @@ For each open PR: review the diff, merge if clean, fix if not.
 git fetch origin master && git reset --hard origin/master
 ```
 
-## Step 2: Find failing tests
+## Step 2: Find skipped belief tests
 
 ```bash
-pnpm test 2>&1 | grep "FAIL" | head -10
+grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/beliefs/ 2>/dev/null
 ```
 
-If all tests pass → skip to **Step 6**.
+If no skipped tests found → skip to **Step 6**.
 
-Prioritize by directory:
-1. `__tests__/beliefs/` — product beliefs to validate
-2. `__tests__/structure/` — constraint violations to fix
-3. `__tests__/` — general test failures (bugs)
-
-Pick ONE failing test suite.
+Pick ONE skipped test file.
 
 ## Step 3: Understand intent and implement
 
-Read the failing test file's JSDoc header. Read the folder CLAUDE.md for affected directories. Implement the fix.
+Read the skipped test file's JSDoc header. Read the folder CLAUDE.md for affected directories.
 
 ```bash
 git checkout -b fix/$(basename <test-file> .test.ts)
 ```
+
+1. Read the skipped test to understand what it asserts
+2. Implement the changes to make the assertions true
+3. Change `test.skip` → `test` (unskip)
 
 When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
 
@@ -95,15 +94,15 @@ gh pr merge $PR_NUM --repo $REPO --squash --delete-branch
 
 Go back to **Step 2** if more failing tests remain.
 
-## Step 6: No failing tests — run audits
+## Step 6: No skipped tests — run audits
 
-All tests pass. Run audits to discover new work:
-1. `/code-audit` — writes failing tests for code violations
-2. `/ux-review` — writes failing tests for UX gaps
+All belief tests are active and passing. Run audits to discover new beliefs:
+1. `/code-audit` — scans code against constraints, writes `test.skip` for violations
+2. `/ux-review` — evaluates user journeys, writes `test.skip` for UX gaps
 3. `/context-audit` — checks drift, staleness, belief lifecycle
-4. `/test-audit` — writes failing tests for junk test rewrites
+4. `/test-audit` — scores test quality, writes `test.skip` for rewrites
 
-After an audit writes new failing tests, go back to **Step 2**.
+After an audit writes new skipped tests, go back to **Step 2**.
 
 If all audits produce nothing → system is healthy.
 
