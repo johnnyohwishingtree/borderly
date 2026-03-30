@@ -16,7 +16,7 @@ import CAN from '../../src/schemas/CAN.json';
  *
  * Captures screenshots of every screen to colocated __screenshots__/ folders
  * (e.g., src/screens/trips/TripListScreen/__screenshots__/default.png)
- * for use with the /visual-audit and /capture-screens skills.
+ * for use with the /ux-audit and /capture-screens skills.
  *
  * Each test is independent — loads the page fresh with injected state.
  * Must run with --workers=1 (parallel runs cause webpack-dev-server race conditions).
