@@ -38,7 +38,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           <Button
             title="Search All Help Topics"
             onPress={() => setIsSearchVisible(true)}
-            variant="primary"
+            variant="outline"
             fullWidth
           />
         </Card>

@@ -337,7 +337,7 @@ export default function TripListScreen() {
               minWidth: 56,
             }}
           >
-            <Text className="text-white text-2xl font-light">+</Text>
+            <Text className="text-white text-2xl font-medium">+</Text>
           </TouchableOpacity>
         </View>
       )}

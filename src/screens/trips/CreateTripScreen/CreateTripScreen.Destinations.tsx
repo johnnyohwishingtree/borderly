@@ -79,7 +79,7 @@ export function Destinations({
               <Button
                 title="Scan Boarding Pass"
                 onPress={onShowScanner}
-                variant="primary"
+                variant="outline"
                 testID={CREATE_TRIP_IDS.emptyStateScanButton.id}
               />
               <Button

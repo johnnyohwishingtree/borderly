@@ -314,7 +314,7 @@ export default function SubmissionGuideScreen() {
                 <Button
                   title="Mark as Submitted"
                   onPress={handleMarkAsSubmitted}
-                  variant="primary"
+                  variant="outline"
                   size="medium"
                   fullWidth={true}
                   loading={isSubmitting}

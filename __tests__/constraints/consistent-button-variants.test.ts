@@ -4,8 +4,9 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Button components should use only the standard variant names.
- * Constraint candidate — applies to all screens and components.
+ * Constraint: Consistent Button Variants
+ *
+ * Scope: src/screens/, src/components/
  *
  * Decision: Three Button variants only — primary, outline, secondary.
  * Rejected: "outlined" (typo/inconsistency with "outline"), ad-hoc variant strings.
@@ -31,7 +32,7 @@ function getAllTsxFiles(dir: string): string[] {
 
 const ALLOWED_BUTTON_VARIANTS = ['primary', 'outline', 'secondary'];
 
-test.skip('Button components only use allowed variants', () => {
+test('Button components only use allowed variants', () => {
   const files = [
     ...getAllTsxFiles(resolve(ROOT, 'src/screens')),
     ...getAllTsxFiles(resolve(ROOT, 'src/components')),

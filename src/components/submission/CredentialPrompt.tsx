@@ -147,7 +147,7 @@ export function CredentialPrompt({
               </Text>
               <View className="relative">
                 <TextInput
-                  className="border border-gray-300 rounded-lg px-3 py-2.5 pr-[50px] text-[15px] text-gray-900 bg-gray-50"
+                  className="border border-gray-300 rounded-lg px-3 py-2.5 pr-12 text-base text-gray-900 bg-gray-50"
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Your password"

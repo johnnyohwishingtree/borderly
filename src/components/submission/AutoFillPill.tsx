@@ -63,7 +63,7 @@ export function AutoFillPill({
         {/* Profile selector (only shown for family trips with multiple profiles) */}
         {showProfileSelector && (
           <View className="flex-row items-start mb-3 gap-2">
-            <Text className="text-[13px] text-gray-500 pt-[9px]">Fill as:</Text>
+            <Text className="text-sm text-gray-500 pt-2">Fill as:</Text>
             <View className="flex-1">
               <ProfileSelector
                 profiles={profiles}
@@ -87,7 +87,7 @@ export function AutoFillPill({
           onPress={onAutoFill}
           onPressIn={() => setFillPressed(true)}
           onPressOut={() => setFillPressed(false)}
-          className={`rounded-lg py-[11px] items-center ${fillPressed ? 'bg-blue-700' : 'bg-blue-600'}`}
+          className={`rounded-lg py-3 items-center ${fillPressed ? 'bg-blue-700' : 'bg-blue-600'}`}
           accessibilityLabel="Auto-fill form fields now"
           testID={AUTOFILL_PILL_IDS.fillButton.id}
         >

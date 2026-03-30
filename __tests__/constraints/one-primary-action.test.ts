@@ -4,13 +4,14 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Each screen file should use at most 3 distinct font weight classes.
- * Constraint candidate — applies to all screen files.
+ * Constraint: One Primary Action
  *
- * Decision: font-bold for headings, font-semibold for emphasis, font-medium for labels.
- * Rejected: font-light, font-normal mixed in with bold/semibold — competing hierarchy.
+ * Scope: src/screens/
  *
- * Context: .context/external/cognitive/three-font-sizes-max.md
+ * Decision: One primary action per screen reduces decision paralysis (Hick's Law).
+ * Rejected: Multiple primary buttons — user can't tell which is the main action.
+ *
+ * Context: .context/external/cognitive/fewer-fields-higher-completion.md
  */
 
 function getScreenFiles(dir: string): string[] {
@@ -28,18 +29,16 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-const FONT_WEIGHTS = ['font-thin', 'font-extralight', 'font-light', 'font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black'];
-
-test.skip('screen files use at most 3 distinct font weights', () => {
+test('screens have at most one primary-variant Button', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 
   for (const file of screenFiles) {
     const content = readFileSync(file, 'utf-8');
-    const weightsUsed = FONT_WEIGHTS.filter(w => content.includes(w));
-    if (weightsUsed.length > 3) {
+    const primaryCount = (content.match(/variant=["']primary["']/g) || []).length;
+    if (primaryCount > 1) {
       const relative = file.replace(ROOT + '/', '');
-      violations.push(`${relative} (${weightsUsed.length} weights: ${weightsUsed.join(', ')})`);
+      violations.push(`${relative} (${primaryCount} primary buttons)`);
     }
   }
 
