@@ -74,7 +74,9 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ALL tests must pass.
 
-**Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict. Write a resolution spec in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests, re-skip the test you were implementing, and explain the conflict.
+**Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict.
+- **If invoked by the user** (interactive `/implement`): the user's new requirement takes priority. Amend the conflicting constraint to accommodate the new spec, add `Decision:` JSDoc explaining the change. The user has already made the decision.
+- **If invoked by the pipeline** (autonomous): write a resolution spec in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests. Don't resolve autonomously — defer to next human session.
 
 ## Step 6: E2E screenshot refresh (if UI changed)
 
@@ -101,3 +103,4 @@ If no simulator is available (e.g., CI or headless pipeline), skip this step —
 - If oscillating failures: write a conflict resolution spec, don't keep retrying
 - If same test keeps failing: re-skip it and explain why
 - Always graduate: no `.spec.test.ts` files should remain active (non-skipped)
+- **Never skip Step 6** — if any `src/screens/` or `src/components/` files changed, E2E screenshots MUST be refreshed before committing (rebuild + `pnpm e2e:mobile`)
