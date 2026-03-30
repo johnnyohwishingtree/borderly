@@ -1,9 +1,15 @@
-import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
-import { getSchemaByCountryCode } from '../../src/schemas';
+import { CountryFormSchema } from '../../src/types/schema';
 import MYS from '../../src/schemas/MYS.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Malaysia (MYS) Schema', () => {
-  const schema = MYS;
+  const schema = MYS as unknown as CountryFormSchema;
+
+  // ── Shared tests ──────────────────────────────────────────────────────────
+
+  runSharedSchemaTests(schema, 'MYS');
+
+  // ── Country metadata ──────────────────────────────────────────────────────
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('MYS');
@@ -14,7 +20,6 @@ describe('Malaysia (MYS) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('3d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('24h');
@@ -26,9 +31,10 @@ describe('Malaysia (MYS) Schema', () => {
     expect(schema.submissionWindowNote).toBe('Submit any time before arrival');
   });
 
+  // ── Sections ──────────────────────────────────────────────────────────────
+
   test('should have all required sections', () => {
     expect(schema.sections).toHaveLength(4);
-
     const sectionIds = schema.sections.map(s => s.id);
     expect(sectionIds).toContain('personal');
     expect(sectionIds).toContain('travel');
@@ -37,27 +43,20 @@ describe('Malaysia (MYS) Schema', () => {
   });
 
   test('personal information section should include email and phone', () => {
-    const personalSection = schema.sections.find(s => s.id === 'personal');
-    expect(personalSection).not.toBeUndefined();
-
-    const fieldIds = personalSection!.fields.map(f => f.id);
+    const personalSection = schema.sections.find(s => s.id === 'personal')!;
+    const fieldIds = personalSection.fields.map(f => f.id);
     expect(fieldIds).toContain('email');
     expect(fieldIds).toContain('phoneNumber');
     expect(fieldIds).toContain('passportExpiry');
   });
 
   test('travel section should have Malaysia-specific port of entry airport autocomplete', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).not.toBeUndefined();
-
-    const airportField = travelSection!.fields.find(f => f.id === 'arrivalAirport');
-    expect(airportField).not.toBeUndefined();
-    expect(airportField!.countrySpecific).toBe(true);
-    // Field now uses the bundled airport database rather than inline options
-    expect(airportField!.type).toBe('searchable_select');
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const airportField = travelSection.fields.find(f => f.id === 'arrivalAirport')!;
+    expect(airportField.countrySpecific).toBe(true);
+    expect(airportField.type).toBe('searchable_select');
     expect((airportField as any).optionsSource).toBe('airports');
 
-    // Verify that Malaysian airports KUL, KUA, PEN are present in the bundled database
     const { ALL_AIRPORTS } = require('../../src/constants/airports');
     const codes = new Set(ALL_AIRPORTS.map((a: { value: string }) => a.value));
     expect(codes.has('KUL')).toBe(true);
@@ -68,105 +67,61 @@ describe('Malaysia (MYS) Schema', () => {
   });
 
   test('purpose of visit should have Malaysia-specific options', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit');
-
-    expect(purposeField).not.toBeUndefined();
-    expect(purposeField!.countrySpecific).toBe(true);
-
-    const purposes = (purposeField as any).options!.map((o: any) => o.value);
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
+    expect(purposeField.countrySpecific).toBe(true);
+    const purposes = purposeField.options!.map(o => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('visiting_family');
     expect(purposes).toContain('medical');
   });
 
   test('should have health declaration section', () => {
-    const healthSection = schema.sections.find(s => s.id === 'health_declarations');
-    expect(healthSection).not.toBeUndefined();
-
-    const fieldIds = healthSection!.fields.map(f => f.id);
+    const healthSection = schema.sections.find(s => s.id === 'health_declarations')!;
+    const fieldIds = healthSection.fields.map(f => f.id);
     expect(fieldIds).toContain('healthCondition');
     expect(fieldIds).toContain('visitedHighRiskCountries');
   });
 
   test('currency declaration should have Malaysia-specific threshold', () => {
-    const healthSection = schema.sections.find(s => s.id === 'health_declarations');
-    const currencyField = healthSection!.fields.find(f => f.id === 'carryingCurrency');
-
-    expect(currencyField).not.toBeUndefined();
-    expect(currencyField!.label).toContain('RM10,000');
+    const healthSection = schema.sections.find(s => s.id === 'health_declarations')!;
+    const currencyField = healthSection.fields.find(f => f.id === 'carryingCurrency')!;
+    expect(currencyField.label).toContain('RM10,000');
     expect((currencyField as any).helpText).toContain('Malaysian Ringgit');
   });
 
   test('duration of stay should have validation limits', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    const durationField = travelSection!.fields.find(f => f.id === 'durationOfStay');
-
-    expect(durationField).not.toBeUndefined();
-    expect((durationField as any).validation).not.toBeUndefined();
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const durationField = travelSection.fields.find(f => f.id === 'durationOfStay')!;
     expect((durationField as any).validation!.min).toBe(1);
     expect((durationField as any).validation!.max).toBe(90);
-  });
-
-  test('should have complete submission guide', () => {
-    expect(schema.submissionGuide).toHaveLength(6);
-
-    const stepTitles = schema.submissionGuide.map(s => s.title);
-    expect(stepTitles).toContain('Access MDAC Portal');
-    expect(stepTitles).toContain('Submit and Save');
-  });
-
-  test('submission guide should reference valid field IDs', () => {
-    const allFieldIds = new Set<string>();
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        allFieldIds.add(field.id);
-      });
-    });
-
-    schema.submissionGuide.forEach(step => {
-      step.fieldsOnThisScreen.forEach(fieldId => {
-        expect(allFieldIds.has(fieldId)).toBe(true);
-      });
-    });
   });
 
   test('email field should have validation pattern', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
-
-    expect((emailField as any).validation).not.toBeUndefined();
     expect(typeof (emailField as any).validation!.pattern).toBe('string');
     expect((emailField as any).validation!.pattern).toContain('@');
   });
 
-  test('should validate against schema structure', () => {
-    expect(() => {
-      const validatedSchema = loadSchema(schema, 'MYS');
-      validateSchemaCompletely(validatedSchema);
-    }).not.toThrow();
-  });
-
-  test('should be accessible via schema registry', async () => {
-    const registrySchema = await getSchemaByCountryCode('MYS');
-    expect(registrySchema).not.toBeUndefined();
-    expect(registrySchema?.countryCode).toBe('MYS');
-  });
-
   test('health fields should be country-specific', () => {
     const healthSection = schema.sections.find(s => s.id === 'health_declarations')!;
-
-    const healthField = healthSection.fields.find(f => f.id === 'healthCondition')!;
-    expect(healthField.countrySpecific).toBe(true);
-
-    const riskField = healthSection.fields.find(f => f.id === 'visitedHighRiskCountries')!;
-    expect(riskField.countrySpecific).toBe(true);
+    expect(healthSection.fields.find(f => f.id === 'healthCondition')!.countrySpecific).toBe(true);
+    expect(healthSection.fields.find(f => f.id === 'visitedHighRiskCountries')!.countrySpecific).toBe(true);
   });
 
   test('accommodation should support textarea for address', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
     const addressField = accommodationSection.fields.find(f => f.id === 'hotelAddress')!;
-
     expect(addressField.type).toBe('textarea');
+  });
+
+  // ── Submission guide (country-specific) ───────────────────────────────────
+
+  test('should have complete submission guide', () => {
+    expect(schema.submissionGuide).toHaveLength(6);
+    const stepTitles = schema.submissionGuide.map(s => s.title);
+    expect(stepTitles).toContain('Access MDAC Portal');
+    expect(stepTitles).toContain('Submit and Save');
   });
 });

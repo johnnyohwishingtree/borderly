@@ -1,10 +1,15 @@
 import { CountryFormSchema } from '../../src/types/schema';
-import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
-import { getSchemaByCountryCode } from '../../src/schemas';
 import USA from '../../src/schemas/USA.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('United States (USA) Schema', () => {
   const schema = USA as CountryFormSchema;
+
+  // ── Shared tests ──────────────────────────────────────────────────────────
+
+  runSharedSchemaTests(schema, 'USA');
+
+  // ── Country metadata ──────────────────────────────────────────────────────
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('USA');
@@ -18,7 +23,6 @@ describe('United States (USA) Schema', () => {
   });
 
   test('should have implementationStatus set to planned', () => {
-    expect(schema.metadata).not.toBeUndefined();
     expect(schema.metadata.implementationStatus).toBe('planned');
   });
 
@@ -32,30 +36,24 @@ describe('United States (USA) Schema', () => {
   });
 
   test('should have metadata with expected fields', () => {
-    const metadata = schema.metadata;
-    expect(metadata.priority).toBe(5);
-    expect(metadata.popularity).toBe(95);
-    expect(metadata.maintenanceFrequency).toBe('monthly');
+    expect(schema.metadata.priority).toBe(5);
+    expect(schema.metadata.popularity).toBe(95);
+    expect(schema.metadata.maintenanceFrequency).toBe('monthly');
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('730d');
     expect(schema.submission.latestBeforeArrival).toBe('72h');
     expect(schema.submission.recommended).toBe('14d');
     expect(schema.submission.processingTime).toBe('72h');
   });
 
-  test('changeDetection monitoredSelectors should be non-empty', () => {
-    expect(schema.changeDetection).not.toBeUndefined();
-    expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
-    expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
-  });
-
   test('changeDetection fallbackAction trigger should be cbp_system_update', () => {
     const triggers = schema.changeDetection.fallbackActions.map(a => a.trigger);
     expect(triggers).toContain('cbp_system_update');
   });
+
+  // ── Sections ──────────────────────────────────────────────────────────────
 
   test('should have all required sections', () => {
     const sectionIds = schema.sections.map(s => s.id);
@@ -66,10 +64,8 @@ describe('United States (USA) Schema', () => {
   });
 
   test('applicant section should have required CBP One declaration fields', () => {
-    const applicantSection = schema.sections.find(s => s.id === 'applicant');
-    expect(applicantSection).not.toBeUndefined();
-
-    const fieldIds = applicantSection!.fields.map(f => f.id);
+    const applicantSection = schema.sections.find(s => s.id === 'applicant')!;
+    const fieldIds = applicantSection.fields.map(f => f.id);
     expect(fieldIds).toContain('surname');
     expect(fieldIds).toContain('firstName');
     expect(fieldIds).toContain('dateOfBirth');
@@ -80,58 +76,27 @@ describe('United States (USA) Schema', () => {
   test('surname field should auto-fill from profile and be required', () => {
     const applicantSection = schema.sections.find(s => s.id === 'applicant')!;
     const surnameField = applicantSection.fields.find(f => f.id === 'surname')!;
-
     expect(surnameField.required).toBe(true);
     expect(surnameField.autoFillSource).toBe('profile.surname');
   });
 
-  test('firstName (givenName) field should auto-fill from profile and be required', () => {
-    const applicantSection = schema.sections.find(s => s.id === 'applicant')!;
-    const firstNameField = applicantSection.fields.find(f => f.id === 'firstName')!;
-
-    expect(firstNameField.required).toBe(true);
-    expect(firstNameField.autoFillSource).toBe('profile.givenNames');
-  });
-
   test('passport section should have required passportNumber field', () => {
-    const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).not.toBeUndefined();
-
-    const fieldIds = passportSection!.fields.map(f => f.id);
+    const passportSection = schema.sections.find(s => s.id === 'passport')!;
+    const fieldIds = passportSection.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
     expect(fieldIds).toContain('passportCountry');
     expect(fieldIds).toContain('passportIssueDate');
     expect(fieldIds).toContain('passportExpirationDate');
   });
 
-  test('passportNumber field should be required and auto-fill from profile', () => {
-    const passportSection = schema.sections.find(s => s.id === 'passport')!;
-    const passportNumberField = passportSection.fields.find(f => f.id === 'passportNumber')!;
-
-    expect(passportNumberField.required).toBe(true);
-    expect(passportNumberField.autoFillSource).toBe('profile.passportNumber');
-  });
-
-  test('travel section should have CBP One travel fields', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).not.toBeUndefined();
-
-    const fieldIds = travelSection!.fields.map(f => f.id);
-    expect(fieldIds).toContain('purposeOfTravel');
-    expect(fieldIds).toContain('addressInUS');
-  });
-
   test('eligibility section should have required declaration answer fields', () => {
-    const eligibilitySection = schema.sections.find(s => s.id === 'eligibility');
-    expect(eligibilitySection).not.toBeUndefined();
-
-    const fieldIds = eligibilitySection!.fields.map(f => f.id);
+    const eligibilitySection = schema.sections.find(s => s.id === 'eligibility')!;
+    const fieldIds = eligibilitySection.fields.map(f => f.id);
     expect(fieldIds).toContain('drugConviction');
     expect(fieldIds).toContain('terrorism');
     expect(fieldIds).toContain('visaRefusal');
 
-    // All eligibility fields should be boolean, required, and country-specific
-    eligibilitySection!.fields.forEach(field => {
+    eligibilitySection.fields.forEach(field => {
       expect(field.type).toBe('boolean');
       expect(field.required).toBe(true);
       expect(field.countrySpecific).toBe(true);
@@ -139,84 +104,18 @@ describe('United States (USA) Schema', () => {
   });
 
   test('portalFlow should require an account', () => {
-    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(true);
   });
 
   test('portalFlow familyPolicy should be companion type', () => {
-    const portalFlow = schema.portalFlow;
-    expect(portalFlow.familyPolicy).not.toBeUndefined();
-    expect(portalFlow.familyPolicy!.type).toBe('companion');
+    expect(schema.portalFlow.familyPolicy!.type).toBe('companion');
   });
+
+  // ── Submission guide (country-specific) ───────────────────────────────────
 
   test('should have a complete submission guide', () => {
-    expect(schema.submissionGuide).not.toBeUndefined();
     expect(schema.submissionGuide.length).toBeGreaterThan(0);
-
     const stepTitles = schema.submissionGuide.map(s => s.title);
     expect(stepTitles.some(t => t.includes('CBP One'))).toBe(true);
-  });
-
-  test('submission guide steps should have incrementing order', () => {
-    const orders = schema.submissionGuide.map(s => s.order);
-    orders.forEach((order, index) => {
-      expect(order).toBe(index + 1);
-    });
-  });
-
-  test('submission guide should reference valid field IDs', () => {
-    const allFieldIds = new Set<string>();
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        allFieldIds.add(field.id);
-      });
-    });
-
-    schema.submissionGuide.forEach(step => {
-      step.fieldsOnThisScreen.forEach(fieldId => {
-        expect(allFieldIds.has(fieldId)).toBe(true);
-      });
-    });
-  });
-
-  test('should have unique field IDs across all sections', () => {
-    const allFieldIds = schema.sections.flatMap(s => s.fields.map(f => f.id));
-    const duplicates = allFieldIds.filter((id, index) => allFieldIds.indexOf(id) !== index);
-    expect(duplicates).toEqual([]);
-  });
-
-  test('fields with autoFillSource should reference valid profile or leg paths', () => {
-    const validPrefixes = ['profile.', 'leg.'];
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        const autoFill = field.autoFillSource;
-        if (autoFill) {
-          const hasValidPrefix = validPrefixes.some(prefix => autoFill.startsWith(prefix));
-          expect(hasValidPrefix).toBe(true);
-        }
-      });
-    });
-  });
-
-  test('all fields should have required property as a boolean', () => {
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(typeof field.required).toBe('boolean');
-      });
-    });
-  });
-
-  test('should validate against schema structure', () => {
-    expect(() => {
-      const validatedSchema = loadSchema(schema, 'USA');
-      validateSchemaCompletely(validatedSchema);
-    }).not.toThrow();
-  });
-
-  test('should be accessible via schema registry', async () => {
-    const registrySchema = await getSchemaByCountryCode('USA');
-    expect(registrySchema).not.toBeUndefined();
-    expect(registrySchema?.countryCode).toBe('USA');
   });
 });

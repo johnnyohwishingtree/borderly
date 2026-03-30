@@ -20,7 +20,7 @@ describe('Spec: schema test consolidation', () => {
     .filter(f => f.endsWith('.test.ts') && f !== 'schemaValidation.test.ts' && f !== 'schemaConsolidation.spec.test.ts')
     .filter(f => /^[A-Z]{3}\.test\.ts$/.test(f));
 
-  test.skip('all country schema tests use runSharedSchemaTests()', () => {
+  test('all country schema tests use runSharedSchemaTests()', () => {
     const notUsingShared: string[] = [];
 
     for (const file of countryTestFiles) {
@@ -33,7 +33,7 @@ describe('Spec: schema test consolidation', () => {
     expect(notUsingShared).toEqual([]);
   });
 
-  test.skip('country schema tests have fewer than 20 test blocks each (shared patterns extracted)', () => {
+  test('country schema tests have fewer than 20 test blocks each (shared patterns extracted)', () => {
     const bloated: string[] = [];
 
     for (const file of countryTestFiles) {
