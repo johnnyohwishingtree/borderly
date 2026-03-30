@@ -92,7 +92,7 @@ export default function LegFormScreen() {
             <Button
               title={showOnlyCountrySpecific ? 'Show All' : 'Smart Delta'}
               onPress={() => setShowOnlyCountrySpecific(!showOnlyCountrySpecific)}
-              variant="outline"
+              variant="secondary"
               size="small"
               testID="smart-delta-button"
             />
@@ -178,7 +178,7 @@ export default function LegFormScreen() {
         <Button
           title="Save Progress"
           onPress={handleSaveForm}
-          variant={isValid ? 'outline' : 'primary'}
+          variant={isValid ? 'secondary' : 'primary'}
           size="large"
           fullWidth
           loading={isSubmitting}
@@ -203,7 +203,7 @@ export default function LegFormScreen() {
                   Alert.alert('Error', `Portal URL not found for ${countryCode}.`);
                 }
               }}
-              variant="outline"
+              variant="secondary"
               testID="submit-in-app-button"
               size="large"
               fullWidth
@@ -218,7 +218,7 @@ export default function LegFormScreen() {
                 countryCode: leg.destinationCountry,
               });
             }}
-            variant="outline"
+            variant="secondary"
             testID="open-submission-guide-button"
             size="large"
           />
