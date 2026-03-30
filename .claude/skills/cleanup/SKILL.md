@@ -80,7 +80,7 @@ rm <file>                  # For untracked files
 
 ### Step 6: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`. Ensure no imports broke from the removals.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`. Ensure no imports broke from the removals.
 
 ### Step 7: Summary
 

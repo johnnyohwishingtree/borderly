@@ -1,18 +1,31 @@
+/**
+ * Constraint: No Inline Hex Colors (from Styling policy)
+ *
+ * Scope: src/components/, src/screens/
+ *
+ * REQUIRE: NativeWind className for all styling
+ * REQUIRE: Tailwind color tokens — no inline hex colors
+ * DENY:    style={{}} for static values expressible in Tailwind
+ * ALLOW:   style={{}} for animated values, computed dimensions, dynamic transforms
+ * ALLOW:   style={{}} for SVG-like rendering (CountryFlag)
+ * ALLOW:   style={{}} for platform-specific layout NativeWind can't express
+ *
+ * Exceptions:
+ * - Lucide icon color prop accepts inline hex — component library requirement
+ * - CountryFlag.tsx — pixel-precise SVG flag rendering requires inline styles
+ *
+ * Anti-patterns:
+ * - style={{ marginTop: 16 }} when className="mt-4" works
+ * - #3B82F6 inline when text-blue-500 exists
+ * - Mixing StyleSheet.create() and className in the same file
+ *
+ * Why: Inline hex colors bypass the design system's color tokens and make
+ *      theme changes impossible. NativeWind className is the single source.
+ *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- * Structural test: detect static inline hex colors in style props.
- *
- * NativeWind className should be used for all static styling. Inline styles
- * are only allowed for dynamic/computed values, animated values, SVG rendering
- * (CountryFlag.tsx), and platform-specific layout NativeWind can't express.
- *
- * This test tracks a known violation count. It fails if NEW violations appear
- * (count exceeds baseline) and logs a reminder when violations still exist.
- *
- * See: .knowledge/policies/ui/styling.md
- */
 
 const COMPONENTS_DIR = path.resolve(__dirname, '../../src/components');
 const SCREENS_DIR = path.resolve(__dirname, '../../src/screens');
@@ -68,7 +81,7 @@ describe('inline hex color violations in style props', () => {
     if (total > 0) {
       console.warn(
         `${total} inline hex color violations remain (baseline: ${KNOWN_VIOLATION_BASELINE}). ` +
-        'Migrate to NativeWind className. See .knowledge/policies/ui/styling.md',
+        'Migrate to NativeWind className. See JSDoc at top of this file for styling rules.',
       );
     }
 

@@ -52,7 +52,7 @@ Use `git mv` to preserve history:
 git mv old/path/file.ts new/path/file.ts
 ```
 
-After each move, follow `.knowledge/policies/workflow/fix-strategy.md`.
+After each move, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``.
 
 ### Step 4: Remove Duplicates
 
@@ -63,7 +63,7 @@ If duplicate test files exist (same tests, different locations):
 
 ### Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 ### Step 6: Summary
 

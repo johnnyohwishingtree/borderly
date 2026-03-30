@@ -67,7 +67,7 @@ Follow the project's dependency direction: Screens -> Hooks -> Stores -> Service
 
 ### Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 Also run bundle check:
 ```bash

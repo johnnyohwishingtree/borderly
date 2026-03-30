@@ -1,10 +1,31 @@
 /**
- * Meta-test: every testable policy has a structural test.
+ * Constraint: Testable Architecture (Meta-Policy)
  *
- * Maps each policy file to its enforcing test(s). Fails if a policy
- * has no test or if a new policy is added without being mapped.
+ * Scope: .knowledge/, __tests__/structure/, src/ (directory structure)
  *
- * See: .knowledge/policies/architecture/testable-architecture.md
+ * REQUIRE: every testable policy has a structural test in __tests__/structure/
+ * REQUIRE: new policies added to POLICY_TEST_MAP in this file
+ * REQUIRE: code structured so conventions are greppable (clear directory boundaries)
+ * REQUIRE: naming patterns are predictable (structural tests can scan)
+ * REQUIRE: metadata is declarative/parseable (JSON, typed objects)
+ * DENY:    conventions that can't be tested — restructure until testable
+ *
+ * When adding a new policy, ask: "Can I write a test in __tests__/structure/
+ * that catches violations in under 1 second?"
+ * - Yes: write the test, add the policy
+ * - No, but could restructure: restructure first
+ * - No, subjective: it's a design guideline (mark in DESIGN_GUIDELINES set)
+ *
+ * Exceptions:
+ * - Design guidelines (typography, motion, ux-writing) — not structurally testable
+ *
+ * Anti-patterns:
+ * - Writing a policy without a structural test
+ * - Adding a knowledge file without mapping it in this file
+ * - Convention expressed as prose that can't be grepped for violations
+ *
+ * Why: If a constraint can't be tested, it will drift. Structural tests run
+ *      in < 1s at pnpm test time and catch violations immediately.
  */
 
 import { existsSync, readdirSync, statSync } from 'fs';
@@ -13,39 +34,16 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 const STRUCTURE_DIR = resolve(ROOT, '__tests__/structure');
 
+/**
+ * Policies have been absorbed into test file JSDoc headers.
+ * Only agent-token-efficiency.md remains as a standalone policy.
+ * This map tracks the remaining policy -> test relationship.
+ */
 const POLICY_TEST_MAP: Record<string, string[]> = {
-  'architecture/dependency-direction.md': ['dependency-direction.test.ts'],
-  'architecture/file-boundaries.md': ['hooks-barrel.test.ts', 'screen-folder-convention.test.ts'],
-  'architecture/local-first.md': ['pii-boundary.test.ts'],
-  'architecture/testable-architecture.md': ['knowledge-test-coverage.test.ts'],
-  'data/storage-tiers.md': ['pii-boundary.test.ts'],
-  'data/pii-boundary.md': ['pii-boundary.test.ts'],
-  'state/hook-conventions.md': ['hooks-barrel.test.ts'],
-  'state/store-boundaries.md': ['dependency-direction.test.ts'],
-  'testing/e2e-testability.md': ['component-testids.test.ts'],
-  'testing/drift-detection.md': ['component-testids.test.ts'],
   'architecture/agent-token-efficiency.md': ['knowledge-graph-integrity.test.ts'],
-  'platform/native-modules.md': ['native-module-mocks.test.ts'],
-  'platform/navigation.md': ['screen-folder-convention.test.ts'],
-  'ui/styling.md': ['no-space-x.test.ts', 'smart-component-usage.test.ts'],
-  'ui/accessibility.md': ['accessibility-props.test.ts'],
 };
 
-const DESIGN_GUIDELINES = new Set([
-  'ui/typography.md',
-  'ui/motion.md',
-  'ui/ux-writing.md',
-  'testing/test-conventions.md',
-  'testing/test-quality.md', // enforced by test-quality-audit.test.ts (pending)
-  'data/schema-fields.md',
-  'architecture/utils-boundary.md', // structural test pending (story #853)
-  'workflow/verification.md', // process policy — enforced by skills, not structural tests
-  'workflow/learning.md', // process policy — enforced by skills
-  'workflow/self-review.md', // process policy — enforced by skills
-  'workflow/fix-strategy.md', // process policy — rules/fix-strategy.md is the auto-loaded pointer
-  'workflow/bug-fix.md', // process policy — rules/bug-fix-workflow.md is the auto-loaded pointer
-  'workflow/story-implementation.md', // process policy — enforced by pipeline skills
-  'workflow/epic-planning.md', // process policy — enforced by pipeline Step 9
+const DESIGN_GUIDELINES = new Set<string>([
 ]);
 
 describe('Knowledge test coverage', () => {

@@ -1,12 +1,11 @@
 # Pattern: Add a New Screen
 
 ## Policies to follow
-- `.knowledge/policies/platform/navigation.md` — screen naming, typed routes
-- `.knowledge/policies/ui/styling.md` — NativeWind, spacing
-- `.knowledge/policies/ui/accessibility.md` — a11y props on interactive elements
-- `.knowledge/policies/testing/e2e-testability.md` — testIDs on interactive elements
-- `.knowledge/policies/state/hook-conventions.md` — extract logic if 3+ useState
-- `.knowledge/policies/architecture/file-boundaries.md` — folder/file naming
+- `__tests__/structure/screen-folder-convention.test.ts` — screen naming, typed routes, folder/file naming
+- `__tests__/structure/no-space-x.test.ts` — NativeWind styling rules
+- `__tests__/structure/accessibility-props.test.ts` — a11y props on interactive elements
+- `__tests__/structure/component-testids.test.ts` — testIDs on interactive elements
+- `__tests__/structure/hooks-barrel.test.ts` — extract logic if 3+ useState
 
 ## Files to create/modify (in order)
 

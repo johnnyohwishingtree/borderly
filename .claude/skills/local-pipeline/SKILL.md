@@ -54,7 +54,7 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 9**.
 
-Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules.
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress`` for story picking rules.
 
 ## Step 3: Pre-flight analysis
 
@@ -86,20 +86,20 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git checkout -b story/issue-$NUMBER
 ```
 
-Follow `.knowledge/policies/workflow/story-implementation.md`.
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress``.
 
-When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
-When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
+When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``.
+When fixing bugs, follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 ## Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 If still failing after 6 → push WIP branch, create draft PR, reset to `pending`, skip to cleanup.
 
 ## Step 6: Learn
 
-**Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
+**Mandatory.** Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 Additionally, check if any beliefs in `src/config/beliefs.ts` need updating based on what was learned during implementation. If a belief was confirmed or contradicted by what you built, update its status and evidence.
 
@@ -107,7 +107,7 @@ Self-check: if 5+ files changed and zero `.knowledge/` updates, stop and reconsi
 
 ## Step 7: Self-review
 
-Follow `.knowledge/policies/workflow/self-review.md`.
+Follow `the self-review rules: review diff before committing, fix `any` types, unused imports, empty catches`.
 
 ## Step 8: Push, PR, merge
 

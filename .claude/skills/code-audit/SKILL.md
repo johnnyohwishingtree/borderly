@@ -56,7 +56,7 @@ Also check general CLAUDE.md health:
 - Modules with no corresponding test file
 
 ### Architecture violations
-- Source files over 500 lines (per `.knowledge/policies/architecture/file-boundaries.md`)
+- Source files over 500 lines (per `__tests__/structure/screen-folder-convention.test.ts`)
 
 ### Drift
 - testIDs referenced in E2E tests that don't exist in source
@@ -116,7 +116,7 @@ EOF
 
 ## Step 7: Verify and commit
 
-Follow `.knowledge/policies/workflow/verification.md` if code was changed.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts` if code was changed.
 
 ```bash
 git add <changed files>

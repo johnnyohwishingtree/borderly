@@ -74,7 +74,7 @@ For each bug found, record:
 
 ### Step 5: Fix Critical Bugs
 
-Follow `.knowledge/policies/workflow/bug-fix.md`.
+Follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 ### Step 6: Create Issues for Non-Critical Bugs
 

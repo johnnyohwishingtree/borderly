@@ -1,10 +1,34 @@
 /**
- * Structural test: interactive components must have testID.
+ * Constraint: Component testIDs (from E2E Testability + Drift Detection)
  *
- * Finds Pressable/TouchableOpacity elements in src/components/ that
- * don't have a testID prop. These are invisible to Maestro E2E tests.
+ * Scope: src/components/, src/screens/, e2e/mobile/
  *
- * See: .knowledge/policies/testing/e2e-testability.md
+ * REQUIRE: every interactive element has a testID
+ * REQUIRE: suffix indicates function: -button, -field, -container
+ * REQUIRE: screen prefix for disambiguation: <screen>-<name>-<suffix>
+ * REQUIRE: one testIDs.ts file per screen directory — single source of truth
+ * REQUIRE: screens and components import testIDs from this file
+ * DENY:    inline testID strings in JSX — import from testIDs.ts
+ * DENY:    suffix-less testIDs (e.g., demo-scan-adult) — must have suffix
+ * DENY:    misleading suffixes (e.g., -input for SearchableSelect) — use -field
+ *
+ * Drift Detection:
+ * REQUIRE: after renaming/moving files -> grep for old paths in all .md and .yaml
+ * REQUIRE: after changing testIDs or button text -> update e2e/mobile/full-e2e.test.ts
+ * REQUIRE: after adding native modules -> add web mock + webpack alias + Jest mock
+ *
+ * Exceptions:
+ * - Non-interactive display components don't need testIDs (CountryFlag, PassportPreview)
+ * - testID on outer card when inner buttons are contextual (FamilyMemberCard)
+ *
+ * Anti-patterns:
+ * - <Pressable onPress={...}> without testID — invisible to E2E
+ * - Updating screen UI without updating testIDs.ts
+ * - Inline testID strings in JSX — drift when refactored
+ * - Renaming a file without grepping for references
+ *
+ * Why: testIDs are the contract between the app and E2E tests. Without them,
+ *      E2E tests fall back to fragile text-based taps.
  */
 
 import { readdirSync, readFileSync, statSync } from 'fs';

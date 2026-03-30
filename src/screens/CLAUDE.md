@@ -1,6 +1,5 @@
 # Screens
 
 Thin render layers — business logic in hooks. Each screen: `<Name>/<Name>.tsx`
-See: .knowledge/policies/state/hook-conventions.md
-See: .knowledge/policies/platform/navigation.md
-See: .knowledge/policies/ui/ux-writing.md
+See: __tests__/structure/hooks-barrel.test.ts
+See: __tests__/structure/screen-folder-convention.test.ts

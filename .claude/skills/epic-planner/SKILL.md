@@ -59,7 +59,7 @@ gh label create "epic:<slug>" --color "0E8A16" --description "Epic: <title>" 2>/
 
 ### Create the Epic
 
-Follow `.knowledge/policies/workflow/epic-planning.md` for priority order and belief rules.
+Follow `the epic-planning priority order: 1. Bugs, 2. UX/UI, 3. Features, 4. Architecture, 5. Test quality, 6. Test coverage` for priority order and belief rules.
 
 ```bash
 gh issue create \

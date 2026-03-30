@@ -1,8 +1,8 @@
 # Pattern: Add a New Country Schema
 
 ## Policies to follow
-- `.knowledge/policies/data/schema-fields.md` — field types, autoFillSource, autoFillMapping
-- `.knowledge/policies/testing/drift-detection.md` — schema ↔ form rendering sync
+- `__tests__/schemas/schemaValidation.test.ts` — field types, autoFillSource, autoFillMapping
+- `__tests__/structure/component-testids.test.ts` — drift detection, schema ↔ form rendering sync
 - `.knowledge/models/form-engine.md` — entity model for schemas and fields
 
 ## Step 0: Audit the real portal

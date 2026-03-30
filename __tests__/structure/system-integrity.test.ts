@@ -1,13 +1,24 @@
 /**
- * Structural test: system integrity.
+ * Constraint: System Integrity (from Drift Detection)
+ *
+ * Scope: src/, e2e/, .knowledge/, .claude/
  *
  * Verifies all cross-references resolve:
- * - Folder CLAUDE.md See: links → .knowledge/ policies, .context/, src/ types
- * - Skills → policies and rules
- * - Policies → other policies (Derives From within .knowledge/)
- * - Test file references → policies and rules
+ * - Folder CLAUDE.md See: links -> .knowledge/, .context/, src/ types
+ * - Skills -> policies and rules
+ * - Knowledge files -> other knowledge files
+ * - Test file references -> policies and rules
+ *
+ * REQUIRE: after renaming/moving files -> grep for old paths in all .md and .yaml
+ * DENY:    references to files that don't exist in .knowledge/ or .claude/ docs
+ *
+ * Anti-patterns:
+ * - Renaming a file without grepping for references
+ * - Updating CLI output without updating README
+ * - Trusting CI will catch drift (most drift is in docs/config, not code)
  *
  * Why: Broken references mean the LLM gets wrong guidance when editing code.
+ *      Every dangling pointer is a potential source of incorrect behavior.
  */
 
 import { readdirSync, readFileSync, existsSync, statSync } from 'fs';

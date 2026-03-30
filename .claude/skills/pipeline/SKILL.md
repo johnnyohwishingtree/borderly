@@ -41,7 +41,7 @@ gh issue list --repo $REPO --label "story" --label "pending" --state open --json
 
 If no pending stories → skip to **Step 9**.
 
-Follow `.knowledge/policies/workflow/story-implementation.md` for story picking rules (only `pending`, never `in-progress`).
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress`` for story picking rules (only `pending`, never `in-progress`).
 
 ## Step 3: Pre-flight analysis
 
@@ -73,20 +73,20 @@ gh issue edit $NUMBER --repo $REPO --remove-label "pending" --add-label "in-prog
 git fetch origin master && git checkout -b story/issue-$NUMBER origin/master
 ```
 
-Follow `.knowledge/policies/workflow/story-implementation.md`.
+Follow `the story-implementation rules: only pick `pending` stories, never `in-progress``.
 
-When fixing code, follow `.knowledge/policies/workflow/fix-strategy.md`.
-When fixing bugs, follow `.knowledge/policies/workflow/bug-fix.md`.
+When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``.
+When fixing bugs, follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 ## Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
-If you changed screen UI, also follow `.knowledge/policies/testing/e2e-testability.md`.
+If you changed screen UI, also follow `the E2E testability rules in `__tests__/structure/component-testids.test.ts``.
 
 ## Step 6: Learn
 
-**Mandatory.** Follow `.knowledge/policies/workflow/learning.md`.
+**Mandatory.** Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 Check all 6 categories: anti-patterns, constraints, architecture, testing patterns, directory conventions, stale knowledge.
 
@@ -96,7 +96,7 @@ Self-check: if 5+ files changed and zero `.knowledge/` files updated, stop and r
 
 ## Step 7: Self-review
 
-Follow `.knowledge/policies/workflow/self-review.md`.
+Follow `the self-review rules: review diff before committing, fix `any` types, unused imports, empty catches`.
 
 ## Step 8: Push, PR, merge
 
@@ -135,7 +135,7 @@ Read and follow `.claude/skills/optimize/SKILL.md`.
 
 ## Step 10: Plan next epic (when queue is empty and optimization is done)
 
-Follow `.knowledge/policies/workflow/epic-planning.md` for priority order.
+Follow `the epic-planning priority order: 1. Bugs, 2. UX/UI, 3. Features, 4. Architecture, 5. Test quality, 6. Test coverage` for priority order.
 
 Check each category in order — pick the first one that has work:
 1. Bug fixes (GitHub issues labeled `bug`)

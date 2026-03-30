@@ -29,7 +29,7 @@ Before making changes, read the current screenshots from `src/screens/<domain>/<
 
 #### Bug Fixes (TDD Required)
 
-Findings that involve broken behavior are **bugs**, not styling issues. Follow `.knowledge/policies/workflow/bug-fix.md`.
+Findings that involve broken behavior are **bugs**, not styling issues. Follow `the bug-fix rules: write failing test first, verify it fails without the fix, then fix`.
 
 #### Styling Fixes (No Test Required)
 
@@ -50,11 +50,11 @@ Pure visual changes — spacing, colors, alignment, font sizes, Tailwind class a
 1. Read the screen source file
 2. Identify the exact code to modify
 3. Apply the fix (with TDD for bugs, directly for styling)
-4. Follow `.knowledge/policies/workflow/fix-strategy.md`
+4. Follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``
 
 ### Step 4: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 ### Step 5: Re-Capture Screenshots
 

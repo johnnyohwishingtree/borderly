@@ -146,7 +146,7 @@ Prioritize:
 
 ### Step 7: Update knowledge graph
 
-Follow `.knowledge/policies/workflow/learning.md`.
+Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 - Beliefs already validated/updated in Step 5
 - Check if findings invalidate or strengthen existing beliefs in `src/config/beliefs.ts`
@@ -154,7 +154,7 @@ Follow `.knowledge/policies/workflow/learning.md`.
 
 ### Step 8: Verify and commit
 
-Follow `.knowledge/policies/workflow/verification.md` if any files were changed.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts` if any files were changed.
 
 ```bash
 git add <changed files>

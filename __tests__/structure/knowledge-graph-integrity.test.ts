@@ -10,7 +10,7 @@
  * This catches: missing facts, broken references, policies without justification.
  * State-based — checks the graph is valid NOW, not how it got that way.
  *
- * See: .knowledge/policies/architecture/testable-architecture.md
+ * See: __tests__/structure/knowledge-test-coverage.test.ts (testable architecture constraint)
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'fs';

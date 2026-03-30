@@ -1,8 +1,29 @@
 /**
- * Tests for Schema Validation in Testing Framework
- * 
- * Tests schema validation capabilities for government forms
- * and defensive testing of schema compliance.
+ * Constraint: Schema Fields (design guideline)
+ *
+ * Scope: src/schemas/*.json, src/services/forms/, src/services/schemas/
+ *
+ * REQUIRE: fields with profile data have autoFillSource (dot-notation path)
+ * REQUIRE: fields without profile data set countrySpecific: true
+ * REQUIRE: date fields use type: "date" (not type: "text")
+ * REQUIRE: dropdown fields use type: "searchable_select" (not type: "select")
+ * REQUIRE: dropdown fields have options array matching the portal's exact labels
+ * REQUIRE: fields with country-specific enums have autoFillMapping (canonical -> portal value)
+ * REQUIRE: autoFillMapping includes _default fallback key
+ * DENY:    hardcoding country-specific logic in the form engine — put in schema JSON
+ *
+ * Exceptions:
+ * - type: "boolean" for checkbox fields (no dropdown needed)
+ * - type: "textarea" for multi-line free text
+ * - Free-text fields on portals (verified) stay as type: "text"
+ *
+ * Anti-patterns:
+ * - type: "text" for a field that's a dropdown on the real portal
+ * - Missing autoFillMapping when canonical value differs from portal label
+ * - Schema field that doesn't match the portal's actual field type
+ *
+ * Why: Schema-driven forms ensure correctness per country without hardcoding.
+ *      See .context/decisions/002-schema-driven-forms.md
  */
 
 import { ComplianceValidator } from '@/services/testing/compliance';

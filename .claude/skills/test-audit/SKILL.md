@@ -6,13 +6,13 @@ argument-hint: "[--scope path/] [--dry-run] [--tier 3-4]"
 
 # /test-audit — Test Quality Audit
 
-Scores existing tests against `.knowledge/policies/testing/test-quality.md`, identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
+Scores existing tests against the test quality rules (Tier 1-4 scoring, assert behavior not existence), identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` passes)
 - `pnpm test` runs (results inform the audit)
-- Test quality policy available at `.knowledge/policies/testing/test-quality.md`
+- Test quality policy available at the test quality rules (Tier 1-4 scoring, assert behavior not existence)
 
 ## Usage
 ```
@@ -34,7 +34,7 @@ Collect all test files matching the scope. For each test file, extract:
 
 ## Step 2: Score each test file
 
-Apply the quality tiers from `.knowledge/policies/testing/test-quality.md`:
+Apply the quality tiers from the test quality rules (Tier 1-4 scoring, assert behavior not existence):
 
 ### Tier 4 checks (delete candidates)
 - `it()` blocks with zero assertions
@@ -100,7 +100,7 @@ Summary table:
 
 ## Step 5: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 Test count may go DOWN — that's expected if quality went up. Track:
 - Tests before / after
@@ -132,7 +132,7 @@ EOF
 
 ## Step 7: Classify findings and update knowledge
 
-Follow `.knowledge/policies/workflow/learning.md`.
+Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 For each finding, classify it:
 - **Test to fix/delete** → already handled in Steps 4-6
@@ -140,12 +140,11 @@ For each finding, classify it:
 - **Testing belief invalidated** (e.g., audit reveals a Tier 1 test pattern we assumed was good actually masks bugs) → update the relevant belief in `src/config/beliefs.ts`
 
 If patterns were found during the audit:
-- Add new anti-patterns to `policies/testing/test-quality.md`
-- Add new anti-patterns to `policies/testing/test-conventions.md`
+- Add new anti-patterns as comments in the relevant test file's JSDoc header
 
 ## Step 8: Verify and commit
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
 
 ```bash
 git add <changed files>

@@ -55,7 +55,7 @@ Collect all violations with file path, line number, and the specific rule violat
 
 ## Step 4: Fix violations (if not --dry-run)
 
-Follow `.knowledge/policies/workflow/fix-strategy.md`.
+Follow the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any`.
 If a fix requires judgment (not mechanical), skip and add to gaps.md.
 
 ### Fix patterns by knowledge type:
@@ -90,11 +90,11 @@ For each fix, check if a structural test already catches it:
 - If yes → verify the test passes with the fix
 - If no → create or update the structural test in `__tests__/structure/`
 
-Every fix must have a test per `.knowledge/policies/architecture/testable-architecture.md`.
+Every fix must have a test per `__tests__/structure/knowledge-test-coverage.test.ts`.
 
 ## Step 7: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
+Follow the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts.
 
 ## Step 8: Report
 

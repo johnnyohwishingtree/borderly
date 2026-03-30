@@ -1,16 +1,20 @@
+/**
+ * Constraint: No space-x-* Classes (from Styling policy)
+ *
+ * Scope: src/components/, src/screens/
+ *
+ * DENY:    space-x-* Tailwind classes — use gap-* instead
+ * REQUIRE: NativeWind className for all styling
+ * REQUIRE: Tailwind spacing scale (p-2, p-4) — no arbitrary values (p-[13px])
+ *
+ * Why: space-x-* uses CSS margins that break when combined with flex-wrap
+ *      (wrapped items get an unwanted left margin). gap-* works correctly
+ *      in both wrapped and non-wrapped layouts.
+ *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- * Structural test: ban `space-x-*` Tailwind classes in favour of `gap-*`.
- *
- * `space-x-*` uses CSS margins that break when combined with `flex-wrap`
- * (wrapped items get an unwanted left margin). `gap-*` works correctly in
- * both wrapped and non-wrapped layouts, preventing horizontal overflow on
- * narrow viewports.
- *
- * See: .knowledge/policies/ui/styling.md
- */
 
 const SRC_DIR = path.resolve(__dirname, '../../src');
 

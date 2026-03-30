@@ -171,13 +171,13 @@ For each finding, note: what's wrong, where, and test strategy to prevent recurr
 
 ## Step 9: Fix or create stories (if not --dry-run)
 
-- **Quick fixes** (< 5 minutes): fix inline following `.knowledge/policies/workflow/fix-strategy.md`
+- **Quick fixes** (< 5 minutes): fix inline following `the fix-strategy rules: fix one file at a time, run typecheck after each, never use `any``
 - **Larger fixes**: create a GitHub issue with test strategy in acceptance criteria
 
 ## Step 10: Verify
 
-Follow `.knowledge/policies/workflow/verification.md`.
-Follow `.knowledge/policies/workflow/learning.md`.
+Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
+Follow `the learning rules: capture anti-patterns, constraints, testing patterns; if 5+ files changed, must update knowledge`.
 
 ## Guardrails
 - Don't check code against policies — that's `/code-audit`

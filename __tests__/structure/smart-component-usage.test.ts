@@ -1,16 +1,30 @@
+/**
+ * Constraint: Smart Component Usage (from Styling policy)
+ *
+ * Scope: src/components/, src/screens/
+ *
+ * REQUIRE: use specialized components where they exist (AccommodationAutocomplete,
+ *          AddressAutocomplete) instead of plain Input
+ * DENY:    plain Input for accommodation name fields — use AccommodationAutocomplete
+ * DENY:    plain Input for address fields — use AddressAutocomplete
+ * DENY:    mixing StyleSheet with NativeWind in same component
+ * DENY:    fixed widths (w-[320px]) — use responsive classes
+ *
+ * Exceptions:
+ * - Lucide icon color prop accepts inline hex — component library requirement
+ * - CountryFlag.tsx — pixel-precise SVG flag rendering requires inline styles
+ *
+ * Anti-patterns:
+ * - Plain <Input> with testID "accommodation-name" — use AccommodationAutocomplete
+ * - Plain <Input> with testID "address-line1" — use AddressAutocomplete
+ *
+ * Why: Smart components provide autocomplete, platform autofill hints, and
+ *      API-powered suggestions. Plain Input loses all of these.
+ *      See .context/external/tools/nativewind-is-tailwind-for-rn.md
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
-
-/**
- * Structural test: enforce that smart components are used where appropriate.
- *
- * When a specialized component exists (e.g., AccommodationAutocomplete for hotel
- * names, AddressAutocomplete for addresses), screens must use it instead of a
- * plain Input. Using plain Input loses autocomplete, platform autofill hints,
- * and API-powered suggestions.
- *
- * See: .knowledge/policies/ui/styling.md
- */
 
 const SRC_DIR = path.resolve(__dirname, '../../src');
 

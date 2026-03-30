@@ -54,24 +54,32 @@ pnpm web              # Run web (native modules mocked)
 pnpm e2e              # E2E smoke tests (Playwright)
 ```
 
-## Knowledge Graph
+## Constraints
 
-Project knowledge lives in `.knowledge/` — the pipeline reads and improves these files.
+Architecture constraints live as JSDoc headers in `__tests__/structure/` test files.
+Each structural test IS the constraint — it runs in < 1s at `pnpm test` time.
 
-| Engine | Directory | Purpose |
-|--------|-----------|---------|
-| Facts | `facts/` | Atomic truths — the WHY behind rules |
-| Principles | `principles/` | Shared reasoning connecting facts to policies |
-| Policies | `policies/` | ALLOW/DENY/REQUIRE rules (architecture, data, ui, state, testing, platform) |
-| Beliefs | `beliefs/` | Tracked assumptions (Hypothesis → Confirmed/Invalidated) |
-| Decisions | `decisions/` | Architecture decision records (immutable once accepted) |
-| Models | `models/` | Business entities (form-engine, passport, qr-wallet, submission-guide) |
-| Domain | `domain/countries/` | Per-country portal metadata |
-| Patterns | `patterns/` | Multi-step recipes (add-country, add-screen, add-native-dep) |
-| Templates | `templates/` | File structure (module, test, story, epic, skill) |
-| Rubrics | `rubrics/` | Quality evaluation (code, test, skill) |
+| Test File | Constraint |
+|-----------|-----------|
+| `dependency-direction.test.ts` | Screens -> Hooks -> Stores -> Services |
+| `storage-boundary.test.ts` | Three-tier storage: Keychain / WatermelonDB / MMKV |
+| `pii-boundary.test.ts` | stripPIIFromFormData before DB persist |
+| `hooks-barrel.test.ts` | All hooks exported from barrel, use\<Domain\>\<Action\> naming |
+| `screen-folder-convention.test.ts` | Screen in named folder: \<Name\>/\<Name\>.tsx |
+| `component-testids.test.ts` | testIDs on interactive elements |
+| `native-module-mocks.test.ts` | Web mock + Jest mock for every native module |
+| `utils-boundary.test.ts` | Utils are pure — no state, no storage |
+| `accessibility-props.test.ts` | accessibilityRole + accessibilityLabel on interactive elements |
 
-See `.knowledge/index.md` for the full system map.
+## Knowledge & Context
+
+| Location | Purpose |
+|----------|---------|
+| `.context/external/` | Truths about systems we don't control (governments, laws, tools) |
+| `.context/decisions/` | Architecture decision records (immutable) |
+| `.context/patterns/` | Multi-step recipes (add-country, add-screen) |
+| `src/config/beliefs.ts` | Tracked assumptions (Hypothesis -> Confirmed/Invalidated) |
+| `.knowledge/policies/architecture/` | Agent token efficiency (only remaining policy) |
 
 ## Rules
 
