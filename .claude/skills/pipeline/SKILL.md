@@ -20,17 +20,16 @@ Read .claude/skills/pipeline/SKILL.md and follow every step.
 - On `master` branch with clean working tree
 - `pnpm install` completed
 
-## Step 1: Merge open PRs
+## Step 1: Sync
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
-gh pr list --repo $REPO --state open --json number,title,headRefName --jq '.[]'
+git checkout master && git pull origin master
 ```
 
-For each open PR: review the diff, merge if clean, fix if not.
-
+If any stale PRs exist from a previous failed run, merge or close them:
 ```bash
-git checkout master && git pull origin master
+gh pr list --repo $REPO --state open --json number,title --jq '.[]'
 ```
 
 ## Step 2: Find failing tests
