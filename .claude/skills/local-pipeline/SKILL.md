@@ -140,11 +140,7 @@ if [ -n "$EPIC_LABEL" ] && [ "$EPIC_LABEL" != "null" ]; then
 fi
 ```
 
-## Step 9: Optimize (when queue is empty)
-
-Read and follow `.claude/skills/optimize/SKILL.md`.
-
-## Step 10: Cleanup worktree
+## Step 9: Cleanup worktree
 
 Always run this — even if steps above failed:
 

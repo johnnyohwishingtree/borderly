@@ -100,7 +100,7 @@ Per-screen and per-component manifests at `__screenshots__/manifest.json` are au
 
 ### Step 6: Update Architecture Docs
 
-If navigation structure changed, run `/update-architecture` or manually update:
+If navigation structure changed, manually update:
 - `CLAUDE.md` project structure section (if new directories/screens added)
 - `docs/mvp-proposal.md` (if user-facing flows changed)
 - Navigation type definitions

@@ -129,11 +129,7 @@ if [ -n "$EPIC_LABEL" ] && [ "$EPIC_LABEL" != "null" ]; then
 fi
 ```
 
-## Step 9: Optimize (when queue is empty)
-
-Read and follow `.claude/skills/optimize/SKILL.md`.
-
-## Step 10: Plan next epic (when queue is empty and optimization is done)
+## Step 9: Plan next epic (when queue is empty)
 
 Follow `the epic-planning priority order: 1. Bugs, 2. UX/UI, 3. Features, 4. Architecture, 5. Test quality, 6. Test coverage` for priority order.
 
