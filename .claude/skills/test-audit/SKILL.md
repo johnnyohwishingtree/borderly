@@ -6,7 +6,7 @@ argument-hint: "[--scope path/] [--dry-run] [--tier 3-4]"
 
 # /test-audit — Test Quality Audit
 
-Scores existing tests against the test quality rules (Tier 1-4 scoring, assert behavior not existence), identifies low-value and negative-value tests, and either fixes or deletes them. Unlike `/test-suite` (which adds missing tests), this skill evaluates whether existing tests are worth keeping.
+Scores existing tests against the test quality rules (Tier 1-4 scoring, assert behavior not existence), identifies low-value and negative-value tests, and writes `*.spec.test.ts` for rewrites.
 
 ## Prerequisites
 
