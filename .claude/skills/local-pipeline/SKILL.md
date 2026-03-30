@@ -1,26 +1,20 @@
 ---
 name: local-pipeline
-description: Belief-driven pipeline in isolated worktree — for Claude Desktop / CLI
-argument-hint: "[--test <path>]"
+description: Autonomous belief-driven pipeline in isolated worktree
+argument-hint: ""
 ---
 
-# /local-pipeline — Local Belief-Driven Pipeline
+# /local-pipeline — Autonomous Pipeline (Worktree)
 
-Same as `/pipeline` but runs in an isolated git worktree so it doesn't disturb the user's working directory.
+Same as `/pipeline` but runs in an isolated git worktree. For Claude Desktop or CLI scheduled tasks so it doesn't disturb the user's working directory.
 
-**Scheduled task prompt (Claude Desktop):**
+**Scheduled task prompt:**
 ```
 Read CLAUDE.md for project context.
 Read .claude/skills/local-pipeline/SKILL.md and follow every step.
 ```
 
-## Prerequisites
-
-- `gh` CLI authenticated with repo access
-- Git worktree support available
-- `pnpm` installed globally
-
-## Step 0: Set up worktree
+## Step 1: Set up worktree
 
 ```bash
 REPO="johnnyohwishingtree/borderly"
@@ -34,41 +28,26 @@ pnpm install --frozen-lockfile
 
 All subsequent steps run inside `$WORKTREE_DIR`.
 
-## Step 1: Merge open PRs
-
-```bash
-gh pr list --repo $REPO --state open --json number,title,headRefName --jq '.[]'
-```
-
-For each open PR: review the diff, merge if clean, fix if not.
-
-```bash
-git fetch origin master && git reset --hard origin/master
-```
-
 ## Step 2: Find skipped belief tests
 
 ```bash
-grep -rl "test\.skip\|it\.skip\|describe\.skip" __tests__/beliefs/ 2>/dev/null
+grep -rl "test\.skip\|it\.skip" __tests__/beliefs/ 2>/dev/null
 ```
 
-If no skipped tests found → skip to **Step 6**.
+If no skipped tests → skip to **Step 6**.
 
 Pick ONE skipped test file.
 
-## Step 3: Understand intent and implement
+## Step 3: Implement
 
-Read the skipped test file's JSDoc header. Read the folder CLAUDE.md for affected directories.
+Read the skipped test's JSDoc. Read folder CLAUDE.md for affected directories.
 
 ```bash
 git checkout -b fix/$(basename <test-file> .test.ts)
 ```
 
-1. Read the skipped test to understand what it asserts
-2. Implement the changes to make the assertions true
-3. Change `test.skip` → `test` (unskip)
-
-When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
+1. Implement the changes to make the assertions true
+2. Change `test.skip` → `test`
 
 ## Step 4: Verify
 
@@ -76,7 +55,7 @@ When fixing code, follow `the fix-strategy rules: fix one file at a time, run ty
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-Up to 6 attempts. If still failing → push WIP branch, create draft PR, skip to cleanup.
+Up to 6 attempts. If still failing → re-skip, push WIP, skip to cleanup.
 
 ## Step 5: Push, PR, merge
 
@@ -86,21 +65,21 @@ git commit -m "<descriptive message>"
 git push -u origin fix/$(basename <test-file> .test.ts)
 
 gh pr create --repo $REPO --base master \
-  --title "fix: <what the test required>" \
-  --body "Made failing test pass: <test file path>"
+  --title "fix: <what the belief test required>" \
+  --body "Resolved skipped belief test: <test file path>"
 PR_NUM=$(gh pr list --repo $REPO --head fix/$(basename <test-file> .test.ts) --json number --jq '.[0].number')
 gh pr merge $PR_NUM --repo $REPO --squash --delete-branch
 ```
 
-Go back to **Step 2** if more failing tests remain.
+Go back to **Step 2** if more skipped tests remain.
 
 ## Step 6: No skipped tests — run audits
 
-All belief tests are active and passing. Run audits to discover new beliefs:
-1. `/code-audit` — scans code against constraints, writes `test.skip` for violations
-2. `/ux-review` — evaluates user journeys, writes `test.skip` for UX gaps
+Run audits to discover new beliefs:
+1. `/code-audit` — writes `test.skip` for constraint violations
+2. `/ux-review` — writes `test.skip` for UX gaps
 3. `/context-audit` — checks drift, staleness, belief lifecycle
-4. `/test-audit` — scores test quality, writes `test.skip` for rewrites
+4. `/test-audit` — writes `test.skip` for junk test rewrites
 
 After an audit writes new skipped tests, go back to **Step 2**.
 
@@ -119,5 +98,5 @@ git worktree prune
 ## Guardrails
 
 - Always clean up worktree, even if steps fail
-- One failing test suite at a time
+- One skipped test at a time
 - Read the test JSDoc before implementing

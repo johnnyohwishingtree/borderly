@@ -90,12 +90,13 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 ## Skills Reference
 
 Key skills:
-- `/pipeline` — Find failing tests, make them pass, merge (belief-driven)
-- `/plan-feature` — Turn a feature request into failing belief tests
-- `/code-audit` — Scan code vs constraints, write failing tests for violations
+- `/plan` — Turn any request into skipped belief tests (`test.skip`)
+- `/implement` — Resolve skipped belief tests (read spec, implement, unskip, verify)
+- `/pipeline` — Autonomous loop: find skipped tests, implement, merge (scheduled hourly)
+- `/code-audit` — Scan code vs constraints, write `test.skip` for violations
 - `/context-audit` — Drift detection, schema staleness, belief lifecycle
-- `/ux-review` — UX flow analysis → write failing belief tests
-- `/test-audit` — Test quality scoring → write failing belief tests
+- `/ux-review` — UX flow analysis → write `test.skip` for gaps
+- `/test-audit` — Test quality scoring → write `test.skip` for rewrites
 
 ## Autonomous Workflow
 
