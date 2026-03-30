@@ -15,7 +15,7 @@ checks the system's meta-health.
 
 ## Step 1: Drift detection from tracked file changes
 
-The PostToolUse hook tracks source file changes in `.claude/dirty-files` (zero token cost — see `.context/decisions/007-agent-token-efficiency.md`).
+The PostToolUse hook tracks source file changes in `.claude/dirty-files` (zero token cost — see `__tests__/structure/agent-token-efficiency.test.ts` constraint).
 
 ```bash
 cat .claude/dirty-files 2>/dev/null

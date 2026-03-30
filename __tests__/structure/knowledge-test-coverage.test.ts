@@ -1,6 +1,15 @@
 /**
  * Constraint: Testable Architecture (Meta-Constraint)
  *
+ * Decision: Tests must prioritize catching bugs that actually happen. The test
+ *   pyramid for Borderly is: (1) form engine integration tests, (2) auto-fill
+ *   boundary/edge cases, (3) schema correctness, (4) PII boundary structural tests,
+ *   (5) E2E journey tests. Every test must answer "what bug would this catch?"
+ * Rejected: Wide-but-shallow test suites — 10k+ tests that verify code runs without
+ *   crashing but miss real bugs (boolean default, timezone parsing, keychain access
+ *   group all found in production). "It renders" tests. Heavy-mock unit tests (4+ mocks).
+ *   Parameterized mapping tests beyond basic validation (150 assertions/country is overkill).
+ *
  * Scope: __tests__/structure/, .context/, src/
  *
  * REQUIRE: every architectural constraint has a structural test in __tests__/structure/

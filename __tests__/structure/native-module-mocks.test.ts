@@ -26,7 +26,7 @@
  *
  * Why: Native modules must be mocked for both Jest tests and Playwright E2E.
  *      Missing mocks cause silent failures that are hard to debug.
- *      See .context/decisions/005-bare-react-native.md
+ *      Bare RN requires three implementations per native dep (see bare-react-native.test.ts)
  */
 
 import { readFileSync, existsSync } from 'fs';

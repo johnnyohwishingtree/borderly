@@ -1,6 +1,13 @@
 /**
  * Constraint: PII Boundary
  *
+ * Decision: All PII stays on-device. No server stores passport data. The app works
+ *   fully offline except for portal submission (user-initiated on government website).
+ *   Cross-device sync of PII is explicitly out of scope.
+ * Rejected: Cloud storage of PII — creates breach liability under GDPR/CCPA, compliance
+ *   overhead, and user trust concerns. Cross-device sync — requires server-side PII,
+ *   contradicts local-first principle.
+ *
  * Scope: src/services/, src/hooks/, src/utils/, src/schemas/
  *
  * DENY:    passport number, DOB, passport expiry persisted to WatermelonDB

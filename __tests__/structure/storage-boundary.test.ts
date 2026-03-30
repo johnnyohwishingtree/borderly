@@ -1,6 +1,14 @@
 /**
  * Constraint: Storage Boundary (from Storage Tiers + Local-First Architecture)
  *
+ * Decision: Three tiers mapped to data sensitivity — Keychain for PII + encryption
+ *   keys (OS-level, biometric-protected), WatermelonDB for structured app data
+ *   (trips, forms, QR codes; encrypted at rest), MMKV for config/preferences/schemas
+ *   (fast, unencrypted). Data never crosses tiers upward.
+ * Rejected: Single storage layer — can't satisfy both security and performance.
+ *   PII in WatermelonDB — not hardware-backed. PII in MMKV — unencrypted, included
+ *   in device backups. AsyncStorage — no encryption, no tiering.
+ *
  * Scope: src/services/storage/, src/hooks/, src/services/**, src/stores/
  *
  * REQUIRE: passport data, encryption keys -> OS Keychain only
@@ -34,7 +42,6 @@
  * Why: Keychain is hardware-backed (.context/external/tools/keychain-is-os-secure-storage.md)
  *      MMKV is unencrypted (.context/external/tools/mmkv-is-fast-but-unencrypted.md)
  *      PII requires encryption at rest (.context/external/regulatory/pii-has-special-handling-requirements.md)
- *      Decision: Three-tier storage (.context/decisions/001-three-tier-storage.md)
  */
 
 import { execSync } from 'child_process';
