@@ -4,7 +4,11 @@ import { resolve, join } from 'path';
 const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Adjacent buttons should pair primary + secondary, not primary + outline.
+ * Constraint: Button Pairing
+ *
+ * Scope: src/screens/
+ *
+ * DENY: primary + outline adjacent should pair primary + secondary, not primary + outline.
  * Constraint candidate — applies to all screens.
  *
  * Decision: Button pairs use primary (solid fill) + secondary (text-only).
@@ -28,7 +32,7 @@ function getScreenFiles(dir: string): string[] {
   return results;
 }
 
-test.skip('screens do not pair primary + outline buttons in the same container', () => {
+test('screens do not pair primary + outline buttons in the same container', () => {
   const screenFiles = getScreenFiles(resolve(ROOT, 'src/screens'));
   const violations: string[] = [];
 

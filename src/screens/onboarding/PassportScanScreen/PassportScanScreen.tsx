@@ -161,7 +161,7 @@ export default function PassportScanScreen() {
               <Button
                 title="Or enter manually"
                 onPress={scan.handleManualEntry}
-                variant="outline"
+                variant="secondary"
                 size="medium"
                 testID={PASSPORT_SCAN_IDS.enterManuallyButton.id}
               />
@@ -380,7 +380,7 @@ export default function PassportScanScreen() {
         <Button
           title="Back"
           onPress={navigation.handleBack}
-          variant="outline"
+          variant="secondary"
           size="large"
           fullWidth
           testID={PASSPORT_SCAN_IDS.passportBackButton.id}

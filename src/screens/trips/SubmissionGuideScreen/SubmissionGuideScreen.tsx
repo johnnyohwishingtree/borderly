@@ -193,7 +193,7 @@ export default function SubmissionGuideScreen() {
                 <Button
                   title="Open in Browser"
                   onPress={handleOpenPortal}
-                  variant="outline"
+                  variant="secondary"
                   size="small"
                   testID="open-in-browser-button"
                 />

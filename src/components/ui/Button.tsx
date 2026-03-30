@@ -50,12 +50,12 @@ export default function Button({
 
     const variantStyles = highContrastMode ? {
       primary: 'bg-black border-2 border-white',
-      secondary: 'bg-gray-800 border-2 border-white',
+      secondary: 'bg-transparent',
       outline: 'bg-transparent border-2 border-black',
     } : {
       primary: 'bg-blue-600 dark:bg-blue-500 shadow-lg shadow-blue-600/25',
-      secondary: 'bg-gray-600 dark:bg-gray-500 shadow-lg shadow-gray-600/20',
-      outline: 'bg-transparent border-2 border-gray-300 dark:border-gray-600 shadow-sm',
+      secondary: 'bg-transparent',
+      outline: 'bg-transparent border border-gray-300 dark:border-gray-600',
     };
 
     const disabledStyles = disabled || loading ? 'opacity-50 shadow-none' : '';
@@ -75,11 +75,11 @@ export default function Button({
 
     const variantStyles = highContrastMode ? {
       primary: 'text-white',
-      secondary: 'text-white',
+      secondary: 'text-blue-800',
       outline: 'text-black',
     } : {
       primary: 'text-white',
-      secondary: 'text-white',
+      secondary: 'text-blue-600 dark:text-blue-400',
       outline: 'text-gray-700 dark:text-gray-200',
     };
 
@@ -139,9 +139,9 @@ export default function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'outline'
-            ? (highContrastMode ? '#000000' : (isDark ? '#E5E7EB' : '#374151'))
-            : (highContrastMode ? '#FFFFFF' : 'white')
+          color={variant === 'primary'
+            ? (highContrastMode ? '#FFFFFF' : 'white')
+            : (highContrastMode ? '#000000' : (isDark ? '#93C5FD' : '#2563EB'))
           }
           className="mr-2"
           accessibilityLabel="Loading"

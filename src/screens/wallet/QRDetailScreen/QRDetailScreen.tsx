@@ -162,13 +162,13 @@ export default function QRDetailScreen() {
               <Button
                 title="Share QR Code"
                 onPress={handleShare}
-                variant="outline"
+                variant="secondary"
               />
 
               <Button
                 title="Delete QR Code"
                 onPress={() => handleDelete(() => navigation.goBack())}
-                variant="outline"
+                variant="secondary"
               />
             </View>
           </Card>
