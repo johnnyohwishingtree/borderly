@@ -18,7 +18,9 @@ temporary                    permanent                    permanent, cross-cutti
 - **Tests** — graduated specs. Regular `.test.ts` files. Prevent regression on specific code.
 - **Constraint tests** — tests promoted to cross-cutting rules. Live in `__tests__/constraints/` with `Constraint:` JSDoc headers. Enforce architectural patterns across the entire codebase.
 
-Most specs graduate to regular tests. A spec only becomes a structural test when the rule applies to ALL code of that type (e.g., "no component may import a store" — not just one component).
+Most specs graduate to regular tests. A spec only becomes a constraint test when the rule applies to ALL code of that type (e.g., "no component may import a store" — not just one component).
+
+When two tests conflict (oscillating failures during verification), a **conflict resolution spec** is written in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests. The pipeline resolves conflicts by reading both sides, applying priority (regulatory > architectural > cognitive > market > feature), and either narrowing one test's scope or finding a compatible implementation.
 
 ## Definitions
 
@@ -27,6 +29,7 @@ Most specs graduate to regular tests. A spec only becomes a structural test when
 | **Spec** | A `test.skip` in a `*.spec.test.ts` file asserting what SHOULD be true about our code but isn't yet. The pipeline's work queue. | `test.skip('CreateTripScreen has at most 3 fields', () => {...})` |
 | **Constraint** | An active test in `__tests__/constraints/` with a JSDoc header. Enforced automatically at `pnpm test`. Permanent. | `dependency-direction.test.ts` — DENY: components importing stores |
 | **Decision** | A rejected alternative documented in a constraint test's JSDoc (`Decision:` / `Rejected:` fields). Explains WHY the code is the way it is. | `bare-react-native.test.ts` — "Rejected Expo because of native module access" |
+| **Conflict resolution spec** | A `test.skip` in `__tests__/conflicts/` with `Conflict:` JSDoc referencing two contradicting tests. Pipeline reads both sides, applies priority, resolves. | `__tests__/conflicts/fast-load-vs-full-validation.spec.test.ts` |
 | **External context** | A truth about the world outside our code. We can't change it. Prose in `.context/external/`. | "GDPR requires data minimization", "Japan portal has 47 fields" |
 | **Folder CLAUDE.md** | A pointer file in source directories. `See:` links connect code to its governing constraints and types. | `src/stores/CLAUDE.md` → `See: __tests__/constraints/dependency-direction.test.ts` |
 
@@ -106,15 +109,19 @@ Key properties:
 
 ```
 Step 1: Sync — git pull + cleanup stale PRs
-Step 2: Find skipped spec tests — grep for *.spec.test.ts with test.skip
+Step 2: Find skipped tests — conflicts first, then specs, then constraints
 Step 3: Read the skipped test's JSDoc — understand intent
+        If Conflict: JSDoc → read both referenced tests, apply priority hierarchy
 Step 4: Read folder CLAUDE.md → constraints → types — understand context
 Step 5: Implement + unskip (test.skip → test) + graduate (.spec.test.ts → .test.ts)
 Step 6: Verify — pnpm lint, typecheck, test (ALL tests must pass)
+        If oscillating failures → conflict detected → write resolution spec
 Step 7: Push, PR, merge
 Step 8: Loop back to Step 2 if more skipped tests remain
 Step 9: No skipped tests — run audits to discover new work
 ```
+
+**Conflict priority hierarchy:** regulatory > architectural > cognitive > market > feature
 
 `test.skip` = the work queue. Graduating to `.test.ts` = work done. Commit gate is never violated.
 
@@ -180,7 +187,8 @@ You work normally
 ├── CLAUDE.md                  # What goes here and what doesn't
 └── SYSTEM.md                  # This file
 
-__tests__/constraints/           # 21 structural tests = 21 constraints
+__tests__/constraints/           # Constraint tests (permanent architectural rules)
+__tests__/conflicts/             # Conflict resolution specs (two tests contradict)
 *.spec.test.ts                 # Specs as colocated test.skip (pending work)
 src/**/CLAUDE.md               # Folder guardrails pointing to constraints + types
 ```

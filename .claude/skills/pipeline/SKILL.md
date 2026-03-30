@@ -37,6 +37,8 @@ gh pr list --repo $REPO --state open --json number,title --jq '.[]'
 ## Step 2: Find skipped spec tests
 
 ```bash
+# Conflict resolutions (highest priority — unblock other work)
+grep -rl "test\.skip\|it\.skip" __tests__/conflicts/ 2>/dev/null | head -10
 # Specs (feature work)
 grep -rl "test\.skip\|it\.skip" __tests__/ 2>/dev/null | grep "\.spec\." | head -10
 # Constraints (new architectural rules pending validation)
@@ -48,8 +50,9 @@ If no skipped tests found → skip to **Step 7**.
 If `--test <path>` was provided, focus on that specific test.
 
 Otherwise, pick ONE skipped test file. Prioritize by:
-1. Spec tests (`*.spec.test.ts` files) — product specs (highest priority)
-2. Any `.skip` tests in `__tests__/constraints/` — constraint gaps
+1. Conflict resolution specs (`__tests__/conflicts/`) — unblock other work first
+2. Spec tests (`*.spec.test.ts` files) — product specs
+3. Any `.skip` tests in `__tests__/constraints/` — constraint gaps
 
 ## Step 3: Understand intent
 
@@ -57,6 +60,12 @@ Read the skipped test file. The JSDoc header explains:
 - **What** the test expects (the spec or constraint)
 - **Why** it matters (external context references)
 - **Confirm/Invalidate** criteria (for spec tests)
+
+**If JSDoc contains `Conflict:`** — this is a resolution task, not a normal implementation:
+1. Read BOTH referenced tests and their JSDoc
+2. Read the external context they reference
+3. Apply priority: regulatory > architectural > cognitive > market > feature
+4. The implementation may amend one test's scope, invalidate the lower-priority one, or find a compatible approach that satisfies both
 
 Then read the folder CLAUDE.md for the affected source directories — the `See:` links point to constraints and types.
 
@@ -83,7 +92,34 @@ pnpm lint && pnpm typecheck && pnpm test
 
 Up to 6 attempts. ALL tests must pass — the unskipped test AND everything else.
 
-If still failing after 6 → re-skip the test, push WIP branch, create draft PR. Next cycle will retry or a human will intervene.
+**Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict — not a bug. Go to Step 5b.
+
+If the same test keeps failing after 6 → re-skip the test, push WIP branch, create draft PR. Next cycle will retry or a human will intervene.
+
+## Step 5b: Resolve conflicts
+
+Oscillating failures mean two tests contradict each other. The test you were implementing (X) conflicts with an existing active test (Y).
+
+1. **Re-skip X** — it wasn't active before, no protection lost
+2. **Leave Y active** — it's protecting the codebase
+3. **Write a resolution spec** in `__tests__/conflicts/`:
+
+```typescript
+// __tests__/conflicts/x-vs-y.spec.test.ts
+/**
+ * Spec: Resolve conflict between X and Y
+ * Conflict: <path to X> vs <path to Y>
+ * Priority: <Y is regulatory, X is feature → Y wins>
+ * Resolution: <narrow X's approach to work within Y's constraint>
+ */
+test.skip('X and Y are compatible', () => {
+  // Assert the end state where both are satisfied
+});
+```
+
+4. Commit and push the resolution spec + re-skipped test. Continue to Step 6.
+
+The next pipeline run finds the resolution spec. The `Conflict:` JSDoc tag triggers special handling in Step 3.
 
 ## Step 6: Push, PR, merge
 

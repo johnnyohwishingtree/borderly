@@ -63,7 +63,11 @@ git checkout -b fix/$(basename <test-file> .test.ts)
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-Up to 6 attempts. If still failing → re-skip, push WIP, skip to cleanup.
+Up to 6 attempts.
+
+**Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict — not a bug. Re-skip the test you were implementing, write a resolution spec in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests, commit and push, then continue to next test.
+
+If same test keeps failing → re-skip, push WIP, skip to cleanup.
 
 ## Step 5: Push, PR, merge
 

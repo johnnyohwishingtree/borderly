@@ -98,8 +98,22 @@ For stale schemas: create a GitHub issue noting which schema is overdue.
 Find all `*.spec.test.ts` files across `__tests__/` and verify they have JSDoc with status/confirm/invalidate. For each spec:
 - `hypothesis` status older than 60 days → flag for re-evaluation
 - Code changes that confirm or invalidate a `working` spec → update status in JSDoc
-- Specs with status `confirmed` → check if a structural test enforces them (if not, write one)
+- Specs with status `confirmed` → check if a constraint test enforces them (if not, write one)
 - Specs no longer referenced by any code → flag for removal
+
+## Step 4: Conflict resolution lifecycle
+
+Check `__tests__/conflicts/` for pending conflict resolution specs:
+
+```bash
+ls __tests__/conflicts/*.spec.test.ts 2>/dev/null
+```
+
+For each conflict spec:
+- Read the `Conflict:` JSDoc — which two tests are referenced?
+- Check if both referenced tests still exist (one may have been deleted/refactored)
+- Flag conflict specs older than 14 days as stale — they're blocking work in the affected area
+- If a referenced test was already amended or removed, the conflict spec may be resolvable now — flag for next pipeline run
 
 ## Step 5: Constraint coverage
 

@@ -116,6 +116,12 @@ For each finding, ask: "what truth did I discover about the system?"
 
 ### Step 6: Write failing spec tests for gaps
 
+**First, check for pending conflicts:**
+```bash
+ls __tests__/conflicts/*.spec.test.ts 2>/dev/null
+```
+If a conflict resolution spec already references the same constraint or area, don't write another spec that hits the same conflict — wait for the resolution.
+
 Each gap becomes a colocated `*.spec.test.ts` file. The test asserts what SHOULD be true based on the spec, and fails because the code doesn't match yet.
 
 ```typescript

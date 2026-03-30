@@ -105,6 +105,12 @@ Every finding traces to a constraint (what SHOULD BE) vs current code (what IS).
 
 ## Step 7: Write failing tests for violations (if not --dry-run)
 
+**First, check for pending conflicts:**
+```bash
+ls __tests__/conflicts/*.spec.test.ts 2>/dev/null
+```
+If a conflict resolution spec already references the same constraint or area, don't write another spec that hits the same conflict — wait for the resolution.
+
 For each violation found, write a failing test that asserts the correct state:
 
 - **Constraint violations** → add assertions to the existing structural test, or write a new one in `__tests__/constraints/`

@@ -42,7 +42,14 @@ Read the folder CLAUDE.md for affected directories. Follow `See:` links to const
 
 ## Step 3: Implement
 
-Make the skipped test's assertions true:
+**If JSDoc contains `Conflict:`** — this is a resolution task:
+1. Read BOTH referenced tests and their JSDoc + external context
+2. Apply priority: regulatory > architectural > cognitive > market > feature
+3. Implement a resolution: narrow one test's scope, find a compatible approach, or invalidate the lower-priority one
+4. Update the amended test's JSDoc with `Decision:` / `Rejected:` explaining the trade-off
+5. Change `test.skip` → `test` on the resolution spec
+
+**Otherwise** — normal implementation:
 1. Read the source code the test references
 2. Implement the changes
 3. Change `test.skip` → `test`
@@ -67,9 +74,12 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ALL tests must pass.
 
+**Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict. Write a resolution spec in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests, re-skip the test you were implementing, and explain the conflict.
+
 ## Guardrails
 
 - Read the test JSDoc before implementing
 - One test file at a time unless `--all` specified
-- If a test can't be made to pass without breaking others, re-skip it and explain why
+- If oscillating failures: write a conflict resolution spec, don't keep retrying
+- If same test keeps failing: re-skip it and explain why
 - Always graduate: no `.spec.test.ts` files should remain active (non-skipped)

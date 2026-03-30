@@ -24,6 +24,8 @@ Scores existing tests against the test quality rules (Tier 1-4 scoring, assert b
 
 ## Step 1: Scan test files
 
+**Exclude `__tests__/conflicts/`** — conflict resolution specs are pending resolutions, not junk tests. Do not score, delete, or rewrite them.
+
 Collect all test files matching the scope. For each test file, extract:
 - Number of `it()` / `test()` blocks
 - Number of assertions per block
