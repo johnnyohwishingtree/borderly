@@ -13,7 +13,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: 6 onboarding screens in src/screens/onboarding/
  * Gap: Should be 3 max (Welcome → Scan → Confirm → done)
  */
-test.skip('onboarding has at most 3 screens before main app', () => {
+test('onboarding has at most 3 screens before main app', () => {
   const onboardingScreens = readdirSync(
     resolve(ROOT, 'src/screens/onboarding'),
   ).filter(f => f.endsWith('Screen'));

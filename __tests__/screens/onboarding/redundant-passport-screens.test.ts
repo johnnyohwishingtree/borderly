@@ -13,7 +13,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: PassportScanScreen shows preview, then ConfirmProfileScreen shows same data again
  * Gap: Merge passport preview into confirm profile, or skip confirm if scan confidence is high
  */
-test.skip('onboarding does not have redundant passport display screens', () => {
+test('onboarding does not have redundant passport display screens', () => {
   // There should not be both a "preview" step and a "confirm" step showing the same data
   const onboardingScreens = readdirSync(
     resolve(ROOT, 'src/screens/onboarding'),

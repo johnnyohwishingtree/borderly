@@ -7,11 +7,12 @@
 import { expect, type Page } from '@playwright/test';
 import { TEST_PASSPORT } from './fixtures';
 
-// ── Manual onboarding flow (skip tutorial → enter passport → confirm → skip biometric) ──
+// ── Manual onboarding flow (enter passport → confirm → done) ──
 
 export async function completeOnboarding(page: Page) {
-  await page.getByRole('button', { name: 'Skip tutorial' }).click();
-  await page.getByRole('button', { name: 'Enter Manually' }).click();
+  await page.getByRole('button', { name: /get started/i }).click();
+  await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
+  await page.getByRole('button', { name: /enter manually/i }).click();
 
   await page.getByTestId('passport-number-field').fill(TEST_PASSPORT.number);
   await page.getByTestId('surname-field').fill(TEST_PASSPORT.surname);
@@ -29,41 +30,7 @@ export async function completeOnboarding(page: Page) {
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
   await page.getByTestId('continue-to-security-button').click();
-  await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
-  await page.getByTestId('companions-continue-button').click();
-  await expect(page.getByText('Secure Your Profile')).toBeVisible({ timeout: 5000 });
-  await page.getByRole('button', { name: 'Skip for Now' }).click();
-  await expect(page.getByTestId('skip-notifications-button')).toBeVisible({ timeout: 5000 });
-  await page.getByTestId('skip-notifications-button').click();
   await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
-}
-
-// ── Navigate through onboarding up to the AddCompanions screen ──
-
-export async function navigateToAddCompanions(page: Page) {
-  await page.goto('/');
-  await expect(page.getByText('Welcome to')).toBeVisible({ timeout: 15000 });
-  await page.getByRole('button', { name: 'Skip tutorial' }).click();
-  await expect(page.getByText(/Quick Passport Scan/)).toBeVisible({ timeout: 10000 });
-  await page.getByRole('button', { name: 'Or enter manually' }).click();
-
-  await page.getByTestId('passport-number-field').fill('AB1234567');
-  await page.getByTestId('surname-field').fill('SMITH');
-  await page.getByTestId('given-names-field').fill('JOHN');
-  await page.getByTestId('nationality-field-trigger').click();
-  await page.getByTestId('nationality-field-search').fill('United States');
-  await page.getByTestId('nationality-field-option-USA').click();
-  await page.getByTestId('dob-field').fill('1990-01-15');
-  await page.getByTestId('gender-Male-button').click();
-  await page.getByTestId('passport-expiry-field').fill('2030-12-31');
-  await page.getByTestId('issuing-country-field-trigger').click();
-  await page.getByTestId('issuing-country-field-search').fill('United States');
-  await page.getByTestId('issuing-country-field-option-USA').click();
-
-  await page.getByTestId('passport-continue-button').click();
-  await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
-  await page.getByTestId('continue-to-security-button').click();
-  await expect(page.getByTestId('add-companions-title')).toBeVisible({ timeout: 10000 });
 }
 
 // ── Create a Japan trip (from the My Trips screen) ──
