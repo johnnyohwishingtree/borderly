@@ -21,7 +21,7 @@ export default function LegFormScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<TripStackParamList>>();
   const { tripId, legId } = route.params || {};
 
-  const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(false);
+  const [showOnlyCountrySpecific, setShowOnlyCountrySpecific] = useState(true);
 
   const {
     tripData: { trip, leg },
