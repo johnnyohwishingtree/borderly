@@ -48,10 +48,13 @@ Make the skipped test's assertions true:
 
 ## Step 4: Graduate the test
 
-The `.spec.` naming means "pending work." Once resolved, graduate it:
+The `.spec.` naming means "pending work." Once resolved, graduate it to one of three places:
 
-- If a matching regular test file exists (e.g., `CreateTripScreen.test.ts`), merge the assertions into it and delete the `.spec.test.ts` file
-- If no matching test exists, rename `.spec.test.ts` → `.test.ts`
+1. **Cross-cutting rule?** (applies to ALL files of a type, not just one) → move to `__tests__/structure/`, change JSDoc from `Spec:` to `Constraint:`. Example: "no component may import stores" applies to every component.
+
+2. **Matching test exists?** (e.g., `CreateTripScreen.test.ts`) → merge the assertions into it and delete the `.spec.test.ts` file.
+
+3. **No matching test?** → rename `.spec.test.ts` → `.test.ts`.
 
 This keeps the grep clean — only unresolved work shows up as `.spec.` files.
 

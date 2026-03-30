@@ -54,7 +54,7 @@ git checkout -b fix/$(basename <test-file> .test.ts)
 
 1. Implement the changes to make the assertions true
 2. Change `test.skip` → `test`
-3. Graduate: merge into existing `.test.ts` (if one exists) and delete `.spec.test.ts`, or rename `.spec.test.ts` → `.test.ts`
+3. Graduate: if cross-cutting rule → move to `__tests__/structure/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete; otherwise rename `.spec.test.ts` → `.test.ts`
 
 ## Step 4: Verify
 

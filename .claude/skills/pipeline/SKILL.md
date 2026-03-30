@@ -68,7 +68,7 @@ git fetch origin master && git checkout -b fix/$(basename <test-file> .test.ts) 
 2. Read the source code it references
 3. Implement the changes to make the assertions true
 4. Change `test.skip` → `test` (unskip)
-5. Graduate: merge assertions into existing `.test.ts` (if one exists) and delete the `.spec.test.ts` file, or rename `.spec.test.ts` → `.test.ts`
+5. Graduate: if cross-cutting rule (applies to ALL files of a type) → move to `__tests__/structure/` with `Constraint:` JSDoc; if matching `.test.ts` exists → merge and delete `.spec.test.ts`; otherwise rename `.spec.test.ts` → `.test.ts`
 
 When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
 

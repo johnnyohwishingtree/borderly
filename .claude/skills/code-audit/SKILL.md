@@ -76,8 +76,8 @@ For every violation, decide what type of finding it is:
 **Spec invalidated?** The audit found evidence that contradicts an existing spec.
 → Write a `.spec.test.ts` with `test.skip` asserting the correct state.
 
-**New constraint discovered?** A pattern appeared across multiple violations that should be a permanent rule.
-→ Write a new structural test in `__tests__/structure/` with a `Constraint:` JSDoc header.
+**New constraint discovered?** The same type of violation appeared in 3+ files, or this violation was already fixed by a previous spec and regressed.
+→ Don't write a spec (it would just get resolved and regress again). Write a permanent structural test in `__tests__/structure/` with a `Constraint:` JSDoc header. This is how specs get promoted to constraints — repeated violations prove the rule needs permanent enforcement.
 
 Don't blindly flag violations — understand whether reality or the constraint is wrong.
 
