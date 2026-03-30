@@ -114,7 +114,7 @@ describe('System integrity', () => {
 
   it('all .context/ cross-references point to existing files', () => {
     const contextFiles = walk(CONTEXT_DIR, '.md')
-      .filter(f => !f.endsWith('README.md') && !f.endsWith('MIGRATION.md'));
+      .filter(f => !f.endsWith('README.md'));
     const broken: string[] = [];
 
     for (const file of contextFiles) {

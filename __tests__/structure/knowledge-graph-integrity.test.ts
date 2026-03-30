@@ -44,10 +44,11 @@ function extractDerivesFrom(content: string): string[] {
 /** Extract "See:" references from a file. */
 function extractSeeRefs(content: string): string[] {
   const refs: string[] = [];
-  const matches = content.matchAll(/See:\s+\.knowledge\/(.+\.md)/g);
+  // Match See: .context/... references
+  const matches = content.matchAll(/See:\s+\.context\/(.+\.md)/g);
   for (const m of matches) refs.push(m[1]);
-  // Also match See: without .knowledge/ prefix
-  const matches2 = content.matchAll(/See:\s+([a-z][\w/-]+\.md)/g);
+  // Also match See: without .context/ prefix (e.g., See: src/types/schema.ts)
+  const matches2 = content.matchAll(/See:\s+([a-z][\w/-]+\.(?:md|ts))/g);
   for (const m of matches2) {
     if (!refs.includes(m[1])) refs.push(m[1]);
   }
@@ -57,7 +58,7 @@ function extractSeeRefs(content: string): string[] {
 /** Extract "Related:" references from a file. */
 function extractRelatedRefs(content: string): string[] {
   const refs: string[] = [];
-  const matches = content.matchAll(/Related:\s+(?:\.knowledge\/)?(?:policies\/|models\/|patterns\/)?(.+\.md)/g);
+  const matches = content.matchAll(/Related:\s+(?:\.context\/)?(?:decisions\/|external\/|patterns\/)?(.+\.md)/g);
   for (const m of matches) refs.push(m[1]);
   return refs;
 }
@@ -146,9 +147,11 @@ describe('Knowledge graph integrity', () => {
       const relativePath = file.replace(ROOT + '/', '');
 
       for (const ref of refs) {
-        const resolved = resolve(ROOT, '.knowledge', ref);
-        if (!existsSync(resolved)) {
-          broken.push(`${relativePath}: See → .knowledge/${ref} (not found)`);
+        // Try .context/ first, then project root (for src/ paths like src/types/schema.ts)
+        const contextResolved = resolve(ROOT, '.context', ref);
+        const rootResolved = resolve(ROOT, ref);
+        if (!existsSync(contextResolved) && !existsSync(rootResolved)) {
+          broken.push(`${relativePath}: See → ${ref} (not found)`);
         }
       }
     }
@@ -167,10 +170,12 @@ describe('Knowledge graph integrity', () => {
       const relativePath = file.replace(ROOT + '/', '');
 
       for (const ref of refs) {
-        // Try common locations — .knowledge/, .context/, src/, and project root
+        // Try common locations — .context/ subdirectories and project root
         const candidates = [
           resolve(CONTEXT, ref),
-          resolve(CONTEXT, 'policies', ref),
+          resolve(CONTEXT, 'decisions', ref),
+          resolve(CONTEXT, 'external', ref),
+          resolve(CONTEXT, 'patterns', ref),
           resolve(ROOT, ref),
         ];
         const found = candidates.some(c => existsSync(c));

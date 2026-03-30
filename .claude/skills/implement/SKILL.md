@@ -8,6 +8,11 @@ argument-hint: "[test file or --all]"
 
 Finds `*.beliefs.test.ts` files with `test.skip`, reads the JSDoc to understand intent, implements the code, then graduates the test to a regular test file.
 
+## Prerequisites
+
+- Project builds cleanly (`pnpm test` passes)
+- At least one `*.beliefs.test.ts` file with `test.skip` exists
+
 ## Usage
 ```
 /implement                                                              # resolve next skipped test

@@ -107,19 +107,19 @@ For each journey defined in `e2e/mobile/full-e2e.test.ts`:
 
 For each finding, ask: "what truth did I discover about the system?"
 
-1. **Validate beliefs** — check `src/config/beliefs.ts` for relevant beliefs
+1. **Validate beliefs** — check existing `*.beliefs.test.ts` files for relevant beliefs
    - If a finding challenges an existing belief, update the belief's certainty or add counter-evidence
    - If a finding confirms a belief, note it
 
 2. **Identify gaps** — where beliefs and current system state diverge
-   - A gap IS a story. "We believe X (belief), but the system currently does Y."
+   - A gap IS a failing belief test. "We believe X (belief), but the system currently does Y."
 
 ### Step 6: Write failing belief tests for gaps
 
-Each gap becomes a failing test in `__tests__/beliefs/`. The test asserts what SHOULD be true based on the belief, and fails because the code doesn't match yet.
+Each gap becomes a colocated `*.beliefs.test.ts` file. The test asserts what SHOULD be true based on the belief, and fails because the code doesn't match yet.
 
 ```typescript
-// __tests__/beliefs/<descriptive-name>.test.ts
+// __tests__/<area>/<descriptive-name>.beliefs.test.ts
 /**
  * Belief: <what we think should be true>
  * Status: hypothesis
@@ -144,7 +144,7 @@ Prioritize:
 
 ### Step 7: Capture learnings
 
-- Update belief statuses in `src/config/beliefs.ts` if findings confirm or invalidate assumptions
+- Update belief statuses in colocated `*.beliefs.test.ts` JSDoc if findings confirm or invalidate assumptions
 - If a new UX constraint emerged across multiple findings, write a structural test with Constraint JSDoc
 - If external user behavior was observed, add to `.context/external/customer/`
 

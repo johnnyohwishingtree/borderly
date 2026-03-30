@@ -73,8 +73,8 @@ For every violation, decide what type of finding it is:
 **Constraint stale?** The code is intentionally different and the constraint JSDoc needs updating.
 → Update the structural test's JSDoc header in `__tests__/structure/`.
 
-**Belief invalidated?** The audit found evidence that contradicts a belief in `src/config/beliefs.ts`.
-→ Update the belief status directly in `src/config/beliefs.ts`.
+**Belief invalidated?** The audit found evidence that contradicts an existing belief.
+→ Write a `.beliefs.test.ts` with `test.skip` asserting the correct state.
 
 **New constraint discovered?** A pattern appeared across multiple violations that should be a permanent rule.
 → Write a new structural test in `__tests__/structure/` with a `Constraint:` JSDoc header.
@@ -83,7 +83,7 @@ Don't blindly flag violations — understand whether reality or the constraint i
 
 ## Step 5: Capture learnings
 
-1. **Invalidated beliefs** → update status in `src/config/beliefs.ts`
+1. **Invalidated beliefs** → write a colocated `*.beliefs.test.ts` with `test.skip` asserting the correct state
 2. **New constraints** → write structural test with Constraint JSDoc header
 3. **External discoveries** → add to `.context/external/`
 4. **Anti-patterns** → add to relevant structural test's JSDoc Anti-patterns section
@@ -95,14 +95,14 @@ Every finding traces to a constraint (what SHOULD BE) vs current code (what IS).
 For each violation found, write a failing test that asserts the correct state:
 
 - **Constraint violations** → add assertions to the existing structural test, or write a new one in `__tests__/structure/`
-- **Belief violations** → write a new test in `__tests__/beliefs/` with JSDoc explaining the belief
-- **Pattern violations** → write a test in `__tests__/beliefs/` asserting the expected code structure
+- **Belief violations** → write a colocated `*.beliefs.test.ts` with JSDoc explaining the belief
+- **Pattern violations** → write a colocated `*.beliefs.test.ts` asserting the expected code structure
 
 Use `test.skip` so the test commits cleanly. The pipeline will find it, unskip it, implement the fix, and merge.
 
 Example:
 ```typescript
-// __tests__/beliefs/no-store-imports-in-components.test.ts
+// __tests__/components/trips/TripCard.beliefs.test.ts
 /**
  * Belief: Components should receive data via props, not import stores.
  * Found by code-audit: src/components/trips/TripCard.tsx imports useTripStore.

@@ -8,6 +8,12 @@ argument-hint: ""
 
 Same as `/pipeline` but runs in an isolated git worktree. For Claude Desktop or CLI scheduled tasks so it doesn't disturb the user's working directory.
 
+## Prerequisites
+
+- `gh` CLI authenticated with repo access
+- Git worktree support available
+- `pnpm` installed globally
+
 **Scheduled task prompt:**
 ```
 Read CLAUDE.md for project context.

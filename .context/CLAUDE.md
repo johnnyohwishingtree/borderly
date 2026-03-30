@@ -14,6 +14,6 @@ Code IS the knowledge. This folder is the context that shaped it.
 
 Anything that CAN be code:
 - Constraints → structural tests in `__tests__/structure/`
-- Beliefs → constants in `src/config/beliefs.ts`
+- Beliefs → `test.skip` in `*.beliefs.test.ts` files (colocated with source)
 - Models → TypeScript types in `src/types/`
 - Principles → deleted (the tests they justified exist)

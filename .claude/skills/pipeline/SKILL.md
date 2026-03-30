@@ -45,7 +45,7 @@ If no skipped tests found → skip to **Step 7**.
 If `--test <path>` was provided, focus on that specific test.
 
 Otherwise, pick ONE skipped test file. Prioritize by:
-1. `__tests__/beliefs/` — product beliefs (highest priority)
+1. Belief tests (`*.beliefs.test.ts` files) — product beliefs (highest priority)
 2. Any `.skip` tests in `__tests__/structure/` — constraint gaps
 
 ## Step 3: Understand intent
@@ -57,7 +57,6 @@ Read the skipped test file. The JSDoc header explains:
 
 Then read the folder CLAUDE.md for the affected source directories — the `See:` links point to constraints and types.
 
-If the test references `src/config/beliefs.ts`, read the relevant belief entry.
 
 ## Step 4: Implement
 

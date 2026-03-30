@@ -13,7 +13,7 @@ Source of truth hierarchy:
 
   Structural tests (__tests__/structure/)    ← constraints, enforced at pnpm test
   TypeScript types (src/types/)              ← models, enforced by compiler
-  Beliefs (src/config/beliefs.ts)            ← assumptions, tracked with status
+  Belief tests (*.beliefs.test.ts)           ← assumptions, tracked with JSDoc status
   Folder CLAUDE.md (src/**/CLAUDE.md)        ← pointers to constraints + types
   External context (.context/)               ← things outside our control (prose)
   Decisions (.context/decisions/)            ← rejected alternatives (permanent prose)
@@ -181,7 +181,7 @@ You work normally
 └── SYSTEM.md               # This file
 
 __tests__/structure/        # 21 structural tests = 21 constraints
-src/config/beliefs.ts       # 13 beliefs as typed constants
+*.beliefs.test.ts           # Beliefs as colocated test.skip with JSDoc status
 src/**/CLAUDE.md            # Folder guardrails pointing to constraints + types
 ```
 
@@ -191,8 +191,8 @@ These principles are embodied in the system, not written as separate files:
 
 - **Constraints are code** — if it can be a test, it's a test. If it can be a type, it's a type. Prose is last resort.
 - **Single source of truth** — the test IS the constraint AND the documentation. One file, zero drift.
-- **Beliefs are typed** — product assumptions have status tracking and the compiler shows every callsite.
+- **Beliefs are tests** — product assumptions live as `test.skip` in `*.beliefs.test.ts` with JSDoc status tracking.
 - **External context is separate** — things we don't control live in `.context/`, not mixed with our code.
-- **Learning is concrete** — "update beliefs.ts" or "write a structural test", not "update knowledge".
+- **Learning is concrete** — "write a belief test" or "write a structural test", not "update knowledge".
 - **Zero-token hooks** — file tracking costs nothing; LLM analysis is batched into daily audits.
 - **Shell over LLM for deterministic work** — grep, git diff, file append don't need an AI agent.

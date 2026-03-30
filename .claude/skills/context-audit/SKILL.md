@@ -53,7 +53,7 @@ If dirty-files is non-empty:
 4. **Assess drift** — compare diffs against what context files and constraint JSDoc claim:
    - Structural test JSDoc lists rules that code may now violate or extend
    - Country files may have stale field counts
-   - Beliefs in `src/config/beliefs.ts` may be confirmed or invalidated
+   - Beliefs in `*.beliefs.test.ts` JSDoc may be confirmed or invalidated
 
 5. **Prioritize** — drift from actual code changes first, then general health.
 
@@ -95,9 +95,9 @@ For stale schemas: create a GitHub issue noting which schema is overdue.
 
 ## Step 3: Belief lifecycle
 
-Read `src/config/beliefs.ts`. For each belief:
+Find all `*.beliefs.test.ts` files across `__tests__/` and verify they have JSDoc with status/confirm/invalidate. For each belief:
 - `hypothesis` status older than 60 days → flag for re-evaluation
-- Code changes that confirm or invalidate a `working` belief → update status
+- Code changes that confirm or invalidate a `working` belief → update status in JSDoc
 - Beliefs with status `confirmed` → check if a structural test enforces them (if not, write one)
 - Beliefs no longer referenced by any code → flag for removal
 
@@ -133,7 +133,7 @@ Fix any broken references directly.
 
 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order.
 
-If 5+ files changed, check if any structural test JSDoc or `src/config/beliefs.ts` needs updating.
+If 5+ files changed, check if any structural test JSDoc or `*.beliefs.test.ts` JSDoc needs updating.
 
 ## Guardrails
 - Don't check code against constraints — that's `/code-audit`
