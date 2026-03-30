@@ -1,100 +1,104 @@
 ---
 name: plan-feature
-description: Plan and implement a new feature for Borderly
+description: Turn a feature request into failing belief tests that the pipeline can implement
 argument-hint: "[feature description]"
 ---
 
-# /plan-feature — Plan and Implement a Feature
+# /plan-feature — Write Belief Tests for a Feature
 
-Plan and implement a new feature for Borderly. Reads existing code first, plans the approach, implements with tests, and verifies.
+Takes a feature request and produces failing tests in `__tests__/beliefs/` that encode what the feature should do. The pipeline then picks up the failing tests and implements the feature.
+
+This skill does NOT implement the feature — it writes the spec as tests.
 
 ## Prerequisites
 
 - Project builds cleanly (`pnpm typecheck` and `pnpm test` pass)
-- Relevant `.context/patterns/` and `__tests__/structure/` constraints reviewed
-- Existing code in the target area has been read
+- Feature description provided by user
 
 ## Usage
 ```
-/plan-feature add QR code sharing      # Implement a specific feature
-/plan-feature                          # Ask what to implement
+/plan-feature simplify trip creation to name + country
+/plan-feature add QR code sharing between family members
+/plan-feature support Vietnam portal
 ```
 
-## Steps
+## Step 1: Understand the feature
 
-### Step 1: Understand Context
+Read CLAUDE.md for project context. Read the folder CLAUDE.md files for the areas the feature will touch. Read `src/config/beliefs.ts` for relevant beliefs.
 
-1. Read `CLAUDE.md` for project architecture and conventions
-2. Read existing code in the area being modified — never propose changes to code you haven't read
+If the feature involves a country, read `.context/external/countries/` and `.context/patterns/add-country.md`.
 
-### Step 2: Plan
+## Step 2: Break into testable beliefs
 
-1. Identify files to create or modify
-2. Check if relevant patterns exist in `.context/patterns/`
-3. Check `src/config/beliefs.ts` — does this feature depend on any unconfirmed beliefs? If so, note the risk and consider whether to implement defensively
-4. Determine the dependency order (stores before hooks before screens)
-6. List tests that need to be written
+Each belief test should assert ONE thing about the expected end state. A feature with 3 aspects = 3 belief tests.
 
-Present the plan before implementing if the scope is large (3+ files).
+Ask: "When this feature is done, what will be true about the code/UI/data that isn't true now?"
 
-### Step 3: Implement
+Each answer becomes a failing test.
 
-Follow the project's dependency direction: Screens -> Hooks -> Stores -> Services
+## Step 3: Write failing tests
 
-**For each file:**
-1. Write or modify the code
-2. Run `pnpm typecheck` immediately — fix before moving on
-3. Follow existing patterns in surrounding code
+Create test files in `__tests__/beliefs/`:
 
-**Key rules:**
-- Read the relevant folder `CLAUDE.md` for directory conventions before creating files
-- Use NativeWind `className` for styling (no inline styles)
-- Use existing UI components before creating new ones
-- Use Lucide icons from `lucide-react-native` (not vector-icons)
-- Extract business logic into hooks if a screen has 3+ useState calls
-- Use smart components where required (see `src/types/schema.ts` for form engine types)
-- Never use `any` types — fix the root cause
+```typescript
+// __tests__/beliefs/<feature-name>.test.ts
+/**
+ * Belief: <what should be true after the feature is built>
+ *
+ * Status: hypothesis
+ * Confirm: <what validates this was the right approach>
+ * Invalidate: <what would prove this was wrong>
+ *
+ * Feature: <original feature request>
+ */
 
-### Step 4: Write Tests
+import { readFileSync, existsSync } from 'fs';
+import { resolve } from 'path';
 
-| What changed | Test location | Test tool |
-|-------------|---------------|-----------|
-| Service/util | `__tests__/<matching-path>.test.ts` | Jest |
-| Component | `__tests__/components/<path>.test.tsx` | Jest + RNTL |
-| Screen | `__tests__/screens/<path>.test.tsx` | Jest + RNTL |
-| New screen (E2E) | `e2e/tests/<name>.spec.ts` | Playwright |
-| A11y props | `__tests__/components/<path>.a11y.test.tsx` | Jest + RNTL |
+const ROOT = resolve(__dirname, '../..');
 
-### Step 5: Verify
+test('<specific assertion about expected state>', () => {
+  // Assert something about file structure, code content, or data shape
+  // This test FAILS now and PASSES after the pipeline implements the feature
+});
+```
 
-Follow `the verification rules: run `pnpm lint`, `pnpm typecheck`, `pnpm test` in order; up to 6 attempts`.
+### What makes a good belief test
 
-Also run bundle check:
+- **Asserts end state, not process** — "CreateTripScreen has 3 fields" not "remove 9 fields"
+- **Reads source files** — grep for patterns, count elements, check imports
+- **Is specific enough to guide implementation** — the agent should know WHAT to change
+- **Is loose enough to allow judgment** — don't dictate HOW, dictate WHAT
+
+### Examples
+
+| Feature | Belief test |
+|---|---|
+| "Simplify trip creation" | Assert LegCard doesn't have flight/accommodation fields |
+| "Add Vietnam portal" | Assert VNM.json exists in src/schemas/ with required metadata |
+| "QR code sharing" | Assert a share button exists in QRDetail screen |
+
+## Step 4: Verify tests fail
+
 ```bash
-npx react-native bundle --platform ios --dev false --entry-file index.js --bundle-output /tmp/bundle.js
+pnpm test -- __tests__/beliefs/<feature-name> 2>&1
 ```
 
-### Step 6: Self-Update Check
+ALL new tests should FAIL. If any pass, the feature (or part of it) already exists — remove that test.
 
-- **New screen?** Follow `.context/patterns/add-screen.md` for the full checklist
-- **New navigation route?** Update navigation type definitions (read the relevant folder `CLAUDE.md` for conventions)
-- **New native dependency?** Read existing mocks in `__mocks__/` for patterns on how to add native dependency mocks
+## Step 5: Commit the failing tests
 
-## Domain-Specific Checklists
+```bash
+git add __tests__/beliefs/<feature-name>.test.ts
+git commit -m "test: add failing belief tests for <feature>"
+git push origin master
+```
 
-### Adding a New Country
-
-1. Create `src/schemas/<ISO>.json` and register in `schemaRegistry.ts`
-2. Add `case '<ISO>':` in `CountryFlag.tsx` `renderFlag()` switch
-3. Add `__tests__/schemas/<ISO>.test.ts`
-4. Add portal config in `src/services/portal/portalIntegration.ts` (if applicable)
-
-### Adding a New Family Relationship
-
-1. Add icon mapping in `RELATIONSHIP_ICON` in `FamilyMemberCard.tsx`
-2. Add display label case in `getRelationshipDisplay()`
+The pipeline will pick these up on its next cycle and start implementing.
 
 ## Guardrails
 
-- Read existing code before proposing changes
-- Don't skip tests for new functionality
+- Do NOT implement the feature — only write the tests
+- Tests must fail on the current codebase
+- Each test file should have a JSDoc header explaining the belief
+- Keep tests focused — one concern per test, one feature per file

@@ -90,17 +90,18 @@ Rules in `.claude/rules/` are auto-loaded every session. Key ones:
 ## Skills Reference
 
 Key skills:
-- `/pipeline` — Autonomous story loop
-- `/code-audit` — Code vs constraint compliance
+- `/pipeline` — Find failing tests, make them pass, merge (belief-driven)
+- `/plan-feature` — Turn a feature request into failing belief tests
+- `/code-audit` — Scan code vs constraints, write failing tests for violations
 - `/context-audit` — Drift detection, schema staleness, belief lifecycle
-- `/ux-review` — UX flow analysis → creates stories
-- `/test-audit` — Test quality scoring → creates stories
+- `/ux-review` — UX flow analysis → write failing belief tests
+- `/test-audit` — Test quality scoring → write failing belief tests
 
 ## Autonomous Workflow
 
 Borderly is orchestrated by Claude Code scheduled tasks — no GitHub Actions runners.
 
-**To start work:** create a GitHub Issue with `story` and `pending` labels.
+**To start work:** write a failing test in `__tests__/beliefs/` or run `/plan-feature`.
 
 **Scheduled task prompts:**
 ```

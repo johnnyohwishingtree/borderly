@@ -114,34 +114,32 @@ For each finding, ask: "what truth did I discover about the system?"
 2. **Identify gaps** — where beliefs and current system state diverge
    - A gap IS a story. "We believe X (belief), but the system currently does Y."
 
-### Step 6: Create stories from gaps
+### Step 6: Write failing belief tests for gaps
 
-Each story should reference the belief and current system state that define the gap.
+Each gap becomes a failing test in `__tests__/beliefs/`. The test asserts what SHOULD be true based on the belief, and fails because the code doesn't match yet.
 
-```bash
-REPO="johnnyohwishingtree/borderly"
-DATE=$(date +%Y-%m-%d)
-
-gh issue create --repo $REPO \
-  --title "Story: <close the gap between belief and current state>" \
-  --label "story,pending" \
-  --label "source:ux-review" \
-  --body "$(cat <<'EOF'
-## Constraints
-- `<structural-test>.test.ts` — <which constraint applies>
-- `<belief-key>` (<status>) — <why this assumption matters>
-
-## Acceptance Criteria
-- [ ] <specific measurable criteria>
-- [ ] Structural tests pass (`pnpm test`)
-- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
-EOF
-)"
+```typescript
+// __tests__/beliefs/<descriptive-name>.test.ts
+/**
+ * Belief: <what we think should be true>
+ * Status: hypothesis
+ * Confirm: <what evidence would validate this>
+ * Invalidate: <what evidence would kill this>
+ *
+ * Current state: <what the system actually does>
+ * Gap: <the difference between belief and reality>
+ */
+test('<specific assertion about expected state>', () => {
+  // Read the relevant source file or component
+  // Assert the expected behavior
+});
 ```
 
+The pipeline will pick up the failing test and make it pass.
+
 Prioritize:
-1. **Critical gaps** — facts that directly block users from reaching value
-2. **Major gaps** — facts that significantly degrade the experience
+1. **Critical gaps** — beliefs that directly block users from reaching value
+2. **Major gaps** — beliefs that significantly degrade the experience
 3. **Minor gaps** — polish items, small divergences from beliefs
 
 ### Step 7: Capture learnings
