@@ -66,6 +66,19 @@ export default function CreateTripScreen() {
             </View>
           </Card>
 
+          <Destinations
+            legs={legs}
+            errors={errors}
+            familyMembers={familyMembers}
+            applyToAllLegs={applyToAllLegs}
+            addLeg={addLeg}
+            removeLeg={removeLeg}
+            updateLeg={updateLeg}
+            handleTravelerToggle={handleTravelerToggle}
+            onShowScanner={() => setShowScanner(true)}
+            onShowSmartImport={() => setShowSmartImport(true)}
+          />
+
           {/* Trip-level traveler selector — only shown after destinations are added */}
           {legs.length > 0 && familyMembers.length > 0 ? (
             <Card className="mb-6" variant="outlined">
@@ -127,19 +140,6 @@ export default function CreateTripScreen() {
               </View>
             </Card>
           ) : null}
-
-          <Destinations
-            legs={legs}
-            errors={errors}
-            familyMembers={familyMembers}
-            applyToAllLegs={applyToAllLegs}
-            addLeg={addLeg}
-            removeLeg={removeLeg}
-            updateLeg={updateLeg}
-            handleTravelerToggle={handleTravelerToggle}
-            onShowScanner={() => setShowScanner(true)}
-            onShowSmartImport={() => setShowSmartImport(true)}
-          />
 
           <View className="pb-8">
             <Button

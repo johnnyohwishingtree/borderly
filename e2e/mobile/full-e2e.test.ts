@@ -90,18 +90,16 @@ describe('Full E2E — onboard → trip → auto-fill → save', () => {
 
     // ── Trip detail — verify ──
     await device.assertVisible('Malaysia Trip 2026');
-    await device.assertVisibleId('leg-card-MYS');
     await snap('trip-detail');
 
-    // ── Open leg form ──
+    // ── Open leg form via primary CTA (opens in Smart Delta mode — unfilled fields only) ──
     console.log('[E2E] Open leg form');
-    await device.tapById('leg-card-MYS');
-    await device.assertVisible('Form Summary', { timeout: 10000 });
+    await device.tapById('trip-detail-primary-action');
+    await device.assertVisible('Malaysia', { timeout: 10000 });
     await snap('leg-form-initial');
 
-    // ── Fill remaining fields ──
+    // ── Fill remaining fields (already in Smart Delta mode — only unfilled fields shown) ──
     console.log('[E2E] Fill personal info fields');
-    await device.tapById('smart-delta-button');
     await device.fillById('input-email', 'test@borderly.app');
     await device.fillById('input-phoneNumber', '+60123456789');
 
