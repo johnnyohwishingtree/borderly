@@ -1,23 +1,24 @@
-# Borderly System: Constraint-Driven Development
+# Borderly System: Spec-Driven Development
 
 How the autonomous AI pipeline develops, verifies, and evolves the codebase.
 
 ## Architecture
 
-Two layers:
-
-**Constraint-driven (the foundation)** — architectural rules enforced as structural tests in `__tests__/structure/`. These are permanent. They prevent the codebase from drifting. Every `pnpm test` run validates them in < 1 second. This is the system's immune system.
-
-**Spec-driven (the workflow)** — new work enters as `test.skip` in `*.spec.test.ts` files. The pipeline reads the spec, implements the code, unskips the test, graduates it. Specs are temporary — they exist until fulfilled. This is the system's engine.
+Everything is a test. Work flows through three stages:
 
 ```
-Spec (drives new work)              Constraint (prevents regression)
-*.spec.test.ts (test.skip)    →    __tests__/structure/*.test.ts (permanent)
-"build this"                        "don't break this"
-temporary                           permanent
+Spec                    →    Test                    →    Structural test
+*.spec.test.ts               *.test.ts                    __tests__/structure/*.test.ts
+test.skip                    active                       active + Constraint: JSDoc
+"build this"                 "this is true"               "this must ALWAYS be true"
+temporary                    permanent                    permanent, cross-cutting
 ```
 
-Not every spec becomes a constraint. Screen-level specs graduate to regular `.test.ts` files. Only cross-cutting architectural rules graduate to `__tests__/structure/`.
+- **Specs** — pending work. `test.skip` in `*.spec.test.ts`. The pipeline's backlog.
+- **Tests** — graduated specs. Regular `.test.ts` files. Prevent regression on specific code.
+- **Structural tests** — tests promoted to cross-cutting rules. Live in `__tests__/structure/` with `Constraint:` JSDoc headers. Enforce architectural patterns across the entire codebase.
+
+Most specs graduate to regular tests. A spec only becomes a structural test when the rule applies to ALL code of that type (e.g., "no component may import a store" — not just one component).
 
 ## Definitions
 
