@@ -4,7 +4,7 @@ How the autonomous AI pipeline develops, verifies, and evolves the codebase.
 
 ## Philosophy
 
-**Knowledge is code.** Constraints are structural tests. Beliefs are typed constants. Models are TypeScript types. Everything that CAN be code IS code — because code enforces itself and prose drifts.
+**Knowledge is code.** Constraints are structural tests. Beliefs are skipped tests with JSDoc. Models are TypeScript types. Everything that CAN be code IS code — because code enforces itself and prose drifts.
 
 What remains as prose (in `.context/`) is only what can't be code: government portal behavior, laws, human cognition, rejected alternatives, and multi-step recipes not yet automated.
 
@@ -40,7 +40,7 @@ User: "simplify trip creation"
 | `/code-audit` | Daily | Code violating structural test constraints | `*.beliefs.test.ts` with `test.skip` |
 | `/ux-review` | Daily | UX gaps in user journeys | `*.beliefs.test.ts` with `test.skip` |
 | `/test-audit` | Weekly | Junk tests needing rewrite | `*.beliefs.test.ts` with `test.skip` |
-| `/context-audit` | Daily | Drift, staleness, belief lifecycle | Updates context/beliefs directly |
+| `/context-audit` | Daily | Drift, staleness, belief lifecycle | Updates `.context/` and belief test JSDoc directly |
 
 ### 2. Belief test anatomy
 
