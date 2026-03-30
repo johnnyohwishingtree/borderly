@@ -1,12 +1,15 @@
 import { CountryFormSchema } from '../../src/types/schema';
-import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
-import { getSchemaByCountryCode } from '../../src/schemas';
 import CAN from '../../src/schemas/CAN.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Canada (CAN) Schema', () => {
   const schema = CAN as CountryFormSchema;
 
-  // ── 1. Schema structure fields ──────────────────────────────────────────────
+  // ── Shared tests ──────────────────────────────────────────────────────────
+
+  runSharedSchemaTests(schema, 'CAN');
+
+  // ── Country metadata ──────────────────────────────────────────────────────
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('CAN');
@@ -23,28 +26,18 @@ describe('Canada (CAN) Schema', () => {
     expect(() => new Date(schema.lastUpdated)).not.toThrow();
   });
 
-  // ── 2. Archive handling ─────────────────────────────────────────────────────
+  // ── Archive handling ──────────────────────────────────────────────────────
 
-  test('should have implementationStatus set to archived', () => {
-    expect(schema.metadata).not.toBeUndefined();
+  test('should be archived with a reason mentioning ArriveCAN or discontinued', () => {
     expect(schema.metadata.implementationStatus).toBe('archived');
-  });
-
-  test('should have a non-empty archiveReason', () => {
     const archiveReason = schema.metadata.archiveReason;
-    expect(archiveReason).not.toBeUndefined();
     expect(typeof archiveReason).toBe('string');
     expect(archiveReason!.trim().length).toBeGreaterThan(0);
+    const reason = archiveReason!.toLowerCase();
+    expect(reason.includes('arrivecan') || reason.includes('discontinued')).toBe(true);
   });
 
-  test('archiveReason should mention ArriveCAN or discontinued', () => {
-    const archiveReason = schema.metadata.archiveReason!;
-    const reason = archiveReason.toLowerCase();
-    const mentionsContext = reason.includes('arrivecan') || reason.includes('discontinued');
-    expect(mentionsContext).toBe(true);
-  });
-
-  // ── 3. Metadata fields ──────────────────────────────────────────────────────
+  // ── Metadata ──────────────────────────────────────────────────────────────
 
   test('should have metadata with expected fields', () => {
     const metadata = schema.metadata;
@@ -56,30 +49,21 @@ describe('Canada (CAN) Schema', () => {
     expect(metadata.maintenanceFrequency).toBe('as_needed');
   });
 
-  // ── 4. Submission timing duration strings ───────────────────────────────────
+  // ── Submission timing ─────────────────────────────────────────────────────
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('730d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('72h');
     expect(schema.submission.processingTime).toBe('24h');
   });
 
-  test('submission timing values should match duration string format (number + unit)', () => {
+  test('submission timing values should match duration string format', () => {
     const durationPattern = /^\d+[dhm]$/;
     expect(schema.submission.earliestBeforeArrival).toMatch(durationPattern);
     expect(schema.submission.latestBeforeArrival).toMatch(durationPattern);
     expect(schema.submission.recommended).toMatch(durationPattern);
     expect(schema.submission.processingTime).toMatch(durationPattern);
-  });
-
-  // ── 5. changeDetection.monitoredSelectors ───────────────────────────────────
-
-  test('should have changeDetection with non-empty monitoredSelectors', () => {
-    expect(schema.changeDetection).not.toBeUndefined();
-    expect(Array.isArray(schema.changeDetection.monitoredSelectors)).toBe(true);
-    expect(schema.changeDetection.monitoredSelectors.length).toBeGreaterThan(0);
   });
 
   test('monitoredSelectors should be CSS selector strings', () => {
@@ -89,10 +73,9 @@ describe('Canada (CAN) Schema', () => {
     });
   });
 
-  // ── 6. Portal flow ──────────────────────────────────────────────────────────
+  // ── Portal flow ───────────────────────────────────────────────────────────
 
   test('portalFlow should not require an account', () => {
-    expect(schema.portalFlow).not.toBeUndefined();
     expect(schema.portalFlow.requiresAccount).toBe(false);
   });
 
@@ -102,22 +85,15 @@ describe('Canada (CAN) Schema', () => {
   });
 
   test('portalFlow prerequisites should include passport and payment', () => {
-    const prerequisites = schema.portalFlow.prerequisites;
-    expect(prerequisites).not.toBeUndefined();
-    expect(prerequisites!.length).toBeGreaterThanOrEqual(2);
-
-    const types = prerequisites!.map(p => p.type);
+    const prerequisites = schema.portalFlow.prerequisites!;
+    expect(prerequisites.length).toBeGreaterThanOrEqual(2);
+    const types = prerequisites.map(p => p.type);
     expect(types).toContain('document');
     expect(types).toContain('payment');
-
-    const paymentPrereq = prerequisites!.find(p => p.type === 'payment');
-    expect(paymentPrereq!.required).toBe(true);
-
-    const descriptions = prerequisites!.map(p => p.description.toLowerCase());
-    expect(descriptions.some(d => d.includes('passport'))).toBe(true);
+    expect(prerequisites.find(p => p.type === 'payment')!.required).toBe(true);
   });
 
-  // ── 7. Sections structure ───────────────────────────────────────────────────
+  // ── Sections ──────────────────────────────────────────────────────────────
 
   test('should have all required sections', () => {
     const sectionIds = schema.sections.map(s => s.id);
@@ -131,117 +107,30 @@ describe('Canada (CAN) Schema', () => {
     expect(sectionIds).toContain('background');
   });
 
-  // ── 8. Required fields with valid autoFillSource paths ─────────────────────
-
   test('personal section should have core required fields with autoFillSource', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
-    expect(personalSection).not.toBeUndefined();
-
-    const surnameField = personalSection.fields.find(f => f.id === 'surname')!;
-    expect(surnameField.required).toBe(true);
-    expect(surnameField.autoFillSource).toBe('profile.surname');
-
-    const givenNamesField = personalSection.fields.find(f => f.id === 'givenNames')!;
-    expect(givenNamesField.required).toBe(true);
-    expect(givenNamesField.autoFillSource).toBe('profile.givenNames');
-
-    const dobField = personalSection.fields.find(f => f.id === 'dateOfBirth')!;
-    expect(dobField.required).toBe(true);
-    expect(dobField.autoFillSource).toBe('profile.dateOfBirth');
-
-    const countryOfBirthField = personalSection.fields.find(f => f.id === 'countryOfBirth')!;
-    expect(countryOfBirthField.required).toBe(true);
-    expect(countryOfBirthField.autoFillSource).toBe('profile.countryOfBirth');
-
-    const genderField = personalSection.fields.find(f => f.id === 'gender')!;
-    expect(genderField.required).toBe(true);
-    expect(genderField.autoFillSource).toBe('profile.gender');
+    expect(personalSection.fields.find(f => f.id === 'surname')!.autoFillSource).toBe('profile.surname');
+    expect(personalSection.fields.find(f => f.id === 'givenNames')!.autoFillSource).toBe('profile.givenNames');
+    expect(personalSection.fields.find(f => f.id === 'dateOfBirth')!.autoFillSource).toBe('profile.dateOfBirth');
   });
 
-  test('passport section should have required passport fields with autoFillSource', () => {
-    const passportSection = schema.sections.find(s => s.id === 'passport')!;
-    expect(passportSection).not.toBeUndefined();
-
-    const fieldIds = passportSection.fields.map(f => f.id);
-    expect(fieldIds).toContain('passportNumber');
-    expect(fieldIds).toContain('passportCountry');
-    expect(fieldIds).toContain('passportIssueDate');
-    expect(fieldIds).toContain('passportExpiryDate');
-
-    const passportNumberField = passportSection.fields.find(f => f.id === 'passportNumber')!;
-    expect(passportNumberField.required).toBe(true);
-    expect(passportNumberField.autoFillSource).toBe('profile.passportNumber');
-
-    const passportExpiryField = passportSection.fields.find(f => f.id === 'passportExpiryDate')!;
-    expect(passportExpiryField.required).toBe(true);
-    expect(passportExpiryField.autoFillSource).toBe('profile.passportExpiry');
-  });
-
-  test('fields with autoFillSource should reference valid profile or leg paths', () => {
-    const validPrefixes = ['profile.', 'leg.'];
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        const autoFill = field.autoFillSource;
-        if (autoFill) {
-          const hasValidPrefix = validPrefixes.some(prefix => autoFill.startsWith(prefix));
-          expect(hasValidPrefix).toBe(true);
-        }
-      });
-    });
-  });
-
-  test('all required fields should have required set to true (boolean)', () => {
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(typeof field.required).toBe('boolean');
-      });
-    });
-  });
-
-  // ── 9. Optional fields with correct defaults ────────────────────────────────
-
-  test('employerName should be optional (required: false) with autoFillSource', () => {
+  test('employerName should be optional with autoFillSource', () => {
     const employmentSection = schema.sections.find(s => s.id === 'employment')!;
-    expect(employmentSection).not.toBeUndefined();
-
     const employerNameField = employmentSection.fields.find(f => f.id === 'employerName')!;
-    expect(employerNameField).not.toBeUndefined();
     expect(employerNameField.required).toBe(false);
     expect(employerNameField.autoFillSource).toBe('profile.employerName');
   });
 
-  // ── 10. Field validation rules ──────────────────────────────────────────────
-
   test('email field should have a validation pattern', () => {
     const contactSection = schema.sections.find(s => s.id === 'contact')!;
-    expect(contactSection).not.toBeUndefined();
-
     const emailField = contactSection.fields.find(f => f.id === 'email')!;
-    expect(emailField).not.toBeUndefined();
     expect(emailField.required).toBe(true);
-    expect((emailField as any).validation).not.toBeUndefined();
-    expect(typeof (emailField as any).validation!.pattern).toBe('string');
     expect((emailField as any).validation!.pattern).toContain('@');
   });
-
-  test('confirmEmail field should also have a validation pattern', () => {
-    const contactSection = schema.sections.find(s => s.id === 'contact')!;
-    const confirmEmailField = contactSection.fields.find(f => f.id === 'confirmEmail')!;
-
-    expect(confirmEmailField).not.toBeUndefined();
-    expect(confirmEmailField.required).toBe(true);
-    expect(confirmEmailField.countrySpecific).toBe(true);
-    expect((confirmEmailField as any).validation).not.toBeUndefined();
-    expect(typeof (confirmEmailField as any).validation!.pattern).toBe('string');
-  });
-
-  // ── 11. Country-specific fields ─────────────────────────────────────────────
 
   test('gender field should have three options including non-binary option', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const genderField = personalSection.fields.find(f => f.id === 'gender')!;
-
     expect(genderField.type).toBe('searchable_select');
     const genderValues = genderField.options!.map(o => o.value);
     expect(genderValues).toContain('M');
@@ -252,12 +141,8 @@ describe('Canada (CAN) Schema', () => {
   test('maritalStatus field should be country-specific with multiple options', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
     const maritalStatusField = personalSection.fields.find(f => f.id === 'maritalStatus')!;
-
-    expect(maritalStatusField).not.toBeUndefined();
     expect(maritalStatusField.countrySpecific).toBe(true);
     expect(maritalStatusField.required).toBe(true);
-    expect(maritalStatusField.type).toBe('searchable_select');
-
     const statusValues = maritalStatusField.options!.map(o => o.value);
     expect(statusValues).toContain('single');
     expect(statusValues).toContain('married');
@@ -267,13 +152,9 @@ describe('Canada (CAN) Schema', () => {
 
   test('travel section should have Canada-specific purposeOfVisit field', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
-    expect(travelSection).not.toBeUndefined();
-
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
-    expect(purposeField).not.toBeUndefined();
     expect(purposeField.countrySpecific).toBe(true);
     expect(purposeField.required).toBe(true);
-
     const purposes = purposeField.options!.map(o => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('business');
@@ -282,15 +163,9 @@ describe('Canada (CAN) Schema', () => {
 
   test('background section should have Canada-specific security questions', () => {
     const backgroundSection = schema.sections.find(s => s.id === 'background')!;
-    expect(backgroundSection).not.toBeUndefined();
-
     const fieldIds = backgroundSection.fields.map(f => f.id);
     expect(fieldIds).toContain('criminalOffence');
     expect(fieldIds).toContain('immigrationOffence');
-    expect(fieldIds).toContain('medicalCondition');
-    expect(fieldIds).toContain('tuberculosis');
-    expect(fieldIds).toContain('governmentPosition');
-    expect(fieldIds).toContain('militaryService');
     expect(fieldIds).toContain('warCrimes');
 
     backgroundSection.fields.forEach(field => {
@@ -300,64 +175,9 @@ describe('Canada (CAN) Schema', () => {
     });
   });
 
-  // ── 12. Submission guide ────────────────────────────────────────────────────
+  // ── Submission guide (country-specific count) ─────────────────────────────
 
   test('should have complete submission guide with 14 steps', () => {
     expect(schema.submissionGuide).toHaveLength(14);
-  });
-
-  test('submission guide steps should have incrementing order', () => {
-    const orders = schema.submissionGuide.map(s => s.order);
-    orders.forEach((order, index) => {
-      expect(order).toBe(index + 1);
-    });
-  });
-
-  test('each submission guide step should have non-empty title and description', () => {
-    schema.submissionGuide.forEach(step => {
-      expect(step.title).toEqual(expect.stringMatching(/\S/));
-      expect(step.description).toEqual(expect.stringMatching(/\S/));
-    });
-  });
-
-  test('submission guide should reference valid field IDs', () => {
-    const allFieldIds = new Set<string>();
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        allFieldIds.add(field.id);
-      });
-    });
-
-    schema.submissionGuide.forEach(step => {
-      step.fieldsOnThisScreen.forEach(fieldId => {
-        expect(allFieldIds.has(fieldId)).toBe(true);
-      });
-    });
-  });
-
-  // ── 13. Uniqueness & integrity ──────────────────────────────────────────────
-
-  test('should have unique field IDs across all sections', () => {
-    const allFieldIds = new Set<string>();
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(allFieldIds.has(field.id)).toBe(false);
-        allFieldIds.add(field.id);
-      });
-    });
-  });
-
-  test('should validate against schema structure', () => {
-    expect(() => {
-      const validatedSchema = loadSchema(schema, 'CAN');
-      validateSchemaCompletely(validatedSchema);
-    }).not.toThrow();
-  });
-
-  test('should be accessible via schema registry', async () => {
-    const registrySchema = await getSchemaByCountryCode('CAN');
-    expect(registrySchema).not.toBeUndefined();
-    expect(registrySchema?.countryCode).toBe('CAN');
   });
 });

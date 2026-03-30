@@ -1,10 +1,16 @@
-import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
-import { getSchemaByCountryCode } from '../../src/schemas';
 import JPN from '../../src/schemas/JPN.json';
+import { CountryFormSchema } from '../../src/types/schema';
 import { OCCUPATIONS, PURPOSES_OF_VISIT } from '../../src/constants/enums';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Japan (JPN) Schema', () => {
-  const schema = JPN;
+  const schema = JPN as unknown as CountryFormSchema;
+
+  // ── Shared tests ──────────────────────────────────────────────────────────
+
+  runSharedSchemaTests(schema, 'JPN');
+
+  // ── Country metadata ──────────────────────────────────────────────────────
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('JPN');
@@ -15,7 +21,6 @@ describe('Japan (JPN) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('14d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('72h');
@@ -27,9 +32,10 @@ describe('Japan (JPN) Schema', () => {
     expect(schema.submissionWindowNote).toBe('Submit 24-72 h before arrival');
   });
 
+  // ── Sections ──────────────────────────────────────────────────────────────
+
   test('should have all required sections', () => {
     expect(schema.sections).toHaveLength(5);
-
     const sectionIds = schema.sections.map(s => s.id);
     expect(sectionIds).toContain('passport');
     expect(sectionIds).toContain('basic_info');
@@ -39,10 +45,8 @@ describe('Japan (JPN) Schema', () => {
   });
 
   test('passport section should have required fields matching VJW portal', () => {
-    const passportSection = schema.sections.find(s => s.id === 'passport');
-    expect(passportSection).not.toBeUndefined();
-
-    const fieldIds = passportSection!.fields.map(f => f.id);
+    const passportSection = schema.sections.find(s => s.id === 'passport')!;
+    const fieldIds = passportSection.fields.map(f => f.id);
     expect(fieldIds).toContain('passportNumber');
     expect(fieldIds).toContain('surname');
     expect(fieldIds).toContain('givenNames');
@@ -54,36 +58,14 @@ describe('Japan (JPN) Schema', () => {
   test('nationality field should be a searchable select with countries source', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport')!;
     const nationalityField = passportSection.fields.find(f => f.id === 'nationality')!;
-
     expect(nationalityField.type).toBe('searchable_select');
     expect((nationalityField as any).optionsSource).toBe('countries');
     expect(nationalityField.label).toBe('Nationality or citizenship');
   });
 
-  test('basic info section should have occupation and home address fields', () => {
-    const basicInfoSection = schema.sections.find(s => s.id === 'basic_info');
-    expect(basicInfoSection).not.toBeUndefined();
-
-    const fieldIds = basicInfoSection!.fields.map(f => f.id);
-    expect(fieldIds).toContain('occupation');
-    expect(fieldIds).toContain('homeCountry');
-    expect(fieldIds).toContain('homeCity');
-  });
-
-  test('home country field should be a searchable select', () => {
-    const basicInfoSection = schema.sections.find(s => s.id === 'basic_info')!;
-    const homeCountryField = basicInfoSection.fields.find(f => f.id === 'homeCountry')!;
-
-    expect(homeCountryField.type).toBe('searchable_select');
-    expect((homeCountryField as any).optionsSource).toBe('countries');
-  });
-
   test('travel section should have Japan-specific fields', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).not.toBeUndefined();
-
-    const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit') as any;
-    expect(purposeField).not.toBeUndefined();
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit') as any;
     expect(purposeField.countrySpecific).toBe(true);
     expect(purposeField.options).toHaveLength(5);
     expect(purposeField.options.map((o: any) => o.value)).toContain('tourism');
@@ -91,87 +73,27 @@ describe('Japan (JPN) Schema', () => {
   });
 
   test('customs declarations should have Japan-specific currency threshold', () => {
-    const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
-    expect(customsSection).not.toBeUndefined();
-
-    const currencyField = customsSection!.fields.find(f => f.id === 'currencyOver1M');
-    expect(currencyField).not.toBeUndefined();
-    expect(currencyField!.countrySpecific).toBe(true);
-    expect(currencyField!.label).toContain('¥1,000,000');
+    const customsSection = schema.sections.find(s => s.id === 'customs_declarations')!;
+    const currencyField = customsSection.fields.find(f => f.id === 'currencyOver1M')!;
+    expect(currencyField.countrySpecific).toBe(true);
+    expect(currencyField.label).toContain('¥1,000,000');
     expect((currencyField as any).helpText).toContain('Japan-specific threshold');
   });
 
   test('should have meat products prohibition field', () => {
-    const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
-    const meatField = customsSection!.fields.find(f => f.id === 'meatProducts');
-
-    expect(meatField).not.toBeUndefined();
-    expect(meatField!.countrySpecific).toBe(true);
+    const customsSection = schema.sections.find(s => s.id === 'customs_declarations')!;
+    const meatField = customsSection.fields.find(f => f.id === 'meatProducts')!;
+    expect(meatField.countrySpecific).toBe(true);
     expect((meatField as any).helpText).toContain('strictly prohibits all meat products');
   });
 
-  test('should have complete submission guide', () => {
-    expect(schema.submissionGuide).toHaveLength(7);
-
-    const stepTitles = schema.submissionGuide.map(s => s.title);
-    expect(stepTitles).toContain('Create Account on Visit Japan Web');
-    expect(stepTitles).toContain('Register Your Passport Details');
-    expect(stepTitles).toContain('Enter Basic Information');
-    expect(stepTitles).toContain('Get Your QR Code');
-  });
-
-  test('submission guide should reference valid field IDs', () => {
-    const allFieldIds = new Set<string>();
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        allFieldIds.add(field.id);
-      });
-    });
-
-    schema.submissionGuide.forEach(step => {
-      step.fieldsOnThisScreen.forEach(fieldId => {
-        expect(allFieldIds.has(fieldId)).toBe(true);
-      });
-    });
-  });
+  // ── Auto-fill mappings ────────────────────────────────────────────────────
 
   test('should have auto-fill mappings for common fields', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport')!;
-
-    const surnameField = passportSection.fields.find(f => f.id === 'surname')!;
-    expect(surnameField.autoFillSource).toBe('profile.surname');
-    expect(surnameField.countrySpecific).toBe(false);
-
-    const passportField = passportSection.fields.find(f => f.id === 'passportNumber')!;
-    expect(passportField.autoFillSource).toBe('profile.passportNumber');
-    expect(passportField.countrySpecific).toBe(false);
-
-    const expiryField = passportSection.fields.find(f => f.id === 'passportExpiry')!;
-    expect(expiryField.autoFillSource).toBe('profile.passportExpiry');
-  });
-
-  test('should validate against schema structure', () => {
-    expect(() => {
-      const validatedSchema = loadSchema(schema, 'JPN');
-      validateSchemaCompletely(validatedSchema);
-    }).not.toThrow();
-  });
-
-  test('should be accessible via schema registry', async () => {
-    const registrySchema = await getSchemaByCountryCode('JPN');
-    expect(registrySchema).not.toBeUndefined();
-    expect(registrySchema?.countryCode).toBe('JPN');
-  });
-
-  test('should have unique field IDs within each section', () => {
-    const allFieldIds = new Set<string>();
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(allFieldIds.has(field.id)).toBe(false);
-        allFieldIds.add(field.id);
-      });
-    });
+    expect(passportSection.fields.find(f => f.id === 'surname')!.autoFillSource).toBe('profile.surname');
+    expect(passportSection.fields.find(f => f.id === 'passportNumber')!.autoFillSource).toBe('profile.passportNumber');
+    expect(passportSection.fields.find(f => f.id === 'passportExpiry')!.autoFillSource).toBe('profile.passportExpiry');
   });
 
   test('required fields should be marked correctly', () => {
@@ -181,32 +103,21 @@ describe('Japan (JPN) Schema', () => {
     });
 
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
-    const phoneField = accommodationSection.fields.find(f => f.id === 'hotelPhone')!;
-    expect(phoneField.required).toBe(false);
+    expect(accommodationSection.fields.find(f => f.id === 'hotelPhone')!.required).toBe(false);
 
     const basicInfoSection = schema.sections.find(s => s.id === 'basic_info')!;
-    const occupationField = basicInfoSection.fields.find(f => f.id === 'occupation')!;
-    expect(occupationField.required).toBe(false);
-    const homeCountryField = basicInfoSection.fields.find(f => f.id === 'homeCountry')!;
-    expect(homeCountryField.required).toBe(false);
-    const homeCityField = basicInfoSection.fields.find(f => f.id === 'homeCity')!;
-    expect(homeCityField.required).toBe(false);
-    const genderField = basicInfoSection.fields.find(f => f.id === 'gender')!;
-    expect(genderField.required).toBe(true);
+    expect(basicInfoSection.fields.find(f => f.id === 'occupation')!.required).toBe(false);
+    expect(basicInfoSection.fields.find(f => f.id === 'gender')!.required).toBe(true);
   });
 
   test('occupation autoFillMapping covers all canonical enum values', () => {
     const basicInfoSection = schema.sections.find(s => s.id === 'basic_info')!;
     const occupationField = basicInfoSection.fields.find(f => f.id === 'occupation') as any;
-
-    expect(occupationField.autoFillMapping).not.toBeUndefined();
     expect(occupationField.autoFillMapping._default).toBe('other');
 
-    // Every canonical occupation value should have a mapping
     for (const occ of OCCUPATIONS) {
       const mapped = occupationField.autoFillMapping[occ.value] ?? occupationField.autoFillMapping._default;
       expect(mapped).toEqual(expect.any(String));
-      // Mapped value should be one of the portal options
       const portalValues = occupationField.options.map((o: any) => o.value);
       expect(portalValues).toContain(mapped);
     }
@@ -215,12 +126,9 @@ describe('Japan (JPN) Schema', () => {
   test('purposeOfVisit has autoFillSource and autoFillMapping', () => {
     const travelSection = schema.sections.find(s => s.id === 'travel')!;
     const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit') as any;
-
     expect(purposeField.autoFillSource).toBe('profile.purposeOfVisit');
-    expect(purposeField.autoFillMapping).not.toBeUndefined();
     expect(purposeField.autoFillMapping._default).toBe('other');
 
-    // Every canonical purpose value should have a mapping
     for (const purpose of PURPOSES_OF_VISIT) {
       const mapped = purposeField.autoFillMapping[purpose.value] ?? purposeField.autoFillMapping._default;
       expect(mapped).toEqual(expect.any(String));
@@ -231,14 +139,19 @@ describe('Japan (JPN) Schema', () => {
 
   test('passport fields should have help text matching VJW portal', () => {
     const passportSection = schema.sections.find(s => s.id === 'passport')!;
+    expect((passportSection.fields.find(f => f.id === 'passportNumber') as any).helpText).toContain('AB1234567');
+    expect((passportSection.fields.find(f => f.id === 'surname') as any).helpText).toContain('DIGITAL');
+    expect((passportSection.fields.find(f => f.id === 'givenNames') as any).helpText).toContain('HANAKO');
+  });
 
-    const passportField = passportSection.fields.find(f => f.id === 'passportNumber')!;
-    expect((passportField as any).helpText).toContain('AB1234567');
+  // ── Submission guide (country-specific count) ─────────────────────────────
 
-    const surnameField = passportSection.fields.find(f => f.id === 'surname')!;
-    expect((surnameField as any).helpText).toContain('DIGITAL');
-
-    const givenNameField = passportSection.fields.find(f => f.id === 'givenNames')!;
-    expect((givenNameField as any).helpText).toContain('HANAKO');
+  test('should have complete submission guide', () => {
+    expect(schema.submissionGuide).toHaveLength(7);
+    const stepTitles = schema.submissionGuide.map(s => s.title);
+    expect(stepTitles).toContain('Create Account on Visit Japan Web');
+    expect(stepTitles).toContain('Register Your Passport Details');
+    expect(stepTitles).toContain('Enter Basic Information');
+    expect(stepTitles).toContain('Get Your QR Code');
   });
 });

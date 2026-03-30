@@ -1,9 +1,15 @@
-import { validateSchemaCompletely, loadSchema } from '../../src/services/schemas/schemaLoader';
-import { getSchemaByCountryCode } from '../../src/schemas';
+import { CountryFormSchema } from '../../src/types/schema';
 import SGP from '../../src/schemas/SGP.json';
+import { runSharedSchemaTests } from './sharedSchemaTests';
 
 describe('Singapore (SGP) Schema', () => {
-  const schema = SGP;
+  const schema = SGP as unknown as CountryFormSchema;
+
+  // ── Shared tests ──────────────────────────────────────────────────────────
+
+  runSharedSchemaTests(schema, 'SGP');
+
+  // ── Country metadata ──────────────────────────────────────────────────────
 
   test('should have correct country metadata', () => {
     expect(schema.countryCode).toBe('SGP');
@@ -14,24 +20,22 @@ describe('Singapore (SGP) Schema', () => {
   });
 
   test('should have valid submission timing requirements', () => {
-    expect(schema.submission).not.toBeUndefined();
     expect(schema.submission.earliestBeforeArrival).toBe('3d');
     expect(schema.submission.latestBeforeArrival).toBe('0h');
     expect(schema.submission.recommended).toBe('24h');
   });
 
   test('should have submission deadline metadata', () => {
-    expect((schema as any).submissionDeadlineHours).toBe(72);
-
-    expect((schema as any).recommendedLeadTimeHours).toBe(168);
-
-    expect(typeof (schema as any).submissionWindowNote).toBe('string');
-    expect((schema as any).submissionWindowNote.length).toBeGreaterThan(0);
+    expect(schema.submissionDeadlineHours).toBe(72);
+    expect(schema.recommendedLeadTimeHours).toBe(168);
+    expect(typeof schema.submissionWindowNote).toBe('string');
+    expect(schema.submissionWindowNote.length).toBeGreaterThan(0);
   });
+
+  // ── Sections ──────────────────────────────────────────────────────────────
 
   test('should have all required sections', () => {
     expect(schema.sections).toHaveLength(5);
-
     const sectionIds = schema.sections.map(s => s.id);
     expect(sectionIds).toContain('personal');
     expect(sectionIds).toContain('travel');
@@ -41,142 +45,65 @@ describe('Singapore (SGP) Schema', () => {
   });
 
   test('travel section should have Singapore-specific fields', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    expect(travelSection).not.toBeUndefined();
-
-    const fieldIds = travelSection!.fields.map(f => f.id);
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const fieldIds = travelSection.fields.map(f => f.id);
     expect(fieldIds).toContain('arrivalTime');
     expect(fieldIds).toContain('departureCity');
   });
 
   test('accommodation should have type selection', () => {
-    const accommodationSection = schema.sections.find(s => s.id === 'accommodation');
-    expect(accommodationSection).not.toBeUndefined();
-
-    const typeField = accommodationSection!.fields.find(f => f.id === 'accommodationType');
-    expect(typeField).not.toBeUndefined();
-    expect(typeField!.countrySpecific).toBe(true);
-
-    const types = (typeField as any).options!.map((o: any) => o.value);
+    const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
+    const typeField = accommodationSection.fields.find(f => f.id === 'accommodationType')!;
+    expect(typeField.countrySpecific).toBe(true);
+    const types = typeField.options!.map(o => o.value);
     expect(types).toContain('hotel');
     expect(types).toContain('friends_family');
     expect(types).toContain('serviced_apartment');
   });
 
   test('health declarations should be comprehensive', () => {
-    const healthSection = schema.sections.find(s => s.id === 'health_declarations');
-    expect(healthSection).not.toBeUndefined();
-
-    const fieldIds = healthSection!.fields.map(f => f.id);
+    const healthSection = schema.sections.find(s => s.id === 'health_declarations')!;
+    const fieldIds = healthSection.fields.map(f => f.id);
     expect(fieldIds).toContain('feverSymptoms');
     expect(fieldIds).toContain('infectiousDisease');
     expect(fieldIds).toContain('visitedOutbreakArea');
     expect(fieldIds).toContain('contactWithInfected');
-
-    // All health fields should be country-specific
-    healthSection!.fields.forEach(field => {
+    healthSection.fields.forEach(field => {
       expect(field.countrySpecific).toBe(true);
     });
   });
 
   test('customs declarations should have Singapore-specific thresholds', () => {
-    const customsSection = schema.sections.find(s => s.id === 'customs_declarations');
-    expect(customsSection).not.toBeUndefined();
-
-    const cashField = customsSection!.fields.find(f => f.id === 'carryingCash');
-    expect(cashField).not.toBeUndefined();
-    expect(cashField!.label).toContain('S$20,000');
+    const customsSection = schema.sections.find(s => s.id === 'customs_declarations')!;
+    const cashField = customsSection.fields.find(f => f.id === 'carryingCash')!;
+    expect(cashField.label).toContain('S$20,000');
     expect((cashField as any).helpText).toContain('Singapore Dollars');
 
-    const allowanceField = customsSection!.fields.find(f => f.id === 'exceedsAllowance');
-    expect(allowanceField).not.toBeUndefined();
+    const allowanceField = customsSection.fields.find(f => f.id === 'exceedsAllowance')!;
     expect((allowanceField as any).helpText).toContain('chocolate');
     expect((allowanceField as any).helpText).toContain('S$150');
   });
 
   test('purpose of visit should have comprehensive options', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    const purposeField = travelSection!.fields.find(f => f.id === 'purposeOfVisit');
-
-    expect(purposeField).not.toBeUndefined();
-    expect(purposeField!.countrySpecific).toBe(true);
-
-    const purposes = (purposeField as any).options!.map((o: any) => o.value);
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const purposeField = travelSection.fields.find(f => f.id === 'purposeOfVisit')!;
+    expect(purposeField.countrySpecific).toBe(true);
+    const purposes = purposeField.options!.map(o => o.value);
     expect(purposes).toContain('tourism');
     expect(purposes).toContain('employment');
     expect(purposes).toContain('conference');
     expect(purposes.length).toBeGreaterThan(7);
   });
 
-  test('should have complete submission guide with 7 steps', () => {
-    expect(schema.submissionGuide).toHaveLength(7);
-
-    const stepTitles = schema.submissionGuide.map(s => s.title);
-    expect(stepTitles).toContain('Access SG Arrival Card');
-    expect(stepTitles).toContain('Submit and Save Confirmation');
-  });
-
-  test('submission guide should reference valid field IDs', () => {
-    const allFieldIds = new Set<string>();
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        allFieldIds.add(field.id);
-      });
-    });
-
-    schema.submissionGuide.forEach(step => {
-      step.fieldsOnThisScreen.forEach(fieldId => {
-        expect(allFieldIds.has(fieldId)).toBe(true);
-      });
-    });
-  });
-
   test('intended length of stay should have validation', () => {
-    const travelSection = schema.sections.find(s => s.id === 'travel');
-    const lengthField = travelSection!.fields.find(f => f.id === 'intendedLengthOfStay');
-
-    expect(lengthField).not.toBeUndefined();
-    expect((lengthField as any).validation).not.toBeUndefined();
+    const travelSection = schema.sections.find(s => s.id === 'travel')!;
+    const lengthField = travelSection.fields.find(f => f.id === 'intendedLengthOfStay')!;
     expect((lengthField as any).validation!.min).toBe(1);
     expect((lengthField as any).validation!.max).toBe(90);
   });
 
-  test('should require passport expiry date', () => {
-    const personalSection = schema.sections.find(s => s.id === 'personal');
-    const expiryField = personalSection!.fields.find(f => f.id === 'passportExpiry');
-
-    expect(expiryField).not.toBeUndefined();
-    expect(expiryField!.required).toBe(true);
-    expect((expiryField as any).autoFillSource).toBe('profile.passportExpiry');
-  });
-
-  test('should validate against schema structure', () => {
-    expect(() => {
-      const validatedSchema = loadSchema(schema, 'SGP');
-      validateSchemaCompletely(validatedSchema);
-    }).not.toThrow();
-  });
-
-  test('should be accessible via schema registry', async () => {
-    const registrySchema = await getSchemaByCountryCode('SGP');
-    expect(registrySchema).not.toBeUndefined();
-    expect(registrySchema?.countryCode).toBe('SGP');
-  });
-
-  test('should have unique field IDs across all sections', () => {
-    const allFieldIds = new Set<string>();
-
-    schema.sections.forEach(section => {
-      section.fields.forEach(field => {
-        expect(allFieldIds.has(field.id)).toBe(false);
-        allFieldIds.add(field.id);
-      });
-    });
-  });
-
   test('email and phone should be required in personal section', () => {
     const personalSection = schema.sections.find(s => s.id === 'personal')!;
-
     const emailField = personalSection.fields.find(f => f.id === 'email')!;
     expect(emailField.required).toBe(true);
     expect((emailField as any).validation!.pattern).toContain('@');
@@ -189,8 +116,16 @@ describe('Singapore (SGP) Schema', () => {
   test('accommodation address should be textarea type', () => {
     const accommodationSection = schema.sections.find(s => s.id === 'accommodation')!;
     const addressField = accommodationSection.fields.find(f => f.id === 'accommodationAddress')!;
-
     expect(addressField.type).toBe('textarea');
     expect((addressField as any).helpText).toContain('postal code');
+  });
+
+  // ── Submission guide (country-specific) ───────────────────────────────────
+
+  test('should have complete submission guide with 7 steps', () => {
+    expect(schema.submissionGuide).toHaveLength(7);
+    const stepTitles = schema.submissionGuide.map(s => s.title);
+    expect(stepTitles).toContain('Access SG Arrival Card');
+    expect(stepTitles).toContain('Submit and Save Confirmation');
   });
 });

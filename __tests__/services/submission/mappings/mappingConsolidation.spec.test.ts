@@ -20,7 +20,7 @@ describe('Spec: mapping test consolidation', () => {
     .filter(f => f.endsWith('.test.ts') && f !== 'mappingConsolidation.spec.test.ts')
     .filter(f => /^[A-Z]{3}\.test\.ts$/.test(f));
 
-  test.skip('all country mapping tests use a shared test runner', () => {
+  test('all country mapping tests use a shared test runner', () => {
     const notUsingShared: string[] = [];
 
     for (const file of countryMappingFiles) {
@@ -33,7 +33,7 @@ describe('Spec: mapping test consolidation', () => {
     expect(notUsingShared).toEqual([]);
   });
 
-  test.skip('country mapping tests have fewer than 10 test blocks each (shared patterns extracted)', () => {
+  test('country mapping tests have fewer than 10 test blocks each (shared patterns extracted)', () => {
     const bloated: string[] = [];
 
     for (const file of countryMappingFiles) {
