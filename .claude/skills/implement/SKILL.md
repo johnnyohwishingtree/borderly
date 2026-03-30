@@ -76,6 +76,24 @@ ALL tests must pass.
 
 **Detect conflicts:** If different tests fail on different attempts (oscillating failures), this is a conflict. Write a resolution spec in `__tests__/conflicts/` with `Conflict:` JSDoc referencing both tests, re-skip the test you were implementing, and explain the conflict.
 
+## Step 6: E2E screenshot refresh (if UI changed)
+
+If any files changed during implementation match `src/screens/**` or `src/components/**`:
+
+```bash
+# Check if simulator is booted
+xcrun simctl list devices booted 2>/dev/null | grep -q Booted
+```
+
+If a simulator is available:
+```bash
+pnpm e2e:mobile
+```
+
+This runs the full E2E journey and auto-overwrites screenshots in `e2e/screenshots/`. The updated screenshots reflect the UI changes from this implementation.
+
+If no simulator is available (e.g., CI or headless pipeline), skip this step — `/context-audit` will flag stale screenshots later.
+
 ## Guardrails
 
 - Read the test JSDoc before implementing

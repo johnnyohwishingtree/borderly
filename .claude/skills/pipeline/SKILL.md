@@ -121,6 +121,16 @@ test.skip('X and Y are compatible', () => {
 
 The next pipeline run finds the resolution spec. The `Conflict:` JSDoc tag triggers special handling in Step 3.
 
+## Step 5c: E2E screenshot refresh (if UI changed)
+
+If any files changed during implementation match `src/screens/**` or `src/components/**`, and a simulator is booted:
+
+```bash
+xcrun simctl list devices booted 2>/dev/null | grep -q Booted && pnpm e2e:mobile
+```
+
+Screenshots in `e2e/screenshots/` auto-update on pass. Skip if no simulator available.
+
 ## Step 6: Push, PR, merge
 
 ```bash

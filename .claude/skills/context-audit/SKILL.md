@@ -55,7 +55,14 @@ If dirty-files is non-empty:
    - Country files may have stale field counts
    - Specs in `*.spec.test.ts` JSDoc may be confirmed or invalidated
 
-5. **Prioritize** — drift from actual code changes first, then general health.
+5. **Check for stale E2E screenshots:**
+   ```bash
+   # If any dirty files are screens or components, screenshots may be stale
+   grep -E "^src/(screens|components)/" .claude/dirty-files 2>/dev/null
+   ```
+   If matches found, check when `e2e/screenshots/` was last updated vs when screen/component files changed. Flag stale screenshots for the next `/implement` or manual E2E run.
+
+6. **Prioritize** — drift from actual code changes first, then general health.
 
 If dirty-files is empty, skip to Step 2.
 
