@@ -48,6 +48,7 @@ git checkout -b fix/$(basename <test-file> .test.ts)
 
 1. Implement the changes to make the assertions true
 2. Change `test.skip` → `test`
+3. Graduate: merge into existing `.test.ts` (if one exists) and delete `.beliefs.test.ts`, or rename `.beliefs.test.ts` → `.test.ts`
 
 ## Step 4: Verify
 

@@ -69,6 +69,7 @@ git fetch origin master && git checkout -b fix/$(basename <test-file> .test.ts) 
 2. Read the source code it references
 3. Implement the changes to make the assertions true
 4. Change `test.skip` → `test` (unskip)
+5. Graduate: merge assertions into existing `.test.ts` (if one exists) and delete the `.beliefs.test.ts` file, or rename `.beliefs.test.ts` → `.test.ts`
 
 When fixing code, follow `the fix-strategy rules: fix one file at a time, run typecheck after each, never use any`.
 
