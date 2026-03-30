@@ -22,24 +22,92 @@ Source of truth hierarchy:
 
 ## How a story flows through the system
 
-### 1. Story creation (`/epic-planner`)
+### 1. Where stories come from
 
-A story is a GitHub issue with `story` + `pending` labels.
+Stories originate from four sources, each a different audit:
+
+| Source | Skill | Frequency | What it finds |
+|---|---|---|---|
+| UX gaps | `/ux-review` | Daily | Dead ends, missing states, flow friction in user journeys |
+| Code violations | `/code-audit` | Daily | Code that violates structural test constraints |
+| Context drift | `/context-audit` | Daily | Stale schemas, invalidated beliefs, broken references |
+| Test quality | `/test-audit` | Weekly | Junk tests, missing coverage for critical paths |
+
+Each audit creates GitHub issues with `story` + `pending` labels. Humans can also create stories manually.
+
+### 2. Story creation process (`/epic-planner`)
+
+When creating a story (whether from an audit finding or a human goal), the epic-planner follows this process:
+
+**Step 1: Understand what exists.** Read CLAUDE.md, then read the folder CLAUDE.md files for the areas the story will touch. Each folder CLAUDE.md has `See:` links to structural tests — read the JSDoc headers to understand the constraints.
+
+**Step 2: Check beliefs.** Read `src/config/beliefs.ts`. Identify any belief this story depends on. If the belief has status `hypothesis` or `working`, the story must note this — it's building on unproven ground.
+
+**Step 3: Check external context.** If the story touches country portals, read `.context/external/countries/`. If it touches storage or PII, read `.context/decisions/001-three-tier-storage.md`. The external context tells you WHY constraints exist.
+
+**Step 4: Check patterns.** If the story involves adding a country or screen, read `.context/patterns/add-country.md` or `add-screen.md` for the multi-step recipe.
+
+**Step 5: Write the story.** A well-formed story has:
+
+```markdown
+**Parent Epic:** #<epic_number>
+**Skill:** /plan-feature (or /test-suite, /ux-implement, etc.)
+
+## Description
+<what needs to be implemented and why>
+
+## Constraints
+- `<test-file>.test.ts` — <which rules from the JSDoc apply>
+- `<belief-key>` (<status>) — <why this assumption matters>
+  confirm: <what would validate this>
+  invalidate: <what would kill this>
+
+## Acceptance Criteria
+- [ ] <specific, testable outcomes>
+- [ ] Structural tests pass (`pnpm test`)
+- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
+
+## Dependencies
+Depends on #<previous_story_number> (if applicable)
+```
+
+**What goes in the Constraints section:**
+
+The Constraints section is NOT a list of every structural test. It's the subset that's RELEVANT to this story:
+
+- If the story moves components between directories → `dependency-direction.test.ts`
+- If it touches form fields or PII → `pii-boundary.test.ts` + `storage-boundary.test.ts`
+- If it adds interactive elements → `component-testids.test.ts`
+- If it depends on a product assumption → the belief from `beliefs.ts` with its confirm/invalidate criteria
+
+The pipeline uses these to:
+1. **Pre-flight** (Step 3): Read the referenced tests and beliefs before implementing
+2. **Verify** (Step 5): Know which structural tests to watch for failures
+3. **Learn** (Step 6): Know which beliefs to re-evaluate after implementation
+
+**Example — Issue #1126 (Simplify trip creation):**
 
 ```markdown
 ## Constraints
-- <structural test> — what rules govern this area
-- <belief> (status) — what assumptions apply
+- `screen-folder-convention.test.ts` — screen naming, folder structure
+- `dependency-direction.test.ts` — moved fields must follow import direction rules
+- `component-testids.test.ts` — all interactive elements need testIDs
+- `tripCreationShouldBeLightweight` (working) in `src/config/beliefs.ts`
+  confirm: Trip creation completion rate > 90% after simplifying
+  invalidate: Users need flight/accommodation at creation time for auto-fill
 
 ## Acceptance Criteria
-- [ ] Implementation complete
-- [ ] Structural tests pass
-- [ ] Belief status updated if confirmed/invalidated
+- [ ] Create trip form: trip name + destination country only
+- [ ] Flight, accommodation, address fields moved to leg form
+- [ ] E2E test updated with simpler trip creation
+- [ ] Belief promoted to `confirmed` if validated
 ```
 
-Stories reference constraints (structural tests) and beliefs (typed constants), not prose documentation. The constraint IS the spec.
+### 3. Sizing stories
 
-### 2. Pipeline picks it up (`/pipeline`, hourly)
+Each story should be completable in a single Claude session. Split by layer (storage → UI → integration) or by vertical slice (one feature end-to-end). Combine steps that are small and tightly coupled. If a story has no meaningful acceptance criteria beyond "files exist," merge it with a related story.
+
+### 4. Pipeline picks it up (`/pipeline`, hourly)
 
 ```
 Step 1: Merge any open PRs
@@ -53,7 +121,7 @@ Step 8: Push, PR, merge
 Step 9: Plan next epic if queue empty
 ```
 
-### 3. Constraints catch violations automatically
+### 5. Constraints catch violations automatically
 
 When the pipeline runs `pnpm test`, the structural tests in `__tests__/structure/` execute in < 1 second and catch:
 
@@ -66,7 +134,7 @@ When the pipeline runs `pnpm test`, the structural tests in `__tests__/structure
 
 Each test has a JSDoc header that IS the constraint specification — the LLM reads the rules, exceptions, and anti-patterns from the test file itself.
 
-### 4. Learning happens in code, not prose
+### 6. Learning happens in code, not prose
 
 After implementing, the pipeline checks 5 categories:
 
