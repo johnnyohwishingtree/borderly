@@ -35,7 +35,7 @@ If `--scope` provided, filter to that directory only.
 For each folder CLAUDE.md:
 
 1. **Read the CLAUDE.md** — note the one-line description
-2. **Follow each `See:` link** — read the referenced structural test or `.context/` file
+2. **Follow each `See:` link** — read the referenced structural test or `.context/` file. When the `See:` link points to a structural test (`__tests__/structure/*.test.ts`), read the JSDoc `Constraint:` header at the top — it contains the Scope, Rules, Exceptions, and Anti-patterns that govern that folder's code.
 3. **For each policy loaded**, read its `## Rules` section
 4. **For each RULE**, check the folder's code:
    - `DENY: import X` → grep folder files for the forbidden pattern
@@ -101,13 +101,14 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Fix <category> issues from $DATE code-audit" \
   --label "story,pending" \
+  --label "source:code-audit" \
   --body "$(cat <<'EOF'
-## Description
-<describe the policy violations found>
+## Constraints
+- `<structural-test>.test.ts` — <which constraint was violated>
 
 ## Acceptance Criteria
 - [ ] All violations fixed
-- [ ] Tests pass
+- [ ] Structural tests pass (`pnpm test`)
 - [ ] No new violations introduced
 EOF
 )"

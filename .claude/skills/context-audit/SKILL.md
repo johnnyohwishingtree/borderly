@@ -38,12 +38,24 @@ If dirty-files is non-empty:
    done
    ```
 
-3. **Assess drift** — compare diffs against what context files and constraint JSDoc claim:
+3. **Check which constraints govern the dirty files' directories:**
+   ```bash
+   # Also check which constraints govern the dirty files' directories
+   for f in $(cat .claude/dirty-files); do
+     dir=$(dirname "$f")
+     if [ -f "$dir/CLAUDE.md" ]; then
+       echo "--- $dir/CLAUDE.md ---"
+       grep "See:" "$dir/CLAUDE.md" 2>/dev/null
+     fi
+   done
+   ```
+
+4. **Assess drift** — compare diffs against what context files and constraint JSDoc claim:
    - Structural test JSDoc lists rules that code may now violate or extend
    - Country files may have stale field counts
    - Beliefs in `src/config/beliefs.ts` may be confirmed or invalidated
 
-4. **Prioritize** — drift from actual code changes first, then general health.
+5. **Prioritize** — drift from actual code changes first, then general health.
 
 If dirty-files is empty, skip to Step 2.
 

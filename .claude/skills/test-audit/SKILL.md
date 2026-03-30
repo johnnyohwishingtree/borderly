@@ -118,9 +118,10 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: Clean up Tier <N> tests from $DATE test-audit" \
   --label "story,pending" \
+  --label "source:test-audit" \
   --body "$(cat <<'EOF'
-## Description
-<describe the test quality issues found>
+## Constraints
+- `knowledge-test-coverage.test.ts` — every structural test needs Constraint JSDoc
 
 ## Acceptance Criteria
 - [ ] All Tier N tests rewritten or deleted

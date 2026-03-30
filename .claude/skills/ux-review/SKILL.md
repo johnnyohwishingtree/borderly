@@ -125,16 +125,16 @@ DATE=$(date +%Y-%m-%d)
 gh issue create --repo $REPO \
   --title "Story: <close the gap between belief and current state>" \
   --label "story,pending" \
+  --label "source:ux-review" \
   --body "$(cat <<'EOF'
-## Gap
-- **Belief:** <what we think should be true>
-- **Current state:** <what the system actually does>
+## Constraints
+- `<structural-test>.test.ts` — <which constraint applies>
+- `<belief-key>` (<status>) — <why this assumption matters>
 
 ## Acceptance Criteria
 - [ ] <specific measurable criteria>
-
-## Files to Modify
-- <file paths>
+- [ ] Structural tests pass (`pnpm test`)
+- [ ] Belief status updated in `src/config/beliefs.ts` if confirmed/invalidated
 EOF
 )"
 ```

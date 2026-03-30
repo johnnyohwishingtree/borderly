@@ -135,6 +135,13 @@ Check each category in order — pick the first one that has work:
 5. Test quality improvements (from `/test-audit` — rewrite, not add)
 6. Test coverage (untested business logic ONLY — read existing tests for patterns)
 
+To find work in each category, search GitHub issues:
+```bash
+gh issue list --repo $REPO --label "story" --label "pending" --state open --json number,title,labels
+```
+Stories from audits have source labels (e.g., `source:code-audit`, `source:ux-review`, `source:test-audit`).
+If no labeled stories exist, run the relevant audit skill to discover new work.
+
 Create an epic with stories using `/epic-planner`.
 
 ## Guardrails
