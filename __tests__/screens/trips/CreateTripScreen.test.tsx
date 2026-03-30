@@ -81,22 +81,11 @@ describe('CreateTripScreen — family empty state', () => {
     jest.clearAllMocks();
   });
 
-  it('shows "Traveling with family?" CTA when no family members exist', async () => {
+  it('does not show "Traveling with family?" CTA before destinations are added', async () => {
     render(<CreateTripScreen />);
     await waitFor(() => {
-      screen.getByTestId('family-empty-state-card');
+      screen.getByText('Create New Trip');
     });
-    screen.getByText('Traveling with family?');
-    screen.getByText('Add a travel companion');
-  });
-
-  it('CTA button has correct accessibility properties', async () => {
-    render(<CreateTripScreen />);
-    await waitFor(() => {
-      screen.getByTestId('add-companion-cta-button');
-    });
-    const button = screen.getByTestId('add-companion-cta-button');
-    expect(button.props.accessibilityRole).toBe('button');
-    expect(button.props.accessibilityLabel).toBe('Add a travel companion');
+    expect(screen.queryByTestId('family-empty-state-card')).toBeNull();
   });
 });

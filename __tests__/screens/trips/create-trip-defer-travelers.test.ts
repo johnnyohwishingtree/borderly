@@ -13,7 +13,7 @@ const ROOT = resolve(__dirname, '../../..');
  * Current state: Traveler section visible on initial create trip screen
  * Gap: Show only trip name + destinations initially, defer travelers to after creation
  */
-test.skip('CreateTripScreen does not show traveler section before destinations', () => {
+test('CreateTripScreen does not show traveler section before destinations', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/CreateTripScreen/CreateTripScreen.tsx'),
     'utf-8',

@@ -66,8 +66,8 @@ export default function CreateTripScreen() {
             </View>
           </Card>
 
-          {/* Trip-level traveler selector or empty state CTA */}
-          {familyMembers.length > 0 ? (
+          {/* Trip-level traveler selector — only shown after destinations are added */}
+          {legs.length > 0 && familyMembers.length > 0 ? (
             <Card className="mb-6" variant="outlined">
               <View className="p-5">
                 <View className="flex-row items-center mb-4">
@@ -102,7 +102,7 @@ export default function CreateTripScreen() {
                 )}
               </View>
             </Card>
-          ) : (
+          ) : legs.length > 0 ? (
             <Card className="mb-6" variant="outlined" testID={CREATE_TRIP_IDS.familyEmptyStateCard.id}>
               <View className="p-5">
                 <View className="flex-row items-center mb-3">
@@ -126,7 +126,7 @@ export default function CreateTripScreen() {
                 </TouchableOpacity>
               </View>
             </Card>
-          )}
+          ) : null}
 
           <Destinations
             legs={legs}
