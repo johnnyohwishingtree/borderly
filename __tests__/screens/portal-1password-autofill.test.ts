@@ -86,6 +86,15 @@ test('AutoFillPill positions at bottom-right of WebView', () => {
   expect(content).not.toMatch(/left-4 right-4/);
 });
 
+test('AutoFillPill shows on captcha pages with form fields', () => {
+  const content = readFileSync(
+    resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),
+    'utf-8',
+  );
+  // Pill should show on both 'form' and 'captcha' pages — MDAC has captcha + form fields
+  expect(content).toMatch(/pageType === 'captcha'/);
+});
+
 test('auto-fill result shown as brief dismissible banner', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),

@@ -208,7 +208,7 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.portalWebview.id}
         />
 
-        {pageType === 'form' && !pillDismissed && (
+        {(pageType === 'form' || pageType === 'captcha') && !pillDismissed && (
           <AutoFillPill
             onAutoFill={autoFill.handleAutoFill}
             onDismiss={dismissPill}
