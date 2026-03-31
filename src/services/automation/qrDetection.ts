@@ -102,9 +102,13 @@ export const MYS_QR_DETECTION_SCRIPT = `
   function runDetection(){
     if(_detected)return true;
     var isQRPage=false;
-    try{var url=window.location.href.toLowerCase();if(url.indexOf('success')>=0||url.indexOf('complete')>=0||url.indexOf('thank')>=0||url.indexOf('receipt')>=0||url.indexOf('result')>=0){isQRPage=true;}}catch(e){}
-    if(!isQRPage){try{if(document.querySelector('canvas,img[alt*="QR" i],img[src*="qr" i],[class*="qr" i],[id*="qr" i]')){isQRPage=true;}}catch(e){}}
-    if(!isQRPage){try{var bt=(document.body&&document.body.innerText?document.body.innerText:'').toLowerCase();if(bt.indexOf('submitted successfully')>=0||bt.indexOf('submission confirmed')>=0||(bt.indexOf('reference number')>=0&&bt.indexOf('mdac')>=0)){isQRPage=true;}}catch(e){}}
+    // Step 1: URL must suggest a confirmation/success page
+    var isConfirmUrl=false;
+    try{var url=window.location.href.toLowerCase();isConfirmUrl=url.indexOf('success')>=0||url.indexOf('complete')>=0||url.indexOf('thank')>=0||url.indexOf('receipt')>=0||url.indexOf('result')>=0;}catch(e){}
+    // Step 2: Body text must confirm submission (only checked if URL matches)
+    if(isConfirmUrl){try{var bt=(document.body&&document.body.innerText?document.body.innerText:'').toLowerCase();if(bt.indexOf('submitted successfully')>=0||bt.indexOf('submission confirmed')>=0||(bt.indexOf('reference number')>=0&&bt.indexOf('mdac')>=0)){isQRPage=true;}}catch(e){}}
+    // Step 3: Only look for QR elements if we're already on a confirmed success page
+    if(!isQRPage&&isConfirmUrl){try{if(document.querySelector('img[alt*="QR" i],img[src*="qr" i],[class*="qr" i],[id*="qr" i]')){isQRPage=true;}}catch(e){}}
     if(!isQRPage){window.ReactNativeWebView.postMessage(JSON.stringify({type:'QR_PAGE_CHECK',isQRPage:false}));return false;}
     ${EXTRACT_QR_IMAGE_SNIPPET}
     var confirmationNumber=null;
