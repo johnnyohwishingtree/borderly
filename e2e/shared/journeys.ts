@@ -109,8 +109,7 @@ export async function fullWizardJourney(driver: E2EDriver) {
   await selectCountries(driver, ['MYS']);
   // Solo traveler — auto-skips to SmartForm
   await fillSmartForm(driver);
-  // TODO: PortalLinks depends on SmartForm creating a trip — implement useSmartForm fully
-  // await launchPortal(driver, 'MYS');
-  // await portalAutoFill(driver);
-  // await closePortal(driver);
+  await launchPortal(driver, 'MYS');
+  await portalAutoFill(driver);
+  await closePortal(driver);
 }

@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, waitFor } from '@testing-library/react-native';
 import { useSmartForm } from '../../src/hooks/useSmartForm';
 
 // ── Mock data ───────────────────────────────────────────────────────────────

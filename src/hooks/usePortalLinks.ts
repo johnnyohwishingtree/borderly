@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useTripStore } from '@/stores/useTripStore';
-import { schemaRegistry } from '@/services/schemas';
+import { schemaRegistry, initializeSchemaRegistry } from '@/services/schemas';
 import type { FormsStackParamList } from '@/app/navigation/types';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -22,17 +22,21 @@ type Nav = NativeStackNavigationProp<FormsStackParamList, 'PortalLinks'>;
 
 export function usePortalLinks({ tripId, countryCodes }: UsePortalLinksOptions) {
   const navigation = useNavigation<Nav>();
-  const tripStore = useTripStore();
   const [portalCards, setPortalCards] = useState<PortalCard[]>([]);
 
   useEffect(() => {
     async function loadPortals() {
-      const trip = tripStore.getTripById(tripId);
+      if (!tripId) return;
+
+      // Read latest store state (not stale React snapshot)
+      const trip = useTripStore.getState().getTripById(tripId);
       if (!trip) return;
+
+      await initializeSchemaRegistry();
 
       const cards: PortalCard[] = [];
       for (const code of countryCodes) {
-        const schema = await schemaRegistry.getSchema(code);
+        const schema = schemaRegistry.getSchema(code);
         const leg = (trip.legs || []).find(l => l.destinationCountry === code);
         if (!schema || !leg) continue;
 
@@ -47,7 +51,7 @@ export function usePortalLinks({ tripId, countryCodes }: UsePortalLinksOptions) 
       setPortalCards(cards);
     }
     loadPortals();
-  }, [tripId, countryCodes, tripStore]);
+  }, [tripId, countryCodes]);
 
   const launchPortal = useCallback((countryCode: string) => {
     const card = portalCards.find(c => c.countryCode === countryCode);
