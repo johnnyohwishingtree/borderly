@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useFormStore } from '@/stores/useFormStore';
 import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { schemaRegistry } from '@/services/schemas';
+import { schemaRegistry, initializeSchemaRegistry } from '@/services/schemas';
 import type { FilledForm } from '@/services/forms/formEngine/formEngine';
 
 interface CountrySection {
@@ -26,14 +26,19 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
   const [tripId, setTripId] = useState<string>('');
   const [countrySections, setCountrySections] = useState<CountrySection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Create a trip + legs behind the scenes on mount
   useEffect(() => {
     async function initTrip() {
       setIsLoading(true);
+      setError(null);
       try {
         const profile = profileStore.currentProfile;
-        if (!profile) return;
+        if (!profile) {
+          setError('No profile found');
+          return;
+        }
 
         // Create trip (invisible to user — just a data container)
         const trip = await tripStore.createTrip({
@@ -42,7 +47,10 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
           legs: [],
         });
 
-        if (!trip) return;
+        if (!trip) {
+          setError('Failed to create trip');
+          return;
+        }
         setTripId(trip.id);
 
         // Add legs for each country
@@ -61,22 +69,32 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
 
         // Reload trip to get legs with IDs
         const fullTrip = tripStore.getTripById(trip.id);
-        if (!fullTrip) return;
+        if (!fullTrip || !fullTrip.legs?.length) {
+          setError(`Trip has no legs (trip: ${trip.id}, legs: ${fullTrip?.legs?.length ?? 0})`);
+          return;
+        }
 
         // Assign travelers to all legs
-        for (const leg of fullTrip.legs || []) {
+        for (const leg of fullTrip.legs) {
           await tripStore.assignTravelersToLeg(leg.id, travelerIds);
         }
+
+        // Ensure schemas are loaded (idempotent — no-op if already initialized)
+        await initializeSchemaRegistry();
 
         // Generate form for each country (smart delta — only unfilled fields)
         const sections: CountrySection[] = [];
 
-        for (const leg of fullTrip.legs || []) {
-          const schema = await schemaRegistry.getSchema(leg.destinationCountry);
-          if (!schema) continue;
+        for (const leg of fullTrip.legs) {
+          const schema = schemaRegistry.getSchema(leg.destinationCountry);
+          if (!schema) {
+            setError(`No schema for ${leg.destinationCountry}`);
+            continue;
+          }
 
           formStore.generateForm(profile, leg, schema, {});
-          const currentForm = formStore.currentForm;
+          // Read latest state after generateForm mutated it
+          const currentForm = useFormStore.getState().currentForm;
 
           if (currentForm) {
             const allFields = currentForm.sections.flatMap(s => s.fields);
@@ -92,7 +110,13 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
           }
         }
 
+        if (sections.length === 0) {
+          setError('No form sections generated');
+        }
         setCountrySections(sections);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg);
       } finally {
         setIsLoading(false);
       }
@@ -101,7 +125,6 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFieldChange = useCallback((formData: Record<string, unknown>) => {
-    // DynamicForm calls this with the full form data record
     for (const [fieldId, value] of Object.entries(formData)) {
       formStore.updateField(fieldId, value);
     }
@@ -126,5 +149,6 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
     isAllComplete,
     tripId,
     isLoading,
+    error,
   };
 }
