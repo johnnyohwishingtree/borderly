@@ -21,13 +21,13 @@ const ROOT = resolve(__dirname, '../../..');
  *   as fallback)
  */
 
-test.skip('heuristic auto-fill service exists', () => {
+test('heuristic auto-fill service exists', () => {
   expect(existsSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
   )).toBe(true);
 });
 
-test.skip('heuristic filler builds JS that scans DOM elements at runtime', () => {
+test('heuristic filler builds JS that scans DOM elements at runtime', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',
@@ -38,7 +38,7 @@ test.skip('heuristic filler builds JS that scans DOM elements at runtime', () =>
   expect(content).toMatch(/\.name|\.id|\.placeholder|autocomplete/);
 });
 
-test.skip('heuristic filler matches fields by attribute patterns, not CSS selectors', () => {
+test('heuristic filler matches fields by attribute patterns, not CSS selectors', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',
@@ -54,7 +54,7 @@ test.skip('heuristic filler matches fields by attribute patterns, not CSS select
   expect(content).toMatch(/phone|mobile|tel/i);
 });
 
-test.skip('heuristic filler takes profile data, not field specs with selectors', () => {
+test('heuristic filler takes profile data, not field specs with selectors', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',
@@ -65,7 +65,7 @@ test.skip('heuristic filler takes profile data, not field specs with selectors',
   expect(content).toMatch(/profileData|profile.*Record|fillData/i);
 });
 
-test.skip('heuristic filler reports results back via postMessage', () => {
+test('heuristic filler reports results back via postMessage', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',
@@ -76,7 +76,7 @@ test.skip('heuristic filler reports results back via postMessage', () => {
   expect(content).toMatch(/postMessage/);
 });
 
-test.skip('usePortalAutoFill uses heuristic filler instead of selector-based', () => {
+test('usePortalAutoFill uses heuristic filler instead of selector-based', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/hooks/usePortalAutoFill.ts'),
     'utf-8',
@@ -87,7 +87,7 @@ test.skip('usePortalAutoFill uses heuristic filler instead of selector-based', (
   expect(content).not.toMatch(/buildAutoFillSpecs/);
 });
 
-test.skip('heuristic filler also reads associated label text', () => {
+test('heuristic filler also reads associated label text', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',
@@ -97,7 +97,7 @@ test.skip('heuristic filler also reads associated label text', () => {
   expect(content).toMatch(/label|for.*=|previousSibling|parentElement/i);
 });
 
-test.skip('heuristic filler handles select elements by matching option text', () => {
+test('heuristic filler handles select elements by matching option text', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/services/submission/heuristicFiller.ts'),
     'utf-8',

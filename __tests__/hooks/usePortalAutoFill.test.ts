@@ -9,20 +9,23 @@ import { usePortalAutoFill } from '@/hooks/usePortalAutoFill';
 // Mocks
 // ---------------------------------------------------------------------------
 
-const mockBuildAutoFillSpecs = jest.fn().mockReturnValue([]);
-const mockBuildAutoFillScript = jest.fn().mockReturnValue('javascript:void(0)');
 const mockGenerateFilledForm = jest.fn().mockReturnValue({
   sections: [{ fields: [{ name: 'surname', required: true, source: 'profile', label: 'Surname' }] }],
 });
 const mockIsAutoFillSufficient = jest.fn().mockReturnValue(true);
+const mockBuildFillData = jest.fn().mockReturnValue({ surname: 'Doe', givenNames: 'John' });
+const mockBuildHeuristicFillScript = jest.fn().mockReturnValue('javascript:heuristicFill()');
 
 jest.mock('@/services/submission/submissionCoordinator', () => ({
   submissionCoordinator: {
-    buildAutoFillSpecs: (...args: unknown[]) => mockBuildAutoFillSpecs(...args),
-    buildAutoFillScript: (...args: unknown[]) => mockBuildAutoFillScript(...args),
     generateFilledForm: (...args: unknown[]) => mockGenerateFilledForm(...args),
     isAutoFillSufficient: (...args: unknown[]) => mockIsAutoFillSufficient(...args),
   },
+}));
+
+jest.mock('@/services/submission/heuristicFiller', () => ({
+  buildFillData: (...args: unknown[]) => mockBuildFillData(...args),
+  buildHeuristicFillScript: (...args: unknown[]) => mockBuildHeuristicFillScript(...args),
 }));
 
 // ---------------------------------------------------------------------------
@@ -58,7 +61,8 @@ function renderAutoFill(overrides = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  mockBuildAutoFillSpecs.mockReturnValue([]);
+  mockBuildFillData.mockReturnValue({ surname: 'Doe', givenNames: 'John' });
+  mockBuildHeuristicFillScript.mockReturnValue('javascript:heuristicFill()');
   mockGenerateFilledForm.mockReturnValue({
     sections: [{ fields: [{ name: 'surname', required: true, source: 'profile', label: 'Surname' }] }],
   });
@@ -82,51 +86,23 @@ describe('usePortalAutoFill', () => {
   });
 
   describe('handleAutoFill', () => {
-    it('calls buildAutoFillSpecs with schema, leg, and profile', () => {
-      mockBuildAutoFillSpecs.mockReturnValue([{ field: 'surname', value: 'Doe' }]);
-
-      const { result } = renderAutoFill();
+    it('builds fill data from profile and leg then injects heuristic script', () => {
+      const { result, webViewRef } = renderAutoFill();
 
       act(() => {
         result.current.handleAutoFill();
       });
 
-      expect(mockBuildAutoFillSpecs).toHaveBeenCalledWith(
+      expect(mockBuildFillData).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'prof-1' }),
         expect.objectContaining({ id: 'leg-1' }),
-        expect.objectContaining({ countryCode: 'JPN' }),
-        'JPN',
-        0,
       );
+      expect(mockBuildHeuristicFillScript).toHaveBeenCalledWith({ surname: 'Doe', givenNames: 'John' });
+      expect(webViewRef.current.injectJavaScript).toHaveBeenCalledWith('javascript:heuristicFill()');
     });
 
-    it('injects script when specs are non-empty', () => {
-      mockBuildAutoFillSpecs.mockReturnValue([{ field: 'surname', value: 'Doe' }]);
-      mockBuildAutoFillScript.mockReturnValue('javascript:fillFields()');
-
-      const { result, webViewRef } = renderAutoFill();
-
-      act(() => {
-        result.current.handleAutoFill();
-      });
-
-      expect(webViewRef.current.injectJavaScript).toHaveBeenCalledWith('javascript:fillFields()');
-    });
-
-    it('does not inject when schema is null', () => {
-      const { result, webViewRef } = renderAutoFill({ schema: null });
-
-      act(() => {
-        result.current.handleAutoFill();
-      });
-
-      expect(webViewRef.current.injectJavaScript).not.toHaveBeenCalled();
-    });
-
-    it('does not inject when specs are empty', () => {
-      mockBuildAutoFillSpecs.mockReturnValue([]);
-
-      const { result, webViewRef } = renderAutoFill();
+    it('does not inject when effectiveProfile is null', () => {
+      const { result, webViewRef } = renderAutoFill({ effectiveProfile: null });
 
       act(() => {
         result.current.handleAutoFill();

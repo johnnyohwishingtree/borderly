@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { buildHeuristicFillScript, buildFillData } from '../services/submission/heuristicFiller';
 import { submissionCoordinator } from '../services/submission/submissionCoordinator';
 import type { PortalWebViewHandle } from '../components/submission/PortalWebView';
 import type { AutoFillFieldResult } from '../components/submission/AutoFillBanner';
@@ -25,29 +26,20 @@ interface UsePortalAutoFillOptions {
 
 /**
  * Manages auto-fill execution and result banners for portal submission.
- * Delegates field spec building and script generation to submissionCoordinator.
+ * Uses heuristic DOM matching (1Password-style) — scans form elements
+ * at runtime and matches by attribute patterns, not stored CSS selectors.
  */
 export function usePortalAutoFill({
-  countryCode,
   schema,
   leg,
   effectiveProfile,
   selectedProfileId,
-  currentStep,
   lastUsedProfileRef,
   webViewRef,
 }: UsePortalAutoFillOptions) {
   const [bannerState, setBannerState] = useState<BannerState | null>(null);
   const [showLowFillWarning, setShowLowFillWarning] = useState(false);
 
-  // ─── Form completion status ─────────────────────────────────────────────────
-
-  /**
-   * Derived state: true when all required fields in the schema have values
-   * (auto-filled from profile or manually filled by the user). Used to gate
-   * the "Submit in App" button so users cannot attempt portal submission with
-   * incomplete data.
-   */
   const { isFormComplete, missingRequiredFields } = useMemo(() => {
     if (!schema || !leg || !effectiveProfile) {
       return { isFormComplete: false, missingRequiredFields: [] as string[] };
@@ -69,24 +61,15 @@ export function usePortalAutoFill({
   }, [schema, leg, effectiveProfile]);
 
   const handleAutoFill = useCallback(() => {
-    if (!schema?.submissionGuide || !leg || !effectiveProfile) return;
+    if (!effectiveProfile) return;
 
     lastUsedProfileRef.current = selectedProfileId;
 
-    const fieldSpecs = submissionCoordinator.buildAutoFillSpecs(
-      effectiveProfile,
-      leg,
-      schema,
-      countryCode,
-      currentStep - 1,
-    );
-
-    if (fieldSpecs.length > 0) {
-      webViewRef.current?.injectJavaScript(
-        submissionCoordinator.buildAutoFillScript(fieldSpecs),
-      );
-    }
-  }, [schema, currentStep, leg, effectiveProfile, selectedProfileId, countryCode, lastUsedProfileRef, webViewRef]);
+    // Build flat profile data and generate heuristic fill script
+    const profileData = buildFillData(effectiveProfile, leg);
+    const script = buildHeuristicFillScript(profileData);
+    webViewRef.current?.injectJavaScript(script);
+  }, [effectiveProfile, leg, selectedProfileId, lastUsedProfileRef, webViewRef]);
 
   const handleAutoFillResult = useCallback((msg: Record<string, unknown>) => {
     const total = typeof msg.total === 'number' ? msg.total : 0;
@@ -109,12 +92,6 @@ export function usePortalAutoFill({
       const fillRate = filled / total;
       if (!submissionCoordinator.isAutoFillSufficient(fillRate)) {
         setShowLowFillWarning(true);
-        if (__DEV__) {
-          console.warn(
-            `[usePortalAutoFill] Auto-fill rate ${Math.round(fillRate * 100)}% is below 50%. ` +
-            'Possible CSS selector mismatch on this portal page.',
-          );
-        }
       } else {
         setShowLowFillWarning(false);
       }
