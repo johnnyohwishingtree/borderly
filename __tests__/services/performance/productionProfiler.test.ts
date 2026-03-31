@@ -374,7 +374,7 @@ describe('ProductionProfiler', () => {
         delete: jest.fn(),
         getAllKeys: jest.fn(() => [
           'metrics-2023-01-01', // Old - should be deleted
-          'metrics-2026-03-01', // Recent - should be kept (less than 30 days ago)
+          `metrics-${new Date().toISOString().split('T')[0]}`, // Recent - should be kept (today)
           'current-metrics',
           'performance-alerts'
         ]),
@@ -384,7 +384,7 @@ describe('ProductionProfiler', () => {
       cleanupOldData(localMockStorage as any);
       
       expect(localMockStorage.delete).toHaveBeenCalledWith('metrics-2023-01-01');
-      expect(localMockStorage.delete).not.toHaveBeenCalledWith('metrics-2026-03-01');
+      expect(localMockStorage.delete).not.toHaveBeenCalledWith(`metrics-${new Date().toISOString().split('T')[0]}`);
     });
   });
 
