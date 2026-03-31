@@ -9,7 +9,7 @@ export type { AutoFillBannerProps, AutoFillFieldResult } from './AutoFillBanner'
 export { QRSaveOverlay } from './QRSaveOverlay';
 export type { QRSaveOverlayProps, QRPageDetectedPayload } from './QRSaveOverlay';
 export { AutoFillPill } from './AutoFillPill';
-export type { AutoFillPillProps, ProfileOption } from './AutoFillPill';
+export type { AutoFillPillProps } from './AutoFillPill';
 export { ProfileSelector } from './ProfileSelector';
 export type { ProfileSelectorProps } from './ProfileSelector';
 export { CredentialPrompt } from './CredentialPrompt';

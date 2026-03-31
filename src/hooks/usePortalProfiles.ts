@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useProfileStore } from '../stores/useProfileStore';
 import type { TravelerProfile } from '../types/profile';
-import type { ProfileOption } from '../components/submission/AutoFillPill';
+import type { ProfileOption } from '../components/submission/ProfileSelector';
 
 /**
  * Manages profile loading and selection for portal submission.

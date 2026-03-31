@@ -18,9 +18,6 @@ export const AUTOFILL_BANNER_IDS = {
 
 export const AUTOFILL_PILL_IDS = {
   container: { id: 'autofill-pill', type: 'container' as const },
-  dismiss: { id: 'autofill-pill-dismiss', type: 'button' as const },
-  profileSelector: { id: 'autofill-pill-profile-selector', type: 'container' as const },
-  singleProfile: { id: 'autofill-pill-single-profile', type: 'text' as const },
   fillButton: { id: 'autofill-pill-fill-button', type: 'button' as const },
 };
 

@@ -10,7 +10,6 @@
  */
 
 import React from 'react';
-import { render, fireEvent, act } from '@testing-library/react-native';
 import { renderHook } from '@testing-library/react-native';
 
 // ── Timer control ─────────────────────────────────────────────────────────────
@@ -176,7 +175,6 @@ jest.mock('lucide-react-native', () => {
 
 // Import after mocks
 import { submissionCoordinator } from '@/services/submission/submissionCoordinator';
-import PortalSubmissionScreen from '@/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen';
 import { usePortalAutoFill } from '@/hooks/usePortalAutoFill';
 
 // Typed mock helpers
@@ -326,107 +324,5 @@ describe('usePortalAutoFill — form completion check', () => {
   });
 });
 
-// ─── PortalSubmissionScreen — Submit in App gating ───────────────────────────
-
-describe('PortalSubmissionScreen — Submit in App button gating', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    // Default: form is complete
-    mockCoordinator.generateFilledForm.mockReturnValue(makeCompleteFilledForm());
-  });
-
-  function renderScreen() {
-    return render(<PortalSubmissionScreen />);
-  }
-
-  // ── Button presence & rendering ─────────────────────────────────────────
-
-  it('renders the submit-in-app-button', () => {
-    const { getByTestId } = renderScreen();
-    getByTestId('submit-in-app-button');
-  });
-
-  it('renders the submit-in-app-section container', () => {
-    const { getByTestId } = renderScreen();
-    getByTestId('submit-in-app-section');
-  });
-
-  // ── Disabled state (form incomplete) ───────────────────────────────────
-
-  it('button has accessibilityState.disabled=true when form is incomplete', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeIncompleteFilledForm());
-    const { getByTestId } = renderScreen();
-    const btn = getByTestId('submit-in-app-button');
-    expect(btn.props.accessibilityState?.disabled).toBe(true);
-  });
-
-  it('button has accessibilityState.disabled=false when form is complete', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeCompleteFilledForm());
-    const { getByTestId } = renderScreen();
-    const btn = getByTestId('submit-in-app-button');
-    expect(btn.props.accessibilityState?.disabled).toBe(false);
-  });
-
-  // ── Incomplete message on tap ───────────────────────────────────────────
-
-  it('shows incomplete-form-message when disabled button is tapped', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeIncompleteFilledForm());
-    const { getByTestId, queryByTestId } = renderScreen();
-
-    expect(queryByTestId('incomplete-form-message')).toBeNull();
-
-    act(() => {
-      fireEvent.press(getByTestId('submit-in-app-button'));
-    });
-
-    getByTestId('incomplete-form-message');
-  });
-
-  it('shows missing field names inside the incomplete message', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeIncompleteFilledForm());
-    const { getByTestId, queryByTestId } = renderScreen();
-
-    act(() => {
-      fireEvent.press(getByTestId('submit-in-app-button'));
-    });
-
-    const list = queryByTestId('missing-fields-list');
-    expect(list).not.toBeNull();
-    expect(list?.props.children).toContain('Purpose of Visit');
-  });
-
-  it('incomplete-form-message auto-dismisses after 3 seconds', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeIncompleteFilledForm());
-    const { getByTestId, queryByTestId } = renderScreen();
-
-    act(() => {
-      fireEvent.press(getByTestId('submit-in-app-button'));
-    });
-
-    getByTestId('incomplete-form-message');
-
-    act(() => {
-      jest.advanceTimersByTime(3000);
-    });
-
-    expect(queryByTestId('incomplete-form-message')).toBeNull();
-  });
-
-  it('does NOT show incomplete-form-message on initial render', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeIncompleteFilledForm());
-    const { queryByTestId } = renderScreen();
-    expect(queryByTestId('incomplete-form-message')).toBeNull();
-  });
-
-  it('does NOT show incomplete-form-message when form is complete', () => {
-    mockCoordinator.generateFilledForm.mockReturnValue(makeCompleteFilledForm());
-    const { getByTestId, queryByTestId } = renderScreen();
-
-    act(() => {
-      fireEvent.press(getByTestId('submit-in-app-button'));
-    });
-
-    // Form is complete — no message, auto-fill triggered instead
-    expect(queryByTestId('incomplete-form-message')).toBeNull();
-  });
-});
+// Submit in App button removed — replaced by 1Password-style auto-fill pill.
+// See __tests__/screens/portal-1password-autofill.test.ts

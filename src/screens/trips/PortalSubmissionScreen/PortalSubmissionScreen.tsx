@@ -3,7 +3,6 @@ import {
   Text,
   Pressable,
   SafeAreaView,
-  ScrollView,
   Animated,
   StyleSheet,
 } from 'react-native';
@@ -12,15 +11,12 @@ import {
   ArrowRight,
   RefreshCw,
   X,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react-native';
 import { PortalWebView } from '@/components/submission/PortalWebView';
 import { AutoFillBanner } from '@/components/submission/AutoFillBanner';
 import { QRSaveOverlay } from '@/components/submission/QRSaveOverlay';
 import { AutoFillPill } from '@/components/submission/AutoFillPill';
 import { CredentialPrompt } from '@/components/submission/CredentialPrompt';
-import { CopyableField } from '@/components/guide';
 import { usePortalSubmission } from '@/hooks/usePortalSubmission';
 import { PORTAL_SUBMISSION_IDS } from './testIDs';
 
@@ -28,9 +24,8 @@ export default function PortalSubmissionScreen() {
   const {
     route: { url },
     webViewRef,
-    state: { navState, currentStep, isPanelOpen, showIncompleteMessage, qrPayload, pageType, pillDismissed },
-    derived: { schema, totalSteps, progressPercent, currentStepFields, loadError },
-    profiles: { availableProfiles, selectedProfileId, handleProfileChange },
+    state: { navState, currentStep, qrPayload, pageType, pillDismissed },
+    derived: { schema, totalSteps, progressPercent, loadError },
     autoLogin,
     autoFill,
     webViewHandlers: {
@@ -38,8 +33,8 @@ export default function PortalSubmissionScreen() {
       handleWebViewError, handleGoBack, handleGoForward, handleRefresh,
     },
     actions: {
-      handleClose, handleContinueManually, handleSubmitInApp, handleSaveQR,
-      handleOpenWallet, dismissPill, togglePanel, dismissQrPayload, clearLoadError,
+      handleClose, handleContinueManually, handleSaveQR,
+      handleOpenWallet, dismissPill, dismissQrPayload, clearLoadError,
     },
   } = usePortalSubmission();
 
@@ -187,27 +182,6 @@ export default function PortalSubmissionScreen() {
         />
       )}
 
-      {/* Low fill-rate warning banner */}
-      {autoFill.showLowFillWarning && (
-        <View
-          className="bg-amber-100 border-b border-amber-500 px-4 py-2 flex-row items-center justify-between"
-          testID={PORTAL_SUBMISSION_IDS.lowFillWarningBanner.id}
-        >
-          <Text className="flex-1 text-xs text-amber-800">
-            {"Auto-fill couldn't complete all fields. Would you like to use the manual guide?"}
-          </Text>
-          <Pressable
-            onPress={handleContinueManually}
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            className="ml-2"
-            accessibilityLabel="Switch to manual submission guide"
-            testID={PORTAL_SUBMISSION_IDS.manualGuideButton.id}
-          >
-            <Text className="text-xs font-semibold text-amber-800">Manual Guide</Text>
-          </Pressable>
-        </View>
-      )}
-
       {/* Save credentials prompt */}
       {autoLogin.state.showSaveCredentialsPrompt && (
         <CredentialPrompt
@@ -234,11 +208,8 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.portalWebview.id}
         />
 
-        {pageType === 'form' && !pillDismissed && availableProfiles.length > 0 && (
+        {pageType === 'form' && !pillDismissed && (
           <AutoFillPill
-            profiles={availableProfiles}
-            selectedProfileId={selectedProfileId}
-            onProfileChange={handleProfileChange}
             onAutoFill={autoFill.handleAutoFill}
             onDismiss={dismissPill}
             testID={PORTAL_SUBMISSION_IDS.autofillPill.id}
@@ -302,98 +273,6 @@ export default function PortalSubmissionScreen() {
           </View>
         )}
       </View>
-
-      {/* Submit in App — primary CTA */}
-      {qrPayload === null && (
-        <View
-          className="bg-white border-t border-gray-200 px-4 pt-2.5 pb-1"
-          testID={PORTAL_SUBMISSION_IDS.submitInAppSection.id}
-        >
-          {showIncompleteMessage && (
-            <View
-              className="bg-amber-100 rounded-lg p-2.5 mb-2"
-              testID={PORTAL_SUBMISSION_IDS.incompleteFormMessage.id}
-            >
-              <Text className="text-sm text-amber-800 font-medium">
-                {'Complete required fields first:'}
-              </Text>
-              {autoFill.missingRequiredFields.length > 0 && (
-                <Text className="text-xs text-amber-800 mt-0.5" testID={PORTAL_SUBMISSION_IDS.missingFieldsList.id}>
-                  {autoFill.missingRequiredFields.join(', ')}
-                </Text>
-              )}
-            </View>
-          )}
-          <Pressable
-            onPress={handleSubmitInApp}
-            style={({ pressed }) => ({
-              backgroundColor: autoFill.isFormComplete ? '#3B82F6' : '#93C5FD',
-              borderRadius: 8,
-              paddingVertical: 11,
-              alignItems: 'center' as const,
-              opacity: pressed && autoFill.isFormComplete ? 0.8 : autoFill.isFormComplete ? 1 : 0.5,
-            })}
-            accessibilityLabel={
-              autoFill.isFormComplete
-                ? 'Submit in app — auto-fill and submit this portal form'
-                : 'Submit in app — disabled until all required fields are complete'
-            }
-            accessibilityState={{ disabled: !autoFill.isFormComplete }}
-            testID={PORTAL_SUBMISSION_IDS.submitInAppButton.id}
-          >
-            <Text className="text-white font-semibold text-base">
-              Submit in App
-            </Text>
-          </Pressable>
-        </View>
-      )}
-
-      {/* Collapsible bottom panel */}
-      {qrPayload === null && (
-        <View className="bg-white border-t border-gray-200">
-          <Pressable
-            onPress={togglePanel}
-            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
-            className="flex-row items-center justify-between px-4 py-3"
-            accessibilityLabel={isPanelOpen ? 'Collapse fields panel' : 'Expand fields panel'}
-            testID={PORTAL_SUBMISSION_IDS.toggleFieldsPanel.id}
-          >
-            <Text className="text-sm font-semibold text-gray-700">
-              Fields for this page
-              {currentStepFields.length > 0 ? ` (${currentStepFields.length})` : ''}
-            </Text>
-            {isPanelOpen ? (
-              <ChevronDown size={18} color="#6B7280" />
-            ) : (
-              <ChevronUp size={18} color="#6B7280" />
-            )}
-          </Pressable>
-
-          {isPanelOpen && (
-            <ScrollView
-              style={{ maxHeight: 220 }}
-              contentContainerClassName="px-4 pb-3"
-              keyboardShouldPersistTaps="handled"
-              testID={PORTAL_SUBMISSION_IDS.fieldsPanel.id}
-            >
-              {currentStepFields.length === 0 ? (
-                <Text className="text-sm text-gray-500 py-2">
-                  No copyable fields for this page.
-                </Text>
-              ) : (
-                currentStepFields.map((field) => (
-                  <View key={field.id} className="mb-3">
-                    <CopyableField
-                      label={field.label}
-                      value={field.value}
-                    />
-                  </View>
-                ))
-              )}
-            </ScrollView>
-          )}
-        </View>
-      )}
 
       {/* QR save overlay */}
       <QRSaveOverlay

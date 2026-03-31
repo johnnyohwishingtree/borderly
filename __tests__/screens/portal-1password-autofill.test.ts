@@ -16,7 +16,7 @@ const ROOT = resolve(__dirname, '../..');
  * Invalidate: Users need to see field values before filling
  */
 
-test.skip('PortalSubmission has no collapsible fields panel', () => {
+test('PortalSubmission has no collapsible fields panel', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),
     'utf-8',
@@ -29,7 +29,7 @@ test.skip('PortalSubmission has no collapsible fields panel', () => {
   expect(content).not.toMatch(/CopyableField/);
 });
 
-test.skip('PortalSubmission has no Submit in App button', () => {
+test('PortalSubmission has no Submit in App button', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),
     'utf-8',
@@ -39,7 +39,7 @@ test.skip('PortalSubmission has no Submit in App button', () => {
   expect(content).not.toMatch(/handleSubmitInApp/);
 });
 
-test.skip('AutoFillPill is a small floating icon, not a card', () => {
+test('AutoFillPill is a small floating icon, not a card', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/components/submission/AutoFillPill.tsx'),
     'utf-8',
@@ -54,7 +54,7 @@ test.skip('AutoFillPill is a small floating icon, not a card', () => {
   expect(content).toMatch(/rounded-full/); // circular
 });
 
-test.skip('tapping AutoFillPill triggers auto-fill immediately', () => {
+test('tapping AutoFillPill triggers auto-fill immediately', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/components/submission/AutoFillPill.tsx'),
     'utf-8',
@@ -64,7 +64,7 @@ test.skip('tapping AutoFillPill triggers auto-fill immediately', () => {
   expect(content).toMatch(/onPress.*onAutoFill|onPress.*handleAutoFill/);
 });
 
-test.skip('AutoFillPill shows Borderly logo or branded icon', () => {
+test('AutoFillPill shows Borderly logo or branded icon', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/components/submission/AutoFillPill.tsx'),
     'utf-8',
@@ -74,7 +74,7 @@ test.skip('AutoFillPill shows Borderly logo or branded icon', () => {
   expect(content).toMatch(/Sparkles|Wand|Logo|borderly/i);
 });
 
-test.skip('AutoFillPill positions at bottom-right of WebView', () => {
+test('AutoFillPill positions at bottom-right of WebView', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/components/submission/AutoFillPill.tsx'),
     'utf-8',
@@ -86,7 +86,7 @@ test.skip('AutoFillPill positions at bottom-right of WebView', () => {
   expect(content).not.toMatch(/left-4 right-4/);
 });
 
-test.skip('auto-fill result shown as brief dismissible banner', () => {
+test('auto-fill result shown as brief dismissible banner', () => {
   const content = readFileSync(
     resolve(ROOT, 'src/screens/trips/PortalSubmissionScreen/PortalSubmissionScreen.tsx'),
     'utf-8',
