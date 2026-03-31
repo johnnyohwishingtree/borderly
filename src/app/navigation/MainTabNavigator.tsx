@@ -1,10 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Platform, TouchableOpacity } from 'react-native';
-import { Plane, QrCode, User, Settings } from 'lucide-react-native';
+import { FileText, QrCode, User, Settings } from 'lucide-react-native';
 
 import { MainTabParamList } from './types';
-import TripNavigator from './TripStack';
+import FormsNavigator from './FormsStack';
 
 /** Screens in nested stacks that should hide the tab bar. */
 const TAB_BAR_HIDDEN_SCREENS = new Set(['PortalSubmission']);
@@ -52,10 +52,10 @@ export default function MainTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="Trips"
-        component={TripNavigator}
+        name="Forms"
+        component={FormsNavigator}
         options={({ route }) => ({
-          tabBarLabel: 'Trips',
+          tabBarLabel: 'Forms',
           tabBarStyle: TAB_BAR_HIDDEN_SCREENS.has(getFocusedRouteNameFromRoute(route) ?? '')
             ? { display: 'none' as const }
             : {
@@ -71,15 +71,15 @@ export default function MainTabNavigator() {
             return (
               <TouchableOpacity
                 {...safeProps}
-                testID="tab-trips"
+                testID="tab-forms"
                 accessibilityRole="tab"
-                accessibilityLabel="Trips tab"
-                accessibilityHint="Navigate to trips and travel forms"
+                accessibilityLabel="Forms tab"
+                accessibilityHint="Navigate to travel forms wizard"
                 style={[safeProps.style, { minHeight: 44 }]}
               />
             );
           },
-          tabBarIcon: ({ color, size }) => <Plane size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <FileText size={size} color={color} />,
         })}
       />
       <Tab.Screen

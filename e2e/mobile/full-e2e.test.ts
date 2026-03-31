@@ -1,141 +1,41 @@
 /**
- * Full E2E test — same flow Claude uses via mobile-mcp, but deterministic.
+ * Full mobile E2E test — runs against a real iOS simulator.
  *
- * Onboard → create trip → verify auto-fill → save → verify trip list.
- * Uses mobilecli for element discovery + coordinate-based tapping.
+ * Uses the shared journey definition so this test stays in sync
+ * with the Playwright E2E (e2e/tests/wizardFlow.spec.ts).
  *
  * Run: pnpm e2e:mobile
  */
 import { mkdirSync } from 'fs';
 import { resolve } from 'path';
-import { MobileDriver } from './driver';
+import { MobileDriverAdapter } from '../shared/mobileDriver';
+import { fullWizardJourney } from '../shared/journeys';
 
 const APP_ID = 'com.borderly.app';
 const SCREENSHOTS = resolve(__dirname, '../screenshots');
 
-let device: MobileDriver;
+let driver: MobileDriverAdapter;
 
 beforeAll(async () => {
   mkdirSync(SCREENSHOTS, { recursive: true });
-  device = await MobileDriver.connect();
+  driver = await MobileDriverAdapter.connect();
 }, 15000);
 
-/** Save a named screenshot — overwrites on each run. */
-const snap = (name: string) => device.screenshot(`${SCREENSHOTS}/${name}.jpg`);
-
-describe('Full E2E — onboard → trip → auto-fill → save', () => {
+describe('Full E2E — onboard → wizard → auto-fill', () => {
   it('completes the full user journey', async () => {
-    // ── Launch fresh ──
+    // Launch fresh
     console.log('[E2E] Launching app...');
-    await device.launch(APP_ID, { clearState: true });
+    await driver.raw.launch(APP_ID, { clearState: true });
 
-    // ── Dismiss notification dialog if present ──
+    // Dismiss notification dialog if present
     try {
-      await device.tapText('Don\u2019t Allow');
+      await driver.tapText('Don\u2019t Allow');
       console.log('[E2E] Dismissed notification dialog');
     } catch { /* dialog may not appear */ }
 
-    // ── Welcome ──
-    console.log('[E2E] Welcome screen');
-    await device.assertVisible('Welcome to');
-    await snap('welcome-initial');
-    await device.tapById('take-tutorial-button'); // Now labeled "Get Started"
+    // Run the shared journey
+    await fullWizardJourney(driver);
 
-    // ── Passport — demo scan ──
-    console.log('[E2E] Passport scan');
-    await device.assertVisible('Passport Information');
-    await snap('passport-scan');
-    const perfHint = await device.findById('dismiss-performance-hint-button');
-    if (perfHint) await device.tapById('dismiss-performance-hint-button');
-    await device.tapById('demo-scan-adult-button');
-
-    // ── Passport preview — confirm ──
-    console.log('[E2E] Passport preview');
-    await device.assertVisible('SMITH');
-    await snap('passport-preview');
-    await device.tapById('confirm-scan-button');
-
-    // ── Confirm profile — completes onboarding ──
-    console.log('[E2E] Confirm profile');
-    await device.assertVisible('Confirm Your Profile');
-    await snap('confirm-profile');
-    await device.tapById('continue-to-security-button'); // Now completes onboarding
-
-    // ── Trip list — create first trip ──
-    console.log('[E2E] Trip list');
-    await device.assertVisible('Your Trips');
-    await snap('trip-list-empty');
-    await device.tapById('create-first-trip-button');
-
-    // ── Create trip ──
-    console.log('[E2E] Create trip');
-    await device.assertVisible('Create New Trip');
-    await snap('create-trip-initial');
-    await device.fillById('trip-name-field', 'Malaysia Trip 2026');
-    await device.tapById('add-destination-button');
-    await device.assertVisible('Destination 1');
-
-    // Country select
-    await device.selectById('country-select-0', 'Malaysia');
-
-    // Arrival date
-    await device.tapById('leg-0-arrival-date');
-    await device.assertVisible('Done');
-    await device.tapText('Done');
-
-    // Create trip — only name + country + date needed now
-    await snap('create-trip-filled');
-    await device.tapById('create-trip-button');
-    await device.handleAlert('OK');
-
-    // ── Trip detail — verify ──
-    await device.assertVisible('Malaysia Trip 2026');
-    await snap('trip-detail');
-
-    // ── Open leg form via primary CTA (opens in Smart Delta mode — unfilled fields only) ──
-    console.log('[E2E] Open leg form');
-    await device.tapById('trip-detail-primary-action');
-    await device.assertVisible('Malaysia', { timeout: 10000 });
-    await snap('leg-form-initial');
-
-    // ── Fill remaining fields (already in Smart Delta mode — only unfilled fields shown) ──
-    console.log('[E2E] Fill personal info fields');
-    await device.fillById('input-email', 'test@borderly.app');
-    await device.fillById('input-phoneNumber', '+60123456789');
-
-    // ── Save ──
-    console.log('[E2E] Save progress');
-    await snap('leg-form-filled');
-    await device.tapById('save-progress-button');
-    await device.handleAlert('OK');
-
-    // ── Open portal submission ──
-    console.log('[E2E] Open portal');
-    await device.tapById('submit-in-app-button');
-
-    // Portal WebView — external content, needs longer timeout
-    console.log('[E2E] Wait for portal load');
-    await device.assertVisible('Step 1 of', { timeout: 20000 });
-    await snap('portal-loaded');
-
-    // ── Trigger auto-fill ──
-    // Native overlays are not in accessibility tree when WebView is active.
-    // Coordinates derived from portal-loaded screenshot.
-    console.log('[E2E] Auto-fill — tap fields pill');
-    await device.tap(200, 770); // "Fields for this page (21)" pill
-    await device.sleep(3000); // wait for injected JS to execute in WebView
-    await snap('portal-after-autofill');
-
-    // ── Close portal ──
-    // Native header X button — SafeAreaView top inset (~59px) + py-2 + icon center
-    console.log('[E2E] Close portal');
-    await device.tap(380, 78);
-
-    // ── Verify back at trip detail ──
-    console.log('[E2E] Verify trip detail');
-    await device.assertVisible('Malaysia Trip 2026', { timeout: 10000 });
-    await snap('trip-list-final');
-
-    console.log('[E2E] ✓ Full flow complete');
+    console.log('[E2E] \u2713 Full flow complete');
   }, 300000);
 });

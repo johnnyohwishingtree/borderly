@@ -53,7 +53,7 @@ export default function SubmissionGuideScreen() {
     } finally {
       setIsSubmitting(false);
     }
-    (navigation as any).navigate('TripDetail', { tripId });
+    (navigation as any).goBack();
   };
 
   const handleOpenPortal = async () => {
@@ -339,9 +339,9 @@ export default function SubmissionGuideScreen() {
                     testID="save-qr-button"
                   />
                   <Button
-                    title="Back to Trip"
+                    title="Back"
                     onPress={() =>
-                      (navigation as any).navigate('TripDetail', { tripId })
+                      (navigation as any).goBack()
                     }
                     variant="secondary"
                     size="medium"

@@ -1,7 +1,7 @@
 /**
  * Shared test fixtures for E2E tests.
  *
- * All state injection, profile data, and trip factories live here.
+ * All state injection and profile data live here.
  * Individual test files should import from this module instead of
  * duplicating state definitions.
  */
@@ -46,8 +46,6 @@ export const FAMILY_PROFILES_JSON = JSON.stringify({
 
 export function baseState(overrides: {
   profiles?: Record<string, any>;
-  trips?: any[];
-  tripLegs?: Record<string, any[]>;
   mmkv?: Record<string, any>;
   preferences?: Record<string, any>;
 } = {}) {
@@ -61,76 +59,12 @@ export function baseState(overrides: {
     profiles: overrides.profiles ?? {
       [DEFAULT_PROFILE.id]: { ...DEFAULT_PROFILE },
     },
-    trips: overrides.trips ?? [],
-    tripLegs: overrides.tripLegs ?? {},
   };
-}
-
-// ── Trip + leg factory for country submission tests ──
-
-export interface CountryTripConfig {
-  countryCode: string;
-  tripName: string;
-  flightNumber: string;
-  airlineCode: string;
-  arrivalDate: string;
-  departureDate: string;
-  accommodation: {
-    name: string;
-    address: {
-      street: string;
-      city: string;
-      country: string;
-      postalCode: string;
-    };
-  };
-  /** Override profile nationality (default: USA) */
-  profileNationality?: string;
-  /** Override profile issuing country (default: USA) */
-  profileIssuingCountry?: string;
-}
-
-export function countryTripState(config: CountryTripConfig) {
-  const tripId = `e2e-trip-${config.countryCode.toLowerCase()}`;
-  const legId = `e2e-leg-${config.countryCode.toLowerCase()}`;
-
-  const profile = {
-    ...DEFAULT_PROFILE,
-    ...(config.profileNationality ? { nationality: config.profileNationality } : {}),
-    ...(config.profileIssuingCountry ? { issuingCountry: config.profileIssuingCountry } : {}),
-  };
-
-  return baseState({
-    profiles: { [DEFAULT_PROFILE.id]: profile },
-    trips: [
-      {
-        id: tripId,
-        name: config.tripName,
-        status: 'upcoming',
-      },
-    ],
-    tripLegs: {
-      [tripId]: [
-        {
-          id: legId,
-          destinationCountry: config.countryCode,
-          arrivalDateISO: config.arrivalDate,
-          departureDateISO: config.departureDate,
-          flightNumber: config.flightNumber,
-          airlineCode: config.airlineCode,
-          formStatus: 'not_started',
-          order: 0,
-          accommodation: config.accommodation,
-        },
-      ],
-    },
-  });
 }
 
 // ── State injection helper ──
 
 export async function injectState(page: Page, state: ReturnType<typeof baseState>) {
-  // Serialize the family profiles JSON separately since it's already stringified in mmkv
   const familyProfilesJson = state.mmkv.family_profiles;
   await page.addInitScript((args: { state: any; familyJson: string }) => {
     const s = args.state;

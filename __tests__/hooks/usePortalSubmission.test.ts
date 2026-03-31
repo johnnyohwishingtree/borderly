@@ -382,14 +382,14 @@ describe('usePortalSubmission — webview controls', () => {
 // ── handleClose ──────────────────────────────────────────────────────────────
 
 describe('usePortalSubmission — handleClose', () => {
-  it('navigates to TripDetail with the current tripId', () => {
+  it('navigates back when closed', () => {
     const { result } = renderHook(() => usePortalSubmission());
 
     act(() => {
       result.current.actions.handleClose();
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip_1' });
+    expect(mockGoBack).toHaveBeenCalled();
   });
 });
 

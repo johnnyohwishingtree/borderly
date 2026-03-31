@@ -9,7 +9,7 @@
  *   - CTA renders in the completion card when all steps are done
  *   - CTA is absent when steps are not all complete
  *   - Pressing CTA calls updateLegSubmissionStatus(legId, 'submitted')
- *   - Pressing CTA navigates to TripDetail screen
+ *   - Pressing CTA navigates back
  */
 
 import { render, fireEvent, act } from '@testing-library/react-native';
@@ -353,12 +353,12 @@ describe('SubmissionGuideScreen — Mark as Submitted CTA', () => {
     expect(mockUpdateLegSubmissionStatus).toHaveBeenCalledWith('leg-1', 'submitted');
   });
 
-  it('navigates to TripDetail with tripId after marking as submitted', async () => {
+  it('navigates back after marking as submitted', async () => {
     const { getByTestId } = render(<SubmissionGuideScreen />);
     await act(async () => {
       fireEvent.press(getByTestId('mark-as-submitted-button'));
     });
-    expect(mockNavigate).toHaveBeenCalledWith('TripDetail', { tripId: 'trip-1' });
+    expect(mockGoBack).toHaveBeenCalled();
   });
 
   it('has accessibilityRole button on mark-as-submitted-button', () => {

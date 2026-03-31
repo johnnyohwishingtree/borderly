@@ -46,18 +46,17 @@ const SCREEN_TITLES: Record<string, string> = {
   ConfirmProfile: 'Confirm Profile',
   RestoreBackup: 'Restore from Backup',
   // Main tabs
-  Trips: 'Trips',
+  Forms: 'Forms',
   Wallet: 'QR Wallet',
   Profile: 'Profile',
   Settings: 'Settings',
-  // Trip screens
-  TripDetail: 'Trip Details',
-  CreateTrip: 'Create Trip',
-  LegForm: 'Destination Form',
+  // Forms wizard screens
+  SelectCountries: 'Select Countries',
+  SelectTravelers: 'Select Travelers',
+  SmartForm: 'Fill Forms',
+  PortalLinks: 'Submit Forms',
   SubmissionGuide: 'Submission Guide',
   PortalSubmission: 'Portal Submission',
-  ImportTrip: 'Import Trip',
-  ReviewImport: 'Review Import',
   // Profile screens
   FamilyManagement: 'Family Members',
   AddFamilyMember: 'Add Family Member',

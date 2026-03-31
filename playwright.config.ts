@@ -18,7 +18,7 @@ const targetProjects = process.env.E2E_PROJECT?.split(',').filter(Boolean);
 // Usage: npx playwright test captureScreenshots --project=screenshot-capture
 const screenshotProject = {
   name: 'screenshot-capture',
-  testMatch: ['captureScreenshots.spec.ts', 'captureFlowSequences.spec.ts', 'captureComponents.spec.ts'],
+  testMatch: ['captureComponents.spec.ts'],
   fullyParallel: false,
   use: {
     ...devices['Desktop Chrome'],
@@ -35,46 +35,14 @@ const allProjects = [
     name: 'chromium',
     testMatch: [
       'smoke.spec.ts',
-      'onboarding.spec.ts',
-      'addCompanions.spec.ts',
-      'completeUserFlow.spec.ts',
-      'tripCreation.spec.ts',
+      'wizardFlow.spec.ts',
       'passportScanning.spec.ts',
-      'fullJourney.spec.ts',
-      'tripAndSubmit.spec.ts',
-      'boardingPassScan.spec.ts',
       'formCompletion.spec.ts',
       'settings.spec.ts',
       'theme.spec.ts',
       'demoScan.spec.ts',
       'backup-restore.spec.ts',
-      'app-lock.spec.ts',
-      'overflow-detection.spec.ts',
     ],
-    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
-  },
-  {
-    name: 'qr-workflow',
-    testMatch: 'qrWorkflow.spec.ts',
-    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
-  },
-  {
-    // Performance tests + deadline/trip-detail smoke tests.
-    // deadline-reminders and trip-detail moved here from the chromium project
-    // to keep the test-chromium CI job within its 5-minute timeout.
-    name: 'performance',
-    testMatch: [
-      'performance.spec.ts',
-      'deadline-reminders.spec.ts',
-      'trip-detail.spec.ts',
-      'readiness-checklist.spec.ts',
-      'leg-form-action-buttons.spec.ts',
-      'submission-guide.spec.ts',
-      'trip-list.spec.ts',
-      'trip-templates.spec.ts',
-      'submission-tracking.spec.ts',
-    ],
-    timeout: 45000,
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
   {
@@ -90,14 +58,8 @@ const allProjects = [
   {
     name: 'portal-submission',
     testMatch: [
-      'portalSubmission.spec.ts',
       'passiveAutoFill.spec.ts',
     ],
-    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
-  },
-  {
-    name: 'account-setup',
-    testMatch: 'accountSetup.spec.ts',
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },
   {
@@ -112,24 +74,6 @@ const allProjects = [
     name: 'profile',
     testMatch: [
       'profile.spec.ts',
-      'document-validity.spec.ts',
-    ],
-    use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
-  },
-  {
-    name: 'country-submissions',
-    testMatch: [
-      'canadaSubmission.spec.ts',
-      'malaysiaSubmission.spec.ts',
-      'singaporeSubmission.spec.ts',
-      'thailandSubmission.spec.ts',
-      'tha-leg.spec.ts',
-      'ukSubmission.spec.ts',
-      'usaSubmission.spec.ts',
-      'vietnamSubmission.spec.ts',
-      'vnm-leg.spec.ts',
-      'can-gbr-usa-leg.spec.ts',
-      'aus-nzl-kor-leg.spec.ts',
     ],
     use: { ...devices['Desktop Chrome'], launchOptions: chromiumLaunchOptions },
   },

@@ -1,7 +1,7 @@
 /**
  * Shared Playwright actions for E2E tests.
  *
- * Reusable page interactions (onboarding, trip creation, navigation)
+ * Reusable page interactions (onboarding, wizard flow, navigation)
  * that multiple test files need. Import these instead of copy-pasting.
  */
 import { expect, type Page } from '@playwright/test';
@@ -30,51 +30,35 @@ export async function completeOnboarding(page: Page) {
   await page.getByTestId('passport-continue-button').click();
   await expect(page.getByText('Confirm Your Profile')).toBeVisible({ timeout: 10000 });
   await page.getByTestId('continue-to-security-button').click();
-  await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+  // After onboarding, lands on Forms tab (SelectCountries)
+  await expect(page.getByText('Where are you going?')).toBeVisible({ timeout: 10000 });
 }
 
-// ── Create a Japan trip (from the My Trips screen) ──
+// ── Select countries in the wizard (Step 1) ──
 
-export async function createJapanTrip(page: Page) {
-  await page.getByTestId('create-first-trip-button').click();
-  await expect(page.getByText('Create New Trip')).toBeVisible({ timeout: 10000 });
-
-  await page.getByTestId('add-destination-button').click();
-  await page.getByTestId('country-select-0-trigger').click();
-  await page.getByTestId('country-select-0-search').fill('Japan');
-  await page.getByTestId('country-select-0-option-JPN').click();
-
-  await page.getByTestId('trip-name-field').fill('Smith Family Asia');
-
-  await page.getByTestId('leg-0-arrival-date').fill('2026-07-01');
-  await page.getByTestId('leg-0-departure-date').fill('2026-07-07');
-  await page.getByTestId('leg-0-flight-number').fill('NH101');
-  await page.getByTestId('leg-0-airline-code').fill('NH');
-  // Arrival airport is a SearchableSelect — open, search, select
-  await page.getByTestId('leg-0-arrival-airport-trigger').click();
-  await page.getByTestId('leg-0-arrival-airport-search').fill('NRT');
-  await page.getByTestId('leg-0-arrival-airport-option-NRT').click();
-  await page.getByTestId('leg-0-accommodation-name-input').fill('Park Hyatt Tokyo');
-  await page.getByTestId('leg-0-accommodation-address-line1').fill('3-7-1-2 Nishi Shinjuku');
-  await page.getByTestId('leg-0-accommodation-address-city').fill('Tokyo');
-  await page.getByTestId('leg-0-accommodation-address-postal-code').fill('163-1055');
-
-  await page.getByTestId('create-trip-button').click();
-  // After trip creation the app navigates directly to TripDetail (issue #525)
-  await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 15000 });
+export async function selectCountries(page: Page, countryNames: string[]) {
+  await expect(page.getByText('Where are you going?')).toBeVisible({ timeout: 10000 });
+  for (const name of countryNames) {
+    await page.getByText(name, { exact: true }).click();
+  }
+  await page.getByTestId('select-countries-next-button').click();
 }
 
-// ── Navigate from trip list to a specific leg form ──
+// ── Fill smart form fields (Step 3 — travelers skipped for solo) ──
 
-export async function navigateToLegForm(page: Page, tripName: string, countryCode: string) {
-  await expect(page.getByRole('heading', { name: 'My Trips' })).toBeVisible({ timeout: 10000 });
+export async function fillSmartForm(page: Page, fields: Record<string, string>) {
+  await expect(page.getByText('Fill your forms')).toBeVisible({ timeout: 10000 });
+  for (const [testId, value] of Object.entries(fields)) {
+    await page.getByTestId(testId).fill(value);
+  }
+  await page.getByTestId('smart-form-done-button').click();
+}
 
-  const tripCard = page.getByTestId(`trip-card-${tripName}`);
-  await tripCard.click();
-  await expect(page.getByText('Itinerary', { exact: true })).toBeVisible({ timeout: 10000 });
+// ── Launch a portal from Portal Links (Step 4) ──
 
-  await page.getByTestId(`leg-card-${countryCode}`).click();
-  await expect(page.getByText('Travel Form')).toBeVisible({ timeout: 15000 });
+export async function launchPortal(page: Page, countryCode: string) {
+  await expect(page.getByText('Submit your forms')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId(`launch-portal-button-${countryCode}`).click();
 }
 
 // ── Imperative navigation via __navigationRef (for state-injected tests) ──

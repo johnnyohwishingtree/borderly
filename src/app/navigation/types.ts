@@ -4,10 +4,24 @@ export type RootStackParamList = {
 };
 
 export type MainTabParamList = {
-  Trips: undefined;
+  Forms: undefined;
   Wallet: undefined;
   Profile: undefined;
   Settings: undefined;
+};
+
+export type FormsStackParamList = {
+  SelectCountries: undefined;
+  SelectTravelers: { countryCodes: string[] };
+  SmartForm: { countryCodes: string[]; travelerIds: string[] };
+  PortalLinks: { tripId: string; countryCodes: string[] };
+  PortalSubmission: {
+    url: string;
+    countryCode: string;
+    tripId: string;
+    legId: string;
+  };
+  SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
 };
 
 export type OnboardingStackParamList = {
@@ -17,10 +31,8 @@ export type OnboardingStackParamList = {
   RestoreBackup: undefined;
 };
 
+/** @deprecated Kept for LegFormScreen/PortalSubmission which still reference these routes */
 export type TripStackParamList = {
-  TripList: undefined;
-  CreateTrip: undefined;
-  TripDetail: { tripId: string };
   LegForm: { tripId: string; legId: string };
   SubmissionGuide: { tripId: string; legId: string; countryCode: string; travelerId?: string };
   PortalSubmission: {
@@ -29,9 +41,6 @@ export type TripStackParamList = {
     tripId: string;
     legId: string;
   };
-  TripChecklist: { tripId: string };
-  ImportTrip: undefined;
-  ReviewImport: { draftTripJson: string }; // JSON-serialised DraftTripResult
 };
 
 export type WalletStackParamList = {

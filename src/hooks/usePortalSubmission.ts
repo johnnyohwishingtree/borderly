@@ -258,7 +258,7 @@ export function usePortalSubmission() {
   }, [clearLoadError]);
 
   const handleClose = useCallback(() => {
-    (navigation as any).navigate('TripDetail', { tripId });
+    (navigation as any).goBack();
   }, [navigation, tripId]);
 
   // ─── Submit in App ────────────────────────────────────────────────────────

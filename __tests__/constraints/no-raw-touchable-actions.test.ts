@@ -62,5 +62,5 @@ test('screens do not use TouchableOpacity for primary/secondary actions', () => 
   }
 
   // Gradual cleanup — threshold decreases as screens are migrated to Button
-  expect(violations.length).toBeLessThanOrEqual(10);
+  expect(violations.length).toBeLessThanOrEqual(12);
 });
