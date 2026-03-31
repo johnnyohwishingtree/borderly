@@ -67,8 +67,8 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
           });
         }
 
-        // Reload trip to get legs with IDs
-        const fullTrip = tripStore.getTripById(trip.id);
+        // Reload trip to get legs with IDs (use getState for fresh read)
+        const fullTrip = useTripStore.getState().getTripById(trip.id);
         if (!fullTrip || !fullTrip.legs?.length) {
           setError(`Trip has no legs (trip: ${trip.id}, legs: ${fullTrip?.legs?.length ?? 0})`);
           return;

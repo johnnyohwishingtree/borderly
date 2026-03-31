@@ -75,14 +75,15 @@ const mockGetSchema = jest.fn();
 // Track what generateForm sets — simulates Zustand getState()
 let mockCurrentForm: typeof mockFilledForm | null = null;
 
-jest.mock('../../src/stores/useTripStore', () => ({
-  useTripStore: () => ({
+jest.mock('../../src/stores/useTripStore', () => {
+  const store = () => ({
     createTrip: mockCreateTrip,
     addTripLeg: mockAddTripLeg,
-    getTripById: mockGetTripById,
     assignTravelersToLeg: mockAssignTravelersToLeg,
-  }),
-}));
+  });
+  store.getState = () => ({ getTripById: mockGetTripById });
+  return { useTripStore: store };
+});
 
 jest.mock('../../src/stores/useProfileStore', () => ({
   useProfileStore: () => ({
