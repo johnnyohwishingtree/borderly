@@ -94,7 +94,7 @@ describe('MYS_QR_DETECTION_SCRIPT', () => {
 
   it('checks for Malaysia-specific terms', () => {
     expect(MYS_QR_DETECTION_SCRIPT).toContain('mdac');
-    expect(MYS_QR_DETECTION_SCRIPT).toContain('arrival card');
+    expect(MYS_QR_DETECTION_SCRIPT).toContain('submitted successfully');
   });
 });
 

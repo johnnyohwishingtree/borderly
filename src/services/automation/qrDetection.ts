@@ -102,9 +102,9 @@ export const MYS_QR_DETECTION_SCRIPT = `
   function runDetection(){
     if(_detected)return true;
     var isQRPage=false;
-    try{var url=window.location.href.toLowerCase();if(url.indexOf('success')>=0||url.indexOf('complete')>=0||url.indexOf('confirm')>=0||url.indexOf('thank')>=0||url.indexOf('receipt')>=0||url.indexOf('result')>=0){isQRPage=true;}}catch(e){}
+    try{var url=window.location.href.toLowerCase();if(url.indexOf('success')>=0||url.indexOf('complete')>=0||url.indexOf('thank')>=0||url.indexOf('receipt')>=0||url.indexOf('result')>=0){isQRPage=true;}}catch(e){}
     if(!isQRPage){try{if(document.querySelector('canvas,img[alt*="QR" i],img[src*="qr" i],[class*="qr" i],[id*="qr" i]')){isQRPage=true;}}catch(e){}}
-    if(!isQRPage){try{var bt=(document.body&&document.body.innerText?document.body.innerText:'').toLowerCase();if((bt.indexOf('submission')>=0||bt.indexOf('arrival card')>=0||bt.indexOf('mdac')>=0)&&(bt.indexOf('success')>=0||bt.indexOf('complete')>=0||bt.indexOf('submitted')>=0||bt.indexOf('confirmed')>=0||bt.indexOf('reference')>=0)){isQRPage=true;}}catch(e){}}
+    if(!isQRPage){try{var bt=(document.body&&document.body.innerText?document.body.innerText:'').toLowerCase();if(bt.indexOf('submitted successfully')>=0||bt.indexOf('submission confirmed')>=0||(bt.indexOf('reference number')>=0&&bt.indexOf('mdac')>=0)){isQRPage=true;}}catch(e){}}
     if(!isQRPage){window.ReactNativeWebView.postMessage(JSON.stringify({type:'QR_PAGE_CHECK',isQRPage:false}));return false;}
     ${EXTRACT_QR_IMAGE_SNIPPET}
     var confirmationNumber=null;
