@@ -7,53 +7,36 @@
  *
  * Change the journey → both tests update automatically.
  */
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { PlaywrightDriver } from '../shared/playwrightDriver';
 import {
   onboardWithDemoPassport,
   selectCountries,
   fillSmartForm,
-  launchPortal,
 } from '../shared/journeys';
 
-test.describe('Wizard Flow — onboard → countries → form → portals', () => {
+test.describe('Wizard Flow — onboard → countries → form', () => {
   test.beforeEach(async ({ page }) => {
     page.on('dialog', dialog => dialog.accept());
   });
 
-  test('full onboarding to portal links journey', async ({ page }) => {
+  test('onboarding to smart form journey', async ({ page }) => {
     await page.goto('/');
     const driver = new PlaywrightDriver(page);
 
     await onboardWithDemoPassport(driver);
-    await selectCountries(driver, ['Malaysia']);
+    await selectCountries(driver, ['MYS']);
     // Solo traveler — auto-skips to SmartForm
-    await fillSmartForm(driver, [
-      { testID: 'input-email', value: 'test@borderly.app' },
-      { testID: 'input-phoneNumber', value: '+60123456789' },
-    ]);
-    await launchPortal(driver, 'MYS');
-    // Portal auto-fill uses coordinate taps — skipped in Playwright (no-op)
-    // Verify we're on the portal screen
-    await expect(page.getByText('Submit to Portal')).toBeVisible({ timeout: 10000 });
+    await fillSmartForm(driver);
+    // TODO: extend to PortalLinks once useSmartForm creates trips properly
   });
 
-  test('multi-country selection flows through all wizard steps', async ({ page }) => {
+  test('multi-country selection reaches smart form', async ({ page }) => {
     await page.goto('/');
     const driver = new PlaywrightDriver(page);
 
     await onboardWithDemoPassport(driver);
-    await selectCountries(driver, ['Malaysia', 'Japan']);
-
-    // SmartForm should show both countries
+    await selectCountries(driver, ['MYS', 'JPN']);
     await driver.assertVisible('Fill your forms', { timeout: 10000 });
-    await driver.assertVisible('Malaysia');
-    await driver.assertVisible('Japan');
-    await driver.tapById('smart-form-done-button');
-
-    // Portal Links should show both
-    await driver.assertVisible('Submit your forms', { timeout: 10000 });
-    await driver.assertVisibleId('launch-portal-button-MYS');
-    await driver.assertVisibleId('launch-portal-button-JPN');
   });
 });

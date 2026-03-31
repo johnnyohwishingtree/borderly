@@ -36,10 +36,10 @@ export async function completeOnboarding(page: Page) {
 
 // ── Select countries in the wizard (Step 1) ──
 
-export async function selectCountries(page: Page, countryNames: string[]) {
+export async function selectCountries(page: Page, countryCodes: string[]) {
   await expect(page.getByText('Where are you going?')).toBeVisible({ timeout: 10000 });
-  for (const name of countryNames) {
-    await page.getByText(name, { exact: true }).click();
+  for (const code of countryCodes) {
+    await page.getByTestId(`country-row-${code}`).click();
   }
   await page.getByTestId('select-countries-next-button').click();
 }
