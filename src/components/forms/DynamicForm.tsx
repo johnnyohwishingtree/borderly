@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { FilledForm, updateFormData, validateFormCompletion, getCountrySpecificFields } from '../../services/forms/formEngine';
 import FormSection from './FormSection';
@@ -28,11 +28,15 @@ export default function DynamicForm({
     validateFormCompletion(form)
   );
 
-  // Update form data and validate when values change
+  // Stable ref to avoid re-triggering effect when callback identity changes
+  const onFormDataChangeRef = useRef(onFormDataChange);
+  onFormDataChangeRef.current = onFormDataChange;
+
+  // Notify parent and revalidate when formData changes
   useEffect(() => {
-    onFormDataChange(formData);
+    onFormDataChangeRef.current(formData);
     setValidationResult(validateFormCompletion(form));
-  }, [formData, form, onFormDataChange]);
+  }, [formData, form]);
 
   const handleValueChange = (fieldId: string, value: unknown) => {
     const updatedData = updateFormData(formData, fieldId, value);
