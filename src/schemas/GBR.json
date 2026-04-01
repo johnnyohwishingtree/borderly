@@ -349,7 +349,8 @@
         {
           "id": "city",
           "label": "Town or city",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": true,
           "autoFillSource": "profile.address.city",
           "countrySpecific": false,

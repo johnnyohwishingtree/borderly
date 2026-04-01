@@ -299,7 +299,8 @@
         {
           "id": "nzAddressCity",
           "label": "City / Town",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": true,
           "countrySpecific": true,
           "autoFillSource": "leg.accommodation.address.city",

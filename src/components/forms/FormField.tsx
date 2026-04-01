@@ -6,6 +6,7 @@ import AutoFilledBadge from './AutoFilledBadge';
 import { ALL_COUNTRIES } from '../../constants/countries';
 import { ALL_AIRPORTS } from '../../constants/airports';
 import { ALL_AIRLINES } from '../../constants/airlines';
+import { ALL_CITIES } from '../../constants/cities';
 import { Address } from '../../types/profile';
 import { SemanticUtils } from '../../utils/accessibility';
 import { FORM_FIELD_IDS } from './testIDs';
@@ -246,6 +247,9 @@ export default function FormField({
             break;
           case 'airlines':
             resolvedOptions = ALL_AIRLINES;
+            break;
+          case 'cities':
+            resolvedOptions = ALL_CITIES;
             break;
           default:
             resolvedOptions = field.options || [];

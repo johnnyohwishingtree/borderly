@@ -203,7 +203,8 @@
         {
           "id": "departureCity",
           "label": "Last Departure City/Port",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": true,
           "autoFillSource": "leg.departureAirportCity",
           "countrySpecific": false,

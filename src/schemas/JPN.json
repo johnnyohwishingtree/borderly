@@ -205,7 +205,8 @@
         {
           "id": "homeCity",
           "label": "Home address: City name",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": false,
           "autoFillSource": "profile.homeAddress.city",
           "countrySpecific": false,
@@ -275,7 +276,8 @@
         {
           "id": "departureCity",
           "label": "City of Departure",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": true,
           "autoFillSource": "leg.departureAirportCity",
           "countrySpecific": false,

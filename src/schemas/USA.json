@@ -147,7 +147,8 @@
         {
           "id": "cityOfBirth",
           "label": "City of Birth",
-          "type": "text",
+          "type": "searchable_select",
+          "optionsSource": "cities",
           "required": true,
           "autoFillSource": "profile.cityOfBirth",
           "countrySpecific": false,
