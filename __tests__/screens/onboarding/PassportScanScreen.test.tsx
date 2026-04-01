@@ -555,30 +555,3 @@ describe('PassportScanScreen — error states', () => {
   });
 });
 
-// ── Performance hint ──────────────────────────────────────────────────────────
-
-describe('PassportScanScreen — performance hint', () => {
-  it('shows performance hint when showPerformanceHint is true', () => {
-    mockHookReturn = { ...defaultHookReturn, ui: { ...defaultHookReturn.ui, showPerformanceHint: true } };
-
-    render(<PassportScanScreen />);
-
-    screen.getByText('Performance Optimization Enabled');
-  });
-
-  it('does not show performance hint when showPerformanceHint is false', () => {
-    render(<PassportScanScreen />);
-
-    expect(screen.queryByText('Performance Optimization Enabled')).toBeNull();
-  });
-
-  it('dismiss button calls setShowPerformanceHint(false)', () => {
-    mockHookReturn = { ...defaultHookReturn, ui: { ...defaultHookReturn.ui, showPerformanceHint: true } };
-
-    render(<PassportScanScreen />);
-
-    fireEvent.press(screen.getByTestId('dismiss-performance-hint-button'));
-
-    expect(mockSetShowPerformanceHint).toHaveBeenCalledWith(false);
-  });
-});

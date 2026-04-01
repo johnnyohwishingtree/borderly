@@ -1,6 +1,6 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Camera, Pencil, Zap } from 'lucide-react-native';
+import { Camera, Pencil } from 'lucide-react-native';
 import { useTheme } from '@/utils/theme';
 import { Button, Input, HelpHint, SearchableSelect, ProgressIndicator, DatePickerField, ScreenContainer } from '@/components/ui';
 import { ALL_COUNTRIES } from '@/constants/countries';
@@ -110,30 +110,6 @@ export default function PassportScanScreen() {
           onDismiss={scan.fallbackToManual}
           className="mb-4"
         />
-
-        {/* Performance hint for low-end devices */}
-        {ui.showPerformanceHint && (
-          <View className="mb-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4">
-            <View className="flex-row items-start gap-3">
-              <Zap size={20} color="#ea580c" />
-              <View className="flex-1">
-                <Text className="text-sm font-medium text-orange-800 dark:text-orange-200 mb-1">
-                  Performance Optimization Enabled
-                </Text>
-                <Text className="text-xs text-orange-700 dark:text-orange-300">
-                  Scanning has been optimized for your device. The process may take slightly longer for better accuracy.
-                </Text>
-                <Button
-                  title="Dismiss"
-                  onPress={() => ui.setShowPerformanceHint(false)}
-                  variant="secondary"
-                  size="small"
-                  testID={PASSPORT_SCAN_IDS.dismissPerformanceHintButton.id}
-                />
-              </View>
-            </View>
-          </View>
-        )}
 
         {/* Method selection */}
         {scan.mode === 'method' && (
