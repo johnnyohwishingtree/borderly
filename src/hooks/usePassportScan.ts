@@ -36,7 +36,7 @@ type PassportFormData = z.infer<typeof passportSchema>;
 export function usePassportScan() {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList, 'PassportScan'>>();
   const route = useRoute<RouteProp<OnboardingStackParamList, 'PassportScan'>>();
-  const { saveProfile, addProfile, getProfile, updateProfileById } = useProfileStore();
+  const { saveProfile, addProfile, getProfile, updateProfileById, setOnboardingComplete } = useProfileStore();
 
   const familyMode = route.params?.familyMode || false;
   const relationship = route.params?.relationship || 'self';
@@ -99,7 +99,7 @@ export function usePassportScan() {
       if (familyMode) {
         navigation.navigate('FamilyManagement' as any);
       } else {
-        navigation.navigate('ConfirmProfile');
+        setOnboardingComplete(true);
       }
     };
 

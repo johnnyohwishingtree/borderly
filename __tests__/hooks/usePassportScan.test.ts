@@ -479,14 +479,15 @@ describe('usePassportScan — family mode', () => {
     );
   });
 
-  it('navigates to ConfirmProfile when not in family mode', async () => {
+  it('completes onboarding directly when not in family mode (no ConfirmProfile)', async () => {
     const { result } = renderHook(() => usePassportScan());
 
     await act(async () => {
       await result.current.profile.save(validPassportData);
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('ConfirmProfile');
+    // Should NOT navigate to ConfirmProfile — double confirmation is bloat
+    expect(mockNavigate).not.toHaveBeenCalledWith('ConfirmProfile');
   });
 
   it('navigates to FamilyManagement when in family mode (no returnTo)', async () => {
