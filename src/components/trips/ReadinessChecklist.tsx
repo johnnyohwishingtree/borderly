@@ -70,7 +70,7 @@ function getStatusConfig(status: ReadinessItemStatus): StatusConfig {
       return {
         bgClass: 'bg-amber-100',
         textClass: 'text-amber-700',
-        icon: '⚠',
+        icon: '!',
         label: 'Warning',
       };
     case 'critical':

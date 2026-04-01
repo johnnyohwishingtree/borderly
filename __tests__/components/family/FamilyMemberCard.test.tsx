@@ -150,7 +150,7 @@ describe('FamilyMemberCard', () => {
       );
 
       getByText('Passport Expiring');
-      getByText('⚠ Expiring Soon');
+      getByText('Expiring Soon');
     });
 
     it('should show expired warning for already expired passport', () => {
@@ -167,7 +167,7 @@ describe('FamilyMemberCard', () => {
       );
 
       getByText('Passport Expiring');
-      getByText('⚠ Expiring Soon');
+      getByText('Expiring Soon');
     });
   });
 
@@ -382,7 +382,7 @@ describe('FamilyMemberCard', () => {
         <FamilyMemberCard member={expiringMember} />
       );
 
-      getByText('⚠ Expiring Soon');
+      getByText('Expiring Soon');
     });
   });
 });

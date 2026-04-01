@@ -133,7 +133,7 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.autoLoginProgressBanner.id}
         >
           <Text className="text-sm text-blue-700 font-medium">
-            🔐 Logging in automatically...
+            Logging in automatically...
           </Text>
         </View>
       )}
@@ -144,7 +144,7 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.autoLoginFailedBanner.id}
         >
           <Text className="text-sm text-amber-800 font-medium">
-            ⚠️ Auto-login failed. Please log in manually.
+            Auto-login failed. Please log in manually.
           </Text>
         </View>
       )}
@@ -155,7 +155,7 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.authPageBanner.id}
         >
           <Text className="text-sm text-amber-800 font-medium">
-            🔐 Log in to continue
+            Log in to continue
           </Text>
         </View>
       )}
@@ -166,7 +166,7 @@ export default function PortalSubmissionScreen() {
           testID={PORTAL_SUBMISSION_IDS.captchaPageBanner.id}
         >
           <Text className="text-sm text-amber-800 font-medium">
-            🤖 Complete the verification to continue
+            Complete the verification to continue
           </Text>
         </View>
       )}

@@ -373,7 +373,7 @@ export default function FormField({
       {field.countrySpecific && (
         <View className="mt-2">
           <Text className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-            ⚠️ Country-specific requirement
+            Country-specific requirement
           </Text>
         </View>
       )}

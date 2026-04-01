@@ -268,7 +268,7 @@ export default function AccountSetupChecklist({
                   testID={ACCOUNT_SETUP_CHECKLIST_IDS.accountRow(info.countryCode).id}
                   className="flex-row items-center px-4 py-3"
                 >
-                  <Text className="text-base mr-2">ℹ️</Text>
+                  <Text className="text-base mr-2">-</Text>
                   <View className="flex-1">
                     <Text className="text-sm text-gray-600">
                       <Text className="font-medium text-gray-800">{info.countryName}</Text>
@@ -296,7 +296,7 @@ export default function AccountSetupChecklist({
               >
                 {/* Status icon */}
                 <Text className="text-base mr-2">
-                  {isReady ? '✅' : isStarted ? '🔄' : '⬜'}
+                  {isReady ? 'Done' : isStarted ? '...' : '-'}
                 </Text>
 
                 {/* Country and status info */}

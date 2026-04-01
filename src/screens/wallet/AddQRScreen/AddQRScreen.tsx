@@ -139,7 +139,7 @@ export default function AddQRScreen() {
                     {devicePerformance === 'low' && (
                       <View className="bg-green-50 dark:bg-green-950 p-2 rounded">
                         <Text className="text-xs font-medium text-green-800 dark:text-green-200">
-                          ⚡ Device-optimized processing applied
+                          Device-optimized processing applied
                         </Text>
                       </View>
                     )}

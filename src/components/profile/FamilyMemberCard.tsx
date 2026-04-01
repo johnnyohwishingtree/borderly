@@ -171,7 +171,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
               </Text>
               {isExpiringSoon && (
                 <Text className="text-xs text-orange-600 font-medium">
-                  ⚠ Expiring Soon
+                  Expiring Soon
                 </Text>
               )}
             </View>

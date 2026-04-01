@@ -140,7 +140,7 @@ export default function CountryFlag({
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: flagSize.height * 0.6, color: '#FFCD00' }}>⭐</Text>
+            <Text style={{ fontSize: flagSize.height * 0.6, color: '#FFCD00' }}>*</Text>
           </View>
         );
       case 'GBR':

@@ -145,7 +145,7 @@ export default function ExportBackupModal({
         {/* Description */}
         <Card>
           <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-2">
-            <Text className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">🔒 Encrypted Backup</Text>
+            <Text className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">Encrypted Backup</Text>
             <Text className="text-sm text-blue-800 dark:text-blue-200">
               Your backup is encrypted with AES-256-GCM. Choose a strong passphrase — you will need
               it to restore your data. There is no way to recover a forgotten passphrase.

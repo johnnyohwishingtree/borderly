@@ -95,12 +95,12 @@ export default function RatingPrompt({
 
   const getRatingEmoji = (ratingValue: number) => {
     switch (ratingValue) {
-      case 1: return '😞';
-      case 2: return '😕';
-      case 3: return '😐';
-      case 4: return '😊';
-      case 5: return '🤩';
-      default: return '⭐';
+      case 1: return 'Poor';
+      case 2: return 'Fair';
+      case 3: return 'OK';
+      case 4: return 'Good';
+      case 5: return 'Great';
+      default: return '-';
     }
   };
 

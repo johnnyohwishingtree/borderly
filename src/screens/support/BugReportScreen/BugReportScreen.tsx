@@ -132,7 +132,7 @@ export default function BugReportScreen() {
 
           {includeDiagnostics && diagnosticInfo && (
             <View className="bg-gray-50 p-4 rounded-lg">
-              <Text className="text-sm font-medium text-gray-900 mb-3">📊 Diagnostic Information Preview</Text>
+              <Text className="text-sm font-medium text-gray-900 mb-3">Diagnostic Information Preview</Text>
               <View className="space-y-2">
                 <View className="flex-row justify-between">
                   <Text className="text-xs text-gray-600">Platform:</Text>
@@ -153,7 +153,7 @@ export default function BugReportScreen() {
               </View>
 
               <Text className="text-xs text-gray-500 mt-3">
-                ℹ️ No personal or passport data is included
+                No personal or passport data is included
               </Text>
             </View>
           )}

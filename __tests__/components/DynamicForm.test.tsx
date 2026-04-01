@@ -121,7 +121,7 @@ describe('DynamicForm', () => {
     );
 
     // Should show country-specific indicator
-    screen.getByText('⚠️ Country-specific requirement');
+    screen.getByText('Country-specific requirement');
 
     // Should show the select button for Purpose of Visit
     screen.getByTestId('select-purposeOfVisit');
@@ -261,7 +261,7 @@ describe('DynamicForm', () => {
     );
 
     // Should show country-specific indicators
-    screen.getByText('⚠️ Country-specific requirement');
+    screen.getByText('Country-specific requirement');
   });
 });
 

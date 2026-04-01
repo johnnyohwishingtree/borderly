@@ -179,7 +179,7 @@ export default function DynamicForm({
         {countrySpecificFields.length > 0 && (
           <View className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
             <Text className="text-sm font-medium text-orange-600 dark:text-orange-400">
-              ⚠️ {countrySpecificFields.length} country-specific fields require your attention
+              {countrySpecificFields.length} country-specific fields require your attention
             </Text>
           </View>
         )}

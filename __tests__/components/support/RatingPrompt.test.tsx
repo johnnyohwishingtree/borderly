@@ -81,8 +81,8 @@ describe('RatingPrompt', () => {
     const { getByText } = render(
       <RatingPrompt visible={true} onClose={jest.fn()} />,
     );
-    // Press the 4-star emoji button (😊)
-    fireEvent.press(getByText('😊'));
+    // Press the 4-star button (Good)
+    fireEvent.press(getByText('Good'));
     getByText('Good (4/5)');
   });
 
@@ -91,10 +91,10 @@ describe('RatingPrompt', () => {
       <RatingPrompt visible={true} onClose={jest.fn()} />,
     );
 
-    fireEvent.press(getByText('😞'));
+    fireEvent.press(getByText('Poor'));
     getByText('Very Poor (1/5)');
 
-    fireEvent.press(getByText('🤩'));
+    fireEvent.press(getByText('Great'));
     getByText('Excellent (5/5)');
   });
 
@@ -117,7 +117,7 @@ describe('RatingPrompt', () => {
       <RatingPrompt visible={true} onClose={onClose} onFeedbackSubmitted={onFeedbackSubmitted} />,
     );
 
-    fireEvent.press(getByText('🤩')); // 5 stars
+    fireEvent.press(getByText('Great')); // 5 stars
     fireEvent.press(getByText('Submit Rating'));
 
     await waitFor(() => {
@@ -142,7 +142,7 @@ describe('RatingPrompt', () => {
       <RatingPrompt visible={true} onClose={jest.fn()} />,
     );
 
-    fireEvent.press(getByText('😐')); // 3 stars
+    fireEvent.press(getByText('OK')); // 3 stars
     fireEvent.press(getByText('Submit Rating'));
 
     await waitFor(() => {
@@ -159,7 +159,7 @@ describe('RatingPrompt', () => {
       <RatingPrompt visible={true} onClose={jest.fn()} />,
     );
 
-    fireEvent.press(getByText('😊')); // 4 stars
+    fireEvent.press(getByText('Good')); // 4 stars
     fireEvent.press(getByText('Submit Rating'));
 
     await waitFor(() => {

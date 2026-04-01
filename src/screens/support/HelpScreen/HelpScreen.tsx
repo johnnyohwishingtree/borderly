@@ -214,7 +214,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           </View>
 
           <View className="bg-green-50 p-3 rounded-lg mt-4">
-            <Text className="text-xs font-medium text-green-800">💚 Built for Privacy</Text>
+            <Text className="text-xs font-medium text-green-800">Built for Privacy</Text>
             <Text className="text-xs text-green-700 mt-1">
               Your travel data never leaves your device unless you share it
             </Text>

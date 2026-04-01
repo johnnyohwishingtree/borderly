@@ -23,7 +23,7 @@ export default function InfoBanner({ message, onDismiss, testID }: InfoBannerPro
         className="text-sm text-blue-800 flex-1 mr-3"
         numberOfLines={2}
       >
-        ℹ️ {message}
+        {message}
       </Text>
       <TouchableOpacity
         onPress={onDismiss}

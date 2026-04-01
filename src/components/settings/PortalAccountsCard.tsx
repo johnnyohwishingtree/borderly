@@ -30,7 +30,7 @@ export function PortalAccountsCard({
 
       <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4">
         <Text className="text-xs text-blue-800 dark:text-blue-200">
-          🔒 Portal login credentials are stored securely on this device with biometric
+          Portal login credentials are stored securely on this device with biometric
           protection. Passwords are never displayed.
         </Text>
       </View>
@@ -77,7 +77,7 @@ export function PortalAccountsCard({
               fullWidth
             />
             <Text className="text-xs text-red-600 mt-1 text-center">
-              ⚠️ Removes all saved portal logins
+              Removes all saved portal logins
             </Text>
           </View>
         </View>

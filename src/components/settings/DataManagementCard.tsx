@@ -38,7 +38,7 @@ export function DataManagementCard({
       {/* Storage Usage */}
       {storageStats && (
         <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
-          <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">📊 Storage Usage</Text>
+          <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Storage Usage</Text>
           <View className="space-y-2">
             <View className="flex-row justify-between">
               <Text className="text-xs text-gray-600 dark:text-gray-400">Profile Data:</Text>
@@ -111,7 +111,7 @@ export function DataManagementCard({
             fullWidth
           />
           <Text className="text-xs text-red-600 mt-1 text-center">
-            ⚠️ Permanently removes all app data - cannot be undone
+            Permanently removes all app data - cannot be undone
           </Text>
         </View>
       </View>

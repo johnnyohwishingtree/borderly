@@ -320,7 +320,7 @@ export default function SettingsScreen() {
               <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">Country form schemas are bundled with the app</Text>
             </View>
             <View className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-blue-800 dark:text-blue-200">📱 Built for Privacy</Text>
+              <Text className="text-xs font-medium text-blue-800 dark:text-blue-200">Built for Privacy</Text>
               <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">Local-first architecture ensures your travel data stays on your device</Text>
             </View>
           </View>
@@ -339,7 +339,7 @@ export default function SettingsScreen() {
         <Card>
           <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Help & Support</Text>
           <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-            <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">📞 Need Help?</Text>
+            <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">Need Help?</Text>
             <Text className="text-xs text-gray-600 dark:text-gray-400 mb-3">Having issues with forms or need support with specific country requirements?</Text>
             <View className="space-y-2">
               <Button title="Help & FAQ" onPress={() => navigation.navigate('Help')} variant="secondary" size="small" fullWidth />

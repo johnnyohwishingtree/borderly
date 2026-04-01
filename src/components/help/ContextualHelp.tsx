@@ -161,7 +161,7 @@ export default function ContextualHelp({
               {content.tips && content.tips.length > 0 && (
                 <View className="mb-4">
                   <Text className="text-base font-semibold text-gray-900 mb-2">
-                    💡 Quick Tips:
+                    Quick Tips:
                   </Text>
                   {content.tips.map((tip, index) => (
                     <View key={index} className="flex-row mb-2">

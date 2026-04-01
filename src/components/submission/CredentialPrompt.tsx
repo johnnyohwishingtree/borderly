@@ -191,7 +191,7 @@ export function CredentialPrompt({
                 accessibilityLabel="Save credentials securely"
               >
                 <Text className="text-base font-semibold text-white">
-                  Save securely 🔒
+                  Save securely
                 </Text>
               </TouchableOpacity>
             </View>

@@ -13,11 +13,13 @@ import * as path from 'path';
 // Transport/Map Symbols, and Supplemental Symbols Unicode blocks.
 const EMOJI_RANGE = '\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}';
 
-// Detect emoji used as the sole content of a <Text> (emoji-as-icon pattern).
-// Matches: <Text ...>EMOJI</Text> or <Text ...>{EMOJI}</Text>
-function hasEmojiAsIcon(line: string): boolean {
-  const re = new RegExp(`<Text[^>]*>\\s*[\\['"{}]*[${EMOJI_RANGE}]`, 'u');
-  return re.test(line) && /<Text[^>]*>[^<]{1,10}<\/Text>/.test(line);
+// Detect emoji anywhere in a <Text> element or string literal.
+// Matches: <Text ...>📊 Storage</Text>, <Text>⚠️ Warning</Text>, etc.
+// Strips safe ASCII symbols before checking.
+function hasEmojiInText(line: string): boolean {
+  const cleaned = line.replace(SAFE_SYMBOLS, '');
+  const re = new RegExp(`[${EMOJI_RANGE}]`, 'u');
+  return re.test(cleaned);
 }
 
 // Detect emoji in button title props, e.g. title="EMOJI Button Text"
@@ -26,8 +28,10 @@ function hasEmojiInTitle(line: string): boolean {
   return re.test(line);
 }
 
+// ASCII symbols that render fine on iOS — exclude from emoji detection
+const SAFE_SYMBOLS = /[✓✕○⚠⚡]/g;
+
 // Files that are allowed to have emoji (camera overlays, non-visible utils).
-// ASCII symbols (checkmarks, x marks) render fine on iOS — only multi-byte emoji break.
 const ALLOWED_FILES = new Set([
   // QR full screen overlay controls — uses ASCII ✕ which renders fine
   'components/wallet/QRFullScreen.tsx',
@@ -79,7 +83,7 @@ describe('No emoji icons in UI components', () => {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
 
-        if (!ALLOWED_FILES.has(relPath) && hasEmojiAsIcon(line)) {
+        if (!ALLOWED_FILES.has(relPath) && hasEmojiInText(line)) {
           emojiAsIconViolations.push(`${relPath}:${i + 1}: ${line.trim()}`);
         }
 
