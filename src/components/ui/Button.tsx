@@ -10,7 +10,7 @@ import {
 export interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   loading?: boolean;
@@ -53,10 +53,12 @@ export default function Button({
       primary: 'bg-black border-2 border-white',
       secondary: 'bg-transparent',
       outline: 'bg-transparent border-2 border-black',
+      danger: 'bg-red-700 border-2 border-white',
     } : {
       primary: 'bg-blue-600 dark:bg-blue-500 shadow-lg shadow-blue-600/25',
       secondary: 'bg-transparent',
       outline: 'bg-transparent border-2 border-border-default shadow-sm',
+      danger: 'bg-red-600 dark:bg-red-500 shadow-lg shadow-red-600/25',
     };
 
     const disabledStyles = disabled || loading ? 'opacity-50 shadow-none' : '';
@@ -78,10 +80,12 @@ export default function Button({
       primary: 'text-white',
       secondary: 'text-blue-800',
       outline: 'text-black',
+      danger: 'text-white',
     } : {
       primary: 'text-white',
       secondary: 'text-blue-600 dark:text-blue-400',
       outline: 'text-primary',
+      danger: 'text-white',
     };
 
     return `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]}`;

@@ -107,7 +107,7 @@ export function DataManagementCard({
           <Button
             title="Delete All Data"
             onPress={onDeleteAllData}
-            variant="secondary"
+            variant="danger"
             fullWidth
           />
           <Text className="text-xs text-red-600 mt-1 text-center">

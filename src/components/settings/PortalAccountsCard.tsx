@@ -62,7 +62,7 @@ export function PortalAccountsCard({
                 <Button
                   title="Delete"
                   onPress={() => onDeleteCredential(cred.portalCode)}
-                  variant="secondary"
+                  variant="danger"
                   size="small"
                 />
               )}
@@ -73,7 +73,7 @@ export function PortalAccountsCard({
             <Button
               title="Delete All Portal Credentials"
               onPress={onDeleteAllCredentials}
-              variant="secondary"
+              variant="danger"
               fullWidth
             />
             <Text className="text-xs text-red-600 mt-1 text-center">

@@ -32,7 +32,7 @@ function getAllTsxFiles(dir: string): string[] {
   return results;
 }
 
-const ALLOWED_BUTTON_VARIANTS = ['primary', 'secondary'];
+const ALLOWED_BUTTON_VARIANTS = ['primary', 'secondary', 'danger'];
 
 test('Button components only use allowed variants', () => {
   const files = [

@@ -190,7 +190,7 @@ export default function SettingsScreen() {
           <Button
             title="Delete All Data"
             onPress={handleDeleteAllData}
-            variant="secondary"
+            variant="danger"
             fullWidth
           />
           <Text className="text-xs text-error mt-1 text-center">

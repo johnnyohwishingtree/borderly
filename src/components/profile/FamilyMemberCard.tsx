@@ -196,7 +196,7 @@ const FamilyMemberCard = memo<FamilyMemberCardProps>(({
                 <Button
                   title="Remove"
                   onPress={onRemove}
-                  variant="secondary"
+                  variant="danger"
                   size="small"
                   accessibilityLabel={`Remove ${memberFullName}`}
                   accessibilityHint="Removes this family member from your profile"
