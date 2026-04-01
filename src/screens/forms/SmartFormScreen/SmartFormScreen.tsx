@@ -1,13 +1,16 @@
-import { useCallback } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { useState, useCallback } from 'react';
+import { View, Text, ScrollView, Modal } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { Button, ScreenContainer, ProgressBar } from '@/components/ui';
 import { DynamicForm } from '@/components/forms';
+import { BoardingPassScanner } from '@/components/boarding';
 import { useSmartForm } from '@/hooks/useSmartForm';
 import { getCountryName } from '@/constants/countries';
+import { getAirportLabel } from '@/constants/airports';
 import type { FormsStackParamList } from '@/app/navigation/types';
+import type { ParsedBoardingPass } from '@/types/boarding';
 import { SMART_FORM_IDS } from './testIDs';
 
 type Nav = NativeStackNavigationProp<FormsStackParamList, 'SmartForm'>;
@@ -17,6 +20,7 @@ export default function SmartFormScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
   const { countryCodes, travelerIds, boardingPassData } = route.params;
+  const [showScanner, setShowScanner] = useState(false);
 
   const {
     countrySections,
@@ -29,6 +33,21 @@ export default function SmartFormScreen() {
   const handleDone = useCallback(() => {
     navigation.navigate('PortalLinks', { tripId, countryCodes });
   }, [navigation, tripId, countryCodes]);
+
+  const handleBoardingPassScan = useCallback((result: ParsedBoardingPass) => {
+    setShowScanner(false);
+    // Fill flight fields from scan result
+    const updates: Record<string, unknown> = {};
+    if (result.flightNumber) updates.flightNumber = result.flightNumber;
+    if (result.airlineCode) updates.airlineCode = result.airlineCode;
+    if (result.arrivalAirport) updates.arrivalAirport = result.arrivalAirport;
+    if (result.departureAirport) {
+      const label = getAirportLabel(result.departureAirport);
+      const cityMatch = label.match(/^(.+?)\s*\(/);
+      updates.departureCity = cityMatch ? cityMatch[1].trim() : result.departureAirport;
+    }
+    handleFieldChange(updates);
+  }, [handleFieldChange]);
 
   return (
     <ScreenContainer className="bg-surface-secondary">
@@ -71,6 +90,7 @@ export default function SmartFormScreen() {
                   form={section.form}
                   onFormDataChange={handleFieldChange}
                   showOnlyCountrySpecific={false}
+                  onScanBoardingPass={() => setShowScanner(true)}
                 />
               ) : (
                 <Text className="text-success font-medium">
@@ -93,6 +113,20 @@ export default function SmartFormScreen() {
           testID={SMART_FORM_IDS.doneButton.id}
         />
       </View>
+
+      {/* Boarding pass scanner modal — owned by screen (has navigation context) */}
+      <Modal
+        visible={showScanner}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setShowScanner(false)}
+      >
+        <BoardingPassScanner
+          onScanSuccess={handleBoardingPassScan}
+          onScanCancel={() => setShowScanner(false)}
+          onManualEntry={() => setShowScanner(false)}
+        />
+      </Modal>
     </ScreenContainer>
   );
 }

@@ -12,6 +12,7 @@ interface DynamicFormProps {
   showOnlyCountrySpecific?: boolean;
   collapsibleSections?: boolean;
   showFormStats?: boolean;
+  onScanBoardingPass?: () => void;
 }
 
 export default function DynamicForm({
@@ -21,6 +22,7 @@ export default function DynamicForm({
   showOnlyCountrySpecific = false,
   collapsibleSections = false,
   showFormStats = true,
+  onScanBoardingPass,
 }: DynamicFormProps) {
   const [formData, setFormData] = useState<Record<string, unknown>>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -246,6 +248,7 @@ export default function DynamicForm({
           collapsible={collapsibleSections}
           defaultExpanded={true}
           showAutoFillBadges={!showOnlyCountrySpecific}
+          onScanBoardingPass={onScanBoardingPass}
         />
       ))}
 
