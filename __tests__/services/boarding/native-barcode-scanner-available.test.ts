@@ -27,10 +27,12 @@ test('ImageBarcodeScanner.m exports RCT_EXPORT_MODULE', () => {
   expect(content).toMatch(/scanBarcodesInImage/);
 });
 
-test('ImageBarcodeScanner.m is included in Xcode project', () => {
+test('ImageBarcodeScanner.m is included in Xcode project with correct path', () => {
   const pbxproj = readFileSync(
     resolve(ROOT, 'ios/Borderly.xcodeproj/project.pbxproj'),
     'utf-8',
   );
   expect(pbxproj).toMatch(/ImageBarcodeScanner\.m/);
+  // Path must point to Borderly/ subdirectory, not project root
+  expect(pbxproj).toMatch(/path\s*=\s*Borderly\/ImageBarcodeScanner\.m/);
 });
