@@ -552,6 +552,15 @@ jest.mock('react-native-css-interop', () => ({
   },
 }));
 
+// Mock nativewind — useColorScheme for dark mode toggling
+jest.mock('nativewind', () => ({
+  useColorScheme: () => ({
+    colorScheme: 'light',
+    setColorScheme: jest.fn(),
+    toggleColorScheme: jest.fn(),
+  }),
+}));
+
 // Mock react-native-svg
 jest.mock('react-native-svg', () => {
   const React = require('react');

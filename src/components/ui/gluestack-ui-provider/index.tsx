@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, ViewProps, useColorScheme } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ViewProps } from 'react-native';
+import { useColorScheme } from 'nativewind';
 
 interface GluestackUIProviderProps extends ViewProps {
   mode?: 'light' | 'dark' | 'system';
@@ -12,14 +13,15 @@ export function GluestackUIProvider({
   style,
   ...props
 }: GluestackUIProviderProps) {
-  const systemColorScheme = useColorScheme();
-  const colorMode = mode === 'system' ? systemColorScheme : mode;
+  const { setColorScheme } = useColorScheme();
 
-  const isDark = colorMode === 'dark';
+  // Sync app theme preference → NativeWind color scheme
+  useEffect(() => {
+    setColorScheme(mode === 'system' ? 'system' : mode);
+  }, [mode, setColorScheme]);
 
   return (
     <View
-      className={isDark ? 'dark' : ''}
       style={[{ flex: 1 }, style]}
       {...props}
     >

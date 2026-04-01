@@ -25,12 +25,12 @@ test('App root applies dark class based on theme preference', () => {
   const appContent = readFileSync(resolve(ROOT, 'src/app/App.tsx'), 'utf-8');
   expect(appContent).toMatch(/useTheme|resolvedTheme/);
 
-  // GluestackUIProvider must apply the 'dark' className for NativeWind
+  // GluestackUIProvider must use NativeWind's setColorScheme API
   const providerContent = readFileSync(
     resolve(ROOT, 'src/components/ui/gluestack-ui-provider/index.tsx'),
     'utf-8',
   );
-  expect(providerContent).toMatch(/className.*dark/);
+  expect(providerContent).toMatch(/setColorScheme|useColorScheme/);
 });
 
 test('Settings theme toggle updates the color scheme', () => {
