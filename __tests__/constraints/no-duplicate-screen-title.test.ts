@@ -92,6 +92,10 @@ test('screens do not have redundant body headings that duplicate nav title', () 
   }
 
   // Gradual cleanup — start with threshold, reduce as screens are fixed
-  // Gradual: 15 screens currently duplicate. Decrease as screens are cleaned up.
-  expect(violations.length).toBeLessThanOrEqual(15);
+  if (violations.length > 0) {
+    throw new Error(
+      `${violations.length} screen(s) duplicate the nav title in the body:\n\n` +
+      violations.join('\n'),
+    );
+  }
 });

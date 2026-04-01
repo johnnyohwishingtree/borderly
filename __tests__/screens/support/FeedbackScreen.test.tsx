@@ -121,9 +121,8 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('FeedbackScreen — header', () => {
-  it('renders title and subtitle', () => {
+  it('renders subtitle', () => {
     render(<FeedbackScreen />);
-    screen.getByText('Send Feedback');
     screen.getByText('Help us improve your travel experience');
   });
 });

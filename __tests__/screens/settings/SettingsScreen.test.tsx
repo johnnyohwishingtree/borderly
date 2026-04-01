@@ -403,9 +403,8 @@ describe('SettingsScreen — section rendering', () => {
     setupMocks();
   });
 
-  it('renders the Settings header', () => {
+  it('renders the Settings subtitle', () => {
     const { getByText } = render(<SettingsScreen />);
-    getByText('Settings');
     getByText('App preferences and data management');
   });
 

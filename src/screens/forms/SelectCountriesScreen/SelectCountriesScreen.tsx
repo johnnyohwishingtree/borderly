@@ -70,13 +70,6 @@ export default function SelectCountriesScreen() {
       {/* Pinned header: title + search + chips */}
       <View className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <View className="px-4 pt-4 pb-2">
-          <Text
-            className="text-2xl font-bold text-gray-900 dark:text-white mb-1"
-            accessibilityRole="header"
-          >
-            Where are you going?
-          </Text>
-
           {/* Search bar */}
           <View className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2 mt-2">
             <Search size={18} color="#9ca3af" />

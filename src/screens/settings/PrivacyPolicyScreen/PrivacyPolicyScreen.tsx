@@ -8,8 +8,7 @@ export default function PrivacyPolicyScreen() {
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white">Privacy Policy</Text>
-          <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">Last updated: March 2026</Text>
+          <Text className="text-sm text-gray-500 dark:text-gray-400">Last updated: March 2026</Text>
         </View>
 
         {/* Introduction */}

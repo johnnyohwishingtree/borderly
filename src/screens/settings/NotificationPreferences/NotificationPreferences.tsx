@@ -37,7 +37,6 @@ export default function NotificationPreferences() {
         <View className="p-4 space-y-4">
           {/* Header */}
           <View className="mb-2">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</Text>
             <Text className="text-base text-gray-600 dark:text-gray-400">
               Configure deadline reminders for your travel forms
             </Text>

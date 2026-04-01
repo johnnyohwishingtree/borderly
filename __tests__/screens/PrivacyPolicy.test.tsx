@@ -7,11 +7,6 @@ describe('PrivacyPolicyScreen', () => {
     getByTestId('privacy-policy-screen');
   });
 
-  it('displays the Privacy Policy heading', () => {
-    const { getByText } = render(<PrivacyPolicyScreen />);
-    getByText('Privacy Policy');
-  });
-
   it('contains key privacy sections', () => {
     const { getByText } = render(<PrivacyPolicyScreen />);
     getByText('1. Data Storage');

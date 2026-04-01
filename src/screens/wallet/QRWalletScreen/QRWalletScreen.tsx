@@ -66,8 +66,7 @@ export default function QRWalletScreen() {
         <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900 dark:text-white">QR Wallet</Text>
-              <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
+              <Text className="text-base text-gray-600 dark:text-gray-400">
                 Your saved entry codes
               </Text>
             </View>
@@ -123,8 +122,7 @@ export default function QRWalletScreen() {
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-2xl font-bold text-gray-900 dark:text-white">QR Wallet</Text>
-            <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
+            <Text className="text-base text-gray-600 dark:text-gray-400">
               {selectedTravelerFilter
                 ? `${filteredQRCodes.length} code${filteredQRCodes.length !== 1 ? 's' : ''} for ${travelers.get(selectedTravelerFilter)?.givenNames || 'Unknown'}`
                 : `${qrCodes.length} saved code${qrCodes.length !== 1 ? 's' : ''}`

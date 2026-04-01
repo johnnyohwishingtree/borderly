@@ -38,7 +38,6 @@ export default function EditProfileScreen() {
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900 dark:text-white">Edit Profile</Text>
               <Text className="text-base text-gray-600 dark:text-gray-400">
                 Update your contact information and preferences
               </Text>

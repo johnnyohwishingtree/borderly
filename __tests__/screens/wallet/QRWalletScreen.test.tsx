@@ -196,12 +196,6 @@ describe('QRWalletScreen — rendering with QR codes', () => {
     screen.getByTestId('qr-card-qr_2');
   });
 
-  it('renders the "QR Wallet" header', () => {
-    render(<QRWalletScreen />);
-
-    screen.getByText('QR Wallet');
-  });
-
   it('renders saved codes count subtitle', () => {
     render(<QRWalletScreen />);
 

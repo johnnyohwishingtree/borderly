@@ -384,7 +384,6 @@ describe('FamilyManagementScreen', () => {
       const { getByText } = render(<FamilyManagementScreen />);
 
       await waitFor(() => {
-        getByText('Family Members');
         getByText('Manage your family travel profiles');
       });
     });

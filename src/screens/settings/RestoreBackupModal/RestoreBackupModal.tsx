@@ -25,7 +25,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Shield, FileCheck, Eye, EyeOff, CheckCircle, AlertCircle, UploadCloud } from 'lucide-react-native';
+import { Shield, FileCheck, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react-native';
 import { useBackupRestore } from '@/hooks/useBackupRestore';
 import { Button, Card } from '@/components/ui';
 import { useProfileStore } from '@/stores/useProfileStore';
@@ -65,17 +65,7 @@ export default function RestoreBackupModal() {
     >
       <View className="flex-1 p-6">
         {/* Header */}
-        <View className="items-center mb-8" accessibilityRole="header">
-          <View className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl items-center justify-center mb-4">
-            <UploadCloud size={32} color="#2563eb" accessibilityElementsHidden />
-          </View>
-          <Text
-            className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-2"
-            accessibilityRole="header"
-            testID={RESTORE_BACKUP_IDS.heading.id}
-          >
-            Restore from Backup
-          </Text>
+        <View className="items-center mb-8">
           <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
             Restore your profiles, trips, and QR codes from a .borderly backup file.
           </Text>

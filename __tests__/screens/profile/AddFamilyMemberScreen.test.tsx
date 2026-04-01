@@ -67,9 +67,8 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('AddFamilyMemberScreen — header', () => {
-  it('renders title and subtitle', () => {
+  it('renders subtitle', () => {
     render(<AddFamilyMemberScreen />);
-    screen.getByText('Add Family Member');
     screen.getByText('Create a new family travel profile');
   });
 });

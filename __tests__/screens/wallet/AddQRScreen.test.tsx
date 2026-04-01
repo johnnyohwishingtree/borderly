@@ -109,10 +109,9 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('AddQRScreen — header', () => {
-  it('renders the "Add QR Code" header', () => {
+  it('renders the subtitle', () => {
     render(<AddQRScreen />);
 
-    screen.getByText('Add QR Code');
     screen.getByText('Save a QR code to your wallet');
   });
 });

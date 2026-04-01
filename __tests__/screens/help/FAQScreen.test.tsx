@@ -58,11 +58,6 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('FAQScreen — header', () => {
-  it('renders FAQ title', () => {
-    render(<FAQScreen />);
-    screen.getByText('Frequently Asked Questions');
-  });
-
   it('renders subtitle text', () => {
     render(<FAQScreen />);
     screen.getByText('Search and browse common questions');

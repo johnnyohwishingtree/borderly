@@ -40,7 +40,6 @@ export default function SettingsScreen() {
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white">Settings</Text>
           <Text className="text-base text-gray-600 dark:text-gray-400">App preferences and data management</Text>
         </View>
 

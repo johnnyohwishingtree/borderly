@@ -41,7 +41,6 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-2xl font-bold text-gray-900">Troubleshooting Guide</Text>
           <Text className="text-base text-gray-600">Solve common issues and problems</Text>
         </View>
 

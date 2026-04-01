@@ -78,10 +78,9 @@ describe('RestoreBackupModal — renders', () => {
     screen.getByTestId('restore-backup-screen');
   });
 
-  it('renders the "Restore from Backup" heading with accessibilityRole="header"', () => {
+  it('renders the subtitle text', () => {
     render(<RestoreBackupModal />);
-    const heading = screen.getAllByText('Restore from Backup')[0];
-    expect(heading.props.accessibilityRole).toBe('header');
+    screen.getByText(/Restore your profiles, trips, and QR codes/);
   });
 });
 

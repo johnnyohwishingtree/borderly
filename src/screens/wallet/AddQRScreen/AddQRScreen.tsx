@@ -31,8 +31,7 @@ export default function AddQRScreen() {
     <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white">Add QR Code</Text>
-        <Text className="text-base text-gray-600 dark:text-gray-400 mt-1">
+        <Text className="text-base text-gray-600 dark:text-gray-400">
           Save a QR code to your wallet
         </Text>
       </View>

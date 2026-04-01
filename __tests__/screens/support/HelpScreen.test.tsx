@@ -75,9 +75,8 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('HelpScreen — header', () => {
-  it('renders title and subtitle', () => {
+  it('renders subtitle', () => {
     render(<HelpScreen />);
-    screen.getByText('Help & Support');
     screen.getByText('Find answers and get assistance');
   });
 });

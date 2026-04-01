@@ -168,7 +168,6 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-2xl font-bold text-gray-900">Frequently Asked Questions</Text>
           <Text className="text-base text-gray-600">Search and browse common questions</Text>
         </View>
 

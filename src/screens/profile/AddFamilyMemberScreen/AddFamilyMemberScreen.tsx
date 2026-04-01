@@ -67,9 +67,6 @@ export default function AddFamilyMemberScreen() {
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 dark:text-white">
-            Add Family Member
-          </Text>
           <Text className="text-base text-gray-600 dark:text-gray-400">
             Create a new family travel profile
           </Text>

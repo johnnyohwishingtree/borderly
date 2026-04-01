@@ -96,11 +96,6 @@ describe('RestoreBackupModal — idle step', () => {
     setup({ step: 'idle' });
   });
 
-  it('renders the heading', () => {
-    const { getByTestId } = render(<RestoreBackupModal />);
-    getByTestId('restore-backup-heading');
-  });
-
   it('renders the idle step with pick file button', () => {
     const { getByTestId } = render(<RestoreBackupModal />);
     getByTestId('restore-step-idle');

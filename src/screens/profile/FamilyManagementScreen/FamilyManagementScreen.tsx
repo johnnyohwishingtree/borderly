@@ -8,13 +8,10 @@ import { Button, Card, EmptyState, LoadingStates, ScreenContainer } from '@/comp
 import { FamilyMemberCard } from '@/components/profile';
 import { FamilyMember } from '@/types/profile';
 import { useProfileStore } from '@/stores/useProfileStore';
-import { useTheme } from '@/utils/theme';
-
 type FamilyManagementScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'FamilyManagement'>;
 
 export default function FamilyManagementScreen() {
   const navigation = useNavigation<FamilyManagementScreenNavigationProp>();
-  const { colors } = useTheme();
   const { loadFamilyProfiles, getAllFamilyProfiles, deleteProfile, familyProfiles } = useProfileStore();
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,20 +110,9 @@ export default function FamilyManagementScreen() {
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
-            <View className="flex-row items-center flex-1">
-              <Users size={24} color={colors.textPrimary} style={{ marginRight: 8 }} importantForAccessibility="no" />
-              <View>
-                <Text
-                  className="text-2xl font-bold text-gray-900 dark:text-white"
-                  accessibilityRole="header"
-                >
-                  Family Members
-                </Text>
-                <Text className="text-base text-gray-600 dark:text-gray-400">
-                  Manage your family travel profiles
-                </Text>
-              </View>
-            </View>
+            <Text className="text-base text-gray-600 dark:text-gray-400 flex-1">
+              Manage your family travel profiles
+            </Text>
             <Button
               title="Add Member"
               onPress={handleAddFamilyMember}

@@ -66,9 +66,8 @@ beforeEach(() => {
 // ── Header ────────────────────────────────────────────────────────────────────
 
 describe('TroubleshootingScreen — header', () => {
-  it('renders title and subtitle', () => {
+  it('renders subtitle', () => {
     render(<TroubleshootingScreen />);
-    screen.getByText('Troubleshooting Guide');
     screen.getByText('Solve common issues and problems');
   });
 
