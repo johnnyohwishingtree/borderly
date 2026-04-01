@@ -5,8 +5,8 @@
  * (photos from gallery, screenshots, etc.) using image picker and barcode detection.
  */
 
-import { launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
 import { Platform } from 'react-native';
+import { selectImageFromLibrary } from '../imagePickerService';
 import { parseBoardingPass } from './boardingPassParser';
 import type { ParsedBoardingPass, BCBPParseError } from '../../types/boarding';
 
@@ -104,61 +104,6 @@ export async function importBoardingPassFromImage(): Promise<ImageImportResult> 
   }
 }
 
-/**
- * Select image from device photo library
- */
-async function selectImageFromLibrary(): Promise<{ 
-  success: boolean; 
-  imageUri?: string; 
-  error?: string; 
-  cancelled?: boolean; 
-}> {
-  return new Promise((resolve) => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo' as MediaType,
-        includeBase64: false, // We don't need base64 for barcode detection
-        quality: 1.0, // Use highest quality for better barcode recognition
-        maxWidth: 4000, // Higher resolution for better barcode detection
-        maxHeight: 4000,
-        selectionLimit: 1,
-      },
-      (response: ImagePickerResponse) => {
-        if (response.didCancel) {
-          resolve({
-            success: false,
-            error: 'User cancelled image selection',
-            cancelled: true,
-          });
-          return;
-        }
-
-        if (response.errorMessage) {
-          resolve({
-            success: false,
-            error: response.errorMessage,
-          });
-          return;
-        }
-
-        const asset = response.assets?.[0];
-        if (!asset || !asset.uri) {
-          resolve({
-            success: false,
-            error: 'No image selected or invalid image',
-          });
-          return;
-        }
-
-        console.log('[ImageImport] Selected URI:', asset.uri, 'type:', asset.type, 'fileName:', asset.fileName);
-        resolve({
-          success: true,
-          imageUri: asset.uri,
-        });
-      }
-    );
-  });
-}
 
 /**
  * Detect barcode in static image using iOS Vision framework

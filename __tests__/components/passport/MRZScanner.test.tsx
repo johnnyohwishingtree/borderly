@@ -3,7 +3,7 @@
  * Action sheet is handled by parent screen.
  */
 
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { render, waitFor, act } from '@testing-library/react-native';
 import MRZScanner from '../../../src/components/passport/MRZScanner';
 
 let autoFireCameraReady = true;

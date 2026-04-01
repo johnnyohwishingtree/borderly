@@ -8,6 +8,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { MRZScanner, PassportPreview } from '@/components/passport';
 import { ContextualHelp, HelpContent } from '@/components/help';
 import { usePassportScan } from '@/hooks/usePassportScan';
+import { selectImageFromLibrary } from '@/services/imagePickerService';
 import { PASSPORT_SCAN_IDS } from './testIDs';
 import { getTodayISO } from '@/utils/dateUtils';
 
@@ -132,7 +133,18 @@ export default function PassportScanScreen() {
                     'How would you like to scan?',
                     [
                       { text: 'Camera Scan', onPress: scan.handleStart },
-                      { text: 'Import from Photo', onPress: scan.handleManualEntry },
+                      {
+                        text: 'Import from Photo',
+                        onPress: async () => {
+                          const result = await selectImageFromLibrary();
+                          if (result.success && result.imageUri) {
+                            // TODO: Process MRZ from image via native text recognition
+                            // For now, open manual entry after picking the photo
+                            Alert.alert('Photo Selected', 'MRZ text recognition from photos is coming soon. Please enter details manually for now.');
+                            scan.handleManualEntry();
+                          }
+                        },
+                      },
                       { text: 'Cancel', style: 'cancel' },
                     ],
                   );
