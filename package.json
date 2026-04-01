@@ -22,7 +22,8 @@
     "build:analyze": "npm run bundle-size:ios && npm run bundle-size:android",
     "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
     "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel",
-    "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts"
+    "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts",
+    "sim:photos": "xcrun simctl addmedia booted e2e/fixtures/photos/*.jpg e2e/fixtures/photos/*.png 2>/dev/null; echo 'Photos added to simulator'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
