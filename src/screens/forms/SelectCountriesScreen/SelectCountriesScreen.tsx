@@ -1,13 +1,15 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { ScanLine, X, Check, Search } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button, ScreenContainer } from '@/components/ui';
+import { BoardingPassScanner } from '@/components/boarding';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { SupportedCountry } from '@/constants/countries';
 import { CountryFlag } from '@/components/trips';
 import type { FormsStackParamList } from '@/app/navigation/types';
+import type { ParsedBoardingPass } from '@/types/boarding';
 import { SELECT_COUNTRIES_IDS } from './testIDs';
 
 type Nav = NativeStackNavigationProp<FormsStackParamList, 'SelectCountries'>;
@@ -16,6 +18,7 @@ export default function SelectCountriesScreen() {
   const navigation = useNavigation<Nav>();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
 
   const toggleCountry = useCallback((code: string) => {
     setSelectedCountries(prev =>
@@ -34,6 +37,23 @@ export default function SelectCountriesScreen() {
   const handleNext = useCallback(() => {
     navigation.navigate('SelectTravelers', { countryCodes: selectedCountries });
   }, [navigation, selectedCountries]);
+
+  const handleScanSuccess = useCallback((result: ParsedBoardingPass) => {
+    setShowScanner(false);
+    const country = result.destinationCountry;
+    if (!country) {
+      Alert.alert('No Country Detected', 'Could not determine the destination country from this boarding pass.');
+      return;
+    }
+    const supported = SUPPORTED_COUNTRIES.find(c => c.code === country);
+    if (!supported) {
+      Alert.alert('Country Not Supported', `${country} is not yet supported.`);
+      return;
+    }
+    setSelectedCountries(prev =>
+      prev.includes(country) ? prev : [...prev, country],
+    );
+  }, []);
 
   const renderCountryRow = (item: SupportedCountry) => {
     const isSelected = selectedCountries.includes(item.code);
@@ -113,9 +133,9 @@ export default function SelectCountriesScreen() {
           </ScrollView>
         )}
 
-        {/* Boarding pass scan — subtle secondary action */}
+        {/* Boarding pass scan */}
         <TouchableOpacity
-          onPress={() => {/* TODO: boarding pass scanner */}}
+          onPress={() => setShowScanner(true)}
           className="flex-row items-center justify-center px-4 py-2 border-t border-border-light"
           activeOpacity={0.7}
           testID={SELECT_COUNTRIES_IDS.scanBoardingPassButton.id}
@@ -160,6 +180,20 @@ export default function SelectCountriesScreen() {
           testID={SELECT_COUNTRIES_IDS.nextButton.id}
         />
       </View>
+
+      {/* Boarding pass scanner modal */}
+      <Modal
+        visible={showScanner}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setShowScanner(false)}
+      >
+        <BoardingPassScanner
+          onScanSuccess={handleScanSuccess}
+          onScanCancel={() => setShowScanner(false)}
+          onManualEntry={() => setShowScanner(false)}
+        />
+      </Modal>
     </ScreenContainer>
   );
 }
