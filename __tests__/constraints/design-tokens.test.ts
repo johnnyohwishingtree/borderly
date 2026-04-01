@@ -1,10 +1,10 @@
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, join } from 'path';
 
-const ROOT = resolve(__dirname, '..');
+const ROOT = resolve(__dirname, '../..');
 
 /**
- * Spec: Design Token Architecture
+ * Constraint: Design Token Architecture
  *
  * Screens and components should use semantic color tokens (text-primary,
  * bg-surface, border-default) instead of raw Tailwind colors (text-gray-900,
