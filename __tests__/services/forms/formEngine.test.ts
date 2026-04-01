@@ -1205,12 +1205,21 @@ describe('FormEngine', () => {
         }
       });
 
+      // Declaration fields are intentionally NOT auto-filled (per-trip questions).
+      // Provide explicit user answers for them so the form can validate.
+      allFields.forEach(f => {
+        const id = f.id.toLowerCase();
+        if (id.includes('declare') || id.includes('carrying') || id.includes('bringing')) {
+          enhancedFormData[f.id] = false;
+        }
+      });
+
       const validationResult = validateFormWithCrossChecks(allFields, enhancedFormData, {
         countryCode: 'JPN',
         profileData: mockProfile,
       });
 
-      // Every required field is auto-fillable — form must be valid
+      // All fields filled (auto + explicit declaration answers) — form must be valid
       expect(validationResult.isValid).toBe(true);
       expect(Object.keys(validationResult.errors)).toHaveLength(0);
       expect(validationResult.crossFieldErrors).toHaveLength(0);

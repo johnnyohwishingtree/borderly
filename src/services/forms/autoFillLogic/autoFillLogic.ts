@@ -13,7 +13,6 @@ import {
   getCommonStayDuration,
   convertNationalityToDisplayName,
   formatAddressForCountry,
-  getSmartDeclarationDefault,
   getCurrencyThreshold,
   extractAirlineFromFlight,
   expandAirlineName,
@@ -45,6 +44,13 @@ export function intelligentAutoFill(
     confidenceThreshold: 0.7,
   }
 ): AutoFillResult | null {
+  // Customs declaration fields (declare/carrying/bringing) must NEVER be auto-filled.
+  // These are per-trip questions — auto-filling "No" risks a false customs declaration.
+  const fieldId = field.id.toLowerCase();
+  if (fieldId.includes('declare') || fieldId.includes('carrying') || fieldId.includes('bringing')) {
+    return null;
+  }
+
   // First, try standard auto-fill from profile/trip data
   if (field.autoFillSource) {
     const standardResult = tryStandardAutoFill(field, context);
@@ -177,16 +183,10 @@ function trySmartAutoFill(
     }
   }
 
-  // Smart declaration defaults based on profile
+  // Customs declaration fields (declare/carrying/bringing) must NEVER be auto-filled.
+  // These are per-trip questions — auto-filling "No" risks a false customs declaration.
   if (fieldId.includes('declare') || fieldId.includes('carrying') || fieldId.includes('bringing')) {
-    const defaultValue = getSmartDeclarationDefault(field, context);
-    if (defaultValue !== null) {
-      return {
-        value: defaultValue,
-        source: 'smart',
-        confidence: 0.9,
-      };
-    }
+    return null;
   }
 
   // Smart currency threshold detection

@@ -168,7 +168,7 @@ describe('Auto-Fill Logic', () => {
       expect(result!.source).toBe('smart');
     });
 
-    it('should provide smart declaration defaults', () => {
+    it('should NOT auto-fill customs declaration fields (per-trip questions)', () => {
       const field: FormField = {
         id: 'carryingProhibitedItems',
         label: 'Carrying Prohibited Items',
@@ -179,10 +179,8 @@ describe('Auto-Fill Logic', () => {
 
       const result = intelligentAutoFill(field, { profile: mockProfile, leg: mockTripLeg }, defaultOptions);
 
-      expect(result).not.toBeNull();
-      expect(result!.value).toBe(false);
-      expect(result!.source).toBe('smart');
-      expect(result!.confidence).toBeGreaterThan(0.8);
+      // Declaration fields must always require user input — never auto-filled
+      expect(result).toBeNull();
     });
 
     it('should extract airline from flight number', () => {

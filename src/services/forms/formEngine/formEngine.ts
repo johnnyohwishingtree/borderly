@@ -111,8 +111,15 @@ export function generateFilledForm(
       } else if (field.source === 'user') {
         userFilled++;
       } else if (!field.needsUserInput) {
-        // Fields with usable defaults (e.g., boolean toggle = false) count as filled
-        autoFilled++;
+        // Fields with usable defaults (e.g., boolean toggle = false) count as filled,
+        // EXCEPT customs declaration booleans which must always require user input.
+        const id = field.id.toLowerCase();
+        const isDeclaration = id.includes('declare') || id.includes('carrying') || id.includes('bringing');
+        if (isDeclaration) {
+          remaining++;
+        } else {
+          autoFilled++;
+        }
       } else {
         remaining++;
       }
