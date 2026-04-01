@@ -91,8 +91,7 @@ export const PREDEFINED_FLOWS: UserFlow[] = [
     expectedDuration: 180000, // 3 minutes
     steps: [
       { screen: 'Welcome', action: 'continue', expectedNext: ['PassportScan'], isOptional: false, criticalPath: true },
-      { screen: 'PassportScan', action: 'scan_passport', expectedNext: ['ConfirmProfile'], isOptional: false, criticalPath: true },
-      { screen: 'ConfirmProfile', action: 'confirm', expectedNext: ['BiometricSetup'], isOptional: false, criticalPath: true },
+      { screen: 'PassportScan', action: 'scan_passport', expectedNext: ['Main'], isOptional: false, criticalPath: true },
       { screen: 'BiometricSetup', action: 'enable_biometrics', expectedNext: ['TripList'], isOptional: true, criticalPath: false },
     ],
   },
@@ -127,8 +126,7 @@ export const PREDEFINED_FLOWS: UserFlow[] = [
     expectedDuration: 30000, // 30 seconds
     steps: [
       { screen: 'PassportScan', action: 'open_camera', expectedNext: [], isOptional: false, criticalPath: true },
-      { screen: 'PassportScan', action: 'scan_mrz', expectedNext: ['ConfirmProfile'], isOptional: false, criticalPath: true },
-      { screen: 'ConfirmProfile', action: 'verify_data', expectedNext: [], isOptional: false, criticalPath: true },
+      { screen: 'PassportScan', action: 'scan_mrz', expectedNext: ['Main'], isOptional: false, criticalPath: true },
     ],
   },
 ];

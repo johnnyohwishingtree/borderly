@@ -18,6 +18,6 @@ test('onboarding has at most 3 screens before main app', () => {
     resolve(ROOT, 'src/screens/onboarding'),
   ).filter(f => f.endsWith('Screen'));
 
-  // Welcome, PassportScan, ConfirmProfile — everything else is deferred
-  expect(onboardingScreens.length).toBeLessThanOrEqual(3);
+  // Welcome, PassportScan — everything else is deferred
+  expect(onboardingScreens.length).toBeLessThanOrEqual(2);
 });

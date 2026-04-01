@@ -25,7 +25,6 @@ const E2E_COVERED_SCREENS = [
   'src/screens/onboarding/WelcomeScreen.tsx',
   'src/screens/onboarding/TutorialScreen.tsx',
   'src/screens/onboarding/PassportScanScreen.tsx',
-  'src/screens/onboarding/ConfirmProfileScreen.tsx',
   'src/screens/onboarding/BiometricSetupScreen.tsx',
   'src/screens/trips/TripListScreen.tsx',
   'src/screens/trips/CreateTripScreen.tsx',

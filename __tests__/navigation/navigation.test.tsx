@@ -45,7 +45,6 @@ jest.mock('@react-navigation/native-stack', () => ({
 jest.mock('@/screens/onboarding', () => ({
   WelcomeScreen: () => <View testID="welcome-screen"><Text>Welcome Screen</Text></View>,
   PassportScanScreen: () => <View testID="passport-scan-screen"><Text>Passport Scan Screen</Text></View>,
-  ConfirmProfileScreen: () => <View testID="confirm-profile-screen"><Text>Confirm Profile Screen</Text></View>,
   BiometricSetupScreen: () => <View testID="biometric-setup-screen"><Text>Biometric Setup Screen</Text></View>,
 }));
 
@@ -165,7 +164,6 @@ describe('Navigation Flow Tests', () => {
 
       expect(queryByTestId('welcome-screen')).toBeNull();
       expect(queryByTestId('passport-scan-screen')).toBeNull();
-      expect(queryByTestId('confirm-profile-screen')).toBeNull();
       expect(queryByTestId('biometric-setup-screen')).toBeNull();
     });
   });

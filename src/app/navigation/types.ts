@@ -36,7 +36,6 @@ export type FormsStackParamList = {
 export type OnboardingStackParamList = {
   Welcome: undefined;
   PassportScan: { familyMode?: boolean; relationship?: string; profileId?: string } | undefined;
-  ConfirmProfile: undefined;
   RestoreBackup: undefined;
 };
 

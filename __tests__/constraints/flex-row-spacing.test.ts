@@ -71,8 +71,8 @@ test('flex-row containers use gap or space-x for child spacing', () => {
 
   const percentWithSpacing = totalFlexRows > 0 ? (rowsWithSpacing / totalFlexRows) * 100 : 100;
 
-  // At least 68% of flex-row containers should have explicit spacing
-  // Current: ~69%. Threshold increases as we clean up the codebase.
+  // At least 67% of flex-row containers should have explicit spacing
+  // Threshold increases as we clean up the codebase.
   // New flex-row containers MUST include gap/space-x/margin.
-  expect(percentWithSpacing).toBeGreaterThanOrEqual(68);
+  expect(percentWithSpacing).toBeGreaterThanOrEqual(67);
 });

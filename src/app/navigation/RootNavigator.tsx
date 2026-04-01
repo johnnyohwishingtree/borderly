@@ -21,7 +21,6 @@ const LockScreen = lazy(() =>
 // Lazy load onboarding screens
 const WelcomeScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.WelcomeScreen })));
 const PassportScanScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.PassportScanScreen })));
-const ConfirmProfileScreen = lazy(() => import('@/screens/onboarding').then(m => ({ default: m.ConfirmProfileScreen })));
 const RestoreBackupModal = lazy(() => import('@/screens/settings').then(m => ({ default: m.RestoreBackupModal })));
 
 // Enhanced loading component for lazy-loaded screens
@@ -43,7 +42,6 @@ const SCREEN_TITLES: Record<string, string> = {
   // Onboarding
   Welcome: 'Welcome',
   PassportScan: 'Passport Scan',
-  ConfirmProfile: 'Confirm Profile',
   RestoreBackup: 'Restore from Backup',
   // Main tabs
   Forms: 'Forms',
@@ -121,18 +119,6 @@ function OnboardingNavigator() {
         {() => (
           <Suspense fallback={<ScreenLoader />}>
             <PassportScanScreen />
-          </Suspense>
-        )}
-      </OnboardingStack.Screen>
-      <OnboardingStack.Screen
-        name="ConfirmProfile"
-        options={{
-          ...STANDARD_TRANSITIONS.slideFromRight,
-        }}
-      >
-        {() => (
-          <Suspense fallback={<ScreenLoader />}>
-            <ConfirmProfileScreen />
           </Suspense>
         )}
       </OnboardingStack.Screen>
