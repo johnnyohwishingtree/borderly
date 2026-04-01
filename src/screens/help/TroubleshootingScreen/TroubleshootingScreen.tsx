@@ -36,12 +36,12 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
   } = useTroubleshootingScreen();
 
   return (
-    <ScreenContainer className="bg-gray-50">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-base text-gray-600">Solve common issues and problems</Text>
+          <Text className="text-base text-secondary">Solve common issues and problems</Text>
         </View>
 
         <HelpHint
@@ -52,14 +52,14 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
 
         {/* Search */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">Search Issues</Text>
+          <Text className="text-lg font-semibold text-primary mb-3">Search Issues</Text>
           <View className="space-y-3">
             <View className="relative">
               <TextInput
                 value={searchTerm}
                 onChangeText={setSearchTerm}
                 placeholder="Describe your problem or search symptoms..."
-                className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-white"
+                className="border border-border-default rounded-lg px-4 py-3 text-base bg-surface"
                 accessibilityLabel="Search troubleshooting issues"
                 accessibilityHint="Type keywords to search for solutions to common problems"
               />
@@ -81,7 +81,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
 
         {/* Category Filter */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Issue Categories</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Issue Categories</Text>
           <View className="flex-row flex-wrap gap-2">
             {categories.map(cat => (
               <Button
@@ -98,23 +98,23 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
         {/* Issues List */}
         <Card>
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold text-gray-900">Common Issues</Text>
+            <Text className="text-lg font-semibold text-primary">Common Issues</Text>
             <StatusBadge status="info" size="small" text={`${filteredIssues.length} issues`} />
           </View>
 
           {filteredIssues.length === 0 ? (
-            <View className="bg-gray-50 p-6 rounded-lg text-center">
-              <Text className="text-lg text-gray-600 mb-2">No issues found</Text>
-              <Text className="text-sm text-gray-500 mb-4">Try different search terms or browse categories</Text>
+            <View className="bg-surface-secondary p-6 rounded-lg text-center">
+              <Text className="text-lg text-secondary mb-2">No issues found</Text>
+              <Text className="text-sm text-tertiary mb-4">Try different search terms or browse categories</Text>
               <Button title="Clear Search" onPress={clearSearch} variant="secondary" size="small" />
             </View>
           ) : (
             <View className="space-y-3">
               {filteredIssues.map(issue => (
-                <View key={issue.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <View className="p-4 bg-white">
+                <View key={issue.id} className="border border-border-default rounded-lg overflow-hidden">
+                  <View className="p-4 bg-surface">
                     <View className="flex-row items-center justify-between mb-2">
-                      <Text className="font-semibold text-gray-900 flex-1 mr-3">{issue.problem}</Text>
+                      <Text className="font-semibold text-primary flex-1 mr-3">{issue.problem}</Text>
                       <SeverityBadge severity={issue.severity} />
                     </View>
                     <Button
@@ -127,19 +127,19 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
                   </View>
 
                   {expandedIssue === issue.id && (
-                    <View className="px-4 pb-4 bg-gray-50 border-t border-gray-200">
+                    <View className="px-4 pb-4 bg-surface-secondary border-t border-border-default">
                       <View className="mb-4">
-                        <Text className="font-semibold text-gray-900 mb-2">Common Symptoms:</Text>
+                        <Text className="font-semibold text-primary mb-2">Common Symptoms:</Text>
                         {issue.symptoms.map((symptom, i) => (
-                          <Text key={i} className="text-sm text-gray-700 mb-1">• {symptom}</Text>
+                          <Text key={i} className="text-sm text-secondary mb-1">• {symptom}</Text>
                         ))}
                       </View>
                       <View className="mb-4">
-                        <Text className="font-semibold text-gray-900 mb-2">Solutions to Try:</Text>
+                        <Text className="font-semibold text-primary mb-2">Solutions to Try:</Text>
                         {issue.solutions.map((solution, i) => (
                           <View key={i} className="flex-row mb-2">
                             <Text className="text-sm text-blue-600 mr-2">{i + 1}.</Text>
-                            <Text className="text-sm text-gray-700 flex-1">{solution}</Text>
+                            <Text className="text-sm text-secondary flex-1">{solution}</Text>
                           </View>
                         ))}
                       </View>
@@ -160,7 +160,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
 
         {/* Additional Help */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Still Having Issues?</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Still Having Issues?</Text>
           <View className="space-y-3">
             <Button title="View FAQ" onPress={() => {}} variant="secondary" fullWidth />
             <Button title="User Guide" onPress={() => {}} variant="secondary" fullWidth />
@@ -171,13 +171,13 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
 
         {/* Diagnostic Info */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">System Information</Text>
-          <View className="bg-gray-50 p-4 rounded-lg">
-            <Text className="text-xs text-gray-600 mb-1">When contacting support, include:</Text>
-            <Text className="text-xs text-gray-700 mb-1">• App version: 1.0.0 (MVP)</Text>
-            <Text className="text-xs text-gray-700 mb-1">• Device model and OS version</Text>
-            <Text className="text-xs text-gray-700 mb-1">• Steps to reproduce the issue</Text>
-            <Text className="text-xs text-gray-700">• Screenshots (without personal data)</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">System Information</Text>
+          <View className="bg-surface-secondary p-4 rounded-lg">
+            <Text className="text-xs text-secondary mb-1">When contacting support, include:</Text>
+            <Text className="text-xs text-secondary mb-1">• App version: 1.0.0 (MVP)</Text>
+            <Text className="text-xs text-secondary mb-1">• Device model and OS version</Text>
+            <Text className="text-xs text-secondary mb-1">• Steps to reproduce the issue</Text>
+            <Text className="text-xs text-secondary">• Screenshots (without personal data)</Text>
           </View>
         </Card>
 

@@ -118,7 +118,7 @@ export function QRSaveOverlay({
       style={[styles.container, { transform: [{ translateY }] }]}
       testID={testID ?? QR_SAVE_OVERLAY_IDS.container.id}
     >
-      <View className="bg-white rounded-t-[20px] shadow-lg elevation-16 pb-8">
+      <View className="bg-surface rounded-t-[20px] shadow-lg elevation-16 pb-8">
         {/* Drag handle */}
         <View className="w-9 h-1 bg-gray-300 rounded-sm self-center mt-3 mb-4" />
 
@@ -133,11 +133,11 @@ export function QRSaveOverlay({
                 </Text>
               </View>
             ) : (
-              <Text className="text-base font-bold text-gray-900" testID={QR_SAVE_OVERLAY_IDS.title.id}>
+              <Text className="text-base font-bold text-primary" testID={QR_SAVE_OVERLAY_IDS.title.id}>
                 QR Code Detected
               </Text>
             )}
-            <Text className="text-sm text-gray-500 mt-0.5" testID={QR_SAVE_OVERLAY_IDS.subtitle.id}>
+            <Text className="text-sm text-tertiary mt-0.5" testID={QR_SAVE_OVERLAY_IDS.subtitle.id}>
               {overlayState === 'saved'
                 ? `Saved from ${portalName} to your QR Wallet`
                 : `${portalName} generated a QR code`}
@@ -164,7 +164,7 @@ export function QRSaveOverlay({
           <View className="items-center mb-4 px-5" testID={QR_SAVE_OVERLAY_IDS.preview.id}>
             <Image
               source={{ uri: payload.qrImageBase64 }}
-              className="w-[140px] h-[140px] rounded-lg border border-gray-200"
+              className="w-[140px] h-[140px] rounded-lg border border-border-default"
               resizeMode="contain"
               accessibilityLabel="Detected QR code preview"
               testID={QR_SAVE_OVERLAY_IDS.image.id}
@@ -174,9 +174,9 @@ export function QRSaveOverlay({
 
         {/* Confirmation number */}
         {payload?.confirmationNumber && overlayState !== 'saved' && (
-          <View className="mx-5 mb-4 bg-gray-50 rounded-lg p-3" testID={QR_SAVE_OVERLAY_IDS.confirmation.id}>
-            <Text className="text-xs text-gray-500 mb-0.5">Reference Number</Text>
-            <Text className="text-sm font-semibold text-gray-900" testID={QR_SAVE_OVERLAY_IDS.refNumber.id}>
+          <View className="mx-5 mb-4 bg-surface-secondary rounded-lg p-3" testID={QR_SAVE_OVERLAY_IDS.confirmation.id}>
+            <Text className="text-xs text-tertiary mb-0.5">Reference Number</Text>
+            <Text className="text-sm font-semibold text-primary" testID={QR_SAVE_OVERLAY_IDS.refNumber.id}>
               {payload.confirmationNumber}
             </Text>
           </View>
@@ -207,11 +207,11 @@ export function QRSaveOverlay({
                 onPress={onDismiss}
                 onPressIn={() => setSecondaryPressed(true)}
                 onPressOut={() => setSecondaryPressed(false)}
-                className={`rounded-xl py-3.5 items-center border border-gray-200 mt-2.5 ${secondaryPressed ? 'bg-gray-100' : 'bg-white'}`}
+                className={`rounded-xl py-3.5 items-center border border-border-default mt-2.5 ${secondaryPressed ? 'bg-surface-tertiary' : 'bg-surface'}`}
                 accessibilityLabel="Back to trip"
                 testID={QR_SAVE_OVERLAY_IDS.backToTripButton.id}
               >
-                <Text className="text-gray-700 font-semibold text-base">Back to Trip</Text>
+                <Text className="text-secondary font-semibold text-base">Back to Trip</Text>
               </Pressable>
             </>
           ) : (
@@ -243,11 +243,11 @@ export function QRSaveOverlay({
                 onPress={onDismiss}
                 onPressIn={() => setSkipPressed(true)}
                 onPressOut={() => setSkipPressed(false)}
-                className={`rounded-xl py-3.5 items-center mt-2.5 ${skipPressed ? 'bg-gray-100' : 'bg-white'}`}
+                className={`rounded-xl py-3.5 items-center mt-2.5 ${skipPressed ? 'bg-surface-tertiary' : 'bg-surface'}`}
                 accessibilityLabel="Skip saving QR code"
                 testID={QR_SAVE_OVERLAY_IDS.skipButton.id}
               >
-                <Text className="text-gray-500 font-semibold text-base">
+                <Text className="text-tertiary font-semibold text-base">
                   {overlayState === 'error' ? 'Skip (Screenshot Manually)' : 'Skip'}
                 </Text>
               </Pressable>

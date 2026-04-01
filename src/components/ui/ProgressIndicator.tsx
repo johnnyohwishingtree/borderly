@@ -82,8 +82,8 @@ export default function ProgressIndicator({
       default:
         return {
           bg: 'bg-gray-200',
-          border: 'border-gray-300',
-          text: 'text-gray-600',
+          border: 'border-border-default',
+          text: 'text-secondary',
           icon: null as LucideIcon | null,
         };
     }
@@ -145,7 +145,7 @@ export default function ProgressIndicator({
               </View>
               
               {showLabels && (
-                <Text className={`ml-3 font-medium ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-gray-500'} ${sizeStyle.text}`}>
+                <Text className={`ml-3 font-medium ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-tertiary'} ${sizeStyle.text}`}>
                   {label}
                 </Text>
               )}
@@ -198,7 +198,7 @@ export default function ProgressIndicator({
               </View>
               
               {showLabels && (
-                <Text className={`mt-2 text-center ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-gray-500'} ${sizeStyle.text} font-medium`}>
+                <Text className={`mt-2 text-center ${status === 'current' ? 'text-blue-600' : status === 'completed' ? 'text-blue-600' : 'text-tertiary'} ${sizeStyle.text} font-medium`}>
                   {label}
                 </Text>
               )}

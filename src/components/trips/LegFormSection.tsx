@@ -41,8 +41,8 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
   return (
     <View className="p-4">
       {/* Country */}
-      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Country</Text>
+      <View className="bg-surface rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-primary mb-3">Country</Text>
         <View className="flex-row flex-wrap gap-2">
           {SUPPORTED_COUNTRIES.map(country => (
             <TouchableOpacity
@@ -51,14 +51,14 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
               className={`px-3 py-2 rounded-lg border ${
                 legData.destinationCountry === country.code
                   ? 'bg-blue-600 border-blue-600'
-                  : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+                  : 'bg-surface border-border-default'
               }`}
               activeOpacity={0.7}
               testID={`${testIDPrefix}-country-${country.code}`}
             >
               <Text
                 className={`font-medium text-sm ${
-                  legData.destinationCountry === country.code ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                  legData.destinationCountry === country.code ? 'text-white' : 'text-secondary'
                 }`}
               >
                 {country.name}
@@ -81,11 +81,11 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
       ) : null}
 
       {/* Dates */}
-      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Dates</Text>
+      <View className="bg-surface rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-primary mb-3">Dates</Text>
         <View className="flex-row gap-3">
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Date *</Text>
+            <Text className="text-sm font-medium text-secondary mb-1">Arrival Date *</Text>
             <DatePickerField
               value={legData.arrivalDate}
               onChange={date => onUpdateField('arrivalDate', date)}
@@ -95,7 +95,7 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
             />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Departure Date</Text>
+            <Text className="text-sm font-medium text-secondary mb-1">Departure Date</Text>
             <DatePickerField
               value={legData.departureDate}
               onChange={date => onUpdateField('departureDate', date)}
@@ -107,11 +107,11 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
       </View>
 
       {/* Flight */}
-      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Flight (Optional)</Text>
+      <View className="bg-surface rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-primary mb-3">Flight (Optional)</Text>
         <View className="flex-row gap-3 mb-3">
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Flight Number</Text>
+            <Text className="text-sm font-medium text-secondary mb-1">Flight Number</Text>
             <Input
               value={legData.flightNumber}
               onChangeText={text => onUpdateField('flightNumber', text)}
@@ -121,7 +121,7 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
             />
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Airline Code</Text>
+            <Text className="text-sm font-medium text-secondary mb-1">Airline Code</Text>
             <Input
               value={legData.airlineCode}
               onChangeText={text => onUpdateField('airlineCode', text)}
@@ -132,7 +132,7 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
           </View>
         </View>
         <View>
-          <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Arrival Airport</Text>
+          <Text className="text-sm font-medium text-secondary mb-1">Arrival Airport</Text>
           <SearchableSelect
             value={legData.arrivalAirport}
             onValueChange={val => onUpdateField('arrivalAirport', val)}
@@ -144,8 +144,8 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
       </View>
 
       {/* Accommodation */}
-      <View className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-        <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">Accommodation *</Text>
+      <View className="bg-surface rounded-lg p-4 mb-4">
+        <Text className="text-base font-semibold text-primary mb-3">Accommodation *</Text>
         <View className="space-y-3">
           <View>
             <AccommodationAutocomplete
@@ -161,7 +161,7 @@ export default function LegFormSection({ legData, onUpdateField, onAddressChange
             testID={`${testIDPrefix}-accommodation-address`}
           />
           <View>
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone (Optional)</Text>
+            <Text className="text-sm font-medium text-secondary mb-1">Phone (Optional)</Text>
             <Input
               value={legData.accommodation.phone}
               onChangeText={text => onUpdateField('accommodation.phone', text)}

@@ -91,7 +91,7 @@ export default function FamilyManagementScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="flex-1 bg-surface-secondary">
         <LoadingStates
           state="loading"
           variant="spinner"
@@ -104,13 +104,13 @@ export default function FamilyManagementScreen() {
   }
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView className="flex-1">
       <View className="p-4">
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-base text-gray-600 dark:text-gray-400 flex-1">
+            <Text className="text-base text-secondary flex-1">
               Manage your family travel profiles
             </Text>
             <Button
@@ -157,20 +157,20 @@ export default function FamilyManagementScreen() {
         {/* Information Card */}
         <Card className="mt-6">
           <View className="p-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <Text className="text-lg font-semibold text-primary mb-3">
               About Family Profiles
             </Text>
             <View className="space-y-2">
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 • Each family member gets their own secure profile
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 • All data is stored locally on your device
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 • Scan multiple passports for quick setup
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 • Forms can be auto-filled for each family member
               </Text>
             </View>

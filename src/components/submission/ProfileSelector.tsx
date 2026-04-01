@@ -46,12 +46,12 @@ export function ProfileSelector({
         onPress={() => setIsOpen(prev => !prev)}
         onPressIn={() => setIsPressed(true)}
         onPressOut={() => setIsPressed(false)}
-        className={`flex-row items-center rounded-lg px-2.5 py-2 gap-1.5 ${isPressed ? 'bg-gray-200' : 'bg-gray-100'}`}
+        className={`flex-row items-center rounded-lg px-2.5 py-2 gap-1.5 ${isPressed ? 'bg-gray-200' : 'bg-surface-tertiary'}`}
         accessibilityLabel="Select profile for auto-fill"
         testID={PROFILE_SELECTOR_IDS.trigger.id}
       >
         <User size={14} color="#6B7280" />
-        <Text className="flex-1 text-sm text-gray-700 font-medium" numberOfLines={1} testID={PROFILE_SELECTOR_IDS.label.id}>
+        <Text className="flex-1 text-sm text-secondary font-medium" numberOfLines={1} testID={PROFILE_SELECTOR_IDS.label.id}>
           {displayLabel}
         </Text>
         {isOpen ? (
@@ -64,7 +64,7 @@ export function ProfileSelector({
       {/* Dropdown options */}
       {isOpen && (
         <ScrollView
-          className="max-h-[200px] mt-1 bg-white rounded-lg border border-gray-200 shadow-sm elevation-3"
+          className="max-h-[200px] mt-1 bg-surface rounded-lg border border-border-default shadow-sm elevation-3"
           contentContainerClassName="py-1"
           nestedScrollEnabled
           testID={PROFILE_SELECTOR_IDS.dropdown.id}
@@ -83,7 +83,7 @@ export function ProfileSelector({
                 testID={PROFILE_SELECTOR_IDS.option(profile.id).id}
               >
                 <Text
-                  className={`flex-1 text-sm ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'}`}
+                  className={`flex-1 text-sm ${isSelected ? 'text-blue-600 font-semibold' : 'text-secondary'}`}
                   numberOfLines={1}
                 >
                   {profile.name} ({profile.relationship})

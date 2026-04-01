@@ -152,15 +152,15 @@ export default function RatingPrompt({
       onRequestClose={handleClose}
     >
       <View className="flex-1 bg-black/50 justify-center items-center p-4">
-        <View className="bg-white rounded-2xl max-w-md w-full">
+        <View className="bg-surface rounded-2xl max-w-md w-full">
           {!showDetailedFeedback ? (
             <Card className="m-0">
               {/* Header */}
               <View className="text-center mb-6">
-                <Text className="text-xl font-bold text-gray-900 mb-2">
+                <Text className="text-xl font-bold text-primary mb-2">
                   {getTriggerTitle()}
                 </Text>
-                <Text className="text-base text-gray-600">
+                <Text className="text-base text-secondary">
                   {getTriggerMessage()}
                 </Text>
               </View>
@@ -180,7 +180,7 @@ export default function RatingPrompt({
                 </View>
 
                 {rating > 0 && (
-                  <Text className="text-center text-sm font-medium text-gray-700">
+                  <Text className="text-center text-sm font-medium text-secondary">
                     {getRatingText(rating)} ({rating}/5)
                   </Text>
                 )}
@@ -206,10 +206,10 @@ export default function RatingPrompt({
               </View>
 
               {/* Privacy Notice */}
-              <View className="bg-gray-50 p-3 rounded-lg mt-4">
+              <View className="bg-surface-secondary p-3 rounded-lg mt-4">
                 <View className="flex-row items-center justify-center">
                   <Lock size={12} color="#4b5563" />
-                  <Text className="text-xs text-gray-600 ml-1">
+                  <Text className="text-xs text-secondary ml-1">
                     Your rating helps improve the app. No personal data is shared.
                   </Text>
                 </View>
@@ -219,10 +219,10 @@ export default function RatingPrompt({
             <Card className="m-0">
               {/* Detailed Feedback Request */}
               <View className="text-center mb-6">
-                <Text className="text-xl font-bold text-gray-900 mb-2">
+                <Text className="text-xl font-bold text-primary mb-2">
                   Help us improve!
                 </Text>
-                <Text className="text-base text-gray-600 mb-4">
+                <Text className="text-base text-secondary mb-4">
                   Thanks for your {rating}-star rating. We'd love to know more about your experience.
                 </Text>
                 

@@ -81,16 +81,16 @@ export default function LoadingStates({
     return (
       <View className={containerClasses}>
         <View className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full items-center justify-center mb-4">
-          <Text className="text-green-600 dark:text-green-400 text-2xl font-bold">✓</Text>
+          <Text className="text-success text-2xl font-bold">✓</Text>
         </View>
         <Text
-          className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2"
+          className="text-lg font-semibold text-primary text-center mb-2"
           accessibilityRole="text"
         >
           Success!
         </Text>
         <Text
-          className="text-base text-gray-600 dark:text-gray-400 text-center"
+          className="text-base text-secondary text-center"
           accessibilityRole="text"
         >
           {successMessage}
@@ -103,18 +103,18 @@ export default function LoadingStates({
     return (
       <View className={containerClasses}>
         <View className="w-16 h-16 bg-red-100 dark:bg-red-900/40 rounded-full items-center justify-center mb-4">
-          <Text className="text-red-600 dark:text-red-400 text-2xl font-bold">!</Text>
+          <Text className="text-error text-2xl font-bold">!</Text>
         </View>
 
         <Text
-          className="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2"
+          className="text-lg font-semibold text-primary text-center mb-2"
           accessibilityRole="text"
         >
           {state === 'timeout' ? 'Request Timed Out' : 'Error'}
         </Text>
 
         <Text
-          className="text-base text-gray-600 dark:text-gray-400 text-center mb-6 max-w-sm leading-6"
+          className="text-base text-secondary text-center mb-6 max-w-sm leading-6"
           accessibilityRole="text"
         >
           {state === 'timeout' 

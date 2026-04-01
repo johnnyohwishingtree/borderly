@@ -42,8 +42,8 @@ export default function EmptyState({
     const baseStyles = 'mb-6 items-center justify-center rounded-full';
     
     const variantStyles = {
-      default: 'w-16 h-16 bg-gray-100',
-      compact: 'w-12 h-12 bg-gray-50',
+      default: 'w-16 h-16 bg-surface-tertiary',
+      compact: 'w-12 h-12 bg-surface-secondary',
       illustration: 'w-20 h-20 bg-blue-50',
     };
     
@@ -51,7 +51,7 @@ export default function EmptyState({
   };
 
   const getTitleStyles = () => {
-    const baseStyles = 'font-semibold text-gray-900 text-center mb-3';
+    const baseStyles = 'font-semibold text-primary text-center mb-3';
     
     const variantStyles = {
       default: 'text-xl',
@@ -63,7 +63,7 @@ export default function EmptyState({
   };
 
   const getDescriptionStyles = () => {
-    const baseStyles = 'text-gray-600 text-center leading-6';
+    const baseStyles = 'text-secondary text-center leading-6';
     
     const variantStyles = {
       default: 'text-base mb-8 max-w-sm',

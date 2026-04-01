@@ -127,7 +127,7 @@ export default function ContextualHelp({
         onRequestClose={() => setIsVisible(false)}
       >
         <View className="flex-1 bg-black bg-opacity-50 justify-center items-center p-4">
-          <View className="bg-white rounded-xl max-w-sm w-full max-h-4/5">
+          <View className="bg-surface rounded-xl max-w-sm w-full max-h-4/5">
             <ScrollView className="p-6">
               {/* Header */}
               <View className="flex-row items-center justify-between mb-4">
@@ -135,7 +135,7 @@ export default function ContextualHelp({
                   <View className="mr-2">
                     <CircleHelp size={24} color="#2563eb" />
                   </View>
-                  <Text className="text-lg font-semibold text-gray-900 flex-1">
+                  <Text className="text-lg font-semibold text-primary flex-1">
                     {content.title}
                   </Text>
                 </View>
@@ -153,20 +153,20 @@ export default function ContextualHelp({
               </View>
 
               {/* Description */}
-              <Text className="text-base text-gray-700 leading-relaxed mb-4">
+              <Text className="text-base text-secondary leading-relaxed mb-4">
                 {content.description}
               </Text>
 
               {/* Tips */}
               {content.tips && content.tips.length > 0 && (
                 <View className="mb-4">
-                  <Text className="text-base font-semibold text-gray-900 mb-2">
+                  <Text className="text-base font-semibold text-primary mb-2">
                     Quick Tips:
                   </Text>
                   {content.tips.map((tip, index) => (
                     <View key={index} className="flex-row mb-2">
                       <Text className="text-blue-600 mr-2">•</Text>
-                      <Text className="text-sm text-gray-700 flex-1">{tip}</Text>
+                      <Text className="text-sm text-secondary flex-1">{tip}</Text>
                     </View>
                   ))}
                 </View>
@@ -190,7 +190,7 @@ export default function ContextualHelp({
             </ScrollView>
 
             {/* Footer Actions */}
-            <View className="border-t border-gray-200 px-6 py-4">
+            <View className="border-t border-border-default px-6 py-4">
               <Button
                 title="Got it!"
                 onPress={() => setIsVisible(false)}

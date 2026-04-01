@@ -32,12 +32,12 @@ export default function NotificationPreferences() {
   };
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
       <ScrollView className="flex-1">
         <View className="p-4 space-y-4">
           {/* Header */}
           <View className="mb-2">
-            <Text className="text-base text-gray-600 dark:text-gray-400">
+            <Text className="text-base text-secondary">
               Configure deadline reminders for your travel forms
             </Text>
           </View>
@@ -52,10 +52,10 @@ export default function NotificationPreferences() {
                   <BellOff size={24} color="#9ca3af" />
                 )}
                 <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                  <Text className="text-base font-semibold text-primary">
                     Deadline Reminders
                   </Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <Text className="text-sm text-secondary mt-1">
                     Get notified before form submission deadlines
                   </Text>
                 </View>
@@ -75,11 +75,11 @@ export default function NotificationPreferences() {
             <Card testID="notification-timing-card">
               <View className="flex-row items-center mb-4">
                 <Clock size={20} color="#6b7280" />
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
+                <Text className="text-lg font-semibold text-primary ml-2">
                   Reminder Timing
                 </Text>
               </View>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <Text className="text-sm text-secondary mb-4">
                 Choose when to receive reminders before each deadline
               </Text>
 
@@ -102,22 +102,22 @@ export default function NotificationPreferences() {
                       <View className={`flex-row items-center justify-between p-3 rounded-lg ${
                         isSelected
                           ? 'bg-blue-50 dark:bg-blue-900/20'
-                          : 'bg-gray-50 dark:bg-gray-800'
+                          : 'bg-surface-secondary'
                       }`}>
                         <View className="flex-1">
                           <Text className={`text-base font-medium ${
-                            isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-gray-700 dark:text-gray-300'
+                            isSelected ? 'text-blue-900 dark:text-blue-100' : 'text-secondary'
                           }`}>
                             {option.label}
                           </Text>
-                          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <Text className="text-xs text-tertiary mt-1">
                             {option.description}
                           </Text>
                         </View>
                         <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
                           isSelected
                             ? 'bg-blue-500 border-blue-500'
-                            : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500'
+                            : 'bg-surface border-border-default'
                         }`}>
                           {isSelected && (
                             <Check size={14} color="#ffffff" />
@@ -136,17 +136,17 @@ export default function NotificationPreferences() {
             <Card testID="notification-quiet-hours-card">
               <View className="flex-row items-center mb-4">
                 <Moon size={20} color="#6b7280" />
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
+                <Text className="text-lg font-semibold text-primary ml-2">
                   Quiet Hours
                 </Text>
               </View>
 
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1">
-                  <Text className="text-base font-medium text-gray-900 dark:text-white">
+                  <Text className="text-base font-medium text-primary">
                     Suppress during sleep
                   </Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <Text className="text-sm text-secondary mt-1">
                     Notifications are held until quiet hours end
                   </Text>
                 </View>
@@ -160,11 +160,11 @@ export default function NotificationPreferences() {
               </View>
 
               {quietHoursEnabled && (
-                <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                <View className="bg-surface-secondary p-3 rounded-lg">
                   <View className="flex-row justify-between items-center">
-                    <Text className="text-sm text-gray-700 dark:text-gray-300">Start</Text>
+                    <Text className="text-sm text-secondary">Start</Text>
                     <Text
-                      className="text-base font-medium text-gray-900 dark:text-white"
+                      className="text-base font-medium text-primary"
                       accessibilityLabel={`Quiet hours start at ${quietHoursStart}`}
                       testID="quiet-hours-start"
                     >
@@ -172,9 +172,9 @@ export default function NotificationPreferences() {
                     </Text>
                   </View>
                   <View className="flex-row justify-between items-center mt-2">
-                    <Text className="text-sm text-gray-700 dark:text-gray-300">End</Text>
+                    <Text className="text-sm text-secondary">End</Text>
                     <Text
-                      className="text-base font-medium text-gray-900 dark:text-white"
+                      className="text-base font-medium text-primary"
                       accessibilityLabel={`Quiet hours end at ${quietHoursEnd}`}
                       testID="quiet-hours-end"
                     >

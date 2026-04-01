@@ -194,9 +194,9 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
 
     if (urlBlocked) {
       return (
-        <View className="flex-1 justify-center items-center p-6 bg-gray-50" testID={testID}>
+        <View className="flex-1 justify-center items-center p-6 bg-surface-secondary" testID={testID}>
           <Text className="text-lg font-semibold text-red-700 mb-2 text-center">Access Denied</Text>
-          <Text className="text-sm text-gray-600 text-center leading-5">
+          <Text className="text-sm text-secondary text-center leading-5">
             This URL is not permitted.{'\n'}
             Only official government portals may be loaded.
           </Text>
@@ -231,9 +231,9 @@ const PortalWebView = forwardRef<PortalWebViewHandle, PortalWebViewProps>(
         )}
 
         {errorMessage && (
-          <View className="flex-1 justify-center items-center p-6 bg-gray-50">
+          <View className="flex-1 justify-center items-center p-6 bg-surface-secondary">
             <Text className="text-lg font-semibold text-red-700 mb-2 text-center">Unable to Load Page</Text>
-            <Text className="text-sm text-gray-600 text-center leading-5">{errorMessage}</Text>
+            <Text className="text-sm text-secondary text-center leading-5">{errorMessage}</Text>
           </View>
         )}
       </View>

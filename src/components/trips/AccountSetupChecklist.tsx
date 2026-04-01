@@ -233,12 +233,12 @@ export default function AccountSetupChecklist({
   return (
     <View
       testID={testID ?? ACCOUNT_SETUP_CHECKLIST_IDS.container.id}
-      className="bg-white mx-4 mb-4 rounded-xl shadow-sm border border-gray-100"
+      className="bg-surface mx-4 mb-4 rounded-xl shadow-sm border border-border-light"
     >
       {/* Section header */}
-      <View className="px-4 pt-4 pb-2 border-b border-gray-100">
-        <Text className="text-base font-semibold text-gray-900">Pre-trip Setup</Text>
-        <Text className="text-xs text-gray-500 mt-0.5">
+      <View className="px-4 pt-4 pb-2 border-b border-border-light">
+        <Text className="text-base font-semibold text-primary">Pre-trip Setup</Text>
+        <Text className="text-xs text-tertiary mt-0.5">
           Set up portal accounts before you fill out forms
         </Text>
       </View>
@@ -270,7 +270,7 @@ export default function AccountSetupChecklist({
                 >
                   <Text className="text-base mr-2">-</Text>
                   <View className="flex-1">
-                    <Text className="text-sm text-gray-600">
+                    <Text className="text-sm text-secondary">
                       <Text className="font-medium text-gray-800">{info.countryName}</Text>
                       {' — No account needed'}
                     </Text>
@@ -328,7 +328,7 @@ export default function AccountSetupChecklist({
                   {!isCompanion &&
                     info.familyPolicy?.type === 'individual' &&
                     !isReady && (
-                      <Text className="text-xs text-gray-500 mt-0.5">
+                      <Text className="text-xs text-tertiary mt-0.5">
                         {info.familyPolicy?.description}
                       </Text>
                     )}
@@ -361,9 +361,9 @@ export default function AccountSetupChecklist({
         testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupWebviewModal.id}
         onRequestClose={handleCloseModal}
       >
-        <SafeAreaView className="flex-1 bg-white">
+        <SafeAreaView className="flex-1 bg-surface">
           {/* Modal header */}
-          <View className="flex-row items-center px-4 py-3 border-b border-gray-200">
+          <View className="flex-row items-center px-4 py-3 border-b border-border-default">
             <TouchableOpacity
               onPress={handleCloseModal}
               testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupModalClose.id}
@@ -393,9 +393,9 @@ export default function AccountSetupChecklist({
           {signupModal && (
             <View className="flex-1">
               {webviewLoading && (
-                <View className="absolute inset-0 items-center justify-center z-10 bg-white">
+                <View className="absolute inset-0 items-center justify-center z-10 bg-surface">
                   <ActivityIndicator size="large" color="#2563eb" testID={ACCOUNT_SETUP_CHECKLIST_IDS.signupWebviewLoading.id} />
-                  <Text className="text-sm text-gray-500 mt-2">Loading signup page…</Text>
+                  <Text className="text-sm text-tertiary mt-2">Loading signup page…</Text>
                 </View>
               )}
               <WebView

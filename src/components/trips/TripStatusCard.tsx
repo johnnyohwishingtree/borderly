@@ -130,7 +130,7 @@ const TripStatusCard = memo<TripStatusCardProps>(({
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <Users size={16} color="#6B7280" />
-              <Text className="text-sm font-medium text-gray-700 ml-2">
+              <Text className="text-sm font-medium text-secondary ml-2">
                 Family Progress
               </Text>
             </View>
@@ -157,7 +157,7 @@ const TripStatusCard = memo<TripStatusCardProps>(({
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center">
             <Users size={20} color="#3B82F6" />
-            <Text className="text-lg font-semibold text-gray-900 ml-3">
+            <Text className="text-lg font-semibold text-primary ml-3">
               Family Progress
             </Text>
           </View>
@@ -165,7 +165,7 @@ const TripStatusCard = memo<TripStatusCardProps>(({
             <Text className={`text-lg font-bold ${getStatusColor(familyMetrics.completionPercentage)}`}>
               {Math.round(familyMetrics.completionPercentage)}%
             </Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-xs text-tertiary">
               {familyMetrics.completedForms}/{familyMetrics.totalForms} forms
             </Text>
           </View>
@@ -181,29 +181,29 @@ const TripStatusCard = memo<TripStatusCardProps>(({
         </View>
 
         {/* Summary Stats */}
-        <View className="flex-row justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+        <View className="flex-row justify-between mb-4 p-3 bg-surface-secondary rounded-lg">
           <View className="items-center">
-            <Text className="text-sm font-bold text-gray-900">{familyMetrics.totalTravelers}</Text>
-            <Text className="text-xs text-gray-600">Travelers</Text>
+            <Text className="text-sm font-bold text-primary">{familyMetrics.totalTravelers}</Text>
+            <Text className="text-xs text-secondary">Travelers</Text>
           </View>
           <View className="items-center">
             <Text className="text-sm font-bold text-green-600">{familyMetrics.completedForms}</Text>
-            <Text className="text-xs text-gray-600">Ready</Text>
+            <Text className="text-xs text-secondary">Ready</Text>
           </View>
           <View className="items-center">
             <Text className="text-sm font-bold text-yellow-600">{familyMetrics.inProgressForms}</Text>
-            <Text className="text-xs text-gray-600">In Progress</Text>
+            <Text className="text-xs text-secondary">In Progress</Text>
           </View>
           <View className="items-center">
             <Text className="text-sm font-bold text-red-600">{familyMetrics.notStartedForms}</Text>
-            <Text className="text-xs text-gray-600">Not Started</Text>
+            <Text className="text-xs text-secondary">Not Started</Text>
           </View>
         </View>
 
         {/* Individual Traveler Progress */}
         {showDetailedProgress && familyMetrics.travelerProgress.length > 0 && (
           <View>
-            <Text className="text-sm font-medium text-gray-700 mb-3">
+            <Text className="text-sm font-medium text-secondary mb-3">
               Individual Progress
             </Text>
             <View className="space-y-3">
@@ -219,7 +219,7 @@ const TripStatusCard = memo<TripStatusCardProps>(({
                   {/* Name & Progress */}
                   <View className="flex-1">
                     <View className="flex-row items-center justify-between mb-1">
-                      <Text className="text-sm font-medium text-gray-900">
+                      <Text className="text-sm font-medium text-primary">
                         {progress.traveler.givenNames} {progress.traveler.surname}
                       </Text>
                       <View className="flex-row items-center">
@@ -237,11 +237,11 @@ const TripStatusCard = memo<TripStatusCardProps>(({
                           color={progress.percentage === 100 ? "green" : progress.percentage > 0 ? "yellow" : "red"}
                         />
                       </View>
-                      <Text className="text-xs text-gray-500">
+                      <Text className="text-xs text-tertiary">
                         {progress.completed}/{progress.total}
                       </Text>
                     </View>
-                    <Text className="text-xs text-gray-500 mt-1">
+                    <Text className="text-xs text-tertiary mt-1">
                       {progress.traveler.relationship === 'self' ? 'Primary' : progress.traveler.relationship}
                     </Text>
                   </View>
@@ -255,7 +255,7 @@ const TripStatusCard = memo<TripStatusCardProps>(({
         {familyMetrics.totalTravelers === 0 && (
           <View className="py-4 items-center">
             <AlertCircle size={24} color="#9CA3AF" />
-            <Text className="text-gray-500 text-center mt-2">
+            <Text className="text-tertiary text-center mt-2">
               No travelers assigned to this trip
             </Text>
           </View>

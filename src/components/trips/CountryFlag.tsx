@@ -41,10 +41,10 @@ export default function CountryFlag({
     return (
       <View className={`flex-row items-center ${className || ''}`} {...viewProps}>
         <View className="w-8 h-5 bg-gray-200 rounded justify-center items-center">
-          <Text className="text-[8px] text-gray-500">??</Text>
+          <Text className="text-[8px] text-tertiary">??</Text>
         </View>
         {showName && (
-          <Text className="ml-2 text-sm font-medium text-gray-700">Unknown</Text>
+          <Text className="ml-2 text-sm font-medium text-secondary">Unknown</Text>
         )}
       </View>
     );
@@ -59,7 +59,7 @@ export default function CountryFlag({
         <SvgXml xml={svg} width={flagSize.w} height={flagSize.h} />
       </View>
       {showName && (
-        <Text className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <Text className="ml-2 text-sm font-medium text-secondary">
           {country.fullName}
         </Text>
       )}

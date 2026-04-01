@@ -26,7 +26,7 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  not_started: 'text-gray-500',
+  not_started: 'text-tertiary',
   in_progress: 'text-amber-600',
   ready: 'text-blue-600',
   submitted: 'text-green-600',
@@ -45,7 +45,7 @@ const TravelerProgressList = memo<TravelerProgressListProps>(({
       testID={testID}
       accessibilityRole="summary"
     >
-      <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+      <Text className="text-sm font-semibold text-primary mb-3">
         Traveler Progress
       </Text>
       {travelers.map((traveler) => {
@@ -53,7 +53,7 @@ const TravelerProgressList = memo<TravelerProgressListProps>(({
           ? (traveler.legsReady / traveler.legsTotal) * 100
           : 0;
         const relationLabel = RELATIONSHIP_LABELS[traveler.relationship] ?? 'Family';
-        const statusColor = STATUS_COLORS[traveler.overallStatus] ?? 'text-gray-500';
+        const statusColor = STATUS_COLORS[traveler.overallStatus] ?? 'text-tertiary';
         const a11yLabel = `${traveler.name}, ${relationLabel.toLowerCase()}: ${traveler.legsReady} of ${traveler.legsTotal} legs ready`;
 
         return (
@@ -67,10 +67,10 @@ const TravelerProgressList = memo<TravelerProgressListProps>(({
           >
             <View className="flex-row items-center justify-between mb-1">
               <View className="flex-row items-center flex-1">
-                <Text className="text-sm font-medium text-gray-800 dark:text-gray-200 mr-2">
+                <Text className="text-sm font-medium text-gray-800 mr-2">
                   {traveler.name}
                 </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400">
+                <Text className="text-xs text-tertiary">
                   {relationLabel}
                 </Text>
               </View>

@@ -43,10 +43,10 @@ export default function SmartImportSheet({
   const [activeTab, setActiveTab] = useState<Tab>('paste');
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-surface">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
-        <Text className="text-lg font-bold text-gray-900">Smart Import</Text>
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-border-default">
+        <Text className="text-lg font-bold text-primary">Smart Import</Text>
         <TouchableOpacity
           onPress={onClose}
           testID={SMART_IMPORT_SHEET_IDS.closeButton.id}
@@ -57,7 +57,7 @@ export default function SmartImportSheet({
       </View>
 
       {/* Tab Bar */}
-      <View className="flex-row border-b border-gray-200">
+      <View className="flex-row border-b border-border-default">
         <TabButton
           label="Paste Confirmation"
           icon={<ClipboardPaste size={16} color={activeTab === 'paste' ? '#2563eb' : '#6b7280'} />}
@@ -110,7 +110,7 @@ function TabButton({
       {icon}
       <Text
         className={`ml-2 text-sm font-medium ${
-          active ? 'text-blue-600' : 'text-gray-500'
+          active ? 'text-blue-600' : 'text-tertiary'
         }`}
       >
         {label}
@@ -151,7 +151,7 @@ function PasteTab({
 
   return (
     <ScrollView className="flex-1 p-4" keyboardDismissMode="on-drag">
-      <Text className="text-sm text-gray-600 mb-3">
+      <Text className="text-sm text-secondary mb-3">
         Paste a booking confirmation email or text. We'll extract flight and
         hotel details automatically.
       </Text>
@@ -163,7 +163,7 @@ function PasteTab({
         multiline
         numberOfLines={8}
         textAlignVertical="top"
-        className="border border-gray-300 rounded-lg p-3 text-base text-gray-900 mb-4 min-h-[160px]"
+        className="border border-border-default rounded-lg p-3 text-base text-primary mb-4 min-h-[160px]"
         testID={SMART_IMPORT_SHEET_IDS.pasteConfirmationField.id}
       />
 
@@ -187,7 +187,7 @@ function PasteTab({
 
       {hasResults && (
         <View className="mt-4">
-          <Text className="text-base font-semibold text-gray-900 mb-3">
+          <Text className="text-base font-semibold text-primary mb-3">
             Found Information
           </Text>
 
@@ -200,7 +200,7 @@ function PasteTab({
           ))}
 
           <View className="mt-2 mb-4">
-            <Text className="text-xs text-gray-500">
+            <Text className="text-xs text-tertiary">
               Confidence: {Math.round(parseResult.confidence * 100)}%
             </Text>
           </View>
@@ -257,12 +257,12 @@ function FlightTab({
 
   return (
     <ScrollView className="flex-1 p-4" keyboardDismissMode="on-drag">
-      <Text className="text-sm text-gray-600 mb-3">
+      <Text className="text-sm text-secondary mb-3">
         Enter a flight number to look up airline and route info.
       </Text>
 
       <View className="mb-3">
-        <Text className="text-sm font-medium text-gray-700 mb-1">
+        <Text className="text-sm font-medium text-secondary mb-1">
           Flight Number
         </Text>
         <TextInput
@@ -270,14 +270,14 @@ function FlightTab({
           onChangeText={setFlightNumber}
           placeholder="e.g., NH101, JL723, SQ12"
           autoCapitalize="characters"
-          className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
+          className="border border-border-default rounded-lg p-3 text-base text-primary"
           testID={SMART_IMPORT_SHEET_IDS.flightNumberField.id}
         />
       </View>
 
       <View className="flex-row gap-3 mb-3">
         <View className="flex-1">
-          <Text className="text-sm font-medium text-gray-700 mb-1">
+          <Text className="text-sm font-medium text-secondary mb-1">
             From (Optional)
           </Text>
           <TextInput
@@ -286,12 +286,12 @@ function FlightTab({
             placeholder="e.g., LAX"
             autoCapitalize="characters"
             maxLength={3}
-            className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
+            className="border border-border-default rounded-lg p-3 text-base text-primary"
             testID={SMART_IMPORT_SHEET_IDS.departureAirportField.id}
           />
         </View>
         <View className="flex-1">
-          <Text className="text-sm font-medium text-gray-700 mb-1">
+          <Text className="text-sm font-medium text-secondary mb-1">
             To (Optional)
           </Text>
           <TextInput
@@ -300,21 +300,21 @@ function FlightTab({
             placeholder="e.g., NRT"
             autoCapitalize="characters"
             maxLength={3}
-            className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
+            className="border border-border-default rounded-lg p-3 text-base text-primary"
             testID={SMART_IMPORT_SHEET_IDS.arrivalAirportField.id}
           />
         </View>
       </View>
 
       <View className="mb-4">
-        <Text className="text-sm font-medium text-gray-700 mb-1">
+        <Text className="text-sm font-medium text-secondary mb-1">
           Date (Optional)
         </Text>
         <TextInput
           value={date}
           onChangeText={setDate}
           placeholder="YYYY-MM-DD"
-          className="border border-gray-300 rounded-lg p-3 text-base text-gray-900"
+          className="border border-border-default rounded-lg p-3 text-base text-primary"
           testID={SMART_IMPORT_SHEET_IDS.flightDateField.id}
         />
       </View>
@@ -358,23 +358,23 @@ function FlightResultCard({ flight }: { flight: ParsedFlightInfo }) {
       <View className="p-3">
         <View className="flex-row items-center mb-2">
           <Plane size={16} color="#2563eb" />
-          <Text className="ml-2 text-sm font-semibold text-gray-900">
+          <Text className="ml-2 text-sm font-semibold text-primary">
             {flight.flightNumber}
           </Text>
           {flight.airlineName && (
-            <Text className="ml-2 text-sm text-gray-600">
+            <Text className="ml-2 text-sm text-secondary">
               {flight.airlineName}
             </Text>
           )}
         </View>
         {(flight.departureAirport || flight.arrivalAirport) && (
-          <Text className="text-sm text-gray-700">
+          <Text className="text-sm text-secondary">
             {flight.departureCity || flight.departureAirport || '?'}{' '}
             → {flight.arrivalCity || flight.arrivalAirport || '?'}
           </Text>
         )}
         {flight.flightDate && (
-          <Text className="text-xs text-gray-500 mt-1">
+          <Text className="text-xs text-tertiary mt-1">
             {flight.flightDate}
           </Text>
         )}
@@ -394,20 +394,20 @@ function HotelResultCard({ hotel }: { hotel: ParsedHotelInfo }) {
       <View className="p-3">
         <View className="flex-row items-center mb-2">
           <Building2 size={16} color="#059669" />
-          <Text className="ml-2 text-sm font-semibold text-gray-900">
+          <Text className="ml-2 text-sm font-semibold text-primary">
             {hotel.name}
           </Text>
         </View>
         {hotel.address && (
-          <Text className="text-sm text-gray-700">{hotel.address}</Text>
+          <Text className="text-sm text-secondary">{hotel.address}</Text>
         )}
         {(hotel.checkInDate || hotel.checkOutDate) && (
-          <Text className="text-xs text-gray-500 mt-1">
+          <Text className="text-xs text-tertiary mt-1">
             {hotel.checkInDate || '?'} → {hotel.checkOutDate || '?'}
           </Text>
         )}
         {hotel.bookingReference && (
-          <Text className="text-xs text-gray-500 mt-1">
+          <Text className="text-xs text-tertiary mt-1">
             Ref: {hotel.bookingReference}
           </Text>
         )}

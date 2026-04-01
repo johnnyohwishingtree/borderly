@@ -20,18 +20,18 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
   } = useHelpScreen();
 
   return (
-    <ScreenContainer className="bg-gray-50">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-base text-gray-600">Find answers and get assistance</Text>
+          <Text className="text-base text-secondary">Find answers and get assistance</Text>
         </View>
 
         {/* Search Help */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">Search Help</Text>
-          <Text className="text-sm text-gray-600 mb-4">
+          <Text className="text-lg font-semibold text-primary mb-3">Search Help</Text>
+          <Text className="text-sm text-secondary mb-4">
             Find answers quickly with our comprehensive search
           </Text>
           <Button
@@ -44,7 +44,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
 
         {/* Help Categories */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Help Categories</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Help Categories</Text>
 
           <View className="space-y-3">
             <Button
@@ -70,7 +70,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
 
         {/* Contact & Support */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Contact & Support</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Contact & Support</Text>
 
           <View className="space-y-3">
             <Button
@@ -101,7 +101,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
 
         {/* Category Filter */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Browse by Category</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Browse by Category</Text>
 
           <View className="flex-row flex-wrap gap-2">
             {categories.map((category) => (
@@ -129,7 +129,7 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
         {/* FAQ Section */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Frequently Asked Questions</Text>
+            <Text className="text-lg font-semibold text-primary mr-3">Frequently Asked Questions</Text>
             <StatusBadge
               status="info"
               size="small"
@@ -138,13 +138,13 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
           </View>
 
           {filteredFAQs.length === 0 ? (
-            <View className="bg-gray-50 p-4 rounded-lg">
-              <Text className="text-center text-gray-600">No questions found for this category.</Text>
+            <View className="bg-surface-secondary p-4 rounded-lg">
+              <Text className="text-center text-secondary">No questions found for this category.</Text>
             </View>
           ) : (
             <View className="space-y-3">
               {filteredFAQs.map((faq) => (
-                <View key={faq.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <View key={faq.id} className="border border-border-default rounded-lg overflow-hidden">
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
@@ -153,8 +153,8 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
                   />
 
                   {expandedFAQ === faq.id && (
-                    <View className="px-4 pb-4 bg-gray-50 border-t border-gray-200">
-                      <Text className="text-sm text-gray-700 leading-relaxed">
+                    <View className="px-4 pb-4 bg-surface-secondary border-t border-border-default">
+                      <Text className="text-sm text-secondary leading-relaxed">
                         {faq.answer}
                       </Text>
 
@@ -196,20 +196,20 @@ export default function HelpScreen({ route: _route }: HelpScreenProps) {
 
         {/* App Info */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">App Information</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">App Information</Text>
 
           <View className="space-y-3">
             <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-600">Version:</Text>
-              <Text className="text-sm text-gray-900">1.0.0 (MVP)</Text>
+              <Text className="text-sm text-secondary">Version:</Text>
+              <Text className="text-sm text-primary">1.0.0 (MVP)</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-600">Supported Countries:</Text>
-              <Text className="text-sm text-gray-900">🇯🇵 🇲🇾 🇸🇬</Text>
+              <Text className="text-sm text-secondary">Supported Countries:</Text>
+              <Text className="text-sm text-primary">🇯🇵 🇲🇾 🇸🇬</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-600">Privacy:</Text>
-              <Text className="text-sm text-gray-900">Local-first, No cloud sync</Text>
+              <Text className="text-sm text-secondary">Privacy:</Text>
+              <Text className="text-sm text-primary">Local-first, No cloud sync</Text>
             </View>
           </View>
 

@@ -41,8 +41,8 @@ export default function SelectCountriesScreen() {
       <TouchableOpacity
         key={item.code}
         onPress={() => toggleCountry(item.code)}
-        className={`flex-row items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 ${
-          isSelected ? 'bg-blue-50 dark:bg-blue-950' : 'bg-white dark:bg-gray-900'
+        className={`flex-row items-center px-4 py-3 border-b border-border-light ${
+          isSelected ? 'bg-blue-50 dark:bg-blue-950' : 'bg-surface'
         }`}
         activeOpacity={0.6}
         accessible={true}
@@ -51,7 +51,7 @@ export default function SelectCountriesScreen() {
         testID={`${SELECT_COUNTRIES_IDS.countryRow.id}-${item.code}`}
       >
         <CountryFlag countryCode={item.code} size="small" />
-        <Text className="text-base text-gray-900 dark:text-white flex-1">
+        <Text className="text-base text-primary flex-1">
           {item.name}
         </Text>
         {isSelected && <Check size={20} color="#3b82f6" />}
@@ -60,19 +60,19 @@ export default function SelectCountriesScreen() {
   };
 
   return (
-    <ScreenContainer className="bg-white dark:bg-gray-900">
+    <ScreenContainer className="bg-surface">
       {/* Pinned header: title + search + chips */}
-      <View className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <View className="bg-surface border-b border-border-default">
         <View className="px-4 pt-4 pb-2">
           {/* Search bar */}
-          <View className="flex-row items-center bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2 mt-2">
+          <View className="flex-row items-center bg-surface-tertiary rounded-xl px-3 py-2 mt-2">
             <Search size={18} color="#9ca3af" />
             <TextInput
               value={searchText}
               onChangeText={setSearchText}
               placeholder="Search countries"
               placeholderTextColor="#9ca3af"
-              className="flex-1 ml-2 text-base text-gray-900 dark:text-white"
+              className="flex-1 ml-2 text-base text-primary"
               autoCorrect={false}
               autoCapitalize="none"
               returnKeyType="search"
@@ -116,14 +116,14 @@ export default function SelectCountriesScreen() {
         {/* Boarding pass scan — subtle secondary action */}
         <TouchableOpacity
           onPress={() => {/* TODO: boarding pass scanner */}}
-          className="flex-row items-center justify-center px-4 py-2 border-t border-gray-100 dark:border-gray-800"
+          className="flex-row items-center justify-center px-4 py-2 border-t border-border-light"
           activeOpacity={0.7}
           testID={SELECT_COUNTRIES_IDS.scanBoardingPassButton.id}
           accessibilityRole="button"
           accessibilityLabel="Scan boarding pass to auto-detect country"
         >
           <ScanLine size={16} color="#6366f1" />
-          <Text className="text-indigo-600 dark:text-indigo-400 text-sm font-medium ml-2">
+          <Text className="text-accent text-sm font-medium ml-2">
             Scan boarding pass
           </Text>
         </TouchableOpacity>
@@ -138,7 +138,7 @@ export default function SelectCountriesScreen() {
           filteredCountries.map(renderCountryRow)
         ) : (
           <View className="items-center py-12">
-            <Text className="text-gray-400 dark:text-gray-500 text-base">
+            <Text className="text-muted text-base">
               No countries match "{searchText}"
             </Text>
           </View>
@@ -146,7 +146,7 @@ export default function SelectCountriesScreen() {
       </ScrollView>
 
       {/* Fixed footer CTA */}
-      <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+      <View className="bg-surface border-t border-border-default px-4 py-3 pb-8">
         <Button
           title={selectedCountries.length === 0
             ? 'Select countries to continue'

@@ -49,7 +49,7 @@ export default function MRZScannerComponent({
         <Text className="text-white text-xl font-bold mb-4 text-center">
           {isDenied ? 'Camera Access Required' : 'Camera Not Available'}
         </Text>
-        <Text className="text-gray-300 text-center mb-8 leading-6">
+        <Text className="text-muted text-center mb-8 leading-6">
           {isDenied
             ? 'To scan your passport, we need camera permission. You can enable it in Settings, or enter your passport information manually.'
             : 'Camera could not be started. This may happen on simulators or devices without a camera.'}
@@ -91,7 +91,7 @@ export default function MRZScannerComponent({
         <Text className="text-white text-center text-lg font-semibold mb-2">
           {cameraStatus === 'demo' ? 'Demo: Scanning sample passport' : 'Position passport MRZ in frame'}
         </Text>
-        <Text className="text-gray-300 text-center text-sm mb-4">
+        <Text className="text-muted text-center text-sm mb-4">
           {cameraStatus === 'demo' ? 'Simulating MRZ recognition...' : 'Align the two lines at the bottom of your passport'}
         </Text>
       </View>
@@ -163,7 +163,7 @@ export default function MRZScannerComponent({
             {scanResult?.guidance || 'Initializing scanner...'}
           </Text>
           {scanResult?.confidence !== undefined && scanResult.confidence > 0 && (
-            <Text className="text-center text-xs text-gray-400 mt-1">
+            <Text className="text-center text-xs text-muted mt-1">
               Confidence: {Math.round(scanResult.confidence * 100)}%
             </Text>
           )}
@@ -171,7 +171,7 @@ export default function MRZScannerComponent({
           {/* Performance info (dev mode only) */}
           {__DEV__ && performanceMetrics && !isLowPower && (
             <View className="mt-2 px-2 py-1 bg-black/60 rounded">
-              <Text className="text-xs text-gray-300 text-center">
+              <Text className="text-xs text-muted text-center">
                 Success: {Math.round(performanceMetrics.successRate * 100)}% |
                 Tier: {performanceMetrics.deviceTier} |
                 Skipped: {performanceMetrics.framesSkipped}

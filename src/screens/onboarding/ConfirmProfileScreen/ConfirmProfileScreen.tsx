@@ -38,22 +38,22 @@ export default function ConfirmProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-white dark:bg-gray-900">
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-blue-50 to-white">
         <View className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <Text className="text-lg text-gray-700 dark:text-gray-300 font-medium">Loading profile...</Text>
-        <Text className="text-sm text-gray-500 dark:text-gray-500">Retrieving your secure data</Text>
+        <Text className="text-lg text-secondary font-medium">Loading profile...</Text>
+        <Text className="text-sm text-tertiary">Retrieving your secure data</Text>
       </View>
     );
   }
 
   if (!profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-b from-red-50 to-white dark:bg-gray-900 px-6">
+      <View className="flex-1 justify-center items-center bg-gradient-to-b from-red-50 to-white px-6">
         <View className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center mb-4">
           <CircleAlert size={40} color="#dc2626" />
         </View>
-        <Text className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Profile Found</Text>
-        <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-6">
+        <Text className="text-xl font-bold text-primary mb-2">No Profile Found</Text>
+        <Text className="text-base text-secondary text-center mb-6">
           We couldn't find your profile data. Please go back and enter your passport information again.
         </Text>
         <Button
@@ -79,7 +79,7 @@ export default function ConfirmProfileScreen() {
   ];
 
   return (
-    <ScreenContainer className="bg-gradient-to-b from-green-50 to-white dark:bg-gray-900">
+    <ScreenContainer className="bg-gradient-to-b from-green-50 to-white">
     <ScrollView className="flex-1">
       <View className="px-6 py-8">
         {/* Progress indicator */}
@@ -90,17 +90,17 @@ export default function ConfirmProfileScreen() {
             <ShieldCheck size={40} color="#16a34a" />
           </View>
           <Text
-            className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center"
+            className="text-2xl font-bold text-primary mb-2 text-center"
             testID={CONFIRM_PROFILE_IDS.confirmProfileTitle.id}
           >
             Confirm Your Profile
           </Text>
-          <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
+          <Text className="text-base text-secondary text-center">
             Review your passport information before proceeding. Everything looks good!
           </Text>
         </View>
 
-        <Card variant="elevated" className="mb-6 bg-white shadow-xl border-0">
+        <Card variant="elevated" className="mb-6 bg-surface shadow-xl border-0">
           <View className="bg-gradient-to-r from-green-500 to-green-600 -m-6 mb-6 p-6 rounded-t-xl">
             <Text className="text-xl font-bold text-white mb-1">
               Passport Information
@@ -117,9 +117,9 @@ export default function ConfirmProfileScreen() {
                   <field.icon size={24} color={field.color} />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{field.label}</Text>
+                  <Text className="text-sm font-medium text-tertiary mb-1">{field.label}</Text>
                   <Text
-                    className="text-lg font-semibold text-gray-900 dark:text-white"
+                    className="text-lg font-semibold text-primary"
                     testID={CONFIRM_PROFILE_IDS.profileField.dynamic.replace('{label}', field.label.toLowerCase().replace(/ /g, '-'))}
                   >
                     {field.value}
@@ -138,18 +138,18 @@ export default function ConfirmProfileScreen() {
             <View className="flex-1">
               <View className="flex-row items-center mb-2">
                 <ShieldCheck size={20} color="#374151" />
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
+                <Text className="text-lg font-semibold text-primary ml-2">
                   Security Notice
                 </Text>
               </View>
-              <Text className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+              <Text className="text-sm text-secondary mb-3">
                 This information is stored securely on your device using your device's keychain.
                 It will never be transmitted to our servers and remains under your control.
               </Text>
               <View className="flex-row items-center">
-                <Text className="text-green-600 dark:text-green-400 font-medium text-sm">Encrypted</Text>
-                <Text className="text-green-600 dark:text-green-400 font-medium text-sm ml-4">Local Storage</Text>
-                <Text className="text-green-600 dark:text-green-400 font-medium text-sm ml-4">No Server</Text>
+                <Text className="text-success font-medium text-sm">Encrypted</Text>
+                <Text className="text-success font-medium text-sm ml-4">Local Storage</Text>
+                <Text className="text-success font-medium text-sm ml-4">No Server</Text>
               </View>
             </View>
           </View>
@@ -159,7 +159,7 @@ export default function ConfirmProfileScreen() {
     </ScrollView>
 
     {/* Fixed footer CTA */}
-    <View className="bg-gradient-to-b from-green-50 to-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+    <View className="bg-gradient-to-b from-green-50 to-white border-t border-border-default px-6 py-4 pb-8">
       <Button
         title="Continue"
         onPress={handleContinue}

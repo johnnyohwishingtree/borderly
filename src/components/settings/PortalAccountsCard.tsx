@@ -20,7 +20,7 @@ export function PortalAccountsCard({
   return (
     <Card testID={PORTAL_ACCOUNTS_CARD_IDS.container.id}>
       <View className="flex-row items-center mb-4">
-        <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Portal Accounts</Text>
+        <Text className="text-lg font-semibold text-primary mr-3">Portal Accounts</Text>
         <StatusBadge
           status={portalCredentials.length > 0 ? 'success' : 'neutral'}
           size="small"
@@ -36,9 +36,9 @@ export function PortalAccountsCard({
       </View>
 
       {portalCredentials.length === 0 ? (
-        <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg items-center">
-          <Text className="text-sm text-gray-500 dark:text-gray-400">No portal credentials saved yet.</Text>
-          <Text className="text-xs text-gray-400 dark:text-gray-600 mt-1">
+        <View className="bg-surface-secondary p-4 rounded-lg items-center">
+          <Text className="text-sm text-tertiary">No portal credentials saved yet.</Text>
+          <Text className="text-xs text-muted mt-1">
             Credentials are saved automatically when you log in to a portal.
           </Text>
         </View>
@@ -48,13 +48,13 @@ export function PortalAccountsCard({
             <View
               key={cred.portalCode}
               testID={PORTAL_ACCOUNTS_CARD_IDS.credentialRow(cred.portalCode).id}
-              className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg flex-row items-center justify-between"
+              className="bg-surface-secondary p-3 rounded-lg flex-row items-center justify-between"
             >
               <View className="flex-1 mr-3">
-                <Text className="text-sm font-medium text-gray-900 dark:text-white">
+                <Text className="text-sm font-medium text-primary">
                   {getPortalName(cred.portalCode)}
                 </Text>
-                <Text className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{cred.username}</Text>
+                <Text className="text-xs text-tertiary mt-0.5">{cred.username}</Text>
               </View>
               {isDeletingCredential === cred.portalCode ? (
                 <ActivityIndicator size="small" color="#EF4444" />

@@ -24,21 +24,21 @@ export default function EditProfileScreen() {
 
   if (!profile) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <Text className="text-lg text-gray-600 dark:text-gray-400">No profile to edit</Text>
+      <View className="flex-1 justify-center items-center bg-surface-secondary">
+        <Text className="text-lg text-secondary">No profile to edit</Text>
       </View>
     );
   }
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-base text-gray-600 dark:text-gray-400">
+              <Text className="text-base text-secondary">
                 Update your contact information and preferences
               </Text>
             </View>
@@ -55,7 +55,7 @@ export default function EditProfileScreen() {
         {/* Contact Information */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
+            <Text className="text-lg font-semibold text-primary mr-3">
               Contact Information
             </Text>
             <StatusBadge
@@ -76,7 +76,7 @@ export default function EditProfileScreen() {
                 autoCapitalize="none"
                 error={errors.email}
               />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <Text className="text-xs text-tertiary mt-1">
                 Required for form confirmations and travel updates
               </Text>
             </View>
@@ -90,7 +90,7 @@ export default function EditProfileScreen() {
                 keyboardType="phone-pad"
                 error={errors.phoneNumber}
               />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <Text className="text-xs text-tertiary mt-1">
                 Include country code for international travel
               </Text>
             </View>
@@ -105,7 +105,7 @@ export default function EditProfileScreen() {
                 error={errors.occupation}
                 testID="occupation-select"
               />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <Text className="text-xs text-tertiary mt-1">
                 Required for some immigration forms
               </Text>
             </View>
@@ -120,7 +120,7 @@ export default function EditProfileScreen() {
                 error={errors.maritalStatus}
                 testID="marital-status-select"
               />
-              <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <Text className="text-xs text-tertiary mt-1">
                 Required for some immigration forms
               </Text>
             </View>
@@ -130,7 +130,7 @@ export default function EditProfileScreen() {
         {/* Home Address */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
+            <Text className="text-lg font-semibold text-primary mr-3">
               Home Address
             </Text>
             <StatusBadge
@@ -145,7 +145,7 @@ export default function EditProfileScreen() {
               <Lightbulb size={14} color="#1e40af" />
               <Text className="text-xs font-medium text-blue-800 dark:text-blue-200 ml-1">Tip</Text>
             </View>
-            <Text className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+            <Text className="text-xs text-accent mt-1">
               Adding your home address helps automatically fill similar fields in country forms
             </Text>
           </View>
@@ -168,7 +168,7 @@ export default function EditProfileScreen() {
         <Card>
           <View className="flex-row items-center mb-3">
             <Lock size={18} color="#374151" />
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
+            <Text className="text-lg font-semibold text-primary ml-2">
               Passport Information
             </Text>
             <View className="ml-auto">
@@ -178,7 +178,7 @@ export default function EditProfileScreen() {
 
           <Divider className="mb-3" />
 
-          <Text className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <Text className="text-sm text-secondary mb-3">
             Passport information cannot be edited here for security reasons. Your passport data is
             encrypted and stored securely on this device only.
           </Text>
@@ -186,9 +186,9 @@ export default function EditProfileScreen() {
           <View className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
             <View className="flex-row items-center">
               <TriangleAlert size={12} color="#d97706" style={{ marginRight: 4 }} />
-              <Text className="text-xs font-medium text-amber-800 dark:text-amber-200">Need to update passport info?</Text>
+              <Text className="text-xs font-medium text-warning dark:text-amber-200">Need to update passport info?</Text>
             </View>
-            <Text className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+            <Text className="text-xs text-warning mt-1">
               Contact support if your passport details have changed or if you need to rescan your passport.
             </Text>
           </View>

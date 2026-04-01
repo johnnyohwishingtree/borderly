@@ -68,12 +68,12 @@ export default function CopyableField({
   };
 
   return (
-    <View className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+    <View className="mb-4 p-4 bg-surface-secondary rounded-xl border border-border-default">
       {/* Field Label */}
       <View className="flex-row justify-between items-start mb-2">
         <View className="flex-1">
           <View className="flex-row items-center flex-wrap gap-1 mb-1">
-            <Text className="text-sm font-medium text-gray-900 dark:text-white">
+            <Text className="text-sm font-medium text-primary">
               {label}
             </Text>
             {showTravelerBadge && travelerName && (
@@ -85,7 +85,7 @@ export default function CopyableField({
             )}
           </View>
           {portalFieldName && (
-            <Text className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-md self-start">
+            <Text className="text-xs text-accent bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-md self-start">
               Portal field: {portalFieldName}
             </Text>
           )}
@@ -100,7 +100,7 @@ export default function CopyableField({
           flex-row items-center justify-between
           ${copied
             ? 'border-green-400 dark:border-green-600 bg-green-50 dark:bg-green-950'
-            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
+            : 'border-border-default bg-surface'
           }
         `}
         accessibilityRole="button"
@@ -114,8 +114,8 @@ export default function CopyableField({
           <Text
             className={`text-base font-mono ${
               formattedValue
-                ? 'text-gray-900 dark:text-white'
-                : 'text-gray-400 dark:text-gray-500 italic'
+                ? 'text-primary'
+                : 'text-muted italic'
             }`}
             numberOfLines={2}
             ellipsizeMode="tail"
@@ -133,14 +133,14 @@ export default function CopyableField({
           {copied ? (
             <>
               <Check size={20} color="#10B981" accessible={false} />
-              <Text className="text-sm font-medium text-green-600 dark:text-green-400 ml-2">
+              <Text className="text-sm font-medium text-success ml-2">
                 Copied!
               </Text>
             </>
           ) : (
             <>
               <Copy size={20} color="#6B7280" accessible={false} />
-              <Text className="text-sm font-medium text-gray-600 dark:text-gray-400 ml-2">
+              <Text className="text-sm font-medium text-secondary ml-2">
                 Copy
               </Text>
             </>
@@ -150,7 +150,7 @@ export default function CopyableField({
 
       {/* Help Text */}
       {helpText && (
-        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-4">
+        <Text className="text-xs text-tertiary mt-2 leading-4">
           {helpText}
         </Text>
       )}

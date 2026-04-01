@@ -12,18 +12,18 @@ export default function FeedbackScreen() {
   } = useFeedback();
 
   return (
-    <ScreenContainer className="bg-gray-50">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-base text-gray-600">Help us improve your travel experience</Text>
+          <Text className="text-base text-secondary">Help us improve your travel experience</Text>
         </View>
 
         {/* Rating Section */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 mr-3">Rate Your Experience</Text>
+            <Text className="text-lg font-semibold text-primary mr-3">Rate Your Experience</Text>
             <StatusBadge
               status={rating > 0 ? "success" : "neutral"}
               size="small"
@@ -31,8 +31,8 @@ export default function FeedbackScreen() {
             />
           </View>
 
-          <View className="bg-gray-50 p-4 rounded-lg">
-            <Text className="text-sm text-gray-600 mb-4">
+          <View className="bg-surface-secondary p-4 rounded-lg">
+            <Text className="text-sm text-secondary mb-4">
               How would you rate your overall experience with Borderly?
             </Text>
 
@@ -49,7 +49,7 @@ export default function FeedbackScreen() {
             </View>
 
             {rating > 0 && (
-              <Text className="text-center text-sm font-medium text-gray-700">
+              <Text className="text-center text-sm font-medium text-secondary">
                 {getRatingText(rating)} ({rating}/5)
               </Text>
             )}
@@ -58,7 +58,7 @@ export default function FeedbackScreen() {
 
         {/* Feedback Type */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Feedback Category</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Feedback Category</Text>
 
           <Select
             label="What type of feedback is this?"
@@ -67,31 +67,31 @@ export default function FeedbackScreen() {
             onValueChange={setFeedbackType}
           />
 
-          <Text className="text-xs text-gray-500 mt-2">
+          <Text className="text-xs text-tertiary mt-2">
             Select the category that best describes your feedback
           </Text>
         </Card>
 
         {/* Subject */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Subject (Optional)</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Subject (Optional)</Text>
 
           <TextInput
             value={subject}
             onChangeText={setSubject}
             placeholder="Brief summary of your feedback..."
-            className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
+            className="border border-border-default rounded-lg p-3 text-primary bg-surface"
             maxLength={100}
           />
 
-          <Text className="text-xs text-gray-500 mt-2">
+          <Text className="text-xs text-tertiary mt-2">
             {subject.length}/100 characters
           </Text>
         </Card>
 
         {/* Message */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Your Feedback</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Your Feedback</Text>
 
           <TextInput
             value={message}
@@ -99,12 +99,12 @@ export default function FeedbackScreen() {
             placeholder="Tell us about your experience, suggestions, or any issues you've encountered..."
             multiline
             numberOfLines={6}
-            className="border border-gray-300 rounded-lg p-3 text-gray-900 bg-white"
+            className="border border-border-default rounded-lg p-3 text-primary bg-surface"
             style={{ minHeight: 120, textAlignVertical: 'top' }}
             maxLength={1000}
           />
 
-          <Text className="text-xs text-gray-500 mt-2">
+          <Text className="text-xs text-tertiary mt-2">
             {message.length}/1000 characters
           </Text>
         </Card>
@@ -137,7 +137,7 @@ export default function FeedbackScreen() {
             fullWidth
           />
 
-          <Text className="text-xs text-gray-500 text-center mt-3">
+          <Text className="text-xs text-tertiary text-center mt-3">
             By submitting, you agree to help us improve Borderly while respecting your privacy
           </Text>
         </View>

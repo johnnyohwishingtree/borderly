@@ -118,10 +118,10 @@ export default function LegCard({
             <View className="flex-row items-center">
               <CountryFlag countryCode={leg.destinationCountry} size="medium" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants" />
               <View className="ml-3">
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+                <Text className="text-lg font-semibold text-primary">
                   {getCountryName(leg.destinationCountry)}
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">
+                <Text className="text-sm text-secondary">
                   {formatDate(leg.arrivalDate)}
                   {leg.departureDate && ` - ${formatDate(leg.departureDate)}`}
                 </Text>
@@ -143,7 +143,7 @@ export default function LegCard({
 
           {leg.flightNumber && (
             <View className="mb-2">
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 Flight: {leg.flightNumber}
                 {leg.arrivalAirport && ` → ${leg.arrivalAirport}`}
               </Text>
@@ -151,18 +151,18 @@ export default function LegCard({
           )}
 
           <View>
-            <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <Text className="text-sm font-medium text-secondary">
               {leg.accommodation.name}
             </Text>
-            <Text className="text-sm text-gray-600 dark:text-gray-400">
+            <Text className="text-sm text-secondary">
               {leg.accommodation.address.city}
             </Text>
           </View>
 
           {/* Multi-traveler details */}
           {showTravelerDetails && leg.assignedTravelers && leg.assignedTravelers.length > 0 && (
-            <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <View className="mt-3 pt-3 border-t border-border-default">
+              <Text className="text-sm font-medium text-secondary mb-2">
                 Travelers ({leg.assignedTravelers.length})
               </Text>
               <View className="space-y-1">
@@ -172,7 +172,7 @@ export default function LegCard({
 
                   return (
                     <View key={member.id} className="flex-row items-center justify-between">
-                      <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                      <Text className="text-sm text-secondary flex-1">
                         {member.givenNames.split(' ')[0]} {member.surname}
                       </Text>
                       <StatusBadge
@@ -211,22 +211,22 @@ export default function LegCard({
                   </View>
                 );
               })}
-              <Text className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+              <Text className="text-xs text-tertiary ml-1">
                 {leg.assignedTravelers.length} travelers
               </Text>
             </View>
           )}
 
           {leg.qrCodes && leg.qrCodes.length > 0 && (
-            <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+            <View className="mt-3 pt-3 border-t border-border-default">
+              <Text className="text-sm text-secondary">
                 {leg.qrCodes.length} QR code{leg.qrCodes.length > 1 ? 's' : ''} saved
               </Text>
             </View>
           )}
 
           {/* Submission status row */}
-          <View className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex-row items-center justify-between">
+          <View className="mt-3 pt-3 border-t border-border-default flex-row items-center justify-between">
             <SubmissionStatusBadge
               status={leg.submissionStatus ?? 'not_started'}
               testID={LEG_CARD_IDS.submissionStatusBadge(leg.destinationCountry).id}

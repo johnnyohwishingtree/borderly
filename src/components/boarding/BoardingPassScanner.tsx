@@ -46,7 +46,7 @@ export default function BoardingPassScanner({
         <Text className="text-white text-xl font-bold mb-4 text-center">
           {isDenied ? 'Camera Access Required' : 'Camera Not Available'}
         </Text>
-        <Text className="text-gray-300 text-center mb-8 leading-6">
+        <Text className="text-muted text-center mb-8 leading-6">
           {isDenied
             ? 'To scan your boarding pass, we need camera permission. You can enable it in Settings, or enter your flight information manually.'
             : 'Camera could not be started. This may happen on simulators or devices without a camera.'}
@@ -98,7 +98,7 @@ export default function BoardingPassScanner({
         <Text className="text-white text-center text-lg font-semibold mb-2">
           {camera.status === 'demo' ? 'Demo: Scanning sample boarding pass' : 'Position boarding pass barcode in frame'}
         </Text>
-        <Text className="text-gray-300 text-center text-sm mb-4">
+        <Text className="text-muted text-center text-sm mb-4">
           {camera.status === 'demo' ? 'Simulating barcode recognition...' : 'Supports PDF417, Aztec, and QR codes'}
         </Text>
       </View>
@@ -159,7 +159,7 @@ export default function BoardingPassScanner({
             {import_.isImporting ? 'Importing from photo...' : scanner.result?.guidance || 'Initializing scanner...'}
           </Text>
           {!import_.isImporting && scanner.result?.confidence !== undefined && scanner.result.confidence > 0 && (
-            <Text className="text-center text-xs text-gray-400 mt-1">
+            <Text className="text-center text-xs text-muted mt-1">
               Confidence: {Math.round(scanner.result.confidence * 100)}%
             </Text>
           )}

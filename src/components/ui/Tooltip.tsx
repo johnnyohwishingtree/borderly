@@ -60,7 +60,7 @@ export default function Tooltip({
     },
     warning: {
       bg: 'bg-yellow-500',
-      text: 'text-gray-900',
+      text: 'text-primary',
       icon: TriangleAlert,
       iconColor: '#1f2937',
     },

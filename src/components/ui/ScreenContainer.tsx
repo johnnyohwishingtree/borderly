@@ -14,7 +14,7 @@ export interface ScreenContainerProps extends ViewProps {
  * stretch absurdly wide.
  *
  * Usage:
- *   <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+ *   <ScreenContainer className="bg-surface-secondary">
  *     <ScrollView>...</ScrollView>
  *   </ScreenContainer>
  */

@@ -31,16 +31,16 @@ export default function SmartFormScreen() {
   }, [navigation, tripId, countryCodes]);
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
-      <View className="bg-white dark:bg-gray-800 px-4 py-4 border-b border-gray-100 dark:border-gray-700">
+    <ScreenContainer className="bg-surface-secondary">
+      <View className="bg-surface px-4 py-4 border-b border-border-default">
         <Text
-          className="text-xl font-bold text-gray-900 dark:text-white mb-2"
+          className="text-xl font-bold text-primary mb-2"
           accessibilityRole="header"
         >
           Fill your forms
         </Text>
         <ProgressBar progress={Math.round(overallProgress * 100)} />
-        <Text className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <Text className="text-sm text-tertiary mt-1">
           {Math.round(overallProgress * 100)}% complete
         </Text>
       </View>
@@ -59,10 +59,10 @@ export default function SmartFormScreen() {
               testID={`${SMART_FORM_IDS.countrySection.id}-${section.countryCode}`}
             >
               <View className="flex-row items-center mb-3">
-                <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                <Text className="text-lg font-bold text-primary">
                   {getCountryName(section.countryCode)}
                 </Text>
-                <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                <Text className="text-sm text-tertiary ml-2">
                   — {section.remainingFields} {section.remainingFields === 1 ? 'field' : 'fields'} needed
                 </Text>
               </View>
@@ -73,7 +73,7 @@ export default function SmartFormScreen() {
                   showOnlyCountrySpecific={false}
                 />
               ) : (
-                <Text className="text-green-600 dark:text-green-400 font-medium">
+                <Text className="text-success font-medium">
                   All fields complete
                 </Text>
               )}
@@ -83,7 +83,7 @@ export default function SmartFormScreen() {
       </ScrollView>
 
       {/* Fixed footer CTA */}
-      <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+      <View className="bg-surface border-t border-border-default px-4 py-3 pb-8">
         <Button
           title={isAllComplete ? 'Done' : `Continue — ${Math.round(overallProgress * 100)}% complete`}
           onPress={handleDone}

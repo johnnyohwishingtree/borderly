@@ -97,10 +97,10 @@ export default function AccessibleInput({
   };
 
   const getInputContainerStyles = () => {
-    const baseStyles = 'flex-row items-center border-2 rounded-xl bg-white transition-all duration-200';
+    const baseStyles = 'flex-row items-center border-2 rounded-xl bg-surface transition-all duration-200';
     const errorStyles = error 
       ? (highContrastMode ? 'border-black bg-white' : 'border-red-500 bg-red-50/30')
-      : (highContrastMode ? 'border-gray-800' : 'border-gray-200');
+      : (highContrastMode ? 'border-gray-800' : 'border-border-default');
     
     const focusStyles = isFocused 
       ? (highContrastMode 
@@ -114,21 +114,21 @@ export default function AccessibleInput({
   const getInputStyles = () => {
     const baseStyles = 'flex-1 px-4 py-3.5 text-base';
     const minHeight = `min-h-[${ACCESSIBILITY_CONSTANTS.MIN_TOUCH_TARGET}px]`;
-    const textColor = highContrastMode ? 'text-black' : 'text-gray-900';
+    const textColor = highContrastMode ? 'text-black' : 'text-primary';
     
     return `${baseStyles} ${minHeight} ${textColor}`;
   };
 
   const getLabelStyles = () => {
     const baseStyles = 'text-sm font-semibold mb-2';
-    const textColor = highContrastMode ? 'text-black' : 'text-gray-700';
+    const textColor = highContrastMode ? 'text-black' : 'text-secondary';
     
     return `${baseStyles} ${textColor}`;
   };
 
   const getHelperTextStyles = () => {
     const baseStyles = 'text-sm mt-2';
-    const textColor = highContrastMode ? 'text-gray-800' : 'text-gray-500';
+    const textColor = highContrastMode ? 'text-gray-800' : 'text-tertiary';
     
     return `${baseStyles} ${textColor}`;
   };

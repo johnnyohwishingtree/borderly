@@ -17,7 +17,7 @@ const RELATIONSHIP_COLORS: Record<FamilyRelationship, { bg: string; text: string
   child: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
   parent: { bg: 'bg-green-100', text: 'text-green-700' },
   sibling: { bg: 'bg-purple-100', text: 'text-purple-700' },
-  other: { bg: 'bg-gray-100', text: 'text-gray-700' },
+  other: { bg: 'bg-surface-tertiary', text: 'text-secondary' },
 };
 
 function getInitials(member: FamilyMember): string {
@@ -84,17 +84,17 @@ const TravelerAvatars = memo<TravelerAvatarsProps>(({
       })}
       {overflow > 0 && (
         <View
-          className={`${sizeClasses.pill} bg-gray-100 rounded-full items-center justify-center mr-1`}
+          className={`${sizeClasses.pill} bg-surface-tertiary rounded-full items-center justify-center mr-1`}
           testID={TRAVELER_AVATARS_IDS.overflow.id}
         >
-          <Text className={`${sizeClasses.text} font-semibold text-gray-600`}>
+          <Text className={`${sizeClasses.text} font-semibold text-secondary`}>
             +{overflow}
           </Text>
         </View>
       )}
       {showCount && (
         <Text
-          className="text-xs text-gray-500 dark:text-gray-400 ml-1"
+          className="text-xs text-tertiary ml-1"
           testID={TRAVELER_AVATARS_IDS.count.id}
         >
           {travelers.length} travelers

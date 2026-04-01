@@ -20,18 +20,18 @@ export default function AddQRScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900 items-center justify-center">
+      <View className="flex-1 bg-surface-secondary items-center justify-center">
         <LoadingSpinner />
-        <Text className="text-gray-600 dark:text-gray-400 mt-4">Processing...</Text>
+        <Text className="text-secondary mt-4">Processing...</Text>
       </View>
     );
   }
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
       {/* Header */}
-      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
-        <Text className="text-base text-gray-600 dark:text-gray-400">
+      <View className="bg-surface px-4 py-6 border-b border-border-default">
+        <Text className="text-base text-secondary">
           Save a QR code to your wallet
         </Text>
       </View>
@@ -46,10 +46,10 @@ export default function AddQRScreen() {
                   <Smartphone size={32} color="#3b82f6" />
                 </View>
 
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <Text className="text-lg font-semibold text-primary mb-2">
                   Capture QR Code
                 </Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-center mb-6">
+                <Text className="text-secondary text-center mb-6">
                   Take a photo of your QR code or choose one from your photo library
                 </Text>
 
@@ -71,18 +71,18 @@ export default function AddQRScreen() {
             <Card>
               <View className="p-4">
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <Text className="text-lg font-semibold text-primary">
                     Captured QR Code
                   </Text>
                   <TouchableOpacity
                     onPress={handleReset}
-                    className="px-4 bg-gray-100 dark:bg-gray-700 rounded-full items-center justify-center"
+                    className="px-4 bg-surface-tertiary rounded-full items-center justify-center"
                     style={{ minHeight: 44 }}
                     accessible={true}
                     accessibilityRole="button"
                     accessibilityLabel="Reset captured image"
                   >
-                    <Text className="text-sm text-gray-600 dark:text-gray-300">Reset</Text>
+                    <Text className="text-sm text-secondary">Reset</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -96,7 +96,7 @@ export default function AddQRScreen() {
                   />
                 </View>
 
-                <Text className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                <Text className="text-sm text-tertiary text-center">
                   QR code image captured successfully
                 </Text>
 
@@ -153,30 +153,30 @@ export default function AddQRScreen() {
           {capturedImage && (
             <Card>
               <View className="p-4 space-y-4">
-                <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+                <Text className="text-lg font-semibold text-primary">
                   QR Code Details
                 </Text>
 
                 {/* Label Input */}
                 <View>
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Text className="text-sm font-medium text-secondary mb-2">
                     Label *
                   </Text>
                   <TextInput
                     value={formData.label}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, label: text }))}
                     placeholder="e.g., Visit Japan Web - Customs"
-                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    className="w-full p-3 border border-border-default rounded-lg bg-surface text-primary"
                     multiline={false}
                   />
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <Text className="text-xs text-tertiary mt-1">
                     Give this QR code a descriptive name
                   </Text>
                 </View>
 
                 {/* Type Select */}
                 <View>
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Text className="text-sm font-medium text-secondary mb-2">
                     Type
                   </Text>
                   <Select
@@ -187,7 +187,7 @@ export default function AddQRScreen() {
                     options={[...qrTypeOptions]}
                     placeholder="Select QR code type"
                   />
-                  <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <Text className="text-xs text-tertiary mt-1">
                     What type of declaration does this QR code represent?
                   </Text>
                 </View>
@@ -208,35 +208,35 @@ export default function AddQRScreen() {
           {/* Help Section */}
           <Card>
             <View className="p-4">
-              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-3">
+              <Text className="text-base font-semibold text-primary mb-3">
                 Tips for QR Code Capture
               </Text>
 
               <View className="space-y-3">
                 <View className="flex-row items-start gap-3">
-                  <Text className="text-blue-600 dark:text-blue-400 font-bold">1.</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                  <Text className="text-accent font-bold">1.</Text>
+                  <Text className="text-sm text-secondary flex-1">
                     Make sure the QR code is clearly visible and not blurry
                   </Text>
                 </View>
 
                 <View className="flex-row items-start gap-3">
-                  <Text className="text-blue-600 dark:text-blue-400 font-bold">2.</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                  <Text className="text-accent font-bold">2.</Text>
+                  <Text className="text-sm text-secondary flex-1">
                     Ensure good lighting when taking the photo
                   </Text>
                 </View>
 
                 <View className="flex-row items-start gap-3">
-                  <Text className="text-blue-600 dark:text-blue-400 font-bold">3.</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                  <Text className="text-accent font-bold">3.</Text>
+                  <Text className="text-sm text-secondary flex-1">
                     Keep the QR code flat and avoid shadows
                   </Text>
                 </View>
 
                 <View className="flex-row items-start gap-3">
-                  <Text className="text-blue-600 dark:text-blue-400 font-bold">4.</Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400 flex-1">
+                  <Text className="text-accent font-bold">4.</Text>
+                  <Text className="text-sm text-secondary flex-1">
                     QR codes work best when captured straight-on
                   </Text>
                 </View>

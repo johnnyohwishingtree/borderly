@@ -64,8 +64,8 @@ export default function Divider({
 
     if (variant !== 'solid') {
       const borderColorStyles = {
-        light: 'border-gray-200',
-        medium: 'border-gray-300',
+        light: 'border-border-default',
+        medium: 'border-border-default',
         dark: 'border-gray-400',
       };
       
@@ -76,7 +76,7 @@ export default function Divider({
   };
 
   const getTextStyles = () => {
-    return 'text-sm font-medium text-gray-500 px-3 bg-white';
+    return 'text-sm font-medium text-tertiary px-3 bg-surface';
   };
 
 

@@ -33,7 +33,7 @@ export default function DatePickerField({
   return (
     <View className="mb-4" testID={testID ? `${testID}-container` : undefined}>
       {label && (
-        <Text className="text-sm font-semibold text-gray-700 mb-2">
+        <Text className="text-sm font-semibold text-secondary mb-2">
           {label}
           {required && <Text className="text-red-500">{' *'}</Text>}
         </Text>

@@ -39,7 +39,7 @@ export default function AppLockScreen({ onUnlock }: AppLockScreenProps) {
           <Lock size={48} color="white" />
         </View>
         <Text className="text-2xl font-bold text-white mb-2">Borderly Locked</Text>
-        <Text className="text-base text-gray-400 text-center">
+        <Text className="text-base text-muted text-center">
           The app locked after 5 minutes of inactivity.{'\n'}
           Authenticate to continue.
         </Text>

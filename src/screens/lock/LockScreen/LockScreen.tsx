@@ -137,7 +137,7 @@ export default function LockScreen() {
       </Text>
 
       {/* Subtitle */}
-      <Text className="text-gray-400 text-base text-center mb-12">
+      <Text className="text-muted text-base text-center mb-12">
         Authenticate to access your travel data
       </Text>
 

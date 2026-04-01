@@ -190,7 +190,7 @@ export default function DatePickerField({
   return (
     <View className="mb-4" testID={testID ? `${testID}-container` : undefined}>
       {label && (
-        <Text className="text-sm font-semibold text-gray-700 mb-2">
+        <Text className="text-sm font-semibold text-secondary mb-2">
           {label}
           {required && <Text className="text-red-500">{' *'}</Text>}
         </Text>
@@ -204,13 +204,13 @@ export default function DatePickerField({
         accessibilityLabel={label ? `${label} date picker` : 'Date picker'}
         accessibilityValue={{ text: displayDate || placeholder }}
         className={[
-          'border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center bg-white min-h-[44px]',
-          error ? 'border-red-500 bg-red-50' : 'border-gray-200',
-          disabled ? 'bg-gray-100 opacity-60' : '',
+          'border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center bg-surface min-h-[44px]',
+          error ? 'border-red-500 bg-red-50' : 'border-border-default',
+          disabled ? 'bg-surface-tertiary opacity-60' : '',
         ].join(' ')}
       >
         <Text
-          className={displayDate ? 'text-base text-gray-900' : 'text-base text-gray-400'}
+          className={displayDate ? 'text-base text-primary' : 'text-base text-muted'}
         >
           {displayDate || placeholder}
         </Text>
@@ -234,21 +234,21 @@ export default function DatePickerField({
           accessible={false}
         >
           <Pressable
-            className="bg-white rounded-t-3xl min-h-[350px]"
+            className="bg-surface rounded-t-3xl min-h-[350px]"
             onPress={e => e.stopPropagation()}
             accessible={false}
           >
             {/* Header */}
-            <View className="flex-row justify-between items-center px-4 pt-4 pb-2 border-b border-gray-100">
+            <View className="flex-row justify-between items-center px-4 pt-4 pb-2 border-b border-border-light">
               <TouchableOpacity
                 onPress={handleClear}
                 testID={testID ? `${testID}-clear` : undefined}
                 accessibilityRole="button"
                 accessibilityLabel="Clear"
               >
-                <Text className="text-base text-gray-500 font-medium">Clear</Text>
+                <Text className="text-base text-tertiary font-medium">Clear</Text>
               </TouchableOpacity>
-              <Text className="text-base font-semibold text-gray-900">
+              <Text className="text-base font-semibold text-primary">
                 {label || 'Select Date'}
               </Text>
               <TouchableOpacity
@@ -265,7 +265,7 @@ export default function DatePickerField({
             <View className="flex-row px-2 pb-16">
               {/* Month column */}
               <View className="flex-[2]">
-                <Text className="text-center text-xs font-medium text-gray-500 py-1">Month</Text>
+                <Text className="text-center text-xs font-medium text-tertiary py-1">Month</Text>
                 <ColumnPicker
                   items={months.map(m => m.label)}
                   selectedIndex={monthIndex}
@@ -280,7 +280,7 @@ export default function DatePickerField({
 
               {/* Day column */}
               <View className="flex-1">
-                <Text className="text-center text-xs font-medium text-gray-500 py-1">Day</Text>
+                <Text className="text-center text-xs font-medium text-tertiary py-1">Day</Text>
                 <ColumnPicker
                   items={days}
                   selectedIndex={dayIndex}
@@ -291,7 +291,7 @@ export default function DatePickerField({
 
               {/* Year column */}
               <View className="flex-1">
-                <Text className="text-center text-xs font-medium text-gray-500 py-1">Year</Text>
+                <Text className="text-center text-xs font-medium text-tertiary py-1">Year</Text>
                 <ColumnPicker
                   items={years}
                   selectedIndex={yearIndex}

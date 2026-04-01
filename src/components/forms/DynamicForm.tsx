@@ -136,20 +136,20 @@ export default function DynamicForm({
     const countrySpecificFields = getCountrySpecificFields(form);
 
     return (
-      <View className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+      <View className="mb-6 p-4 bg-surface-secondary rounded-lg">
+        <Text className="text-lg font-semibold text-primary mb-3">
           Form Summary
         </Text>
 
         <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 dark:text-gray-300">Total Fields:</Text>
-          <Text className="font-medium dark:text-white">{stats.totalFields}</Text>
+          <Text className="text-secondary">Total Fields:</Text>
+          <Text className="font-medium">{stats.totalFields}</Text>
         </View>
 
         <View className="flex-row justify-between mb-2">
           <View className="flex-row items-center">
             <AutoFilledBadge source="auto" size="small" showLabel={false} />
-            <Text className="text-gray-700 dark:text-gray-300 ml-2">Auto-filled:</Text>
+            <Text className="text-secondary ml-2">Auto-filled:</Text>
           </View>
           <Text className="font-medium text-green-700 dark:text-green-400">{stats.autoFilled}</Text>
         </View>
@@ -157,27 +157,27 @@ export default function DynamicForm({
         <View className="flex-row justify-between mb-2">
           <View className="flex-row items-center">
             <AutoFilledBadge source="user" size="small" showLabel={false} />
-            <Text className="text-gray-700 dark:text-gray-300 ml-2">User filled:</Text>
+            <Text className="text-secondary ml-2">User filled:</Text>
           </View>
           <Text className="font-medium text-blue-700 dark:text-blue-400">{stats.userFilled}</Text>
         </View>
 
         <View className="flex-row justify-between mb-3">
-          <Text className="text-gray-700 dark:text-gray-300">Remaining:</Text>
+          <Text className="text-secondary">Remaining:</Text>
           <Text className="font-medium text-orange-600 dark:text-orange-400">{stats.remaining}</Text>
         </View>
 
-        <View className="border-t border-gray-300 dark:border-gray-600 pt-3">
+        <View className="border-t border-border-default pt-3">
           <View className="flex-row justify-between">
-            <Text className="font-semibold text-gray-900 dark:text-white">Completion:</Text>
-            <Text className="font-bold text-lg text-green-600 dark:text-green-400">
+            <Text className="font-semibold text-primary">Completion:</Text>
+            <Text className="font-bold text-lg text-success">
               {stats.completionPercentage}%
             </Text>
           </View>
         </View>
 
         {countrySpecificFields.length > 0 && (
-          <View className="mt-3 pt-3 border-t border-gray-300 dark:border-gray-600">
+          <View className="mt-3 pt-3 border-t border-border-default">
             <Text className="text-sm font-medium text-orange-600 dark:text-orange-400">
               {countrySpecificFields.length} country-specific fields require your attention
             </Text>
@@ -209,7 +209,7 @@ export default function DynamicForm({
   if (sectionsToRender.length === 0) {
     return (
       <View className="flex-1 items-center justify-center p-6">
-        <Text className="text-gray-500 dark:text-gray-400 text-center">
+        <Text className="text-tertiary text-center">
           No form fields available for {form.countryName}
         </Text>
       </View>
@@ -217,13 +217,13 @@ export default function DynamicForm({
   }
 
   return (
-    <View className="bg-gray-50 dark:bg-gray-900 p-4" testID={DYNAMIC_FORM_IDS.container.id}>
+    <View className="bg-surface-secondary p-4" testID={DYNAMIC_FORM_IDS.container.id}>
       {/* Form Header */}
       <View className="mb-6">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <Text className="text-2xl font-bold text-primary mb-2">
           {form.countryName} Declaration
         </Text>
-        <Text className="text-gray-600 dark:text-gray-400">
+        <Text className="text-secondary">
           {form.portalName}
         </Text>
       </View>

@@ -103,7 +103,7 @@ export default function DocumentValidityCard({
     <Card testID={testID}>
       {/* Section header */}
       <Text
-        className="text-lg font-semibold text-gray-900 dark:text-white mb-4"
+        className="text-lg font-semibold text-primary mb-4"
         accessibilityRole="header"
       >
         Document Validity
@@ -116,7 +116,7 @@ export default function DocumentValidityCard({
         accessibilityLabel={`Passport expires ${formatExpiryDate(passportExpiry)}, ${daysLabel}`}
       >
         <View>
-          <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">
             Passport Expires
           </Text>
           <Text
@@ -125,7 +125,7 @@ export default function DocumentValidityCard({
                 ? 'text-red-700 dark:text-red-400 font-medium'
                 : status === 'expiring-soon'
                 ? 'text-amber-700 dark:text-amber-400 font-medium'
-                : 'text-gray-900 dark:text-white'
+                : 'text-primary'
             }`}
           >
             {formatExpiryDate(passportExpiry)}
@@ -145,7 +145,7 @@ export default function DocumentValidityCard({
         accessibilityLabel="Per-country passport validity"
         accessibilityRole="summary"
       >
-        <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+        <Text className="text-xs font-medium text-tertiary uppercase tracking-wide mb-2">
           Country Validity (today departure)
         </Text>
 

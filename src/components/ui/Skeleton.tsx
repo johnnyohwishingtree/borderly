@@ -74,7 +74,7 @@ export function SkeletonCard({
   const lineWidths = getLineWidths(lines);
 
   return (
-    <View className={`p-4 bg-white rounded-lg ${className}`}>
+    <View className={`p-4 bg-surface rounded-lg ${className}`}>
       <View className="flex-row items-start gap-3">
         {showAvatar && (
           <SkeletonLine 

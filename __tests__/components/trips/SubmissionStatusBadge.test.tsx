@@ -65,7 +65,7 @@ describe('SubmissionStatusBadge — not_started (grey)', () => {
   it('has grey background class', () => {
     render(<SubmissionStatusBadge status="not_started" />);
     const badge = screen.getByTestId('submission-status-badge-not_started');
-    expect(badge.props.className).toMatch(/bg-gray/);
+    expect(badge.props.className).toMatch(/bg-surface-tertiary|bg-gray/);
   });
 });
 

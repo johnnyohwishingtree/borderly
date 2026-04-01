@@ -46,9 +46,9 @@ export default function SelectTravelersScreen() {
   if (isSoloTraveler) return null;
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
-      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
-        <Text className="text-base text-gray-600 dark:text-gray-400">
+    <ScreenContainer className="bg-surface-secondary">
+      <View className="bg-surface px-4 py-6 border-b border-border-default">
+        <Text className="text-base text-secondary">
           Select travelers who need forms filled
         </Text>
       </View>
@@ -65,7 +65,7 @@ export default function SelectTravelersScreen() {
                 className={`p-4 mb-3 rounded-xl border-2 ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
-                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+                    : 'border-border-default bg-surface'
                 }`}
                 activeOpacity={0.7}
                 accessibilityRole="checkbox"
@@ -75,14 +75,14 @@ export default function SelectTravelersScreen() {
               >
                 <View className="flex-row items-center">
                   <View className="flex-1">
-                    <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <Text className="text-lg font-semibold text-primary">
                       {profile.givenNames} {profile.surname}
                     </Text>
-                    <Text className="text-sm text-gray-500 dark:text-gray-400">
+                    <Text className="text-sm text-tertiary">
                       {profile.nationality || 'Nationality not set'}
                     </Text>
                     {profile.passportExpiry && (
-                      <Text className="text-sm text-gray-500 dark:text-gray-400">
+                      <Text className="text-sm text-tertiary">
                         Passport expires: {profile.passportExpiry}
                       </Text>
                     )}
@@ -99,7 +99,7 @@ export default function SelectTravelersScreen() {
                     testID={`${SELECT_TRAVELERS_IDS.passportWarningBadge.id}-${profile.id}`}
                   >
                     <AlertTriangle size={16} color="#d97706" />
-                    <Text className="text-amber-700 dark:text-amber-300 text-sm ml-2 flex-1">
+                    <Text className="text-warning text-sm ml-2 flex-1">
                       {warning}
                     </Text>
                   </View>
@@ -111,14 +111,14 @@ export default function SelectTravelersScreen() {
           {/* Add traveler */}
           <TouchableOpacity
             onPress={() => {/* TODO: navigate to passport scan */}}
-            className="flex-row items-center justify-center p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl"
+            className="flex-row items-center justify-center p-4 border-2 border-dashed border-border-default rounded-xl"
             activeOpacity={0.7}
             testID={SELECT_TRAVELERS_IDS.addTravelerButton.id}
             accessibilityRole="button"
             accessibilityLabel="Add a new traveler"
           >
             <UserPlus size={20} color="#6366f1" />
-            <Text className="text-indigo-600 dark:text-indigo-400 font-medium ml-2">
+            <Text className="text-accent font-medium ml-2">
               Add traveler
             </Text>
           </TouchableOpacity>
@@ -126,7 +126,7 @@ export default function SelectTravelersScreen() {
       </ScrollView>
 
       {/* Fixed footer CTA */}
-      <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+      <View className="bg-surface border-t border-border-default px-4 py-3 pb-8">
         <Button
           title={`Next — ${selectedIds.length} ${selectedIds.length === 1 ? 'traveler' : 'travelers'}`}
           onPress={handleNext}

@@ -26,22 +26,22 @@ function DefaultErrorFallback({ error, resetError }: ErrorFallbackProps) {
   const isDevelopment = __DEV__;
 
   return (
-    <View className="flex-1 items-center justify-center px-6 bg-white">
+    <View className="flex-1 items-center justify-center px-6 bg-surface">
       <View className="w-16 h-16 bg-red-100 rounded-full items-center justify-center mb-6">
         <Text className="text-red-600 text-2xl font-bold">!</Text>
       </View>
       
-      <Text className="text-xl font-semibold text-gray-900 text-center mb-3">
+      <Text className="text-xl font-semibold text-primary text-center mb-3">
         Something went wrong
       </Text>
       
-      <Text className="text-base text-gray-600 text-center mb-8 max-w-sm leading-6">
+      <Text className="text-base text-secondary text-center mb-8 max-w-sm leading-6">
         We're sorry for the inconvenience. Please try again or contact support if the problem persists.
       </Text>
       
       {isDevelopment && (
-        <View className="mb-6 p-4 bg-gray-100 rounded-lg max-w-full">
-          <Text className="text-sm font-mono text-gray-700 text-center">
+        <View className="mb-6 p-4 bg-surface-tertiary rounded-lg max-w-full">
+          <Text className="text-sm font-mono text-secondary text-center">
             {error.message}
           </Text>
         </View>

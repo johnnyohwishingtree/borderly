@@ -184,7 +184,7 @@ export default function AddressAutocomplete({
     <View testID={testID}>
       {/* Label */}
       {label ? (
-        <Text className="text-sm font-semibold text-gray-700 mb-2">{label}</Text>
+        <Text className="text-sm font-semibold text-secondary mb-2">{label}</Text>
       ) : null}
 
       {/* Address Line 1 with autocomplete */}

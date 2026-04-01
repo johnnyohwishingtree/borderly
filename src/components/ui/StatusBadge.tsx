@@ -49,9 +49,9 @@ export default function StatusBadge({
         soft: 'bg-blue-100 dark:bg-blue-900/40',
       },
       neutral: {
-        filled: 'bg-gray-600 dark:bg-gray-500',
-        outlined: 'bg-transparent border-2 border-gray-600 dark:border-gray-500',
-        soft: 'bg-gray-100 dark:bg-gray-700/60',
+        filled: 'bg-gray-600',
+        outlined: 'bg-transparent border-2 border-gray-600',
+        soft: 'bg-surface-tertiary/60',
       },
     };
 
@@ -70,12 +70,12 @@ export default function StatusBadge({
     const textColors = {
       success: {
         filled: 'text-white',
-        outlined: 'text-green-600 dark:text-green-400',
+        outlined: 'text-success',
         soft: 'text-green-800 dark:text-green-300',
       },
       error: {
         filled: 'text-white',
-        outlined: 'text-red-600 dark:text-red-400',
+        outlined: 'text-error',
         soft: 'text-red-800 dark:text-red-300',
       },
       warning: {
@@ -85,13 +85,13 @@ export default function StatusBadge({
       },
       info: {
         filled: 'text-white',
-        outlined: 'text-blue-600 dark:text-blue-400',
+        outlined: 'text-accent',
         soft: 'text-blue-800 dark:text-blue-300',
       },
       neutral: {
         filled: 'text-white',
-        outlined: 'text-gray-600 dark:text-gray-400',
-        soft: 'text-gray-800 dark:text-gray-200',
+        outlined: 'text-secondary',
+        soft: 'text-gray-800',
       },
     };
 

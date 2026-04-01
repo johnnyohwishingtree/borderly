@@ -20,7 +20,7 @@ export default function ProfileScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="flex-1 bg-surface-secondary">
         <LoadingSpinner size="large" text="Loading your profile..." variant="spinner" />
       </View>
     );
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="flex-1 bg-surface-secondary">
         <EmptyState
           icon={<TriangleAlert size={32} color="#dc2626" />}
           title="Unable to load profile"
@@ -42,7 +42,7 @@ export default function ProfileScreen() {
 
   if (!profile) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <View className="flex-1 bg-surface-secondary">
         <EmptyState
           icon={<User size={40} color="#6b7280" />}
           title="No Profile Found"
@@ -54,17 +54,17 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-6">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+              <Text className="text-2xl font-bold text-primary">
                 {profile.givenNames} {profile.surname}
               </Text>
-              <Text className="text-base text-gray-600 dark:text-gray-400">Travel Profile</Text>
+              <Text className="text-base text-secondary">Travel Profile</Text>
             </View>
             <View className="items-end">
               {isPassportExpiringSoon(profile.passportExpiry) ? (
@@ -78,12 +78,12 @@ export default function ProfileScreen() {
           {/* Profile Completeness */}
           <Card className="mb-4">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-sm font-semibold text-gray-900 dark:text-white">Profile Completeness</Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">{completeness.percentage}%</Text>
+              <Text className="text-sm font-semibold text-primary">Profile Completeness</Text>
+              <Text className="text-sm text-secondary">{completeness.percentage}%</Text>
             </View>
             <ProgressBar progress={completeness.percentage} size="small" className="mb-2" />
             {completeness.missing.length > 0 && (
-              <Text className="text-xs text-gray-500 dark:text-gray-500">
+              <Text className="text-xs text-tertiary">
                 Missing: {completeness.missing.join(', ')}
               </Text>
             )}
@@ -97,7 +97,7 @@ export default function ProfileScreen() {
         <Card>
           <View className="flex-row justify-between items-center mb-4">
             <View className="flex-row items-center">
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
+              <Text className="text-lg font-semibold text-primary mr-3">
                 Passport Information
               </Text>
               {biometricEnabled ? (
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
 
           {!isUnlocked && biometricEnabled ? (
             <View className="py-6">
-              <Text className="text-center text-gray-600 dark:text-gray-400 mb-4">
+              <Text className="text-center text-secondary mb-4">
                 Passport data is protected by biometric authentication
               </Text>
               <Button
@@ -134,33 +134,33 @@ export default function ProfileScreen() {
           ) : (
             <View className="space-y-4">
               <View className="grid grid-cols-1 gap-3">
-                <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Passport Number</Text>
-                  <Text className="text-base font-mono text-gray-900 dark:text-white mt-1">
+                <View className="bg-surface-secondary p-3 rounded-lg">
+                  <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Passport Number</Text>
+                  <Text className="text-base font-mono text-primary mt-1">
                     {isUnlocked ? secureProfile?.passportNumber : maskPassportNumber(profile.passportNumber)}
                   </Text>
                 </View>
 
                 <View className="flex-row gap-3">
-                  <View className="flex-1 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                    <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Nationality</Text>
-                    <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.nationality}</Text>
+                  <View className="flex-1 bg-surface-secondary p-3 rounded-lg">
+                    <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Nationality</Text>
+                    <Text className="text-sm text-primary mt-1">{profile.nationality}</Text>
                   </View>
-                  <View className="flex-1 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                    <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Gender</Text>
-                    <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.gender}</Text>
+                  <View className="flex-1 bg-surface-secondary p-3 rounded-lg">
+                    <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Gender</Text>
+                    <Text className="text-sm text-primary mt-1">{profile.gender}</Text>
                   </View>
                 </View>
 
-                <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date of Birth</Text>
-                  <Text className="text-sm text-gray-900 dark:text-white mt-1">{formatDate(profile.dateOfBirth)}</Text>
+                <View className="bg-surface-secondary p-3 rounded-lg">
+                  <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Date of Birth</Text>
+                  <Text className="text-sm text-primary mt-1">{formatDate(profile.dateOfBirth)}</Text>
                 </View>
 
-                <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Passport Expires</Text>
+                <View className="bg-surface-secondary p-3 rounded-lg">
+                  <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Passport Expires</Text>
                   <View className="flex-row items-center justify-between mt-1">
-                    <Text className={`text-sm ${isPassportExpiringSoon(profile.passportExpiry) ? 'text-orange-600 font-medium' : 'text-gray-900 dark:text-white'}`}>
+                    <Text className={`text-sm ${isPassportExpiringSoon(profile.passportExpiry) ? 'text-orange-600 font-medium' : 'text-primary'}`}>
                       {formatDate(profile.passportExpiry)}
                     </Text>
                     {isPassportExpiringSoon(profile.passportExpiry) && (
@@ -172,9 +172,9 @@ export default function ProfileScreen() {
                   </View>
                 </View>
 
-                <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Issued by</Text>
-                  <Text className="text-sm text-gray-900 dark:text-white mt-1">{profile.issuingCountry}</Text>
+                <View className="bg-surface-secondary p-3 rounded-lg">
+                  <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Issued by</Text>
+                  <Text className="text-sm text-primary mt-1">{profile.issuingCountry}</Text>
                 </View>
               </View>
             </View>
@@ -185,7 +185,7 @@ export default function ProfileScreen() {
         <Card>
           <View className="flex-row justify-between items-center mb-4">
             <View className="flex-row items-center">
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
+              <Text className="text-lg font-semibold text-primary mr-3">
                 Contact Information
               </Text>
               {(!profile.email || !profile.phoneNumber || !profile.occupation) && (
@@ -202,21 +202,21 @@ export default function ProfileScreen() {
           </View>
 
           <View className="space-y-3">
-            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</Text>
-              <Text className={`text-sm mt-1 ${!profile.email ? 'text-gray-400 dark:text-gray-600 italic' : 'text-gray-900 dark:text-white'}`}>
+            <View className="bg-surface-secondary p-3 rounded-lg">
+              <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Email</Text>
+              <Text className={`text-sm mt-1 ${!profile.email ? 'text-muted italic' : 'text-primary'}`}>
                 {profile.email || 'Not provided'}
               </Text>
             </View>
-            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Phone</Text>
-              <Text className={`text-sm mt-1 ${!profile.phoneNumber ? 'text-gray-400 dark:text-gray-600 italic' : 'text-gray-900 dark:text-white'}`}>
+            <View className="bg-surface-secondary p-3 rounded-lg">
+              <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Phone</Text>
+              <Text className={`text-sm mt-1 ${!profile.phoneNumber ? 'text-muted italic' : 'text-primary'}`}>
                 {profile.phoneNumber || 'Not provided'}
               </Text>
             </View>
-            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Occupation</Text>
-              <Text className={`text-sm mt-1 ${!profile.occupation ? 'text-gray-400 dark:text-gray-600 italic' : 'text-gray-900 dark:text-white'}`}>
+            <View className="bg-surface-secondary p-3 rounded-lg">
+              <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Occupation</Text>
+              <Text className={`text-sm mt-1 ${!profile.occupation ? 'text-muted italic' : 'text-primary'}`}>
                 {profile.occupation || 'Not provided'}
               </Text>
             </View>
@@ -226,7 +226,7 @@ export default function ProfileScreen() {
         {/* Home Address */}
         <Card>
           <View className="flex-row items-center mb-4">
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">
+            <Text className="text-lg font-semibold text-primary mr-3">
               Home Address
             </Text>
             {!profile.homeAddress && (
@@ -235,22 +235,22 @@ export default function ProfileScreen() {
           </View>
 
           {profile.homeAddress ? (
-            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <Text className="text-sm text-gray-900 dark:text-white font-medium">{profile.homeAddress.line1}</Text>
+            <View className="bg-surface-secondary p-4 rounded-lg">
+              <Text className="text-sm text-primary font-medium">{profile.homeAddress.line1}</Text>
               {profile.homeAddress.line2 && (
-                <Text className="text-sm text-gray-700 dark:text-gray-300">{profile.homeAddress.line2}</Text>
+                <Text className="text-sm text-secondary">{profile.homeAddress.line2}</Text>
               )}
-              <Text className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+              <Text className="text-sm text-secondary mt-1">
                 {profile.homeAddress.city}
                 {profile.homeAddress.state && `, ${profile.homeAddress.state}`}
                 {` ${profile.homeAddress.postalCode}`}
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">{profile.homeAddress.country}</Text>
+              <Text className="text-sm text-secondary mt-1">{profile.homeAddress.country}</Text>
             </View>
           ) : (
-            <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
-              <Text className="text-sm text-gray-500 dark:text-gray-400 text-center">No address provided</Text>
-              <Text className="text-xs text-gray-400 dark:text-gray-600 text-center mt-1">
+            <View className="bg-surface-secondary p-4 rounded-lg border-2 border-dashed border-border-default">
+              <Text className="text-sm text-tertiary text-center">No address provided</Text>
+              <Text className="text-xs text-muted text-center mt-1">
                 Add your home address to improve form auto-fill
               </Text>
             </View>
@@ -259,7 +259,7 @@ export default function ProfileScreen() {
 
         {/* Family Management */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <Text className="text-lg font-semibold text-primary mb-4">
             Family Members
           </Text>
           <TouchableOpacity
@@ -267,8 +267,8 @@ export default function ProfileScreen() {
             testID={PROFILE_SCREEN_IDS.familySummaryRow.id}
             activeOpacity={0.7}
           >
-            <View className="flex-row items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <Text className="text-sm text-gray-700 dark:text-gray-300">
+            <View className="flex-row items-center justify-between bg-surface-secondary p-4 rounded-lg">
+              <Text className="text-sm text-secondary">
                 {familyProfiles.profiles.size === 1
                   ? '1 family member'
                   : `${familyProfiles.profiles.size} family members`}
@@ -280,18 +280,18 @@ export default function ProfileScreen() {
 
         {/* Profile Metadata */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <Text className="text-lg font-semibold text-primary mb-4">
             Profile Information
           </Text>
 
           <View className="space-y-3">
-            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Created</Text>
-              <Text className="text-sm text-gray-900 dark:text-white mt-1">{formatDate(profile.createdAt)}</Text>
+            <View className="bg-surface-secondary p-3 rounded-lg">
+              <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Created</Text>
+              <Text className="text-sm text-primary mt-1">{formatDate(profile.createdAt)}</Text>
             </View>
-            <View className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-              <Text className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Last Updated</Text>
-              <Text className="text-sm text-gray-900 dark:text-white mt-1">{formatDate(profile.updatedAt)}</Text>
+            <View className="bg-surface-secondary p-3 rounded-lg">
+              <Text className="text-xs font-medium text-tertiary uppercase tracking-wide">Last Updated</Text>
+              <Text className="text-sm text-primary mt-1">{formatDate(profile.updatedAt)}</Text>
             </View>
           </View>
 
@@ -301,8 +301,8 @@ export default function ProfileScreen() {
           <View className="flex-row items-start">
             <View className="mr-2"><Lock size={18} color="#374151" /></View>
             <View className="flex-1">
-              <Text className="text-sm font-medium text-gray-900 dark:text-white">Local-First Security</Text>
-              <Text className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              <Text className="text-sm font-medium text-primary">Local-First Security</Text>
+              <Text className="text-xs text-secondary mt-1">
                 Your passport data is encrypted and stored securely on this device only.
                 It never leaves your phone unless you explicitly share it.
               </Text>

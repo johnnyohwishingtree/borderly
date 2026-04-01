@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 const ROOT = resolve(__dirname, '../..');

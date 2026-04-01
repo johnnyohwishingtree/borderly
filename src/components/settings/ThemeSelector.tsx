@@ -68,7 +68,7 @@ export default function ThemeSelector({
       accessibilityRole="radiogroup"
       accessibilityLabel="Theme preference"
     >
-      <View className="flex-row rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+      <View className="flex-row rounded-xl overflow-hidden border border-border-default">
         {THEME_OPTIONS.map((option, index) => {
           const isSelected = option.value === value;
           const isFirst = index === 0;
@@ -91,9 +91,9 @@ export default function ThemeSelector({
                 'flex-1 py-2.5 items-center justify-center',
                 isSelected
                   ? 'bg-blue-600 dark:bg-blue-500'
-                  : 'bg-white dark:bg-gray-800',
+                  : 'bg-surface',
                 !isFirst
-                  ? 'border-l border-gray-200 dark:border-gray-700'
+                  ? 'border-l border-border-default'
                   : '',
               ]
                 .filter(Boolean)
@@ -105,7 +105,7 @@ export default function ThemeSelector({
                   'text-sm font-medium',
                   isSelected
                     ? 'text-white'
-                    : 'text-gray-700 dark:text-gray-300',
+                    : 'text-secondary',
                 ].join(' ')}
               >
                 {option.label}

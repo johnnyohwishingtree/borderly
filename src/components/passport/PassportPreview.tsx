@@ -106,13 +106,13 @@ export default function PassportPreview({
   const expiryStatus = getExpiryStatus(profile.passportExpiry);
 
   return (
-    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-900" contentContainerStyle={{ padding: 16 }}>
+    <ScrollView className="flex-1 bg-surface-secondary" contentContainerStyle={{ padding: 16 }}>
       {/* Header */}
       <View className="mb-6">
-        <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <Text className="text-2xl font-bold text-primary mb-2">
           Confirm Passport Details
         </Text>
-        <Text className="text-gray-600 dark:text-gray-400 leading-6">
+        <Text className="text-secondary leading-6">
           Please review your passport information. This data will be stored securely 
           on your device and used to auto-fill travel forms.
         </Text>
@@ -128,7 +128,7 @@ export default function PassportPreview({
             <Text className="font-medium text-blue-900 dark:text-blue-100 mb-1">
               Secure Local Storage
             </Text>
-            <Text className="text-sm text-blue-700 dark:text-blue-300">
+            <Text className="text-sm text-accent">
               Your passport data is encrypted and stored only on this device. 
               It never leaves your phone without your explicit action.
             </Text>
@@ -140,14 +140,14 @@ export default function PassportPreview({
       {scanResult && (
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="font-medium text-gray-900 dark:text-white">Scan Quality</Text>
+            <Text className="font-medium text-primary">Scan Quality</Text>
             <StatusBadge
               text={`${Math.round(scanResult.confidence * 100)}% Confident`}
               status={scanResult.confidence >= 0.8 ? 'success' : 
                       scanResult.confidence >= 0.6 ? 'warning' : 'error'}
             />
           </View>
-          <Text className="text-sm text-gray-600 dark:text-gray-400">
+          <Text className="text-sm text-secondary">
             Data was automatically extracted from your passport using optical scanning.
           </Text>
         </Card>
@@ -176,7 +176,7 @@ export default function PassportPreview({
 
       {/* Passport Information */}
       <Card className="mb-4">
-        <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <Text className="text-lg font-semibold text-primary mb-4">
           Passport Information
         </Text>
         
@@ -191,9 +191,9 @@ export default function PassportPreview({
             value={profile.issuingCountry || 'Not provided'}
           />
           <View className="flex-row items-center justify-between">
-            <Text className="text-sm font-medium text-gray-500 dark:text-gray-400">Expiry Date</Text>
+            <Text className="text-sm font-medium text-tertiary">Expiry Date</Text>
             <View className="flex-row items-center">
-              <Text className="text-gray-900 dark:text-white mr-2">
+              <Text className="text-primary mr-2">
                 {formatDate(profile.passportExpiry)}
               </Text>
               <StatusBadge
@@ -213,7 +213,7 @@ export default function PassportPreview({
 
       {/* Personal Information */}
       <Card className="mb-6">
-        <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <Text className="text-lg font-semibold text-primary mb-4">
           Personal Information
         </Text>
         
@@ -290,7 +290,7 @@ function DataRow({ label, value, important }: DataRowProps) {
 
   return (
     <View className="flex-row items-center justify-between">
-      <Text className="text-sm font-medium text-gray-500 dark:text-gray-400 flex-shrink-0">
+      <Text className="text-sm font-medium text-tertiary flex-shrink-0">
         {label}
       </Text>
       <Text
@@ -298,8 +298,8 @@ function DataRow({ label, value, important }: DataRowProps) {
           isEmpty
             ? 'text-red-500 dark:text-red-400'
             : important
-            ? 'text-gray-900 dark:text-white font-medium'
-            : 'text-gray-900 dark:text-white'
+            ? 'text-primary font-medium'
+            : 'text-primary'
         }`}
       >
         {value}

@@ -33,7 +33,7 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView
       className="flex-1"
       accessibilityLabel="Welcome to Borderly screen"
@@ -57,13 +57,13 @@ export default function WelcomeScreen() {
             <Globe size={40} color="white" />
           </View>
 
-          <Text className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-1" accessibilityRole="header">
+          <Text className="text-3xl font-bold text-primary text-center mb-1" accessibilityRole="header">
             Welcome to
           </Text>
           <Text className="text-3xl font-bold text-primary-600 text-center mb-3" accessibilityRole="header">
             Borderly
           </Text>
-          <Text className="text-lg text-gray-600 dark:text-gray-400 text-center max-w-sm">
+          <Text className="text-lg text-secondary text-center max-w-sm">
             Your universal travel declaration companion. Fill once, travel everywhere.
           </Text>
         </View>
@@ -88,8 +88,8 @@ export default function WelcomeScreen() {
                 <Lock size={20} color={colors.success} />
               </View>
               <View>
-                <Text className="text-gray-900 dark:text-white font-semibold">Private & Secure</Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">Data stays on your device</Text>
+                <Text className="text-primary font-semibold">Private & Secure</Text>
+                <Text className="text-secondary text-sm">Data stays on your device</Text>
               </View>
             </View>
             <View className="flex-row items-center">
@@ -97,8 +97,8 @@ export default function WelcomeScreen() {
                 <Smartphone size={20} color={colors.accent} />
               </View>
               <View>
-                <Text className="text-gray-900 dark:text-white font-semibold">Works Offline</Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">No internet required</Text>
+                <Text className="text-primary font-semibold">Works Offline</Text>
+                <Text className="text-secondary text-sm">No internet required</Text>
               </View>
             </View>
             <View className="flex-row items-center">
@@ -106,8 +106,8 @@ export default function WelcomeScreen() {
                 <Zap size={20} color={colors.accent} />
               </View>
               <View>
-                <Text className="text-gray-900 dark:text-white font-semibold">Lightning Fast</Text>
-                <Text className="text-gray-600 dark:text-gray-400 text-sm">Fill forms in seconds</Text>
+                <Text className="text-primary font-semibold">Lightning Fast</Text>
+                <Text className="text-secondary text-sm">Fill forms in seconds</Text>
               </View>
             </View>
           </View>
@@ -124,7 +124,7 @@ export default function WelcomeScreen() {
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
                 <Globe size={20} color={colors.textPrimary} className="mr-2" />
-                <Text className="text-base font-semibold text-gray-900 dark:text-white">
+                <Text className="text-base font-semibold text-primary">
                   {SUPPORTED_COUNTRIES.length} Countries Supported
                 </Text>
               </View>
@@ -135,7 +135,7 @@ export default function WelcomeScreen() {
                 {SUPPORTED_COUNTRIES.map((country) => (
                   <View key={country.code} className="items-center mb-3 w-1/4">
                     <CountryFlag countryCode={country.code} size="medium" className="mb-2" />
-                    <Text className="text-xs text-gray-600 dark:text-gray-400">{country.name}</Text>
+                    <Text className="text-xs text-secondary">{country.name}</Text>
                   </View>
                 ))}
               </View>
@@ -148,10 +148,10 @@ export default function WelcomeScreen() {
           <View className="flex-row items-start">
             <ShieldCheck size={24} color={colors.success} className="mr-3" />
             <View className="flex-1">
-              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+              <Text className="text-base font-semibold text-primary mb-1">
                 Privacy First
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 leading-5">
+              <Text className="text-sm text-secondary leading-5">
                 Your passport data is encrypted and stored only in your device's secure keychain.
               </Text>
             </View>
@@ -161,7 +161,7 @@ export default function WelcomeScreen() {
     </ScrollView>
 
     {/* Fixed footer CTA — always visible without scrolling */}
-    <View className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+    <View className="bg-surface-secondary border-t border-border-default px-6 py-4 pb-8">
       <Button
         title="Get Started"
         onPress={handleGetStarted}
@@ -179,7 +179,7 @@ export default function WelcomeScreen() {
         className="flex-row items-center justify-center py-2"
       >
         <UploadCloud size={16} color="#6b7280" />
-        <Text className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+        <Text className="text-sm text-tertiary ml-2">
           Already have a backup?{' '}
           <Text className="text-primary-600 font-medium">Restore</Text>
         </Text>

@@ -66,7 +66,7 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
       <Card className="p-4">
         <View className="items-center py-4">
           <Users size={32} color="#9ca3af" />
-          <Text className="text-gray-500 text-center mt-2">
+          <Text className="text-tertiary text-center mt-2">
             No family members available
           </Text>
         </View>
@@ -79,14 +79,14 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
       <Card className="mb-4">
         <View className="p-3">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-sm font-medium text-gray-700">{title}</Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-sm font-medium text-secondary">{title}</Text>
+            <Text className="text-xs text-tertiary">
               {selectedTravelerIds.length} selected
             </Text>
           </View>
           
           {subtitle && (
-            <Text className="text-xs text-gray-500 mb-3">{subtitle}</Text>
+            <Text className="text-xs text-tertiary mb-3">{subtitle}</Text>
           )}
 
           <ScrollView 
@@ -108,8 +108,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                     ${isSelected 
                       ? 'bg-green-50 border-green-500' 
                       : canToggle 
-                        ? 'bg-white border-gray-200' 
-                        : 'bg-gray-100 border-gray-200'
+                        ? 'bg-surface border-border-default' 
+                        : 'bg-surface-tertiary border-border-default'
                     }
                   `}
                   activeOpacity={canToggle ? 0.7 : 1}
@@ -135,8 +135,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                         isSelected 
                           ? 'text-green-700' 
                           : canToggle 
-                            ? 'text-gray-900' 
-                            : 'text-gray-400'
+                            ? 'text-primary' 
+                            : 'text-muted'
                       }`}>
                         {traveler.givenNames.split(' ')[0]}
                       </Text>
@@ -144,8 +144,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                         isSelected 
                           ? 'text-green-600' 
                           : canToggle 
-                            ? 'text-gray-500' 
-                            : 'text-gray-400'
+                            ? 'text-tertiary' 
+                            : 'text-muted'
                       }`}>
                         {getRelationshipDisplay(traveler.relationship)}
                       </Text>
@@ -157,7 +157,7 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
           </ScrollView>
 
           {(minSelection > 0 || maxSelection) && (
-            <Text className="text-xs text-gray-500 mt-2">
+            <Text className="text-xs text-tertiary mt-2">
               {minSelection > 0 && maxSelection 
                 ? `Select ${minSelection}-${maxSelection} travelers`
                 : minSelection > 0 
@@ -175,14 +175,14 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
     <Card className="mb-4">
       <View className="p-4">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-lg font-semibold text-gray-900">{title}</Text>
-          <Text className="text-sm text-gray-500">
+          <Text className="text-lg font-semibold text-primary">{title}</Text>
+          <Text className="text-sm text-tertiary">
             {selectedTravelerIds.length} of {travelers.length} selected
           </Text>
         </View>
 
         {subtitle && (
-          <Text className="text-sm text-gray-600 mb-4">{subtitle}</Text>
+          <Text className="text-sm text-secondary mb-4">{subtitle}</Text>
         )}
         
         <View className="space-y-2">
@@ -200,8 +200,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                   ${isSelected 
                     ? 'bg-green-50 border-green-500' 
                     : canToggle 
-                      ? 'bg-gray-50 border-gray-200' 
-                      : 'bg-gray-100 border-gray-200'
+                      ? 'bg-surface-secondary border-border-default' 
+                      : 'bg-surface-tertiary border-border-default'
                   }
                 `}
                 activeOpacity={canToggle ? 0.7 : 1}
@@ -227,8 +227,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                       isSelected 
                         ? 'text-green-700' 
                         : canToggle 
-                          ? 'text-gray-900' 
-                          : 'text-gray-400'
+                          ? 'text-primary' 
+                          : 'text-muted'
                     }`}>
                       {traveler.givenNames} {traveler.surname}
                     </Text>
@@ -237,8 +237,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                         isSelected 
                           ? 'text-green-600' 
                           : canToggle 
-                            ? 'text-gray-500' 
-                            : 'text-gray-400'
+                            ? 'text-tertiary' 
+                            : 'text-muted'
                       }`}>
                         {getRelationshipDisplay(traveler.relationship)}
                       </Text>
@@ -246,8 +246,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                         isSelected 
                           ? 'text-green-600' 
                           : canToggle 
-                            ? 'text-gray-500' 
-                            : 'text-gray-400'
+                            ? 'text-tertiary' 
+                            : 'text-muted'
                       }`}>
                         • {traveler.nationality}
                       </Text>
@@ -255,8 +255,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                         isSelected 
                           ? 'text-green-600' 
                           : canToggle 
-                            ? 'text-gray-500' 
-                            : 'text-gray-400'
+                            ? 'text-tertiary' 
+                            : 'text-muted'
                       }`}>
                         • Born {new Date(traveler.dateOfBirth).getFullYear()}
                       </Text>
@@ -267,8 +267,8 @@ const TravelerSelector = memo<TravelerSelectorProps>(({
                     ${isSelected 
                       ? 'bg-green-500 border-green-500' 
                       : canToggle 
-                        ? 'border-gray-300' 
-                        : 'border-gray-200 bg-gray-100'
+                        ? 'border-border-default' 
+                        : 'border-border-default bg-surface-tertiary'
                     }
                   `}>
                     {isSelected && <Check size={16} color="white" />}

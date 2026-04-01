@@ -39,11 +39,11 @@ export default function PortalSubmissionScreen() {
   } = usePortalSubmission();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" testID={PORTAL_SUBMISSION_IDS.screen.id}>
+    <SafeAreaView className="flex-1 bg-surface" testID={PORTAL_SUBMISSION_IDS.screen.id}>
       {/* Header */}
-      <View className="bg-white border-b border-gray-200 px-4 py-2">
+      <View className="bg-surface border-b border-border-default px-4 py-2">
         <View className="flex-row items-center justify-between">
-          <Text className="flex-1 text-base font-semibold text-gray-900" numberOfLines={1}>
+          <Text className="flex-1 text-base font-semibold text-primary" numberOfLines={1}>
             {schema?.portalName ?? 'Government Portal'}
           </Text>
           <Pressable
@@ -59,7 +59,7 @@ export default function PortalSubmissionScreen() {
         {totalSteps > 0 && (
           <View className="mt-2">
             <View className="flex-row items-center justify-between mb-1">
-              <Text className="text-xs text-gray-500">
+              <Text className="text-xs text-tertiary">
                 Step {currentStep} of {totalSteps}
               </Text>
               {schema?.submissionGuide?.[currentStep - 1]?.title ? (
@@ -68,7 +68,7 @@ export default function PortalSubmissionScreen() {
                 </Text>
               ) : null}
             </View>
-            <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <View className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
               <Animated.View
                 style={{
                   height: '100%',
@@ -94,7 +94,7 @@ export default function PortalSubmissionScreen() {
       )}
 
       {/* Toolbar */}
-      <View className="bg-gray-50 border-b border-gray-200 px-4 py-2 flex-row items-center gap-4">
+      <View className="bg-surface-secondary border-b border-border-default px-4 py-2 flex-row items-center gap-4">
         <Pressable
           onPress={handleGoBack}
           disabled={!navState.canGoBack}
@@ -121,7 +121,7 @@ export default function PortalSubmissionScreen() {
         >
           <RefreshCw size={20} color="#374151" />
         </Pressable>
-        <Text className="flex-1 text-xs text-gray-400" numberOfLines={1}>
+        <Text className="flex-1 text-xs text-muted" numberOfLines={1}>
           {navState.url}
         </Text>
       </View>
@@ -143,7 +143,7 @@ export default function PortalSubmissionScreen() {
           className="bg-amber-100 border-b border-amber-500 px-4 py-2.5"
           testID={PORTAL_SUBMISSION_IDS.autoLoginFailedBanner.id}
         >
-          <Text className="text-sm text-amber-800 font-medium">
+          <Text className="text-sm text-warning font-medium">
             Auto-login failed. Please log in manually.
           </Text>
         </View>
@@ -154,7 +154,7 @@ export default function PortalSubmissionScreen() {
           className="bg-amber-100 border-b border-amber-500 px-4 py-2.5"
           testID={PORTAL_SUBMISSION_IDS.authPageBanner.id}
         >
-          <Text className="text-sm text-amber-800 font-medium">
+          <Text className="text-sm text-warning font-medium">
             Log in to continue
           </Text>
         </View>
@@ -165,7 +165,7 @@ export default function PortalSubmissionScreen() {
           className="bg-amber-100 border-b border-amber-500 px-4 py-2.5"
           testID={PORTAL_SUBMISSION_IDS.captchaPageBanner.id}
         >
-          <Text className="text-sm text-amber-800 font-medium">
+          <Text className="text-sm text-warning font-medium">
             Complete the verification to continue
           </Text>
         </View>
@@ -226,11 +226,11 @@ export default function PortalSubmissionScreen() {
             className="justify-center items-center p-6"
             testID={PORTAL_SUBMISSION_IDS.loadErrorOverlay.id}
           >
-            <View className="bg-white rounded-xl p-6 w-full max-w-sm">
-              <Text className="text-base font-semibold text-gray-900 mb-2">
+            <View className="bg-surface rounded-xl p-6 w-full max-w-sm">
+              <Text className="text-base font-semibold text-primary mb-2">
                 Unable to Load Portal
               </Text>
-              <Text className="text-sm text-gray-600 mb-5 leading-5">
+              <Text className="text-sm text-secondary mb-5 leading-5">
                 {loadError}
               </Text>
               <Pressable
@@ -265,7 +265,7 @@ export default function PortalSubmissionScreen() {
                 accessibilityLabel="Continue with manual guide"
                 testID={PORTAL_SUBMISSION_IDS.errorContinueManuallyButton.id}
               >
-                <Text className="text-gray-700 font-semibold text-center">
+                <Text className="text-secondary font-semibold text-center">
                   Continue Manually
                 </Text>
               </Pressable>

@@ -17,16 +17,16 @@ export default function PortalLinksScreen() {
   const { portalCards, launchPortal } = usePortalLinks({ tripId, countryCodes });
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
-      <View className="bg-white dark:bg-gray-800 px-4 py-6 border-b border-gray-100 dark:border-gray-700">
+    <ScreenContainer className="bg-surface-secondary">
+      <View className="bg-surface px-4 py-6 border-b border-border-default">
         <Text
-          className="text-2xl font-bold text-gray-900 dark:text-white"
+          className="text-2xl font-bold text-primary"
           accessibilityRole="header"
         >
           Submit your forms
         </Text>
         <Text
-          className="text-base text-gray-600 dark:text-gray-400 mt-1"
+          className="text-base text-secondary mt-1"
           testID={PORTAL_LINKS_IDS.instructions.id}
         >
           Log in to each portal, then tap the auto-fill icon to fill your form automatically
@@ -44,10 +44,10 @@ export default function PortalLinksScreen() {
               <View className="p-4">
                 <View className="flex-row items-center justify-between mb-3">
                   <View className="flex-1">
-                    <Text className="text-lg font-bold text-gray-900 dark:text-white">
+                    <Text className="text-lg font-bold text-primary">
                       {getCountryName(card.countryCode)}
                     </Text>
-                    <Text className="text-sm text-gray-500 dark:text-gray-400">
+                    <Text className="text-sm text-tertiary">
                       {card.portalName}
                     </Text>
                   </View>
@@ -55,7 +55,7 @@ export default function PortalLinksScreen() {
                     <View className="flex-row items-center">
                       <CheckCircle size={20} color="#16a34a" />
                       <Text
-                        className="text-green-600 dark:text-green-400 font-medium ml-1"
+                        className="text-success font-medium ml-1"
                         testID={`${PORTAL_LINKS_IDS.portalStatus.id}-${card.countryCode}`}
                       >
                         Submitted
@@ -63,7 +63,7 @@ export default function PortalLinksScreen() {
                     </View>
                   ) : (
                     <Text
-                      className="text-sm text-blue-600 dark:text-blue-400 font-medium"
+                      className="text-sm text-accent font-medium"
                       testID={`${PORTAL_LINKS_IDS.portalStatus.id}-${card.countryCode}`}
                     >
                       Ready to submit

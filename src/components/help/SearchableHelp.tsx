@@ -253,9 +253,9 @@ export default function SearchableHelp({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-surface-secondary">
         {/* Header */}
-        <View className="bg-white px-4 py-3 border-b border-gray-200">
+        <View className="bg-surface px-4 py-3 border-b border-border-default">
           <View className="flex-row items-center">
             <TouchableOpacity
               onPress={onClose}
@@ -265,14 +265,14 @@ export default function SearchableHelp({
             >
               <X size={24} color="#374151" />
             </TouchableOpacity>
-            <Text className="text-lg font-semibold text-gray-900 flex-1">
+            <Text className="text-lg font-semibold text-primary flex-1">
               Search Help
             </Text>
           </View>
         </View>
 
         {/* Search Input */}
-        <View className="bg-white px-4 py-4 border-b border-gray-200">
+        <View className="bg-surface px-4 py-4 border-b border-border-default">
           <View className="relative">
             <View className="absolute left-3 top-3 z-[1]">
               <Search size={20} color="#6b7280" />
@@ -281,7 +281,7 @@ export default function SearchableHelp({
               value={searchTerm}
               onChangeText={handleSearch}
               placeholder="Search help topics, FAQs, guides..."
-              className="border border-gray-300 rounded-lg pl-10 pr-12 py-3 text-base bg-gray-50"
+              className="border border-border-default rounded-lg pl-10 pr-12 py-3 text-base bg-surface-secondary"
               autoFocus
               accessibilityLabel="Search help content"
             />
@@ -312,15 +312,15 @@ export default function SearchableHelp({
           {/* Recent Searches */}
           {searchTerm.length === 0 && recentSearches.length > 0 && (
             <Card className="mb-4">
-              <Text className="text-lg font-semibold text-gray-900 mb-3">Recent Searches</Text>
+              <Text className="text-lg font-semibold text-primary mb-3">Recent Searches</Text>
               <View className="flex-row flex-wrap gap-2">
                 {recentSearches.map((search, index) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => handleSearch(search)}
-                    className="bg-gray-100 px-3 py-2 rounded-full"
+                    className="bg-surface-tertiary px-3 py-2 rounded-full"
                   >
-                    <Text className="text-sm text-gray-700">{search}</Text>
+                    <Text className="text-sm text-secondary">{search}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -330,7 +330,7 @@ export default function SearchableHelp({
           {/* Popular Topics */}
           {searchTerm.length === 0 && (
             <Card className="mb-4">
-              <Text className="text-lg font-semibold text-gray-900 mb-3">Popular Topics</Text>
+              <Text className="text-lg font-semibold text-primary mb-3">Popular Topics</Text>
               <View className="space-y-2">
                 {[
                   'How to scan passport',
@@ -348,7 +348,7 @@ export default function SearchableHelp({
                     <View className="mr-2">
                       <TrendingUp size={16} color="#6b7280" />
                     </View>
-                    <Text className="text-sm text-gray-700">{topic}</Text>
+                    <Text className="text-sm text-secondary">{topic}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -362,7 +362,7 @@ export default function SearchableHelp({
                 <TouchableOpacity
                   key={result.id}
                   onPress={() => handleResultPress(result)}
-                  className="bg-white p-4 rounded-lg border border-gray-200"
+                  className="bg-surface p-4 rounded-lg border border-border-default"
                   accessibilityRole="button"
                   accessibilityLabel={`View ${result.title}`}
                 >
@@ -372,7 +372,7 @@ export default function SearchableHelp({
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center mb-1">
-                        <Text className="font-semibold text-gray-900 flex-1">
+                        <Text className="font-semibold text-primary flex-1">
                           {result.title}
                         </Text>
                         <StatusBadge
@@ -381,13 +381,13 @@ export default function SearchableHelp({
                           text={result.type.toUpperCase()}
                         />
                       </View>
-                      <Text className="text-sm text-gray-600 mb-2" numberOfLines={2}>
+                      <Text className="text-sm text-secondary mb-2" numberOfLines={2}>
                         {result.content}
                       </Text>
                       <View className="flex-row flex-wrap gap-1">
                         {result.tags.slice(0, 3).map((tag) => (
-                          <View key={tag} className="bg-gray-100 px-2 py-1 rounded">
-                            <Text className="text-xs text-gray-600">#{tag}</Text>
+                          <View key={tag} className="bg-surface-tertiary px-2 py-1 rounded">
+                            <Text className="text-xs text-secondary">#{tag}</Text>
                           </View>
                         ))}
                       </View>
@@ -405,8 +405,8 @@ export default function SearchableHelp({
                 <View className="self-center mb-4">
                   <SearchX size={48} color="#9ca3af" />
                 </View>
-                <Text className="text-lg text-gray-600 mb-2">No results found</Text>
-                <Text className="text-sm text-gray-500 mb-4">
+                <Text className="text-lg text-secondary mb-2">No results found</Text>
+                <Text className="text-sm text-tertiary mb-4">
                   Try different keywords or browse categories
                 </Text>
                 <Button

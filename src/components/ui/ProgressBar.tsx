@@ -55,7 +55,7 @@ export default function ProgressBar({
   };
 
   const getLabelStyles = () => {
-    return 'text-sm font-medium text-gray-700 mb-2';
+    return 'text-sm font-medium text-secondary mb-2';
   };
 
   const getPercentageStyles = () => {
@@ -65,7 +65,7 @@ export default function ProgressBar({
       large: 'text-base',
     };
 
-    return `font-semibold text-gray-600 mt-1 ${sizeStyles[size]}`;
+    return `font-semibold text-secondary mt-1 ${sizeStyles[size]}`;
   };
 
   const progressText = accessibilityLabel || `${label ? `${label}: ` : ''}${Math.round(clampedProgress)} percent complete`;

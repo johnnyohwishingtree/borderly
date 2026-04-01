@@ -53,17 +53,17 @@ export default function GuideProgress({
     const statusStyles = {
       completed: 'bg-green-500 border-green-500',
       current: 'bg-blue-500 border-blue-500',
-      upcoming: 'bg-gray-100 border-gray-300',
+      upcoming: 'bg-surface-tertiary border-border-default',
     };
     return `${baseStyles} ${getSizeStyles().circle} ${statusStyles[status]}`;
   };
 
   const getStepTextColor = (status: 'completed' | 'current' | 'upcoming') => {
-    // text-gray-400 on bg-gray-100 fails WCAG AA (~2.18:1); use text-gray-600 (~7.17:1) instead
+    // text-muted on bg-surface-tertiary fails WCAG AA (~2.18:1); use text-secondary (~7.17:1) instead
     return {
       completed: 'text-white',
       current: 'text-white',
-      upcoming: 'text-gray-600',
+      upcoming: 'text-secondary',
     }[status];
   };
 
@@ -106,7 +106,7 @@ export default function GuideProgress({
               <Text 
                 className={`mt-2 ${getSizeStyles().text} text-center font-medium ${
                   status === 'current' ? 'text-blue-600' : 
-                  status === 'completed' ? 'text-green-600' : 'text-gray-500'
+                  status === 'completed' ? 'text-green-600' : 'text-tertiary'
                 }`}
                 numberOfLines={2}
               >
@@ -145,7 +145,7 @@ export default function GuideProgress({
     <View className="w-full">
       {/* Progress Summary */}
       <View className="flex-row justify-between items-center mb-4">
-        <Text className="text-lg font-semibold text-gray-900">
+        <Text className="text-lg font-semibold text-primary">
           Step {currentStep} of {totalSteps}
         </Text>
         <View className="bg-blue-100 px-3 py-1 rounded-full">

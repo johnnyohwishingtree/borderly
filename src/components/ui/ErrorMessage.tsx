@@ -76,7 +76,7 @@ export function ErrorMessage({
       case 'card':
         return 'bg-red-50 border border-red-200 rounded-xl shadow-sm';
       case 'fullscreen':
-        return 'flex-1 bg-white items-center justify-center';
+        return 'flex-1 bg-surface items-center justify-center';
       default:
         return 'bg-red-50 border border-red-200 rounded-lg';
     }

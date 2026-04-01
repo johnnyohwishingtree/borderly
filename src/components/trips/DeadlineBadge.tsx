@@ -90,8 +90,8 @@ function resolveBadgeConfig(deadline: LegDeadline): BadgeConfig {
   // not-started or no-deadline without urgency
   return {
     label: 'Not Started',
-    bgClass: 'bg-gray-100 dark:bg-gray-700',
-    textClass: 'text-gray-700 dark:text-gray-300',
+    bgClass: 'bg-surface-tertiary',
+    textClass: 'text-secondary',
   };
 }
 

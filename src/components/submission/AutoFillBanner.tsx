@@ -158,7 +158,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
 
             {skippedResults.length > 0 && (
               <>
-                <Text className="text-xs text-gray-500 font-semibold mt-1.5 mb-1">
+                <Text className="text-xs text-tertiary font-semibold mt-1.5 mb-1">
                   Already filled ({skippedResults.length})
                 </Text>
                 {skippedResults.map(r => (
@@ -167,7 +167,7 @@ export function AutoFillBanner({ filled, total, results, onDismiss, testID }: Au
                     className="flex-row items-center mb-0.5"
                     testID={AUTOFILL_BANNER_IDS.result(r.id).id}
                   >
-                    <Text className="text-xs text-gray-500 ml-4">{r.id}</Text>
+                    <Text className="text-xs text-tertiary ml-4">{r.id}</Text>
                   </View>
                 ))}
               </>

@@ -97,7 +97,7 @@ export function CredentialPrompt({
 
         {/* Bottom sheet */}
         <View
-          className="bg-white rounded-t-2xl px-5 pt-4 pb-8 shadow-lg elevation-8"
+          className="bg-surface rounded-t-2xl px-5 pt-4 pb-8 shadow-lg elevation-8"
           testID={CREDENTIAL_PROMPT_IDS.sheet.id}
         >
           {/* Handle */}
@@ -105,7 +105,7 @@ export function CredentialPrompt({
 
           {/* Title */}
           <Text
-            className="text-lg font-semibold text-gray-900 mb-1.5"
+            className="text-lg font-semibold text-primary mb-1.5"
             testID={CREDENTIAL_PROMPT_IDS.title.id}
           >
             {resolvedTitle}
@@ -113,7 +113,7 @@ export function CredentialPrompt({
 
           {/* Subtitle */}
           <Text
-            className="text-sm text-gray-500 leading-5 mb-5"
+            className="text-sm text-tertiary leading-5 mb-5"
             testID={CREDENTIAL_PROMPT_IDS.subtitle.id}
           >
             {resolvedSubtitle}
@@ -122,11 +122,11 @@ export function CredentialPrompt({
           <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={false}>
             {/* Username / email field */}
             <View className="mb-3">
-              <Text className="text-sm font-medium text-gray-700 mb-1">
+              <Text className="text-sm font-medium text-secondary mb-1">
                 Email / Username
               </Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-3 py-2.5 text-base text-gray-900 bg-gray-50"
+                className="border border-border-default rounded-lg px-3 py-2.5 text-base text-primary bg-surface-secondary"
                 value={username}
                 onChangeText={setUsername}
                 placeholder="you@example.com"
@@ -142,12 +142,12 @@ export function CredentialPrompt({
 
             {/* Password field */}
             <View className="mb-5">
-              <Text className="text-sm font-medium text-gray-700 mb-1">
+              <Text className="text-sm font-medium text-secondary mb-1">
                 Password
               </Text>
               <View className="relative">
                 <TextInput
-                  className="border border-gray-300 rounded-lg px-3 py-2.5 pr-12 text-base text-gray-900 bg-gray-50"
+                  className="border border-border-default rounded-lg px-3 py-2.5 pr-12 text-base text-primary bg-surface-secondary"
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Your password"
@@ -165,7 +165,7 @@ export function CredentialPrompt({
                   testID={CREDENTIAL_PROMPT_IDS.togglePassword.id}
                   accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  <Text className="text-xs text-gray-500">
+                  <Text className="text-xs text-tertiary">
                     {showPassword ? 'Hide' : 'Show'}
                   </Text>
                 </TouchableOpacity>
@@ -175,12 +175,12 @@ export function CredentialPrompt({
             {/* Action buttons */}
             <View className="flex-row gap-3">
               <TouchableOpacity
-                className="flex-1 py-3 rounded-[10px] border border-gray-300 items-center"
+                className="flex-1 py-3 rounded-[10px] border border-border-default items-center"
                 onPress={onSkip}
                 testID={CREDENTIAL_PROMPT_IDS.skip.id}
                 accessibilityLabel="Skip saving credentials"
               >
-                <Text className="text-base font-medium text-gray-700">Skip</Text>
+                <Text className="text-base font-medium text-secondary">Skip</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

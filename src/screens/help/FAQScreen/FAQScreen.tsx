@@ -163,17 +163,17 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
   };
 
   return (
-    <ScreenContainer className="bg-gray-50">
+    <ScreenContainer className="bg-surface-secondary">
     <ScrollView keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled" className="flex-1">
       <View className="p-4 space-y-4">
         {/* Header */}
         <View className="mb-4">
-          <Text className="text-base text-gray-600">Search and browse common questions</Text>
+          <Text className="text-base text-secondary">Search and browse common questions</Text>
         </View>
 
         {/* Search */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">Search FAQs</Text>
+          <Text className="text-lg font-semibold text-primary mb-3">Search FAQs</Text>
           
           <View className="space-y-3">
             <View className="relative">
@@ -181,7 +181,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                 value={searchTerm}
                 onChangeText={setSearchTerm}
                 placeholder="Search questions, answers, or topics..."
-                className="border border-gray-300 rounded-lg px-4 py-3 text-base bg-white"
+                className="border border-border-default rounded-lg px-4 py-3 text-base bg-surface"
                 accessibilityLabel="Search FAQ"
                 accessibilityHint="Type keywords to search frequently asked questions"
               />
@@ -209,7 +209,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
 
         {/* Category Filter */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Browse by Category</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Browse by Category</Text>
           
           <View className="flex-row flex-wrap gap-2">
             {categories.map((category) => (
@@ -237,7 +237,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
         {/* FAQ List */}
         <Card>
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-lg font-semibold text-gray-900">Questions</Text>
+            <Text className="text-lg font-semibold text-primary">Questions</Text>
             <StatusBadge 
               status="info" 
               size="small" 
@@ -246,9 +246,9 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
           </View>
 
           {filteredFAQs.length === 0 ? (
-            <View className="bg-gray-50 p-6 rounded-lg text-center">
-              <Text className="text-lg text-gray-600 mb-2">No questions found</Text>
-              <Text className="text-sm text-gray-500 mb-4">
+            <View className="bg-surface-secondary p-6 rounded-lg text-center">
+              <Text className="text-lg text-secondary mb-2">No questions found</Text>
+              <Text className="text-sm text-tertiary mb-4">
                 {searchTerm ? `Try different search terms or clear the search` : `No questions in this category`}
               </Text>
               {searchTerm && (
@@ -263,7 +263,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
           ) : (
             <View className="space-y-3">
               {filteredFAQs.map((faq) => (
-                <View key={faq.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <View key={faq.id} className="border border-border-default rounded-lg overflow-hidden">
                   <Button
                     title={`${expandedFAQ === faq.id ? '−' : '+'} ${faq.question}`}
                     onPress={() => toggleFAQ(faq.id)}
@@ -272,8 +272,8 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
                   />
                   
                   {expandedFAQ === faq.id && (
-                    <View className="px-4 pb-4 bg-gray-50 border-t border-gray-200">
-                      <Text className="text-sm text-gray-700 leading-relaxed mb-3">
+                    <View className="px-4 pb-4 bg-surface-secondary border-t border-border-default">
+                      <Text className="text-sm text-secondary leading-relaxed mb-3">
                         {faq.answer}
                       </Text>
                       
@@ -294,7 +294,7 @@ export default function FAQScreen({ route: _route }: FAQScreenProps) {
 
         {/* Help Actions */}
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-4">Still Need Help?</Text>
+          <Text className="text-lg font-semibold text-primary mb-4">Still Need Help?</Text>
           
           <View className="space-y-3">
             <Button

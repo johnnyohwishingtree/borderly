@@ -184,10 +184,10 @@ const TripCard = memo<TripCardProps>(({
           {/* Header */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1">
-              <Text className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              <Text className="text-xl font-bold text-primary mb-1">
                 {trip.name}
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-sm text-secondary">
                 {trip.legs.length} destination{trip.legs.length > 1 ? 's' : ''}
                 {firstLeg && ` • ${formatDate(firstLeg.arrivalDate)}`}
                 {lastLeg?.departureDate && ` - ${formatDate(lastLeg.departureDate)}`}
@@ -208,12 +208,12 @@ const TripCard = memo<TripCardProps>(({
                   <React.Fragment key={leg.id}>
                     <CountryFlag countryCode={leg.destinationCountry} size="medium" />
                     {index < Math.min(trip.legs.length - 1, 3) && (
-                      <Text className="mx-1 text-gray-400 dark:text-gray-500">→</Text>
+                      <Text className="mx-1 text-muted">→</Text>
                     )}
                   </React.Fragment>
                 ))}
                 {trip.legs.length > 4 && (
-                  <Text className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                  <Text className="ml-2 text-sm text-tertiary">
                     +{trip.legs.length - 4} more
                   </Text>
                 )}
@@ -255,10 +255,10 @@ const TripCard = memo<TripCardProps>(({
           {showProgress && progress.total > 0 && (
             <View>
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Text className="text-sm font-medium text-secondary">
                   Form Progress
                 </Text>
-                <Text className="text-sm text-gray-600 dark:text-gray-400">
+                <Text className="text-sm text-secondary">
                   {progress.completed}/{progress.total} completed
                 </Text>
               </View>
@@ -279,11 +279,11 @@ const TripCard = memo<TripCardProps>(({
                 className="mt-2"
               >
                 {submissionIndicator.allSubmitted ? (
-                  <Text className="text-sm font-semibold text-green-600 dark:text-green-400">
+                  <Text className="text-sm font-semibold text-success">
                     ✓ All submitted
                   </Text>
                 ) : (
-                  <Text className="text-sm text-gray-600 dark:text-gray-400">
+                  <Text className="text-sm text-secondary">
                     {submissionIndicator.submitted}/{submissionIndicator.total} submitted
                   </Text>
                 )}
@@ -294,7 +294,7 @@ const TripCard = memo<TripCardProps>(({
           {/* Empty state */}
           {trip.legs.length === 0 && (
             <View className="py-4 items-center">
-              <Text className="text-gray-500 dark:text-gray-400 text-center">
+              <Text className="text-tertiary text-center">
                 No destinations added yet
               </Text>
             </View>

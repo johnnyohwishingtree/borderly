@@ -1,3 +1,59 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Design tokens — semantic colors that auto-resolve light/dark.
+ *
+ * Usage: className="text-primary bg-surface border-default"
+ * No dark: prefix needed — these variables switch automatically.
+ *
+ * Token reference:
+ *   text-primary        Headings, main content
+ *   text-secondary      Subtitles, descriptions
+ *   text-tertiary       Helper text, metadata
+ *   text-muted          Placeholders, disabled text
+ *   text-accent         Links, interactive text
+ *   text-error          Error messages
+ *   text-success        Success messages
+ *   text-warning        Warning messages
+ *   bg-surface          Main screen/card background
+ *   bg-surface-secondary  Grouped/inset backgrounds
+ *   bg-surface-tertiary   Subtle distinction backgrounds
+ *   border-default      Standard dividers, outlines
+ *   border-light        Subtle separators
+ */
+
+@layer base {
+  :root {
+    --color-text-primary: #111827;       /* gray-900 */
+    --color-text-secondary: #4b5563;     /* gray-600 */
+    --color-text-tertiary: #6b7280;      /* gray-500 */
+    --color-text-muted: #9ca3af;         /* gray-400 */
+    --color-text-accent: #2563eb;        /* blue-600 */
+    --color-text-error: #dc2626;         /* red-600 */
+    --color-text-success: #16a34a;       /* green-600 */
+    --color-text-warning: #d97706;       /* amber-600 */
+    --color-bg-surface: #ffffff;         /* white */
+    --color-bg-surface-secondary: #f9fafb; /* gray-50 */
+    --color-bg-surface-tertiary: #f3f4f6; /* gray-100 */
+    --color-border-default: #e5e7eb;     /* gray-200 */
+    --color-border-light: #f3f4f6;       /* gray-100 */
+  }
+
+  .dark {
+    --color-text-primary: #ffffff;        /* white */
+    --color-text-secondary: #9ca3af;      /* gray-400 */
+    --color-text-tertiary: #6b7280;       /* gray-500 */
+    --color-text-muted: #4b5563;          /* gray-600 */
+    --color-text-accent: #60a5fa;         /* blue-400 */
+    --color-text-error: #f87171;          /* red-400 */
+    --color-text-success: #4ade80;        /* green-400 */
+    --color-text-warning: #fbbf24;        /* amber-400 */
+    --color-bg-surface: #111827;          /* gray-900 */
+    --color-bg-surface-secondary: #1f2937; /* gray-800 */
+    --color-bg-surface-tertiary: #374151;  /* gray-700 */
+    --color-border-default: #374151;      /* gray-700 */
+    --color-border-light: #1f2937;        /* gray-800 */
+  }
+}

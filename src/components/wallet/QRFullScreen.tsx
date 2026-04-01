@@ -147,7 +147,7 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
         <View className="flex-1 items-center justify-center px-8">
           {/* QR Code */}
           <View 
-            className="bg-white rounded-lg p-4 shadow-lg"
+            className="bg-surface rounded-lg p-4 shadow-lg"
             style={{ width: qrSize + 32, height: qrSize + 32 }}
           >
             {qrCode.imageBase64 ? (
@@ -161,7 +161,7 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
                 className="bg-gray-200 items-center justify-center rounded"
                 style={{ width: qrSize, height: qrSize }}
               >
-                <Text className="text-gray-500 text-xl">No QR Code</Text>
+                <Text className="text-tertiary text-xl">No QR Code</Text>
               </View>
             )}
           </View>
@@ -172,7 +172,7 @@ export function QRFullScreen({ qrCode, visible, onClose, onDelete }: QRFullScree
           </Text>
 
           {/* Date */}
-          <Text className="text-gray-300 text-sm mt-2 text-center">
+          <Text className="text-muted text-sm mt-2 text-center">
             Saved {formatDate(qrCode.savedAt)}
           </Text>
 

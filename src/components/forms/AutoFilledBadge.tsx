@@ -29,7 +29,7 @@ export default function AutoFilledBadge({
   const textClasses = [
     'font-medium',
     isSmall ? 'text-xs' : 'text-sm',
-    isAuto ? 'text-green-700 dark:text-green-300' : 'text-blue-700 dark:text-blue-300',
+    isAuto ? 'text-green-700 dark:text-green-300' : 'text-accent',
   ].join(' ');
 
   const dotClasses = [

@@ -73,7 +73,7 @@ export default function LoadingSpinner({
   };
 
   const getTextStyles = () => {
-    const baseStyles = 'text-gray-600 font-medium mt-3';
+    const baseStyles = 'text-secondary font-medium mt-3';
     
     const sizeStyles = {
       small: 'text-sm',
@@ -116,11 +116,11 @@ export default function LoadingSpinner({
       {cancelable && onCancel && (
         <Pressable
           onPress={onCancel}
-          className="mt-4 py-2 px-4 bg-gray-100 rounded-lg"
+          className="mt-4 py-2 px-4 bg-surface-tertiary rounded-lg"
           accessibilityLabel="Cancel loading"
           accessibilityHint="Cancel the current operation"
         >
-          <Text className="text-gray-700 text-center font-medium">
+          <Text className="text-secondary text-center font-medium">
             Cancel
           </Text>
         </Pressable>

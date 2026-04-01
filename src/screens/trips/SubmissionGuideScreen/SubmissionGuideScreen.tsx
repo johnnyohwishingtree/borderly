@@ -85,10 +85,10 @@ export default function SubmissionGuideScreen() {
 
   if (isLoading || !schema || !filledForm) {
     return (
-      <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+      <ScreenContainer className="bg-surface-secondary">
       <SafeAreaView className="flex-1">
         <View className="flex-1 justify-center items-center">
-          <Text className="text-lg text-gray-600 dark:text-gray-400">Loading submission guide...</Text>
+          <Text className="text-lg text-secondary">Loading submission guide...</Text>
         </View>
       </SafeAreaView>
       </ScreenContainer>
@@ -105,10 +105,10 @@ export default function SubmissionGuideScreen() {
       : ('neutral' as const);
 
   return (
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
     <SafeAreaView className="flex-1">
       {/* Header */}
-      <View className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <View className="bg-surface border-b border-border-default px-4 py-3">
         <View className="flex-row items-center justify-between">
           <Pressable
             onPress={() => navigation.goBack()}
@@ -116,7 +116,7 @@ export default function SubmissionGuideScreen() {
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           >
             <ArrowLeft size={24} color="#374151" />
-            <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-2">
+            <Text className="text-lg font-semibold text-primary ml-2">
               Back
             </Text>
           </Pressable>
@@ -134,17 +134,17 @@ export default function SubmissionGuideScreen() {
         </View>
 
         <View className="mt-3">
-          <Text className="text-xl font-bold text-gray-900 dark:text-white">
+          <Text className="text-xl font-bold text-primary">
             {schema.countryName} Submission Guide
           </Text>
-          <Text className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <Text className="text-sm text-secondary mt-1">
             {schema.portalName} • Step-by-step walkthrough
           </Text>
           {/* Show current traveler name inline when no tabs (single traveler) */}
           {!hasMultipleTravelers && currentTraveler && (
             <View className="mt-2 flex-row items-center">
               <View className="w-2 h-2 bg-blue-500 rounded-full mr-2" />
-              <Text className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Text className="text-sm font-medium text-secondary">
                 For: {currentTraveler.givenNames} {currentTraveler.surname}
               </Text>
             </View>
@@ -170,7 +170,7 @@ export default function SubmissionGuideScreen() {
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-row items-center">
                   <Globe size={24} color="#3B82F6" />
-                  <Text className="text-lg font-semibold text-gray-900 dark:text-white ml-3">
+                  <Text className="text-lg font-semibold text-primary ml-3">
                     {schema.portalName}
                   </Text>
                 </View>
@@ -225,13 +225,13 @@ export default function SubmissionGuideScreen() {
 
               {/* Form Completion Summary */}
               <View className="mt-4">
-                <Text className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                <Text className="text-sm font-medium text-primary mb-2">
                   {hasMultipleTravelers && currentTraveler
                     ? `${currentTraveler.givenNames}'s Form Status:`
                     : 'Your Form Status:'}
                 </Text>
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-sm text-gray-600 dark:text-gray-400">
+                  <Text className="text-sm text-secondary">
                     {filledForm.stats.autoFilled + filledForm.stats.userFilled} of{' '}
                     {filledForm.stats.totalFields} fields complete
                   </Text>

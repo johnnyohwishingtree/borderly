@@ -17,8 +17,8 @@ const BADGE_CONFIGS: Record<LegSubmissionStatus, BadgeConfig> = {
   not_started: {
     label: 'Not Started',
     accessibilityLabel: 'Submission not started',
-    bgClass: 'bg-gray-100 dark:bg-gray-700',
-    textClass: 'text-gray-700 dark:text-gray-300',
+    bgClass: 'bg-surface-tertiary',
+    textClass: 'text-secondary',
   },
   in_progress: {
     label: 'In Progress',

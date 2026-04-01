@@ -75,7 +75,7 @@ export default function PassportValidityWarning({
           >
             Passport Validity Warning
           </Text>
-          <Text className="text-amber-700 dark:text-amber-300 text-sm" accessibilityElementsHidden>
+          <Text className="text-warning text-sm" accessibilityElementsHidden>
             <Text className="font-semibold">{countryName}</Text> requires your passport to be
             valid for at least{' '}
             <Text className="font-semibold">
@@ -83,7 +83,7 @@ export default function PassportValidityWarning({
             </Text>{' '}
             beyond your departure date.
           </Text>
-          <Text className="text-amber-700 dark:text-amber-300 text-sm mt-1" accessibilityElementsHidden>
+          <Text className="text-warning text-sm mt-1" accessibilityElementsHidden>
             Your passport expires{' '}
             <Text className="font-semibold">{expiryDisplay}</Text>, which is{' '}
             <Text className="font-semibold">

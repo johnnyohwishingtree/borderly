@@ -30,7 +30,7 @@ export function QRCodeCard({
       case 'combined':
         return 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200';
       default:
-        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+        return 'bg-surface-tertiary text-gray-800';
     }
   };
 
@@ -69,10 +69,10 @@ export function QRCodeCard({
         accessibilityLabel={qrCode.label}
         accessibilityHint="Opens QR code full screen"
       >
-        <View className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700 mb-2">
+        <View className="bg-surface rounded-lg p-3 border border-border-default mb-2">
           <View className="flex-row items-center gap-3">
             {/* QR Code Thumbnail */}
-            <View className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
+            <View className="w-12 h-12 bg-surface-tertiary rounded-lg overflow-hidden" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
               {qrCode.imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/png;base64,${qrCode.imageBase64}` }}
@@ -81,18 +81,18 @@ export function QRCodeCard({
                   accessible={false}
                 />
               ) : (
-                <View className="w-full h-full bg-gray-200 dark:bg-gray-600 items-center justify-center">
-                  <Text className="text-xs text-gray-500 dark:text-gray-400">QR</Text>
+                <View className="w-full h-full bg-gray-200 items-center justify-center">
+                  <Text className="text-xs text-tertiary">QR</Text>
                 </View>
               )}
             </View>
 
             {/* Content */}
             <View className="flex-1">
-              <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
+              <Text className="text-sm font-semibold text-primary" numberOfLines={1}>
                 {qrCode.label}
               </Text>
-              <Text className="text-xs text-gray-500 dark:text-gray-400">
+              <Text className="text-xs text-tertiary">
                 {formatDate(qrCode.savedAt)}
               </Text>
             </View>
@@ -124,16 +124,16 @@ export function QRCodeCard({
           {/* Header */}
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white" numberOfLines={1}>
+              <Text className="text-lg font-semibold text-primary" numberOfLines={1}>
                 {qrCode.label}
               </Text>
               <View className="flex-row items-center mt-1">
-                <Text className="text-sm text-gray-500 dark:text-gray-400">
+                <Text className="text-sm text-tertiary">
                   Saved {formatDate(qrCode.savedAt)}
                 </Text>
                 {showTravelerInfo && travelerName && (
                   <>
-                    <Text className="text-sm text-gray-500 dark:text-gray-400 mx-2">•</Text>
+                    <Text className="text-sm text-tertiary mx-2">•</Text>
                     <Text className="text-sm text-purple-600 dark:text-purple-400 font-medium">
                       {travelerName}
                     </Text>
@@ -152,7 +152,7 @@ export function QRCodeCard({
 
           {/* QR Code Preview */}
           <View className="items-center py-4" accessibilityElementsHidden={true} importantForAccessibility="no-hide-descendants">
-            <View className="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+            <View className="w-32 h-32 bg-surface-tertiary rounded-lg overflow-hidden">
               {qrCode.imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/png;base64,${qrCode.imageBase64}` }}
@@ -161,16 +161,16 @@ export function QRCodeCard({
                   accessible={false}
                 />
               ) : (
-                <View className="w-full h-full bg-gray-200 dark:bg-gray-600 items-center justify-center">
-                  <Text className="text-sm text-gray-500 dark:text-gray-400">No Image</Text>
+                <View className="w-full h-full bg-gray-200 items-center justify-center">
+                  <Text className="text-sm text-tertiary">No Image</Text>
                 </View>
               )}
             </View>
           </View>
 
           {/* Action Hint */}
-          <View className="border-t border-gray-100 dark:border-gray-700 pt-3">
-            <Text className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <View className="border-t border-border-default pt-3">
+            <Text className="text-xs text-tertiary text-center">
               Tap to view full screen • Long press for options
             </Text>
           </View>

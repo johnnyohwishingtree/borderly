@@ -24,7 +24,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
 
   return (
     <View
-      className="bg-white border-b border-gray-200"
+      className="bg-surface border-b border-border-default"
       testID={testID ?? TRAVELER_TABS_IDS.container.id}
     >
       <ScrollView
@@ -48,7 +48,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
                 ${
                   isActive
                     ? 'bg-blue-50 border-blue-500'
-                    : 'bg-gray-50 border-gray-200'
+                    : 'bg-surface-secondary border-border-default'
                 }
               `}
             >
@@ -81,7 +81,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
               <View>
                 <Text
                   className={`text-sm font-medium ${
-                    isActive ? 'text-blue-700' : 'text-gray-700'
+                    isActive ? 'text-blue-700' : 'text-secondary'
                   }`}
                   numberOfLines={1}
                 >
@@ -90,7 +90,7 @@ const TravelerTabs = memo<TravelerTabsProps>(({ tabs, activeTabId, onTabPress, t
                 {!isReady && tab.completionPercentage > 0 && (
                   <Text
                     className={`text-xs ${
-                      isActive ? 'text-blue-500' : 'text-gray-500'
+                      isActive ? 'text-blue-500' : 'text-tertiary'
                     }`}
                   >
                     {tab.completionPercentage}% done

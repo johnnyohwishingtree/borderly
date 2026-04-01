@@ -136,7 +136,7 @@ export default function LoadingIndicator({
   };
 
   const getTextStyles = () => {
-    const baseStyles = 'text-gray-600 dark:text-gray-400 font-medium mt-3';
+    const baseStyles = 'text-secondary font-medium mt-3';
     
     const sizeStyles = {
       small: 'text-sm',
@@ -154,13 +154,13 @@ export default function LoadingIndicator({
     
     return (
       <View className="w-48 mt-4">
-        <View className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <View className="w-full bg-gray-200 rounded-full h-2">
           <View
             className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
             style={{ width: `${progressPercentage}%` }}
           />
         </View>
-        <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+        <Text className="text-xs text-tertiary mt-1 text-center">
           {progressPercentage}%
         </Text>
       </View>
@@ -248,11 +248,11 @@ export default function LoadingIndicator({
       {cancelable && onCancel && (
         <Pressable
           onPress={onCancel}
-          className="mt-4 py-2 px-4 bg-gray-100 dark:bg-gray-700 rounded-lg"
+          className="mt-4 py-2 px-4 bg-surface-tertiary rounded-lg"
           accessibilityLabel="Cancel loading"
           accessibilityHint="Cancel the current operation"
         >
-          <Text className="text-gray-700 dark:text-gray-200 text-center font-medium">
+          <Text className="text-secondary text-center font-medium">
             Cancel
           </Text>
         </Pressable>

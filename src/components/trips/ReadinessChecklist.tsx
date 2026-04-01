@@ -83,8 +83,8 @@ function getStatusConfig(status: ReadinessItemStatus): StatusConfig {
     case 'missing':
     default:
       return {
-        bgClass: 'bg-gray-100',
-        textClass: 'text-gray-500',
+        bgClass: 'bg-surface-tertiary',
+        textClass: 'text-tertiary',
         icon: '○',
         label: 'Missing',
       };
@@ -160,10 +160,10 @@ function ItemRow({ item, onNavigate }: ItemRowProps) {
 
       {/* Label + detail */}
       <View className="flex-1">
-        <Text className="text-sm font-medium text-gray-900">{item.label}</Text>
+        <Text className="text-sm font-medium text-primary">{item.label}</Text>
         {item.detail ? (
           <Text
-            className="text-xs text-gray-500 mt-0.5"
+            className="text-xs text-tertiary mt-0.5"
             accessibilityRole="text"
             accessibilityLiveRegion={isCritical ? 'polite' : 'none'}
           >
@@ -200,7 +200,7 @@ function CategorySection({ category, items, onNavigate }: CategorySectionProps) 
   return (
     <View testID={READINESS_CHECKLIST_IDS.category(category).id} className="mb-2">
       {/* Section header */}
-      <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1 pb-1">
+      <Text className="text-xs font-semibold text-muted uppercase tracking-wide px-1 pb-1">
         {CATEGORY_LABELS[category]}
       </Text>
       {/* Item rows */}
@@ -256,7 +256,7 @@ export default function ReadinessChecklist({
   return (
     <View
       testID={testID ?? READINESS_CHECKLIST_IDS.container.id}
-      className="rounded-xl border border-gray-200 bg-white overflow-hidden"
+      className="rounded-xl border border-border-default bg-surface overflow-hidden"
     >
       {/* Header row */}
       <TouchableOpacity
@@ -282,7 +282,7 @@ export default function ReadinessChecklist({
         </View>
 
         {/* Status label */}
-        <Text className="flex-1 text-sm font-semibold text-gray-900">{headerLabel}</Text>
+        <Text className="flex-1 text-sm font-semibold text-primary">{headerLabel}</Text>
 
         {/* Animated chevron — decorative */}
         <Animated.View
@@ -290,7 +290,7 @@ export default function ReadinessChecklist({
           accessibilityElementsHidden={true}
           importantForAccessibility="no-hide-descendants"
         >
-          <Text className="text-gray-400 text-base">▾</Text>
+          <Text className="text-muted text-base">▾</Text>
         </Animated.View>
       </TouchableOpacity>
 
@@ -298,10 +298,10 @@ export default function ReadinessChecklist({
       {expanded ? (
         <View
           testID={READINESS_CHECKLIST_IDS.body.id}
-          className="px-4 pb-3 border-t border-gray-100"
+          className="px-4 pb-3 border-t border-border-light"
         >
           {groups.length === 0 ? (
-            <Text className="text-sm text-gray-400 py-2">No readiness items.</Text>
+            <Text className="text-sm text-muted py-2">No readiness items.</Text>
           ) : (
             groups.map(({ category, items }) => (
               <CategorySection

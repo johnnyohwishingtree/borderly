@@ -57,7 +57,7 @@ export default function RestoreBackupModal() {
 
   return (
     <ScrollView
-      className="flex-1 bg-gray-50 dark:bg-gray-900"
+      className="flex-1 bg-surface-secondary"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
       testID={RESTORE_BACKUP_IDS.screen.id}
@@ -66,7 +66,7 @@ export default function RestoreBackupModal() {
       <View className="flex-1 p-6">
         {/* Header */}
         <View className="items-center mb-8">
-          <Text className="text-base text-gray-600 dark:text-gray-400 text-center">
+          <Text className="text-base text-secondary text-center">
             Restore your profiles, trips, and QR codes from a .borderly backup file.
           </Text>
         </View>
@@ -78,10 +78,10 @@ export default function RestoreBackupModal() {
               <View className="flex-row items-start mb-4">
                 <Shield size={20} color="#2563eb" accessibilityElementsHidden />
                 <View className="ml-3 flex-1">
-                  <Text className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                  <Text className="text-base font-semibold text-primary mb-1">
                     What gets restored
                   </Text>
-                  <Text className="text-sm text-gray-600 dark:text-gray-400">
+                  <Text className="text-sm text-secondary">
                     • All traveler profiles and passport data{'\n'}
                     • Trips, legs, and form data{'\n'}
                     • Saved QR codes{'\n'}
@@ -102,7 +102,7 @@ export default function RestoreBackupModal() {
               accessibilityHint="Opens the document picker to select a .borderly backup file"
             />
 
-            <Text className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3">
+            <Text className="text-xs text-tertiary text-center mt-3">
               Select a .borderly file from your device or cloud storage
             </Text>
           </View>
@@ -119,10 +119,10 @@ export default function RestoreBackupModal() {
             </View>
 
             <Card className="mb-6">
-              <Text className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+              <Text className="text-base font-semibold text-primary mb-2">
                 Enter your backup passphrase
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <Text className="text-sm text-secondary mb-4">
                 This is the passphrase you chose when you created the backup.
               </Text>
 
@@ -139,7 +139,7 @@ export default function RestoreBackupModal() {
                   testID={RESTORE_BACKUP_IDS.passphraseField.id}
                   accessibilityLabel="Backup passphrase, required"
                   accessibilityHint="Enter the passphrase used when this backup was created"
-                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-base text-gray-900 dark:text-white bg-white dark:bg-gray-800 pr-12"
+                  className="border border-border-default rounded-lg px-4 py-3 text-base text-primary bg-surface pr-12"
                 />
                 <TouchableOpacity
                   onPress={toggleSecureEntry}
@@ -182,7 +182,7 @@ export default function RestoreBackupModal() {
               accessibilityLabel="Cancel and go back to file selection"
               className="mt-4 items-center py-3"
             >
-              <Text className="text-base text-gray-500 dark:text-gray-400">Cancel</Text>
+              <Text className="text-base text-tertiary">Cancel</Text>
             </Pressable>
           </View>
         )}
@@ -197,8 +197,8 @@ export default function RestoreBackupModal() {
             accessibilityLiveRegion="polite"
           >
             <ActivityIndicator size="large" color="#2563eb" />
-            <Text className="text-base text-gray-600 dark:text-gray-400 mt-4">Restoring your data…</Text>
-            <Text className="text-sm text-gray-400 dark:text-gray-600 mt-1">This may take a moment</Text>
+            <Text className="text-base text-secondary mt-4">Restoring your data…</Text>
+            <Text className="text-sm text-muted mt-1">This may take a moment</Text>
           </View>
         )}
 
@@ -212,7 +212,7 @@ export default function RestoreBackupModal() {
                   <Text className="text-base font-semibold text-amber-900 dark:text-amber-100 mb-2">
                     Existing data detected
                   </Text>
-                  <Text className="text-sm text-amber-800 dark:text-amber-200">
+                  <Text className="text-sm text-warning dark:text-amber-200">
                     Your device already has Borderly data. Restoring will{' '}
                     <Text className="font-semibold">replace all current data</Text> with the
                     backup contents. This cannot be undone.
@@ -240,7 +240,7 @@ export default function RestoreBackupModal() {
               accessibilityLabel="Cancel and keep existing data"
               className="mt-4 items-center py-3"
             >
-              <Text className="text-base text-gray-500 dark:text-gray-400">Cancel — keep my current data</Text>
+              <Text className="text-base text-tertiary">Cancel — keep my current data</Text>
             </Pressable>
           </View>
         )}
@@ -255,12 +255,12 @@ export default function RestoreBackupModal() {
               <CheckCircle size={40} color="#16a34a" accessibilityElementsHidden />
             </View>
             <Text
-              className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center"
+              className="text-2xl font-bold text-primary mb-2 text-center"
               accessibilityRole="header"
             >
               Restore complete!
             </Text>
-            <Text className="text-base text-gray-600 dark:text-gray-400 text-center mb-8">
+            <Text className="text-base text-secondary text-center mb-8">
               Your profiles, trips, and QR codes have been restored successfully.
             </Text>
 

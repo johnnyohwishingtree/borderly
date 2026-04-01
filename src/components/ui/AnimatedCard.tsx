@@ -117,8 +117,8 @@ export default function AnimatedCard({
 
   const getCardStyles = () => {
     const baseStyles = highContrastMode 
-      ? 'bg-white border-2 border-black' 
-      : 'bg-white';
+      ? 'bg-surface border-2 border-black' 
+      : 'bg-surface';
     
     const radiusStyles = {
       small: 'rounded-lg',
@@ -130,12 +130,12 @@ export default function AnimatedCard({
       default: '',
       outlined: 'border-2 border-black',
       elevated: 'border-2 border-black',
-      ghost: 'bg-gray-100 border-2 border-gray-800',
+      ghost: 'bg-surface-tertiary border-2 border-gray-800',
     } : {
       default: '',
-      outlined: 'border border-gray-200',
-      elevated: 'shadow-lg shadow-gray-900/10 border border-gray-100',
-      ghost: 'bg-gray-50/50',
+      outlined: 'border border-border-default',
+      elevated: 'shadow-lg shadow-gray-900/10 border border-border-light',
+      ghost: 'bg-surface-secondary/50',
     };
 
     const paddingStyles = {

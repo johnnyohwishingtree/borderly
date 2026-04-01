@@ -44,7 +44,7 @@ export default function SearchableSelect({
   return (
     <View testID={testID}>
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-2">
+        <Text className="text-sm font-medium text-secondary mb-2">
           {label}
           {required && <Text className="text-red-500"> *</Text>}
         </Text>
@@ -52,8 +52,8 @@ export default function SearchableSelect({
       {/* Trigger button */}
       <Pressable
         className={`border-2 rounded-xl px-4 py-3.5 flex-row justify-between items-center ${
-          error ? 'border-red-500 bg-red-50/30' : 'border-gray-200 bg-white'
-        } ${disabled ? 'bg-gray-100 opacity-60' : ''}`}
+          error ? 'border-red-500 bg-red-50/30' : 'border-border-default bg-white'
+        } ${disabled ? 'bg-surface-tertiary opacity-60' : ''}`}
         onPress={() => {
           if (!disabled) {
             setIsOpen(!isOpen);
@@ -67,10 +67,10 @@ export default function SearchableSelect({
         accessibilityHint="Tap to search and select"
         testID={testID ? `${testID}-trigger` : undefined}
       >
-        <Text className={`text-base ${selectedOption ? 'text-gray-900' : 'text-gray-500'}`}>
+        <Text className={`text-base ${selectedOption ? 'text-primary' : 'text-tertiary'}`}>
           {selectedOption?.label || placeholder}
         </Text>
-        <Text className="text-gray-400 text-lg">{isOpen ? '▲' : '▼'}</Text>
+        <Text className="text-muted text-lg">{isOpen ? '▲' : '▼'}</Text>
       </Pressable>
 
       {error && !isOpen && (
@@ -79,10 +79,10 @@ export default function SearchableSelect({
 
       {/* Inline dropdown panel — renders below trigger, no Modal or absolute positioning */}
       {isOpen && (
-        <View className="mt-1 bg-white rounded-xl max-h-[280px] border border-gray-200 overflow-hidden shadow-lg elevation-4" testID={testID ? `${testID}-panel` : undefined}>
-          <View className="p-3 border-b border-gray-100">
+        <View className="mt-1 bg-surface rounded-xl max-h-[280px] border border-border-default overflow-hidden shadow-lg elevation-4" testID={testID ? `${testID}-panel` : undefined}>
+          <View className="p-3 border-b border-border-light">
             <TextInput
-              className="border border-gray-300 rounded-lg px-3 py-2 text-base"
+              className="border border-border-default rounded-lg px-3 py-2 text-base"
               placeholder="Type to filter..."
               value={search}
               onChangeText={setSearch}
@@ -107,7 +107,7 @@ export default function SearchableSelect({
               const isSelected = item.value === value;
               return (
                 <Pressable
-                  className={`p-3 border-b border-gray-100 ${isSelected ? 'bg-blue-50' : ''}`}
+                  className={`p-3 border-b border-border-light ${isSelected ? 'bg-blue-50' : ''}`}
                   onPress={() => handleSelect(item.value)}
                   testID={testID ? `${testID}-option-${item.value}` : undefined}
                   accessible={true}
@@ -115,7 +115,7 @@ export default function SearchableSelect({
                   accessibilityLabel={item.label}
                   accessibilityState={{ selected: isSelected }}
                 >
-                  <Text className={`text-base ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-900'}`}>
+                  <Text className={`text-base ${isSelected ? 'text-blue-600 font-medium' : 'text-primary'}`}>
                     {item.label}
                     {isSelected && ' ✓'}
                   </Text>
@@ -125,7 +125,7 @@ export default function SearchableSelect({
             className="max-h-[220px]"
             ListEmptyComponent={
               <View className="p-4">
-                <Text className="text-gray-500 text-center">No results for &quot;{search}&quot;</Text>
+                <Text className="text-tertiary text-center">No results for &quot;{search}&quot;</Text>
               </View>
             }
           />

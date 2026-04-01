@@ -27,7 +27,7 @@ export function DataManagementCard({
   return (
     <Card>
       <View className="flex-row items-center mb-4">
-        <Text className="text-lg font-semibold text-gray-900 dark:text-white mr-3">Data Management</Text>
+        <Text className="text-lg font-semibold text-primary mr-3">Data Management</Text>
         <StatusBadge
           status="warning"
           size="small"
@@ -37,24 +37,24 @@ export function DataManagementCard({
 
       {/* Storage Usage */}
       {storageStats && (
-        <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
-          <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Storage Usage</Text>
+        <View className="bg-surface-secondary p-4 rounded-lg mb-4">
+          <Text className="text-sm font-semibold text-primary mb-3">Storage Usage</Text>
           <View className="space-y-2">
             <View className="flex-row justify-between">
-              <Text className="text-xs text-gray-600 dark:text-gray-400">Profile Data:</Text>
-              <Text className="text-xs text-gray-900 dark:text-white">{storageStats.profileSize}</Text>
+              <Text className="text-xs text-secondary">Profile Data:</Text>
+              <Text className="text-xs text-primary">{storageStats.profileSize}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-xs text-gray-600 dark:text-gray-400">Trips:</Text>
-              <Text className="text-xs text-gray-900 dark:text-white">{storageStats.tripsCount} saved</Text>
+              <Text className="text-xs text-secondary">Trips:</Text>
+              <Text className="text-xs text-primary">{storageStats.tripsCount} saved</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-xs text-gray-600 dark:text-gray-400">QR Codes:</Text>
-              <Text className="text-xs text-gray-900 dark:text-white">{storageStats.qrCodesCount} stored</Text>
+              <Text className="text-xs text-secondary">QR Codes:</Text>
+              <Text className="text-xs text-primary">{storageStats.qrCodesCount} stored</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-xs text-gray-600 dark:text-gray-400">Cache:</Text>
-              <Text className="text-xs text-gray-900 dark:text-white">{storageStats.cacheSize}</Text>
+              <Text className="text-xs text-secondary">Cache:</Text>
+              <Text className="text-xs text-primary">{storageStats.cacheSize}</Text>
             </View>
           </View>
         </View>
@@ -68,7 +68,7 @@ export function DataManagementCard({
             variant="secondary"
             fullWidth
           />
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+          <Text className="text-xs text-tertiary mt-1 text-center">
             Save your data as a secure backup file
           </Text>
         </View>
@@ -84,7 +84,7 @@ export function DataManagementCard({
             accessibilityLabel="Restore from backup"
             accessibilityHint="Opens the backup restore flow to import a .borderly backup file"
           />
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+          <Text className="text-xs text-tertiary mt-1 text-center">
             Import a .borderly backup file to restore your data
           </Text>
         </View>
@@ -96,7 +96,7 @@ export function DataManagementCard({
             variant="secondary"
             fullWidth
           />
-          <Text className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+          <Text className="text-xs text-tertiary mt-1 text-center">
             Free up space by clearing temporary files
           </Text>
         </View>

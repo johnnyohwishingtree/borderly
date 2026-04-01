@@ -41,7 +41,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
       <Card className="p-4">
         <View className="items-center py-4">
           <User size={32} color="#9ca3af" />
-          <Text className="text-gray-500 text-center mt-2">
+          <Text className="text-tertiary text-center mt-2">
             No family members added yet
           </Text>
         </View>
@@ -53,7 +53,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
     return (
       <Card className="mb-4">
         <View className="p-3">
-          <Text className="text-sm font-medium text-gray-700 mb-3">{title}</Text>
+          <Text className="text-sm font-medium text-secondary mb-3">{title}</Text>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -70,7 +70,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
                     px-3 py-2 rounded-lg border mr-2 min-w-0
                     ${isSelected 
                       ? 'bg-blue-50 border-blue-500' 
-                      : 'bg-white border-gray-200'
+                      : 'bg-surface border-border-default'
                     }
                   `}
                   activeOpacity={0.7}
@@ -88,12 +88,12 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
                     </View>
                     <View>
                       <Text className={`text-sm font-medium ${
-                        isSelected ? 'text-blue-700' : 'text-gray-900'
+                        isSelected ? 'text-blue-700' : 'text-primary'
                       }`}>
                         {profile.givenNames.split(' ')[0]}
                       </Text>
                       <Text className={`text-xs ${
-                        isSelected ? 'text-blue-600' : 'text-gray-500'
+                        isSelected ? 'text-blue-600' : 'text-tertiary'
                       }`}>
                         {getRelationshipDisplay(profile.relationship)}
                       </Text>
@@ -111,7 +111,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
   return (
     <Card className="mb-4">
       <View className="p-4">
-        <Text className="text-lg font-semibold text-gray-900 mb-4">{title}</Text>
+        <Text className="text-lg font-semibold text-primary mb-4">{title}</Text>
         <View className="space-y-2">
           {profiles.map((profile) => {
             const isSelected = profile.id === activeProfileId;
@@ -124,7 +124,7 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
                   p-4 rounded-lg border
                   ${isSelected 
                     ? 'bg-blue-50 border-blue-500' 
-                    : 'bg-gray-50 border-gray-200'
+                    : 'bg-surface-secondary border-border-default'
                   }
                 `}
                 activeOpacity={0.7}
@@ -142,23 +142,23 @@ const ProfileSelector = memo<ProfileSelectorProps>(({
                   </View>
                   <View className="flex-1">
                     <Text className={`text-base font-medium ${
-                      isSelected ? 'text-blue-700' : 'text-gray-900'
+                      isSelected ? 'text-blue-700' : 'text-primary'
                     }`}>
                       {profile.givenNames} {profile.surname}
                     </Text>
                     <View className="flex-row items-center gap-2 mt-1">
                       <Text className={`text-sm ${
-                        isSelected ? 'text-blue-600' : 'text-gray-500'
+                        isSelected ? 'text-blue-600' : 'text-tertiary'
                       }`}>
                         {getRelationshipDisplay(profile.relationship)}
                       </Text>
                       <Text className={`text-sm ${
-                        isSelected ? 'text-blue-600' : 'text-gray-500'
+                        isSelected ? 'text-blue-600' : 'text-tertiary'
                       }`}>
                         • {profile.nationality}
                       </Text>
                       <Text className={`text-sm ${
-                        isSelected ? 'text-blue-600' : 'text-gray-500'
+                        isSelected ? 'text-blue-600' : 'text-tertiary'
                       }`}>
                         • Born {new Date(profile.dateOfBirth).getFullYear()}
                       </Text>

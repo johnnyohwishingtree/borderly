@@ -46,7 +46,7 @@ export default function PassportScanScreen() {
   const totalSteps = 3;
 
   return (
-    <ScreenContainer className="bg-white dark:bg-gray-900">
+    <ScreenContainer className="bg-surface">
     <ScrollView className="flex-1" keyboardDismissMode="on-drag" keyboardShouldPersistTaps="handled">
       <View className="px-6 py-8">
         <ProgressIndicator
@@ -61,7 +61,7 @@ export default function PassportScanScreen() {
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-row items-center flex-1">
               <Camera size={24} color={colors.textPrimary} style={{ marginRight: 8 }} />
-              <Text className="text-2xl font-bold text-gray-900 dark:text-white">
+              <Text className="text-2xl font-bold text-primary">
                 {family.mode ? 'Add Family Member' : 'Passport Information'}
               </Text>
             </View>
@@ -71,7 +71,7 @@ export default function PassportScanScreen() {
               size="medium"
             />
           </View>
-          <Text className="text-base text-gray-600 dark:text-gray-400 mb-4">
+          <Text className="text-base text-secondary mb-4">
             {family.mode
               ? `Scan the ${family.relationship === 'spouse' ? "spouse's" :
                            family.relationship === 'child' ? "child's" :
@@ -138,14 +138,14 @@ export default function PassportScanScreen() {
         {/* Method selection */}
         {scan.mode === 'method' && (
           <>
-            <View className="items-center py-8 mb-4 border border-gray-200 dark:border-gray-700 rounded-xl">
+            <View className="items-center py-8 mb-4 border border-border-default rounded-xl">
               <View className="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 rounded-full mb-4 items-center justify-center">
                 <Camera size={36} color="#2563eb" />
               </View>
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <Text className="text-lg font-semibold text-primary mb-2">
                 Quick Passport Scan
               </Text>
-              <Text className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6 px-6">
+              <Text className="text-sm text-secondary text-center mb-6 px-6">
                 Point your camera at the bottom of your passport photo page
               </Text>
               <Button
@@ -168,8 +168,8 @@ export default function PassportScanScreen() {
             </View>
 
             {__DEV__ && (
-              <View className="items-center py-2 mt-2 border-t border-gray-200 dark:border-gray-700">
-                <Text className="text-xs text-gray-400 dark:text-gray-600 mb-2">Development Only</Text>
+              <View className="items-center py-2 mt-2 border-t border-border-default">
+                <Text className="text-xs text-muted mb-2">Development Only</Text>
                 <View className="flex-row gap-2">
                   <Button
                     title="Demo: Adult"
@@ -200,14 +200,14 @@ export default function PassportScanScreen() {
 
         {/* Manual entry section */}
         {scan.mode === 'manual' && (
-          <View className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+          <View className="border border-border-default rounded-xl p-4">
             <View className="flex-row items-center mb-2">
               <Pencil size={20} color={colors.textPrimary} style={{ marginRight: 8 }} />
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+              <Text className="text-lg font-semibold text-primary">
                 Passport Details
               </Text>
             </View>
-            <Text className="text-sm text-gray-500 dark:text-gray-500 mb-4">All fields are required</Text>
+            <Text className="text-sm text-tertiary mb-4">All fields are required</Text>
 
             <Controller
               control={control}
@@ -299,7 +299,7 @@ export default function PassportScanScreen() {
               name="gender"
               render={({ field: { onChange, value } }) => (
                 <View className="mb-4">
-                  <Text className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Text className="text-sm font-medium text-secondary mb-2">
                     Gender
                   </Text>
                   <View className="flex-row flex-wrap gap-3">
@@ -319,7 +319,7 @@ export default function PassportScanScreen() {
                     ))}
                   </View>
                   {errors.gender && (
-                    <Text className="text-sm text-red-500 mt-1">{errors.gender.message}</Text>
+                    <Text className="text-sm text-error mt-1">{errors.gender.message}</Text>
                   )}
                 </View>
               )}
@@ -365,7 +365,7 @@ export default function PassportScanScreen() {
     </ScrollView>
 
     {/* Fixed footer CTA */}
-    <View className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 pb-8">
+    <View className="bg-surface border-t border-border-default px-6 py-4 pb-8">
       {scan.mode === 'manual' && (
         <Button
           title="Continue"

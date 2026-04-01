@@ -44,18 +44,18 @@ export default function StepCard({
     } else if (isCurrent) {
       return `${baseStyles} bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 shadow-md`;
     } else {
-      return `${baseStyles} bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700`;
+      return `${baseStyles} bg-surface-secondary border-border-default`;
     }
   };
 
   const stepLabelColor = {
-    green: 'text-xs font-semibold uppercase tracking-wide mr-2 text-green-600 dark:text-green-400',
-    blue: 'text-xs font-semibold uppercase tracking-wide mr-2 text-blue-600 dark:text-blue-400',
-    gray: 'text-xs font-semibold uppercase tracking-wide mr-2 text-gray-600 dark:text-gray-400',
+    green: 'text-xs font-semibold uppercase tracking-wide mr-2 text-success',
+    blue: 'text-xs font-semibold uppercase tracking-wide mr-2 text-accent',
+    gray: 'text-xs font-semibold uppercase tracking-wide mr-2 text-secondary',
   }[statusColor];
 
   const stepTitleColor = statusColor === 'gray'
-    ? 'text-lg font-bold text-gray-500 dark:text-gray-400'
+    ? 'text-lg font-bold text-tertiary'
     : statusColor === 'green'
       ? 'text-lg font-bold text-green-900 dark:text-green-100'
       : 'text-lg font-bold text-blue-900 dark:text-blue-100';
@@ -63,7 +63,7 @@ export default function StepCard({
   return (
     <View className={getCardStyles()}>
       {/* Step Header */}
-      <View className="p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <View className="p-4 bg-surface border-b border-border-default">
         <View className="flex-row items-center justify-between">
           <View className="flex-row items-center flex-1">
             <View className="mr-3">
@@ -103,7 +103,7 @@ export default function StepCard({
           {/* Description */}
           <View className="flex-row items-start mb-4">
             <Info size={20} color="#6B7280" className="mt-0.5 mr-2" />
-            <Text className="flex-1 text-base text-gray-700 dark:text-gray-300 leading-6">
+            <Text className="flex-1 text-base text-secondary leading-6">
               {step.description}
             </Text>
           </View>
@@ -111,7 +111,7 @@ export default function StepCard({
           {/* Fields to Fill */}
           {step.fieldsOnThisScreen && step.fieldsOnThisScreen.length > 0 && (
             <View className="mb-4">
-              <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+              <Text className="text-sm font-semibold text-primary mb-3">
                 Information needed for this step:
               </Text>
               <ScrollView className="max-h-64" showsVerticalScrollIndicator={false}>
@@ -137,7 +137,7 @@ export default function StepCard({
             <View className="mb-4">
               <View className="flex-row items-center mb-3">
                 <Lightbulb size={18} color="#F59E0B" />
-                <Text className="text-sm font-semibold text-gray-900 dark:text-white ml-2">
+                <Text className="text-sm font-semibold text-primary ml-2">
                   Tips &amp; Reminders:
                 </Text>
               </View>
@@ -156,7 +156,7 @@ export default function StepCard({
 
           {/* Mark Complete Button */}
           {isCurrent && !isCompleted && onMarkComplete && (
-            <View className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <View className="mt-4 pt-4 border-t border-border-default">
               <View className="flex-row">
                 <View className="flex-1" />
                 <Pressable
@@ -182,7 +182,7 @@ export default function StepCard({
       {/* Collapsed State for Future Steps */}
       {!isCurrent && !isCompleted && (
         <View className="p-4">
-          <Text className="text-sm text-gray-500 dark:text-gray-400 italic">
+          <Text className="text-sm text-tertiary italic">
             Complete previous steps to unlock this step
           </Text>
         </View>

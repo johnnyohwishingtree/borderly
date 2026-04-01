@@ -39,15 +39,15 @@ export default function LegFormScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <Text className="text-gray-600 dark:text-gray-400">Loading form...</Text>
+      <View className="flex-1 justify-center items-center bg-surface-secondary">
+        <Text className="text-secondary">Loading form...</Text>
       </View>
     );
   }
 
   if (!currentForm || !leg || !trip || loadError) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900 px-6 py-8">
+      <View className="flex-1 bg-surface-secondary px-6 py-8">
         <ErrorMessage
           error={loadError || 'Unable to load form'}
           variant="fullscreen"
@@ -67,18 +67,18 @@ export default function LegFormScreen() {
       className="flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-    <ScreenContainer className="bg-gray-50 dark:bg-gray-900">
+    <ScreenContainer className="bg-surface-secondary">
       {/* Header */}
-      <View className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <View className="bg-surface border-b border-border-default px-4 py-3">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <View className="flex-row items-center">
               <CountryFlag countryCode={leg.destinationCountry} size="small" className="mr-2" />
-              <Text className="text-lg font-semibold text-gray-900 dark:text-white">
+              <Text className="text-lg font-semibold text-primary">
                 {currentForm.countryName}
               </Text>
             </View>
-            <Text className="text-sm text-gray-600 dark:text-gray-400">
+            <Text className="text-sm text-secondary">
               {trip.name} • {currentForm.portalName}
             </Text>
           </View>
@@ -110,14 +110,14 @@ export default function LegFormScreen() {
                 'bg-gray-300'
               }`}
             />
-            <Text className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+            <Text className="text-sm text-secondary capitalize">
               {leg.formStatus === 'submitted' ? 'Submitted' :
                isValid ? 'Ready' :
                currentForm.stats.completionPercentage > 0 ? 'In Progress' :
                'Not Started'}
             </Text>
             {currentForm.stats.completionPercentage > 0 && (
-              <Text className="text-sm text-green-600 dark:text-green-400 font-medium">
+              <Text className="text-sm text-success font-medium">
                 {currentForm.stats.completionPercentage}% complete
               </Text>
             )}
@@ -174,7 +174,7 @@ export default function LegFormScreen() {
     </ScrollView>
 
       {/* Action Buttons — fixed bottom bar, always visible regardless of scroll position */}
-      <View testID="action-buttons-bar" className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-8">
+      <View testID="action-buttons-bar" className="bg-surface border-t border-border-default px-4 py-3 pb-8">
         <Button
           title="Save Progress"
           onPress={handleSaveForm}

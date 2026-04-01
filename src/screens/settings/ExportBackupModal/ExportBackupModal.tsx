@@ -117,7 +117,7 @@ export default function ExportBackupModal({
       accessibilityViewIsModal={true}
     >
       <ScrollView
-        className="flex-1 bg-white dark:bg-gray-900"
+        className="flex-1 bg-surface"
         contentContainerStyle={{ padding: 24 }}
         keyboardShouldPersistTaps="handled"
         testID={EXPORT_BACKUP_IDS.modal.id}
@@ -125,7 +125,7 @@ export default function ExportBackupModal({
         {/* Header row */}
         <View className="flex-row items-center justify-between mb-6">
           <Text
-            className="text-2xl font-bold text-gray-900 dark:text-white"
+            className="text-2xl font-bold text-primary"
             accessibilityRole="header"
           >
             Create Backup
@@ -138,7 +138,7 @@ export default function ExportBackupModal({
             testID={EXPORT_BACKUP_IDS.exportBackupCloseButton.id}
             className="p-2"
           >
-            <Text className="text-base text-blue-600 dark:text-blue-400 font-medium">Cancel</Text>
+            <Text className="text-base text-accent font-medium">Cancel</Text>
           </TouchableOpacity>
         </View>
 
@@ -202,18 +202,18 @@ export default function ExportBackupModal({
           ) : null}
 
           {/* Validation hints */}
-          <View className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-6">
-            <Text className="text-xs text-gray-600 dark:text-gray-400 mb-1">Passphrase requirements:</Text>
+          <View className="bg-surface-secondary rounded-lg p-3 mb-6">
+            <Text className="text-xs text-secondary mb-1">Passphrase requirements:</Text>
             <Text
-              className={`text-xs ${passphrase.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'}`}
+              className={`text-xs ${passphrase.length >= 8 ? 'text-success' : 'text-tertiary'}`}
             >
               {passphrase.length >= 8 ? '✓' : '○'} Minimum 8 characters
             </Text>
             <Text
               className={`text-xs ${
                 confirmPassphrase.length > 0 && passphrase === confirmPassphrase
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-gray-500 dark:text-gray-400'
+                  ? 'text-success'
+                  : 'text-tertiary'
               }`}
             >
               {confirmPassphrase.length > 0 && passphrase === confirmPassphrase
@@ -231,7 +231,7 @@ export default function ExportBackupModal({
                 color="#2563EB"
                 accessibilityLabel="Encrypting backup, please wait"
               />
-              <Text className="text-sm text-gray-600 dark:text-gray-400 ml-2">Encrypting backup…</Text>
+              <Text className="text-sm text-secondary ml-2">Encrypting backup…</Text>
             </View>
           ) : (
             <Button
