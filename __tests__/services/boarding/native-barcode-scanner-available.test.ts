@@ -17,7 +17,7 @@ test('ImageBarcodeScanner.m exists in ios/Borderly/', () => {
   expect(existsSync(path)).toBe(true);
 });
 
-test('ImageBarcodeScanner.m exports RCT_EXPORT_MODULE', () => {
+test('ImageBarcodeScanner.m exports methods and uses CIDetector (simulator-safe)', () => {
   const content = readFileSync(
     resolve(ROOT, 'ios/Borderly/ImageBarcodeScanner.m'),
     'utf-8',
@@ -25,6 +25,9 @@ test('ImageBarcodeScanner.m exports RCT_EXPORT_MODULE', () => {
   expect(content).toMatch(/RCT_EXPORT_MODULE/);
   expect(content).toMatch(/RCT_EXPORT_METHOD/);
   expect(content).toMatch(/scanBarcodesInImage/);
+  // Must use CIDetector (CPU-based, works on simulator)
+  // Vision framework is optional fallback only
+  expect(content).toMatch(/CIDetector/);
 });
 
 test('ImageBarcodeScanner.m is included in Xcode project with correct path', () => {

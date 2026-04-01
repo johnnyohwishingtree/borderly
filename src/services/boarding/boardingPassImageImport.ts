@@ -150,6 +150,7 @@ async function selectImageFromLibrary(): Promise<{
           return;
         }
 
+        console.log('[ImageImport] Selected URI:', asset.uri, 'type:', asset.type, 'fileName:', asset.fileName);
         resolve({
           success: true,
           imageUri: asset.uri,
