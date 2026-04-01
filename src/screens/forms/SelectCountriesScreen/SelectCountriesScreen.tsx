@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Button, ScreenContainer } from '@/components/ui';
 import { BoardingPassScanner } from '@/components/boarding';
+import { importBoardingPassFromImage } from '@/services/boarding/boardingPassImageImport';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { SupportedCountry } from '@/constants/countries';
 import { CountryFlag } from '@/components/trips';
@@ -18,7 +19,8 @@ export default function SelectCountriesScreen() {
   const navigation = useNavigation<Nav>();
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
-  const [showScanner, setShowScanner] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [boardingPassData, setBoardingPassData] = useState<BoardingPassData[]>([]);
 
   const toggleCountry = useCallback((code: string) => {
@@ -42,8 +44,8 @@ export default function SelectCountriesScreen() {
     });
   }, [navigation, selectedCountries, boardingPassData]);
 
-  const handleScanSuccess = useCallback((result: ParsedBoardingPass) => {
-    setShowScanner(false);
+  const handleScanResult = useCallback((result: ParsedBoardingPass) => {
+    setShowCamera(false);
     const country = result.destinationCountry;
     if (!country) {
       Alert.alert('No Country Detected', 'Could not determine the destination country from this boarding pass.');
@@ -71,6 +73,36 @@ export default function SelectCountriesScreen() {
       prev.includes(country) ? prev : [...prev, country],
     );
   }, []);
+
+  // Import from photo — called at screen level (outside Modal)
+  const handleImportFromPhoto = useCallback(async () => {
+    setIsImporting(true);
+    try {
+      const result = await importBoardingPassFromImage();
+      if (result.success && result.boardingPass) {
+        handleScanResult(result.boardingPass);
+      } else {
+        Alert.alert('Import Failed', result.error || 'Could not read barcode from photo.');
+      }
+    } catch {
+      Alert.alert('Import Failed', 'Something went wrong. Please try again.');
+    } finally {
+      setIsImporting(false);
+    }
+  }, [handleScanResult]);
+
+  // Action sheet: Camera / Import from Photo / Cancel
+  const handleScanPress = useCallback(() => {
+    Alert.alert(
+      'Scan Boarding Pass',
+      'How would you like to scan?',
+      [
+        { text: 'Camera Scan', onPress: () => setShowCamera(true) },
+        { text: 'Import from Photo', onPress: handleImportFromPhoto },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    );
+  }, [handleImportFromPhoto]);
 
   const renderCountryRow = (item: SupportedCountry) => {
     const isSelected = selectedCountries.includes(item.code);
@@ -152,16 +184,17 @@ export default function SelectCountriesScreen() {
 
         {/* Boarding pass scan */}
         <TouchableOpacity
-          onPress={() => setShowScanner(true)}
+          onPress={handleScanPress}
           className="flex-row items-center justify-center px-4 py-2 border-t border-border-light"
           activeOpacity={0.7}
           testID={SELECT_COUNTRIES_IDS.scanBoardingPassButton.id}
           accessibilityRole="button"
           accessibilityLabel="Scan boarding pass to auto-detect country"
+          disabled={isImporting}
         >
           <ScanLine size={16} color="#6366f1" />
           <Text className="text-accent text-sm font-medium ml-2">
-            Scan boarding pass
+            {isImporting ? 'Importing...' : 'Scan boarding pass'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -198,17 +231,17 @@ export default function SelectCountriesScreen() {
         />
       </View>
 
-      {/* Boarding pass scanner modal */}
+      {/* Camera scanner modal — only for camera, not import */}
       <Modal
-        visible={showScanner}
+        visible={showCamera}
         animationType="slide"
         presentationStyle="fullScreen"
-        onRequestClose={() => setShowScanner(false)}
+        onRequestClose={() => setShowCamera(false)}
       >
         <BoardingPassScanner
-          onScanSuccess={handleScanSuccess}
-          onScanCancel={() => setShowScanner(false)}
-          onManualEntry={() => setShowScanner(false)}
+          onScanSuccess={handleScanResult}
+          onScanCancel={() => setShowCamera(false)}
+          onManualEntry={() => setShowCamera(false)}
         />
       </Modal>
     </ScreenContainer>

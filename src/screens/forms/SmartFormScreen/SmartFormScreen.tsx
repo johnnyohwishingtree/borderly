@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, Modal } from 'react-native';
+import { View, Text, ScrollView, Modal, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { Button, ScreenContainer, ProgressBar } from '@/components/ui';
 import { DynamicForm } from '@/components/forms';
 import { BoardingPassScanner } from '@/components/boarding';
+import { importBoardingPassFromImage } from '@/services/boarding/boardingPassImageImport';
 import { useSmartForm } from '@/hooks/useSmartForm';
 import { getCountryName } from '@/constants/countries';
 import { getAirportLabel } from '@/constants/airports';
@@ -34,9 +35,8 @@ export default function SmartFormScreen() {
     navigation.navigate('PortalLinks', { tripId, countryCodes });
   }, [navigation, tripId, countryCodes]);
 
-  const handleBoardingPassScan = useCallback((result: ParsedBoardingPass) => {
+  const handleScanResult = useCallback((result: ParsedBoardingPass) => {
     setShowScanner(false);
-    // Fill flight fields from scan result
     const updates: Record<string, unknown> = {};
     if (result.flightNumber) updates.flightNumber = result.flightNumber;
     if (result.airlineCode) updates.airlineCode = result.airlineCode;
@@ -48,6 +48,31 @@ export default function SmartFormScreen() {
     }
     handleFieldChange(updates);
   }, [handleFieldChange]);
+
+  const handleImportFromPhoto = useCallback(async () => {
+    try {
+      const result = await importBoardingPassFromImage();
+      if (result.success && result.boardingPass) {
+        handleScanResult(result.boardingPass);
+      } else {
+        Alert.alert('Import Failed', result.error || 'Could not read barcode from photo.');
+      }
+    } catch {
+      Alert.alert('Import Failed', 'Something went wrong. Please try again.');
+    }
+  }, [handleScanResult]);
+
+  const handleScanBoardingPass = useCallback(() => {
+    Alert.alert(
+      'Scan Boarding Pass',
+      'How would you like to scan?',
+      [
+        { text: 'Camera Scan', onPress: () => setShowScanner(true) },
+        { text: 'Import from Photo', onPress: handleImportFromPhoto },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    );
+  }, [handleImportFromPhoto]);
 
   return (
     <ScreenContainer className="bg-surface-secondary">
@@ -90,7 +115,7 @@ export default function SmartFormScreen() {
                   form={section.form}
                   onFormDataChange={handleFieldChange}
                   showOnlyCountrySpecific={false}
-                  onScanBoardingPass={() => setShowScanner(true)}
+                  onScanBoardingPass={handleScanBoardingPass}
                 />
               ) : (
                 <Text className="text-success font-medium">
@@ -122,7 +147,7 @@ export default function SmartFormScreen() {
         onRequestClose={() => setShowScanner(false)}
       >
         <BoardingPassScanner
-          onScanSuccess={handleBoardingPassScan}
+          onScanSuccess={handleScanResult}
           onScanCancel={() => setShowScanner(false)}
           onManualEntry={() => setShowScanner(false)}
         />

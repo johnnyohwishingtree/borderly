@@ -1,23 +1,18 @@
 /**
- * Boarding Pass Scanner Component
+ * Boarding Pass Scanner — Camera-only component.
  *
- * Shows an action sheet (Camera / Import from Photo / Cancel) first,
- * then opens the camera or photo picker.
- *
- * On simulator (no camera), Camera option is hidden automatically.
- * On import failure, shows error inline with Enter Manually option.
- *
- * Security: No image storage - immediate processing only.
+ * Renders the camera viewfinder for scanning boarding pass barcodes.
+ * The "Import from Photo" action is handled by the parent screen
+ * (outside Modal) to avoid navigation context issues.
  */
 
-import { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { Lightbulb, Flashlight, Check, AlertCircle } from 'lucide-react-native';
+import { Lightbulb, Flashlight, Check } from 'lucide-react-native';
 import Button from '../ui/Button';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { useBoardingPassScanner } from '../../hooks/useBoardingPassScanner';
@@ -25,92 +20,36 @@ import type { BoardingPassScannerProps } from './boardingPassScannerTypes';
 
 export type { BoardingPassScannerProps } from './boardingPassScannerTypes';
 
-type ScanMode = 'choose' | 'camera';
-
 export default function BoardingPassScanner({
   onScanSuccess,
   onScanCancel,
   onManualEntry,
   onScanError,
-  onImageImport,
   lowPowerMode = false,
 }: BoardingPassScannerProps) {
-  const [scanMode, setScanMode] = useState<ScanMode>('choose');
-  const [importError, setImportError] = useState<string | null>(null);
-
-  const { scanner, camera, import_, ui } = useBoardingPassScanner({
+  const { scanner, camera, ui } = useBoardingPassScanner({
     onScanSuccess,
     ...(onScanError != null && { onScanError }),
-    ...(onImageImport != null && { onImageImport }),
     lowPowerMode,
   });
 
-  // If user picks Camera but it's unavailable, bounce back to choose
-  useEffect(() => {
-    if (scanMode === 'camera' && (camera.status === 'unavailable' || camera.status === 'denied')) {
-      setScanMode('choose');
-    }
-  }, [scanMode, camera.status]);
-
-  // Wrap import to capture errors inline
-  const handleImport = async () => {
-    setImportError(null);
-    try {
-      await import_.handleImageImport();
-    } catch {
-      // Error is handled by the hook, but if we get here show generic
-    }
-    // Check if scanner result has an error after import
-    if (scanner.result?.type === 'error') {
-      setImportError(scanner.result.error || 'Failed to read barcode from photo');
-    }
-  };
-
-  // Camera not available — hide camera option
-  const cameraAvailable = camera.status !== 'unavailable' && camera.status !== 'denied';
-
-  // Action sheet — choose how to scan
-  if (scanMode === 'choose') {
+  // Camera unavailable — tell user to use Import from Photo (handled by parent)
+  if (camera.status === 'unavailable' || camera.status === 'denied') {
     return (
       <View className="flex-1 bg-black items-center justify-center px-6">
-        <Text className="text-white text-xl font-bold mb-2 text-center">
-          Scan Boarding Pass
+        <Text className="text-white text-xl font-bold mb-4 text-center">
+          {camera.status === 'denied' ? 'Camera Access Required' : 'Camera Not Available'}
         </Text>
         <Text className="text-muted text-center mb-8 leading-6">
-          Scan your boarding pass barcode to auto-fill flight details
+          Use "Import from Photo" instead, or enter flight details manually.
         </Text>
-
-        {/* Error from failed import */}
-        {importError && (
-          <View className="w-full mb-4 p-3 bg-red-900/40 rounded-xl flex-row items-center">
-            <AlertCircle size={18} color="#f87171" />
-            <Text className="text-red-300 text-sm ml-2 flex-1">{importError}</Text>
-          </View>
-        )}
-
-        <View className="w-full space-y-3">
-          {cameraAvailable && (
-            <Button
-              title="Camera Scan"
-              onPress={() => setScanMode('camera')}
-              variant="primary"
-              fullWidth
-            />
-          )}
-          <Button
-            title="Import from Photo"
-            onPress={handleImport}
-            variant={cameraAvailable ? 'secondary' : 'primary'}
-            fullWidth
-            disabled={import_.isImporting}
-            loading={import_.isImporting}
-          />
-          <Button
-            title="Enter Manually"
-            onPress={onManualEntry}
-            variant="secondary"
-            fullWidth
-          />
+        <Button
+          title="Enter Manually"
+          onPress={onManualEntry}
+          variant="primary"
+          fullWidth
+        />
+        <View className="mt-4 w-full">
           <Button
             title="Cancel"
             onPress={onScanCancel}
@@ -122,7 +61,7 @@ export default function BoardingPassScanner({
     );
   }
 
-  // Camera scanning mode
+  // Camera scanning
   return (
     <View className="flex-1 bg-black">
       <RNCamera
@@ -147,7 +86,6 @@ export default function BoardingPassScanner({
         ratio={lowPowerMode ? "4:3" : "16:9"}
         autoFocusPointOfInterest={{ x: 0.5, y: 0.5 }}
       >
-        {/* Scan overlay */}
         <View className="flex-1 relative">
           <View className="flex-1 bg-black/60 flex-col justify-end">
             <Text className="text-white text-center text-lg font-semibold mb-2">
@@ -158,7 +96,6 @@ export default function BoardingPassScanner({
             </Text>
           </View>
 
-          {/* Barcode target frame */}
           <View className="mx-8 my-4 relative">
             <View
               className={`border-2 ${
@@ -179,7 +116,6 @@ export default function BoardingPassScanner({
             </View>
           </View>
 
-          {/* Bottom controls */}
           <View className="flex-1 bg-black/60 flex-col justify-start">
             <View className="px-6 py-4">
               <Text className={`text-center text-sm font-medium ${ui.getGuidanceColor(scanner.result)}`}>
@@ -188,24 +124,21 @@ export default function BoardingPassScanner({
             </View>
             <View className="flex-row items-center justify-between px-6 pb-6">
               <Button title="Cancel" onPress={onScanCancel} variant="secondary" size="medium" />
-              <View className="flex-row gap-3">
-                <TouchableOpacity
-                  onPress={camera.toggleFlash}
-                  className={`w-12 h-12 rounded-full items-center justify-center ${
-                    camera.flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
-                  }`}
-                  accessibilityLabel={`Turn flash ${camera.flashMode === 'on' ? 'off' : 'on'}`}
-                >
-                  {camera.flashMode === 'on' ? <Lightbulb size={20} color="#ffffff" /> : <Flashlight size={20} color="#ffffff" />}
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={camera.toggleFlash}
+                className={`w-12 h-12 rounded-full items-center justify-center ${
+                  camera.flashMode === 'on' ? 'bg-yellow-500' : 'bg-gray-600'
+                }`}
+                accessibilityLabel={`Turn flash ${camera.flashMode === 'on' ? 'off' : 'on'}`}
+              >
+                {camera.flashMode === 'on' ? <Lightbulb size={20} color="#ffffff" /> : <Flashlight size={20} color="#ffffff" />}
+              </TouchableOpacity>
               <Button title="Manual" onPress={onManualEntry} variant="secondary" size="medium" />
             </View>
           </View>
         </View>
       </RNCamera>
 
-      {/* Loading overlay */}
       {camera.status === 'pending' && (
         <View className="absolute inset-0 bg-black items-center justify-center">
           <LoadingSpinner />
@@ -213,7 +146,6 @@ export default function BoardingPassScanner({
         </View>
       )}
 
-      {/* Success overlay */}
       {scanner.result?.type === 'success' && (
         <View className="absolute inset-0 bg-green-500/20 items-center justify-center">
           <View className="bg-green-500 rounded-full p-4 mb-4">

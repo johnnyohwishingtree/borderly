@@ -1,9 +1,9 @@
 /**
  * Tests for BoardingPassScanner Component
- * Tests the action sheet flow: Choose → Camera/Import/Cancel
+ * Now camera-only — action sheet is handled by parent screen.
  */
 
-import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import { render, waitFor, act } from '@testing-library/react-native';
 import BoardingPassScanner from '../../../src/components/boarding/BoardingPassScanner';
 
 let autoFireCameraReady = true;
@@ -28,12 +28,7 @@ jest.mock('../../../src/services/boarding/boardingPassParser', () => ({
   parseBoardingPass: jest.fn(),
 }));
 
-jest.mock('../../../src/services/boarding/boardingPassImageImport', () => ({
-  importBoardingPassFromImage: jest.fn(),
-  getImageImportErrorMessage: jest.fn(() => 'Import failed'),
-}));
-
-describe('BoardingPassScanner — action sheet', () => {
+describe('BoardingPassScanner — camera only', () => {
   const mockProps = {
     onScanSuccess: jest.fn(),
     onScanCancel: jest.fn(),
@@ -45,61 +40,41 @@ describe('BoardingPassScanner — action sheet', () => {
     autoFireCameraReady = true;
   });
 
-  it('shows action sheet with Camera, Import, Cancel on mount', () => {
+  it('shows camera scanning UI when camera is ready', async () => {
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
-    getByText('Camera Scan');
-    getByText('Import from Photo');
-    getByText('Cancel');
-  });
-
-  it('does NOT show camera immediately', () => {
-    const { queryByText } = render(<BoardingPassScanner {...mockProps} />);
-    expect(queryByText('Position boarding pass barcode in frame')).toBeNull();
-  });
-
-  it('Cancel calls onScanCancel', () => {
-    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
-    fireEvent.press(getByText('Cancel'));
-    expect(mockProps.onScanCancel).toHaveBeenCalled();
-  });
-
-  it('Camera Scan transitions to camera view', async () => {
-    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
-    fireEvent.press(getByText('Camera Scan'));
     await waitFor(() => {
       getByText('Position boarding pass barcode in frame');
     });
   });
 
-  it('camera view shows Cancel and Manual buttons', async () => {
+  it('shows Cancel and Manual buttons in camera view', async () => {
     const { getByText } = render(<BoardingPassScanner {...mockProps} />);
-    fireEvent.press(getByText('Camera Scan'));
     await waitFor(() => {
       getByText('Cancel');
       getByText('Manual');
     });
   });
 
-  it('bounces back to action sheet when camera is unavailable', async () => {
+  it('shows fallback when camera is unavailable', async () => {
     autoFireCameraReady = false;
     jest.useFakeTimers();
-    const { getByText, queryByText } = render(<BoardingPassScanner {...mockProps} />);
-
-    fireEvent.press(getByText('Camera Scan'));
+    const { getByText } = render(<BoardingPassScanner {...mockProps} />);
 
     act(() => { jest.advanceTimersByTime(10000); });
 
-    // Should bounce back to action sheet (no Camera option since it failed)
     await waitFor(() => {
-      getByText('Import from Photo');
+      getByText('Camera Not Available');
       getByText('Enter Manually');
     });
-    // Camera Scan should be hidden since camera is unavailable
-    expect(queryByText('Camera Scan')).toBeNull();
     jest.useRealTimers();
   });
 
-  it('cleans up on unmount without errors', () => {
+  it('does NOT contain import from photo (handled by parent screen)', () => {
+    const { queryByText } = render(<BoardingPassScanner {...mockProps} />);
+    expect(queryByText('Import from Photo')).toBeNull();
+  });
+
+  it('cleans up on unmount', () => {
     const { unmount } = render(<BoardingPassScanner {...mockProps} />);
     expect(() => unmount()).not.toThrow();
   });

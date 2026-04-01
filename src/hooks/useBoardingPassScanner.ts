@@ -2,21 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { parseBoardingPass } from '../services/boarding/boardingPassParser';
-import { importBoardingPassFromImage, getImageImportErrorMessage } from '../services/boarding/boardingPassImageImport';
 import type { ParsedBoardingPass, BCBPParseError } from '../types/boarding';
 import type { ScanResult, CameraStatus } from '../components/boarding/boardingPassScannerTypes';
 
 interface UseBoardingPassScannerOptions {
   onScanSuccess: (result: ParsedBoardingPass) => void;
   onScanError?: (error: Error) => void;
-  onImageImport?: () => void;
   lowPowerMode?: boolean;
 }
 
 export function useBoardingPassScanner({
   onScanSuccess,
   onScanError,
-  onImageImport,
   lowPowerMode = false,
 }: UseBoardingPassScannerOptions) {
   const cameraRef = useRef<RNCamera>(null);
@@ -25,7 +22,6 @@ export function useBoardingPassScanner({
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>('pending');
-  const [isImporting, setIsImporting] = useState(false);
   const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Scan cooldown to prevent excessive processing
@@ -179,82 +175,6 @@ export function useBoardingPassScanner({
     setCameraStatus('unavailable');
   };
 
-  const handleImageImport = async () => {
-    setIsImporting(true);
-
-    try {
-      // Trigger callback if provided (for analytics/tracking)
-      if (onImageImport) {
-        onImageImport();
-      }
-
-      const result = await importBoardingPassFromImage();
-
-      if (result.success && result.boardingPass) {
-        // Success! Use the same flow as camera scan success
-        setIsScanning(false);
-        setScanResult({
-          type: 'success',
-          confidence: 1.0,
-          guidance: 'Import complete!',
-          boardingPass: result.boardingPass,
-        });
-
-        // Haptic feedback for success
-        trigger(HapticFeedbackTypes.notificationSuccess, {
-          enableVibrateFallback: true,
-        });
-
-        // Small delay to show success state, then callback
-        setTimeout(() => {
-          setScanResult(null);
-          setIsImporting(false);
-          onScanSuccess(result.boardingPass!);
-        }, 500);
-      } else {
-        // Show error message
-        const errorMessage = result.error || getImageImportErrorMessage(result.errorCode);
-        setScanResult({
-          type: 'error',
-          confidence: 0,
-          guidance: errorMessage,
-          error: errorMessage,
-        });
-
-        // Clear error after 4 seconds and resume scanning
-        setTimeout(() => {
-          setScanResult({
-            type: 'no_barcode',
-            confidence: 0,
-            guidance: 'Scan the barcode on your boarding pass',
-          });
-          setIsImporting(false);
-        }, 4000);
-      }
-    } catch (error) {
-      const errorMessage = 'Failed to import image';
-      setScanResult({
-        type: 'error',
-        confidence: 0,
-        guidance: errorMessage,
-        error: errorMessage,
-      });
-
-      setTimeout(() => {
-        setScanResult({
-          type: 'no_barcode',
-          confidence: 0,
-          guidance: 'Scan the barcode on your boarding pass',
-        });
-        setIsImporting(false);
-      }, 4000);
-
-      if (onScanError) {
-        onScanError(error instanceof Error ? error : new Error(errorMessage));
-      }
-    }
-  };
-
   const toggleFlash = () => {
     setFlashMode(prev => prev === 'off' ? 'on' : 'off');
     trigger(HapticFeedbackTypes.impactLight);
@@ -296,10 +216,6 @@ export function useBoardingPassScanner({
       handleStatusChange,
       handleMountError,
       toggleFlash,
-    },
-    import_: {
-      isImporting,
-      handleImageImport,
     },
     ui: {
       lowPowerMode,
