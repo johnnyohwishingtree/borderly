@@ -161,12 +161,7 @@ export default function TroubleshootingScreen({ route: _route }: Troubleshooting
         {/* Additional Help */}
         <Card>
           <Text className="text-lg font-semibold text-primary mb-4">Still Having Issues?</Text>
-          <View className="space-y-3">
-            <Button title="View FAQ" onPress={() => {}} variant="secondary" fullWidth />
-            <Button title="User Guide" onPress={() => {}} variant="secondary" fullWidth />
-            <Button title="Send Feedback" onPress={() => {}} variant="secondary" fullWidth />
-            <Button title="Contact Support" onPress={handleContactSupport} variant="primary" fullWidth />
-          </View>
+          <Button title="Contact Support" onPress={handleContactSupport} variant="primary" fullWidth />
         </Card>
 
         {/* Diagnostic Info */}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { UserPlus, AlertTriangle, Check } from 'lucide-react-native';
+import { AlertTriangle, Check } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -110,20 +110,6 @@ export default function SelectTravelersScreen() {
             );
           })}
 
-          {/* Add traveler */}
-          <TouchableOpacity
-            onPress={() => {/* TODO: navigate to passport scan */}}
-            className="flex-row items-center justify-center p-4 border-2 border-dashed border-border-default rounded-xl"
-            activeOpacity={0.7}
-            testID={SELECT_TRAVELERS_IDS.addTravelerButton.id}
-            accessibilityRole="button"
-            accessibilityLabel="Add a new traveler"
-          >
-            <UserPlus size={20} color="#6366f1" />
-            <Text className="text-accent font-medium ml-2">
-              Add traveler
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
 

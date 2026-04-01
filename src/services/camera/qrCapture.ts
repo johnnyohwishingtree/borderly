@@ -1,4 +1,5 @@
-import { launchCamera, launchImageLibrary, ImagePickerResponse, MediaType } from 'react-native-image-picker';
+import { launchCamera, ImagePickerResponse, MediaType } from 'react-native-image-picker';
+import { selectImageFromLibrary } from '../imagePickerService';
 import { PermissionsAndroid, Platform } from 'react-native';
 
 export interface QRCaptureResult {
@@ -114,50 +115,17 @@ export class QRCaptureService {
    */
   static async importFromLibrary(): Promise<QRCaptureResult> {
     try {
-      return new Promise((resolve) => {
-        launchImageLibrary(
-          {
-            mediaType: 'photo' as MediaType,
-            includeBase64: true,
-            quality: 0.8,
-            maxWidth: 2000,
-            maxHeight: 2000,
-            selectionLimit: 1,
-          },
-          (response: ImagePickerResponse) => {
-            if (response.didCancel) {
-              resolve({
-                success: false,
-                error: 'User cancelled image selection',
-              });
-              return;
-            }
-
-            if (response.errorMessage) {
-              resolve({
-                success: false,
-                error: response.errorMessage,
-              });
-              return;
-            }
-
-            const asset = response.assets?.[0];
-            if (!asset) {
-              resolve({
-                success: false,
-                error: 'No image selected',
-              });
-              return;
-            }
-
-            resolve({
-              success: true,
-              imageUri: asset.uri || '',
-              base64: asset.base64 || '',
-            });
-          }
-        );
-      });
+      const result = await selectImageFromLibrary();
+      if (!result.success || !result.imageUri) {
+        return {
+          success: false,
+          error: result.error || 'No image selected',
+        };
+      }
+      return {
+        success: true,
+        imageUri: result.imageUri,
+      };
     } catch (error) {
       return {
         success: false,

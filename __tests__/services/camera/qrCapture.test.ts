@@ -15,13 +15,16 @@ jest.mock('react-native', () => ({
 
 jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(),
-  launchImageLibrary: jest.fn(),
 }));
 
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+const mockSelectImage = jest.fn();
+jest.mock('../../../src/services/imagePickerService', () => ({
+  selectImageFromLibrary: (...args: any[]) => mockSelectImage(...args),
+}));
+
+import { launchCamera } from 'react-native-image-picker';
 
 const mockLaunchCamera = launchCamera as jest.MockedFunction<typeof launchCamera>;
-const mockLaunchImageLibrary = launchImageLibrary as jest.MockedFunction<typeof launchImageLibrary>;
 
 describe('QRCaptureService', () => {
   beforeEach(() => {
@@ -182,29 +185,22 @@ describe('QRCaptureService', () => {
 
   describe('importFromLibrary', () => {
     it('should successfully import image from library', async () => {
-      const mockImageData = {
-        assets: [
-          {
-            uri: 'file:///path/to/imported.jpg',
-            base64: 'importedBase64Data',
-          },
-        ],
-      };
-
-      (mockLaunchImageLibrary.mockImplementation as any)((_options: any, callback: any) => {
-        callback(mockImageData as any);
+      mockSelectImage.mockResolvedValue({
+        success: true,
+        imageUri: 'file:///path/to/imported.jpg',
       });
 
       const result = await QRCaptureService.importFromLibrary();
 
       expect(result.success).toBe(true);
       expect(result.imageUri).toBe('file:///path/to/imported.jpg');
-      expect(result.base64).toBe('importedBase64Data');
     });
 
     it('should handle user cancellation', async () => {
-      (mockLaunchImageLibrary.mockImplementation as any)((_options: any, callback: any) => {
-        callback({ didCancel: true } as any);
+      mockSelectImage.mockResolvedValue({
+        success: false,
+        error: 'User cancelled image selection',
+        cancelled: true,
       });
 
       const result = await QRCaptureService.importFromLibrary();
@@ -214,8 +210,9 @@ describe('QRCaptureService', () => {
     });
 
     it('should handle import errors', async () => {
-      (mockLaunchImageLibrary.mockImplementation as any)((_options: any, callback: any) => {
-        callback({ errorMessage: 'Library not available' } as any);
+      mockSelectImage.mockResolvedValue({
+        success: false,
+        error: 'Library not available',
       });
 
       const result = await QRCaptureService.importFromLibrary();
