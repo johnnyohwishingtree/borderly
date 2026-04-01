@@ -113,16 +113,16 @@ function boardingPassSvg(p, qrBase64) {
 </svg>`;
 }
 
-function passportSvg(p, mrz) {
+function passportSvg(p, mrz, qrBase64) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420">
   <rect width="600" height="420" fill="#f5f0e6" stroke="#c9b99a" stroke-width="2"/>
   <!-- Header -->
   <text x="300" y="30" font-family="Helvetica" font-size="11" fill="#8b7355" text-anchor="middle" letter-spacing="3">UNITED STATES OF AMERICA</text>
   <text x="300" y="50" font-family="Helvetica" font-size="14" font-weight="bold" fill="#1a365d" text-anchor="middle" letter-spacing="2">PASSPORT</text>
-  <!-- Photo placeholder -->
-  <rect x="30" y="70" width="140" height="180" rx="4" fill="#d4c5a9" stroke="#b8a88a" stroke-width="1"/>
-  <text x="100" y="155" font-family="Helvetica" font-size="11" fill="#8b7355" text-anchor="middle">PHOTO</text>
-  <text x="100" y="175" font-family="Helvetica" font-size="9" fill="#a89878" text-anchor="middle">(sample)</text>
+  <!-- Photo placeholder with embedded QR -->
+  <rect x="30" y="70" width="140" height="180" rx="4" fill="white" stroke="#b8a88a" stroke-width="1"/>
+  <image x="35" y="75" width="130" height="130" href="data:image/png;base64,${qrBase64}"/>
+  <text x="100" y="225" font-family="Helvetica" font-size="8" fill="#a89878" text-anchor="middle">MRZ QR Code</text>
   <!-- Fields -->
   <text x="200" y="90" font-family="Helvetica" font-size="9" fill="#8b7355">Type / Type</text>
   <text x="200" y="106" font-family="Helvetica" font-size="13" font-weight="bold" fill="#1a365d">P</text>
@@ -174,7 +174,11 @@ async function main() {
     // ── Passport ──
     try {
       const mrz = generateMRZ(p);
-      const svgContent = passportSvg(p, mrz);
+      const mrzText = `${mrz.line1}\n${mrz.line2}`;
+      const mrzQr = await bwipjs.toBuffer({
+        bcid: 'qrcode', text: mrzText, scale: 4, backgroundcolor: 'FFFFFF', includetext: false,
+      });
+      const svgContent = passportSvg(p, mrz, mrzQr.toString('base64'));
       const svgPath = path.join(OUT_DIR, `_tmp_pp_${p.name}.svg`);
       const pngPath = path.join(OUT_DIR, `passport-${p.name}.png`);
       fs.writeFileSync(svgPath, svgContent);
