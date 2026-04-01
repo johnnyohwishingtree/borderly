@@ -24,7 +24,7 @@ import type { BoardingPassScannerProps } from './boardingPassScannerTypes';
 
 export type { BoardingPassScannerProps } from './boardingPassScannerTypes';
 
-type ScanMode = 'choose' | 'camera' | 'importing';
+type ScanMode = 'choose' | 'camera';
 
 export default function BoardingPassScanner({
   onScanSuccess,
@@ -63,12 +63,11 @@ export default function BoardingPassScanner({
           />
           <Button
             title="Import from Photo"
-            onPress={() => {
-              setScanMode('importing');
-              import_.handleImageImport();
-            }}
+            onPress={import_.handleImageImport}
             variant="secondary"
             fullWidth
+            disabled={import_.isImporting}
+            loading={import_.isImporting}
           />
           <Button
             title="Cancel"
@@ -102,12 +101,11 @@ export default function BoardingPassScanner({
         <View className="mt-4 w-full">
           <Button
             title="Import from Photo Instead"
-            onPress={() => {
-              setScanMode('importing');
-              import_.handleImageImport();
-            }}
+            onPress={import_.handleImageImport}
             variant="secondary"
             fullWidth
+            disabled={import_.isImporting}
+            loading={import_.isImporting}
           />
         </View>
         <View className="mt-4 w-full">
@@ -134,11 +132,10 @@ export default function BoardingPassScanner({
         </Text>
         <Button
           title="Import from Photo"
-          onPress={() => {
-            setScanMode('importing');
-            import_.handleImageImport();
-          }}
+          onPress={import_.handleImageImport}
           variant="primary"
+          disabled={import_.isImporting}
+          loading={import_.isImporting}
           fullWidth
         />
         <View className="mt-4 w-full">
