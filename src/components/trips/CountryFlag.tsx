@@ -53,7 +53,7 @@ export default function CountryFlag({
   return (
     <View className={`flex-row items-center ${className || ''}`} {...viewProps}>
       <View
-        style={{ width: flagSize.w, height: flagSize.h, borderRadius: 2, overflow: 'hidden', borderWidth: 0.5, borderColor: '#E5E7EB' }}
+        style={{ width: flagSize.w, height: flagSize.h, borderRadius: 2, overflow: 'hidden', borderWidth: 0.5, borderColor: '#E5E7EB', marginRight: 8 }}
         accessibilityLabel={`${country.fullName} flag`}
       >
         <SvgXml xml={svg} width={flagSize.w} height={flagSize.h} />
