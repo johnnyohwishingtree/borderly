@@ -205,6 +205,7 @@
           "label": "Last Departure City/Port",
           "type": "text",
           "required": true,
+          "autoFillSource": "leg.departureAirportCity",
           "countrySpecific": false,
           "helpText": "City where you boarded your flight to Singapore"
         },

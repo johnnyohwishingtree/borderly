@@ -296,6 +296,7 @@
           "label": "City of Destination",
           "type": "searchable_select",
           "required": true,
+          "autoFillSource": "leg.accommodation.address.city",
           "countrySpecific": true,
           "options": [
             { "value": "jakarta", "label": "Jakarta" },

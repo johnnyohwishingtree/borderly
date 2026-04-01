@@ -1,5 +1,6 @@
 import { TravelerProfile, Address } from '../../types/profile';
 import { TripLeg } from '../../types/trip';
+import { getAirportLabel } from '../../constants/airports';
 
 export interface FormContext {
   profile: TravelerProfile;
@@ -72,6 +73,10 @@ function resolveAutoFillPathUncached(
     return formatAddress(context.leg.accommodation.address);
   }
 
+  if (path === 'leg.departureAirportCity') {
+    return getDepartureCity(context.leg);
+  }
+
   // Handle dot-notation paths
   if (path === '') {
     return context;
@@ -93,6 +98,23 @@ function resolveAutoFillPathUncached(
   }
 
   return current;
+}
+
+/**
+ * Extracts the city name from the departure airport.
+ * Airport labels are "City Name (CODE)" — extract the city part.
+ */
+function getDepartureCity(leg: TripLeg): string | undefined {
+  const airportCode = leg.departureAirport;
+  if (!airportCode) return undefined;
+
+  const label = getAirportLabel(airportCode);
+  if (label === airportCode) return undefined; // Not in database
+
+  // Label format: "City Name (CODE)" or "City Airport Name (CODE)"
+  // Extract everything before the parenthetical code
+  const match = label.match(/^(.+?)\s*\(/);
+  return match ? match[1].trim() : undefined;
 }
 
 /**

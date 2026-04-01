@@ -519,6 +519,7 @@
           "label": "City/Province of Stay",
           "type": "searchable_select",
           "required": true,
+          "autoFillSource": "leg.accommodation.address.city",
           "countrySpecific": true,
           "options": [
             {

@@ -37,6 +37,7 @@ export interface TripLeg {
   flightNumber?: string;
   airlineCode?: string; // IATA 2-letter code
   arrivalAirport?: string; // IATA 3-letter code
+  departureAirport?: string; // IATA 3-letter code
   accommodation: Accommodation;
   formStatus: 'not_started' | 'in_progress' | 'ready' | 'submitted';
   submissionStatus: LegSubmissionStatus; // Tracks overall submission state; defaults to 'not_started'

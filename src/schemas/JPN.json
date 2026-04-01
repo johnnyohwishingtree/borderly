@@ -277,6 +277,7 @@
           "label": "City of Departure",
           "type": "text",
           "required": true,
+          "autoFillSource": "leg.departureAirportCity",
           "countrySpecific": false,
           "helpText": "The city where your first flight departs (even if connecting)"
         },

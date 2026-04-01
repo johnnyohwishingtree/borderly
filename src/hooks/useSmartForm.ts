@@ -66,6 +66,7 @@ export function useSmartForm({ countryCodes, travelerIds, boardingPassData }: Us
             ...(bpData?.flightNumber && { flightNumber: bpData.flightNumber }),
             ...(bpData?.airlineCode && { airlineCode: bpData.airlineCode }),
             ...(bpData?.arrivalAirport && { arrivalAirport: bpData.arrivalAirport }),
+            ...(bpData?.departureAirport && { departureAirport: bpData.departureAirport }),
             accommodation: { name: '', address: { line1: '', city: '', postalCode: '', country: '' } },
             formStatus: 'not_started',
             submissionStatus: 'not_started',
