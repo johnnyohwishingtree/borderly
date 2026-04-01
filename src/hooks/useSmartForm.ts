@@ -134,6 +134,28 @@ export function useSmartForm({ countryCodes, travelerIds, boardingPassData }: Us
     for (const [fieldId, value] of Object.entries(formData)) {
       formStore.updateField(fieldId, value);
     }
+
+    // Recalculate remaining fields so progress updates in real time
+    setCountrySections(prev =>
+      prev.map(section => {
+        const currentForm = section.form;
+        if (!currentForm) return section;
+
+        const allFields = currentForm.sections.flatMap(s => s.fields);
+        const unfilled = allFields.filter(f => {
+          // A field is filled if the user just provided a value for it
+          if (formData[f.id] !== undefined && formData[f.id] !== '' && formData[f.id] !== null) {
+            return false;
+          }
+          return f.needsUserInput;
+        });
+
+        return {
+          ...section,
+          remainingFields: unfilled.length,
+        };
+      }),
+    );
   }, [formStore]);
 
   const overallProgress = useMemo(() => {
