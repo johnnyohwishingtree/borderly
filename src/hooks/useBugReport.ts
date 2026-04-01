@@ -77,7 +77,7 @@ export function useBugReport() {
         lastActivity: new Date().toISOString(),
       },
       memory: {
-        // In a real app, you'd get actual memory usage
+        // Memory usage requires native module (not available)
         estimated: '< 100MB',
       },
       features: {

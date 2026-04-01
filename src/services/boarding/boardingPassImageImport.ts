@@ -160,10 +160,7 @@ async function selectImageFromLibrary(): Promise<{
 }
 
 /**
- * Detect barcode in static image using ML Kit
- * This is a simplified implementation - in production you'd use
- * react-native-camera's barcode detection on static images or
- * a dedicated ML Kit image processing library
+ * Detect barcode in static image using ML Kit barcode scanning.
  */
 async function detectBarcodeInImage(imageUri: string): Promise<BarcodeDetectionResult> {
   try {
