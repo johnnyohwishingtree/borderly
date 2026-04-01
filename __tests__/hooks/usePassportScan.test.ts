@@ -436,46 +436,6 @@ describe('usePassportScan — storage error on save', () => {
   });
 });
 
-// ── Demo scan ─────────────────────────────────────────────────────────────────
-
-describe('usePassportScan — handleDemoScan', () => {
-  it('populates form with adult demo profile data by default', () => {
-    const { result } = renderHook(() => usePassportScan());
-
-    act(() => {
-      result.current.scan.handleDemo();
-    });
-
-    expect(result.current.scan.mode).toBe('preview');
-    expect(result.current.profile.scanned).toEqual({
-      passportNumber: 'L12345678',
-      surname: 'SMITH',
-      givenNames: 'JOHN MICHAEL',
-      nationality: 'USA',
-      dateOfBirth: '1985-06-15',
-      gender: 'M',
-      passportExpiry: '2032-03-20',
-      issuingCountry: 'USA',
-    });
-  });
-
-  it('populates form with child demo profile when specified', () => {
-    const { result } = renderHook(() => usePassportScan());
-
-    act(() => {
-      result.current.scan.handleDemo('child');
-    });
-
-    expect(result.current.profile.scanned).toEqual(
-      expect.objectContaining({
-        passportNumber: 'N55512345',
-        surname: 'SMITH',
-        givenNames: 'EMMA',
-      }),
-    );
-  });
-});
-
 // ── Family mode ───────────────────────────────────────────────────────────────
 
 describe('usePassportScan — family mode', () => {

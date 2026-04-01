@@ -1,23 +1,19 @@
 /**
  * Tests for MRZScanner Component
+ * Tests the action sheet flow: Choose → Camera/Import/Cancel
  */
 
-import { render, act, waitFor, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import MRZScanner from '../../../src/components/passport/MRZScanner';
 
-// Control whether the mock camera fires onCameraReady automatically
 let autoFireCameraReady = true;
 
-// Mock react-native-camera with controllable onCameraReady
 jest.mock('react-native-camera', () => {
   const React = require('react');
   const RNCamera = ({ children, onCameraReady, ...props }: any) => {
     React.useEffect(() => {
-      if (autoFireCameraReady && onCameraReady) {
-        onCameraReady();
-      }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+      if (autoFireCameraReady && onCameraReady) onCameraReady();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
     return React.createElement('RNCamera', props, children);
   };
   RNCamera.Constants = {
@@ -27,120 +23,80 @@ jest.mock('react-native-camera', () => {
   return { RNCamera };
 });
 
-// Mock MRZ scanner service
 jest.mock('../../../src/services/passport/mrzScanner', () => ({
   MRZScanner: jest.fn().mockImplementation(() => ({
-    processFrame: jest.fn().mockReturnValue({
-      type: 'no_mrz',
-      confidence: 0,
-      guidance: 'Initializing scanner...'
-    }),
+    processFrame: jest.fn().mockReturnValue({ type: 'no_mrz', confidence: 0, guidance: 'Initializing...' }),
     reset: jest.fn(),
     dispose: jest.fn(),
     isDisposedState: jest.fn(() => false),
     getStats: jest.fn(() => ({ attempts: 0, lastScan: null })),
-    getPerformanceMetrics: jest.fn(() => ({
-      successRate: 0,
-      averageAttempts: 0,
-      avgProcessingTime: 0,
-      framesSkipped: 0,
-      deviceTier: 'medium',
-    }))
+    getPerformanceMetrics: jest.fn(() => ({ successRate: 0, averageAttempts: 0, avgProcessingTime: 0, framesSkipped: 0, deviceTier: 'medium' })),
   })),
   createOptimizedMRZScanner: jest.fn().mockImplementation(() => ({
-    processFrame: jest.fn().mockReturnValue({
-      type: 'no_mrz',
-      confidence: 0,
-      guidance: 'Initializing scanner...'
-    }),
+    processFrame: jest.fn().mockReturnValue({ type: 'no_mrz', confidence: 0, guidance: 'Initializing...' }),
     reset: jest.fn(),
     dispose: jest.fn(),
     isDisposedState: jest.fn(() => false),
     getStats: jest.fn(() => ({ attempts: 0, lastScan: null })),
-    getPerformanceMetrics: jest.fn(() => ({
-      successRate: 0,
-      averageAttempts: 0,
-      avgProcessingTime: 0,
-      framesSkipped: 0,
-      deviceTier: 'medium',
-    }))
-  }))
+    getPerformanceMetrics: jest.fn(() => ({ successRate: 0, averageAttempts: 0, avgProcessingTime: 0, framesSkipped: 0, deviceTier: 'medium' })),
+  })),
 }));
 
-describe('MRZScanner Component', () => {
+describe('MRZScanner — action sheet', () => {
   const mockProps = {
     onScanSuccess: jest.fn(),
     onScanCancel: jest.fn(),
-    onManualEntry: jest.fn()
+    onManualEntry: jest.fn(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
     autoFireCameraReady = true;
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('shows cancel and manual entry buttons when camera is ready', () => {
+  it('shows action sheet with Camera, Import, Cancel on mount', () => {
     const { getByText } = render(<MRZScanner {...mockProps} />);
+    getByText('Camera Scan');
+    getByText('Import from Photo');
     getByText('Cancel');
-    getByText('Manual');
   });
 
-  it('renders camera scanning UI when camera initializes immediately', () => {
-    const { getByText } = render(<MRZScanner {...mockProps} />);
-    // Camera mock fires onCameraReady immediately, so we see the scanning UI
-    getByText('Position passport MRZ in frame');
+  it('does NOT show camera immediately', () => {
+    const { queryByText } = render(<MRZScanner {...mockProps} />);
+    expect(queryByText('Position passport MRZ in frame')).toBeNull();
   });
 
-  it('shows loading overlay when camera has not initialized yet', () => {
-    autoFireCameraReady = false;
+  it('Cancel calls onScanCancel', () => {
     const { getByText } = render(<MRZScanner {...mockProps} />);
-    // Camera hasn't called onCameraReady, so loading overlay should show
-    getByText('Initializing camera...');
+    fireEvent.press(getByText('Cancel'));
+    expect(mockProps.onScanCancel).toHaveBeenCalled();
   });
 
-  it('shows error state after camera initialization timeout', async () => {
-    autoFireCameraReady = false;
+  it('Camera Scan transitions to camera view', async () => {
     const { getByText } = render(<MRZScanner {...mockProps} />);
-
-    // Initially shows loading
-    getByText('Initializing camera...');
-
-    // Advance past the 10-second timeout
-    act(() => {
-      jest.advanceTimersByTime(10000);
+    fireEvent.press(getByText('Camera Scan'));
+    await waitFor(() => {
+      getByText('Position passport MRZ in frame');
     });
+  });
 
-    // Should show camera unavailable screen (timeout = hardware issue, not permission)
+  it('shows unavailable screen when camera fails after selecting Camera Scan', async () => {
+    autoFireCameraReady = false;
+    jest.useFakeTimers();
+    const { getByText } = render(<MRZScanner {...mockProps} />);
+
+    fireEvent.press(getByText('Camera Scan'));
+
+    act(() => { jest.advanceTimersByTime(10000); });
+
     await waitFor(() => {
       getByText('Camera Not Available');
     });
-
-    // Manual entry button should be available
-    getByText('Enter Manually Instead');
+    getByText('Enter Manually');
+    jest.useRealTimers();
   });
 
-  it('calls onManualEntry when manual entry button is pressed after timeout', async () => {
-    autoFireCameraReady = false;
-    const { getByText } = render(<MRZScanner {...mockProps} />);
-
-    act(() => {
-      jest.advanceTimersByTime(10000);
-    });
-
-    await waitFor(() => {
-      getByText('Enter Manually Instead');
-    });
-
-    fireEvent.press(getByText('Enter Manually Instead'));
-    expect(mockProps.onManualEntry).toHaveBeenCalledWith();
-  });
-
-  it('cleans up on unmount', () => {
+  it('cleans up on unmount without errors', () => {
     const { unmount } = render(<MRZScanner {...mockProps} />);
     expect(() => unmount()).not.toThrow();
   });

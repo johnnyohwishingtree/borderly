@@ -17,4 +17,4 @@ export type ScanResult = {
   error?: string;
 };
 
-export type CameraStatus = 'pending' | 'ready' | 'denied' | 'unavailable' | 'demo';
+export type CameraStatus = 'pending' | 'ready' | 'denied' | 'unavailable';

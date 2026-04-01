@@ -8,7 +8,7 @@ export interface MRZScannerProps {
   lowPowerMode?: boolean; // Enable aggressive power saving
 }
 
-export type MRZCameraStatus = 'pending' | 'ready' | 'denied' | 'unavailable' | 'demo';
+export type MRZCameraStatus = 'pending' | 'ready' | 'denied' | 'unavailable';
 
 export interface MRZPerformanceMetrics {
   successRate: number;

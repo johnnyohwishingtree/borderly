@@ -130,18 +130,6 @@ describe('useMRZScanner', () => {
     });
   });
 
-  describe('demo scan', () => {
-    it('enters demo mode on startDemoScan', () => {
-      const { result } = renderScanner();
-
-      act(() => {
-        result.current.scanning.startDemoScan();
-      });
-
-      expect(result.current.state.cameraStatus).toBe('demo');
-    });
-  });
-
   describe('getGuidanceColor', () => {
     it('returns a string for various result types', () => {
       const { result } = renderScanner();

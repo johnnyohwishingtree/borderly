@@ -26,57 +26,6 @@ const passportSchema = z.object({
 
 type PassportFormData = z.infer<typeof passportSchema>;
 
-// Demo scan profiles for E2E testing (Maestro/development)
-type DemoPersona = 'adult' | 'spouse' | 'child';
-
-const DEMO_PROFILES: Record<DemoPersona, MRZParseResult> = {
-  adult: {
-    success: true,
-    errors: [],
-    confidence: 1.0,
-    profile: {
-      passportNumber: 'L12345678',
-      surname: 'SMITH',
-      givenNames: 'JOHN MICHAEL',
-      nationality: 'USA',
-      dateOfBirth: '1985-06-15',
-      gender: 'M',
-      passportExpiry: '2032-03-20',
-      issuingCountry: 'USA',
-    },
-  },
-  spouse: {
-    success: true,
-    errors: [],
-    confidence: 1.0,
-    profile: {
-      passportNumber: 'M98765432',
-      surname: 'SMITH',
-      givenNames: 'JANE MARIE',
-      nationality: 'USA',
-      dateOfBirth: '1987-09-22',
-      gender: 'F',
-      passportExpiry: '2031-11-15',
-      issuingCountry: 'USA',
-    },
-  },
-  child: {
-    success: true,
-    errors: [],
-    confidence: 1.0,
-    profile: {
-      passportNumber: 'N55512345',
-      surname: 'SMITH',
-      givenNames: 'EMMA',
-      nationality: 'USA',
-      dateOfBirth: '2015-03-10',
-      gender: 'F',
-      passportExpiry: '2030-03-10',
-      issuingCountry: 'USA',
-    },
-  },
-};
-
 /**
  * Encapsulates passport scanning and profile creation logic:
  * - Mode management (method selection, scanning, preview, manual)
@@ -325,11 +274,6 @@ export function usePassportScan() {
     setMode('manual');
   }, []);
 
-  const handleDemoScan = useCallback((persona: DemoPersona = 'adult') => {
-    const demoResult = DEMO_PROFILES[persona] ?? DEMO_PROFILES.adult;
-    handleScanSuccess(demoResult);
-  }, [handleScanSuccess]);
-
   const handleScanCancel = useCallback(() => { setScanError(null); setMode('method'); }, []);
   const handleManualEntry = useCallback(() => setMode('manual'), []);
   const handleStartScanning = useCallback(() => setMode('scanning'), []);
@@ -345,7 +289,6 @@ export function usePassportScan() {
       handleCancel: handleScanCancel,
       handleStart: handleStartScanning,
       handleManualEntry,
-      handleDemo: handleDemoScan,
       retry: retryScan,
       fallbackToManual,
     },

@@ -26,7 +26,6 @@ export function useBoardingPassScanner({
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [cameraStatus, setCameraStatus] = useState<CameraStatus>('pending');
   const [isImporting, setIsImporting] = useState(false);
-  const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cameraTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Scan cooldown to prevent excessive processing
@@ -46,10 +45,6 @@ export function useBoardingPassScanner({
       if (cameraTimeoutRef.current) {
         clearTimeout(cameraTimeoutRef.current);
         cameraTimeoutRef.current = null;
-      }
-      if (demoTimerRef.current) {
-        clearTimeout(demoTimerRef.current);
-        demoTimerRef.current = null;
       }
       setIsScanning(false);
 
@@ -179,76 +174,9 @@ export function useBoardingPassScanner({
       clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = null;
     }
-    // Show in-component fallback (Demo Scan / Import / Manual Entry) instead of
+    // Show in-component fallback (Import / Manual Entry) instead of
     // escalating to parent — camera init failure is not a scan error.
     setCameraStatus('unavailable');
-  };
-
-  // Sample BCBP for demo mode
-  const DEMO_BCBP = 'M1DESMARAIS/LUC       EABC123 YULNRTAC 0834 226F001A0025 106>60000';
-
-  const startDemoScan = () => {
-    setCameraStatus('demo');
-    setIsScanning(true);
-
-    // Step 1: No barcode detected (1s)
-    setScanResult({
-      type: 'no_barcode',
-      confidence: 0,
-      guidance: 'Searching for boarding pass barcode...',
-    });
-
-    // Step 2: Partial detection (2s)
-    demoTimerRef.current = setTimeout(() => {
-      setScanResult({
-        type: 'partial',
-        confidence: 0.4,
-        guidance: 'Barcode detected — hold steady...',
-      });
-
-      // Step 3: Reading data (3s)
-      demoTimerRef.current = setTimeout(() => {
-        setScanResult({
-          type: 'partial',
-          confidence: 0.7,
-          guidance: 'Reading boarding pass data...',
-        });
-
-        // Step 4: Parse and succeed (4s)
-        demoTimerRef.current = setTimeout(() => {
-          const result = parseBoardingPass(DEMO_BCBP);
-
-          if ('code' in result) {
-            // Demo should not fail, but handle gracefully
-            setScanResult({
-              type: 'error',
-              confidence: 0,
-              guidance: 'Demo parsing failed',
-              error: 'Demo error',
-            });
-            return;
-          }
-
-          setScanResult({
-            type: 'success',
-            confidence: 1.0,
-            guidance: 'Scan complete!',
-            boardingPass: result,
-          });
-          setIsScanning(false);
-
-          trigger(HapticFeedbackTypes.notificationSuccess, {
-            enableVibrateFallback: true,
-          });
-
-          // Deliver result after showing success overlay
-          demoTimerRef.current = setTimeout(() => {
-            setScanResult(null);
-            onScanSuccess(result);
-          }, 800);
-        }, 1000);
-      }, 1000);
-    }, 1500);
   };
 
   const handleImageImport = async () => {
@@ -359,7 +287,6 @@ export function useBoardingPassScanner({
       isScanning,
       result: scanResult,
       handleBarcodeRead,
-      startDemo: startDemoScan,
     },
     camera: {
       ref: cameraRef,

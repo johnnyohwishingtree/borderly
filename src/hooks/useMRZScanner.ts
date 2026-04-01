@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { RNCamera } from 'react-native-camera';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { createOptimizedMRZScanner, type ScanResult, type TextRecognition } from '../services/passport/mrzScanner';
-import { parseMRZ } from '../services/passport/mrzScanner/mrzParser';
 import type { MRZParseResult } from '../services/passport/mrzScanner/mrzParser';
 import type { MRZCameraStatus, MRZPerformanceMetrics } from '../components/passport/mrzScannerTypes';
 
@@ -26,7 +25,6 @@ export function useMRZScanner({
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [flashMode, setFlashMode] = useState<'off' | 'on'>('off');
   const [cameraStatus, setCameraStatus] = useState<MRZCameraStatus>('pending');
-  const demoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [performanceMetrics, setPerformanceMetrics] = useState<MRZPerformanceMetrics | null>(null);
 
   // Performance monitoring for optimization feedback
@@ -61,10 +59,6 @@ export function useMRZScanner({
       if (cameraTimeoutRef.current) {
         clearTimeout(cameraTimeoutRef.current);
         cameraTimeoutRef.current = null;
-      }
-      if (demoTimerRef.current) {
-        clearTimeout(demoTimerRef.current);
-        demoTimerRef.current = null;
       }
       setIsScanning(false);
 
@@ -162,66 +156,9 @@ export function useMRZScanner({
       clearTimeout(cameraTimeoutRef.current);
       cameraTimeoutRef.current = null;
     }
-    // Show in-component fallback (Demo Scan / Manual Entry) instead of
+    // Show in-component fallback (Manual Entry) instead of
     // escalating to parent — camera init failure is not a scan error.
     setCameraStatus('unavailable');
-  };
-
-  // Sample MRZ for demo mode (valid US passport, expiry 2032)
-  const DEMO_MRZ_LINE1 = 'P<USADOE<<JANE<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<';
-  const DEMO_MRZ_LINE2 = 'L898902C36USA9001151F3201159ZE184226B<<<<<10';
-
-  const startDemoScan = () => {
-    setCameraStatus('demo');
-    setIsScanning(true);
-    scannerRef.current.reset();
-
-    // Step 1: No MRZ detected (1s)
-    setScanResult({
-      type: 'no_mrz',
-      confidence: 0,
-      guidance: 'Searching for passport MRZ...',
-    });
-
-    // Step 2: Partial detection (2s)
-    demoTimerRef.current = setTimeout(() => {
-      setScanResult({
-        type: 'partial',
-        confidence: 0.4,
-        guidance: 'MRZ detected — hold steady...',
-      });
-
-      // Step 3: Higher confidence (3s)
-      demoTimerRef.current = setTimeout(() => {
-        setScanResult({
-          type: 'partial',
-          confidence: 0.7,
-          guidance: 'Reading passport data...',
-        });
-
-        // Step 4: Parse and succeed (4s)
-        demoTimerRef.current = setTimeout(() => {
-          const result = parseMRZ(DEMO_MRZ_LINE1, DEMO_MRZ_LINE2);
-          setScanResult({
-            type: 'success',
-            mrz: result,
-            confidence: result.confidence,
-            guidance: 'Scan complete!',
-          });
-          setIsScanning(false);
-
-          trigger(HapticFeedbackTypes.notificationSuccess, {
-            enableVibrateFallback: true,
-          });
-
-          // Deliver result after showing success overlay
-          demoTimerRef.current = setTimeout(() => {
-            setScanResult(null);
-            onScanSuccess(result);
-          }, 800);
-        }, 1000);
-      }, 1000);
-    }, 1500);
   };
 
   const toggleFlash = () => {
@@ -269,7 +206,6 @@ export function useMRZScanner({
     },
     scanning: {
       handleTextRecognition,
-      startDemoScan,
     },
     ui: {
       getGuidanceColor,

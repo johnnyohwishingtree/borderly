@@ -167,34 +167,6 @@ export default function PassportScanScreen() {
               />
             </View>
 
-            {__DEV__ && (
-              <View className="items-center py-2 mt-2 border-t border-border-default">
-                <Text className="text-xs text-muted mb-2">Development Only</Text>
-                <View className="flex-row gap-2">
-                  <Button
-                    title="Demo: Adult"
-                    onPress={() => scan.handleDemo('adult')}
-                    variant="secondary"
-                    size="small"
-                    testID={PASSPORT_SCAN_IDS.demoScanAdultButton.id}
-                  />
-                  <Button
-                    title="Demo: Spouse"
-                    onPress={() => scan.handleDemo('spouse')}
-                    variant="secondary"
-                    size="small"
-                    testID={PASSPORT_SCAN_IDS.demoScanSpouseButton.id}
-                  />
-                  <Button
-                    title="Demo: Child"
-                    onPress={() => scan.handleDemo('child')}
-                    variant="secondary"
-                    size="small"
-                    testID={PASSPORT_SCAN_IDS.demoScanChildButton.id}
-                  />
-                </View>
-              </View>
-            )}
           </>
         )}
 

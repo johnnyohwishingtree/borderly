@@ -122,18 +122,6 @@ describe('useBoardingPassScanner', () => {
     });
   });
 
-  describe('demo scan', () => {
-    it('starts demo and progresses through stages', () => {
-      const { result } = renderScanner();
-
-      act(() => {
-        result.current.scanner.startDemo();
-      });
-
-      expect(result.current.camera.status).toBe('demo');
-    });
-  });
-
   describe('getGuidanceColor', () => {
     it('returns a string for scan results', () => {
       const { result } = renderScanner();
