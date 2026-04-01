@@ -23,7 +23,7 @@
     "pages:build": "npx webpack --config webpack.config.js --mode production --env pages",
     "vercel:build": "npx webpack --config webpack.config.js --mode production --env vercel",
     "portal:validate": "npx playwright test --config e2e/portal-validation/playwright.config.ts",
-    "sim:photos": "find e2e/fixtures/photos \\( -name '*.png' -o -name '*.jpg' \\) -print0 | xargs -0 xcrun simctl addmedia booted; echo 'Photos added to simulator'",
+    "sim:photos": "xcrun simctl spawn booted launchctl kickstart -k system/com.apple.mobileslideshow.CameraRollMigration 2>/dev/null; rm -rf \"$(xcrun simctl get_app_container booted com.apple.mobileslideshow data 2>/dev/null)/Media/DCIM\" 2>/dev/null; find e2e/fixtures/photos \\( -name '*.png' -o -name '*.jpg' \\) -print0 | xargs -0 xcrun simctl addmedia booted; echo 'Photos replaced on simulator'",
     "generate:test-photos": "node scripts/generate-test-photos.js"
   },
   "dependencies": {
