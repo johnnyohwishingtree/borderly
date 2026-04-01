@@ -37,8 +37,6 @@ const ALLOWED_FILES = new Set([
   'components/wallet/QRFullScreen.tsx',
   // Loading state uses ASCII ✓ checkmark which renders fine
   'components/ui/LoadingStates.tsx',
-  // Canada flag maple leaf — intentional emoji, renders on all iOS versions
-  'components/trips/CountryFlag.tsx',
 ]);
 
 function getAllTsxFiles(dir: string): string[] {

@@ -18,6 +18,7 @@ configure({
 // Define global __DEV__ variable
 global.__DEV__ = false;
 
+
 // Mock performance API for tests
 global.performance = global.performance || {
   now: jest.fn(() => Date.now()),
@@ -577,6 +578,8 @@ jest.mock('react-native-svg', () => {
     LinearGradient: mockSvgComponent('LinearGradient'),
     RadialGradient: mockSvgComponent('RadialGradient'),
     Stop: mockSvgComponent('Stop'),
+    SvgXml: mockSvgComponent('SvgXml'),
+    SvgUri: mockSvgComponent('SvgUri'),
   };
 });
 

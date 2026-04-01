@@ -23,3 +23,5 @@ export const Ellipse = createSvgComponent('Ellipse');
 export const LinearGradient = createSvgComponent('LinearGradient');
 export const RadialGradient = createSvgComponent('RadialGradient');
 export const Stop = createSvgComponent('Stop');
+export const SvgXml = createSvgComponent('SvgXml');
+export const SvgUri = createSvgComponent('SvgUri');
