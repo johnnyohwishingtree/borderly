@@ -10,10 +10,19 @@ export type MainTabParamList = {
   Settings: undefined;
 };
 
+export type BoardingPassData = {
+  countryCode: string;
+  flightNumber?: string | undefined;
+  airlineCode?: string | undefined;
+  arrivalAirport?: string | undefined;
+  departureAirport?: string | undefined;
+  flightDate?: string | undefined;
+};
+
 export type FormsStackParamList = {
   SelectCountries: undefined;
-  SelectTravelers: { countryCodes: string[] };
-  SmartForm: { countryCodes: string[]; travelerIds: string[] };
+  SelectTravelers: { countryCodes: string[]; boardingPassData?: BoardingPassData[] | undefined };
+  SmartForm: { countryCodes: string[]; travelerIds: string[]; boardingPassData?: BoardingPassData[] | undefined };
   PortalLinks: { tripId: string; countryCodes: string[] };
   PortalSubmission: {
     url: string;

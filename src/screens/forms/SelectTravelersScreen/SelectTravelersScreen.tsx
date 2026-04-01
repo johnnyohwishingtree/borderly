@@ -15,7 +15,7 @@ type Route = RouteProp<FormsStackParamList, 'SelectTravelers'>;
 export default function SelectTravelersScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { countryCodes } = route.params;
+  const { countryCodes, boardingPassData } = route.params;
 
   const {
     profiles,
@@ -31,16 +31,18 @@ export default function SelectTravelersScreen() {
       navigation.replace('SmartForm', {
         countryCodes,
         travelerIds: selectedIds,
+        boardingPassData,
       });
     }
-  }, [isSoloTraveler, navigation, countryCodes, selectedIds]);
+  }, [isSoloTraveler, navigation, countryCodes, selectedIds, boardingPassData]);
 
   const handleNext = useCallback(() => {
     navigation.navigate('SmartForm', {
       countryCodes,
       travelerIds: selectedIds,
+      boardingPassData,
     });
-  }, [navigation, countryCodes, selectedIds]);
+  }, [navigation, countryCodes, selectedIds, boardingPassData]);
 
   // Don't render UI if solo — the useEffect will navigate away
   if (isSoloTraveler) return null;

@@ -8,7 +8,7 @@ import { BoardingPassScanner } from '@/components/boarding';
 import { SUPPORTED_COUNTRIES } from '@/constants/countries';
 import type { SupportedCountry } from '@/constants/countries';
 import { CountryFlag } from '@/components/trips';
-import type { FormsStackParamList } from '@/app/navigation/types';
+import type { FormsStackParamList, BoardingPassData } from '@/app/navigation/types';
 import type { ParsedBoardingPass } from '@/types/boarding';
 import { SELECT_COUNTRIES_IDS } from './testIDs';
 
@@ -19,6 +19,7 @@ export default function SelectCountriesScreen() {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [showScanner, setShowScanner] = useState(false);
+  const [boardingPassData, setBoardingPassData] = useState<BoardingPassData[]>([]);
 
   const toggleCountry = useCallback((code: string) => {
     setSelectedCountries(prev =>
@@ -35,8 +36,11 @@ export default function SelectCountriesScreen() {
   }, [searchText]);
 
   const handleNext = useCallback(() => {
-    navigation.navigate('SelectTravelers', { countryCodes: selectedCountries });
-  }, [navigation, selectedCountries]);
+    navigation.navigate('SelectTravelers', {
+      countryCodes: selectedCountries,
+      boardingPassData: boardingPassData.length > 0 ? boardingPassData : undefined,
+    });
+  }, [navigation, selectedCountries, boardingPassData]);
 
   const handleScanSuccess = useCallback((result: ParsedBoardingPass) => {
     setShowScanner(false);
@@ -50,6 +54,19 @@ export default function SelectCountriesScreen() {
       Alert.alert('Country Not Supported', `${country} is not yet supported.`);
       return;
     }
+    // Store boarding pass flight data to pre-fill form fields later
+    setBoardingPassData(prev => {
+      const existing = prev.find(d => d.countryCode === country);
+      const entry: BoardingPassData = {
+        countryCode: country,
+        flightNumber: result.flightNumber || undefined,
+        airlineCode: result.airlineCode || undefined,
+        arrivalAirport: result.arrivalAirport || undefined,
+        departureAirport: result.departureAirport || undefined,
+        flightDate: result.flightDate || undefined,
+      };
+      return existing ? prev.map(d => d.countryCode === country ? entry : d) : [...prev, entry];
+    });
     setSelectedCountries(prev =>
       prev.includes(country) ? prev : [...prev, country],
     );

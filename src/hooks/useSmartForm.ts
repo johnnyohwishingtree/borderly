@@ -4,6 +4,7 @@ import { useTripStore } from '@/stores/useTripStore';
 import { useProfileStore } from '@/stores/useProfileStore';
 import { schemaRegistry, initializeSchemaRegistry } from '@/services/schemas';
 import type { FilledForm } from '@/services/forms/formEngine/formEngine';
+import type { BoardingPassData } from '@/app/navigation/types';
 
 interface CountrySection {
   countryCode: string;
@@ -16,9 +17,10 @@ interface CountrySection {
 interface UseSmartFormOptions {
   countryCodes: string[];
   travelerIds: string[];
+  boardingPassData?: BoardingPassData[] | undefined;
 }
 
-export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions) {
+export function useSmartForm({ countryCodes, travelerIds, boardingPassData }: UseSmartFormOptions) {
   const tripStore = useTripStore();
   const profileStore = useProfileStore();
   const formStore = useFormStore();
@@ -53,13 +55,17 @@ export function useSmartForm({ countryCodes, travelerIds }: UseSmartFormOptions)
         }
         setTripId(trip.id);
 
-        // Add legs for each country
+        // Add legs for each country, enriching with boarding pass data if available
         const today = new Date().toISOString().split('T')[0];
         for (let i = 0; i < countryCodes.length; i++) {
+          const bpData = boardingPassData?.find(d => d.countryCode === countryCodes[i]);
           await tripStore.addTripLeg(trip.id, {
             destinationCountry: countryCodes[i],
-            arrivalDate: today,
+            arrivalDate: bpData?.flightDate || today,
             departureDate: today,
+            ...(bpData?.flightNumber && { flightNumber: bpData.flightNumber }),
+            ...(bpData?.airlineCode && { airlineCode: bpData.airlineCode }),
+            ...(bpData?.arrivalAirport && { arrivalAirport: bpData.arrivalAirport }),
             accommodation: { name: '', address: { line1: '', city: '', postalCode: '', country: '' } },
             formStatus: 'not_started',
             submissionStatus: 'not_started',

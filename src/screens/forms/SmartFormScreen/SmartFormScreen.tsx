@@ -16,7 +16,7 @@ type Route = RouteProp<FormsStackParamList, 'SmartForm'>;
 export default function SmartFormScreen() {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { countryCodes, travelerIds } = route.params;
+  const { countryCodes, travelerIds, boardingPassData } = route.params;
 
   const {
     countrySections,
@@ -24,7 +24,7 @@ export default function SmartFormScreen() {
     overallProgress,
     isAllComplete,
     tripId,
-  } = useSmartForm({ countryCodes, travelerIds });
+  } = useSmartForm({ countryCodes, travelerIds, boardingPassData });
 
   const handleDone = useCallback(() => {
     navigation.navigate('PortalLinks', { tripId, countryCodes });
