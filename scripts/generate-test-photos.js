@@ -54,11 +54,12 @@ async function main() {
   for (const profile of family) {
     try {
       // Generate the barcode
-      // Generate QR code (CIDetector on iOS supports QR natively, PDF417 needs Vision/GPU)
+      // Generate QR code with white background (CIDetector needs opaque background)
       const barcodePng = await bwipjs.toBuffer({
         bcid: 'qrcode',
         text: profile.bcbp,
         scale: 6,
+        backgroundcolor: 'FFFFFF',
         includetext: false,
       });
 
