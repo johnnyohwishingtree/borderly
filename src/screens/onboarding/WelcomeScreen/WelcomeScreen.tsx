@@ -50,7 +50,7 @@ export default function WelcomeScreen() {
         {/* Hero section */}
         <View className="items-center mb-6" accessibilityRole="header">
           <View
-            className="w-24 h-24 bg-primary-600 rounded-3xl items-center justify-center mb-6 shadow-lg"
+            className="w-24 h-24 bg-blue-600 dark:bg-blue-500 rounded-3xl items-center justify-center mb-6 shadow-lg"
             accessibilityLabel="Borderly app icon"
             accessibilityRole="image"
           >
@@ -60,7 +60,7 @@ export default function WelcomeScreen() {
           <Text className="text-3xl font-bold text-primary text-center mb-1" accessibilityRole="header">
             Welcome to
           </Text>
-          <Text className="text-3xl font-bold text-primary-600 text-center mb-3" accessibilityRole="header">
+          <Text className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-3" accessibilityRole="header">
             Borderly
           </Text>
           <Text className="text-lg text-secondary text-center max-w-sm">
@@ -70,7 +70,7 @@ export default function WelcomeScreen() {
 
         {/* Features section */}
         <Card variant="elevated" className="mb-4 p-0 overflow-hidden">
-          <View className="bg-primary-600 p-6">
+          <View className="bg-blue-600 dark:bg-blue-500 p-6">
             <View className="flex-row items-center mb-2">
               <Plane size={20} color="white" style={{ marginRight: 8 }} />
               <Text className="text-xl font-bold text-white">
@@ -181,7 +181,7 @@ export default function WelcomeScreen() {
         <UploadCloud size={16} color="#6b7280" />
         <Text className="text-sm text-tertiary ml-2">
           Already have a backup?{' '}
-          <Text className="text-primary-600 font-medium">Restore</Text>
+          <Text className="text-blue-600 dark:text-blue-400 font-medium">Restore</Text>
         </Text>
       </Pressable>
     </View>
